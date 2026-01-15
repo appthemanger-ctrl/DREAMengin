@@ -18,14 +18,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Find ZIP file
+      - name: Find ZIP file (anywhere, up to 3 folders deep)
         id: findzip
         shell: bash
         run: |
           set -e
           ZIP="$(find . -maxdepth 3 -type f -name "*.zip" | head -n 1 || true)"
           if [ -z "$ZIP" ]; then
-            echo "No .zip found (looked up to 3 folders deep)."
+            echo "No .zip found."
             exit 1
           fi
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
@@ -38,24 +38,24 @@ jobs:
           rm -rf __unzipped
           mkdir -p __unzipped
           unzip -q "${{ steps.findzip.outputs.zip }}" -d __unzipped
+          echo "Top of __unzipped:"
+          ls -la __unzipped | head -n 50
 
-      - name: Determine extracted root folder
+      - name: Locate project root (folder containing package.json)
         id: root
         shell: bash
         run: |
           set -e
-          ROOT="__unzipped"
-
-          # If there is exactly 1 directory and 0 files at the top level, use that folder as root.
-          TOPDIRS="$(find __unzipped -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
-          TOPFILES="$(find __unzipped -mindepth 1 -maxdepth 1 -type f | wc -l | tr -d ' ')"
-
-          if [ "$TOPDIRS" = "1" ] && [ "$TOPFILES" = "0" ]; then
-            ROOT="$(find __unzipped -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+          ROOT="$(find __unzipped -maxdepth 6 -type f -name package.json -print | head -n 1 || true)"
+          if [ -z "$ROOT" ]; then
+            echo "Could not find package.json inside the zip."
+            echo "Listing some files for debugging:"
+            find __unzipped -maxdepth 4 -type f | head -n 200
+            exit 1
           fi
-
-          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
-          echo "Using extracted root: $ROOT"
+          ROOT_DIR="$(dirname "$ROOT")"
+          echo "root=$ROOT_DIR" >> "$GITHUB_OUTPUT"
+          echo "Using project root: $ROOT_DIR"
 
       - name: Replace repo contents with extracted project
         shell: bash
@@ -68,17 +68,17 @@ jobs:
             ! -name ".github" \
             -exec rm -rf {} +
 
-          # Copy extracted files into repo root (including dotfiles)
+          # Copy extracted project into repo root (including dotfiles)
           shopt -s dotglob
           cp -R "${{ steps.root.outputs.root }}"/* .
 
-          # Remove zips (we don't want zips living in repo after extraction)
+          # Remove zips (we don't want zips in the repo afterwards)
           find . -maxdepth 3 -type f -name "*.zip" -delete
 
           # Cleanup temp
           rm -rf __unzipped
 
-      - name: Commit and push
+      - name: Commit and push extracted files
         shell: bash
         run: |
           set -e
