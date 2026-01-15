@@ -1,0 +1,94 @@
+name: Unzip uploaded ZIP into repo
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find ZIP file
+        id: findzip
+        shell: bash
+        run: |
+          set -e
+          ZIP="$(find . -maxdepth 3 -type f -name "*.zip" | head -n 1 || true)"
+          if [ -z "$ZIP" ]; then
+            echo "No .zip found (looked up to 3 folders deep)."
+            exit 1
+          fi
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "Found zip: $ZIP"
+
+      - name: Unzip into temp folder
+        shell: bash
+        run: |
+          set -e
+          rm -rf __unzipped
+          mkdir -p __unzipped
+          unzip -q "${{ steps.findzip.outputs.zip }}" -d __unzipped
+
+      - name: Determine extracted root folder
+        id: root
+        shell: bash
+        run: |
+          set -e
+          ROOT="__unzipped"
+
+          # If there is exactly 1 directory and 0 files at the top level, use that folder as root.
+          TOPDIRS="$(find __unzipped -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+          TOPFILES="$(find __unzipped -mindepth 1 -maxdepth 1 -type f | wc -l | tr -d ' ')"
+
+          if [ "$TOPDIRS" = "1" ] && [ "$TOPFILES" = "0" ]; then
+            ROOT="$(find __unzipped -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+          fi
+
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+          echo "Using extracted root: $ROOT"
+
+      - name: Replace repo contents with extracted project
+        shell: bash
+        run: |
+          set -e
+
+          # Remove everything except .git and .github
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name ".git" \
+            ! -name ".github" \
+            -exec rm -rf {} +
+
+          # Copy extracted files into repo root (including dotfiles)
+          shopt -s dotglob
+          cp -R "${{ steps.root.outputs.root }}"/* .
+
+          # Remove zips (we don't want zips living in repo after extraction)
+          find . -maxdepth 3 -type f -name "*.zip" -delete
+
+          # Cleanup temp
+          rm -rf __unzipped
+
+      - name: Commit and push
+        shell: bash
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git status --porcelain | grep .; then
+            git add -A
+            git commit -m "Extract project ZIP into repo"
+            git push
+          else
+            echo "No changes to commit."
+          fi
