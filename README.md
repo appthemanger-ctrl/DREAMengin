@@ -29,3 +29,19 @@ Live Demo: [Add link once deployed, e.g., https://newdreams.vercel.app]
    ```bash
    git clone https://github.com/appthemanger-ctrl/Newdreams.git
    cd Newdreams
+dreamengin/
+├─ functions/
+│  ├─ api/
+│  │  └─ innerdreams.js      ← server-side AI + GitHub PR engine
+│  └─ health.js              ← health check (Cloudflare needs this)
+├─ public/
+│  ├─ index.html             ← LEGAL WORK PROCESS UI (landing + login)
+│  ├─ user.html              ← personalised user homepage
+│  ├─ admin.html             ← password-gate to admin panel
+│  ├─ innerdreams-admin.html ← actual admin panel (AI commands)
+│  ├─ dreamengin.png         ← branding asset (drop your PNG here)
+│  └─ css/
+│     └─ main.css            ← shared glassmorphism theme
+└─ .github/
+   └─ workflows/
+      └─ innerdreams-autopilot.yml  ← daily AI PR scheduler
