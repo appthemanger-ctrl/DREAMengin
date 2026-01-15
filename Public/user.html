@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DREAMENGIN – User Home</title>
+  <style>
+    body{font-family:system-ui;background:#0b0b10;color:#eaeaf2;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:radial-gradient(ellipse at top,#1e1e3f,#0b0b10)}
+    .glass{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2.5rem;width:90%;max-width:400px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+    .logo{font-size:2rem;font-weight:900;background:linear-gradient(90deg,#00f2ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1rem}
+    .btn{width:100%;background:linear-gradient(90deg,#00f2ff,#a855f7);border:none;color:#000;font-weight:700;padding:.75rem;border-radius:8px;cursor:pointer;margin-top:1rem;transition:transform .2s ease}
+    .btn:hover{transform:scale(1.05)}
+  </style>
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" />
+</head>
+<body>
+  <div class="glass">
+    <div class="logo">Welcome, <span id="userName">Guest</span>!</div>
+    <p style="opacity:.85">Your private legal-work dashboard – only you can see this.</p>
+    <button class="btn" onclick="window.location.href='index.html'">Back to Main</button>
+    <button class="btn" onclick="localStorage.clear();window.location.href='index.html'">Logout</button>
+  </div>
+  <script>
+    const params=new URLSearchParams(window.location.search);
+    const name=params.get('name')||localStorage.getItem('dreamengin_user')||'Guest';
+    document.getElementById('userName').textContent=name;
+  </script>
+</body>
+</html>
