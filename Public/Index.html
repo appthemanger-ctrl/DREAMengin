@@ -25,12 +25,11 @@
     .toggle button.active{background:var(--accent);color:#000;border-color:var(--accent)}
     pre{background:rgba(0,0,0,.2);padding:1rem;border-radius:8px;margin-top:1rem;font-size:.8rem;white-space:pre-wrap;max-height:200px;overflow:auto}
   </style>
-  <link rel="icon" href="dreamengin.png" />
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" />
 </head>
 <body>
   <!-- ==========  LANDING / LOGIN / CREATE  ========== -->
   <div id="landing" class="glass">
-    <img src="dreamengin.png" alt="DREAMENGIN" style="width:70px;margin:0 auto 1rem;display:block;" />
     <div class="logo">DREAMENGIN</div>
     <p style="text-align:center;opacity:.85;margin-bottom:1.5rem">AI-assisted legal drafting, compliance checks, and auto-PR updates.</p>
 
@@ -67,12 +66,11 @@
     <button id="adminBtn" class="hidden" onclick="openAdmin()">Open Admin Panel</button>
   </div>
 
-  <!-- ==========  ADMIN PANEL (inside same card)  ========== -->
+  <!-- ==========  ADMIN PANEL (same page)  ========== -->
   <div id="adminBox" class="glass hidden">
-    <img src="dreamengin.png" alt="DREAMENGIN" style="width:70px;margin:0 auto 1rem;display:block;" />
     <div class="logo">Admin Panel</div>
     <label>Command
-      <textarea id="cmd" placeholder="e.g. edit: make header background #111">edit: make header background #111</textarea>
+      <textarea id="cmd" placeholder="e.g. edit: make background darker">edit: make background darker</textarea>
     </label>
     <div style="display:flex;gap:.5rem">
       <button class="btn" onclick="runCmd()">Run Now</button>
@@ -84,8 +82,7 @@
     <pre id="out">Ready.</pre>
   </div>
 
-  <!-- ==========  SERVER FUNCTION INSIDE SAME FILE  ========== -->
-  <script type="application/javascript" src="/api/innerdreams"></script>
+  <footer>© 2025 DREAMENGIN – AI legal workflow automation</footer>
 
   <script>
     const ADMIN_PASSWORD = "innerdreams"; // server-side gate password
@@ -120,7 +117,7 @@
       const pass=document.getElementById('newPass').value.trim();
       if(!user||!pass){alert('Fill both fields');return}
       localStorage.setItem('dreamengin_user', user);
-      window.location.href=`user.html?name=${encodeURIComponent(user)}`;
+      window.location.href=`?page=user&name=${encodeURIComponent(user)}`;
     }
 
     // ---------- ADMIN PANEL ----------
@@ -166,7 +163,6 @@
     if(params.get('page')==='user'){
       const name=params.get('name')||localStorage.getItem('dreamengin_user')||'Guest';
       document.getElementById('landing').innerHTML=`
-        <img src="dreamengin.png" style="width:70px;margin:0 auto 1rem;display:block;" />
         <div class="logo">Welcome, ${name}!</div>
         <p style="text-align:center;opacity:.85">Your private homepage – only you can see this.</p>
         <button class="btn" onclick="window.location.href='index.html'">Back to Main</button>
@@ -182,12 +178,5 @@
       }
     }
   </script>
-
-  <!-- ==========  CLOUDFLARE FUNCTION EMBED  ========== -->
-  <!--
-  // Cloudflare Pages Function: /api/innerdreams
-  // Paste the FULL innerdreams.js code here (the big server file I gave you earlier)
-  // Cloudflare will auto-detect it and create the live API endpoint
-  -->
 </body>
 </html>
