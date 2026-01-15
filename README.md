@@ -1,9 +1,9 @@
-# Newdreams ✨
+# DREAMENGIN ✨
 
-**Newdreams** is an AI-powered dream engine that [turns your dream descriptions into stories / interprets dreams / generates visuals / updates dynamic web content automatically / etc. – replace with what it actually does].  
+**DREAMENGIN** is an AI-powered dream engine that [turns your dream descriptions into stories / interprets dreams / generates visuals / updates dynamic web content automatically / etc. – replace with what it actually does].  
 Built for creative minds, writers, dream journalers, or anyone exploring the subconscious through AI.
 
-Live Demo: [Add link once deployed, e.g., https://newdreams.vercel.app]  
+Live Demo: [Add link once deployed, e.g., https://dreamengin.vercel.app]  
 (Currently in development – deploying soon!)
 
 ## Features
