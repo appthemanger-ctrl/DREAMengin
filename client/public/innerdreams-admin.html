@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Innerdreams Admin</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#0b0b12; color:#eaeaf2; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 24px; }
+    .card { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius: 16px; padding: 18px; }
+    h1 { margin: 0 0 10px; font-size: 20px; }
+    p { margin: 8px 0; opacity: .9; }
+    label { display:block; margin-top: 12px; font-size: 13px; opacity: .9; }
+    input, textarea, button {
+      width: 100%;
+      box-sizing: border-box;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    .row { display:flex; gap: 12px; }
+    .row > * { flex: 1; }
+    button { cursor:pointer; font-weight: 600; margin-top: 14px; }
+    pre { white-space: pre-wrap; word-break: break-word; padding: 12px; background: rgba(0,0,0,0.35); border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); margin-top: 12px; }
+    .hint { font-size: 12px; opacity: .75; }
+    .pill { display:inline-block; padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Innerdreams – Admin Console</h1>
+      <p class="hint">
+        This page is accessible from anywhere (any computer). The actual repo-changing power lives server-side (a Pages Function),
+        because secrets (GitHub token / OpenAI key) cannot be safely kept in the browser.
+      </p>
+
+      <div class="row">
+        <div>
+          <label>Password</label>
+          <input id="pw" type="password" placeholder="(set in Cloudflare env var INNERDREAMS_PASSWORD)" />
+          <div class="hint">Your password is checked on the server, not stored in this HTML.</div>
+        </div>
+        <div>
+          <label>Quick commands</label>
+          <div class="row">
+            <button onclick="sendCmd('pause')">pause</button>
+            <button onclick="sendCmd('resume')">resume</button>
+          </div>
+          <button onclick="sendCmd('status')">status</button>
+        </div>
+      </div>
+
+      <label>Ask a question (ends with “?”)</label>
+      <input id="q" placeholder="Why is my build skipping? How do I add a navbar?" />
+      <button onclick="ask()">Ask</button>
+
+      <label>Tell Innerdreams what to do (creates a PR)</label>
+      <textarea id="inst" placeholder="e.g. add a glassy navbar to the landing page, keep it minimal and mobile friendly"></textarea>
+
+      <label>Optional files to edit (comma-separated)</label>
+      <input id="files" placeholder="Archive/client/src/pages/Landing.tsx, Archive/client/src/App.tsx" />
+      <div class="hint">Leave blank and Innerdreams will pick likely files.</div>
+
+      <button onclick="edit()">Create PR</button>
+
+      <label>Autopilot (safe mode)</label>
+      <div class="hint">Creates a PR with an improvement report (rate-limited to 1/day). Useful when you want it to “think” proactively.</div>
+      <button onclick="sendCmd('autopilot')">Run autopilot now</button>
+
+      <pre id="out">Ready.</pre>
+      <p class="hint"><span class="pill">Endpoint</span> <code>/api/innerdreams</code></p>
+    </div>
+  </div>
+
+<script>
+const out = document.getElementById('out');
+
+function log(x){
+  out.textContent = typeof x === 'string' ? x : JSON.stringify(x, null, 2);
+}
+
+async function post(payload){
+  const res = await fetch('/api/innerdreams', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if(!res.ok) throw new Error((data && data.error) || ('HTTP ' + res.status));
+  return data;
+}
+
+function pw(){ return document.getElementById('pw').value.trim(); }
+
+async function sendCmd(action){
+  try{
+    log('Working…');
+    const data = await post({ password: pw(), action });
+    log(data);
+  }catch(e){
+    log('Error: ' + e.message);
+  }
+}
+
+async function ask(){
+  const q = document.getElementById('q').value.trim();
+  if(!q) return log('Type a question.');
+  try{
+    log('Working…');
+    const data = await post({ password: pw(), action: 'ask', question: q.endsWith('?') ? q : (q + '?') });
+    log(data);
+  }catch(e){
+    log('Error: ' + e.message);
+  }
+}
+
+async function edit(){
+  const instruction = document.getElementById('inst').value.trim();
+  if(!instruction) return log('Type an instruction.');
+  const filesRaw = document.getElementById('files').value.trim();
+  const files = filesRaw ? filesRaw.split(',').map(s=>s.trim()).filter(Boolean) : undefined;
+
+  try{
+    log('Working…');
+    const data = await post({ password: pw(), action: 'edit', instruction, files });
+    log(data);
+  }catch(e){
+    log('Error: ' + e.message);
+  }
+}
+</script>
+</body>
+</html>
