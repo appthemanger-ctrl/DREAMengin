@@ -1,0 +1,50 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\title{DREAMengin Deployment (Vercel Full-Stack)}
+\date{}
+\begin{document}
+\maketitle
+
+\section*{Repo Layout}
+\begin{itemize}[leftmargin=*]
+\item Main app at repo root (deploy this on Vercel)
+\item MVP snapshot in \texttt{./mvp} (optional reference)
+\end{itemize}
+
+\section*{Vercel Settings (Main app)}
+\begin{itemize}[leftmargin=*]
+\item Framework: Vite (or Other)
+\item Build Command: \texttt{npm run build}
+\item Output Directory: \texttt{dist/public}
+\item Install Command: \texttt{npm install}
+\item Node.js: 20.x
+\end{itemize}
+
+\section*{API on Vercel}
+All API routes are handled by \texttt{api/index.ts} and are available under \texttt{/api/*}.
+No server \texttt{listen()} is used in the Vercel runtime.
+
+\section*{Environment Variables}
+Set in Vercel Project Settings \(\rightarrow\) Environment Variables:
+\begin{itemize}[leftmargin=*]
+\item \texttt{DATABASE\_URL} (if DB features are used)
+\item \texttt{SESSION\_SECRET} (recommended)
+\item Any required vars referenced by \texttt{requireEnv(...)} in \texttt{server/innerdreams.ts}
+\end{itemize}
+
+\section*{Innerdreams}
+Admin endpoint: \texttt{/api/innerdreams}.\\
+Admin UI page: \texttt{/innerdreams-admin.html}.
+
+\section*{Local Dev}
+\begin{verbatim}
+npm install
+npm run dev
+\end{verbatim}
+
+\section*{Deploying the MVP Instead}
+In Vercel set Root Directory to \texttt{mvp} and use the same build/output settings.
+
+\end{document}
