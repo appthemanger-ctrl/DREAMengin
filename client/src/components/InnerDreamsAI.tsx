@@ -68,7 +68,7 @@ export function InnerDreamsAI({
         body: JSON.stringify({
           action: 'edit',
           instruction: userPrompt,
-          password: innerDreamsPassword // This would be managed securely in fullstack
+          password: 'demo-password' // This would be managed securely in fullstack
         })
       });
 

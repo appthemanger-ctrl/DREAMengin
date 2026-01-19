@@ -1,20 +1,17 @@
-# DreamEngin deploy (Vercel)
+# Deploy
 
-## What you get
-- Public landing at `/`
-- Authenticated dashboard at `/app`
-- API under `/api/*` (serverless on Vercel)
 
-## Required env vars (Vercel → Project → Settings → Environment Variables)
-- `DREAMENGIN_MASTER_KEY` (or `INNERDREAMS_PASSWORD`) — unlocks the dashboard.
-- `INNERDREAMS_PASSWORD` — required for `/api/innerdreams` calls (can be same as master key).
-- Optional: `AUTH_SECRET` — if set, used to sign auth cookies (recommended).
+## InnerDreams automation (free)
 
-## Vercel settings
-- Build Command: `npm run build`
-- Output Directory: `dist/public`
+### Option A: Vercel Cron Jobs (recommended)
+1. In Vercel project env vars, add `CRON_SECRET` (random 16+ chars).
+2. Add `INNERDREAMS_PASSWORD` (same or different).
+3. Deploy. Vercel will call `GET /api/innerdreams/cron` every 15 minutes.
 
-## Test
-- Public: visit `/`
-- Login: click the key icon on the landing page, enter the master key, then go to `/app`
-- Health: `/api/health`
+Vercel automatically sends `Authorization: Bearer $CRON_SECRET` when invoking cron paths.
+
+### Option B: GitHub Actions scheduler (fallback)
+1. Add repo secrets:
+   - `INNERDREAMS_URL` = `https://<your-domain>/api/innerdreams`
+   - `INNERDREAMS_PASSWORD`
+2. The workflow runs every 30 minutes.

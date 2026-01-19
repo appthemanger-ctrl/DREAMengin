@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import { Switch, Route, Redirect } from "wouter";
+import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -12,8 +11,18 @@ import { useAuth } from "@/hooks/use-auth";
 import { useColorCycle } from "@/lib/useColorCycle";
 import { Loader2 } from "lucide-react";
 
-function PrivateRoute({ path, component: Component }: { path: string; component: any }) {
-  const { isAuthenticated, isLoading } = useAuth();
+function AuthenticatedRoutes() {
+  return (
+    <Switch>
+      <Route path="/" component={Home} />
+      <Route path="/discover" component={Discover} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+function Router() {
+  const { user, isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
     return (
@@ -27,31 +36,20 @@ function PrivateRoute({ path, component: Component }: { path: string; component:
   }
 
   if (!isAuthenticated) {
-    return <Redirect to="/" />;
+    return (
+      <Switch>
+        <Route path="/discover" component={Discover} />
+        <Route component={Landing} />
+      </Switch>
+    );
   }
 
-  return <Route path={path} component={Component} />;
+  return <AuthenticatedRoutes />;
 }
 
-function ColorCycleProvider({ children }: { children: ReactNode }) {
+function ColorCycleProvider({ children }: { children: React.ReactNode }) {
   useColorCycle();
   return <>{children}</>;
-}
-
-function Router() {
-  return (
-    <Switch>
-      {/* Public */}
-      <Route path="/" component={Landing} />
-      <Route path="/discover" component={Discover} />
-
-      {/* Private */}
-      <PrivateRoute path="/app" component={Home} />
-
-      {/* Fallback */}
-      <Route component={NotFound} />
-    </Switch>
-  );
 }
 
 function App() {

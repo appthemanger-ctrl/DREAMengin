@@ -1,68 +1,21 @@
-import { useCallback, useEffect, useState } from "react";
-
-export type AuthUser = {
-  id: string;
-  username: string;
-  role: "admin" | "user";
-};
-
-type AuthState = {
-  user: AuthUser | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-};
+// Mock auth hook to bypass backend
+import { useState, useEffect } from "react";
 
 export function useAuth() {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
-    isLoading: true,
-  });
-
-  const refresh = useCallback(async () => {
-    setState((s) => ({ ...s, isLoading: true }));
-    try {
-      const res = await fetch("/api/auth/me", { credentials: "include" });
-      if (!res.ok) {
-        setState({ user: null, isAuthenticated: false, isLoading: false });
-        return;
-      }
-      const data = await res.json();
-      setState({ user: data.user, isAuthenticated: true, isLoading: false });
-    } catch {
-      setState({ user: null, isAuthenticated: false, isLoading: false });
-    }
-  }, []);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const loginWithKey = useCallback(async (key: string) => {
-    const res = await fetch("/api/auth/admin-key", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ key }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data?.error || "Login failed");
-    }
-    await refresh();
-  }, [refresh]);
-
-  const logout = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-    setState({ user: null, isAuthenticated: false, isLoading: false });
-  }, []);
+  // Always return a mock user
+  const user = {
+    id: 1,
+    username: "dreamer",
+    displayName: "DreamEngin Pilot",
+    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+    role: "admin"
+  };
 
   return {
-    user: state.user,
-    isAuthenticated: state.isAuthenticated,
-    isLoading: state.isLoading,
-    loginWithKey,
-    logout,
+    user,
+    isLoading: false,
+    isAuthenticated: true,
+    logout: () => console.log("Logout mocked"),
     isLoggingOut: false,
   };
 }

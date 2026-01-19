@@ -75,7 +75,7 @@ export default function Landing() {
         body: JSON.stringify({ key: adminKey }),
       });
       if (res.ok) {
-        window.location.href = "/app";
+        window.location.href = "/";
       } else {
         const data = await res.json();
         toast({ title: "Access Denied", description: data.error || "Invalid key", variant: "destructive" });
@@ -152,7 +152,7 @@ export default function Landing() {
             >
               <Key size={18} />
             </button>
-            <a href="/app" data-testid="button-login">
+            <a href="/api/login" data-testid="button-login">
               <Button className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border-0 shadow-lg shadow-cyan-500/25">
                 Launch Control Room
                 <ArrowRight size={16} className="ml-2" />
@@ -197,7 +197,7 @@ export default function Landing() {
             </motion.p>
             
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <a href="/app" data-testid="button-get-started">
+              <a href="/api/login" data-testid="button-get-started">
                 <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border-0 shadow-xl shadow-cyan-500/30 text-base px-8">
                   Get Started Free
                   <ArrowRight size={18} className="ml-2" />
@@ -325,7 +325,7 @@ export default function Landing() {
               <p className="text-lg text-slate-400 mb-8 max-w-xl mx-auto">
                 Join thousands of creators managing their digital empires with Dreamengin.
               </p>
-              <a href="/app" data-testid="button-launch-cta">
+              <a href="/api/login" data-testid="button-launch-cta">
                 <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border-0 shadow-xl shadow-cyan-500/30 text-base px-10">
                   Launch Your Control Room
                   <ArrowRight size={18} className="ml-2" />

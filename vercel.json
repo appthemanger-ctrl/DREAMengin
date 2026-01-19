@@ -5,11 +5,17 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index"
+      "destination": "/api/$1"
     },
     {
       "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/innerdreams/cron",
+      "schedule": "*/15 * * * *"
     }
   ]
 }
