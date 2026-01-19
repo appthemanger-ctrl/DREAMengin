@@ -1,17 +1,36 @@
-# Deploy
+# DreamEngin — Vercel Deploy (Full-stack MVP)
 
+## What works in this build
+- `/` public homepage (DreamEngin landing)
+- `/login` username+password auth (cookie session)
+- `/app` private Dream Home (auth-required)
+- `/@username` public Dream Pages (basic profile)
+- API under `/api/*` (Vercel serverless)
 
-## InnerDreams automation (free)
+## Vercel settings (do this)
+- **Node.js Version:** `20.x`
+- **Framework Preset:** Vite (fine)
+- **Build Command:** `npm run build`
+- **Output Directory:** `dist`
+- **Root Directory:** *(leave blank)*
 
-### Option A: Vercel Cron Jobs (recommended)
-1. In Vercel project env vars, add `CRON_SECRET` (random 16+ chars).
-2. Add `INNERDREAMS_PASSWORD` (same or different).
-3. Deploy. Vercel will call `GET /api/innerdreams/cron` every 15 minutes.
+### Clear cache
+When you hit **Redeploy**, uncheck “Use existing Build Cache” (that’s the cache toggle).
 
-Vercel automatically sends `Authorization: Bearer $CRON_SECRET` when invoking cron paths.
+## Required env vars
+Set these in Vercel → Project → Settings → Environment Variables:
+- `SESSION_SECRET` = a long random string
+- `ADMIN_KEY` = your owner/admin master key (used by “Open Admin Panel”)
 
-### Option B: GitHub Actions scheduler (fallback)
-1. Add repo secrets:
-   - `INNERDREAMS_URL` = `https://<your-domain>/api/innerdreams`
-   - `INNERDREAMS_PASSWORD`
-2. The workflow runs every 30 minutes.
+> Without `ADMIN_KEY`, admin login is disabled.
+
+## Notes on users & persistence
+This MVP uses **in-memory storage** for user accounts (fast + deploys free).
+For real persistence, wire `DATABASE_URL` to Postgres (Neon/Supabase/etc.) and swap `MemStorage` for a DB storage.
+
+## Local dev
+```bash
+npm i
+npm run dev
+# open http://localhost:5000
+```

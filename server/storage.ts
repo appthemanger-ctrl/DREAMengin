@@ -1,50 +1,45 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { randomUUID, scryptSync, timingSafeEqual } from "crypto";
+import type { InsertUser, User } from "@shared/schema";
 
 export interface IStorage {
-  getMeta(key: string): Promise<string | undefined>;
-  setMeta(key: string, value: string): Promise<void>;
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
 }
 
-export class MemStorage implements IStorage {
-  private meta = new Map<string, string>();
-  private users: Map<string, User>;
+export function hashPassword(password: string): string {
+  const salt = randomUUID().replace(/-/g, "");
+  const key = scryptSync(password, salt, 64);
+  return `scrypt$${salt}$${key.toString("hex")}`;
+}
 
-  constructor() {
-    this.users = new Map();
-  }
+export function verifyPassword(password: string, stored: string): boolean {
+  const parts = stored.split("$");
+  if (parts.length !== 3 || parts[0] !== "scrypt") return false;
+  const salt = parts[1];
+  const expected = Buffer.from(parts[2], "hex");
+  const actual = scryptSync(password, salt, expected.length);
+  return timingSafeEqual(actual, expected);
+}
+
+export class MemStorage implements IStorage {
+  private users = new Map<string, User>();
 
   async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const u = Array.from(this.users.values()).find((x) => x.username === username);
+    return u;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const user: User = { id, username: insertUser.username, password: insertUser.password };
     this.users.set(id, user);
     return user;
   }
-
-
-async getMeta(key: string): Promise<string | undefined> {
-  return this.meta.get(key);
-}
-
-async setMeta(key: string, value: string): Promise<void> {
-  this.meta.set(key, value);
-}
 }
 
 export const storage = new MemStorage();

@@ -1,68 +1,76 @@
-import type { Express } from "express";
-import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import type { Express, Request, Response } from "express";
+import { insertUserSchema } from "@shared/schema";
+import { storage, hashPassword, verifyPassword } from "./storage";
 
-/**
- * Registers all API routes under the /api prefix.
- *
- * Vercel Cron Jobs:
- * - Configure `CRON_SECRET` env var.
- * - Vercel will send: `Authorization: Bearer $CRON_SECRET` when calling the cron path.
- */
-export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
-  // Health
+type SessionUser = { id: string; username: string };
+
+function getSessionUser(req: Request): SessionUser | null {
+  const u = (req.session as any)?.user as SessionUser | undefined;
+  return u ?? null;
+}
+
+function setSessionUser(req: Request, user: SessionUser | null) {
+  (req.session as any).user = user ?? null;
+}
+
+export function registerRoutes(app: Express) {
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-  // InnerDreams (minimal MVP endpoint)
-  // - `POST /api/innerdreams` runs a cycle (admin-triggered)
-  // - `GET  /api/innerdreams` returns status
-  // - `GET  /api/innerdreams/cron` runs a cycle (Vercel Cron)
-  const innerdreamsPassword = process.env.INNERDREAMS_PASSWORD ?? "";
-  const cronSecret = process.env.CRON_SECRET ?? "";
-
-  const isAuthorized = (req: any, secret: string) => {
-    const auth = req.header("authorization") ?? "";
-    const bearer = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7) : "";
-    const q = typeof req.query?.password === "string" ? req.query.password : "";
-    return Boolean(secret) && (bearer === secret || q === secret);
-  };
-
-  app.get("/api/innerdreams", (req, res) => {
-    if (!isAuthorized(req, innerdreamsPassword)) return res.status(401).json({ error: "unauthorized" });
-    res.json({
-      ok: true,
-      mode: "manual-or-cron",
-      hint: "POST /api/innerdreams to run one cycle. GET /api/innerdreams/cron is for Vercel cron only.",
-    });
+  app.get("/api/auth/me", (req, res) => {
+    const user = getSessionUser(req);
+    res.json({ user });
   });
 
-  const runInnerDreamsCycle = async () => {
-    // TODO: plug in OpenAI/GitHub automation here.
-    // For now, we just record an activity timestamp.
-    await storage.setMeta("innerdreams:lastRunAt", new Date().toISOString());
-    return { ok: true, ranAt: await storage.getMeta("innerdreams:lastRunAt") };
-  };
+  app.post("/api/auth/logout", (req, res) => {
+    setSessionUser(req, null);
+    req.session.destroy(() => res.json({ ok: true }));
+  });
 
-  app.post("/api/innerdreams", async (req, res) => {
-    if (!isAuthorized(req, innerdreamsPassword)) return res.status(401).json({ error: "unauthorized" });
-    try {
-      const result = await runInnerDreamsCycle();
-      res.json(result);
-    } catch (err: any) {
-      res.status(500).json({ error: "innerdreams_failed", detail: String(err?.message ?? err) });
+  app.post("/api/auth/signup", async (req, res) => {
+    const parsed = insertUserSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).send(parsed.error.message);
+
+    const { username, password } = parsed.data;
+    const existing = await storage.getUserByUsername(username);
+    if (existing) return res.status(409).send("Username already exists");
+
+    const user = await storage.createUser({ username, password: hashPassword(password) });
+    setSessionUser(req, { id: user.id, username: user.username });
+    res.json({ ok: true, user: { id: user.id, username: user.username } });
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    const { username, password } = (req.body ?? {}) as { username?: string; password?: string };
+    if (!username || !password) return res.status(400).send("Missing username or password");
+
+    const user = await storage.getUserByUsername(username);
+    if (!user) return res.status(401).send("Invalid credentials");
+    if (!verifyPassword(password, user.password)) return res.status(401).send("Invalid credentials");
+
+    setSessionUser(req, { id: user.id, username: user.username });
+    res.json({ ok: true, user: { id: user.id, username: user.username } });
+  });
+
+  app.post("/api/admin-login", async (req, res) => {
+    const key = String((req.body ?? {}).key ?? "");
+    const expected = process.env.ADMIN_KEY || "";
+    if (!expected) return res.status(500).send("ADMIN_KEY not set");
+    if (!key || key !== expected) return res.status(401).send("Invalid key");
+
+    // Ensure admin user exists
+    let admin = await storage.getUserByUsername("owner");
+    if (!admin) {
+      admin = await storage.createUser({ username: "owner", password: hashPassword("change-me") });
     }
+
+    setSessionUser(req, { id: admin.id, username: admin.username });
+    res.json({ ok: true, user: { id: admin.id, username: admin.username } });
   });
 
-  app.get("/api/innerdreams/cron", async (req, res) => {
-    // Secured by CRON_SECRET (Authorization: Bearer ...)
-    if (!isAuthorized(req, cronSecret)) return res.status(401).json({ error: "unauthorized" });
-    try {
-      const result = await runInnerDreamsCycle();
-      res.json({ ...result, triggeredBy: "vercel-cron" });
-    } catch (err: any) {
-      res.status(500).json({ error: "innerdreams_failed", detail: String(err?.message ?? err) });
-    }
+  app.get("/api/profiles/:username", async (req: Request, res: Response) => {
+    const username = String(req.params.username || "");
+    const u = await storage.getUserByUsername(username);
+    if (!u) return res.status(404).send("Not found");
+    res.json({ user: { id: u.id, username: u.username } });
   });
-
-  return httpServer;
 }
