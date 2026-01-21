@@ -1,0 +1,42 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #4f46e5; /* default brand */
+  --text: #111827;
+  --card: rgba(255,255,255,0.70);
+  --base: 1; /* font-size multiplier */
+}
+
+.dark {
+  --text: #e5e7eb;
+  --card: rgba(17,24,39,0.5);
+  --brand: var(--brand);
+}
+
+body {
+  @apply text-gray-900 dark:text-gray-100;
+  font-size: calc(16px * var(--base));
+  background: linear-gradient(135deg, rgba(249,250,251,1), rgba(255,255,255,1));
+  min-height: 100vh;
+}
+
+.dark body {
+  background: linear-gradient(135deg, rgba(17,24,39,1), rgba(3,7,18,1));
+}
+
+.card {
+  background: var(--card);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  @apply border border-white/60 dark:border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.08)];
+}
+
+.btn {
+  background: var(--brand, #4f46e5) !important;
+  @apply inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-white text-sm font-medium transition;
+}
+
+.link { color: var(--brand, #4f46e5); }
