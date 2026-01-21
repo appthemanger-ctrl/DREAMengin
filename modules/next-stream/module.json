@@ -1,0 +1,5 @@
+{
+  "type": "widget",
+  "name": "Next Stream",
+  "entry": "Widget.tsx"
+}
