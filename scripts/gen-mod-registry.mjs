@@ -1,48 +1,72 @@
-
 // scripts/gen-mod-registry.mjs
-import { readdir, writeFile } from 'node:fs/promises';
+import { readdir, stat, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import url from 'node:url';
+import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
-const WIDGET_DIR = path.join(ROOT, 'modules', 'widgets');
-const CONNECT_DIR = path.join(ROOT, 'modules', 'connectors');
-const OUT = path.join(ROOT, 'modules', 'registry.generated.ts');
+const MOD = path.join(ROOT, 'modules');
+const WIDGETS = path.join(MOD, 'widgets');
+const CONNECTORS = path.join(MOD, 'connectors');
+const OUT = path.join(MOD, 'registry.generated.ts');
 
-async function listModules(dir) {
+async function ensureDir(p) { try { await mkdir(p, { recursive: true }); } catch {} }
+async function exists(p) { try { await stat(p); return true; } catch { return false; } }
+
+async function collect(dir) {
+  const items = [];
   try {
-    const files = await readdir(dir, { withFileTypes: true });
-    return files
-      .filter(f => f.isDirectory() || /\.(t|j)sx?$/.test(f.name))
-      .map(f => {
-        const base = f.isDirectory() ? f.name : f.name.replace(/\.(t|j)sx?$/, '');
-        // registry imports must be relative to modules/
-        return {
-          key: base,
-          relPath: path.relative(path.join(ROOT, 'modules'), path.join(dir, base)).replace(/\\/g, '/')
-        };
-      });
-  } catch {
-    return [];
-  }
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const e of entries) {
+      if (e.isDirectory()) {
+        const base = e.name;
+        const baseDir = path.join(dir, base);
+        const hasIndex =
+          (await exists(path.join(baseDir, 'index.ts')))  ||
+          (await exists(path.join(baseDir, 'index.tsx'))) ||
+          (await exists(path.join(baseDir, 'index.js')));
+        if (hasIndex) {
+          items.push({
+            key: base,
+            rel: path.posix.join(path.relative(MOD, baseDir).replace(/\\/g, '/'))
+          });
+        }
+      } else if (e.isFile() && /\.(t|j)sx?$/.test(e.name)) {
+        const base = e.name.replace(/\.(t|j)sx?$/, '');
+        if (base !== 'index') {
+          items.push({
+            key: base,
+            rel: path.posix.join(path.relative(MOD, path.join(dir, base)).replace(/\\/g, '/'))
+          });
+        }
+      }
+    }
+  } catch {}
+  const seen = new Set();
+  return items
+    .filter(i => !seen.has(i.key) && seen.add(i.key))
+    .sort((a, b) => a.key.localeCompare(b.key));
 }
 
-const widgets = await listModules(WIDGET_DIR);
-const connectors = await listModules(CONNECT_DIR);
+await ensureDir(MOD);
+await ensureDir(WIDGETS);
+await ensureDir(CONNECTORS);
 
-const file = `// AUTO-GENERATED. Do not edit by hand.
+const widgets = await collect(WIDGETS);
+const connectors = await collect(CONNECTORS);
+
+const content = `// AUTO-GENERATED. Do not edit by hand.
 export const widgetRegistry = {
-${widgets.map(m => `  "${m.key}": () => import("./${m.relPath}")`).join(',\n')}
+${widgets.map(i => `  "${i.key}": () => import("./${i.rel}")`).join(',\n')}
 } as const;
 
 export const connectorRegistry = {
-${connectors.map(m => `  "${m.key}": () => import("./${m.relPath}")`).join(',\n')}
+${connectors.map(i => `  "${i.key}": () => import("./${i.rel}")`).join(',\n')}
 } as const;
 
 export type WidgetKey = keyof typeof widgetRegistry;
 export type ConnectorKey = keyof typeof connectorRegistry;
 `;
 
-await writeFile(OUT, file, 'utf8');
-console.log('Generated', OUT, 'with', widgets.length, 'widgets and', connectors.length, 'connectors');
+await writeFile(OUT, content, 'utf8');
+console.log('Generated', path.relative(ROOT, OUT), 'with', widgets.length, 'widgets and', connectors.length, 'connectors');
