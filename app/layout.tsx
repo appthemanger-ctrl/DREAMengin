@@ -1,3 +1,4 @@
+import { inter } from '@/lib/theme/fonts'
 
 import '@/styles/globals.css';
 import NavBar from '@/components/NavBar';
@@ -34,7 +35,7 @@ export default async function RootLayout({ children }:{ children: React.ReactNod
 
   return (
     <html lang="en" className={htmlClass}>
-      <body style={{ ['--brand' as any]: brand, ['--base' as any]: String(base) }}>
+      <body style={{ ['--brand' as any]: brand, ['--base' as any]: String(base) }} className={inter.className}>
         {/* @ts-expect-error Async Server Component */}
         <NavBar />
         <main className="max-w-6xl mx-auto p-4">{children}</main>
