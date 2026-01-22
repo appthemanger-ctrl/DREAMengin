@@ -3,15 +3,13 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": { "node": "24.x" },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "prebuild": "node scripts/gen-mod-registry.mjs"
-  },
-  "engines": {
-    "node": ">=22 <26"
   },
   "dependencies": {
     "@supabase/ssr": "^0.4.0",
