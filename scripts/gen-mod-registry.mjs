@@ -41,22 +41,19 @@ async function collect(dir) {
         }
       }
     }
-  } catch {
-    // if folder is missing, that's fine; we’ll emit empty registry
-  }
-  // de-dupe + sort
+  } catch {}
   const seen = new Set();
   return items
     .filter(i => !seen.has(i.key) && seen.add(i.key))
-    .sort((a, b) => a.key.localeCompare(b.key));
+    .sort((a,b)=>a.key.localeCompare(b.key));
 }
 
 await ensureDir(MOD);
 await ensureDir(WIDGETS);
 await ensureDir(CONNECTORS);
 
-const widgets = await collect(WIDGETS);
-const connectors = await collect(CONNECTORS);
+const widgets = (await collect(WIDGETS)) ?? [];
+const connectors = (await collect(CONNECTORS)) ?? [];
 
 const content = `// AUTO-GENERATED. Do not edit by hand.
 export const widgetRegistry = {
@@ -72,7 +69,6 @@ export type ConnectorKey = keyof typeof connectorRegistry;
 `;
 
 await writeFile(OUT, content, 'utf8');
-
 console.log(
   'Generated',
   path.relative(ROOT, OUT),
