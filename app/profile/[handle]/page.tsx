@@ -15,7 +15,7 @@ export default async function Profile({ params }:{ params:{ handle:string } }){
     .or(`ts.gte.${sinceISO},and(saved_by_user.eq.true,retained_until.gt.${nowISO})`)
     .order('ts', { ascending: false }).limit(200);
 
-  return (
+  return (<>
     <div className="space-y-4">
       <div className="card p-5 flex items-start gap-4">
         {prof.avatar_url && <img src={prof.avatar_url} className="w-16 h-16 rounded-full border" alt=""/>}\n        <div className="text-2xl font-semibold">{prof.display_name || prof.handle}</div>
@@ -49,5 +49,5 @@ export default async function Profile({ params }:{ params:{ handle:string } }){
           </ul>
         </div>
       )}
-  );
+  </>);
 }

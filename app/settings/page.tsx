@@ -1,6 +1,7 @@
 
 import { supaServer } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';\nimport AvatarUploader from '@/components/AvatarUploader';
+import { redirect } from 'next/navigation';
+import AvatarUploader from '@/components/AvatarUploader';
 import { widgetModules } from '@/lib/modules/registry.gen';
 
 export default async function Settings(){
@@ -35,7 +36,8 @@ export default async function Settings(){
   return (
     <div className="grid md:grid-cols-2 gap-6">
       <div className="card p-5">
-        <h2 className="text-lg font-semibold">Edit Profile</h2>\n        <AvatarUploader initial={prof?.avatar_url ?? ''} />
+        <h2 className="text-lg font-semibold">Edit Profile</h2>
+        <AvatarUploader initial={prof?.avatar_url ?? ''} />
         <form action={saveProfile} className="mt-3 space-y-3">
           <input name="display_name" defaultValue={prof?.display_name ?? ''} className="border rounded w-full px-3 py-2" placeholder="Display name"/>
           <textarea name="bio" defaultValue={prof?.bio ?? ''} className="border rounded w-full px-3 py-2 h-28" placeholder="Bio"></textarea>
