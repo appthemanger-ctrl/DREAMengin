@@ -1,0 +1,5 @@
+{
+  "type": "connector",
+  "name": "Sample Connector",
+  "entry": "server.ts"
+}
