@@ -3,8 +3,6 @@ import { readdir, stat, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-console.log('[gen-mod] v2', new Date().toISOString());
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const MOD = path.join(ROOT, 'modules');
@@ -28,19 +26,29 @@ async function collect(dir) {
           (await exists(path.join(baseDir, 'index.tsx'))) ||
           (await exists(path.join(baseDir, 'index.js')));
         if (hasIndex) {
-          items.push({ key: base, rel: path.posix.join(path.relative(MOD, baseDir).replace(/\\/g, '/')) });
+          items.push({
+            key: base,
+            rel: path.posix.join(path.relative(MOD, baseDir).replace(/\\/g, '/'))
+          });
         }
       } else if (e.isFile() && /\.(t|j)sx?$/.test(e.name)) {
         const base = e.name.replace(/\.(t|j)sx?$/, '');
         if (base !== 'index') {
-          items.push({ key: base, rel: path.posix.join(path.relative(MOD, path.join(dir, base)).replace(/\\/g, '/')) });
+          items.push({
+            key: base,
+            rel: path.posix.join(path.relative(MOD, path.join(dir, base)).replace(/\\/g, '/'))
+          });
         }
       }
     }
-  } catch {}
+  } catch {
+    // if folder is missing, that's fine; we’ll emit empty registry
+  }
+  // de-dupe + sort
   const seen = new Set();
-  return items.filter(i => !seen.has(i.key) && seen.add(i.key))
-              .sort((a, b) => a.key.localeCompare(b.key));
+  return items
+    .filter(i => !seen.has(i.key) && seen.add(i.key))
+    .sort((a, b) => a.key.localeCompare(b.key));
 }
 
 await ensureDir(MOD);
@@ -62,5 +70,15 @@ ${connectors.map(i => `  "${i.key}": () => import("./${i.rel}")`).join(',\n')}
 export type WidgetKey = keyof typeof widgetRegistry;
 export type ConnectorKey = keyof typeof connectorRegistry;
 `;
+
 await writeFile(OUT, content, 'utf8');
-console.log('Generated', path.relative(ROOT, OUT), 'with', widgets.length, 'widgets and', connectors.length, 'connectors');
+
+console.log(
+  'Generated',
+  path.relative(ROOT, OUT),
+  'with',
+  (widgets?.length ?? 0),
+  'widgets and',
+  (connectors?.length ?? 0),
+  'connectors'
+);
