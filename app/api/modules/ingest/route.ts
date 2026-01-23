@@ -1,13 +1,30 @@
-
+// app/api/modules/ingest/route.ts
 import { NextResponse } from 'next/server';
 import { supaServer } from '@/lib/supabase/server';
-import { connectorModules } from '@/lib/modules/registry.gen';
+import { connectorRegistry } from '@/modules/registry.generated';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST() {
   const s = supaServer();
-  const { data:{ user } } = await s.auth.getUser();
+  const { data: { user } } = await s.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  const tasks = connectorModules.map(c => c.impl?.ingest?.({ userId: user.id }));
-  await Promise.allSettled(tasks);
-  return NextResponse.json({ ok: true, ran: connectorModules.length });
+
+  const entries = Object.entries(connectorRegistry ?? {});
+  let ranFns = 0;
+
+  await Promise.allSettled(entries.map(async ([key, loader]) => {
+    try {
+      const mod: any = await (typeof loader === 'function' ? loader() : null);
+      const ingest = mod?.ingest ?? mod?.default?.ingest;
+      if (typeof ingest === 'function') {
+        ranFns += 1;
+        await ingest({ userId: user.id });
+      }
+    } catch (e) {
+      console.error('[ingest] connector failed:', key, e);
+    }
+  }));
+
+  return NextResponse.json({ ok: true, attempted: entries.length, executed: ranFns });
 }

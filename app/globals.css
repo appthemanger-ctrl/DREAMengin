@@ -1,0 +1,9 @@
+
+/* === Animated spectrum background for Home (server-safe) === */
+@keyframes hue-rotate360 {
+  from { filter: hue-rotate(0deg); }
+  to   { filter: hue-rotate(360deg); }
+}
+.animated-spectrum {
+  animation: hue-rotate360 30s linear infinite;
+}

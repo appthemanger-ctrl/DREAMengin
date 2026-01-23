@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true }
+  // IMPORTANT: no static export. This app uses SSR with Supabase.
+  // output: 'export',
+  experimental: {
+    serverActions: { allowedOrigins: ['*'] },
+  },
 };
+
 export default nextConfig;

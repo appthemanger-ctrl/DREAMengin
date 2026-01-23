@@ -1,0 +1,8 @@
+/* Minimal extras to make the landing look more vibrant without touching global styles */
+.landing-card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  backdrop-filter: blur(6px);
+  border-radius: 14px;
+}

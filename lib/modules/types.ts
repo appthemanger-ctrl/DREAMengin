@@ -1,4 +1,12 @@
-
+// lib/modules/types.ts
 import type { ComponentType } from 'react';
-export type WidgetModule = { name: string; slug: string; Component: ComponentType<any> };
-export type ConnectorModule = { name: string; slug: string; impl: { ingest?: (args: { userId: string }) => Promise<void> } };
+
+export type ModuleEntry<T = any> = {
+  slug: string;           // machine key, e.g. 'promo'
+  name: string;           // human label, e.g. 'Promo'
+  import?: () => Promise<T>; // optional dynamic import
+  Component?: ComponentType<any>; // OPTIONAL direct component for rendering
+};
+
+export type WidgetEntry = ModuleEntry;
+export type ConnectorEntry = ModuleEntry;

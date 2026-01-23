@@ -1,75 +1,136 @@
-
-import { supaServer } from '@/lib/supabase/server';
+// app/home/page.tsx
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import DrEamChat from '@/components/DrEamChat';
-import FeedCard from '@/components/FeedCard';
-import { loadDreamFeed } from '@/lib/feed/query';
+import { supaServer } from '@/lib/supabase/server';
 import { widgetModules } from '@/lib/modules/registry.gen';
 
-async function ensureProfile() {
-  'use server';
-  const s = supaServer();
-  const { data:{ user } } = await s.auth.getUser();
-  if (!user) return;
-  const handle = (user.email?.split('@')[0] ?? user.id).replace(/[^a-z0-9_-]/gi,'').toLowerCase();
-  await s.from('profiles').upsert({ user_id: user.id, handle, display_name: handle, visibility: 'public' }, { onConflict: 'user_id' });
+export const dynamic = 'force-dynamic';
+
+type FeedItem = {
+  id: string;
+  title?: string | null;
+  summary?: string | null;
+  url?: string | null;
+  timestamp?: string | null;
+  source?: string | null;
+};
+
+async function getData() {
+  const supa = supaServer();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return { user: null as any, feed: [] as FeedItem[], widgets: [] as any[] };
+
+  const { data: feedRaw } = await supa
+    .from('feed_items')
+    .select('id,title,summary,url,timestamp,source')
+    .eq('user_id', user.id)
+    .order('timestamp', { ascending: false })
+    .limit(30);
+
+  const { data: layout } = await supa
+    .from('dashboard_layout')
+    .select('widgets_json')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const feed: FeedItem[] = Array.isArray(feedRaw) ? feedRaw : [];
+  const widgets: any[] = Array.isArray(layout?.widgets_json) ? layout.widgets_json : [];
+
+  return { user, feed, widgets };
 }
 
-export default async function Home(){
-  const s = supaServer();
-  const { data:{ user } } = await s.auth.getUser();
+export default async function HomePage() {
+  const { user, feed, widgets } = await getData();
   if (!user) redirect('/login');
 
-  await ensureProfile(); // create profile if missing
-
-  const items = await loadDreamFeed(user.id);
-  const { data: widgets } = await s.from('widget_instances').select('*').eq('user_id', user.id).order('order');
-
-  async function createSample() {
-    'use server';
-    const sv = supaServer();
-    const { data:{ user } } = await sv.auth.getUser();
-    if (!user) return;
-    await sv.from('feed_items').insert({
-      user_id: user.id,
-      source: 'custom', source_account: 'example', external_id: String(Date.now()),
-      ts: new Date().toISOString(), title: 'Welcome to DreamFeed',
-      summary: 'This is a sample feed item. Connect sources to see more.'
-    });
-  }
+  const modules = Array.isArray(widgetModules) ? widgetModules : [];
+  const resolveMod = (t: string) => modules.find((m: any) => m.slug === t || m.name === t);
 
   return (
-    <div className="grid grid-cols-12 gap-5">
-      <aside className="col-span-12 md:col-span-3 space-y-3">
-        {(widgets ?? []).filter((w:any)=>w.enabled).map((w:any)=>{
-          const mod = widgetModules.find(m => m.slug === w.type || m.name === w.type);
-          const Comp = mod?.Component;
-          return (
-            <div key={w.id} className="card p-3">
-              <div className="font-medium mb-1">{mod?.name ?? w.type}</div>
-              {Comp ? <Comp /> : <div className="text-xs text-gray-600">widget content</div>}
+    <div className="relative min-h-[calc(100vh-4rem)]">
+      <AnimatedBG />
+      <div className="relative mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* FEED */}
+        <section className="md:col-span-2 space-y-3">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-semibold">Your Feed</h1>
+            <div className="flex gap-2">
+              <Link href="/feed-settings" className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10">
+                Feed Rules
+              </Link>
+              <Link href="/connectors" className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10">
+                Add Sources
+              </Link>
             </div>
-          );
-        })}
-        <div className="card p-3"><DrEamChat /></div>
-      </aside>
-
-      <section className="col-span-12 md:col-span-6 space-y-3">
-        {items.length === 0 ? (
-          <div className="card p-5">
-            <div className="text-lg font-semibold">Your DreamFeed</div>
-            <p className="text-sm text-gray-600 mt-1">No items yet. Click to create a first item.</p>
-            <form action={createSample}><button className="btn mt-3">Create sample item</button></form>
           </div>
-        ) : items.map((it:any)=>(<FeedCard key={it.id} item={it} />))}
-      </section>
 
-      <aside className="col-span-12 md:col-span-3 space-y-3">
-        <div className="card p-4">
-          <div className="text-sm font-medium">Promos</div>
-          <p className="text-xs text-gray-600 mt-1">Ad slots live here.</p>
-        </div>
-      </aside>
+          {feed.length > 0 ? (
+            feed.map((it) => (
+              <article key={it.id} className="rounded-lg border border-white/10 bg-white/[0.04] p-4 backdrop-blur">
+                <div className="text-xs opacity-70 mb-1">
+                  {(it.source ?? 'source')} • {it.timestamp ? new Date(it.timestamp).toLocaleString() : ''}
+                </div>
+                <a href={it.url ?? '#'} target="_blank" className="block font-medium hover:underline">
+                  {it.title ?? 'Untitled'}
+                </a>
+                {it.summary && <p className="mt-1 text-sm opacity-90">{it.summary}</p>}
+              </article>
+            ))
+          ) : (
+            <div className="rounded-lg border border-white/10 bg-white/[0.04] p-6 text-center backdrop-blur">
+              <div className="font-medium mb-2">No items yet</div>
+              <p className="text-sm mb-4 opacity-90">Connect sources and follow friends to populate your feed.</p>
+              <div className="flex items-center justify-center gap-3">
+                <Link className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10" href="/connectors">Add Sources</Link>
+                <Link className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10" href="/discover">Discover</Link>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* WIDGETS */}
+        <aside className="space-y-3">
+          <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 backdrop-blur">
+            <div className="font-medium mb-2">Widgets</div>
+            {(widgets.length ? widgets : [{ id: 'promo-1', type: 'promo', enabled: true }]).map((w: any) => {
+              const mod: any = resolveMod(w.type);
+              const Comp = mod?.Component;
+              return (
+                <div key={w.id ?? w.type} className="mb-3">
+                  <div className="text-sm opacity-70 mb-1">{mod?.name ?? w.type}</div>
+                  {Comp ? (
+                    <Comp config={w.config ?? {}} />
+                  ) : (
+                    <div className="rounded border border-white/10 p-3 text-sm">
+                      Widget “{w.type}” not installed. <Link href="/settings" className="underline">Install</Link>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            <div className="mt-3 flex gap-2">
+              <Link className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10" href="/settings">Customize</Link>
+              <Link className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10" href="/messages">Messages</Link>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+function AnimatedBG() {
+  return (
+    <div className="pointer-events-none fixed inset-0 -z-10">
+      <div
+        aria-hidden="true"
+        className="animated-spectrum"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(1200px 600px at 10% 10%, rgba(99,102,241,0.25), transparent), radial-gradient(1200px 600px at 90% 20%, rgba(236,72,153,0.25), transparent), radial-gradient(1200px 600px at 50% 90%, rgba(16,185,129,0.25), transparent)',
+        }}
+      />
     </div>
   );
 }
