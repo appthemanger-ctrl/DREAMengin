@@ -1,14 +1,16 @@
-# DREAMengin UI/UX Patch
+# DREAMengin TS Fun Patch
 
-This zip contains Tailwind + Next UI update (landing, login, home with draggable widgets),
-providers, theme manager, and configs. Drop into your repo root and commit.
+What this adds:
+- Next.js 15 + React 19 setup
+- Tailwind v4 CSS-only gradient + glass UI
+- Magic-link login with animated mascot
+- Home with draggable widgets
+- Add-anything page (auto-detect YouTube/Spotify/link)
+- Supabase SSR helpers (client + server)
 
-Env vars (Vercel > Settings > Environment Variables):
+Deploy fix:
+- `vercel.json` forces `npm install` so no lockfile is required.
+
+Env required (Vercel Project Settings → Environment Variables):
 - NEXT_PUBLIC_SUPABASE_URL
 - NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-Supabase table `widgets` suggested columns:
-- id (uuid default uuid_generate_v4() primary key)
-- owner (uuid references auth.users)
-- title text, body text, url text, type text
-- position int

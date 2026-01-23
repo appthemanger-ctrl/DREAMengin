@@ -1,26 +1,14 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import WidgetGrid from '@/components/WidgetGrid';
-import Header from '@/components/Header';
+'use client'
+import { WidgetGrid } from '@/components/widget-grid'
 
-export const dynamic = 'force-dynamic';
-
-export default async function Home() {
-  const supabase = createServerComponentClient({ cookies });
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect('/login');
-
-  const { data: widgets } = await supabase
-    .from('widgets')
-    .select('*')
-    .eq('owner', session.user.id)
-    .order('position', { ascending: true });
-
+export default function Home() {
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8">
-      <Header />
-      <WidgetGrid initial={widgets ?? []} />
+    <main className="max-w-5xl mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-4xl font-extrabold">My Dreampage 🎨</h1>
+        <a href="/home/add" className="btn-primary">+ Add Anything</a>
+      </div>
+      <WidgetGrid />
     </main>
-  );
+  )
 }

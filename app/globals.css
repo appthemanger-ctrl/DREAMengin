@@ -1,27 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  :root {
-    --bg-gradient: linear-gradient(120deg, #f97316cc 0%, #0ea5e9cc 100%);
-  }
-  .dark {
-    --bg-gradient: linear-gradient(120deg, #f9731680 0%, #0ea5e980 100%);
-  }
-  body {
-    @apply bg-ink text-slate-100 font-body antialiased;
-    background: radial-gradient(at 20% 90%, hsla(217,80%,30%,1) 0px, transparent 50%),
-                radial-gradient(at 80% 10%, hsla(28,90%,60%,1) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, hsla(198,90%,50%,1) 0px, transparent 50%);
-    background-attachment: fixed;
-    animation: slow-pan 20s linear infinite;
-  }
-  .glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
-  }
+@theme {
+  --font-display: 'Comic Sans MS', cursive;
+  --color-brandA: #ff6b6b;
+  --color-brandB: #4ecdc4;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+@layer base {
+  body {
+    @apply text-white antialiased;
+    background: radial-gradient(at 20% 90%, var(--color-brandA) 0px, transparent 50%),
+                radial-gradient(at 80% 10%, var(--color-brandB) 0px, transparent 50%),
+                #0b1020;
+    background-attachment: fixed;
+    animation: gradientShift 8s ease-in-out infinite;
+  }
+  @keyframes gradientShift {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(25deg) brightness(1.1); }
+  }
+  .glass { @apply bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl shadow-2xl; }
+  .btn { @apply px-6 py-3 rounded-2xl font-bold transition-all active:scale-95 hover:scale-105; }
+  .btn-primary { @apply btn bg-[var(--color-brandA)] text-white hover:bg-[color-mix(in_srgb,var(--color-brandA),white_10%)]; }
 }
