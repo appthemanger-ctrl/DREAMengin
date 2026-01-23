@@ -1,0 +1,27 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  :root {
+    --bg-gradient: radial-gradient(at 20% 90%, #1e293b 0px, transparent 50%),
+                   radial-gradient(at 80% 10%, #0ea5e9 0px, transparent 50%),
+                   radial-gradient(at 50% 50%, #f97316 0px, transparent 50%);
+  }
+  body {
+    @apply min-h-screen text-slate-100 font-body;
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    animation: slow-pan 20s linear infinite;
+  }
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+  }
+  .btn-primary {
+    @apply bg-brandA text-white px-4 py-2 rounded-xl font-medium hover:bg-brandA/90 transition;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
