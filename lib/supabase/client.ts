@@ -1,15 +1,27 @@
-"use client";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
-import { createBrowserClient } from "@supabase/ssr";
+// Main server helper (named export most pages use)
+export function supaServer() {
+  const store = cookies();
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return store.get(name)?.value;
+        },
+        set(name: string, value: string, options: any) {
+          store.set({ name, value, ...options });
+        },
+        remove(name: string, options: any) {
+          store.set({ name, value: "", ...options, expires: new Date(0) });
+        },
+      },
+    }
+  );
+}
 
-// Named export used by some pages
-export const supa = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-// Some pages import `createClient` instead of `supa` — provide it:
-export const createClient = () => supa;
-
-// Optional default export so `import x from '@/lib/supabase/client'` also works
-export default supa;
+// Some pages import `createServerSupabase` — alias it to the same function:
+export const createServerSupabase = supaServer;
