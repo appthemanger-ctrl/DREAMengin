@@ -1,10 +1,10 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '../../../lib/supabase/server'
 import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }) {
-  const supabase = createServerComponentClient({ cookies })
+  const supabase = createServerClient()
   const { data } = await supabase
     .from('profiles')
     .select('full_name, bio')
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ProfilePage({ params }) {
-  const supabase = createServerComponentClient({ cookies })
+  const supabase = createServerClient()
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')

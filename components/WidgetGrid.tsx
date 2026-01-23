@@ -1,15 +1,15 @@
+import { createClient } from '../lib/supabase/client'
 'use client';
 import { useState } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 
 export default function WidgetGrid({ initial }: { initial: any[] }) {
   const [widgets, setWidgets] = useState(initial ?? []);
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const sensors = useSensors(
     useSensor(PointerSensor),

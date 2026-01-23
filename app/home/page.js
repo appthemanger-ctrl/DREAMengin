@@ -1,4 +1,4 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '../../lib/supabase/server'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Header from '../../components/Header'
@@ -6,7 +6,7 @@ import Header from '../../components/Header'
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  const supabase = createServerComponentClient({ cookies })
+  const supabase = createServerClient()
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) redirect('/login')
 

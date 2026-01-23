@@ -1,68 +1,52 @@
 'use client'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Theme } from '../../lib/theme'
+import { createClient } from '../../lib/supabase/client'
+import AccentPicker from '../../components/AccentPicker'
 
 export default function Settings() {
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   const router = useRouter()
-  const { register, handleSubmit, reset } = useForm()
+  const [full_name, setFullName] = useState('')
+  const [username, setUsername] = useState('')
+  const [bio, setBio] = useState('')
+  const [links_json, setLinks] = useState('[]')
+  const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
+  useEffect(()=>{
     async function load() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { router.push('/login'); return }
-      const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+      const { data } = await supabase.from('profiles').select('*').single()
       if (data) {
-        reset({
-          full_name: data.full_name || '',
-          username: data.username || '',
-          bio: data.bio || '',
-          links_json: JSON.stringify(data.links_json || [], null, 2),
-          accent_color: data.accent_color || '#0ea5e9',
-        })
+        setFullName(data.full_name || '')
+        setUsername(data.username || '')
+        setBio(data.bio || '')
+        setLinks(JSON.stringify(data.links_json || [], null, 2))
       }
     }
     load()
   }, [])
 
-  const onSubmit = async (d) => {
-    const parsedLinks = (() => { try { return JSON.parse(d.links_json || '[]') } catch { return [] } })()
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return
+  async function save(e){
+    e.preventDefault()
+    setSaving(true)
+    const { data: { user } } = await supabase.auth.getUser()
     await supabase.from('profiles').update({
-      full_name: d.full_name,
-      username: d.username,
-      bio: d.bio,
-      links_json: parsedLinks,
-      accent_color: d.accent_color,
-    }).eq('id', session.user.id)
-    router.push(`/profile/${d.username}`)
+      full_name, username, bio, links_json: JSON.parse(links_json || '[]')
+    }).eq('id', user?.id)
+    setSaving(false)
+    router.push(`/profile/${username}`)
   }
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">
       <h1 className="font-display text-2xl mb-6">Settings</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="glass p-6 space-y-4">
-        <input {...register('full_name')} placeholder="Full name" className="w-full rounded-lg px-4 py-2 bg-white/10" />
-        <input {...register('username')} placeholder="Username" className="w-full rounded-lg px-4 py-2 bg-white/10" />
-        <textarea {...register('bio')} placeholder="Bio" className="w-full rounded-lg px-4 py-2 bg-white/10" rows={3} />
-        <textarea
-          {...register('links_json')}
-          placeholder='[{"title":"GitHub","url":"https://github.com/you"}]'
-          className="w-full rounded-lg px-4 py-2 bg-white/10 font-mono text-sm"
-          rows={4}
-        />
-        <div className="flex items-center gap-4">
-          <label className="text-sm">Accent color</label>
-          <input type="color" {...register('accent_color')} className="w-16 h-8 rounded" />
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="bg-brandA text-white px-4 py-2 rounded-lg">Save</button>
-          <button type="button" onClick={Theme.toggle} className="text-sm text-slate-300">Toggle dark/light</button>
-        </div>
+      <form onSubmit={save} className="glass p-6 space-y-4">
+        <input value={full_name} onChange={e=>setFullName(e.target.value)} placeholder="Full name" className="w-full rounded-lg px-4 py-2 bg-white/10" />
+        <input value={username} onChange={e=>setUsername(e.target.value)} placeholder="Username" className="w-full rounded-lg px-4 py-2 bg-white/10" />
+        <textarea value={bio} onChange={e=>setBio(e.target.value)} placeholder="Bio" className="w-full rounded-lg px-4 py-2 bg-white/10" rows={3} />
+        <textarea value={links_json} onChange={e=>setLinks(e.target.value)} placeholder='[{"title":"GitHub","url":"https://github.com/you"}]' className="w-full rounded-lg px-4 py-2 bg-white/10 font-mono text-sm" rows={4} />
+        <AccentPicker />
+        <button disabled={saving} className="bg-brandA text-white px-4 py-2 rounded-lg">{saving ? 'Saving…' : 'Save'}</button>
       </form>
     </main>
   )

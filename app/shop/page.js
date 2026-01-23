@@ -1,10 +1,10 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '../../lib/supabase/server'
 import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Shop() {
-  const supabase = createServerComponentClient({ cookies })
+  const supabase = createServerClient()
   const { data } = await supabase
     .from('products')
     .select('*')

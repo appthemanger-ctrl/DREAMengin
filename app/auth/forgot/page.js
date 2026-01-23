@@ -1,40 +1,47 @@
-// app/auth/forgot/page.js
-'use client';
-import { useState } from 'react';
-import { supaBrowser } from '@/lib/supabase/client';
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '../../lib/supabase/client'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
-export default function ForgotPage(){
-  const [email, setEmail] = useState('');
-  const [msg, setMsg] = useState('');
-  const [loading, setLoading] = useState(false);
+export default function ForgotPage() {
+  const [email, setEmail] = useState('')
+  const [msg, setMsg] = useState('')
+  const [loading, setLoading] = useState(false)
+  const supabase = createClient()
+  const router = useRouter()
 
-  async function sendReset(e){
-    e.preventDefault();
-    setLoading(true);
-    setMsg('');
-    try {
-      const supa = supaBrowser();
-      const redirectTo = (process.env.NEXT_PUBLIC_SITE_URL || '') + '/auth/reset';
-      const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo });
-      if (error) throw error;
-      setMsg('Reset link sent. Check your email.');
-    } catch (err) {
-      setMsg(err.message || 'Could not send reset link');
-    } finally {
-      setLoading(false);
-    }
+  async function submit(e) {
+    e.preventDefault()
+    setLoading(true)
+    setMsg('')
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset`,
+    })
+    if (error) setMsg(error.message)
+    else setMsg('Check your email for the reset link.')
+    setLoading(false)
   }
 
   return (
-    <div style={{minHeight:'80vh',display:'grid',placeItems:'center'}}>
-      <form onSubmit={sendReset} className="card p-6" style={{minWidth:320}}>
-        <h1 style={{fontSize:22, fontWeight:600, marginBottom:12}}>Reset password</h1>
-        <input type="email" className="input" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required />
-        <button disabled={loading} className="btn" style={{marginTop:12}}>{loading ? '...' : 'Send reset link'}</button>
-        {msg && <p style={{marginTop:10,fontSize:13}}>{msg}</p>}
+    <main className="min-h-screen flex items-center justify-center p-6">
+      <form onSubmit={submit} className="glass w-full max-w-sm p-6 space-y-3">
+        <h1 className="font-display text-2xl">Reset password</h1>
+        <input
+          type="email"
+          className="w-full rounded-lg px-4 py-2 bg-white/10"
+          value={email}
+          onChange={(e)=>setEmail(e.target.value)}
+          placeholder="you@example.com"
+          required
+        />
+        <button disabled={loading} className="bg-brandA text-white rounded-lg px-4 py-2 w-full">
+          {loading ? 'Sending…' : 'Send reset link'}
+        </button>
+        {msg && <p className="text-sm text-slate-300">{msg}</p>}
+        <button type="button" onClick={()=>router.push('/login')} className="text-xs text-slate-400">Back to login</button>
       </form>
-    </div>
-  );
+    </main>
+  )
 }

@@ -1,11 +1,11 @@
+import { createClient } from '../../lib/supabase/client'
 'use client'
 import { useEffect, useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import AudioPlayer from '../../components/AudioPlayer'
 
 export default function MusicPage() {
   const [tracks, setTracks] = useState([])
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
 
   useEffect(() => {
     supabase
