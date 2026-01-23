@@ -7,9 +7,8 @@ export default async function NavBar() {
   const s = supaServer();
   const { data: { user } } = await s.auth.getUser();
 
-  // Next 15/16: cookies() is async
-  const cookieStore = await cookies();
-  const isAdmin = cookieStore.get("admin")?.value === "1";
+  // Next 15/16: cookies() is async — await it
+  const isAdmin = (await cookies()).get('admin')?.value === '1';
 
   let handle: string | null = null;
   if (user) {
