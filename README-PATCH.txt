@@ -1,20 +1,15 @@
-PATCH: Fix module resolution for client + components
+This patch ONLY updates your package.json to add the missing Tailwind/PostCSS devDependencies.
+Nothing else is touched.
 
-This fixes build errors like:
-- Module not found: Can't resolve '@/lib/supabase/client'
-- Module not found: Can't resolve '@/components/DraggableModules'
+What this fixes:
+- Vercel build error:
+  "An error occurred in `next/font` ... Error: Cannot find module 'tailwindcss'"
+  This happens because your postcss.config.js references 'tailwindcss' but it wasn't installed.
 
-Files included (add/overwrite in your repo):
-- lib/supabase/client.ts
-- components/DraggableModules.tsx
-- components/AudioPlayer.tsx
+How to apply (Working Copy or GitHub web editor):
+1) Replace the existing package.json in the repo root with the one inside this zip.
+2) Commit the change.
+3) Trigger a new Vercel deployment (it will run `npm install` and pick up devDependencies).
 
-iOS / Working Copy quick steps:
-1) Copy each file into the exact paths above.
-2) Commit: "fix: add supabase client + component stubs"
-3) Push to GitHub. Vercel will redeploy.
-
-Notes:
-- The client file is a **client module** and exports both `supaClient()` and a default `supabase` instance.
-- If you already had a file named `lib/supabase/client` (no extension), remove it to avoid ambiguity.
-- Case matters on Linux. Ensure the import matches the filename exactly: DraggableModules.tsx ⇢ `@/components/DraggableModules`.
+If you prefer commands (optional, not required if you use this zip):
+npm i -D tailwindcss postcss autoprefixer

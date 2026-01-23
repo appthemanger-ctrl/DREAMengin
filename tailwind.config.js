@@ -1,14 +1,26 @@
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./app/**/*.{ts,tsx,js,jsx}","./components/**/*.{ts,tsx,js,jsx}"],
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}"
+  ],
   theme: {
     extend: {
-      colors: { brandA:'#0ea5e9', brandB:'#f97316', ink:'#0f172a' },
-      borderRadius: { '3xl': '1.5rem' },
-      animation: { 'slow-pan': 'pan 20s linear infinite' },
-      keyframes: { pan: { '0%':{backgroundPosition:'0% 50%'}, '100%':{backgroundPosition:'100% 50%'} } }
+      colors: {
+        brand: {
+          50:  "#fef2f2",
+          100: "#fee2e2",
+          200: "#fecaca",
+          300: "#fca5a5",
+          400: "#f87171",
+          500: "#ef4444",
+          600: "#dc2626",
+          700: "#b91c1c",
+          800: "#991b1b",
+          900: "#7f1d1d"
+        }
+      }
     }
   },
   plugins: []
-}
+};
