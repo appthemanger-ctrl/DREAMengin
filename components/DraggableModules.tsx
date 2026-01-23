@@ -2,8 +2,8 @@
 
 export default function DraggableModules() {
   return (
-    <div className="text-sm opacity-70">
-      Drag-and-drop widgets coming soon.
+    <div className="card p-4 text-sm opacity-80">
+      DraggableModules placeholder — replace with your real implementation.
     </div>
   );
 }
