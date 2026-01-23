@@ -1,20 +1,18 @@
-# Draggable Modules Patch
+NO-DELETES HOTFIX PATCH
+-----------------------
+This patch only ADDS missing files and fixes the @/* alias. It doesn't remove any of your files.
 
-What this adds
-- A **drag-to-reorder** grid for your modules/widgets (Webby-style bottom color stripes).
-- Saves order to `widgets.position` in Supabase.
-- Optional `widgets.accent` color per item (hex).
+Added:
+  - tsconfig.json (ensures @/* alias resolves to project root)
+  - components/AudioPlayer.tsx (simple audio player)
+  - components/DraggableModules.tsx (stub to satisfy imports)
+  - lib/supabase/client.ts (browser Supabase client using env vars)
+  - app/home/add/page.tsx (form to add custom feed item)
+  - app/music/upload/page.tsx (form to add music release)
 
-Files
-- `components/DraggableModules.tsx` – client component using framer‑motion `Reorder`.
-- `app/home/page.tsx` – renders the draggable grid.
-- `db/widgets_position_and_accent.sql` – run once in Supabase SQL editor.
-
-Requirements
-- Table `widgets` with columns: `id uuid primary key`, `owner uuid`, `title text`, `body text`, `url text`, `type text`, **`position int`**, **`accent text`**.
-- `framer-motion` in `package.json` (install if missing): `npm i framer-motion`.
-
-Drop-in steps
-1) Copy these files into your repo.
-2) If needed, run the SQL to add `position`/`accent`.
-3) Commit & push.
+Notes:
+  - Make sure your Vercel project has these env vars set:
+      NEXT_PUBLIC_SUPABASE_URL
+      NEXT_PUBLIC_SUPABASE_ANON_KEY
+  - If your repo already has tsconfig.json, this one will REPLACE it to guarantee the @/* alias works.
+  - If you prefer keeping your existing tsconfig.json, just copy the "baseUrl" and "paths" settings into yours.
