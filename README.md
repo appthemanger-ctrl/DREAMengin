@@ -1,33 +1,30 @@
-# Missing Files Patch
+# DREAMengin
 
-This zip contains the two missing files your build is asking for:
+One-file README. Everything else lives in the code.
 
-- `lib/supabase/client.ts`
-- `components/AudioPlayer.tsx`
-
-## How to apply
-
-1) Unzip into the **root of your repo** so the paths match exactly.
-2) Commit and push:
-
+## Quick start
+1) Install deps and lockfile (for Vercel):
 ```bash
-git add lib/supabase/client.ts components/AudioPlayer.tsx
-git commit -m "chore: add supabase client + AudioPlayer"
-git push
+npm install
+```
+2) Set **environment variables** (Vercel → Project → Settings → Environment Variables):
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- *(optional)* `SUPABASE_SERVICE_ROLE_KEY`
+
+3) Dev:
+```bash
+npm run dev
 ```
 
-If you're still seeing module-not-found for `@/lib/supabase/client`, ensure your `tsconfig.json`
-(or `jsconfig.json`) has this alias:
+## Build & Deploy (Vercel)
+- Commit the lockfile (`package-lock.json`).
+- Vercel will run `npm install` and `next build`.
 
-```json
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["*"]
-    }
-  }
-}
+## Project layout
 ```
-
-(If you already have it, you can ignore this note.)
+app/         # Next.js App Router routes (login, home, music, shop, settings...)
+components/  # Reusable UI (WidgetGrid, AudioPlayer, AccentPicker, etc.)
+lib/         # supabase client(s), theme helpers
+public/      # static assets
+```
