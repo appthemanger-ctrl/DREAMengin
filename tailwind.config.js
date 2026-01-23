@@ -1,12 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-  content: [
-    './app/**/*.{js,ts,jsx,tsx}',
-    './components/**/*.{js,ts,jsx,tsx}',
-    './lib/**/*.{js,ts,jsx,tsx}',
-    './src/**/*.{js,ts,jsx,tsx}'
-  ],
+  content: ['./app/**/*.{js,jsx,ts,tsx}', './components/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
       fontFamily: {
@@ -19,7 +14,7 @@ module.exports = {
         ink: '#0f172a',
       },
       animation: {
-        'slow-pan': 'pan 12s linear infinite',
+        'slow-pan': 'pan 20s linear infinite',
       },
       keyframes: {
         pan: {
@@ -30,4 +25,4 @@ module.exports = {
     },
   },
   plugins: [],
-};
+}

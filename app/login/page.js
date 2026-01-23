@@ -1,51 +1,56 @@
-// app/login/page.js
-'use client';
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { supaBrowser } from '@/lib/supabase/client';
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import Link from 'next/link'
 
-export const dynamic = 'force-dynamic';
+export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [view, setView] = useState('login')
+  const [error, setError] = useState('')
+  const router = useRouter()
+  const supabase = createClientComponentClient()
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-
-  async function onSubmit(e){
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-    try {
-      const supa = supaBrowser();
-      const { error } = await supa.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      setMessage('Logged in ✅');
-      router.push('/home');
-    } catch (err) {
-      setMessage(err.message || 'Login failed');
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    const { error } =
+      view === 'login'
+        ? await supabase.auth.signInWithPassword({ email, password })
+        : await supabase.auth.signUp({ email, password })
+    if (error) setError(error.message)
+    else router.push('/home')
   }
 
   return (
-    <div style={{minHeight:'80vh',display:'grid',placeItems:'center'}}>
-      <form onSubmit={onSubmit} className="card p-6" style={{minWidth:320}}>
-        <h1 style={{fontSize:22, fontWeight:600, marginBottom:12}}>Sign in</h1>
-        <label>Email</label>
-        <input value={email} onChange={e=>setEmail(e.target.value)} type="email" required className="input" placeholder="you@example.com" />
-        <label style={{marginTop:8}}>Password</label>
-        <input value={password} onChange={e=>setPassword(e.target.value)} type="password" required className="input" placeholder="••••••••" />
-        <button disabled={loading} className="btn" style={{marginTop:12}}>{loading ? '...' : 'Sign in'}</button>
-        <div style={{display:'flex',justifyContent:'space-between',marginTop:10,fontSize:14}}>
-          <Link href="/signup">Create account</Link>
-          <Link href="/auth/forgot">Forgot password?</Link>
-        </div>
-        {message && <p style={{marginTop:10,fontSize:13}}>{message}</p>}
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <form onSubmit={handleSubmit} className="glass w-full max-w-sm mx-auto p-8 space-y-4">
+        <h1 className="font-display text-2xl">{view === 'login' ? 'Welcome back' : 'Create account'}</h1>
+        {error && <p className="text-rose-400 text-sm">{error}</p>}
+        <input
+          className="w-full rounded-lg px-4 py-2 bg-white/10 placeholder-slate-300"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          className="w-full rounded-lg px-4 py-2 bg-white/10 placeholder-slate-300"
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button className="w-full bg-brandA text-white rounded-lg py-2">{view === 'login' ? 'Login' : 'Sign up'}</button>
+        <button type="button" onClick={() => setView(view === 'login' ? 'signup' : 'login')} className="text-sm text-slate-300">
+          {view === 'login' ? 'Need an account?' : 'Already have one?'}
+        </button>
+        <p className="text-xs text-slate-400">
+          Or continue to <Link href="/" className="underline">landing</Link>
+        </p>
       </form>
     </div>
-  );
+  )
 }
