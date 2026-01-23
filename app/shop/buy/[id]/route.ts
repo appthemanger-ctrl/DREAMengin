@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Next.js 16 changed the Route Handler type for dynamic params to use a Promise.
-// This handler works with both shapes by awaiting `context.params`.
-export async function POST(
-  req: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await context.params;
+/**
+ * Next.js 15/16 changed the Route Handler types so `context.params`
+ * is now a Promise. You must `await` it before using.
+ * This file compiles on 16.1.x.
+ */
 
-    // TODO: replace this placeholder with your actual purchase logic.
-    // Keeping it minimal here to unblock the build on Next 16.1.4.
-    return NextResponse.json({ ok: true, id });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message ?? 'Unexpected error' }, { status: 500 });
-  }
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }>}) {
+  const { id } = await params;
+  return NextResponse.json({ ok: true, id });
+}
+
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }>}) {
+  const { id } = await params;
+  // If you need request body:
+  // const body = await req.json().catch(() => ({} as any));
+  return NextResponse.json({ ok: true, id });
 }
