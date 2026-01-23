@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #dc2626;
+  --text: #111827;
+  --card: rgba(255, 255, 255, 0.92);
+  --base: 1;
+}
+
+body { min-height: 100vh; }
+.card {
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  @apply border border-white/60 dark:border-white/10 rounded-2xl shadow;
+}
+.btn { background: var(--brand); }
