@@ -1,24 +1,14 @@
-# DREAMengin UI & UX Specification (LaTeX)
+# DREAMengin UI/UX Patch
 
-This zip contains:
-- `dreamengin-ux-spec.tex` — the LaTeX source you asked me to prepare.
+This zip contains Tailwind + Next UI update (landing, login, home with draggable widgets),
+providers, theme manager, and configs. Drop into your repo root and commit.
 
-## How to compile to PDF
+Env vars (Vercel > Settings > Environment Variables):
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-### Option A — Overleaf (no install)
-1. Go to https://www.overleaf.com
-2. Create a new project → "Upload Project".
-3. Drag `dreamengin-ux-spec.tex` in and click **Recompile**.
-
-### Option B — Local TeX (Mac/Linux/Windows)
-1. Install a LaTeX distribution (TeX Live / MacTeX / MiKTeX).
-2. Compile:
-   ```bash
-   pdflatex dreamengin-ux-spec.tex
-   pdflatex dreamengin-ux-spec.tex
-   ```
-   (Run twice for proper references.)
-
-If your TeX installation is minimal, you may need these common packages:
-`geometry`, `hyperref`, `enumitem`, `xcolor`, `titlesec`, `array`, `longtable`.
-
+Supabase table `widgets` suggested columns:
+- id (uuid default uuid_generate_v4() primary key)
+- owner (uuid references auth.users)
+- title text, body text, url text, type text
+- position int
