@@ -1,0 +1,55 @@
+/* styles/extra.css
+   Adds a soft glass look and a gently shifting gradient background.
+   Scoped to html.colorflow so it won't override your existing styles unless you add that class.
+*/
+
+@keyframes colorflow-pan {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+html.colorflow body {
+  /* multi-stop gradient that slowly moves across the screen */
+  background-image:
+    radial-gradient(60rem 30rem at 10% -20%, rgba(220, 38, 38, 0.12), transparent),
+    radial-gradient(50rem 30rem at 110% 0%, rgba(59, 130, 246, 0.10), transparent),
+    linear-gradient(120deg, #ff6b6b, #f8a100, #22c55e, #3b82f6, #a855f7);
+  background-size: 400% 400%, 400% 400%, 400% 400%;
+  animation: colorflow-pan 42s linear infinite;
+  min-height: 100vh;
+}
+
+html.colorflow.dark body {
+  background-image:
+    radial-gradient(60rem 30rem at 10% -20%, rgba(220, 38, 38, 0.18), transparent),
+    radial-gradient(50rem 30rem at 110% 0%, rgba(59, 130, 246, 0.14), transparent),
+    linear-gradient(120deg, #0b1020, #111827, #1f2937, #0f172a);
+}
+
+/* subtle glass utility you can add to containers */
+.glass {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background: rgba(17, 24, 39, 0.72);
+  border-color: rgba(255,255,255,0.10);
+}
+
+/* helper for buttons to reflect brand or red accent without hard-coding */
+.btn-brand {
+  background: var(--brand, #dc2626);
+  color: white;
+  border-radius: 0.75rem;
+  padding: 0.6rem 1.1rem;
+  font-weight: 600;
+  transition: filter .2s ease, transform .05s ease;
+}
+.btn-brand:hover { filter: brightness(1.08); }
+.btn-brand:active { transform: scale(0.98); }

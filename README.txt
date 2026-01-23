@@ -1,17 +1,34 @@
-# Patch: Next 16 Route Handler params fix
+# Colorflow Glass Patch (Next 16.1.4 compatible)
 
-**What this fixes**
-- On Next.js 16.1.x, route handlers must type `context.params` as a **Promise** and you need to `await` it.
-- Your build error complained that `POST` expected `{ params: Promise<{ id: string }> }` but your file used `{ params: { id: string } }`.
+This patch adds a soft "glass" look and a slowly-changing background gradient,
+without clobbering your existing styles.
 
-**What to do**
-1. Replace your file at `app/shop/buy/[id]/route.ts` with the one in this patch.
-2. Commit & push. Build should pass this type check.
+## Files in this patch
+- styles/extra.css      ← new (safe to add)
+- app/layout.tsx        ← updated sample (shows two tiny changes)
 
-If you later want to add logic, keep the signature:
-```ts
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }>}) {
-  const { id } = await params;
-  // ... your code
-}
-```
+## What it does
+- Defines an animated gradient that's **scoped to `html.colorflow`** so it won't
+  override your current background unless you opt in.
+- Provides a `.glass` utility class for cards/sections.
+- Provides `.btn-brand` for red/brand buttons.
+
+## How to apply
+
+**Option A: Minimal (recommended)**
+1) Copy `styles/extra.css` into your repo at `styles/extra.css`.
+2) Edit your existing `app/layout.tsx`:
+   - Add: `import "@/styles/extra.css";` below the globals.css import.
+   - Add `" colorflow"` to the `<html ... className={...}>` so it becomes:
+     `className={htmlClass + " colorflow"}`
+   - Ensure you don't have a stray `@ts-expect-error` blocking render.
+
+**Option B: Replace layout**
+If your layout is small, you can just replace your `app/layout.tsx` with the
+one in `app/layout.tsx` from this patch (then reinsert any custom bits).
+
+## Notes
+- Works on Next.js 16.1.4 and the App Router.
+- Does not require Tailwind changes; it's plain CSS with keyframes.
+- If you want the gradient slower/faster, tweak `42s` in `colorflow-pan` animation.
+- To use the glass effect, add `className="glass"` on containers/cards.
