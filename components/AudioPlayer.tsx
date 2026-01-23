@@ -5,7 +5,6 @@ export default function AudioPlayer({ src }: { src?: string }) {
     <div className="mt-3">
       <audio controls className="w-full">
         <source src={src} />
-        Your browser does not support the audio element.
       </audio>
     </div>
   );
