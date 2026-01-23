@@ -1,20 +1,24 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+// Keep this function synchronous for call sites; wrap cookie access with async methods.
 export function supaServer() {
-  const store = cookies();
+  const cookieStorePromise = cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
+        async get(name: string) {
+          const store = await cookieStorePromise;
           return store.get(name)?.value;
         },
-        set(name: string, value: string, options: any) {
+        async set(name: string, value: string, options: any) {
+          const store = await cookieStorePromise;
           store.set({ name, value, ...options });
         },
-        remove(name: string, options: any) {
+        async remove(name: string, options: any) {
+          const store = await cookieStorePromise;
           store.set({ name, value: '', ...options, expires: new Date(0) });
         },
       },
@@ -22,6 +26,5 @@ export function supaServer() {
   );
 }
 
-// Alias for older imports.
+// Back-compat alias some files import
 export const createServerSupabase = supaServer;
-export default supaServer;

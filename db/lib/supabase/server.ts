@@ -1,14 +1,9 @@
-// server.ts — Next 16.1.4 compatible
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-/**
- * Server-side Supabase client for Next 15/16.
- * `cookies()` is async; we lazily await it inside each method.
- */
-export function supaServer() {
-  const cookieStorePromise = cookies(); // Promise<ReadonlyRequestCookies>
-
+// DB helper variant used by some modules; same async-cookies pattern.
+export function createClient() {
+  const cookieStorePromise = cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -30,6 +25,3 @@ export function supaServer() {
     }
   );
 }
-
-// Keep older import name working, if present elsewhere.
-export const createServerSupabase = supaServer;
