@@ -1,38 +1,85 @@
+'use client';
+import { useState } from 'react';
+import { supa } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 
-'use client'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+export default function AddPage() {
+  const [title, setTitle] = useState('');
+  const [summary, setSummary] = useState('');
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-export default function AddWidget(){
-  const router = useRouter()
-  const supabase = createClient()
-  const [url,setUrl]=useState('')
-  const detect=(u:string)=> u.includes('youtube')||u.includes('youtu.be')?'video':u.includes('spotify.com/track')?'music':'link'
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) {
+      alert('Please log in');
+      setLoading(false);
+      return;
+    }
 
-  async function onSubmit(e:React.FormEvent<HTMLFormElement>){
-    e.preventDefault()
-    const form = new FormData(e.currentTarget)
-    const title = String(form.get('title')||'Untitled')
-    const body = String(form.get('body')||'')
-    const urlVal = String(form.get('url')||'')
-    const type = detect(urlVal)
-    const { data:{ user } } = await supabase.auth.getUser()
-    if (!user) return router.push('/login')
-    await supabase.from('widgets').insert({ title, body, url: urlVal, type, owner: user.id, position: 0 })
-    router.push('/home')
+    const { error } = await supa.from('feed_items').insert({
+      user_id: user.id,
+      source: 'custom',
+      source_account: 'manual',
+      external_id: String(Date.now()),
+      ts: new Date().toISOString(),
+      title,
+      summary,
+      url: url || null,
+    });
+
+    if (!error) {
+      router.push('/home');
+    } else {
+      alert(error.message);
+    }
+    setLoading(false);
   }
 
   return (
-    <main className="max-w-xl mx-auto px-4 py-10">
-      <form onSubmit={onSubmit} className="glass p-6 space-y-4">
-        <h1 className="text-2xl font-semibold">Add widget</h1>
-        <input name="title" placeholder="Title" className="w-full rounded-2xl px-4 py-3 bg-white/10" required />
-        <textarea name="body" placeholder="Body (optional)" className="w-full rounded-2xl px-4 py-3 bg-white/10" rows={3} />
-        <input name="url" placeholder="URL (optional)" className="w-full rounded-2xl px-4 py-3 bg-white/10" value={url} onChange={e=>setUrl(e.target.value)} />
-        {url?<div className="text-sm opacity-80">Detected: {detect(url)}</div>:null}
-        <button className="btn-primary">Save</button>
+    <div className="max-w-md mx-auto card p-8">
+      <h1 className="text-2xl font-semibold text-red-600 mb-2">Add to DreamFeed</h1>
+      <p className="text-gray-600 mb-6">Create a custom feed item</p>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium mb-1">Title</label>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="input w-full"
+            placeholder="What happened?"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Summary</label>
+          <textarea
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            className="input w-full h-24 resize-y"
+            placeholder="Short description..."
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Link (optional)</label>
+          <input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="input w-full"
+            placeholder="https://..."
+          />
+        </div>
+
+        <button type="submit" disabled={loading} className="btn w-full">
+          {loading ? 'Adding...' : 'Add to Feed'}
+        </button>
       </form>
-    </main>
-  )
+    </div>
+  );
 }
