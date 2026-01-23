@@ -12,7 +12,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "paths": { "@/*": ["./*"] },
+    "paths": { 
+      "@/*": ["./*"] 
+    },
     "plugins": [{ "name": "next" }]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
