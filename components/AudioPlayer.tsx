@@ -1,5 +1,12 @@
 'use client';
-export default function AudioPlayer({ src }: { src?: string }){
-  if(!src) return <div className="text-sm opacity-60">No audio</div>;
-  return <audio className="w-full" controls src={src}/>;
+export default function AudioPlayer({ src }: { src?: string }) {
+  if (!src) return <div className="text-sm opacity-60 py-2">No preview available</div>;
+  return (
+    <div className="mt-3">
+      <audio controls className="w-full">
+        <source src={src} />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  );
 }

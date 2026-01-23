@@ -1,46 +1,19 @@
-/* styles/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --brand: #dc2626; /* default red-600 */
+  --brand: #dc2626;
   --text: #111827;
   --card: rgba(255, 255, 255, 0.92);
   --base: 1;
 }
 
-.dark {
-  --text: #e5e7eb;
-  --card: rgba(17, 24, 39, 0.75);
-  --brand: #f87171;
-}
-
-body {
-  @apply text-gray-900 dark:text-gray-100;
-  font-size: calc(16px * var(--base));
-  background: radial-gradient(80rem 40rem at 20% -10%, rgba(220,38,38,0.12), transparent),
-              radial-gradient(70rem 40rem at 120% 10%, rgba(248,113,113,0.08), transparent),
-              linear-gradient(135deg, #f8fafc, #ffffff);
-  min-height: 100vh;
-}
-
-.dark body {
-  background: radial-gradient(60rem 30rem at 10% -20%, rgba(220,38,38,0.18), transparent),
-              radial-gradient(50rem 30rem at 110% 0%, rgba(248,113,113,0.12), transparent),
-              linear-gradient(135deg, #0b1020, #111827);
-}
-
+body { min-height: 100vh; }
 .card {
   background: var(--card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  @apply border border-white/70 dark:border-white/10 rounded-2xl shadow-xl;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  @apply border border-white/60 dark:border-white/10 rounded-2xl shadow;
 }
-
-.btn {
-  background: var(--brand) !important;
-  @apply inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-white font-medium transition-all hover:brightness-110 active:scale-[0.98];
-}
-
-.link { color: var(--brand); }
+.btn { background: var(--brand); }
