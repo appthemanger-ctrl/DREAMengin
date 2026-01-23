@@ -1,11 +1,9 @@
-export const name = 'Messages';
-export const slug = 'messages';
-
-export default function MessagesWidget() {
+'use client';
+export default function MessagesWidget(){
   return (
-    <div className="space-y-2">
-      <div className="text-sm opacity-80">Messages</div>
-      <div className="card">No new messages.</div>
+    <div>
+      <div className="text-sm opacity-70">Messages</div>
+      <div className="font-medium">Inbox coming soon</div>
     </div>
   );
 }
