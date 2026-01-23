@@ -1,37 +1,35 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const swatches = ['#dc2626','#fb7185','#0ea5e9','#22c55e','#f59e0b','#8b5cf6'];
+const SWATCHES = [
+  '#ef4444','#f97316','#f59e0b','#84cc16','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#6b7280'
+];
 
-export default function AccentPicker({ value, onChange }:{ value?: string; onChange?: (v:string)=>void }){
-  const [v, setV] = useState<string>(value ?? '#dc2626');
-  function pick(c:string) {
-    setV(c);
-    onChange?.(c);
-    if (typeof document !== 'undefined') {
-      document.documentElement.style.setProperty('--brand', c);
-    }
+export default function AccentPicker({ value, onChange }: { value?: string, onChange?: (v: string)=>void }) {
+  const [accent, setAccent] = useState<string>(value || SWATCHES[0]);
+
+  useEffect(()=>{ if (value) setAccent(value); }, [value]);
+
+  function pick(v: string) {
+    setAccent(v);
+    onChange?.(v);
+    try {
+      document.documentElement.style.setProperty('--brand', v);
+    } catch {}
   }
+
   return (
-    <div className="flex gap-2 flex-wrap">
-      {swatches.map(c => (
+    <div className="flex flex-wrap gap-2">
+      {SWATCHES.map((v)=> (
         <button
-          key={c}
+          key={v}
           type="button"
-          aria-label={c}
-          onClick={()=>pick(c)}
-          className="w-8 h-8 rounded-full border"
-          style={{ background: c }}
-          title={c}
+          onClick={()=>pick(v)}
+          className="h-8 w-8 rounded-full ring-2 ring-white/70 shadow"
+          style={{ backgroundColor: v }}
+          aria-label={`Pick ${v}`}
         />
       ))}
-      <input
-        aria-label="custom color"
-        type="color"
-        value={v}
-        onChange={(e)=>pick(e.target.value)}
-        className="w-10 h-8 p-0 border rounded"
-      />
     </div>
   );
 }

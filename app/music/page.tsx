@@ -1,30 +1,30 @@
+import { supaServer } from '@/lib/supabase/server';
+import AudioPlayer from '@/components/AudioPlayer';
 
-'use client'
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import AudioPlayer from '@/components/AudioPlayer'
-import Link from 'next/link'
+export default async function MusicPage() {
+  const s = supaServer();
+  const { data: { user } } = await s.auth.getUser();
+  const { data: releases } = await s
+    .from('music_releases')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(20);
 
-export default function MusicPage(){
-  const [tracks,setTracks]=useState<any[]>([])
-  const supabase = createClient()
-  useEffect(()=>{ supabase.from('tracks').select('*').order('created_at',{ascending:false}).then(({data})=>setTracks(data||[])) },[])
   return (
-    <main className="max-w-4xl mx-auto px-4 py-10">
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Music</h1>
-        <Link href="/music/upload" className="btn-primary">Upload track</Link>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {tracks.map(t=>(
-          <div key={t.id} className="glass p-4">
-            <img src={t.artwork_url||'/placeholder.png'} alt={t.title} className="w-full h-40 object-cover rounded-lg mb-3" />
-            <h3 className="font-semibold">{t.title}</h3>
-            {t.artist?<p className="text-sm opacity-80">{t.artist}</p>:null}
-            {t.mp3_url?<AudioPlayer src={t.mp3_url} />:null}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {(releases ?? []).map((r:any) => (
+          <div key={r.id} className="card">
+            <div className="font-medium">{r.title}</div>
+            {r.cover_url && <img src={r.cover_url} alt={r.title} className="mt-2 rounded-lg" />}
+            <AudioPlayer src={r.preview_url || undefined} />
+            {r.release_url && <a className="link" href={r.release_url} target="_blank" rel="noreferrer">Open</a>}
           </div>
         ))}
       </div>
-    </main>
-  )
+    </div>
+  );
 }

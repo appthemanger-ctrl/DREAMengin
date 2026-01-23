@@ -1,5 +1,5 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 export function supaServer() {
   const store = cookies();
@@ -15,9 +15,14 @@ export function supaServer() {
           store.set({ name, value, ...options });
         },
         remove(name: string, options: any) {
-          store.set({ name, value: '', ...options, expires: new Date(0) });
+          store.set({ name, value: "", ...options });
         },
       },
     }
   );
+}
+
+// Backwards-compatible alias for files importing { createServerSupabase }
+export function createServerSupabase() {
+  return supaServer();
 }
