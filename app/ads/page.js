@@ -1,1 +1,0 @@
-export default function Ads(){ return (<div className='card'>Ads marketplace (stub)</div>);}
