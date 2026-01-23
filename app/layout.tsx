@@ -1,13 +1,1 @@
-import { inter } from '@/lib/theme/fonts'
-
-export const metadata = { title: 'DREAMengin' }
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        {children}
-      </body>
-    </html>
-  )
-}
+import './globals.css';import type { ReactNode } from 'react';import Link from 'next/link';import { Inter } from 'next/font/google';const inter=Inter({subsets:['latin']});export const metadata={title:'Dreampage',description:'Your private, customizable internet home.'};export default function RootLayout({children}:{children:ReactNode}){return(<html lang="en" className={inter.className}><body><nav className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur"><div className="mx-auto max-w-6xl px-4 h-14 flex items-center gap-4"><Link href="/" className="font-semibold">Dreampage</Link><div className="ml-auto flex gap-3 text-sm"><Link href="/home">Home</Link><Link href="/connectors">Connectors</Link><Link href="/settings">Settings</Link></div></div></nav>{children}</body></html>);}

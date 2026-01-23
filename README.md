@@ -1,27 +1,18 @@
-# DREAMengin (Dreampage Ignition)
+# Dreampage (Ignition)
 
-Your private, customizable homepage + public profile. Core features: curated feed, modular widgets (“bubbles”), creator promos, and admin-only “Dr. Eam”.
+Next.js App Router + Supabase SSR starter.
 
-## Quick Start
-
-**Requirements**
-- Node **24.x**
-- Vercel for frontend
-- Supabase project (Auth, Postgres, Storage)
-
-**Environment (Vercel → Project → Settings → Environment Variables)**
-- `NEXT_PUBLIC_SUPABASE_URL` = https://<your>.supabase.co
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` = <supabase anon key>
-- `SUPABASE_SERVICE_ROLE` = <service role> (Server/Edge only, never expose client-side)
-- `NEXT_PUBLIC_SITE_URL` = https://your-vercel-domain.vercel.app
-- `ADMIN_PASSWORD` = your-strong-admin-password
-
-> Do **not** commit the service role key.
+## Env
+Create `.env.local` (and on Vercel Environment Variables):
+```
+NEXT_PUBLIC_SUPABASE_URL=your_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon
+SUPABASE_URL=your_url
+SUPABASE_ANON_KEY=your_anon
+```
 
 ## Scripts
+- `npm run dev`
+- `npm run build`
 
-```bash
-npm run dev     # local dev
-npm run build   # production build (Vercel runs this)
-npm start       # start production server locally
-npm run lint    # optional
+The registry generator scans `modules/widgets/*` and `modules/connectors/*` and writes `modules/registry.generated.ts`.

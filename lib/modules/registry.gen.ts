@@ -1,6 +1,1 @@
-// lib/modules/registry.gen.ts
-// Fallback shim. Overwritten at build by scripts/prepare.mjs
-export const widgetModules = [];
-export const connectorModules = [];
-export type WidgetEntry = { slug: string; name: string; load: () => Promise<any>; Component?: any };
-export type ConnectorEntry = { slug: string; name: string; load: () => Promise<any>; ingest?: (args:any)=>Promise<any> };
+export { widgetRegistry, connectorRegistry } from '@/modules/registry.generated';export const widgetModules=Object.entries(widgetRegistry).map(([slug,loader])=>({slug,name:slug,Component:null as any,load:loader as any}));export const connectorModules=Object.entries(connectorRegistry).map(([slug,loader])=>({slug,name:slug,load:loader as any}));export type WidgetEntry={ slug:string; name?:string; Component?:any; load?:any};export type ConnectorEntry={ slug:string; name?:string; load?:any};

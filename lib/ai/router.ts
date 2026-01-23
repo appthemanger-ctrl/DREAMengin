@@ -1,9 +1,1 @@
-// lib/ai/router.ts
-export type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
-
-/** Minimal local stub so builds succeed without external AI keys. */
-export async function aiChat({ messages }: { messages: ChatMessage[] }): Promise<string> {
-  const lastUser = [...messages].reverse().find(m => m.role === 'user')?.content ?? '';
-  const preview = lastUser.replace(/\s+/g, ' ').slice(0, 160);
-  return `InnerDreams stub: processed ${preview.length} chars. Preview: "${preview}"`;
-}
+export async function aiChat(input:any):Promise<string>{if(typeof input==='string'){return input.trim()?`Echo: ${input.slice(0,140)}`:'OK'}const msgs=Array.isArray(input?.messages)?input.messages:[];const text=msgs.map((m:any)=>m?.content??'').join('\n');return text?`Echo: ${text.slice(0,140)}`:'OK'}
