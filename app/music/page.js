@@ -1,0 +1,1 @@
+export default function Music(){ return (<div className='card'>Music drops (stub)</div>);}

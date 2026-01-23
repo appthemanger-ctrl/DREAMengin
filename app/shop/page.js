@@ -1,0 +1,1 @@
+export default function Shop(){ return (<div className='card'>Shop (stub)</div>);}
