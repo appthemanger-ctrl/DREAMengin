@@ -1,1 +1,0 @@
-import { NextResponse } from 'next/server';import { aiChat } from '@/lib/ai/router';export const dynamic='force-dynamic';export async function POST(req:Request){const { q }=await req.json().catch(()=>({q:''}));const text=await aiChat({messages:[{role:'user',content:String(q??'')}]});return NextResponse.json({a:text})}

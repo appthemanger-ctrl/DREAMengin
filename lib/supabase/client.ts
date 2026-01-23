@@ -1,1 +1,0 @@
-'use client';import { createBrowserClient } from '@supabase/ssr';export function supaClient(){const url=process.env.NEXT_PUBLIC_SUPABASE_URL as string;const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;if(!url||!key) throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY');return createBrowserClient(url,key);}

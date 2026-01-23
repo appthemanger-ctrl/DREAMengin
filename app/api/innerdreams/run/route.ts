@@ -1,1 +1,0 @@
-import { NextResponse } from 'next/server';import { aiChat } from '@/lib/ai/router';export const dynamic='force-dynamic';export async function POST(req:Request){const { prompt }=await req.json().catch(()=>({prompt:''}));const text=await aiChat({messages:[{role:'user',content:String(prompt??'')}]});return NextResponse.json({ok:true,text,note:'stubbed-safe'})}

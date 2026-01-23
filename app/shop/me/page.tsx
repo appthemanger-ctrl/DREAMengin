@@ -1,1 +1,0 @@
-export const dynamic='force-dynamic';import { supaServer } from '@/lib/supabase/server';export default async function Page(){const s=supaServer();const { data:{ user } }=await s.auth.getUser();if(!user) return <div className='p-6'>Sign in required</div>;return <div className='p-6'>My Shop</div>;}

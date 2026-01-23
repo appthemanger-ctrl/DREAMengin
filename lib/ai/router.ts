@@ -1,1 +1,0 @@
-export async function aiChat(input:any):Promise<string>{if(typeof input==='string'){return input.trim()?`Echo: ${input.slice(0,140)}`:'OK'}const msgs=Array.isArray(input?.messages)?input.messages:[];const text=msgs.map((m:any)=>m?.content??'').join('\n');return text?`Echo: ${text.slice(0,140)}`:'OK'}
