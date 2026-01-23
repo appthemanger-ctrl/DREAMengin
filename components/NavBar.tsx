@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
 export default async function NavBar() {
   const s = supaServer();
   const { data: { user } } = await s.auth.getUser();
-  const isAdmin = cookies().get('admin')?.value === '1';
+  const isAdmin = (await cookies()).get('admin')?.value === '1';
 
   let handle: string | null = null;
   if (user) {
