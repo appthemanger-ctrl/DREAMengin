@@ -10,13 +10,18 @@
     --bg-gradient: linear-gradient(120deg, #f9731680 0%, #0ea5e980 100%);
   }
   body {
-    @apply bg-ink text-slate-100 font-body;
-    background-image: var(--bg-gradient);
-    background-size: 200% 200%;
-    animation: slow-pan 18s linear infinite;
-    min-height: 100vh;
+    @apply bg-ink text-slate-100 font-body antialiased;
+    background: radial-gradient(at 20% 90%, hsla(217,80%,30%,1) 0px, transparent 50%),
+                radial-gradient(at 80% 10%, hsla(28,90%,60%,1) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, hsla(198,90%,50%,1) 0px, transparent 50%);
+    background-attachment: fixed;
+    animation: slow-pan 20s linear infinite;
   }
   .glass {
     @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
 }

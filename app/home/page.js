@@ -1,53 +1,40 @@
-export const dynamic = 'force-dynamic';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import Header from '../../components/Header'
 
-import { supaServer } from '@/lib/supabase/server';
-import { widgetModules } from '@/lib/modules/registry.gen';
-
-async function loadWidgets() {
-  // load available widgets (promo, messages by default)
-  const mods = [];
-  for (const w of widgetModules) {
-    try {
-      const m = await w.loader();
-      if (m && m.default) mods.push({ slug: w.slug, name: m.name || w.slug, Comp: m.default });
-    } catch {}
-  }
-  return mods;
-}
+export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  const s = supaServer();
-  const { data: { user } } = await s.auth.getUser();
-  const widgets = await loadWidgets();
+  const supabase = createServerComponentClient({ cookies })
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
+
+  const { data: widgets } = await supabase
+    .from('widgets')
+    .select('*')
+    .eq('owner', session.user.id)
+    .order('position', { ascending: true })
 
   return (
-    <div className="grid md:grid-cols-3 gap-6">
-      <section className="md:col-span-2 space-y-4">
-        <div className="card">
-          <div className="text-sm opacity-75">Feed</div>
-          <div className="mt-2 space-y-2">
-            <div className="card">Welcome {user?.email ?? 'guest'} — your feed will appear here.</div>
-          </div>
-        </div>
-        <div className="card">
-          <div className="text-sm opacity-75">Quick actions</div>
-          <div className="mt-2 flex gap-2">
-            <a className="btn" href="/connectors">Connect sources</a>
-            <a className="btn" href="/ads">Ad slots</a>
-            <a className="btn" href="/music">Music drops</a>
-          </div>
-        </div>
+    <main className="max-w-5xl mx-auto px-4 py-8">
+      <Header />
+      <section className="flex items-center justify-between mb-6">
+        <h2 className="font-display text-xl">Your widgets</h2>
+        <a href="/home/add" className="bg-brandB px-4 py-2 rounded-lg text-sm">Add widget</a>
       </section>
-
-      <aside className="space-y-4">
-        {widgets.length === 0 && <div className="card">No widgets yet.</div>}
-        {widgets.map(({slug, name, Comp}) => (
-          <div className="card" key={slug}>
-            <div className="font-medium mb-2 capitalize">{name || slug}</div>
-            <Comp />
+      <div className="grid gap-4 md:grid-cols-2">
+        {(widgets ?? []).map((w) => (
+          <div key={w.id} className="glass p-4">
+            <h3 className="font-semibold">{w.title}</h3>
+            {w.body && <p className="text-sm text-slate-300 mt-1">{w.body}</p>}
+            {w.url && <a href={w.url} className="text-brandA text-sm underline mt-2 inline-block">Open link</a>}
           </div>
         ))}
-      </aside>
-    </div>
-  );
+      </div>
+      {(widgets ?? []).length === 0 && (
+        <p className="text-slate-400 mt-4">Add your first widget to see it here.</p>
+      )}
+    </main>
+  )
 }
