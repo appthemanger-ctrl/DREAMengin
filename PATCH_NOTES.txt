@@ -1,0 +1,20 @@
+# Draggable Modules Patch
+
+What this adds
+- A **drag-to-reorder** grid for your modules/widgets (Webby-style bottom color stripes).
+- Saves order to `widgets.position` in Supabase.
+- Optional `widgets.accent` color per item (hex).
+
+Files
+- `components/DraggableModules.tsx` – client component using framer‑motion `Reorder`.
+- `app/home/page.tsx` – renders the draggable grid.
+- `db/widgets_position_and_accent.sql` – run once in Supabase SQL editor.
+
+Requirements
+- Table `widgets` with columns: `id uuid primary key`, `owner uuid`, `title text`, `body text`, `url text`, `type text`, **`position int`**, **`accent text`**.
+- `framer-motion` in `package.json` (install if missing): `npm i framer-motion`.
+
+Drop-in steps
+1) Copy these files into your repo.
+2) If needed, run the SQL to add `position`/`accent`.
+3) Commit & push.
