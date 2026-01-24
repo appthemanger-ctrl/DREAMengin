@@ -1,0 +1,55 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Theme tokens --- */
+:root{
+  --brand: #dc2626;         /* soft red accent */
+  --ink:   #0b1020;         /* deep text on light */
+  --ink-2: #e5e7eb;         /* text on dark */
+  --card: rgba(255,255,255,.82);
+  --card-dark: rgba(17,24,39,.72);
+}
+
+/* Background like your original (blue↔orange soft gradient + vignette) */
+body{
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(60rem 30rem at 10% -10%, rgba(14,165,233,.18), transparent),
+    radial-gradient(50rem 30rem at 110% 0%, rgba(249,115,22,.16), transparent),
+    linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.dark body{
+  color: var(--ink-2);
+  background:
+    radial-gradient(60rem 30rem at 10% -10%, rgba(14,165,233,.22), transparent),
+    radial-gradient(50rem 30rem at 110% 0%, rgba(249,115,22,.18), transparent),
+    linear-gradient(135deg, #0b1020, #111827);
+}
+
+/* Glass card like your second screenshot */
+.glass{
+  background: var(--card);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  @apply rounded-3xl border border-white/60 shadow-2xl;
+}
+.dark .glass{
+  background: var(--card-dark);
+  @apply border-white/10;
+}
+
+/* Buttons */
+.btn{
+  background: var(--brand);
+  @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-white font-semibold transition
+         hover:brightness-110 active:scale-95;
+}
+.btn-outline{
+  @apply inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold
+         border border-black/10 dark:border-white/20;
+}
+.link{ color: var(--brand); }
