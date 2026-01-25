@@ -1,55 +1,293 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* --- Theme tokens --- */
-:root{
-  --brand: #dc2626;         /* soft red accent */
-  --ink:   #0b1020;         /* deep text on light */
-  --ink-2: #e5e7eb;         /* text on dark */
-  --card: rgba(255,255,255,.82);
-  --card-dark: rgba(17,24,39,.72);
+/* LIGHT MODE - DREAMengin Glassmorphic Theme */
+:root {
+  --button-outline: rgba(0,0,0, .10);
+  --badge-outline: rgba(0,0,0, .05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0,0,0, .03);
+  --elevate-2: rgba(0,0,0, .08);
+
+  /* DREAMengin Color Palette - inspired by the logo */
+  --color-flame: 24 95% 53%;     /* #f97316 - Orange/Flame */
+  --color-ember: 12 95% 55%;     /* Red-orange ember */
+  --color-cyan: 199 89% 48%;     /* #0ea5e9 - Cyan */
+  --color-indigo: 224 76% 48%;   /* Deep blue */
+  
+  --background: 222 47% 5%;
+  --foreground: 210 40% 98%;
+  --border: 217 33% 17%;
+  --card: 222 47% 8%;
+  --card-foreground: 210 40% 98%;
+  --card-border: 217 33% 17%;
+  --sidebar: 222 47% 7%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-border: 217 33% 17%;
+  --sidebar-primary: 24 95% 53%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 199 89% 48%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-ring: 199 89% 48%;
+  --popover: 222 47% 8%;
+  --popover-foreground: 210 40% 98%;
+  --popover-border: 217 33% 17%;
+  --primary: 24 95% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 199 89% 48%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 199 89% 48%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 217 33% 17%;
+  --ring: 199 89% 48%;
+  --chart-1: 24 95% 53%;
+  --chart-2: 199 89% 48%;
+  --chart-3: 12 95% 55%;
+  --chart-4: 224 76% 48%;
+  --chart-5: 280 70% 50%;
+
+  --font-sans: 'Inter', 'DM Sans', sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: 'JetBrains Mono', Menlo, monospace;
+  --radius: .5rem;
+  --shadow-2xs: 0px 2px 0px 0px hsl(222 47% 5% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(222 47% 5% / 0.00);
+  --shadow-sm: 0px 2px 4px 0px hsl(222 47% 5% / 0.10);
+  --shadow: 0px 4px 8px 0px hsl(222 47% 5% / 0.15);
+  --shadow-md: 0px 6px 16px 0px hsl(222 47% 5% / 0.20);
+  --shadow-lg: 0px 8px 24px 0px hsl(222 47% 5% / 0.25);
+  --shadow-xl: 0px 12px 32px 0px hsl(222 47% 5% / 0.30);
+  --shadow-2xl: 0px 16px 48px 0px hsl(222 47% 5% / 0.40);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --secondary-border: hsl(var(--secondary));
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --muted-border: hsl(var(--muted));
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --destructive-border: hsl(var(--destructive));
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* Background like your original (blue↔orange soft gradient + vignette) */
-body{
-  min-height: 100vh;
-  color: var(--ink);
-  background:
-    radial-gradient(60rem 30rem at 10% -10%, rgba(14,165,233,.18), transparent),
-    radial-gradient(50rem 30rem at 110% 0%, rgba(249,115,22,.16), transparent),
-    linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+.dark {
+  --button-outline: rgba(255,255,255, .10);
+  --badge-outline: rgba(255,255,255, .05);
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(255,255,255, .04);
+  --elevate-2: rgba(255,255,255, .09);
+
+  --background: 222 47% 5%;
+  --foreground: 210 40% 98%;
+  --border: 217 33% 17%;
+  --card: 222 47% 8%;
+  --card-foreground: 210 40% 98%;
+  --card-border: 217 33% 17%;
+  --sidebar: 222 47% 7%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-border: 217 33% 17%;
+  --sidebar-primary: 24 95% 53%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 199 89% 48%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-ring: 199 89% 48%;
+  --popover: 222 47% 8%;
+  --popover-foreground: 210 40% 98%;
+  --popover-border: 217 33% 17%;
+  --primary: 24 95% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 199 89% 48%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 199 89% 48%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 217 33% 17%;
+  --ring: 199 89% 48%;
+  --chart-1: 24 95% 53%;
+  --chart-2: 199 89% 48%;
+  --chart-3: 12 95% 55%;
+  --chart-4: 224 76% 48%;
+  --chart-5: 280 70% 50%;
+
+  --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+  --shadow-sm: 0px 2px 4px 0px hsl(0 0% 0% / 0.20);
+  --shadow: 0px 4px 8px 0px hsl(0 0% 0% / 0.25);
+  --shadow-md: 0px 6px 16px 0px hsl(0 0% 0% / 0.30);
+  --shadow-lg: 0px 8px 24px 0px hsl(0 0% 0% / 0.35);
+  --shadow-xl: 0px 12px 32px 0px hsl(0 0% 0% / 0.40);
+  --shadow-2xl: 0px 16px 48px 0px hsl(0 0% 0% / 0.50);
 }
 
-.dark body{
-  color: var(--ink-2);
-  background:
-    radial-gradient(60rem 30rem at 10% -10%, rgba(14,165,233,.22), transparent),
-    radial-gradient(50rem 30rem at 110% 0%, rgba(249,115,22,.18), transparent),
-    linear-gradient(135deg, #0b1020, #111827);
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  
+  /* DREAMengin Animated Gradient Background */
+  .dream-bg {
+    background: 
+      radial-gradient(ellipse at 20% 100%, hsl(24 95% 53% / 0.4) 0px, transparent 50%),
+      radial-gradient(ellipse at 80% 0%, hsl(199 89% 48% / 0.4) 0px, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, hsl(222 47% 5%) 0px, hsl(222 47% 3%) 100%);
+    background-attachment: fixed;
+    animation: dream-shift 20s ease-in-out infinite alternate;
+  }
+  
+  @keyframes dream-shift {
+    0% {
+      background: 
+        radial-gradient(ellipse at 20% 100%, hsl(24 95% 53% / 0.4) 0px, transparent 50%),
+        radial-gradient(ellipse at 80% 0%, hsl(199 89% 48% / 0.4) 0px, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, hsl(222 47% 5%) 0px, hsl(222 47% 3%) 100%);
+    }
+    50% {
+      background: 
+        radial-gradient(ellipse at 30% 80%, hsl(12 95% 55% / 0.35) 0px, transparent 50%),
+        radial-gradient(ellipse at 70% 20%, hsl(224 76% 48% / 0.35) 0px, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, hsl(222 47% 5%) 0px, hsl(222 47% 3%) 100%);
+    }
+    100% {
+      background: 
+        radial-gradient(ellipse at 40% 90%, hsl(24 95% 53% / 0.4) 0px, transparent 50%),
+        radial-gradient(ellipse at 60% 10%, hsl(199 89% 48% / 0.4) 0px, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, hsl(222 47% 5%) 0px, hsl(222 47% 3%) 100%);
+    }
+  }
+  
+  /* Glassmorphism */
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl;
+  }
+  
+  .glass-strong {
+    @apply bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl;
+  }
+  
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl;
+  }
+  
+  .glass-input {
+    @apply bg-white/5 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all;
+  }
+  
+  .glass-button {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-6 py-3 font-medium transition-all hover:bg-white/20 active:scale-95;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-orange-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent;
+  }
+  
+  .glow-orange {
+    box-shadow: 0 0 20px hsl(24 95% 53% / 0.3), 0 0 40px hsl(24 95% 53% / 0.1);
+  }
+  
+  .glow-cyan {
+    box-shadow: 0 0 20px hsl(199 89% 48% / 0.3), 0 0 40px hsl(199 89% 48% / 0.1);
+  }
+  
+  .glow-dual {
+    box-shadow: 
+      -10px 0 30px hsl(24 95% 53% / 0.2),
+      10px 0 30px hsl(199 89% 48% / 0.2);
+  }
 }
 
-/* Glass card like your second screenshot */
-.glass{
-  background: var(--card);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  @apply rounded-3xl border border-white/60 shadow-2xl;
-}
-.dark .glass{
-  background: var(--card-dark);
-  @apply border-white/10;
+@layer utilities {
+  input[type="search"]::-webkit-search-cancel-button {
+    @apply hidden;
+  }
+
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+
+  .no-default-hover-elevate {}
+  .no-default-active-elevate {}
+
+  .toggle-elevate::before,
+  .toggle-elevate-2::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: -1;
+  }
+
+  .toggle-elevate.toggle-elevated::before {
+    background-color: var(--elevate-2);
+  }
+
+  .border.toggle-elevate::before {
+    inset: -1px;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative;
+    z-index: 0;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: 999;
+  }
+
+  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-1);
+  }
+
+  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-2);
+  }
+
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
+    inset: -1px;
+  }
 }
 
-/* Buttons */
-.btn{
-  background: var(--brand);
-  @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-white font-semibold transition
-         hover:brightness-110 active:scale-95;
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
-.btn-outline{
-  @apply inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold
-         border border-black/10 dark:border-white/20;
-}
-.link{ color: var(--brand); }

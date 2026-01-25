@@ -4,11 +4,10 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "tsx script/build.ts",
-    "start": "NODE_ENV=production node dist/index.cjs",
-    "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -79,11 +78,7 @@
     "@supabase/ssr": "^0.5.0"
   },
   "devDependencies": {
-    "@replit/vite-plugin-cartographer": "^0.4.4",
-    "@replit/vite-plugin-dev-banner": "^0.1.1",
-    "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",
-    "@tailwindcss/vite": "^4.1.18",
     "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.0",
@@ -93,15 +88,13 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@types/ws": "^8.5.13",
-    "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.8",
     "esbuild": "^0.25.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.5",
-    "typescript": "5.6.3",
-    "vite": "^7.3.0"
+    "typescript": "5.6.3"
   },
   "overrides": {
     "drizzle-kit": {
@@ -114,32 +107,5 @@
   "private": true,
   "engines": {
     "node": ">=18.18.0 <21"
-  }
-}
-  "name": "dreamengin",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
-  "dependencies": {
-    "next": "16.1.4",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "@supabase/supabase-js": "^2.39.0",
-    "@supabase/ssr": "^0.5.0",
-    "react-hook-form": "^7.51.5",
-    "framer-motion": "^10.12.6",
-    "lucide-react": "^0.277.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.6.2",
-    "@types/react": "^18.2.74",
-    "@types/react-dom": "^18.2.23",
-    "@types/node": "^20.11.8",
-    "tailwindcss": "^3.4.10",
-    "autoprefixer": "^10.4.18",
-    "postcss": "^8.4.33"
   }
 }
