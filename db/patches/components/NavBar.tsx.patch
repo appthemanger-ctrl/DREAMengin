@@ -1,5 +1,0 @@
-*** a/components/NavBar.tsx
---- b/components/NavBar.tsx
-@@
--  const isAdmin = cookies().get('admin')?.value === '1';
-+  const isAdmin = (await cookies()).get('admin')?.value === '1';
