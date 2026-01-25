@@ -1,47 +1,6 @@
 {
-  "include": [
-    "client/src/**/*",
-    "shared/**/*",
-    "server/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "build",
-    "dist",
-    "**/*.test.ts"
-  ],
   "compilerOptions": {
-    "incremental": true,
-    "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
-    "noEmit": true,
-    "module": "ESNext",
-    "strict": true,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
-    "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
-    "moduleResolution": "bundler",
-    "baseUrl": ".",
-    "types": [
-      "node",
-      "vite/client"
-    ],
-    "paths": {
-      "@/*": [
-        "./client/src/*"
-      ],
-      "@shared/*": [
-        "./shared/*"
-      ]
-    }
-  }
-  "compilerOptions": {
-    "target": "es2020",
+    "target": "ES6",
     "lib": [
       "dom",
       "dom.iterable",
@@ -49,32 +8,32 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
-    "incremental": true,
+    "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./*"
+        "app/*"
+      ],
+      "@components/*": [
+        "app/components/*"
+      ],
+      "@shared/*": [
+        "shared/*"
       ]
-    },
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx",
-    ".next/dev/types/**/*.ts"
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules"
