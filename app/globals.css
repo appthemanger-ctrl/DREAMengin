@@ -1,0 +1,21 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { --color-1:#f97316; --color-2:#0ea5e9; }
+  body {
+    @apply text-white;
+    background:
+      radial-gradient(at 20% 90%, var(--color-1) 0px, transparent 50%),
+      radial-gradient(at 80% 10%, var(--color-2) 0px, transparent 50%),
+      radial-gradient(at 40% 40%, #0b1220 0px, transparent 50%);
+    background-attachment: fixed;
+    animation: slow-pan 20s linear infinite;
+  }
+  .glass { @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl; }
+  .btn { @apply px-5 py-2 rounded-2xl font-semibold transition active:scale-95; }
+  .btn-primary { @apply btn bg-brandA hover:bg-brandA/90 text-white; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
