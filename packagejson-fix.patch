@@ -1,0 +1,14 @@
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -1,29 +1,27 @@
+ {
+@@
+   "dependencies": {
+-    // Upgrade Next.js to the required version for Vercel
+     "next": "16.1.4",
+@@
+   "devDependencies": {
+     "eslint": "^8.57.0",
+-    // Align eslint-config-next with the upgraded Next.js version
+     "eslint-config-next": "^16.1.4",
