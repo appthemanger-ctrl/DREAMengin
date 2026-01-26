@@ -1,6 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Robot, Send, CheckCircle } from 'lucide-react';
+import { Bot, Send, CircleCheck } from 'lucide-react';
 
 export default async function AdminPage() {
   const supabase = createServerClient();
@@ -30,7 +30,7 @@ export default async function AdminPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-center mb-8">
-          <Robot className="w-8 h-8 mr-3 text-slate-700" />
+          <Bot className="w-8 h-8 mr-3 text-slate-700" />
           <h1 className="text-3xl font-bold text-slate-900">Admin - AI Updater</h1>
         </div>
 
@@ -71,7 +71,7 @@ export default async function AdminPage() {
 
             <div className="flex items-center justify-between">
               <p className="text-sm text-slate-500">
-                <CheckCircle className="w-4 h-4 inline mr-1 text-green-500" />
+                <CircleCheck className="w-4 h-4 inline mr-1 text-green-500" />
                 Request will be logged for manual review (MVP)
               </p>
               <button
