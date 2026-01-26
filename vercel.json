@@ -1,0 +1,7 @@
+{
+  // Tells Vercel to treat this project as a Next.js application
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "ignoreCommand": "echo 'no files to ignore'"
+}
