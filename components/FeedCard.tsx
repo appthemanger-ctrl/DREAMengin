@@ -37,13 +37,13 @@ export default function FeedCard({ item }: FeedCardProps) {
   const getSourceColor = () => {
     switch (item.source) {
       case 'youtube':
-        return 'border-red-500/40 bg-red-500/20';
+        return 'border-red-200 bg-red-50';
       case 'app':
-        return 'border-blue-500/40 bg-blue-500/20';
+        return 'border-blue-200 bg-blue-50';
       case 'demo':
-        return 'border-purple-500/40 bg-purple-500/20';
+        return 'border-purple-200 bg-purple-50';
       default:
-        return 'border-slate-700 bg-slate-700/30';
+        return 'border-slate-200';
     }
   };
 
@@ -61,31 +61,31 @@ export default function FeedCard({ item }: FeedCardProps) {
             <div className="flex items-center space-x-2">
               {item.profiles && (
                 <>
-                  <span className="text-sm font-medium text-gray-100">
+                  <span className="text-sm font-medium text-slate-900">
                     {item.profiles.display_name || item.profiles.handle}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-slate-500">
                     @{item.profiles.handle}
                   </span>
                 </>
               )}
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-slate-400">
                 {formatRelativeTime(item.ts)}
               </span>
             </div>
-            <span className="text-xs text-gray-500 capitalize">
+            <span className="text-xs text-slate-400 capitalize">
               {item.source}
             </span>
           </div>
 
           {/* Title */}
-          <h3 className="text-lg font-semibold text-gray-100 mb-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">
             {item.title || 'Untitled'}
           </h3>
 
           {/* Summary */}
           {item.summary && (
-            <p className="text-sm text-gray-400 mb-3 line-clamp-3">
+            <p className="text-sm text-slate-600 mb-3 line-clamp-3">
               {item.summary}
             </p>
           )}
@@ -96,7 +96,7 @@ export default function FeedCard({ item }: FeedCardProps) {
               <img
                 src={item.media_json.thumbnail}
                 alt={item.title || 'Content thumbnail'}
-                className="w-full h-48 object-cover rounded-md border border-slate-700"
+                className="w-full h-48 object-cover rounded-md"
               />
             </div>
           )}
@@ -108,18 +108,18 @@ export default function FeedCard({ item }: FeedCardProps) {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-purple-400 hover:text-purple-300 flex items-center transition-colors"
+                className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
               >
                 <ExternalLink className="w-4 h-4 mr-1" />
                 View
               </a>
             )}
             
-            <button className="text-sm text-gray-400 hover:text-gray-300 transition-colors">
+            <button className="text-sm text-slate-500 hover:text-slate-700">
               Like
             </button>
             
-            <button className="text-sm text-gray-400 hover:text-gray-300 transition-colors">
+            <button className="text-sm text-slate-500 hover:text-slate-700">
               Share
             </button>
           </div>

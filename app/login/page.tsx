@@ -19,7 +19,8 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/home`,
+        // Supabase magic links should land on a callback route so we can exchange the code for a session.
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
@@ -32,13 +33,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-950 via-purple-950 to-black text-gray-200">
-      <div className="max-w-md w-full space-y-8 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 bg-clip-text text-transparent">
+          <h2 className="mt-6 text-center text-3xl font-bold text-slate-900">
             Welcome to DreamEngin
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-400">
+          <p className="mt-2 text-center text-sm text-slate-600">
             Sign in with your email to continue
           </p>
         </div>
@@ -54,7 +55,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-3 bg-slate-700/60 border border-slate-600 placeholder-gray-500 text-gray-100 rounded-t-md focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-t-md focus:outline-none focus:ring-slate-500 focus:border-slate-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -66,7 +67,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50 transition-colors"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -80,7 +81,7 @@ export default function LoginPage() {
           </div>
 
           {message && (
-            <div className={`p-4 rounded-md text-sm ${message.includes('Error') ? 'bg-red-500/10 text-red-200 border border-red-500/30' : 'bg-green-500/10 text-green-200 border border-green-500/30'}`}>
+            <div className={`p-4 rounded-md ${message.includes('Error') ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'}`}>
               {message}
             </div>
           )}

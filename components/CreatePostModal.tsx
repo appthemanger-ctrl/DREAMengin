@@ -53,13 +53,13 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-slate-800/70 backdrop-blur-lg border border-slate-600 rounded-lg p-6 w-full max-w-lg mx-4 shadow-xl">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-100">Create Post</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Create Post</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-purple-400 transition-colors"
+            className="text-slate-400 hover:text-slate-600"
           >
             <X className="w-5 h-5" />
           </button>
@@ -70,7 +70,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="What's on your mind?"
-            className="w-full h-32 p-3 bg-slate-700/60 text-gray-100 border border-slate-600 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-purple-600"
+            className="w-full h-32 p-3 border border-slate-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-slate-500"
             required
           />
 
@@ -78,7 +78,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
             <div className="flex items-center space-x-2">
               <button
                 type="button"
-                className="p-2 text-gray-400 hover:text-purple-400 hover:bg-slate-700 rounded-md transition-colors"
+                className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md"
               >
                 <Image className="w-5 h-5" />
               </button>
@@ -86,7 +86,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
               <select
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value as any)}
-                className="text-sm bg-slate-700/60 text-gray-100 border border-slate-600 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-purple-600"
+                className="text-sm border border-slate-300 rounded-md px-2 py-1"
               >
                 <option value="followers">Followers</option>
                 <option value="public">Public</option>
@@ -97,7 +97,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
             <button
               type="submit"
               disabled={isSubmitting || !content.trim()}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md disabled:opacity-50 flex items-center transition-colors"
+              className="bg-slate-800 text-white px-4 py-2 rounded-md hover:bg-slate-700 disabled:opacity-50 flex items-center"
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

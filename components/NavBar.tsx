@@ -30,19 +30,19 @@ export default function NavBar({ session }: { session: any }) {
   };
 
   return (
-    <nav className="bg-slate-800/60 backdrop-blur-md border-b border-slate-700 sticky top-0 z-50">
+    <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0 flex items-center">
-            <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 bg-clip-text text-transparent">DreamEngin</span>
+            <span className="text-2xl font-bold text-slate-800">DreamEngin</span>
           </Link>
 
           {/* Navigation Links */}
           <div className="flex items-center space-x-6">
             <Link 
               href="/discover" 
-              className={`flex items-center text-sm font-medium transition-colors ${pathname === '/discover' ? 'text-purple-300' : 'text-gray-400 hover:text-purple-400'}`}
+              className={`text-sm font-medium ${pathname === '/discover' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
             >
               <Search className="w-5 h-5 inline mr-1" />
               Discover
@@ -50,7 +50,7 @@ export default function NavBar({ session }: { session: any }) {
             
             <Link 
               href="/shop" 
-              className={`flex items-center text-sm font-medium transition-colors ${pathname === '/shop' ? 'text-purple-300' : 'text-gray-400 hover:text-purple-400'}`}
+              className={`text-sm font-medium ${pathname === '/shop' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
             >
               <Store className="w-5 h-5 inline mr-1" />
               Shop
@@ -60,7 +60,7 @@ export default function NavBar({ session }: { session: any }) {
               <>
                 <Link 
                   href="/home" 
-                  className={`flex items-center text-sm font-medium transition-colors ${pathname === '/home' ? 'text-purple-300' : 'text-gray-400 hover:text-purple-400'}`}
+                  className={`text-sm font-medium ${pathname === '/home' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                   <Home className="w-5 h-5 inline mr-1" />
                   Home
@@ -68,7 +68,7 @@ export default function NavBar({ session }: { session: any }) {
                 
                 <Link 
                   href="/music" 
-                  className={`flex items-center text-sm font-medium transition-colors ${pathname === '/music' ? 'text-purple-300' : 'text-gray-400 hover:text-purple-400'}`}
+                  className={`text-sm font-medium ${pathname === '/music' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                   <Music className="w-5 h-5 inline mr-1" />
                   Music
@@ -76,7 +76,7 @@ export default function NavBar({ session }: { session: any }) {
                 
                 <Link 
                   href="/lab" 
-                  className={`flex items-center text-sm font-medium transition-colors ${pathname === '/lab' ? 'text-purple-300' : 'text-gray-400 hover:text-purple-400'}`}
+                  className={`text-sm font-medium ${pathname === '/lab' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                   <FlaskConical className="w-5 h-5 inline mr-1" />
                   Lab
@@ -91,7 +91,7 @@ export default function NavBar({ session }: { session: any }) {
               <>
                 <Link 
                   href="/messages" 
-                  className={`flex items-center text-sm font-medium transition-colors ${pathname === '/messages' ? 'text-purple-300' : 'text-gray-400 hover:text-purple-400'}`}
+                  className={`text-sm font-medium ${pathname === '/messages' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                   <MessageSquare className="w-5 h-5" />
                 </Link>
@@ -100,23 +100,23 @@ export default function NavBar({ session }: { session: any }) {
                 <div className="relative">
                   <button
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center space-x-2 text-sm font-medium text-gray-400 hover:text-purple-400"
+                    className="flex items-center space-x-2 text-sm font-medium text-slate-500 hover:text-slate-700"
                   >
                     <User className="w-5 h-5" />
                   </button>
                   
                   {isProfileOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-slate-800/70 backdrop-blur-md border border-slate-700 rounded-md shadow-lg py-1 z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                       <Link
                         href="/edit-profile"
-                        className="block px-4 py-2 text-sm text-gray-200 hover:bg-slate-700 hover:text-white"
+                        className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         Edit Profile
                       </Link>
                       <Link
                         href="/settings"
-                        className="block px-4 py-2 text-sm text-gray-200 hover:bg-slate-700 hover:text-white"
+                        className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <Settings className="w-4 h-4 inline mr-2" />
@@ -124,7 +124,7 @@ export default function NavBar({ session }: { session: any }) {
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-slate-700 hover:text-white"
+                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
                       >
                         <LogOut className="w-4 h-4 inline mr-2" />
                         Logout
@@ -136,7 +136,7 @@ export default function NavBar({ session }: { session: any }) {
             ) : (
               <Link 
                 href="/login" 
-                className="text-sm font-medium text-gray-100 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md transition-colors"
+                className="text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-md"
               >
                 Login
               </Link>

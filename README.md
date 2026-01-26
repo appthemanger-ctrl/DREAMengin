@@ -15,7 +15,7 @@ A unified creator platform combining social feed, content aggregation, monetizat
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js 16.1.4 with App Router
 - **Database**: Supabase (Postgres + Auth + Storage + Realtime)
 - **Styling**: Tailwind CSS
 - **UI Components**: Radix UI + Lucide Icons
@@ -26,7 +26,7 @@ A unified creator platform combining social feed, content aggregation, monetizat
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.9+ (required by Next.js 16)
 - Supabase account
 - Vercel account (for deployment)
 
@@ -89,11 +89,26 @@ Open [http://localhost:3000](http://localhost:3000) with your browser.
 
 1. Push your code to GitHub
 2. Import the repository into Vercel
-3. Set environment variables:
+3. **Important:** In Vercel Project Settings → General, keep **Root Directory** blank (repo root) unless you intentionally moved the Next.js app into a subfolder.
+   - If you see: **"No Next.js version detected"**, it almost always means Vercel is looking at the wrong folder or a `package.json` that doesn't include `next`.
+4. Set environment variables:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
-4. Deploy
+5. Deploy
+
+#### Auth redirect note
+
+Magic-link login redirects to `/auth/callback` (implemented in this repo) so the app can exchange the PKCE `code` for a Supabase session cookie before sending the user to `/home`.
+
+#### If Vercel says: "No Next.js version detected"
+
+This happens when Vercel is pointed at a directory that doesn't contain your **Next.js** `package.json`.
+
+- In **Project Settings → General → Root Directory**, set it to **the repo root** (blank) or to the folder that contains this app's `package.json`.
+- Confirm `package.json` contains `"next": "16.1.4"`.
+
+See common fixes in the Vercel community + StackOverflow threads. citeturn0search2turn0search7
 
 ### Edge Functions (Optional)
 
@@ -135,7 +150,7 @@ dreamengin/
 ## Key Features Implementation
 
 ### Authentication
-- Supabase Auth with magic links
+- Supabase Auth with magic links (callback route at `/auth/callback`)
 - Private route protection with middleware
 - RLS policies for data access control
 

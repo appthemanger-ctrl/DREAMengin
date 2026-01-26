@@ -4,26 +4,25 @@
 
 @layer base {
   :root {
-    /* Dark futuristic palette for an innovative look */
-    --background: 230 25% 10%;          /* deep navy background */
-    --foreground: 210 20% 96%;          /* light gray text on dark backgrounds */
-    --card: 233 20% 15%;                /* slightly lighter card background */
-    --card-foreground: 210 20% 96%;     /* card text color */
-    --popover: 233 20% 18%;             /* popover/dropdown background */
-    --popover-foreground: 210 20% 96%;  /* popover text */
-    --primary: 265 80% 60%;             /* vibrant purple primary */
-    --primary-foreground: 210 20% 98%;  /* on primary surfaces */
-    --secondary: 228 20% 20%;           /* muted dark blue for secondary elements */
-    --secondary-foreground: 210 20% 90%;/* text on secondary */
-    --muted: 230 15% 18%;               /* muted backgrounds */
-    --muted-foreground: 215 10% 55%;    /* muted text */
-    --accent: 289 80% 60%;              /* neon pink accent */
-    --accent-foreground: 210 20% 98%;   /* text on accent */
-    --destructive: 0 80% 55%;           /* red for destructive actions */
-    --destructive-foreground: 210 20% 98%;
-    --border: 228 15% 25%;              /* subtle border on dark backgrounds */
-    --input: 228 15% 25%;               /* input backgrounds */
-    --ring: 265 80% 60%;                /* ring color matches primary */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
   }
 }
@@ -33,24 +32,8 @@
     @apply border-border;
   }
   body {
-    /* Global gradient background and default text colour */
-    /* Replace static gradient with a dynamic one that slowly shifts through deep blues and purples.
-       The background size is set large so the animation has room to move. The animation defined
-       below will create a subtle movement to make the page feel alive without being distracting. */
-    @apply min-h-screen text-gray-200;
-    background: linear-gradient(-45deg, #1e2a47, #30143f, #120d2d, #1d164e);
-    background-size: 800% 800%;
-    animation: gradient-anim 30s ease infinite;
+    @apply bg-background text-foreground;
   }
-}
-
-/* Define keyframes for the dynamic gradient animation. The background position
-   moves slowly across the large gradient, creating the illusion of depth
-   and subtle motion. */
-@keyframes gradient-anim {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 @layer utilities {
@@ -104,26 +87,13 @@ pre code {
 }
 
 /* Widget bubble styling */
-/*
- * Widget bubbles float on a dark glassy surface. We use
- * translucency and subtle neon borders to convey depth. When
- * dragging or hovering, the bubble glows slightly to imply
- * interactivity. The `active:scale-95` utility gives a
- * tactile feel when pressed.
- */
 .widget-bubble {
-  @apply rounded-xl bg-slate-800/60 backdrop-blur-md border border-purple-500/40 text-white cursor-move shadow-md transition-transform transition-shadow duration-200 ease-out hover:shadow-purple-600/50 hover:-translate-y-1 hover:scale-105 active:scale-95;
+  @apply rounded-full bg-white shadow-md border border-gray-200 cursor-move transition-all hover:shadow-lg;
 }
 
 /* Feed card styling */
-/*
- * Feed cards are dark panels with subtle gradients. A faint
- * border separates them from the page while a soft shadow
- * elevates them slightly off the surface. On hover the
- * shadow deepens to draw attention.
- */
 .feed-card {
-  @apply bg-gradient-to-br from-slate-800 to-slate-900/80 rounded-lg border border-slate-700 p-5 mb-6 shadow-md text-gray-200 transition-shadow transition-transform duration-200 ease-out hover:shadow-xl hover:-translate-y-1 hover:scale-105;
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4;
 }
 
 /* Drag and drop styling */
@@ -131,7 +101,38 @@ pre code {
   @apply opacity-50;
 }
 
-/* When dragging over a droppable area, highlight with the accent color */
 .drag-over {
-  @apply border-purple-500 border-2;
+  @apply border-blue-400 border-2;
+}
+
+/* --- DreamEngin "OS" skin (opt-in via classes) --- */
+.dream-bg {
+  background:
+    radial-gradient(at 20% 90%, #f97316 0px, transparent 50%),
+    radial-gradient(at 80% 10%, #0ea5e9 0px, transparent 50%),
+    radial-gradient(at 40% 40%, #0b1220 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+.glass {
+  @apply bg-white/70 backdrop-blur-xl border border-white/60 rounded-3xl shadow-2xl;
+}
+
+.glass-dark {
+  @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl;
+}
+
+.btn {
+  @apply px-5 py-2 rounded-2xl font-semibold transition active:scale-95;
+}
+
+.btn-primary {
+  @apply btn bg-slate-900 text-white hover:bg-slate-800;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }

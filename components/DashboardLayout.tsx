@@ -2,7 +2,7 @@
 
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import FeedCard from './FeedCard';
 import WidgetBubble from './WidgetBubble';
 import CreatePostModal from './CreatePostModal';
@@ -29,37 +29,7 @@ export default function DashboardLayout({ feed, widgets: initialWidgets, userId,
   const [widgets, setWidgets] = useState<Widget[]>(initialWidgets);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
-  const [feedItems, setFeedItems] = useState<any[]>(feed);
-  const [notifItems, setNotifItems] = useState<any[]>(notifications);
   const supabase = createClient();
-
-  // Subscribe to realtime changes for feed and notifications. When a new
-  // record is inserted for this user, prepend it to the existing list so
-  // the UI updates immediately without a refresh. We clean up the
-  // subscription on unmount to avoid memory leaks.
-  useEffect(() => {
-    const channel = supabase.channel(`dashboard-${userId}`)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'feed_items',
-        filter: `user_id=eq.${userId}`,
-      }, (payload) => {
-        setFeedItems((current) => [payload.new, ...current]);
-      })
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'notifications',
-        filter: `user_id=eq.${userId}`,
-      }, (payload) => {
-        setNotifItems((current) => [payload.new, ...current]);
-      });
-    channel.subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, userId]);
 
   const moveWidget = async (dragIndex: number, hoverIndex: number) => {
     const draggedWidget = widgets[dragIndex];
@@ -118,32 +88,31 @@ export default function DashboardLayout({ feed, widgets: initialWidgets, userId,
 
   return (
     <DndProvider backend={HTML5Backend}>
-      {/* Allow the global body gradient to show through; just ensure text color is set */}
-      <div className="min-h-screen text-gray-200">
+      <div className="min-h-screen bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-12 gap-6">
             {/* Left Sidebar - Widgets */}
-            <div className="col-span-12 lg:col-span-3">
-              <div className="bg-slate-800/60 backdrop-blur-lg rounded-lg border border-slate-700 shadow-md p-4 mb-6">
+            <div className="col-span-3">
+              <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold">Widgets</h2>
+                  <h2 className="text-lg font-semibold text-slate-900">Widgets</h2>
                   <button
                     onClick={() => setIsEditMode(!isEditMode)}
-                    className={`p-2 rounded-md transition-colors ${isEditMode ? 'bg-purple-700 text-white' : 'hover:bg-slate-700'}`}
+                    className={`p-2 rounded-md ${isEditMode ? 'bg-slate-200' : 'hover:bg-slate-100'}`}
                   >
                     <Settings className="w-4 h-4" />
                   </button>
                 </div>
 
                 {isEditMode && (
-                  <div className="mb-4 p-3 bg-slate-700/50 rounded-md border border-slate-600">
-                    <p className="text-sm mb-2">Add widget:</p>
+                  <div className="mb-4 p-3 bg-slate-50 rounded-md">
+                    <p className="text-sm text-slate-600 mb-2">Add widget:</p>
                     <div className="flex flex-wrap gap-2">
                       {['notifications', 'promo', 'next_stream', 'watch', 'messages', 'lab'].map(type => (
                         <button
                           key={type}
                           onClick={() => addWidget(type)}
-                          className="px-3 py-1 text-xs bg-purple-600 hover:bg-purple-700 text-white rounded-md flex items-center transition-colors"
+                          className="px-3 py-1 text-xs bg-slate-800 text-white rounded-md hover:bg-slate-700"
                         >
                           <Plus className="w-3 h-3 inline mr-1" />
                           {type}
@@ -168,12 +137,12 @@ export default function DashboardLayout({ feed, widgets: initialWidgets, userId,
               </div>
 
               {/* Notifications Widget */}
-              {notifItems.length > 0 && (
-                <div className="bg-slate-800/60 backdrop-blur-lg rounded-lg border border-slate-700 p-4">
-                  <h3 className="text-sm font-semibold mb-3">Notifications</h3>
+              {notifications.length > 0 && (
+                <div className="bg-white rounded-lg shadow-sm p-4">
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Notifications</h3>
                   <div className="space-y-2">
-                    {notifItems.slice(0, 5).map(notif => (
-                      <div key={notif.id} className="text-xs p-2 bg-slate-700/50 rounded border border-slate-600">
+                    {notifications.slice(0, 5).map(notif => (
+                      <div key={notif.id} className="text-xs text-slate-600 p-2 bg-slate-50 rounded">
                         {notif.content?.message || 'New notification'}
                       </div>
                     ))}
@@ -183,12 +152,12 @@ export default function DashboardLayout({ feed, widgets: initialWidgets, userId,
             </div>
 
             {/* Main Feed */}
-            <div className="col-span-12 lg:col-span-6">
-              <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Feed</h1>
+            <div className="col-span-6">
+              <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold text-slate-900">Feed</h1>
                 <button
                   onClick={() => setShowPostModal(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md flex items-center transition-colors"
+                  className="bg-slate-800 text-white px-4 py-2 rounded-md hover:bg-slate-700 flex items-center"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   New Post
@@ -196,29 +165,29 @@ export default function DashboardLayout({ feed, widgets: initialWidgets, userId,
               </div>
 
               <div className="space-y-4">
-                {feedItems.map((item) => (
+                {feed.map((item) => (
                   <FeedCard key={item.id} item={item} />
                 ))}
               </div>
             </div>
 
             {/* Right Sidebar */}
-            <div className="col-span-12 lg:col-span-3">
-              <div className="bg-slate-800/60 backdrop-blur-lg rounded-lg border border-slate-700 shadow-md p-4 mb-6">
-                <h3 className="text-sm font-semibold mb-3">Promos</h3>
-                <div className="text-xs p-3 bg-gradient-to-r from-purple-800 via-indigo-800 to-blue-800 rounded border border-slate-700">
-                  <strong className="text-purple-300">Ad Space Available!</strong>
+            <div className="col-span-3">
+              <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Promos</h3>
+                <div className="text-xs text-slate-600 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded">
+                  <strong>Ad Space Available!</strong>
                   <br />
-                  Promote your content on DreamEngin. <Link href="/ads" className="text-purple-400 hover:text-purple-300 underline">Learn more</Link>
+                  Promote your content on DreamEngin. <Link href="/ads" className="text-blue-600">Learn more</Link>
                 </div>
               </div>
 
-              <div className="bg-slate-800/60 backdrop-blur-lg rounded-lg border border-slate-700 shadow-md p-4">
-                <h3 className="text-sm font-semibold mb-3">Quick Links</h3>
+              <div className="bg-white rounded-lg shadow-sm p-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Quick Links</h3>
                 <div className="space-y-2">
-                  <Link href="/lab" className="block text-sm text-gray-300 hover:text-purple-400 transition-colors">Lab Projects</Link>
-                  <Link href="/music" className="block text-sm text-gray-300 hover:text-purple-400 transition-colors">Music Releases</Link>
-                  <Link href="/shop" className="block text-sm text-gray-300 hover:text-purple-400 transition-colors">Merch Store</Link>
+                  <Link href="/lab" className="block text-sm text-slate-600 hover:text-slate-900">Lab Projects</Link>
+                  <Link href="/music" className="block text-sm text-slate-600 hover:text-slate-900">Music Releases</Link>
+                  <Link href="/shop" className="block text-sm text-slate-600 hover:text-slate-900">Merch Store</Link>
                 </div>
               </div>
             </div>

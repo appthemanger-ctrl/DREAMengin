@@ -86,11 +86,11 @@ export default function WidgetBubble({ widget }: WidgetBubbleProps) {
       className={`widget-bubble p-4 ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="flex items-center space-x-3">
-        <div className="text-purple-400">
+        <div className="text-slate-600">
           {getIcon()}
         </div>
         <div>
-          <div className="text-sm font-medium text-gray-100 flex items-center">
+          <div className="text-sm font-medium text-slate-900 flex items-center">
             {getLabel()}
             {getNotificationCount() && (
               <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
@@ -109,21 +109,21 @@ function WidgetContent({ type, config }: { type: string; config: any }) {
   switch (type) {
     case 'notifications':
       return (
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-slate-500">
           {config.unread ? `${config.unread} unread` : 'No new notifications'}
         </div>
       );
     case 'promo':
-      return <div className="text-xs text-gray-400">{config.text || 'Active promotion'}</div>;
+      return <div className="text-xs text-slate-500">{config.text || 'Active promotion'}</div>;
     case 'next_stream':
-      return <div className="text-xs text-gray-400">{config.channel ? `${config.channel} - Live soon` : 'No stream scheduled'}</div>;
+      return <div className="text-xs text-slate-500">{config.channel ? `${config.channel} - Live soon` : 'No stream scheduled'}</div>;
     case 'messages':
-      return <div className="text-xs text-gray-400">{config.unread ? `${config.unread} unread` : 'No new messages'}</div>;
+      return <div className="text-xs text-slate-500">{config.unread ? `${config.unread} unread` : 'No new messages'}</div>;
     case 'lab':
-      return <div className="text-xs text-gray-400">Open lab projects</div>;
+      return <div className="text-xs text-slate-500">Open lab projects</div>;
     case 'machine':
-      return <div className="text-xs text-gray-400">{config.name || 'Physics simulation'}</div>;
+      return <div className="text-xs text-slate-500">{config.name || 'Physics simulation'}</div>;
     default:
-      return <div className="text-xs text-gray-400">Widget</div>;
+      return <div className="text-xs text-slate-500">Widget</div>;
   }
 }
