@@ -1,37 +1,41 @@
-# Dream App
+# DreamEngin
 
-A modern, full-featured social platform built with Next.js 16.1.4, Supabase, and AI integration.
+A unified creator platform combining social feed, content aggregation, monetization, and scientific collaboration features.
 
-## ✨ Features
+## Features
 
-- 🔐 **Authentication** - Secure login/signup with email/password and GitHub OAuth
-- 💬 **Real-time Messaging** - Instant conversations with Supabase Realtime
-- 🤖 **AI Assistant** - Meet Dr. Eam, your intelligent AI companion
-- 👥 **User Profiles** - Customizable profiles with avatars and bios
-- 🎨 **Modern UI** - Beautiful interface with Tailwind CSS and shadcn/ui
-- 📱 **Responsive Design** - Works perfectly on all devices
-- ⚡ **Lightning Fast** - Built with Next.js 16.1.4 and Turbo
-- 🔄 **State Management** - Clean state handling with Zustand
+- **Customizable Dashboard**: Drag-and-drop widget system with react-dnd
+- **Unified Feed**: In-app posts + follows + external connectors (YouTube, Demo)
+- **Profile System**: Public profiles with themes, links, music, merch, and lab projects
+- **Ad Marketplace**: Buy and sell ad slots with revenue sharing
+- **Shop**: User-sold merchandise listings
+- **Music**: Upload and embed music releases
+- **Lab**: Scientific project collaboration with markdown notebooks and physics widgets
+- **Admin**: AI-powered site updater (MVP stub)
 
-## 🚀 Tech Stack
+## Tech Stack
 
-- **Framework**: Next.js 16.1.4 (App Router + Turbo)
-- **Authentication**: Supabase Auth
-- **Database**: Supabase PostgreSQL
-- **Real-time**: Supabase Realtime
+- **Framework**: Next.js 16.1.4 with App Router
+- **Database**: Supabase (Postgres + Auth + Storage + Realtime)
 - **Styling**: Tailwind CSS
-- **UI Components**: shadcn/ui + Radix UI
-- **State Management**: Zustand
-- **AI Integration**: OpenAI GPT
-- **Icons**: Lucide React
-- **Deployment**: Vercel-ready
+- **UI Components**: Radix UI + Lucide Icons
+- **Drag & Drop**: React DnD
+- **Testing**: Playwright
 
-## 📦 Installation
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20.9+ (required by Next.js 16)
+- Supabase account
+- Vercel account (for deployment)
+
+### Installation
 
 1. Clone the repository:
 ```bash
 git clone <your-repo-url>
-cd dream-app
+cd dreamengin
 ```
 
 2. Install dependencies:
@@ -39,218 +43,191 @@ cd dream-app
 npm install
 ```
 
-3. Set up environment variables:
+3. Copy environment variables:
 ```bash
-cp .env.example .env.local
+cp .env.local.example .env.local
 ```
 
-4. Update your `.env.local` with your Supabase and OpenAI credentials:
+4. Set up your environment variables in `.env.local`:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-OPENAI_API_KEY=your_openai_api_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-5. Run the development server:
+### Database Setup
+
+1. Create a new Supabase project
+2. Run the migrations in `supabase/migrations/`:`
+   - `20240120000000_initial_schema.sql`
+   - `20240120000001_enable_rls.sql`
+3. Apply the seed script: `supabase/seed.sql`
+
+### Development
+
 ```bash
 npm run dev
 ```
 
-## 🏗️ Building
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-```bash
-npm run build
-```
-
-## 🌐 Deployment
-
-### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Connect your GitHub repo to Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy!
-
-### Manual Deployment
-
-```bash
-npm run build
-npm start
-```
-
-## 📁 Project Structure
-
-```
-dream-app/
-├── src/
-│   ├── app/                 # Next.js App Router
-│   │   ├── api/            # API routes
-│   │   ├── dashboard/      # Dashboard page
-│   │   ├── login/          # Login page
-│   │   ├── signup/         # Signup page
-│   │   ├── messages/       # Messages page
-│   │   ├── users/          # Users page
-│   │   ├── profile/        # Profile page
-│   │   ├── settings/       # Settings page
-│   │   ├── ai/             # AI chat page
-│   │   ├── globals.css     # Global styles
-│   │   ├── layout.tsx      # Root layout
-│   │   └── page.tsx        # Landing page
-│   ├── components/         # React components
-│   │   ├── ui/             # shadcn/ui components
-│   │   ├── Header.tsx      # App header
-│   │   ├── Sidebar.tsx     # Navigation sidebar
-│   │   ├── AuthForm.tsx    # Authentication form
-│   │   └── AIChat.tsx      # AI chat component
-│   ├── hooks/              # Custom hooks
-│   │   ├── useAuth.ts      # Authentication hook
-│   │   ├── useMessages.ts  # Messages hook
-│   │   └── useAI.ts        # AI hook
-│   ├── lib/                # Utilities
-│   │   └── supabase.ts     # Supabase client
-│   ├── store/              # State management
-│   │   └── index.ts        # Zustand store
-│   ├── types/              # TypeScript types
-│   │   ├── index.ts        # App types
-│   │   └── supabase.ts     # Database types
-│   └── utils/              # Helper functions
-│       └── utils.ts        # General utilities
-├── public/                 # Static assets
-├── .env.example            # Environment variables example
-├── .env.local              # Local environment variables
-├── next.config.ts          # Next.js configuration
-├── tailwind.config.ts      # Tailwind config
-├── package.json            # Dependencies
-└── README.md              # This file
-```
-
-## 🔧 Configuration
+## Deployment
 
 ### Supabase Setup
 
 1. Create a new Supabase project
-2. Set up authentication providers (Email, GitHub)
-3. Create the following tables:
-   - `profiles` - User profiles
-   - `conversations` - Message conversations
-   - `messages` - Individual messages
+2. Run all SQL migrations in order
+3. Enable RLS on all tables
+4. Set up storage buckets for:
+   - `avatars` (public)
+   - `merch-images` (public)
+   - `music-uploads` (public)
+   - `attachments` (private)
 
-### Database Schema
+### Vercel Deployment
 
-```sql
--- Users table is managed by Supabase Auth
+1. Push your code to GitHub
+2. Import the repository into Vercel
+3. **Important:** In Vercel Project Settings → General, keep **Root Directory** blank (repo root) unless you intentionally moved the Next.js app into a subfolder.
+   - If you see: **"No Next.js version detected"**, it almost always means Vercel is looking at the wrong folder or a `package.json` that doesn't include `next`.
+4. Set environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+5. Deploy
 
--- Profiles table
-CREATE TABLE profiles (
-  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
-  email TEXT UNIQUE NOT NULL,
-  username TEXT UNIQUE,
-  full_name TEXT,
-  bio TEXT,
-  avatar_url TEXT,
-  is_online BOOLEAN DEFAULT false,
-  last_seen TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+#### Auth redirect note
 
--- Conversations table
-CREATE TABLE conversations (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  participant1_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  participant2_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+Magic-link login redirects to `/auth/callback` (implemented in this repo) so the app can exchange the PKCE `code` for a Supabase session cookie before sending the user to `/home`.
 
--- Messages table
-CREATE TABLE messages (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
-  sender_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  receiver_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  content TEXT NOT NULL,
-  is_read BOOLEAN DEFAULT false,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+#### If Vercel says: "No Next.js version detected"
 
--- Enable Row Level Security
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+This happens when Vercel is pointed at a directory that doesn't contain your **Next.js** `package.json`.
+
+- In **Project Settings → General → Root Directory**, set it to **the repo root** (blank) or to the folder that contains this app's `package.json`.
+- Confirm `package.json` contains `"next": "16.1.4"`.
+
+See common fixes in the Vercel community + StackOverflow threads. citeturn0search2turn0search7
+
+### Edge Functions (Optional)
+
+For connector polling, deploy the Edge Function:
+
+```bash
+supabase functions deploy poll-connectors
 ```
 
-## 🎯 Features Overview
+Set up a cron job to run the polling function every 15 minutes.
+
+## Project Structure
+
+```
+dreamengin/
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   ├── profile/[handle]/  # Dynamic profile pages
+│   ├── lab/[id]/          # Lab project pages
+│   └── ...
+├── components/            # React components
+│   ├── NavBar.tsx
+│   ├── FeedCard.tsx
+│   ├── DashboardLayout.tsx
+│   └── ...
+├── lib/                   # Utility functions
+│   ├── supabase/          # Supabase clients
+│   ├── connectors/        # External service connectors
+│   └── utils.ts
+├── types/                 # TypeScript types
+│   └── supabase.ts        # Generated types
+├── supabase/              # Supabase configuration
+│   ├── migrations/        # Database migrations
+│   └── seed.sql           # Demo data
+├── tests/                 # Playwright tests
+└── public/                # Static assets
+```
+
+## Key Features Implementation
 
 ### Authentication
-- Email/password signup and login
-- GitHub OAuth integration
-- Protected routes with middleware
-- Session management
+- Supabase Auth with magic links (callback route at `/auth/callback`)
+- Private route protection with middleware
+- RLS policies for data access control
 
-### Messaging
-- Real-time one-on-one conversations
-- Message history
-- Unread message indicators
-- Online status
+### Feed System
+- Unified feed from multiple sources
+- Feed rules (mute/boost/digest/budget)
+- Deduplication using hash keys
+- Real-time updates with Supabase Realtime
 
-### AI Assistant (Dr. Eam)
-- Chat-based AI interface
-- Quick prompt suggestions
-- Context-aware responses
-- Powered by OpenAI GPT
+### Widget System
+- Drag-and-drop interface with react-dnd
+- Persistent layout per user
+- Multiple widget types (notifications, promo, etc.)
 
-### User Experience
-- Responsive sidebar navigation
-- Modern card-based UI
-- Smooth animations
-- Loading states
-- Toast notifications
+### Ad Marketplace
+- Slot creation and management
+- Listing calendar system
+- Order tracking and reporting
+- Revenue sharing stub
 
-## 🛡️ Security Features
+### Lab Projects
+- Markdown notebook editor
+- File attachments via Supabase Storage
+- Physics simulation widgets (PhET embeds)
+- Project collaboration with members
 
-- Row Level Security (RLS) in Supabase
-- Protected API routes
-- Input validation
-- Secure session handling
-- Environment variable protection
+## Testing
 
-## 🎨 Styling
+Run tests with Playwright:
 
-The app uses a custom color palette:
-- Primary: Indigo (#6366f1)
-- Secondary: Violet (#8b5cf6)
-- Accent: Pink (#ec4899)
-- Dark: Deep indigo (#1e1b4b)
-- Light: Soft gray (#f8fafc)
+```bash
+npm run test
+```
 
-## 🤝 Contributing
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server only) |
+| `NEXT_PUBLIC_SITE_URL` | Production site URL |
+| `STRIPE_SECRET_KEY` | Stripe secret key (V2) |
+| `OPENAI_API_KEY` | OpenAI API key (V2 AI updater) |
+
+## Security
+
+- Row Level Security (RLS) on all tables
+- Rate limiting via Supabase and Vercel middleware
+- File upload validation
+- Audit logging for admin actions
+- Threat model includes spam, ad fraud, and data leakage protection
+
+## MVP vs V2
+
+### MVP (Current)
+- Core functionality with stub implementations
+- YouTube connector (polling)
+- Stripe stub for payments
+- AI updater stub (logs only)
+
+### V2 (Future)
+- Full AI updater with OpenAI integration
+- Spotify connector
+- Real Stripe payouts
+- Advanced physics lab with three.js
+- ML-based friend recommendations
+- Admin analytics dashboard
+
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Add tests
 5. Submit a pull request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
-
-## 🆘 Support
-
-If you encounter any issues:
-1. Check the console for errors
-2. Ensure all environment variables are set
-3. Verify Supabase connection
-4. Check the Issues section on GitHub
-
-## 🎉 Acknowledgments
-
-- Built with love using Next.js 16.1.4
-- Thanks to the Supabase team for the amazing backend
-- Inspired by modern social platforms
-- Special thanks to Dr. Eam for the AI assistance! ✨
-
----
-
-**Happy coding and welcome to the Dream community!** 🚀
