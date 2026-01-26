@@ -1,6 +1,6 @@
-# Dream App
+# Dream App 🚀
 
-A modern, full-featured social platform built with Next.js 16.1.4, Supabase, and AI integration.
+A modern, full-featured social platform built with **Next.js 16.1.4**, **Supabase**, and **AI integration**.
 
 ## ✨ Features
 
