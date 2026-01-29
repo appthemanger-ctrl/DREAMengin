@@ -1,3 +1,4 @@
+\begin{verbatim}
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -46,42 +47,40 @@ type Project = {
 
 export default async function LabProjectPage({ params }: LabProjectPageProps) {
   const supabase = createServerClient();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // IMPORTANT: include project_members so access checks work + avoid undefined typing
   const { data: project, error } = await supabase
     .from('projects')
     .select(
       `
-      id,
-      owner_id,
-      title,
-      description,
-      visibility,
-      created_at,
+      *,
       profiles(handle, display_name, avatar_url),
-      notebooks(id, version, created_at, content),
-      attachments(id, name, storage_path),
+      notebooks(*),
+      attachments(*),
       project_members(user_id)
     `
     )
     .eq('id', params.id)
-    .single<Project>();
+    .single();
 
   if (error || !project) {
     notFound();
   }
 
-  const isOwner = user?.id === project.owner_id;
+  // Cast once, so the rest of the file is strongly typed
+  const typedProject = project as unknown as Project;
+
+  const isOwner = user?.id === typedProject.owner_id;
 
   const hasAccess =
     isOwner ||
-    project.visibility === 'public' ||
+    typedProject.visibility === 'public' ||
     (!!user &&
-      (project.project_members ?? []).some(
-        (m) => m.user_id === user.id
+      (typedProject.project_members ?? []).some(
+        (m: ProjectMember) => m.user_id === user.id
       ));
 
   if (!hasAccess) {
@@ -91,60 +90,49 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-start justify-between">
-
             <div>
               <div className="flex items-center mb-3">
                 <FlaskConical className="w-6 h-6 mr-2 text-slate-600" />
-
                 <span className="text-sm text-slate-500">
-                  by @{project.profiles?.handle ?? 'unknown'}
+                  by @{typedProject.profiles?.handle ?? 'unknown'}
                 </span>
               </div>
-
               <h1 className="text-3xl font-bold text-slate-900 mb-2">
-                {project.title}
+                {typedProject.title}
               </h1>
-
-              {project.description && (
+              {typedProject.description && (
                 <p className="text-slate-600 max-w-2xl">
-                  {project.description}
+                  {typedProject.description}
                 </p>
               )}
             </div>
-
             {isOwner && (
               <Link
-                href={`/lab/${project.id}/edit`}
+                href={`/lab/${typedProject.id}/edit`}
                 className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700"
               >
                 Edit Project
               </Link>
             )}
-
           </div>
         </div>
 
         <div className="grid grid-cols-12 gap-8">
-
-          {/* Main */}
+          {/* Main Content */}
           <div className="col-span-8">
-
             {/* Notebooks */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-slate-900 flex items-center">
                   <FileText className="w-5 h-5 mr-2" />
                   Notebooks
                 </h2>
-
                 {isOwner && (
                   <Link
-                    href={`/lab/${project.id}/notebook/new`}
+                    href={`/lab/${typedProject.id}/notebook/new`}
                     className="flex items-center text-sm text-blue-600 hover:text-blue-800"
                   >
                     <Plus className="w-4 h-4 mr-1" />
@@ -154,67 +142,51 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
               </div>
 
               <div className="space-y-3">
+                {(typedProject.notebooks ?? []).map((notebook: Notebook) => (
+                  <Link
+                    key={notebook.id}
+                    href={`/lab/${typedProject.id}/notebook/${notebook.id}`}
+                    className="block p-4 border border-slate-200 rounded-lg hover:bg-slate-50"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-slate-900">
+                        Notebook v{notebook.version}
+                      </span>
+                      <span className="text-sm text-slate-500">
+                        {new Date(notebook.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {notebook.content && (
+                      <p className="text-sm text-slate-600 mt-2 line-clamp-2">
+                        {notebook.content.slice(0, 150)}...
+                      </p>
+                    )}
+                  </Link>
+                ))}
 
-                {(project.notebooks ?? []).map(
-                  (notebook: Notebook) => (
-                    <Link
-                      key={notebook.id}
-                      href={`/lab/${project.id}/notebook/${notebook.id}`}
-                      className="block p-4 border border-slate-200 rounded-lg hover:bg-slate-50"
-                    >
-                      <div className="flex items-center justify-between">
-
-                        <span className="font-medium text-slate-900">
-                          Notebook v{notebook.version}
-                        </span>
-
-                        <span className="text-sm text-slate-500">
-                          {new Date(
-                            notebook.created_at
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-
-                      {notebook.content && (
-                        <p className="text-sm text-slate-600 mt-2 line-clamp-2">
-                          {notebook.content.slice(0, 150)}...
-                        </p>
-                      )}
-
-                    </Link>
-                  )
+                {(typedProject.notebooks ?? []).length === 0 && (
+                  <p className="text-sm text-slate-500">No notebooks</p>
                 )}
-
-                {(project.notebooks ?? []).length === 0 && (
-                  <p className="text-sm text-slate-500">
-                    No notebooks yet
-                  </p>
-                )}
-
               </div>
             </div>
 
-            {/* Widgets */}
+            {/* Widgets/Embeds */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-
               <h2 className="text-xl font-semibold text-slate-900 flex items-center mb-4">
                 <Code className="w-5 h-5 mr-2" />
                 Widgets & Simulations
               </h2>
-
               <div className="space-y-4">
-
                 <div className="border border-slate-200 rounded-lg p-4">
                   <h3 className="font-medium text-slate-900 mb-2">
                     Physics Simulation
                   </h3>
-
                   <iframe
                     src="https://phet.colorado.edu/sims/html/waves-intro/latest/waves-intro_en.html"
                     width="100%"
                     height="400"
                     className="border border-slate-300 rounded"
-                    title="Waves"
+                    title="Waves Intro Simulation"
                   />
                 </div>
 
@@ -222,36 +194,30 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                   <h3 className="font-medium text-slate-900 mb-2">
                     Circuit Builder
                   </h3>
-
                   <iframe
                     src="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html"
                     width="100%"
                     height="400"
                     className="border border-slate-300 rounded"
-                    title="Circuit"
+                    title="Circuit Construction Kit DC"
                   />
                 </div>
-
               </div>
             </div>
-
           </div>
 
           {/* Sidebar */}
           <div className="col-span-4">
-
             {/* Attachments */}
             <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
-
               <h3 className="font-semibold text-slate-900 mb-3 flex items-center">
                 <Download className="w-4 h-4 mr-2" />
                 Attachments
               </h3>
 
               <div className="space-y-2">
-
-                {(project.attachments ?? []).map(
-                  (attachment) => (
+                {(typedProject.attachments ?? []).map(
+                  (attachment: Attachment) => (
                     <a
                       key={attachment.id}
                       href={attachment.storage_path}
@@ -265,60 +231,46 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                   )
                 )}
 
-                {(project.attachments ?? []).length === 0 && (
-                  <p className="text-sm text-slate-500">
-                    No attachments
-                  </p>
+                {(typedProject.attachments ?? []).length === 0 && (
+                  <p className="text-sm text-slate-500">No attachments</p>
                 )}
-
               </div>
             </div>
 
-            {/* Info */}
+            {/* Project Info */}
             <div className="bg-white rounded-lg p-4 shadow-sm">
-
-              <h3 className="font-semibold text-slate-900 mb-3">
-                Project Info
-              </h3>
-
+              <h3 className="font-semibold text-slate-900 mb-3">Project Info</h3>
               <div className="space-y-2 text-sm">
-
                 <div className="flex justify-between">
                   <span className="text-slate-600">Visibility</span>
                   <span className="font-medium capitalize">
-                    {project.visibility}
+                    {typedProject.visibility}
                   </span>
                 </div>
-
                 <div className="flex justify-between">
                   <span className="text-slate-600">Created</span>
                   <span className="font-medium">
-                    {new Date(
-                      project.created_at
-                    ).toLocaleDateString()}
+                    {new Date(typedProject.created_at).toLocaleDateString()}
                   </span>
                 </div>
-
                 <div className="flex justify-between">
                   <span className="text-slate-600">Notebooks</span>
                   <span className="font-medium">
-                    {(project.notebooks ?? []).length}
+                    {(typedProject.notebooks ?? []).length}
                   </span>
                 </div>
-
                 <div className="flex justify-between">
                   <span className="text-slate-600">Attachments</span>
                   <span className="font-medium">
-                    {(project.attachments ?? []).length}
+                    {(typedProject.attachments ?? []).length}
                   </span>
                 </div>
-
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   );
 }
+\end{verbatim}
