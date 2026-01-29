@@ -7,31 +7,78 @@ interface LabProjectPageProps {
   params: { id: string };
 }
 
+type Profile = {
+  handle: string;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
+type Notebook = {
+  id: string;
+  version: number;
+  created_at: string;
+  content: string | null;
+};
+
+type Attachment = {
+  id: string;
+  name: string;
+  storage_path: string; // NOTE: this must be a real URL or you’ll need to generate one
+};
+
+type ProjectMember = {
+  user_id: string;
+};
+
+type Project = {
+  id: string;
+  owner_id: string;
+  title: string;
+  description: string | null;
+  visibility: 'public' | 'private' | 'unlisted' | string;
+  created_at: string;
+
+  profiles: Profile | null;
+  notebooks: Notebook[] | null;
+  attachments: Attachment[] | null;
+  project_members: ProjectMember[] | null;
+};
+
 export default async function LabProjectPage({ params }: LabProjectPageProps) {
   const supabase = createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Fetch project
-  const { data: project } = await supabase
+  const { data: project, error } = await supabase
     .from('projects')
-    .select(`
-      *,
-      profiles!inner(handle, display_name, avatar_url),
-      notebooks(*),
-      attachments(*)
-    `)
+    .select(
+      `
+      id,
+      owner_id,
+      title,
+      description,
+      visibility,
+      created_at,
+      profiles(handle, display_name, avatar_url),
+      notebooks(id, version, created_at, content),
+      attachments(id, name, storage_path),
+      project_members(user_id)
+    `
+    )
     .eq('id', params.id)
-    .single();
+    .single<Project>();
 
-  if (!project) {
+  if (error || !project) {
     notFound();
   }
 
-  // Check access
   const isOwner = user?.id === project.owner_id;
-  const hasAccess = isOwner || 
+
+  const hasAccess =
+    isOwner ||
     project.visibility === 'public' ||
-    (user && project.project_members?.some((m: any) => m.user_id === user.id));
+    (!!user && (project.project_members ?? []).some((m) => m.user_id === user.id));
 
   if (!hasAccess) {
     redirect('/lab');
@@ -47,12 +94,10 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
               <div className="flex items-center mb-3">
                 <FlaskConical className="w-6 h-6 mr-2 text-slate-600" />
                 <span className="text-sm text-slate-500">
-                  by @{project.profiles?.handle}
+                  by @{project.profiles?.handle ?? 'unknown'}
                 </span>
               </div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">
-                {project.title}
-              </h1>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">{project.title}</h1>
               {project.description && (
                 <p className="text-slate-600 max-w-2xl">{project.description}</p>
               )}
@@ -88,8 +133,9 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                   </Link>
                 )}
               </div>
+
               <div className="space-y-3">
-                {project.notebooks?.map((notebook) => (
+                {(project.notebooks ?? []).map((notebook) => (
                   <Link
                     key={notebook.id}
                     href={`/lab/${project.id}/notebook/${notebook.id}`}
@@ -103,6 +149,7 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                         {new Date(notebook.created_at).toLocaleDateString()}
                       </span>
                     </div>
+
                     {notebook.content && (
                       <p className="text-sm text-slate-600 mt-2 line-clamp-2">
                         {notebook.content.slice(0, 150)}...
@@ -110,6 +157,10 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                     )}
                   </Link>
                 ))}
+
+                {(project.notebooks ?? []).length === 0 && (
+                  <p className="text-sm text-slate-500">No notebooks yet</p>
+                )}
               </div>
             </div>
 
@@ -119,6 +170,7 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                 <Code className="w-5 h-5 mr-2" />
                 Widgets & Simulations
               </h2>
+
               <div className="space-y-4">
                 <div className="border border-slate-200 rounded-lg p-4">
                   <h3 className="font-medium text-slate-900 mb-2">Physics Simulation</h3>
@@ -127,8 +179,10 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                     width="100%"
                     height="400"
                     className="border border-slate-300 rounded"
+                    title="Waves Intro Simulation"
                   />
                 </div>
+
                 <div className="border border-slate-200 rounded-lg p-4">
                   <h3 className="font-medium text-slate-900 mb-2">Circuit Builder</h3>
                   <iframe
@@ -136,6 +190,7 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                     width="100%"
                     height="400"
                     className="border border-slate-300 rounded"
+                    title="Circuit Construction Kit DC"
                   />
                 </div>
               </div>
@@ -150,8 +205,9 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                 <Download className="w-4 h-4 mr-2" />
                 Attachments
               </h3>
+
               <div className="space-y-2">
-                {project.attachments?.map((attachment) => (
+                {(project.attachments ?? []).map((attachment) => (
                   <a
                     key={attachment.id}
                     href={attachment.storage_path}
@@ -161,7 +217,8 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
                     <span className="text-slate-700 truncate">{attachment.name}</span>
                   </a>
                 ))}
-                {project.attachments?.length === 0 && (
+
+                {(project.attachments ?? []).length === 0 && (
                   <p className="text-sm text-slate-500">No attachments</p>
                 )}
               </div>
@@ -170,24 +227,28 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
             {/* Project Info */}
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <h3 className="font-semibold text-slate-900 mb-3">Project Info</h3>
+
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-600">Visibility</span>
                   <span className="font-medium capitalize">{project.visibility}</span>
                 </div>
+
                 <div className="flex justify-between">
                   <span className="text-slate-600">Created</span>
                   <span className="font-medium">
                     {new Date(project.created_at).toLocaleDateString()}
                   </span>
                 </div>
+
                 <div className="flex justify-between">
                   <span className="text-slate-600">Notebooks</span>
-                  <span className="font-medium">{project.notebooks?.length || 0}</span>
+                  <span className="font-medium">{(project.notebooks ?? []).length}</span>
                 </div>
+
                 <div className="flex justify-between">
                   <span className="text-slate-600">Attachments</span>
-                  <span className="font-medium">{project.attachments?.length || 0}</span>
+                  <span className="font-medium">{(project.attachments ?? []).length}</span>
                 </div>
               </div>
             </div>
