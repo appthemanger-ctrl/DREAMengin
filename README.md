@@ -2,8 +2,6 @@
 
 A unified creator platform combining social feed, content aggregation, monetization, and scientific collaboration features.
 
-OPEN .zip FILE
-
 ## Features
 
 - **Customizable Dashboard**: Drag-and-drop widget system with react-dnd
