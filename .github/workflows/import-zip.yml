@@ -1,0 +1,70 @@
+name: Import ZIP into repo
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Find zip
+        run: |
+          set -e
+          ZIP="$(ls -1 *.zip 2>/dev/null | head -n 1 || true)"
+          if [ -z "$ZIP" ]; then
+            echo "No .zip found in repo root. Upload your zip to the repo root first."
+            exit 1
+          fi
+          echo "ZIP=$ZIP" >> $GITHUB_ENV
+
+      - name: Unzip to temp
+        run: |
+          set -e
+          rm -rf _import
+          mkdir -p _import
+          unzip -q "$ZIP" -d _import
+
+      - name: Move extracted content to repo root
+        run: |
+          set -e
+
+          # If zip contains a single top-level folder, use it; else use _import itself
+          COUNT="$(find _import -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+          FILECOUNT="$(find _import -mindepth 1 -maxdepth 1 -type f | wc -l | tr -d ' ')"
+
+          if [ "$COUNT" -eq 1 ] && [ "$FILECOUNT" -eq 0 ]; then
+            TOP="$(find _import -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+            echo "Single top folder detected: $TOP"
+            shopt -s dotglob
+            cp -R "$TOP"/* .
+          else
+            echo "Mixed content; copying everything from _import"
+            shopt -s dotglob
+            cp -R _import/* .
+          fi
+
+      - name: Clean up zip + temp folder
+        run: |
+          set -e
+          rm -rf _import
+          # keep or delete the zip—your choice; deleting avoids clutter
+          rm -f "$ZIP"
+
+      - name: Commit & push
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git commit -m "Import project from zip"
+          git push
