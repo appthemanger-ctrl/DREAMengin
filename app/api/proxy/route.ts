@@ -1,60 +1,42 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { evaluateHorizon } from '@/lib/security/horizon-firewall';
+export type ProxyVerdict = {
+  ok: boolean;
+  status: number;
+  text?: string;
+  horizonDecision?: string | null;
+  horizonMode?: string | null;
+};
 
-export const runtime = 'edge';
+export async function runProxyGate(init?: RequestInit): Promise<ProxyVerdict> {
+  const r = await fetch('/api/proxy', {
+    method: 'GET',
+    credentials: 'include',
+    cache: 'no-store',
+    ...(init ?? {}),
+  });
 
-async function handle(req: NextRequest) {
-  const res = NextResponse.json({ ok: true });
+  const horizonDecision = r.headers.get('x-horizon-decision');
+  const horizonMode = r.headers.get('x-horizon-mode');
 
-  // Supabase session refresh + cookie sync
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            req.cookies.set({ name, value, ...options });
-            res.cookies.set({ name, value, ...options });
-          });
-        },
-      },
-    }
-  );
-
-  await supabase.auth.getUser();
-
-  // Horizon firewall
-  const verdict = await evaluateHorizon(req);
-
-  res.headers.set('X-Horizon-Mode', verdict.mode);
-  res.headers.set('X-Horizon-Decision', verdict.decision);
-
-  if (verdict.setCookie) res.headers.append('Set-Cookie', verdict.setCookie);
-
-  if (verdict.decision === 'block') {
-    return new NextResponse('Blocked by Horizon Firewall', {
-      status: 403,
-      headers: res.headers,
-    });
+  if (!r.ok) {
+    const text = await r.text().catch(() => '');
+    return {
+      ok: false,
+      status: r.status,
+      text: text || `Blocked (${r.status})`,
+      horizonDecision,
+      horizonMode,
+    };
   }
 
-  if (verdict.decision === 'challenge') {
-    const delayMs = verdict.delayMs ?? 600;
-    await new Promise((r) => setTimeout(r, delayMs));
-  }
-
-  return res;
+  return {
+    ok: true,
+    status: r.status,
+    horizonDecision,
+    horizonMode,
+  };
 }
 
-export async function GET(req: NextRequest) {
-  return handle(req);
-}
-
-export async function POST(req: NextRequest) {
-  return handle(req);
+export async function requireProxyGate(init?: RequestInit): Promise<void> {
+  const v = await runProxyGate(init);
+  if (!v.ok) throw new Error(v.text || `Blocked (${v.status})`);
 }
