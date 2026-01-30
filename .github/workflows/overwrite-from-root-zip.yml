@@ -1,4 +1,4 @@
-name: Overwrite repo from root zip
+name: Overwrite repo from root zi
 
 on:
   push:
