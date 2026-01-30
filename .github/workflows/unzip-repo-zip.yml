@@ -1,28 +1,41 @@
-name: Unzip repo zip
+name: Overwrite from Zip
 
 on:
   workflow_dispatch:
 
 jobs:
-  unzip:
+  overwrite:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Ensure unzip exists
-        run: sudo apt-get update && sudo apt-get install -y unzip
+      - run: sudo apt-get update && sudo apt-get install -y unzip
 
-      - name: Unzip DREAMengin-updated2.zip into ./unzipped
+      - name: Unzip
         run: |
-          rm -rf unzipped
-          mkdir -p unzipped
-          unzip -q "DREAMengin-updated2.zip" -d unzipped
-          echo "Unzipped contents:"
-          ls -la unzipped
+          rm -rf /tmp/new
+          mkdir /tmp/new
+          unzip -q incoming/latest.zip -d /tmp/new
 
-      - name: Upload unzipped as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: DREAMengin-updated2-unzipped
-          path: unzipped
+      - name: Replace repo
+        run: |
+          # Keep .git and incoming/
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name ".git" \
+            ! -name "incoming" \
+            -exec rm -rf {} +
+
+          # Copy new files in
+          cp -a /tmp/new/* .
+
+      - name: Commit
+        run: |
+          git config user.name bot
+          git config user.email bot@users.noreply.github.com
+
+          git add .
+          git commit -m "Update from latest.zip" || exit 0
+          git push
