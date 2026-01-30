@@ -1,0 +1,28 @@
+name: Unzip repo zip
+
+on:
+  workflow_dispatch:
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure unzip exists
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Unzip DREAMengin-updated2.zip into ./unzipped
+        run: |
+          rm -rf unzipped
+          mkdir -p unzipped
+          unzip -q "DREAMengin-updated2.zip" -d unzipped
+          echo "Unzipped contents:"
+          ls -la unzipped
+
+      - name: Upload unzipped as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DREAMengin-updated2-unzipped
+          path: unzipped
