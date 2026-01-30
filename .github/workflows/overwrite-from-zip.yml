@@ -1,0 +1,62 @@
+name: Overwrite repo from incoming zip
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "incoming/latest.zip"
+
+jobs:
+  overwrite:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Unzip zip to temp
+        run: |
+          rm -rf /tmp/new
+          mkdir -p /tmp/new
+          unzip -q incoming/latest.zip -d /tmp/new
+
+      - name: Overwrite repo contents (keep git + incoming + workflows)
+        run: |
+          set -e
+
+          # If the zip contains a single top-level folder, use it; else use /tmp/new
+          COUNT=$(find /tmp/new -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')
+          if [ "$COUNT" = "1" ] && [ -d "$(find /tmp/new -mindepth 1 -maxdepth 1 -type d)" ]; then
+            ROOT="$(find /tmp/new -mindepth 1 -maxdepth 1 -type d)"
+          else
+            ROOT="/tmp/new"
+          fi
+
+          # Delete everything except:
+          # - .git (required)
+          # - incoming (so you can upload again)
+          # - .github/workflows (so automation doesn't delete itself)
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name ".git" \
+            ! -name "incoming" \
+            ! -name ".github" \
+            -exec rm -rf {} +
+
+          mkdir -p .github/workflows
+
+          # Copy extracted files into repo root
+          cp -a "$ROOT"/. .
+
+      - name: Commit overwrite
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          git commit -m "Overwrite repo from incoming/latest.zip" || exit 0
+          git push
