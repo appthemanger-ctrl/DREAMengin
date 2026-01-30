@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { evaluateHorizon } from '@/lib/security/horizon-firewall';
 
-export const runtime = 'edge'; // works on Vercel Edge
+export const runtime = 'edge';
 
-function withBaseSecurityHeaders(res: NextResponse) {
+// Proxy-gate endpoint: refreshes Supabase auth cookies + runs Horizon firewall.
+// Call this endpoint from the client/server before sensitive actions.
+function applySecurityHeaders(res: NextResponse) {
   res.headers.set('X-Content-Type-Options', 'nosniff');
   res.headers.set('X-Frame-Options', 'DENY');
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -40,12 +42,14 @@ function withBaseSecurityHeaders(res: NextResponse) {
       "form-action 'self'",
     ].join('; ')
   );
-
-  return res;
 }
 
-function makeSupabase(req: NextRequest, res: NextResponse) {
-  return createServerClient(
+async function handle(req: NextRequest) {
+  const res = NextResponse.json({ ok: true });
+  applySecurityHeaders(res);
+
+  // Supabase session refresh (keeps cookies in sync)
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -55,7 +59,6 @@ function makeSupabase(req: NextRequest, res: NextResponse) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            // keep request + response in sync
             req.cookies.set({ name, value, ...options });
             res.cookies.set({ name, value, ...options });
           });
@@ -63,41 +66,35 @@ function makeSupabase(req: NextRequest, res: NextResponse) {
       },
     }
   );
-}
 
-// This endpoint doesn’t “proxy” to another origin.
-// It’s a security/auth gate you call before doing whatever action you want.
-export async function GET(req: NextRequest) {
-  let res = withBaseSecurityHeaders(NextResponse.json({ ok: true }));
-
-  // 1) Refresh Supabase session (updates cookies if needed)
-  const supabase = makeSupabase(req, res);
   await supabase.auth.getUser();
 
-  // 2) Horizon firewall decision
+  // Horizon firewall
   const verdict = await evaluateHorizon(req);
+
   res.headers.set('X-Horizon-Mode', verdict.mode);
   res.headers.set('X-Horizon-Decision', verdict.decision);
 
-  if (verdict.setCookie) res.headers.append('Set-Cookie', verdict.setCookie);
+  if (verdict.setCookie) {
+    res.headers.append('Set-Cookie', verdict.setCookie);
+  }
 
   if (verdict.decision === 'block') {
-    return new NextResponse('Blocked by Horizon Firewall', {
-      status: 403,
-      headers: res.headers,
-    });
+    return new NextResponse('Blocked by Horizon Firewall', { status: 403, headers: res.headers });
   }
 
   if (verdict.decision === 'challenge') {
     const delayMs = verdict.delayMs ?? 600;
     await new Promise((r) => setTimeout(r, delayMs));
-    // still allow, just delayed
   }
 
   return res;
 }
 
-// Optional: accept POST too, same behavior
+export async function GET(req: NextRequest) {
+  return handle(req);
+}
+
 export async function POST(req: NextRequest) {
-  return GET(req);
+  return handle(req);
 }
