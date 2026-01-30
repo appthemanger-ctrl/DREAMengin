@@ -1,12 +1,13 @@
 'use client';
 
 import { useDrag } from 'react-dnd';
-import { 
-  Bell, 
-  Megaphone, 
-  Video, 
-  Play, 
-  MessageSquare, 
+import { useCallback } from 'react';
+import {
+  Bell,
+  Megaphone,
+  Video,
+  Play,
+  MessageSquare,
   FlaskConical,
   Cpu
 } from 'lucide-react';
@@ -28,6 +29,12 @@ export default function WidgetBubble({ widget }: WidgetBubbleProps) {
     }),
   });
 
+  // React 19 + react-dnd types: ConnectDragSource isn't a valid DOM ref type.
+  // Use a callback ref that calls `drag(node)` and returns void (what React expects).
+  const dragRef = useCallback((node: HTMLDivElement | null) => {
+    drag(node);
+  }, [drag]);
+
   const getIcon = () => {
     switch (widget.type) {
       case 'notifications':
@@ -42,7 +49,7 @@ export default function WidgetBubble({ widget }: WidgetBubbleProps) {
         return <MessageSquare className="w-5 h-5" />;
       case 'lab':
         return <FlaskConical className="w-5 h-5" />;
-      case 'machine':
+      case 'ai':
         return <Cpu className="w-5 h-5" />;
       default:
         return <Bell className="w-5 h-5" />;
@@ -63,10 +70,10 @@ export default function WidgetBubble({ widget }: WidgetBubbleProps) {
         return 'Messages';
       case 'lab':
         return 'Lab';
-      case 'machine':
-        return 'Physics Sim';
+      case 'ai':
+        return 'AI';
       default:
-        return widget.type;
+        return 'Widget';
     }
   };
 
@@ -82,7 +89,7 @@ export default function WidgetBubble({ widget }: WidgetBubbleProps) {
 
   return (
     <div
-      ref={drag}
+      ref={dragRef}
       className={`widget-bubble p-4 ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="flex items-center space-x-3">
@@ -98,32 +105,8 @@ export default function WidgetBubble({ widget }: WidgetBubbleProps) {
               </span>
             )}
           </div>
-          <WidgetContent type={widget.type} config={widget.config_json} />
         </div>
       </div>
     </div>
   );
-}
-
-function WidgetContent({ type, config }: { type: string; config: any }) {
-  switch (type) {
-    case 'notifications':
-      return (
-        <div className="text-xs text-slate-500">
-          {config.unread ? `${config.unread} unread` : 'No new notifications'}
-        </div>
-      );
-    case 'promo':
-      return <div className="text-xs text-slate-500">{config.text || 'Active promotion'}</div>;
-    case 'next_stream':
-      return <div className="text-xs text-slate-500">{config.channel ? `${config.channel} - Live soon` : 'No stream scheduled'}</div>;
-    case 'messages':
-      return <div className="text-xs text-slate-500">{config.unread ? `${config.unread} unread` : 'No new messages'}</div>;
-    case 'lab':
-      return <div className="text-xs text-slate-500">Open lab projects</div>;
-    case 'machine':
-      return <div className="text-xs text-slate-500">{config.name || 'Physics simulation'}</div>;
-    default:
-      return <div className="text-xs text-slate-500">Widget</div>;
-  }
-}
+} 
