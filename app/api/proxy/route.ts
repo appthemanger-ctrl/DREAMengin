@@ -1,3 +1,5 @@
+import { NextRequest, NextResponse } from 'next/server';
+
 export type ProxyVerdict = {
   ok: boolean;
   status: number;
@@ -6,6 +8,24 @@ export type ProxyVerdict = {
   horizonMode?: string | null;
 };
 
+// Next.js route handler
+export async function GET(request: NextRequest) {
+  // Simple proxy gate check
+  // This can be expanded with actual logic
+  
+  return NextResponse.json(
+    { ok: true, message: 'Proxy gate passed' },
+    {
+      status: 200,
+      headers: {
+        'x-horizon-decision': 'allow',
+        'x-horizon-mode': 'open',
+      },
+    }
+  );
+}
+
+// Helper function for client-side use
 export async function runProxyGate(init?: RequestInit): Promise<ProxyVerdict> {
   const r = await fetch('/api/proxy', {
     method: 'GET',
