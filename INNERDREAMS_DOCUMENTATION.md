@@ -66,7 +66,7 @@ The bug check API endpoint follows a similar pattern but focuses specifically on
 
 Both API endpoints are designed to integrate seamlessly with Supabase for data persistence and audit logging. They use the existing authentication system to verify that requests come from legitimate administrators. The responses follow a consistent format that makes it easy for the frontend components to display appropriate feedback to users.
 
-Extension points are built into the API structure to support integration with various AI service providers. The current implementation includes placeholder logic that can be replaced with actual AI service calls. Common providers include OpenAI for GPT models, Anthropic for Claude models, or custom fine-tuned models specific to your codebase. The API structure remains consistent regardless of which AI provider you choose.
+Extension points are built into the API structure to support integration with various AI service providers. The current implementation includes placeholder logic that can be replaced with actual AI service calls. Common providers include OpenAI for GPT models, Anthropic models, or custom fine-tuned models specific to your codebase. The API structure remains consistent regardless of which AI provider you choose.
 
 ## Frontend Components
 

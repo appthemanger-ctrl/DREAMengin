@@ -53,10 +53,10 @@ From your personal research on Confirmed Connected Chaos (CCC):
 - Interactive parameter controls
 - Real-time simulation engine
 - Metrics visualization
-  - Coherence Score
-  - Entropy Change
-  - Information Flow
-  - Boundary Record
+ - Coherence Score
+ - Entropy Change
+ - Information Flow
+ - Boundary Record
 - Experiment history tracking
 - Collaboration framework (ready for expansion)
 - Framework library (shareable theories)
@@ -209,42 +209,42 @@ From your personal research on Confirmed Connected Chaos (CCC):
 
 - [ ] **Review Code** - Browse the upgraded files
 - [ ] **Update Supabase**
-  - [ ] Run new migration (20260129000000_upgrade_schema.sql)
-  - [ ] Create storage buckets (avatars, covers, experiment-data)
-  - [ ] Set storage policies
+ - [ ] Run new migration (20260129000000_upgrade_schema.sql)
+ - [ ] Create storage buckets (avatars, covers, experiment-data)
+ - [ ] Set storage policies
 - [ ] **Configure Environment**
-  - [ ] Add NEXT_PUBLIC_SUPABASE_URL
-  - [ ] Add NEXT_PUBLIC_SUPABASE_ANON_KEY
+ - [ ] Add NEXT_PUBLIC_SUPABASE_URL
+ - [ ] Add NEXT_PUBLIC_SUPABASE_ANON_KEY
 - [ ] **Deploy to Vercel**
-  - [ ] Connect repository
-  - [ ] Add environment variables
-  - [ ] Deploy!
+ - [ ] Connect repository
+ - [ ] Add environment variables
+ - [ ] Deploy!
 - [ ] **Test Features**
-  - [ ] Sign up/sign in
-  - [ ] Upload avatar
-  - [ ] Upload cover image
-  - [ ] Run physics experiment
-  - [ ] Chat with Dr. Eams
-  - [ ] Check revenue calculations
+ - [ ] Sign up/sign in
+ - [ ] Upload avatar
+ - [ ] Upload cover image
+ - [ ] Run physics experiment
+ - [ ] Chat with Dr. Eams
+ - [ ] Check revenue calculations
 
 ### Post-Deployment
 
 - [ ] **Monitor Performance**
-  - [ ] Check Vercel Analytics
-  - [ ] Monitor Supabase Dashboard
-  - [ ] Review error logs
+ - [ ] Check Vercel Analytics
+ - [ ] Monitor Supabase Dashboard
+ - [ ] Review error logs
 - [ ] **User Testing**
-  - [ ] Onboard beta users
-  - [ ] Gather feedback
-  - [ ] Iterate on UX
+ - [ ] Onboard beta users
+ - [ ] Gather feedback
+ - [ ] Iterate on UX
 - [ ] **Marketing**
-  - [ ] Announce 85/15 revenue model
-  - [ ] Promote Physics Lab
-  - [ ] Showcase Dr. Eams
+ - [ ] Announce 85/15 revenue model
+ - [ ] Promote Physics Lab
+ - [ ] Showcase Dr. Eams
 - [ ] **Community Building**
-  - [ ] Create Discord server
-  - [ ] Start Twitter account
-  - [ ] Engage early adopters
+ - [ ] Create Discord server
+ - [ ] Start Twitter account
+ - [ ] Engage early adopters
 
 ---
 
@@ -480,6 +480,6 @@ Questions? Issues? Ideas? Dr. Eams is ready to help! 😊
 
 ---
 
-**Created with care by Claude**
+**Created with care by **
 **For Jose Mancilla and the DREAMengin team**
 **January 29, 2026**

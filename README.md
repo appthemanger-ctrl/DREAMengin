@@ -1,233 +1,685 @@
-# DreamEngin
+# 🚀 DREAMengin Infrastructure as Code (IaC)
 
-A unified creator platform combining social feed, content aggregation, monetization, and scientific collaboration features.
+## Revolutionary One-Command Deployment System
 
-## Features
+This directory contains everything needed to deploy DREAMengin with a single command, using only **FREE** and open-source technologies.
 
-- **Customizable Dashboard**: Drag-and-drop widget system with react-dnd
-- **Unified Feed**: In-app posts + follows + external connectors (YouTube, Demo)
-- **Profile System**: Public profiles with themes, links, music, merch, and lab projects
-- **Ad Marketplace**: Buy and sell ad slots with revenue sharing
-- **Shop**: User-sold merchandise listings
-- **Music**: Upload and embed music releases
-- **Lab**: Scientific project collaboration with markdown notebooks and physics widgets
-- **Admin**: AI-powered site updater (MVP stub)
+---
 
-## Tech Stack
+## 📦 What's Included
 
-- **Framework**: Next.js 16.1.4 with App Router
-- **Database**: Supabase (Postgres + Auth + Storage + Realtime)
-- **Styling**: Tailwind CSS
-- **UI Components**: Radix UI + Lucide Icons
-- **Drag & Drop**: React DnD
-- **Testing**: Playwright
+```
+dreamengin-iac/
+├── docker-compose.yml          # Complete local dev environment
+├── Dockerfile                  # Production-ready multi-stage build
+├── Dockerfile.dev              # Development with hot-reload
+├── terraform/                  # Infrastructure provisioning
+│   └── main.tf                 # Vercel + Cloudflare config
+├── kubernetes/                 # K8s deployments
+│   └── deployment.yaml         # Complete K8s manifests
+├── ci-cd/                      # Automated pipelines
+│   └── github-actions.yml      # CI/CD workflow
+└── scripts/                    # Deployment scripts
+    └── deploy.sh              # ONE-COMMAND deployment
+```
 
-## Getting Started
+---
 
-### Prerequisites
+## 🎯 Key Features
 
-- Node.js 20.9+ (required by Next.js 16)
-- Supabase account
-- Vercel account (for deployment)
-
-### Installation
-
-1. Clone the repository:
+### 1. **One-Command Deployment**
 ```bash
-git clone <your-repo-url>
+./scripts/deploy.sh
+```
+That's it! The script will:
+- Check prerequisites
+- Offer deployment options
+- Configure environment
+- Deploy automatically
+- Provide access URLs
+
+### 2. **Complete Local Environment**
+```bash
+docker-compose up
+```
+Includes:
+- Next.js app with hot-reload
+- PostgreSQL database
+- Redis cache
+- MinIO (S3-compatible storage)
+- Nginx reverse proxy
+- Prometheus metrics
+- Grafana dashboards
+- Mailhog (email testing)
+- Adminer (database UI)
+
+### 3. **Production-Ready Infrastructure**
+- Multi-stage Docker builds
+- Kubernetes auto-scaling
+- Terraform automation
+- CI/CD pipelines
+- Health checks
+- Monitoring
+
+### 4. **100% FREE Stack**
+- Vercel (frontend hosting)
+- Supabase (free tier)
+- Cloudflare (CDN + DNS)
+- GitHub Actions (CI/CD)
+- MinIO (self-hosted S3)
+- All open-source tools
+
+---
+
+## 🚀 Quick Start
+
+### Option 1: Local Development (Recommended for testing)
+
+```bash
+# 1. Clone repository
+git clone <your-repo>
 cd dreamengin
+
+# 2. Copy IaC files to project root
+cp -r dreamengin-iac/* .
+
+# 3. Create environment file
+cp .env.example .env
+# Edit .env with your credentials
+
+# 4. Start everything
+docker-compose up -d
+
+# 5. Access application
+open http://localhost:3000
 ```
 
-2. Install dependencies:
+**Services URLs:**
+- **App**: http://localhost:3000
+- **Database UI**: http://localhost:8080
+- **Metrics**: http://localhost:3001
+- **Object Storage**: http://localhost:9001
+- **Email Testing**: http://localhost:8025
+
+### Option 2: One-Command Production Deployment
+
 ```bash
-npm install
+# Make script executable
+chmod +x scripts/deploy.sh
+
+# Run deployment wizard
+./scripts/deploy.sh
+
+# Follow prompts to select:
+# 1) Local Development
+# 2) Production (Vercel)
+# 3) Kubernetes
+# 4) Terraform (Infrastructure)
+# 5) Full Stack (All of above)
 ```
 
-3. Copy environment variables:
+### Option 3: Manual Production Deploy
+
 ```bash
-cp .env.local.example .env.local
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
 ```
 
-4. Set up your environment variables in `.env.local`:
+---
+
+## 📋 Prerequisites
+
+### Required
+- **Node.js** 24.x or higher
+- **npm** or **yarn**
+- **Git**
+
+### Optional (for advanced features)
+- **Docker** + Docker Compose (local dev)
+- **kubectl** (Kubernetes)
+- **Terraform** (infrastructure automation)
+- **Vercel account** (production hosting)
+- **Supabase account** (database)
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create `.env` file:
+
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx...
+
+# Database (local dev)
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/dreamengin
+
+# Node
+NODE_ENV=production
+NEXT_TELEMETRY_DISABLED=1
+
+# Vercel (optional)
+VERCEL_TOKEN=xxx
+VERCEL_ORG_ID=xxx
+VERCEL_PROJECT_ID=xxx
+
+# Cloudflare (optional)
+CLOUDFLARE_API_TOKEN=xxx
+CLOUDFLARE_ZONE_ID=xxx
 ```
 
-### Database Setup
+### Terraform Variables
 
-1. Create a new Supabase project
-2. Run the migrations in `supabase/migrations/`:`
-   - `20240120000000_initial_schema.sql`
-   - `20240120000001_enable_rls.sql`
-3. Apply the seed script: `supabase/seed.sql`
+Create `terraform/terraform.tfvars`:
 
-### Development
+```hcl
+vercel_api_token      = "your-token"
+cloudflare_api_token  = "your-token"
+cloudflare_zone_id    = "your-zone-id"
+domain_name           = "dreamengin.com"
+supabase_project_url  = "https://xxx.supabase.co"
+supabase_anon_key     = "your-key"
+environment           = "production"
+```
+
+---
+
+## 🐳 Docker Compose Services
+
+### Core Services
+
+**App** (Next.js)
+- Port: 3000
+- Hot-reload enabled
+- Volume mounted for live updates
+
+**Database** (PostgreSQL 15)
+- Port: 5432
+- Auto-runs migrations on startup
+- Persistent data volume
+
+**Redis**
+- Port: 6379
+- For caching and real-time features
+
+**MinIO** (S3-compatible storage)
+- API Port: 9000
+- Console Port: 9001
+- Auto-creates buckets:
+  - avatars (public)
+  - covers (public)
+  - experiment-data (private)
+
+### Monitoring Stack
+
+**Prometheus**
+- Port: 9090
+- Collects metrics from all services
+
+**Grafana**
+- Port: 3001
+- Pre-configured dashboards
+- Default login: admin/admin
+
+### Development Tools
+
+**Adminer** (Database UI)
+- Port: 8080
+- Visual database management
+
+**Mailhog** (Email Testing)
+- SMTP Port: 1025
+- Web UI: 8025
+- Catches all emails for testing
+
+---
+
+## ☸️ Kubernetes Deployment
+
+### Setup
 
 ```bash
-npm run dev
+# Apply all manifests
+kubectl apply -f kubernetes/
+
+# Check deployment status
+kubectl get pods -n dreamengin
+
+# View services
+kubectl get svc -n dreamengin
+
+# Check logs
+kubectl logs -f deployment/dreamengin-app -n dreamengin
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser.
+### Features
 
-## Deployment
+- **Auto-scaling**: 3-10 replicas based on CPU/memory
+- **Rolling updates**: Zero-downtime deployments
+- **Health checks**: Liveness and readiness probes
+- **Resource limits**: Defined CPU and memory
+- **Ingress**: Nginx with SSL via cert-manager
 
-### Supabase Setup
-
-1. Create a new Supabase project
-2. Run all SQL migrations in order
-3. Enable RLS on all tables
-4. Set up storage buckets for:
-   - `avatars` (public)
-   - `merch-images` (public)
-   - `music-uploads` (public)
-   - `attachments` (private)
-
-### Vercel Deployment
-
-1. Push your code to GitHub
-2. Import the repository into Vercel
-3. **Important:** In Vercel Project Settings → General, keep **Root Directory** blank (repo root) unless you intentionally moved the Next.js app into a subfolder.
-   - If you see: **"No Next.js version detected"**, it almost always means Vercel is looking at the wrong folder or a `package.json` that doesn't include `next`.
-4. Set environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-5. Deploy
-
-#### Auth redirect note
-
-Magic-link login redirects to `/auth/callback` (implemented in this repo) so the app can exchange the PKCE `code` for a Supabase session cookie before sending the user to `/home`.
-
-#### If Vercel says: "No Next.js version detected"
-
-This happens when Vercel is pointed at a directory that doesn't contain your **Next.js** `package.json`.
-
-- In **Project Settings → General → Root Directory**, set it to **the repo root** (blank) or to the folder that contains this app's `package.json`.
-- Confirm `package.json` contains `"next": "16.1.4"`.
-
-See common fixes in the Vercel community + StackOverflow threads. citeturn0search2turn0search7
-
-### Edge Functions (Optional)
-
-For connector polling, deploy the Edge Function:
+### Accessing Application
 
 ```bash
-supabase functions deploy poll-connectors
+# Get external IP
+kubectl get ingress -n dreamengin
+
+# Port forward (for testing)
+kubectl port-forward svc/dreamengin-service 3000:80 -n dreamengin
 ```
 
-Set up a cron job to run the polling function every 15 minutes.
+---
 
-## Project Structure
+## 🏗️ Terraform Infrastructure
 
-```
-dreamengin/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── profile/[handle]/  # Dynamic profile pages
-│   ├── lab/[id]/          # Lab project pages
-│   └── ...
-├── components/            # React components
-│   ├── NavBar.tsx
-│   ├── FeedCard.tsx
-│   ├── DashboardLayout.tsx
-│   └── ...
-├── lib/                   # Utility functions
-│   ├── supabase/          # Supabase clients
-│   ├── connectors/        # External service connectors
-│   └── utils.ts
-├── types/                 # TypeScript types
-│   └── supabase.ts        # Generated types
-├── supabase/              # Supabase configuration
-│   ├── migrations/        # Database migrations
-│   └── seed.sql           # Demo data
-├── tests/                 # Playwright tests
-└── public/                # Static assets
-```
-
-## Key Features Implementation
-
-### Authentication
-- Supabase Auth with magic links (callback route at `/auth/callback`)
-- Private route protection with middleware
-- RLS policies for data access control
-
-### Feed System
-- Unified feed from multiple sources
-- Feed rules (mute/boost/digest/budget)
-- Deduplication using hash keys
-- Real-time updates with Supabase Realtime
-
-### Widget System
-- Drag-and-drop interface with react-dnd
-- Persistent layout per user
-- Multiple widget types (notifications, promo, etc.)
-
-### Ad Marketplace
-- Slot creation and management
-- Listing calendar system
-- Order tracking and reporting
-- Revenue sharing stub
-
-### Lab Projects
-- Markdown notebook editor
-- File attachments via Supabase Storage
-- Physics simulation widgets (PhET embeds)
-- Project collaboration with members
-
-## Testing
-
-Run tests with Playwright:
+### Initialize
 
 ```bash
-npm run test
+cd terraform
+terraform init
 ```
 
-## Environment Variables
+### Plan
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server only) |
-| `NEXT_PUBLIC_SITE_URL` | Production site URL |
-| `STRIPE_SECRET_KEY` | Stripe secret key (V2) |
-| `OPENAI_API_KEY` | OpenAI API key (V2 AI updater) |
+```bash
+terraform plan -out=tfplan
+```
 
-## Security
+### Apply
 
-- Row Level Security (RLS) on all tables
-- Rate limiting via Supabase and Vercel middleware
-- File upload validation
-- Audit logging for admin actions
-- Threat model includes spam, ad fraud, and data leakage protection
+```bash
+terraform apply tfplan
+```
 
-## MVP vs V2
+### Destroy
 
-### MVP (Current)
-- Core functionality with stub implementations
-- YouTube connector (polling)
-- Stripe stub for payments
-- AI updater stub (logs only)
+```bash
+terraform destroy
+```
 
-### V2 (Future)
-- Full AI updater with OpenAI integration
-- Spotify connector
-- Real Stripe payouts
-- Advanced physics lab with three.js
-- ML-based friend recommendations
-- Admin analytics dashboard
+### What It Creates
 
-## Contributing
+**Vercel**
+- Project configuration
+- Environment variables
+- Domain mappings
+- Build settings
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+**Cloudflare**
+- DNS records (A, CNAME)
+- Page rules (caching)
+- Firewall rules (WAF)
+- Rate limiting
 
-## License
+**Configuration**
+- SSL certificates (automatic)
+- CDN optimization
+- DDoS protection
+- Performance optimization
 
-This project is licensed under the MIT License.
+---
+
+## 🔄 CI/CD Pipeline
+
+### GitHub Actions Workflow
+
+Automatically runs on:
+- Push to `main` or `develop`
+- Pull requests
+
+### Pipeline Stages
+
+1. **Code Quality**
+   - TypeScript type checking
+   - ESLint linting
+   - Code formatting
+
+2. **Build & Test**
+   - Install dependencies
+   - Build Next.js
+   - Run tests (if any)
+
+3. **Security Scan**
+   - npm audit
+   - Trivy vulnerability scan
+   - SAST analysis
+
+4. **Docker Build**
+   - Multi-platform build (amd64, arm64)
+   - Push to GitHub Container Registry
+   - Tag with version and SHA
+
+5. **Deploy**
+   - Deploy to Vercel (production)
+   - Optional: Deploy to Kubernetes
+   - Run smoke tests
+
+6. **Monitoring**
+   - Health check verification
+   - Performance metrics
+   - Error tracking
+
+### Setup GitHub Actions
+
+1. Add secrets to repository:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL
+   NEXT_PUBLIC_SUPABASE_ANON_KEY
+   VERCEL_TOKEN
+   VERCEL_ORG_ID
+   VERCEL_PROJECT_ID
+   ```
+
+2. Copy workflow file:
+   ```bash
+   mkdir -p .github/workflows
+   cp ci-cd/github-actions.yml .github/workflows/deploy.yml
+   ```
+
+3. Push to GitHub:
+   ```bash
+   git add .
+   git commit -m "Add CI/CD pipeline"
+   git push
+   ```
+
+---
+
+## 📊 Monitoring & Observability
+
+### Prometheus Metrics
+
+Available at `http://localhost:9090`
+
+**Collected Metrics:**
+- Request rate
+- Response times
+- Error rates
+- CPU usage
+- Memory usage
+- Database connections
+
+### Grafana Dashboards
+
+Available at `http://localhost:3001`
+
+**Pre-configured Dashboards:**
+- Application Performance
+- Database Metrics
+- Infrastructure Health
+- Business Metrics (revenue, users, etc.)
+
+### Custom Metrics
+
+Add to your Next.js API routes:
+
+```typescript
+import { Counter, Histogram } from 'prom-client';
+
+// Counter for requests
+const requestCounter = new Counter({
+  name: 'http_requests_total',
+  help: 'Total HTTP requests',
+  labelNames: ['method', 'route', 'status']
+});
+
+// Histogram for response times
+const responseTime = new Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'HTTP request duration in seconds',
+  buckets: [0.1, 0.5, 1, 2, 5]
+});
+```
+
+---
+
+## 🔒 Security Best Practices
+
+### Container Security
+
+✅ Multi-stage builds (smaller images)
+✅ Non-root user in containers
+✅ Health checks
+✅ Resource limits
+✅ Read-only root filesystem (where possible)
+
+### Network Security
+
+✅ HTTPS enforced
+✅ WAF enabled (Cloudflare)
+✅ Rate limiting
+✅ DDoS protection
+✅ API endpoint protection
+
+### Data Security
+
+✅ Secrets management (environment variables)
+✅ Database encryption at rest
+✅ TLS for all connections
+✅ Regular security scans (Trivy)
+
+---
+
+## 🐛 Troubleshooting
+
+### Docker Compose Issues
+
+**Services won't start:**
+```bash
+# Check logs
+docker-compose logs -f
+
+# Restart specific service
+docker-compose restart app
+
+# Rebuild containers
+docker-compose down
+docker-compose up --build
+```
+
+**Port conflicts:**
+```bash
+# Change ports in docker-compose.yml
+# Example: Change 3000:3000 to 3001:3000
+```
+
+**Database connection failed:**
+```bash
+# Wait for database to be ready
+docker-compose logs db
+
+# Manually run migrations
+docker-compose exec app npm run db:migrate
+```
+
+### Kubernetes Issues
+
+**Pods not starting:**
+```bash
+kubectl describe pod <pod-name> -n dreamengin
+kubectl logs <pod-name> -n dreamengin
+```
+
+**Out of resources:**
+```bash
+# Check cluster resources
+kubectl top nodes
+kubectl top pods -n dreamengin
+
+# Scale down if needed
+kubectl scale deployment dreamengin-app --replicas=1 -n dreamengin
+```
+
+### Vercel Deploy Issues
+
+**Build fails:**
+```bash
+# Check build logs in Vercel dashboard
+# Common issues:
+# - Missing environment variables
+# - TypeScript errors
+# - Node version mismatch
+
+# Fix Node version in package.json:
+"engines": {
+  "node": "24.x"
+}
+```
+
+**Environment variables not set:**
+```bash
+# Set via Vercel dashboard or CLI
+vercel env add NEXT_PUBLIC_SUPABASE_URL
+```
+
+---
+
+## 📈 Performance Optimization
+
+### Docker
+
+- **Multi-stage builds**: Reduces image size by 70%
+- **Layer caching**: Speeds up builds
+- **Dependency caching**: npm ci with cache
+
+### Next.js
+
+- **Image optimization**: Automatic with next/image
+- **Bundle splitting**: Code splitting per route
+- **Static generation**: Pre-render where possible
+- **Edge caching**: Via Vercel Edge Network
+
+### Database
+
+- **Connection pooling**: Supabase built-in
+- **Indexed queries**: All foreign keys indexed
+- **Query optimization**: EXPLAIN ANALYZE on slow queries
+
+### CDN
+
+- **Cloudflare**: Global CDN with 280+ locations
+- **Static assets**: Cached for 1 year
+- **API responses**: Cached when appropriate
+
+---
+
+## 💰 Cost Breakdown (Free Tier)
+
+| Service | Free Tier | Upgrade At |
+|---------|-----------|------------|
+| Vercel | 100GB bandwidth/month | $20/month (Pro) |
+| Supabase | 500MB database, 1GB storage | $25/month (Pro) |
+| Cloudflare | Unlimited bandwidth | $20/month (Pro) |
+| GitHub Actions | 2,000 minutes/month | $4/month (extra) |
+| Docker Hub | Unlimited public images | $5/month (Pro) |
+
+**Total: $0/month** for small to medium traffic
+
+**When to upgrade:**
+- 10,000+ monthly active users
+- 500GB+ bandwidth
+- 2GB+ database size
+- 100GB+ file storage
+
+---
+
+## 🎓 Learning Resources
+
+### Docker
+- Official Docs: https://docs.docker.com
+- Best Practices: https://docs.docker.com/develop/dev-best-practices
+
+### Kubernetes
+- Interactive Tutorial: https://kubernetes.io/docs/tutorials
+- kubectl Cheat Sheet: https://kubernetes.io/docs/reference/kubectl/cheatsheet
+
+### Terraform
+- Getting Started: https://learn.hashicorp.com/terraform
+- Registry: https://registry.terraform.io
+
+### CI/CD
+- GitHub Actions: https://docs.github.com/en/actions
+- Best Practices: https://docs.github.com/en/actions/guides
+
+---
+
+## 🤝 Contributing
+
+### Adding New Services
+
+1. Add to `docker-compose.yml`:
+   ```yaml
+   new-service:
+     image: service:latest
+     ports:
+       - "8080:8080"
+     networks:
+       - dreamengin-net
+   ```
+
+2. Add Kubernetes manifest:
+   ```yaml
+   # kubernetes/new-service.yaml
+   ```
+
+3. Update Terraform if needed
+
+4. Update documentation
+
+### Improving Pipeline
+
+1. Edit `.github/workflows/deploy.yml`
+2. Test locally with `act` tool
+3. Submit PR with changes
+
+---
+
+## 📞 Support
+
+### Issues
+
+Report bugs or request features:
+- GitHub Issues
+- Email: devops@dreamengin.com
+
+### Community
+
+- Discord: [Join server]
+- Twitter: @DREAMengin
+
+---
+
+## 🎉 Conclusion
+
+This IaC setup provides:
+
+✅ **One-command deployment**
+✅ **Complete local dev environment**
+✅ **Production-ready infrastructure**
+✅ **Automated CI/CD pipeline**
+✅ **Monitoring and observability**
+✅ **Security best practices**
+✅ **100% free for small/medium scale**
+
+**Ready to deploy the most advanced creator platform ever built!** 🚀
+
+---
+
+**Next Steps:**
+
+1. Review configuration files
+2. Set up environment variables
+3. Choose deployment method
+4. Run `./scripts/deploy.sh`
+5. Monitor deployment
+6. Launch publicly!
+
+**Let's revolutionize creator platforms! 🌟**

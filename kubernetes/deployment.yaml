@@ -1,0 +1,195 @@
+# ==========================================
+# Namespace
+# ==========================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dreamengin
+
+---
+# ==========================================
+# ConfigMap
+# ==========================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dreamengin-config
+  namespace: dreamengin
+data:
+  NODE_ENV: "production"
+  NEXT_TELEMETRY_DISABLED: "1"
+  
+---
+# ==========================================
+# Secret (Replace with actual values)
+# ==========================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dreamengin-secrets
+  namespace: dreamengin
+type: Opaque
+stringData:
+  NEXT_PUBLIC_SUPABASE_URL: "https://your-project.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: "your-anon-key-here"
+  DATABASE_URL: "postgresql://user:password@host:5432/dreamengin"
+  
+---
+# ==========================================
+# Deployment
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dreamengin-app
+  namespace: dreamengin
+  labels:
+    app: dreamengin
+    component: frontend
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: dreamengin
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: dreamengin
+        component: frontend
+    spec:
+      containers:
+      - name: app
+        image: dreamengin/app:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: dreamengin-config
+        - secretRef:
+            name: dreamengin-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+---
+# ==========================================
+# Service
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: dreamengin-service
+  namespace: dreamengin
+  labels:
+    app: dreamengin
+spec:
+  type: ClusterIP
+  selector:
+    app: dreamengin
+    component: frontend
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+    
+---
+# ==========================================
+# Horizontal Pod Autoscaler
+# ==========================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dreamengin-hpa
+  namespace: dreamengin
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dreamengin-app
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+        
+---
+# ==========================================
+# Ingress (Nginx)
+# ==========================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dreamengin-ingress
+  namespace: dreamengin
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+spec:
+  tls:
+  - hosts:
+    - dreamengin.com
+    - www.dreamengin.com
+    secretName: dreamengin-tls
+  rules:
+  - host: dreamengin.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dreamengin-service
+            port:
+              number: 80
+  - host: www.dreamengin.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dreamengin-service
+            port:
+              number: 80

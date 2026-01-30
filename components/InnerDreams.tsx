@@ -17,11 +17,13 @@ interface InnerDreamsProps {
 }
 
 export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
-  const [isRunning, setIsRunning] = useState(false);
+  // Default ON unless the user turns it off. We persist this in localStorage.
+  const [isRunning, setIsRunning] = useState(true);
   const [logs, setLogs] = useState<InnerDreamsLog[]>([]);
   const [prompt, setPrompt] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  // Default ON unless the user turns it off. (This is the “acts on its own” toggle.)
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(7000);
   const [bugCheckEnabled, setBugCheckEnabled] = useState(true);
 
@@ -31,8 +33,10 @@ export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
     if (savedState) {
       try {
         const state = JSON.parse(savedState);
-        setAutoRefresh(state.autoRefresh || false);
-        setRefreshInterval(state.refreshInterval || 7000);
+        // Respect user's saved choice; otherwise default ON.
+        setIsRunning(state.isRunning !== false);
+        setAutoRefresh(state.autoRefresh !== false);
+        setRefreshInterval(typeof state.refreshInterval === 'number' ? state.refreshInterval : 7000);
         setBugCheckEnabled(state.bugCheckEnabled !== false);
       } catch (e) {
         console.error('Failed to load InnerDreams state:', e);
@@ -43,11 +47,12 @@ export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
   useEffect(() => {
     // Save state to localStorage
     localStorage.setItem('innerdreams_state', JSON.stringify({
+      isRunning,
       autoRefresh,
       refreshInterval,
       bugCheckEnabled
     }));
-  }, [autoRefresh, refreshInterval, bugCheckEnabled]);
+  }, [isRunning, autoRefresh, refreshInterval, bugCheckEnabled]);
 
   useEffect(() => {
     // Auto-refresh timer

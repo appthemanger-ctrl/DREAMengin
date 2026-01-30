@@ -139,10 +139,10 @@ addToast('success', 'Post created successfully!', 5000);
 ### Color System
 - **Primary Gradient**: Blue → Purple → Pink
 - **Status Colors**:
-  - Success: Green spectrum
-  - Error: Red spectrum
-  - Warning: Yellow/Orange spectrum
-  - Info: Blue spectrum
+ - Success: Green spectrum
+ - Error: Red spectrum
+ - Warning: Yellow/Orange spectrum
+ - Info: Blue spectrum
 - **Neutral Colors**: Slate scale for backgrounds and text
 
 ### Animation Guidelines
@@ -307,6 +307,6 @@ No props required. Activated via keyboard shortcut.
 - `WidgetSkeleton`: No props
 
 ## Credits & Attribution
-Enhanced by Claude (Anthropic) - January 2026
+Enhanced by (Anthropic) - January 2026
 Based on DREAMengin original codebase
 Built with Next.js 16, React 18, Tailwind CSS
