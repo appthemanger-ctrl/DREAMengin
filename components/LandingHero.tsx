@@ -146,7 +146,7 @@ export default function LandingHero() {
             >
               <div className={`relative ${mascotState === 'waving' ? 'animate-wave' : ''}`}>
                 <Image
-                  src="/images/dr-eams.jpeg"
+                  src="/dr-eams.jpeg"
                   alt="Dr. Eams - Your AI Guide"
                   width={180}
                   height={180}

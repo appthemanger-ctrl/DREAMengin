@@ -1,63 +1,99 @@
 import { createServerClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Sparkles, Users, Zap, Shield } from 'lucide-react';
+import { Search, Sparkles, Users, Zap, Shield, ArrowRight, Music, Beaker } from 'lucide-react';
 
 export default async function DiscoverPage() {
   const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  
+  let user = null;
+  let profiles = null;
+  let posts = null;
+  
+  try {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    user = authUser;
 
-  // Fetch all public profiles
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('*')
-    .not('id', 'eq', user?.id || '');
+    // Fetch all public profiles
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('*')
+      .not('id', 'eq', user?.id || '');
+    profiles = profilesData;
 
-  // Fetch recent public posts
-  const { data: posts } = await supabase
-    .from('app_posts')
-    .select(`
-      *,
-      profiles!inner(handle, display_name, avatar_url)
-    `)
-    .eq('visibility', 'public')
-    .order('created_at', { ascending: false })
-    .limit(20);
+    // Fetch recent public posts
+    const { data: postsData } = await supabase
+      .from('app_posts')
+      .select(`
+        *,
+        profiles!inner(handle, display_name, avatar_url)
+      `)
+      .eq('visibility', 'public')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    posts = postsData;
+  } catch {
+    // Supabase not configured
+  }
 
   const categories = [
-    { name: 'Science', slug: 'science', icon: Zap },
-    { name: 'Music', slug: 'music', icon: Sparkles },
-    { name: 'Technology', slug: 'tech', icon: Shield },
-    { name: 'Art', slug: 'art', icon: Users },
+    { name: 'Science', slug: 'science', icon: Zap, color: 'from-yellow-500 to-orange-500' },
+    { name: 'Music', slug: 'music', icon: Music, color: 'from-pink-500 to-rose-500' },
+    { name: 'Technology', slug: 'tech', icon: Shield, color: 'from-cyan-500 to-blue-500' },
+    { name: 'Labs', slug: 'labs', icon: Beaker, color: 'from-purple-500 to-violet-500' },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-universe">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         {/* Hero */}
-        <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-6 md:p-10 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-          <div className="relative">
-            <h1 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight">
-              DreamEngin
-            </h1>
-            <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
-              Your privacy-first creator OS — a customizable Dream Home with a calm mini-wall feed,
-              friend-by-friend controls, and AI-assisted creation.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link 
-                href="/login" 
-                className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary/90 transition-colors min-h-[44px]"
-              >
-                Create account
-              </Link>
-              <Link 
-                href="/home" 
-                className="inline-flex items-center justify-center px-6 py-3 bg-secondary text-secondary-foreground font-medium rounded-xl hover:bg-secondary/80 border border-border transition-colors min-h-[44px]"
-              >
-                Continue
-              </Link>
+        <div className="relative overflow-hidden rounded-3xl glass-dark p-6 md:p-10 mb-8">
+          {/* Background effects */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          
+          <div className="relative flex flex-col md:flex-row items-center gap-6 md:gap-10">
+            {/* Dr. Eams mascot */}
+            <div className="relative flex-shrink-0">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-pink-500/30 blur-2xl scale-125" />
+              <Image
+                src="/dr-eams.jpeg"
+                alt="Dr. Eams"
+                width={160}
+                height={160}
+                className="relative w-32 h-32 md:w-40 md:h-40 object-contain animate-float-gentle animate-glow-pulse"
+                priority
+              />
+            </div>
+            
+            <div className="text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center cosmic-glow">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
+                  <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">Dream</span>
+                  <span>Engin</span>
+                </h1>
+              </div>
+              <p className="mt-3 text-base md:text-lg text-white/60 max-w-xl leading-relaxed">
+                Your privacy-first creator OS with AI-powered tools, social connections, and infinite possibilities.
+              </p>
+              <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-3">
+                <Link 
+                  href="/login" 
+                  className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-xl hover:from-purple-500 hover:to-blue-500 transition-all cosmic-glow min-h-[48px] active:scale-95"
+                >
+                  Get Started
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link 
+                  href="/home" 
+                  className="inline-flex items-center justify-center px-6 py-3 glass-dark text-white font-medium rounded-xl hover:bg-white/10 border border-white/10 transition-all min-h-[48px] active:scale-95"
+                >
+                  Continue
+                </Link>
+              </div>
             </div>
           </div>
         </div>
