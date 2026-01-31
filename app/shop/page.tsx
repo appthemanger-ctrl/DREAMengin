@@ -14,13 +14,55 @@ export default async function ShopPage() {
   }
 
   // Fetch all merch items
-  const { data: merch } = await supabase
+  const { data: merchData } = await supabase
     .from('merch')
     .select(`
       *,
       profiles!inner(handle, display_name)
     `)
     .order('created_at', { ascending: false });
+
+  // Demo items to show UI when no real data exists
+  const demoMerch = [
+    {
+      id: 'demo-1',
+      title: 'DreamEngin Hoodie',
+      description: 'Premium quality hoodie with the DreamEngin logo. Perfect for late night coding sessions.',
+      price: 59.99,
+      stock: 25,
+      image_url: null,
+      profiles: { handle: 'dreamengin', display_name: 'DreamEngin' }
+    },
+    {
+      id: 'demo-2',
+      title: 'Infinity Tee',
+      description: 'Soft cotton t-shirt featuring the iconic infinity symbol design.',
+      price: 29.99,
+      stock: 100,
+      image_url: null,
+      profiles: { handle: 'dreamengin', display_name: 'DreamEngin' }
+    },
+    {
+      id: 'demo-3',
+      title: 'Creator Mug',
+      description: 'Ceramic mug for your morning coffee. "Dream. Create. Ship." design.',
+      price: 19.99,
+      stock: 50,
+      image_url: null,
+      profiles: { handle: 'dreamengin', display_name: 'DreamEngin' }
+    },
+    {
+      id: 'demo-4',
+      title: 'Lab Notebook',
+      description: 'Premium notebook for sketching ideas and documenting experiments.',
+      price: 24.99,
+      stock: 75,
+      image_url: null,
+      profiles: { handle: 'dreamengin', display_name: 'DreamEngin' }
+    },
+  ];
+
+  const merch = merchData && merchData.length > 0 ? merchData : demoMerch;
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,20 +144,12 @@ export default async function ShopPage() {
           ))}
         </div>
 
-        {(!merch || merch.length === 0) && (
-          <div className="text-center py-16">
-            <div className="w-20 h-20 rounded-full bg-muted/50 mx-auto mb-4 flex items-center justify-center">
-              <ShoppingBag className="w-10 h-10 text-muted-foreground" />
-            </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">No items yet</h2>
-            <p className="text-muted-foreground mb-6">Be the first to list an item!</p>
-            <Link
-              href="/shop/sell"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl hover:bg-primary/90 transition-colors active:scale-95"
-            >
-              <Plus className="w-5 h-5" />
-              Start Selling
-            </Link>
+        {/* Demo banner when showing demo items */}
+        {(!merchData || merchData.length === 0) && (
+          <div className="mt-8 p-4 bg-primary/10 border border-primary/20 rounded-xl text-center">
+            <p className="text-sm text-primary font-medium">
+              These are sample items. Create your first listing to start selling!
+            </p>
           </div>
         )}
       </div>

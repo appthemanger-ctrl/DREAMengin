@@ -12,7 +12,7 @@ export default async function MusicPage() {
   }
 
   // Fetch music releases
-  const { data: music } = await supabase
+  const { data: musicData } = await supabase
     .from('music_releases')
     .select(`
       *,
@@ -20,6 +20,54 @@ export default async function MusicPage() {
     `)
     .or(`visibility.eq.public,user_id.eq.${user.id}`)
     .order('created_at', { ascending: false });
+
+  // Demo tracks to show UI when no real data exists
+  const demoMusic = [
+    {
+      id: 'demo-1',
+      title: 'Cosmic Dreams',
+      embed_url: null,
+      visibility: 'public',
+      profiles: { handle: 'dreamengin', display_name: 'DreamEngin' }
+    },
+    {
+      id: 'demo-2',
+      title: 'Infinity Loop',
+      embed_url: null,
+      visibility: 'public',
+      profiles: { handle: 'producer', display_name: 'Night Producer' }
+    },
+    {
+      id: 'demo-3',
+      title: 'Neural Pathways',
+      embed_url: null,
+      visibility: 'public',
+      profiles: { handle: 'synthwave', display_name: 'Synthwave Artist' }
+    },
+    {
+      id: 'demo-4',
+      title: 'Digital Sunrise',
+      embed_url: null,
+      visibility: 'public',
+      profiles: { handle: 'ambient', display_name: 'Ambient Sounds' }
+    },
+    {
+      id: 'demo-5',
+      title: 'Quantum Beat',
+      embed_url: null,
+      visibility: 'public',
+      profiles: { handle: 'beats', display_name: 'Beat Maker' }
+    },
+    {
+      id: 'demo-6',
+      title: 'Torus Flow',
+      embed_url: null,
+      visibility: 'public',
+      profiles: { handle: 'electronic', display_name: 'Electronic Vibes' }
+    },
+  ];
+
+  const music = musicData && musicData.length > 0 ? musicData : demoMusic;
 
   return (
     <div className="min-h-screen bg-background">
