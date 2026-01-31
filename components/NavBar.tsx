@@ -35,19 +35,19 @@ export default function NavBar({ session }: { session: any }) {
   };
 
   return (
-    <nav className="bg-white dark:bg-slate-900 shadow-sm border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 backdrop-blur-sm bg-white/95 dark:bg-slate-900/95">
+    <nav className="bg-card/95 backdrop-blur-lg border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0 flex items-center gap-3">
             <Image 
-              src="/logo.png" 
+              src="/images/dreamengin-logo.jpeg" 
               alt="DREAMengin" 
               width={40} 
               height={40}
-              className="object-contain"
+              className="object-contain rounded-lg"
             />
-            <span className="text-xl font-bold text-slate-900 dark:text-white hidden sm:block">
+            <span className="text-xl font-bold text-foreground hidden sm:block">
               DREAMengin
             </span>
           </Link>
