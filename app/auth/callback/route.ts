@@ -1,47 +1,37 @@
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
-import type { CookieOptions } from "@supabase/ssr";
+import { NextResponse } from 'next/server'
+import { createServerClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
+  const url = new URL(request.url)
+  const code = url.searchParams.get('code')
+  const next = url.searchParams.get('next') || '/home'
 
-  const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") || "/home";
+  if (code) {
+    const supabase = await createServerClient()
+    const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
 
-  if (!code) {
-    url.pathname = "/login";
-    url.search = "?error=missing_code";
-    return NextResponse.redirect(url);
-  }
+    if (session?.user && !sessionError) {
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', session.user.id)
+        .single()
 
-  const cookieStore = cookies();
+      if (!existingProfile) {
+        const emailPrefix = session.user.email?.split('@')[0] || 'user'
+        const randomSuffix = Math.random().toString(36).substring(2, 8)
+        const handle = `${emailPrefix.toLowerCase().replace(/[^a-z0-9]/g, '')}${randomSuffix}`
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: "", ...options, maxAge: 0 });
-        },
-      },
+        await supabase
+          .from('profiles')
+          .insert({
+            id: session.user.id,
+            handle,
+            display_name: emailPrefix,
+          })
+      }
     }
-  );
-
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-  if (error || !data?.session?.user) {
-    url.pathname = "/login";
-    url.search = "?error=callback_failed";
-    return NextResponse.redirect(url);
   }
 
-  return NextResponse.redirect(new URL(next, url.origin));
+  return NextResponse.redirect(new URL(next, url.origin))
 }
