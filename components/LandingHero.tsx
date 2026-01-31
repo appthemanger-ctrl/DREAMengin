@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, Zap, Shield, Users, Music, Beaker, MessageCircle } from 'lucide-react';
+import { Sparkles, ArrowRight, Zap, Shield, Users, Music, Beaker, MessageCircle, Twitter } from 'lucide-react';
 
 // Floating particle component
 function Particle({ delay, size, left }: { delay: number; size: number; left: number }) {
@@ -119,12 +119,23 @@ export default function LandingHero() {
             </div>
             <span className="text-xl font-bold text-white">DREAMengin</span>
           </div>
-          <Link
-            href="/login"
-            className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
-          >
-            Sign In
-          </Link>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://x.com/dreamengin97213"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-white/60 hover:text-white transition-colors"
+              aria-label="Follow on Twitter"
+            >
+              <Twitter className="w-5 h-5" />
+            </a>
+            <Link
+              href="/login"
+              className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              Sign In
+            </Link>
+          </div>
         </header>
 
         {/* Hero section */}

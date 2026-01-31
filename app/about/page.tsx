@@ -19,7 +19,8 @@ import {
   Lock,
   Cpu,
   Heart,
-  ArrowRight
+  ArrowRight,
+  Twitter
 } from 'lucide-react';
 
 // Star component
@@ -286,6 +287,20 @@ export default function AboutPage() {
             </div>
             <span className="font-bold text-white">DreamEngin</span>
           </div>
+          
+          {/* Social Links */}
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <a
+              href="https://x.com/dreamengin97213"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 glass-dark rounded-full text-white/70 hover:text-white transition-colors"
+            >
+              <Twitter className="w-4 h-4" />
+              <span className="text-sm">Follow @dreamengin97213</span>
+            </a>
+          </div>
+          
           <p className="text-sm text-white/40 flex items-center justify-center gap-1">
             Made with <Heart className="w-3 h-3 text-red-400" /> for dreamers everywhere
           </p>
