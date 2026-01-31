@@ -48,21 +48,7 @@ export default async function AdminPage() {
             The AI will generate the code changes for review. For automated continuous updates, use InnerDreams above.
           </p>
 
-          <form action={async (formData) => {
-            'use server';
-            const prompt = formData.get('prompt') as string;
-            
-            // Log the request
-            await supabase
-              .from('admin_audit_log')
-              .insert({
-                admin_id: user.id,
-                action: 'ai_update_request',
-                details: { prompt, status: 'pending' }
-              });
-
-            // In V2, this would call an Edge Function to generate code
-          }}>
+          <form action="/api/admin/ai-request" method="POST">
             <div className="mb-4">
               <label htmlFor="prompt" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Describe the changes you want to make:
