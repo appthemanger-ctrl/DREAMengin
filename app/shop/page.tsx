@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ShoppingBag, Plus } from 'lucide-react';
 
 export default async function ShopPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   // Fetch all merch items
   const { data: merch } = await supabase

@@ -4,7 +4,7 @@ import AnalyticsPanel from '@/components/AnalyticsPanel';
 import { TrendingUp, Users, Eye, Heart, DollarSign, Calendar } from 'lucide-react';
 
 export default async function AnalyticsPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

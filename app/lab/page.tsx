@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FlaskConical, Plus, Lock, Globe } from 'lucide-react';
 
 export default async function LabPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

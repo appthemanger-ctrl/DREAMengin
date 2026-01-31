@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Search } from 'lucide-react';
 
 export default async function DiscoverPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   // Fetch all public profiles

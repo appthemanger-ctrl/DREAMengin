@@ -1,7 +1,11 @@
-// ./proxy.ts
+// ./proxy.ts (Next.js 16 compatible)
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { evaluateHorizon } from '@/lib/security/horizon-firewall';
+
+// Graceful env handling - won't crash if Supabase isn't configured
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
  * This is what your build system expects.
@@ -67,27 +71,29 @@ export async function proxy(req: NextRequest) {
   // ----------------------------
   // Supabase session refresh + cookie sync
   // ----------------------------
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll();
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    const supabase = createServerClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          getAll() {
+            return req.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              // Keep request + response cookies aligned
+              req.cookies.set({ name, value, ...options });
+              res.cookies.set({ name, value, ...options });
+            });
+          },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            // Keep request + response cookies aligned
-            req.cookies.set({ name, value, ...options });
-            res.cookies.set({ name, value, ...options });
-          });
-        },
-      },
-    }
-  );
+      }
+    );
 
-  // Refresh the session if expired and update cookies
-  await supabase.auth.getUser();
+    // Refresh the session if expired and update cookies
+    await supabase.auth.getUser();
+  }
 
   // ----------------------------
   // Horizon firewall decision
