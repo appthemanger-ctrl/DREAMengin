@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Music, Upload, ExternalLink } from 'lucide-react';
 
 export default async function MusicPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   // Fetch music releases

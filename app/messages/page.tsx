@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { MessageSquare, Send, User } from 'lucide-react';
 
 export default async function MessagesPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

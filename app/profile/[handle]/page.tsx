@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { Music, ExternalLink, Store, FlaskConical, Edit2 } from 'lucide-react';
 
 interface ProfilePageProps {
-  params: { handle: string };
+  params: Promise<{ handle: string }>;
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  const supabase = createServerClient();
+  const { handle } = await params;
+  const supabase = await createServerClient();
   
   // Get current user
   const { data: { user: currentUser } } = await supabase.auth.getUser();
@@ -18,7 +19,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('handle', params.handle)
+    .eq('handle', handle)
     .single();
 
   if (!profile) {

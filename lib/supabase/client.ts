@@ -1,16 +1,16 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-function requirePublicEnv(name: string): string {
-  const v = process.env[name]
-  if (!v) {
-    throw new Error(`Missing required public environment variable: ${name}`)
-  }
-  return v
-}
+// Gracefully handle missing env vars - won't crash at build time
+// but will throw clear errors at runtime if actually used without config
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
 export function createClient() {
-  return createBrowserClient(
-    requirePublicEnv('NEXT_PUBLIC_SUPABASE_URL'),
-    requirePublicEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY')
-  )
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error(
+      'Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.'
+    )
+  }
+  
+  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 }

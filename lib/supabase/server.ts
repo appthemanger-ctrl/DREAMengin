@@ -2,20 +2,34 @@ import 'server-only'
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-function requireEnv(name: string): string {
-  const v = process.env[name]
-  if (!v) {
-    throw new Error(`Missing required environment variable: ${name}`)
+// Gracefully handle missing env vars at module load time
+// Actual validation happens when the client is created
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
+function validateSupabaseEnv(requireServiceRole = false) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error(
+      'Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.'
+    )
   }
-  return v
+  if (requireServiceRole && !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+      'Supabase service role is not configured. Please set SUPABASE_SERVICE_ROLE_KEY environment variable.'
+    )
+  }
 }
 
-export function createServerClient() {
-  const cookieStore = cookies()
+export async function createServerClient() {
+  validateSupabaseEnv()
+  
+  // In Next.js 16, cookies() is async
+  const cookieStore = await cookies()
 
   return createSupabaseServerClient(
-    requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
-    requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
@@ -37,10 +51,12 @@ export function createServerClient() {
   )
 }
 
-export function createServiceClient() {
+export async function createServiceClient() {
+  validateSupabaseEnv(true)
+  
   return createSupabaseServerClient(
-    requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
-    requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
+    SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY,
     {
       cookies: {
         getAll() {

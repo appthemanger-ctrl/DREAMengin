@@ -3,7 +3,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { redirect } from 'next/navigation';
 
 export default async function Home() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {

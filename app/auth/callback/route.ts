@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const next = url.searchParams.get('next') || '/home'
 
   if (code) {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     // exchangeCodeForSession writes the auth cookies via our server client
     await supabase.auth.exchangeCodeForSession(code)
   }

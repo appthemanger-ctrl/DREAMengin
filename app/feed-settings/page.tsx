@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { VolumeX, TrendingUp, Filter, DollarSign, Plus, Trash2 } from 'lucide-react';
 
 export default async function FeedSettingsPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

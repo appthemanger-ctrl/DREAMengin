@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FlaskConical, Download, Code, FileText } from 'lucide-react';
 
 interface LabProjectPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 type Profile = {
@@ -32,13 +32,14 @@ type Project = {
 };
 
 export default async function LabProjectPage({ params }: LabProjectPageProps) {
-  const supabase = createServerClient();
+  const { id } = await params;
+  const supabase = await createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   // NOTE: Notebooks aren't set up yet, so we do NOT query them here.
-  // This prevents runtime/db errors while you’re still building the feature.
+  // This prevents runtime/db errors while you're still building the feature.
   const { data: projectRaw, error } = await supabase
     .from('projects')
     .select(
@@ -53,7 +54,7 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
       attachments(id, name, storage_path)
     `
     )
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (error || !projectRaw) {

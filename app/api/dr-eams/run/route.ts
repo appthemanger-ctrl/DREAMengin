@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, action, data });
   }
 
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const {
     data: { user },
     error: userErr,
