@@ -186,10 +186,10 @@ export default function LandingHero() {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="/discover"
+              href="/login"
               className="flex items-center justify-center gap-2 px-8 py-4 glass-dark text-white font-semibold rounded-2xl hover:bg-white/10 transition-all active:scale-95 min-h-[56px]"
             >
-              Explore
+              Learn More
             </Link>
           </div>
 

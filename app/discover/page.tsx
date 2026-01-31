@@ -1,4 +1,5 @@
 import { createServerClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Sparkles, Users, Zap, Shield, ArrowRight, Music, Beaker } from 'lucide-react';
@@ -13,6 +14,11 @@ export default async function DiscoverPage() {
   try {
     const { data: { user: authUser } } = await supabase.auth.getUser();
     user = authUser;
+    
+    // Redirect to landing if not logged in
+    if (!user) {
+      redirect('/');
+    }
 
     // Fetch all public profiles
     const { data: profilesData } = await supabase
@@ -33,7 +39,8 @@ export default async function DiscoverPage() {
       .limit(20);
     posts = postsData;
   } catch {
-    // Supabase not configured
+    // Supabase not configured - redirect to landing
+    redirect('/');
   }
 
   const categories = [
