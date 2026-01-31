@@ -9,6 +9,8 @@ interface TorusCoreProps {
   animated?: boolean;
   glowIntensity?: 'low' | 'medium' | 'high';
   interactive?: boolean;
+  rings?: number;
+  speed?: 'slow' | 'medium' | 'fast';
 }
 
 const sizeMap = {
@@ -24,6 +26,8 @@ export function TorusCore({
   animated = true,
   glowIntensity = 'medium',
   interactive = true,
+  rings = 1,
+  speed = 'medium',
 }: TorusCoreProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
