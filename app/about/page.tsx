@@ -291,13 +291,13 @@ export default function AboutPage() {
           {/* Social Links */}
           <div className="flex items-center justify-center gap-4 mb-4">
             <a
-              href="https://x.com/dreamengin97213"
+              href="https://x.com/dreamenginx"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 glass-dark rounded-full text-white/70 hover:text-white transition-colors"
             >
               <Twitter className="w-4 h-4" />
-              <span className="text-sm">Follow @dreamengin97213</span>
+              <span className="text-sm">Follow @dreamenginx</span>
             </a>
           </div>
           

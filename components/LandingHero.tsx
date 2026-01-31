@@ -121,7 +121,7 @@ export default function LandingHero() {
           </div>
           <div className="flex items-center gap-3">
             <a
-              href="https://x.com/dreamengin97213"
+              href="https://x.com/dreamenginx"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-white/60 hover:text-white transition-colors"
