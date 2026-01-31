@@ -24,6 +24,12 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    
+    /* Universe theme - light mode */
+    --glow-primary: 217 91% 60%;
+    --glow-accent: 280 80% 60%;
+    --node-active: 142 76% 45%;
+    --node-inactive: 217 20% 50%;
   }
 
   .dark {
@@ -46,6 +52,12 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
+    
+    /* Universe theme - dark mode (space-inspired) */
+    --glow-primary: 217 91% 65%;
+    --glow-accent: 280 85% 65%;
+    --node-active: 142 76% 50%;
+    --node-inactive: 217 25% 40%;
   }
 }
 
@@ -241,4 +253,44 @@ html {
 /* Button press effect */
 .btn-press {
   @apply active:scale-95 transition-transform;
+}
+
+/* Universe / Torus animations */
+@keyframes torus {
+  from { transform: rotateX(60deg) rotateZ(0deg); }
+  to { transform: rotateX(60deg) rotateZ(360deg); }
+}
+
+.animate-torus {
+  animation: torus 20s linear infinite;
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Orbit animation */
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(50px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(50px) rotate(-360deg); }
+}
+
+.animate-orbit {
+  animation: orbit 15s linear infinite;
+}
+
+/* Node connection pulse */
+@keyframes connection-pulse {
+  0%, 100% { opacity: 0.3; stroke-dashoffset: 0; }
+  50% { opacity: 0.8; stroke-dashoffset: 10; }
+}
+
+.animate-connection {
+  animation: connection-pulse 2s ease-in-out infinite;
 }

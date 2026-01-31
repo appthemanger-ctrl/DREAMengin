@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals-enhanced.css";
 import NavBar from "@/components/NavBar";
@@ -6,7 +6,7 @@ import AIAssistantEnhanced from "@/components/AIAssistantEnhanced";
 import InnerDreamsButton from "@/components/InnerDreamsButton";
 import { createServerClient } from "@/lib/supabase/server";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "DREAMengin - Your Creative Platform",
@@ -15,6 +15,18 @@ export const metadata: Metadata = {
     icon: '/logo-icon.png',
     apple: '/logo.png',
   },
+  manifest: '/manifest.json',
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
 };
 
 export default async function RootLayout({
@@ -22,24 +34,33 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createServerClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  // Check if user is admin
+  // Gracefully handle missing Supabase config at build time
+  let session = null;
   let isAdmin = false;
-  if (session?.user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single();
+  
+  try {
+    const supabase = await createServerClient();
+    const { data } = await supabase.auth.getSession();
+    session = data?.session ?? null;
     
-    isAdmin = session.user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+    // Check if user is admin
+    if (session?.user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      isAdmin = session.user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+    }
+  } catch {
+    // Supabase not configured - app will still render but without auth features
+    console.warn('[v0] Supabase not configured or unavailable');
   }
 
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className={`${inter.className} bg-slate-50 dark:bg-slate-950 transition-colors`}>
+    <html lang="en" className="scroll-smooth bg-background dark:bg-background" suppressHydrationWarning>
+      <body className={`${inter.className} ${inter.variable} bg-background text-foreground transition-colors antialiased`}>
         <NavBar session={session} />
         {children}
         {session && <AIAssistantEnhanced />}

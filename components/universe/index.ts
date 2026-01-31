@@ -8,3 +8,4 @@ export {
   UniverseCardContent, 
   UniverseCardFooter 
 } from './universe-card';
+export { UniverseShell } from './universe-shell';

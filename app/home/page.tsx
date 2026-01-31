@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import DashboardLayout from '@/components/DashboardLayout';
 import { redirect } from 'next/navigation';
+import HomeDashboard from '@/components/HomeDashboard';
 
 export default async function Home() {
   const supabase = await createServerClient();
@@ -37,12 +38,21 @@ export default async function Home() {
     .order('created_at', { ascending: false })
     .limit(10);
 
+  // Fetch unread messages count
+  const { count: unreadMessages } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('type', 'message')
+    .eq('read', false);
+
   return (
-    <DashboardLayout 
+    <HomeDashboard 
       feed={feed || []} 
       widgets={widgets || []} 
       userId={user.id}
       notifications={notifications || []}
+      unreadMessages={unreadMessages || 0}
     />
   );
 }
