@@ -86,14 +86,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Update like count on the content table
+  // Update like count on the content table (optional RPC, ignore if it doesn't exist)
   if (content_type === 'post') {
-    await supabase.rpc('increment_likes', { 
-      table_name: 'app_posts', 
-      row_id: content_id 
-    }).catch(() => {
+    try {
+      await supabase.rpc('increment_likes', { 
+        table_name: 'app_posts', 
+        row_id: content_id 
+      });
+    } catch {
       // Ignore if RPC doesn't exist, we'll use count query instead
-    });
+    }
   }
 
   // Get new count
