@@ -111,7 +111,7 @@ export async function proxy(req: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // If authenticated and on landing page, redirect to home
+    // If authenticated and on landing page only, redirect to home
     if (user && path === '/') {
       const url = req.nextUrl.clone();
       url.pathname = '/home';

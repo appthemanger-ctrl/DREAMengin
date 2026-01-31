@@ -1,12 +1,8 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
   ArrowLeft, 
   Sparkles, 
-  Zap, 
   Shield, 
   Users, 
   Music, 
@@ -22,37 +18,9 @@ import {
   ArrowRight,
   Twitter
 } from 'lucide-react';
-
-// Star component
-function Star({ top, left, delay, size }: { top: number; left: number; delay: number; size: number }) {
-  return (
-    <div
-      className="absolute rounded-full bg-white animate-star-twinkle"
-      style={{
-        top: `${top}%`,
-        left: `${left}%`,
-        width: size,
-        height: size,
-        animationDelay: `${delay}s`,
-      }}
-    />
-  );
-}
+import { StarsBackground } from '@/components/StarsBackground';
 
 export default function AboutPage() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const stars = Array.from({ length: 50 }, (_, i) => ({
-    id: i,
-    top: Math.random() * 100,
-    left: Math.random() * 100,
-    delay: Math.random() * 3,
-    size: Math.random() * 2 + 1,
-  }));
 
   const features = [
     {
@@ -107,13 +75,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-universe relative overflow-hidden">
       {/* Stars background */}
-      {mounted && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {stars.map((star) => (
-            <Star key={star.id} {...star} />
-          ))}
-        </div>
-      )}
+      <StarsBackground />
 
       {/* Gradient orbs */}
       <div className="absolute top-1/4 -left-32 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl" />
