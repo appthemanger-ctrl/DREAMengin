@@ -11,6 +11,25 @@ export default async function MessagesPage() {
     redirect('/');
   }
 
+  // Demo conversations data
+  const conversations = [
+    { id: 1, name: 'Dr. Eams', handle: 'dreams', lastMessage: 'Your project looks amazing! Let me know if you need help with the AI integration.', time: '2m', unread: 2, online: true, avatar: '/dr-eams.jpeg' },
+    { id: 2, name: 'Night Producer', handle: 'nightbeats', lastMessage: 'Just sent you the new beat. Check it out when you get a chance!', time: '1h', unread: 0, online: true, avatar: null },
+    { id: 3, name: 'Quantum Lab', handle: 'quantum', lastMessage: 'The simulation results are in. This is groundbreaking!', time: '3h', unread: 1, online: false, avatar: null },
+    { id: 4, name: 'Creative Mind', handle: 'creative', lastMessage: 'Thanks for the collab invite!', time: '1d', unread: 0, online: false, avatar: null },
+    { id: 5, name: 'Tech Wizard', handle: 'techwiz', lastMessage: 'Have you seen the new API updates?', time: '2d', unread: 0, online: false, avatar: null },
+  ];
+
+  // Demo messages for selected conversation
+  const messages = [
+    { id: 1, sender: 'them', text: 'Hey! I saw your latest project in the Labs.', time: '10:30 AM' },
+    { id: 2, sender: 'them', text: 'Your project looks amazing! Let me know if you need help with the AI integration.', time: '10:31 AM' },
+    { id: 3, sender: 'me', text: 'Thanks! I have been working on it for weeks. The hardest part was getting the neural network to work properly.', time: '10:35 AM' },
+    { id: 4, sender: 'them', text: 'I can imagine. What framework are you using?', time: '10:36 AM' },
+    { id: 5, sender: 'me', text: 'Using TensorFlow with a custom model. Want to check it out in the Lab?', time: '10:38 AM' },
+    { id: 6, sender: 'them', text: 'Absolutely! Send me the link and I will take a look tonight.', time: '10:40 AM' },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile Header */}
@@ -46,22 +65,38 @@ export default async function MessagesPage() {
               </div>
             </div>
             <div className="max-h-[60vh] md:h-[60vh] overflow-y-auto">
-              {[1, 2, 3].map((i) => (
+              {conversations.map((conv, i) => (
                 <div
-                  key={i}
-                  className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${i === 1 ? 'bg-muted/50' : ''}`}
+                  key={conv.id}
+                  className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${i === 0 ? 'bg-muted/50' : ''}`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-primary" />
+                    <div className="relative flex-shrink-0">
+                      {conv.avatar ? (
+                        <img src={conv.avatar} alt={conv.name} className="w-12 h-12 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-semibold text-primary">{conv.name[0]}</span>
+                        </div>
+                      )}
+                      {conv.online && (
+                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-card" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground">User {i}</p>
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-foreground">{conv.name}</p>
+                        <span className="text-xs text-muted-foreground">{conv.time}</span>
+                      </div>
                       <p className="text-sm text-muted-foreground truncate">
-                        Last message preview...
+                        {conv.lastMessage}
                       </p>
                     </div>
-                    <span className="text-xs text-muted-foreground">2h</span>
+                    {conv.unread > 0 && (
+                      <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-medium text-primary-foreground">{conv.unread}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -73,12 +108,13 @@ export default async function MessagesPage() {
             {/* Chat Header */}
             <div className="p-4 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-primary" />
+                <div className="relative">
+                  <img src="/dr-eams.jpeg" alt="Dr. Eams" className="w-10 h-10 rounded-full object-cover" />
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-card" />
                 </div>
                 <div>
-                  <span className="font-medium text-foreground block">User 1</span>
-                  <span className="text-xs text-muted-foreground">Online</span>
+                  <span className="font-medium text-foreground block">Dr. Eams</span>
+                  <span className="text-xs text-green-500">Online</span>
                 </div>
               </div>
             </div>
@@ -86,22 +122,17 @@ export default async function MessagesPage() {
             {/* Messages */}
             <div className="flex-1 p-4 overflow-y-auto">
               <div className="space-y-4">
-                {/* Received message */}
-                <div className="flex items-end gap-2 max-w-[85%]">
-                  <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-4 h-4 text-muted-foreground" />
+                {messages.map((msg) => (
+                  <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'me' ? 'justify-end' : ''}`}>
+                    {msg.sender === 'them' && (
+                      <img src="/dr-eams.jpeg" alt="Dr. Eams" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                    )}
+                    <div className={`max-w-[75%] ${msg.sender === 'me' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'} rounded-2xl ${msg.sender === 'me' ? 'rounded-br-md' : 'rounded-bl-md'} p-3`}>
+                      <p className="text-sm">{msg.text}</p>
+                      <p className={`text-xs mt-1 ${msg.sender === 'me' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{msg.time}</p>
+                    </div>
                   </div>
-                  <div className="bg-muted rounded-2xl rounded-bl-md p-3">
-                    <p className="text-sm text-foreground">Hey! How are you doing?</p>
-                  </div>
-                </div>
-
-                {/* Sent message */}
-                <div className="flex items-end gap-2 justify-end max-w-[85%] ml-auto">
-                  <div className="bg-primary text-primary-foreground rounded-2xl rounded-br-md p-3">
-                    <p className="text-sm">I am doing great! Thanks for asking.</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
