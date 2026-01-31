@@ -80,7 +80,7 @@ export async function proxy(req: NextRequest) {
           getAll() {
             return req.cookies.getAll();
           },
-          setAll(cookiesToSet) {
+          setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
             cookiesToSet.forEach(({ name, value, options }) => {
               // Keep request + response cookies aligned
               req.cookies.set({ name, value, ...options });
