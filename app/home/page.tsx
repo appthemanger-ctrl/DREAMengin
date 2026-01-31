@@ -1,5 +1,4 @@
 import { createServerClient } from '@/lib/supabase/server';
-import DashboardLayout from '@/components/DashboardLayout';
 import { redirect } from 'next/navigation';
 import HomeDashboard from '@/components/HomeDashboard';
 

@@ -96,7 +96,7 @@ export default async function AccountSettingsPage() {
         <div className="mt-6 space-y-3">
           <Link
             href="/edit-profile"
-            className="block w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium text-center hover:bg-primary/90 transition-colors min-h-[48px] flex items-center justify-center"
+            className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium text-center hover:bg-primary/90 transition-colors min-h-[48px] flex items-center justify-center"
           >
             Edit Profile
           </Link>

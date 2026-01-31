@@ -97,25 +97,11 @@ export default async function ConnectorsPage() {
                   <p className="text-sm text-slate-600">Sample content for testing</p>
                 </div>
               </div>
-              <form action={async () => {
-                'use server';
-                // Add demo connector
-                await supabase
-                  .from('connectors_tokens')
-                  .insert({
-                    user_id: user.id,
-                    source: 'demo',
-                    token: {},
-                    revoked: false
-                  });
-              }}>
-                <button
-                  type="submit"
-                  className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-                >
-                  Connect Demo
-                </button>
-              </form>
+              <button
+                className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+              >
+                Connect Demo
+              </button>
             </div>
 
             {/* Spotify (Coming Soon) */}

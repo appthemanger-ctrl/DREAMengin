@@ -131,18 +131,13 @@ export default async function SettingsPage() {
 
           {/* Logout */}
           <div className="px-6 py-4">
-            <form action={async () => {
-              'use server';
-              await supabase.auth.signOut();
-            }}>
-              <button
-                type="submit"
-                className="flex items-center w-full py-3 text-red-600 hover:bg-red-50 rounded-md px-3 -mx-3"
-              >
-                <LogOut className="w-5 h-5 mr-2" />
-                Logout
-              </button>
-            </form>
+            <Link
+              href="/api/auth/logout"
+              className="flex items-center w-full py-3 text-red-600 hover:bg-red-50 rounded-md px-3 -mx-3"
+            >
+              <LogOut className="w-5 h-5 mr-2" />
+              Logout
+            </Link>
           </div>
         </div>
       </div>

@@ -164,20 +164,12 @@ export default async function MusicPage() {
           ))}
         </div>
 
-        {(!music || music.length === 0) && (
-          <div className="text-center py-16">
-            <div className="w-20 h-20 rounded-full bg-muted/50 mx-auto mb-4 flex items-center justify-center">
-              <Music className="w-10 h-10 text-muted-foreground" />
-            </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">No music yet</h2>
-            <p className="text-muted-foreground mb-6">Upload your first track or embed from YouTube/Spotify!</p>
-            <Link
-              href="/music/upload"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl hover:bg-primary/90 transition-colors active:scale-95"
-            >
-              <Upload className="w-5 h-5" />
-              Upload Music
-            </Link>
+        {/* Demo banner when showing demo items */}
+        {(!musicData || musicData.length === 0) && music.length > 0 && (
+          <div className="mt-8 p-4 bg-primary/10 border border-primary/20 rounded-xl text-center">
+            <p className="text-sm text-primary font-medium">
+              These are sample tracks. Upload your first track to share your music!
+            </p>
           </div>
         )}
       </div>
