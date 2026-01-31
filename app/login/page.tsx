@@ -36,7 +36,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex flex-col items-center">
           <Image
-            src="/images/dreamengin-logo.jpeg"
+            src="/logo.png"
             alt="DreamEngin Logo"
             width={120}
             height={120}

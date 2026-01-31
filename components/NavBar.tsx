@@ -41,7 +41,7 @@ export default function NavBar({ session }: { session: any }) {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0 flex items-center gap-3">
             <Image 
-              src="/images/dreamengin-logo.jpeg" 
+              src="/logo.png" 
               alt="DREAMengin" 
               width={40} 
               height={40}
