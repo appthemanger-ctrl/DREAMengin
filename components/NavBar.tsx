@@ -39,15 +39,17 @@ export default function NavBar({ session }: { session: any }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0 flex items-center gap-3">
-            <Image 
-              src="/logo.png" 
-              alt="DREAMengin" 
-              width={40} 
-              height={40}
-              className="object-contain rounded-lg"
-            />
-            <span className="text-xl font-bold text-foreground hidden sm:block">
+          <Link href="/" className="flex-shrink-0 flex items-center gap-2">
+            <div className="w-10 h-10 relative overflow-hidden">
+              <Image 
+                src="/logo.png" 
+                alt="DREAMengin" 
+                width={200} 
+                height={200}
+                className="object-cover absolute -top-[10px] -left-[2px] w-[85px] h-[85px]"
+              />
+            </div>
+            <span className="text-lg font-bold bg-gradient-to-r from-red-500 via-orange-400 to-blue-500 bg-clip-text text-transparent hidden sm:block tracking-tight">
               DREAMengin
             </span>
           </Link>
