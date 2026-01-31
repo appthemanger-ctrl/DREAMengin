@@ -32,7 +32,7 @@ export default function SellItemPage() {
       const { error: insertError } = await supabase
         .from('merch')
         .insert({
-          owner_id: user.id,
+          user_id: user.id,
           title,
           description,
           price: parseFloat(price),

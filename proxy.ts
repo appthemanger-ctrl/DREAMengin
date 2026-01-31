@@ -95,8 +95,8 @@ export async function proxy(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
 
     // Public routes that don't require authentication
-    const publicRoutes = ['/', '/login', '/auth/callback'];
-    const isPublicRoute = publicRoutes.some(route => path === route);
+    const publicRoutes = ['/', '/login', '/auth/callback', '/about'];
+    const isPublicRoute = publicRoutes.some(route => path === route) || path.startsWith('/profile/');
     
     // Static files and API routes should pass through
     const isStaticOrApi = path.startsWith('/_next') || 

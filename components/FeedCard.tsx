@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatRelativeTime } from '@/lib/utils';
 import { ExternalLink, Youtube, FileText, Sparkles, Heart, Share2, MessageCircle, MoreHorizontal } from 'lucide-react';
 import { UniverseCard, UniverseCardContent } from '@/components/universe';
@@ -23,15 +23,31 @@ interface FeedCardProps {
       handle: string | null;
       avatar_url: string | null;
     };
+    likes_count?: number;
   };
   userId?: string;
 }
 
 export default function FeedCard({ item, userId }: FeedCardProps) {
   const [isLiked, setIsLiked] = useState(false);
-  const [likes, setLikes] = useState(Math.floor(Math.random() * 100));
+  const [likes, setLikes] = useState(item.likes_count || 0);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
   
   const source = item.source || item.type || 'app';
+  const isDemo = item.id.startsWith('demo-');
+  
+  // Fetch initial like status
+  useEffect(() => {
+    if (isDemo || !userId) return;
+    
+    fetch(`/api/likes?content_type=post&content_id=${item.id}`)
+      .then(res => res.json())
+      .then(data => {
+        setIsLiked(data.has_liked || false);
+        setLikes(data.like_count || 0);
+      })
+      .catch(() => {});
+  }, [item.id, userId, isDemo]);
   
   const getSourceIcon = () => {
     switch (source) {
@@ -47,9 +63,60 @@ export default function FeedCard({ item, userId }: FeedCardProps) {
     }
   };
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikes(prev => isLiked ? prev - 1 : prev + 1);
+  const handleLike = async () => {
+    if (isLikeLoading) return;
+    
+    // For demo items, just toggle locally
+    if (isDemo) {
+      setIsLiked(!isLiked);
+      setLikes(prev => isLiked ? prev - 1 : prev + 1);
+      return;
+    }
+    
+    setIsLikeLoading(true);
+    const wasLiked = isLiked;
+    
+    // Optimistic update
+    setIsLiked(!wasLiked);
+    setLikes(prev => wasLiked ? prev - 1 : prev + 1);
+    
+    try {
+      if (wasLiked) {
+        // Unlike
+        const res = await fetch(`/api/likes?content_type=post&content_id=${item.id}`, {
+          method: 'DELETE',
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setLikes(data.like_count);
+        } else {
+          // Revert on error
+          setIsLiked(wasLiked);
+          setLikes(prev => prev + 1);
+        }
+      } else {
+        // Like
+        const res = await fetch('/api/likes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content_type: 'post', content_id: item.id }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setLikes(data.like_count);
+        } else {
+          // Revert on error
+          setIsLiked(wasLiked);
+          setLikes(prev => prev - 1);
+        }
+      }
+    } catch {
+      // Revert on error
+      setIsLiked(wasLiked);
+      setLikes(prev => wasLiked ? prev + 1 : prev - 1);
+    } finally {
+      setIsLikeLoading(false);
+    }
   };
 
   const displayContent = item.content?.text || item.summary || '';
