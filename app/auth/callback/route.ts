@@ -1,44 +1,61 @@
-import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
+// FILE: app/auth/callback/route.ts
+// ACTION: Copy/paste this entire file into: /app/auth/callback/route.ts (replace what’s there)
+// PURPOSE: Make magic-link login WORK even if you have ZERO SQL tables built.
+//          It exchanges the code for a session (sets cookies) and redirects to /home.
+// NOTE: This intentionally does NOT touch public.profiles or any SQL tables.
 
-// Handles Supabase magic-link/OAuth redirects.
-// Supabase redirects here with a `code` param (PKCE). We exchange it for a session and bounce into /home.
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
+
 export async function GET(request: Request) {
-  const url = new URL(request.url)
-  const code = url.searchParams.get('code')
+  const url = new URL(request.url);
 
-  // Preserve an explicit redirect target if provided.
-  const next = url.searchParams.get('next') || '/home'
+  // Supabase sends users back with ?code=...
+  const code = url.searchParams.get("code");
 
-  if (code) {
-    const supabase = await createServerClient()
-    // exchangeCodeForSession writes the auth cookies via our server client
-    const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
-    
-    if (session?.user && !sessionError) {
-      // Check if profile exists, if not create one
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', session.user.id)
-        .single()
-      
-      if (!existingProfile) {
-        // Generate a unique handle from email or random string
-        const emailPrefix = session.user.email?.split('@')[0] || 'user'
-        const randomSuffix = Math.random().toString(36).substring(2, 8)
-        const handle = `${emailPrefix.toLowerCase().replace(/[^a-z0-9]/g, '')}${randomSuffix}`
-        
-        await supabase
-          .from('profiles')
-          .insert({
-            id: session.user.id,
-            handle,
-            display_name: emailPrefix,
-          })
-      }
-    }
+  // Optional: allow ?next=/somewhere (default to /home)
+  const next = url.searchParams.get("next") || "/home";
+
+  // If the link is missing the code, send them to login with an error flag.
+  if (!code) {
+    url.pathname = "/login";
+    url.search = "?error=missing_code";
+    return NextResponse.redirect(url);
   }
 
-  return NextResponse.redirect(new URL(next, url.origin))
+  // Build a Supabase server client that can set auth cookies properly.
+  const cookieStore = cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+    {
+      cookies: {
+        get(name) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name, value, options) {
+          cookieStore.set({ name, value, ...options });
+        },
+        remove(name, options) {
+          cookieStore.set({ name, value: "", ...options, maxAge: 0 });
+        },
+      },
+    }
+  );
+
+  // Exchange the code for a session (this is what logs the user in).
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+  // If the user taps the SAME magic link twice, this can fail (links are basically single-use).
+  if (error || !data?.session?.user) {
+    url.pathname = "/login";
+    url.search = "?error=callback_failed";
+    return NextResponse.redirect(url);
+  }
+
+  // ✅ SUCCESS: auth cookies are now set.
+  // Redirect into the app.
+  return NextResponse.redirect(new URL(next, url.origin));
 }
