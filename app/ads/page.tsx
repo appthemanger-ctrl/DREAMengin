@@ -12,14 +12,14 @@ export default async function AdsPage() {
   }
 
   // Fetch user's ad slots
-  const { data: mySlots } = await supabase
+  const { data: mySlotsData } = await supabase
     .from('ad_slots')
     .select('*')
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false });
 
   // Fetch available listings
-  const { data: marketplace } = await supabase
+  const { data: marketplaceData } = await supabase
     .from('ad_listings')
     .select(`
       *,
@@ -28,13 +28,50 @@ export default async function AdsPage() {
     .eq('status', 'available');
 
   // Fetch user's orders
-  const { data: myOrders } = await supabase
+  const { data: myOrdersData } = await supabase
     .from('ad_orders')
     .select(`
       *,
       ad_listings!inner(*, ad_slots!inner(*, profiles!inner(handle, display_name)))
     `)
     .eq('buyer_id', user.id);
+
+  // Demo data when no real data exists
+  const demoMySlots = [
+    { id: 'demo-1', placement: 'sidebar_banner', active: true, price_day: 5.00, price_week: 25.00 },
+    { id: 'demo-2', placement: 'feed_inline', active: false, price_day: 10.00, price_week: 50.00 },
+  ];
+
+  const demoMarketplace = [
+    { 
+      id: 'market-1',
+      ad_slots: { 
+        placement: 'profile_header', 
+        price_day: 15.00,
+        profiles: { handle: 'creator1', display_name: 'Top Creator' }
+      }
+    },
+    { 
+      id: 'market-2',
+      ad_slots: { 
+        placement: 'music_page', 
+        price_day: 8.00,
+        profiles: { handle: 'musicpro', display_name: 'Music Producer' }
+      }
+    },
+    { 
+      id: 'market-3',
+      ad_slots: { 
+        placement: 'lab_sidebar', 
+        price_day: 12.00,
+        profiles: { handle: 'scientist', display_name: 'Lab Scientist' }
+      }
+    },
+  ];
+
+  const mySlots = mySlotsData && mySlotsData.length > 0 ? mySlotsData : demoMySlots;
+  const marketplace = marketplaceData && marketplaceData.length > 0 ? marketplaceData : demoMarketplace;
+  const myOrders = myOrdersData || [];
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">

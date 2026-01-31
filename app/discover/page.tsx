@@ -25,7 +25,6 @@ export default async function DiscoverPage() {
       .from('profiles')
       .select('*')
       .not('id', 'eq', user?.id || '');
-    profiles = profilesData;
 
     // Fetch recent public posts
     const { data: postsData } = await supabase
@@ -37,7 +36,47 @@ export default async function DiscoverPage() {
       .eq('visibility', 'public')
       .order('created_at', { ascending: false })
       .limit(20);
-    posts = postsData;
+
+    // Demo profiles when no real data
+    const demoProfiles = [
+      { id: 'demo-1', handle: 'quantumlab', display_name: 'Quantum Lab', avatar_url: null, bio: 'Exploring the quantum realm' },
+      { id: 'demo-2', handle: 'nightbeats', display_name: 'Night Producer', avatar_url: null, bio: 'Making beats at night' },
+      { id: 'demo-3', handle: 'creative', display_name: 'Creative Mind', avatar_url: null, bio: 'Digital artist & creator' },
+      { id: 'demo-4', handle: 'techwiz', display_name: 'Tech Wizard', avatar_url: null, bio: 'Full-stack developer' },
+      { id: 'demo-5', handle: 'astrolabs', display_name: 'Astro Labs', avatar_url: null, bio: 'Space exploration' },
+      { id: 'demo-6', handle: 'musicpro', display_name: 'Music Producer', avatar_url: null, bio: 'Electronic music artist' },
+    ];
+
+    // Demo posts when no real data
+    const demoPosts = [
+      {
+        id: 'demo-post-1',
+        content: 'Just finished my latest quantum simulation project! The results are mind-blowing.',
+        visibility: 'public',
+        profiles: { handle: 'quantumlab', display_name: 'Quantum Lab', avatar_url: null }
+      },
+      {
+        id: 'demo-post-2',
+        content: 'New beat dropped at midnight! Check out my music page for the full track.',
+        visibility: 'public',
+        profiles: { handle: 'nightbeats', display_name: 'Night Producer', avatar_url: null }
+      },
+      {
+        id: 'demo-post-3',
+        content: 'Working on a new AI art generator. The early results are promising!',
+        visibility: 'public',
+        profiles: { handle: 'creative', display_name: 'Creative Mind', avatar_url: null }
+      },
+      {
+        id: 'demo-post-4',
+        content: 'Just deployed my latest app to production. 5000 users and counting!',
+        visibility: 'public',
+        profiles: { handle: 'techwiz', display_name: 'Tech Wizard', avatar_url: null }
+      },
+    ];
+
+    profiles = profilesData && profilesData.length > 0 ? profilesData : demoProfiles;
+    posts = postsData && postsData.length > 0 ? postsData : demoPosts;
   } catch {
     // Supabase not configured - redirect to landing
     redirect('/');

@@ -12,14 +12,14 @@ export default async function LabPage() {
   }
 
   // Fetch user's projects
-  const { data: myProjects } = await supabase
+  const { data: myProjectsData } = await supabase
     .from('projects')
     .select('*')
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false });
 
   // Fetch public projects
-  const { data: publicProjects } = await supabase
+  const { data: publicProjectsData } = await supabase
     .from('projects')
     .select(`
       *,
@@ -29,6 +29,62 @@ export default async function LabPage() {
     .not('owner_id', 'eq', user.id)
     .order('created_at', { ascending: false })
     .limit(10);
+
+  // Demo projects when no real data exists
+  const demoMyProjects = [
+    {
+      id: 'demo-my-1',
+      title: 'Quantum Particle Simulator',
+      description: 'Interactive visualization of quantum particle behavior using wave functions.',
+      visibility: 'public',
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
+    },
+    {
+      id: 'demo-my-2',
+      title: 'Neural Network Playground',
+      description: 'Build and train simple neural networks in the browser.',
+      visibility: 'private',
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString()
+    },
+  ];
+
+  const demoPublicProjects = [
+    {
+      id: 'demo-pub-1',
+      title: 'Solar System Model',
+      description: 'Interactive 3D model of our solar system with real orbital data.',
+      visibility: 'public',
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      profiles: { handle: 'astro', display_name: 'Astro Labs', avatar_url: null }
+    },
+    {
+      id: 'demo-pub-2',
+      title: 'DNA Sequencer',
+      description: 'Visualize DNA sequences and find patterns in genetic code.',
+      visibility: 'public',
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+      profiles: { handle: 'biotech', display_name: 'BioTech Research', avatar_url: null }
+    },
+    {
+      id: 'demo-pub-3',
+      title: 'Climate Data Explorer',
+      description: 'Analyze historical climate data and visualize trends.',
+      visibility: 'public',
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+      profiles: { handle: 'climate', display_name: 'Climate Watch', avatar_url: null }
+    },
+    {
+      id: 'demo-pub-4',
+      title: 'Music Theory Toolkit',
+      description: 'Learn music theory with interactive chord and scale visualizations.',
+      visibility: 'public',
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 96).toISOString(),
+      profiles: { handle: 'musiclab', display_name: 'Music Lab', avatar_url: null }
+    },
+  ];
+
+  const myProjects = myProjectsData && myProjectsData.length > 0 ? myProjectsData : demoMyProjects;
+  const publicProjects = publicProjectsData && publicProjectsData.length > 0 ? publicProjectsData : demoPublicProjects;
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -163,6 +219,15 @@ export default async function LabPage() {
                 </div>
               </div>
             </div>
+
+            {/* Demo banner when showing demo items */}
+            {(!myProjectsData || myProjectsData.length === 0) && (
+              <div className="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg text-center">
+                <p className="text-sm text-purple-700 font-medium">
+                  These are sample projects. Create your first project to get started!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

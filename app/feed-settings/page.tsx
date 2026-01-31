@@ -11,11 +11,20 @@ export default async function FeedSettingsPage() {
   }
 
   // Fetch user's feed rules
-  const { data: rules } = await supabase
+  const { data: rulesData } = await supabase
     .from('feed_rules')
     .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
+
+  // Demo rules when no real data exists
+  const demoRules = [
+    { id: 'demo-1', type: 'mute', target: 'Channel: Random Spam', value: { channel: 'random_spam' } },
+    { id: 'demo-2', type: 'boost', target: 'Category: Science', value: { multiplier: 2 } },
+    { id: 'demo-3', type: 'digest', target: 'News Updates', value: { frequency: 'daily' } },
+  ];
+
+  const rules = rulesData && rulesData.length > 0 ? rulesData : demoRules;
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">

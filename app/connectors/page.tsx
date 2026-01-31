@@ -11,11 +11,19 @@ export default async function ConnectorsPage() {
   }
 
   // Fetch user's connected accounts
-  const { data: tokens } = await supabase
+  const { data: tokensData } = await supabase
     .from('connectors_tokens')
     .select('*')
     .eq('user_id', user.id)
     .eq('revoked', false);
+
+  // Demo tokens when no real data exists
+  const demoTokens = [
+    { id: 'demo-1', source: 'youtube', token: {} },
+    { id: 'demo-2', source: 'demo', token: {} },
+  ];
+
+  const tokens = tokensData && tokensData.length > 0 ? tokensData : demoTokens;
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
