@@ -69,7 +69,7 @@ export async function proxy(req: NextRequest) {
   );
 
   // ----------------------------
-  // Supabase session refresh + cookie sync
+  // Supabase session refresh + cookie sync + auth protection
   // ----------------------------
   if (SUPABASE_URL && SUPABASE_ANON_KEY) {
     const supabase = createServerClient(
@@ -92,7 +92,31 @@ export async function proxy(req: NextRequest) {
     );
 
     // Refresh the session if expired and update cookies
-    await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Public routes that don't require authentication
+    const publicRoutes = ['/', '/login', '/auth/callback'];
+    const isPublicRoute = publicRoutes.some(route => path === route);
+    
+    // Static files and API routes should pass through
+    const isStaticOrApi = path.startsWith('/_next') || 
+                          path.startsWith('/api') || 
+                          path.includes('.') ||
+                          path.startsWith('/public');
+
+    // If not authenticated and trying to access protected route, redirect to landing
+    if (!user && !isPublicRoute && !isStaticOrApi) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+
+    // If authenticated and on landing page, redirect to home
+    if (user && path === '/') {
+      const url = req.nextUrl.clone();
+      url.pathname = '/home';
+      return NextResponse.redirect(url);
+    }
   }
 
   // ----------------------------
