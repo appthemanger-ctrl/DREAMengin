@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { evaluateHorizon } from '@/lib/security/horizon-firewall';
 
+// Graceful env handling - won't crash if Supabase isn't configured
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
+  // Skip Next internals + common static assets
   if (
     path.startsWith('/_next/static') ||
     path.startsWith('/_next/image') ||
@@ -19,13 +21,18 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Create a response we can mutate (headers/cookies)
   const res = NextResponse.next();
 
+  // ----------------------------
+  // Baseline security headers
+  // ----------------------------
   res.headers.set('X-Content-Type-Options', 'nosniff');
   res.headers.set('X-Frame-Options', 'DENY');
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
+  // CSP (keep permissive enough for embeds)
   const extraFrames = process.env.HORIZON_CSP_FRAME_SRC || '';
   const frameAllow = [
     "'self'",
@@ -57,12 +64,17 @@ export async function proxy(req: NextRequest) {
     ].join('; ')
   );
 
+  // ----------------------------
+  // Supabase session refresh + cookie sync + auth protection
+  // ----------------------------
   if (SUPABASE_URL && SUPABASE_ANON_KEY) {
     const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       cookies: {
         getAll() {
           return req.cookies.getAll();
         },
+        // IMPORTANT: only set cookies on the RESPONSE in middleware
+        // (mutating req.cookies is unreliable and not needed)
         setAll(cookiesToSet: any[]) {
           cookiesToSet.forEach(({ name, value, options }) => {
             res.cookies.set({ name, value, ...(options ?? {}) });
@@ -75,32 +87,44 @@ export async function proxy(req: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
+    // Public routes that don't require authentication
     const publicRoutes = ['/', '/login', '/auth/callback', '/about'];
     const isPublicRoute = publicRoutes.some((route) => path === route) || path.startsWith('/profile/');
 
+    // Static files and API routes should pass through
     const isStaticOrApi =
       path.startsWith('/_next') || path.startsWith('/api') || path.includes('.') || path.startsWith('/public');
 
+    // Redirect helper that PRESERVES cookies + headers from `res`
     const makeRedirect = (pathname: string) => {
       const url = req.nextUrl.clone();
       url.pathname = pathname;
+
       const redirectRes = NextResponse.redirect(url);
 
+      // keep the session cookies that Supabase just set on `res`
       res.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+
+      // keep your security headers
       res.headers.forEach((v, k) => redirectRes.headers.set(k, v));
 
       return redirectRes;
     };
 
+    // If not authenticated and trying to access protected route, redirect to landing
     if (!user && !isPublicRoute && !isStaticOrApi) {
       return makeRedirect('/');
     }
 
+    // If authenticated and on landing page only, redirect to home
     if (user && path === '/') {
       return makeRedirect('/home');
     }
   }
 
+  // ----------------------------
+  // Horizon firewall decision
+  // ----------------------------
   const verdict = await evaluateHorizon(req);
 
   res.headers.set('X-Horizon-Mode', verdict.mode);
@@ -124,4 +148,4 @@ export async function proxy(req: NextRequest) {
   }
 
   return res;
-} 
+}
