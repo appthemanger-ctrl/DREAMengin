@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FlaskConical, Plus, Lock, Globe } from 'lucide-react';
 
+import LedgerChart from '@/components/LedgerChart';
+import { ledgerData } from '@/lib/ledger-data';
+
 export default async function LabPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -218,6 +221,11 @@ export default async function LabPage() {
                   </span>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 shadow-sm mt-6">
+              <h3 className="font-semibold text-slate-900 mb-3">CCC Ledger</h3>
+              <LedgerChart data={ledgerData} height={240} />
             </div>
 
             {/* Demo banner when showing demo items */}
