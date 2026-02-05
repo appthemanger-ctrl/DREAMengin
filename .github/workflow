@@ -1,0 +1,206 @@
+name: Auto Extract Archives
+
+on:
+  push:
+    paths:
+      - '**.zip'
+      - '**.tar.gz'
+      - '**.tgz'
+
+env:
+  MAX_SIZE_MB: 500
+  MAX_FILES: 10000
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Setup extraction environment
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq p7zip-full p7zip-rar
+      
+      - name: Find and validate archives
+        id: find
+        run: |
+          echo "::group::Finding archives"
+          find . -type f \( -name "*.zip" -o -name "*.tar.gz" -o -name "*.tgz" \) ! -path "./.git/*" > /tmp/archives.txt
+          
+          if [ ! -s /tmp/archives.txt ]; then
+            echo "No archives found"
+            echo "found=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "Found archives:"
+          cat /tmp/archives.txt
+          echo "found=true" >> $GITHUB_OUTPUT
+          echo "::endgroup::"
+      
+      - name: Extract archives with error handling
+        if: steps.find.outputs.found == 'true'
+        run: |
+          failed=0
+          extracted=0
+          
+          while IFS= read -r archive; do
+            echo "::group::Processing: $archive"
+            
+            # Skip if already extracted (check for folder)
+            extract_name="${archive%.zip}"
+            extract_name="${extract_name%.tar.gz}"
+            extract_name="${extract_name%.tgz}"
+            
+            if [ -d "$extract_name" ] && [ -z "$FORCE_REEXTRACT" ]; then
+              echo "⚠️  Skipping: $extract_name already exists (set FORCE_REEXTRACT to override)"
+              echo "::endgroup::"
+              continue
+            fi
+            
+            # Check file size
+            size_mb=$(du -m "$archive" | cut -f1)
+            if [ "$size_mb" -gt "$MAX_SIZE_MB" ]; then
+              echo "❌ ERROR: $archive (${size_mb}MB) exceeds limit (${MAX_SIZE_MB}MB)"
+              failed=$((failed + 1))
+              echo "::endgroup::"
+              continue
+            fi
+            
+            # Remove existing extraction folder if forcing re-extract
+            if [ -d "$extract_name" ]; then
+              echo "🗑️  Removing existing: $extract_name"
+              rm -rf "$extract_name"
+            fi
+            
+            # Create extraction directory
+            mkdir -p "$extract_name"
+            
+            # Determine type and extract
+            success=false
+            
+            if [[ "$archive" == *.zip ]]; then
+              echo "📦 Extracting ZIP..."
+              if unzip -o "$archive" -d "$extract_name" 2>/tmp/unzip_error.log; then
+                # Check for nested zips
+                nested=$(find "$extract_name" -name "*.zip" -o -name "*.tar.gz" -o -name "*.tgz" | wc -l)
+                if [ "$nested" -gt 0 ]; then
+                  echo "⚠️  Warning: $nested nested archives found (not auto-extracted)"
+                fi
+                success=true
+              else
+                echo "❌ ZIP extraction failed:"
+                cat /tmp/unzip_error.log
+                rm -rf "$extract_name"
+              fi
+              
+            elif [[ "$archive" == *.tar.gz ]] || [[ "$archive" == *.tgz ]]; then
+              echo "📦 Extracting TAR.GZ..."
+              if tar -xzf "$archive" -C "$extract_name" 2>/tmp/tar_error.log; then
+                # Flatten if tar contains single root folder
+                root_items=$(ls -A "$extract_name" | wc -l)
+                if [ "$root_items" -eq 1 ] && [ -d "$extract_name/$(ls -A "$extract_name")" ]; then
+                  single_folder=$(ls -A "$extract_name")
+                  echo "📁 Flattening single root folder: $single_folder"
+                  mv "$extract_name/$single_folder"/* "$extract_name/" 2>/dev/null || true
+                  rmdir "$extract_name/$single_folder" 2>/dev/null || true
+                fi
+                success=true
+              else
+                echo "❌ TAR extraction failed:"
+                cat /tmp/tar_error.log
+                rm -rf "$extract_name"
+              fi
+            fi
+            
+            # Validate extraction
+            if [ "$success" = true ]; then
+              file_count=$(find "$extract_name" -type f | wc -l)
+              
+              if [ "$file_count" -eq 0 ]; then
+                echo "❌ ERROR: No files extracted"
+                rm -rf "$extract_name"
+                failed=$((failed + 1))
+              elif [ "$file_count" -gt "$MAX_FILES" ]; then
+                echo "❌ ERROR: Too many files ($file_count > $MAX_FILES)"
+                rm -rf "$extract_name"
+                failed=$((failed + 1))
+              else
+                echo "✅ Success: $file_count files extracted"
+                
+                # Optional: Remove original archive (uncomment to enable)
+                # rm "$archive"
+                # echo "🗑️  Removed original archive"
+                
+                extracted=$((extracted + 1))
+              fi
+            else
+              failed=$((failed + 1))
+            fi
+            
+            echo "::endgroup::"
+            
+          done < /tmp/archives.txt
+          
+          echo "SUMMARY: $extracted extracted, $failed failed"
+          
+          if [ "$failed" -gt 0 ]; then
+            echo "::warning::$failed archive(s) failed to extract"
+          fi
+          
+          if [ "$extracted" -eq 0 ]; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+      
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Stage all changes
+          git add -A
+          
+          # Check if there are changes to commit
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          # Show what will be committed
+          echo "Changes to commit:"
+          git diff --cached --stat
+          
+          # Commit with detailed message
+          commit_msg="Auto-extract: Extracted archives [$(date +%Y-%m-%d_%H:%M:%S)]
+          
+          Extracted archives:
+          $(git diff --cached --name-only | grep -v '\.zip$' | grep -v '\.tar\.gz$' | grep -v '\.tgz$' | head -20)
+          
+          Workflow: ${{ github.workflow }}
+          Run: ${{ github.run_id }}"
+          
+          git commit -m "$commit_msg"
+          
+          # Push with retry logic
+          for i in 1 2 3; do
+            if git push; then
+              echo "✅ Push successful"
+              exit 0
+            else
+              echo "⚠️  Push failed, attempt $i/3"
+              git pull --rebase origin ${{ github.ref_name }} || true
+              sleep 2
+            fi
+          done
+          
+          echo "❌ Failed to push after 3 attempts"
+          exit 1
