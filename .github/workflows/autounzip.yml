@@ -1,4 +1,4 @@
-name: Auto Extract Archives (Clean + Extract)
+name: Auto Extract Archives (Extract INTO ROOT)
 
 on:
   push:
@@ -8,20 +8,28 @@ on:
       - '**.tgz'
   workflow_dispatch:
     inputs:
-      force_reextract:
-        description: "Re-extract even if destination folder already exists"
-        required: false
-        default: "false"
       clean_repo:
-        description: "Delete everything except .github (this workflow) before writing extracted output"
+        description: "Delete everything except .github before writing extracted output to root"
         required: false
         default: "true"
+      force_overwrite:
+        description: "Overwrite existing files in repo root with extracted files"
+        required: false
+        default: "true"
+      max_size_mb:
+        description: "Max archive size (MB)"
+        required: false
+        default: "500"
+      max_files:
+        description: "Max extracted files"
+        required: false
+        default: "10000"
 
 env:
-  MAX_SIZE_MB: 500
-  MAX_FILES: 10000
-  FORCE_REEXTRACT: ${{ inputs.force_reextract == 'true' && '1' || '' }}
+  MAX_SIZE_MB: ${{ inputs.max_size_mb || 500 }}
+  MAX_FILES: ${{ inputs.max_files || 10000 }}
   CLEAN_REPO: ${{ inputs.clean_repo != 'false' && '1' || '' }}
+  FORCE_OVERWRITE: ${{ inputs.force_overwrite != 'false' && '1' || '' }}
 
 jobs:
   extract:
@@ -39,7 +47,7 @@ jobs:
       - name: Setup extraction environment
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq unzip p7zip-full p7zip-rar
+          sudo apt-get install -y -qq unzip
 
       - name: Find archives
         id: find
@@ -55,106 +63,123 @@ jobs:
           echo "Archives:"
           cat /tmp/archives.txt
 
-      - name: Extract to repo (clean first, keep workflow)
+      - name: Extract INTO repo root (flatten if archive has a single top folder)
         if: steps.find.outputs.found == 'true'
         run: |
           set -euo pipefail
 
-          strip_ext() {
-            local f="$1"
-            f="${f%.tar.gz}"
-            f="${f%.tgz}"
-            f="${f%.zip}"
-            echo "$f"
-          }
-
-          # 1) Extract everything into a temp staging dir first (so we can safely clean the repo)
+          # --- 1) Stage extraction into temp dir (safe) ---
           STAGE="$(mktemp -d)"
-          mkdir -p "$STAGE"
-          failed=0
-          extracted=0
+          echo "Staging to: $STAGE"
+
+          # Extract each archive into its own staging subdir first
+          idx=0
+          staged_any=0
 
           while IFS= read -r archive; do
-            echo "::group::Extracting: $archive"
-
-            archive_base="$(basename "$archive")"
-            name="$(strip_ext "$archive_base")"
-            out_dir="$STAGE/$name"
+            echo "::group::Staging: $archive"
+            idx=$((idx+1))
+            out="$STAGE/$idx"
+            mkdir -p "$out"
 
             # Size guard
             size_mb=$(du -m "$archive" | cut -f1)
             if [ "$size_mb" -gt "$MAX_SIZE_MB" ]; then
               echo "❌ ERROR: $archive (${size_mb}MB) exceeds limit (${MAX_SIZE_MB}MB)"
-              failed=$((failed + 1))
+              rm -rf "$out"
               echo "::endgroup::"
               continue
             fi
 
-            # Allow re-extract in staging always
-            rm -rf "$out_dir"
-            mkdir -p "$out_dir"
-
-            success=false
             if [[ "$archive" == *.zip ]]; then
-              if unzip -o "$archive" -d "$out_dir" 2>/tmp/unzip_error.log; then
-                success=true
+              if unzip -o "$archive" -d "$out" 2>/tmp/unzip_error.log; then
+                :
               else
                 echo "❌ ZIP extraction failed:"
                 cat /tmp/unzip_error.log
-                rm -rf "$out_dir"
+                rm -rf "$out"
+                echo "::endgroup::"
+                continue
               fi
             else
-              if tar -xzf "$archive" -C "$out_dir" 2>/tmp/tar_error.log; then
-                # Flatten single root folder (incl dotfiles)
-                root_items=$(ls -A "$out_dir" | wc -l)
-                if [ "$root_items" -eq 1 ]; then
-                  only="$(ls -A "$out_dir")"
-                  if [ -d "$out_dir/$only" ]; then
-                    shopt -s dotglob
-                    mv "$out_dir/$only"/* "$out_dir/" 2>/dev/null || true
-                    shopt -u dotglob
-                    rmdir "$out_dir/$only" 2>/dev/null || true
-                  fi
-                fi
-                success=true
+              if tar -xzf "$archive" -C "$out" 2>/tmp/tar_error.log; then
+                :
               else
                 echo "❌ TAR extraction failed:"
                 cat /tmp/tar_error.log
-                rm -rf "$out_dir"
+                rm -rf "$out"
+                echo "::endgroup::"
+                continue
               fi
             fi
 
-            if [ "$success" = true ]; then
-              file_count=$(find "$out_dir" -type f | wc -l)
-              if [ "$file_count" -eq 0 ]; then
-                echo "❌ ERROR: No files extracted"
-                rm -rf "$out_dir"
-                failed=$((failed + 1))
-              elif [ "$file_count" -gt "$MAX_FILES" ]; then
-                echo "❌ ERROR: Too many files ($file_count > $MAX_FILES)"
-                rm -rf "$out_dir"
-                failed=$((failed + 1))
-              else
-                echo "✅ Staged: $file_count files -> $name/"
-                extracted=$((extracted + 1))
-              fi
-            else
-              failed=$((failed + 1))
+            # Validate file count
+            file_count=$(find "$out" -type f | wc -l)
+            if [ "$file_count" -eq 0 ]; then
+              echo "❌ ERROR: No files extracted"
+              rm -rf "$out"
+              echo "::endgroup::"
+              continue
+            fi
+            if [ "$file_count" -gt "$MAX_FILES" ]; then
+              echo "❌ ERROR: Too many files ($file_count > $MAX_FILES)"
+              rm -rf "$out"
+              echo "::endgroup::"
+              continue
             fi
 
+            echo "✅ Staged: $file_count files"
+            staged_any=1
             echo "::endgroup::"
           done < /tmp/archives.txt
 
-          echo "SUMMARY: staged=$extracted failed=$failed"
-          if [ "$extracted" -eq 0 ]; then
+          if [ "$staged_any" -eq 0 ]; then
             echo "Nothing staged; exiting."
             exit 0
           fi
 
-          # 2) Optional: clean repo (keep .git + .github only)
+          # --- 2) Choose what to copy into root ---
+          # If multiple archives exist, we merge them into root in numeric order (later archives win on conflicts if FORCE_OVERWRITE=1)
+          echo "::group::Preparing root payload"
+          ROOT_PAYLOAD="$STAGE/__root__"
+          mkdir -p "$ROOT_PAYLOAD"
+
+          for d in "$STAGE"/*; do
+            [ -d "$d" ] || continue
+            base="$(basename "$d")"
+            [ "$base" = "__root__" ] && continue
+
+            # Flatten single top-level folder if present
+            # If the staged dir contains exactly one item and it's a directory, treat that as root
+            items=$(ls -A "$d" | wc -l)
+            src="$d"
+            if [ "$items" -eq 1 ]; then
+              only="$(ls -A "$d")"
+              if [ -d "$d/$only" ]; then
+                src="$d/$only"
+                echo "📁 Flattening single top folder: $only"
+              fi
+            fi
+
+            # Copy into root payload
+            shopt -s dotglob
+            if [ -n "${FORCE_OVERWRITE:-}" ]; then
+              cp -a "$src"/* "$ROOT_PAYLOAD/" 2>/dev/null || true
+            else
+              # no-overwrite: copy only missing files (best-effort)
+              for p in "$src"/*; do
+                rel="$(basename "$p")"
+                [ -e "$ROOT_PAYLOAD/$rel" ] && continue
+                cp -a "$p" "$ROOT_PAYLOAD/" 2>/dev/null || true
+              done
+            fi
+            shopt -u dotglob
+          done
+          echo "::endgroup::"
+
+          # --- 3) Optional clean repo (keep .github + .git) ---
           if [ -n "${CLEAN_REPO:-}" ]; then
-            echo "::group::Cleaning repo (keeping .github + .git)"
-            # Delete everything at repo root except .git and .github
+            echo "::group::Cleaning repo root (keeping .github + .git)"
             find . -mindepth 1 -maxdepth 1 \
               ! -name ".git" \
               ! -name ".github" \
@@ -162,32 +187,11 @@ jobs:
             echo "::endgroup::"
           fi
 
-          # 3) Write staged output into repo root as folders named after each archive
-          echo "::group::Writing extracted output to repo root"
-          while IFS= read -r archive; do
-            archive_base="$(basename "$archive")"
-            name="$(strip_ext "$archive_base")"
-            src="$STAGE/$name"
-            dst="./$name"
-
-            if [ ! -d "$src" ]; then
-              continue
-            fi
-
-            if [ -d "$dst" ] && [ -z "${FORCE_REEXTRACT:-}" ]; then
-              echo "⚠️  Skipping write: $dst exists (set force_reextract=true to overwrite)"
-              continue
-            fi
-
-            rm -rf "$dst"
-            mkdir -p "$dst"
-
-            # Copy staged files into destination
-            # Preserve structure, include dotfiles
-            shopt -s dotglob
-            cp -a "$src"/* "$dst/" 2>/dev/null || true
-            shopt -u dotglob
-          done < /tmp/archives.txt
+          # --- 4) Copy payload INTO repo root ---
+          echo "::group::Writing into repo root"
+          shopt -s dotglob
+          cp -a "$ROOT_PAYLOAD"/* . 2>/dev/null || true
+          shopt -u dotglob
           echo "::endgroup::"
 
       - name: Commit and push changes
@@ -204,7 +208,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Auto-extract: clean + extract [$(date -u +%Y-%m-%dT%H:%M:%SZ)]" || exit 0
+          git commit -m "Auto-extract: write archives into repo root [$(date -u +%Y-%m-%dT%H:%M:%SZ)]" || exit 0
 
           for i in 1 2 3; do
             if git push; then
