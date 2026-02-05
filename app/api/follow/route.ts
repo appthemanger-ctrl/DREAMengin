@@ -1,6 +1,16 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+type Profile = {
+  id: string;
+  handle: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
+type FollowersRow = { follower: Profile | null };
+type FollowingRow = { following: Profile | null };
+
 // GET - Check follow status or get followers/following
 export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
