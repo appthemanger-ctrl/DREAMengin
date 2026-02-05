@@ -1,23 +1,19 @@
-name: Auto Extract Archives (Extract INTO ROOT)
+name: Unpack Uploads Into Repo Root
 
 on:
   push:
     paths:
-      - '**.zip'
-      - '**.tar.gz'
-      - '**.tgz'
+      - '**/*.zip'
+      - '**/*.tar.gz'
+      - '**/*.tgz'
   workflow_dispatch:
     inputs:
       clean_repo:
-        description: "Delete everything except .github before writing extracted output to root"
-        required: false
-        default: "true"
-      force_overwrite:
-        description: "Overwrite existing files in repo root with extracted files"
+        description: "Delete everything except .github before writing extracted content into repo root"
         required: false
         default: "true"
       max_size_mb:
-        description: "Max archive size (MB)"
+        description: "Max compressed file size (MB)"
         required: false
         default: "500"
       max_files:
@@ -29,155 +25,101 @@ env:
   MAX_SIZE_MB: ${{ inputs.max_size_mb || 500 }}
   MAX_FILES: ${{ inputs.max_files || 10000 }}
   CLEAN_REPO: ${{ inputs.clean_repo != 'false' && '1' || '' }}
-  FORCE_OVERWRITE: ${{ inputs.force_overwrite != 'false' && '1' || '' }}
 
 jobs:
-  extract:
+  unpack:
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Setup extraction environment
+      - name: Install tools
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq unzip
 
-      - name: Find archives
-        id: find
+      - name: Locate compressed files
+        id: locate
         run: |
           set -euo pipefail
-          find . -type f \( -name "*.zip" -o -name "*.tar.gz" -o -name "*.tgz" \) ! -path "./.git/*" > /tmp/archives.txt || true
-          if [ ! -s /tmp/archives.txt ]; then
+          find . -type f \( -name "*.zip" -o -name "*.tar.gz" -o -name "*.tgz" \) ! -path "./.git/*" > /tmp/packs.txt || true
+          if [ ! -s /tmp/packs.txt ]; then
             echo "found=false" >> "$GITHUB_OUTPUT"
-            echo "No archives found"
+            echo "No compressed files found"
             exit 0
           fi
           echo "found=true" >> "$GITHUB_OUTPUT"
-          echo "Archives:"
-          cat /tmp/archives.txt
+          echo "Found:"
+          cat /tmp/packs.txt
 
-      - name: Extract INTO repo root (flatten if archive has a single top folder)
-        if: steps.find.outputs.found == 'true'
+      - name: Unpack into repo root (flatten single wrapper folder)
+        if: steps.locate.outputs.found == 'true'
         run: |
           set -euo pipefail
 
-          # --- 1) Stage extraction into temp dir (safe) ---
           STAGE="$(mktemp -d)"
-          echo "Staging to: $STAGE"
+          ROOT_PAYLOAD="$STAGE/__root__"
+          mkdir -p "$ROOT_PAYLOAD"
 
-          # Extract each archive into its own staging subdir first
-          idx=0
-          staged_any=0
+          # 1) Unpack everything into a single root payload
+          while IFS= read -r pack; do
+            echo "::group::Unpacking: $pack"
 
-          while IFS= read -r archive; do
-            echo "::group::Staging: $archive"
-            idx=$((idx+1))
-            out="$STAGE/$idx"
-            mkdir -p "$out"
-
-            # Size guard
-            size_mb=$(du -m "$archive" | cut -f1)
+            size_mb=$(du -m "$pack" | cut -f1)
             if [ "$size_mb" -gt "$MAX_SIZE_MB" ]; then
-              echo "❌ ERROR: $archive (${size_mb}MB) exceeds limit (${MAX_SIZE_MB}MB)"
-              rm -rf "$out"
+              echo "❌ Too large: $pack (${size_mb}MB > ${MAX_SIZE_MB}MB)"
               echo "::endgroup::"
               continue
             fi
 
-            if [[ "$archive" == *.zip ]]; then
-              if unzip -o "$archive" -d "$out" 2>/tmp/unzip_error.log; then
-                :
-              else
-                echo "❌ ZIP extraction failed:"
-                cat /tmp/unzip_error.log
-                rm -rf "$out"
-                echo "::endgroup::"
-                continue
-              fi
+            out="$STAGE/out_$(date +%s%N)"
+            mkdir -p "$out"
+
+            if [[ "$pack" == *.zip ]]; then
+              unzip -o "$pack" -d "$out" >/dev/null
             else
-              if tar -xzf "$archive" -C "$out" 2>/tmp/tar_error.log; then
-                :
-              else
-                echo "❌ TAR extraction failed:"
-                cat /tmp/tar_error.log
-                rm -rf "$out"
-                echo "::endgroup::"
-                continue
-              fi
+              tar -xzf "$pack" -C "$out"
             fi
 
-            # Validate file count
             file_count=$(find "$out" -type f | wc -l)
             if [ "$file_count" -eq 0 ]; then
-              echo "❌ ERROR: No files extracted"
+              echo "❌ No files unpacked"
               rm -rf "$out"
               echo "::endgroup::"
               continue
             fi
             if [ "$file_count" -gt "$MAX_FILES" ]; then
-              echo "❌ ERROR: Too many files ($file_count > $MAX_FILES)"
+              echo "❌ Too many files: $file_count > $MAX_FILES"
               rm -rf "$out"
               echo "::endgroup::"
               continue
             fi
 
-            echo "✅ Staged: $file_count files"
-            staged_any=1
-            echo "::endgroup::"
-          done < /tmp/archives.txt
-
-          if [ "$staged_any" -eq 0 ]; then
-            echo "Nothing staged; exiting."
-            exit 0
-          fi
-
-          # --- 2) Choose what to copy into root ---
-          # If multiple archives exist, we merge them into root in numeric order (later archives win on conflicts if FORCE_OVERWRITE=1)
-          echo "::group::Preparing root payload"
-          ROOT_PAYLOAD="$STAGE/__root__"
-          mkdir -p "$ROOT_PAYLOAD"
-
-          for d in "$STAGE"/*; do
-            [ -d "$d" ] || continue
-            base="$(basename "$d")"
-            [ "$base" = "__root__" ] && continue
-
-            # Flatten single top-level folder if present
-            # If the staged dir contains exactly one item and it's a directory, treat that as root
-            items=$(ls -A "$d" | wc -l)
-            src="$d"
+            # Flatten if there's a single wrapper directory
+            items=$(ls -A "$out" | wc -l)
+            src="$out"
             if [ "$items" -eq 1 ]; then
-              only="$(ls -A "$d")"
-              if [ -d "$d/$only" ]; then
-                src="$d/$only"
-                echo "📁 Flattening single top folder: $only"
+              only="$(ls -A "$out")"
+              if [ -d "$out/$only" ]; then
+                echo "📁 Flattening wrapper folder: $only"
+                src="$out/$only"
               fi
             fi
 
-            # Copy into root payload
+            # Merge into root payload (later packs overwrite earlier)
             shopt -s dotglob
-            if [ -n "${FORCE_OVERWRITE:-}" ]; then
-              cp -a "$src"/* "$ROOT_PAYLOAD/" 2>/dev/null || true
-            else
-              # no-overwrite: copy only missing files (best-effort)
-              for p in "$src"/*; do
-                rel="$(basename "$p")"
-                [ -e "$ROOT_PAYLOAD/$rel" ] && continue
-                cp -a "$p" "$ROOT_PAYLOAD/" 2>/dev/null || true
-              done
-            fi
+            cp -a "$src"/* "$ROOT_PAYLOAD/" 2>/dev/null || true
             shopt -u dotglob
-          done
-          echo "::endgroup::"
 
-          # --- 3) Optional clean repo (keep .github + .git) ---
+            echo "✅ Added $file_count files to root payload"
+            echo "::endgroup::"
+          done < /tmp/packs.txt
+
+          # 2) Clean repo root but keep workflow
           if [ -n "${CLEAN_REPO:-}" ]; then
             echo "::group::Cleaning repo root (keeping .github + .git)"
             find . -mindepth 1 -maxdepth 1 \
@@ -187,38 +129,23 @@ jobs:
             echo "::endgroup::"
           fi
 
-          # --- 4) Copy payload INTO repo root ---
+          # 3) Copy payload INTO repo root
           echo "::group::Writing into repo root"
           shopt -s dotglob
           cp -a "$ROOT_PAYLOAD"/* . 2>/dev/null || true
           shopt -u dotglob
           echo "::endgroup::"
 
-      - name: Commit and push changes
+      - name: Commit and push result
+        if: steps.locate.outputs.found == 'true'
         run: |
           set -euo pipefail
-
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-
           git add -A
-
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-
-          git commit -m "Auto-extract: write archives into repo root [$(date -u +%Y-%m-%dT%H:%M:%SZ)]" || exit 0
-
-          for i in 1 2 3; do
-            if git push; then
-              echo "Push successful"
-              exit 0
-            fi
-            echo "Push failed ($i/3) — rebasing and retrying"
-            git pull --rebase origin "${{ github.ref_name }}" || true
-            sleep 2
-          done
-
-          echo "Failed to push after 3 attempts"
-          exit 1
+          git commit -m "Unpack uploads into repo root [$(date -u +%Y-%m-%dT%H:%M:%SZ)]"
+          git push
