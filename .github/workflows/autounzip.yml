@@ -1,4 +1,4 @@
-name: Auto Extract Archives
+name: Auto Extract Archives (Clean + Extract)
 
 on:
   push:
@@ -12,19 +12,16 @@ on:
         description: "Re-extract even if destination folder already exists"
         required: false
         default: "false"
-      max_size_mb:
-        description: "Max archive size (MB)"
+      clean_repo:
+        description: "Delete everything except .github (this workflow) before writing extracted output"
         required: false
-        default: "500"
-      max_files:
-        description: "Max extracted files"
-        required: false
-        default: "10000"
+        default: "true"
 
 env:
-  MAX_SIZE_MB: ${{ inputs.max_size_mb || 500 }}
-  MAX_FILES: ${{ inputs.max_files || 10000 }}
+  MAX_SIZE_MB: 500
+  MAX_FILES: 10000
   FORCE_REEXTRACT: ${{ inputs.force_reextract == 'true' && '1' || '' }}
+  CLEAN_REPO: ${{ inputs.clean_repo != 'false' && '1' || '' }}
 
 jobs:
   extract:
@@ -44,33 +41,24 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq unzip p7zip-full p7zip-rar
 
-      - name: Find and validate archives
+      - name: Find archives
         id: find
         run: |
-          echo "::group::Finding archives"
-          find . -type f \( -name "*.zip" -o -name "*.tar.gz" -o -name "*.tgz" \) ! -path "./.git/*" > /tmp/archives.txt
-
+          set -euo pipefail
+          find . -type f \( -name "*.zip" -o -name "*.tar.gz" -o -name "*.tgz" \) ! -path "./.git/*" > /tmp/archives.txt || true
           if [ ! -s /tmp/archives.txt ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
             echo "No archives found"
-            echo "found=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-
-          echo "Found archives:"
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "Archives:"
           cat /tmp/archives.txt
-          echo "found=true" >> $GITHUB_OUTPUT
-          echo "::endgroup::"
 
-      - name: Extract archives with error handling (root output)
+      - name: Extract to repo (clean first, keep workflow)
         if: steps.find.outputs.found == 'true'
         run: |
           set -euo pipefail
-
-          failed=0
-          extracted=0
-
-          ROOT_OUT_DIR="_extracted"
-          mkdir -p "$ROOT_OUT_DIR"
 
           strip_ext() {
             local f="$1"
@@ -80,19 +68,20 @@ jobs:
             echo "$f"
           }
 
+          # 1) Extract everything into a temp staging dir first (so we can safely clean the repo)
+          STAGE="$(mktemp -d)"
+          mkdir -p "$STAGE"
+          failed=0
+          extracted=0
+
           while IFS= read -r archive; do
-            echo "::group::Processing: $archive"
+            echo "::group::Extracting: $archive"
 
             archive_base="$(basename "$archive")"
             name="$(strip_ext "$archive_base")"
-            extract_dir="${GITHUB_WORKSPACE}/${ROOT_OUT_DIR}/${name}"
+            out_dir="$STAGE/$name"
 
-            if [ -d "$extract_dir" ] && [ -z "${FORCE_REEXTRACT:-}" ]; then
-              echo "⚠️  Skipping: $extract_dir already exists (set FORCE_REEXTRACT to override)"
-              echo "::endgroup::"
-              continue
-            fi
-
+            # Size guard
             size_mb=$(du -m "$archive" | cut -f1)
             if [ "$size_mb" -gt "$MAX_SIZE_MB" ]; then
               echo "❌ ERROR: $archive (${size_mb}MB) exceeds limit (${MAX_SIZE_MB}MB)"
@@ -101,63 +90,52 @@ jobs:
               continue
             fi
 
-            if [ -d "$extract_dir" ]; then
-              echo "🗑️  Removing existing: $extract_dir"
-              rm -rf "$extract_dir"
-            fi
+            # Allow re-extract in staging always
+            rm -rf "$out_dir"
+            mkdir -p "$out_dir"
 
-            mkdir -p "$extract_dir"
             success=false
-
             if [[ "$archive" == *.zip ]]; then
-              echo "📦 Extracting ZIP -> $extract_dir"
-              if unzip -o "$archive" -d "$extract_dir" 2>/tmp/unzip_error.log; then
-                nested=$(find "$extract_dir" -type f \( -name "*.zip" -o -name "*.tar.gz" -o -name "*.tgz" \) | wc -l)
-                if [ "$nested" -gt 0 ]; then
-                  echo "⚠️  Warning: $nested nested archives found (not auto-extracted)"
-                fi
+              if unzip -o "$archive" -d "$out_dir" 2>/tmp/unzip_error.log; then
                 success=true
               else
                 echo "❌ ZIP extraction failed:"
                 cat /tmp/unzip_error.log
-                rm -rf "$extract_dir"
+                rm -rf "$out_dir"
               fi
-
-            elif [[ "$archive" == *.tar.gz ]] || [[ "$archive" == *.tgz ]]; then
-              echo "📦 Extracting TAR.GZ -> $extract_dir"
-              if tar -xzf "$archive" -C "$extract_dir" 2>/tmp/tar_error.log; then
-                root_items=$(ls -A "$extract_dir" | wc -l)
+            else
+              if tar -xzf "$archive" -C "$out_dir" 2>/tmp/tar_error.log; then
+                # Flatten single root folder (incl dotfiles)
+                root_items=$(ls -A "$out_dir" | wc -l)
                 if [ "$root_items" -eq 1 ]; then
-                  only="$(ls -A "$extract_dir")"
-                  if [ -d "$extract_dir/$only" ]; then
-                    echo "📁 Flattening single root folder: $only"
+                  only="$(ls -A "$out_dir")"
+                  if [ -d "$out_dir/$only" ]; then
                     shopt -s dotglob
-                    mv "$extract_dir/$only"/* "$extract_dir/" 2>/dev/null || true
+                    mv "$out_dir/$only"/* "$out_dir/" 2>/dev/null || true
                     shopt -u dotglob
-                    rmdir "$extract_dir/$only" 2>/dev/null || true
+                    rmdir "$out_dir/$only" 2>/dev/null || true
                   fi
                 fi
                 success=true
               else
                 echo "❌ TAR extraction failed:"
                 cat /tmp/tar_error.log
-                rm -rf "$extract_dir"
+                rm -rf "$out_dir"
               fi
             fi
 
             if [ "$success" = true ]; then
-              file_count=$(find "$extract_dir" -type f | wc -l)
-
+              file_count=$(find "$out_dir" -type f | wc -l)
               if [ "$file_count" -eq 0 ]; then
                 echo "❌ ERROR: No files extracted"
-                rm -rf "$extract_dir"
+                rm -rf "$out_dir"
                 failed=$((failed + 1))
               elif [ "$file_count" -gt "$MAX_FILES" ]; then
                 echo "❌ ERROR: Too many files ($file_count > $MAX_FILES)"
-                rm -rf "$extract_dir"
+                rm -rf "$out_dir"
                 failed=$((failed + 1))
               else
-                echo "✅ Success: $file_count files extracted to $extract_dir"
+                echo "✅ Staged: $file_count files -> $name/"
                 extracted=$((extracted + 1))
               fi
             else
@@ -167,16 +145,50 @@ jobs:
             echo "::endgroup::"
           done < /tmp/archives.txt
 
-          echo "SUMMARY: $extracted extracted, $failed failed"
-
-          if [ "$failed" -gt 0 ]; then
-            echo "::warning::$failed archive(s) failed to extract"
-          fi
-
+          echo "SUMMARY: staged=$extracted failed=$failed"
           if [ "$extracted" -eq 0 ]; then
-            echo "Nothing to commit"
+            echo "Nothing staged; exiting."
             exit 0
           fi
+
+          # 2) Optional: clean repo (keep .git + .github only)
+          if [ -n "${CLEAN_REPO:-}" ]; then
+            echo "::group::Cleaning repo (keeping .github + .git)"
+            # Delete everything at repo root except .git and .github
+            find . -mindepth 1 -maxdepth 1 \
+              ! -name ".git" \
+              ! -name ".github" \
+              -exec rm -rf {} +
+            echo "::endgroup::"
+          fi
+
+          # 3) Write staged output into repo root as folders named after each archive
+          echo "::group::Writing extracted output to repo root"
+          while IFS= read -r archive; do
+            archive_base="$(basename "$archive")"
+            name="$(strip_ext "$archive_base")"
+            src="$STAGE/$name"
+            dst="./$name"
+
+            if [ ! -d "$src" ]; then
+              continue
+            fi
+
+            if [ -d "$dst" ] && [ -z "${FORCE_REEXTRACT:-}" ]; then
+              echo "⚠️  Skipping write: $dst exists (set force_reextract=true to overwrite)"
+              continue
+            fi
+
+            rm -rf "$dst"
+            mkdir -p "$dst"
+
+            # Copy staged files into destination
+            # Preserve structure, include dotfiles
+            shopt -s dotglob
+            cp -a "$src"/* "$dst/" 2>/dev/null || true
+            shopt -u dotglob
+          done < /tmp/archives.txt
+          echo "::endgroup::"
 
       - name: Commit and push changes
         run: |
@@ -192,30 +204,17 @@ jobs:
             exit 0
           fi
 
-          echo "Changes to commit:"
-          git diff --cached --stat
-
-          commit_msg="Auto-extract: Extracted archives [$(date +%Y-%m-%d_%H:%M:%S)]
-
-          Extracted files:
-          $(git diff --cached --name-only | grep -vE '\.zip$|\.tar\.gz$|\.tgz$' | head -20)
-
-          Workflow: ${{ github.workflow }}
-          Run: ${{ github.run_id }}"
-
-          git commit -m "$commit_msg"
+          git commit -m "Auto-extract: clean + extract [$(date -u +%Y-%m-%dT%H:%M:%SZ)]" || exit 0
 
           for i in 1 2 3; do
             if git push; then
-              echo "✅ Push successful"
+              echo "Push successful"
               exit 0
-            else
-              echo "⚠️  Push failed, attempt $i/3"
-              git pull --rebase origin "${{ github.ref_name }}" || true
-              sleep 2
             fi
+            echo "Push failed ($i/3) — rebasing and retrying"
+            git pull --rebase origin "${{ github.ref_name }}" || true
+            sleep 2
           done
 
-          echo "❌ Failed to push after 3 attempts"
+          echo "Failed to push after 3 attempts"
           exit 1
-        
