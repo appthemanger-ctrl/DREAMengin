@@ -1,0 +1,29 @@
+version: 1
+product: DREAMengin / Lab
+description: |
+  Action registry for Dr. Eams. If a feature exists in the app, it should appear here
+  so the assistant can execute it via API tools instead of guessing UI steps.
+
+context:
+  required: [userId, mode, route]
+  optional: [projectId, notebookId, attachmentId, featureFlags]
+
+safety:
+  confirmLevels:
+    none: No confirmation
+    confirm: One-tap confirmation
+    typed: User types phrase
+actions:
+  - name: setup.check
+    description: Check if required env vars/tables/features are configured
+    confirm: none
+    permission: user
+    inputs:
+      - name: scope
+        type: enum
+        values: [app, supabase, vercel]
+        required: false
+        default: app
+    returns:
+      - name: report
+        type: object
