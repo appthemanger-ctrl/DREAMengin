@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import HomeDashboard from '@/components/HomeDashboard';
+import type { FeedItemWithProfile } from '@/types/supabase-joins'; from '@/components/HomeDashboard';
 
 export default async function Home() {
   const supabase = await createServerClient();
@@ -17,6 +18,7 @@ export default async function Home() {
       *,
       profiles!inner(display_name, handle, avatar_url)
     `)
+    .returns<FeedItemWithProfile[]>()
     .eq('user_id', user.id)
     .order('ts', { ascending: false })
     .limit(50);
@@ -25,6 +27,7 @@ export default async function Home() {
   const { data: widgetsData } = await supabase
     .from('widget_instances')
     .select('*')
+    .returns<FeedItemWithProfile[]>()
     .eq('user_id', user.id)
     .order('order');
 
@@ -32,6 +35,7 @@ export default async function Home() {
   const { data: notificationsData } = await supabase
     .from('notifications')
     .select('*')
+    .returns<FeedItemWithProfile[]>()
     .eq('user_id', user.id)
     .eq('read', false)
     .order('created_at', { ascending: false })
@@ -41,6 +45,7 @@ export default async function Home() {
   const { count: unreadMessagesCount } = await supabase
     .from('notifications')
     .select('*', { count: 'exact', head: true })
+    .returns<FeedItemWithProfile[]>()
     .eq('user_id', user.id)
     .eq('type', 'message')
     .eq('read', false);

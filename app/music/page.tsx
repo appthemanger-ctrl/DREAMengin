@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Music, Upload, ExternalLink, ArrowLeft, Play } from 'lucide-react';
+import type { Tables } from '@/types/supabase';
 
 export default async function MusicPage() {
   const supabase = await createServerClient();
@@ -67,7 +68,12 @@ export default async function MusicPage() {
     },
   ];
 
-  const music = musicData && musicData.length > 0 ? musicData : demoMusic;
+  type TrackWithProfile = Tables<'music_releases'> & {
+    profiles?: Pick<Tables<'profiles'>, 'handle' | 'display_name'>
+  };
+
+  const typedMusic: TrackWithProfile[] = (musicData as unknown as TrackWithProfile[] | null) ?? [];
+  const music = typedMusic.length > 0 ? typedMusic : demoMusic;
 
   return (
     <div className="min-h-screen bg-background">

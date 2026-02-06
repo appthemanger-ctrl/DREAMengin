@@ -1,15 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-
-type Profile = {
-  id: string;
-  handle: string | null;
-  display_name: string | null;
-  avatar_url: string | null;
-};
-
-type FollowersRow = { follower: Profile | null };
-type FollowingRow = { following: Profile | null };
+import type { FollowWithFollowerProfile, FollowWithFollowingProfile } from '@/types/supabase-joins';
 
 // GET - Check follow status or get followers/following
 export async function GET(req: NextRequest) {
@@ -44,13 +35,14 @@ export async function GET(req: NextRequest) {
       .select(`
         follower:profiles!follower_id(id, handle, display_name, avatar_url)
       `)
+      .returns<FollowWithFollowerProfile[]>()
       .eq('following_id', userId);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ followers: followers.map(f => f.follower) });
+    return NextResponse.json({ followers: (followers ?? []).map((f: FollowWithFollowerProfile) => f.follower) });
   }
 
   if (type === 'following') {
@@ -59,13 +51,14 @@ export async function GET(req: NextRequest) {
       .select(`
         following:profiles!following_id(id, handle, display_name, avatar_url)
       `)
+      .returns<FollowWithFollowingProfile[]>()
       .eq('follower_id', userId);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ following: following.map(f => f.following) });
+    return NextResponse.json({ following: (following ?? []).map((f: FollowWithFollowingProfile) => f.following) });
   }
 
   // Get counts

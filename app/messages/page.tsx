@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import MessagesClient from '@/components/MessagesClient';
+import type { Tables } from '@/types/supabase';
 
 export default async function MessagesPage() {
   const supabase = await createServerClient();
@@ -22,7 +23,13 @@ export default async function MessagesPage() {
     .order('updated_at', { ascending: false });
 
   // Get the other participant for each conversation
-  const formattedConversations = (conversations || []).map(conv => {
+  type ProfileMini = Pick<Tables<'profiles'>, 'id' | 'handle' | 'display_name' | 'avatar_url'>;
+  type ConversationWithParticipants = Tables<'conversations'> & {
+    participant1?: ProfileMini;
+    participant2?: ProfileMini;
+  };
+
+  const formattedConversations = ((conversations as unknown as ConversationWithParticipants[] | null) ?? []).map((conv) => {
     const otherParticipant = conv.participant1_id === user.id 
       ? conv.participant2 
       : conv.participant1;

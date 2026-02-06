@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { VolumeX, TrendingUp, Filter, DollarSign, Plus, Trash2 } from 'lucide-react';
+import type { Tables } from '@/types/supabase';
 
 export default async function FeedSettingsPage() {
   const supabase = await createServerClient();
@@ -17,8 +18,7 @@ export default async function FeedSettingsPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
-  // Demo rules when no real data exists
-  const rules = rulesData ?? [];
+  const rules: Tables<'feed_rules'>[] = (rulesData as unknown as Tables<'feed_rules'>[] | null) ?? [];
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">

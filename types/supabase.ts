@@ -219,6 +219,57 @@ export interface Database {
           revoked?: boolean
         }
       }
+
+      // Messaging
+      conversations: {
+        Row: {
+          id: string
+          participant1_id: string
+          participant2_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          participant1_id: string
+          participant2_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          participant1_id?: string
+          participant2_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      messages: {
+        Row: {
+          id: string
+          conversation_id: string
+          sender_id: string
+          content: string | null
+          created_at: string
+          read: boolean
+        }
+        Insert: {
+          id?: string
+          conversation_id: string
+          sender_id: string
+          content?: string | null
+          created_at?: string
+          read?: boolean
+        }
+        Update: {
+          id?: string
+          conversation_id?: string
+          sender_id?: string
+          content?: string | null
+          created_at?: string
+          read?: boolean
+        }
+      }
       feed_items: {
         Row: {
           id: string
@@ -309,6 +360,25 @@ export interface Database {
           created_at?: string
         }
       }
+
+      likes: {
+        Row: {
+          user_id: string
+          post_id: string
+          created_at: string
+        }
+        Insert: {
+          user_id: string
+          post_id: string
+          created_at?: string
+        }
+        Update: {
+          user_id?: string
+          post_id?: string
+          created_at?: string
+        }
+      }
+
       merch: {
         Row: {
           id: string

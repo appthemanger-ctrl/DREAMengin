@@ -3,13 +3,17 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Sparkles, Users, Zap, Shield, ArrowRight, Music, Beaker } from 'lucide-react';
+import type { Tables } from '@/types/supabase';
 
 export default async function DiscoverPage() {
   const supabase = await createServerClient();
   
   let user = null;
-  let profiles = null;
-  let posts = null;
+  let profiles: Tables<'profiles'>[] = [];
+  type PostWithProfile = Tables<'app_posts'> & {
+    profiles?: Pick<Tables<'profiles'>, 'handle' | 'display_name' | 'avatar_url'>
+  };
+  let posts: PostWithProfile[] = [];
   
   try {
     const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -39,8 +43,8 @@ export default async function DiscoverPage() {
 
     // Demo profiles when no real data
     // Demo posts when no real data
-    profiles = profilesData ?? [];
-    posts = postsData ?? [];
+    profiles = (profilesData as unknown as Tables<'profiles'>[] | null) ?? [];
+    posts = (postsData as unknown as PostWithProfile[] | null) ?? [];
   } catch {
     // Supabase not configured - redirect to landing
     redirect('/');

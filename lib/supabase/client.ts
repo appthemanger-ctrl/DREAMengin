@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import type { Database } from '@/types/supabase'
 
 // Gracefully handle missing env vars - won't crash at build time
 // but will throw clear errors at runtime if actually used without config
@@ -12,5 +13,5 @@ export function createClient() {
     )
   }
   
-  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  return createBrowserClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY)
 }
