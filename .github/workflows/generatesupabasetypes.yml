@@ -1,0 +1,32 @@
+name: Generate Supabase Types
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Generate types
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase gen types typescript \
+            --project-id ${{ secrets.SUPABASE_PROJECT_ID }} \
+            --schema public > types/supabase.ts
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add types/supabase.ts
+          git commit -m "chore: regenerate supabase types" || echo "No changes"
+          git push
