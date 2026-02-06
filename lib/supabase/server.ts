@@ -1,7 +1,6 @@
 import 'server-only'
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import type { Database } from '@/types/supabase'
 
 type DisabledSupabaseClient = {
   auth: {
@@ -55,13 +54,13 @@ export async function createServerClient() {
   if (!isSupabaseConfigured()) {
     return createDisabledClient(
       'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
-    ) as unknown as ReturnType<typeof createSupabaseServerClient<Database>>
+    ) as any
   }
 
   // In Next.js 16, cookies() is async
   const cookieStore = await cookies()
 
-  return createSupabaseServerClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  return createSupabaseServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
         return cookieStore.getAll()
@@ -84,7 +83,7 @@ export async function createServiceClient() {
     )
   }
 
-  return createSupabaseServerClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  return createSupabaseServerClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     cookies: {
       getAll() {
         return []

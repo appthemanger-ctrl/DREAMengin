@@ -82,7 +82,3 @@ enable_signup = true
 
 [edge_runtime]
 enabled = true
-# Configure one of the supported poolers: `neon`, `rc`.
-pooler = "rc"
-# Port to use for the edge runtime server.
-port = 54327

@@ -1,7 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Youtube, Sparkles, Link2, Trash2 } from 'lucide-react';
-import type { Tables } from '@/types/supabase';
 
 export default async function ConnectorsPage() {
   const supabase = await createServerClient();
@@ -18,8 +17,8 @@ export default async function ConnectorsPage() {
     .eq('user_id', user.id)
     .eq('revoked', false);
 
-  type ConnectorToken = Tables<'connectors_tokens'>;
-  const tokens: ConnectorToken[] = (tokensData as unknown as ConnectorToken[] | null) ?? [];
+  // Demo tokens when no real data exists
+  const tokens = tokensData ?? [];
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">

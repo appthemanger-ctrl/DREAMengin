@@ -2,12 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { WidgetInstance } from '@/types/widgets'
-import type { WidgetInstanceWithProfile } from '@/types/supabase-joins'
 import WidgetRail from './WidgetRail'
 import FeedArea from './FeedArea'
 import { createClient } from '@/lib/supabase/client'
-
-type FollowRow = { following_id: string }
 
 interface WidgetFeedScreenProps {
   initialUserWidgets: WidgetInstance[]
@@ -57,13 +54,10 @@ export default function WidgetFeedScreen({
         const { data: followsData } = await supabase
           .from('follows')
           .select('following_id')
-          .returns<FollowRow[]>()
           .eq('follower_id', userId)
 
         if (followsData) {
-          // Supabase returns `data` as `any` unless you provide generated types.
-          // Cast to a concrete row shape to satisfy `noImplicitAny` during builds.
-          const followingIds = (followsData ?? []).map((f: FollowRow) => f.following_id)
+          const followingIds = followsData.map(f => f.following_id)
           
           const { data: followingWidgetsData } = await supabase
             .from('widget_instances')
@@ -71,7 +65,6 @@ export default function WidgetFeedScreen({
               *,
               profiles!inner(display_name, handle, avatar_url)
             `)
-            .returns<WidgetInstanceWithProfile[]>()
             .in('user_id', followingIds)
             .eq('space', 'profile')
             .in('visibility', ['public', 'followers'])
