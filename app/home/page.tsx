@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import HomeDashboard from '@/components/HomeDashboard';
-import type { FeedItemWithProfile } from '@/types/supabase-joins'; from '@/components/HomeDashboard';
+import type { FeedItemWithProfile } from '@/types/supabase-joins';
 
 export default async function Home() {
   const supabase = await createServerClient();
