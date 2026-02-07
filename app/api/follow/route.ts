@@ -44,13 +44,16 @@ export async function GET(req: NextRequest) {
       .select(`
         follower:profiles!follower_id(id, handle, display_name, avatar_url)
       `)
-      .eq('following_id', userId);
+      .eq('following_id', userId)
+      .returns<FollowersRow[]>();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ followers: followers.map(f => f.follower) });
+    return NextResponse.json({
+      followers: (followers ?? []).flatMap((r) => (r.follower ? [r.follower] : [])),
+    });
   }
 
   if (type === 'following') {
@@ -59,13 +62,16 @@ export async function GET(req: NextRequest) {
       .select(`
         following:profiles!following_id(id, handle, display_name, avatar_url)
       `)
-      .eq('follower_id', userId);
+      .eq('follower_id', userId)
+      .returns<FollowingRow[]>();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ following: following.map(f => f.following) });
+    return NextResponse.json({
+      following: (following ?? []).flatMap((r) => (r.following ? [r.following] : [])),
+    });
   }
 
   // Get counts
