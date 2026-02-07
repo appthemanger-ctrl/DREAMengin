@@ -1,0 +1,274 @@
+name: Extract Archive Into Repo (latest-ready)
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Where to get the archive"
+        required: true
+        default: "release_latest_asset"
+        type: choice
+        options:
+          - release_latest_asset      # latest GitHub Release asset matching a pattern
+          - artifact_latest           # latest non-expired Actions artifact matching a pattern
+          - url                       # direct URL
+          - path                      # file already in repo
+      asset_pattern:
+        description: "Glob/pattern for release asset (e.g. *.zip)"
+        required: false
+        default: "*.zip"
+      artifact_pattern:
+        description: "Glob/pattern for actions artifact name (e.g. build-*.zip or build)"
+        required: false
+        default: "*"
+      archive_url:
+        description: "URL when source=url"
+        required: false
+        default: ""
+      archive_path_in_repo:
+        description: "Repo path when source=path (e.g. _artifacts/build.zip)"
+        required: false
+        default: ""
+      target_branch:
+        description: "Branch to update (default = repo default)"
+        required: false
+        default: ""
+      commit_message:
+        description: "Commit message"
+        required: false
+        default: "chore: extract archive into repo"
+      open_pr:
+        description: "Open a PR instead of pushing directly (true/false)"
+        required: false
+        default: "false"
+      pr_base:
+        description: "Base branch for PR (if open_pr=true; default repo default)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    env:
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.target_branch || github.event.repository.default_branch }}
+
+      - name: Resolve branch
+        id: branch
+        run: |
+          set -euo pipefail
+          BR="${{ github.event.inputs.target_branch }}"
+          if [ -z "$BR" ]; then BR="${DEFAULT_BRANCH}"; fi
+          echo "br=$BR" >> "$GITHUB_OUTPUT"
+          git checkout "$BR" 2>/dev/null || git checkout -b "$BR"
+
+      # -------- LATEST ZIP (Release asset) ----------
+      - name: Get latest release asset
+        id: rel
+        if: ${{ github.event.inputs.source == 'release_latest_asset' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pattern = core.getInput('asset_pattern') || '*.zip'
+            const { owner, repo } = context.repo
+            const latest = await github.rest.repos.getLatestRelease({ owner, repo })
+            const micromatch = require('micromatch')
+            const assets = latest.data.assets || []
+            const match = assets.find(a => micromatch.isMatch(a.name, pattern))
+            if (!match) {
+              core.setFailed(`No asset matching pattern "${pattern}" on latest release ${latest.data.tag_name}`)
+              return
+            }
+            core.setOutput('name', match.name)
+            core.setOutput('url', match.browser_download_url)
+
+      - name: Download latest release asset
+        if: ${{ github.event.inputs.source == 'release_latest_asset' }}
+        run: |
+          set -euo pipefail
+          mkdir -p _dl
+          curl -LfS "${{ steps.rel.outputs.url }}" -o "_dl/${{ steps.rel.outputs.name }}"
+          echo "path=_dl/${{ steps.rel.outputs.name }}" >> "$GITHUB_OUTPUT"
+        id: src_rel
+
+      # -------- LATEST ZIP (Actions artifact) ----------
+      - name: Get latest actions artifact
+        id: art
+        if: ${{ github.event.inputs.source == 'artifact_latest' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pattern = core.getInput('artifact_pattern') || '*'
+            const { owner, repo } = context.repo
+            // List artifacts (paginated)
+            let page = 1, found = null
+            const micromatch = require('micromatch')
+            while (!found) {
+              const res = await github.rest.actions.listArtifactsForRepo({ owner, repo, per_page: 100, page })
+              const items = res.data.artifacts || []
+              if (!items.length) break
+              // choose the most recent non-expired that matches
+              const ok = items.filter(a => !a.expired && micromatch.isMatch(a.name, pattern))
+                              .sort((a,b)=> new Date(b.created_at) - new Date(a.created_at))
+              if (ok.length) found = ok[0]
+              page++
+            }
+            if (!found) core.setFailed(`No non-expired artifact matched pattern "${pattern}"`)
+            else {
+              core.setOutput('id', found.id.toString())
+              core.setOutput('name', found.name)
+            }
+
+      - name: Download latest artifact zip
+        if: ${{ github.event.inputs.source == 'artifact_latest' }}
+        run: |
+          set -euo pipefail
+          mkdir -p _dl
+          # API returns a zip stream; we save it directly
+          curl -LfS -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github+json" \
+               -o "_dl/${{ steps.art.outputs.name }}.zip" \
+               "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${{ steps.art.outputs.id }}/zip"
+          echo "path=_dl/${{ steps.art.outputs.name }}.zip" >> "$GITHUB_OUTPUT"
+        id: src_art
+
+      # -------- URL or PATH sources ----------
+      - name: Resolve archive (url/path)
+        id: src
+        if: ${{ github.event.inputs.source == 'url' || github.event.inputs.source == 'path' }}
+        run: |
+          set -euo pipefail
+          mkdir -p _dl
+          SRC="${{ github.event.inputs.source }}"
+          if [ "$SRC" = "url" ]; then
+            if [ -z "${{ github.event.inputs.archive_url }}" ]; then
+              echo "::error::archive_url is required when source=url"; exit 1
+            fi
+            curl -LfS "${{ github.event.inputs.archive_url }}" -o "_dl/archive.bin"
+            echo "path=_dl/archive.bin" >> "$GITHUB_OUTPUT"
+          else
+            P="${{ github.event.inputs.archive_path_in_repo }}"
+            if [ -z "$P" ] || [ ! -f "$P" ]; then
+              echo "::error::archive_path_in_repo not found: $P"; exit 1
+            fi
+            echo "path=$P" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Determine working path
+        id: work
+        run: |
+          set -euo pipefail
+          # pick whichever step produced a path
+          for CAND in "${{ steps.src_rel.outputs.path }}" "${{ steps.src_art.outputs.path }}" "${{ steps.src.outputs.path }}"; do
+            if [ -n "$CAND" ]; then echo "path=$CAND" >> "$GITHUB_OUTPUT"; exit 0; fi
+          done
+          echo "::error::No archive path resolved"; exit 1
+
+      - name: Identify archive type
+        id: kind
+        run: |
+          set -euo pipefail
+          FILE="${{ steps.work.outputs.path }}"
+          mime=$(file -b --mime-type "$FILE" || true)
+          ext="${FILE##*.}"
+          echo "mime=$mime" >> $GITHUB_OUTPUT
+          echo "ext=$ext" >> $GITHUB_OUTPUT
+          echo "Detected mime=$mime ext=$ext"
+
+      - name: Extract archive
+        run: |
+          set -euo pipefail
+          FILE="${{ steps.work.outputs.path }}"
+          mkdir -p _extract
+          case "${{ steps.kind.outputs.mime }}" in
+            application/zip) unzip -q "$FILE" -d _extract ;;
+            application/gzip|application/x-gzip) tar -xzf "$FILE" -C _extract || (mkdir -p _extract && gunzip -c "$FILE" > _extract/out) ;;
+            application/x-tar|application/x-gtar|application/x-gtar-compressed) tar -xf "$FILE" -C _extract ;;
+            *)  case "${{ steps.kind.outputs.ext }}" in
+                  zip) unzip -q "$FILE" -d _extract ;;
+                  tgz) tar -xzf "$FILE" -C _extract ;;
+                  gz)  tar -xzf "$FILE" -C _extract || (mkdir -p _extract && gunzip -c "$FILE" > _extract/out) ;;
+                  tar) tar -xf "$FILE" -C _extract ;;
+                  *)   echo "::error::Unknown archive type"; exit 1 ;;
+                esac ;;
+          esac
+          echo "After extract:"
+          find _extract -maxdepth 2 -mindepth 1 -print
+
+      - name: Promote contents to repo root (handles single top folder)
+        run: |
+          set -euo pipefail
+          shopt -s dotglob nullglob
+          entries=( _extract/* )
+          if [ ${#entries[@]} -eq 1 ] && [ -d "${entries[0]}" ]; then
+            src="${entries[0]}"
+          else
+            src="_extract"
+          fi
+          rsync -a --delete --exclude ".git" --exclude ".github" "$src"/ .
+          echo "Repo after promote (top-level):"
+          ls -la
+
+      - name: Extract nested zips (one level down)
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          zips=(*.zip */*.zip)
+          for z in "${zips[@]}"; do
+            [ -f "$z" ] || continue
+            dir="${z%.*}"
+            echo "Unzipping $z -> $dir"
+            mkdir -p "$dir"
+            unzip -q "$z" -d "$dir"
+            # Lift single-folder contents
+            entries=( "$dir"/* )
+            if [ ${#entries[@]} -eq 1 ] && [ -d "${entries[0]}" ]; then
+              inner="${entries[0]}"
+              rsync -a "$inner"/ "$dir"/
+              rm -rf "$inner"
+            fi
+            rm -f "$z"
+          done
+          echo "Tree after nested unzip:"
+          find . -maxdepth 2 -print
+
+      - name: Commit changes (if any)
+        id: commit
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "${{ github.event.inputs.commit_message }}"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Push directly
+        if: steps.commit.outputs.changed == 'true' && github.event.inputs.open_pr != 'true'
+        run: git push origin "${{ steps.branch.outputs.br }}"
+
+      - name: Create PR
+        if: steps.commit.outputs.changed == 'true' && github.event.inputs.open_pr == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "${{ github.event.inputs.commit_message }}"
+          commit-message: "${{ github.event.inputs.commit_message }}"
+          branch: "extract/${{ github.run_id }}"
+          base: ${{ github.event.inputs.pr_base || github.event.repository.default_branch }}
+          signoff: false
+          delete-branch: true
+          draft: false
