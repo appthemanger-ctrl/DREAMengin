@@ -8,7 +8,7 @@ const nextConfig = {
   // typechecking available via `npm run typecheck`, but do not block
   // production builds on it.
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
 
   // Reduce bundle/source-map pressure in constrained build workers.
