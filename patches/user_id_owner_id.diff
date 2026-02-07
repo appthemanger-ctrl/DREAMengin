@@ -1,0 +1,21 @@
+diff --git a/lib/db/posts.ts b/lib/db/posts.ts
+index 0000000..1111111 100644
+--- a/lib/db/posts.ts
++++ b/lib/db/posts.ts
+@@
+- const cols = 'id, body, owner_id, created_at'
++ const cols = 'id, body, user_id, owner_id, created_at'  // tolerate both
+
+- const q = supabase.from('app_posts').select(cols).eq('owner_id', userId)
++ const q = supabase.from('app_posts').select(cols).or(`user_id.eq.${userId},owner_id.eq.${userId}`)
+
+diff --git a/lib/db/music.ts b/lib/db/music.ts
+index 0000000..1111111 100644
+--- a/lib/db/music.ts
++++ b/lib/db/music.ts
+@@
+- const cols = 'id, title, owner_id, created_at'
++ const cols = 'id, title, user_id, owner_id, created_at'
+
+- .eq('owner_id', userId)
++ .or(`user_id.eq.${userId},owner_id.eq.${userId}`)
