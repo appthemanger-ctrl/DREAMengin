@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  productionBrowserSourceMaps: false,
   serverExternalPackages: ["@supabase/supabase-js"],
   images: {
     remotePatterns: [
