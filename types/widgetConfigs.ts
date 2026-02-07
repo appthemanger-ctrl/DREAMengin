@@ -52,4 +52,44 @@ export interface SocialFeedWidgetConfig {
   horizon?: '24h' | '7d' | '30d';
   maxItems?: number;
   ranking?: 'chronological' | 'source_order';
+
+  /**
+   * Optional filters applied before ranking.
+   * Keep this shape stable because runtime parsing depends on it.
+   */
+  filter?: {
+    includeKinds?: string[];
+    excludeKeywords?: string[];
+  };
 }
+
+// ---------------------------------------------------------------------------
+// Dreamengin widget typing helpers used by lib/widgets/parse.ts
+// ---------------------------------------------------------------------------
+
+export type DreamenginWidgetType =
+  | 'youtube'
+  | 'social_embed'
+  | 'social_profile'
+  | 'social_feed'
+  | 'embed'
+  | 'text';
+
+export interface EmbedWidgetConfig {
+  url: string;
+  title?: string;
+  sandbox?: boolean;
+}
+
+export interface TextWidgetConfig {
+  text: string;
+  format?: 'plain' | 'markdown';
+}
+
+export type TypedWidget =
+  | { id: string; type: 'youtube'; config: YouTubeWidgetConfig }
+  | { id: string; type: 'social_embed'; config: SocialEmbedWidgetConfig }
+  | { id: string; type: 'social_profile'; config: SocialProfileWidgetConfig }
+  | { id: string; type: 'social_feed'; config: SocialFeedWidgetConfig }
+  | { id: string; type: 'embed'; config: EmbedWidgetConfig }
+  | { id: string; type: 'text'; config: TextWidgetConfig };
