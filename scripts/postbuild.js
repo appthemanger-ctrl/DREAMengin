@@ -8,7 +8,7 @@ const { resolve } = require("node:path");
 
 const REQUIRED_PATHS = [
   "components/WheelLayout.tsx",
-  "lib/widgets/WidgetEngine.tsx",
+  "lib/widgets/WidgetEngine.ts",
   "lib/widgets/WidgetBus.ts",
   "lib/widgets/useWidget.ts",
 ];
