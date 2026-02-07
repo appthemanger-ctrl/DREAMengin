@@ -119,6 +119,22 @@ export default async function MusicPage() {
                   allow="autoplay; clipboard-write; encrypted-media"
                   className="border-0"
                 />
+              ) : track.audio_url ? (
+                <div className="w-full bg-muted p-6 flex items-center justify-center relative">
+                  <div className="w-full">
+                    <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <Music className="w-8 h-8 text-primary" />
+                    </div>
+                    <audio 
+                      controls 
+                      className="w-full"
+                      preload="metadata"
+                    >
+                      <source src={track.audio_url} type="audio/mpeg" />
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                </div>
               ) : (
                 <div className="w-full h-44 bg-muted flex items-center justify-center relative">
                   <Music className="w-12 h-12 text-muted-foreground" />
@@ -135,7 +151,7 @@ export default async function MusicPage() {
                 <p className="text-sm text-muted-foreground mb-3">
                   by @{track.profiles?.handle}
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {track.embed_url?.includes('spotify') && (
                     <a
                       href={track.embed_url.replace('embed/', '').replace('track/', 'track/')}
@@ -157,6 +173,11 @@ export default async function MusicPage() {
                       <ExternalLink className="w-3.5 h-3.5" />
                       YouTube
                     </a>
+                  )}
+                  {track.audio_url && track.file_size_bytes && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-full">
+                      {(track.file_size_bytes / (1024 * 1024)).toFixed(1)} MB
+                    </span>
                   )}
                 </div>
               </div>
