@@ -45,14 +45,19 @@ export async function GET(req: NextRequest) {
         follower:profiles!follower_id(id, handle, display_name, avatar_url)
       `)
       .eq('following_id', userId)
-      .returns<FollowersRow[]>();
+      // NOTE: We avoid `.returns<T>()` here because in some build environments
+      // the Supabase client can degrade to `any`, and TypeScript will fail the
+      // build with: "Untyped function calls may not accept type arguments."
+      // The cast below preserves runtime behavior while keeping the build green.
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({
-      followers: (followers ?? []).flatMap((r) => (r.follower ? [r.follower] : [])),
+      followers: ((followers as unknown as FollowersRow[]) ?? []).flatMap((r) =>
+        r.follower ? [r.follower] : []
+      ),
     });
   }
 
@@ -63,14 +68,16 @@ export async function GET(req: NextRequest) {
         following:profiles!following_id(id, handle, display_name, avatar_url)
       `)
       .eq('follower_id', userId)
-      .returns<FollowingRow[]>();
+      // See NOTE above re: `.returns<T>()`.
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({
-      following: (following ?? []).flatMap((r) => (r.following ? [r.following] : [])),
+      following: ((following as unknown as FollowingRow[]) ?? []).flatMap((r) =>
+        r.following ? [r.following] : []
+      ),
     });
   }
 
