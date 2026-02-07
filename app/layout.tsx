@@ -1,4 +1,5 @@
 import '@/styles/globals.css';
+import '@/components/v1-ui/widget-feed-screen.css';
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import NavBar from "@/components/NavBar";

@@ -85,6 +85,18 @@ export default function JoinPage() {
   }
 
   return (
+    <>
+
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="fixed inset-0 w-full h-full object-cover -z-10 opacity-40"
+      >
+        <source src="/videos/signup-bg.mp4" type="video/mp4" />
+      </video>
+
     <main className="min-h-[calc(100vh-64px)] px-4 py-10">
       <div className="mx-auto w-full max-w-md rounded-3xl border border-white/10 bg-black/30 p-6 shadow-2xl backdrop-blur">
         <div className="mb-6">
@@ -184,6 +196,7 @@ export default function JoinPage() {
             {busy ? "Creating…" : "Register"}
           </button>
         </form>
+    </>
 
         <div className="mt-5 space-y-3">
           <button
