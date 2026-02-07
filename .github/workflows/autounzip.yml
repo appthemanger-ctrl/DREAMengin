@@ -1,4 +1,4 @@
-name: Unpack Into Root (Safe Overlay, Second Layer, NO TEMP)
+name: Unpack Into Root (Safe Overlay, Second Layer)
 
 on:
   push:
@@ -14,6 +14,7 @@ permissions:
 jobs:
   unpack:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,12 +23,12 @@ jobs:
       - name: Install unzip
         run: sudo apt-get update -qq && sudo apt-get install -y -qq unzip
 
-      - name: Apply newest archive into repo root (safe overlay + unwrap single top folder)
+      - name: Unpack newest archive into repo root (SAFE overlay)
         shell: bash
         run: |
           set -euo pipefail
 
-          # Find newest tracked archive
+          # Find newest archive
           pack="$(
             git ls-files -z '*.zip' '*.tar.gz' '*.tgz' |
             xargs -0 -n1 |
@@ -36,96 +37,92 @@ jobs:
           )"
 
           if [ -z "${pack:-}" ]; then
-            echo "No .zip/.tar.gz/.tgz found"
+            echo "No archive found"
             exit 0
           fi
 
           echo "Using: $pack"
 
-          # List files in archive (WITHOUT extracting)
-          # Then compute top-level entries (targets) and detect wrapper folder
-          targets_file="$(mktemp)"
-          wrapper_file="$(mktemp)"
+          tmp="$(mktemp -d)"
+          out="$tmp/out"
+          mkdir -p "$out"
 
+          # Extract to temp
           if [[ "$pack" == *.zip ]]; then
-            # zip listing: one file per line
-            unzip -Z1 "$pack" \
-              | sed 's#^\./##' \
-              | grep -v '^__MACOSX/' \
-              | awk -F/ 'NF{print $1}' \
-              | sort -u > "$targets_file"
+            unzip -o "$pack" -d "$out" >/dev/null
           else
-            # tar listing: one file per line
-            tar -tf "$pack" \
-              | sed 's#^\./##' \
-              | grep -v '^__MACOSX/' \
-              | awk -F/ 'NF{print $1}' \
-              | sort -u > "$targets_file"
+            tar -xf "$pack" -C "$out"
           fi
 
-          echo "Top-level targets in archive:"
-          cat "$targets_file" || true
+          # Remove macOS junk
+          rm -rf "$out/__MACOSX" || true
 
-          if [ ! -s "$targets_file" ]; then
-            echo "ERROR: No targets found in archive; refusing."
+          # Detect wrapper folder
+          src="$out"
+          count="$(ls -A "$out" | wc -l | tr -d ' ')"
+
+          if [ "$count" -eq 1 ]; then
+            only="$(ls -A "$out")"
+            if [ -d "$out/$only" ]; then
+              echo "Wrapper folder detected: $only"
+              src="$out/$only"
+            fi
+          fi
+
+          # Safety
+          if [ -z "$(ls -A "$src" || true)" ]; then
+            echo "ERROR: Empty archive"
             exit 1
           fi
 
-          # Guardrails
-          if grep -qx '.git' "$targets_file"; then
-            echo "ERROR: archive contains .git; refusing."
-            exit 1
-          fi
-          if grep -qx '.github' "$targets_file"; then
-            echo "ERROR: archive contains .github; refusing (protect workflows)."
+          # Get top-level targets
+          (cd "$src" && find . -mindepth 1 -maxdepth 1 -printf '%P\n') | sort > "$tmp/targets.txt"
+
+          echo "Targets:"
+          cat "$tmp/targets.txt"
+
+          if [ ! -s "$tmp/targets.txt" ]; then
+            echo "ERROR: No targets"
             exit 1
           fi
 
-          # Detect wrapper folder: if exactly one top-level entry and it's a directory after extract
-          wrapper=""
-          if [ "$(wc -l < "$targets_file" | tr -d ' ')" -eq 1 ]; then
-            wrapper="$(cat "$targets_file")"
-            echo "$wrapper" > "$wrapper_file"
-            echo "Wrapper candidate: $wrapper"
-          else
-            echo "" > "$wrapper_file"
+          # Block workflows
+          if grep -qx '.github' "$tmp/targets.txt"; then
+            echo "ERROR: Archive contains .github"
+            exit 1
           fi
 
-          # SAFE overlay delete: remove only what the archive will replace
+          # Delete only replaced targets
           while IFS= read -r entry; do
             [ -z "$entry" ] && continue
-            echo "Removing existing target: ./$entry"
+            echo "Removing: ./$entry"
             rm -rf "./$entry"
-          done < "$targets_file"
+          done < "$tmp/targets.txt"
 
-          # Extract INTO ROOT
-          if [[ "$pack" == *.zip ]]; then
-            unzip -o "$pack" -d . >/dev/null
-          else
-            # -xf auto-detects gzip; safer than -xzf
-            tar -xf "$pack" -C .
-          fi
+          # Copy into root
+          echo "Copying into root..."
 
-          # Remove mac zip junk if it appeared
-          rm -rf "__MACOSX" || true
+          shopt -s dotglob
+          cp -a "$src"/* .
+          shopt -u dotglob
 
-          # Unwrap second layer if wrapper folder was detected and exists
-          wrapper="$(cat "$wrapper_file" || true)"
-          if [ -n "${wrapper:-}" ] && [ -d "./$wrapper" ]; then
-            echo "Unwrapping second layer folder: $wrapper"
-            shopt -s dotglob
-            cp -a "./$wrapper"/* .
-            shopt -u dotglob
-            rm -rf "./$wrapper"
-          fi
-
-      - name: Commit and push
+      - name: Commit and push (protect workflows)
         shell: bash
         run: |
           set -euo pipefail
+
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+
+          # Prevent workflow edits (GitHub blocks these)
+          git restore --source=HEAD --staged --worktree .github/workflows || true
+
           git add -A
-          git diff --cached --quiet && exit 0
-          git commit -m "Unpack into root (safe overlay, second layer)"
+
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+
+          git commit -m "Unpack into root (safe overlay)"
           git push
