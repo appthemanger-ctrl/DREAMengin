@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "incremental": true,
+    "incremental": false,
     "plugins": [
       {
         "name": "next"
@@ -37,18 +37,33 @@
     "components/**/*.tsx",
     "lib/**/*.ts",
     "lib/**/*.tsx",
+    "hooks/**/*.ts",
+    "hooks/**/*.tsx",
+    "dr-eams/**/*.ts",
+    "dr-eams/**/*.tsx",
     "types/**/*.ts",
     "types/**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
+    "**/*.md",
     ".next",
     ".vercel",
-    "supabase",
-    "scripts",
+    "__tests__",
+    "build",
+    "coverage",
+    "dist",
     "docs",
-    "public"
+    "kubernetes",
+    "node_modules",
+    "out",
+    "public",
+    "scripts",
+    "supabase",
+    "terraform",
+    "tests",
+    "types/supabase.ts",
+    "workflows"
   ]
 }
