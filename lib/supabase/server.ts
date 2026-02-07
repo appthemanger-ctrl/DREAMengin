@@ -1,6 +1,8 @@
 import 'server-only'
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import type { Database } from '@/types/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 type DisabledSupabaseClient = {
   auth: {
@@ -27,7 +29,7 @@ function isSupabaseConfigured() {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
 }
 
-function createDisabledClient(reason: string): DisabledSupabaseClient {
+function createDisabledClient(reason: string): SupabaseClient<Database> {
   const thrower = async () => {
     throw new Error(reason)
   }
@@ -47,20 +49,21 @@ function createDisabledClient(reason: string): DisabledSupabaseClient {
     storage: {},
   }
 
-  return disabled
+  return disabled as unknown as SupabaseClient<Database>
 }
 
-export async function createServerClient() {
+
+export async function createServerClient(): Promise<SupabaseClient<Database>> {
   if (!isSupabaseConfigured()) {
     return createDisabledClient(
       'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
-    ) as any
+    )
   }
 
   // In Next.js 16, cookies() is async
   const cookieStore = await cookies()
 
-  return createSupabaseServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  return createSupabaseServerClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
         return cookieStore.getAll()
@@ -76,14 +79,14 @@ export async function createServerClient() {
   })
 }
 
-export async function createServiceClient() {
+export async function createServiceClient(): Promise<SupabaseClient<Database>> {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
       'Supabase service role is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.'
     )
   }
 
-  return createSupabaseServerClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  return createSupabaseServerClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     cookies: {
       getAll() {
         return []
