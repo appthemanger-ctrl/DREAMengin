@@ -8,7 +8,7 @@ const nextConfig = {
   },
 
   // Reduce bundle/source-map pressure
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps: false,
 
   images: {
     remotePatterns: [
