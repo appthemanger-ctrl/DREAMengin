@@ -1,7 +1,6 @@
 import '@/styles/globals.css';
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import "styles/globals.css";
 import NavBar from "@/components/NavBar";
 import AIAssistantEnhanced from "@/components/AIAssistantEnhanced";
 import InnerDreamsButton from "@/components/InnerDreamsButton";
