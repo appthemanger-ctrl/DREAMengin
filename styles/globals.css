@@ -7,3 +7,31 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
+/* Animated background gradient (DREAM shift) */
+@keyframes dreamShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.dream-bg {
+  background: linear-gradient(
+    120deg,
+    #0b1020,
+    #2a0f5c,
+    #ff4fd8,
+    #0b6bff,
+    #0b1020
+  );
+  background-size: 400% 400%;
+  animation: dreamShift 18s ease-in-out infinite;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .dream-bg {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}

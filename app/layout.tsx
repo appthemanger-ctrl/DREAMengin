@@ -60,7 +60,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="scroll-smooth bg-background dark:bg-background" suppressHydrationWarning>
-      <body className={`${inter.className} ${inter.variable} bg-background text-foreground transition-colors antialiased`}>
+      <body className={`${inter.className} ${inter.variable} bg-background text-foreground transition-colors antialiased dream-bg`}>
         {session && <NavBar session={session} />}
         {children}
         {session && <AIAssistantEnhanced />}

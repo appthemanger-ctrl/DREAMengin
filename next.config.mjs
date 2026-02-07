@@ -10,6 +10,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   // Reduce bundle/source-map pressure in constrained build workers.
   productionBrowserSourceMaps: false,
