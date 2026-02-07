@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const userId = searchParams.get('user_id');
+  const ownerId = searchParams.get('owner_id');
   const visibility = searchParams.get('visibility') || 'all';
 
   let query = supabase
@@ -22,14 +22,14 @@ export async function GET(req: NextRequest) {
     `)
     .order('created_at', { ascending: false });
 
-  if (userId) {
-    query = query.eq('user_id', userId);
+  if (ownerId) {
+    query = query.eq('owner_id', ownerId);
   }
 
   if (visibility === 'public') {
     query = query.eq('visibility', 'public');
   } else if (visibility === 'all') {
-    query = query.or(`visibility.eq.public,user_id.eq.${user.id}`);
+    query = query.or(`visibility.eq.public,owner_id.eq.${user.id}`);
   }
 
   const { data: releases, error } = await query;
@@ -78,7 +78,6 @@ export async function POST(req: NextRequest) {
   const { data: release, error } = await supabase
     .from('music_releases')
     .insert({
-      user_id: user.id,
       owner_id: user.id,
       title: title.trim(),
       description: description?.trim() || null,
@@ -133,7 +132,7 @@ export async function DELETE(req: NextRequest) {
     .from('music_releases')
     .select('audio_storage_path')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('owner_id', user.id)
     .single();
 
   if (fetchError) {
@@ -161,7 +160,7 @@ export async function DELETE(req: NextRequest) {
     .from('music_releases')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id);
+    .eq('owner_id', user.id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

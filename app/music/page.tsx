@@ -18,7 +18,7 @@ export default async function MusicPage() {
       *,
       profiles!inner(handle, display_name)
     `)
-    .or(`visibility.eq.public,user_id.eq.${user.id}`)
+    .or(`visibility.eq.public,owner_id.eq.${user.id}`)
     .order('created_at', { ascending: false });
 
   // Demo tracks to show UI when no real data exists

@@ -170,7 +170,6 @@ export default function UploadMusicPage() {
       const { error: insertError } = await supabase
         .from('music_releases')
         .insert({
-          user_id: user.id,
           owner_id: user.id,
           title,
           embed_url: finalEmbedUrl || null,
@@ -184,8 +183,9 @@ export default function UploadMusicPage() {
 
       setUploadProgress(100);
       router.push('/music');
-    } catch (err: any) {
-      setError(err.message || 'Failed to upload music');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to upload music';
+      setError(errorMessage);
       setUploadProgress(0);
     } finally {
       setIsLoading(false);

@@ -1,17 +1,16 @@
 -- Add audio file storage columns to music_releases table
 ALTER TABLE music_releases
-ADD COLUMN audio_url TEXT,
-ADD COLUMN audio_storage_path TEXT,
-ADD COLUMN file_size_bytes BIGINT,
-ADD COLUMN duration_seconds INTEGER,
-ADD COLUMN description TEXT,
-ADD COLUMN genre TEXT,
-ADD COLUMN cover_url TEXT,
-ADD COLUMN created_at TIMESTAMPTZ DEFAULT NOW(),
-ADD COLUMN user_id UUID REFERENCES profiles(id) ON DELETE CASCADE;
+ADD COLUMN IF NOT EXISTS audio_url TEXT,
+ADD COLUMN IF NOT EXISTS audio_storage_path TEXT,
+ADD COLUMN IF NOT EXISTS file_size_bytes BIGINT,
+ADD COLUMN IF NOT EXISTS duration_seconds INTEGER,
+ADD COLUMN IF NOT EXISTS description TEXT,
+ADD COLUMN IF NOT EXISTS genre TEXT,
+ADD COLUMN IF NOT EXISTS cover_url TEXT,
+ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 -- Create index for efficient queries
-CREATE INDEX IF NOT EXISTS idx_music_releases_user_id ON music_releases(user_id);
+CREATE INDEX IF NOT EXISTS idx_music_releases_owner_id ON music_releases(owner_id);
 CREATE INDEX IF NOT EXISTS idx_music_releases_created_at ON music_releases(created_at DESC);
 
 -- Add check constraint to ensure at least one audio source is provided
