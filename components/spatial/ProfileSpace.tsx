@@ -522,6 +522,7 @@ function FeedWidget({ config }: { config: Widget["config"] }) {
   return (
     <div className="p-4">
       <div className="flex items-center gap-2 mb-4">
+        <select className="h-8 rounded-md border bg-background px-2 text-sm" defaultValue="24h">
           <option value="24h">Last 24 hours</option>
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>

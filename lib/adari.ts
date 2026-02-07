@@ -20,7 +20,7 @@ export type AdariReport = {
 
 const REQUIRED_PATHS = [
   "components/WheelLayout.tsx",
-  "lib/widgets/WidgetEngine.ts",
+  "lib/widgets/WidgetEngine.tsx",
   "lib/widgets/WidgetBus.ts",
   "lib/widgets/useWidget.ts",
 ] as const;

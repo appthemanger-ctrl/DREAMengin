@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --webpack",
-    "vercel-build": "next build --webpack",
+    "vercel-build": "NODE_OPTIONS=--max-old-space-size=4096 next build --webpack",
     "start": "next start",
     "lint": "echo ESLint disabled",
     "test": "playwright test",
@@ -13,7 +13,8 @@
     "db:reset": "npx supabase db reset",
     "db:start": "npx supabase start",
     "db:stop": "npx supabase stop",
-    "postbuild": "node scripts/postbuild.js"
+    "postbuild": "node scripts/postbuild.js",
+    "typecheck": "tsc --noEmit --pretty false"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1",
