@@ -6,6 +6,7 @@ on:
       - "DREAMENGIN-v*.zip"
       - "DREAMENGIN-v*.tar.gz"
       - "DREAMENGIN-v*.tgz"
+      - "DREAMENGIN-v*/**"
   workflow_dispatch:
 
 permissions:
@@ -19,29 +20,71 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: sudo apt-get update -qq && sudo apt-get install -y -qq unzip
-
-      - name: Unpack newest SemVer artifact + validate + delete archive
+      - name: Handle archive or iOS folder
+        id: extract
         shell: bash
         run: |
           set -euo pipefail
-
+          
+          # Look for archive files
           candidates="$(git ls-files -z \
             'DREAMENGIN-v[0-9]*.[0-9]*.[0-9]*.zip' \
             'DREAMENGIN-v[0-9]*.[0-9]*.[0-9]*.tar.gz' \
             'DREAMENGIN-v[0-9]*.[0-9]*.[0-9]*.tgz' \
             | xargs -0 -n1 || true)"
+          
+          if [ -n "${candidates:-}" ]; then
+            # Found archive - pick most recent
+            pack="$(
+              printf "%s\n" "$candidates" |
+              xargs -I{} sh -c 'printf "%s\t%s\n" "$(git log -1 --format=%ct -- "{}" 2>/dev/null || echo 0)" "{}"' |
+              sort -nr | head -1 | cut -f2-
+            )"
+            
+            echo "Found archive: $pack"
+            tmp="$(mktemp -d)"
+            extracted_dir="$tmp/extracted"
+            mkdir -p "$extracted_dir"
+            
+            # Extract based on file type
+            if [[ "$pack" == *.zip ]]; then 
+              unzip -o "$pack" -d "$extracted_dir" >/dev/null
+            elif [[ "$pack" == *.tar.gz ]] || [[ "$pack" == *.tgz ]]; then
+              tar -xzf "$pack" -C "$extracted_dir" >/dev/null
+            else
+              echo "Unsupported archive format"
+              exit 1
+            fi
+            
+            echo "Extracted to: $extracted_dir"
+          else
+            # No archive found, look for iOS-extracted folder
+            echo "Looking for iOS-extracted folder..."
+            folder="$(find . -maxdepth 2 -type d -name 'DREAMENGIN-v[0-9]*.[0-9]*.[0-9]*' | head -1)"
+            
+            if [ -z "$folder" ]; then
+              echo "No DREAMENGIN archive or folder found"
+              exit 0
+            fi
+            
+            echo "Using iOS-extracted folder: $folder"
+            extracted_dir="$folder"
+          fi
+          
+          # Set output for use in later steps
+          echo "extracted_dir=$extracted_dir" >> $GITHUB_OUTPUT
+          
+          # Show contents
+          echo "=== Contents ==="
+          ls -la "$extracted_dir/"
 
-          [ -z "${candidates:-}" ] && exit 0
-
-          pack="$(
-            printf "%s\n" "$candidates" |
-            xargs -I{} sh -c 'printf "%s\t%s\n" "$(git log -1 --format=%ct -- "{}" 2>/dev/null || echo 0)" "{}"' |
-            sort -nr | head -1 | cut -f2-
-          )"
-
-          tmp="$(mktemp -d)"
-          out="$tmp/out"
-          mkdir -p "$out"
-
-          if [[ "$pack" == *.zip ]]; then unzip -o "$pack" -d "$out" >/dev/null; else tar
+      # Example deployment step - ADD YOUR ACTUAL DEPLOYMENT LOGIC HERE
+      - name: Process extracted files
+        if: steps.extract.outputs.extracted_dir != ''
+        run: |
+          echo "Processing files from: ${{ steps.extract.outputs.extracted_dir }}"
+          # TODO: Add your actual deployment logic
+          # Examples:
+          # - Upload to GitHub Releases
+          # - Deploy to server via SSH/SCP
+          # - Build and publish
