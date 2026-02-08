@@ -10,9 +10,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Next.js 16+ no longer supports configuring eslint via next.config.
+  // If you want to skip lint in CI/build, do it in your workflow/scripts.
 
   // Reduce bundle/source-map pressure in constrained build workers.
   productionBrowserSourceMaps: false,
