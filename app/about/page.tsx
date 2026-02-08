@@ -9,9 +9,7 @@ import {
   Beaker, 
   MessageCircle,
   ShoppingBag,
-  BarChart3,
   Settings,
-  Globe,
   Lock,
   Cpu,
   Heart,
@@ -61,15 +59,46 @@ export default function AboutPage() {
     },
   ];
 
-  const pages = [
-    { name: 'Home Dashboard', path: '/home', icon: Sparkles, description: 'Your personalized feed with posts from people you follow, AI insights, and quick access to everything.' },
-    { name: 'Discover', path: '/discover', icon: Globe, description: 'Find new creators, trending content, and expand your network.' },
-    { name: 'Messages', path: '/messages', icon: MessageCircle, description: 'Direct messaging with end-to-end encryption. Chat privately with anyone.' },
-    { name: 'Music', path: '/music', icon: Music, description: 'Browse and share music. Upload your own or embed from streaming platforms.' },
-    { name: 'Shop', path: '/shop', icon: ShoppingBag, description: 'Buy and sell merch, digital goods, and creator products.' },
-    { name: 'Labs', path: '/lab', icon: Beaker, description: 'Create and explore interactive experiments and scientific visualizations.' },
-    { name: 'Analytics', path: '/analytics', icon: BarChart3, description: 'Track your growth, engagement, and audience insights.' },
-    { name: 'Settings', path: '/settings', icon: Settings, description: 'Customize your experience, manage privacy, and configure your account.' },
+  const navigationPrinciples = [
+    {
+      title: 'Spatial Navigation (Not Pages)',
+      description: 'Home, Profile, Feed, Messages, Marketplace, Lab, Music, Social Hub, and Settings live on a continuous plane.'
+    },
+    {
+      title: 'Torus / Infinite Loop',
+      description: 'Left meets right, up meets down, and zooming cycles layers so every direction eventually returns home.'
+    },
+    {
+      title: 'Home Anchor (∞)',
+      description: 'Long press the logo, hold with haptics, or zoom out fully to snap back to the Home anchor.'
+    },
+  ];
+
+  const widgetSystem = [
+    {
+      title: 'Widget Rails',
+      description: 'Top, bottom, left, and right rails keep 8 widgets visible while overflow scrolls around the view.'
+    },
+    {
+      title: 'Capacity + Layers',
+      description: 'Each surface holds up to 9 active widgets; advanced layers unlock up to 36 across depth.'
+    },
+    {
+      title: 'Gesture Actions',
+      description: 'Tap to preview, long press for menus, drag to reorder, pinch to resize, and throw into the feed to post.'
+    },
+  ];
+
+  const spaces = [
+    { name: 'Home (Anchor)', path: '/home', icon: Sparkles, description: 'The gravitational center with Home Dreams and instant recall.' },
+    { name: 'Profile', path: '/profile/jose', icon: Heart, description: 'Living dashboards that morph from Home with public permissions.' },
+    { name: 'Feed', path: '/home', icon: MessageCircle, description: 'A dynamic surface for personal, social, widget, and AI-generated content.' },
+    { name: 'Messages', path: '/messages', icon: MessageCircle, description: 'Direct conversations and system signals layered into the plane.' },
+    { name: 'Marketplace', path: '/shop', icon: ShoppingBag, description: 'Sell widgets, beats, workflows, and creator goods natively.' },
+    { name: 'Lab', path: '/lab', icon: Beaker, description: 'CCC experiments, simulations, and research tools.' },
+    { name: 'Music', path: '/music', icon: Music, description: 'Recording, sharing, and collaboration spaces for sound.' },
+    { name: 'Social Hub', path: '/discover', icon: Users, description: 'Community clusters, discovery loops, and shared spaces.' },
+    { name: 'Settings', path: '/settings', icon: Settings, description: 'System layer for privacy, security, and personalization.' },
   ];
 
   return (
@@ -78,8 +107,8 @@ export default function AboutPage() {
       <StarsBackground />
 
       {/* Gradient orbs */}
-      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl" />
 
       {/* Header */}
       <header className="sticky top-0 z-30 bg-universe/80 backdrop-blur-xl border-b border-white/10">
@@ -93,7 +122,7 @@ export default function AboutPage() {
           </Link>
           <Link
             href="/join"
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-xl hover:from-purple-500 hover:to-blue-500 transition-all text-sm"
+            className="px-4 py-2 bg-sunrise-heat text-white font-medium rounded-xl hover:opacity-95 transition-all text-sm"
           >
             Get Started
           </Link>
@@ -121,13 +150,13 @@ export default function AboutPage() {
           
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
             Welcome to{' '}
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-nebula-flow bg-clip-text text-transparent">
               DreamEngin
             </span>
           </h1>
           
           <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-            DreamEngin is a privacy-first creator operating system. It is a place where artists, developers, musicians, and dreamers come together to create, share, and connect - all while keeping your data yours.
+            DreamEngin is a living interface system that turns your digital life into a navigable universe. Instead of apps, you move through connected spaces that loop, morph, and return home without friction.
           </p>
         </section>
 
@@ -145,10 +174,42 @@ export default function AboutPage() {
               <div>
                 <h2 className="text-2xl font-bold text-white mb-2">Meet Dr. Eams</h2>
                 <p className="text-white/70 leading-relaxed">
-                  Dr. Eams is your AI companion and guide throughout DreamEngin. Powered by Inner Dreams AI, Dr. Eams helps you navigate the platform, offers creative suggestions, answers questions, and assists with everything from writing posts to organizing your projects. Think of Dr. Eams as your personal assistant who is always here to help.
+                  Dr. Eams is your AI companion and guide throughout DreamEngin. Powered by Inner Dreams AI, Dr. Eams helps you navigate the platform, set up widgets, post content, and translate intent into motion. Adari (InnerDreams) quietly maintains system health and auto-fixes in the background.
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Unified Interface Vision */}
+        <section className="mb-16">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">Unified Interface &amp; Navigation Vision</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {navigationPrinciples.map((principle) => (
+              <div
+                key={principle.title}
+                className="glass-dark rounded-2xl p-5 border border-white/10"
+              >
+                <h3 className="text-lg font-semibold text-white mb-2">{principle.title}</h3>
+                <p className="text-sm text-white/60 leading-relaxed">{principle.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Widget System */}
+        <section className="mb-16">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">Widget Rails &amp; Layers</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {widgetSystem.map((item) => (
+              <div
+                key={item.title}
+                className="glass-dark rounded-2xl p-5 border border-white/10"
+              >
+                <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
+                <p className="text-sm text-white/60 leading-relaxed">{item.description}</p>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -173,15 +234,15 @@ export default function AboutPage() {
 
         {/* Pages Overview */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">Explore the Platform</h2>
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">Explore the Spaces</h2>
           <div className="space-y-3">
-            {pages.map((page) => (
+            {spaces.map((page) => (
               <div 
                 key={page.path}
                 className="glass-dark rounded-xl p-4 border border-white/10 flex items-start gap-4"
               >
                 <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                  <page.icon className="w-5 h-5 text-purple-400" />
+                  <page.icon className="w-5 h-5 text-cyan-300" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-white">{page.name}</h3>
@@ -230,11 +291,11 @@ export default function AboutPage() {
 
         {/* CTA */}
         <section className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Ready to Start Dreaming?</h2>
-          <p className="text-white/60 mb-6">Join creators who value their privacy and creative freedom.</p>
+          <h2 className="text-2xl font-bold text-white mb-4">Ready to Navigate the Dream?</h2>
+          <p className="text-white/60 mb-6">Step into a universe where every gesture loops back to meaning.</p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-2xl hover:from-purple-500 hover:to-blue-500 transition-all cosmic-glow active:scale-95"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-sunrise-heat text-white font-semibold rounded-2xl hover:opacity-95 transition-all cosmic-glow active:scale-95"
           >
             Create Your Account
             <ArrowRight className="w-5 h-5" />
