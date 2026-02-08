@@ -1,140 +1,75 @@
-name: Extract zip and publish (2nd level)
+name: Extract zip and flatten into repo root
 
 on:
-  # Manual trigger (Actions -> Run workflow)
-  workflow_dispatch:
-    inputs:
-      zip_glob:
-        description: "Zip pattern in repo root"
-        required: false
-        default: "*.zip"
-      extract_source:
-        description: "Folder inside extracted root to publish (use '.' for everything)"
-        required: true
-        default: "." 
-      destination_path:
-        description: "Repo path to publish into"
-        required: false
-        default: "."
-      zip_index:
-        description: "Which zip to use if multiple match (0 = first)"
-        required: false
-        default: "0"
-
-  # Auto trigger when a zip is pushed to repo root
   push:
     paths:
       - "*.zip"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
-concurrency:
-  group: extract-zip-and-publish-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  extract_and_publish:
+  extract:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Extract zip, use 2nd-level root, publish
+      - name: Unzip -> flatten 1st folder -> sync to repo root
         shell: bash
-        env:
-          ZIP_GLOB: ${{ inputs.zip_glob || '*.zip' }}
-          EXTRACT_SOURCE: ${{ inputs.extract_source || '.' }}
-          DESTINATION_PATH: ${{ inputs.destination_path || '.' }}
-          ZIP_INDEX: ${{ inputs.zip_index || '0' }}
         run: |
           set -euo pipefail
 
-          echo "Looking for zip(s) in repo root matching: ${ZIP_GLOB}"
+          # Find zip in repo root
           shopt -s nullglob
-          zips=( ${ZIP_GLOB} )
+          zips=( *.zip )
           shopt -u nullglob
 
           if [ ${#zips[@]} -eq 0 ]; then
-            echo "No zip found. Nothing to do."
+            echo "No zip found."
             exit 0
           fi
 
-          # Sort for deterministic selection
-          IFS=$'\n' zips_sorted=($(printf "%s\n" "${zips[@]}" | sort))
-          unset IFS
+          ZIP="${zips[0]}"
+          echo "Using zip: $ZIP"
 
-          if ! [[ "${ZIP_INDEX}" =~ ^[0-9]+$ ]]; then
-            echo "ERROR: zip_index must be a non-negative integer (got: ${ZIP_INDEX})"
-            exit 1
-          fi
+          TMP="$(mktemp -d)"
+          unzip -q "$ZIP" -d "$TMP"
 
-          if [ "${ZIP_INDEX}" -ge "${#zips_sorted[@]}" ]; then
-            echo "ERROR: zip_index ${ZIP_INDEX} out of range. Found ${#zips_sorted[@]} zip(s):"
-            printf " - %s\n" "${zips_sorted[@]}"
-            exit 1
-          fi
+          echo "Top-level after unzip:"
+          ls -la "$TMP"
 
-          ZIP_FILE="${zips_sorted[${ZIP_INDEX}]}"
-          echo "Using zip: ${ZIP_FILE}"
+          # If exactly ONE top-level directory and ZERO top-level files,
+          # publish the contents inside that directory (iOS-style wrapper).
+          dir_count=0
+          file_count=0
+          only_dir=""
 
-          WORKDIR="$(mktemp -d)"
-          EXTRACT_DIR="${WORKDIR}/extract"
-          TEMP_DIR="${WORKDIR}/temp_publish"
-          mkdir -p "${EXTRACT_DIR}" "${TEMP_DIR}"
+          for p in "$TMP"/*; do
+            [ -d "$p" ] && dir_count=$((dir_count+1)) && only_dir="$p"
+            [ -f "$p" ] && file_count=$((file_count+1))
+          done
 
-          echo "Unzipping ${ZIP_FILE} -> ${EXTRACT_DIR}"
-          unzip -q "${ZIP_FILE}" -d "${EXTRACT_DIR}"
-
-          echo "Top-level extracted entries:"
-          ls -la "${EXTRACT_DIR}"
-
-          # ---- 2nd-level root detection ----
-          # If the zip contains exactly ONE top-level directory and no top-level files,
-          # treat that directory as the "real" root (second level).
-          ROOT="${EXTRACT_DIR}"
-          top_dirs="$(find "${EXTRACT_DIR}" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
-          top_files="$(find "${EXTRACT_DIR}" -mindepth 1 -maxdepth 1 -type f | wc -l | tr -d ' ')"
-
-          if [ "${top_files}" -eq 0 ] && [ "${top_dirs}" -eq 1 ]; then
-            WRAPPER="$(find "${EXTRACT_DIR}" -mindepth 1 -maxdepth 1 -type d -print -quit)"
-            echo "Wrapper folder detected. Using second-level root: ${WRAPPER}"
-            ROOT="${WRAPPER}"
+          if [ "$dir_count" -eq 1 ] && [ "$file_count" -eq 0 ]; then
+            SRC="$only_dir"
+            echo "Flattening single top folder: $SRC"
           else
-            echo "No wrapper folder detected. Using extracted root: ${ROOT}"
-          fi
-          # ---------------------------------
-
-          echo "Using ROOT: ${ROOT}"
-          echo "EXTRACT_SOURCE: ${EXTRACT_SOURCE}"
-          echo "DESTINATION_PATH: ${DESTINATION_PATH}"
-
-          # Resolve source folder under ROOT
-          SRC_PATH="${ROOT}"
-          if [ "${EXTRACT_SOURCE}" != "." ]; then
-            if [ -d "${ROOT}/${EXTRACT_SOURCE}" ]; then
-              SRC_PATH="${ROOT}/${EXTRACT_SOURCE}"
-            else
-              echo "ERROR: '${EXTRACT_SOURCE}' not found under ${ROOT}"
-              echo "Contents of ROOT:"
-              ls -la "${ROOT}"
-              exit 1
-            fi
+            SRC="$TMP"
+            echo "Using unzip root directly: $SRC"
           fi
 
-          echo "Staging: ${SRC_PATH} -> ${TEMP_DIR}"
-          rsync -a --delete "${SRC_PATH}/" "${TEMP_DIR}/"
+          # Delete the zip from the repo
+          rm -f "$ZIP"
+          git rm -f "$ZIP" 2>/dev/null || true
 
-          echo "Deleting zip from repo: ${ZIP_FILE}"
-          rm -f "${ZIP_FILE}"
-          git rm -f "${ZIP_FILE}" 2>/dev/null || true
-
-          echo "Publishing: ${TEMP_DIR} -> ${DESTINATION_PATH}"
-          mkdir -p "${DESTINATION_PATH}"
-          rsync -a --delete "${TEMP_DIR}/" "${DESTINATION_PATH}/"
+          # Sync into repo root, but protect git internals
+          rsync -a --delete \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            "$SRC/" "./"
 
           echo "Git status:"
           git status --porcelain
@@ -148,5 +83,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
-          git commit -m "Publish from ${ZIP_FILE} (${EXTRACT_SOURCE} -> ${DESTINATION_PATH}) [skip ci]" || exit 0
+          git commit -m "Extract zip and flatten"
           git push
