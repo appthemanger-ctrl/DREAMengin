@@ -13,6 +13,8 @@ interface ProfilePageProps {
   params: Promise<{ handle: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { handle } = await params;
   const supabase = await createServerClient();

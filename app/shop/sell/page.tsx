@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ShoppingBag, Loader2, DollarSign, Package, ImageIcon } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function SellItemPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

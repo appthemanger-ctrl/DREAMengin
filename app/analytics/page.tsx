@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import AnalyticsPanel from '@/components/AnalyticsPanel';
 import { TrendingUp, Users, Eye, Heart, DollarSign, Calendar } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AnalyticsPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

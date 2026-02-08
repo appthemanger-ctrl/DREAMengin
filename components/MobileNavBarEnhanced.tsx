@@ -44,7 +44,7 @@ export default function MobileNavBarEnhanced({ session }: MobileNavBarProps) {
   const navItems = [
     { href: '/home', icon: Home, label: 'Home' },
     { href: '/discover', icon: Compass, label: 'Discover' },
-    { href: '/shop', icon: ShoppingBag, label: 'Shop' },
+    { href: '/create', icon: Plus, label: 'Create', isSpecial: true },
     { href: '/music', icon: Music, label: 'Music' },
     { href: '/messages', icon: MessageSquare, label: 'Messages' },
   ];
@@ -134,29 +134,37 @@ export default function MobileNavBarEnhanced({ session }: MobileNavBarProps) {
                   className="flex flex-col items-center justify-center relative group"
                 >
                   {/* Active indicator pill */}
-                  {isActive && (
+                  {isActive && !item.isSpecial && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-b-full" />
                   )}
                   
-                  <div className={`p-2 rounded-2xl transition-all ${
-                    isActive 
-                      ? 'bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 scale-110' 
-                      : 'active:scale-95'
-                  }`}>
-                    <Icon className={`w-5 h-5 transition-colors ${
-                      isActive 
-                        ? 'text-blue-600 dark:text-blue-400' 
-                        : 'text-slate-600 dark:text-slate-400'
-                    }`} />
-                  </div>
-                  
-                  <span className={`text-xs font-medium mt-1 transition-colors ${
-                    isActive 
-                      ? 'text-blue-600 dark:text-blue-400' 
-                      : 'text-slate-600 dark:text-slate-400'
-                  }`}>
-                    {item.label}
-                  </span>
+                  {item.isSpecial ? (
+                    <div className="w-12 h-12 -mt-5 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30 active:scale-95 transition-transform">
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className={`p-2 rounded-2xl transition-all ${
+                        isActive 
+                          ? 'bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 scale-110' 
+                          : 'active:scale-95'
+                      }`}>
+                        <Icon className={`w-5 h-5 transition-colors ${
+                          isActive 
+                            ? 'text-blue-600 dark:text-blue-400' 
+                            : 'text-slate-600 dark:text-slate-400'
+                        }`} />
+                      </div>
+                      
+                      <span className={`text-xs font-medium mt-1 transition-colors ${
+                        isActive 
+                          ? 'text-blue-600 dark:text-blue-400' 
+                          : 'text-slate-600 dark:text-slate-400'
+                      }`}>
+                        {item.label}
+                      </span>
+                    </>
+                  )}
                 </Link>
               );
             })}

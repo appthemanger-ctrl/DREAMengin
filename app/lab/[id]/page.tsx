@@ -31,6 +31,8 @@ type Project = {
   attachments: Attachment[] | null;
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function LabProjectPage({ params }: LabProjectPageProps) {
   const { id } = await params;
   const supabase = await createServerClient();

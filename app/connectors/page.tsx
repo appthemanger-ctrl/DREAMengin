@@ -2,6 +2,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Youtube, Sparkles, Link2, Trash2 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ConnectorsPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
