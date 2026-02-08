@@ -14,7 +14,8 @@
     "db:start": "npx supabase start",
     "db:stop": "npx supabase stop",
     "postbuild": "node scripts/postbuild.js",
-    "typecheck": "tsc --noEmit --pretty false"
+    "typecheck": "tsc --noEmit --pretty false",
+    "generate:docs": "node scripts/generate-webapp-final-form.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1",
