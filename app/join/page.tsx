@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -9,6 +9,25 @@ import { createClient } from "@/lib/supabase/client";
 export default function JoinPage() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+
+const [showVideo, setShowVideo] = useState(false);
+
+useEffect(() => {
+  try {
+    const key = "dreamengin_signup_video_skipped";
+    setShowVideo(!localStorage.getItem(key));
+  } catch {
+    setShowVideo(true);
+  }
+}, []);
+
+const skipVideoOnce = () => {
+  try {
+    localStorage.setItem("dreamengin_signup_video_skipped", "1");
+  } catch {}
+  setShowVideo(false);
+};
+
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -85,20 +104,30 @@ export default function JoinPage() {
   }
 
   return (
-    <>
-
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="fixed inset-0 w-full h-full object-cover -z-10 opacity-40"
-      >
-        <source src="/videos/signup-bg.mp4" type="video/mp4" />
-      </video>
-
     <main className="min-h-[calc(100vh-64px)] px-4 py-10">
-      <div className="mx-auto w-full max-w-md rounded-3xl border border-white/10 bg-black/30 p-6 shadow-2xl backdrop-blur">
+      
+{showVideo && (
+  <div className="fixed inset-0 -z-10 overflow-hidden">
+    <video
+      className="h-full w-full object-cover opacity-30"
+      autoPlay
+      muted
+      loop
+      playsInline
+    >
+      <source src="/videos/signup-bg.mp4" type="video/mp4" />
+    </video>
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+    <button
+      type="button"
+      onClick={skipVideoOnce}
+      className="metal-glass pointer-events-auto absolute right-4 top-4 rounded-md px-3 py-1 text-xs text-white/90 hover:text-white"
+    >
+      Skip
+    </button>
+  </div>
+)}
+<div className="mx-auto w-full max-w-md rounded-3xl border border-white/10 bg-black/30 p-6 shadow-2xl backdrop-blur">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-white">Register a new account</h1>
           <p className="mt-1 text-sm text-white/70">Create a password-based account (no magic links).</p>
@@ -196,7 +225,6 @@ export default function JoinPage() {
             {busy ? "Creating…" : "Register"}
           </button>
         </form>
-    </>
 
         <div className="mt-5 space-y-3">
           <button

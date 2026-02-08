@@ -56,28 +56,11 @@ export default function WidgetIcon({
   }
 
   const getWidgetColor = () => {
-    switch (type) {
-      case 'text':
-        return 'from-blue-500 to-blue-600'
-      case 'media':
-      case 'gallery':
-      case 'album':
-      case 'video':
-      case 'music':
-        return 'from-purple-500 to-purple-600'
-      case 'feed':
-        return 'from-pink-500 to-pink-600'
-      case 'profile_info':
-      case 'profile':
-        return 'from-emerald-500 to-emerald-600'
-      case 'external_embed':
-      case 'embed':
-      case 'link_tree':
-      case 'link':
-        return 'from-orange-500 to-orange-600'
-      default:
-        return 'from-slate-500 to-slate-600'
-    }
+    // DreamEngin visual language: fire (left) ↔ ice (right) with a shared golden core.
+    // This keeps the rails visually coherent with the brand reference.
+    return position === 'left'
+      ? 'from-[var(--dream-fire)] via-[var(--dream-core)] to-[rgba(255,255,255,0.12)]'
+      : 'from-[var(--dream-ice)] via-[var(--dream-core)] to-[rgba(255,255,255,0.12)]'
   }
 
   const handlePressStart = (e: TouchEvent | MouseEvent) => {
@@ -140,8 +123,8 @@ export default function WidgetIcon({
       <div
         className={`relative w-14 h-14 rounded-full bg-gradient-to-br ${getWidgetColor()} flex items-center justify-center transition-all duration-200 ${
           isActive
-            ? 'ring-2 ring-white/50 ring-offset-2 ring-offset-transparent shadow-lg cosmic-glow'
-            : 'shadow-md'
+            ? 'ring-2 ring-white/50 ring-offset-2 ring-offset-transparent shadow-lg dream-glow'
+            : 'shadow-md border border-white/10'
         }`}
       >
         {getWidgetIcon()}

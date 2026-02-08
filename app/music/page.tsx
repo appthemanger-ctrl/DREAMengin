@@ -21,12 +21,28 @@ export default async function MusicPage() {
     .or(`visibility.eq.public,user_id.eq.${user.id}`)
     .order('created_at', { ascending: false });
 
-  // Demo tracks to show UI when no real data exists
+  
+  const musicWithAudio = await Promise.all(
+    (musicData ?? []).map(async (t: any) => {
+      const audio_path = t.audio_path as string | null | undefined;
+      if (!audio_path) return { ...t, audio_url: null };
+
+      const { data, error } = await supabase.storage
+        .from('music')
+        .createSignedUrl(audio_path, 60 * 30);
+
+      if (error) return { ...t, audio_url: null };
+      return { ...t, audio_url: data?.signedUrl ?? null };
+    })
+  );
+
+// Demo tracks to show UI when no real data exists
   const demoMusic = [
     {
       id: 'demo-1',
       title: 'Cosmic Dreams',
       embed_url: null,
+      audio_url: null,
       visibility: 'public',
       profiles: { handle: 'dreamengin', display_name: 'DreamEngin' }
     },
@@ -34,6 +50,7 @@ export default async function MusicPage() {
       id: 'demo-2',
       title: 'Infinity Loop',
       embed_url: null,
+      audio_url: null,
       visibility: 'public',
       profiles: { handle: 'producer', display_name: 'Night Producer' }
     },
@@ -41,6 +58,7 @@ export default async function MusicPage() {
       id: 'demo-3',
       title: 'Neural Pathways',
       embed_url: null,
+      audio_url: null,
       visibility: 'public',
       profiles: { handle: 'synthwave', display_name: 'Synthwave Artist' }
     },
@@ -48,6 +66,7 @@ export default async function MusicPage() {
       id: 'demo-4',
       title: 'Digital Sunrise',
       embed_url: null,
+      audio_url: null,
       visibility: 'public',
       profiles: { handle: 'ambient', display_name: 'Ambient Sounds' }
     },
@@ -55,6 +74,7 @@ export default async function MusicPage() {
       id: 'demo-5',
       title: 'Quantum Beat',
       embed_url: null,
+      audio_url: null,
       visibility: 'public',
       profiles: { handle: 'beats', display_name: 'Beat Maker' }
     },
@@ -62,12 +82,13 @@ export default async function MusicPage() {
       id: 'demo-6',
       title: 'Torus Flow',
       embed_url: null,
+      audio_url: null,
       visibility: 'public',
       profiles: { handle: 'electronic', display_name: 'Electronic Vibes' }
     },
   ];
 
-  const music = musicData && musicData.length > 0 ? musicData : demoMusic;
+  const music = musicWithAudio && musicWithAudio.length > 0 ? musicWithAudio : demoMusic;
 
   return (
     <div className="min-h-screen bg-background">
@@ -111,7 +132,22 @@ export default async function MusicPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {music?.map((track) => (
             <div key={track.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:border-primary/30 transition-colors group">
-              {track.embed_url ? (
+              {track.audio_url ? (
+                <audio controls preload="none" className="w-full" controlsList="nodownload noplaybackrate">
+                  <source src={track.audio_url} />
+                </audio>
+                {track.visibility === 'private' && track.audio_url ? (
+                  <div className="px-4 pb-4">
+                    <a
+                      href={track.audio_url}
+                      download
+                      className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4"
+                    >
+                      Download (private)
+                    </a>
+                  </div>
+                ) : null}
+              ) : track.embed_url ? (
                 <iframe
                   src={track.embed_url}
                   width="100%"
@@ -122,11 +158,6 @@ export default async function MusicPage() {
               ) : (
                 <div className="w-full h-44 bg-muted flex items-center justify-center relative">
                   <Music className="w-12 h-12 text-muted-foreground" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center">
-                      <Play className="w-6 h-6 text-primary-foreground ml-1" />
-                    </div>
-                  </div>
                 </div>
               )}
               
@@ -165,7 +196,7 @@ export default async function MusicPage() {
         </div>
 
         {/* Demo banner when showing demo items */}
-        {(!musicData || musicData.length === 0) && music.length > 0 && (
+        {(!musicWithAudio || musicWithAudio.length === 0) && music.length > 0 && (
           <div className="mt-8 p-4 bg-primary/10 border border-primary/20 rounded-xl text-center">
             <p className="text-sm text-primary font-medium">
               These are sample tracks. Upload your first track to share your music!

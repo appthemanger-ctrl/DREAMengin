@@ -8,143 +8,44 @@ html, body {
   padding: 0;
 }
 
-/* --- Metallic DreamEngine Theme (NO BUBBLES) --- */
-:root{
-  --de-red: #ff2a2a;
-  --de-blue: #2f6bff;
-
-  /* speed controls */
-  --de-shift-seconds: 70s;     /* slower color change */
-  --de-sheen-seconds: 26s;
-
-  --de-border: rgba(255,255,255,0.14);
-}
-
-.dream-bg{
-  position: relative;
-  min-height: 100vh;
-  color: rgba(255,255,255,0.92);
-
-  /* Base: red ↔ blue with a subtle violet bridge (NO radial blobs) */
-  background:
-    linear-gradient(
-      115deg,
-      rgba(255,42,42,0.92) 0%,
-      rgba(255,42,42,0.55) 18%,
-      rgba(168,85,247,0.35) 45%,
-      rgba(47,107,255,0.55) 72%,
-      rgba(47,107,255,0.92) 100%
-    );
-
-  background-size: 220% 220%;
-  background-position: 0% 50%;
-  animation: de-metal-shift var(--de-shift-seconds) ease-in-out infinite;
-
-  overflow-x: hidden;
-}
-
-/* Specular metallic sheen (moves across) */
-.dream-bg::after{
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-
-  /* angled highlight sweep */
-  background:
-    linear-gradient(
-      70deg,
-      transparent 36%,
-      rgba(255,255,255,0.12) 44%,
-      rgba(255,255,255,0.32) 50%,
-      rgba(255,255,255,0.12) 56%,
-      transparent 64%
-    );
-
-  mix-blend-mode: screen;
-  opacity: 0.45;
-  transform: translateX(-35%) translateY(-8%) rotate(10deg);
-  animation: de-sheen var(--de-sheen-seconds) linear infinite;
-}
-
-/* Metallic “flip” band where colors converge (NO bubbles) */
-.dream-bg::before{
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-
-  background:
-    linear-gradient(
-      115deg,
-      transparent 0%,
-      transparent 42%,
-      rgba(255,255,255,0.08) 47%,
-      rgba(255,255,255,0.55) 50%,
-      rgba(255,255,255,0.08) 53%,
-      transparent 58%,
-      transparent 100%
-    );
-
-  mix-blend-mode: overlay;
-  opacity: 0.35;
-}
-
-@keyframes de-metal-shift{
-  0%   { background-position: 0% 50%; filter: saturate(1.05) contrast(1.02); }
-  50%  { background-position: 100% 50%; filter: saturate(1.15) contrast(1.06); }
-  100% { background-position: 0% 50%; filter: saturate(1.05) contrast(1.02); }
-}
-
-@keyframes de-sheen{
-  0%   { transform: translateX(-45%) translateY(-10%) rotate(10deg); }
-  100% { transform: translateX(45%) translateY(10%) rotate(10deg); }
-}
-
-/* Universe panel (optional helper) */
-.bg-metallic-universe{
-  background:
-    linear-gradient(
-      115deg,
-      rgba(255,42,42,0.20),
-      rgba(168,85,247,0.12),
-      rgba(47,107,255,0.20)
-    );
-  border: 1px solid var(--de-border);
-  backdrop-filter: blur(14px);
-}
-
-/* Buttons */
-.btn-de{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: 999px;
-  padding: 0.7rem 1.05rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: linear-gradient(135deg, rgba(255,42,42,0.22), rgba(47,107,255,0.22));
-  color: rgba(255,255,255,0.94);
-  box-shadow: 0 18px 60px rgba(0,0,0,0.35);
-  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
-}
-.btn-de:hover{ transform: translateY(-1px); box-shadow: 0 26px 90px rgba(0,0,0,0.45); filter: saturate(1.08); }
-.btn-de:active{ transform: translateY(0px) scale(0.99); }
-
-/* Cards / widgets */
-.card-de{
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(12,12,20,0.45);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 22px 80px rgba(0,0,0,0.45);
+/* Animated background gradient (DREAM shift) */
+50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  .dream-bg { animation: none; }
-  .dream-bg::after { animation: none; opacity: 0.25; }
-  .dream-bg::before { opacity: 0.18; }
+  }
+
+/* Metallic DreamEngine background (red↔blue with white convergence sheen) */
+@keyframes dreamShift {
+  0% { background-position: 0% 50%, 100% 50%, 50% 50%; }
+  50% { background-position: 100% 50%, 0% 50%, 50% 50%; }
+  100% { background-position: 0% 50%, 100% 50%, 50% 50%; }
+}
+
+.dream-bg {
+  background:
+    radial-gradient(circle at 28% 48%, rgba(255, 59, 59, 0.95), rgba(255, 59, 59, 0) 58%),
+    radial-gradient(circle at 72% 52%, rgba(46, 203, 255, 0.95), rgba(46, 203, 255, 0) 58%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.16), rgba(255,255,255,0) 42%),
+    linear-gradient(120deg, #050508, #070a12, #0a0f1e, #050508);
+  background-size: 220% 220%, 220% 220%, 180% 180%, 140% 140%;
+  background-blend-mode: screen, screen, soft-light, normal;
+  animation: dreamShift 30s ease-in-out infinite;
+}
+
+.metal-glass {
+  background: linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.03));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.20);
+  box-shadow: 0 0 40px rgba(255,255,255,0.05), inset 0 0 20px rgba(255,255,255,0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dream-bg {
+    animation: none;
+    background-position: 50% 50%, 50% 50%, 50% 50%, 50% 50%;
+  }
 }

@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Music, Upload, Loader2, Youtube, Info } from 'lucide-react';
+import { ArrowLeft, Music, Upload, Loader2, Youtube, Info, FileAudio, Image as ImageIcon } from 'lucide-react';
 
 export default function UploadMusicPage() {
   const [title, setTitle] = useState('');
   const [embedUrl, setEmbedUrl] = useState('');
+  const [audioFile, setAudioFile] = useState<File | null>(null);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,6 +28,43 @@ export default function UploadMusicPage() {
         return;
       }
 
+      
+      if (!audioFile) {
+        throw new Error('Please choose an audio file');
+      }
+
+      const audioExt = audioFile.name.split('.').pop()?.toLowerCase() || 'mp3';
+      const audioPath = `${user.id}/${crypto.randomUUID()}.${audioExt}`;
+
+      const { error: audioUpErr } = await supabase.storage
+        .from('music')
+        .upload(audioPath, audioFile, {
+          upsert: false,
+          contentType: audioFile.type || 'audio/mpeg',
+          cacheControl: '3600'
+        });
+
+      if (audioUpErr) throw audioUpErr;
+
+      let coverUrl: string | null = null;
+      if (coverFile) {
+        const coverExt = coverFile.name.split('.').pop()?.toLowerCase() || 'jpg';
+        const coverPath = `${user.id}/covers/${crypto.randomUUID()}.${coverExt}`;
+        const { error: coverUpErr } = await supabase.storage
+          .from('covers')
+          .upload(coverPath, coverFile, {
+            upsert: false,
+            contentType: coverFile.type || 'image/jpeg',
+            cacheControl: '3600'
+          });
+
+        if (coverUpErr) throw coverUpErr;
+
+        const { data: coverPublic } = supabase.storage.from('covers').getPublicUrl(coverPath);
+        coverUrl = coverPublic.publicUrl;
+      }
+
+
       // Convert YouTube/Spotify URLs to embed format
       let finalEmbedUrl = embedUrl;
       if (embedUrl.includes('youtube.com/watch')) {
@@ -40,17 +78,50 @@ export default function UploadMusicPage() {
         finalEmbedUrl = `https://open.spotify.com/embed/track/${trackId}`;
       }
 
+      
+      if (!audioFile && !finalEmbedUrl) {
+        setError('Add an audio file or an embed URL.');
+        return;
+      }
+
+      let audioMeta: { path: string; mime: string | null; bytes: number | null } | null = null;
+
+      if (audioFile) {
+        const safeName = audioFile.name.replace(/[^a-zA-Z0-9._-]+/g, '_');
+        const id = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+        const storagePath = `${user.id}/${id}-${safeName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('music')
+          .upload(storagePath, audioFile, {
+            upsert: false,
+            contentType: audioFile.type || 'audio/mpeg',
+            cacheControl: '3600'
+          });
+
+        if (uploadError) throw uploadError;
+
+        audioMeta = {
+          path: storagePath,
+          mime: audioFile.type || null,
+          bytes: typeof audioFile.size === 'number' ? audioFile.size : null
+        };
+      }
+
       const { error: insertError } = await supabase
         .from('music_releases')
         .insert({
           user_id: user.id,
-          owner_id: user.id,
           title,
           embed_url: finalEmbedUrl || null,
+          audio_path: audioMeta?.path || null,
+          audio_mime: audioMeta?.mime || null,
+          audio_bytes: audioMeta?.bytes || null,
           visibility
         });
 
       if (insertError) throw insertError;
+
 
       router.push('/music');
     } catch (err: unknown) {
@@ -89,7 +160,21 @@ export default function UploadMusicPage() {
             />
           </div>
 
-          {/* Embed URL */}
+          {/* 
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Audio File</label>
+              <input
+                type="file"
+                accept="audio/*"
+                onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
+                className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-foreground/10 file:px-3 file:py-1 file:text-foreground"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Upload an audio file (mp3, wav, m4a). Requires Storage bucket <code>music</code>.
+              </p>
+            </div>
+
+Embed URL */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
               YouTube or Spotify Link
