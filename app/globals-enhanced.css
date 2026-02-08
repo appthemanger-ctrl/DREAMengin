@@ -428,21 +428,6 @@ html {
   );
 }
 
-/* DreamEngin brand tokens (fire ↔ ice with a shared core) */
-:root {
-  --dream-fire: #ff3b1f;
-  --dream-ice: #3bcbff;
-  --dream-core: #ffd45a;
-}
-
-/* Brand-aligned glow (used by widgets and hero accents) */
-.dream-glow {
-  box-shadow:
-    0 0 18px rgba(255, 59, 31, 0.22),
-    0 0 28px rgba(59, 203, 255, 0.18),
-    0 0 40px rgba(255, 212, 90, 0.10);
-}
-
 /* Cosmic glow effect */
 .cosmic-glow {
   box-shadow: 

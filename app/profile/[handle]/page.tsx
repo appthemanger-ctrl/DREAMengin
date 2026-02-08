@@ -36,7 +36,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     supabase
       .from('music_releases')
       .select('*')
-      .eq('user_id', profile.id)
+      .eq('owner_id', profile.id)
       .eq('visibility', 'public')
       .order('created_at', { ascending: false })
       .limit(6),
@@ -54,16 +54,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       .order('created_at', { ascending: false })
       .limit(6),
   ]);
-  const musicWithAudio = await Promise.all(
-    (musicWithAudio ?? []).map(async (t: any) => {
-      const audio_path = t.audio_path as string | null | undefined;
-      if (!audio_path) return { ...t, audio_url: null };
-      const { data, error } = await supabase.storage.from('music').createSignedUrl(audio_path, 60 * 30);
-      if (error) return { ...t, audio_url: null };
-      return { ...t, audio_url: data?.signedUrl ?? null };
-    })
-  );
-
 
   const isOwner = currentUser?.id === profile.id;
 

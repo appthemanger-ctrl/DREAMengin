@@ -42,7 +42,7 @@ export default function NavBar({ session }: { session: Session | null }) {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0 flex items-center gap-2">
             <Image 
-              src="/logos/metallic-dreamengine.svg" 
+              src="/logo-icon.jpeg" 
               alt="DREAMengin" 
               width={40} 
               height={40}

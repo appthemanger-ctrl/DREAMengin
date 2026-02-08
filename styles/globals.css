@@ -2,50 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global styles */
-html, body {
-  margin: 0;
-  padding: 0;
-}
+/* DreamEngine global tokens (Tailwind reads these via hsl(var(--token))) */
+@layer base {
+  :root {
+    --background: 220 16% 4%;
+    --foreground: 210 20% 98%;
 
-/* Animated background gradient (DREAM shift) */
-50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+    --card: 220 15% 7%;
+    --card-foreground: 210 20% 98%;
 
-/* Respect reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
+    --popover: 220 15% 9%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 210 100% 66%;
+    --primary-foreground: 220 16% 4%;
+
+    --secondary: 220 15% 12%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 220 15% 15%;
+    --muted-foreground: 215 15% 55%;
+
+    --accent: 24 95% 58%;
+    --accent-foreground: 220 16% 4%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 210 100% 66%;
+
+    --radius: 1rem;
   }
 
-/* Metallic DreamEngine background (red↔blue with white convergence sheen) */
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* Animated background gradient (Dream shift) */
 @keyframes dreamShift {
-  0% { background-position: 0% 50%, 100% 50%, 50% 50%; }
-  50% { background-position: 100% 50%, 0% 50%, 50% 50%; }
-  100% { background-position: 0% 50%, 100% 50%, 50% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .dream-bg {
-  background:
-    radial-gradient(circle at 28% 48%, rgba(255, 59, 59, 0.95), rgba(255, 59, 59, 0) 58%),
-    radial-gradient(circle at 72% 52%, rgba(46, 203, 255, 0.95), rgba(46, 203, 255, 0) 58%),
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.16), rgba(255,255,255,0) 42%),
-    linear-gradient(120deg, #050508, #070a12, #0a0f1e, #050508);
-  background-size: 220% 220%, 220% 220%, 180% 180%, 140% 140%;
-  background-blend-mode: screen, screen, soft-light, normal;
-  animation: dreamShift 30s ease-in-out infinite;
-}
-
-.metal-glass {
-  background: linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.03));
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255,255,255,0.20);
-  box-shadow: 0 0 40px rgba(255,255,255,0.05), inset 0 0 20px rgba(255,255,255,0.08);
+  background: linear-gradient(120deg, #0b1020, #2a0f5c, #ff4fd8, #0b6bff, #0b1020);
+  background-size: 400% 400%;
+  animation: dreamShift 18s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .dream-bg {
     animation: none;
-    background-position: 50% 50%, 50% 50%, 50% 50%, 50% 50%;
+    background-position: 50% 50%;
   }
 }
