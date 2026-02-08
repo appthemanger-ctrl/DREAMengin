@@ -10,12 +10,12 @@ on:
         default: "*.zip"
       extract_source:
         description: "Folder inside extracted root to publish (use '.' for everything)"
-        required: false
-        default: "public"
+        required: true
+        default: "." 
       destination_path:
         description: "Repo path to publish into"
         required: false
-        default: "public"
+        default: "."
       zip_index:
         description: "Which zip to use if multiple match (0 = first)"
         required: false
@@ -47,8 +47,8 @@ jobs:
         shell: bash
         env:
           ZIP_GLOB: ${{ inputs.zip_glob || '*.zip' }}
-          EXTRACT_SOURCE: ${{ inputs.extract_source || 'public' }}
-          DESTINATION_PATH: ${{ inputs.destination_path || 'public' }}
+          EXTRACT_SOURCE: ${{ inputs.extract_source || '.' }}
+          DESTINATION_PATH: ${{ inputs.destination_path || '.' }}
           ZIP_INDEX: ${{ inputs.zip_index || '0' }}
         run: |
           set -euo pipefail
