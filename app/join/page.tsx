@@ -196,9 +196,8 @@ export default function JoinPage() {
             {busy ? "Creating…" : "Register"}
           </button>
         </form>
-    </>
 
-        <div className="mt-5 space-y-3">
+	        <div className="mt-5 space-y-3">
           <button
             type="button"
             disabled={busy}

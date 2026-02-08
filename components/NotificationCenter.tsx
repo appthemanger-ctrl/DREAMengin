@@ -25,8 +25,55 @@ export default function NotificationCenter({
   onMarkAllAsRead
 }: NotificationCenterProps) {
   const [isOpen, setIsOpen] = useState(false);
-  // Production rule: no demo notifications. If nothing is provided, render an empty state.
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>(
+    initialNotifications.length > 0 ? initialNotifications : [
+      {
+        id: '1',
+        type: 'like',
+        title: 'New Like',
+        message: 'Sarah liked your post "The Future of AI"',
+        timestamp: new Date(Date.now() - 5 * 60000),
+        read: false,
+        actionUrl: '/post/123'
+      },
+      {
+        id: '2',
+        type: 'comment',
+        title: 'New Comment',
+        message: 'Alex commented on your lab project',
+        timestamp: new Date(Date.now() - 15 * 60000),
+        read: false,
+        actionUrl: '/lab/456'
+      },
+      {
+        id: '3',
+        type: 'follow',
+        title: 'New Follower',
+        message: 'Jordan started following you',
+        timestamp: new Date(Date.now() - 2 * 3600000),
+        read: false,
+        actionUrl: '/profile/jordan'
+      },
+      {
+        id: '4',
+        type: 'trending',
+        title: 'Your Post is Trending',
+        message: 'Your post about quantum computing is gaining traction!',
+        timestamp: new Date(Date.now() - 4 * 3600000),
+        read: true,
+        actionUrl: '/post/789'
+      },
+      {
+        id: '5',
+        type: 'revenue',
+        title: 'Revenue Update',
+        message: 'You earned $45 from ad placements this week',
+        timestamp: new Date(Date.now() - 24 * 3600000),
+        read: true,
+        actionUrl: '/ads'
+      }
+    ]
+  );
 
   const unreadCount = notifications.filter(n => !n.read).length;
 

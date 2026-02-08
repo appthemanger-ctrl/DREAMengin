@@ -2,69 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DreamEngine global tokens (Tailwind reads these via hsl(var(--token))) */
-@layer base {
-  :root {
-    --background: 220 16% 4%;
-    --foreground: 210 20% 98%;
-
-    --card: 220 15% 7%;
-    --card-foreground: 210 20% 98%;
-
-    --popover: 220 15% 9%;
-    --popover-foreground: 210 20% 98%;
-
-    --primary: 210 100% 66%;
-    --primary-foreground: 220 16% 4%;
-
-    --secondary: 220 15% 12%;
-    --secondary-foreground: 210 20% 90%;
-
-    --muted: 220 15% 15%;
-    --muted-foreground: 215 15% 55%;
-
-    --accent: 24 95% 58%;
-    --accent-foreground: 220 16% 4%;
-
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 210 20% 98%;
-
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 210 100% 66%;
-
-    --radius: 1rem;
-  }
-
-  html,
-  body {
-    height: 100%;
-  }
-
-  body {
-    @apply bg-background text-foreground antialiased;
-  }
+/* Global styles */
+html, body {
+  margin: 0;
+  padding: 0;
 }
 
-/* Animated background gradient (Dream shift) */
+/* Animated background gradient (DREAM shift) */
 @keyframes dreamShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .dream-bg {
-  background: linear-gradient(120deg, #0b1020, #2a0f5c, #ff4fd8, #0b6bff, #0b1020);
+  background: linear-gradient(
+    120deg,
+    #0b1020,
+    #2a0f5c,
+    #ff4fd8,
+    #0b6bff,
+    #0b1020
+  );
   background-size: 400% 400%;
   animation: dreamShift 18s ease-in-out infinite;
 }
 
+/* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .dream-bg {
     animation: none;
