@@ -1,4 +1,4 @@
-name: Extract zip and flatten into repo root
+name: Extract zip and flatten into repo root (no status)
 
 on:
   push:
@@ -18,70 +18,50 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Unzip -> flatten 1st folder -> sync to repo root
+      - name: Unzip -> flatten -> sync -> commit
         shell: bash
         run: |
           set -euo pipefail
 
-          # Find zip in repo root
           shopt -s nullglob
           zips=( *.zip )
           shopt -u nullglob
-
           if [ ${#zips[@]} -eq 0 ]; then
-            echo "No zip found."
             exit 0
           fi
 
-          ZIP="${zips[0]}"
-          echo "Using zip: $ZIP"
+          IFS=$'\n' zips_sorted=($(printf "%s\n" "${zips[@]}" | sort))
+          unset IFS
+          ZIP="${zips_sorted[-1]}"
 
           TMP="$(mktemp -d)"
           unzip -q "$ZIP" -d "$TMP"
 
-          echo "Top-level after unzip:"
-          ls -la "$TMP"
-
-          # If exactly ONE top-level directory and ZERO top-level files,
-          # publish the contents inside that directory (iOS-style wrapper).
-          dir_count=0
-          file_count=0
-          only_dir=""
-
-          for p in "$TMP"/*; do
-            [ -d "$p" ] && dir_count=$((dir_count+1)) && only_dir="$p"
-            [ -f "$p" ] && file_count=$((file_count+1))
+          # flatten wrapper folder if there is exactly one top-level dir (ignoring __MACOSX)
+          ROOT="$TMP"
+          top_dirs=()
+          for d in "$TMP"/*; do
+            [ -d "$d" ] || continue
+            [ "$(basename "$d")" = "__MACOSX" ] && continue
+            top_dirs+=( "$d" )
           done
-
-          if [ "$dir_count" -eq 1 ] && [ "$file_count" -eq 0 ]; then
-            SRC="$only_dir"
-            echo "Flattening single top folder: $SRC"
-          else
-            SRC="$TMP"
-            echo "Using unzip root directly: $SRC"
+          if [ "${#top_dirs[@]}" -eq 1 ]; then
+            ROOT="${top_dirs[0]}"
           fi
 
-          # Delete the zip from the repo
+          # delete the zip from the repo
           rm -f "$ZIP"
           git rm -f "$ZIP" 2>/dev/null || true
 
-          # Sync into repo root, but protect git internals
+          # sync contents into repo root (protect git internals)
           rsync -a --delete \
             --exclude ".git/" \
             --exclude ".github/" \
-            "$SRC/" "./"
-
-          echo "Git status:"
-          git status --porcelain
-
-          if git diff --quiet && git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
+            "$ROOT/" "./"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
-          git commit -m "Extract zip and flatten"
+          git commit -m "Extract zip and flatten" || exit 0
           git push
