@@ -1,17 +1,40 @@
-name: Unzip and publish contents
+name: Extract zip and publish (2nd level)
 
 on:
+  # Manual trigger (Actions -> Run workflow)
+  workflow_dispatch:
+    inputs:
+      zip_glob:
+        description: "Zip pattern in repo root"
+        required: false
+        default: "*.zip"
+      extract_source:
+        description: "Folder inside extracted root to publish (use '.' for everything)"
+        required: false
+        default: "public"
+      destination_path:
+        description: "Repo path to publish into"
+        required: false
+        default: "public"
+      zip_index:
+        description: "Which zip to use if multiple match (0 = first)"
+        required: false
+        default: "0"
+
+  # Auto trigger when a zip is pushed to repo root
   push:
-    # Only trigger when a zip at the repo root is added/changed/removed.
-    # If you use a specific name, set it like: ['upload.zip']
     paths:
       - "*.zip"
 
 permissions:
   contents: write
 
+concurrency:
+  group: extract-zip-and-publish-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  unzip_and_publish:
+  extract_and_publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,14 +43,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Unzip, stage to temp, delete zip, publish
+      - name: Extract zip, use 2nd-level root, publish
         shell: bash
         env:
-          # ---- CONFIG ----
-          ZIP_GLOB: "*.zip"                 # zip(s) expected at repo root
-          SOURCE_SUBFOLDER: "dist"          # folder inside the zip to publish (example: "dist")
-          DESTINATION_PATH: "published"     # where to put files in the repo (example: repo root "." or "apps/web")
-          # ----------------
+          ZIP_GLOB: ${{ inputs.zip_glob || '*.zip' }}
+          EXTRACT_SOURCE: ${{ inputs.extract_source || 'public' }}
+          DESTINATION_PATH: ${{ inputs.destination_path || 'public' }}
+          ZIP_INDEX: ${{ inputs.zip_index || '0' }}
         run: |
           set -euo pipefail
 
@@ -41,49 +63,76 @@ jobs:
             exit 0
           fi
 
-          # If multiple zips exist, process the first one (you can change this logic).
-          ZIP_FILE="${zips[0]}"
+          # Sort for deterministic selection
+          IFS=$'\n' zips_sorted=($(printf "%s\n" "${zips[@]}" | sort))
+          unset IFS
+
+          if ! [[ "${ZIP_INDEX}" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: zip_index must be a non-negative integer (got: ${ZIP_INDEX})"
+            exit 1
+          fi
+
+          if [ "${ZIP_INDEX}" -ge "${#zips_sorted[@]}" ]; then
+            echo "ERROR: zip_index ${ZIP_INDEX} out of range. Found ${#zips_sorted[@]} zip(s):"
+            printf " - %s\n" "${zips_sorted[@]}"
+            exit 1
+          fi
+
+          ZIP_FILE="${zips_sorted[${ZIP_INDEX}]}"
           echo "Using zip: ${ZIP_FILE}"
 
           WORKDIR="$(mktemp -d)"
           EXTRACT_DIR="${WORKDIR}/extract"
           TEMP_DIR="${WORKDIR}/temp_publish"
-
           mkdir -p "${EXTRACT_DIR}" "${TEMP_DIR}"
 
           echo "Unzipping ${ZIP_FILE} -> ${EXTRACT_DIR}"
           unzip -q "${ZIP_FILE}" -d "${EXTRACT_DIR}"
 
-          # Find the source subfolder inside the extracted content.
-          # This handles cases where the zip contains a top-level wrapper folder.
-          echo "Searching for source folder inside zip: ${SOURCE_SUBFOLDER}"
-          SRC_PATH=""
-          if [ -d "${EXTRACT_DIR}/${SOURCE_SUBFOLDER}" ]; then
-            SRC_PATH="${EXTRACT_DIR}/${SOURCE_SUBFOLDER}"
+          echo "Top-level extracted entries:"
+          ls -la "${EXTRACT_DIR}"
+
+          # ---- 2nd-level root detection ----
+          # If the zip contains exactly ONE top-level directory and no top-level files,
+          # treat that directory as the "real" root (second level).
+          ROOT="${EXTRACT_DIR}"
+          top_dirs="$(find "${EXTRACT_DIR}" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+          top_files="$(find "${EXTRACT_DIR}" -mindepth 1 -maxdepth 1 -type f | wc -l | tr -d ' ')"
+
+          if [ "${top_files}" -eq 0 ] && [ "${top_dirs}" -eq 1 ]; then
+            WRAPPER="$(find "${EXTRACT_DIR}" -mindepth 1 -maxdepth 1 -type d -print -quit)"
+            echo "Wrapper folder detected. Using second-level root: ${WRAPPER}"
+            ROOT="${WRAPPER}"
           else
-            # search one level deeper and beyond
-            match="$(find "${EXTRACT_DIR}" -type d -name "${SOURCE_SUBFOLDER}" -print -quit || true)"
-            if [ -n "${match}" ]; then
-              SRC_PATH="${match}"
+            echo "No wrapper folder detected. Using extracted root: ${ROOT}"
+          fi
+          # ---------------------------------
+
+          echo "Using ROOT: ${ROOT}"
+          echo "EXTRACT_SOURCE: ${EXTRACT_SOURCE}"
+          echo "DESTINATION_PATH: ${DESTINATION_PATH}"
+
+          # Resolve source folder under ROOT
+          SRC_PATH="${ROOT}"
+          if [ "${EXTRACT_SOURCE}" != "." ]; then
+            if [ -d "${ROOT}/${EXTRACT_SOURCE}" ]; then
+              SRC_PATH="${ROOT}/${EXTRACT_SOURCE}"
+            else
+              echo "ERROR: '${EXTRACT_SOURCE}' not found under ${ROOT}"
+              echo "Contents of ROOT:"
+              ls -la "${ROOT}"
+              exit 1
             fi
           fi
 
-          if [ -z "${SRC_PATH}" ]; then
-            echo "ERROR: Could not find folder '${SOURCE_SUBFOLDER}' inside the zip."
-            echo "Top-level extracted entries:"
-            ls -la "${EXTRACT_DIR}"
-            exit 1
-          fi
-
-          echo "Found source folder: ${SRC_PATH}"
-          echo "Copying contents -> temp staging: ${TEMP_DIR}"
+          echo "Staging: ${SRC_PATH} -> ${TEMP_DIR}"
           rsync -a --delete "${SRC_PATH}/" "${TEMP_DIR}/"
 
           echo "Deleting zip from repo: ${ZIP_FILE}"
           rm -f "${ZIP_FILE}"
           git rm -f "${ZIP_FILE}" 2>/dev/null || true
 
-          echo "Publishing temp contents -> repo destination: ${DESTINATION_PATH}"
+          echo "Publishing: ${TEMP_DIR} -> ${DESTINATION_PATH}"
           mkdir -p "${DESTINATION_PATH}"
           rsync -a --delete "${TEMP_DIR}/" "${DESTINATION_PATH}/"
 
@@ -99,9 +148,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
-
-          # Use a commit message that can optionally skip CI tools that respect [skip ci]
-          git commit -m "Publish contents from ${ZIP_FILE} [skip ci]" || exit 0
-
-          echo "Pushing changes..."
+          git commit -m "Publish from ${ZIP_FILE} (${EXTRACT_SOURCE} -> ${DESTINATION_PATH}) [skip ci]" || exit 0
           git push
