@@ -170,7 +170,7 @@ export default function HomeFeed({
                   <Image src={userAvatar} alt={userHandle} width={40} height={40} className="rounded-full object-cover" />
                 ) : (
                   <span className="text-sm font-bold text-muted-foreground">
-                    {userDisplayName[0]?.toUpperCase()}
+                    {(userDisplayName || '?')[0].toUpperCase()}
                   </span>
                 )}
               </div>
@@ -188,7 +188,7 @@ export default function HomeFeed({
                     <Image src={userAvatar} alt={userHandle} width={40} height={40} className="rounded-full object-cover" />
                   ) : (
                     <span className="text-sm font-bold text-muted-foreground">
-                      {userDisplayName[0]?.toUpperCase()}
+                      {(userDisplayName || '?')[0].toUpperCase()}
                     </span>
                   )}
                 </div>

@@ -7,7 +7,8 @@ export const dynamic = 'force-dynamic';
 export default async function Home() {
   let user = null;
   let profile = null;
-  let posts: unknown[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let posts: any[] = [];
 
   try {
     const supabase = await createServerClient();
@@ -47,7 +48,7 @@ export default async function Home() {
       userHandle={profile?.handle || user?.email?.split('@')[0] || 'user'}
       userAvatar={profile?.avatar_url || null}
       userDisplayName={profile?.display_name || 'User'}
-      initialPosts={posts as any[]}
+      initialPosts={posts || []}
     />
   );
 }

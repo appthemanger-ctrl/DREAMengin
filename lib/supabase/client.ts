@@ -9,17 +9,18 @@ export function createClient() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     // Return a proxy that throws only when methods are actually called
     // This prevents build-time crashes while still giving clear runtime errors
+    const errorMsg = 'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.'
     const handler: ProxyHandler<object> = {
       get(_target, prop) {
         if (prop === 'auth') {
           return new Proxy({}, {
             get() {
-              return () => Promise.reject(new Error('Supabase is not configured.'))
+              return () => Promise.reject(new Error(errorMsg))
             }
           })
         }
         if (typeof prop === 'string') {
-          return () => ({ data: null, error: new Error('Supabase is not configured.') })
+          return () => ({ data: null, error: new Error(errorMsg) })
         }
         return undefined
       }
