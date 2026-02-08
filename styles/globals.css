@@ -8,40 +8,15 @@ html, body {
   padding: 0;
 }
 
-/* Animated background gradient (DREAM shift) */
-@keyframes dreamShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.dream-bg {
-  background: linear-gradient(
-    120deg,
-    #0b1020,
-    #2a0f5c,
-    #ff4fd8,
-    #0b6bff,
-    #0b1020
-  );
-  background-size: 400% 400%;
-  animation: dreamShift 18s ease-in-out infinite;
-}
-
-/* Respect reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .dream-bg {
-    animation: none;
-    background-position: 50% 50%;
-  }
-}
-
-/* --- Metallic DreamEngine Theme --- */
+/* --- Metallic DreamEngine Theme (NO BUBBLES) --- */
 :root{
   --de-red: #ff2a2a;
   --de-blue: #2f6bff;
-  --de-violet: #a855f7;
-  --de-cyan: #22d3ee;
+
+  /* speed controls */
+  --de-shift-seconds: 70s;     /* slower color change */
+  --de-sheen-seconds: 26s;
+
   --de-border: rgba(255,255,255,0.14);
 }
 
@@ -49,63 +24,97 @@ html, body {
   position: relative;
   min-height: 100vh;
   color: rgba(255,255,255,0.92);
+
+  /* Base: red ↔ blue with a subtle violet bridge (NO radial blobs) */
   background:
-    radial-gradient(900px circle at 50% 50%, rgba(255,255,255,0.22), transparent 45%),
-    conic-gradient(from var(--de-angle, 0deg),
-      var(--de-red),
-      var(--de-violet),
-      rgba(255,255,255,0.85),
-      var(--de-cyan),
-      var(--de-blue),
-      var(--de-red)
+    linear-gradient(
+      115deg,
+      rgba(255,42,42,0.92) 0%,
+      rgba(255,42,42,0.55) 18%,
+      rgba(168,85,247,0.35) 45%,
+      rgba(47,107,255,0.55) 72%,
+      rgba(47,107,255,0.92) 100%
     );
+
   background-size: 220% 220%;
-  animation: de-metal-shift 40s ease-in-out infinite;
+  background-position: 0% 50%;
+  animation: de-metal-shift var(--de-shift-seconds) ease-in-out infinite;
+
   overflow-x: hidden;
 }
 
+/* Specular metallic sheen (moves across) */
 .dream-bg::after{
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(60deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%);
-  mix-blend-mode: overlay;
-  opacity: 0.35;
-  animation: de-sheen 22s linear infinite;
+
+  /* angled highlight sweep */
+  background:
+    linear-gradient(
+      70deg,
+      transparent 36%,
+      rgba(255,255,255,0.12) 44%,
+      rgba(255,255,255,0.32) 50%,
+      rgba(255,255,255,0.12) 56%,
+      transparent 64%
+    );
+
+  mix-blend-mode: screen;
+  opacity: 0.45;
+  transform: translateX(-35%) translateY(-8%) rotate(10deg);
+  animation: de-sheen var(--de-sheen-seconds) linear infinite;
 }
 
+/* Metallic “flip” band where colors converge (NO bubbles) */
 .dream-bg::before{
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
+
   background:
-    radial-gradient(800px circle at 30% 25%, rgba(255,255,255,0.12), transparent 55%),
-    radial-gradient(900px circle at 70% 75%, rgba(255,255,255,0.08), transparent 60%);
-  mix-blend-mode: screen;
-  opacity: 0.6;
+    linear-gradient(
+      115deg,
+      transparent 0%,
+      transparent 42%,
+      rgba(255,255,255,0.08) 47%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0.08) 53%,
+      transparent 58%,
+      transparent 100%
+    );
+
+  mix-blend-mode: overlay;
+  opacity: 0.35;
 }
 
 @keyframes de-metal-shift{
-  0%{ background-position: 0% 55%; }
-  50%{ background-position: 100% 45%; }
-  100%{ background-position: 0% 55%; }
+  0%   { background-position: 0% 50%; filter: saturate(1.05) contrast(1.02); }
+  50%  { background-position: 100% 50%; filter: saturate(1.15) contrast(1.06); }
+  100% { background-position: 0% 50%; filter: saturate(1.05) contrast(1.02); }
 }
 
 @keyframes de-sheen{
-  0%{ transform: translateX(-35%) translateY(-10%) rotate(8deg); }
-  100%{ transform: translateX(35%) translateY(10%) rotate(8deg); }
+  0%   { transform: translateX(-45%) translateY(-10%) rotate(10deg); }
+  100% { transform: translateX(45%) translateY(10%) rotate(10deg); }
 }
 
+/* Universe panel (optional helper) */
 .bg-metallic-universe{
   background:
-    radial-gradient(1200px circle at 50% 45%, rgba(255,255,255,0.18), transparent 55%),
-    linear-gradient(120deg, rgba(255,42,42,0.55), rgba(168,85,247,0.35), rgba(47,107,255,0.55));
+    linear-gradient(
+      115deg,
+      rgba(255,42,42,0.20),
+      rgba(168,85,247,0.12),
+      rgba(47,107,255,0.20)
+    );
   border: 1px solid var(--de-border);
   backdrop-filter: blur(14px);
 }
 
+/* Buttons */
 .btn-de{
   display: inline-flex;
   align-items: center;
@@ -116,7 +125,7 @@ html, body {
   font-weight: 600;
   letter-spacing: 0.02em;
   border: 1px solid rgba(255,255,255,0.18);
-  background: linear-gradient(135deg, rgba(255,42,42,0.25), rgba(47,107,255,0.25));
+  background: linear-gradient(135deg, rgba(255,42,42,0.22), rgba(47,107,255,0.22));
   color: rgba(255,255,255,0.94);
   box-shadow: 0 18px 60px rgba(0,0,0,0.35);
   transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
@@ -124,10 +133,18 @@ html, body {
 .btn-de:hover{ transform: translateY(-1px); box-shadow: 0 26px 90px rgba(0,0,0,0.45); filter: saturate(1.08); }
 .btn-de:active{ transform: translateY(0px) scale(0.99); }
 
+/* Cards / widgets */
 .card-de{
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,0.12);
   background: rgba(12,12,20,0.45);
   backdrop-filter: blur(14px);
   box-shadow: 0 22px 80px rgba(0,0,0,0.45);
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .dream-bg { animation: none; }
+  .dream-bg::after { animation: none; opacity: 0.25; }
+  .dream-bg::before { opacity: 0.18; }
 }
