@@ -1,14 +1,11 @@
 import '@/styles/globals.css';
 import '@/components/v1-ui/widget-feed-screen.css';
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import NavBar from "@/components/NavBar";
 import MobileNavBarEnhanced from "@/components/MobileNavBarEnhanced";
 import AIAssistantEnhanced from "@/components/AIAssistantEnhanced";
 import InnerDreamsButton from "@/components/InnerDreamsButton";
 import { createServerClient } from "@/lib/supabase/server";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "DREAMengin - Your Creative Platform",
@@ -62,7 +59,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="scroll-smooth bg-background dark:bg-background" suppressHydrationWarning>
-      <body className={`${inter.className} ${inter.variable} bg-background text-foreground transition-colors antialiased dream-bg`}>
+      <body className="font-sans bg-background text-foreground transition-colors antialiased dream-bg">
         {/* Desktop Nav */}
         <div className="hidden md:block">
           {session && <NavBar session={session} />}

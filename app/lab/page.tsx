@@ -6,6 +6,8 @@ import { FlaskConical, Plus, Lock, Globe } from 'lucide-react';
 import LedgerChart from '@/components/LedgerChart';
 import { ledgerData } from '@/lib/ledger-data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function LabPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

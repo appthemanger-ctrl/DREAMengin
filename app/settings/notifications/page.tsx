@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Bell, MessageSquare, Heart, Users, DollarSign, Sparkles } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function NotificationSettingsPage() {
   const [settings, setSettings] = useState({
     messages: true,

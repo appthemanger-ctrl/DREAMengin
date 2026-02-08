@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { AdSlot } from '@/types/ads';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdSlotPage({ params }: { params: { id: string } }) {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

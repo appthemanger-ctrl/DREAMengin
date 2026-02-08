@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Sparkles, Users, Zap, Shield, ArrowRight, Music, Beaker } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DiscoverPage() {
   const supabase = await createServerClient();
   

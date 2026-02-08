@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Lock, Smartphone, Key, Shield, AlertTriangle, Check } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function SecuritySettingsPage() {
   const [twoFactor, setTwoFactor] = useState(false);
 

@@ -13,25 +13,32 @@ import {
   ArrowLeft
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage() {
-  const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  // Check admin status
   let isAdmin = false;
+
   try {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-    isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+    const supabase = await createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      redirect('/login');
+    }
+
+    // Check admin status
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+    } catch {
+      // Not admin
+    }
   } catch {
-    // Not admin
+    redirect('/login');
   }
 
   return (

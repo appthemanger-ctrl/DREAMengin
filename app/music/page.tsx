@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Music, Upload, ExternalLink, ArrowLeft, Play } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function MusicPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -4,22 +4,33 @@ import { Bot, Send, CircleCheck, ArrowLeft, Shield, Activity, Database, Users } 
 import InnerDreams from '@/components/InnerDreams';
 import Link from 'next/link';
 
-export default async function AdminPage() {
-  const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export const dynamic = 'force-dynamic';
 
-  if (!user) {
+export default async function AdminPage() {
+  let user = null;
+  let profile = null;
+  let isAdmin = false;
+
+  try {
+    const supabase = await createServerClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    user = authUser;
+
+    if (!user) {
+      redirect('/login');
+    }
+
+    // Check if user is admin
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    profile = profileData;
+    isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+  } catch {
     redirect('/login');
   }
-
-  // Check if user is admin
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  const isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
 
   if (!isAdmin) {
     redirect('/');
@@ -81,7 +92,7 @@ export default async function AdminPage() {
 
         {/* InnerDreams Auto-Updater */}
         <div>
-          <InnerDreams userId={user.id} isAdmin={isAdmin} />
+          <InnerDreams userId={user?.id || ''} isAdmin={isAdmin} />
         </div>
 
         {/* Traditional AI Update Request */}

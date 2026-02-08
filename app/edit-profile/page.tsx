@@ -17,6 +17,8 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Loader2, Save } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function EditProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);

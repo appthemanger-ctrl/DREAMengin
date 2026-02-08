@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Eye, Users, MessageSquare, Bell, Lock } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function PrivacySettingsPage() {
   type PrivacySettings = {
     profileVisibility: 'public' | 'followers' | 'private';

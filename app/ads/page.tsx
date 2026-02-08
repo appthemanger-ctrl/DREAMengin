@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { DollarSign, ShoppingCart, BarChart3, Plus } from 'lucide-react';
 import type { AdSlot, AdListing, AdOrder } from '@/types/ads';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdsPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
