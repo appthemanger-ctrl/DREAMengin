@@ -23,6 +23,7 @@ export type WidgetType =
   | "feed"
   | "text"
   | "media"
+  | "blank"
   | "profile_info"
   | "external_embed"
   | "gallery"

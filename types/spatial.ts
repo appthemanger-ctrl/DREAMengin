@@ -83,6 +83,7 @@ export interface AlbumContent {
 
 export type WidgetType =
   | "feed"           // Feed widget (optional, not default)
+  | "blank"          // Blank layout surface
   | "gallery"        // Grid/masonry of media
   | "album"          // Album viewer widget
   | "text"           // Text/bio/notes widget
