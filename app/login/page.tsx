@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -53,10 +54,39 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-[calc(100dvh-56px)] flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-black/30 backdrop-blur-xl shadow-xl p-6">
+    <main className="relative min-h-[calc(100dvh-56px)] flex items-center justify-center px-4 py-10 overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        poster="/hero.jpg"
+        aria-hidden="true"
+        className="fixed inset-0 h-full w-full object-cover z-0 opacity-45"
+      >
+        <source src="/videos/auth-bg.mp4" type="video/mp4" />
+      </video>
+      <div
+        className="fixed inset-0 z-10 bg-gradient-to-b from-black/30 via-black/50 to-black/80 bg-[url('/hero.jpg')] bg-cover bg-center"
+      />
+
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-black/30 backdrop-blur-xl shadow-xl p-6 relative z-20">
+        <div className="mb-6 flex items-center gap-3">
+          <Image
+            src="/logo.jpeg"
+            alt="DreamEngine"
+            width={44}
+            height={44}
+            className="rounded-xl border border-white/10 bg-white/5"
+            priority
+          />
+          <div className="leading-tight">
+            <p className="text-sm font-medium text-white/80">DreamEngine</p>
+            <h1 className="text-2xl font-semibold text-white">Welcome back</h1>
+          </div>
+        </div>
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
+          <h2 className="text-2xl font-semibold tracking-tight">Log in</h2>
           <p className="text-sm text-white/70 mt-1">Use email + password or continue with a provider.</p>
         </div>
 

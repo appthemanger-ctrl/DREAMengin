@@ -92,7 +92,7 @@ export default function JoinPage() {
         playsInline
         className="fixed inset-0 h-full w-full object-cover -z-10 opacity-45"
       >
-        <source src="/videos/signup-bg.mp4" type="video/mp4" />
+        <source src="/videos/auth-bg.mp4" type="video/mp4" />
       </video>
 
       {/* brand glow overlay (red ↔ blue) */}
