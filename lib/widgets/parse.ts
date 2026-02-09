@@ -81,21 +81,23 @@ function extractYouTubeVideoId(url?: string): string | undefined {
 
 export function parseTextConfig(raw: unknown): TextWidgetConfig {
   if (!isRecord(raw)) throw new Error('text config must be an object');
-  const body = asString(raw.body) ?? asString(raw.text) ?? '';
-  if (!body.trim()) throw new Error('text config requires body');
+  const text = asString(raw.body) ?? asString(raw.text) ?? '';
+  if (!text.trim()) throw new Error('text config requires body');
   const format = asString(raw.format);
-  return { body, format: format === 'markdown' ? 'markdown' : 'plain' };
+  return { text, format: format === 'markdown' ? 'markdown' : 'plain' };
 }
 
 export function parseEmbedConfig(raw: unknown): EmbedWidgetConfig {
   if (!isRecord(raw)) throw new Error('embed config must be an object');
-  const src = asString(raw.src) ?? asString(raw.url);
-  if (!src) throw new Error('embed config requires src');
+  const url = asString(raw.src) ?? asString(raw.url);
+  if (!url) throw new Error('embed config requires src');
   const provider = asString(raw.provider) === 'custom' ? 'custom' : 'iframe';
   const aspectRatio = asString(raw.aspectRatio);
+  const title = asString(raw.title);
   return {
     provider,
-    src,
+    url,
+    title,
     aspectRatio: aspectRatio === '4:3' || aspectRatio === '1:1' ? (aspectRatio as any) : '16:9',
     sandbox: asBool(raw.sandbox),
   };

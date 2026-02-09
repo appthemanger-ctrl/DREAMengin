@@ -78,6 +78,8 @@ export type DreamenginWidgetType =
 export interface EmbedWidgetConfig {
   url: string;
   title?: string;
+  provider?: 'iframe' | 'custom';
+  aspectRatio?: '16:9' | '4:3' | '1:1';
   sandbox?: boolean;
 }
 
