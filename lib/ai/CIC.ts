@@ -23,6 +23,7 @@ type CICOutput = {
 export class CIC {
   private memory: Record<string, number> = {}
   private listening = false
+  private stopListening?: () => void
 
   learn(event: CICInput) {
     const key = `${event.widgetType || 'global'}::${event.activityType}`
@@ -63,9 +64,12 @@ export class CIC {
   /**
    * Start listening on the WidgetBus for activity events and auto-learn.
    * Call once at app startup to wire CIC into the widget system.
+   * Returns a cleanup function. If already listening, returns the existing cleanup.
    */
   startListening(userId: string): () => void {
-    if (this.listening) return () => {};
+    if (this.listening) {
+      return this.stopListening ?? (() => {});
+    }
     this.listening = true;
 
     const handler = (payload: any) => {
@@ -82,9 +86,12 @@ export class CIC {
 
     widgetBus.on('cic:activity', handler);
 
-    return () => {
+    const cleanup = () => {
       widgetBus.off('cic:activity', handler);
       this.listening = false;
+      this.stopListening = undefined;
     };
+    this.stopListening = cleanup;
+    return cleanup;
   }
 }

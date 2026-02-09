@@ -21,7 +21,7 @@ export interface Space {
 // User always has: Home Anchor, 48 Widgets, Home Dreams, Work Dreams, Infinite Loops
 // =============================================================================
 
-/** Maximum widget slots per dream space anchor (§15) */
+/** Maximum widget slots per dream space (§15: "48 Widgets" per dream space) */
 export const MAX_WIDGETS_PER_ANCHOR = 48;
 
 export interface DreamSpace {
