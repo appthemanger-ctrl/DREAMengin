@@ -9,6 +9,9 @@ export interface WidgetCapabilities {
   canFocusMode?: boolean;
   canAddToFeed?: boolean;
   canRemoveFromFeed?: boolean;
+  canSpawnSubWidgets?: boolean;
+  canTriggerChains?: boolean;
+  canShareMemory?: boolean;
 }
 
 // Optional widget-specific actions
@@ -38,6 +41,67 @@ export type WidgetType =
   | "custom"
   | (string & {});
 
+// =============================================================================
+// WIDGET LAYER ARCHITECTURE (§11)
+// Each widget contains up to four layers: UI, Data, AI, Commerce
+// =============================================================================
+
+export type WidgetLayerKind = "ui" | "data" | "ai" | "commerce";
+
+export interface UILayerConfig {
+  layout?: string;
+  theme?: string;
+  responsive?: boolean;
+}
+
+export interface DataLayerConfig {
+  source?: string;
+  cacheTTL?: number;
+  realtimeSync?: boolean;
+}
+
+export interface AILayerConfig {
+  agentId?: string;
+  model?: string;
+  autoSuggest?: boolean;
+}
+
+export interface CommerceLayerConfig {
+  priceModel?: "free" | "one-time" | "subscription" | "tip";
+  currency?: string;
+  price?: number;
+  listingId?: string;
+}
+
+export interface WidgetArchitectureLayer {
+  kind: WidgetLayerKind;
+  enabled: boolean;
+  config?: UILayerConfig | DataLayerConfig | AILayerConfig | CommerceLayerConfig;
+}
+
+// =============================================================================
+// SUB-WIDGET & CHAIN SUPPORT (§11)
+// Widgets can talk to each other, share memory, trigger chains, spawn sub-widgets
+// =============================================================================
+
+export interface SubWidgetRef {
+  id: string;
+  parentId: string;
+  slot?: string;
+}
+
+export interface WidgetChainStep {
+  widgetId: string;
+  action: string;
+  payload?: Record<string, unknown>;
+}
+
+export interface WidgetChain {
+  id: string;
+  name: string;
+  steps: WidgetChainStep[];
+}
+
 // Canonical widget shape (tolerant of old + new schemas)
 export interface WidgetInstance {
   id: string;
@@ -64,6 +128,14 @@ export interface WidgetInstance {
   order?: number;
   visibility?: "private" | "public" | "followers";
   layers?: WidgetLayer[];
+
+  // Widget architecture layers (§11)
+  architectureLayers?: WidgetArchitectureLayer[];
+  // Sub-widget support (§11)
+  parentId?: string;
+  subWidgets?: SubWidgetRef[];
+  // Chain triggering (§11)
+  chains?: WidgetChain[];
 
   created_at?: string;
   updated_at?: string;
