@@ -9,9 +9,6 @@ export interface WidgetCapabilities {
   canFocusMode?: boolean;
   canAddToFeed?: boolean;
   canRemoveFromFeed?: boolean;
-  canSpawnSubWidgets?: boolean;
-  canTriggerChains?: boolean;
-  canShareMemory?: boolean;
 }
 
 // Optional widget-specific actions
@@ -41,12 +38,69 @@ export type WidgetType =
   | "custom"
   | (string & {});
 
-// =============================================================================
-// WIDGET LAYER ARCHITECTURE (§11)
-// Each widget contains up to four layers: UI, Data, AI, Commerce
-// =============================================================================
+// Canonical widget shape (tolerant of old + new schemas)
+export interface WidgetInstance {
+  id: string;
 
+  // ownership (either may exist)
+  owner_id?: string;
+  user_id?: string;
+
+  title?: string;
+
+  // type (either may exist)
+  type?: WidgetType | string;
+  widget_type?: WidgetType | string;
+
+  // config (either may exist)
+  config?: Record<string, unknown>;
+  config_json?: Record<string, unknown>;
+
+  capabilities?: WidgetCapabilities;
+  actions?: WidgetAction[];
+  is_enabled?: boolean;
+
+  space?: "home" | "profile";
+  order?: number;
+  visibility?: "private" | "public" | "followers";
+  layers?: WidgetLayer[];
+  sub_widgets?: SubWidgetRef[];
+
+  // Widget architecture layers (§11)
+  architectureLayers?: WidgetArchitectureLayer[];
+  // Chain triggering (§11)
+  chains?: WidgetChain[];
+
+  created_at?: string;
+  updated_at?: string;
+
+  // allow extra joined fields without breaking TS
+  [key: string]: unknown;
+}
+
+// Layer kinds per Section 11: Widget Architecture
 export type WidgetLayerKind = "ui" | "data" | "ai" | "commerce";
+
+export interface WidgetLayer {
+  id: string;
+  order: number;
+  kind: WidgetLayerKind;
+  type: WidgetType;
+  config?: Record<string, unknown>;
+  visibility?: "visible" | "hidden";
+  opacity?: number;
+}
+
+// Sub-widget reference (widgets can spawn sub-widgets)
+export interface SubWidgetRef {
+  id: string;
+  parent_id: string;
+  order: number;
+}
+
+// =============================================================================
+// WIDGET ARCHITECTURE LAYER CONFIG (§11)
+// =============================================================================
 
 export interface UILayerConfig {
   layout?: string;
@@ -80,15 +134,8 @@ export interface WidgetArchitectureLayer {
 }
 
 // =============================================================================
-// SUB-WIDGET & CHAIN SUPPORT (§11)
-// Widgets can talk to each other, share memory, trigger chains, spawn sub-widgets
+// CHAIN SUPPORT (§11)
 // =============================================================================
-
-export interface SubWidgetRef {
-  id: string;
-  parentId: string;
-  slot?: string;
-}
 
 export interface WidgetChainStep {
   widgetId: string;
@@ -100,57 +147,6 @@ export interface WidgetChain {
   id: string;
   name: string;
   steps: WidgetChainStep[];
-}
-
-// Canonical widget shape (tolerant of old + new schemas)
-export interface WidgetInstance {
-  id: string;
-
-  // ownership (either may exist)
-  owner_id?: string;
-  user_id?: string;
-
-  title?: string;
-
-  // type (either may exist)
-  type?: WidgetType | string;
-  widget_type?: WidgetType | string;
-
-  // config (either may exist)
-  config?: Record<string, unknown>;
-  config_json?: Record<string, unknown>;
-
-  capabilities?: WidgetCapabilities;
-  actions?: WidgetAction[];
-  is_enabled?: boolean;
-
-  space?: "home" | "profile";
-  order?: number;
-  visibility?: "private" | "public" | "followers";
-  layers?: WidgetLayer[];
-
-  // Widget architecture layers (§11)
-  architectureLayers?: WidgetArchitectureLayer[];
-  // Sub-widget support (§11)
-  parentId?: string;
-  subWidgets?: SubWidgetRef[];
-  // Chain triggering (§11)
-  chains?: WidgetChain[];
-
-  created_at?: string;
-  updated_at?: string;
-
-  // allow extra joined fields without breaking TS
-  [key: string]: unknown;
-}
-
-export interface WidgetLayer {
-  id: string;
-  order: number;
-  type: WidgetType;
-  config?: Record<string, unknown>;
-  visibility?: "visible" | "hidden";
-  opacity?: number;
 }
 
 // -------- helpers --------
@@ -179,7 +175,7 @@ export function getWidgetConfig(widget: unknown): Record<string, unknown> {
   return {};
 }
 
-// -------- type guards (fix the “never” error) --------
+// -------- type guards (fix the "never" error) --------
 export function isWidgetInstance(widget: unknown): widget is WidgetInstance {
   return !!widget && typeof widget === "object" && "id" in (widget as Record<string, unknown>);
 }

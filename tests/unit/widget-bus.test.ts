@@ -84,7 +84,7 @@ describe('WidgetBus', () => {
     const handler = (p: unknown) => received.push(p);
     widgetBus.on('spawn:parentS', handler);
     widgetBus.spawnSubWidget('parentS', 'childS');
-    expect(received).toEqual([{ childId: 'childS' }]);
+    expect(received).toEqual(['childS']);
     widgetBus.off('spawn:parentS', handler);
   });
 });

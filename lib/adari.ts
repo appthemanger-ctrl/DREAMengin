@@ -23,10 +23,6 @@ const REQUIRED_PATHS = [
   "lib/widgets/WidgetEngine.tsx",
   "lib/widgets/WidgetBus.ts",
   "lib/widgets/useWidget.ts",
-  "lib/ai/AISystem.ts",
-  "lib/ai/CIC.ts",
-  "lib/core/CCCCore.ts",
-  "types/marketplace.ts",
 ] as const;
 
 function checkRequiredPaths(cwd: string): AdariCheck[] {

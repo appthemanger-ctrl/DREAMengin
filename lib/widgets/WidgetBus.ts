@@ -1,22 +1,9 @@
-import type { WidgetChainStep } from '@/types/widgets';
-
 type Callback = (payload: any) => void;
-
-// =============================================================================
-// WidgetBus — Inter-widget communication, shared memory, chain triggering,
-// and sub-widget spawning (§11 Widget Architecture).
-// =============================================================================
 
 class WidgetBus {
   private listeners: Record<string, Callback[]> = {};
-
-  // ---- Shared memory (§11): widgets share state via a key/value store ----
-  private sharedMemory: Map<string, unknown> = new Map();
-
-  // ---- Sub-widget registry (§11): parentId → child ids ----
-  private subWidgets: Map<string, Set<string>> = new Map();
-
-  // ==================== Event Pub/Sub ====================
+  private memory: Record<string, unknown> = {};
+  private children: Record<string, string[]> = {};
 
   emit(channel: string, payload: any) {
     if (this.listeners[channel]) {
@@ -37,25 +24,31 @@ class WidgetBus {
     }
   }
 
-  // ==================== Shared Memory (§11) ====================
+  // --- Shared memory ---
 
-  setMemory(key: string, value: unknown): void {
-    this.sharedMemory.set(key, value);
+  setMemory(key: string, value: unknown) {
+    this.memory[key] = value;
     this.emit(`memory:${key}`, value);
   }
 
-  getMemory<T = unknown>(key: string): T | undefined {
-    return this.sharedMemory.get(key) as T | undefined;
+  getMemory(key: string): unknown {
+    return this.memory[key];
   }
 
-  clearMemory(key: string): void {
-    this.sharedMemory.delete(key);
-    this.emit(`memory:${key}`, undefined);
+  clearMemory(key: string) {
+    delete this.memory[key];
   }
 
-  // ==================== Chain Triggering (§11) ====================
+  // --- Trigger chains ---
 
-  triggerChain(steps: WidgetChainStep[]): void {
+  chain(channels: string[], payload: any) {
+    for (const ch of channels) {
+      this.emit(ch, payload);
+    }
+  }
+
+  /** Typed chain triggering (§11) — emits per-widget chain events. */
+  triggerChain(steps: Array<{ widgetId: string; action: string; payload?: Record<string, unknown> }>): void {
     for (const step of steps) {
       this.emit(`chain:${step.widgetId}`, {
         action: step.action,
@@ -64,23 +57,41 @@ class WidgetBus {
     }
   }
 
-  // ==================== Sub-Widget Spawning (§11) ====================
+  // --- Sub-widget spawning ---
 
-  spawnSubWidget(parentId: string, childId: string): void {
-    if (!this.subWidgets.has(parentId)) {
-      this.subWidgets.set(parentId, new Set());
+  spawnChild(parentId: string, childId: string) {
+    if (!this.children[parentId]) {
+      this.children[parentId] = [];
     }
-    this.subWidgets.get(parentId)!.add(childId);
-    this.emit(`spawn:${parentId}`, { childId });
+    if (!this.children[parentId].includes(childId)) {
+      this.children[parentId].push(childId);
+    }
+    this.emit(`spawn:${parentId}`, childId);
   }
 
-  removeSubWidget(parentId: string, childId: string): void {
-    this.subWidgets.get(parentId)?.delete(childId);
-    this.emit(`despawn:${parentId}`, { childId });
+  getChildren(parentId: string): string[] {
+    return this.children[parentId] ?? [];
+  }
+
+  removeChild(parentId: string, childId: string) {
+    if (this.children[parentId]) {
+      this.children[parentId] = this.children[parentId].filter((id) => id !== childId);
+    }
+    this.emit(`despawn:${parentId}`, childId);
+  }
+
+  // --- Aliases (§11 enhanced API) ---
+
+  spawnSubWidget(parentId: string, childId: string): void {
+    this.spawnChild(parentId, childId);
   }
 
   getSubWidgets(parentId: string): string[] {
-    return Array.from(this.subWidgets.get(parentId) ?? []);
+    return this.getChildren(parentId);
+  }
+
+  removeSubWidget(parentId: string, childId: string): void {
+    this.removeChild(parentId, childId);
   }
 }
 
