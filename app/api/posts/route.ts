@@ -48,13 +48,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Content is required' }, { status: 400 });
   }
 
+  // DB column is media_json (JSONB), not media_urls
+  const media_json = media_urls.length > 0 ? media_urls : null;
+
   const { data: post, error } = await supabase
     .from('app_posts')
     .insert({
       user_id: user.id,
       content: content.trim(),
       visibility,
-      media_urls,
+      media_json,
     })
     .select(`
       *,
@@ -69,9 +72,10 @@ export async function POST(req: NextRequest) {
   // Also create a feed item for the user
   await supabase.from('feed_items').insert({
     user_id: user.id,
-    type: 'post',
-    content: { text: content.trim(), post_id: post.id },
+    source: 'app_post',
     ts: new Date().toISOString(),
+    title: content.trim().substring(0, 100),
+    summary: content.trim(),
   });
 
   return NextResponse.json({ post }, { status: 201 });

@@ -1,20 +1,27 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
-  Send, Loader2, Globe, Lock, X
+  Send, Loader2, Globe, Lock, X, Video
 } from 'lucide-react';
+
+interface MediaItem {
+  url: string;
+  type: string;
+  name?: string;
+}
 
 interface Post {
   id: string;
   content: string;
   visibility: string;
   media_url?: string | null;
+  media_json?: MediaItem[] | null;
   created_at: string;
   profiles: {
     handle: string;
@@ -45,13 +52,34 @@ export default function HomeFeed({
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostVisibility, setNewPostVisibility] = useState<'public' | 'private'>('public');
   const [isPosting, setIsPosting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [composerMedia, setComposerMedia] = useState<MediaItem[]>([]);
   const [showComposer, setShowComposer] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'feed' | 'trending' | 'following'>('feed');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadFile = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bucket', 'media');
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (res.ok) {
+        setComposerMedia((prev) => [...prev, { url: data.url, type: data.type, name: data.name }]);
+      }
+    } catch {
+      // Upload failed silently
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleCreatePost = async () => {
-    if (!newPostContent.trim() || isPosting) return;
+    if ((!newPostContent.trim() && composerMedia.length === 0) || isPosting) return;
     setIsPosting(true);
 
     try {
@@ -59,8 +87,9 @@ export default function HomeFeed({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: newPostContent,
+          content: newPostContent || '(media)',
           visibility: newPostVisibility,
+          media_urls: composerMedia,
         }),
       });
 
@@ -68,9 +97,10 @@ export default function HomeFeed({
         const data = await res.json();
         // Add the new post to the feed
         const newPost: Post = {
-          id: data.id || `${Date.now()}`,
+          id: data.post?.id || `${Date.now()}`,
           content: newPostContent,
           visibility: newPostVisibility,
+          media_json: composerMedia.length > 0 ? composerMedia : null,
           created_at: new Date().toISOString(),
           profiles: {
             handle: userHandle,
@@ -82,6 +112,7 @@ export default function HomeFeed({
         };
         setPosts([newPost, ...posts]);
         setNewPostContent('');
+        setComposerMedia([]);
         setShowComposer(false);
       }
     } catch (err) {
@@ -135,6 +166,19 @@ export default function HomeFeed({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Hidden file input for image/video upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,video/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) handleUploadFile(f);
+          e.target.value = '';
+        }}
+      />
+
       <div className="max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8">
         {/* Feed Tabs */}
         <div className="flex items-center gap-1 mb-6 bg-card rounded-2xl border border-border p-1">
@@ -203,9 +247,43 @@ export default function HomeFeed({
                 </div>
               </div>
 
+              {/* Composer media preview */}
+              {composerMedia.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {composerMedia.map((m, i) => (
+                    <div key={i} className="relative group w-24 h-24 rounded-lg overflow-hidden border border-border">
+                      {m.type.startsWith('image/') ? (
+                        <Image src={m.url} alt={m.name || ''} width={96} height={96} className="w-full h-full object-cover" />
+                      ) : m.type.startsWith('video/') ? (
+                        <video src={m.url} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">{m.name}</div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setComposerMedia((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="absolute top-1 right-1 p-0.5 bg-black/60 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {isUploading && (
+                <div className="flex items-center gap-2 text-sm text-primary">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Uploading...
+                </div>
+              )}
+
               <div className="flex items-center justify-between pt-3 border-t border-border">
                 <div className="flex items-center gap-2">
-                  <button className="p-2 rounded-lg hover:bg-muted transition-colors" title="Add image">
+                  <button
+                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                    title="Add image or video"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
                     <ImageIcon className="w-5 h-5 text-primary" />
                   </button>
                   <button
@@ -227,7 +305,7 @@ export default function HomeFeed({
                   </button>
                   <button
                     onClick={handleCreatePost}
-                    disabled={!newPostContent.trim() || isPosting}
+                    disabled={(!newPostContent.trim() && composerMedia.length === 0) || isPosting || isUploading}
                     className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-[40px]"
                   >
                     {isPosting ? (
@@ -318,6 +396,19 @@ export default function HomeFeed({
                       height={400}
                       className="w-full h-auto object-cover"
                     />
+                  </div>
+                )}
+                {post.media_json && Array.isArray(post.media_json) && post.media_json.length > 0 && (
+                  <div className={`grid gap-2 mb-4 ${post.media_json.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                    {post.media_json.map((m: MediaItem, idx: number) => (
+                      <div key={idx} className="rounded-xl overflow-hidden border border-border">
+                        {m.type?.startsWith('video/') ? (
+                          <video src={m.url} controls className="w-full h-auto max-h-96 object-cover" />
+                        ) : (
+                          <Image src={m.url} alt={m.name || 'media'} width={600} height={400} className="w-full h-auto object-cover" />
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
 

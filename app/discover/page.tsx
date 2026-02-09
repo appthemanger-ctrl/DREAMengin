@@ -2,7 +2,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Sparkles, Users, Zap, Shield, ArrowRight, Music, Beaker } from 'lucide-react';
+import { Sparkles, Users, Zap, Shield, ArrowRight, Music, Beaker } from 'lucide-react';
+import SearchBar from '@/components/SearchBar';
 
 export const dynamic = 'force-dynamic';
 
@@ -98,14 +99,7 @@ export default async function DiscoverPage() {
 
         {/* Search Bar */}
         <div className="mb-8">
-          <div className="relative max-w-2xl">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search users and posts..."
-              className="w-full pl-12 pr-4 py-3.5 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all min-h-[44px]"
-            />
-          </div>
+          <SearchBar />
         </div>
 
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8">

@@ -56,7 +56,8 @@ export default function UploadMusicPage() {
 
       router.push('/music');
     } catch (err: unknown) {
-      setError(err.message || 'Failed to upload music');
+      const message = err instanceof Error ? err.message : 'Failed to upload music';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
