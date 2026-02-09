@@ -1,11 +1,12 @@
 // SPATIAL PLATFORM TYPES
 // Based on Widget-First Spatial Platform Canonical Spec
+// Extended with Dream Space concepts (§15 User Experience)
 
 // =============================================================================
 // SPACE TYPES
 // =============================================================================
 
-export type SpaceType = "home" | "profile";
+export type SpaceType = "home" | "profile" | "home_dream" | "work_dream";
 
 export interface Space {
   id: string;
@@ -13,6 +14,37 @@ export interface Space {
   type: SpaceType;
   created_at: string;
   updated_at: string;
+}
+
+// =============================================================================
+// DREAM SPACE (§15)
+// User always has: Home Anchor, 48 Widgets, Home Dreams, Work Dreams, Infinite Loops
+// =============================================================================
+
+/** Maximum widget slots per dream space anchor (§15) */
+export const MAX_WIDGETS_PER_ANCHOR = 48;
+
+export interface DreamSpace {
+  id: string;
+  user_id: string;
+  type: "home_dream" | "work_dream";
+  label: string;
+  /** Ordered widget IDs in this dream (max 48) */
+  widget_ids: string[];
+  /** Infinite loop: when user reaches end, loop back to start (§15) */
+  infinite_loop: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HomeAnchor {
+  user_id: string;
+  /** Primary home dream the user lands on */
+  home_dream_id: string;
+  /** All dream space IDs the user owns */
+  dream_ids: string[];
+  /** Active widget index within current dream */
+  active_index: number;
 }
 
 // =============================================================================
@@ -204,7 +236,7 @@ export interface FeedItem {
 }
 
 // =============================================================================
-// NAVIGATION STATE
+// NAVIGATION STATE (Extended for Dream Spaces, §15)
 // =============================================================================
 
 export interface NavigationState {
@@ -216,6 +248,10 @@ export interface NavigationState {
   totalWidgets: number;
   // Direction of last navigation
   lastDirection?: "left" | "right";
+  // Infinite loop enabled (§15): when reaching end, loop back seamlessly
+  infiniteLoop?: boolean;
+  // Active dream space id
+  dreamSpaceId?: string;
 }
 
 // =============================================================================

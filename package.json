@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "echo ESLint not supported anymore",
     "test": "playwright test",
+    "test:unit": "vitest run",
     "db:generate": "npx supabase gen types typescript --local > types/supabase.ts",
     "db:reset": "npx supabase db reset",
     "db:start": "npx supabase start",
@@ -51,7 +52,8 @@
     "eslint-config-next": "16.1.6",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vitest": "^4.0.18"
   },
   "engines": {
     "node": "24.x"
