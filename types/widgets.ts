@@ -64,6 +64,7 @@ export interface WidgetInstance {
   order?: number;
   visibility?: "private" | "public" | "followers";
   layers?: WidgetLayer[];
+  sub_widgets?: SubWidgetRef[];
 
   created_at?: string;
   updated_at?: string;
@@ -72,13 +73,24 @@ export interface WidgetInstance {
   [key: string]: unknown;
 }
 
+// Layer kinds per Section 11: Widget Architecture
+export type WidgetLayerKind = "ui" | "data" | "ai" | "commerce";
+
 export interface WidgetLayer {
   id: string;
   order: number;
+  kind: WidgetLayerKind;
   type: WidgetType;
   config?: Record<string, unknown>;
   visibility?: "visible" | "hidden";
   opacity?: number;
+}
+
+// Sub-widget reference (widgets can spawn sub-widgets)
+export interface SubWidgetRef {
+  id: string;
+  parent_id: string;
+  order: number;
 }
 
 // -------- helpers --------
