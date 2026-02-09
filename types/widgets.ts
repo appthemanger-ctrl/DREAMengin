@@ -79,7 +79,7 @@ export type WidgetLayerKind = "ui" | "data" | "ai" | "commerce";
 export interface WidgetLayer {
   id: string;
   order: number;
-  kind: WidgetLayerKind;
+  kind?: WidgetLayerKind;
   type: WidgetType;
   config?: Record<string, unknown>;
   visibility?: "visible" | "hidden";

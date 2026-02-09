@@ -8,6 +8,7 @@
 //   - Work Dreams
 //   - Infinite Loops
 
+// Hard limit: each user space supports up to 48 widget slots.
 export const MAX_WIDGETS = 48;
 
 export type DreamKind = "home" | "work";
