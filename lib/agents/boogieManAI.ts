@@ -36,7 +36,8 @@ export function createBoogieManAgent(widgetId?: string): BoogieManAgent {
 }
 
 export function checkPolicy(check: PolicyCheck): PolicyResult {
-  // Default: allow. Concrete rules are configured per-deployment.
+  // Default-allow: concrete enforcement rules are registered per-deployment.
+  // Callers should layer additional checks on top of this baseline.
   return { verdict: "allow" };
 }
 
