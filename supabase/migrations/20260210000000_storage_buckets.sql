@@ -1,5 +1,5 @@
 -- Create storage buckets for media uploads
--- Run this after Supabase is initialized
+-- This migration runs automatically during `supabase db reset` or `supabase migration up`
 
 -- Media bucket for post images, videos, audio
 INSERT INTO storage.buckets (id, name, public, file_size_limit)

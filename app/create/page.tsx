@@ -71,7 +71,7 @@ export default function CreatePostPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: content || '(media)',
+          content: content,
           visibility,
           media_urls: mediaUrls,
         }),

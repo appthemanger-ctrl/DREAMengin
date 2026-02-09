@@ -42,20 +42,21 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { content, visibility = 'public', media_urls = [] } = body;
-
-  if (!content || content.trim().length === 0) {
-    return NextResponse.json({ error: 'Content is required' }, { status: 400 });
-  }
+  const { content = '', visibility = 'public', media_urls = [] } = body;
 
   // DB column is media_json (JSONB), not media_urls
   const media_json = media_urls.length > 0 ? media_urls : null;
+  const trimmedContent = content.trim();
+
+  if (!trimmedContent && !media_json) {
+    return NextResponse.json({ error: 'Content or media is required' }, { status: 400 });
+  }
 
   const { data: post, error } = await supabase
     .from('app_posts')
     .insert({
       user_id: user.id,
-      content: content.trim(),
+      content: trimmedContent,
       visibility,
       media_json,
     })
@@ -69,13 +70,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Also create a feed item for the user
+  // Create a feed_items entry (schema: source TEXT, ts TIMESTAMPTZ, title, summary)
   await supabase.from('feed_items').insert({
     user_id: user.id,
     source: 'app_post',
     ts: new Date().toISOString(),
-    title: content.trim().substring(0, 100),
-    summary: content.trim(),
+    title: trimmedContent.substring(0, 100) || 'Media post',
+    summary: trimmedContent || undefined,
   });
 
   return NextResponse.json({ post }, { status: 201 });

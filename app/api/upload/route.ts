@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     const safeName = file.name
       .replace(/[^a-zA-Z0-9._-]/g, '_')
       .substring(0, 100);
-    const path = `${user.id}/${Date.now()}-${safeName}`;
+    const path = `${user.id}/${Date.now()}-${safeName}.${ext}`;
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);

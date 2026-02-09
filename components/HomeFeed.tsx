@@ -87,7 +87,7 @@ export default function HomeFeed({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: newPostContent || '(media)',
+          content: newPostContent,
           visibility: newPostVisibility,
           media_urls: composerMedia,
         }),
