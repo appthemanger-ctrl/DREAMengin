@@ -62,12 +62,22 @@ export interface WidgetInstance {
   space?: "home" | "profile";
   order?: number;
   visibility?: "private" | "public" | "followers";
+  layers?: WidgetLayer[];
 
   created_at?: string;
   updated_at?: string;
 
   // allow extra joined fields without breaking TS
   [key: string]: unknown;
+}
+
+export interface WidgetLayer {
+  id: string;
+  order: number;
+  type: WidgetType;
+  config?: Record<string, unknown>;
+  visibility?: "visible" | "hidden";
+  opacity?: number;
 }
 
 // -------- helpers --------
@@ -97,3 +107,18 @@ export function getWidgetConfig(widget: unknown): Record<string, unknown> {
 }
 
 // -------- type guards (fix the “never” error) --------
+export function isWidgetInstance(widget: unknown): widget is WidgetInstance {
+  return !!widget && typeof widget === "object" && "id" in (widget as Record<string, unknown>);
+}
+
+export function isFeedWidget(widget: unknown): widget is WidgetInstance {
+  return getWidgetType(widget) === "feed";
+}
+
+export function isTextWidget(widget: unknown): widget is WidgetInstance {
+  return getWidgetType(widget) === "text";
+}
+
+export function isMediaWidget(widget: unknown): widget is WidgetInstance {
+  return getWidgetType(widget) === "media";
+}
