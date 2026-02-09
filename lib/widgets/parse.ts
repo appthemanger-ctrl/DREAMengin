@@ -94,11 +94,14 @@ export function parseEmbedConfig(raw: unknown): EmbedWidgetConfig {
   const provider = asString(raw.provider) === 'custom' ? 'custom' : 'iframe';
   const aspectRatio = asString(raw.aspectRatio);
   const title = asString(raw.title);
+  const normalizedAspectRatio: EmbedWidgetConfig['aspectRatio'] =
+    aspectRatio === '4:3' || aspectRatio === '1:1' ? aspectRatio : '16:9';
+
   return {
     provider,
     url,
-    title,
-    aspectRatio: aspectRatio === '4:3' || aspectRatio === '1:1' ? (aspectRatio as any) : '16:9',
+    ...(title ? { title } : {}),
+    aspectRatio: normalizedAspectRatio,
     sandbox: asBool(raw.sandbox),
   };
 }
