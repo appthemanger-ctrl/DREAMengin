@@ -4,17 +4,13 @@ import { DEFAULT_CHECK_STATUS, isSupabaseConfigured } from '../config';
 
 export async function POST(request: NextRequest) {
   try {
-    // Demo-friendly response when Supabase isn't wired up
     if (!isSupabaseConfigured()) {
-      const result = {
-        success: true,
-        bugsFound: 0,
-        details: 'All systems operational. No issues detected. (demo mode - Supabase not configured)',
-        checks: DEFAULT_CHECK_STATUS,
-        timestamp: new Date().toISOString()
-      };
-
-      return NextResponse.json(result);
+      return NextResponse.json(
+        {
+          error: 'Supabase configuration required for InnerDreams admin operations. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.'
+        },
+        { status: 503 }
+      );
     }
 
     const supabase = await createServerClient();

@@ -34,23 +34,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Demo-friendly fallback when Supabase is not wired up yet
     const payload = toUpdatePayload(body);
-
     if (!isSupabaseConfigured()) {
-      const { prompt, autoRefresh, bugCheck } = payload;
-      const result = {
-        success: true,
-        message: 'InnerDreams update queued (demo mode - Supabase not configured)',
-        details: {
-          promptReceived: prompt,
-          bugCheckEnabled: bugCheck,
-          autoRefreshEnabled: autoRefresh,
-          estimatedCompletionTime: `${ESTIMATED_COMPLETION.minMinutes}-${ESTIMATED_COMPLETION.maxMinutes} minutes`,
-          status: 'queued'
-        }
-      };
-      return NextResponse.json(result);
+      return NextResponse.json(
+        {
+          error: 'Supabase configuration required for InnerDreams admin operations. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.'
+        },
+        { status: 503 }
+      );
     }
 
     const supabase = await createServerClient();
