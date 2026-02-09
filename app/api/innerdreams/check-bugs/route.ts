@@ -1,8 +1,22 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { DEFAULT_CHECK_STATUS, isSupabaseConfigured } from '../config';
 
 export async function POST(request: NextRequest) {
   try {
+    // Demo-friendly response when Supabase isn't wired up
+    if (!isSupabaseConfigured()) {
+      const result = {
+        success: true,
+        bugsFound: 0,
+        details: 'All systems operational. No issues detected. (demo mode - Supabase not configured)',
+        checks: DEFAULT_CHECK_STATUS,
+        timestamp: new Date().toISOString()
+      };
+
+      return NextResponse.json(result);
+    }
+
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -46,19 +60,21 @@ export async function POST(request: NextRequest) {
 
     // Simulate bug checking
     const bugsFound = 0;
-const result = {
+    const checks = { ...DEFAULT_CHECK_STATUS };
+    if (bugsFound > 0) {
+      checks.consoleErrors = 'Warning';
+    }
+    if (bugsFound > 1) {
+      checks.performance = 'Warning';
+    }
+
+    const result = {
       success: true,
       bugsFound: bugsFound,
-      details: bugsFound > 0 
+      details: bugsFound > 0
         ? `Found ${bugsFound} potential issue(s). Review the detailed report in the admin panel.`
         : 'All systems operational. No issues detected.',
-      checks: {
-        consoleErrors: bugsFound > 0 ? 'Warning' : 'Pass',
-        databaseQueries: 'Pass',
-        security: 'Pass',
-        performance: bugsFound > 1 ? 'Warning' : 'Pass',
-        accessibility: 'Pass'
-      },
+      checks,
       timestamp: new Date().toISOString()
     };
 
