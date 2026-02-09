@@ -28,9 +28,10 @@
   /* Gradients */
   --grad-nebula-flow: linear-gradient(135deg, #00E5FF 0%, #7B61FF 45%, #FF2BD6 100%);
   --grad-sunrise-heat: linear-gradient(180deg, #00E5FF 0%, #FF8A00 100%);
-  --grad-deep-nebula: radial-gradient(circle at 30% 20%, rgba(255,43,214,0.35) 0%, rgba(11,14,23,0) 55%),
-    radial-gradient(circle at 70% 70%, rgba(0,229,255,0.28) 0%, rgba(11,14,23,0) 60%),
-    linear-gradient(180deg, #050507 0%, #0B0E17 55%, #120A2A 100%);
+  --grad-deep-nebula: radial-gradient(circle at 50% 35%, rgba(5,5,7,0.95) 0%, rgba(5,5,7,0.65) 16%, rgba(255,23,68,0.48) 38%, rgba(41,121,255,0.6) 60%, rgba(123,97,255,0.4) 78%, rgba(18,10,42,0.95) 100%),
+    radial-gradient(circle at 18% 65%, rgba(0,229,255,0.35) 0%, rgba(11,14,23,0) 55%),
+    radial-gradient(circle at 85% 40%, rgba(255,61,129,0.35) 0%, rgba(11,14,23,0) 60%),
+    linear-gradient(180deg, #120A2A 0%, #1B1035 55%, #0B0E17 100%);
 
   /* Tailwind tokens (HSL) */
   --background: 240 17% 2%;
@@ -65,23 +66,9 @@ html, body {
   padding: 0;
 }
 
-/* Animated background gradient (DREAM shift) */
-@keyframes dreamShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
+/* Dream background gradient */
 .dream-bg {
   background: var(--grad-deep-nebula);
-}
-
-/* Respect reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .dream-bg {
-    animation: none;
-    background-position: 50% 50%;
-  }
 }
 
 /* Landing Page Animations */
@@ -160,17 +147,7 @@ html, body {
   background: var(--grad-deep-nebula);
 }
 
-.bg-nebula-flow {
-  background-image: var(--grad-nebula-flow);
-}
 
-.bg-sunrise-heat {
-  background-image: var(--grad-sunrise-heat);
-}
-
-.bg-deep-nebula {
-  background-image: var(--grad-deep-nebula);
-}
 
 /* Scrollbar hide utility */
 .scrollbar-hide::-webkit-scrollbar { display: none; }

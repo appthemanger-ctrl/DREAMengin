@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "vercel-build": "NODE_OPTIONS=--max-old-space-size=4096 next build --webpack",
     "start": "next start",
-    "lint": "echo ESLint disabled",
+    "lint": "echo ESLint not supported anymore",
     "test": "playwright test",
     "db:generate": "npx supabase gen types typescript --local > types/supabase.ts",
     "db:reset": "npx supabase db reset",

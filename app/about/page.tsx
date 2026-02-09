@@ -9,6 +9,7 @@ import {
   Beaker, 
   MessageCircle,
   ShoppingBag,
+  LayoutGrid,
   Settings,
   Lock,
   Cpu,
@@ -92,7 +93,7 @@ export default function AboutPage() {
   const spaces = [
     { name: 'Home (Anchor)', path: '/home', icon: Sparkles, description: 'The gravitational center with Home Dreams and instant recall.' },
     { name: 'Profile', path: '/profile/jose', icon: Heart, description: 'Living dashboards that morph from Home with public permissions.' },
-    { name: 'Feed', path: '/home', icon: MessageCircle, description: 'A dynamic surface for personal, social, widget, and AI-generated content.' },
+    { name: 'Feed', path: '/home', icon: LayoutGrid, description: 'A dynamic surface for personal, social, widget, and AI-generated content.' },
     { name: 'Messages', path: '/messages', icon: MessageCircle, description: 'Direct conversations and system signals layered into the plane.' },
     { name: 'Marketplace', path: '/shop', icon: ShoppingBag, description: 'Sell widgets, beats, workflows, and creator goods natively.' },
     { name: 'Lab', path: '/lab', icon: Beaker, description: 'CCC experiments, simulations, and research tools.' },
@@ -183,7 +184,7 @@ export default function AboutPage() {
 
         {/* Unified Interface Vision */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">Unified Interface &amp; Navigation Vision</h2>
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">Unified Interface & Navigation Vision</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {navigationPrinciples.map((principle) => (
               <div
@@ -199,7 +200,7 @@ export default function AboutPage() {
 
         {/* Widget System */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">Widget Rails &amp; Layers</h2>
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">Widget Rails & Layers</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {widgetSystem.map((item) => (
               <div
@@ -238,7 +239,7 @@ export default function AboutPage() {
           <div className="space-y-3">
             {spaces.map((page) => (
               <div 
-                key={page.path}
+                key={page.name}
                 className="glass-dark rounded-xl p-4 border border-white/10 flex items-start gap-4"
               >
                 <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
