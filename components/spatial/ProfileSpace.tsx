@@ -8,6 +8,7 @@ import {
   Trash2,
   Plus,
   ExternalLink,
+  Square,
   User,
   X,
   Link as LinkIcon,
@@ -375,6 +376,7 @@ function WidgetRenderer({
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
+        {widget.type === "blank" && <BlankWidget />}
         {widget.type === "gallery" && <GalleryWidget content={content} config={widget.config} />}
         {widget.type === "media" && <MediaWidget content={content[0]} />}
         {widget.type === "text" && <TextWidget config={widget.config} />}
@@ -431,6 +433,18 @@ function GalleryWidget({ content, config }: { content: ContentObject[]; config: 
           )}
         </div>
       ))}
+    </div>
+  );
+}
+
+function BlankWidget() {
+  return (
+    <div className="p-8 text-center text-muted-foreground">
+      <div className="w-16 h-16 rounded-full bg-muted/60 mx-auto mb-3 flex items-center justify-center">
+        <Square className="w-6 h-6 text-muted-foreground" />
+      </div>
+      <p className="text-sm">Blank layout ready for your ideas.</p>
+      <p className="text-xs text-muted-foreground/80 mt-2">External connections are disabled in this space.</p>
     </div>
   );
 }
@@ -617,6 +631,8 @@ function AlbumWidget({ content }: { content: ContentObject[] }) {
 
 function WidgetTypeIcon({ type, className }: { type: WidgetType; className?: string }) {
   switch (type) {
+    case "blank":
+      return <Square className={className} />;
     case "gallery":
       return <ImageIcon className={className} />;
     case "media":
@@ -701,6 +717,13 @@ function WidgetSettingsModal({
               ))}
             </div>
           </div>
+
+          <div className="rounded-lg border border-border bg-muted/40 p-3">
+            <p className="text-sm font-medium mb-1">Connections</p>
+            <p className="text-xs text-muted-foreground">
+              External connections are disabled. Add content from HOME to power this widget.
+            </p>
+          </div>
         </div>
 
         <div className="p-4 border-t border-border flex gap-2">
@@ -737,11 +760,11 @@ function AddWidgetModal({
     description: string;
     icon: typeof ImageIcon;
   }> = [
+    { type: "blank", label: "Blank", description: "Empty layout to build on", icon: Square },
     { type: "gallery", label: "Gallery", description: "Display a grid of media", icon: ImageIcon },
     { type: "album", label: "Album", description: "Carousel of content", icon: ImageIcon },
     { type: "text", label: "Text", description: "Bio or notes", icon: FileText },
     { type: "link_tree", label: "Links", description: "Collection of links", icon: LinkIcon },
-    { type: "embed", label: "Embed", description: "YouTube, Spotify, etc.", icon: ExternalLink },
     { type: "feed", label: "Feed", description: "Recent activity", icon: Rss },
   ];
 

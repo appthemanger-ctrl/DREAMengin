@@ -10,7 +10,7 @@ import { Sparkles, ArrowRight, Zap, Shield, Users, Music, Beaker, MessageCircle,
 function Particle({ delay, size, left }: { delay: number; size: number; left: number }) {
   return (
     <div
-      className="absolute rounded-full bg-gradient-to-t from-purple-500/40 to-blue-500/40 animate-particle-float pointer-events-none"
+      className="absolute rounded-full bg-gradient-to-t from-cyan-400/40 to-fuchsia-500/40 animate-particle-float pointer-events-none"
       style={{
         width: size,
         height: size,
@@ -107,16 +107,16 @@ export default function LandingHero() {
       </div>
 
       {/* Gradient orbs */}
-      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl animate-float-gentle pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl animate-float-gentle delay-1000 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl animate-float-gentle delay-2000 pointer-events-none" />
+      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl animate-float-gentle pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl animate-float-gentle delay-1000 pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl animate-float-gentle delay-2000 pointer-events-none" />
 
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
         <header className="p-4 sm:p-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center cosmic-glow">
+            <div className="w-10 h-10 rounded-xl bg-nebula-flow flex items-center justify-center cosmic-glow">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-white">DREAMengin</span>
@@ -146,7 +146,7 @@ export default function LandingHero() {
           <div className="relative w-full max-w-sm h-48 sm:h-64 mb-8">
             {/* Portal/Glow behind mascot */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-40 h-40 sm:w-56 sm:h-56 rounded-full bg-gradient-to-r from-purple-600/30 via-blue-500/30 to-pink-500/30 blur-2xl animate-portal-spin" />
+              <div className="w-40 h-40 sm:w-56 sm:h-56 rounded-full bg-nebula-flow opacity-30 blur-2xl animate-portal-spin" />
             </div>
 
             {/* Dr. Eams */}
@@ -178,7 +178,7 @@ export default function LandingHero() {
 
           {/* Title */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-nebula-flow bg-clip-text text-transparent">
               Dream
             </span>
             <span className="text-white">Engin</span>
@@ -186,7 +186,7 @@ export default function LandingHero() {
 
           {/* Subtitle */}
           <p className="text-lg sm:text-xl text-white/70 max-w-md mx-auto mb-8 leading-relaxed">
-            Your privacy-first creator OS with AI-powered tools, social connections, and infinite possibilities.
+            A living interface system that turns your digital life into a navigable universe of connected spaces.
           </p>
 
           {/* CTA Buttons */}
@@ -197,7 +197,7 @@ export default function LandingHero() {
             <button
               type="button"
               onClick={() => router.push('/join')}
-              className="relative z-40 pointer-events-auto group flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-2xl hover:from-purple-500 hover:to-blue-500 transition-all cosmic-glow active:scale-95 min-h-[56px]"
+              className="relative z-40 pointer-events-auto group flex items-center justify-center gap-2 px-8 py-4 bg-sunrise-heat text-white font-semibold rounded-2xl hover:opacity-95 transition-all cosmic-glow active:scale-95 min-h-[56px]"
             >
               Get Started
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

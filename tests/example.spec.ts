@@ -40,3 +40,10 @@ test('lab page loads', async ({ page }) => {
   // Should redirect to login if not authenticated
   await expect(page).toHaveURL(/.*\/login/);
 });
+
+test('about vision content', async ({ page }) => {
+  await page.goto('/about');
+
+  await expect(page.locator('text=Unified Interface & Navigation Vision')).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Home Anchor/ })).toBeVisible();
+});

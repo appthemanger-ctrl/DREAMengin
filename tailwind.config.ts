@@ -106,6 +106,9 @@ const config: Config = {
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
         "universe-grid": `linear-gradient(to right, hsl(var(--border) / 0.1) 1px, transparent 1px),
                           linear-gradient(to bottom, hsl(var(--border) / 0.1) 1px, transparent 1px)`,
+        "nebula-flow": "var(--grad-nebula-flow)",
+        "sunrise-heat": "var(--grad-sunrise-heat)",
+        "deep-nebula": "var(--grad-deep-nebula)",
       },
       boxShadow: {
         "glow-sm": "0 0 10px hsl(var(--glow-primary) / 0.2)",

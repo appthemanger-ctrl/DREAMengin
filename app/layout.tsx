@@ -9,7 +9,7 @@ import { createServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "DREAMengin - Your Creative Platform",
-  description: "A unified creator platform for social feed, content aggregation, monetization, and scientific collaboration",
+  description: "A living interface system that turns your digital life into a navigable universe of connected spaces.",
   icons: {
     icon: '/logo-icon.png',
     apple: '/logo.png',
@@ -24,7 +24,7 @@ export const viewport: Viewport = {
   userScalable: true,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+    { media: "(prefers-color-scheme: dark)", color: "#050507" },
   ],
 };
 
