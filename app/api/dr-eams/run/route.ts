@@ -1,33 +1,82 @@
+// app/api/dr-eams/run/route.ts
+// DREAMENGIN AI SYSTEM v2026.0 - Dr. Eams Agent Endpoint
+// User-facing AI agent - JSON-only intents, NO direct execution
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  DrEamsRunRequest,
+  DrEamsRunResponse,
+  Intent,
+} from '@/types/ai-system';
+import { buildActorContext } from '@/lib/ai/capability-gate';
+import { verifyIntents } from '@/lib/ai/boogie-verifier';
+import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rate-limiter';
+import { generateConfirmToken, storeConfirmToken } from '@/lib/ai/confirm-token';
+import { writeAuditLog } from '@/lib/ai/audit';
 
-type DeviceMode = 'desktop' | 'mobile' | 'desktop_on_mobile';
-
-type ToolContext = {
-  userId?: string;
-  mode?: DeviceMode;
-  route?: string;
-  projectId?: string;
-  notebookId?: string;
-  attachmentId?: string;
-  featureFlags?: Record<string, boolean>;
-};
-
-type ToolRequest = {
-  action: string;
-  input?: Record<string, unknown>;
-  context?: ToolContext;
-};
+// Import handlers to ensure registration
+import '@/lib/ai/handlers';
 
 function jsonError(status: number, code: string, message: string, details?: unknown) {
   return NextResponse.json({ ok: false, error: { code, message, details } }, { status });
 }
 
-// NOTE:
-// This is a minimal, build-safe tool runner so Dr. Eams can execute *core* app verbs.
-// You can expand the action set over time without changing the client contract.
+// ============================================================================
+// DR. EAMS PLANNER (Placeholder - In production, call OpenAI/Claude)
+// ============================================================================
+
+async function drEamsPlanner(
+  message: string,
+  actor: any,
+  ui: any
+): Promise<{ response_text: string; intents: Intent[] }> {
+  // This is a placeholder that generates simple test intents
+  // In production, this would call an LLM with a structured prompt
+  
+  const response_text = "I understand you want to: \\"" + message + "\\". Here's what I can help with.";
+  
+  // Example: Parse simple commands
+  const intents: Intent[] = [];
+  
+  if (message.toLowerCase().includes('open home menu')) {
+    intents.push({
+      intent_id: uuidv4(),
+      type: 'HOME_MENU_OPEN',
+      payload: {},
+      confidence: 0.9,
+      requires_confirmation: false,
+      rationale: 'Opening home menu as requested',
+      idempotency_key: 'home-menu-' + Date.now(),
+    });
+  }
+  
+  if (message.toLowerCase().includes('search')) {
+    const query = message.replace(/search\s+(for\s+)?/i, '').trim();
+    intents.push({
+      intent_id: uuidv4(),
+      type: 'SEARCH',
+      payload: { query, scope: 'all' },
+      confidence: 0.85,
+      requires_confirmation: false,
+      rationale: 'Searching for: ' + query,
+      idempotency_key: 'search-' + query + '-' + Date.now(),
+    });
+  }
+  
+  return { response_text, intents };
+}
+
+// ============================================================================
+// POST /api/dr-eams/run
+// ============================================================================
 
 export async function POST(req: NextRequest) {
+  const requestStart = Date.now();
+  const request_id = uuidv4();
+
+  // Parse request
   let body: unknown;
   try {
     body = await req.json();
@@ -35,22 +84,17 @@ export async function POST(req: NextRequest) {
     return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
-  const parsed = body as Partial<ToolRequest>;
-  const action = typeof parsed.action === 'string' ? parsed.action : '';
-  const input = (parsed.input ?? {}) as Record<string, unknown>;
+  const request = body as Partial<DrEamsRunRequest>;
 
-  if (!action) {
-    return jsonError(400, 'MISSING_ACTION', 'Request must include an action string.');
+  if (!request.message || typeof request.message !== 'string') {
+    return jsonError(400, 'MISSING_MESSAGE', 'Request must include a message string.');
   }
 
-  // “Setup check” is always available.
-  if (action === 'setup.check') {
-    const url = new URL(req.url);
-    const res = await fetch(`${url.origin}/api/setup/check`, { method: 'GET' });
-    const data = await res.json();
-    return NextResponse.json({ ok: true, action, data });
+  if (!request.ui) {
+    return jsonError(400, 'MISSING_UI', 'Request must include UI context.');
   }
 
+  // Authenticate
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -58,101 +102,116 @@ export async function POST(req: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (userErr || !user) {
-    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in to use this tool.');
+    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
   }
 
-  // --- Projects ---
-  if (action === 'project.list') {
-    const { data, error } = await supabase
-      .from('projects')
-      .select('id, owner_id, title, description, visibility, created_at')
-      .order('created_at', { ascending: false });
-
-    if (error) return jsonError(500, 'DB_ERROR', 'Failed to list projects.', error);
-    return NextResponse.json({ ok: true, action, data });
+  // Rate limit check
+  const rateLimitCheck = await checkRateLimit(user.id, '/api/dr-eams/run');
+  if (!rateLimitCheck.allowed) {
+    return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
+      resetAt: rateLimitCheck.resetAt,
+    });
   }
 
-  if (action === 'project.get') {
-    const projectId = String(input.projectId ?? '');
-    if (!projectId) return jsonError(400, 'MISSING_PROJECT_ID', 'projectId is required.');
+  // Build actor context
+  const actor = await buildActorContext(user.id);
 
-    const { data, error } = await supabase
-      .from('projects')
-      .select('id, owner_id, title, description, visibility, created_at')
-      .eq('id', projectId)
-      .single();
+  // Get current RPM for Boogie signals
+  const rpm = await getCurrentRPM(user.id, '/api/dr-eams/run');
 
-    if (error || !data) return jsonError(404, 'NOT_FOUND', 'Project not found.', error);
-    return NextResponse.json({ ok: true, action, data });
+  // Call planner (LLM)
+  const { response_text, intents } = await drEamsPlanner(
+    request.message,
+    actor,
+    request.ui
+  );
+
+  // If planner failed to produce valid intents, return safe response
+  if (!Array.isArray(intents) || intents.length === 0) {
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent: 'dr_eams',
+      ok: true,
+      latency_ms: Date.now() - requestStart,
+    });
+
+    return NextResponse.json({
+      response_text,
+      proposed_intents: [],
+      boogie_decisions: [],
+    });
   }
 
-  if (action === 'project.create') {
-    const title = String(input.title ?? '').trim();
-    const description = typeof input.description === 'string' ? input.description : null;
-    const visibility = (String(input.visibility ?? 'private') || 'private') as 'public' | 'unlisted' | 'private';
-    if (!title) return jsonError(400, 'MISSING_TITLE', 'title is required.');
+  // Verify intents with Boogie Man
+  const boogieOutput = await verifyIntents(
+    request_id,
+    intents,
+    actor,
+    'dr_eams',
+    request.message,
+    rpm
+  );
 
-    const { data, error } = await supabase
-      .from('projects')
-      .insert({ owner_id: user.id, title, description, visibility })
-      .select('id')
-      .single();
+  // Check for global hard block
+  if (boogieOutput.global.hard_block) {
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent: 'boogieman',
+      ok: false,
+      error_code: 'HARD_BLOCK',
+      latency_ms: Date.now() - requestStart,
+    });
 
-    if (error || !data) return jsonError(500, 'DB_ERROR', 'Failed to create project.', error);
-    return NextResponse.json({ ok: true, action, data });
+    return jsonError(403, 'BLOCKED', 'Request blocked by security policy.', {
+      cooldown_seconds: boogieOutput.global.cooldown_seconds,
+    });
   }
 
-  if (action === 'project.update') {
-    const projectId = String(input.projectId ?? '');
-    const patch = (input.patch ?? {}) as Record<string, unknown>;
-    if (!projectId) return jsonError(400, 'MISSING_PROJECT_ID', 'projectId is required.');
+  // Filter to ALLOW and CONFIRM intents
+  const allowedIntents = intents.filter((intent, idx) => {
+    const decision = boogieOutput.per_intent[idx];
+    return decision.decision === 'ALLOW' || decision.decision === 'CONFIRM';
+  });
 
-    // Enforce owner-only updates for now (until members/roles exist).
-    const { data: existing } = await supabase
-      .from('projects')
-      .select('owner_id')
-      .eq('id', projectId)
-      .single();
+  const allowedDecisions = boogieOutput.per_intent.filter(
+    (d) => d.decision === 'ALLOW' || d.decision === 'CONFIRM'
+  );
 
-    if (!existing) return jsonError(404, 'NOT_FOUND', 'Project not found.');
-    if (existing.owner_id !== user.id) return jsonError(403, 'FORBIDDEN', 'Only the owner can update this project.');
+  // Generate confirm token if any intents need confirmation
+  let confirm_token: string | undefined;
+  const needsConfirmation = allowedDecisions.some((d) => d.decision === 'CONFIRM');
 
-    const update: Record<string, unknown> = {};
-    if (typeof patch.title === 'string') update.title = patch.title;
-    if (typeof patch.description === 'string' || patch.description === null) update.description = patch.description;
-    if (typeof patch.visibility === 'string') update.visibility = patch.visibility;
+  if (needsConfirmation) {
+    const intentIds = allowedIntents.map((i) => i.intent_id);
+    confirm_token = generateConfirmToken(request_id, user.id, 300); // 5 min expiry
 
-    const { data, error } = await supabase
-      .from('projects')
-      .update(update)
-      .eq('id', projectId)
-      .select('id, owner_id, title, description, visibility, created_at')
-      .single();
-
-    if (error || !data) return jsonError(500, 'DB_ERROR', 'Failed to update project.', error);
-    return NextResponse.json({ ok: true, action, data });
+    await storeConfirmToken(
+      confirm_token,
+      request_id,
+      user.id,
+      intentIds,
+      request.ui,
+      300
+    );
   }
 
-  if (action === 'project.delete') {
-    const projectId = String(input.projectId ?? '');
-    const confirm = String(input.confirmPhrase ?? '');
-    if (!projectId) return jsonError(400, 'MISSING_PROJECT_ID', 'projectId is required.');
-    if (confirm !== 'DELETE PROJECT') {
-      return jsonError(400, 'CONFIRM_REQUIRED', 'Type DELETE PROJECT to delete.', { confirmPhrase: 'DELETE PROJECT' });
-    }
+  // Audit the request
+  await writeAuditLog({
+    request_id,
+    user_id: user.id,
+    agent: 'dr_eams',
+    ok: true,
+    latency_ms: Date.now() - requestStart,
+  });
 
-    const { data: existing } = await supabase
-      .from('projects')
-      .select('owner_id')
-      .eq('id', projectId)
-      .single();
-    if (!existing) return jsonError(404, 'NOT_FOUND', 'Project not found.');
-    if (existing.owner_id !== user.id) return jsonError(403, 'FORBIDDEN', 'Only the owner can delete this project.');
+  const response: DrEamsRunResponse = {
+    response_text,
+    proposed_intents: allowedIntents,
+    boogie_decisions: allowedDecisions,
+    confirm_token,
+  };
 
-    const { error } = await supabase.from('projects').delete().eq('id', projectId);
-    if (error) return jsonError(500, 'DB_ERROR', 'Failed to delete project.', error);
-    return NextResponse.json({ ok: true, action, data: { deleted: true } });
-  }
-
-  return jsonError(404, 'UNKNOWN_ACTION', `Unknown action: ${action}`);
+  return NextResponse.json(response);
 }
