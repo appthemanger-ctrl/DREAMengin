@@ -6,7 +6,7 @@ import type { User } from '@supabase/supabase-js';
 import {
   Home, Search, PlusCircle, Music, FlaskConical, Store,
   MessageSquare, Settings, LogOut, Bot, X, Send, Sparkles,
-  Brain, Lightbulb, Zap
+  Brain, Lightbulb, Zap, LogIn
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useTick } from '@/hooks/useTick';
@@ -63,7 +63,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     {
       id: '1',
       role: 'assistant',
-      content: "Hello! I'm Dr. Eams, your creative companion in DREAMengin. Think of me as your guide through this platform—I'm here to help you discover features, understand complex concepts, and even run safe operations on your behalf. What brings you here today?",
+      content: "Hello! I'm Dr. Eam, your creative companion in DREAMengin. Think of me as your guide through this platform—I'm here to help you discover features, understand complex concepts, and even run safe operations on your behalf. What brings you here today?",
       timestamp: new Date(),
       emotion: 'helpful',
     },
@@ -140,7 +140,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
         { id: 'discover', label: 'Discover', icon: Search, path: '/discover', action: () => router.push('/discover') },
         { id: 'shop', label: 'Shop', icon: Store, path: '/shop', action: () => router.push('/shop') },
         { id: 'dreams', label: 'Dr. Eam', icon: Bot, action: () => { setIsMenuOpen(false); setIsChatOpen(true); } },
-        { id: 'login', label: 'Login', icon: LogOut, path: '/login', action: () => router.push('/login') },
+        { id: 'login', label: 'Login', icon: LogIn, path: '/login', action: () => router.push('/login') },
       ];
     }
   };
@@ -755,7 +755,7 @@ What's on your mind?`;
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
               </div>
               <div>
-                <span className="font-bold text-lg">Dr. Eams</span>
+                <span className="font-bold text-lg">Dr. Eam</span>
                 <p className="text-xs opacity-90">Your Creative AI Companion</p>
               </div>
             </div>
