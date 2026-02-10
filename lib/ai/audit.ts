@@ -8,7 +8,7 @@ import {
   BoogieDecision,
   ReasonCode,
 } from '@/types/ai-system';
-import crypto from 'crypto';
+import { createHash } from 'crypto';
 
 // ============================================================================
 // AUDIT ENTRY
@@ -36,7 +36,7 @@ export async function writeAuditLog(params: AuditParams): Promise<void> {
   let payloadHash: string | undefined;
   if (params.payload) {
     const payloadStr = JSON.stringify(params.payload);
-    payloadHash = crypto.createHash('sha256').update(payloadStr).digest('hex');
+    payloadHash = createHash('sha256').update(payloadStr).digest('hex');
   }
 
   const { error } = await supabase.from('ai_audit_log').insert({
@@ -71,7 +71,7 @@ export async function writeAuditBatch(entries: AuditParams[]): Promise<void> {
     let payloadHash: string | undefined;
     if (params.payload) {
       const payloadStr = JSON.stringify(params.payload);
-      payloadHash = crypto.createHash('sha256').update(payloadStr).digest('hex');
+      payloadHash = createHash('sha256').update(payloadStr).digest('hex');
     }
 
     return {

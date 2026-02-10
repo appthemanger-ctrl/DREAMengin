@@ -2,7 +2,7 @@
 // Two-Phase Commit - Confirm Token Service
 
 import { createServerClient } from '@/lib/supabase/server';
-import crypto from 'crypto';
+import { createHmac } from 'crypto';
 import { UIContext } from '@/types/ai-system';
 
 // ============================================================================
@@ -19,7 +19,7 @@ export function generateConfirmToken(
   const expiryTs = Date.now() + expirySeconds * 1000;
   const payload = `${requestId}|${userId}|${expiryTs}`;
 
-  const hmac = crypto.createHmac('sha256', SERVER_SECRET);
+  const hmac = createHmac('sha256', SERVER_SECRET);
   hmac.update(payload);
   const signature = hmac.digest('hex');
 
@@ -55,7 +55,7 @@ export function verifyConfirmToken(
 
     // Verify signature
     const payload = `${tokenRequestId}|${tokenUserId}|${expiryTsStr}`;
-    const hmac = crypto.createHmac('sha256', SERVER_SECRET);
+    const hmac = createHmac('sha256', SERVER_SECRET);
     hmac.update(payload);
     const expectedSignature = hmac.digest('hex');
 

@@ -2,7 +2,7 @@
 // Idempotency Service - Write-Once Semantics
 
 import { createServerClient } from '@/lib/supabase/server';
-import crypto from 'crypto';
+import { createHash, createHmac } from 'crypto';
 
 // ============================================================================
 // IDEMPOTENCY KEY GENERATION
@@ -23,7 +23,7 @@ export function generateIdempotencyKey(
 
   // Hash components
   const components = `${userId}|${intentType}|${stablePayload}|${timeBucket}`;
-  const hash = crypto.createHash('sha256').update(components).digest('hex');
+  const hash = createHash('sha256').update(components).digest('hex');
 
   return hash;
 }
