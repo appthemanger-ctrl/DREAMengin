@@ -272,6 +272,7 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
                 ref={avatarInputRef}
                 type="file"
                 accept="image/*"
+                capture="user"
                 onChange={handleAvatarUpload}
                 className="hidden"
               />

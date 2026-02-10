@@ -679,23 +679,114 @@ function UploadModal({
   const [description, setDescription] = useState("");
   const [textContent, setTextContent] = useState("");
   const [externalUrl, setExternalUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type based on content type
+    const validTypes: Record<string, string[]> = {
+      image: ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/heic", "image/heif"],
+      video: ["video/mp4", "video/quicktime", "video/mov", "video/mpeg", "video/webm"],
+      audio: ["audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg", "audio/aac", "audio/m4a"],
+    };
+
+    if (contentType in validTypes && !validTypes[contentType].includes(file.type)) {
+      alert(`Please select a valid ${contentType} file`);
+      return;
+    }
+
+    // Validate file size (50MB max)
+    const maxSize = 50 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert(`File must be smaller than 50MB`);
+      return;
+    }
+
+    setSelectedFile(file);
+    setTitle(title || file.name.split('.')[0]);
+  };
+
+  const uploadFileToStorage = async (file: File): Promise<string> => {
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
+    
+    setUploadProgress("Uploading file...");
+    
+    // Determine storage bucket based on content type
+    const bucketMap: Record<string, string> = {
+      image: "images",
+      video: "videos", 
+      audio: "audio",
+    };
+    
+    const bucket = bucketMap[contentType] || "files";
+    const ext = file.name.split(".").pop();
+    const filename = `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(filename, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      throw new Error(`Failed to upload file: ${uploadError.message}`);
+    }
+
+    setUploadProgress("Getting file URL...");
+
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(filename);
+
+    return publicUrl;
+  };
 
   const handleSubmit = async () => {
     setIsUploading(true);
+    setUploadProgress("");
+    
     try {
+      let fileUrl = uploadedFileUrl;
+      
+      // Upload file if one is selected
+      if (selectedFile && !uploadedFileUrl) {
+        fileUrl = await uploadFileToStorage(selectedFile);
+        setUploadedFileUrl(fileUrl);
+      }
+
+      setUploadProgress("Saving content...");
+
       await onUpload({
         user_id: userId,
         type: contentType,
         title: title || undefined,
         description: description || undefined,
         text_content: contentType === "text" ? textContent : undefined,
-        external_url: contentType === "link" || contentType === "embed" ? externalUrl : undefined,
-        metadata: {},
+        external_url: contentType === "link" || contentType === "embed" ? externalUrl : fileUrl || undefined,
+        metadata: {
+          file_name: selectedFile?.name,
+          file_size: selectedFile?.size,
+          file_type: selectedFile?.type,
+        },
       });
+      
+      setUploadProgress("Done!");
       onClose();
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert(error instanceof Error ? error.message : "Failed to upload content");
     } finally {
       setIsUploading(false);
+      setUploadProgress("");
     }
   };
 
@@ -779,9 +870,54 @@ function UploadModal({
           {(contentType === "image" || contentType === "video" || contentType === "audio" || contentType === "file") && (
             <div>
               <label className="text-sm font-medium mb-2 block">File</label>
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Drag and drop or click to upload</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={
+                  contentType === "image" ? "image/*" :
+                  contentType === "video" ? "video/*" :
+                  contentType === "audio" ? "audio/*" :
+                  "*/*"
+                }
+                capture={contentType === "image" ? "environment" : undefined}
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+              >
+                {selectedFile ? (
+                  <div className="space-y-2">
+                    <Check className="w-8 h-8 text-green-500 mx-auto" />
+                    <p className="text-sm font-medium text-foreground">{selectedFile.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedFile(null);
+                        setUploadedFileUrl(null);
+                      }}
+                      className="text-xs text-destructive hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {contentType === "image" && "Tap to select photo or take picture"}
+                      {contentType === "video" && "Tap to select or record video"}
+                      {contentType === "audio" && "Tap to select or record audio"}
+                      {contentType === "file" && "Tap to select file"}
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">Max 50MB</p>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -802,15 +938,27 @@ function UploadModal({
           <button
             onClick={onClose}
             className="flex-1 px-4 py-2 text-sm font-medium bg-muted hover:bg-muted/80 rounded-lg transition-colors"
+            disabled={isUploading}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isUploading}
-            className="flex-1 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+            disabled={isUploading || (
+              contentType === "text" && !textContent.trim()) || 
+              ((contentType === "link" || contentType === "embed") && !externalUrl.trim()) ||
+              ((contentType === "image" || contentType === "video" || contentType === "audio") && !selectedFile)
+            }
+            className="flex-1 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isUploading ? "Adding..." : "Add to HOME"}
+            {isUploading ? (
+              <span className="flex items-center gap-2 justify-center">
+                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                {uploadProgress || "Uploading..."}
+              </span>
+            ) : (
+              "Add to HOME"
+            )}
           </button>
         </div>
       </div>
