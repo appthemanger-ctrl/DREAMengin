@@ -92,6 +92,17 @@ export default function LandingHero() {
 
   return (
     <div className="relative min-h-screen bg-universe overflow-hidden">
+      {/* Video background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="fixed inset-0 h-full w-full object-cover -z-10 opacity-45"
+      >
+        <source src="/videos/signup-bg.mp4" type="video/mp4" />
+      </video>
+
       {/* Stars background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {stars.map((star) => (
@@ -163,7 +174,7 @@ export default function LandingHero() {
                   alt="Dr. Eams - Your AI Guide"
                   width={180}
                   height={180}
-                  className="w-36 h-36 sm:w-44 sm:h-44 object-contain animate-glow-pulse"
+                  className="w-36 h-36 sm:w-44 sm:h-44 object-contain animate-glow-pulse transition-transform hover:scale-110"
                   priority
                 />
                 {/* Speech bubble on wave */}
