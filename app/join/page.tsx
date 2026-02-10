@@ -114,7 +114,7 @@ export default function JoinPage() {
           </div>
         </div>
 
-        <div className="w-full rounded-3xl border border-white/10 bg-black/35 p-6 shadow-2xl backdrop-blur">
+        <div className="w-full rounded-3xl border border-white/10 bg-black/10 p-6 shadow-2xl backdrop-blur">
           <p className="mb-6 text-sm text-white/70">
             Register with email/password, or use an OAuth provider.
           </p>
