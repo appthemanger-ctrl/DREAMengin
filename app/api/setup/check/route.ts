@@ -18,13 +18,16 @@ export async function GET() {
 
   const checks: Check[] = [
     envCheck('NEXT_PUBLIC_SUPABASE_URL', 'Set this in Vercel → Project → Settings → Environment Variables.'),
-    envCheck('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'Set this in Vercel → Project → Settings → Environment Variables.'),
+    envCheck('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'Preferred key name. Set this in Vercel → Project → Settings → Environment Variables.'),
+    envCheck('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'Legacy key name. Use NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY instead.'),
     envCheck('SUPABASE_SERVICE_ROLE_KEY', 'Optional unless you use server-side admin actions.'),
   ];
 
   // Overall status: true only if all required checks pass.
   // Note: we intentionally do NOT disclose secret values.
-  const ok = checks.every((c) => c.ok);
+  // At least one of PUBLISHABLE_KEY or ANON_KEY must be set
+  const hasKey = !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const ok = !!process.env.NEXT_PUBLIC_SUPABASE_URL && hasKey;
 
 
   return NextResponse.json({ ok, checks, timestamp: new Date().toISOString() });

@@ -22,7 +22,7 @@ type DisabledSupabaseClient = {
  * - When unconfigured, returns a "disabled" client that throws only when used.
  */
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
 function isSupabaseConfigured() {
@@ -56,7 +56,7 @@ function createDisabledClient(reason: string): SupabaseClient<Database> {
 export async function createServerClient(): Promise<SupabaseClient<Database>> {
   if (!isSupabaseConfigured()) {
     return createDisabledClient(
-      'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
+      'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or legacy NEXT_PUBLIC_SUPABASE_ANON_KEY).'
     )
   }
 
