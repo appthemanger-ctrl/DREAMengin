@@ -3,6 +3,7 @@
 // Anchor emits attractor field that biases navigation toward home
 
 import type { Vector3 } from './manifold';
+import { SINGULARITY_THRESHOLD } from './manifold';
 
 /**
  * Section 8.1: Potential Function
@@ -45,7 +46,7 @@ export function computePotential(
   const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
   
   // Avoid division by zero
-  if (distance < 1e-6) {
+  if (distance < SINGULARITY_THRESHOLD) {
     return 0;
   }
   
@@ -73,7 +74,7 @@ export function computeForceField(
   const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
   
   // No force at home position
-  if (distance < 1e-6) {
+  if (distance < SINGULARITY_THRESHOLD) {
     return { x: 0, y: 0, z: 0 };
   }
   

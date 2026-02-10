@@ -2,6 +2,8 @@
 // Section 3: Quaternion Rotation Engine
 // All rotations use quaternions, NO Euler angles
 
+import { VECTOR_ZERO_THRESHOLD } from './manifold';
+
 /**
  * Quaternion: q = (w, xi, yj, zk)
  * where ||q|| = 1 (unit quaternion)
@@ -106,7 +108,7 @@ export function normalize(q: Quaternion): Quaternion {
   const length = Math.sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
   
   // Handle edge case
-  if (length < 1e-10) {
+  if (length < VECTOR_ZERO_THRESHOLD) {
     return identityQuaternion();
   }
   

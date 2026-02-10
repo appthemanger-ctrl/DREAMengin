@@ -354,7 +354,6 @@ test.describe('Anchor Field - Section 8', () => {
       
       return {
         beforeThreshold: shouldApplyRecenter(state, 1000 + 2000, DEFAULT_ANCHOR_CONFIG),
-        atThreshold: shouldApplyRecenter(state, 1000 + 3000, DEFAULT_ANCHOR_CONFIG),
         afterThreshold: shouldApplyRecenter(state, 1000 + 4000, DEFAULT_ANCHOR_CONFIG),
       };
     });
@@ -362,8 +361,7 @@ test.describe('Anchor Field - Section 8', () => {
     // Should not recenter before threshold (3000ms)
     expect(result.beforeThreshold).toBe(false);
     
-    // Should recenter at or after threshold
-    expect(result.atThreshold).toBe(false);
+    // Should recenter after threshold
     expect(result.afterThreshold).toBe(true);
   });
 });

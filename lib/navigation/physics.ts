@@ -94,9 +94,14 @@ export function applyInertialDecay(
 /**
  * Section 5.3: Snap Stabilization
  * If |θ| < δ: snapToGrid()
- * δ = 0.02 rad
+ * δ = 0.02 rad (approximately 1.15 degrees)
+ * 
+ * This threshold is chosen to:
+ * - Be imperceptible to users (below visual motion threshold)
+ * - Prevent micro-jitter during idle states
+ * - Allow smooth transitions without jarring snaps
  */
-export const SNAP_THRESHOLD = 0.02; // radians
+export const SNAP_THRESHOLD = 0.02; // radians (~1.15°)
 
 export function shouldSnapToGrid(position: number): boolean {
   return Math.abs(position) < SNAP_THRESHOLD;

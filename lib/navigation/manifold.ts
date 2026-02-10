@@ -13,6 +13,10 @@ export interface SphericalCoords {
   phi: number;   // φ ∈ [0, 2π]
 }
 
+// Thresholds and constants
+export const VECTOR_ZERO_THRESHOLD = 1e-10;
+export const SINGULARITY_THRESHOLD = 1e-6;
+
 /**
  * Section 4.1: Cubic → Spherical Projection
  * 
@@ -41,7 +45,7 @@ export function projectCubicToSphere(
   );
   
   // Handle zero vector
-  if (magnitude < 1e-10) {
+  if (magnitude < VECTOR_ZERO_THRESHOLD) {
     return { x: 0, y: 0, z: 0 };
   }
   
@@ -87,7 +91,7 @@ export function computeLambda(depth: number, maxDepth: number = 5): number {
 export function cartesianToSpherical(v: Vector3): SphericalCoords {
   const r = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
   
-  if (r < 1e-10) {
+  if (r < VECTOR_ZERO_THRESHOLD) {
     return { theta: 0, phi: 0 };
   }
   
@@ -134,12 +138,12 @@ export function smoothstep(edge0: number, edge1: number, x: number): number {
  * Calculate distance to nearest edge of a face
  * Assumes normalized face coordinates in [-1, 1]²
  */
-export function distanceToEdge(u: number, v: number): number {
+export function distanceToEdge(normalizedX: number, normalizedY: number): number {
   // Distance to each edge
-  const distLeft = u + 1;    // Distance to left edge (-1)
-  const distRight = 1 - u;   // Distance to right edge (1)
-  const distBottom = v + 1;  // Distance to bottom edge (-1)
-  const distTop = 1 - v;     // Distance to top edge (1)
+  const distLeft = normalizedX + 1;    // Distance to left edge (-1)
+  const distRight = 1 - normalizedX;   // Distance to right edge (1)
+  const distBottom = normalizedY + 1;  // Distance to bottom edge (-1)
+  const distTop = 1 - normalizedY;     // Distance to top edge (1)
   
   // Return minimum distance
   return Math.min(distLeft, distRight, distBottom, distTop);
@@ -217,7 +221,7 @@ export function computeWidgetCurvature(
 export function normalizeVector(v: Vector3): Vector3 {
   const length = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
   
-  if (length < 1e-10) {
+  if (length < VECTOR_ZERO_THRESHOLD) {
     return { x: 0, y: 0, z: 0 };
   }
   
