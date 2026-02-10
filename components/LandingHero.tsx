@@ -100,6 +100,7 @@ export default function LandingHero() {
         playsInline
         className="fixed inset-0 h-full w-full object-cover -z-10 opacity-45"
       >
+        <source src="/videos/signup-bg.mov" type="video/quicktime" />
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
 
@@ -170,7 +171,7 @@ export default function LandingHero() {
             >
               <div className={`relative ${mascotState === 'waving' ? 'animate-wave' : ''}`}>
                 <Image
-                  src="/dr-eams.jpeg"
+                  src="/IMG_3467.jpeg"
                   alt="Dr. Eams - Your AI Guide"
                   width={180}
                   height={180}
