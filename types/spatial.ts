@@ -216,6 +216,12 @@ export interface NavigationState {
   totalWidgets: number;
   // Direction of last navigation
   lastDirection?: "left" | "right";
+  
+  // Gesture-driven navigation extensions
+  layer?: number;   // 0=HOME,1=CUBE,2=PROFILE,3=WIDGET,4=DREAM
+  face?: number;    // 0-5 for cube faces
+  slot?: number;    // -1=null, 0-7 for widget slots
+  depth?: number;   // >=0 zoom depth
 }
 
 // =============================================================================
