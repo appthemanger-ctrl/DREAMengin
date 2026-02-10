@@ -17,6 +17,7 @@ interface AnchorWidgetProps {
   returnStack: ReturnStack;
   widgetMemory: WidgetInstanceMemory;
   onDreamSelectorOpen?: () => void;
+  onRectUpdate?: (rect: { x0: number; y0: number; x1: number; y1: number }) => void;
 }
 
 /**
@@ -27,7 +28,8 @@ export function AnchorWidget({
   navStateBuffer,
   returnStack,
   widgetMemory,
-  onDreamSelectorOpen
+  onDreamSelectorOpen,
+  onRectUpdate
 }: AnchorWidgetProps) {
   // Persistent state buffers (outside React)
   const anchorStateRef = useRef<AnchorStateBuffer>(new AnchorStateBuffer());
@@ -75,7 +77,10 @@ export function AnchorWidget({
       x1: rect.right + padding,
       y1: rect.bottom + padding
     };
-  }, []);
+    
+    // Notify parent of rect update
+    onRectUpdate?.(dropRectRef.current);
+  }, [onRectUpdate]);
   
   /**
    * Flip HOME -> PROFILE (atomic transaction)

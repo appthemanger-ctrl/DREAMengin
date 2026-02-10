@@ -28,6 +28,7 @@ export function AnchorWidgetOrchestrator() {
   // Local state for UI updates
   const [anchorState, setAnchorState] = useState<AnchorWidgetState | null>(null);
   const [currentMode, setCurrentMode] = useState(MODE_HOME);
+  const [anchorRect, setAnchorRect] = useState({ x0: 0, y0: 0, x1: 0, y1: 0 });
   const [, forceUpdate] = useState(0);
   
   /**
@@ -153,6 +154,22 @@ export function AnchorWidgetOrchestrator() {
   }, [anchorState]);
   
   /**
+   * Handle widget close from drag-to-anchor
+   */
+  const handleWidgetClose = useCallback((widgetId: string) => {
+    console.log('Widget closed:', widgetId);
+    
+    // Transition widget to prior state (e.g., DOCKED or HOME slot)
+    // For now, just log the event
+    widgetEventBus.send(
+      'anchor_widget',
+      widgetId,
+      100, // CLOSE type
+      { widgetId }
+    );
+  }, []);
+  
+  /**
    * Handle priority widget selection
    */
   const handlePriorityWidgetSelect = useCallback((widgetId: string) => {
@@ -191,6 +208,8 @@ export function AnchorWidgetOrchestrator() {
           <ProfileSpace
             widgets={activeWidgets}
             onWidgetFocus={handleWidgetFocus}
+            onWidgetClose={handleWidgetClose}
+            anchorRect={anchorRect}
           />
         )}
         
@@ -209,6 +228,7 @@ export function AnchorWidgetOrchestrator() {
           returnStack={returnStackRef.current}
           widgetMemory={widgetMemoryRef.current}
           onDreamSelectorOpen={handleDreamSelectorOpen}
+          onRectUpdate={setAnchorRect}
         />
       </div>
     </div>
