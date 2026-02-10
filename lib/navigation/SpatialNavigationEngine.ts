@@ -106,6 +106,10 @@ export class SpatialNavigationEngine {
     // Schedule next frame
     this.rafId = requestAnimationFrame(this.tick);
     
+    // Sync quaternion state between intent resolver and transform solver
+    const currentQuat = this.intentResolver.getOrientation();
+    this.transformSolver.setOrientation(currentQuat);
+    
     // Invariant enforcement
     if (!this.navState.isValid()) {
       this.forceReturn();
