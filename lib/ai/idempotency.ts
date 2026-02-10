@@ -1,73 +1,52 @@
 // lib/ai/idempotency.ts
-// Idempotency Service - Write-Once Semantics
+// Idempotency key checker to prevent duplicate intent execution
 
 import { createServerClient } from '@/lib/supabase/server';
-import { createHash, createHmac } from 'crypto';
 
-// ============================================================================
-// IDEMPOTENCY KEY GENERATION
-// ============================================================================
-
-export function generateIdempotencyKey(
-  userId: string,
-  intentType: string,
-  payload: Record<string, unknown>,
-  timeBucketHours: number = 1
-): string {
-  // Create stable JSON representation
-  const stablePayload = JSON.stringify(payload, Object.keys(payload).sort());
-
-  // Time bucket (floor to hour boundary)
-  const now = Date.now();
-  const timeBucket = Math.floor(now / (timeBucketHours * 3600 * 1000));
-
-  // Hash components
-  const components = `${userId}|${intentType}|${stablePayload}|${timeBucket}`;
-  const hash = createHash('sha256').update(components).digest('hex');
-
-  return hash;
+interface CheckIdempotencyInput {
+  key: string;
+  userId: string;
+  intentType: string;
 }
 
-// ============================================================================
-// IDEMPOTENCY CHECK
-// ============================================================================
+interface CheckIdempotencyResult {
+  allowed: boolean;
+  isReplay: boolean;
+}
 
+/**
+ * Check and insert idempotency key
+ * Returns { allowed: false, isReplay: true } if key already exists (replay attack)
+ */
 export async function checkIdempotency(
-  key: string
-): Promise<{ exists: boolean; result?: unknown }> {
-  const supabase = await createServerClient();
-
-  const { data, error } = await supabase
-    .from('idempotency_keys')
-    .select('result')
-    .eq('key', key)
-    .single();
-
-  if (error || !data) {
-    return { exists: false };
+  input: CheckIdempotencyInput
+): Promise<CheckIdempotencyResult> {
+  try {
+    const supabase = await createServerClient();
+    
+    const { error } = await supabase
+      .from('idempotency_keys')
+      .insert({
+        key: input.key,
+        user_id: input.userId,
+        intent_type: input.intentType,
+      });
+    
+    if (error) {
+      // Check if it's a unique constraint violation (replay)
+      if (error.code === '23505') {
+        return { allowed: false, isReplay: true };
+      }
+      
+      console.error('[idempotency] Error inserting key:', error);
+      // Fail-closed: if we can't verify idempotency, deny
+      return { allowed: false, isReplay: false };
+    }
+    
+    return { allowed: true, isReplay: false };
+  } catch (error) {
+    console.error('[idempotency] Unexpected error:', error);
+    // Fail-closed
+    return { allowed: false, isReplay: false };
   }
-
-  return { exists: true, result: data.result };
-}
-
-// ============================================================================
-// STORE IDEMPOTENCY RESULT
-// ============================================================================
-
-export async function storeIdempotencyResult(
-  key: string,
-  userId: string,
-  intentType: string,
-  result: unknown
-): Promise<boolean> {
-  const supabase = await createServerClient();
-
-  const { error } = await supabase.from('idempotency_keys').insert({
-    key,
-    user_id: userId,
-    intent_type: intentType,
-    result,
-  });
-
-  return !error;
 }
