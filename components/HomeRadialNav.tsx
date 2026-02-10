@@ -71,6 +71,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [interpretingIntent, setInterpretingIntent] = useState('');
   const [fullExperience, setFullExperience] = useState(true);
   const [context, setContext] = useState<ConversationContext>({
     recentTopics: [],
@@ -85,6 +86,49 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasMovedRef = useRef(false);
   const justClosedOverlayRef = useRef(0); // Timestamp when overlay was closed
+
+  // User pattern tracking
+  const [userPatterns, setUserPatterns] = useState({
+    frequentDestinations: [] as string[],
+    recentSearches: [] as string[],
+    commonActions: [] as string[],
+  });
+
+  // Load user patterns from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('dr-eam-patterns');
+    if (saved) {
+      try {
+        setUserPatterns(JSON.parse(saved));
+      } catch {}
+    }
+  }, []);
+
+  // Save user patterns to localStorage
+  const saveUserPatterns = (patterns: typeof userPatterns) => {
+    localStorage.setItem('dr-eam-patterns', JSON.stringify(patterns));
+    setUserPatterns(patterns);
+  };
+
+  // Track navigation
+  const trackNavigation = (destination: string) => {
+    const updated = { ...userPatterns };
+    updated.frequentDestinations = [
+      destination,
+      ...updated.frequentDestinations.filter(d => d !== destination)
+    ].slice(0, 10);
+    saveUserPatterns(updated);
+  };
+
+  // Track search
+  const trackSearch = (query: string) => {
+    const updated = { ...userPatterns };
+    updated.recentSearches = [
+      query,
+      ...updated.recentSearches.filter(q => q !== query)
+    ].slice(0, 20);
+    saveUserPatterns(updated);
+  };
 
   // Initialize position from localStorage or default
   useEffect(() => {
@@ -478,11 +522,53 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
 
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
+    
+    // Track search immediately
+    trackSearch(userText);
+    
+    // Show immediate intent interpretation
+    const intent = interpretIntent(userText);
+    setInterpretingIntent(intent);
     setIsLoading(true);
 
     const response = await generateResponse(userText);
+    setInterpretingIntent('');
     addAssistantMessage(response.content, response.emotion);
     setIsLoading(false);
+  };
+
+  // Interpret user intent immediately for instant feedback
+  const interpretIntent = (query: string): string => {
+    const lower = query.toLowerCase();
+    
+    // Navigation intents
+    if (/\b(go to|open|show|navigate|take me|find)\b/.test(lower)) {
+      if (/home|profile|widget/.test(lower)) return 'Opening your home...';
+      if (/discover|explore|search/.test(lower)) return 'Opening discovery...';
+      if (/music|audio|track/.test(lower)) return 'Opening music...';
+      if (/lab|physics|experiment/.test(lower)) return 'Opening lab...';
+      if (/shop|store|merch/.test(lower)) return 'Opening shop...';
+      if (/message|chat|dm/.test(lower)) return 'Opening messages...';
+      if (/setting|config|preference/.test(lower)) return 'Opening settings...';
+      return 'Navigating...';
+    }
+    
+    // Search intents
+    if (/\b(search|find|look for|where)\b/.test(lower)) {
+      return 'Searching...';
+    }
+    
+    // Action intents
+    if (/\b(create|make|new|add)\b/.test(lower)) {
+      return 'Preparing...';
+    }
+    
+    // Question intents
+    if (/\b(how|what|why|when|who|can|does)\b/.test(lower)) {
+      return 'Analyzing...';
+    }
+    
+    return 'Processing...';
   };
 
   const generateResponse = async (query: string): Promise<{ content: string; emotion: Message['emotion'] }> => {
@@ -490,6 +576,14 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
 
     if (/^(hi|hello|hey|good morning|good afternoon|good evening|sup|what's up|yo)\b/i.test(query.trim())) {
       return { content: getGreeting(), emotion: 'helpful' };
+    }
+
+    // Enhanced navigation - comprehensive and action-first
+    const navResult = handleNavigation(query, lower);
+    if (navResult) {
+      trackNavigation(navResult.path);
+      router.push(navResult.path);
+      return { content: navResult.message, emotion: 'helpful' };
     }
 
     if (/\b(what can you do|help|capabilities|commands|features|assist)\b/.test(lower)) {
