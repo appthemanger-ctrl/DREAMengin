@@ -5,11 +5,12 @@ type Check = {
   ok: boolean;
   hint?: string;
   note?: string;
+  required?: boolean;
 };
 
-function envCheck(name: string, hint?: string, note?: string): Check {
+function envCheck(name: string, hint?: string, note?: string, required = true): Check {
   const ok = !!process.env[name];
-  return { key: name, ok, hint: ok ? undefined : hint, note };
+  return { key: name, ok, hint: ok ? undefined : hint, note, required };
 }
 
 export async function GET() {
@@ -33,13 +34,14 @@ export async function GET() {
         : hasLegacyKey 
         ? 'Using legacy NEXT_PUBLIC_SUPABASE_ANON_KEY. Consider migrating to NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.' 
         : undefined,
+      required: true,
     },
-    envCheck('SUPABASE_SERVICE_ROLE_KEY', 'Optional unless you use server-side admin actions.'),
+    envCheck('SUPABASE_SERVICE_ROLE_KEY', 'Optional unless you use server-side admin actions.', undefined, false),
   ];
 
   // Overall status: true only if all required checks pass.
   // Note: we intentionally do NOT disclose secret values.
-  const ok = checks.filter(c => !c.key.includes('SUPABASE_SERVICE_ROLE_KEY')).every((c) => c.ok);
+  const ok = checks.filter(c => c.required).every((c) => c.ok);
 
 
   return NextResponse.json({ ok, checks, timestamp: new Date().toISOString() });
