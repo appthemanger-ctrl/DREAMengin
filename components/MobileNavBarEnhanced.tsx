@@ -6,34 +6,21 @@ import {
   Plus, Bell, Search, User, Menu, X, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
-import type { Session } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 import { usePathname } from 'next/navigation';
+import { useHideOnScroll } from '@/hooks/useHideOnScroll';
 
 interface MobileNavBarProps {
-  session: Session | null;
+  user: User | null;
 }
 
-export default function MobileNavBarEnhanced({ session }: MobileNavBarProps) {
+export default function MobileNavBarEnhanced({ user }: MobileNavBarProps) {
   const pathname = usePathname();
   const [showSearch, setShowSearch] = useState(false);
-  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
-  const [lastScrollY, setLastScrollY] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        setScrollDirection('down');
-      } else {
-        setScrollDirection('up');
-      }
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  
+  // Use the new iOS-safe scroll hook for both top and bottom nav
+  const isNavVisible = useHideOnScroll({ threshold: 80, delta: 10 });
 
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
@@ -53,8 +40,8 @@ export default function MobileNavBarEnhanced({ session }: MobileNavBarProps) {
     <>
       {/* Top App Bar - Auto-hides on scroll down */}
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
-          scrollDirection === 'down' ? '-translate-y-full' : 'translate-y-0'
+        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-out will-change-transform ${
+          !isNavVisible ? '-translate-y-full' : 'translate-y-0'
         }`}
       >
         <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50">
@@ -120,7 +107,13 @@ export default function MobileNavBarEnhanced({ session }: MobileNavBarProps) {
       </header>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+      <nav 
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden transition-transform duration-180 ease-out will-change-transform"
+        style={{
+          transform: !isNavVisible ? 'translate3d(0, 140%, 0)' : 'translate3d(0, 0, 0)',
+          paddingBottom: 'env(safe-area-inset-bottom)'
+        }}
+      >
         <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/50 dark:border-slate-800/50 safe-area-bottom">
           <div className="grid grid-cols-5 h-16">
             {navItems.map((item) => {
