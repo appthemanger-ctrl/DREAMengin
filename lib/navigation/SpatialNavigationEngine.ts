@@ -114,7 +114,7 @@ export class SpatialNavigationEngine {
     
     // Persist state during idle (if enabled)
     if (this.config.enablePersistence) {
-      this.schedulePeristence();
+      this.schedulePersistence();
     }
   }
   
@@ -125,7 +125,7 @@ export class SpatialNavigationEngine {
     const now = performance.now();
     
     // Start gesture if not already active
-    if (!this.intentResolver['isGestureActive']) {
+    if (!this.intentResolver.isActive()) {
       this.intentResolver.startGesture(now);
     }
     
@@ -225,7 +225,7 @@ export class SpatialNavigationEngine {
   /**
    * Schedule persistence during idle
    */
-  private schedulePeristence(): void {
+  private schedulePersistence(): void {
     if ('requestIdleCallback' in window) {
       requestIdleCallback(() => {
         this.persist();

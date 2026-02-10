@@ -48,12 +48,16 @@ export class WidgetInstanceMemory {
   private homeIndices: number[];
   private profileIndices: number[];
   private activeIndicesPointer: number[]; // Points to either home or profile
+  private sortedCache: WidgetInstanceRecord[] | null; // Cache for sorted widgets
+  private sortedCacheDirty: boolean;
   
   constructor() {
     this.instances = [];
     this.homeIndices = [];
     this.profileIndices = [];
     this.activeIndicesPointer = this.homeIndices;
+    this.sortedCache = null;
+    this.sortedCacheDirty = true;
   }
   
   /**
@@ -83,6 +87,7 @@ export class WidgetInstanceMemory {
    */
   switchToProfile(): void {
     this.activeIndicesPointer = this.profileIndices;
+    this.sortedCacheDirty = true;
   }
   
   /**
@@ -90,6 +95,7 @@ export class WidgetInstanceMemory {
    */
   switchToHome(): void {
     this.activeIndicesPointer = this.homeIndices;
+    this.sortedCacheDirty = true;
   }
   
   /**
@@ -113,6 +119,7 @@ export class WidgetInstanceMemory {
     const widget = this.getWidget(instanceId);
     if (widget) {
       Object.assign(widget.transformState, transform);
+      this.sortedCacheDirty = true;
     }
   }
   
@@ -123,15 +130,22 @@ export class WidgetInstanceMemory {
     const widget = this.getWidget(instanceId);
     if (widget) {
       widget.presentation = presentation;
+      this.sortedCacheDirty = true;
     }
   }
   
   /**
-   * Get widgets sorted by z-index
+   * Get widgets sorted by z-index (cached)
    */
   getActiveWidgetsSorted(): WidgetInstanceRecord[] {
+    if (!this.sortedCacheDirty && this.sortedCache) {
+      return this.sortedCache;
+    }
+    
     const active = this.getActiveWidgets();
-    return active.slice().sort((a, b) => a.zIndex - b.zIndex);
+    this.sortedCache = active.slice().sort((a, b) => a.zIndex - b.zIndex);
+    this.sortedCacheDirty = false;
+    return this.sortedCache;
   }
   
   /**
@@ -144,6 +158,7 @@ export class WidgetInstanceMemory {
     const activeIndex = this.activeIndicesPointer.indexOf(widgetIndex);
     if (activeIndex !== -1) {
       this.activeIndicesPointer.splice(activeIndex, 1);
+      this.sortedCacheDirty = true;
     }
   }
   
@@ -159,6 +174,7 @@ export class WidgetInstanceMemory {
     
     if (!targetIndices.includes(widgetIndex)) {
       targetIndices.push(widgetIndex);
+      this.sortedCacheDirty = true;
     }
   }
 }

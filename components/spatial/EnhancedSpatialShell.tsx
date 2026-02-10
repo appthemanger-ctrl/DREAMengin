@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { SpatialNavigationEngine } from '@/lib/navigation/SpatialNavigationEngine';
 import { WidgetInstanceRecord, WidgetPresentation, WidgetVisibility, WidgetBindingType } from '@/lib/navigation/WidgetInstanceMemory';
 import { LAYER_HOME, LAYER_PROFILE } from '@/lib/navigation/NavStateBuffer';
@@ -32,6 +32,41 @@ export default function EnhancedSpatialShell({
   const [navState, setNavState] = useState({ layer: 0, face: 0, slot: -1, depth: 0 });
   const [activeWidgets, setActiveWidgets] = useState<WidgetInstanceRecord[]>([]);
   
+  // Memoize widgets to prevent reinitialization
+  const widgets = useMemo(() => {
+    if (initialWidgets.length > 0) {
+      return initialWidgets;
+    }
+    
+    // Create default widgets
+    return [
+      {
+        instanceId: 'home-feed',
+        ownerId: userId,
+        context: 'HOME' as const,
+        transformState: { x: 0, y: 0, scale: 1, rotation: 0 },
+        zIndex: 1,
+        presentation: WidgetPresentation.FLOATING,
+        bindingType: WidgetBindingType.LIVE,
+        bindingConfig: { type: 'feed' },
+        visibility: WidgetVisibility.ACTIVE,
+        internalState: {},
+      },
+      {
+        instanceId: 'profile-info',
+        ownerId: userId,
+        context: 'PROFILE' as const,
+        transformState: { x: 0, y: 0, scale: 1, rotation: 0 },
+        zIndex: 1,
+        presentation: WidgetPresentation.FLOATING,
+        bindingType: WidgetBindingType.STATIC,
+        bindingConfig: { type: 'profile_info', handle, displayName, avatarUrl, bio },
+        visibility: WidgetVisibility.ACTIVE,
+        internalState: {},
+      },
+    ];
+  }, [userId, handle, displayName, avatarUrl, bio, initialWidgets]);
+  
   // Initialize engine
   useEffect(() => {
     if (!containerRef.current) return;
@@ -42,38 +77,7 @@ export default function EnhancedSpatialShell({
     });
     
     // Initialize with widgets
-    if (initialWidgets.length > 0) {
-      engine.getWidgetMemory().initialize(initialWidgets);
-    } else {
-      // Create default widgets
-      const defaultWidgets: WidgetInstanceRecord[] = [
-        {
-          instanceId: 'home-feed',
-          ownerId: userId,
-          context: 'HOME',
-          transformState: { x: 0, y: 0, scale: 1, rotation: 0 },
-          zIndex: 1,
-          presentation: WidgetPresentation.FLOATING,
-          bindingType: WidgetBindingType.LIVE,
-          bindingConfig: { type: 'feed' },
-          visibility: WidgetVisibility.ACTIVE,
-          internalState: {},
-        },
-        {
-          instanceId: 'profile-info',
-          ownerId: userId,
-          context: 'PROFILE',
-          transformState: { x: 0, y: 0, scale: 1, rotation: 0 },
-          zIndex: 1,
-          presentation: WidgetPresentation.FLOATING,
-          bindingType: WidgetBindingType.STATIC,
-          bindingConfig: { type: 'profile_info', handle, displayName, avatarUrl, bio },
-          visibility: WidgetVisibility.ACTIVE,
-          internalState: {},
-        },
-      ];
-      engine.getWidgetMemory().initialize(defaultWidgets);
-    }
+    engine.getWidgetMemory().initialize(widgets);
     
     // Listen to navigation changes
     const handleNavChange = (data: any) => {
@@ -106,7 +110,7 @@ export default function EnhancedSpatialShell({
       engine.stop();
       engine.off('navchange', handleNavChange);
     };
-  }, [userId, handle, displayName, avatarUrl, bio, initialWidgets]);
+  }, [widgets]);
   
   // Apply transforms on state change
   useEffect(() => {

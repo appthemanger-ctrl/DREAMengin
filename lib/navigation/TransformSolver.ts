@@ -36,7 +36,8 @@ export class TransformSolver {
     let opacity = 1;
     
     // Face-based horizontal offset (cube rotation)
-    tx = face * viewport.width;
+    // Negative for left-scrolling carousel effect
+    tx = -face * viewport.width;
     
     // Depth-based scaling
     if (depth === 0) {

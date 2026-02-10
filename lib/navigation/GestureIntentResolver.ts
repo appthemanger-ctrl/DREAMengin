@@ -43,6 +43,13 @@ export class GestureIntentResolver {
   }
   
   /**
+   * Check if gesture is currently active
+   */
+  isActive(): boolean {
+    return this.isGestureActive;
+  }
+  
+  /**
    * Start tracking a gesture
    */
   startGesture(now: number): void {
