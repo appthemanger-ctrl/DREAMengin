@@ -9,6 +9,7 @@ import {
   SearchPayload,
   DraftSavePayload,
 } from '@/types/ai-system';
+import { randomUUID } from 'crypto';
 
 // ============================================================================
 // POST_CREATE Handler
@@ -211,7 +212,7 @@ export const handleDraftSave: ToolHandler = async (ctx) => {
   const payload = ctx.intent.payload as unknown as DraftSavePayload;
 
   // Store draft in ai_memories
-  const draftId = payload.draft_id ?? crypto.randomUUID();
+  const draftId = payload.draft_id ?? randomUUID();
 
   const { error } = await ctx.supabase.from('ai_memories').upsert({
     user_id: ctx.actor.user_id,

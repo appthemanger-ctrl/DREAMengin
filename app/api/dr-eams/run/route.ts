@@ -9,6 +9,8 @@ import {
   DrEamsRunRequest,
   DrEamsRunResponse,
   Intent,
+  ActorContext,
+  UIContext,
 } from '@/types/ai-system';
 import { buildActorContext } from '@/lib/ai/capability-gate';
 import { verifyIntents } from '@/lib/ai/boogie-verifier';
@@ -29,8 +31,8 @@ function jsonError(status: number, code: string, message: string, details?: unkn
 
 async function drEamsPlanner(
   message: string,
-  actor: any,
-  ui: any
+  actor: ActorContext,
+  ui: UIContext
 ): Promise<{ response_text: string; intents: Intent[] }> {
   // This is a placeholder that generates simple test intents
   // In production, this would call an LLM with a structured prompt

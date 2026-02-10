@@ -9,6 +9,8 @@ import {
   IDariRunRequest,
   IDariRunResponse,
   Intent,
+  ActorContext,
+  UIContext,
 } from '@/types/ai-system';
 import { buildActorContext } from '@/lib/ai/capability-gate';
 import { verifyIntents } from '@/lib/ai/boogie-verifier';
@@ -22,8 +24,8 @@ function jsonError(status: number, code: string, message: string, details?: unkn
 // iDari PLANNER (Placeholder - In production, call OpenAI/Claude)
 async function idariPlanner(
   message: string,
-  actor: any,
-  ui: any
+  actor: ActorContext,
+  ui: UIContext
 ): Promise<{ response_text: string; intents: Intent[] }> {
   const response_text = `[iDari Admin Agent] Analyzing: "${message}"`;
   const intents: Intent[] = [];

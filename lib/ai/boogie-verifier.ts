@@ -227,6 +227,7 @@ function detectPrivilegeEscalation(intent: Intent, actor: ActorContext): boolean
   }
 
   // Check payload for role changes
+  const payload = intent.payload;
   if (payload.role && payload.role !== actor.role) {
     return true;
   }
