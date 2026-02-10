@@ -45,6 +45,7 @@ const DRAG_THRESHOLD = 10; // pixels
 const LONG_PRESS_DURATION = 400; // ms
 const RADIAL_RADIUS = 80; // pixels from center
 const ITEM_HIT_RADIUS = 30; // pixels
+const OVERLAY_CLOSE_COOLDOWN = 250; // ms - prevent accidental navigation after overlay close
 
 export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const router = useRouter();
@@ -83,6 +84,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const buttonRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasMovedRef = useRef(false);
+  const justClosedOverlayRef = useRef(0); // Timestamp when overlay was closed
 
   // Initialize position from localStorage or default
   useEffect(() => {
@@ -304,6 +306,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
         }, 100);
       } else {
         // Released on nothing - close menu
+        justClosedOverlayRef.current = Date.now();
         setIsMenuOpen(false);
         setHighlightedItemIndex(null);
       }
@@ -315,10 +318,20 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
       // Quick tap - new behavior
       if (isChatOpen) {
         // First press: close Dr. Eam chat
+        justClosedOverlayRef.current = Date.now();
         setIsChatOpen(false);
+      } else if (isMenuOpen) {
+        // Close menu without navigation
+        justClosedOverlayRef.current = Date.now();
+        setIsMenuOpen(false);
+        setHighlightedItemIndex(null);
       } else {
         // Second press (nothing open): navigate to /home
-        router.push('/home');
+        // But only if we're outside the cooldown window
+        const timeSinceClose = Date.now() - justClosedOverlayRef.current;
+        if (timeSinceClose > OVERLAY_CLOSE_COOLDOWN) {
+          router.push('/home');
+        }
       }
     }
 
@@ -769,7 +782,10 @@ What's on your mind?`;
               </div>
             </div>
             <button
-              onClick={() => setIsChatOpen(false)}
+              onClick={() => {
+                justClosedOverlayRef.current = Date.now();
+                setIsChatOpen(false);
+              }}
               className="p-1.5 sm:p-2 hover:bg-white/20 active:bg-white/30 rounded-lg transition-colors"
               aria-label="Close"
             >
