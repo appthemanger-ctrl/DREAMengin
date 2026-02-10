@@ -1,0 +1,216 @@
+'use client';
+
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { AnchorWidget } from './AnchorWidget';
+import { HomeSpace } from './HomeSpace';
+import { ProfileSpace } from './ProfileSpace';
+import { ShrunkMode } from './ShrunkMode';
+import { NavStateBuffer, LAYER_HOME, LAYER_PROFILE } from '@/lib/navigation/NavStateBuffer';
+import { ReturnStack } from '@/lib/navigation/ReturnStack';
+import { WidgetInstanceMemory } from '@/lib/navigation/WidgetInstanceMemory';
+import { AnchorStateBuffer, MODE_HOME, MODE_PROFILE, MODE_SHRUNK } from '@/lib/navigation/AnchorStateBuffer';
+import { AnchorWidgetStorage, type AnchorWidgetState } from '@/lib/navigation/AnchorWidgetStorage';
+import { widgetEventBus, type WidgetMsg } from '@/lib/widgets/WidgetEventBus';
+import { WidgetLinkGraph } from '@/lib/widgets/WidgetLinkGraph';
+
+/**
+ * AnchorWidgetOrchestrator - Main controller for anchor widget system
+ * Manages navigation, widget state, and mode transitions
+ */
+export function AnchorWidgetOrchestrator() {
+  // Initialize persistent state buffers
+  const navStateRef = useRef(new NavStateBuffer());
+  const returnStackRef = useRef(new ReturnStack());
+  const widgetMemoryRef = useRef(new WidgetInstanceMemory());
+  const anchorStateRef = useRef(new AnchorStateBuffer());
+  const linkGraphRef = useRef(new WidgetLinkGraph());
+  
+  // Local state for UI updates
+  const [anchorState, setAnchorState] = useState<AnchorWidgetState | null>(null);
+  const [currentMode, setCurrentMode] = useState(MODE_HOME);
+  const [, forceUpdate] = useState(0);
+  
+  /**
+   * Initialize state from storage
+   */
+  useEffect(() => {
+    const init = async () => {
+      const stored = await AnchorWidgetStorage.load();
+      const state = stored || AnchorWidgetStorage.createInitialState();
+      
+      setAnchorState(state);
+      setCurrentMode(state.mode);
+      
+      // Initialize anchor state buffer
+      anchorStateRef.current.mode = state.mode;
+      anchorStateRef.current.prevMode = state.prevMode;
+      anchorStateRef.current.isOpen = state.isOpen;
+      
+      // Restore nav state if available
+      if (state.navSnapshot) {
+        navStateRef.current.restore(state.navSnapshot);
+      }
+      
+      // Initialize widget memory with mock data
+      widgetMemoryRef.current.initialize([
+        {
+          instanceId: 'widget-home-1',
+          ownerId: 'user-1',
+          context: 'HOME',
+          transformState: { x: 0, y: 0, scale: 1, rotation: 0 },
+          zIndex: 1,
+          presentation: 'FLOATING' as const,
+          bindingType: 'STATIC' as const,
+          bindingConfig: {},
+          visibility: 'ACTIVE' as const,
+          internalState: {}
+        },
+        {
+          instanceId: 'widget-profile-1',
+          ownerId: 'user-1',
+          context: 'PROFILE',
+          transformState: { x: 100, y: 100, scale: 1, rotation: 0 },
+          zIndex: 1,
+          presentation: 'FLOATING' as const,
+          bindingType: 'LIVE' as const,
+          bindingConfig: {},
+          visibility: 'ACTIVE' as const,
+          internalState: {}
+        },
+        {
+          instanceId: 'widget-profile-2',
+          ownerId: 'user-1',
+          context: 'PROFILE',
+          transformState: { x: 200, y: 150, scale: 1, rotation: 0 },
+          zIndex: 2,
+          presentation: 'FLOATING' as const,
+          bindingType: 'LIVE' as const,
+          bindingConfig: {},
+          visibility: 'ACTIVE' as const,
+          internalState: {}
+        }
+      ]);
+    };
+    
+    init();
+  }, []);
+  
+  /**
+   * Handle mode changes
+   */
+  useEffect(() => {
+    if (!anchorState) return;
+    
+    const mode = anchorStateRef.current.mode;
+    if (mode !== currentMode) {
+      setCurrentMode(mode);
+      
+      // Update storage
+      const newState = { ...anchorState, mode };
+      setAnchorState(newState);
+      AnchorWidgetStorage.saveIdle(newState);
+    }
+  }, [anchorState, currentMode]);
+  
+  /**
+   * Handle Dream selector open
+   */
+  const handleDreamSelectorOpen = useCallback(() => {
+    console.log('Dream selector opened');
+    // Implement dream selector overlay logic here
+  }, []);
+  
+  /**
+   * Handle home slot tap
+   */
+  const handleSlotTap = useCallback((slotIndex: number) => {
+    console.log('Slot tapped:', slotIndex);
+    // Implement slot action sheet here
+  }, []);
+  
+  /**
+   * Handle home slot update
+   */
+  const handleSlotUpdate = useCallback((slotIndex: number, widgetId: string | null) => {
+    if (!anchorState) return;
+    
+    AnchorWidgetStorage.setSlotWidget(anchorState, slotIndex, widgetId);
+    AnchorWidgetStorage.saveIdle(anchorState);
+    forceUpdate(v => v + 1);
+  }, [anchorState]);
+  
+  /**
+   * Handle widget focus in profile
+   */
+  const handleWidgetFocus = useCallback((widgetId: string) => {
+    console.log('Widget focused:', widgetId);
+    
+    if (anchorState) {
+      AnchorWidgetStorage.updatePriorities(anchorState, widgetId);
+      AnchorWidgetStorage.saveIdle(anchorState);
+      forceUpdate(v => v + 1);
+    }
+  }, [anchorState]);
+  
+  /**
+   * Handle priority widget selection
+   */
+  const handlePriorityWidgetSelect = useCallback((widgetId: string) => {
+    console.log('Priority widget selected:', widgetId);
+    
+    // Request focus for the widget
+    widgetEventBus.send(
+      'anchor_widget',
+      widgetId,
+      1, // FOCUS_REQUEST type
+      { widgetId }
+    );
+    
+    // Engine will decide if this implies NAV_ZOOM_IN
+  }, []);
+  
+  if (!anchorState) {
+    return null; // Loading
+  }
+  
+  const activeWidgets = widgetMemoryRef.current.getActiveWidgets();
+  
+  return (
+    <div className="fixed inset-0 pointer-events-none">
+      {/* Main surface based on mode */}
+      <div className="absolute inset-0 pointer-events-auto">
+        {currentMode === MODE_HOME && anchorStateRef.current.isOpen && (
+          <HomeSpace
+            homeSlots={anchorState.homeSlots}
+            onSlotTap={handleSlotTap}
+            onSlotUpdate={handleSlotUpdate}
+          />
+        )}
+        
+        {currentMode === MODE_PROFILE && anchorStateRef.current.isOpen && (
+          <ProfileSpace
+            widgets={activeWidgets}
+            onWidgetFocus={handleWidgetFocus}
+          />
+        )}
+        
+        {currentMode === MODE_SHRUNK && (
+          <ShrunkMode
+            priorityWidgets={anchorState.priorityWidgets}
+            onWidgetSelect={handlePriorityWidgetSelect}
+          />
+        )}
+      </div>
+      
+      {/* Anchor widget (always present) */}
+      <div className="pointer-events-auto">
+        <AnchorWidget
+          navStateBuffer={navStateRef.current}
+          returnStack={returnStackRef.current}
+          widgetMemory={widgetMemoryRef.current}
+          onDreamSelectorOpen={handleDreamSelectorOpen}
+        />
+      </div>
+    </div>
+  );
+}

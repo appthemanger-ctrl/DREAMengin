@@ -8,6 +8,8 @@ export { TransformSolver } from './TransformSolver';
 export { WidgetInstanceMemory, WidgetPresentation, WidgetVisibility, WidgetBindingType } from './WidgetInstanceMemory';
 export { SpatialNavigationEngine } from './SpatialNavigationEngine';
 export { useNavigation } from './useNavigation';
+export { AnchorStateBuffer, MODE_HOME, MODE_PROFILE, MODE_SHRUNK, HOLD_IDLE, HOLD_HOLDING, HOLD_FIRED } from './AnchorStateBuffer';
+export { AnchorWidgetStorage } from './AnchorWidgetStorage';
 
 export type { PointerState } from './PointerEventCapture';
 export type { GestureFrame } from './GestureFrameComputer';
@@ -16,3 +18,4 @@ export type { TransformOutput, ViewportMetrics } from './TransformSolver';
 export type { WidgetTransformState, WidgetInstanceRecord } from './WidgetInstanceMemory';
 export type { EngineConfig, EngineEventType, EngineEventCallback } from './SpatialNavigationEngine';
 export type { UseNavigationOptions, NavigationState } from './useNavigation';
+export type { HomeSlotMapping, PriorityWidget, AnchorWidgetState } from './AnchorWidgetStorage';
