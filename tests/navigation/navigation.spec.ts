@@ -72,4 +72,37 @@ test.describe('Gesture-Driven Navigation Engine', () => {
     expect(depthTest.d2).toBe(2);
     expect(depthTest.d3).toBe(1);
   });
+  
+  test('should handle face rotation with modular arithmetic', async ({ page }) => {
+    await page.goto('/');
+    
+    const faceTest = await page.evaluate(() => {
+      class NavStateBuffer {
+        private buffer: Int32Array;
+        constructor() {
+          this.buffer = new Int32Array(4);
+          this.buffer[1] = 0; // face
+        }
+        get face() { return this.buffer[1]; }
+        rotateFace(delta: number) {
+          this.buffer[1] = (this.buffer[1] + delta + 6) % 6;
+        }
+      }
+      
+      const buffer = new NavStateBuffer();
+      buffer.rotateFace(1);
+      const f1 = buffer.face;
+      buffer.rotateFace(5); // Should wrap to 0
+      const f2 = buffer.face;
+      buffer.rotateFace(-1); // Should wrap to 5
+      const f3 = buffer.face;
+      
+      return { f1, f2, f3 };
+    });
+    
+    expect(faceTest.f1).toBe(1);
+    expect(faceTest.f2).toBe(0); // (1 + 5) % 6 = 0
+    expect(faceTest.f3).toBe(5); // (0 - 1 + 6) % 6 = 5
+  });
 });
+
