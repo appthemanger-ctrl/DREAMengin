@@ -1,5 +1,19 @@
 // types/widgets.ts
 
+// Presentation modes for gesture-driven navigation
+export type WidgetPresentationMode = "FLOATING" | "DOCKED" | "FULL";
+
+// Widget visibility states
+export type WidgetVisibilityState = "ACTIVE" | "BACKGROUND" | "PARKED";
+
+// Transform state for spatial positioning
+export interface WidgetTransformState {
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number;
+}
+
 // The core capabilities every widget can optionally support.
 export interface WidgetCapabilities {
   canOpenFull?: boolean;
@@ -65,6 +79,12 @@ export interface WidgetInstance {
   visibility?: "private" | "public" | "followers";
   layers?: WidgetLayer[];
   sub_widgets?: SubWidgetRef[];
+
+  // Gesture-driven navigation properties
+  presentation?: WidgetPresentationMode;
+  transformState?: WidgetTransformState;
+  zIndex?: number;
+  visibilityState?: WidgetVisibilityState;
 
   created_at?: string;
   updated_at?: string;
