@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, Search, ArrowLeft, Loader2, Plus } from 'lucide-react';
+import { MessageSquare, Send, Search, ArrowLeft, Loader2, Plus, Image as ImageIcon, Video, Music, FileText, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatRelativeTime } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 
 interface Conversation {
   id: string;
@@ -23,6 +24,8 @@ interface Message {
   sender_id: string;
   content: string;
   created_at: string;
+  media_url?: string;
+  media_type?: 'image' | 'video' | 'audio' | 'file';
   sender?: {
     id: string;
     display_name: string | null;
@@ -44,7 +47,11 @@ export default function MessagesClient({ userId, initialConversations }: Message
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const supabase = createClient();
 
   // Demo messages for demo conversations
   const demoMessages: Message[] = [
@@ -67,6 +74,70 @@ export default function MessagesClient({ userId, initialConversations }: Message
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (50MB max)
+    const maxSize = 50 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('File must be smaller than 50MB');
+      return;
+    }
+
+    setSelectedFile(file);
+    setFilePreviewUrl(URL.createObjectURL(file));
+  };
+
+  const removeFile = () => {
+    if (filePreviewUrl) {
+      URL.revokeObjectURL(filePreviewUrl);
+    }
+    setSelectedFile(null);
+    setFilePreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const getFileType = (file: File): 'image' | 'video' | 'audio' | 'file' => {
+    if (file.type.startsWith('image/')) return 'image';
+    if (file.type.startsWith('video/')) return 'video';
+    if (file.type.startsWith('audio/')) return 'audio';
+    return 'file';
+  };
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const fileType = getFileType(file);
+    const bucketMap: Record<string, string> = {
+      image: 'images',
+      video: 'videos',
+      audio: 'audio',
+      file: 'files',
+    };
+
+    const bucket = bucketMap[fileType];
+    const ext = file.name.split('.').pop();
+    const filename = `${userId}/messages/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(filename, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      throw new Error(`Failed to upload file: ${error.message}`);
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(filename);
+
+    return publicUrl;
   };
 
   const loadMessages = async (conversationId: string) => {
@@ -92,28 +163,40 @@ export default function MessagesClient({ userId, initialConversations }: Message
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedConv || isSending) return;
+    if ((!newMessage.trim() && !selectedFile) || !selectedConv || isSending) return;
 
     const messageContent = newMessage.trim();
     setNewMessage('');
     setIsSending(true);
 
-    // Optimistically add message
-    const optimisticMessage: Message = {
-      id: `temp-${Date.now()}`,
-      sender_id: userId,
-      content: messageContent,
-      created_at: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, optimisticMessage]);
-
-    // For demo conversations, just keep the optimistic message
-    if (selectedConv.id.startsWith('demo-')) {
-      setIsSending(false);
-      return;
-    }
+    let mediaUrl: string | undefined;
+    let mediaType: 'image' | 'video' | 'audio' | 'file' | undefined;
 
     try {
+      // Upload file if present
+      if (selectedFile) {
+        mediaUrl = await uploadFile(selectedFile);
+        mediaType = getFileType(selectedFile);
+        removeFile();
+      }
+
+      // Optimistically add message
+      const optimisticMessage: Message = {
+        id: `temp-${Date.now()}`,
+        sender_id: userId,
+        content: messageContent,
+        created_at: new Date().toISOString(),
+        media_url: mediaUrl,
+        media_type: mediaType,
+      };
+      setMessages(prev => [...prev, optimisticMessage]);
+
+      // For demo conversations, just keep the optimistic message
+      if (selectedConv.id.startsWith('demo-')) {
+        setIsSending(false);
+        return;
+      }
+
       const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -121,6 +204,8 @@ export default function MessagesClient({ userId, initialConversations }: Message
           conversation_id: selectedConv.id,
           recipient_id: selectedConv.otherUser.id,
           content: messageContent,
+          media_url: mediaUrl,
+          media_type: mediaType,
         }),
       });
 
@@ -133,8 +218,9 @@ export default function MessagesClient({ userId, initialConversations }: Message
       }
     } catch (err) {
       console.error('Failed to send message:', err);
+      alert(err instanceof Error ? err.message : 'Failed to send message');
       // Remove optimistic message on error
-      setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
+      setMessages(prev => prev.filter(m => m.id.startsWith('temp-')));
       setNewMessage(messageContent); // Restore message input
     } finally {
       setIsSending(false);
@@ -324,7 +410,42 @@ export default function MessagesClient({ userId, initialConversations }: Message
                                 ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md' 
                                 : 'bg-muted text-foreground rounded-2xl rounded-bl-md'
                             } p-3`}>
-                              <p className="text-sm">{msg.content}</p>
+                              {msg.media_url && msg.media_type && (
+                                <div className="mb-2">
+                                  {msg.media_type === 'image' && (
+                                    <Image
+                                      src={msg.media_url}
+                                      alt="Shared image"
+                                      width={300}
+                                      height={200}
+                                      className="rounded-lg max-w-full h-auto"
+                                    />
+                                  )}
+                                  {msg.media_type === 'video' && (
+                                    <video
+                                      src={msg.media_url}
+                                      controls
+                                      className="rounded-lg max-w-full"
+                                      style={{ maxHeight: '300px' }}
+                                    />
+                                  )}
+                                  {msg.media_type === 'audio' && (
+                                    <audio src={msg.media_url} controls className="w-full" />
+                                  )}
+                                  {msg.media_type === 'file' && (
+                                    <a
+                                      href={msg.media_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-2 text-sm underline"
+                                    >
+                                      <FileText className="w-4 h-4" />
+                                      View file
+                                    </a>
+                                  )}
+                                </div>
+                              )}
+                              {msg.content && <p className="text-sm">{msg.content}</p>}
                               <p className={`text-xs mt-1 ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                                 {formatRelativeTime(msg.created_at)}
                               </p>
@@ -339,7 +460,61 @@ export default function MessagesClient({ userId, initialConversations }: Message
 
                 {/* Message Input */}
                 <form onSubmit={sendMessage} className="p-4 border-t border-border">
-                  <div className="flex items-center gap-3">
+                  {/* File Preview */}
+                  {selectedFile && filePreviewUrl && (
+                    <div className="mb-3 relative inline-block">
+                      <div className="relative bg-muted/50 rounded-lg p-2 max-w-xs">
+                        {getFileType(selectedFile) === 'image' && (
+                          <Image
+                            src={filePreviewUrl}
+                            alt="Preview"
+                            width={200}
+                            height={150}
+                            className="rounded max-h-32 w-auto"
+                          />
+                        )}
+                        {getFileType(selectedFile) === 'video' && (
+                          <video src={filePreviewUrl} className="rounded max-h-32" />
+                        )}
+                        {(getFileType(selectedFile) === 'audio' || getFileType(selectedFile) === 'file') && (
+                          <div className="flex items-center gap-2 p-2">
+                            {getFileType(selectedFile) === 'audio' ? <Music className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+                            <span className="text-sm truncate max-w-[150px]">{selectedFile.name}</span>
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={removeFile}
+                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    {/* Hidden File Input */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,video/*,audio/*"
+                      capture="environment"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+
+                    {/* File Upload Buttons */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isSending}
+                      className="p-3 bg-muted hover:bg-muted/80 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
+                      title="Attach file"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+
                     <input
                       type="text"
                       placeholder="Type a message..."
@@ -349,7 +524,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                     />
                     <button
                       type="submit"
-                      disabled={!newMessage.trim() || isSending}
+                      disabled={(!newMessage.trim() && !selectedFile) || isSending}
                       className="p-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors active:scale-95 min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
                     >
                       {isSending ? (
