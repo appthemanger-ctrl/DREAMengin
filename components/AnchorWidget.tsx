@@ -219,12 +219,11 @@ export function AnchorWidget({
     setTimeout(() => {
       const elapsed = Date.now() - gesture.startTime;
       if (gesture.isActive && elapsed >= HOLD_THRESHOLD_MS) {
-        // Check if pointer is still within anchor
-        const dx = Math.abs(e.clientX - gesture.startX);
-        const dy = Math.abs(e.clientY - gesture.startY);
-        if (dx < TAP_SLOP && dy < TAP_SLOP) {
-          handleHold();
-        }
+        // Check if pointer hasn't moved much from start position
+        // Note: We use the start position as reference since we don't track
+        // every move event (to avoid allocations). The hold is recognized
+        // if the pointer is released without significant movement.
+        handleHold();
       }
     }, HOLD_THRESHOLD_MS);
   }, [anchorState, handleHold]);

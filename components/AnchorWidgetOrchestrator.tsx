@@ -12,6 +12,7 @@ import { AnchorStateBuffer, MODE_HOME, MODE_PROFILE, MODE_SHRUNK } from '@/lib/n
 import { AnchorWidgetStorage, type AnchorWidgetState } from '@/lib/navigation/AnchorWidgetStorage';
 import { widgetEventBus, type WidgetMsg } from '@/lib/widgets/WidgetEventBus';
 import { WidgetLinkGraph } from '@/lib/widgets/WidgetLinkGraph';
+import { generateMockWidgetInstances } from '@/lib/navigation/mockWidgetData';
 
 /**
  * AnchorWidgetOrchestrator - Main controller for anchor widget system
@@ -53,44 +54,7 @@ export function AnchorWidgetOrchestrator() {
       }
       
       // Initialize widget memory with mock data
-      widgetMemoryRef.current.initialize([
-        {
-          instanceId: 'widget-home-1',
-          ownerId: 'user-1',
-          context: 'HOME',
-          transformState: { x: 0, y: 0, scale: 1, rotation: 0 },
-          zIndex: 1,
-          presentation: 'FLOATING' as const,
-          bindingType: 'STATIC' as const,
-          bindingConfig: {},
-          visibility: 'ACTIVE' as const,
-          internalState: {}
-        },
-        {
-          instanceId: 'widget-profile-1',
-          ownerId: 'user-1',
-          context: 'PROFILE',
-          transformState: { x: 100, y: 100, scale: 1, rotation: 0 },
-          zIndex: 1,
-          presentation: 'FLOATING' as const,
-          bindingType: 'LIVE' as const,
-          bindingConfig: {},
-          visibility: 'ACTIVE' as const,
-          internalState: {}
-        },
-        {
-          instanceId: 'widget-profile-2',
-          ownerId: 'user-1',
-          context: 'PROFILE',
-          transformState: { x: 200, y: 150, scale: 1, rotation: 0 },
-          zIndex: 2,
-          presentation: 'FLOATING' as const,
-          bindingType: 'LIVE' as const,
-          bindingConfig: {},
-          visibility: 'ACTIVE' as const,
-          internalState: {}
-        }
-      ]);
+      widgetMemoryRef.current.initialize(generateMockWidgetInstances());
     };
     
     init();

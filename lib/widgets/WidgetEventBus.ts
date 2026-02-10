@@ -78,15 +78,17 @@ export class WidgetEventBus {
   
   /**
    * Schedule message processing outside gesture frames
+   * Prefers requestIdleCallback for non-urgent messages to avoid blocking
    */
   private scheduleProcessing(): void {
     this.isProcessing = true;
     
-    // Use queueMicrotask for next microtask or requestIdleCallback for idle
-    if (typeof queueMicrotask !== 'undefined') {
-      queueMicrotask(() => this.processMessages());
-    } else if (typeof requestIdleCallback !== 'undefined') {
+    // Use requestIdleCallback for idle processing (preferred for non-urgent messages)
+    if (typeof requestIdleCallback !== 'undefined') {
       requestIdleCallback(() => this.processMessages());
+    } else if (typeof queueMicrotask !== 'undefined') {
+      // Fallback to microtask
+      queueMicrotask(() => this.processMessages());
     } else {
       // Fallback to setTimeout
       setTimeout(() => this.processMessages(), 0);

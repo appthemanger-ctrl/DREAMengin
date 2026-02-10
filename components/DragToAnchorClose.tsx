@@ -39,6 +39,7 @@ export function DragToAnchorClose({ anchorRect, onClose, children }: DragToAncho
    */
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     // Only allow drag from specific handle (e.g., top bar)
+    // Note: Using e.target to check the actual clicked element
     const target = e.target as HTMLElement;
     if (!target.classList.contains('drag-handle')) {
       return;
@@ -50,6 +51,7 @@ export function DragToAnchorClose({ anchorRect, onClose, children }: DragToAncho
     dragState.startX = e.clientX;
     dragState.startY = e.clientY;
     dragState.pointerId = e.pointerId;
+    // Store the draggable container (currentTarget) for transform updates
     dragState.element = e.currentTarget as HTMLElement;
     
     setIsDragging(true);
