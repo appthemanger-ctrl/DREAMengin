@@ -1,6 +1,6 @@
 # DREAMengin Web App - Final Form Documentation
 
-**Generated:** 2026-02-08T19:35:02.780Z  
+**Generated:** 2026-02-10T22:16:13.733Z  
 **Generator:** v1.0.4  
 **Status:** 🔴 NOT READY
 
@@ -35,7 +35,7 @@
 |----------|-------|
 | **Name** | dreamengin |
 | **Version** | 1.0.0 |
-| **Node Version** | v22.16.0 |
+| **Node Version** | v24.13.0 |
 | **Package Manager** | pnpm |
 
 ### Core Dependencies
@@ -70,12 +70,22 @@
 
 - `pnpm lint`
   ```bash
-  echo ESLint disabled
+  echo ESLint not supported anymore
   ```
 
 - `pnpm test`
   ```bash
   playwright test
+  ```
+
+- `pnpm test:unit`
+  ```bash
+  vitest run
+  ```
+
+- `pnpm test:unit:watch`
+  ```bash
+  vitest
   ```
 
 - `pnpm db:generate`
@@ -171,23 +181,32 @@
 │   └── page.tsx
 ├── analytics
 │   └── page.tsx
+├── anchor-demo
+│   └── page.tsx
 ├── api
 │   ├── admin
 │   │   └── ai-request
+│   │       └── route.ts
+│   ├── ai
+│   │   └── execute
 │   │       └── route.ts
 │   ├── auth
 │   │   └── logout
 │   │       └── route.ts
 │   ├── dr-eams
 │   │   └── run
-│   │       └── route.ts
+│   │       ├── route.ts
+│   │       └── route.ts.bak
 │   ├── follow
 │   │   └── route.ts
 │   ├── innerdreams
 │   │   ├── check-bugs
 │   │   │   └── route.ts
-│   │   └── update
-│   │       └── route.ts
+│   │   ├── run
+│   │   │   └── route.ts
+│   │   ├── update
+│   │   │   └── route.ts
+│   │   └── config.ts
 │   ├── likes
 │   │   └── route.ts
 │   ├── messages
@@ -205,8 +224,13 @@
 │   ├── setup
 │   │   └── check
 │   │       └── route.ts
-│   └── shop
-│       └── route.ts
+│   ├── shop
+│   │   └── route.ts
+│   └── widgets
+│       ├── feed
+│       │   └── route.ts
+│       └── instances
+│           └── route.ts
 ├── auth
 │   └── callback
 │       └── route.ts
@@ -214,11 +238,18 @@
 │   └── page.tsx
 ├── create
 │   └── page.tsx
+├── demo
+│   ├── DreamSpaceDemo.tsx
+│   └── page.tsx
 ├── discover
+│   └── page.tsx
+├── dream-effects
 │   └── page.tsx
 ├── edit-profile
 │   └── page.tsx
 ├── feed-settings
+│   └── page.tsx
+├── gesture-nav
 │   └── page.tsx
 ├── home
 │   └── page.tsx
@@ -272,10 +303,19 @@
 ### Components (`/components`)
 
 ```
+├── shaders
+│   ├── index.ts
+│   ├── LightningWing.tsx
+│   ├── NeonGlow.tsx
+│   └── Refractor.tsx
 ├── spatial
+│   ├── EnhancedSpatialShell.tsx
 │   ├── HomeSpace.tsx
 │   ├── ProfileSpace.tsx
 │   └── SpatialShell.tsx
+├── three
+│   ├── DreamScene.tsx
+│   └── index.ts
 ├── universe
 │   ├── index.ts
 │   ├── node-cluster.tsx
@@ -290,25 +330,32 @@
 │   ├── WidgetFeedScreen.tsx
 │   ├── WidgetIcon.tsx
 │   └── WidgetRail.tsx
+├── widgets
+│   └── WidgetSurface.tsx
 ├── AdvancedSearch.tsx
 ├── AIAssistant-voice-enhanced.tsx
 ├── AIAssistant.tsx
 ├── AIAssistant.tsx.backup
 ├── AIAssistantEnhanced.tsx
 ├── AnalyticsPanel.tsx
+├── AnchorWidget.tsx
+├── AnchorWidgetOrchestrator.tsx
 ├── CollaborativeCanvas.tsx
 ├── CommandPalette.tsx
 ├── ContentScheduler.tsx
 ├── CreatePostModal.tsx
 ├── DashboardLayout-enhanced.tsx
 ├── DashboardLayout.tsx
+├── DragToAnchorClose.tsx
 ├── DrEamsModeToggle.tsx
 ├── DrEamsVoiceAssistant.tsx
 ├── FeedCard-enhanced.tsx
 ├── FeedCard.tsx
 ├── FloatingActionBubble.tsx
+├── GestureNavigationDemo.tsx
 ├── HomeDashboard.tsx
 ├── HomeFeed.tsx
+├── HomeSpace.tsx
 ├── InnerDreams.tsx
 ├── InnerDreamsButton.tsx
 ├── LandingHero.tsx
@@ -322,7 +369,9 @@
 ├── NotificationCenter.tsx
 ├── PhysicsLab.tsx
 ├── ProfileEditor.tsx
+├── ProfileSpace.tsx
 ├── PullToRefresh.tsx
+├── ShrunkMode.tsx
 ├── SkeletonLoaders.tsx
 ├── StarsBackground.tsx
 ├── ThemeToggle.tsx
@@ -338,28 +387,70 @@
 ```
 ├── agents
 │   ├── agentBus.ts
+│   ├── boogieManAI.ts
 │   ├── drEamsMode.ts
+│   ├── idari.ts
 │   ├── teachBus.ts
 │   └── uiActions.ts
 ├── ai
-│   └── CIC.ts
+│   ├── handlers
+│   │   ├── dreams.ts
+│   │   ├── index.ts
+│   │   ├── navigation.ts
+│   │   └── social.ts
+│   ├── audit.ts
+│   ├── boogie-verifier.ts
+│   ├── boogieman.ts
+│   ├── capability-gate.ts
+│   ├── CIC.ts
+│   ├── confirm-token.ts
+│   ├── confirm.ts
+│   ├── idempotency.ts
+│   ├── rate-limiter.ts
+│   ├── rateLimit.ts
+│   ├── schemas.ts
+│   └── tool-router.ts
 ├── connectors
 │   ├── demo.ts
 │   └── youtube.ts
+├── navigation
+│   ├── anchorField.ts
+│   ├── AnchorStateBuffer.ts
+│   ├── AnchorWidgetStorage.ts
+│   ├── GestureFrameComputer.ts
+│   ├── GestureIntentResolver.ts
+│   ├── index.ts
+│   ├── manifold.ts
+│   ├── mockWidgetData.ts
+│   ├── NavStateBuffer.ts
+│   ├── physics.ts
+│   ├── PointerEventCapture.ts
+│   ├── quaternion.ts
+│   ├── README.md
+│   ├── ReturnStack.ts
+│   ├── SpatialNavigationEngine.ts
+│   ├── TransformSolver.ts
+│   ├── useNavigation.ts
+│   └── WidgetInstanceMemory.ts
 ├── supabase
 │   ├── client.ts
 │   └── server.ts
 ├── ui
 │   └── theme.ts
 ├── widgets
+│   ├── CrossWidgetPosting.ts
+│   ├── feed-resolver.ts
 │   ├── parse.ts
 │   ├── parseConfig.ts
 │   ├── useWidget.ts
 │   ├── WidgetBus.ts
-│   └── WidgetEngine.tsx
+│   ├── WidgetEngine.tsx
+│   ├── WidgetEventBus.ts
+│   └── WidgetLinkGraph.ts
 ├── adari.ts
 ├── ledger-data.ts
-└── utils.ts
+├── utils.ts
+└── webgpu.ts
 
 ```
 
@@ -454,10 +545,12 @@ This section is **auto-scanned** from `app/api/**/route.ts`.
 | Route | Methods | Auth Check | Zod Validation |
 |-------|---------|------------|----------------|
 | `/api/admin/ai-request` | POST | ✅ | ⚠️ |
+| `/api/ai/execute` | POST | ✅ | ✅ |
 | `/api/auth/logout` | GET | ✅ | ⚠️ |
-| `/api/dr-eams/run` | POST | ✅ | ⚠️ |
+| `/api/dr-eams/run` | POST | ✅ | ✅ |
 | `/api/follow` | GET, POST, DELETE | ✅ | ⚠️ |
 | `/api/innerdreams/check-bugs` | POST | ✅ | ⚠️ |
+| `/api/innerdreams/run` | POST | ✅ | ⚠️ |
 | `/api/innerdreams/update` | POST | ✅ | ⚠️ |
 | `/api/likes` | GET, POST, DELETE | ✅ | ⚠️ |
 | `/api/messages` | GET, POST | ✅ | ⚠️ |
@@ -468,14 +561,18 @@ This section is **auto-scanned** from `app/api/**/route.ts`.
 | `/api/projects` | GET, POST, PUT, DELETE | ✅ | ⚠️ |
 | `/api/setup/check` | GET | ⚠️ | ⚠️ |
 | `/api/shop` | GET, POST, PUT, DELETE | ✅ | ⚠️ |
+| `/api/widgets/feed` | GET, POST | ✅ | ⚠️ |
+| `/api/widgets/instances` | GET | ✅ | ✅ |
 
 ### API Security Summary
 
 - /api/admin/ai-request: ✅ auth, ❌ validation
+- /api/ai/execute: ✅ auth, ✅ validation
 - /api/auth/logout: ✅ auth, ❌ validation
-- /api/dr-eams/run: ✅ auth, ❌ validation
+- /api/dr-eams/run: ✅ auth, ✅ validation
 - /api/follow: ✅ auth, ❌ validation
 - /api/innerdreams/check-bugs: ✅ auth, ❌ validation
+- /api/innerdreams/run: ✅ auth, ❌ validation
 - /api/innerdreams/update: ✅ auth, ❌ validation
 - /api/likes: ✅ auth, ❌ validation
 - /api/messages: ✅ auth, ❌ validation
@@ -486,6 +583,8 @@ This section is **auto-scanned** from `app/api/**/route.ts`.
 - /api/projects: ✅ auth, ❌ validation
 - /api/setup/check: ❌ auth, ❌ validation
 - /api/shop: ✅ auth, ❌ validation
+- /api/widgets/feed: ✅ auth, ❌ validation
+- /api/widgets/instances: ✅ auth, ✅ validation
 
 **Rule:** Every route must do **Auth → Zod → Authorization (RLS)**, and must honor surface policies.
 
@@ -515,7 +614,7 @@ This section is **auto-scanned** from `app/api/**/route.ts`.
 
 ### Total Components
 
-**Count:** 51  
+**Count:** 64  
 **Duplicates (AIAssistant* heuristic):** 2
 
 ---
@@ -856,7 +955,7 @@ pnpm docs:webapp-final-form
 
 | Date | Version | Changes |
 |------|---------|---------|
-| 2026-02-08 | 1.0.4 | Auto-generated final form |
+| 2026-02-10 | 1.0.4 | Auto-generated final form |
 
 ---
 
