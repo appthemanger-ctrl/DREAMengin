@@ -219,8 +219,8 @@ export default function MessagesClient({ userId, initialConversations }: Message
     } catch (err) {
       console.error('Failed to send message:', err);
       alert(err instanceof Error ? err.message : 'Failed to send message');
-      // Remove optimistic message on error
-      setMessages(prev => prev.filter(m => m.id.startsWith('temp-')));
+      // Remove only the failed optimistic message
+      setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
       setNewMessage(messageContent); // Restore message input
     } finally {
       setIsSending(false);

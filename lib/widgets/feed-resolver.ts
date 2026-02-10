@@ -46,15 +46,10 @@ export async function resolveFeedHost(
       };
     }
     
-    // Build query for feed items with engagement counts
+    // Build query for feed items
     let query = supabase
       .from('feed_items')
-      .select(`
-        id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score,
-        likes:content_engagement!content_id(count),
-        comments:content_engagement!content_id(count),
-        shares:content_engagement!content_id(count)
-      `)
+      .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
       .eq('user_id', targetUserId)
       .order('ts', { ascending: false })
       .limit(hostConfig.limit);
@@ -80,19 +75,30 @@ export async function resolveFeedHost(
       };
     }
     
-    // Transform to FeedItemSummary format
-    const items: FeedItemSummary[] = (feedItems || []).map((item) => ({
-      item_id: item.id,
-      author_id: item.user_id,
-      created_at: item.ts,
-      text_preview: item.summary || item.title || '',
-      media_preview_url: extractMediaPreviewUrl(item.media_json),
-      engagement_counts: {
-        likes: Array.isArray(item.likes) ? item.likes.filter((l: unknown) => (l as Record<string, string>).engagement_type === 'like').length : 0,
-        comments: Array.isArray(item.comments) ? item.comments.filter((c: unknown) => (c as Record<string, string>).engagement_type === 'comment').length : 0,
-        shares: Array.isArray(item.shares) ? item.shares.filter((s: unknown) => (s as Record<string, string>).engagement_type === 'share').length : 0,
-      },
-      visibility: item.visibility as 'public' | 'followers' | 'private',
+    // Transform to FeedItemSummary format and fetch engagement counts
+    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item) => {
+      // Fetch engagement counts for this item
+      const { data: engagementData } = await supabase
+        .from('content_engagement')
+        .select('engagement_type')
+        .eq('content_id', item.id);
+
+      const engagementCounts = (engagementData || []).reduce((acc, eng) => {
+        if (eng.engagement_type === 'like') acc.likes++;
+        else if (eng.engagement_type === 'comment') acc.comments++;
+        else if (eng.engagement_type === 'share') acc.shares++;
+        return acc;
+      }, { likes: 0, comments: 0, shares: 0 });
+
+      return {
+        item_id: item.id,
+        author_id: item.user_id,
+        created_at: item.ts,
+        text_preview: item.summary || item.title || '',
+        media_preview_url: extractMediaPreviewUrl(item.media_json),
+        engagement_counts: engagementCounts,
+        visibility: item.visibility as 'public' | 'followers' | 'private',
+      };
     }));
     
     return {

@@ -696,7 +696,7 @@ function UploadModal({
       audio: ["audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg", "audio/aac", "audio/m4a"],
     };
 
-    if (contentType in validTypes && !validTypes[contentType].some(type => file.type.startsWith(type.split('/')[0]))) {
+    if (contentType in validTypes && !validTypes[contentType].includes(file.type)) {
       alert(`Please select a valid ${contentType} file`);
       return;
     }
