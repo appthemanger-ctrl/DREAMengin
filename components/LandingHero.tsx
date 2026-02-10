@@ -98,7 +98,7 @@ export default function LandingHero() {
         loop
         muted
         playsInline
-        className="fixed inset-0 h-full w-full object-cover -z-10 opacity-45"
+        className="fixed inset-0 h-full w-full object-cover z-0 opacity-100"
       >
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
@@ -117,15 +117,15 @@ export default function LandingHero() {
         ))}
       </div>
 
-      {/* Gradient orbs */}
-      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl animate-float-gentle pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl animate-float-gentle delay-1000 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl animate-float-gentle delay-2000 pointer-events-none" />
+      {/* Gradient orbs - reduced opacity */}
+      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-float-gentle pointer-events-none z-1" />
+      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-orange-500/5 rounded-full blur-3xl animate-float-gentle delay-1000 pointer-events-none z-1" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/3 rounded-full blur-3xl animate-float-gentle delay-2000 pointer-events-none z-1" />
 
       {/* Main content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
+      <div className="relative z-10 min-h-screen flex flex-col pointer-events-none">
         {/* Header */}
-        <header className="p-4 sm:p-6 flex items-center justify-between">
+        <header className="p-4 sm:p-6 flex items-center justify-between pointer-events-auto">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-nebula-flow flex items-center justify-center cosmic-glow">
               <Sparkles className="w-5 h-5 text-white" />
@@ -152,7 +152,7 @@ export default function LandingHero() {
         </header>
 
         {/* Hero section */}
-        <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 text-center">
+        <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 text-center pointer-events-auto">
           {/* Dr. Eams mascot */}
           <div className="relative w-full max-w-sm h-48 sm:h-64 mb-8">
             {/* Portal/Glow behind mascot */}
@@ -237,7 +237,7 @@ export default function LandingHero() {
         </main>
 
         {/* Bottom indicator */}
-        <div className="pb-8 flex justify-center">
+        <div className="pb-8 flex justify-center pointer-events-auto">
           <div className="flex flex-col items-center gap-2 text-white/40">
             <span className="text-xs">Scroll to explore</span>
             <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-1">
