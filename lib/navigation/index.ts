@@ -19,3 +19,15 @@ export type { WidgetTransformState, WidgetInstanceRecord } from './WidgetInstanc
 export type { EngineConfig, EngineEventType, EngineEventCallback } from './SpatialNavigationEngine';
 export type { UseNavigationOptions, NavigationState } from './useNavigation';
 export type { HomeSlotMapping, PriorityWidget, AnchorWidgetState } from './AnchorWidgetStorage';
+
+// Quaternion Math (Section 3)
+export * from './quaternion';
+
+// Manifold Smoothing (Section 4)
+export * from './manifold';
+
+// Physics Model (Section 5)
+export * from './physics';
+
+// Home Anchor Field (Section 8)
+export * from './anchorField';
