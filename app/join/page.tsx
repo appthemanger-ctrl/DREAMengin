@@ -101,7 +101,7 @@ export default function JoinPage() {
       <div className="mx-auto flex w-full max-w-md flex-col items-center">
         <div className="mb-6 flex items-center gap-3">
           <Image
-            src="/logo.jpeg"
+            src="/logo-icon.jpeg"
             alt="DreamEngin"
             width={44}
             height={44}
