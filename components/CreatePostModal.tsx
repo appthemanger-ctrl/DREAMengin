@@ -38,7 +38,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
           user_id: userId,
           source: 'app',
           external_id: crypto.randomUUID(),
-          title: content.slice(0, 100) + (content.length > 100 ? '...' : ''),
+          title: content.slice(0, 100),
           summary: content,
           ts: new Date().toISOString(),
           dedupe_hash: `${userId}-app-${Date.now()}`,

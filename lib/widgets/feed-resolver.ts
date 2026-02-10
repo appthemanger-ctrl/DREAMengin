@@ -46,10 +46,15 @@ export async function resolveFeedHost(
       };
     }
     
-    // Build query for feed items
+    // Build query for feed items with engagement counts
     let query = supabase
       .from('feed_items')
-      .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
+      .select(`
+        id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score,
+        likes:content_engagement!content_id(count),
+        comments:content_engagement!content_id(count),
+        shares:content_engagement!content_id(count)
+      `)
       .eq('user_id', targetUserId)
       .order('ts', { ascending: false })
       .limit(hostConfig.limit);
@@ -83,10 +88,9 @@ export async function resolveFeedHost(
       text_preview: item.summary || item.title || '',
       media_preview_url: extractMediaPreviewUrl(item.media_json),
       engagement_counts: {
-        // TODO: Add actual engagement counts from a separate table
-        likes: 0,
-        comments: 0,
-        shares: 0,
+        likes: Array.isArray(item.likes) ? item.likes.filter((l: unknown) => (l as Record<string, string>).engagement_type === 'like').length : 0,
+        comments: Array.isArray(item.comments) ? item.comments.filter((c: unknown) => (c as Record<string, string>).engagement_type === 'comment').length : 0,
+        shares: Array.isArray(item.shares) ? item.shares.filter((s: unknown) => (s as Record<string, string>).engagement_type === 'share').length : 0,
       },
       visibility: item.visibility as 'public' | 'followers' | 'private',
     }));
@@ -95,7 +99,7 @@ export async function resolveFeedHost(
       kind: HostKind.HOST_FEED_VIEW,
       status: HostResolvedStatus.OK,
       items,
-      cursor: null, // TODO: Implement pagination cursor
+      cursor: items.length > 0 ? items[items.length - 1].created_at : null,
       etag: generateETag(items),
       updated_at: new Date().toISOString(),
     };
