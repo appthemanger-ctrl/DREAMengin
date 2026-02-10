@@ -108,7 +108,7 @@ export default function MobileNavBarEnhanced({ user }: MobileNavBarProps) {
 
       {/* Bottom Navigation Bar */}
       <nav 
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden transition-transform duration-180 ease-out will-change-transform"
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden transition-transform duration-300 ease-out will-change-transform"
         style={{
           transform: !isNavVisible ? 'translate3d(0, 140%, 0)' : 'translate3d(0, 0, 0)',
           paddingBottom: 'env(safe-area-inset-bottom)'

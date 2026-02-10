@@ -14,6 +14,13 @@ const ADMIN_ONLY_INTENTS = ['DIAG_SCHEMA_SNAPSHOT', 'DIAG_RLS_SNAPSHOT'];
 const HIGH_RISK_INTENTS = ['DREAM_CONFIG_PATCH', 'DREAM_REORDER'];
 const WRITE_INTENTS = ['POST_CREATE', 'DREAM_CONFIG_PATCH', 'DREAM_REORDER'];
 
+// Rate limit threshold: requests per minute before hard blocking
+// This is set to 60 RPM to prevent abuse while allowing normal usage patterns
+const HARD_BLOCK_RPM_THRESHOLD = 60;
+
+// High RPM threshold for write operations requiring confirmation
+const HIGH_RPM_WRITE_THRESHOLD = 30;
+
 /**
  * BoogieMan policy evaluation
  */
@@ -24,8 +31,8 @@ export function boogieEvaluate(input: BoogieEvaluateInput): BoogieOutput {
   let globalHardBlock = false;
   let cooldownSeconds = 0;
 
-  // Rate limiting check
-  if (rateRpm > 60) {
+  // Rate limiting check - hard block if RPM exceeds threshold
+  if (rateRpm > HARD_BLOCK_RPM_THRESHOLD) {
     globalHardBlock = true;
     cooldownSeconds = 60;
   }
@@ -54,7 +61,7 @@ export function boogieEvaluate(input: BoogieEvaluateInput): BoogieOutput {
       reasonCode = 'HIGH_RISK';
     }
     // Rule 4: Write operations + high RPM → CONFIRM
-    else if (WRITE_INTENTS.includes(intent.type) && rateRpm > 30) {
+    else if (WRITE_INTENTS.includes(intent.type) && rateRpm > HIGH_RPM_WRITE_THRESHOLD) {
       decision = 'CONFIRM';
       riskScore = 0.6;
       reasonCode = 'HIGH_RPM_WRITE';
