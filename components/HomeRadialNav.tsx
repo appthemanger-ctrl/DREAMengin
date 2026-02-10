@@ -312,8 +312,14 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
       savePosition(position);
       setIsDragging(false);
     } else if (!hasMovedRef.current) {
-      // Quick tap - could open menu or do nothing
-      // For now, do nothing (long-press required for menu)
+      // Quick tap - new behavior
+      if (isChatOpen) {
+        // First press: close Dr. Eam chat
+        setIsChatOpen(false);
+      } else {
+        // Second press (nothing open): navigate to /home
+        router.push('/home');
+      }
     }
 
     hasMovedRef.current = false;
@@ -744,36 +750,39 @@ What's on your mind?`;
       {/* Dr. Eam Chat Panel */}
       {isChatOpen && (
         <div
-          className="fixed inset-0 z-[10000] bg-white dark:bg-slate-950 flex flex-col"
-          style={{ animation: 'slideUpIn 300ms ease-out' }}
+          className="fixed inset-0 z-[10000] bg-white dark:bg-slate-950 flex flex-col safe-area"
+          style={{ 
+            animation: 'slideUpIn 300ms ease-out',
+            paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
+          }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between p-3 sm:p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="relative">
-                <Bot className="w-6 h-6" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
+                <Bot className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
               </div>
               <div>
-                <span className="font-bold text-lg">Dr. Eam</span>
-                <p className="text-xs opacity-90">Your Creative AI Companion</p>
+                <span className="font-bold text-base sm:text-lg">Dr. Eam</span>
+                <p className="text-[10px] sm:text-xs opacity-90">Your Creative AI Companion</p>
               </div>
             </div>
             <button
               onClick={() => setIsChatOpen(false)}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              className="p-1.5 sm:p-2 hover:bg-white/20 active:bg-white/30 rounded-lg transition-colors"
               aria-label="Close"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
             {messages.map((message) => (
               <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`max-w-[85%] p-4 rounded-2xl shadow-md ${
+                  className={`max-w-[85%] p-3 sm:p-4 rounded-2xl shadow-md ${
                     message.role === 'user'
                       ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
                       : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700'
@@ -785,22 +794,21 @@ What's on your mind?`;
                       <span className="capitalize text-xs">{message.emotion}</span>
                     </div>
                   )}
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                  <span className="text-xs opacity-60 mt-2 block">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                  <span className="text-[10px] sm:text-xs opacity-60 mt-1.5 sm:mt-2 block">{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl shadow-md">
+                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 sm:p-4 rounded-2xl shadow-md">
                   <div className="flex gap-2 items-center">
-                    <Brain className="w-5 h-5 text-purple-600 animate-pulse" />
+                    <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 animate-pulse" />
                     <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-2 h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 </div>
@@ -810,7 +818,7 @@ What's on your mind?`;
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <div className="p-3 sm:p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shrink-0">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -818,19 +826,19 @@ What's on your mind?`;
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                 placeholder="Ask me anything..."
-                className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-slate-800 dark:text-white transition-all"
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-slate-800 dark:text-white transition-all"
                 disabled={isLoading}
               />
               <button
                 onClick={handleSend}
                 disabled={isLoading || !input.trim()}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl hover:from-indigo-700 hover:to-purple-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
                 aria-label="Send message"
               >
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
+            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1.5 sm:mt-2 text-center">
               Press Enter to send • Shift+Enter for new line
             </p>
           </div>
