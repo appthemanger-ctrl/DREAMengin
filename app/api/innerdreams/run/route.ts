@@ -1,13 +1,13 @@
-// app/api/dr-eams/run/route.ts
-// DREAMENGIN AI SYSTEM v2026.0 - Dr. Eams Agent Endpoint
-// User-facing AI agent - JSON-only intents, NO direct execution
+// app/api/innerdreams/run/route.ts
+// DREAMENGIN AI SYSTEM v2026.0 - iDari/InnerDreams Agent Endpoint
+// Admin-facing AI agent - diagnostics and proposals only
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  DrEamsRunRequest,
-  DrEamsRunResponse,
+  IDariRunRequest,
+  IDariRunResponse,
   Intent,
   ActorContext,
   UIContext,
@@ -15,70 +15,65 @@ import {
 import { buildActorContext } from '@/lib/ai/capability-gate';
 import { verifyIntents } from '@/lib/ai/boogie-verifier';
 import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rate-limiter';
-import { generateConfirmToken, storeConfirmToken } from '@/lib/ai/confirm-token';
 import { writeAuditLog } from '@/lib/ai/audit';
-
-// Import handlers to ensure registration
-import '@/lib/ai/handlers';
 
 function jsonError(status: number, code: string, message: string, details?: unknown) {
   return NextResponse.json({ ok: false, error: { code, message, details } }, { status });
 }
 
-// ============================================================================
-// DR. EAMS PLANNER (Placeholder - In production, call OpenAI/Claude)
-// ============================================================================
-
-async function drEamsPlanner(
+// iDari PLANNER (Placeholder - In production, call OpenAI/Claude)
+async function idariPlanner(
   message: string,
   actor: ActorContext,
   ui: UIContext
 ): Promise<{ response_text: string; intents: Intent[] }> {
-  // This is a placeholder that generates simple test intents
-  // In production, this would call an LLM with a structured prompt
-  
-  const response_text = `I understand you want to: "${message}". Here's what I can help with.`;
-  
-  // Example: Parse simple commands
+  const response_text = `[iDari Admin Agent] Analyzing: "${message}"`;
   const intents: Intent[] = [];
   
-  if (message.toLowerCase().includes('open home menu')) {
+  if (message.toLowerCase().includes('schema') || message.toLowerCase().includes('database')) {
     intents.push({
       intent_id: uuidv4(),
-      type: 'HOME_MENU_OPEN',
-      payload: {},
+      type: 'DIAG_SCHEMA_SNAPSHOT',
+      payload: { include_policies: true },
       confidence: 0.9,
       requires_confirmation: false,
-      rationale: 'Opening home menu as requested',
-      idempotency_key: `home-menu-${Date.now()}`,
+      rationale: 'Generating database schema snapshot',
+      idempotency_key: `diag-schema-${Date.now()}`,
     });
   }
   
-  if (message.toLowerCase().includes('search')) {
-    const query = message.replace(/search\s+(for\s+)?/i, '').trim();
+  if (message.toLowerCase().includes('rls') || message.toLowerCase().includes('policies')) {
     intents.push({
       intent_id: uuidv4(),
-      type: 'SEARCH',
-      payload: { query, scope: 'all' },
-      confidence: 0.85,
+      type: 'DIAG_RLS_SNAPSHOT',
+      payload: {},
+      confidence: 0.9,
       requires_confirmation: false,
-      rationale: `Searching for: ${query}`,
-      idempotency_key: `search-${query}-${Date.now()}`,
+      rationale: 'Checking RLS policies',
+      idempotency_key: `diag-rls-${Date.now()}`,
+    });
+  }
+  
+  if (message.toLowerCase().includes('env') || message.toLowerCase().includes('environment')) {
+    intents.push({
+      intent_id: uuidv4(),
+      type: 'DIAG_ENV_CHECKLIST',
+      payload: {},
+      confidence: 0.9,
+      requires_confirmation: false,
+      rationale: 'Checking environment configuration',
+      idempotency_key: `diag-env-${Date.now()}`,
     });
   }
   
   return { response_text, intents };
 }
 
-// ============================================================================
-// POST /api/dr-eams/run
-// ============================================================================
-
+// POST /api/innerdreams/run
 export async function POST(req: NextRequest) {
   const requestStart = Date.now();
   const request_id = uuidv4();
 
-  // Parse request
   let body: unknown;
   try {
     body = await req.json();
@@ -86,7 +81,7 @@ export async function POST(req: NextRequest) {
     return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
-  const request = body as Partial<DrEamsRunRequest>;
+  const request = body as Partial<IDariRunRequest>;
 
   if (!request.message || typeof request.message !== 'string') {
     return jsonError(400, 'MISSING_MESSAGE', 'Request must include a message string.');
@@ -96,7 +91,6 @@ export async function POST(req: NextRequest) {
     return jsonError(400, 'MISSING_UI', 'Request must include UI context.');
   }
 
-  // Authenticate
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -107,33 +101,40 @@ export async function POST(req: NextRequest) {
     return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
   }
 
-  // Rate limit check
-  const rateLimitCheck = await checkRateLimit(user.id, '/api/dr-eams/run');
+  const actor = await buildActorContext(user.id);
+
+  if (actor.role !== 'admin') {
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent: 'idari',
+      ok: false,
+      error_code: 'FORBIDDEN',
+      latency_ms: Date.now() - requestStart,
+    });
+
+    return jsonError(403, 'FORBIDDEN', 'Admin access required.');
+  }
+
+  const rateLimitCheck = await checkRateLimit(user.id, '/api/innerdreams/run');
   if (!rateLimitCheck.allowed) {
     return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
       resetAt: rateLimitCheck.resetAt,
     });
   }
 
-  // Build actor context
-  const actor = await buildActorContext(user.id);
-
-  // Get current RPM for Boogie signals
-  const rpm = await getCurrentRPM(user.id, '/api/dr-eams/run');
-
-  // Call planner (LLM)
-  const { response_text, intents } = await drEamsPlanner(
+  const rpm = await getCurrentRPM(user.id, '/api/innerdreams/run');
+  const { response_text, intents } = await idariPlanner(
     request.message,
     actor,
     request.ui
   );
 
-  // If planner failed to produce valid intents, return safe response
   if (!Array.isArray(intents) || intents.length === 0) {
     await writeAuditLog({
       request_id,
       user_id: user.id,
-      agent: 'dr_eams',
+      agent: 'idari',
       ok: true,
       latency_ms: Date.now() - requestStart,
     });
@@ -145,17 +146,15 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Verify intents with Boogie Man
   const boogieOutput = await verifyIntents(
     request_id,
     intents,
     actor,
-    'dr_eams',
+    'idari',
     request.message,
     rpm
   );
 
-  // Check for global hard block
   if (boogieOutput.global.hard_block) {
     await writeAuditLog({
       request_id,
@@ -171,7 +170,6 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Filter to ALLOW and CONFIRM intents
   const allowedIntents = intents.filter((intent, idx) => {
     const decision = boogieOutput.per_intent[idx];
     return decision.decision === 'ALLOW' || decision.decision === 'CONFIRM';
@@ -181,38 +179,18 @@ export async function POST(req: NextRequest) {
     (d) => d.decision === 'ALLOW' || d.decision === 'CONFIRM'
   );
 
-  // Generate confirm token if any intents need confirmation
-  let confirm_token: string | undefined;
-  const needsConfirmation = allowedDecisions.some((d) => d.decision === 'CONFIRM');
-
-  if (needsConfirmation) {
-    const intentIds = allowedIntents.map((i) => i.intent_id);
-    confirm_token = generateConfirmToken(request_id, user.id, 300); // 5 min expiry
-
-    await storeConfirmToken(
-      confirm_token,
-      request_id,
-      user.id,
-      intentIds,
-      request.ui,
-      300
-    );
-  }
-
-  // Audit the request
   await writeAuditLog({
     request_id,
     user_id: user.id,
-    agent: 'dr_eams',
+    agent: 'idari',
     ok: true,
     latency_ms: Date.now() - requestStart,
   });
 
-  const response: DrEamsRunResponse = {
+  const response: IDariRunResponse = {
     response_text,
     proposed_intents: allowedIntents,
     boogie_decisions: allowedDecisions,
-    confirm_token,
   };
 
   return NextResponse.json(response);
