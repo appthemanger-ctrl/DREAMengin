@@ -41,7 +41,7 @@ export async function GET() {
 
   // Overall status: true only if all required checks pass.
   // Note: we intentionally do NOT disclose secret values.
-  const ok = checks.filter(c => c.required).every((c) => c.ok);
+  const ok = checks.filter(c => c.required !== false).every((c) => c.ok);
 
 
   return NextResponse.json({ ok, checks, timestamp: new Date().toISOString() });
