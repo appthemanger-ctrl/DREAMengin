@@ -3,7 +3,7 @@
 // Resolves feed data for widgets with SELF/FOLLOW scopes
 // =====================================================
 
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   FeedScope,
   HostResolvedStatus,
@@ -21,7 +21,7 @@ export async function resolveFeedHost(
   ownerId: string,
   hostConfig: FeedHostConfig
 ): Promise<HostResolved> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   
   try {
     // Verify scope and permissions
@@ -114,7 +114,7 @@ export async function resolveFeedHost(
 // =====================================================
 
 // Type alias for Supabase client
-type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
+type SupabaseClient = Awaited<ReturnType<typeof createServerClient>>;
 
 async function verifyScopePermissions(
   supabase: SupabaseClient,
@@ -209,7 +209,7 @@ export async function subscribeFeedRealtime(
   hostConfig: FeedHostConfig,
   onUpdate: (items: FeedItemSummary[]) => void
 ): Promise<() => void> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   const targetUserId =
     hostConfig.scope === FeedScope.SELF ? ownerId : hostConfig.target_user_id;
   
