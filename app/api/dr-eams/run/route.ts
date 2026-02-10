@@ -1,39 +1,30 @@
 // app/api/dr-eams/run/route.ts
-// DREAMENGIN AI SYSTEM v2026.0 - Dr. Eams Agent Endpoint
+// DREAMENGIN AI SYSTEM v2026.0 - Dr. Eams Agent Endpoint (UPDATED)
 // User-facing AI agent - JSON-only intents, NO direct execution
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  DrEamsRunRequest,
-  DrEamsRunResponse,
-  Intent,
-  ActorContext,
-  UIContext,
-} from '@/types/ai-system';
-import { buildActorContext } from '@/lib/ai/capability-gate';
-import { verifyIntents } from '@/lib/ai/boogie-verifier';
-import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rate-limiter';
-import { generateConfirmToken, storeConfirmToken } from '@/lib/ai/confirm-token';
+import { DrEamsRunBodySchema, IntentSchema, type Intent, type DrEamsRunResponse } from '@/lib/ai/schemas';
+import { boogieEvaluate } from '@/lib/ai/boogieman';
+import { makeConfirmToken } from '@/lib/ai/confirm';
 import { writeAuditLog } from '@/lib/ai/audit';
+import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
 
-// Import handlers to ensure registration
-import '@/lib/ai/handlers';
+export const dynamic = 'force-dynamic';
 
 function jsonError(status: number, code: string, message: string, details?: unknown) {
-  return NextResponse.json({ ok: false, error: { code, message, details } }, { status });
+  return NextResponse.json(
+    { ok: false, error: { code, message, details } },
+    { status, headers: { 'Cache-Control': 'no-store' } }
+  );
 }
 
 // ============================================================================
 // DR. EAMS PLANNER (Placeholder - In production, call OpenAI/Claude)
 // ============================================================================
 
-async function drEamsPlanner(
-  message: string,
-  actor: ActorContext,
-  ui: UIContext
-): Promise<{ response_text: string; intents: Intent[] }> {
+async function drEamsPlanner(message: string): Promise<{ response_text: string; intents: Intent[] }> {
   // This is a placeholder that generates simple test intents
   // In production, this would call an LLM with a structured prompt
   
@@ -67,6 +58,18 @@ async function drEamsPlanner(
     });
   }
   
+  if (message.toLowerCase().includes('create post')) {
+    intents.push({
+      intent_id: uuidv4(),
+      type: 'POST_CREATE',
+      payload: { content: message.replace(/create post/i, '').trim() },
+      confidence: 0.75,
+      requires_confirmation: true,
+      rationale: 'Creating a new post',
+      idempotency_key: `post-create-${Date.now()}`,
+    });
+  }
+  
   return { response_text, intents };
 }
 
@@ -86,47 +89,53 @@ export async function POST(req: NextRequest) {
     return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
-  const request = body as Partial<DrEamsRunRequest>;
-
-  if (!request.message || typeof request.message !== 'string') {
-    return jsonError(400, 'MISSING_MESSAGE', 'Request must include a message string.');
+  // Validate with Zod
+  const parseResult = DrEamsRunBodySchema.safeParse(body);
+  if (!parseResult.success) {
+    return jsonError(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.flatten());
   }
 
-  if (!request.ui) {
-    return jsonError(400, 'MISSING_UI', 'Request must include UI context.');
-  }
+  const request = parseResult.data;
 
   // Authenticate
   const supabase = await createServerClient();
-  const {
-    data: { user },
-    error: userErr,
-  } = await supabase.auth.getUser();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
 
   if (userErr || !user) {
     return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
   }
 
+  // Get user role
+  const { data: roleData } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single();
+  
+  const actorRole = roleData?.role || 'user';
+
   // Rate limit check
-  const rateLimitCheck = await checkRateLimit(user.id, '/api/dr-eams/run');
+  const rateLimitCheck = await checkRateLimit(user.id, '/api/dr-eams/run', 60, 60);
   if (!rateLimitCheck.allowed) {
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent: 'dr_eams',
+      ok: false,
+      error_code: 'RATE_LIMIT',
+      latency_ms: Date.now() - requestStart,
+    });
+
     return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
-      resetAt: rateLimitCheck.resetAt,
+      retry_after_seconds: rateLimitCheck.retry_after_seconds,
     });
   }
-
-  // Build actor context
-  const actor = await buildActorContext(user.id);
 
   // Get current RPM for Boogie signals
   const rpm = await getCurrentRPM(user.id, '/api/dr-eams/run');
 
   // Call planner (LLM)
-  const { response_text, intents } = await drEamsPlanner(
-    request.message,
-    actor,
-    request.ui
-  );
+  const { response_text, intents } = await drEamsPlanner(request.message);
 
   // If planner failed to produce valid intents, return safe response
   if (!Array.isArray(intents) || intents.length === 0) {
@@ -138,22 +147,36 @@ export async function POST(req: NextRequest) {
       latency_ms: Date.now() - requestStart,
     });
 
-    return NextResponse.json({
-      response_text,
-      proposed_intents: [],
-      boogie_decisions: [],
-    });
+    return NextResponse.json(
+      {
+        response_text,
+        proposed_intents: [],
+        boogie_decisions: [],
+      } as DrEamsRunResponse,
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
+  }
+
+  // Validate intents against schema
+  const validIntents = intents.filter(intent => IntentSchema.safeParse(intent).success);
+
+  if (validIntents.length === 0) {
+    return NextResponse.json(
+      {
+        response_text,
+        proposed_intents: [],
+        boogie_decisions: [],
+      } as DrEamsRunResponse,
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
   }
 
   // Verify intents with Boogie Man
-  const boogieOutput = await verifyIntents(
-    request_id,
-    intents,
-    actor,
-    'dr_eams',
-    request.message,
-    rpm
-  );
+  const boogieOutput = boogieEvaluate({
+    actorRole: actorRole as 'user' | 'admin',
+    rateRpm: rpm,
+    intents: validIntents,
+  });
 
   // Check for global hard block
   if (boogieOutput.global.hard_block) {
@@ -172,9 +195,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Filter to ALLOW and CONFIRM intents
-  const allowedIntents = intents.filter((intent, idx) => {
+  const allowedIntents = validIntents.filter((intent, idx) => {
     const decision = boogieOutput.per_intent[idx];
-    return decision.decision === 'ALLOW' || decision.decision === 'CONFIRM';
+    return decision && (decision.decision === 'ALLOW' || decision.decision === 'CONFIRM');
   });
 
   const allowedDecisions = boogieOutput.per_intent.filter(
@@ -186,17 +209,11 @@ export async function POST(req: NextRequest) {
   const needsConfirmation = allowedDecisions.some((d) => d.decision === 'CONFIRM');
 
   if (needsConfirmation) {
-    const intentIds = allowedIntents.map((i) => i.intent_id);
-    confirm_token = generateConfirmToken(request_id, user.id, 300); // 5 min expiry
-
-    await storeConfirmToken(
-      confirm_token,
-      request_id,
-      user.id,
-      intentIds,
-      request.ui,
-      300
-    );
+    confirm_token = makeConfirmToken({
+      requestId: request_id,
+      userId: user.id,
+      ttlSeconds: 300, // 5 min expiry
+    });
   }
 
   // Audit the request
@@ -215,5 +232,7 @@ export async function POST(req: NextRequest) {
     confirm_token,
   };
 
-  return NextResponse.json(response);
+  return NextResponse.json(response, {
+    headers: { 'Cache-Control': 'no-store' },
+  });
 }

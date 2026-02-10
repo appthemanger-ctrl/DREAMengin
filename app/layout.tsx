@@ -35,23 +35,23 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Gracefully handle missing Supabase config at build time
-  let session = null;
+  let user = null;
   let isAdmin = false;
   
   try {
     const supabase = await createServerClient();
-    const { data } = await supabase.auth.getSession();
-    session = data?.session ?? null;
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    user = authUser;
     
-    // Check if user is admin
-    if (session?.user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
+    // Check if user is admin from DB-backed user_roles table
+    if (user) {
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
         .single();
       
-      isAdmin = session.user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+      isAdmin = roleData?.role === 'admin';
     }
   } catch {
     // Supabase not configured - app will still render but without auth features
@@ -63,22 +63,22 @@ export default async function RootLayout({
       <body className="font-sans bg-background text-foreground transition-colors antialiased dream-bg">
         {/* Desktop Nav */}
         <div className="hidden md:block">
-          {session && <NavBar session={session} />}
+          {user && <NavBar user={user} />}
         </div>
         {/* Mobile Nav */}
         <div className="md:hidden">
-          {session && <MobileNavBarEnhanced session={session} />}
+          {user && <MobileNavBarEnhanced user={user} />}
         </div>
         
         {/* Main content with proper spacing for nav bars */}
-        <main className={session ? 'md:pt-0 pb-safe' : ''}>
+        <main className={user ? 'md:pt-0 pb-safe' : ''}>
           {children}
         </main>
         
         {/* AI Assistants - available when logged in */}
-        {session && <AIAssistantEnhanced />}
-        {session && <InnerDreamsButton isAdmin={isAdmin} />}
-        {session && <AnchorWidgetOrchestrator />}
+        {user && <AIAssistantEnhanced />}
+        {user && <InnerDreamsButton isAdmin={isAdmin} />}
+        {user && <AnchorWidgetOrchestrator />}
       </body>
     </html>
   );
