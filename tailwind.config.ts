@@ -110,6 +110,9 @@ const config: Config = {
         "sunrise-heat": "var(--grad-sunrise-heat)",
         "deep-nebula": "var(--grad-deep-nebula)",
       },
+      zIndex: {
+        '1': '1',
+      },
       boxShadow: {
         "glow-sm": "0 0 10px hsl(var(--glow-primary) / 0.2)",
         "glow-md": "0 0 20px hsl(var(--glow-primary) / 0.2), 0 0 40px hsl(var(--glow-primary) / 0.1)",
