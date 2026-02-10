@@ -136,14 +136,16 @@ export function smoothstep(edge0: number, edge1: number, x: number): number {
 
 /**
  * Calculate distance to nearest edge of a face
- * Assumes normalized face coordinates in [-1, 1]²
+ * Face coordinates are in [-1, 1]² range:
+ * - faceX: -1 (left edge) to 1 (right edge)
+ * - faceY: -1 (bottom edge) to 1 (top edge)
  */
-export function distanceToEdge(normalizedX: number, normalizedY: number): number {
+export function distanceToEdge(faceX: number, faceY: number): number {
   // Distance to each edge
-  const distLeft = normalizedX + 1;    // Distance to left edge (-1)
-  const distRight = 1 - normalizedX;   // Distance to right edge (1)
-  const distBottom = normalizedY + 1;  // Distance to bottom edge (-1)
-  const distTop = 1 - normalizedY;     // Distance to top edge (1)
+  const distLeft = faceX + 1;    // Distance to left edge (-1)
+  const distRight = 1 - faceX;   // Distance to right edge (1)
+  const distBottom = faceY + 1;  // Distance to bottom edge (-1)
+  const distTop = 1 - faceY;     // Distance to top edge (1)
   
   // Return minimum distance
   return Math.min(distLeft, distRight, distBottom, distTop);
