@@ -113,8 +113,11 @@ export async function resolveFeedHost(
 // 2. SCOPE VERIFICATION
 // =====================================================
 
+// Type alias for Supabase client
+type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
+
 async function verifyScopePermissions(
-  supabase: ReturnType<Awaited<typeof createClient>>,
+  supabase: SupabaseClient,
   ownerId: string,
   hostConfig: FeedHostConfig
 ): Promise<boolean> {
