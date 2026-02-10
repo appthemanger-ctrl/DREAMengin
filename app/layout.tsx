@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import MobileNavBarEnhanced from "@/components/MobileNavBarEnhanced";
 import AIAssistantEnhanced from "@/components/AIAssistantEnhanced";
 import InnerDreamsButton from "@/components/InnerDreamsButton";
+import { AnchorWidgetOrchestrator } from "@/components/AnchorWidgetOrchestrator";
 import { createServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -77,6 +78,7 @@ export default async function RootLayout({
         {/* AI Assistants - available when logged in */}
         {session && <AIAssistantEnhanced />}
         {session && <InnerDreamsButton isAdmin={isAdmin} />}
+        {session && <AnchorWidgetOrchestrator />}
       </body>
     </html>
   );
