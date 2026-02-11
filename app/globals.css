@@ -368,3 +368,5 @@ pre code {
     transition-duration: 0.01ms !important;
   }
 }
+
+html, body { touch-action: none; overscroll-behavior: none; }

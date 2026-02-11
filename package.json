@@ -47,7 +47,9 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.182.0",
     "uuid": "^10.0.0",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "pixi.js": "^8.0.0",
+    "pixi-viewport": "^6.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.45.2",

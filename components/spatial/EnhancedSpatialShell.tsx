@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { SpatialNavigationEngine } from '@/lib/navigation/SpatialNavigationEngine';
 import { WidgetInstanceRecord, WidgetPresentation, WidgetVisibility, WidgetBindingType } from '@/lib/navigation/WidgetInstanceMemory';
 import { LAYER_HOME, LAYER_PROFILE } from '@/lib/navigation/NavStateBuffer';
-import { Home, User, Layers } from 'lucide-react';
+import { Home } from 'lucide-react';
+import PixiPhysicsLayer from '@/components/spatial/PixiPhysicsLayer';
 
 interface EnhancedSpatialShellProps {
   userId: string;
@@ -106,115 +107,83 @@ export default function EnhancedSpatialShell({
     engineRef.current = engine;
     setActiveWidgets(engine.getWidgetMemory().getActiveWidgetsSorted());
     
-    return () => {
-      engine.stop();
-      engine.off('navchange', handleNavChange);
-    };
-  }, [widgets]);
-  
-  // Apply transforms on state change
-  useEffect(() => {
-    if (!engineRef.current || !containerRef.current) return;
-    
-    const viewport = {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    };
-    
-    engineRef.current.applyTransform(containerRef.current, viewport);
-  }, [navState]);
-  
-  const layerNames = ['HOME', 'CUBE', 'PROFILE', 'WIDGET', 'DREAM'];
-  const currentLayer = layerNames[navState.layer] || navState.layer;
-  
-  return (
-    <div className="fixed inset-0 bg-background overflow-hidden">
-      {/* Status Bar (top) */}
-      <div className="absolute top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-medium">{currentLayer}</span>
-            <span className="text-xs text-muted-foreground">
-              · Depth {navState.depth}
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => engineRef.current?.homeAnchorInterrupt()}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
-              aria-label="Go Home"
-            >
-              <Home className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Main Content Area */}
-      <div
-        ref={containerRef}
-        className="absolute inset-0 pt-12 pb-16 transition-transform duration-300 ease-out"
-        style={{
-          willChange: 'transform',
-          contain: 'paint layout',
+    return (
+    <div className="fixed inset-0 bg-background overflow-hidden" style={{ touchAction: "none" }}>
+      <PixiPhysicsLayer
+        worldWidth={5000}
+        worldHeight={5000}
+        onTransform={(t) => {
+          if (!containerRef.current) return;
+          containerRef.current.style.transform = `translate3d(${t.x}px, ${t.y}px, 0) scale3d(${t.scale}, ${t.scale}, 1)`;
         }}
-      >
-        <div className="relative w-full h-full">
-          {activeWidgets.length > 0 ? (
-            activeWidgets.map((widget) => (
-              <div
-                key={widget.instanceId}
-                className="absolute inset-0 flex items-center justify-center"
-                style={{
-                  transform: `translate(${widget.transformState.x}px, ${widget.transformState.y}px) scale(${widget.transformState.scale})`,
-                  zIndex: widget.zIndex,
-                  willChange: 'transform',
-                  opacity: widget.presentation === WidgetPresentation.FULL ? 1 : 0.95,
-                }}
-              >
-                <div className="bg-card border border-border rounded-xl p-6 max-w-2xl w-full mx-4">
-                  <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-2">{widget.instanceId}</h2>
-                    <p className="text-muted-foreground mb-4">{widget.context} Space</p>
-                    <div className="text-sm text-muted-foreground">
-                      <div>Presentation: {widget.presentation}</div>
-                      <div>Z-Index: {widget.zIndex}</div>
+      />
+
+      <div className="absolute inset-0 z-10">
+        <div
+          ref={containerRef}
+          className="absolute inset-0"
+          style={{
+            willChange: "transform",
+            contain: "layout paint",
+            transform: "translate3d(0px, 0px, 0) scale3d(1, 1, 1)",
+          }}
+        >
+          <div className="relative w-full h-full">
+            {activeWidgets.length > 0 ? (
+              activeWidgets.map((widget) => (
+                <div
+                  key={widget.instanceId}
+                  className="absolute top-0 left-0"
+                  style={{
+                    transform: `translate3d(${widget.transformState.x}px, ${widget.transformState.y}px, 0) scale3d(${widget.transformState.scale}, ${widget.transformState.scale}, 1)`,
+                    zIndex: widget.zIndex,
+                    willChange: "transform",
+                    opacity: widget.presentation === WidgetPresentation.FULL ? 1 : 0.95,
+                  }}
+                >
+                  <div className="bg-card border border-border rounded-xl p-6 max-w-2xl w-[min(92vw,768px)]">
+                    <div className="text-center">
+                      <h2 className="text-2xl font-bold mb-2">{widget.instanceId}</h2>
+                      <p className="text-muted-foreground mb-4">{widget.context} Space</p>
+                      <div className="text-sm text-muted-foreground">
+                        <div>Presentation: {widget.presentation}</div>
+                        <div>Z-Index: {widget.zIndex}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <div className="text-6xl mb-4">👆</div>
+                  <div className="text-xl font-bold">Swipe and Pinch</div>
+                  <div className="text-sm mt-2">Torus navigation physics enabled</div>
+                </div>
               </div>
-            ))
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <div className="text-6xl mb-4">👆</div>
-                <div className="text-xl font-bold">Touch to Navigate</div>
-                <div className="text-sm mt-2">Pinch, swipe, or hold</div>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-      
-      {/* Gesture Hint (bottom) */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-t border-border">
-        <div className="flex items-center justify-around px-4 py-3 text-xs text-muted-foreground">
-          <div className="flex flex-col items-center">
-            <span>📱 Pinch</span>
-            <span className="opacity-60">Zoom</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span>👆 Swipe</span>
-            <span className="opacity-60">Rotate</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span>✋ Hold</span>
-            <span className="opacity-60">Action</span>
-          </div>
+
+        <div className="absolute right-4 bottom-4 z-50 flex flex-col gap-3">
+          <button
+            onClick={() => engineRef.current?.homeAnchorInterrupt()}
+            className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md border border-border shadow-lg flex items-center justify-center"
+            aria-label="Home"
+          >
+            <Home className="w-5 h-5" />
+          </button>
+
+          <button
+            onClick={() => engineRef.current?.homeAnchorSecondary()}
+            className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md border border-border shadow-lg flex items-center justify-center"
+            aria-label="Secondary Home"
+          >
+            <span className="text-xs font-semibold">H2</span>
+          </button>
         </div>
       </div>
     </div>
   );
+
 }

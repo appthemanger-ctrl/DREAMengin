@@ -39,6 +39,9 @@ export class SpatialNavigationEngine {
   private transformSolver: TransformSolver;
   private widgetMemory: WidgetInstanceMemory;
   
+  // Secondary home anchor
+  private secondaryHomeSnapshot: Int32Array | null;
+
   // Animation loop
   private rafId: number | null;
   private isRunning: boolean;
@@ -51,6 +54,7 @@ export class SpatialNavigationEngine {
   
   constructor(config: EngineConfig = {}) {
     this.config = config;
+    this.secondaryHomeSnapshot = null;
     
     // Initialize subsystems
     this.navState = new NavStateBuffer();
@@ -225,6 +229,33 @@ export class SpatialNavigationEngine {
     this.navState.depth = 0;
     this.emit('navchange', { state: this.navState.snapshot() });
   }
+
+  /**
+   * Secondary Home Anchor
+   * Behavior:
+   * - First press: stores current state as secondary anchor and returns HOME
+   * - Second press: returns to stored secondary anchor
+   */
+  homeAnchorSecondary(): void {
+    this.intentResolver.cancel();
+
+    if (this.secondaryHomeSnapshot) {
+      this.navState.restore(this.secondaryHomeSnapshot);
+      this.secondaryHomeSnapshot = null;
+      this.emit("navchange", { state: this.navState.snapshot() });
+      return;
+    }
+
+    this.secondaryHomeSnapshot = this.navState.snapshot();
+    const homeSnapshot = this.returnStack.popUntilLayer(LAYER_HOME);
+    if (homeSnapshot) {
+      this.navState.restore(homeSnapshot);
+    }
+
+    this.navState.depth = 0;
+    this.emit("navchange", { state: this.navState.snapshot() });
+  }
+
   
   /**
    * Schedule persistence during idle
