@@ -1,10 +1,9 @@
 import '@/styles/globals.css';
 import '@/components/v1-ui/widget-feed-screen.css';
 import type { Metadata, Viewport } from "next";
-import NavBar from "@/components/NavBar";
-import MobileNavBarEnhanced from "@/components/MobileNavBarEnhanced";
-import AIAssistantEnhanced from "@/components/AIAssistantEnhanced";
+import HomeRadialNav from "@/components/HomeRadialNav";
 import InnerDreamsButton from "@/components/InnerDreamsButton";
+import { AnchorWidgetOrchestrator } from "@/components/AnchorWidgetOrchestrator";
 import { createServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -34,23 +33,23 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Gracefully handle missing Supabase config at build time
-  let session = null;
+  let user = null;
   let isAdmin = false;
   
   try {
     const supabase = await createServerClient();
-    const { data } = await supabase.auth.getSession();
-    session = data?.session ?? null;
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    user = authUser;
     
-    // Check if user is admin
-    if (session?.user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
+    // Check if user is admin from DB-backed user_roles table
+    if (user) {
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
         .single();
       
-      isAdmin = session.user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+      isAdmin = roleData?.role === 'admin';
     }
   } catch {
     // Supabase not configured - app will still render but without auth features
@@ -60,23 +59,13 @@ export default async function RootLayout({
   return (
     <html lang="en" className="scroll-smooth bg-background dark:bg-background" suppressHydrationWarning>
       <body className="font-sans bg-background text-foreground transition-colors antialiased dream-bg">
-        {/* Desktop Nav */}
-        <div className="hidden md:block">
-          {session && <NavBar session={session} />}
-        </div>
-        {/* Mobile Nav */}
-        <div className="md:hidden">
-          {session && <MobileNavBarEnhanced session={session} />}
-        </div>
-        
-        {/* Main content with proper spacing for nav bars */}
-        <main className={session ? 'md:pt-0 pb-safe' : ''}>
+        <main>
           {children}
         </main>
         
-        {/* AI Assistants - available when logged in */}
-        {session && <AIAssistantEnhanced />}
-        {session && <InnerDreamsButton isAdmin={isAdmin} />}
+        <HomeRadialNav user={user} />
+        {user && <InnerDreamsButton isAdmin={isAdmin} />}
+        {user && <AnchorWidgetOrchestrator />}
       </body>
     </html>
   );

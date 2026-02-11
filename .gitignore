@@ -46,3 +46,4 @@ playwright-report/
 .vscode
 *.swp
 *.swo
+next-env.d.ts

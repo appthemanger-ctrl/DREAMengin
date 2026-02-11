@@ -1,83 +1,98 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Twitter } from 'lucide-react';
+import { Sparkles, ArrowRight, Zap, Shield, Users, Music, Beaker, MessageCircle, Twitter } from 'lucide-react';
+
+// Floating particle component
+function Particle({ delay, size, left }: { delay: number; size: number; left: number }) {
+  return (
+    <div
+      className="absolute rounded-full bg-gradient-to-t from-cyan-400/40 to-fuchsia-500/40 animate-particle-float pointer-events-none"
+      style={{
+        width: size,
+        height: size,
+        left: `${left}%`,
+        animationDelay: `${delay}s`,
+        animationDuration: `${8 + Math.random() * 4}s`,
+      }}
+    />
+  );
+}
+
+// Twinkling star component
+function Star({ top, left, delay, size }: { top: number; left: number; delay: number; size: number }) {
+  return (
+    <div
+      className="absolute rounded-full bg-white animate-star-twinkle pointer-events-none"
+      style={{
+        top: `${top}%`,
+        left: `${left}%`,
+        width: size,
+        height: size,
+        animationDelay: `${delay}s`,
+      }}
+    />
+  );
+}
 
 export default function LandingHero() {
   const router = useRouter();
-
   const [mounted, setMounted] = useState(false);
-  const [hasLanded, setHasLanded] = useState(false);
-
-  const [bubbleText, setBubbleText] = useState<string | null>(null);
-  const [showBubble, setShowBubble] = useState(false);
-
-  const bubbleLines: string[] = [
-    "Wonderful day—Feb’s perfect grid finally fixed my brain.",
-    "Unpredictable chaos: 4 Mondays? Universe just pranked us.",
-    "What a day: calendar symmetry hit like free therapy.",
-    "Glorious glitch—Feb 2026 aligned and my OCD peaked.",
-    "Wonderful weirdness: rectangle month feels cursed & holy.",
-    "Unpredictable day: grid so clean it hurts my soul.",
-    "Alive for the month reality forgot to leave leftovers.",
-    "Wonderful ruin—perfect calendar, still quietly drowning.",
-    "Unscripted beauty: knew you’d screenshot that Feb grid at 8:41.",
-    "What a day—scrolled symmetry memes while life kept glitching.",
-    "beep. boop. bop...\n...\n...\nha! just kidding i got you didn’t I?"
-  ];
+  const [mascotState, setMascotState] = useState<'idle' | 'walking' | 'waving'>('idle');
 
   useEffect(() => {
     setMounted(true);
+    // Cycle through mascot states
+    const interval = setInterval(() => {
+      setMascotState(prev => {
+        if (prev === 'idle') return 'walking';
+        if (prev === 'walking') return 'waving';
+        return 'idle';
+      });
+    }, 4000);
+    return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (!hasLanded) return;
+  // Generate stars
+  const stars = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    top: Math.random() * 100,
+    left: Math.random() * 100,
+    delay: Math.random() * 3,
+    size: Math.random() * 2 + 1,
+  }));
 
-    let bag: string[] = [];
+  // Generate particles
+  const particles = Array.from({ length: 12 }, (_, i) => ({
+    id: i,
+    delay: i * 0.5,
+    size: Math.random() * 6 + 4,
+    left: Math.random() * 100,
+  }));
 
-    const refill = () => {
-      bag = [...bubbleLines];
-      for (let i = bag.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [bag[i], bag[j]] = [bag[j], bag[i]];
-      }
-    };
+  const features = [
+    { icon: Zap, label: 'AI-Powered', color: 'text-yellow-400' },
+    { icon: Shield, label: 'Privacy-First', color: 'text-green-400' },
+    { icon: Users, label: 'Social', color: 'text-blue-400' },
+    { icon: Music, label: 'Music', color: 'text-pink-400' },
+    { icon: Beaker, label: 'Labs', color: 'text-purple-400' },
+    { icon: MessageCircle, label: 'Messages', color: 'text-cyan-400' },
+  ];
 
-    const nextLine = () => {
-      if (bag.length === 0) refill();
-      return bag.pop() as string;
-    };
-
-    let hideTimer: number | null = null;
-
-    const tick = () => {
-      if (document.visibilityState !== 'visible') return;
-
-      setBubbleText(nextLine());
-      setShowBubble(true);
-
-      hideTimer = window.setTimeout(() => {
-        setShowBubble(false);
-      }, 2200);
-    };
-
-    const first = window.setTimeout(tick, 1200);
-    const interval = window.setInterval(tick, 12000);
-
-    return () => {
-      window.clearTimeout(first);
-      window.clearInterval(interval);
-      if (hideTimer) window.clearTimeout(hideTimer);
-    };
-  }, [hasLanded]);
-
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-universe flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-universe overflow-hidden">
+      {/* Video background */}
       <video
         autoPlay
         loop
@@ -88,24 +103,42 @@ export default function LandingHero() {
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
 
-      <div className="fixed inset-0 z-[1] pointer-events-none bg-[radial-gradient(circle_at_50%_35%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.22)_55%,rgba(0,0,0,0.55)_100%)]" />
+      {/* Stars background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {stars.map((star) => (
+          <Star key={star.id} {...star} />
+        ))}
+      </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col">
-        <header className="p-6 flex items-center justify-between">
+      {/* Floating particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {particles.map((particle) => (
+          <Particle key={particle.id} {...particle} />
+        ))}
+      </div>
+
+      {/* Gradient orbs - reduced opacity */}
+      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-float-gentle pointer-events-none z-1" />
+      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-orange-500/5 rounded-full blur-3xl animate-float-gentle delay-1000 pointer-events-none z-1" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/3 rounded-full blur-3xl animate-float-gentle delay-2000 pointer-events-none z-1" />
+
+      {/* Main content */}
+      <div className="relative z-10 min-h-screen flex flex-col pointer-events-none">
+        {/* Header */}
+        <header className="p-4 sm:p-6 flex items-center justify-between pointer-events-auto">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-nebula-flow flex items-center justify-center cosmic-glow">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-white">DREAMengin</span>
           </div>
-
           <div className="flex items-center gap-3">
             <a
               href="https://x.com/dreamenginx"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-white/60 hover:text-white transition-colors"
-              aria-label="Follow on X"
+              aria-label="Follow on Twitter"
             >
               <Twitter className="w-5 h-5" />
             </a>
@@ -118,56 +151,100 @@ export default function LandingHero() {
           </div>
         </header>
 
-        <main className="flex-1 flex flex-col items-center justify-center text-center px-4">
-          <div className="relative w-full max-w-sm h-64 mb-10 flex items-center justify-center">
-            <div
-              className={!hasLanded ? 'relative animate-eams-land' : 'relative animate-eams-wobble'}
-              onAnimationEnd={() => setHasLanded(true)}
-            >
-              <Image
-                src="/IMG_3362.png"
-                alt="Dr. Eams"
-                width={240}
-                height={240}
-                className="w-48 h-48 sm:w-56 sm:h-56 object-contain animate-glow-pulse"
-                priority
-              />
+        {/* Hero section */}
+        <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 text-center pointer-events-auto">
+          {/* Dr. Eams mascot */}
+          <div className="relative w-full max-w-sm h-48 sm:h-64 mb-8">
+            {/* Portal/Glow behind mascot */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-40 h-40 sm:w-56 sm:h-56 rounded-full bg-nebula-flow opacity-30 blur-2xl animate-portal-spin" />
+            </div>
 
-              {hasLanded && showBubble && bubbleText && (
-                <div className="absolute -top-16 -right-6 max-w-[260px] bg-white/90 text-slate-900 px-3 py-2 rounded-xl text-sm font-medium shadow-lg">
-                  <span className="whitespace-pre-line">{bubbleText}</span>
-                </div>
-              )}
+            {/* Dr. Eams */}
+            <div
+              className={`
+                absolute inset-0 flex items-center justify-center
+                ${mascotState === 'walking' ? 'animate-walk-path' : ''}
+                ${mascotState === 'idle' ? 'animate-float-gentle' : ''}
+              `}
+            >
+              <div className={`relative ${mascotState === 'waving' ? 'animate-wave' : ''}`}>
+                <Image
+                  src="/dr-eams.jpeg"
+                  alt="Dr. Eams - Your AI Guide"
+                  width={180}
+                  height={180}
+                  className="w-36 h-36 sm:w-44 sm:h-44 object-contain animate-glow-pulse transition-transform hover:scale-110"
+                  priority
+                />
+                {/* Speech bubble on wave */}
+                {mascotState === 'waving' && (
+                  <div className="absolute -top-8 -right-4 bg-white/90 text-slate-900 px-3 py-1.5 rounded-xl text-sm font-medium shadow-lg animate-in slide-in-from-bottom-4">
+                    Hey there!
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl font-bold text-white mb-4 tracking-tight">
-            <span className="bg-nebula-flow bg-clip-text text-transparent">Dream</span>
+          {/* Title */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+            <span className="bg-nebula-flow bg-clip-text text-transparent">
+              Dream
+            </span>
             <span className="text-white">Engin</span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-white/70 max-w-md mb-8 leading-relaxed">
+          {/* Subtitle */}
+          <p className="text-lg sm:text-xl text-white/70 max-w-md mx-auto mb-8 leading-relaxed">
             A living interface system that turns your digital life into a navigable universe of connected spaces.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          {/* CTA Buttons */}
+          <div
+            className="relative z-30 flex flex-col sm:flex-row gap-4 mb-12 w-full max-w-sm sm:max-w-none sm:w-auto pointer-events-auto"
+            style={{ pointerEvents: 'auto' }}
+          >
             <button
               type="button"
               onClick={() => router.push('/join')}
-              className="px-8 py-4 bg-sunrise-heat text-white font-semibold rounded-2xl hover:opacity-95 transition-all active:scale-[0.99]"
+              className="relative z-40 pointer-events-auto group flex items-center justify-center gap-2 px-8 py-4 bg-sunrise-heat text-white font-semibold rounded-2xl hover:opacity-95 transition-all cosmic-glow active:scale-95 min-h-[56px]"
             >
               Get Started
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-
-            <button
-              type="button"
-              onClick={() => router.push('/about')}
-              className="px-8 py-4 glass-dark text-white font-semibold rounded-2xl hover:bg-white/10 transition-all active:scale-[0.99]"
+            <Link
+              href="/about"
+              className="relative z-40 pointer-events-auto flex items-center justify-center gap-2 px-8 py-4 glass-dark text-white font-semibold rounded-2xl hover:bg-white/10 transition-all active:scale-95 min-h-[56px]"
             >
               Learn More
-            </button>
+            </Link>
+          </div>
+
+          {/* Feature pills */}
+          <div className="flex flex-wrap justify-center gap-3 max-w-lg">
+            {features.map((feature, i) => (
+              <div
+                key={feature.label}
+                className="flex items-center gap-2 px-4 py-2 glass-dark rounded-full text-sm text-white/80 animate-in slide-in-from-bottom-4"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <feature.icon className={`w-4 h-4 ${feature.color}`} />
+                {feature.label}
+              </div>
+            ))}
           </div>
         </main>
+
+        {/* Bottom indicator */}
+        <div className="pb-8 flex justify-center pointer-events-auto">
+          <div className="flex flex-col items-center gap-2 text-white/40">
+            <span className="text-xs">Scroll to explore</span>
+            <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-1">
+              <div className="w-1.5 h-2.5 bg-white/40 rounded-full animate-bounce" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,135 @@
 
 Mobile-first navigation system for DREAMengin that uses gestures (pinch, swipe, hold) instead of traditional nav bars and routes.
 
+## Mathematical Foundation (v1.0.4+)
+
+The navigation system is built on a rigorous mathematical foundation implementing a **Spatial UI OS / Navigation Manifold Engine**.
+
+### Topology: 3-Torus × Sphere Hybrid
+
+The navigation space is NOT a simple cube—it's a cube projected onto a smooth manifold:
+
+```
+Primary Space: T = S¹ × S¹ × S¹ (3-Torus)
+Sphere Component: S = S²
+
+Effective Space: Ω = (S² × S¹) / ~equivalence
+```
+
+**Properties:**
+- Feels spherical with continuous curvature
+- Wraps infinitely (toroidal behavior)
+- Has cube adjacency for discrete navigation
+- No visible edges or seams
+
+### Core Mathematical Components
+
+#### 1. Quaternion Rotation Engine (Section 3)
+
+All rotations use quaternions. **NO Euler angles.**
+
+```typescript
+q = (w, xi, yj, zk)  where ||q|| = 1
+```
+
+**Key Features:**
+- Gesture-to-quaternion conversion: `q = [cos(θ/2), a * sin(θ/2)]`
+- Quaternion composition: `orientation_next = q ⊗ orientation_current`
+- Drift correction: Normalize every N frames to prevent accumulation error
+- No gimbal lock
+
+**Implementation:** `lib/navigation/quaternion.ts`
+
+#### 2. Manifold Smoothing (Section 4)
+
+Creates seamless "round cube" transition:
+
+```typescript
+// Cubic → Spherical projection
+s = c / ||c||                    // Normalize to sphere
+p = lerp(c, s, λ)               // Interpolate
+```
+
+**Dynamic λ based on zoom:**
+- λ → 1 when zoomed out (more spherical)
+- λ → 0 when zoomed in (more cubic)
+
+**Edge Blending:**
+```typescript
+weight = smoothstep(0, ε, distToEdge)
+position = mix(faceA, faceB, weight)
+```
+
+**Implementation:** `lib/navigation/manifold.ts`
+
+#### 3. Gesture Physics Model (Section 5)
+
+Navigation behaves like a damped spring system:
+
+```
+θ'' + 2ζωθ' + ω²θ = F(t)
+```
+
+Where:
+- θ = rotation angle
+- ζ = damping coefficient (critical: ζ = 1, no overshoot)
+- ω = natural frequency
+- F = gesture impulse force
+
+**Inertia with exponential decay:**
+```
+v(t) = v0 * e^(-βt)
+```
+
+**Snap Stabilization:**
+- If |θ| < 0.02 rad → snap to grid
+- Prevents micro-jitter
+
+**Implementation:** `lib/navigation/physics.ts`
+
+#### 4. Home Anchor Field (Section 8)
+
+Anchor emits an attractor field that naturally pulls navigation toward home:
+
+```
+U(p) = k / ||p - p_home||        // Potential function
+F = -∇U                          // Force gradient
+```
+
+**Recenter Algorithm:**
+- If idle > 3000ms → apply force field
+- User drifts home naturally without explicit action
+
+**Implementation:** `lib/navigation/anchorField.ts`
+
+#### 5. Coordinate Systems (Section 2)
+
+**Spherical Parameterization:**
+```typescript
+θ ∈ [0, π]    // Polar angle
+φ ∈ [0, 2π]   // Azimuthal angle
+
+x = sin(θ) cos(φ)
+y = sin(θ) sin(φ)
+z = cos(θ)
+```
+
+**Slot Position (Polar Layout):**
+```typescript
+slotPosition = r * (cos(α), sin(α), 0)
+where α = i * (2π / 8)  for slot i ∈ {0..7}
+```
+
+#### 6. Widget Mount Geometry (Section 11)
+
+Each widget rendered on a curved quad for lens effect:
+
+```
+z = κ(x² + y²)
+```
+
+where κ = curvature constant
+
 ## Overview
 
 The spatial navigation engine implements a low-level, mobile-optimized navigation system based on the technical spec defined in `@dreamengin_interface.md`. It provides:
@@ -267,13 +396,65 @@ Visit `/gesture-nav` to see the navigation engine in action with live gesture co
 
 ## Testing
 
+### Unit Tests
+
+The navigation system includes comprehensive test coverage:
+
 ```bash
 # Run navigation tests
 npm test tests/navigation/
 
-# Type checking
-npm run typecheck
+# Run specific test suites
+npm test tests/navigation/quaternion.spec.ts
+npm test tests/navigation/manifold-physics.spec.ts
+npm test tests/navigation/navigation.spec.ts
 ```
+
+### Test Coverage
+
+**Quaternion Math (Section 3):**
+- ✓ Identity quaternion initialization
+- ✓ Axis-angle conversion
+- ✓ Quaternion multiplication
+- ✓ Normalization and drift correction
+- ✓ Gesture-to-quaternion conversion
+- ✓ SLERP interpolation
+
+**Manifold Smoothing (Section 4):**
+- ✓ Cubic-to-spherical projection
+- ✓ Dynamic lambda computation
+- ✓ Spherical coordinate conversion
+- ✓ Edge blending (smoothstep)
+- ✓ Slot position (polar layout)
+- ✓ Widget curvature (lens effect)
+
+**Physics Model (Section 5):**
+- ✓ Critical damping (ζ=1)
+- ✓ Inertial decay (exponential)
+- ✓ Snap stabilization (δ=0.02 rad)
+- ✓ Physics state integration
+
+**Anchor Field (Section 8):**
+- ✓ Potential function computation
+- ✓ Force field gradient
+- ✓ Recenter activation after idle
+
+**Navigation State:**
+- ✓ Buffer initialization
+- ✓ Depth increment/decrement
+- ✓ Face rotation with modular arithmetic
+
+### Testing Metrics (Section 17)
+
+Target metrics for production quality:
+
+| Metric              | Target   | Status |
+|---------------------|----------|--------|
+| Rotation jitter     | <0.5px   | ⏳     |
+| Snap latency        | <12ms    | ⏳     |
+| Warp distortion     | <2%      | ⏳     |
+| Drift error         | <1e-6    | ⏳     |
+| Gesture loss        | 0%       | ⏳     |
 
 ## Technical Constraints
 

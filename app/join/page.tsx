@@ -90,18 +90,18 @@ export default function JoinPage() {
         loop
         muted
         playsInline
-        className="fixed inset-0 h-full w-full object-cover -z-10 opacity-45"
+        className="fixed inset-0 h-full w-full object-cover z-0 opacity-100"
       >
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
 
       {/* brand glow overlay (red ↔ blue) */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-b from-black/20 via-black/50 to-black/70" />
+      <div className="fixed inset-0 z-1 bg-gradient-to-b from-black/5 via-black/15 to-black/25" />
 
-      <div className="mx-auto flex w-full max-w-md flex-col items-center">
+      <div className="mx-auto flex w-full max-w-md flex-col items-center relative z-10">
         <div className="mb-6 flex items-center gap-3">
           <Image
-            src="/logo.jpeg"
+            src="/logo-icon.jpeg"
             alt="DreamEngin"
             width={44}
             height={44}
@@ -114,7 +114,7 @@ export default function JoinPage() {
           </div>
         </div>
 
-        <div className="w-full rounded-3xl border border-white/10 bg-black/35 p-6 shadow-2xl backdrop-blur">
+        <div className="w-full rounded-3xl border border-white/10 bg-transparent p-6 shadow-2xl">
           <p className="mb-6 text-sm text-white/70">
             Register with email/password, or use an OAuth provider.
           </p>

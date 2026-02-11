@@ -1,33 +1,38 @@
+// app/api/dr-eams/run/route.ts
+// DREAMENGIN AI SYSTEM v2026.0 - Dr. Eams Agent Endpoint (UPDATED)
+// User-facing AI agent - JSON-only intents, NO direct execution
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
+import { v4 as uuidv4 } from 'uuid';
+import { DrEamsRunBodySchema, IntentSchema, type Intent, type DrEamsRunResponse } from '@/lib/ai/schemas';
+import { boogieEvaluate } from '@/lib/ai/boogieman';
+import { makeConfirmToken } from '@/lib/ai/confirm';
+import { writeAuditLog } from '@/lib/ai/audit';
+import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
+import { boogiePolicyCheck, isOwnerEmail, planWithEams, validateWithIdari } from '@/lib/ai/triad';
 
-type DeviceMode = 'desktop' | 'mobile' | 'desktop_on_mobile';
-
-type ToolContext = {
-  userId?: string;
-  mode?: DeviceMode;
-  route?: string;
-  projectId?: string;
-  notebookId?: string;
-  attachmentId?: string;
-  featureFlags?: Record<string, boolean>;
-};
-
-type ToolRequest = {
-  action: string;
-  input?: Record<string, unknown>;
-  context?: ToolContext;
-};
+export const dynamic = 'force-dynamic';
 
 function jsonError(status: number, code: string, message: string, details?: unknown) {
-  return NextResponse.json({ ok: false, error: { code, message, details } }, { status });
+  return NextResponse.json(
+    { ok: false, error: { code, message, details } },
+    { status, headers: { 'Cache-Control': 'no-store' } }
+  );
 }
 
-// NOTE:
-// This is a minimal, build-safe tool runner so Dr. Eams can execute *core* app verbs.
-// You can expand the action set over time without changing the client contract.
+// NOTE: The old placeholder planner has been replaced by the triad orchestrator:
+// Dr. Eams (LLM planner) -> Idari (sanity check) -> Boogie (policy gate)
+
+// ============================================================================
+// POST /api/dr-eams/run
+// ============================================================================
 
 export async function POST(req: NextRequest) {
+  const requestStart = Date.now();
+  const request_id = uuidv4();
+
+  // Parse request
   let body: unknown;
   try {
     body = await req.json();
@@ -35,124 +40,184 @@ export async function POST(req: NextRequest) {
     return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
-  const parsed = body as Partial<ToolRequest>;
-  const action = typeof parsed.action === 'string' ? parsed.action : '';
-  const input = (parsed.input ?? {}) as Record<string, unknown>;
-
-  if (!action) {
-    return jsonError(400, 'MISSING_ACTION', 'Request must include an action string.');
+  // Validate with Zod
+  const parseResult = DrEamsRunBodySchema.safeParse(body);
+  if (!parseResult.success) {
+    return jsonError(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.flatten());
   }
 
-  // “Setup check” is always available.
-  if (action === 'setup.check') {
-    const url = new URL(req.url);
-    const res = await fetch(`${url.origin}/api/setup/check`, { method: 'GET' });
-    const data = await res.json();
-    return NextResponse.json({ ok: true, action, data });
-  }
+  const request = parseResult.data;
 
+  // Authenticate
   const supabase = await createServerClient();
-  const {
-    data: { user },
-    error: userErr,
-  } = await supabase.auth.getUser();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
 
   if (userErr || !user) {
-    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in to use this tool.');
+    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
   }
 
-  // --- Projects ---
-  if (action === 'project.list') {
-    const { data, error } = await supabase
-      .from('projects')
-      .select('id, owner_id, title, description, visibility, created_at')
-      .order('created_at', { ascending: false });
+  // Get user role
+  const { data: roleData } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single();
+  
+  const email = user.email || null;
+  const isOwner = isOwnerEmail(email);
+  const actorRole = (isOwner ? 'owner' : (roleData?.role || 'user'));
 
-    if (error) return jsonError(500, 'DB_ERROR', 'Failed to list projects.', error);
-    return NextResponse.json({ ok: true, action, data });
+  // Rate limit check
+  const rateLimitCheck = await checkRateLimit(user.id, '/api/dr-eams/run', 60, 60);
+  if (!rateLimitCheck.allowed) {
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent: 'dr_eams',
+      ok: false,
+      error_code: 'RATE_LIMIT',
+      latency_ms: Date.now() - requestStart,
+    });
+
+    return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
+      retry_after_seconds: rateLimitCheck.retry_after_seconds,
+    });
   }
 
-  if (action === 'project.get') {
-    const projectId = String(input.projectId ?? '');
-    if (!projectId) return jsonError(400, 'MISSING_PROJECT_ID', 'projectId is required.');
+  // Get current RPM for Boogie signals
+  const rpm = await getCurrentRPM(user.id, '/api/dr-eams/run');
 
-    const { data, error } = await supabase
-      .from('projects')
-      .select('id, owner_id, title, description, visibility, created_at')
-      .eq('id', projectId)
-      .single();
+  // Boogie fast pre-check (LLM) for obvious illegal/privacy stuff (soft fallback)
+  const pre = await boogiePolicyCheck({
+    actorRole: actorRole as 'user' | 'admin' | 'owner',
+    actorEmail: email,
+    message: request.message,
+  });
+  if (pre.hard_block) {
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent: 'boogieman',
+      ok: false,
+      error_code: 'HARD_BLOCK',
+      latency_ms: Date.now() - requestStart,
+    });
 
-    if (error || !data) return jsonError(404, 'NOT_FOUND', 'Project not found.', error);
-    return NextResponse.json({ ok: true, action, data });
+    return jsonError(403, 'BLOCKED', 'Request blocked by security policy.', {
+      reason: pre.reason || 'Blocked',
+    });
   }
 
-  if (action === 'project.create') {
-    const title = String(input.title ?? '').trim();
-    const description = typeof input.description === 'string' ? input.description : null;
-    const visibility = (String(input.visibility ?? 'private') || 'private') as 'public' | 'unlisted' | 'private';
-    if (!title) return jsonError(400, 'MISSING_TITLE', 'title is required.');
+  // Call Dr. Eams planner (LLM)
+  const planned = await planWithEams({
+    message: request.message,
+    actorEmail: email,
+    actorRole: actorRole as 'user' | 'admin' | 'owner',
+  });
 
-    const { data, error } = await supabase
-      .from('projects')
-      .insert({ owner_id: user.id, title, description, visibility })
-      .select('id')
-      .single();
+  // Idari sanity check pass
+  const idari = validateWithIdari(planned.intents);
+  const response_text = planned.interpreted_intent
+    ? `${planned.response_text}\n\n• ${planned.interpreted_intent}`
+    : planned.response_text;
+  const intents = idari.intents;
 
-    if (error || !data) return jsonError(500, 'DB_ERROR', 'Failed to create project.', error);
-    return NextResponse.json({ ok: true, action, data });
+  // If planner failed to produce valid intents, return safe response
+  if (!Array.isArray(intents) || intents.length === 0) {
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent: 'dr_eams',
+      ok: true,
+      latency_ms: Date.now() - requestStart,
+    });
+
+    return NextResponse.json(
+      {
+        response_text,
+        proposed_intents: [],
+        boogie_decisions: [],
+      } as DrEamsRunResponse,
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
   }
 
-  if (action === 'project.update') {
-    const projectId = String(input.projectId ?? '');
-    const patch = (input.patch ?? {}) as Record<string, unknown>;
-    if (!projectId) return jsonError(400, 'MISSING_PROJECT_ID', 'projectId is required.');
+  // Validate intents against schema
+  const validIntents = intents.filter(intent => IntentSchema.safeParse(intent).success);
 
-    // Enforce owner-only updates for now (until members/roles exist).
-    const { data: existing } = await supabase
-      .from('projects')
-      .select('owner_id')
-      .eq('id', projectId)
-      .single();
-
-    if (!existing) return jsonError(404, 'NOT_FOUND', 'Project not found.');
-    if (existing.owner_id !== user.id) return jsonError(403, 'FORBIDDEN', 'Only the owner can update this project.');
-
-    const update: Record<string, unknown> = {};
-    if (typeof patch.title === 'string') update.title = patch.title;
-    if (typeof patch.description === 'string' || patch.description === null) update.description = patch.description;
-    if (typeof patch.visibility === 'string') update.visibility = patch.visibility;
-
-    const { data, error } = await supabase
-      .from('projects')
-      .update(update)
-      .eq('id', projectId)
-      .select('id, owner_id, title, description, visibility, created_at')
-      .single();
-
-    if (error || !data) return jsonError(500, 'DB_ERROR', 'Failed to update project.', error);
-    return NextResponse.json({ ok: true, action, data });
+  if (validIntents.length === 0) {
+    return NextResponse.json(
+      {
+        response_text,
+        proposed_intents: [],
+        boogie_decisions: [],
+      } as DrEamsRunResponse,
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
   }
 
-  if (action === 'project.delete') {
-    const projectId = String(input.projectId ?? '');
-    const confirm = String(input.confirmPhrase ?? '');
-    if (!projectId) return jsonError(400, 'MISSING_PROJECT_ID', 'projectId is required.');
-    if (confirm !== 'DELETE PROJECT') {
-      return jsonError(400, 'CONFIRM_REQUIRED', 'Type DELETE PROJECT to delete.', { confirmPhrase: 'DELETE PROJECT' });
-    }
+  // Verify intents with Boogie Man
+  const boogieOutput = boogieEvaluate({
+    actorRole: (actorRole === 'owner' ? 'admin' : actorRole) as 'user' | 'admin',
+    rateRpm: rpm,
+    intents: validIntents,
+  });
 
-    const { data: existing } = await supabase
-      .from('projects')
-      .select('owner_id')
-      .eq('id', projectId)
-      .single();
-    if (!existing) return jsonError(404, 'NOT_FOUND', 'Project not found.');
-    if (existing.owner_id !== user.id) return jsonError(403, 'FORBIDDEN', 'Only the owner can delete this project.');
+  // Check for global hard block
+  if (boogieOutput.global.hard_block) {
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent: 'boogieman',
+      ok: false,
+      error_code: 'HARD_BLOCK',
+      latency_ms: Date.now() - requestStart,
+    });
 
-    const { error } = await supabase.from('projects').delete().eq('id', projectId);
-    if (error) return jsonError(500, 'DB_ERROR', 'Failed to delete project.', error);
-    return NextResponse.json({ ok: true, action, data: { deleted: true } });
+    return jsonError(403, 'BLOCKED', 'Request blocked by security policy.', {
+      cooldown_seconds: boogieOutput.global.cooldown_seconds,
+    });
   }
 
-  return jsonError(404, 'UNKNOWN_ACTION', `Unknown action: ${action}`);
+  // Filter to ALLOW and CONFIRM intents
+  const allowedIntents = validIntents.filter((intent, idx) => {
+    const decision = boogieOutput.per_intent[idx];
+    return decision && (decision.decision === 'ALLOW' || decision.decision === 'CONFIRM');
+  });
+
+  const allowedDecisions = boogieOutput.per_intent.filter(
+    (d) => d.decision === 'ALLOW' || d.decision === 'CONFIRM'
+  );
+
+  // Generate confirm token if any intents need confirmation
+  let confirm_token: string | undefined;
+  const needsConfirmation = allowedDecisions.some((d) => d.decision === 'CONFIRM');
+
+  if (needsConfirmation) {
+    confirm_token = makeConfirmToken({
+      requestId: request_id,
+      userId: user.id,
+      ttlSeconds: 300, // 5 min expiry
+    });
+  }
+
+  // Audit the request
+  await writeAuditLog({
+    request_id,
+    user_id: user.id,
+    agent: 'dr_eams',
+    ok: true,
+    latency_ms: Date.now() - requestStart,
+  });
+
+  const response: DrEamsRunResponse = {
+    response_text,
+    proposed_intents: allowedIntents,
+    boogie_decisions: allowedDecisions,
+    confirm_token,
+  };
+
+  return NextResponse.json(response, {
+    headers: { 'Cache-Control': 'no-store' },
+  });
 }

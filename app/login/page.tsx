@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Bot, Sparkles } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 
@@ -54,7 +55,32 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-[calc(100dvh-56px)] flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-black/30 backdrop-blur-xl shadow-xl p-6">
+      {/* Dr. Eams Hero Message */}
+      <div className="absolute top-8 left-0 right-0 flex justify-center px-4 z-10">
+        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-1 shadow-2xl max-w-2xl w-full">
+          <div className="bg-slate-900/95 backdrop-blur-xl rounded-[22px] px-6 py-5">
+            <div className="flex items-center gap-4">
+              <div className="relative shrink-0">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                  <Bot className="w-9 h-9 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-4 border-slate-900 animate-pulse" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
+                  Hello! I'm Dr. Eams
+                  <Sparkles className="w-6 h-6 text-yellow-400 animate-pulse" />
+                </h2>
+                <p className="text-base sm:text-lg text-purple-200 mt-1">
+                  You can ask me anything!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-black/30 backdrop-blur-xl shadow-xl p-6 mt-32">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
           <p className="text-sm text-white/70 mt-1">Use email + password or continue with a provider.</p>
