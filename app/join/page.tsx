@@ -91,7 +91,6 @@ export default function JoinPage() {
         muted
         playsInline
         className="fixed inset-0 h-full w-full object-cover -z-10 opacity-70"
-        className="fixed inset-0 h-full w-full object-cover z-0 opacity-100"
       >
         <source src="/videos/signup-bg.mov" type="video/quicktime" />
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
@@ -99,9 +98,9 @@ export default function JoinPage() {
 
       {/* brand glow overlay (red ↔ blue) */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-black/5 via-black/20 to-black/40" />
-      <div className="fixed inset-0 z-1 bg-gradient-to-b from-black/5 via-black/15 to-black/25" />
+      <div className="fixed inset-0 z-[1] bg-gradient-to-b from-black/5 via-black/15 to-black/25" />
 
-      <div className="mx-auto flex w-full max-w-md flex-col items-center relative z-10">
+      <div className="relative z-10 mx-auto flex w-full max-w-md flex-col items-center">
         <div className="mb-6 flex items-center gap-3">
           <Image
             src="/logo-icon.jpeg"
@@ -118,7 +117,6 @@ export default function JoinPage() {
         </div>
 
         <div className="w-full rounded-3xl border border-white/10 bg-black/5 p-6 shadow-2xl backdrop-blur-sm">
-        <div className="w-full rounded-3xl border border-white/10 bg-transparent p-6 shadow-2xl">
           <p className="mb-6 text-sm text-white/70">
             Register with email/password, or use an OAuth provider.
           </p>
