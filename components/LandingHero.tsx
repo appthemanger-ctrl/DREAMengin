@@ -26,21 +26,18 @@ export default function LandingHero() {
     "Wonderful ruin—perfect calendar, still quietly drowning.",
     "Unscripted beauty: knew you’d screenshot that Feb grid at 8:41.",
     "What a day—scrolled symmetry memes while life kept glitching.",
-    "beep. boop. bop…
-…
-…
-ha! just kidding i got you didn’t I?"
+    "beep. boop. bop...\n...\n...\nha! just kidding i got you didn’t I?"
   ];
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Premium shuffle bag: random order, no repeats until exhausted.
   useEffect(() => {
     if (!hasLanded) return;
 
     let bag: string[] = [];
+
     const refill = () => {
       bag = [...bubbleLines];
       for (let i = bag.length - 1; i > 0; i--) {
@@ -58,9 +55,13 @@ ha! just kidding i got you didn’t I?"
 
     const tick = () => {
       if (document.visibilityState !== 'visible') return;
+
       setBubbleText(nextLine());
       setShowBubble(true);
-      hideTimer = window.setTimeout(() => setShowBubble(false), 2200);
+
+      hideTimer = window.setTimeout(() => {
+        setShowBubble(false);
+      }, 2200);
     };
 
     const first = window.setTimeout(tick, 1200);
@@ -77,16 +78,19 @@ ha! just kidding i got you didn’t I?"
 
   return (
     <div className="relative min-h-screen bg-universe overflow-hidden">
-      {/* Video background */}
-      <video autoPlay loop muted playsInline className="fixed inset-0 h-full w-full object-cover z-0 opacity-100">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="fixed inset-0 h-full w-full object-cover z-0 opacity-100"
+      >
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
 
-      {/* Cinematic vignette */}
       <div className="fixed inset-0 z-[1] pointer-events-none bg-[radial-gradient(circle_at_50%_35%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.22)_55%,rgba(0,0,0,0.55)_100%)]" />
 
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
         <header className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-nebula-flow flex items-center justify-center cosmic-glow">
@@ -105,13 +109,15 @@ ha! just kidding i got you didn’t I?"
             >
               <Twitter className="w-5 h-5" />
             </a>
-            <Link href="/login" className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors">
+            <Link
+              href="/login"
+              className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
               Sign In
             </Link>
           </div>
         </header>
 
-        {/* Hero */}
         <main className="flex-1 flex flex-col items-center justify-center text-center px-4">
           <div className="relative w-full max-w-sm h-64 mb-10 flex items-center justify-center">
             <div
@@ -129,7 +135,7 @@ ha! just kidding i got you didn’t I?"
 
               {hasLanded && showBubble && bubbleText && (
                 <div className="absolute -top-16 -right-6 max-w-[260px] bg-white/90 text-slate-900 px-3 py-2 rounded-xl text-sm font-medium shadow-lg">
-                  <span className="line-clamp-3 whitespace-pre-line">{bubbleText}</span>
+                  <span className="whitespace-pre-line">{bubbleText}</span>
                 </div>
               )}
             </div>
