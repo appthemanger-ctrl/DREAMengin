@@ -1,7 +1,7 @@
 import '@/styles/globals.css';
 import '@/components/v1-ui/widget-feed-screen.css';
 import type { Metadata, Viewport } from "next";
-import HomeRadialNav from "@/components/HomeRadialNav";
+import AIAssistantEnhanced from "@/components/AIAssistantEnhanced";
 import InnerDreamsButton from "@/components/InnerDreamsButton";
 import { AnchorWidgetOrchestrator } from "@/components/AnchorWidgetOrchestrator";
 import { createServerClient } from "@/lib/supabase/server";
@@ -59,13 +59,16 @@ export default async function RootLayout({
   return (
     <html lang="en" className="scroll-smooth bg-background dark:bg-background" suppressHydrationWarning>
       <body className="font-sans bg-background text-foreground transition-colors antialiased dream-bg">
+        
+        {/* Main content with proper spacing for nav bars */}
         <main>
           {children}
         </main>
         
-        <HomeRadialNav user={user} />
-        {user && <InnerDreamsButton isAdmin={isAdmin} />}
-        {user && <AnchorWidgetOrchestrator />}
+        {/* AI Assistants - available when logged in */}
+        {session && <AIAssistantEnhanced />}
+        {session && <InnerDreamsButton isAdmin={isAdmin} />}
+        <AnchorWidgetOrchestrator />
       </body>
     </html>
   );
