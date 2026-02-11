@@ -4,7 +4,17 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Sparkles, ArrowRight, Zap, Shield, Users, Music, Beaker, MessageCircle, Twitter } from 'lucide-react';
+import {
+  Sparkles,
+  ArrowRight,
+  Zap,
+  Shield,
+  Users,
+  Music,
+  Beaker,
+  MessageCircle,
+  Twitter,
+} from 'lucide-react';
 
 // Floating particle component
 function Particle({ delay, size, left }: { delay: number; size: number; left: number }) {
@@ -22,22 +32,6 @@ function Particle({ delay, size, left }: { delay: number; size: number; left: nu
   );
 }
 
-// Twinkling star component
-function Star({ top, left, delay, size }: { top: number; left: number; delay: number; size: number }) {
-  return (
-    <div
-      className="absolute rounded-full bg-white animate-star-twinkle pointer-events-none"
-      style={{
-        top: `${top}%`,
-        left: `${left}%`,
-        width: size,
-        height: size,
-        animationDelay: `${delay}s`,
-      }}
-    />
-  );
-}
-
 export default function LandingHero() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -45,9 +39,8 @@ export default function LandingHero() {
 
   useEffect(() => {
     setMounted(true);
-    // Cycle through mascot states
     const interval = setInterval(() => {
-      setMascotState(prev => {
+      setMascotState((prev) => {
         if (prev === 'idle') return 'walking';
         if (prev === 'walking') return 'waving';
         return 'idle';
@@ -55,15 +48,6 @@ export default function LandingHero() {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
-
-  // Generate stars
-  const stars = Array.from({ length: 50 }, (_, i) => ({
-    id: i,
-    top: Math.random() * 100,
-    left: Math.random() * 100,
-    delay: Math.random() * 3,
-    size: Math.random() * 2 + 1,
-  }));
 
   // Generate particles
   const particles = Array.from({ length: 12 }, (_, i) => ({
@@ -93,23 +77,10 @@ export default function LandingHero() {
   return (
     <div className="relative min-h-screen bg-universe overflow-hidden">
       {/* Video background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="fixed inset-0 h-full w-full object-cover z-0 opacity-100"
-      >
+      <video autoPlay loop muted playsInline className="fixed inset-0 h-full w-full object-cover z-0 opacity-100">
         <source src="/videos/signup-bg.mov" type="video/quicktime" />
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
-
-      {/* Stars background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {stars.map((star) => (
-          <Star key={star.id} {...star} />
-        ))}
-      </div>
 
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -119,9 +90,9 @@ export default function LandingHero() {
       </div>
 
       {/* Gradient orbs - reduced opacity */}
-      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-float-gentle pointer-events-none z-1" />
-      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-orange-500/5 rounded-full blur-3xl animate-float-gentle delay-1000 pointer-events-none z-1" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/3 rounded-full blur-3xl animate-float-gentle delay-2000 pointer-events-none z-1" />
+      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-float-gentle pointer-events-none z-[1]" />
+      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-orange-500/5 rounded-full blur-3xl animate-float-gentle delay-1000 pointer-events-none z-[1]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/3 rounded-full blur-3xl animate-float-gentle delay-2000 pointer-events-none z-[1]" />
 
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex flex-col pointer-events-none">
@@ -143,10 +114,7 @@ export default function LandingHero() {
             >
               <Twitter className="w-5 h-5" />
             </a>
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
-            >
+            <Link href="/login" className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors">
               Sign In
             </Link>
           </div>
@@ -156,9 +124,15 @@ export default function LandingHero() {
         <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 text-center pointer-events-auto">
           {/* Dr. Eams mascot */}
           <div className="relative w-full max-w-sm h-48 sm:h-64 mb-8">
-            {/* Portal/Glow behind mascot */}
+            {/* Portal / Ripple System */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-40 h-40 sm:w-56 sm:h-56 rounded-full bg-nebula-flow opacity-30 blur-2xl animate-portal-spin" />
+              {/* Core glow */}
+              <div className="w-40 h-40 sm:w-56 sm:h-56 rounded-full bg-nebula-flow opacity-25 blur-2xl" />
+
+              {/* Expanding ripple rings */}
+              <div className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border border-white/20 animate-ripple" />
+              <div className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border border-white/15 animate-ripple delay-1000" />
+              <div className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border border-white/10 animate-ripple delay-2000" />
             </div>
 
             {/* Dr. Eams */}
@@ -171,13 +145,14 @@ export default function LandingHero() {
             >
               <div className={`relative ${mascotState === 'waving' ? 'animate-wave' : ''}`}>
                 <Image
-                  src="/IMG_3467.jpeg"
+                  src="/IMG_3362.png"
                   alt="Dr. Eams - Your AI Guide"
                   width={180}
                   height={180}
                   className="w-36 h-36 sm:w-44 sm:h-44 object-contain animate-glow-pulse transition-transform hover:scale-110"
                   priority
                 />
+
                 {/* Speech bubble on wave */}
                 {mascotState === 'waving' && (
                   <div className="absolute -top-8 -right-4 bg-white/90 text-slate-900 px-3 py-1.5 rounded-xl text-sm font-medium shadow-lg animate-in slide-in-from-bottom-4">
@@ -190,9 +165,7 @@ export default function LandingHero() {
 
           {/* Title */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
-            <span className="bg-nebula-flow bg-clip-text text-transparent">
-              Dream
-            </span>
+            <span className="bg-nebula-flow bg-clip-text text-transparent">Dream</span>
             <span className="text-white">Engin</span>
           </h1>
 
@@ -214,6 +187,7 @@ export default function LandingHero() {
               Get Started
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
+
             <Link
               href="/about"
               className="relative z-40 pointer-events-auto flex items-center justify-center gap-2 px-8 py-4 glass-dark text-white font-semibold rounded-2xl hover:bg-white/10 transition-all active:scale-95 min-h-[56px]"
