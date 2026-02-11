@@ -33,23 +33,23 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Gracefully handle missing Supabase config at build time
-  let session = null;
+  let user = null;
   let isAdmin = false;
   
   try {
     const supabase = await createServerClient();
-    const { data } = await supabase.auth.getSession();
-    session = data?.session ?? null;
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    user = authUser;
     
-    // Check if user is admin
-    if (session?.user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
+    // Check if user is admin from DB-backed user_roles table
+    if (user) {
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
         .single();
       
-      isAdmin = session.user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+      isAdmin = roleData?.role === 'admin';
     }
   } catch {
     // Supabase not configured - app will still render but without auth features

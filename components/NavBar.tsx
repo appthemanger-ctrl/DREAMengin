@@ -1,7 +1,5 @@
-"use client";
-
 import Link from 'next/link';
-import type { Session } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -15,7 +13,7 @@ import {
   FlaskConical, 
   Settings, 
   LogOut,
-  User,
+  User as UserIcon,
   MessageSquare,
   PlusCircle
 } from 'lucide-react';
@@ -23,12 +21,12 @@ import ThemeToggle from './ThemeToggle';
 import NotificationCenter from './NotificationCenter';
 import DrEamsModeToggle from './DrEamsModeToggle';
 
-export default function NavBar({ session }: { session: Session | null }) {
+export default function NavBar({ user }: { user: User | null }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const isLoggedIn = !!session;
+  const isLoggedIn = !!user;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

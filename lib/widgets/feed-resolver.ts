@@ -75,27 +75,37 @@ export async function resolveFeedHost(
       };
     }
     
-    // Transform to FeedItemSummary format
-    const items: FeedItemSummary[] = (feedItems || []).map((item) => ({
-      item_id: item.id,
-      author_id: item.user_id,
-      created_at: item.ts,
-      text_preview: item.summary || item.title || '',
-      media_preview_url: extractMediaPreviewUrl(item.media_json),
-      engagement_counts: {
-        // TODO: Add actual engagement counts from a separate table
-        likes: 0,
-        comments: 0,
-        shares: 0,
-      },
-      visibility: item.visibility as 'public' | 'followers' | 'private',
+    // Transform to FeedItemSummary format and fetch engagement counts
+    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item) => {
+      // Fetch engagement counts for this item
+      const { data: engagementData } = await supabase
+        .from('content_engagement')
+        .select('engagement_type')
+        .eq('content_id', item.id);
+
+      const engagementCounts = (engagementData || []).reduce((acc, eng) => {
+        if (eng.engagement_type === 'like') acc.likes++;
+        else if (eng.engagement_type === 'comment') acc.comments++;
+        else if (eng.engagement_type === 'share') acc.shares++;
+        return acc;
+      }, { likes: 0, comments: 0, shares: 0 });
+
+      return {
+        item_id: item.id,
+        author_id: item.user_id,
+        created_at: item.ts,
+        text_preview: item.summary || item.title || '',
+        media_preview_url: extractMediaPreviewUrl(item.media_json),
+        engagement_counts: engagementCounts,
+        visibility: item.visibility as 'public' | 'followers' | 'private',
+      };
     }));
     
     return {
       kind: HostKind.HOST_FEED_VIEW,
       status: HostResolvedStatus.OK,
       items,
-      cursor: null, // TODO: Implement pagination cursor
+      cursor: items.length > 0 ? items[items.length - 1].created_at : null,
       etag: generateETag(items),
       updated_at: new Date().toISOString(),
     };
