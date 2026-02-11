@@ -8,12 +8,13 @@ import { createServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "DREAMengin - Your Creative Platform",
-  description: "A living interface system that turns your digital life into a navigable universe of connected spaces.",
+  description:
+    "A living interface system that turns your digital life into a navigable universe of connected spaces.",
   icons: {
-    icon: '/logo-icon.png',
-    apple: '/logo.png',
+    icon: "/logo-icon.png",
+    apple: "/logo.png",
   },
-  manifest: '/manifest.json',
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
@@ -33,41 +34,42 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Gracefully handle missing Supabase config at build time
-  let user = null;
+  let user: { id: string } | null = null;
   let isAdmin = false;
-  
+
   try {
     const supabase = await createServerClient();
-    const { data: { user: authUser } } = await supabase.auth.getUser();
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
     user = authUser;
-    
+
     // Check if user is admin from DB-backed user_roles table
     if (user) {
       const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
         .single();
-      
-      isAdmin = roleData?.role === 'admin';
+
+      isAdmin = roleData?.role === "admin";
     }
   } catch {
-    // Supabase not configured - app will still render but without auth features
-    console.warn('[v0] Supabase not configured or unavailable');
+    console.warn("[v0] Supabase not configured or unavailable");
   }
 
   return (
-    <html lang="en" className="scroll-smooth bg-background dark:bg-background" suppressHydrationWarning>
+    <html
+      lang="en"
+      className="scroll-smooth bg-background dark:bg-background"
+      suppressHydrationWarning
+    >
       <body className="font-sans bg-background text-foreground transition-colors antialiased dream-bg">
-        
-        {/* Main content with proper spacing for nav bars */}
-        <main>
-          {children}
-        </main>
-        
+        <main>{children}</main>
+
         {/* AI Assistants - available when logged in */}
-        {session && <AIAssistantEnhanced />}
-        {session && <InnerDreamsButton isAdmin={isAdmin} />}
+        {user && <AIAssistantEnhanced />}
+        {user && <InnerDreamsButton isAdmin={isAdmin} />}
         <AnchorWidgetOrchestrator />
       </body>
     </html>
