@@ -571,6 +571,58 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     return 'Processing...';
   };
 
+  // Comprehensive navigation handler - decisive and action-first
+  const handleNavigation = (query: string, lower: string): { path: string; message: string } | null => {
+    // Direct navigation commands
+    if (/\b(go to|open|show|navigate|take me to?|find)\b.*\b(home|profile|widget|dashboard)\b/.test(lower)) {
+      return { path: '/home', message: 'Opening your home.' };
+    }
+    
+    if (/\b(discover|explore|search|browse|find)\b/.test(lower) && !/\blab\b/.test(lower)) {
+      return { path: '/discover', message: 'Opening discovery.' };
+    }
+    
+    if (/\b(create|new post|make|upload|share)\b/.test(lower)) {
+      return { path: '/home?modal=create', message: 'Opening creator.' };
+    }
+    
+    if (/\b(music|audio|track|song|playlist|sound)\b/.test(lower)) {
+      return { path: '/music', message: 'Opening music.' };
+    }
+    
+    if (/\b(lab|physics|experiment|science|research)\b/.test(lower)) {
+      return { path: '/lab', message: 'Opening lab.' };
+    }
+    
+    if (/\b(shop|store|merch|buy|purchase|sell)\b/.test(lower)) {
+      return { path: '/shop', message: 'Opening shop.' };
+    }
+    
+    if (/\b(message|chat|dm|inbox|conversation)\b/.test(lower)) {
+      return { path: '/messages', message: 'Opening messages.' };
+    }
+    
+    if (/\b(setting|config|preference|account|privacy)\b/.test(lower)) {
+      return { path: '/settings', message: 'Opening settings.' };
+    }
+    
+    if (/\b(edit|update|change).*\b(profile|bio|avatar|picture)\b/.test(lower)) {
+      return { path: '/edit-profile', message: 'Opening profile editor.' };
+    }
+    
+    if (/\b(analytics|stats|data|metrics|performance)\b/.test(lower)) {
+      return { path: '/analytics', message: 'Opening analytics.' };
+    }
+    
+    // Check recent patterns for ambiguous queries
+    if (userPatterns.frequentDestinations.length > 0 && /\b(usual|normal|regular|common)\b/.test(lower)) {
+      const dest = userPatterns.frequentDestinations[0];
+      return { path: dest, message: `Opening ${dest.split('/')[1] || 'home'}.` };
+    }
+    
+    return null;
+  };
+
   const generateResponse = async (query: string): Promise<{ content: string; emotion: Message['emotion'] }> => {
     const lower = query.toLowerCase();
 
@@ -632,151 +684,65 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   };
 
   const getDetailedCapabilities = (): string => {
-    return `I'm designed to be your intelligent companion throughout DREAMengin. Here's what I can do for you:
+    return `I can take you anywhere in DREAMengin:
 
-**🧭 Navigation & Discovery**
-I can guide you to any section of the platform, explain features as you encounter them, and help you discover capabilities you might not know about yet.
+**Navigate**: Home • Discover • Music • Lab • Shop • Messages • Settings
+**Create**: Posts • Experiments • Content
+**Manage**: Profile • Widgets • Analytics • Revenue
 
-**🔬 Physics Lab Assistance**
-I understand the Confirmed Connected Chaos framework and can help you design experiments, interpret results, and explore theoretical connections.
-
-**💰 Revenue & Monetization**
-I can explain our creator-first revenue model (85% to creators, 15% platform fee), help you optimize your earnings, and track your financial performance.
-
-**🎯 Smart Actions**
-When Full Experience mode is enabled, I can perform safe UI operations on your behalf—like navigating to pages, opening tools, or configuring settings.
-
-**🛠️ System Maintenance**
-I can communicate with InnerDreams, our automated system manager, to check for issues or request updates. This requires admin access.
-
-**💬 Natural Conversation**
-Most importantly, I'm here to have genuine conversations about your goals, answer questions, and help you think through creative challenges.
-
-What aspect interests you most right now?`;
+Just tell me where you want to go or what you want to do.`;
   };
 
   const getPhysicsGuidance = (query: string): string => {
     if (/\b(what is|explain|tell me about)\b.*\b(ccc|confirmed connected chaos)\b/i.test(query)) {
-      return `The Confirmed Connected Chaos (CCC) framework is a constraint-layer approach to unification physics. Rather than introducing new particles or forces, it enforces a closed-ledger requirement linking chaos, entropy, and information.
+      return `**CCC Framework**: Constraint-layer unification physics. Information redistributes to boundaries—nothing lost.
 
-The key insight is that what appears as "information loss" in systems like black holes is actually **information redistribution** to boundaries and records—nothing is fundamentally lost.
+**Lab features**: 99-layer ADA architecture • Coherence simulation • Collaborative research
 
-In DREAMengin's Physics Lab, you can:
-- Design experiments testing CCC predictions
-- Explore the 99-layer transfer architecture (ADA)
-- Simulate coherence functionals across spectral windows
-- Collaborate with other researchers on unified frameworks
-
-Would you like me to help you set up your first experiment, or would you prefer to explore existing frameworks first?`;
+Opening lab?`;
     }
 
     if (/\b(create|start|new|design)\b.*\b(experiment|test|simulation)\b/i.test(query)) {
-      return `Excellent! Let's set up a physics experiment. The Lab provides a structured environment for testing theories and hypotheses.
+      return `Setting up experiment. Define: hypothesis, methodology, parameters, expected outcomes.
 
-To create an experiment, we'll need to define:
-1. **Hypothesis** - What are you testing?
-2. **Methodology** - How will you test it?
-3. **Parameters** - What variables are you controlling?
-4. **Expected outcomes** - What would validate your hypothesis?
-
-For CCC-based experiments, you can configure:
-- Number of layers (traditionally 99, but adjustable)
-- Coherence thresholds
-- Spectral window definitions
-- Boundary conditions
-
-I can navigate you to the Lab now, or we can discuss your hypothesis first. What would be most helpful?`;
+Opening lab now.`;
     }
 
-    return `The Physics Lab is one of DREAMengin's most innovative features. It allows you to:
+    return `**Physics Lab**: Design experiments • Test CCC predictions • Visualize data • Collaborate
 
-- Design and run theoretical experiments
-- Test predictions from frameworks like CCC
-- Collaborate with other researchers in real-time
-- Visualize complex data relationships
-- Share findings with the community
-
-The Lab supports the full CCC/ADA architecture, including the 99-layer coherence model, entropy ledgers, and boundary-record channels.
-
-What aspect of physics are you most interested in exploring?`;
+Ready to explore?`;
   };
 
   const getRevenueGuidance = (): string => {
-    return `DREAMengin implements a **creator-first revenue model** that's designed to be fair and transparent:
+    return `**Revenue Split:** 85% you, 15% platform
 
-**💎 Revenue Split**
-- **85% to creators** (you!)
-- **15% to platform** (operational costs)
+**Sources:** Ads • Merch • Music • Tips (soon) • Subscriptions (soon)
 
-This is significantly more generous than most platforms. We believe creators deserve the lion's share of value they generate.
-
-**💰 Revenue Sources**
-- **Ad placements** on your profile/content
-- **Merch sales** through the Shop
-- **Music sales & streaming** revenue
-- **Tip/donation** systems (coming soon)
-- **Premium content** subscriptions (coming soon)
-
-**📊 Transparent Tracking**
-Every transaction is logged in your earnings dashboard. You can see:
-- Gross revenue by source
-- Platform fee calculations
-- Net payouts
-- Payment status and history
-
-**⚡ Fast Payouts**
-We process payments on a rolling basis. Once you reach the minimum threshold, funds are transferred directly to your connected account.
-
-Would you like me to navigate you to your earnings dashboard, or do you have questions about a specific revenue stream?`;
+Check your earnings dashboard for real-time tracking.`;
   };
 
   const getContextualResponse = (query: string, ctx: ConversationContext): string => {
     const lower = query.toLowerCase();
 
     if (/\b(post|create|upload|publish|share)\b/.test(lower)) {
-      return `Creating content is the heart of DREAMengin! To create a post:
-
-1. Click **Create** in the navigation (or ask me to open it)
-2. Choose your content type: text, images, video, or a mix
-3. Add tags to help others discover your work
-4. Set visibility: public, followers, or private
-5. Hit publish!
-
-**Pro tip:** Posts with clear descriptions and relevant tags get ~3x more engagement.
-
-Want me to open the Create page for you?`;
+      return `Opening creator. Choose your content type, add tags, set visibility, and publish.`;
     }
 
     if (/\b(profile|avatar|bio|about|page)\b/.test(lower)) {
-      return `Your profile is your creative identity on DREAMengin. Here's what makes a great profile:
-
-**Essential elements:**
-- **Avatar** - A clear, recognizable image
-- **Bio** - Tell people who you are and what you create
-- **Links** - Connect your other platforms
-- **Theme** - Customize colors and layout
-
-Shall I navigate you to Edit Profile?`;
+      return `Opening profile editor. Update your avatar, bio, links, and theme.`;
     }
 
     if (ctx.recentTopics.length > 0) {
-      return `I notice we've been discussing ${ctx.recentTopics.slice(0, 2).join(' and ')}. I'm here to help with whatever you need.
-
-You can ask me about features, navigation, your earnings, experiments, content strategy, or anything else related to DREAMengin.
-
-What would you like to explore next?`;
+      return `Recently: ${ctx.recentTopics.slice(0, 2).join(', ')}. Where to next?`;
     }
 
-    return `I'm not entirely sure what you're looking for, but I'm here to help! Could you tell me more about what you'd like to accomplish?
+    // Use recent searches to provide context
+    if (userPatterns.recentSearches.length > 0) {
+      const recent = userPatterns.recentSearches[0];
+      return `Try: "${recent}" or ask me to navigate anywhere.`;
+    }
 
-Some things I excel at:
-- Explaining platform features
-- Helping with navigation
-- Discussing the physics lab and experiments
-- Clarifying revenue and monetization
-- Performing safe UI actions
-
-What's on your mind?`;
+    return `Tell me where you want to go or what you want to do.`;
   };
 
   const getEmotionIcon = (emotion?: Message['emotion']) => {
@@ -915,11 +881,15 @@ What's on your mind?`;
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 sm:p-4 rounded-2xl shadow-md">
                   <div className="flex gap-2 items-center">
                     <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 animate-pulse" />
-                    <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
+                    {interpretingIntent ? (
+                      <span className="text-xs sm:text-sm text-purple-600 font-medium">{interpretingIntent}</span>
+                    ) : (
+                      <div className="flex gap-1">
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
