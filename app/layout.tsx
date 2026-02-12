@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   title: "DREAMengin - Your Creative Platform",
   description: "A living interface system that turns your digital life into a navigable universe of connected spaces.",
   icons: {
-    icon: '/IMG_3362.png',
-    apple: '/IMG_3362.png',
+    icon: '/logo-icon.png',
+    apple: '/logo.png',
   },
   manifest: '/manifest.json',
 };

@@ -34,7 +34,7 @@
       "url": "/home?action=create",
       "icons": [
         {
-          "src": "/IMG_3362.png",
+          "src": "/logo-icon.png",
           "sizes": "192x192"
         }
       ]
@@ -46,7 +46,7 @@
       "url": "/messages",
       "icons": [
         {
-          "src": "/IMG_3362.png",
+          "src": "/logo-icon.png",
           "sizes": "192x192"
         }
       ]
@@ -58,7 +58,7 @@
       "url": "/home?view=notifications",
       "icons": [
         {
-          "src": "/IMG_3362.png",
+          "src": "/logo-icon.png",
           "sizes": "192x192"
         }
       ]
