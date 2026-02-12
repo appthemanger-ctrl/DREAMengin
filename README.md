@@ -1,256 +1,172 @@
-# DREAMengin Production Spec
+# DREAMengin Production Spec (Authoritative v2.0.0)
+
+DREAMengin is a spatial, toroidal, gesture‑driven creative platform built on Next.js and Supabase.  Rendering and motion
+physics are driven by Babylon.js (or an equivalent custom renderer when unavailable).  Users travel on a flat, infinite surface; a cube
+is a mental model only and may be represented as an optional overlay for debugging.  The primary target is iOS Safari and
+the experience must remain stable at 60fps wherever possible.  This document is the single source of truth for terminology,
+UI behaviour, navigation and the implementation plan.
+
+## 1  Canonical terms and code names
+
+* **Widget instance** – A placed module in the spatial system.  It is identified by `widget_instances.id` and is the only
+  thing that renders on screen and receives gestures.
+* **Dream** – User‑facing term for a widget instance.  Dreams are not a separate entity; `Dream = widget_instance`.
+* **Core Dream** – The dual‑sided `core_dream` widget that flips between the Home Feed and the Profile.  Home Feed and
+  Profile are not routes but faces of this widget.
+* **Day Dreams** – Six fixed, specialised outer workspaces (`day_dream` widgets).  Each has two faces with a fixed,
+  specialised function (see §7).
+* **Return Home** – A state transition back to the base anchor: camera snaps to the base anchor location, the core dream
+  is opened and zoom is reset.  Home is a state, not a URL.
+* **Home controls** – Two always‑present, gesture‑driven controls that live on the screen: the blue button and the red
+  button.  They default to the bottom‑centre of the screen, side‑by‑side.  When aligned they form an infinity symbol.
+  - **Blue control** – Primarily handles inward navigation (diving into Day Dreams) and opens the Dream selection menu
+    (Outer Dreams) on double‑tap.
+  - **Red control** – Primarily handles outward navigation (system and profile) and opens the system menu (Search, Dr. Eams,
+    Settings, Account, View All Dreams, Edit Layout) on double‑tap.
+  The controls can be dragged anywhere on screen; they remember their last positions but have no permanent location.  To go
+  home, drag one control onto the other until they touch; both controls will snap back to their previous locations and the
+  camera returns to the base anchor.
+* **Combined commands** – Holding a control and dragging vertically initiates depth navigation.  Holding the blue control
+  and dragging upward dives inward (toward Day Dreams); holding the red control and dragging downward moves outward (toward
+  the base).  The speed of movement is proportional to drag distance.  Commands end when the thumb leaves the screen.  A
+  double‑tap opens the respective menu instead of initiating a hold.
+* **Cube** – A mental model and optional overlay used to debug spatial adjacencies.  The on‑screen travel always feels like
+  a flat surface; the cube itself never becomes a route.
 
-DREAMengin is a spatial, gesture-driven creative platform built on Next.js and Supabase.
-It uses a toroidal navigation model where the user never hits a wall: swipe and zoom always reveal more space.
+## 2  System inventory and limits
 
-Primary target: iOS Safari
+The platform supports one `core_dream` (dual‑sided), exactly six `day_dream` widgets (dual‑sided, fixed) and up to 48
+customisable Dreams (single‑sided) distributed across the toroidal surface.  Custom Dreams may vary in size and shape but
+must be orthogonal polygons with four or six 90° corners.  Custom Dreams can publish to the Home Feed and appear both in the
+navigation area and the Profile’s interior layout.  When the core dream is closed the central region may host up to 16
+additional Dreams, but the global limit across all quadrants is 48.
 
----
+## 3  Layout model
 
-## Core Principles
+### 3.1  Base layout with the core dream open
 
-1. HOME is not a route or page.
-   HOME is a widget feed workspace.
+The base layout comprises a top row of four Dreams, the core dream in the centre and a bottom row of four Dreams.  Dreams
+in the top and bottom rows can be closed; closed Dreams return to their home spots.  Day dreams cannot be removed but may
+be entered and exited.
 
-2. Navigation bars are not required.
-   Everything is accessible via swipe, pinch zoom, and Home buttons.
+### 3.2  Profile face layout
 
-3. Profile is a widget, not a page.
-   It flips from an icon inside the Home Feed widget.
+The profile is the back face of the core dream.  It hosts selected Dreams and configuration tools.  It can display a
+“Dream Feed” view based on selected Dream sources.
 
-4. Cube is not a layer.
-   Cube is a visualization of the navigation topology and widget space.
+### 3.3  Base layout with the core dream closed
 
-5. AI exposure is strict.
-   Dr. Eams is the only user-visible AI.
-   Inner Dreams and Boogie Man AI are admin-only and never appear in user menus.
+When the core dream is closed the centre region is filled with additional Dreams drawn from the pool of 48.  Up to 16
+placements are possible depending on shape sizes.  Pressing either home control onto the other returns to the base anchor
+and reopens the core dream.
 
----
+## 4  Navigation model
 
-## UI Layout Definition
+### 4.1  Toroidal surface travel
 
-Default HOME layout is always:
+The surface is infinite in both X and Y and wraps like a torus.  Swiping horizontally travels through Dreams; swiping
+vertically travels between rows and quadrants.  A swipe left then up never returns to the base quadrant.  Zoom gestures
+provide inspection only and do not change depth; pinch‑out is not used to enter day dreams.
 
-Top Row: 4 small widgets
-Center: Home Feed widget
-Bottom Row: 4 small widgets
+### 4.2  Depth and day dream entry
 
-The Home Feed widget is the core workspace.
-The feed is composed from the widgets the user has chosen.
+Day dreams are entered via the home controls, not via pinch.  Depth traversal is conceptually `base ↔ day_dream surfaces`.
+Holding and dragging the blue control upward dives into a day dream.  Holding and dragging the red control downward moves
+outward toward the base.  Dragging one control onto the other instantly returns home.
 
-Profile widget behavior:
-- A profile icon exists inside the Home Feed widget
-- Tap icon triggers flip transition into Profile widget
-- Profile widget contains its own internal widget layout (simple, extensible)
-- Close action slides the profile widget off to the side and docks it
-- Docked profile remains accessible and can be reopened
-- Optional full close with X
+## 5  Home controls and gestures
 
----
+The blue and red controls are identical in size and shape but coloured differently.  They default to the bottom centre of
+the screen.  Users can drag the controls to reposition them; their positions are stored in local memory and restored on
+subsequent visits.  Gestures are as follows:
 
-## Gesture Navigation Model
+* **Double‑tap on the blue control** – Opens the Dream selection menu (listing day dreams and custom Dreams).
+* **Double‑tap on the red control** – Opens the system menu (Search, Dr. Eams, Settings, Account, View All Dreams, Edit Layout).
+* **Hold + drag upward on the blue control** – Initiates inward travel into day dreams.  The travel speed increases with
+  drag distance.  Releasing the thumb ends the command.
+* **Hold + drag downward on the red control** – Initiates outward travel toward the base.  Releasing the thumb ends the command.
+* **Drag one control onto the other** – Returns to the base anchor.  Both controls snap back to their previous positions.
 
-Navigation is toroidal.
-The user never reaches a boundary.
+Commands always end when all thumbs leave the screen to avoid accidental activation of other commands.
 
-Required gestures:
+## 6  Day dreams
 
-Horizontal swipe:
-- Cycles the active widget selection left and right
-- Wraps around, no end
+Six specialised day dreams exist with fixed dual‑sided functionality:
 
-Vertical swipe:
-- Moves the top row and bottom row in a continuous loop
-- Exposes additional top and bottom rows if configured
-- Wraps around, no end
+| day_dream_id | Side A (face 0)                            | Side B (face 1)                                |
+|-------------:|-------------------------------------------|------------------------------------------------|
+| music        | Music studio: create, play, manage music | Releases: publish, promote, sell               |
+| lab          | Notes & research                         | Simulator: physics and size simulations        |
+| games        | Library: owned/available games           | Play: immersive play surface                   |
+| code         | Code space: editor & project workspace   | Preview: run website/game preview (GitHub later) |
+| brand        | Brand management & social tools          | Analytics: traffic, revenue, growth (premium)  |
+| create       | Projects: organise boards & media plans  | Media vault: upload, categorise, schedule      |
 
-Pinch:
-- Zoom in and out of the current focused widget region
-- Zoom is stateful and must be stable at 60fps on iOS
+## 7  Dreams, feeds and cross‑communication
 
-Home buttons:
-- Home button returns focus to the Home Feed widget in the center, reset zoom to 0
-- Second Home button is a secondary anchor toggle:
-  - First press stores a snapshot of current camera/nav state and returns to Home
-  - Next press restores that snapshot
+The Home Feed (front face of the core dream) aggregates content from user‑selected Dreams.  Publishing happens via the core
+dream but fans out to all configured destinations (Dreams, feed, profile) as a single atomic action.  Dreams communicate via
+events (`widget_events` table) and a client event bus.  Event types include publishing feed entries, requesting data,
+opening related dreams and synchronising state.
 
----
+## 8  Database alignment
 
-## Cube Visualization
+The implementation uses Supabase.  Avoid introducing new nouns that do not map to existing tables.  Day dreams are stored as
+`widget_instances` with `kind = 'day_dream'` and fixed identifiers.  The core dream uses `kind = 'core_dream'`.  Custom
+dreams use appropriate `kind` values depending on the widget definition.
 
-Cube is a visualization tool, not a navigation layer.
+## 9  iOS performance rules
 
-The cube represents the Home widget space:
+To achieve 60 fps on mobile:
 
-- Center represents current Home Feed state
-- Faces represent adjacent widget contexts or directional groupings
-- Outer layers represent Dreams
+* `touch‑action: none` on the canvas or container.
+* Store gesture state in refs; avoid React state updates during pointer moves.
+* Commit state on gesture end or threshold crossing.
+* Use GPU‑only CSS transforms for panning and zooming.
+* Avoid memory allocations in the render loop.
 
-Cube is opened as an overlay.
-Cube does not replace the shell or change routes.
-Cube may allow selecting a target focus point, but it never becomes a “layer.”
+## 10  AI access control
 
----
+Only **Dr. Eams** appears in the user‑facing UI via the system menu.  **Inner Dreams (IDARi)** and **Boogie Man (BMSys)**
+are system AIs accessible only through Dr. Eams chat with server‑side gating.  System AIs never appear as menu items.
 
-## Dreams
+## 11  Non‑goals
 
-Dreams are outer-layer widget spaces.
-Dream widgets are specialized environments, for example:
-- Music Lab
-- Creator workspaces
-- Immersive canvases
+Do **not** add navigation bars, turn Home into a route, turn the cube into a layer, expose system AI in user menus or use
+pinch‑out navigation to enter day dreams.
 
-Dream layout uses the same structural pattern as Home:
-Top Row: 4 widgets
-Center: Dream workspace widget
-Bottom Row: 4 widgets
+## 12  Three‑agent architecture
 
-Dream navigation remains toroidal.
+DREAMengin is powered by three cooperating AIs.  Each has strict separation of duties and communicates via structured
+tickets.  They never share credentials or privileged data directly.
 
-Entering a Dream:
-- User zooms into a Dream widget or selects it from a Dream surface
-- Camera transitions to Dream workspace context
-- Home remains accessible via Home buttons
+### 12.1  Dr Eams – User‑facing theorist & builder
 
----
+Dr Eams is the primary interface for users.  It interprets intent, maintains user context and performs high‑level reasoning,
+explanation and CCC/physics framing.  Dr Eams drafts **Dev Tickets** when code, infrastructure or migrations are needed and
+**Policy Tickets** when actions involve sensitive content or resources.  It summarises outcomes and risk states back to the
+user.  Dr Eams never accesses production secrets or PII, never triggers destructive operations without a plan from IDARi and
+approval from BMSys, and never bypasses BMSys for high‑risk categories.
 
-## Widget System
+### 12.2  IDARi – Admin & operator brain
 
-Widgets are modular content modules placed into spatial slots.
+IDARi designs and plans code changes, database migrations, debugging steps and moderation tooling.  It interprets **Dev Tickets**,
+assesses risk and, when necessary, requests a **Policy Ticket** from BMSys.  IDARi returns explicit plans (not direct
+execution) unless explicitly allowed.  It respects BMSys decisions and safeguards in all plans.  IDARi never unilaterally
+executes destructive or production‑impacting actions.
 
-Widgets:
-- Are selected by users
-- Populate top/bottom rows
-- Feed the Home Feed stream if configured
-- Can represent friends, pages, content feeds, tools, experiences
+### 12.3  BMSys – Trust, safety and ledger cop
 
-Home Feed composition:
-- The Home Feed stream is generated from active widget sources
-- If a widget is enabled as a feed source, it publishes feed entries
-- Feed supports multiple content types: posts, music, projects, notifications, system cards
+BMSys is the central policy and risk engine.  It receives structured **Action/Policy Tickets** from Dr Eams and IDARi,
+computes risk scores and returns decisions (`allow`, `allow_with_safeguards`, `require_human`, `deny`).  It may suggest
+transformations such as redacting PII, aggregating data, sandbox‑only access or limiting detail.  BMSys acts as a ledger
+tension estimator: repeated policy probing or abuse raises risk scores and tightens decisions.  High‑risk cases are escalated
+to human review.  All non‑trivial actions are logged as ledger entries (see the system ledger specification for details).
 
-Widget tables in Supabase (expected):
-- widgets
-- widget_instances
-- widget_layouts
-- widget_content
-- widget_shares
-- widget_follows
-- widget_events
+## 13  Implementation status and rebuild plan
 
-Spaces:
-- home space
-- profile space
-- optional additional spaces
-Access controlled by:
-- spaces
-- space_members
-
----
-
-## Supabase Realtime Requirements
-
-If widgets are synced live, Supabase Realtime must be enabled.
-
-SQL requirements:
-
-1. Enable replication for widgets table
-ALTER publication supabase_realtime ADD TABLE widgets;
-
-2. Ensure full replica identity
-ALTER TABLE widgets REPLICA IDENTITY FULL;
-
-Dashboard requirement:
-Enable Realtime for the widgets table in Database -> Replication.
-
-Client requirement:
-Maintain a widgetsMap (id -> render object reference) to update existing objects instead of recreating them.
-
----
-
-## Rendering and iOS Performance Requirements
-
-Target:
-60fps mobile
-GPU-only transforms
-Single DOM write per frame
-Zero allocations per gesture frame
-
-Rules:
-- Use requestAnimationFrame for per-frame camera updates
-- Use translate3d and scale3d only, never top/left animation
-- Avoid React re-renders during live gestures by storing gesture state in refs
-- Commit state changes on gesture end or threshold crossing
-- touchAction: none is mandatory on the spatial container to stop Safari page pan
-- overscroll bounce must be disabled for the shell
-
----
-
-## PixiJS Rendering Layer Integration
-
-PixiJS is used as a rendering and physics engine for camera behavior.
-Next.js + Supabase remains the architecture.
-
-Requirements:
-- PixiJS runs as a transparent full-screen canvas
-- pixi-viewport controls drag, pinch, decelerate
-- Torus loop implemented by teleporting viewport coordinates when reaching world bounds
-- devicePixelRatio must be used for retina sharpness
-- camera transform is fed into the spatial shell world transform
-
-The Pixi layer does not replace your backend.
-It replaces janky DOM-only gesture physics with a stable camera system.
-
----
-
-## AI Systems and Access Control
-
-Dr. Eams:
-- Only AI visible to users
-- User-facing assistance, content, widget AI
-
-Inner Dreams (Idari):
-- Administrative AI system
-- Admin-only
-- Not in user menus
-- Accessible only through admin-gated UI and admin-only API routes
-- All actions logged
-
-Boogie Man AI:
-- Policy enforcement system
-- Admin-only
-- Not in user menus
-- Used internally to enforce system rules and moderation
-- All actions logged
-
-Hard rule:
-Only Dr. Eams appears in user-facing navigation or widget menus.
-
----
-
-## Admin and Audit Logging
-
-Admin-only features:
-- Run update with natural language prompt
-- Run bug checks
-- Enable auto-refresh cycles
-- View real-time activity logs
-
-All admin actions logged to:
-- admin_audit_log
-- audit_log
-
-Admin gating requirements:
-- Supabase auth required
-- Admin role verification required
-- RLS enforced
-- Inner Dreams and Boogie never bypass RLS
-
----
-
-## Non-Goals
-
-- Do not add nav bars to expose AI systems
-- Do not turn Home into a page route
-- Do not turn Cube into a navigation layer
-- Do not expose admin AIs to users
+The current repository includes legacy UI and UX (e.g., HomeRadialNav, AnchorWidget).  This version strips down the UI to
+focus on the toroidal workspace, the two home controls and the Dr Eams entry point.  A new `DreamenginApp` component
+implements the Babylon (or custom) renderer, the gesture logic described above and the overlay menus for Outer Dreams,
+system functions and Dr Eams.  Subsequent work should focus on implementing Babylon‑based physics, toroidal wrapping,
+day‑dream traversal and Supabase‑backed data models.  API routes must enforce Zod validation and strict Supabase typing.

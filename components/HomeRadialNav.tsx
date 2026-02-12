@@ -1,38 +1,19 @@
-// components/HomeRadialNav.tsx
-// FIXES:
-// 1) Removes duplicate declarations of trackNavigation and trackSearch
-// 2) Fixes handleSend calling handleNavigation with a string (it must pass an intent object)
-// 3) Ensures “patterns” storage and “memory” storage do not collide
+'use client';
 
-"use client";
-
-import { useEffect, useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
 import {
-  Home,
-  Search,
-  PlusCircle,
-  Music,
-  FlaskConical,
-  Store,
-  MessageSquare,
-  Settings,
-  LogOut,
-  Bot,
-  X,
-  Send,
-  Sparkles,
-  Brain,
-  Lightbulb,
-  Zap,
-  LogIn,
-} from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { useTick } from "@/hooks/useTick";
-import { onInnerDreamsEvent } from "@/lib/agents/agentBus";
-import { getDrEamsMode, onDrEamsModeChange } from "@/lib/agents/drEamsMode";
-import { hasTaught, markTaught, onTeach } from "@/lib/agents/teachBus";
+  Home, Search, PlusCircle, Music, FlaskConical, Store,
+  MessageSquare, Settings, LogOut, Bot, X, Send, Sparkles,
+  Brain, Lightbulb, Zap, LogIn
+} from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { useTick } from '@/hooks/useTick';
+import { onInnerDreamsEvent } from '@/lib/agents/agentBus';
+import { getDrEamsMode, onDrEamsModeChange } from '@/lib/agents/drEamsMode';
+import { hasTaught, markTaught, onTeach } from '@/lib/agents/teachBus';
+import { executeUiAction } from '@/lib/agents/uiActions';
 
 interface HomeRadialNavProps {
   user: User | null;
@@ -48,10 +29,10 @@ interface RadialMenuItem {
 
 interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  emotion?: "neutral" | "excited" | "thoughtful" | "helpful" | "concerned";
+  emotion?: 'neutral' | 'excited' | 'thoughtful' | 'helpful' | 'concerned';
 }
 
 interface ConversationContext {
@@ -60,98 +41,39 @@ interface ConversationContext {
   sessionGoals: string[];
 }
 
-const DRAG_THRESHOLD = 10;
-const LONG_PRESS_DURATION = 400;
-const RADIAL_RADIUS = 80;
-const ITEM_HIT_RADIUS = 30;
-const OVERLAY_CLOSE_COOLDOWN = 250;
-
-type IntentKind = "navigate" | "create" | "manage" | "search" | "question" | "greeting" | "unknown";
-
-type InterpretedIntent = {
-  kind: IntentKind;
-  label: string;
-  destination?: string;
-  confidence: "high" | "med" | "low";
-};
-
-type DrEamsMemory = {
-  navCounts: Record<string, number>;
-  recentSearches: string[];
-  lastDestination?: string;
-};
-
-const MEMORY_KEY = "dr-eams-memory-v1";
-
-const loadMemory = (): DrEamsMemory => {
-  try {
-    const raw = localStorage.getItem(MEMORY_KEY);
-    if (!raw) return { navCounts: {}, recentSearches: [] };
-    const parsed = JSON.parse(raw);
-    return {
-      navCounts: parsed?.navCounts || {},
-      recentSearches: Array.isArray(parsed?.recentSearches) ? parsed.recentSearches : [],
-      lastDestination: typeof parsed?.lastDestination === "string" ? parsed.lastDestination : undefined,
-    };
-  } catch {
-    return { navCounts: {}, recentSearches: [] };
-  }
-};
-
-const saveMemory = (mem: DrEamsMemory) => {
-  try {
-    localStorage.setItem(MEMORY_KEY, JSON.stringify(mem));
-  } catch {
-    // ignore
-  }
-};
-
-const trackNavigationMemory = (destination: string) => {
-  const mem = loadMemory();
-  mem.navCounts[destination] = (mem.navCounts[destination] || 0) + 1;
-  mem.lastDestination = destination;
-  saveMemory(mem);
-};
-
-const trackSearchMemory = (query: string) => {
-  const mem = loadMemory();
-  const next = [query, ...mem.recentSearches.filter((q) => q !== query)].slice(0, 10);
-  mem.recentSearches = next;
-  saveMemory(mem);
-};
-
-const topDestinations = (): string[] => {
-  const mem = loadMemory();
-  return Object.entries(mem.navCounts)
-    .sort((a, b) => (b[1] || 0) - (a[1] || 0))
-    .slice(0, 3)
-    .map(([k]) => k);
-};
+const DRAG_THRESHOLD = 10; // pixels
+const LONG_PRESS_DURATION = 400; // ms
+const RADIAL_RADIUS = 80; // pixels from center
+const ITEM_HIT_RADIUS = 30; // pixels
+const JUST_CLOSED_MS = 280; // guardrail
+const OVERLAY_CLOSE_COOLDOWN = 250; // ms - prevent accidental navigation after overlay close
 
 export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const router = useRouter();
   const supabase = createClient();
   const { tickOpen, tickSelect, tickConfirm } = useTick();
 
+  // Position state
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [highlightedItemIndex, setHighlightedItemIndex] = useState<number | null>(null);
+  const [justClosedAt, setJustClosedAt] = useState<number>(0);
 
+  // Dr. Eam chat state
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: "1",
-      role: "assistant",
-      content:
-        "Hello! I'm Dr. Eam, your creative companion in DREAMengin. Think of me as your guide through this platform—I'm here to help you discover features, understand complex concepts, and even run safe operations on your behalf. What brings you here today?",
+      id: '1',
+      role: 'assistant',
+      content: "Hello! I'm Dr. Eam, your creative companion in DREAMengin. Think of me as your guide through this platform—I'm here to help you discover features, understand complex concepts, and even run safe operations on your behalf. What brings you here today?",
       timestamp: new Date(),
-      emotion: "helpful",
+      emotion: 'helpful',
     },
   ]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [interpretingIntent, setInterpretingIntent] = useState("");
+  const [interpretingIntent, setInterpretingIntent] = useState('');
   const [fullExperience, setFullExperience] = useState(true);
   const [context, setContext] = useState<ConversationContext>({
     recentTopics: [],
@@ -159,26 +81,80 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     sessionGoals: [],
   });
 
+  // Refs for gesture tracking
   const pointerStartRef = useRef({ x: 0, y: 0, time: 0 });
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasMovedRef = useRef(false);
-  const justClosedOverlayRef = useRef(0);
+  const quickTapArmedRef = useRef(false);
+  const justClosedOverlayRef = useRef(0); // Timestamp when overlay was closed
 
+  // User pattern tracking
+  const [userPatterns, setUserPatterns] = useState({
+    frequentDestinations: [] as string[],
+    recentSearches: [] as string[],
+    commonActions: [] as string[],
+  });
+
+  // Load user patterns from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("home-btn-pos");
+    const saved = localStorage.getItem('dr-eam-patterns');
+    if (saved) {
+      try {
+        setUserPatterns(JSON.parse(saved));
+      } catch {}
+    }
+  }, []);
+
+  // Save user patterns to localStorage
+  const saveUserPatterns = (patterns: typeof userPatterns) => {
+    localStorage.setItem('dr-eam-patterns', JSON.stringify(patterns));
+    setUserPatterns(patterns);
+  };
+
+  // Track navigation
+  const trackNavigation = (destination: string) => {
+    const updated = { ...userPatterns };
+    updated.frequentDestinations = [
+      destination,
+      ...updated.frequentDestinations.filter(d => d !== destination)
+    ].slice(0, 10);
+    saveUserPatterns(updated);
+  };
+
+  // Track search
+  const trackSearch = (query: string) => {
+    const updated = { ...userPatterns };
+    updated.recentSearches = [
+      query,
+      ...updated.recentSearches.filter(q => q !== query)
+    ].slice(0, 20);
+    saveUserPatterns(updated);
+  };
+
+  // Initialize position from localStorage or default
+  useEffect(() => {
+    const saved = localStorage.getItem('home-btn-pos');
     if (saved) {
       try {
         setPosition(JSON.parse(saved));
       } catch {
-        setPosition({ x: window.innerWidth - 72, y: window.innerHeight - 140 });
+        setDefaultPosition();
       }
     } else {
-      setPosition({ x: window.innerWidth - 72, y: window.innerHeight - 140 });
+      setDefaultPosition();
     }
   }, []);
 
+  const setDefaultPosition = () => {
+    setPosition({
+      x: window.innerWidth - 72,
+      y: window.innerHeight - 140,
+    });
+  };
+
+  // Clamp position to viewport
   const clampPosition = (x: number, y: number) => {
     const margin = 8;
     const buttonSize = 56;
@@ -188,57 +164,68 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     };
   };
 
+  // Save position to localStorage
   const savePosition = (pos: { x: number; y: number }) => {
-    localStorage.setItem("home-btn-pos", JSON.stringify(pos));
+    localStorage.setItem('home-btn-pos', JSON.stringify(pos));
   };
 
+  // Get radial menu items based on user state
   const getMenuItems = (): RadialMenuItem[] => {
     if (user) {
       return [
-        { id: "home", label: "Home", icon: Home, path: "/home", action: () => router.push("/home") },
-        { id: "discover", label: "Discover", icon: Search, path: "/discover", action: () => router.push("/discover") },
-        { id: "create", label: "Create", icon: PlusCircle, path: "/home?modal=create", action: () => router.push("/home?modal=create") },
-        { id: "music", label: "Music", icon: Music, path: "/music", action: () => router.push("/music") },
-        { id: "lab", label: "Lab", icon: FlaskConical, path: "/lab", action: () => router.push("/lab") },
-        { id: "shop", label: "Shop", icon: Store, path: "/shop", action: () => router.push("/shop") },
-        { id: "messages", label: "Messages", icon: MessageSquare, path: "/messages", action: () => router.push("/messages") },
-        { id: "settings", label: "Settings", icon: Settings, path: "/settings", action: () => router.push("/settings") },
-        { id: "dreams", label: "Dr. Eam", icon: Bot, action: () => { setIsMenuOpen(false); setIsChatOpen(true); } },
-        { id: "logout", label: "Logout", icon: LogOut, action: async () => { await supabase.auth.signOut(); router.push("/login"); } },
+        { id: 'home', label: 'Home', icon: Home, path: '/home', action: () => router.push('/home') },
+        { id: 'discover', label: 'Discover', icon: Search, path: '/discover', action: () => router.push('/discover') },
+        { id: 'create', label: 'Create', icon: PlusCircle, path: '/home?modal=create', action: () => router.push('/home?modal=create') },
+        { id: 'music', label: 'Music', icon: Music, path: '/music', action: () => router.push('/music') },
+        { id: 'lab', label: 'Lab', icon: FlaskConical, path: '/lab', action: () => router.push('/lab') },
+        { id: 'shop', label: 'Shop', icon: Store, path: '/shop', action: () => router.push('/shop') },
+        { id: 'messages', label: 'Messages', icon: MessageSquare, path: '/messages', action: () => router.push('/messages') },
+        { id: 'settings', label: 'Settings', icon: Settings, path: '/settings', action: () => router.push('/settings') },
+        { id: 'dreams', label: 'Dr. Eam', icon: Bot, action: () => { setIsMenuOpen(false); setIsChatOpen(true); } },
+        { id: 'logout', label: 'Logout', icon: LogOut, action: async () => { await supabase.auth.signOut(); router.push('/login'); } },
+      ];
+    } else {
+      return [
+        { id: 'discover', label: 'Discover', icon: Search, path: '/discover', action: () => router.push('/discover') },
+        { id: 'shop', label: 'Shop', icon: Store, path: '/shop', action: () => router.push('/shop') },
+        { id: 'dreams', label: 'Dr. Eam', icon: Bot, action: () => { setIsMenuOpen(false); setIsChatOpen(true); } },
+        { id: 'login', label: 'Login', icon: LogIn, path: '/login', action: () => router.push('/login') },
       ];
     }
-    return [
-      { id: "discover", label: "Discover", icon: Search, path: "/discover", action: () => router.push("/discover") },
-      { id: "shop", label: "Shop", icon: Store, path: "/shop", action: () => router.push("/shop") },
-      { id: "dreams", label: "Dr. Eam", icon: Bot, action: () => { setIsMenuOpen(false); setIsChatOpen(true); } },
-      { id: "login", label: "Login", icon: LogIn, path: "/login", action: () => router.push("/login") },
-    ];
   };
 
   const menuItems = getMenuItems();
 
+  // Calculate radial item positions (edge-aware)
   const getRadialItemPosition = (index: number, total: number) => {
+    // Determine which quadrant the button is in
     const isNearBottom = position.y > window.innerHeight / 2;
     const isNearRight = position.x > window.innerWidth / 2;
     const isNearLeft = position.x < window.innerWidth / 3;
     const isNearTop = position.y < window.innerHeight / 3;
 
+    // Calculate arc based on position
     let startAngle = 0;
-    let arcSize = Math.PI * 2;
+    let arcSize = Math.PI * 2; // Full circle by default
 
     if (isNearBottom && !isNearLeft && !isNearRight) {
+      // Bottom center - arc upward
       startAngle = -Math.PI;
       arcSize = Math.PI;
     } else if (isNearBottom && isNearRight) {
+      // Bottom right - arc up and left
       startAngle = -Math.PI * 0.75;
       arcSize = Math.PI * 1.5;
     } else if (isNearBottom && isNearLeft) {
+      // Bottom left - arc up and right
       startAngle = -Math.PI * 0.25;
       arcSize = Math.PI * 1.5;
     } else if (isNearTop && isNearRight) {
+      // Top right - arc down and left
       startAngle = Math.PI * 0.25;
       arcSize = Math.PI * 1.5;
     } else if (isNearTop && isNearLeft) {
+      // Top left - arc down and right
       startAngle = -Math.PI * 0.25;
       arcSize = Math.PI * 1.5;
     }
@@ -250,42 +237,60 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     return { x, y, angle };
   };
 
+  // Check if pointer is over an item
   const getItemUnderPointer = (pointerX: number, pointerY: number): number | null => {
     for (let i = 0; i < menuItems.length; i++) {
       const itemPos = getRadialItemPosition(i, menuItems.length);
       const dx = pointerX - itemPos.x;
       const dy = pointerY - itemPos.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      if (distance < ITEM_HIT_RADIUS) return i;
+      
+      if (distance < ITEM_HIT_RADIUS) {
+        return i;
+      }
     }
     return null;
   };
 
+  // Pointer down handler
   const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    pointerStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
+    
+    pointerStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      time: Date.now(),
+    };
     hasMovedRef.current = false;
     setIsDragging(false);
 
+    // Start long-press timer
     longPressTimerRef.current = setTimeout(() => {
       if (!hasMovedRef.current && !isDragging) {
+        // Long press detected - open menu
         setIsMenuOpen(true);
         tickOpen();
-        try { navigator.vibrate?.(10); } catch {}
+        try {
+          navigator.vibrate?.(10);
+        } catch {}
+        // Trigger scale animation
         if (buttonRef.current) {
-          buttonRef.current.style.animation = "none";
+          buttonRef.current.style.animation = 'none';
           setTimeout(() => {
-            if (buttonRef.current) buttonRef.current.style.animation = "buttonPress 150ms ease-out";
+            if (buttonRef.current) {
+              buttonRef.current.style.animation = 'buttonPress 150ms ease-out';
+            }
           }, 10);
         }
       }
     }, LONG_PRESS_DURATION);
 
+    // Capture pointer
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
 
+  // Pointer move handler
   const handlePointerMove = (e: React.PointerEvent) => {
     const dx = e.clientX - pointerStartRef.current.x;
     const dy = e.clientY - pointerStartRef.current.y;
@@ -293,65 +298,87 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
 
     if (distance > DRAG_THRESHOLD) {
       hasMovedRef.current = true;
-
+      
+      // Cancel long-press if we start dragging
       if (longPressTimerRef.current) {
         clearTimeout(longPressTimerRef.current);
         longPressTimerRef.current = null;
       }
 
       if (isMenuOpen) {
+        // Drag-to-select mode
         const itemIndex = getItemUnderPointer(e.clientX, e.clientY);
         if (itemIndex !== highlightedItemIndex) {
           setHighlightedItemIndex(itemIndex);
           if (itemIndex !== null) {
             tickSelect(itemIndex);
-            try { navigator.vibrate?.(5); } catch {}
+            try {
+              navigator.vibrate?.(5);
+            } catch {}
           }
         }
       } else {
+        // Drag mode - reposition button
         setIsDragging(true);
-        const newPos = clampPosition(position.x + dx, position.y + dy);
+        const newPos = clampPosition(
+          position.x + dx,
+          position.y + dy
+        );
         setPosition(newPos);
         pointerStartRef.current = { x: e.clientX, y: e.clientY, time: pointerStartRef.current.time };
       }
     }
   };
 
+  // Pointer up handler
   const handlePointerUp = (e: React.PointerEvent) => {
+    // Cancel long-press timer
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
     }
 
     if (isMenuOpen) {
+      // Check if we're releasing on a highlighted item
       if (highlightedItemIndex !== null) {
         const item = menuItems[highlightedItemIndex];
         tickConfirm();
-        try { navigator.vibrate?.(15); } catch {}
+        try {
+          navigator.vibrate?.(15);
+        } catch {}
         setTimeout(() => {
           item.action();
           setIsMenuOpen(false);
           setHighlightedItemIndex(null);
         }, 100);
       } else {
+        // Released on nothing - close menu
         justClosedOverlayRef.current = Date.now();
         setIsMenuOpen(false);
         setHighlightedItemIndex(null);
       }
     } else if (isDragging) {
+      // Save position after drag
       savePosition(position);
       setIsDragging(false);
     } else if (!hasMovedRef.current) {
+      // Quick tap - new behavior
       if (isChatOpen) {
+        // First press: close Dr. Eam chat
         justClosedOverlayRef.current = Date.now();
         setIsChatOpen(false);
       } else if (isMenuOpen) {
+        // Close menu without navigation
         justClosedOverlayRef.current = Date.now();
         setIsMenuOpen(false);
         setHighlightedItemIndex(null);
       } else {
+        // Second press (nothing open): navigate to /home
+        // But only if we're outside the cooldown window
         const timeSinceClose = Date.now() - justClosedOverlayRef.current;
-        if (timeSinceClose > OVERLAY_CLOSE_COOLDOWN) router.push("/home");
+        if (timeSinceClose > OVERLAY_CLOSE_COOLDOWN) {
+          router.push('/home');
+        }
       }
     }
 
@@ -359,12 +386,15 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
   };
 
+  // Dr. Eam chat functions (from AIAssistantEnhanced)
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-    if (isChatOpen) scrollToBottom();
+    if (isChatOpen) {
+      scrollToBottom();
+    }
   }, [messages, isChatOpen]);
 
   useEffect(() => {
@@ -380,7 +410,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
       markTaught(evt.featureId);
       addAssistantMessage(
         `I noticed you're exploring ${evt.title}. ${evt.message}\n\nWould you like me to explain more about how this feature works in the context of your creative workflow?`,
-        "helpful"
+        'helpful'
       );
     });
     return () => off();
@@ -389,38 +419,40 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   useEffect(() => {
     const unsubscribe = onInnerDreamsEvent((evt) => {
       const shouldSurface =
-        evt.type === "innerdreams:status" ||
-        evt.status === "error" ||
-        (evt.type === "innerdreams:log" && /completed|failed|queued|initiated|activated|paused|bug/i.test(evt.message));
+        evt.type === 'innerdreams:status' ||
+        evt.status === 'error' ||
+        (evt.type === 'innerdreams:log' &&
+          /completed|failed|queued|initiated|activated|paused|bug/i.test(evt.message));
 
       if (!shouldSurface) return;
 
-      const emotion = evt.status === "error" ? "concerned" : "neutral";
+      const emotion = evt.status === 'error' ? 'concerned' : 'neutral';
       addAssistantMessage(
-        `🔧 InnerDreams Update: ${evt.message}${evt.details ? `\n\nDetails: ${evt.details}` : ""}`,
+        `🔧 InnerDreams Update: ${evt.message}${evt.details ? `\n\nDetails: ${evt.details}` : ''}`,
         emotion
       );
     });
     return () => unsubscribe();
   }, []);
 
-  const addAssistantMessage = (content: string, emotion: Message["emotion"] = "neutral") => {
+  const addAssistantMessage = (content: string, emotion: Message['emotion'] = 'neutral') => {
     setMessages((prev) => [
       ...prev,
       {
         id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
-        role: "assistant",
+        role: 'assistant',
         content,
         timestamp: new Date(),
         emotion,
       },
     ]);
+    
     updateConversationContext(content);
   };
 
   const updateConversationContext = (content: string) => {
     const topics = extractTopics(content);
-    setContext((prev) => ({
+    setContext(prev => ({
       ...prev,
       recentTopics: [...new Set([...topics, ...prev.recentTopics])].slice(0, 5),
     }));
@@ -436,184 +468,314 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
       /music|audio|track|playlist/i,
       /ad|advertising|promotion/i,
     ];
-
+    
     const topics: string[] = [];
     topicPatterns.forEach((pattern, i) => {
       if (pattern.test(text)) {
-        const topicNames = ["physics", "revenue", "content", "profile", "analytics", "music", "advertising"];
+        const topicNames = ['physics', 'revenue', 'content', 'profile', 'analytics', 'music', 'advertising'];
         topics.push(topicNames[i]);
       }
     });
-
+    
     return topics;
   };
 
-  const callInnerDreams = async (mode: "bug-check" | "update", prompt?: string): Promise<string> => {
+  const callInnerDreams = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
     try {
-      const endpoint = mode === "bug-check" ? "/api/innerdreams/check-bugs" : "/api/innerdreams/update";
+      const endpoint = mode === 'bug-check' ? '/api/innerdreams/check-bugs' : '/api/innerdreams/update';
       const payload: Record<string, unknown> =
-        mode === "bug-check"
-          ? { userId: "self" }
-          : { prompt: prompt || "General maintenance update", autoRefresh: false, bugCheck: true };
+        mode === 'bug-check'
+          ? { userId: 'self' }
+          : { prompt: prompt || 'General maintenance update', autoRefresh: false, bugCheck: true };
 
       const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      if (res.status === 401) return "🔐 InnerDreams requires admin authentication. Please sign in with an admin account first, then we can proceed.";
-      if (res.status === 403) return "⚠️ InnerDreams is restricted to administrator accounts. Your current account doesn't have the necessary permissions.";
+      if (res.status === 401) return '🔐 InnerDreams requires admin authentication. Please sign in with an admin account first, then we can proceed.';
+      if (res.status === 403) return '⚠️ InnerDreams is restricted to administrator accounts. Your current account doesn\'t have the necessary permissions.';
       if (!res.ok) return `❌ InnerDreams encountered an issue (Status ${res.status}). Let me know if you'd like me to try a different approach.`;
 
       const json = await res.json();
-      if (mode === "bug-check") {
+      if (mode === 'bug-check') {
         const bugs = json?.bugsFound ?? 0;
         return bugs > 0
-          ? `🔍 InnerDreams scan detected ${bugs} potential ${bugs === 1 ? "issue" : "issues"}. I've logged the details in the admin audit system. Would you like me to help prioritize the fixes?`
-          : "✅ InnerDreams reports all systems nominal. Everything is running smoothly!";
+          ? `🔍 InnerDreams scan detected ${bugs} potential ${bugs === 1 ? 'issue' : 'issues'}. I've logged the details in the admin audit system. Would you like me to help prioritize the fixes?`
+          : '✅ InnerDreams reports all systems nominal. Everything is running smoothly!';
       }
 
-      return json?.message ? `✨ InnerDreams: ${json.message}` : "✅ InnerDreams has accepted the update request and is working on it.";
+      return json?.message ? `✨ InnerDreams: ${json.message}` : '✅ InnerDreams has accepted the update request and is working on it.';
     } catch (e: any) {
-      return `⚠️ I encountered an error communicating with InnerDreams: ${e?.message || "Unknown error"}.`;
+      return `⚠️ I encountered an error communicating with InnerDreams: ${e?.message || 'Unknown error'}. This might be a temporary network issue—would you like me to try again?`;
     }
   };
 
   const callDrEams = async (message: string): Promise<string | null> => {
     try {
-      const res = await fetch("/api/dr-eams/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/dr-eams/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message }),
       });
 
-      if (res.status === 401) return "🔐 Please sign in first so I can act on your behalf.";
-      if (!res.ok) return null;
+      if (res.status === 401) {
+        return "🔐 Please sign in first so I can act on your behalf.";
+      }
+
+      if (!res.ok) {
+        return null;
+      }
 
       const json = await res.json();
-      return typeof json?.response_text === "string" ? json.response_text : null;
+      return typeof json?.response_text === 'string' ? json.response_text : null;
     } catch {
       return null;
     }
   };
 
-  const NAV_MAP: Array<{ key: string; match: RegExp; path: string; label: string }> = [
-    { key: "home", match: /\b(home|profile|widgets|widget|layout|configure)\b/i, path: "/home", label: "Home & Widgets" },
-    { key: "discover", match: /\b(discover|explore|find|browse)\b/i, path: "/discover", label: "Discover" },
-    { key: "music", match: /\b(music|audio|track|playlist|upload music|songs?)\b/i, path: "/music", label: "Music" },
-    { key: "lab", match: /\b(lab|physics|experiment|science|quantum)\b/i, path: "/lab", label: "Lab" },
-    { key: "shop", match: /\b(shop|store|merch|sell|buy)\b/i, path: "/shop", label: "Shop" },
-    { key: "messages", match: /\b(message|dm|chat|inbox)\b/i, path: "/messages", label: "Messages" },
-    { key: "settings", match: /\b(settings?|preferences?|privacy|security|account)\b/i, path: "/settings", label: "Settings" },
-    { key: "create", match: /\b(create|new post|post|upload|publish)\b/i, path: "/home?modal=create", label: "Create" },
-    { key: "analytics", match: /\b(analytics|stats|metrics|performance)\b/i, path: "/analytics", label: "Analytics" },
-  ];
-
-  const interpretIntent = (queryRaw: string): InterpretedIntent => {
-    const query = queryRaw.trim();
-
-    if (/^(hi|hello|hey|yo|sup|good\s+(morning|afternoon|evening))\b/i.test(query)) {
-      return { kind: "greeting", label: "Greeting", confidence: "high" };
-    }
-
-    for (const m of NAV_MAP) {
-      if (m.match.test(query)) return { kind: "navigate", label: `Opening ${m.label}…`, destination: m.path, confidence: "high" };
-    }
-
-    if (/(search|find|look up|where is|how do i|how to)\b/i.test(query) || query.length > 18) {
-      return { kind: "search", label: "Searching DREAMengin…", confidence: "med" };
-    }
-
-    if (/[?]$/.test(query) || /\b(what|why|how|can you|do you|is there|where)\b/i.test(query)) {
-      return { kind: "question", label: "Thinking…", confidence: "med" };
-    }
-
-    return { kind: "unknown", label: "Working…", confidence: "low" };
-  };
-
-  const handleNavigation = (intent: InterpretedIntent) => {
-    if (!intent.destination) return false;
-    trackNavigationMemory(intent.destination);
-    router.push(intent.destination);
-    return true;
-  };
-
-  const buildDecisiveReply = (intent: InterpretedIntent, query: string): { content: string; emotion: Message["emotion"] } => {
-    if (intent.kind === "navigate" && intent.destination) return { content: intent.label, emotion: "helpful" };
-
-    if (intent.kind === "search") {
-      trackSearchMemory(query);
-      const favorites = topDestinations();
-      const favLine = favorites.length ? `\n\nQuick picks: ${favorites.map((d) => d.replace("/", "")).join(" • ")}` : "";
-      return { content: `Got it. Tell me what you want to do and I’ll take you there.${favLine}`, emotion: "thoughtful" };
-    }
-
-    if (intent.kind === "greeting") return { content: getGreeting(), emotion: "helpful" };
-
-    return { content: `I can route you instantly. Try: “Open music”, “Go to lab”, “Edit profile”, “Create a post”.`, emotion: "helpful" };
-  };
-
-  const generateResponse = async (query: string): Promise<{ content: string; emotion: Message["emotion"] }> => {
-    const intent = interpretIntent(query);
-
-    if (fullExperience && intent.kind === "navigate" && intent.destination) {
-      handleNavigation(intent);
-      return { content: intent.label, emotion: "helpful" };
-    }
-
-    const lower = query.toLowerCase();
-    if (
-      lower.includes("innerdreams") ||
-      lower.includes("inner dreams") ||
-      (/(fix|patch|update|repair)\b/.test(lower) && /(bug|error|issue|problem|build|deploy|vercel|site)/.test(lower))
-    ) {
-      const mode = lower.includes("bug") || lower.includes("check") || lower.includes("scan") ? "bug-check" : "update";
-      const cleaned = query.replace(/inner\s*dreams\s*[:\-]?/i, "").trim();
-      const reply = await callInnerDreams(mode, cleaned || query);
-      return { content: reply, emotion: "helpful" };
-    }
-
-    if (/\b(what can you do|help|capabilities|commands|features|assist)\b/i.test(lower)) {
-      return { content: getDetailedCapabilities(), emotion: "excited" };
-    }
-
-    const server = fullExperience ? await callDrEams(query) : null;
-    if (server) return { content: server, emotion: "helpful" };
-
-    return buildDecisiveReply(intent, query);
-  };
-
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
-    const userText = input.trim();
+    const userText = input;
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: userText,
+      timestamp: new Date(),
+    };
 
-    setMessages((prev) => [
-      ...prev,
-      { id: Date.now().toString(), role: "user", content: userText, timestamp: new Date() },
-    ]);
-    setInput("");
-
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    
+    // Track search immediately
+    trackSearch(userText);
+    
+    // Show immediate intent interpretation
     const intent = interpretIntent(userText);
-    setInterpretingIntent(intent.label);
+    setInterpretingIntent(intent);
     setIsLoading(true);
 
-    trackSearchMemory(userText);
+    
+    // Instant intent acknowledgment
+    const navigated = handleNavigation(userText);
+    trackSearch(userText);
 
-    const navigated = handleNavigation(intent);
     if (navigated) {
-      setInterpretingIntent("");
       setIsLoading(false);
       return;
     }
 
     const response = await generateResponse(userText);
-    setInterpretingIntent("");
+    
+    setInterpretingIntent('');
     addAssistantMessage(response.content, response.emotion);
     setIsLoading(false);
   };
 
+  // Interpret user intent immediately for instant feedback
+
+  // ─────────────────────────────────────────────────────────────
+  // Dr. Eam: fast intent → decisive action → compact reply
+  //
+  // Design goals:
+  // - Immediate acknowledgement (perceived omniscience)
+  // - Confident routing (decisions, not dumps)
+  // - Lightweight memory via localStorage (continuity)
+  // - No verbose explanations unless asked
+  // ─────────────────────────────────────────────────────────────
+
+  type IntentKind =
+    | 'navigate'
+    | 'create'
+    | 'manage'
+    | 'search'
+    | 'question'
+    | 'greeting'
+    | 'unknown';
+
+  type InterpretedIntent = {
+    kind: IntentKind;
+    label: string;
+    destination?: string;
+    confidence: 'high' | 'med' | 'low';
+  };
+
+  type DrEamsMemory = {
+    navCounts: Record<string, number>;
+    recentSearches: string[];
+    lastDestination?: string;
+  };
+
+  const MEMORY_KEY = 'dr-eams-memory-v1';
+
+  const loadMemory = (): DrEamsMemory => {
+    try {
+      const raw = localStorage.getItem(MEMORY_KEY);
+      if (!raw) return { navCounts: {}, recentSearches: [] };
+      const parsed = JSON.parse(raw);
+      return {
+        navCounts: parsed?.navCounts || {},
+        recentSearches: Array.isArray(parsed?.recentSearches) ? parsed.recentSearches : [],
+        lastDestination: typeof parsed?.lastDestination === 'string' ? parsed.lastDestination : undefined,
+      };
+    } catch {
+      return { navCounts: {}, recentSearches: [] };
+    }
+  };
+
+  const saveMemory = (mem: DrEamsMemory) => {
+    try {
+      localStorage.setItem(MEMORY_KEY, JSON.stringify(mem));
+    } catch {
+      // ignore
+    }
+  };
+
+  const trackNavigation = (destination: string) => {
+    const mem = loadMemory();
+    mem.navCounts[destination] = (mem.navCounts[destination] || 0) + 1;
+    mem.lastDestination = destination;
+    saveMemory(mem);
+  };
+
+  const trackSearch = (query: string) => {
+    const mem = loadMemory();
+    const next = [query, ...mem.recentSearches.filter((q) => q !== query)].slice(0, 10);
+    mem.recentSearches = next;
+    saveMemory(mem);
+  };
+
+  const topDestinations = (): string[] => {
+    const mem = loadMemory();
+    return Object.entries(mem.navCounts)
+      .sort((a, b) => (b[1] || 0) - (a[1] || 0))
+      .slice(0, 3)
+      .map(([k]) => k);
+  };
+
+  const NAV_MAP: Array<{ key: string; match: RegExp; path: string; label: string }> = [
+    { key: 'home', match: /\b(home|profile|widgets|widget|layout|configure)\b/i, path: '/home', label: 'Home & Widgets' },
+    { key: 'discover', match: /\b(discover|explore|find|browse)\b/i, path: '/discover', label: 'Discover' },
+    { key: 'music', match: /\b(music|audio|track|playlist|upload music|songs?)\b/i, path: '/music', label: 'Music' },
+    { key: 'lab', match: /\b(lab|physics|experiment|science|quantum)\b/i, path: '/lab', label: 'Lab' },
+    { key: 'shop', match: /\b(shop|store|merch|sell|buy)\b/i, path: '/shop', label: 'Shop' },
+    { key: 'messages', match: /\b(message|dm|chat|inbox)\b/i, path: '/messages', label: 'Messages' },
+    { key: 'settings', match: /\b(settings?|preferences?|privacy|security|account)\b/i, path: '/settings', label: 'Settings' },
+    { key: 'create', match: /\b(create|new post|post|upload|publish)\b/i, path: '/home?modal=create', label: 'Create' },
+    { key: 'analytics', match: /\b(analytics|stats|metrics|performance)\b/i, path: '/analytics', label: 'Analytics' },
+  ];
+
+  const interpretIntent = (queryRaw: string): InterpretedIntent => {
+    const query = queryRaw.trim();
+    const lower = query.toLowerCase();
+
+    if (/^(hi|hello|hey|yo|sup|good\s+(morning|afternoon|evening))\b/i.test(query)) {
+      return { kind: 'greeting', label: 'Greeting', confidence: 'high' };
+    }
+
+    // Navigation / direct destinations
+    for (const m of NAV_MAP) {
+      if (m.match.test(query)) {
+        return { kind: 'navigate', label: `Opening ${m.label}…`, destination: m.path, confidence: 'high' };
+      }
+    }
+
+    // Search-like queries
+    if (/(search|find|look up|where is|how do i|how to)\b/i.test(query) || query.length > 18) {
+      return { kind: 'search', label: 'Searching DREAMengin…', confidence: 'med' };
+    }
+
+    // Questions
+    if (/[?]$/.test(query) || /\b(what|why|how|can you|do you|is there|where)\b/i.test(query)) {
+      return { kind: 'question', label: 'Thinking…', confidence: 'med' };
+    }
+
+    return { kind: 'unknown', label: 'Working…', confidence: 'low' };
+  };
+
+  const handleNavigation = (intent: InterpretedIntent) => {
+    if (!intent.destination) return false;
+    trackNavigation(intent.destination);
+    router.push(intent.destination);
+    return true;
+  };
+
+  const buildDecisiveReply = (intent: InterpretedIntent, query: string): { content: string; emotion: Message['emotion'] } => {
+    if (intent.kind === 'navigate' && intent.destination) {
+      return { content: intent.label, emotion: 'helpful' };
+    }
+
+    if (intent.kind === 'search') {
+      trackSearch(query);
+      const favorites = topDestinations();
+      const favLine = favorites.length
+        ? `\n\nQuick picks: ${favorites.map((d) => d.replace('/','')).join(' • ')}`
+        : '';
+      return {
+        content: `Got it. Tell me what you want to do and I’ll take you there.${favLine}`,
+        emotion: 'thoughtful',
+      };
+    }
+
+    if (intent.kind === 'greeting') {
+      return { content: getGreeting(), emotion: 'helpful' };
+    }
+
+    // Default: concise concierge response
+    return {
+      content: `I can route you instantly. Try: “Open music”, “Go to lab”, “Edit profile”, “Create a post”.`,
+      emotion: 'helpful',
+    };
+  };
+
+  const generateResponse = async (query: string): Promise<{ content: string; emotion: Message['emotion'] }> => {
+    const intent = interpretIntent(query);
+
+    // Full Experience: act immediately for high-confidence navigation
+    if (fullExperience && intent.kind === 'navigate' && intent.destination) {
+      handleNavigation(intent);
+      return { content: intent.label, emotion: 'helpful' };
+    }
+
+    // InnerDreams routing remains as before
+    const lower = query.toLowerCase();
+    if (
+      lower.includes('innerdreams') ||
+      lower.includes('inner dreams') ||
+      (/(fix|patch|update|repair)\b/.test(lower) && /(bug|error|issue|problem|build|deploy|vercel|site)/.test(lower))
+    ) {
+      const mode = lower.includes('bug') || lower.includes('check') || lower.includes('scan') ? 'bug-check' : 'update';
+      const cleaned = query.replace(/inner\s*dreams\s*[:\-]?/i, '').trim();
+      const reply = await callInnerDreams(mode, cleaned || query);
+      return { content: reply, emotion: 'helpful' };
+    }
+
+    // Capability / guidance intents
+    if (/\b(what can you do|help|capabilities|commands|features|assist)\b/i.test(lower)) {
+      return { content: getDetailedCapabilities(), emotion: 'excited' };
+    }
+
+    if (/\b(physics|experiment|lab|science|theory|quantum|ccc|confirmed connected chaos)\b/i.test(lower)) {
+      return { content: getPhysicsGuidance(lower), emotion: 'thoughtful' };
+    }
+
+    if (/\b(money|revenue|earn|payment|payout|monetiz|income)\b/i.test(lower)) {
+      return { content: getRevenueGuidance(), emotion: 'helpful' };
+    }
+
+    // Ask Dr. Eams (server) for everything else. Keep it fast and decisive.
+    if (fullExperience) {
+      const server = await callDrEams(query);
+      if (server) {
+        return { content: server, emotion: 'helpful' };
+      }
+    }
+
+    // Otherwise: decisive, compact reply that nudges toward action
+    return buildDecisiveReply(intent, query);
+  };
   const getGreeting = (): string => {
     const greetings = [
       "Hello! Great to see you. How can I help with your creative journey today?",
@@ -627,41 +789,89 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const getDetailedCapabilities = (): string => {
     return `I can take you anywhere in DREAMengin:
 
-Navigate: Home • Discover • Music • Lab • Shop • Messages • Settings
-Create: Posts • Experiments • Content
-Manage: Profile • Widgets • Analytics • Revenue
+**Navigate**: Home • Discover • Music • Lab • Shop • Messages • Settings
+**Create**: Posts • Experiments • Content
+**Manage**: Profile • Widgets • Analytics • Revenue
 
 Just tell me where you want to go or what you want to do.`;
   };
 
-  const getEmotionIcon = (emotion?: Message["emotion"]) => {
+  const getPhysicsGuidance = (query: string): string => {
+    if (/\b(what is|explain|tell me about)\b.*\b(ccc|confirmed connected chaos)\b/i.test(query)) {
+      return `**CCC Framework**: Constraint-layer unification physics. Information redistributes to boundaries—nothing lost.
+
+**Lab features**: 99-layer ADA architecture • Coherence simulation • Collaborative research
+
+Opening lab?`;
+    }
+
+    if (/\b(create|start|new|design)\b.*\b(experiment|test|simulation)\b/i.test(query)) {
+      return `Setting up experiment. Define: hypothesis, methodology, parameters, expected outcomes.
+
+Opening lab now.`;
+    }
+
+    return `**Physics Lab**: Design experiments • Test CCC predictions • Visualize data • Collaborate
+
+Ready to explore?`;
+  };
+
+  const getRevenueGuidance = (): string => {
+    return `**Revenue Split:** 85% you, 15% platform
+
+**Sources:** Ads • Merch • Music • Tips (soon) • Subscriptions (soon)
+
+Check your earnings dashboard for real-time tracking.`;
+  };
+
+  const getContextualResponse = (query: string, ctx: ConversationContext): string => {
+    const lower = query.toLowerCase();
+
+    if (/\b(post|create|upload|publish|share)\b/.test(lower)) {
+      return `Opening creator. Choose your content type, add tags, set visibility, and publish.`;
+    }
+
+    if (/\b(profile|avatar|bio|about|page)\b/.test(lower)) {
+      return `Opening profile editor. Update your avatar, bio, links, and theme.`;
+    }
+
+    if (ctx.recentTopics.length > 0) {
+      return `Recently: ${ctx.recentTopics.slice(0, 2).join(', ')}. Where to next?`;
+    }
+
+    // Use recent searches to provide context
+    if (userPatterns.recentSearches.length > 0) {
+      const recent = userPatterns.recentSearches[0];
+      return `Try: "${recent}" or ask me to navigate anywhere.`;
+    }
+
+    return `Tell me where you want to go or what you want to do.`;
+  };
+
+  const getEmotionIcon = (emotion?: Message['emotion']) => {
     switch (emotion) {
-      case "excited":
-        return <Sparkles className="w-4 h-4" />;
-      case "thoughtful":
-        return <Brain className="w-4 h-4" />;
-      case "helpful":
-        return <Lightbulb className="w-4 h-4" />;
-      case "concerned":
-        return <Zap className="w-4 h-4" />;
-      default:
-        return null;
+      case 'excited': return <Sparkles className="w-4 h-4" />;
+      case 'thoughtful': return <Brain className="w-4 h-4" />;
+      case 'helpful': return <Lightbulb className="w-4 h-4" />;
+      case 'concerned': return <Zap className="w-4 h-4" />;
+      default: return null;
     }
   };
 
   return (
     <>
+      {/* Home Button */}
       <div
         ref={buttonRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         style={{
-          position: "fixed",
+          position: 'fixed',
           left: `${position.x}px`,
           top: `${position.y}px`,
-          touchAction: "none",
-          cursor: isDragging ? "grabbing" : "grab",
+          touchAction: 'none',
+          cursor: isDragging ? 'grabbing' : 'grab',
           zIndex: 9999,
         }}
         className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg flex items-center justify-center text-white transition-shadow hover:shadow-xl"
@@ -669,8 +879,16 @@ Just tell me where you want to go or what you want to do.`;
         <Home className="w-6 h-6" />
       </div>
 
+      {/* Radial Menu Items */}
       {isMenuOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 9998, pointerEvents: "none" }}>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9998,
+            pointerEvents: 'none',
+          }}
+        >
           {menuItems.map((item, index) => {
             const itemPos = getRadialItemPosition(index, menuItems.length);
             const isHighlighted = highlightedItemIndex === index;
@@ -680,29 +898,35 @@ Just tell me where you want to go or what you want to do.`;
               <div
                 key={item.id}
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   left: `${itemPos.x - 22}px`,
                   top: `${itemPos.y - 22}px`,
-                  transform: isHighlighted ? "scale(1.3)" : "scale(1.0)",
-                  transition: "transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  transform: isHighlighted
+                    ? 'scale(1.3)'
+                    : 'scale(1.0)',
+                  transition: 'transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1)',
                   animation: `radialItemIn 200ms ease-out ${index * 40}ms both`,
                 }}
                 className={`w-11 h-11 rounded-full flex items-center justify-center text-white shadow-lg ${
                   isHighlighted
-                    ? "bg-gradient-to-br from-pink-500 to-purple-600 shadow-pink-500/50"
-                    : "bg-gradient-to-br from-blue-500 to-purple-600"
+                    ? 'bg-gradient-to-br from-pink-500 to-purple-600 shadow-pink-500/50'
+                    : 'bg-gradient-to-br from-blue-500 to-purple-600'
                 }`}
               >
                 <Icon className="w-5 h-5" />
-                {isHighlighted && <div className="absolute inset-0 rounded-full animate-ping bg-purple-400 opacity-75" />}
+                {isHighlighted && (
+                  <div className="absolute inset-0 rounded-full animate-ping bg-purple-400 opacity-75" />
+                )}
               </div>
             );
           })}
         </div>
       )}
 
+      {/* Dr. Eam Chat Panel */}
       {isChatOpen && (
         <div className="fixed inset-0 z-[10000]">
+          {/* Backdrop */}
           <button
             type="button"
             aria-label="Close Dr. Eam"
@@ -713,18 +937,21 @@ Just tell me where you want to go or what you want to do.`;
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           />
 
+          {/* Bottom sheet */}
           <div
             className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-[720px] rounded-t-3xl border border-white/10 bg-slate-950/85 backdrop-blur-xl shadow-2xl flex flex-col"
             style={{
-              maxHeight: "86vh",
-              paddingBottom: "max(env(safe-area-inset-bottom), 14px)",
-              animation: "sheetUpIn 260ms cubic-bezier(0.2, 0.9, 0.2, 1)",
+              maxHeight: '86vh',
+              paddingBottom: 'max(env(safe-area-inset-bottom), 14px)',
+              animation: 'sheetUpIn 260ms cubic-bezier(0.2, 0.9, 0.2, 1)',
             }}
           >
+            {/* Grab handle */}
             <div className="pt-3 pb-2 flex items-center justify-center">
               <div className="h-1 w-10 rounded-full bg-white/20" />
             </div>
 
+            {/* Header */}
             <div className="px-4 pb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -752,17 +979,57 @@ Just tell me where you want to go or what you want to do.`;
               </button>
             </div>
 
+            {/* Quick actions (inside Dr. Eam only) */}
+            <div className="px-4 pb-3 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-2 w-max">
+                {[
+                  { label: 'Home', q: 'go home' },
+                  { label: 'Discover', q: 'open discover' },
+                  { label: 'Music', q: 'open music' },
+                  { label: 'Lab', q: 'open lab' },
+                  { label: 'Shop', q: 'open shop' },
+                  { label: 'Messages', q: 'open messages' },
+                  { label: 'Settings', q: 'open settings' },
+                  { label: 'Profile', q: 'edit profile' },
+                ].map((chip) => (
+                  <button
+                    key={chip.label}
+                    type="button"
+                    onClick={async () => {
+                      // Treat like a user query (gives immediate ack + history)
+                      setInput('');
+                      setMessages((prev) => [
+                        ...prev,
+                        { id: `${Date.now()}_${Math.random().toString(16).slice(2)}`, role: 'user', content: chip.q, timestamp: new Date() },
+                      ]);
+                      setIsLoading(true);
+                      // Instant ack
+                      addAssistantMessage(interpretIntent(chip.q).label, 'helpful');
+                      const response = await generateResponse(chip.q);
+                      // Avoid duplicating the same ack line
+                      if (response.content !== interpretIntent(chip.q).label) addAssistantMessage(response.content, response.emotion);
+                      setIsLoading(false);
+                    }}
+                    className="px-3 py-2 rounded-2xl bg-white/5 hover:bg-white/10 active:bg-white/15 border border-white/10 text-white/85 text-xs whitespace-nowrap"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 pb-2 space-y-3">
               {messages.map((message) => (
-                <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
                     className={
-                      message.role === "user"
-                        ? "max-w-[86%] rounded-2xl px-4 py-3 text-sm text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-lg"
-                        : "max-w-[86%] rounded-2xl px-4 py-3 text-sm text-white/90 bg-white/5 border border-white/10 backdrop-blur-md shadow-lg"
+                      message.role === 'user'
+                        ? 'max-w-[86%] rounded-2xl px-4 py-3 text-sm text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-lg'
+                        : 'max-w-[86%] rounded-2xl px-4 py-3 text-sm text-white/90 bg-white/5 border border-white/10 backdrop-blur-md shadow-lg'
                     }
                   >
-                    {message.role === "assistant" && message.emotion && (
+                    {message.role === 'assistant' && message.emotion && (
                       <div className="mb-2 flex items-center gap-2 text-[11px] text-white/55">
                         {getEmotionIcon(message.emotion)}
                         <span className="capitalize">{message.emotion}</span>
@@ -770,20 +1037,36 @@ Just tell me where you want to go or what you want to do.`;
                     )}
                     <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
                     <div className="mt-2 text-[10px] text-white/40">
-                      {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
                 </div>
               ))}
 
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="rounded-2xl px-4 py-3 bg-white/5 border border-white/10 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <Brain className="w-4 h-4 text-white/70 animate-pulse" />
+                      <div className="flex gap-1">
+                        <div className="w-1.5 h-1.5 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-1.5 h-1.5 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-1.5 h-1.5 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="px-4 pt-2 pb-4">
-              {interpretingIntent && (
+            {/* Input */}
+            <div className="px-4 pt-2">
+              {input.trim() && (
                 <div className="mb-2 text-[11px] text-white/55">
                   <span className="mr-2">Intent:</span>
-                  <span className="text-white/80">{interpretingIntent}</span>
+                  <span className="text-white/80">{interpretIntent(input).label}</span>
                 </div>
               )}
 
@@ -792,7 +1075,7 @@ Just tell me where you want to go or what you want to do.`;
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                   placeholder="Ask Dr. Eam or say where to go…"
                   className="flex-1 bg-transparent outline-none text-white placeholder:text-white/35 text-sm py-2"
                   disabled={isLoading}
@@ -807,12 +1090,15 @@ Just tell me where you want to go or what you want to do.`;
                 </button>
               </div>
 
-              <div className="mt-2 text-[10px] text-white/35 text-center">Enter to send • Long-press Home for menu</div>
+              <div className="mt-2 text-[10px] text-white/35 text-center">
+                Enter to send • Long-press Home for menu
+              </div>
             </div>
           </div>
         </div>
       )}
 
+      {/* CSS Animations */}
       <style jsx>{`
         @keyframes buttonPress {
           0% { transform: scale(1.0); filter: blur(0px); }
@@ -822,13 +1108,23 @@ Just tell me where you want to go or what you want to do.`;
         }
 
         @keyframes radialItemIn {
-          from { transform: scale(0); opacity: 0; }
-          to { transform: scale(1.0); opacity: 1; }
+          from {
+            transform: scale(0);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1.0);
+            opacity: 1;
+          }
         }
 
-        @keyframes sheetUpIn {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
+        @keyframes slideUpIn {
+          from {
+            transform: translateY(100%);
+          }
+          to {
+            transform: translateY(0);
+          }
         }
       `}</style>
     </>
