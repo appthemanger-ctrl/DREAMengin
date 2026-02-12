@@ -1,16 +1,8 @@
-import dynamic from 'next/dynamic'
+import { redirect } from "next/navigation";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
-const DreamenginApp = dynamic(
-  () => import('@/components/dreamengin/DreamenginApp'),
-  { ssr: false }
-)
-
-export default function Home() {
-  return (
-    <div className="w-screen h-screen overflow-hidden">
-      <DreamenginApp />
-    </div>
-  )
+export default function Root() {
+  // Redirect all requests to the new Dreamengin experience.
+  redirect('/dreamengin');
 }

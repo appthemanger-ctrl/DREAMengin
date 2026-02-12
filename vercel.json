@@ -1,6 +1,4 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "npm run vercel-build",
-  "installCommand": "npm install",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- app components lib public package.json pnpm-lock.yaml next.config.* tsconfig.json tailwind.config.* postcss.config.*"
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm run vercel-build"
 }

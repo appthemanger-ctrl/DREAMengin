@@ -1,94 +1,169 @@
-// DreamenginApp.tsx
-// This top‑level component orchestrates the spatial workspace, home controls and overlay menus.
-// It exposes callbacks for panning, zooming and depth control to the HomeControls component.
+// components/dreamengin/DreamenginApp.tsx
+// Top-level Dreamengin orchestration: engine state (refs), home controls, and overlay menus.
 
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import BabylonWorkspace from './BabylonWorkspace';
 import HomeControls from './HomeControls';
 import NexusMenu from './NexusMenu';
 import OutdreamMenu from './OutdreamMenu';
 import DrEamsPanel from './DrEamsPanel';
+import { unitComplexFromAngle, clamp } from './engine/math';
+import type { EngineState, FlightMode } from './engine/types';
+
+function createEngineState(): EngineState {
+  const yawQ = new Float32Array(2);
+  unitComplexFromAngle(0, yawQ);
+  return {
+    x: 0,
+    y: 0,
+    scale: 1,
+    depth: 0,
+    yawQ,
+    flight: { active: false, mode: 'in', thrust: 0, steerDelta: 0 },
+    overlayLock: false,
+  };
+}
 
 export default function DreamenginApp() {
-  // Camera state: translation (x,y) and scale.
-  // We store the pan offsets and zoom level.  These values are passed down to the workspace.
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(1);
-  const [depth, setDepth] = useState(0); // conceptual depth – base = 0, day_dream levels positive
-
-  // Overlay state for menus and DrEams panel
+  // Overlay state (React UI only)
   const [showNexus, setShowNexus] = useState(false);
   const [showOutdream, setShowOutdream] = useState(false);
   const [showDrEams, setShowDrEams] = useState(false);
 
+  // Engine state lives in a ref to prevent React renders on pointer-move.
+  const engineRef = useRef<EngineState>(createEngineState());
+
+  const setOverlayLock = useCallback((locked: boolean) => {
+    engineRef.current.overlayLock = locked;
+  }, []);
+
+  const closeAllOverlays = useCallback(() => {
+    setShowNexus(false);
+    setShowOutdream(false);
+    setShowDrEams(false);
+    setOverlayLock(false);
+  }, [setOverlayLock]);
+
   const toggleNexus = useCallback(() => {
     setShowOutdream(false);
     setShowDrEams(false);
-    setShowNexus((v) => !v);
-  }, []);
+    setShowNexus((v) => {
+      const next = !v;
+      setOverlayLock(next);
+      return next;
+    });
+  }, [setOverlayLock]);
 
   const toggleOutdream = useCallback(() => {
     setShowNexus(false);
     setShowDrEams(false);
-    setShowOutdream((v) => !v);
-  }, []);
+    setShowOutdream((v) => {
+      const next = !v;
+      setOverlayLock(next);
+      return next;
+    });
+  }, [setOverlayLock]);
 
   const openDrEams = useCallback(() => {
     setShowNexus(false);
     setShowOutdream(false);
     setShowDrEams(true);
-  }, []);
+    setOverlayLock(true);
+  }, [setOverlayLock]);
 
-  // Pan the workspace by a delta.  Called from gesture handlers.
-  const panBy = useCallback((dx: number, dy: number) => {
-    setPosition((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
-  }, []);
+  const closeDrEams = useCallback(() => {
+    setShowDrEams(false);
+    setOverlayLock(false);
+  }, [setOverlayLock]);
 
-  // Set absolute translation – used when resetting to home
-  const setAbsolutePosition = useCallback((x: number, y: number) => {
-    setPosition({ x, y });
-  }, []);
-
-  // Adjust scale on zoom
-  const zoomBy = useCallback((dz: number) => {
-    setScale((prev) => Math.min(Math.max(prev + dz, 0.5), 4));
-  }, []);
-
-  // Move depth by delta; positive values move inward, negative outward
-  const adjustDepth = useCallback((delta: number) => {
-    setDepth((prev) => Math.max(prev + delta, 0));
-  }, []);
-
-  // Go home resets translation, zoom and depth
+  // ReturnHome (collision of home controls).
   const goHome = useCallback(() => {
-    setPosition({ x: 0, y: 0 });
-    setScale(1);
-    setDepth(0);
+    const s = engineRef.current;
+    s.x = 0;
+    s.y = 0;
+    s.scale = 1;
+    s.depth = 0;
+    unitComplexFromAngle(0, s.yawQ);
+    s.flight.active = false;
+    s.flight.thrust = 0;
+    s.flight.steerDelta = 0;
+    closeAllOverlays();
+  }, [closeAllOverlays]);
+
+  // Flight control API (called by HomeControls). Deterministic: no inertia; pointerup ends flight.
+  const startFlight = useCallback((mode: FlightMode) => {
+    const s = engineRef.current;
+    if (s.overlayLock) return;
+    s.flight.active = true;
+    s.flight.mode = mode;
+    s.flight.thrust = 0;
+    s.flight.steerDelta = 0;
+
+    // Discrete depth: "in" means depth=1, "out" means depth=0.
+    s.depth = mode === 'in' ? 1 : 0;
+  }, []);
+
+  const updateThrust = useCallback((thrust01: number) => {
+    const s = engineRef.current;
+    if (!s.flight.active || s.overlayLock) return;
+    s.flight.thrust = clamp(thrust01, 0, 1);
+  }, []);
+
+  const steerBy = useCallback((deltaYawRad: number) => {
+    const s = engineRef.current;
+    if (!s.flight.active || s.overlayLock) return;
+    // Accumulate; applied in BabylonWorkspace to keep ordering deterministic.
+    s.flight.steerDelta += deltaYawRad;
+  }, []);
+
+  const endFlight = useCallback(() => {
+    const s = engineRef.current;
+    s.flight.active = false;
+    s.flight.thrust = 0;
+    s.flight.steerDelta = 0;
+  }, []);
+
+  // Zoom control (wheel/trackpad)
+  const zoomBy = useCallback((dz: number) => {
+    const s = engineRef.current;
+    if (s.overlayLock) return;
+    s.scale = clamp(s.scale + dz, 0.5, 4);
   }, []);
 
   return (
     <div className="w-full h-full overflow-hidden relative touch-none">
-      <BabylonWorkspace
-        position={position}
-        scale={scale}
-        depth={depth}
-        onPan={panBy}
-        onZoom={zoomBy}
-      />
+      <BabylonWorkspace engineRef={engineRef} onZoom={zoomBy} />
+
       <HomeControls
         onDoubleTapBlue={toggleOutdream}
         onDoubleTapRed={toggleNexus}
-        onHoldBlue={adjustDepth}
-        onHoldRed={(delta) => adjustDepth(-delta)}
         onGoHome={goHome}
+        onFlightStart={startFlight}
+        onFlightThrust={updateThrust}
+        onFlightSteer={steerBy}
+        onFlightEnd={endFlight}
       />
+
       {showNexus && (
-        <NexusMenu onClose={() => setShowNexus(false)} onOpenDrEams={openDrEams} />
+        <NexusMenu
+          onClose={() => {
+            setShowNexus(false);
+            setOverlayLock(false);
+          }}
+          onOpenDrEams={openDrEams}
+        />
       )}
-      {showOutdream && <OutdreamMenu onClose={() => setShowOutdream(false)} />}
-      {showDrEams && <DrEamsPanel onClose={() => setShowDrEams(false)} />}
+      {showOutdream && (
+        <OutdreamMenu
+          onClose={() => {
+            setShowOutdream(false);
+            setOverlayLock(false);
+          }}
+        />
+      )}
+      {showDrEams && <DrEamsPanel onClose={closeDrEams} />}
     </div>
   );
 }
