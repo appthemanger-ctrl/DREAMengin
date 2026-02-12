@@ -1,7 +1,7 @@
 {
   "name": "dreamengin",
   "version": "1.0.0",
-  "packageManager": "9.0",
+  "packageManager": "pnpm@10.7.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
