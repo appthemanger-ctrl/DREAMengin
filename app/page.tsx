@@ -7,7 +7,7 @@ const DreamenginApp = dynamic(
   { ssr: false }
 )
 
-export default function DreamenginPage() {
+export default function Home() {
   return (
     <div className="w-screen h-screen overflow-hidden">
       <DreamenginApp />
