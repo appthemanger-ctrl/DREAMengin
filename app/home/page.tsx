@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import HomeFeed from '@/components/HomeFeed';
-import WidgetSurface from '@/components/widgets/WidgetSurface';
+import DreamNavSurface6 from '@/components/dreamnav/DreamNavSurface6';
+import HomeDreamRuntime from '@/components/dreamnav/HomeDreamRuntime';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,18 +44,15 @@ export default async function Home() {
   }
 
   return (
-    <>
-      {/* Widget Surface above the feed */}
-      <WidgetSurface space="home" />
-      
-      {/* Main feed */}
-      <HomeFeed
-        userId={user?.id || ''}
-        userHandle={profile?.handle || user?.email?.split('@')[0] || 'user'}
-        userAvatar={profile?.avatar_url || null}
-        userDisplayName={profile?.display_name || 'User'}
-        initialPosts={posts || []}
-      />
-    </>
+    <DreamNavSurface6 debug={false}>
+      {(node) => (
+        <HomeDreamRuntime
+          node={node}
+          userId={user?.id || ''}
+          profile={profile}
+          initialPosts={posts || []}
+        />
+      )}
+    </DreamNavSurface6>
   );
 }
