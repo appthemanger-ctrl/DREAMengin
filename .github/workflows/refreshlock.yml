@@ -19,7 +19,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: 10.4.0
+          version: "10.4.0"
 
       # 3️⃣ Setup Node (cache pnpm)
       - name: Setup Node
