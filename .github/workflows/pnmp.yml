@@ -3,37 +3,38 @@ name: Refresh pnpm lockfile
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   refresh:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      # 1️⃣ Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Node
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
-          cache: "pnpm"
+          node-version: 24
 
+      # 3️⃣ Setup pnpm (IMPORTANT)
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10
 
-      - name: Regenerate lockfile
-        run: pnpm install --no-frozen-lockfile
+      # 4️⃣ Install dependencies (regenerates lockfile if needed)
+      - name: Install dependencies
+        run: pnpm install
 
+      # 5️⃣ Commit updated lockfile (if changed)
       - name: Create PR with updated lockfile
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "chore: refresh pnpm-lock.yaml"
-          title: "chore: refresh pnpm-lock.yaml"
-          body: "Runs pnpm install --no-frozen-lockfile to sync pnpm-lock.yaml with package.json."
-          branch: "chore/refresh-pnpm-lock"
+          commit-message: "chore: refresh pnpm lockfile"
+          title: "chore: refresh pnpm lockfile"
+          body: "Regenerates pnpm-lock.yaml using pnpm@10"
+          branch: "chore/refresh-pnpm-lockfile"
           add-paths: |
             pnpm-lock.yaml
