@@ -6,35 +6,41 @@ on:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       # 1️⃣ Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      # 2️⃣ Setup Node
+      # 2️⃣ Setup pnpm FIRST (so cache key + corepack are consistent)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.0
+
+      # 3️⃣ Setup Node (cache pnpm)
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: pnpm
 
-      # 3️⃣ Setup pnpm (IMPORTANT)
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
+      # 4️⃣ Install deps (ALLOW lockfile update)
+      # IMPORTANT: This job is specifically to refresh the lockfile,
+      # so we MUST NOT use frozen lockfile here.
+      - name: Install dependencies (regenerates pnpm-lock.yaml)
+        run: pnpm install --no-frozen-lockfile
 
-      # 4️⃣ Install dependencies (regenerates lockfile if needed)
-      - name: Install dependencies
-        run: pnpm install
-
-      # 5️⃣ Commit updated lockfile (if changed)
+      # 5️⃣ Create PR with updated lockfile (if changed)
       - name: Create PR with updated lockfile
         uses: peter-evans/create-pull-request@v6
         with:
           commit-message: "chore: refresh pnpm lockfile"
           title: "chore: refresh pnpm lockfile"
-          body: "Regenerates pnpm-lock.yaml using pnpm@10"
+          body: "Regenerates pnpm-lock.yaml using pnpm@10.4.0 (lockfileVersion 9.x)."
           branch: "chore/refresh-pnpm-lockfile"
           add-paths: |
             pnpm-lock.yaml
