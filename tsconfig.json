@@ -63,7 +63,6 @@
     "supabase",
     "terraform",
     "tests",
-    "types/supabase.ts",
     "workflows"
   ]
 }
