@@ -1,10 +1,10 @@
-name: Refresh pnpm lockfile
+name: Create pnpm lockfile
 
 on:
   workflow_dispatch:
 
 jobs:
-  refresh:
+  lockfile:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -27,12 +27,12 @@ jobs:
       - name: Install dependencies (creates pnpm-lock.yaml if missing)
         run: pnpm install --no-frozen-lockfile
 
-      - name: Create PR with updated lockfile
+      - name: Create PR with pnpm lockfile
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "chore: refresh pnpm lockfile"
-          title: "chore: refresh pnpm lockfile"
-          body: "Regenerates pnpm-lock.yaml using pnpm@10.4.0."
-          branch: "chore/refresh-pnpm-lockfile"
+          commit-message: "chore: create pnpm lockfile"
+          title: "chore: create pnpm lockfile"
+          body: "Creates pnpm-lock.yaml using pnpm@10.4.0."
+          branch: "chore/create-pnpm-lockfile"
           add-paths: |
             pnpm-lock.yaml
