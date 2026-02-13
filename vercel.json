@@ -1,4 +1,3 @@
-// vercel.json (basic, safe default for most Next.js / Node builds)
 {
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm build"
