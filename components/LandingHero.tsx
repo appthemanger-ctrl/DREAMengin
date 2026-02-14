@@ -30,10 +30,10 @@ export default function LandingHero() {
 
   useEffect(() => {
     if (isValentines) return;
-    const id = window.setInterval(() => {
+    const id = setInterval(() => {
       setLineIndex((i) => (i + 1) % mindReads.length);
     }, 2600);
-    return () => window.clearInterval(id);
+    return () => clearInterval(id);
   }, [isValentines, mindReads.length]);
 
   const valLine = '💜 Happy Valentine’s Day Dreamer 🌹';
@@ -42,10 +42,8 @@ export default function LandingHero() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#070b16] text-white">
-      {/* color field */}
       <div className="absolute inset-0 dream-colorfield" />
 
-      {/* video */}
       <video
         autoPlay
         loop
@@ -56,13 +54,12 @@ export default function LandingHero() {
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
 
-      {/* overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a1020]/70 via-[#080d1b]/78 to-[#06090f]/90" />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8">
-        {/* header */}
         <header className="flex items-center justify-between">
           <div className="text-lg font-semibold tracking-wide">DREAMengin</div>
+
           <div className="flex items-center gap-3">
             <Link
               href="/about"
@@ -70,6 +67,7 @@ export default function LandingHero() {
             >
               About
             </Link>
+
             <Link
               href="/login"
               className="min-h-11 rounded-xl bg-white px-4 py-2 text-sm font-medium text-black"
@@ -79,13 +77,15 @@ export default function LandingHero() {
           </div>
         </header>
 
-        {/* content */}
         <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
           <div className="rounded-full border border-white/20 bg-white/8 px-4 py-2 text-sm text-white/85 backdrop-blur">
             ✨ explore at your own pace
           </div>
 
-          <div className="relative">
+          {/* CHARACTER + BUBBLE */}
+          <div className="relative flex items-center justify-center">
+
+            {/* glow */}
             <div className="absolute inset-0 -z-10 rounded-full bg-white/10 blur-3xl" />
 
             <Image
@@ -97,18 +97,26 @@ export default function LandingHero() {
               className="h-56 w-56 sm:h-72 sm:w-72 object-contain"
             />
 
-            {/* FLOATING BUBBLE (mobile RIGHT) */}
-            <div className="absolute right-3 top-16 z-20 w-[min(74vw,18rem)] rounded-2xl border border-white/25 bg-white/90 px-4 py-3 text-left text-sm text-slate-900 shadow-lg">
-              <p className="font-semibold">{bubbleTitle}</p>
+            {/* MESSAGE BUBBLE (attached to mouth) */}
+            <div className="absolute right-0 top-6 z-20 w-[min(70vw,18rem)]">
+              <div className="relative rounded-2xl border border-white/30 bg-white/95 px-4 py-3 text-left text-sm text-slate-900 shadow-xl">
 
-              <p key={isValentines ? 'val' : lineIndex} className="mt-1 text-slate-600">
-                {bubbleLine}
-              </p>
+                <p className="font-semibold">{bubbleTitle}</p>
 
-              {!isValentines && (
-                <p className="mt-2 text-[11px] text-slate-500">…just a thought.</p>
-              )}
+                <p key={isValentines ? 'val' : lineIndex} className="mt-1 text-slate-600">
+                  {bubbleLine}
+                </p>
+
+                {!isValentines && (
+                  <p className="mt-2 text-[11px] text-slate-500">…just a thought.</p>
+                )}
+
+                {/* TAIL → POINTING TO MOUTH */}
+                <div className="absolute left-6 bottom-[-6px] w-3 h-3 rotate-45 bg-white border-l border-b border-white/30"></div>
+
+              </div>
             </div>
+
           </div>
 
           <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
