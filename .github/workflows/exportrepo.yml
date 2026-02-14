@@ -1,0 +1,42 @@
+name: Export repo zip (artifact)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Create sanitized repo zip
+        shell: bash
+        run: |
+          set -e
+          mkdir -p _export
+
+          ZIP_NAME="repo-export-${GITHUB_REF_NAME}-${GITHUB_SHA}.zip"
+
+          # Create zip from the working directory, excluding heavy/sensitive paths
+          zip -r "_export/$ZIP_NAME" . \
+            -x ".git/*" \
+            -x "node_modules/*" \
+            -x ".next/*" \
+            -x ".vercel/*" \
+            -x ".turbo/*" \
+            -x "**/.DS_Store" \
+            -x ".env" \
+            -x ".env.*"
+
+          echo "Created: _export/$ZIP_NAME"
+          ls -la _export
+
+      - name: Upload repo export artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-export
+          path: _export/*.zip
