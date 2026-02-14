@@ -25,8 +25,8 @@ jobs:
 
           mkdir -p .ci
 
-          # ✅ Set this to YOUR timezone
-          TZ="America/New_York"
+          # ✅ Los Angeles timezone
+          TZ="America/Los_Angeles"
           NOW="$(TZ=$TZ date '+%Y-%m-%d %H:%M:%S %Z')"
 
           # Save previous snapshot (if exists) for diff
@@ -55,4 +55,35 @@ jobs:
             echo "## package.json locations (maxdepth 5)"
             echo '```txt'
             find . -maxdepth 5 -name package.json -not -path "./.git/*" | sed 's|^\./||' | sort || true
-            echo
+            echo '```'
+            echo ""
+
+            echo "## Root tree (2 levels)"
+            echo '```txt'
+            find . -maxdepth 2 -mindepth 1 \
+              -not -path "./.git/*" \
+              -not -path "./node_modules/*" \
+              -not -path "./.next/*" \
+              -print | sed 's|^\./||' | sort
+            echo '```'
+          } > .ci/snapshot.md
+
+          # Diff against last snapshot (what changed)
+          diff -u /tmp/snapshot_prev.md .ci/snapshot.md > .ci/snapshot.diff.txt || true
+
+      - name: Commit snapshot files (only if changed)
+        shell: bash
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .ci/snapshot.md .ci/snapshot.diff.txt
+
+          if git diff --cached --quiet; then
+            echo "No snapshot changes."
+            exit 0
+          fi
+
+          git commit -m "chore(ci): update repo snapshot"
+          git push
