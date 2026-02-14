@@ -1,11 +1,11 @@
 // components/dreamengin/HomeControls.tsx
 // Deterministic dual-control gesture system for DREAMengin.
 //
-// Priority: ReturnHome > overlayLock (enforced by engine) > doubleTap > hold->fly > drag(reposition) > press
+// Priority: overlayLock (enforced by engine) > doubleTap > hold->fly > drag(reposition) > press
 //
 // - Double-tap Blue: Outdream menu
 // - Double-tap Red:  Nexus/System menu
-// - ReturnHome: drag either control into the other (distance threshold)
+// - Single tap (either control): ReturnHome
 // - Flight: press-and-hold Blue (IN) or Red (OUT). Upward drag increases thrust; pointerup ends flight.
 
 'use client';
@@ -41,9 +41,6 @@ const HOLD_ARM_MS = 320;
 const DRAG_START_PX = 10;
 const DOUBLE_TAP_MS = 260;
 
-const HOME_TOUCH_PX = 62;
-const HOME_TOUCH_PX2 = HOME_TOUCH_PX * HOME_TOUCH_PX;
-
 const MAX_THRUST_PX = 220;
 const STEER_RAD_PER_PX = 0.0042;
 
@@ -51,11 +48,7 @@ function clamp01(v: number): number {
   return v < 0 ? 0 : v > 1 ? 1 : v;
 }
 
-function dist2(a: XY, b: XY): number {
-  const dx = a.x - b.x;
-  const dy = a.y - b.y;
-  return dx * dx + dy * dy;
-}
+
 
 export default function HomeControls(props: HomeControlsProps) {
   const { onDoubleTapBlue, onDoubleTapRed, onGoHome, onFlightStart, onFlightThrust, onFlightSteer, onFlightEnd } = props;
@@ -77,6 +70,7 @@ export default function HomeControls(props: HomeControlsProps) {
       pointerId: null as number | null,
       pressT: 0,
       lastTapT: 0,
+      tapTimer: 0 as any,
       start: { x: 0, y: 0 } as XY,     // pointerdown position (client)
       offset: { x: 0, y: 0 } as XY,    // current transform offset
       holdTimer: 0 as any,
@@ -86,6 +80,7 @@ export default function HomeControls(props: HomeControlsProps) {
       pointerId: null as number | null,
       pressT: 0,
       lastTapT: 0,
+      tapTimer: 0 as any,
       start: { x: 0, y: 0 } as XY,
       offset: { x: 0, y: 0 } as XY,
       holdTimer: 0 as any,
@@ -152,6 +147,14 @@ export default function HomeControls(props: HomeControlsProps) {
     }
   };
 
+  const cancelTapTimer = (id: ControlId) => {
+    const c = stateRef.current[id] as any;
+    if (c.tapTimer) {
+      clearTimeout(c.tapTimer);
+      c.tapTimer = 0;
+    }
+  };
+
   const resetControl = (id: ControlId) => {
     const c = stateRef.current[id];
     cancelHoldTimer(id);
@@ -171,22 +174,6 @@ export default function HomeControls(props: HomeControlsProps) {
     s.flightActive = false;
     s.throttle = null;
     onFlightEnd();
-  };
-
-  const maybeReturnHome = () => {
-    // Use current transformed centers.
-    const blueCenter = { x: blueHome.x + stateRef.current.blue.offset.x + BTN / 2, y: blueHome.y + stateRef.current.blue.offset.y + BTN / 2 };
-    const redCenter = { x: redHome.x + stateRef.current.red.offset.x + BTN / 2, y: redHome.y + stateRef.current.red.offset.y + BTN / 2 };
-    if (dist2(blueCenter, redCenter) <= HOME_TOUCH_PX2) {
-      // ReturnHome outranks everything.
-      endFlightIfNeeded();
-      onGoHome();
-      // Snap both back to their resting positions.
-      resetControl('blue');
-      resetControl('red');
-      return true;
-    }
-    return false;
   };
 
   const beginFlight = (throttle: ControlId) => {
@@ -234,6 +221,7 @@ export default function HomeControls(props: HomeControlsProps) {
       c.holdTimer = setTimeout(() => {
         // Only fire if still a press and not dragged.
         if (c.state !== 'PRESS' || c.pointerId === null) return;
+        cancelTapTimer(id);
         beginFlight(id);
         c.state = 'FLY';
       }, HOLD_ARM_MS);
@@ -253,7 +241,6 @@ export default function HomeControls(props: HomeControlsProps) {
       const prevX = c.offset.x;
       setOffset(id, dx, dy);
       applySteerDelta(dx - prevX);
-      void maybeReturnHome();
       return;
     }
 
@@ -262,6 +249,7 @@ export default function HomeControls(props: HomeControlsProps) {
       const moved = Math.hypot(dx, dy);
       if (moved >= DRAG_START_PX) {
         cancelHoldTimer(id);
+        cancelTapTimer(id);
         c.state = 'DRAG';
       }
     }
@@ -269,7 +257,6 @@ export default function HomeControls(props: HomeControlsProps) {
     // DRAG: reposition control (visual only until pointerup)
     if (c.state === 'DRAG') {
       setOffset(id, dx, dy);
-      void maybeReturnHome();
       return;
     }
 
@@ -277,7 +264,6 @@ export default function HomeControls(props: HomeControlsProps) {
     if (c.state === 'FLY') {
       setOffset(id, dx, dy);
       updateThrustFromOffset(id);
-      void maybeReturnHome();
       return;
     }
   };
@@ -328,18 +314,30 @@ export default function HomeControls(props: HomeControlsProps) {
       return;
     }
 
-    // Tap / double tap. (Single tap does nothing by design.)
+    // Tap / double tap.
+    // - Single tap: go home (after double-tap window expires)
+    // - Double tap: open the corresponding menu
     if (c.state === 'PRESS') {
       const dt = now - c.pressT;
       const isTap = moved < DRAG_START_PX && dt < HOLD_ARM_MS;
 
       if (isTap) {
-        const last = c.lastTapT || 0;
+        const last = (c as any).lastTapT || 0;
         const isDouble = now - last <= DOUBLE_TAP_MS;
-        c.lastTapT = now;
 
-        if (isDouble) {
-          c.lastTapT = 0;
+        // First tap arms a delayed home action.
+        if (!isDouble) {
+          (c as any).lastTapT = now;
+          cancelTapTimer(id);
+          (c as any).tapTimer = setTimeout(() => {
+            (c as any).tapTimer = 0;
+            (c as any).lastTapT = 0;
+            onGoHome();
+          }, DOUBLE_TAP_MS + 10);
+        } else {
+          // Second tap: cancel the pending home and open menu.
+          (c as any).lastTapT = 0;
+          cancelTapTimer(id);
           if (id === 'blue') onDoubleTapBlue();
           else onDoubleTapRed();
         }
@@ -353,6 +351,8 @@ export default function HomeControls(props: HomeControlsProps) {
   useEffect(() => {
     const onBlur = () => {
       endFlightIfNeeded();
+      cancelTapTimer('blue');
+      cancelTapTimer('red');
       resetControl('blue');
       resetControl('red');
     };
