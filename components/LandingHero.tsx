@@ -7,7 +7,7 @@ import Link from 'next/link';
 export default function LandingHero() {
   const isValentines = useMemo(() => {
     const d = new Date();
-    return d.getMonth() === 1 && d.getDate() === 14; // Feb 14 only
+    return d.getMonth() === 1 && d.getDate() === 14;
   }, []);
 
   const mindReads = useMemo(
@@ -29,52 +29,65 @@ export default function LandingHero() {
   const [lineIndex, setLineIndex] = useState(0);
 
   useEffect(() => {
-    if (isValentines) return; // keep Valentine bubble steady today
+    if (isValentines) return;
     const id = window.setInterval(() => {
       setLineIndex((i) => (i + 1) % mindReads.length);
     }, 2600);
     return () => window.clearInterval(id);
   }, [isValentines, mindReads.length]);
 
-  const bubbleTitle = isValentines ? '💜 Happy Valentine’s Day Dreamer 🌹' : 'Dr. Eams…';
-  const bubbleLine = isValentines ? '💜 Happy Valentine’s Day Dreamer 🌹' : mindReads[lineIndex];
+  const valLine = '💜 Happy Valentine’s Day Dreamer 🌹';
+  const bubbleTitle = isValentines ? valLine : 'Dr. Eams…';
+  const bubbleLine = isValentines ? valLine : mindReads[lineIndex];
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#070b16] text-white">
+      {/* color field */}
       <div className="absolute inset-0 dream-colorfield" />
 
-      <video autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover opacity-[0.10]">
+      {/* video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 h-full w-full object-cover opacity-[0.10]"
+      >
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
 
+      {/* overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a1020]/70 via-[#080d1b]/78 to-[#06090f]/90" />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8">
+        {/* header */}
         <header className="flex items-center justify-between">
           <div className="text-lg font-semibold tracking-wide">DREAMengin</div>
           <div className="flex items-center gap-3">
             <Link
               href="/about"
-              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/85 backdrop-blur hover:bg-white/10"
+              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/85 backdrop-blur"
             >
               About
             </Link>
             <Link
               href="/login"
-              className="min-h-11 rounded-xl bg-white px-4 py-2 text-sm font-medium text-black hover:opacity-95"
+              className="min-h-11 rounded-xl bg-white px-4 py-2 text-sm font-medium text-black"
             >
               Sign In
             </Link>
           </div>
         </header>
 
+        {/* content */}
         <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
           <div className="rounded-full border border-white/20 bg-white/8 px-4 py-2 text-sm text-white/85 backdrop-blur">
-            Dr. Eams dreams of dreaming. You don’t have to.
+            ✨ explore at your own pace
           </div>
 
           <div className="relative">
             <div className="absolute inset-0 -z-10 rounded-full bg-white/10 blur-3xl" />
+
             <Image
               src="/IMG_3362.png"
               alt="Dr. Eams"
@@ -84,15 +97,17 @@ export default function LandingHero() {
               className="h-56 w-56 sm:h-72 sm:w-72 object-contain"
             />
 
-            <div className="absolute -right-10 top-4 hidden sm:block rounded-2xl border border-white/25 bg-white/90 px-4 py-3 text-left text-sm text-slate-900 shadow-sm">
+            {/* FLOATING BUBBLE (mobile RIGHT) */}
+            <div className="absolute right-3 top-16 z-20 w-[min(74vw,18rem)] rounded-2xl border border-white/25 bg-white/90 px-4 py-3 text-left text-sm text-slate-900 shadow-lg">
               <p className="font-semibold">{bubbleTitle}</p>
-              <p
-                key={isValentines ? 'val' : lineIndex}
-                className="mt-1 text-slate-600 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1"
-              >
+
+              <p key={isValentines ? 'val' : lineIndex} className="mt-1 text-slate-600">
                 {bubbleLine}
               </p>
-              {!isValentines ? <p className="mt-2 text-[11px] text-slate-500">…just a thought.</p> : null}
+
+              {!isValentines && (
+                <p className="mt-2 text-[11px] text-slate-500">…just a thought.</p>
+              )}
             </div>
           </div>
 
@@ -101,12 +116,16 @@ export default function LandingHero() {
           </h1>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Link href="/join" className="min-h-11 rounded-xl bg-indigo-500 px-6 py-3 font-medium text-white hover:opacity-95">
+            <Link
+              href="/join"
+              className="min-h-11 rounded-xl bg-indigo-500 px-6 py-3 font-medium text-white"
+            >
               Get Started
             </Link>
+
             <Link
               href="/about"
-              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10"
+              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-medium text-white/90 backdrop-blur"
             >
               About
             </Link>
