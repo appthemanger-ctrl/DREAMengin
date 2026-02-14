@@ -1,10 +1,7 @@
-// NexusMenu.tsx
-// System menu overlay opened by double tapping the red control.  Contains
-// links to system functions including Dr Eams.
-
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 interface NexusMenuProps {
   onClose: () => void;
@@ -12,36 +9,37 @@ interface NexusMenuProps {
 }
 
 export default function NexusMenu({ onClose, onOpenDrEams }: NexusMenuProps) {
+  const router = useRouter();
+
   const items = [
-    { label: 'Search', action: () => {} },
-    { label: 'Dr. Eams', action: onOpenDrEams },
-    { label: 'Settings', action: () => {} },
-    { label: 'Account', action: () => {} },
-    { label: 'View All Dreams', action: () => {} },
-    { label: 'Edit Layout', action: () => {} },
+    { label: 'Search', action: () => router.push('/home') },
+    { label: 'Dr. Eams', action: onOpenDrEams },
+    { label: 'Settings', action: () => router.push('/settings') },
+    { label: 'Account', action: () => router.push('/settings/account') },
+    { label: 'View All Dreams', action: () => router.push('/home') },
+    { label: 'Edit Layout', action: () => router.push('/lab') },
   ];
 
   return (
-    <div
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/45" onClick={onClose}>
       <div
-        className="bg-white dark:bg-gray-900 rounded-lg p-4 w-64"
+        className="w-[min(22rem,92vw)] rounded-3xl border border-white/20 bg-slate-950/90 p-4 text-white shadow-sm"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold mb-2">System Menu</h2>
-        <ul className="space-y-2">
+        <h2 className="px-2 text-sm uppercase tracking-[0.2em] text-white/60">System Menu</h2>
+        <ul className="mt-2 space-y-1">
           {items.map((item) => (
-            <li
-              key={item.label}
-              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-              onClick={() => {
-                item.action();
-                onClose();
-              }}
-            >
-              {item.label}
+            <li key={item.label}>
+              <button
+                type="button"
+                className="w-full min-h-11 rounded-2xl px-3 py-2 text-left text-sm hover:bg-white/10"
+                onClick={() => {
+                  item.action();
+                  onClose();
+                }}
+              >
+                {item.label}
+              </button>
             </li>
           ))}
         </ul>

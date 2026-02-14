@@ -152,3 +152,67 @@ html, body {
 /* Scrollbar hide utility */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+
+/* Landing hero: slow color-cycling field behind video (battery-aware, no JS) */
+.dream-colorfield {
+  background:
+    radial-gradient(1200px circle at 15% 20%, rgba(0, 255, 255, 0.18), transparent 55%),
+    radial-gradient(1200px circle at 85% 30%, rgba(255, 0, 255, 0.16), transparent 55%),
+    radial-gradient(1200px circle at 40% 85%, rgba(255, 200, 0, 0.14), transparent 55%),
+    linear-gradient(120deg, rgba(88, 101, 242, 0.14), rgba(236, 72, 153, 0.12), rgba(34, 211, 238, 0.10));
+  filter: saturate(1.15) contrast(1.05);
+  animation: dreamHueShift 26s linear infinite, dreamDrift 18s ease-in-out infinite alternate;
+  transform: translateZ(0);
+}
+
+@keyframes dreamHueShift {
+  0%   { filter: hue-rotate(0deg) saturate(1.15) contrast(1.05); }
+  100% { filter: hue-rotate(360deg) saturate(1.15) contrast(1.05); }
+}
+
+@keyframes dreamDrift {
+  0%   { transform: scale(1.05) translate3d(-1.5%, -1%, 0); }
+  100% { transform: scale(1.08) translate3d(1.5%, 1%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dream-colorfield { animation: none !important; }
+}
+
+/* DreamNav: subtle "widgets move" transitions */
+.dreamnav-stage {
+  will-change: transform, opacity;
+}
+
+.dreamnav-slide-L { animation: dreamnavInFromRight 180ms ease-out; }
+.dreamnav-slide-R { animation: dreamnavInFromLeft 180ms ease-out; }
+.dreamnav-slide-U { animation: dreamnavInFromBottom 180ms ease-out; }
+.dreamnav-slide-D { animation: dreamnavInFromTop 180ms ease-out; }
+.dreamnav-slide-IN { animation: dreamnavZoomIn 200ms ease-out; }
+.dreamnav-slide-OUT { animation: dreamnavZoomOut 200ms ease-out; }
+
+@keyframes dreamnavInFromRight {
+  from { transform: translate3d(18px, 0, 0); opacity: 0.96; }
+  to   { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+@keyframes dreamnavInFromLeft {
+  from { transform: translate3d(-18px, 0, 0); opacity: 0.96; }
+  to   { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+@keyframes dreamnavInFromBottom {
+  from { transform: translate3d(0, 18px, 0); opacity: 0.96; }
+  to   { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+@keyframes dreamnavInFromTop {
+  from { transform: translate3d(0, -18px, 0); opacity: 0.96; }
+  to   { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+@keyframes dreamnavZoomIn {
+  from { transform: scale(0.985); opacity: 0.96; }
+  to   { transform: scale(1); opacity: 1; }
+}
+@keyframes dreamnavZoomOut {
+  from { transform: scale(1.015); opacity: 0.96; }
+  to   { transform: scale(1); opacity: 1; }
+}

@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { useContent, useAlbums, useShareToProfile } from "@/hooks/use-spatial";
-import type { ContentObject, ContentType, ShareIntent, WidgetType } from "@/types/spatial";
+import type { Album, ContentObject, ContentType, ShareIntent, WidgetType } from "@/types/spatial";
 import { cn } from "@/lib/utils";
 
 interface HomeSpaceProps {
@@ -33,11 +33,42 @@ interface HomeSpaceProps {
 
 type ViewMode = "grid" | "list";
 type ContentFilter = "all" | ContentType;
+type AlbumContentJoinRow = { content_id: string | null };
+type AlbumWithContent = Album & { album_content?: AlbumContentJoinRow[] };
+
+function getActiveAlbumContentIds(albums: AlbumWithContent[], activeAlbumId: string | null) {
+  if (!activeAlbumId) return null;
+  const album = albums.find((candidate) => candidate.id === activeAlbumId);
+  const rows = album?.album_content ?? [];
+  return new Set(rows.map((row) => row.content_id).filter((id): id is string => Boolean(id)));
+}
+
+function filterVisibleContent(
+  sourceContent: ContentObject[],
+  filter: ContentFilter,
+  searchQuery: string,
+  activeAlbumContentIds: Set<string> | null
+) {
+  const query = searchQuery.trim().toLowerCase();
+
+  return sourceContent.filter((item) => {
+    if (activeAlbumContentIds && !activeAlbumContentIds.has(item.id)) return false;
+    if (filter !== "all" && item.type !== filter) return false;
+    if (!query) return true;
+
+    const titleMatches = item.title?.toLowerCase().includes(query) ?? false;
+    const descriptionMatches = item.description?.toLowerCase().includes(query) ?? false;
+    return titleMatches || descriptionMatches;
+  });
+}
+
+
 
 export default function HomeSpace({ userId, onSwitchToProfile }: HomeSpaceProps) {
   const { content, privateContent, sharedContent, createContent, deleteContent } = useContent(userId);
   const { albums, createAlbum } = useAlbums(userId);
   const { isSharing, shareContent } = useShareToProfile(userId);
+  const albumsWithContent = albums as AlbumWithContent[];
 
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [filter, setFilter] = useState<ContentFilter>("all");
@@ -49,35 +80,15 @@ export default function HomeSpace({ userId, onSwitchToProfile }: HomeSpaceProps)
   const [showAlbumModal, setShowAlbumModal] = useState(false);
   const [activeAlbumId, setActiveAlbumId] = useState<string | null>(null);
 
-  const activeAlbumContentIds = useMemo(() => {
-    if (!activeAlbumId) return null;
-    const album = albums.find((a) => a.id === activeAlbumId) as any;
-    const rows: Array<{ content_id: string }> = album?.album_content ?? [];
-    return new Set(rows.map((r) => r.content_id).filter(Boolean));
-  }, [albums, activeAlbumId]);
+  const activeAlbumContentIds = useMemo(
+    () => getActiveAlbumContentIds(albumsWithContent, activeAlbumId),
+    [albumsWithContent, activeAlbumId]
+  );
 
-  const filteredContent = useMemo(() => {
-    let filtered = content;
-
-    if (activeAlbumContentIds) {
-      filtered = filtered.filter((c) => activeAlbumContentIds.has(c.id));
-    }
-
-    if (filter !== "all") {
-      filtered = filtered.filter((c) => c.type === filter);
-    }
-
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (c) =>
-          (c.title?.toLowerCase().includes(query) ?? false) ||
-          (c.description?.toLowerCase().includes(query) ?? false)
-      );
-    }
-
-    return filtered;
-  }, [content, filter, searchQuery, activeAlbumContentIds]);
+  const filteredContent = useMemo(
+    () => filterVisibleContent(content, filter, searchQuery, activeAlbumContentIds),
+    [content, filter, searchQuery, activeAlbumContentIds]
+  );
 
   const toggleSelection = useCallback((id: string) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
