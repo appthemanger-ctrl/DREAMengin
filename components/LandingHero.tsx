@@ -76,10 +76,10 @@ export default function LandingHero() {
               Get Started
             </Link>
             <Link
-              href="/dreamengin"
+              href="/about"
               className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10"
             >
-              Enter Dreamengin
+              About
             </Link>
           </div>
         </section>

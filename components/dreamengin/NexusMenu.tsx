@@ -11,11 +11,6 @@ interface NexusMenuProps {
 export default function NexusMenu({ onClose, onOpenDrEams }: NexusMenuProps) {
   const router = useRouter();
 
-  const handleLogout = () => {
-    // Use server route so cookies/session are cleared in one place.
-    window.location.href = '/api/auth/logout';
-  };
-
   const items = [
     { label: 'Search', action: () => router.push('/home') },
     { label: 'Dr. Eams', action: onOpenDrEams },
@@ -23,7 +18,6 @@ export default function NexusMenu({ onClose, onOpenDrEams }: NexusMenuProps) {
     { label: 'Account', action: () => router.push('/settings/account') },
     { label: 'View All Dreams', action: () => router.push('/home') },
     { label: 'Edit Layout', action: () => router.push('/lab') },
-    { label: 'Logout', action: handleLogout },
   ];
 
   return (
