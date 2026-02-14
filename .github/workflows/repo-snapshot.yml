@@ -6,6 +6,8 @@ on:
 
 jobs:
   snapshot:
+    # prevent infinite loop from the bot committing snapshot files
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,25 +18,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build snapshot
+      - name: Build snapshot + diff (overwrite)
         shell: bash
         run: |
           set -e
 
           mkdir -p .ci
 
-          # Use YOUR timezone (set this to yours)
+          # ✅ Set this to YOUR timezone
           TZ="America/New_York"
           NOW="$(TZ=$TZ date '+%Y-%m-%d %H:%M:%S %Z')"
 
-          # Save previous snapshot (if exists) to diff against
+          # Save previous snapshot (if exists) for diff
           if [ -f .ci/snapshot.md ]; then
             cp .ci/snapshot.md /tmp/snapshot_prev.md
           else
             echo "(no previous snapshot)" > /tmp/snapshot_prev.md
           fi
 
-          # Create new snapshot (minimal, copy/paste friendly)
+          # Write new snapshot (single file that always gets replaced)
           {
             echo "# Repo Snapshot"
             echo ""
@@ -43,42 +45,14 @@ jobs:
             echo "- Branch: ${GITHUB_REF_NAME:-unknown}"
             echo "- Commit: ${GITHUB_SHA:-unknown}"
             echo ""
+
             echo "## Key files (root)"
             for f in package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json next.config.js next.config.mjs next.config.ts; do
               if [ -e "$f" ]; then echo "- ✅ $f"; else echo "- ❌ $f"; fi
             done
             echo ""
+
             echo "## package.json locations (maxdepth 5)"
             echo '```txt'
             find . -maxdepth 5 -name package.json -not -path "./.git/*" | sed 's|^\./||' | sort || true
-            echo '```'
-            echo ""
-            echo "## Root tree (2 levels)"
-            echo '```txt'
-            find . -maxdepth 2 -mindepth 1 \
-              -not -path "./.git/*" \
-              -not -path "./node_modules/*" \
-              -not -path "./.next/*" \
-              -print | sed 's|^\./||' | sort
-            echo '```'
-          } > .ci/snapshot.md
-
-          # What changed since last snapshot (optional)
-          diff -u /tmp/snapshot_prev.md .ci/snapshot.md > .ci/snapshot.diff.txt || true
-
-      - name: Commit snapshot (overwrite)
-        shell: bash
-        run: |
-          set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add .ci/snapshot.md .ci/snapshot.diff.txt
-
-          if git diff --cached --quiet; then
-            echo "No snapshot changes."
-            exit 0
-          fi
-
-          git commit -m "chore(ci): update repo snapshot"
-          git push
+            echo
