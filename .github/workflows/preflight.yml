@@ -1,0 +1,23 @@
+name: Preflight (staging gate)
+
+on:
+  push:
+    branches:
+      - "staging/ai"
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+         
