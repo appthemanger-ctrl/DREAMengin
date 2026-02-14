@@ -21,11 +21,22 @@ export default function LoginPage() {
     setError(null);
     setBusy(true);
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      // Use a server route so auth cookies are set for SSR pages.
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
       });
-      if (authError) throw authError;
+
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as
+          | { error?: string; code?: string | null }
+          | null;
+        const msg = data?.error || 'Login failed';
+        // If Supabase gives a code, show it compactly.
+        throw new Error(data?.code ? `${msg} (${data.code})` : msg);
+      }
+
       router.replace("/home");
       router.refresh();
     } catch (err: unknown) {
