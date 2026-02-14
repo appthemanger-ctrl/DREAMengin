@@ -22,4 +22,64 @@ jobs:
           version: 10.4.0
 
       - name: Setup Node
-        uses: actions/setup-node@v
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install (frozen)
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Placeholder scan (ellipsis / TODO)
+        run: |
+          set -e
+          if command -v rg >/dev/null 2>&1; then
+            rg -n --hidden \
+              --glob '!.next/**' \
+              --glob '!node_modules/**' \
+              --glob '!pnpm-lock.yaml' \
+              "(\.\.\.)|(TODO:)|(FIXME:)|(REPLACE_ME)|(PASTE_HERE)" . && exit 1 || true
+          else
+            grep -RIn --exclude-dir=node_modules --exclude-dir=.next \
+              -E "\.\.\.|TODO:|FIXME:|REPLACE_ME|PASTE_HERE" . && exit 1 || true
+          fi
+
+      - name: Generate report
+        if: always()
+        shell: bash
+        run: |
+          set -e
+          mkdir -p .ci
+          TZ="America/Los_Angeles"
+          NOW="$(TZ=$TZ date '+%Y-%m-%d %H:%M:%S %Z')"
+
+          {
+            echo "PREFLIGHT REPORT"
+            echo "==============="
+            echo "Time: $NOW"
+            echo "Repo: $GITHUB_REPOSITORY"
+            echo "Branch: ${GITHUB_REF_NAME:-unknown}"
+            echo "Commit: ${GITHUB_SHA:-unknown}"
+            echo ""
+            echo "Note: See job steps for pass/fail details."
+          } > .ci/preflight.txt
+
+          {
+            echo "## Preflight Report"
+            echo ""
+            echo "- Time: \`$NOW\`"
+            echo "- Branch: \`${GITHUB_REF_NAME:-unknown}\`"
+            echo "- Commit: \`${GITHUB_SHA:-unknown}\`"
+            echo ""
+            echo "✅ If this run is green, merge to \`completedream\` to deploy."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload preflight artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preflight-report
+          path: .ci/preflight.txt
