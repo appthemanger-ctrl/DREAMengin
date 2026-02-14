@@ -1,4 +1,4 @@
-name: Generate pnpm lockfile
+name: Create/Update pnpm lockfile (push)
 
 on:
   workflow_dispatch:
@@ -6,20 +6,50 @@ on:
 jobs:
   lockfile:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10.4.0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - name: Generate lockfile
-        run: pnpm install --no-frozen-lockfile
+      - name: Generate lockfile (fallback ignores scripts)
+        run: |
+          pnpm install --no-frozen-lockfile || pnpm install --no-frozen-lockfile --ignore-scripts
+
+      - name: Commit & push pnpm-lock.yaml (only if changed)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pnpm-lock.yaml
+          if git diff --cached --quiet; then
+            echo "No lockfile changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: add/update pnpm lockfile"
+          git push
+
+      - name: Summary (copy/paste)
+        if: always()
+        run: |
+          {
+            echo "## Lockfile result"
+            echo "- pnpm: $(pnpm -v)"
+            echo "- node: $(node -v)"
+            echo "- lockfile: $(test -f pnpm-lock.yaml && echo '✅ present' || echo '❌ missing')"
+            echo ""
+            echo "## If lockfile is still missing"
+            echo "It means install failed early or ran in the wrong directory."
+            echo ""
+            echo "### Try (local)"
+            echo "```bash"
+            echo "pnpm install --no-frozen-lockfile --ignore-scripts"
+            echo "```"
+          } >> "$GITHUB_STEP_SUMMARY"
