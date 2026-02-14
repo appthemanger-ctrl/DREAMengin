@@ -3,7 +3,7 @@
 -- Idempotent: safe to run multiple times.
 
 -- ------------------------------------------------------------
--- 0) Helper: ensure RLS is enabled (won't hurt if already on)
+-- 0) Enable RLS (safe if already enabled)
 -- ------------------------------------------------------------
 alter table if exists public.profiles enable row level security;
 alter table if exists public.follows enable row level security;
@@ -16,8 +16,6 @@ alter table if exists public.settings enable row level security;
 
 -- ------------------------------------------------------------
 -- 1) PROFILES
--- - Public read is allowed (common pattern)
--- - Only owner can insert/update
 -- ------------------------------------------------------------
 drop policy if exists "profiles_select_public" on public.profiles;
 create policy "profiles_select_public"
@@ -38,7 +36,6 @@ for update
 using (auth.uid() = id)
 with check (auth.uid() = id);
 
--- Optional: if you want users to delete their own profile row (usually handled by auth delete):
 drop policy if exists "profiles_delete_own" on public.profiles;
 create policy "profiles_delete_own"
 on public.profiles
@@ -47,8 +44,7 @@ using (auth.uid() = id);
 
 -- ------------------------------------------------------------
 -- 2) FOLLOWS
--- - Only the follower can create/delete their follows
--- - Reads: follower can read their own follow graph
+-- Assumes columns: follower_id, following_id
 -- ------------------------------------------------------------
 drop policy if exists "follows_select_own" on public.follows;
 create policy "follows_select_own"
@@ -70,9 +66,8 @@ using (auth.uid() = follower_id);
 
 -- ------------------------------------------------------------
 -- 3) POSTS (app_posts)
--- - Owner can CRUD their posts
--- - Public can read public posts
--- - Followers can read follower-visible posts
+-- Assumes columns: user_id, visibility ('public'|'private'|'followers')
+-- Followers-only posts visible to users who follow the author.
 -- ------------------------------------------------------------
 drop policy if exists "posts_select" on public.app_posts;
 create policy "posts_select"
@@ -87,7 +82,7 @@ using (
       select 1
       from public.follows f
       where f.follower_id = auth.uid()
-        and f.followed_id = public.app_posts.user_id
+        and f.following_id = public.app_posts.user_id
     )
   )
 );
