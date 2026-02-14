@@ -1,47 +1,36 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function LandingHero() {
-  const isValentines = useMemo(() => {
-    const d = new Date();
-    return d.getMonth() === 1 && d.getDate() === 14;
-  }, []);
+  const messages = [
+    "hey… you were about to open that tab again weren’t you",
+    "you paused there… deciding or pretending to decide",
+    "you always scroll a little slower at night",
+    "that idea you just had… yeah keep that one",
+    "you don’t need to overthink this one",
+    "you already know what you’re gonna do",
+    "you almost clicked something else just now",
+    "you keep coming back to this for a reason",
+    "it’s fine… take your time",
+    "just start… it’s easier than you think"
+  ];
 
-  const mindReads = useMemo(
-    () => [
-      'hey… did you mean to leave that other tab open?',
-      'quick question… were you gonna reply to that text?',
-      'you’re doing that thing where you open an app and forget why.',
-      'friendly reminder: drink water. i’m annoying, sorry.',
-      '…you left a light on somewhere. i can feel it.',
-      'your charger is not where you think it is.',
-      'you’re hungry, but you don’t want “food.” you want something.',
-      'did you set a timer… or just trust yourself?',
-      'you’re thinking about tomorrow. don’t. not yet.',
-      'ok. you can breathe. then continue.',
-    ],
-    []
-  );
-
-  const [lineIndex, setLineIndex] = useState(0);
+  const [msgIndex, setMsgIndex] = useState(0);
 
   useEffect(() => {
-    if (isValentines) return;
-    const id = setInterval(() => {
-      setLineIndex((i) => (i + 1) % mindReads.length);
-    }, 2600);
-    return () => clearInterval(id);
-  }, [isValentines, mindReads.length]);
-
-  const valLine = '💜 Happy Valentine’s Day Dreamer 🌹';
-  const bubbleTitle = isValentines ? valLine : 'Dr. Eams…';
-  const bubbleLine = isValentines ? valLine : mindReads[lineIndex];
+    const i = setInterval(() => {
+      setMsgIndex((prev) => (prev + 1) % messages.length);
+    }, 3000);
+    return () => clearInterval(i);
+  }, []);
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#070b16] text-white">
+
+      {/* background */}
       <div className="absolute inset-0 dream-colorfield" />
 
       <video
@@ -57,37 +46,32 @@ export default function LandingHero() {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a1020]/70 via-[#080d1b]/78 to-[#06090f]/90" />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8">
+
+        {/* header */}
         <header className="flex items-center justify-between">
           <div className="text-lg font-semibold tracking-wide">DREAMengin</div>
-
           <div className="flex items-center gap-3">
-            <Link
-              href="/about"
-              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/85 backdrop-blur"
-            >
+            <Link href="/about" className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm">
               About
             </Link>
-
-            <Link
-              href="/login"
-              className="min-h-11 rounded-xl bg-white px-4 py-2 text-sm font-medium text-black"
-            >
+            <Link href="/login" className="min-h-11 rounded-xl bg-white px-4 py-2 text-sm font-medium text-black">
               Sign In
             </Link>
           </div>
         </header>
 
+        {/* content */}
         <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
+
+          {/* top line */}
           <div className="rounded-full border border-white/20 bg-white/8 px-4 py-2 text-sm text-white/85 backdrop-blur">
-            ✨ explore at your own pace
+            Dr. Eams dreams of dreaming. You don’t have to.
           </div>
 
-          {/* CHARACTER + BUBBLE */}
-          <div className="relative flex items-center justify-center">
+          {/* character + bubble container */}
+          <div className="relative flex flex-col items-center">
 
-            {/* glow */}
-            <div className="absolute inset-0 -z-10 rounded-full bg-white/10 blur-3xl" />
-
+            {/* character */}
             <Image
               src="/IMG_3362.png"
               alt="Dr. Eams"
@@ -97,47 +81,62 @@ export default function LandingHero() {
               className="h-56 w-56 sm:h-72 sm:w-72 object-contain"
             />
 
-            {/* MESSAGE BUBBLE (attached to mouth) */}
-            <div className="absolute right-0 top-6 z-20 w-[min(70vw,18rem)]">
-              <div className="relative rounded-2xl border border-white/30 bg-white/95 px-4 py-3 text-left text-sm text-slate-900 shadow-xl">
+            {/* SPEECH BUBBLE (RIGHT SIDE, ATTACHED) */}
+            <div
+              className="
+                absolute
+                top-6
+                right-[-10px]
+                sm:right-[-80px]
+                max-w-[260px]
+                sm:max-w-[320px]
+                text-left
+                z-20
+              "
+            >
+              <div className="relative rounded-2xl bg-white text-black px-4 py-3 shadow-2xl">
 
-                <p className="font-semibold">{bubbleTitle}</p>
+                {/* rotating text */}
+                <div className="text-sm font-medium leading-snug">
+                  {messages[msgIndex]}
+                </div>
 
-                <p key={isValentines ? 'val' : lineIndex} className="mt-1 text-slate-600">
-                  {bubbleLine}
-                </p>
+                {/* valentines line */}
+                <div className="mt-2 text-xs opacity-80">
+                  💜 Happy Valentine’s Day Dreamer 🌹
+                </div>
 
-                {!isValentines && (
-                  <p className="mt-2 text-[11px] text-slate-500">…just a thought.</p>
-                )}
-
-                {/* TAIL → POINTING TO MOUTH */}
-                <div className="absolute left-6 bottom-[-6px] w-3 h-3 rotate-45 bg-white border-l border-b border-white/30"></div>
-
+                {/* tail */}
+                <div
+                  className="
+                    absolute
+                    left-[-6px]
+                    top-[28px]
+                    w-3 h-3
+                    bg-white
+                    rotate-45
+                  "
+                />
               </div>
             </div>
 
           </div>
 
+          {/* title */}
           <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
             Navigate your digital world as layered dreams.
           </h1>
 
+          {/* buttons */}
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/join"
-              className="min-h-11 rounded-xl bg-indigo-500 px-6 py-3 font-medium text-white"
-            >
+            <Link href="/join" className="min-h-11 rounded-xl bg-indigo-500 px-6 py-3 font-medium text-white">
               Get Started
             </Link>
-
-            <Link
-              href="/about"
-              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-medium text-white/90 backdrop-blur"
-            >
+            <Link href="/about" className="min-h-11 rounded-xl border border-white/20 px-6 py-3 font-medium text-white/90">
               About
             </Link>
           </div>
+
         </section>
       </div>
     </main>
