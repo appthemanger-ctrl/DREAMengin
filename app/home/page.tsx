@@ -2,7 +2,6 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import DreamNavSurface6 from '@/components/dreamnav/DreamNavSurface6';
 import HomeSystem from '@/components/home/HomeSystem';
-import { toSerializable } from '@/lib/toSerializable';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +26,7 @@ export default async function Home() {
       .select('*')
       .eq('id', user.id)
       .single();
-    profile = toSerializable(profileData);
+    profile = profileData;
 
     // Fetch posts for feed
     const { data: postsData } = await supabase
@@ -42,14 +41,14 @@ export default async function Home() {
       .order('created_at', { ascending: false })
       .limit(30);
 
-    posts = toSerializable(postsData || []);
+    posts = postsData || [];
   } catch {
     redirect('/login');
   }
 
   return (
     <DreamNavSurface6 debug={false}>
-      <HomeSystem userId={user?.id || ''} profile={profile} initialPosts={Array.isArray(posts) ? posts : []} />
+      <HomeSystem userId={user?.id || ''} profile={profile} initialPosts={posts || []} />
     </DreamNavSurface6>
   );
 }

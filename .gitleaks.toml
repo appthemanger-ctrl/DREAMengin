@@ -1,0 +1,17 @@
+title = "Dream Engine - gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist common false positives"
+paths = [
+  "pnpm-lock.yaml",
+  "docs/",
+  "public/"
+]
+
+regexes = [
+  # UUIDs
+  '''[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}''',
+]

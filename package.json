@@ -8,7 +8,7 @@
     "build": "next build --webpack",
     "vercel-build": "NODE_OPTIONS=--max-old-space-size=4096 next build --webpack",
     "start": "next start",
-    "lint": "echo ESLint not supported anymore",
+    "lint": "next lint",
     "test": "playwright test",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
@@ -19,7 +19,11 @@
     "postbuild": "node scripts/postbuild.js",
     "typecheck": "tsc --noEmit --pretty false",
     "generate:docs": "node scripts/generate-webapp-final-form.mjs",
-    "docs:webapp-final-form": "node scripts/generate-webapp-final-form.mjs"
+    "docs:webapp-final-form": "node scripts/generate-webapp-final-form.mjs",
+    "prepare": "husky",
+    "secrets:scan": "gitleaks detect --source . --no-git --redact",
+    "licenses:check": "node scripts/check-licenses.mjs",
+    "schema:validate": "bash scripts/validate-schema-sync.sh"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1",
@@ -66,13 +70,20 @@
     "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3",
     "vitest": "^4.0.18",
-
-    "turbo": "2.8.8-canary.7"
+    "turbo": "2.8.8-canary.7",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.10",
+    "license-checker": "^25.0.1"
   },
   "engines": {
     "node": "24.x"
   },
   "overrides": {
     "tar": "^7.5.6"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix"
+    ]
   }
 }
