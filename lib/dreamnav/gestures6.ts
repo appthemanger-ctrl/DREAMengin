@@ -1,13 +1,21 @@
-import type { Dir } from './delta';
+import type { Action } from './delta';
+
+type Options = {
+  /**
+   * If provided, vertical swipes will only emit when this returns true.
+   * (Used to avoid stealing vertical scroll inside scrollable surfaces.)
+   */
+  canEmitVertical?: () => boolean;
+};
 
 /**
  * Input mapping:
- * - 1-finger swipe => U/D/L/R
+ * - 1-finger swipe => swipe_left/right/up/down
  *
- * Depth gestures (IN/OUT) are handled separately (pinch / wheel) by the surface,
- * to avoid double-firing when users pinch with two touches.
+ * Depth gestures (depth_in/depth_out) are handled separately (pinch / wheel)
+ * by the surface, to avoid double-firing when users pinch with two touches.
  */
-export function create6DirGestureArbiter(emit: (d: Dir) => void) {
+export function createGestureArbiter(emit: (a: Action) => void, opts: Options = {}) {
   const SWIPE_TH = 70;
 
   let startX = 0;
@@ -40,8 +48,15 @@ export function create6DirGestureArbiter(emit: (d: Dir) => void) {
     const ay = Math.abs(dy);
 
     if (ax < SWIPE_TH && ay < SWIPE_TH) return;
-    if (ax > ay) emit(dx < 0 ? 'L' : 'R');
-    else emit(dy < 0 ? 'U' : 'D');
+
+    if (ax > ay) {
+      emit(dx < 0 ? 'swipe_left' : 'swipe_right');
+      return;
+    }
+
+    // Vertical swipe gating
+    if (opts.canEmitVertical && !opts.canEmitVertical()) return;
+    emit(dy < 0 ? 'swipe_up' : 'swipe_down');
   };
 
   const onPointerCancel = (e: PointerEvent) => {

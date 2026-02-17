@@ -1,7 +1,8 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import DreamNavSurface6 from '@/components/dreamnav/DreamNavSurface6';
-import HomeDreamRuntime from '@/components/dreamnav/HomeDreamRuntime';
+import HomeSystem from '@/components/home/HomeSystem';
+import { toSerializable } from '@/lib/toSerializable';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,12 +14,12 @@ export default async function Home() {
 
   try {
     const supabase = await createServerClient();
-    const { data: { user: authUser } } = await supabase.auth.getUser();
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
     user = authUser;
 
-    if (!user) {
-      redirect('/login');
-    }
+    if (!user) redirect('/login');
 
     // Fetch user profile
     const { data: profileData } = await supabase
@@ -26,33 +27,29 @@ export default async function Home() {
       .select('*')
       .eq('id', user.id)
       .single();
-    profile = profileData;
+    profile = toSerializable(profileData);
 
     // Fetch posts for feed
     const { data: postsData } = await supabase
       .from('app_posts')
-      .select(`
+      .select(
+        `
         *,
         profiles!inner(handle, display_name, avatar_url)
-      `)
+      `
+      )
       .eq('visibility', 'public')
       .order('created_at', { ascending: false })
       .limit(30);
-    posts = postsData || [];
+
+    posts = toSerializable(postsData || []);
   } catch {
     redirect('/login');
   }
 
   return (
     <DreamNavSurface6 debug={false}>
-      {(node) => (
-        <HomeDreamRuntime
-          node={node}
-          userId={user?.id || ''}
-          profile={profile}
-          initialPosts={posts || []}
-        />
-      )}
+      <HomeSystem userId={user?.id || ''} profile={profile} initialPosts={Array.isArray(posts) ? posts : []} />
     </DreamNavSurface6>
   );
 }
