@@ -90,7 +90,7 @@ export default function JoinPage() {
         loop
         muted
         playsInline
-        className="fixed inset-0 h-full w-full object-cover z-0 opacity-100"
+        className="fixed inset-0 h-full w-full object-cover z-0 opacity-30"
       >
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>

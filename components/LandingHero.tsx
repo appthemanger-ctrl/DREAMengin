@@ -61,7 +61,7 @@ export default function LandingHero() {
         loop
         muted
         playsInline
-        className="absolute inset-0 h-full w-full object-cover opacity-[0.10]"
+        className="absolute inset-0 h-full w-full object-cover opacity-[0.15]"
       >
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
