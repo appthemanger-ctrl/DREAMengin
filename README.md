@@ -71,9 +71,27 @@ provide inspection only and do not change depth; pinch‑out is not used to ente
 ### 4.2  Depth and day dream entry
 
 Day dreams are entered via the home controls, not via pinch.  Depth traversal is conceptually `base ↔ day_dream surfaces`.
-Holding and dragging the blue control upward dives into a day dream.  Holding and dragging the red control downward moves
-outward toward the base.  Dragging one control onto the other instantly returns home.
-
+ACTIONS:
+//
+// swipe_left
+// swipe_right
+// swipe_up
+// swipe_down
+//
+// depth_in   (zoom in / pinch out)
+// depth_out  (zoom out / pinch in)
+//
+// tap
+// double_tap
+// home
+//
+// IMPORTANT:
+//
+// Buttons DO NOT control navigation.
+// Buttons only:
+//   - move (draggable)
+//   - open menus (double tap)
+//   - home tap (reset)
 ## 5  Home controls and gestures
 
 The blue and red controls are identical in size and shape but coloured differently.  They default to the bottom centre of
