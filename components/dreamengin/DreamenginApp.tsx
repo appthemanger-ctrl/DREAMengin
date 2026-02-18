@@ -3,7 +3,7 @@
 
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import BabylonWorkspace from './BabylonWorkspace';
 import HomeControls from './HomeControls';
 import NexusMenu from './NexusMenu';
@@ -34,6 +34,43 @@ export default function DreamenginApp() {
 
   // Engine state lives in a ref to prevent React renders on pointer-move.
   const engineRef = useRef<EngineState>(createEngineState());
+  // iOS Safari gesture guardrails:
+  // - Prevent pull-to-refresh and edge-swipe back/forward from hijacking the experience.
+  // - This is scoped to edge gestures only to avoid breaking normal in-widget scrolling.
+  useEffect(() => {
+    let startX = 0;
+    let startY = 0;
+    const EDGE_PX = 24;
+    const TOP_PX = 80;
+    const onTouchStart = (e: TouchEvent) => {
+      if (!e.touches || e.touches.length === 0) return;
+      const t = e.touches[0];
+      startX = t.clientX;
+      startY = t.clientY;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!e.touches || e.touches.length === 0) return;
+      const t = e.touches[0];
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      // Block browser back/forward edge swipe.
+      if (startX < EDGE_PX || startX > window.innerWidth - EDGE_PX) {
+        e.preventDefault();
+        return;
+      }
+      // Block pull-to-refresh gesture when near top of viewport.
+      if (window.scrollY === 0 && startY < TOP_PX && dy > 0) {
+        e.preventDefault();
+      }
+      // Note: we intentionally do NOT block general swipes to keep in-widget scrolling functional.
+    };
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => {
+      window.removeEventListener('touchstart', onTouchStart as any);
+      window.removeEventListener('touchmove', onTouchMove as any);
+    };
+  }, []);
 
   const setOverlayLock = useCallback((locked: boolean) => {
     engineRef.current.overlayLock = locked;
@@ -140,10 +177,6 @@ export default function DreamenginApp() {
         onDoubleTapBlue={toggleOutdream}
         onDoubleTapRed={toggleNexus}
         onGoHome={goHome}
-        onFlightStart={startFlight}
-        onFlightThrust={updateThrust}
-        onFlightSteer={steerBy}
-        onFlightEnd={endFlight}
       />
 
       {showNexus && (
