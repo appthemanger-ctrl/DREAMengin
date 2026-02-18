@@ -202,3 +202,17 @@ NOTE: This appendix describes navigation only. The sections above define what th
 // DREAMengin v2.0.0 — Authoritative Navigation Spec (τ)
 // (same τ code you already approved should live here verbatim)
 
+---
+
+## 13) Dream Engine UI rules (authoritative)
+
+These interaction and visual constraints are required for all UI work:
+
+- Premium, minimal, iOS-first.
+- Boot readiness gating must wait for: `hydrationReady + authReady + fontsReady + layoutStable`.
+- Do not use full-screen auth spinners; after 400ms, use inline status.
+- Motion is feedback-only (no decorative loops) and must respect reduced motion preferences.
+- Use only 3 elevation levels; prefer hairline borders over heavy shadows.
+- Minimum touch target is 44px.
+- Keep components small and avoid over-abstraction.
+
