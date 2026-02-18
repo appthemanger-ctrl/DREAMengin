@@ -1,20 +1,14 @@
 'use client';
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import type { Action, Heading, NavState, Node } from '@/lib/dreamnav/delta';
-import { DEFAULT_NAV_STATE, reduceNav } from '@/lib/dreamnav/delta';
-import { createGestureArbiter } from '@/lib/dreamnav/gestures6';
+import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import type { Action, NavState, Node } from '@/lib/dreamnav/tau';
+import { DEFAULT_NAV_STATE, transition } from '@/lib/dreamnav/tau';
+import { chooseAxisAction, type GCTDebug } from '@/lib/dreamnav/gctAssist';
 
 type DreamNavApi = NavState & {
   dispatch: (a: Action) => void;
+  navigateTo: (node: Node) => void;
+  lastAction: Action | null;
 };
 
 const Ctx = createContext<DreamNavApi | null>(null);
@@ -25,185 +19,160 @@ export function useDreamNav(): DreamNavApi {
   return ctx;
 }
 
-export default function DreamNavSurface6({
-  debug = false,
-  initialNode = 0,
-  children,
-}: {
-  debug?: boolean;
-  initialNode?: Node;
-  children: React.ReactNode;
-}) {
-  // v2 spec: pinch is inspection-only; depth navigation is driven by the home controls.
-  const ENABLE_PINCH_DEPTH = false;
+const SWIPE_DISTANCE_PX = 45;
+const VELOCITY_THRESHOLD = 0.45;
+const ZOOM_IN_THRESHOLD = 0.92;
+const ZOOM_OUT_THRESHOLD = 1.08;
 
-  const [nav, setNav] = useState<NavState>(() => ({
-    ...DEFAULT_NAV_STATE,
-    node: initialNode,
-  }));
+export default function DreamNavSurface6({ debug = false, initialNode = 0, children }: { debug?: boolean; initialNode?: Node; children: React.ReactNode }) {
+  const [nav, setNav] = useState<NavState>({ ...DEFAULT_NAV_STATE, node: initialNode });
+  const [lastAction, setLastAction] = useState<Action | null>(null);
+  const [gctDebug, setGctDebug] = useState<GCTDebug | null>(null);
+  const [stageStyle, setStageStyle] = useState<React.CSSProperties>({ transform: 'translate3d(0,0,0) scale(1)', transition: 'none' });
 
-  // Animation direction (CSS class). Cleared after animation end.
-  const [anim, setAnim] = useState<Heading>(null);
-  const pendingAnim = useRef<Heading>(null);
+  const surfaceRef = useRef<HTMLDivElement | null>(null);
+  const pointerRef = useRef({ active: false, startX: 0, startY: 0, startAt: 0, lastX: 0, lastY: 0, lastAt: 0, moved: false });
+  const pinchRef = useRef({ active: false, startDist: 0, lastDist: 0 });
 
-  const rootRef = useRef<HTMLDivElement | null>(null);
-  const allowVerticalSwipeRef = useRef(true);
-
-  const dispatch = useCallback((a: Action) => {
-    setNav((prev) => {
-      const next = reduceNav(prev, a);
-      if (next.node !== prev.node) pendingAnim.current = next.heading;
-      return next;
-    });
+  const applyTransition = useCallback((action: Action) => {
+    setLastAction(action);
+    setNav((prev) => transition(prev, action));
   }, []);
 
-  // When node changes, kick the CSS animation once.
-  useEffect(() => {
-    const h = pendingAnim.current;
-    if (!h) return;
+  const navigateTo = useCallback((node: Node) => {
+    setNav((prev) => ({ node, heading: node === 0 ? null : prev.heading }));
+  }, []);
 
-    pendingAnim.current = null;
-    setAnim(null);
-    requestAnimationFrame(() => setAnim(h));
-  }, [nav.node]);
+  const animateCommit = useCallback((action: Action) => {
+    const distance = 44;
+    const styleBase = { transition: 'transform 170ms ease-out' };
+    if (action === 'swipe_left') setStageStyle({ ...styleBase, transform: `translate3d(${-distance}px,0,0) scale(1)` });
+    else if (action === 'swipe_right') setStageStyle({ ...styleBase, transform: `translate3d(${distance}px,0,0) scale(1)` });
+    else if (action === 'swipe_up') setStageStyle({ ...styleBase, transform: `translate3d(0,${-distance}px,0) scale(1)` });
+    else if (action === 'swipe_down') setStageStyle({ ...styleBase, transform: `translate3d(0,${distance}px,0) scale(1)` });
+    else if (action === 'zoom_in') setStageStyle({ ...styleBase, transform: 'translate3d(0,0,0) scale(1.06)' });
+    else if (action === 'zoom_out') setStageStyle({ ...styleBase, transform: 'translate3d(0,0,0) scale(0.94)' });
 
-  const api = useMemo<DreamNavApi>(() => ({ ...nav, dispatch }), [nav, dispatch]);
+    window.setTimeout(() => {
+      applyTransition(action);
+      setStageStyle({ transform: 'translate3d(0,0,0) scale(1)', transition: 'none' });
+    }, 170);
+  }, [applyTransition]);
 
-  const computeAllowVertical = useCallback((e: PointerEvent) => {
-    const gutter = 26;
-    const w = window.innerWidth || 0;
+  const dispatch = useCallback((action: Action) => {
+    animateCommit(action);
+  }, [animateCommit]);
 
-    // Edge "gesture gutters" always allow vertical navigation.
-    if (e.clientX <= gutter || e.clientX >= w - gutter) return true;
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.pointerType === 'touch' && (e.nativeEvent as PointerEvent).isPrimary === false) return;
+    pointerRef.current = {
+      active: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      startAt: performance.now(),
+      lastX: e.clientX,
+      lastY: e.clientY,
+      lastAt: performance.now(),
+      moved: false,
+    };
+  };
 
-    // If the page is scrollable, do not steal vertical swipes from scroll.
-    const doc = document.documentElement;
-    if (doc && doc.scrollHeight > window.innerHeight + 8) return false;
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const p = pointerRef.current;
+    if (!p.active || pinchRef.current.active) return;
+    e.preventDefault();
+    p.lastX = e.clientX;
+    p.lastY = e.clientY;
+    p.lastAt = performance.now();
+    if (!p.moved && Math.hypot(p.lastX - p.startX, p.lastY - p.startY) > 2) p.moved = true;
+  };
 
-    // If within a scrollable container, do not steal vertical swipes.
-    const root = rootRef.current;
-    let el = e.target as HTMLElement | null;
-    while (el && el !== root) {
-      const style = window.getComputedStyle(el);
-      const oy = style.overflowY;
-      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 8) {
-        return false;
-      }
-      el = el.parentElement;
+  const onPointerUp = async (e: React.PointerEvent<HTMLDivElement>) => {
+    const p = pointerRef.current;
+    if (!p.active || pinchRef.current.active) return;
+    e.preventDefault();
+
+    const dx = p.lastX - p.startX;
+    const dy = p.lastY - p.startY;
+    const dt = Math.max(1, p.lastAt - p.startAt);
+    const velocity = Math.hypot(dx, dy) / dt;
+    pointerRef.current.active = false;
+
+    if (Math.hypot(dx, dy) < SWIPE_DISTANCE_PX && velocity < VELOCITY_THRESHOLD) return;
+
+    const axisBias = Math.abs(Math.abs(dx) - Math.abs(dy));
+    if (axisBias < 18) {
+      const resolved = await chooseAxisAction({ dx, dy, magnitude: Math.hypot(dx, dy) });
+      setGctDebug(resolved.debug);
+      animateCommit(resolved.action);
+      return;
     }
 
-    return true;
-  }, []);
+    setGctDebug(null);
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      animateCommit(dx < 0 ? 'swipe_left' : 'swipe_right');
+      return;
+    }
+    animateCommit(dy < 0 ? 'swipe_up' : 'swipe_down');
+  };
 
-  // Pointer swipe gestures
-  const arbiter = useMemo(
-    () =>
-      createGestureArbiter(dispatch, {
-        canEmitVertical: () => allowVerticalSwipeRef.current,
-      }),
-    [dispatch]
-  );
+  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length !== 2) return;
+    e.preventDefault();
+    const [a, b] = [e.touches[0], e.touches[1]];
+    const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    pinchRef.current = { active: true, startDist: d, lastDist: d };
+  };
 
-  // HOME event hook (buttons / menus can fire it)
-  useEffect(() => {
-    const onHome = () => dispatch('home');
-    window.addEventListener('dreamnav:home', onHome);
-    return () => window.removeEventListener('dreamnav:home', onHome);
-  }, [dispatch]);
+  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!pinchRef.current.active || e.touches.length !== 2) return;
+    e.preventDefault();
+    const [a, b] = [e.touches[0], e.touches[1]];
+    pinchRef.current.lastDist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  };
 
-  // Wheel pinch (trackpad) — prevent browser zoom; optional depth transitions.
-  const onWheel = useCallback(
-    (e: React.WheelEvent) => {
-      // Only interpret "pinch" (Ctrl+wheel) as a depth gesture.
-      if (!e.ctrlKey) return;
-      e.preventDefault();
-      if (!ENABLE_PINCH_DEPTH) return;
-      dispatch(e.deltaY < 0 ? 'depth_in' : 'depth_out');
-    },
-    [dispatch, ENABLE_PINCH_DEPTH]
-  );
+  const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!pinchRef.current.active) return;
+    e.preventDefault();
+    const { startDist, lastDist } = pinchRef.current;
+    pinchRef.current.active = false;
+    if (startDist <= 0) return;
+    const scale = lastDist / startDist;
+    if (scale > ZOOM_OUT_THRESHOLD) animateCommit('zoom_out');
+    if (scale < ZOOM_IN_THRESHOLD) animateCommit('zoom_in');
+  };
 
-  // Touch pinch => depth transitions (2-finger).
-  useEffect(() => {
-    const el = rootRef.current;
-    if (!el) return;
-
-    let startDist: number | null = null;
-    let lastDist: number | null = null;
-
-    const dist = (a: Touch, b: Touch) => {
-      const dx = a.clientX - b.clientX;
-      const dy = a.clientY - b.clientY;
-      return Math.hypot(dx, dy);
-    };
-
-    const onTouchStart = (ev: TouchEvent) => {
-      if (ev.touches.length === 2) {
-        startDist = dist(ev.touches[0], ev.touches[1]);
-        lastDist = startDist;
-      }
-    };
-
-    const onTouchMove = (ev: TouchEvent) => {
-      if (startDist == null) return;
-      if (ev.touches.length !== 2) return;
-
-      lastDist = dist(ev.touches[0], ev.touches[1]);
-
-      // Prevent page zoom while we interpret this gesture.
-      ev.preventDefault();
-    };
-
-    const onTouchEnd = () => {
-      if (startDist == null || lastDist == null) return;
-
-      const delta = lastDist - startDist;
-
-      // Deadzone to avoid firing on incidental micro-motions.
-      if (ENABLE_PINCH_DEPTH && Math.abs(delta) > 26) dispatch(delta > 0 ? 'depth_in' : 'depth_out');
-
-      startDist = null;
-      lastDist = null;
-    };
-
-    // Important: passive:false so preventDefault works on iOS Safari.
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchmove', onTouchMove, { passive: false });
-    el.addEventListener('touchend', onTouchEnd, { passive: true });
-    el.addEventListener('touchcancel', onTouchEnd, { passive: true });
-
-    return () => {
-      el.removeEventListener('touchstart', onTouchStart as any);
-      el.removeEventListener('touchmove', onTouchMove as any);
-      el.removeEventListener('touchend', onTouchEnd as any);
-      el.removeEventListener('touchcancel', onTouchEnd as any);
-    };
-  }, [dispatch]);
+  const api = useMemo(() => ({ ...nav, dispatch, navigateTo, lastAction }), [nav, dispatch, navigateTo, lastAction]);
 
   return (
     <Ctx.Provider value={api}>
       <div
-        ref={rootRef}
-        className="relative w-full min-h-screen overflow-x-hidden touch-none"
-        onWheel={onWheel}
-        onPointerDown={(e) => {
-          allowVerticalSwipeRef.current = computeAllowVertical(e.nativeEvent);
-          arbiter.onPointerDown(e.nativeEvent);
+        ref={surfaceRef}
+        className="relative min-h-screen w-full overflow-hidden touch-none"
+        style={{ touchAction: 'none' }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={() => {
+          pointerRef.current.active = false;
         }}
-        onPointerMove={(e) => arbiter.onPointerMove(e.nativeEvent)}
-        onPointerUp={(e) => arbiter.onPointerUp(e.nativeEvent)}
-        onPointerCancel={(e) => arbiter.onPointerCancel(e.nativeEvent)}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
       >
-        <div
-          className={['dreamnav-stage', anim ? `dreamnav-slide-${anim}` : ''].join(' ')}
-          onAnimationEnd={() => setAnim(null)}
-        >
-          {children}
-        </div>
+        <div style={stageStyle}>{children}</div>
 
-        {debug ? (
-          <div className="fixed top-3 left-3 z-50 text-[10px] bg-black/60 text-white px-3 py-2 rounded-xl">
-            node: {String(nav.node)} {nav.heading ? `(${nav.heading})` : ''}
+        {debug && process.env.NODE_ENV !== 'production' ? (
+          <div className="fixed left-3 top-3 z-50 rounded-xl bg-black/65 px-3 py-2 text-[11px] text-white">
+            <div>node: {String(nav.node)}</div>
+            <div>last: {lastAction ?? 'none'}</div>
+            {gctDebug ? <div>gct: {gctDebug.used ? 'used' : 'fallback'} {gctDebug.selectedId ? `(${gctDebug.selectedId})` : ''}</div> : null}
+            {gctDebug?.scores?.length ? (
+              <div className="mt-1 text-[10px] text-white/80">
+                {gctDebug.scores.map((score) => `${score.id}:${score.correlation}`).join(' · ')}
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>

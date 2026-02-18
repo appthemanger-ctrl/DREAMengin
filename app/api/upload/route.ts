@@ -1,24 +1,29 @@
 import { createHash } from 'crypto';
-import { gzipSync } from 'zlib';
+import { gunzipSync, gzipSync } from 'zlib';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 
+const MAX_PAYLOAD_BYTES = 2_000_000;
+
 type UploadPayload = {
   data?: unknown;
   sourceInstanceId?: string;
   metadata?: Record<string, unknown>;
+  encoding?: 'json' | 'gzip-base64';
 };
 
-/**
- * Content-addressed upload endpoint.
- *
- * Spec alignment:
- * - Uses widget system tables only (`widget_content`, `widget_events`)
- * - No userId trust from client (derived from auth session)
- */
+function normalizeInputData(payload: UploadPayload): string {
+  if (payload.encoding === 'gzip-base64') {
+    if (typeof payload.data !== 'string') throw new Error('gzip-base64 data must be a string');
+    const inflated = gunzipSync(Buffer.from(payload.data, 'base64')).toString('utf8');
+    return JSON.stringify(JSON.parse(inflated));
+  }
+  return JSON.stringify(payload.data);
+}
+
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const {
@@ -40,7 +45,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing `data` in request body' }, { status: 400 });
   }
 
-  const json = JSON.stringify(body.data);
+  let json: string;
+  try {
+    json = normalizeInputData(body);
+  } catch {
+    return NextResponse.json({ error: 'Unable to decode payload data' }, { status: 400 });
+  }
+
+  const jsonBytes = Buffer.byteLength(json, 'utf8');
+  if (jsonBytes > MAX_PAYLOAD_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+  }
+
   const contentHash = createHash('sha256').update(json).digest('hex');
   const compressed = gzipSync(Buffer.from(json, 'utf8')).toString('base64');
 
@@ -64,7 +80,11 @@ export async function POST(req: NextRequest) {
         content_hash: contentHash,
         content_encoding: 'gzip-base64',
         content_body: compressed,
-        metadata: body.metadata ?? {},
+        metadata: {
+          ...(body.metadata ?? {}),
+          originalEncoding: body.encoding ?? 'json',
+          originalBytes: jsonBytes,
+        },
       })
       .select('id')
       .single();
@@ -85,6 +105,7 @@ export async function POST(req: NextRequest) {
       contentId,
       referenced: Boolean(existing),
       compressed: true,
+      algorithm: 'gzip-base64',
     },
   });
 
@@ -98,5 +119,6 @@ export async function POST(req: NextRequest) {
     contentHash,
     contentId,
     compressed: true,
+    algorithm: 'gzip-base64',
   });
 }

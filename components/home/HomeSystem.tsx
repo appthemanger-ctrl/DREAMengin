@@ -3,9 +3,9 @@
 import React, { useCallback, useState } from 'react';
 import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
 import HomeDreamRuntime from '@/components/dreamnav/HomeDreamRuntime';
-import DreamNavControls from '@/components/dreamnav/DreamNavControls';
-import OutdreamMenu from '@/components/dreamengin/OutdreamMenu';
-import NexusMenu from '@/components/dreamengin/NexusMenu';
+import HomeControls from '@/components/controls/HomeControls';
+import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
+import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
 import ViewAllDreamsOverlay from '@/components/dreamengin/ViewAllDreamsOverlay';
 
@@ -16,35 +16,55 @@ type ProfileLike = {
   avatar_url?: string | null;
 };
 
-export default function HomeSystem({
-  userId,
-  profile,
-  initialPosts,
-}: {
-  userId: string;
-  profile: ProfileLike | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialPosts: any[];
-}) {
-  const { dispatch } = useDreamNav();
+function LightweightOverlay({ title, onClose }: { title: string; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-40 bg-black/35" onPointerDown={onClose}>
+      <div className="mx-auto mt-24 w-[min(24rem,92vw)] rounded-3xl border border-white/15 bg-slate-950/92 p-4 text-white" onPointerDown={(e) => e.stopPropagation()}>
+        <div className="text-xs uppercase tracking-[0.2em] text-white/60">System</div>
+        <h2 className="mt-1 text-lg font-semibold">{title}</h2>
+        <p className="mt-2 text-sm text-white/70">Panel placeholder in current spatial state (no route navigation).</p>
+        <button type="button" className="mt-4 min-h-11 rounded-xl border border-white/20 px-4 text-sm" onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+}
 
-  const [dreamsOpen, setDreamsOpen] = useState(false);
-  const [systemOpen, setSystemOpen] = useState(false);
+export default function HomeSystem({ userId, profile, initialPosts }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
+  const { dispatch, navigateTo } = useDreamNav();
+
+  const [dreamMenuAnchor, setDreamMenuAnchor] = useState<DOMRect | null>(null);
+  const [systemMenuAnchor, setSystemMenuAnchor] = useState<DOMRect | null>(null);
+
   const [drEamsOpen, setDrEamsOpen] = useState(false);
   const [viewAllDreamsOpen, setViewAllDreamsOpen] = useState(false);
+  const [overlay, setOverlay] = useState<string | null>(null);
 
-  const [coreOpen, setCoreOpen] = useState(true);
   const [coreFace, setCoreFace] = useState<'home' | 'profile'>('home');
 
   const returnHome = useCallback(() => {
     dispatch('home');
-    setDreamsOpen(false);
-    setSystemOpen(false);
+    setDreamMenuAnchor(null);
+    setSystemMenuAnchor(null);
     setDrEamsOpen(false);
     setViewAllDreamsOpen(false);
-    setCoreOpen(true);
+    setOverlay(null);
     setCoreFace('home');
   }, [dispatch]);
+
+  const onSystemAction = (action: SystemMenuAction) => {
+    if (action === 'dr-eams') {
+      setDrEamsOpen(true);
+      return;
+    }
+    if (action === 'view-all-dreams') {
+      setViewAllDreamsOpen(true);
+      return;
+    }
+    if (action === 'search') setOverlay('Search');
+    if (action === 'settings') setOverlay('Settings');
+    if (action === 'account') setOverlay('Account');
+    if (action === 'edit-layout') setOverlay('Edit Layout');
+  };
 
   return (
     <>
@@ -53,42 +73,41 @@ export default function HomeSystem({
         profile={profile}
         initialPosts={initialPosts}
         coreFace={coreFace}
-        coreOpen={coreOpen}
+        coreOpen
         onToggleCoreFace={() => setCoreFace((p) => (p === 'home' ? 'profile' : 'home'))}
-        onCloseCore={() => setCoreOpen(false)}
+        onCloseCore={() => setCoreFace('home')}
       />
 
-      <DreamNavControls
-        onHome={returnHome}
-        onOpenDreamsMenu={() => setDreamsOpen(true)}
-        onOpenSystemMenu={() => setSystemOpen(true)}
-        onDepthIn={() => dispatch('depth_in')}
-        onDepthOut={() => dispatch('depth_out')}
+      <HomeControls
+        onReturnHome={returnHome}
+        onOpenDreamMenu={(anchor) => {
+          setSystemMenuAnchor(null);
+          setDreamMenuAnchor(anchor);
+        }}
+        onOpenSystemMenu={(anchor) => {
+          setDreamMenuAnchor(null);
+          setSystemMenuAnchor(anchor);
+        }}
       />
 
-      {dreamsOpen ? <OutdreamMenu onClose={() => setDreamsOpen(false)} /> : null}
+      <DreamRadialMenu
+        open={Boolean(dreamMenuAnchor)}
+        anchor={dreamMenuAnchor}
+        onClose={() => setDreamMenuAnchor(null)}
+        onSelectNode={(node) => {
+          navigateTo(node);
+        }}
+      />
 
-      {systemOpen ? (
-        <NexusMenu
-          onClose={() => setSystemOpen(false)}
-          onViewAllDreams={() => {
-            setSystemOpen(false);
-            setViewAllDreamsOpen(true);
-          }}
-          onOpenDrEams={() => {
-            setSystemOpen(false);
-            setDrEamsOpen(true);
-          }}
-        />
-      ) : null}
+      <SystemRadialMenu
+        open={Boolean(systemMenuAnchor)}
+        anchor={systemMenuAnchor}
+        onClose={() => setSystemMenuAnchor(null)}
+        onAction={onSystemAction}
+      />
 
-      {viewAllDreamsOpen ? (
-        <ViewAllDreamsOverlay
-          onClose={() => setViewAllDreamsOpen(false)}
-          onReturnHome={returnHome}
-        />
-      ) : null}
-
+      {overlay ? <LightweightOverlay title={overlay} onClose={() => setOverlay(null)} /> : null}
+      {viewAllDreamsOpen ? <ViewAllDreamsOverlay onClose={() => setViewAllDreamsOpen(false)} onReturnHome={returnHome} /> : null}
       {drEamsOpen ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
     </>
   );
