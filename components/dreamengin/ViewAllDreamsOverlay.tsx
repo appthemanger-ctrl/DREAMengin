@@ -12,10 +12,10 @@ export default function ViewAllDreamsOverlay({
   onClose: () => void;
   onReturnHome: () => void;
 }) {
-  const { state, dispatch } = useDreamNav();
+  const { node, dispatch } = useDreamNav();
 
   const goTo = async (target: Node) => {
-    const path = findTauPath(state.node, target);
+    const path = findTauPath(node, target);
     await dispatchTauPath(dispatch, path);
     onClose();
   };
