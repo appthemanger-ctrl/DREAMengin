@@ -1,22 +1,31 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
+import type { Node } from '@/lib/dreamnav/delta';
+import { dispatchTauPath, findTauPath } from '@/lib/dreamnav/path';
 
 interface OutdreamMenuProps {
   onClose: () => void;
 }
 
 export default function OutdreamMenu({ onClose }: OutdreamMenuProps) {
-  const router = useRouter();
+  const { state, dispatch } = useDreamNav();
+
+  const goTo = async (target: Node) => {
+    const path = findTauPath(state.node, target);
+    await dispatchTauPath(dispatch, path);
+    onClose();
+  };
 
   const dayDreams = [
-    { id: 'music', label: 'Music Studio / Releases', href: '/music/upload' },
-    { id: 'lab', label: 'Lab: Notes / Simulator', href: '/lab' },
-    { id: 'games', label: 'Games: Library / Play', href: '/home' },
-    { id: 'code', label: 'Code: Space / Preview', href: '/connectors' },
-    { id: 'brand', label: 'Brand: Management / Analytics', href: '/analytics' },
-    { id: 'create', label: 'Create: Projects / Vault', href: '/shop/sell' },
+    // Map day dreams to outer-shell nodes. Navigation is generated from τ.
+    { id: 'music', label: 'Music Studio / Releases', node: '1b' as const },
+    { id: 'lab', label: 'Lab: Notes / Simulator', node: '2b' as const },
+    { id: 'games', label: 'Games: Library / Play', node: '5b' as const },
+    { id: 'code', label: 'Code: Space / Preview', node: '3b' as const },
+    { id: 'brand', label: 'Brand: Management / Analytics', node: '4b' as const },
+    { id: 'create', label: 'Create: Projects / Vault', node: '6b' as const },
   ];
 
   return (
@@ -33,8 +42,7 @@ export default function OutdreamMenu({ onClose }: OutdreamMenuProps) {
                 type="button"
                 className="w-full min-h-11 rounded-2xl px-3 py-2 text-left text-sm hover:bg-white/10"
                 onClick={() => {
-                  router.push(d.href);
-                  onClose();
+                  void goTo(d.node);
                 }}
               >
                 {d.label}

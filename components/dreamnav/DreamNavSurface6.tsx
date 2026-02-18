@@ -34,6 +34,9 @@ export default function DreamNavSurface6({
   initialNode?: Node;
   children: React.ReactNode;
 }) {
+  // v2 spec: pinch is inspection-only; depth navigation is driven by the home controls.
+  const ENABLE_PINCH_DEPTH = false;
+
   const [nav, setNav] = useState<NavState>(() => ({
     ...DEFAULT_NAV_STATE,
     node: initialNode,
@@ -108,15 +111,16 @@ export default function DreamNavSurface6({
     return () => window.removeEventListener('dreamnav:home', onHome);
   }, [dispatch]);
 
-  // Wheel pinch (trackpad) => depth transitions.
+  // Wheel pinch (trackpad) — prevent browser zoom; optional depth transitions.
   const onWheel = useCallback(
     (e: React.WheelEvent) => {
       // Only interpret "pinch" (Ctrl+wheel) as a depth gesture.
       if (!e.ctrlKey) return;
       e.preventDefault();
+      if (!ENABLE_PINCH_DEPTH) return;
       dispatch(e.deltaY < 0 ? 'depth_in' : 'depth_out');
     },
-    [dispatch]
+    [dispatch, ENABLE_PINCH_DEPTH]
   );
 
   // Touch pinch => depth transitions (2-finger).
@@ -156,7 +160,7 @@ export default function DreamNavSurface6({
       const delta = lastDist - startDist;
 
       // Deadzone to avoid firing on incidental micro-motions.
-      if (Math.abs(delta) > 26) dispatch(delta > 0 ? 'depth_in' : 'depth_out');
+      if (ENABLE_PINCH_DEPTH && Math.abs(delta) > 26) dispatch(delta > 0 ? 'depth_in' : 'depth_out');
 
       startDist = null;
       lastDist = null;
@@ -180,7 +184,7 @@ export default function DreamNavSurface6({
     <Ctx.Provider value={api}>
       <div
         ref={rootRef}
-        className="relative w-full min-h-screen overflow-x-hidden"
+        className="relative w-full min-h-screen overflow-x-hidden touch-none"
         onWheel={onWheel}
         onPointerDown={(e) => {
           allowVerticalSwipeRef.current = computeAllowVertical(e.nativeEvent);

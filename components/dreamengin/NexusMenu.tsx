@@ -6,18 +6,19 @@ import { useRouter } from 'next/navigation';
 interface NexusMenuProps {
   onClose: () => void;
   onOpenDrEams: () => void;
+  onViewAllDreams: () => void;
 }
 
-export default function NexusMenu({ onClose, onOpenDrEams }: NexusMenuProps) {
+export default function NexusMenu({ onClose, onOpenDrEams, onViewAllDreams }: NexusMenuProps) {
   const router = useRouter();
 
   const items = [
-    { label: 'Search', action: () => router.push('/home') },
+    { label: 'Search', action: () => console.log('Search (todo)') },
     { label: 'Dr. Eams', action: onOpenDrEams },
     { label: 'Settings', action: () => router.push('/settings') },
     { label: 'Account', action: () => router.push('/settings/account') },
-    { label: 'View All Dreams', action: () => router.push('/home') },
-    { label: 'Edit Layout', action: () => router.push('/lab') },
+    { label: 'View All Dreams', action: onViewAllDreams },
+    { label: 'Edit Layout', action: () => console.log('Edit Layout (todo)') },
   ];
 
   return (

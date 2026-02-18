@@ -31,6 +31,10 @@ interface HomeFeedProps {
   userAvatar: string | null;
   userDisplayName: string;
   initialPosts: Post[];
+  /**
+   * When true, renders inside the Core Dream surface (no full-page chrome).
+   */
+  embedded?: boolean;
 }
 
 export default function HomeFeed({
@@ -39,6 +43,7 @@ export default function HomeFeed({
   userAvatar,
   userDisplayName,
   initialPosts,
+  embedded = false,
 }: HomeFeedProps) {
   const router = useRouter();
   const [posts, setPosts] = useState<Post[]>(initialPosts);
@@ -134,8 +139,8 @@ export default function HomeFeed({
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8">
+    <div className={embedded ? 'h-full' : 'min-h-screen bg-background'}>
+      <div className={embedded ? 'h-full px-4 pt-4 pb-4' : 'max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8'}>
         {/* Feed Tabs */}
         <div className="flex items-center gap-1 mb-6 bg-card rounded-2xl border border-border p-1">
           {[

@@ -3,7 +3,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 interface DrEamsPanelProps {
   onClose: () => void;
@@ -14,16 +14,33 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
     { role: 'ai', text: 'hello what you daydreaming about today?' },
   ]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const send = () => {
-    if (!input.trim()) return;
-    const newMessages = [...messages, { role: 'user', text: input.trim() }];
-    setMessages(newMessages);
+  const canSend = useMemo(() => input.trim().length > 0 && !loading, [input, loading]);
+
+  const send = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
     setInput('');
-    // Echo back a placeholder response.  Real integration would call an API.
-    setTimeout(() => {
-      setMessages((msgs) => [...msgs, { role: 'ai', text: 'Thanks for sharing your dream!' }]);
-    }, 500);
+    setMessages((m) => [...m, { role: 'user', text }]);
+    setLoading(true);
+    try {
+      const res = await fetch('/api/dr-eams/hf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text }),
+      });
+      const data = await res.json().catch(() => ({}));
+      const reply =
+        (data && typeof data.reply === 'string' && data.reply) ||
+        (data && typeof data.error === 'string' && `${data.error}${data.hint ? ` — ${data.hint}` : ''}`) ||
+        'No response.';
+      setMessages((m) => [...m, { role: 'ai', text: reply }]);
+    } catch {
+      setMessages((m) => [...m, { role: 'ai', text: 'Network error.' }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,6 +71,11 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
               {m.text}
             </div>
           ))}
+          {loading ? (
+            <div className="px-3 py-2 rounded-lg max-w-[80%] bg-gray-100 dark:bg-gray-800 self-start text-gray-600 dark:text-gray-300">
+              Thinking…
+            </div>
+          ) : null}
         </div>
         <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex">
           <input
@@ -69,10 +91,15 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
           />
           <button
             className="ml-2 px-4 py-2 rounded bg-blue-600 text-white"
-            onClick={send}
+            onClick={() => void send()}
+            disabled={!canSend}
           >
             Send
           </button>
+        </div>
+        <div className="px-3 pb-3 text-xs text-gray-500 dark:text-gray-400">
+          Optional Hugging Face: set <span className="font-mono">HF_API_TOKEN</span> and{' '}
+          <span className="font-mono">HF_MODEL</span>.
         </div>
       </div>
     </div>
