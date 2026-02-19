@@ -1,0 +1,47 @@
+name: Cleanup Repo
+
+on:
+  push:
+    branches: [main, completedream]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove junk files
+        run: |
+          echo "🧹 Cleaning repo..."
+
+          # Remove system junk
+          find . -name ".DS_Store" -delete
+          find . -name "Thumbs.db" -delete
+
+          # Remove logs
+          find . -name "*.log" -delete
+
+          # Remove temp files
+          find . -name "*.tmp" -delete
+          find . -name "*.swp" -delete
+
+          # Remove build artifacts (if committed accidentally)
+          rm -rf .next
+          rm -rf dist
+          rm -rf build
+
+          # Remove prototype dumps (customize this)
+          rm -rf prototypes
+          rm -rf temp
+          rm -rf test-output
+
+      - name: Commit cleanup (if needed)
+        run: |
+          git config user.name "cleanup-bot"
+          git config user.email "cleanup@github.com"
+
+          git add -A
+
+          git diff --cached --quiet || git commit -m "chore: auto cleanup"
+          git push
