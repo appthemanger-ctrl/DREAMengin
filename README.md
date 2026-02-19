@@ -1,5 +1,5 @@
 # DREAMengin Production Spec (Authoritative v2.0.0)
-
+***PLEASE PARSE THROUGH DOCS if you are AN AGENT PLEASE UPDATE WHERE NEEDED***
 DREAMengin is a spatial, gesture-driven creative platform built on Next.js + Supabase. It does not behave like a normal “website with pages.” The user is always inside a continuous system where content moves and the camera/viewport stays conceptually anchored. Navigation is state-driven, deterministic, and defined by a single transition function τ (tau).  
 
 Primary target: iOS Safari. Performance target: stable 60fps wherever possible.
