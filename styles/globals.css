@@ -75,10 +75,10 @@ html, body {
 /* ── Dream background ── */
 .dream-bg {
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%,   rgba(26,78,216,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 20% 80%,   rgba(37,99,235,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 50% at 80% 30%,   rgba(212,168,67,0.07) 0%, transparent 55%),
-    linear-gradient(180deg, #020818 0%, #050f2a 60%, #020818 100%);
+    radial-gradient(ellipse 95% 62% at 50% 0%,    rgba(48,108,255,0.24) 0%, transparent 68%),
+    radial-gradient(ellipse 72% 52% at 12% 85%,   rgba(118,166,255,0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 74% 54% at 85% 22%,   rgba(240,192,64,0.14) 0%, transparent 60%),
+    linear-gradient(180deg, #0a1b4d 0%, #071236 52%, #020818 100%);
 }
 
 /* ── Glassmorphism panel ── */

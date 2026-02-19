@@ -31,8 +31,8 @@ function NodeWrapper({ children }: { children: React.ReactNode }) {
     <div
       className="de-node-wrapper"
       style={{
-        width: 'min(90vw, 520px)',
-        maxHeight: '88vh',
+        width: 'min(96vw, 1080px)',
+        maxHeight: '90vh',
         overflowY: 'auto',
         overflowX: 'hidden',
       }}
@@ -58,7 +58,7 @@ export default function HomeDreamRuntime({
     return (
       <div
         className="fixed inset-0 z-10 grid place-items-center"
-        style={{ background: 'linear-gradient(180deg, var(--de-navy) 0%, var(--de-deep) 100%)' }}
+        style={{ background: 'linear-gradient(180deg, #0b1c52 0%, var(--de-deep) 62%, var(--de-navy) 100%)' }}
       >
         <CoreDream
           face={coreFace}
@@ -74,7 +74,7 @@ export default function HomeDreamRuntime({
         {!coreOpen && (
           <div
             className="de-glass"
-            style={{ width: 'min(46rem, 92vw)', borderRadius: '28px', padding: '24px', color: 'var(--de-white)' }}
+            style={{ width: 'min(72rem, 96vw)', borderRadius: '28px', padding: '24px', color: 'var(--de-white)' }}
           >
             <div className="de-tag" style={{ marginBottom: '4px' }}>Dreams</div>
             <div className="de-label" style={{ fontSize: '20px', marginBottom: '8px' }}>Navigation Field</div>
@@ -103,7 +103,7 @@ export default function HomeDreamRuntime({
     return (
       <div
         className="fixed inset-0 z-10 grid place-items-center overflow-auto"
-        style={{ background: 'linear-gradient(180deg, var(--de-navy) 0%, rgba(5,15,42,1) 100%)' }}
+        style={{ background: 'linear-gradient(180deg, #0e2568 0%, rgba(8,22,72,1) 42%, rgba(2,8,24,1) 100%)' }}
       >
         <NodeWrapper>
           {node === '1b' && <Node1b />}
@@ -127,7 +127,7 @@ export default function HomeDreamRuntime({
   return (
     <div
       className="fixed inset-0 z-10 grid place-items-center overflow-auto"
-      style={{ background: 'linear-gradient(180deg, var(--de-navy) 0%, rgba(5,15,42,1) 100%)' }}
+      style={{ background: 'linear-gradient(180deg, #0e2568 0%, rgba(8,22,72,1) 42%, rgba(2,8,24,1) 100%)' }}
     >
       <NodeWrapper>
         {node === 1 && <Node1 />}

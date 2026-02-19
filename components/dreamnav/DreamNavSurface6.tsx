@@ -23,6 +23,8 @@ const SWIPE_DISTANCE_PX = 45;
 const VELOCITY_THRESHOLD = 0.45;
 const ZOOM_IN_THRESHOLD = 0.92;
 const ZOOM_OUT_THRESHOLD = 1.08;
+const DOUBLE_TAP_MS = 280;
+const TRIPLE_TAP_MS = 420;
 
 export default function DreamNavSurface6({ debug = false, initialNode = 0, children }: { debug?: boolean; initialNode?: Node; children: React.ReactNode }) {
   const [nav, setNav] = useState<NavState>({ ...DEFAULT_NAV_STATE, node: initialNode });
@@ -33,6 +35,9 @@ export default function DreamNavSurface6({ debug = false, initialNode = 0, child
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const pointerRef = useRef({ active: false, startX: 0, startY: 0, startAt: 0, lastX: 0, lastY: 0, lastAt: 0, moved: false });
   const pinchRef = useRef({ active: false, startDist: 0, lastDist: 0 });
+  const tapRef = useRef({ lastAt: 0, count: 0, timer: 0 as number | 0 });
+
+  const isLocked = () => typeof window !== 'undefined' && Boolean((window as Window & { __deNavLocked?: boolean }).__deNavLocked);
 
   const applyTransition = useCallback((action: Action) => {
     setLastAction(action);
@@ -60,10 +65,12 @@ export default function DreamNavSurface6({ debug = false, initialNode = 0, child
   }, [applyTransition]);
 
   const dispatch = useCallback((action: Action) => {
+    if (isLocked()) return;
     animateCommit(action);
   }, [animateCommit]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isLocked()) return;
     e.preventDefault();
     if (e.pointerType === 'touch' && (e.nativeEvent as PointerEvent).isPrimary === false) return;
     pointerRef.current = {
@@ -79,6 +86,7 @@ export default function DreamNavSurface6({ debug = false, initialNode = 0, child
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isLocked()) return;
     const p = pointerRef.current;
     if (!p.active || pinchRef.current.active) return;
     e.preventDefault();
@@ -89,6 +97,7 @@ export default function DreamNavSurface6({ debug = false, initialNode = 0, child
   };
 
   const onPointerUp = async (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isLocked()) return;
     const p = pointerRef.current;
     if (!p.active || pinchRef.current.active) return;
     e.preventDefault();
@@ -99,7 +108,19 @@ export default function DreamNavSurface6({ debug = false, initialNode = 0, child
     const velocity = Math.hypot(dx, dy) / dt;
     pointerRef.current.active = false;
 
-    if (Math.hypot(dx, dy) < SWIPE_DISTANCE_PX && velocity < VELOCITY_THRESHOLD) return;
+    if (Math.hypot(dx, dy) < SWIPE_DISTANCE_PX && velocity < VELOCITY_THRESHOLD) {
+      const now = performance.now();
+      const sinceLast = now - tapRef.current.lastAt;
+      tapRef.current.lastAt = now;
+      tapRef.current.count = sinceLast < DOUBLE_TAP_MS ? tapRef.current.count + 1 : 1;
+      if (tapRef.current.timer) window.clearTimeout(tapRef.current.timer);
+      tapRef.current.timer = window.setTimeout(() => {
+        if (tapRef.current.count >= 3) animateCommit('depth_out');
+        else if (tapRef.current.count === 2) animateCommit('depth_in');
+        tapRef.current.count = 0;
+      }, TRIPLE_TAP_MS);
+      return;
+    }
 
     const axisBias = Math.abs(Math.abs(dx) - Math.abs(dy));
     if (axisBias < 18) {
@@ -118,6 +139,7 @@ export default function DreamNavSurface6({ debug = false, initialNode = 0, child
   };
 
   const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (isLocked()) return;
     if (e.touches.length !== 2) return;
     e.preventDefault();
     const [a, b] = [e.touches[0], e.touches[1]];
@@ -126,6 +148,7 @@ export default function DreamNavSurface6({ debug = false, initialNode = 0, child
   };
 
   const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (isLocked()) return;
     if (!pinchRef.current.active || e.touches.length !== 2) return;
     e.preventDefault();
     const [a, b] = [e.touches[0], e.touches[1]];
@@ -133,14 +156,19 @@ export default function DreamNavSurface6({ debug = false, initialNode = 0, child
   };
 
   const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (isLocked()) return;
     if (!pinchRef.current.active) return;
     e.preventDefault();
     const { startDist, lastDist } = pinchRef.current;
     pinchRef.current.active = false;
     if (startDist <= 0) return;
     const scale = lastDist / startDist;
-    if (scale > ZOOM_OUT_THRESHOLD) animateCommit('zoom_out');
-    if (scale < ZOOM_IN_THRESHOLD) animateCommit('zoom_in');
+    const styleBase = { transition: 'transform 170ms ease-out' };
+    if (scale > ZOOM_OUT_THRESHOLD) setStageStyle({ ...styleBase, transform: 'translate3d(0,0,0) scale(1.08)' });
+    if (scale < ZOOM_IN_THRESHOLD) setStageStyle({ ...styleBase, transform: 'translate3d(0,0,0) scale(0.92)' });
+    window.setTimeout(() => {
+      setStageStyle({ transform: 'translate3d(0,0,0) scale(1)', transition: 'none' });
+    }, 170);
   };
 
   const api = useMemo(() => ({ ...nav, dispatch, navigateTo, lastAction }), [nav, dispatch, navigateTo, lastAction]);
