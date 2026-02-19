@@ -109,13 +109,12 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
 
       {/* ── Main node content ── */}
       <HomeDreamRuntime
-        userId={userId}
         profile={profile}
-        initialPosts={initialPosts}
         coreFace={coreFace}
         coreOpen={coreOpen}
         onToggleCoreFace={() => setCoreFace((p) => (p === 'home' ? 'profile' : 'home'))}
         onCloseCore={() => { setCoreFace('home'); setCoreOpen(false); }}
+        onOpenDrEams={() => setDrEamsOpen(true)}
       />
 
       {/* ── Draggable controls (Blue/Red) with nav lock ── */}
@@ -134,8 +133,6 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
           const h = window.innerHeight;
           setSystemMenuAnchor(new DOMRect(w / 2 + 26, h - 72, 52, 52));
         }}
-        onDepthIn={() => dispatch('depth_in')}
-        onDepthOut={() => dispatch('depth_out')}
       />
 
       {/* ── Radial menus ── */}
