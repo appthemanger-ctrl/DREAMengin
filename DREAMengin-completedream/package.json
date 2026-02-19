@@ -1,0 +1,89 @@
+{
+  "name": "dreamengin",
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.30.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --webpack",
+    "vercel-build": "NODE_OPTIONS=--max-old-space-size=4096 next build --webpack",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "playwright test",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "db:generate": "npx supabase gen types typescript --local > types/supabase.ts",
+    "db:reset": "npx supabase db reset",
+    "db:start": "npx supabase start",
+    "db:stop": "npx supabase stop",
+    "postbuild": "node scripts/postbuild.js",
+    "typecheck": "tsc --noEmit --pretty false",
+    "generate:docs": "node scripts/generate-webapp-final-form.mjs",
+    "docs:webapp-final-form": "node scripts/generate-webapp-final-form.mjs",
+    "prepare": "husky",
+    "secrets:scan": "gitleaks detect --source . --no-git --redact",
+    "licenses:check": "node scripts/check-licenses.mjs",
+    "schema:validate": "bash scripts/validate-schema-sync.sh"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@react-three/postprocessing": "^3.0.4",
+    "@supabase/ssr": "^0.5.1",
+    "@supabase/supabase-js": "^2.45.0",
+    "@types/uuid": "^10.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.33.0",
+    "lucide-react": "^0.408.0",
+    "next": "16.1.6",
+    "react": "^19.0.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "server-only": "^0.0.1",
+    "swr": "^2.4.0",
+    "tailwind-merge": "^2.4.0",
+    "tailwindcss-animate": "^1.0.7",
+    "three": "^0.182.0",
+    "uuid": "^10.0.0",
+    "zod": "^4.3.6",
+    "pixi.js": "^8.0.0",
+    "pixi-viewport": "^6.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.2",
+    "@types/node": "^20.14.11",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.182.0",
+    "@vitest/ui": "^4.0.18",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "16.1.6",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6",
+    "typescript": "^5.5.3",
+    "vitest": "^4.0.18",
+    "turbo": "2.8.8-canary.7",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.10",
+    "license-checker": "^25.0.1"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "overrides": {
+    "tar": "^7.5.6"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix"
+    ]
+  }
+}

@@ -19,12 +19,12 @@ type Props = {
 };
 
 const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string }> = [
-  { id: 'search', label: 'Search' },
-  { id: 'dr-eams', label: 'Dr. Eams' },
-  { id: 'settings', label: 'Settings' },
-  { id: 'account', label: 'Account' },
+  { id: 'search',          label: 'Search'   },
+  { id: 'dr-eams',         label: 'Dr.Eams'  },
+  { id: 'settings',        label: 'Settings' },
+  { id: 'account',         label: 'Account'  },
   { id: 'view-all-dreams', label: 'View All' },
-  { id: 'edit-layout', label: 'Layout' },
+  { id: 'edit-layout',     label: 'Layout'   },
 ];
 
 export default function SystemRadialMenu({ open, anchor, onClose, onAction }: Props) {
@@ -33,6 +33,7 @@ export default function SystemRadialMenu({ open, anchor, onClose, onAction }: Pr
       open={open}
       anchor={anchor}
       onClose={onClose}
+      variant="red"
       items={SYSTEM_ITEMS.map((item) => ({
         id: item.id,
         label: item.label,
