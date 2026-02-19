@@ -1,7 +1,7 @@
 
 :root {
   --hue-core: 220;
-  --hue-accent: 260;
+  --hue-accent: 43;
   --hue-live: var(--hue-core);
 
   --sat-strong: 80%;
@@ -21,7 +21,7 @@
 
 @keyframes hue-drift {
   0%   { --hue-live: 220; }
-  50%  { --hue-live: 245; }
+  50%  { --hue-live: 210; }
   100% { --hue-live: 220; }
 }
 

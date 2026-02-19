@@ -17,6 +17,8 @@ const CTRL_SIZE = 52;
 const CTRL_MARGIN = 16;
 const CTRL_GAP = 14;
 const STORAGE_KEY = 'dreamengin:controls:v2';
+const LOCK_DISTANCE = 36;
+const MAGNET_DISTANCE = 120;
 
 export default function DreamNavControls({
   onHome, onOpenDreamsMenu, onOpenSystemMenu, onDepthIn, onDepthOut,
@@ -44,9 +46,9 @@ export default function DreamNavControls({
   const checkOverlap = () => {
     const a = posRef.current.dreams, b = posRef.current.system;
     const dist = Math.hypot(a.x + CTRL_SIZE / 2 - (b.x + CTRL_SIZE / 2), a.y + CTRL_SIZE / 2 - (b.y + CTRL_SIZE / 2));
-    setNavLocked(dist < 36);
+    setNavLocked(dist < LOCK_DISTANCE);
     // expose to gesture system via window flag
-    (window as any).__deNavLocked = dist < 36;
+    (window as any).__deNavLocked = dist < LOCK_DISTANCE;
   };
 
   useEffect(() => {
@@ -77,10 +79,24 @@ export default function DreamNavControls({
     const near = Math.hypot(x - prev.x, y - prev.y) < 18;
     lastTap.current[id] = { t: now, x, y };
     if (dt < 260 && near) {
+      if (navLocked) {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const cx = Math.round(w / 2);
+        const cy = Math.round(h - CTRL_SIZE - CTRL_MARGIN);
+        posRef.current.dreams = { x: cx - CTRL_SIZE - CTRL_GAP - 8, y: cy };
+        posRef.current.system = { x: cx + CTRL_GAP + 8, y: cy };
+        applyCtrl('dreams');
+        applyCtrl('system');
+        checkOverlap();
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posRef.current)); } catch { /* ignore */ }
+        return;
+      }
       if (id === 'dreams') onOpenDreamsMenu();
       else onOpenSystemMenu();
+      return;
     }
-    // single tap reserved
+    onHome();
   };
 
   const onPointerDown = (id: ControlId) => (e: React.PointerEvent) => {
@@ -121,19 +137,20 @@ export default function DreamNavControls({
     if (drag.current.raf == null) {
       drag.current.raf = requestAnimationFrame(() => { drag.current.raf = null; applyCtrl(id); checkOverlap(); });
     }
-    // collision → Return Home
-    if (drag.current.mode === 'move' && startBothRef.current) {
-      const a = posRef.current.dreams, b = posRef.current.system;
-      const dist = Math.hypot(a.x + CTRL_SIZE / 2 - (b.x + CTRL_SIZE / 2), a.y + CTRL_SIZE / 2 - (b.y + CTRL_SIZE / 2));
-      if (dist < 34) {
-        posRef.current.dreams = { ...startBothRef.current.dreams };
-        posRef.current.system = { ...startBothRef.current.system };
-        applyCtrl('dreams'); applyCtrl('system');
-        onHome();
-        drag.current.id = null; drag.current.moved = false;
-        if (drag.current.holdTimer) window.clearTimeout(drag.current.holdTimer);
-        drag.current.holdTimer = null; drag.current.holdArmed = false;
-        startBothRef.current = null;
+    if (drag.current.mode === 'move') {
+      const primary = posRef.current[id];
+      const otherId: ControlId = id === 'dreams' ? 'system' : 'dreams';
+      const secondary = posRef.current[otherId];
+      const vx = primary.x - secondary.x;
+      const vy = primary.y - secondary.y;
+      const dist = Math.hypot(vx, vy);
+      if (dist < MAGNET_DISTANCE && dist > 0.1) {
+        const pull = (MAGNET_DISTANCE - dist) / MAGNET_DISTANCE;
+        const step = Math.max(0.08, pull * 0.26);
+        posRef.current[otherId] = {
+          x: secondary.x + vx * step,
+          y: secondary.y + vy * step,
+        };
       }
     }
   };
