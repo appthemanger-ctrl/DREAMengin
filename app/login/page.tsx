@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Bot, Sparkles } from "lucide-react";
+
+import PasswordField from "@/components/auth/PasswordField";
 
 import { createClient } from "@/lib/supabase/client";
 
@@ -14,7 +16,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedRemember = window.localStorage.getItem("rememberMe");
+    const shouldRemember = storedRemember !== "false";
+    setRememberMe(shouldRemember);
+    if (shouldRemember) {
+      const storedEmail = window.localStorage.getItem("rememberedEmail") || "";
+      setEmail(storedEmail);
+    }
+  }, []);
 
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +39,12 @@ export default function LoginPage() {
         password,
       });
       if (authError) throw authError;
+      window.localStorage.setItem("rememberMe", String(rememberMe));
+      if (rememberMe) {
+        window.localStorage.setItem("rememberedEmail", email.trim());
+      } else {
+        window.localStorage.removeItem("rememberedEmail");
+      }
       router.replace("/home");
       router.refresh();
     } catch (err: unknown) {
@@ -101,18 +120,25 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm text-white/80" htmlFor="password">Password</label>
+          <PasswordField
+            id="password"
+            label="Password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="current-password"
+            inputClassName="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 pr-14 outline-none focus:ring-2 focus:ring-purple-500"
+            className="space-y-2"
+          />
+
+          <label className="flex items-center gap-3 text-sm text-white/80 min-h-[44px]">
             <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 rounded border-white/20 bg-black/30"
             />
-          </div>
+            <span>Remember me</span>
+          </label>
 
           {error ? (
             <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">

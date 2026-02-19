@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -45,7 +44,6 @@ export default function HomeFeed({
   initialPosts,
   embedded = false,
 }: HomeFeedProps) {
-  const router = useRouter();
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostVisibility, setNewPostVisibility] = useState<'public' | 'private'>('public');
@@ -54,43 +52,51 @@ export default function HomeFeed({
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'feed' | 'trending' | 'following'>('feed');
+  const [postError, setPostError] = useState<string | null>(null);
 
   const handleCreatePost = async () => {
-    if (!newPostContent.trim() || isPosting) return;
+    const trimmed = newPostContent.trim();
+    if (!trimmed || isPosting) return;
     setIsPosting(true);
+    setPostError(null);
 
     try {
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: newPostContent,
+          content: trimmed,
           visibility: newPostVisibility,
         }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        // Add the new post to the feed
-        const newPost: Post = {
-          id: data.id || `${Date.now()}`,
-          content: newPostContent,
-          visibility: newPostVisibility,
-          created_at: new Date().toISOString(),
-          profiles: {
-            handle: userHandle,
-            display_name: userDisplayName,
-            avatar_url: userAvatar,
-          },
-          likes_count: 0,
-          comments_count: 0,
-        };
-        setPosts([newPost, ...posts]);
-        setNewPostContent('');
-        setShowComposer(false);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || 'Unable to create your post right now.');
       }
+
+      const createdPost: Post = {
+        id: data?.post?.id || `${Date.now()}`,
+        content: data?.post?.content || trimmed,
+        visibility: data?.post?.visibility || newPostVisibility,
+        media_url: data?.post?.media_url || null,
+        created_at: data?.post?.created_at || new Date().toISOString(),
+        profiles: {
+          handle: data?.post?.profiles?.handle || userHandle,
+          display_name: data?.post?.profiles?.display_name || userDisplayName,
+          avatar_url: data?.post?.profiles?.avatar_url || userAvatar,
+        },
+        likes_count: 0,
+        comments_count: 0,
+      };
+
+      setPosts((prev) => [createdPost, ...prev]);
+      setNewPostContent('');
+      setShowComposer(false);
     } catch (err) {
       console.error('Failed to create post:', err);
+      setPostError(err instanceof Error ? err.message : 'Unable to create your post right now.');
     } finally {
       setIsPosting(false);
     }
@@ -207,6 +213,12 @@ export default function HomeFeed({
                   />
                 </div>
               </div>
+
+              {postError ? (
+                <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+                  {postError}
+                </div>
+              ) : null}
 
               <div className="flex items-center justify-between pt-3 border-t border-border">
                 <div className="flex items-center gap-2">
