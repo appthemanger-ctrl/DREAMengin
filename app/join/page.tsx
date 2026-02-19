@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
 import { createClient } from "@/lib/supabase/client";
+import PasswordField from "@/components/auth/PasswordField";
 
 export default function JoinPage() {
   const router = useRouter();
@@ -16,11 +17,22 @@ export default function JoinPage() {
   const [password2, setPassword2] = useState("");
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
+
+  useEffect(() => {
+    const storedRemember = window.localStorage.getItem("rememberMe");
+    const shouldRemember = storedRemember !== "false";
+    setRememberMe(shouldRemember);
+    if (shouldRemember) {
+      const storedEmail = window.localStorage.getItem("rememberedEmail") || "";
+      setEmail(storedEmail);
+    }
+  }, []);
 
   async function signup(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +70,13 @@ export default function JoinPage() {
       if (!data.session) {
         setNotice("Check your email to confirm your account, then sign in.");
         return;
+      }
+
+      window.localStorage.setItem("rememberMe", String(rememberMe));
+      if (rememberMe) {
+        window.localStorage.setItem("rememberedEmail", email.trim());
+      } else {
+        window.localStorage.removeItem("rememberedEmail");
       }
 
       router.replace("/home");
@@ -145,30 +164,30 @@ export default function JoinPage() {
               />
             </label>
 
-            <label className="block">
-              <span className="mb-1 block text-sm text-white/80">Password</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-sky-400/50"
-                placeholder="••••••••"
-              />
-            </label>
+            <PasswordField
+              label="Password"
+              value={password}
+              onChange={setPassword}
+              autoComplete="new-password"
+              placeholder="••••••••"
+            />
 
-            <label className="block">
-              <span className="mb-1 block text-sm text-white/80">Retype password</span>
+            <PasswordField
+              label="Retype password"
+              value={password2}
+              onChange={setPassword2}
+              autoComplete="new-password"
+              placeholder="••••••••"
+            />
+
+            <label className="flex items-center gap-3 text-sm text-white/80 min-h-[44px]">
               <input
-                type="password"
-                value={password2}
-                onChange={(e) => setPassword2(e.target.value)}
-                required
-                autoComplete="new-password"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-sky-400/50"
-                placeholder="••••••••"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-white/20 bg-white/10"
               />
+              <span>Remember me</span>
             </label>
 
             <label className="flex items-start gap-3 text-sm text-white/80">

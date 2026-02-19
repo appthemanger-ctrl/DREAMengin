@@ -40,6 +40,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
   const [overlay, setOverlay] = useState<string | null>(null);
 
   const [coreFace, setCoreFace] = useState<'home' | 'profile'>('home');
+  const [coreOpen, setCoreOpen] = useState(true);
 
   const returnHome = useCallback(() => {
     dispatch('home');
@@ -49,6 +50,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
     setViewAllDreamsOpen(false);
     setOverlay(null);
     setCoreFace('home');
+    setCoreOpen(true);
   }, [dispatch]);
 
   const onSystemAction = (action: SystemMenuAction) => {
@@ -73,9 +75,12 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         profile={profile}
         initialPosts={initialPosts}
         coreFace={coreFace}
-        coreOpen
+        coreOpen={coreOpen}
         onToggleCoreFace={() => setCoreFace((p) => (p === 'home' ? 'profile' : 'home'))}
-        onCloseCore={() => setCoreFace('home')}
+        onCloseCore={() => {
+          setCoreFace('home');
+          setCoreOpen(false);
+        }}
       />
 
       <HomeControls
@@ -95,6 +100,10 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         anchor={dreamMenuAnchor}
         onClose={() => setDreamMenuAnchor(null)}
         onSelectNode={(node) => {
+          if (coreOpen && node !== 0) {
+            setOverlay('Close Home Dream to navigate');
+            return;
+          }
           navigateTo(node);
         }}
       />
