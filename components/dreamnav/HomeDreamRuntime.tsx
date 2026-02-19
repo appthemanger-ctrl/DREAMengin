@@ -15,14 +15,12 @@ type ProfileLike = {
 };
 
 type Props = {
-  userId: string;
   profile: ProfileLike | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialPosts: any[];
   coreFace: 'home' | 'profile';
   coreOpen: boolean;
   onToggleCoreFace: () => void;
   onCloseCore: () => void;
+  onOpenDrEams: () => void;
 };
 
 /** Wrapper that provides the consistent viewport background + node entrance animation */
@@ -43,13 +41,12 @@ function NodeWrapper({ children }: { children: React.ReactNode }) {
 }
 
 export default function HomeDreamRuntime({
-  userId,
   profile,
-  initialPosts,
   coreFace,
   coreOpen,
   onToggleCoreFace,
   onCloseCore,
+  onOpenDrEams,
 }: Props) {
   const { node } = useDreamNav();
 
@@ -65,9 +62,8 @@ export default function HomeDreamRuntime({
           isOpen={coreOpen}
           onToggleFace={onToggleCoreFace}
           onClose={onCloseCore}
+          onOpenDrEams={onOpenDrEams}
           profile={profile}
-          userId={userId}
-          initialPosts={initialPosts}
         />
 
         {/* Navigation field shown when Core Dream is closed */}
