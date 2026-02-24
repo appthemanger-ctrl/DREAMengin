@@ -109,7 +109,9 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
 
       {/* ── Main node content ── */}
       <HomeDreamRuntime
+        userId={userId}
         profile={profile}
+        initialPosts={initialPosts}
         coreFace={coreFace}
         coreOpen={coreOpen}
         onToggleCoreFace={() => setCoreFace((p) => (p === 'home' ? 'profile' : 'home'))}

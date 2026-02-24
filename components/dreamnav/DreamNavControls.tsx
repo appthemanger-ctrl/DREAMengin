@@ -20,6 +20,7 @@ const STORAGE_KEY = 'dreamengin:controls:v3';
 export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu }: Props) {
   const [mounted, setMounted] = useState(false);
   const [navLocked, setNavLocked] = useState(false);
+  const [hint, setHint] = useState<{ text: string; x: number; y: number } | null>(null);
 
   const posRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
   const elRef = useRef<Record<ControlId, HTMLButtonElement | null>>({ dreams: null, system: null });
@@ -118,6 +119,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
 
     if (isDouble) {
       tapRef.current.timer = null;
+      setHint(null);
       if (navLocked) {
         separateToRails();
       } else if (id === 'dreams') {
@@ -128,7 +130,23 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
       return;
     }
 
+    // AXIOM-friendly discoverability: first tap shows an anchored "tap again" hint.
+    try {
+      const rect = elRef.current[id]?.getBoundingClientRect();
+      if (rect) {
+        setHint({
+          text: id === 'dreams' ? 'Tap again: Dreams menu' : 'Tap again: System menu',
+          x: rect.left + rect.width / 2,
+          y: rect.top - 10,
+        });
+        window.setTimeout(() => setHint(null), 900);
+      }
+    } catch {
+      // ignore hint failures
+    }
+
     tapRef.current.timer = window.setTimeout(() => {
+      setHint(null);
       if (navLocked) {
         if (id === 'dreams') onOpenDreamsMenu();
         else onOpenSystemMenu();
@@ -201,6 +219,29 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
 
   return (
     <div className="controls" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 58 }}>
+      {hint ? (
+        <div
+          style={{
+            position: 'fixed',
+            left: hint.x,
+            top: hint.y,
+            transform: 'translate(-50%,-100%)',
+            padding: '8px 10px',
+            borderRadius: 12,
+            background: 'rgba(2,8,24,0.72)',
+            border: '1px solid rgba(255,255,255,0.18)',
+            color: 'rgba(255,255,255,0.9)',
+            fontSize: 12,
+            letterSpacing: '0.02em',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            pointerEvents: 'none',
+            zIndex: 61,
+          }}
+        >
+          {hint.text}
+        </div>
+      ) : null}
       <div style={{ position: 'fixed', left: 0, top: 0, bottom: 0, width: `${RAIL_WIDTH * 100}%`, pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: `${RAIL_WIDTH * 100}%`, pointerEvents: 'none' }} />
 
