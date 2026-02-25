@@ -7,6 +7,7 @@ import DreamNavControls from '@/components/dreamnav/DreamNavControls';
 import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
+import AppearanceWidget from '@/components/dreamengin/AppearanceWidget';
 import ViewAllDreamsOverlay from '@/components/dreamengin/ViewAllDreamsOverlay';
 import NavIndicator from '@/components/dreamnav/NavIndicator';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
@@ -74,6 +75,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
   const [dreamMenuAnchor, setDreamMenuAnchor]   = useState<DOMRect | null>(null);
   const [systemMenuAnchor, setSystemMenuAnchor] = useState<DOMRect | null>(null);
   const [drEamsOpen, setDrEamsOpen]             = useState(false);
+  const [appearanceOpen, setAppearanceOpen]     = useState(false);
   const [viewAllOpen, setViewAllOpen]           = useState(false);
   const [overlay, setOverlay]                   = useState<string | null>(null);
   const [coreFace, setCoreFace]                 = useState<'home' | 'profile'>('home');
@@ -84,6 +86,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
     setDreamMenuAnchor(null);
     setSystemMenuAnchor(null);
     setDrEamsOpen(false);
+    setAppearanceOpen(false);
     setViewAllOpen(false);
     setOverlay(null);
     setCoreFace('home');
@@ -92,6 +95,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
 
   const onSystemAction = useCallback((action: SystemMenuAction) => {
     if (action === 'dr-eams')         { setDrEamsOpen(true);      return; }
+    if (action === 'appearance')      { setAppearanceOpen(true);  return; }
     if (action === 'view-all-dreams') { setViewAllOpen(true);     return; }
     if (action === 'search')          { setOverlay('Search');      return; }
     if (action === 'settings')        { setOverlay('Settings');    return; }
@@ -155,7 +159,8 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
       {/* ── Overlays ── */}
       {overlay  ? <SystemOverlay title={overlay}  onClose={() => setOverlay(null)}  /> : null}
       {viewAllOpen ? <ViewAllDreamsOverlay onClose={() => setViewAllOpen(false)} onReturnHome={returnHome} /> : null}
-      {drEamsOpen  ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
+      {drEamsOpen     ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
+      {appearanceOpen ? <AppearanceWidget onClose={() => setAppearanceOpen(false)} /> : null}
     </>
   );
 }

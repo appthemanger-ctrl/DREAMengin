@@ -118,7 +118,7 @@ export default function HomeDreamRuntime({
     );
   }
 
-  // ── INNER LAYER 1–6 — FEATURE SPACES ──────────────────────────────────────
+  // ── INNER LAYER 1–6 — DREAM SURFACES (core Dreams, NOT DayDreams) ──────────
   const faceIndex = typeof node === 'number' ? node : parseInt(String(node));
   return (
     <div

@@ -18,28 +18,6 @@ type Props = {
   } | null;
 };
 
-/* ── Infinity Logo SVG (gold + teal) ── */
-function InfinityLogo({ size = 48 }: { size?: number }) {
-  return (
-    <svg width={size} height={size * 0.45} viewBox="0 0 120 54" fill="none">
-      <path
-        d="M30 27c0-10 8-18 18-18s18 8 18 18-8 18-18 18"
-        stroke="var(--de-gold, #c8981a)"
-        strokeWidth="5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M90 27c0 10-8 18-18 18s-18-8-18-18 8-18 18-18"
-        stroke="var(--de-accent, #2a8ab8)"
-        strokeWidth="5"
-        strokeLinecap="round"
-        fill="none"
-      />
-    </svg>
-  );
-}
-
 /* ── Profile Face ── */
 function ProfileFace({ profile }: { profile: Props['profile'] }) {
   const name = profile?.display_name || 'Dreamer';
@@ -148,18 +126,28 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose, onOpenD
       <div className="de-glass de-glass-blue" style={{ borderRadius: 30, overflow: 'hidden', minHeight: '78vh' }}>
         {/* Header */}
         <div style={{ padding: '14px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--de-text-dim)' }}>
-              {flipped ? 'Profile' : 'Dream Library'}
-            </div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--de-heading)', marginTop: 2 }}>
-              {flipped ? (profile?.display_name || 'Profile') : 'DREAMengin'}
-            </div>
-            {!flipped && (
-              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 2 }}>
-                {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - recent activity
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/dreamengin-logo.jpg"
+              alt="DREAMengin logo"
+              width={40}
+              height={40}
+              style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+            />
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--de-text-dim)' }}>
+                {flipped ? 'Profile' : 'Dream Library'}
               </div>
-            )}
+              <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--de-heading)', marginTop: 2 }}>
+                {flipped ? (profile?.display_name || 'Profile') : 'DREAMengin'}
+              </div>
+              {!flipped && (
+                <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 2 }}>
+                  {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - recent activity
+                </div>
+              )}
+            </div>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button type="button" className="de-icon-btn" onClick={onToggleFace} aria-label="Toggle face" style={{ color: 'var(--de-text)' }}>
