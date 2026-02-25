@@ -7,6 +7,7 @@ import DreamNavControls from '@/components/dreamnav/DreamNavControls';
 import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
+import AppearanceWidget from '@/components/dreamengin/AppearanceWidget';
 import ViewAllDreamsOverlay from '@/components/dreamengin/ViewAllDreamsOverlay';
 import NavIndicator from '@/components/dreamnav/NavIndicator';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
@@ -23,7 +24,7 @@ function SystemOverlay({ title, onClose }: { title: string; onClose: () => void 
   return (
     <div
       className="fixed inset-0 z-40"
-      style={{ background: 'rgba(2,8,24,0.6)', backdropFilter: 'blur(8px)' }}
+      style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)' }}
       onPointerDown={onClose}
     >
       <div
@@ -35,13 +36,13 @@ function SystemOverlay({ title, onClose }: { title: string; onClose: () => void 
           transform: 'translate(-50%,-50%)',
           width: 'min(22rem, 92vw)',
           padding: '28px 24px',
-          color: 'var(--de-white)',
+          color: 'var(--de-heading)',
           borderRadius: '24px',
         }}
         onPointerDown={(e) => e.stopPropagation()}
       >
         <div className="de-tag" style={{ marginBottom: '6px' }}>System</div>
-        <div className="de-label" style={{ fontSize: '20px', marginBottom: '8px' }}>{title}</div>
+        <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', color: 'var(--de-heading)' }}>{title}</div>
         <p style={{ fontSize: '13px', color: 'var(--de-text-dim)', lineHeight: 1.5, marginBottom: '20px' }}>
           This panel operates within the DREAMengin spatial system. No page navigation occurs.
         </p>
@@ -50,10 +51,10 @@ function SystemOverlay({ title, onClose }: { title: string; onClose: () => void 
           style={{
             width: '100%',
             padding: '11px 16px',
-            background: 'rgba(37,99,235,0.25)',
-            border: '1px solid rgba(37,99,235,0.45)',
+            background: 'rgba(42,138,184,0.15)',
+            border: '1px solid var(--de-border)',
             borderRadius: '12px',
-            color: '#93c5fd',
+            color: 'var(--de-accent)',
             fontSize: '13px',
             fontWeight: 600,
             cursor: 'pointer',
@@ -74,6 +75,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
   const [dreamMenuAnchor, setDreamMenuAnchor]   = useState<DOMRect | null>(null);
   const [systemMenuAnchor, setSystemMenuAnchor] = useState<DOMRect | null>(null);
   const [drEamsOpen, setDrEamsOpen]             = useState(false);
+  const [appearanceOpen, setAppearanceOpen]     = useState(false);
   const [viewAllOpen, setViewAllOpen]           = useState(false);
   const [overlay, setOverlay]                   = useState<string | null>(null);
   const [coreFace, setCoreFace]                 = useState<'home' | 'profile'>('home');
@@ -84,6 +86,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
     setDreamMenuAnchor(null);
     setSystemMenuAnchor(null);
     setDrEamsOpen(false);
+    setAppearanceOpen(false);
     setViewAllOpen(false);
     setOverlay(null);
     setCoreFace('home');
@@ -92,6 +95,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
 
   const onSystemAction = useCallback((action: SystemMenuAction) => {
     if (action === 'dr-eams')         { setDrEamsOpen(true);      return; }
+    if (action === 'appearance')      { setAppearanceOpen(true);  return; }
     if (action === 'view-all-dreams') { setViewAllOpen(true);     return; }
     if (action === 'search')          { setOverlay('Search');      return; }
     if (action === 'settings')        { setOverlay('Settings');    return; }
@@ -155,7 +159,8 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
       {/* ── Overlays ── */}
       {overlay  ? <SystemOverlay title={overlay}  onClose={() => setOverlay(null)}  /> : null}
       {viewAllOpen ? <ViewAllDreamsOverlay onClose={() => setViewAllOpen(false)} onReturnHome={returnHome} /> : null}
-      {drEamsOpen  ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
+      {drEamsOpen     ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
+      {appearanceOpen ? <AppearanceWidget onClose={() => setAppearanceOpen(false)} /> : null}
     </>
   );
 }

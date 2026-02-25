@@ -1,161 +1,285 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sun, Moon, Monitor, Type, Palette, Check } from 'lucide-react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
+import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
+
+/* ── Slider component (styled with Dream tokens) ── */
+function Slider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  unit = '',
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  unit?: string;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div className="flex justify-between items-center" style={{ marginBottom: 6 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</span>
+        <span style={{ fontSize: 12, color: 'var(--de-text-dim)', fontWeight: 500, minWidth: 44, textAlign: 'right' }}>
+          {value.toFixed(step < 1 ? 2 : 0)}{unit}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        style={{
+          width: '100%',
+          height: 6,
+          borderRadius: 3,
+          appearance: 'none',
+          background: `linear-gradient(to right, var(--de-accent) 0%, var(--de-accent) ${((value - min) / (max - min)) * 100}%, var(--de-border) ${((value - min) / (max - min)) * 100}%, var(--de-border) 100%)`,
+          outline: 'none',
+          cursor: 'pointer',
+        }}
+        aria-label={label}
+      />
+    </div>
+  );
+}
+
+/* ── Preset cards ── */
+function PresetCard({
+  preset,
+  isActive,
+  onSelect,
+}: {
+  preset: (typeof THEME_PRESETS)[number];
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  const { tokens } = preset;
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className="de-widget-tile"
+      style={{
+        padding: 14,
+        textAlign: 'center',
+        cursor: 'pointer',
+        borderColor: isActive ? 'var(--de-gold)' : undefined,
+        borderWidth: isActive ? 2 : 1,
+        transition: 'border-color 0.2s, transform 0.15s',
+        minHeight: 90,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+      }}
+    >
+      {/* Mini gradient swatch */}
+      <div
+        style={{
+          width: 48, height: 24, borderRadius: 8,
+          background: `linear-gradient(135deg, ${tokens.bgStart}, ${tokens.bgMid}, ${tokens.bgEnd})`,
+          border: `1px solid ${tokens.glassBorder}`,
+        }}
+      />
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+        {preset.label}
+      </div>
+      {isActive && (
+        <div style={{
+          fontSize: 9, fontWeight: 700, color: 'var(--de-gold)',
+          background: 'rgba(200,152,26,0.12)', padding: '2px 8px', borderRadius: 100,
+        }}>
+          ACTIVE
+        </div>
+      )}
+    </button>
+  );
+}
 
 export default function AppearanceSettingsPage() {
-  const [theme, setTheme] = useState('system');
-  const [fontSize, setFontSize] = useState('medium');
-  const [accentColor, setAccentColor] = useState('purple');
+  const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
 
-  const themes = [
-    { id: 'light', label: 'Light', icon: Sun },
-    { id: 'dark', label: 'Dark', icon: Moon },
-    { id: 'system', label: 'System', icon: Monitor },
-  ];
-
-  const fontSizes = [
-    { id: 'small', label: 'Small' },
-    { id: 'medium', label: 'Medium' },
-    { id: 'large', label: 'Large' },
-  ];
-
-  const accentColors = [
-    { id: 'purple', color: 'bg-purple-500' },
-    { id: 'blue', color: 'bg-blue-500' },
-    { id: 'green', color: 'bg-green-500' },
-    { id: 'red', color: 'bg-red-500' },
-    { id: 'orange', color: 'bg-orange-500' },
-    { id: 'pink', color: 'bg-pink-500' },
-  ];
+  const handleBrightness = useCallback((v: number) => setOverrides({ brightness: v }), [setOverrides]);
+  const handleSaturation = useCallback((v: number) => setOverrides({ saturation: v }), [setOverrides]);
+  const handleBlur = useCallback((v: number) => setOverrides({ blur: v }), [setOverrides]);
+  const handleOpacity = useCallback((v: number) => setOverrides({ glassOpacity: v }), [setOverrides]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen dream-bg">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
-        <div className="px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+      <header
+        className="sticky top-0 z-30 de-glass"
+        style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}
+      >
+        <div className="flex items-center gap-3" style={{ padding: '14px 16px' }}>
+          <Link
+            href="/home"
+            className="flex items-center justify-center"
+            style={{
+              width: 40, height: 40, borderRadius: 12,
+              background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+            }}
+          >
+            <ArrowLeft size={18} style={{ color: 'var(--de-heading)' }} />
           </Link>
-          <h1 className="text-xl font-bold text-foreground">Appearance</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--de-heading)' }}>Appearance</h1>
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* Theme */}
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Moon className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-medium text-foreground">Theme</h3>
-              <p className="text-sm text-muted-foreground">Choose your preferred theme</p>
-            </div>
+      <div style={{ maxWidth: 520, margin: '0 auto', padding: '20px 16px' }}>
+
+        {/* Theme Presets */}
+        <section style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 12 }}>
+            Theme Presets
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            {themes.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTheme(t.id)}
-                className={`p-4 rounded-xl border text-center transition-colors ${
-                  theme === t.id
-                    ? 'bg-primary/10 border-primary'
-                    : 'bg-background border-border hover:border-primary/50'
-                }`}
-              >
-                <t.icon className={`w-6 h-6 mx-auto mb-2 ${theme === t.id ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span className="text-sm font-medium text-foreground">{t.label}</span>
-              </button>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+            {THEME_PRESETS.map((p) => (
+              <PresetCard
+                key={p.id}
+                preset={p}
+                isActive={presetId === p.id}
+                onSelect={() => setPreset(p.id)}
+              />
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Font Size */}
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-              <Type className="w-5 h-5 text-blue-500" />
+        {/* Custom Adjustments */}
+        <section style={{ marginBottom: 24 }}>
+          <div className="flex justify-between items-center" style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)' }}>
+              Custom Adjustments
             </div>
-            <div>
-              <h3 className="font-medium text-foreground">Font Size</h3>
-              <p className="text-sm text-muted-foreground">Adjust text size for readability</p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            {fontSizes.map((size) => (
-              <button
-                key={size.id}
-                onClick={() => setFontSize(size.id)}
-                className={`flex-1 py-3 rounded-xl border text-center transition-colors ${
-                  fontSize === size.id
-                    ? 'bg-primary/10 border-primary'
-                    : 'bg-background border-border hover:border-primary/50'
-                }`}
-              >
-                <span className={`font-medium text-foreground ${
-                  size.id === 'small' ? 'text-sm' : size.id === 'large' ? 'text-lg' : 'text-base'
-                }`}>
-                  {size.label}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Accent Color */}
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
-              <Palette className="w-5 h-5 text-pink-500" />
-            </div>
-            <div>
-              <h3 className="font-medium text-foreground">Accent Color</h3>
-              <p className="text-sm text-muted-foreground">Choose your favorite color</p>
-            </div>
-          </div>
-          <div className="flex gap-3 flex-wrap">
-            {accentColors.map((color) => (
-              <button
-                key={color.id}
-                onClick={() => setAccentColor(color.id)}
-                className={`w-12 h-12 rounded-xl ${color.color} flex items-center justify-center transition-transform ${
-                  accentColor === color.id ? 'scale-110 ring-2 ring-offset-2 ring-offset-background ring-white/50' : 'hover:scale-105'
-                }`}
-              >
-                {accentColor === color.id && <Check className="w-5 h-5 text-white" />}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Preview */}
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <h3 className="font-medium text-foreground mb-3">Preview</h3>
-          <div className="p-4 bg-muted rounded-xl">
-            <p className={`text-foreground mb-2 ${
-              fontSize === 'small' ? 'text-sm' : fontSize === 'large' ? 'text-lg' : 'text-base'
-            }`}>
-              This is how your content will look with the current settings.
-            </p>
-            <button className={`px-4 py-2 ${
-              accentColor === 'purple' ? 'bg-purple-500' :
-              accentColor === 'blue' ? 'bg-blue-500' :
-              accentColor === 'green' ? 'bg-green-500' :
-              accentColor === 'red' ? 'bg-red-500' :
-              accentColor === 'orange' ? 'bg-orange-500' :
-              'bg-pink-500'
-            } text-white rounded-lg text-sm font-medium`}>
-              Sample Button
+            <button
+              type="button"
+              onClick={resetOverrides}
+              className="flex items-center gap-1"
+              style={{
+                padding: '5px 12px', borderRadius: 8,
+                background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+                color: 'var(--de-text-dim)', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              }}
+            >
+              <RotateCcw size={12} />
+              Reset
             </button>
           </div>
-        </div>
 
-        {/* Save Button */}
-        <button className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium hover:bg-primary/90 transition-colors min-h-[48px]">
-          Save Changes
-        </button>
+          <div className="de-widget-tile" style={{ padding: 18 }}>
+            <Slider
+              label="Brightness"
+              value={overrides.brightness}
+              min={0.5}
+              max={1.5}
+              step={0.01}
+              onChange={handleBrightness}
+            />
+            <Slider
+              label="Saturation"
+              value={overrides.saturation}
+              min={0}
+              max={2}
+              step={0.01}
+              onChange={handleSaturation}
+            />
+            <Slider
+              label="Glass Blur"
+              value={overrides.blur}
+              min={4}
+              max={48}
+              step={1}
+              unit="px"
+              onChange={handleBlur}
+            />
+          </div>
+        </section>
+
+        {/* Live Preview */}
+        <section style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 12 }}>
+            Live Preview
+          </div>
+          <div className="de-glass" style={{ borderRadius: 20, padding: 18 }}>
+            <div className="flex gap-3 items-center" style={{ marginBottom: 12 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12,
+                background: 'linear-gradient(135deg, var(--de-gold), var(--de-accent))',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 20, color: 'white', fontWeight: 700,
+              }}>
+                D
+              </div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)' }}>Dream Card</div>
+                <div style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>Preview of your current theme</div>
+              </div>
+            </div>
+            <div className="de-widget-tile" style={{ padding: 14 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', marginBottom: 6 }}>Widget Tile</div>
+              <div style={{ fontSize: 12, color: 'var(--de-text)', lineHeight: 1.5 }}>
+                This is how your Dream surfaces will look with the current settings. Adjust the sliders above to customize.
+              </div>
+            </div>
+            <div className="flex gap-2" style={{ marginTop: 10 }}>
+              <div style={{
+                flex: 1, padding: '10px 14px', borderRadius: 10,
+                background: 'var(--de-gold)', color: 'white', textAlign: 'center',
+                fontSize: 12, fontWeight: 700,
+              }}>
+                Gold Button
+              </div>
+              <div style={{
+                flex: 1, padding: '10px 14px', borderRadius: 10,
+                background: 'var(--de-accent)', color: 'white', textAlign: 'center',
+                fontSize: 12, fontWeight: 700,
+              }}>
+                Accent Button
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Current Values Debug */}
+        <section style={{ marginBottom: 24 }}>
+          <div className="de-widget-tile" style={{ padding: 14 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>
+              Current Values
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, textAlign: 'center' }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--de-heading)' }}>
+                  {(overrides.brightness * 100).toFixed(0)}%
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Brightness</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--de-gold)' }}>
+                  {(overrides.saturation * 100).toFixed(0)}%
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Saturation</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--de-accent)' }}>
+                  {overrides.blur}px
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Blur</div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

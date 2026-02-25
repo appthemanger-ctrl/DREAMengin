@@ -2,6 +2,7 @@ import '@/styles/globals.css';
 import '@/components/v1-ui/widget-feed-screen.css';
 import type { Metadata, Viewport } from 'next';
 import { Space_Grotesk } from 'next/font/google';
+import ThemeProvider from '@/components/providers/ThemeProvider';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -26,7 +27,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#020818' },
+    { media: '(prefers-color-scheme: light)', color: '#dce8f8' },
     { media: '(prefers-color-scheme: dark)',  color: '#020818' },
   ],
 };
@@ -36,13 +37,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`scroll-smooth ${spaceGrotesk.variable}`}
+      data-theme="dream-ice"
       suppressHydrationWarning
     >
       <body
         className="antialiased dream-bg"
         style={{ fontFamily: 'var(--font-space-grotesk, "Space Grotesk", system-ui, sans-serif)' }}
       >
-        <main>{children}</main>
+        <ThemeProvider>
+          <main>{children}</main>
+        </ThemeProvider>
       </body>
     </html>
   );

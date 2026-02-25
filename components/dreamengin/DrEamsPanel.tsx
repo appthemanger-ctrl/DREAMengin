@@ -1,9 +1,10 @@
 // DrEamsPanel.tsx
-// Stub for Dr. Eams chat interface.  Provides a simple prompt and conversation history.
+// Dr. Eams chat interface with animated mascot and theme-aware styling.
 
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import DrEamsCanvas from './DrEamsCanvas';
 
 interface DrEamsPanelProps {
   onClose: () => void;
@@ -11,7 +12,7 @@ interface DrEamsPanelProps {
 
 export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
   const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([
-    { role: 'ai', text: 'hello what you daydreaming about today?' },
+    { role: 'ai', text: 'Hello! What are you daydreaming about today?' },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,62 +45,119 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black bg-opacity-50">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(12px)' }}
+      onPointerDown={onClose}
+    >
       <div
-        className="bg-white dark:bg-gray-900 w-full sm:w-[500px] max-h-[80vh] rounded-t-lg sm:rounded-lg flex flex-col"
+        className="de-glass"
+        style={{
+          width: 'min(28rem, 96vw)',
+          maxHeight: '85vh',
+          borderRadius: '24px 24px 0 0',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold">Dr. Eams</h2>
+        {/* Header with mascot */}
+        <div style={{ padding: '16px 20px 12px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <DrEamsCanvas width={56} height={64} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--de-heading)' }}>Dr. Eams</div>
+            <div style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>AI Assistant</div>
+          </div>
           <button
-            className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+            type="button"
             onClick={onClose}
+            style={{
+              width: 36, height: 36, borderRadius: '50%',
+              background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+              color: 'var(--de-text)', fontSize: 16, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+            aria-label="Close Dr. Eams"
           >
-            ✕
+            x
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+
+        <div className="de-divider" style={{ margin: 0 }} />
+
+        {/* Messages */}
+        <div
+          data-scrollable="y"
+          style={{
+            flex: 1, overflowY: 'auto', padding: '14px 20px',
+            display: 'flex', flexDirection: 'column', gap: 10,
+            minHeight: 200, maxHeight: '50vh',
+            touchAction: 'pan-y',
+          }}
+        >
           {messages.map((m, idx) => (
             <div
               key={idx}
-              className={`px-3 py-2 rounded-lg max-w-[80%] ${
-                m.role === 'ai'
-                  ? 'bg-gray-100 dark:bg-gray-800 self-start'
-                  : 'bg-blue-500 text-white self-end'
-              }`}
+              style={{
+                alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                maxWidth: '80%',
+                padding: '10px 14px',
+                borderRadius: m.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                background: m.role === 'user' ? 'var(--de-accent)' : 'var(--de-mist)',
+                border: m.role === 'user' ? 'none' : '1px solid var(--de-border)',
+                color: m.role === 'user' ? 'white' : 'var(--de-text)',
+                fontSize: 14,
+                lineHeight: 1.5,
+              }}
             >
               {m.text}
             </div>
           ))}
-          {loading ? (
-            <div className="px-3 py-2 rounded-lg max-w-[80%] bg-gray-100 dark:bg-gray-800 self-start text-gray-600 dark:text-gray-300">
-              Thinking…
+          {loading && (
+            <div
+              style={{
+                alignSelf: 'flex-start', maxWidth: '80%',
+                padding: '10px 14px', borderRadius: '16px 16px 16px 4px',
+                background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+                color: 'var(--de-text-dim)', fontSize: 14,
+              }}
+            >
+              Thinking...
             </div>
-          ) : null}
+          )}
         </div>
-        <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex">
+
+        {/* Input */}
+        <div style={{ padding: '12px 16px 16px', display: 'flex', gap: 10, borderTop: '1px solid var(--de-border)' }}>
           <input
-            className="flex-1 p-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white"
+            type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                send();
-              }
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); send(); } }}
+            placeholder="Ask Dr. Eams anything..."
+            style={{
+              flex: 1, padding: '12px 16px', borderRadius: 14,
+              background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+              color: 'var(--de-text)', fontSize: 16, outline: 'none',
             }}
           />
           <button
-            className="ml-2 px-4 py-2 rounded bg-blue-600 text-white"
+            type="button"
             onClick={() => void send()}
             disabled={!canSend}
+            style={{
+              padding: '12px 20px', borderRadius: 14,
+              background: canSend ? 'var(--de-accent)' : 'var(--de-mist)',
+              border: '1px solid var(--de-border)',
+              color: canSend ? 'white' : 'var(--de-text-dim)',
+              fontSize: 14, fontWeight: 600, cursor: canSend ? 'pointer' : 'default',
+              minWidth: 64,
+            }}
           >
             Send
           </button>
-        </div>
-        <div className="px-3 pb-3 text-xs text-gray-500 dark:text-gray-400">
-          Optional Hugging Face: set <span className="font-mono">HF_API_TOKEN</span> and{' '}
-          <span className="font-mono">HF_MODEL</span>.
         </div>
       </div>
     </div>

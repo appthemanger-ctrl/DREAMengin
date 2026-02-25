@@ -2,10 +2,10 @@
 
 import React from 'react';
 
-// ─── Shared primitives ────────────────────────────────────────────────────────
+// ---- Shared Primitives ----
 
-function Tag({ children }: { children: React.ReactNode }) {
-  return <div className="de-tag">{children}</div>;
+function Tag({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return <div className="de-tag" style={{ color: 'var(--de-text-dim)', ...style }}>{children}</div>;
 }
 
 function Divider() {
@@ -22,26 +22,7 @@ function WidgetTile({
   style?: React.CSSProperties;
 }) {
   return (
-    <div
-      className="de-widget-tile"
-      style={{ gridColumn: span2 ? 'span 2' : undefined, ...style }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function InnerPanel({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <div
-      style={{
-        background: 'var(--de-mist)',
-        border: '1px solid var(--de-border-gold)',
-        borderRadius: '14px',
-        padding: '14px',
-        ...style,
-      }}
-    >
+    <div className="de-widget-tile" style={{ gridColumn: span2 ? 'span 2' : undefined, ...style }}>
       {children}
     </div>
   );
@@ -51,84 +32,124 @@ function OuterShell({ children }: { children: React.ReactNode }) {
   return <div className="de-outer-shell">{children}</div>;
 }
 
-function Header({ icon, tag, title }: { icon: string; tag: string; title: string }) {
+function Header({ tag, title }: { tag: string; title: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-      <div>
-        <Tag>{tag}</Tag>
-        <div className="de-label" style={{ fontSize: '24px', marginTop: '4px' }}>{title}</div>
-      </div>
-      <div style={{ fontSize: '40px' }}>{icon}</div>
+    <div style={{ marginBottom: '14px' }}>
+      <Tag>{tag}</Tag>
+      <div style={{ fontSize: '24px', fontWeight: 700, marginTop: '4px', color: 'var(--de-heading)' }}>{title}</div>
     </div>
   );
 }
 
-// ─── NODE 1b — MUSIC RELEASES ─────────────────────────────────────────────────
+function NodeFooter() {
+  return (
+    <div className="flex justify-center" style={{ padding: '16px 0 4px' }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/dreamengin-logo.jpg"
+        alt="DREAMengin"
+        width={40}
+        height={40}
+        style={{ borderRadius: '50%', objectFit: 'cover' }}
+      />
+    </div>
+  );
+}
+
+// ---- NODE 1b -- MUSIC RELEASES ----
 
 export function Node1b() {
   return (
     <OuterShell>
-      <Header icon="🌌" tag="Day Dream · 1b" title="Music Releases" />
+      <Header tag="Day Dream - 1b" title="Releases" />
       <Divider />
-      <InnerPanel style={{ marginBottom: '12px' }}>
-        <Tag>Release Manager</Tag>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '10px' }}>
-          <div
-            style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg,#1a1a3e,#0d2d8a)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '24px',
-              border: '1px solid var(--de-border-gold)',
-              flexShrink: 0,
-            }}
-          >
-            🎵
-          </div>
+
+      {/* Featured release */}
+      <div className="de-widget-tile" style={{ padding: 16, marginBottom: 14 }}>
+        <div className="flex justify-between items-start" style={{ marginBottom: 8 }}>
           <div>
-            <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--de-white)' }}>Starbound</div>
-            <div style={{ fontSize: '12px', color: 'var(--de-text-dim)' }}>Release: 05.30.2022</div>
-            <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
-              <span className="de-badge" style={{ fontSize: '8px' }}>165 Streams</span>
-              <span className="de-badge" style={{ fontSize: '8px' }}>+100.195</span>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--de-heading)' }}>Dream Aria</div>
+            <div style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>Album - 14 Tracks</div>
+          </div>
+          <span style={{
+            padding: '4px 12px', borderRadius: 6, fontSize: 10, fontWeight: 700,
+            background: '#34d399', color: 'white',
+          }}>
+            PUBLISHED
+          </span>
+        </div>
+        {/* Mini chart */}
+        <svg viewBox="0 0 200 40" style={{ width: '100%', height: 40, marginBottom: 10 }}>
+          <polyline
+            points="0,30 25,25 50,28 75,18 100,22 125,12 150,16 175,10 200,14"
+            fill="none" stroke="var(--de-accent)" strokeWidth="2" strokeLinecap="round"
+          />
+        </svg>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, textAlign: 'center' }}>
+          {[
+            { label: 'Streams', value: '174,052' },
+            { label: 'Total Revenue', value: '$2,762.43' },
+            { label: 'Growth', value: '+23.8%', color: '#34d399' },
+            { label: 'Followers', value: '12,452' },
+          ].map((s) => (
+            <div key={s.label}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: s.color || 'var(--de-heading)' }}>{s.value}</div>
+              <div style={{ fontSize: 9, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Releases list */}
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 10 }}>Releases</div>
+      {[
+        { name: 'Atmospheric Chill', type: 'Single 39 month', streams: '94,401', rev: '$1,7306', followers: '8,702' },
+        { name: 'Galactic Dreams', type: 'Album 3 months', streams: '2445,518', rev: '$4,123.95', followers: '19,123' },
+        { name: 'Starlight', type: 'EP 3nd month', streams: '59,401', rev: '$672.78', followers: '3,075' },
+      ].map((r) => (
+        <div key={r.name} className="de-widget-tile" style={{ padding: 14, marginBottom: 8 }}>
+          <div className="flex gap-3 items-center">
+            <div style={{
+              width: 48, height: 48, borderRadius: 10,
+              background: 'linear-gradient(135deg, var(--de-accent), var(--de-gold))',
+              flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 18, color: 'white', fontWeight: 700,
+            }}>
+              {r.name[0]}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>{r.name}</div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{r.type}</div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginTop: 10, textAlign: 'center' }}>
+            <div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Streams</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{r.streams}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Revenue</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-gold)' }}>{r.rev}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Followers</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-accent)' }}>{r.followers}</div>
             </div>
           </div>
         </div>
-      </InnerPanel>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-        <WidgetTile style={{ padding: '10px' }}>
-          <Tag>Distribution</Tag>
-          <div style={{ fontSize: '11px', marginTop: '4px', color: 'var(--de-gold)', lineHeight: 1.7 }}>
-            Single $0.99<br />Album $9.99
-          </div>
-        </WidgetTile>
-        <WidgetTile style={{ padding: '10px' }}>
-          <Tag>Social Push</Tag>
-          <div style={{ fontSize: '11px', marginTop: '4px', color: 'var(--de-text)', lineHeight: 1.7 }}>
-            Instagram<br />Facebook
-          </div>
-        </WidgetTile>
-        <WidgetTile style={{ padding: '10px' }}>
-          <Tag>Storefront</Tag>
-          <div style={{ fontSize: '11px', marginTop: '4px', color: 'var(--de-text)', lineHeight: 1.7 }}>
-            Total Album<br />Last Dreamscape
-          </div>
-        </WidgetTile>
-      </div>
+      ))}
+
+      <NodeFooter />
     </OuterShell>
   );
 }
 
-// ─── NODE 2b — LAB ───────────────────────────────────────────────────────────
+// ---- NODE 2b -- LAB ----
 
 export function Node2b() {
   return (
     <OuterShell>
-      <Header icon="🔬" tag="Day Dream · 2b" title="Lab" />
+      <Header tag="Day Dream - 2b" title="Lab" />
       <Divider />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
         <WidgetTile>
@@ -145,21 +166,13 @@ export function Node2b() {
         </WidgetTile>
         <WidgetTile span2>
           <Tag>Lab Monitor</Tag>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gap: '8px',
-              textAlign: 'center',
-              marginTop: '8px',
-            }}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', textAlign: 'center', marginTop: '8px' }}>
             <div>
               <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--de-gold)' }}>9.6%</div>
               <Tag>Protein Syn.</Tag>
             </div>
             <div>
-              <div style={{ fontSize: '18px', fontWeight: 700, color: '#22d3ee' }}>75%</div>
+              <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--de-accent)' }}>75%</div>
               <Tag>Fluid Analysis</Tag>
             </div>
             <div>
@@ -169,277 +182,371 @@ export function Node2b() {
           </div>
         </WidgetTile>
       </div>
+      <NodeFooter />
     </OuterShell>
   );
 }
 
-// ─── NODE 3b — CODE PREVIEW ───────────────────────────────────────────────────
+// ---- NODE 3b -- CODE PREVIEW ----
 
 export function Node3b() {
   return (
     <OuterShell>
-      <Header icon="💻" tag="Day Dream · 3b" title="Code · Preview" />
+      <Header tag="Day Dream - 3b" title="Code - Preview" />
       <Divider />
       <div
         style={{
-          background: 'rgba(0,0,0,0.5)',
-          border: '1px solid var(--de-border-gold)',
+          background: 'rgba(15,20,40,0.90)',
+          border: '1px solid var(--de-border)',
           borderRadius: '14px',
           padding: '16px',
           marginBottom: '12px',
         }}
       >
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
-          <span
-            className="de-tag"
-            style={{
-              padding: '3px 10px',
-              background: 'rgba(37,99,235,0.2)',
-              border: '1px solid rgba(37,99,235,0.35)',
-              borderRadius: '100px',
-              color: '#93c5fd',
-            }}
-          >
+        <div className="flex gap-2 flex-wrap" style={{ marginBottom: '10px' }}>
+          <span style={{
+            padding: '3px 10px', borderRadius: 100, fontSize: 10, fontWeight: 600,
+            background: 'rgba(42,138,184,0.2)', border: '1px solid rgba(42,138,184,0.35)', color: '#93c5fd',
+          }}>
             Device: iPhone 14 Pro
           </span>
-          <span
-            className="de-tag"
-            style={{
-              padding: '3px 10px',
-              background: 'rgba(212,168,67,0.1)',
-              border: '1px solid var(--de-border-gold)',
-              borderRadius: '100px',
-              color: 'var(--de-gold)',
-            }}
-          >
+          <span style={{
+            padding: '3px 10px', borderRadius: 100, fontSize: 10, fontWeight: 600,
+            background: 'rgba(200,152,26,0.1)', border: '1px solid var(--de-border-gold)', color: 'var(--de-gold)',
+          }}>
             58 FPS
           </span>
         </div>
-        <div
-          style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            textAlign: 'center',
-            padding: '16px',
-            background: 'rgba(0,20,80,0.4)',
-            borderRadius: '10px',
-            color: 'var(--de-white)',
-          }}
-        >
-          DreamVerse —{' '}
-          <span style={{ color: 'var(--de-gold)' }}>Explore the Universe of the Future</span>
+        <div style={{
+          fontSize: '14px', fontWeight: 600, textAlign: 'center', padding: '16px',
+          background: 'rgba(0,20,80,0.4)', borderRadius: '10px', color: '#f0f4ff',
+        }}>
+          {'DreamVerse \u2014 '}
+          <span style={{ color: '#f0c040' }}>Explore the Universe of the Future</span>
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
         <WidgetTile style={{ padding: '10px' }}>
           <Tag>Terminal</Tag>
-          <div className="de-code" style={{ marginTop: '4px', color: 'var(--de-text)' }}>
-            npm run build
-          </div>
+          <div className="de-code" style={{ marginTop: '4px', color: 'var(--de-text)' }}>npm run build</div>
         </WidgetTile>
         <WidgetTile style={{ padding: '10px' }}>
           <Tag>Git</Tag>
-          <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--de-gold)', fontWeight: 600 }}>
-            189 commits
-          </div>
+          <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--de-gold)', fontWeight: 600 }}>189 commits</div>
         </WidgetTile>
         <WidgetTile style={{ padding: '10px' }}>
           <Tag>Tests</Tag>
-          <div style={{ fontSize: '12px', marginTop: '4px', color: '#34d399', fontWeight: 600 }}>
-            All passing ✓
-          </div>
+          <div style={{ fontSize: '12px', marginTop: '4px', color: '#34d399', fontWeight: 600 }}>{'All passing \u2713'}</div>
         </WidgetTile>
       </div>
+      <NodeFooter />
     </OuterShell>
   );
 }
 
-// ─── NODE 4b — BRAND ─────────────────────────────────────────────────────────
+// ---- NODE 4b -- BRAND ----
 
 export function Node4b() {
   return (
     <OuterShell>
-      <Header icon="✦" tag="Day Dream · 4b" title="Brand" />
+      <Header tag="Day Dream - 4b" title="Brand" />
       <Divider />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-        <div
-          style={{
-            background: 'var(--de-mist)',
-            border: '1px solid var(--de-border-gold)',
-            borderRadius: '14px',
-            padding: '14px',
-          }}
-        >
-          <Tag>DreamVerse</Tag>
-          <div style={{ fontWeight: 600, fontSize: '14px', marginTop: '4px', color: 'var(--de-white)' }}>
-            @DreamVerseHQ
+
+      {/* Profile card */}
+      <div className="de-widget-tile" style={{ padding: 16, marginBottom: 14 }}>
+        <div className="flex gap-3 items-center">
+          <div style={{
+            width: 64, height: 64, borderRadius: 14,
+            background: 'linear-gradient(135deg, var(--de-accent), var(--de-gold))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 22, color: 'white', fontWeight: 700, flexShrink: 0,
+          }}>
+            DV
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--de-text-dim)' }}>1.2M Followers</div>
-        </div>
-        <div
-          style={{
-            background: 'var(--de-mist)',
-            border: '1px solid var(--de-border)',
-            borderRadius: '14px',
-            padding: '14px',
-          }}
-        >
-          <Tag>Ad Campaigns</Tag>
-          <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--de-text)', lineHeight: 1.7 }}>
-            Instagram<br />Blog Content<br />Promo Banners
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--de-heading)' }}>DreamVerse</div>
+            <div style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>@DreamVerseHQ</div>
+            <div style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>1,284 Followers</div>
           </div>
         </div>
-        <WidgetTile span2>
-          <Tag>Overview</Tag>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gap: '6px',
-              textAlign: 'center',
-              marginTop: '8px',
-            }}
-          >
-            <div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--de-gold)' }}>$8.2K</div>
-              <Tag>Monthly Rev.</Tag>
-            </div>
-            <div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--de-white)' }}>41%</div>
-              <Tag>Organic</Tag>
-            </div>
-            <div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: '#22d3ee' }}>3.4%</div>
-              <Tag>Conversion</Tag>
-            </div>
-          </div>
-        </WidgetTile>
+        <button type="button" style={{
+          marginTop: 10, padding: '8px 20px', borderRadius: 10,
+          background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+          color: 'var(--de-heading)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+        }}>
+          Edit Profile
+        </button>
       </div>
+
+      {/* Social Scheduler */}
+      <div className="de-widget-tile" style={{ padding: 14, marginBottom: 12 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8 }}>Social Scheduler</div>
+        <div className="flex gap-2">
+          {['Instagram', 'Masens', 'Cooro'].map((p) => (
+            <span key={p} style={{
+              padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600,
+              background: 'var(--de-mist)', border: '1px solid var(--de-border)', color: 'var(--de-text)',
+            }}>{p}</span>
+          ))}
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--de-accent)', marginTop: 8 }}>Promo Banners + 24 &gt;</div>
+      </div>
+
+      {/* Projects */}
+      <div className="de-widget-tile" style={{ padding: 14, marginBottom: 12 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 10 }}>Projects</div>
+        <div className="flex gap-2 flex-wrap" style={{ marginBottom: 10 }}>
+          {['Planning', 'In Progress', 'Review', 'Completed'].map((tab) => (
+            <span key={tab} style={{
+              padding: '4px 12px', borderRadius: 8, fontSize: 10, fontWeight: 600,
+              background: tab === 'In Progress' ? 'rgba(200,152,26,0.12)' : 'var(--de-mist)',
+              border: `1px solid ${tab === 'In Progress' ? 'var(--de-border-gold)' : 'var(--de-border)'}`,
+              color: tab === 'In Progress' ? 'var(--de-gold)' : 'var(--de-text-dim)',
+            }}>{tab}</span>
+          ))}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+          {[
+            { name: 'Trailer Storyboards', status: 'Apr 38' },
+            { name: 'Scalar Squadrons', status: 'Apr 25' },
+            { name: 'In Progress', status: '' },
+            { name: 'Thumbnail Concepts', status: 'Booss' },
+            { name: 'Blog Article New', status: 'Apr 25' },
+            { name: 'Blog Artique', status: 'Poocrass' },
+          ].map((p) => (
+            <div key={p.name} style={{
+              padding: '8px 6px', borderRadius: 8,
+              background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+            }}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-heading)', lineHeight: 1.3 }}>{p.name}</div>
+              {p.status && <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>{p.status}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Media Library */}
+      <div className="de-widget-tile" style={{ padding: 14 }}>
+        <div className="flex justify-between items-center" style={{ marginBottom: 8 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>Media Library</div>
+          <div className="flex gap-2">
+            {['Schedule', 'Requests', 'QUICK', 'TOOLS'].map((t) => (
+              <span key={t} style={{ fontSize: 10, color: 'var(--de-text-dim)', fontWeight: 600 }}>{t}</span>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} style={{
+              height: 40, borderRadius: 8,
+              background: `linear-gradient(135deg, ${i % 2 === 0 ? 'var(--de-accent)' : 'var(--de-gold)'}, var(--de-mist))`,
+              opacity: 0.3,
+            }} />
+          ))}
+        </div>
+      </div>
+
+      <NodeFooter />
     </OuterShell>
   );
 }
 
-// ─── NODE 5b — GAMES ─────────────────────────────────────────────────────────
+// ---- NODE 5b -- GAMES ----
 
 export function Node5b() {
   return (
     <OuterShell>
-      <Header icon="🎮" tag="Day Dream · 5b" title="Games" />
+      <Header tag="Day Dream - 5b" title="Games" />
       <Divider />
-      <InnerPanel style={{ marginBottom: '12px' }}>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ fontSize: '22px' }}>🏎</div>
-          <div>
-            <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--de-white)' }}>Night Drive</div>
-            <div style={{ fontSize: '12px', color: 'var(--de-gold)' }}>LAP 2/3 · 2nd of 8</div>
-          </div>
-          <span className="de-badge" style={{ marginLeft: 'auto' }}>82 FPS</span>
+
+      {/* Friends & Discover header */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+        <div className="de-widget-tile" style={{ padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 6 }}>Friends</div>
+          <div style={{ fontSize: 12, color: 'var(--de-text)' }}>Friends Online 8</div>
         </div>
-        <div
-          style={{
-            height: '8px',
-            background: 'var(--de-mist)',
-            borderRadius: '4px',
-            overflow: 'hidden',
-            border: '1px solid var(--de-border)',
-          }}
-        >
-          <div
-            style={{
-              width: '65%',
-              height: '100%',
-              background: 'linear-gradient(90deg,var(--de-accent),var(--de-gold))',
-              borderRadius: '4px',
-            }}
-          />
+        <div className="de-widget-tile" style={{ padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 6 }}>Discover</div>
+          <div style={{ fontSize: 12, color: 'var(--de-text)' }}>Gran storm...</div>
         </div>
-      </InnerPanel>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-        <WidgetTile>
-          <Tag>Friends Online</Tag>
-          <div style={{ fontSize: '13px', fontWeight: 600, marginTop: '4px', color: 'var(--de-white)' }}>
-            8 friends active
-          </div>
-        </WidgetTile>
-        <WidgetTile>
-          <Tag>Achievements</Tag>
-          <div style={{ fontSize: '13px', fontWeight: 600, marginTop: '4px', color: 'var(--de-gold)' }}>
-            Night Drive ✓
-          </div>
-        </WidgetTile>
-        <WidgetTile span2>
-          <Tag>My Library</Tag>
-          <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
-            <span className="de-badge">Cosmic Adventure</span>
-            <span className="de-badge">Dream Valley</span>
-            <span className="de-badge">Apex</span>
-            <span className="de-badge">Starfighter Race</span>
-          </div>
-        </WidgetTile>
       </div>
+
+      {/* Trending & Achievements */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+        <div className="de-widget-tile" style={{ padding: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 6 }}>Trending Now</div>
+          <div style={{ fontSize: 12, color: 'var(--de-text)' }}>Dream Valley, RPG</div>
+        </div>
+        <div className="de-widget-tile" style={{ padding: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 6 }}>Achievements</div>
+          <div style={{ fontSize: 12, color: 'var(--de-gold)' }}>Night Drive</div>
+        </div>
+      </div>
+
+      {/* My Library */}
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8 }}>
+        My Library
+        <span style={{ float: 'right', fontSize: 12, color: 'var(--de-text-dim)', fontWeight: 400, cursor: 'pointer' }}>Search</span>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
+        {[
+          { name: 'COSMIC ADVENTURE', color: 'var(--de-accent)' },
+          { name: 'DESTINY ADMIRAL', color: 'var(--de-gold)' },
+          { name: 'DREAM VALLEY', color: '#34d399' },
+          { name: 'APEX LEGENDS', color: '#e07040' },
+        ].map((game) => (
+          <div key={game.name} className="de-widget-tile" style={{ padding: 14 }}>
+            <div style={{
+              height: 48, borderRadius: 10, marginBottom: 8,
+              background: `linear-gradient(135deg, ${game.color}, var(--de-mist))`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{ fontSize: 10, fontWeight: 800, color: 'white', letterSpacing: '0.08em' }}>
+                {game.name}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Available Now */}
+      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8 }}>
+        Available Now
+        <span style={{ float: 'right', fontSize: 11, color: 'var(--de-text-dim)' }}>5 more &gt;</span>
+      </div>
+      <div className="flex gap-2" style={{ marginBottom: 14, overflowX: 'auto' }}>
+        {['Starfighter', 'Nebula Drift', 'SCI-FI SIMULATOR'].map((g) => (
+          <div key={g} className="de-widget-tile" style={{ minWidth: 100, padding: '10px 12px', flexShrink: 0 }}>
+            <div style={{ height: 40, borderRadius: 8, background: 'var(--de-mist)', marginBottom: 6 }} />
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-heading)' }}>{g}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom tabs */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+        {[
+          { label: 'Store', sub: 'Trense Doats' },
+          { label: 'Downloads', sub: 'Downloads & Items' },
+          { label: 'News', sub: 'Game Updates' },
+        ].map((tab) => (
+          <div key={tab.label} className="de-widget-tile" style={{ textAlign: 'center', padding: '10px 8px' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{tab.label}</div>
+            <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>{tab.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <NodeFooter />
     </OuterShell>
   );
 }
 
-// ─── NODE 6b — CREATE ────────────────────────────────────────────────────────
+// ---- NODE 6b -- CREATE / MEDIA VAULT ----
 
 export function Node6b() {
   return (
     <OuterShell>
-      <Header icon="⬡" tag="Day Dream · 6b" title="Create" />
+      <Header tag="Day Dream - 6b" title="Create" />
       <Divider />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+
+      {/* Ideas & Tasks */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: 12 }}>
         <WidgetTile>
-          <Tag>💡 Ideas</Tag>
+          <Tag>Ideas</Tag>
           <div style={{ fontSize: '12px', marginTop: '6px', lineHeight: 1.7, color: 'var(--de-text)' }}>
-            Sci-Fi Trailer<br />New Podcast<br />Merch Designs
+            Sci-Fi Game Trailer<br />New Podcast<br />Merch Designs
           </div>
+          <div style={{ fontSize: 11, color: 'var(--de-accent)', marginTop: 6 }}>+ More &gt;</div>
         </WidgetTile>
         <WidgetTile>
-          <Tag>✅ Tasks</Tag>
+          <Tag>Tasks</Tag>
           <div style={{ fontSize: '12px', marginTop: '6px', lineHeight: 1.7, color: 'var(--de-text)' }}>
             Video Edits<br />Blog Content<br />Promo Banners
           </div>
+          <div style={{ fontSize: 11, color: 'var(--de-accent)', marginTop: 6 }}>+ More &gt;</div>
+        </WidgetTile>
+      </div>
+
+      {/* Tasks & Calendar */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: 12 }}>
+        <WidgetTile>
+          <Tag>Tasks</Tag>
+          <div style={{ fontSize: '11px', marginTop: '4px', color: 'var(--de-text)', lineHeight: 1.6 }}>
+            {'< Video Edits > Blog Content'}<br />{'< Promo Banners'}
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--de-accent)', marginTop: 6 }}>+ More &gt;</div>
         </WidgetTile>
         <WidgetTile>
-          <Tag>📅 Calendar</Tag>
-          <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--de-text)', lineHeight: 1.6 }}>
-            Podcast Promo Reel<br />Social Post Draft
+          <Tag>Calendar</Tag>
+          <div className="flex gap-1 flex-wrap" style={{ marginTop: 6 }}>
+            {['Thursday', 'Part', 'Vast', 'Sant', 'Nt'].map((d) => (
+              <span key={d} style={{ fontSize: 9, padding: '2px 5px', borderRadius: 4, background: 'var(--de-mist)', color: 'var(--de-text-dim)' }}>{d}</span>
+            ))}
           </div>
-        </WidgetTile>
-        <WidgetTile>
-          <Tag>📁 Media Vault</Tag>
-          <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--de-text)', lineHeight: 1.6 }}>
-            925 Camera Roll<br />265 Videos
-          </div>
-        </WidgetTile>
-        <WidgetTile span2>
-          <Tag>Projects</Tag>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
-            {[
-              { label: 'Planning', color: '#93c5fd', bg: 'rgba(37,99,235,0.18)', border: 'rgba(37,99,235,0.35)' },
-              { label: 'In Progress', color: 'var(--de-gold)', bg: 'rgba(212,168,67,0.12)', border: 'var(--de-border-gold)' },
-              { label: 'Review', color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.35)' },
-              { label: 'Completed', color: '#a5b4fc', bg: 'rgba(165,180,252,0.1)', border: 'rgba(165,180,252,0.25)' },
-            ].map((s) => (
-              <div
-                key={s.label}
-                style={{
-                  padding: '3px 10px',
-                  borderRadius: '8px',
-                  fontSize: '10px',
-                  fontWeight: 600,
-                  color: s.color,
-                  background: s.bg,
-                  border: `1px solid ${s.border}`,
-                }}
-              >
-                {s.label}
-              </div>
+          <div className="flex gap-1" style={{ marginTop: 4 }}>
+            {[25, 385, 25, 25, 27].map((n, i) => (
+              <span key={i} style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-heading)', width: 24, textAlign: 'center' }}>{n}</span>
             ))}
           </div>
         </WidgetTile>
       </div>
+
+      {/* Projects */}
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', textAlign: 'center', marginBottom: 10 }}>
+        Projects
+      </div>
+      <div className="flex gap-2 flex-wrap" style={{ marginBottom: 10, justifyContent: 'center' }}>
+        {['Planning', 'In Progress', 'Review', 'Completed'].map((tab) => (
+          <span key={tab} style={{
+            padding: '4px 12px', borderRadius: 8, fontSize: 10, fontWeight: 600,
+            background: tab === 'In Progress' ? 'rgba(200,152,26,0.12)' : 'var(--de-mist)',
+            border: `1px solid ${tab === 'In Progress' ? 'var(--de-border-gold)' : 'var(--de-border)'}`,
+            color: tab === 'In Progress' ? 'var(--de-gold)' : 'var(--de-text-dim)',
+          }}>{tab}</span>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 14 }}>
+        {[
+          'Trailer Storyboards',
+          'Thumbnail Concepts',
+          'Q&A Highlights',
+          'Conference Prep',
+          'Blog Article: NewVolt',
+          'Podcast Promo Reel',
+        ].map((p) => (
+          <div key={p} style={{
+            padding: '8px 6px', borderRadius: 8,
+            background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+          }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-heading)', lineHeight: 1.3 }}>{p}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Media Library */}
+      <div className="de-widget-tile" style={{ padding: 14 }}>
+        <div className="flex justify-between items-center" style={{ marginBottom: 8 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>Media Library</div>
+          <div className="flex gap-2">
+            {['Camera Roll', 'Videos', 'Music', 'Upload'].map((t) => (
+              <span key={t} style={{ fontSize: 10, color: 'var(--de-text-dim)', fontWeight: 600 }}>{t}</span>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4 }}>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} style={{
+              height: 36, borderRadius: 6,
+              background: `linear-gradient(135deg, ${i % 3 === 0 ? 'var(--de-accent)' : i % 3 === 1 ? 'var(--de-gold)' : '#34d399'}, var(--de-mist))`,
+              opacity: 0.3,
+            }} />
+          ))}
+        </div>
+        <div style={{ textAlign: 'right', marginTop: 8, fontSize: 11, color: 'var(--de-accent)' }}>+ Move</div>
+      </div>
+
+      <NodeFooter />
     </OuterShell>
   );
 }

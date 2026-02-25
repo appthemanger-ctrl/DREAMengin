@@ -55,7 +55,7 @@ export default function HomeDreamRuntime({
     return (
       <div
         className="fixed inset-0 z-10 grid place-items-center"
-        style={{ background: 'linear-gradient(180deg, #0b1c52 0%, var(--de-deep) 62%, var(--de-navy) 100%)' }}
+        style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 62%, var(--de-bg-end) 100%)' }}
       >
         <CoreDream
           face={coreFace}
@@ -99,7 +99,7 @@ export default function HomeDreamRuntime({
     return (
       <div
         className="fixed inset-0 z-10 grid place-items-center overflow-auto"
-        style={{ background: 'linear-gradient(180deg, #0e2568 0%, rgba(8,22,72,1) 42%, rgba(2,8,24,1) 100%)' }}
+        style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)' }}
       >
         <NodeWrapper>
           {node === '1b' && <Node1b />}
@@ -118,12 +118,12 @@ export default function HomeDreamRuntime({
     );
   }
 
-  // ── INNER LAYER 1–6 — FEATURE SPACES ──────────────────────────────────────
+  // ── INNER LAYER 1–6 — DREAM SURFACES (core Dreams, NOT DayDreams) ──────────
   const faceIndex = typeof node === 'number' ? node : parseInt(String(node));
   return (
     <div
       className="fixed inset-0 z-10 grid place-items-center overflow-auto"
-      style={{ background: 'linear-gradient(180deg, #0e2568 0%, rgba(8,22,72,1) 42%, rgba(2,8,24,1) 100%)' }}
+      style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)' }}
     >
       <NodeWrapper>
         {node === 1 && <Node1 />}

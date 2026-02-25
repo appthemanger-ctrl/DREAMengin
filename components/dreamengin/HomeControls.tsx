@@ -27,20 +27,21 @@ const DOUBLE_TAP_MS = 260;
 
 function InfinityHalf({ side }: { side: 'left' | 'right' }) {
   const flip = side === 'right';
+  const color = side === 'left' ? 'var(--de-gold, #c8981a)' : 'var(--de-accent, #2a8ab8)';
   return (
-    <svg width="28" height="12" viewBox="0 0 80 36" className="opacity-95">
+    <svg width="28" height="14" viewBox="0 0 80 36" className="opacity-95">
       <g transform={flip ? 'translate(80,0) scale(-1,1)' : undefined}>
         <path
           d="M10 18c8-10 18-10 28 0s20 10 28 0"
           fill="none"
-          stroke="rgba(255,255,255,0.92)"
+          stroke={color}
           strokeWidth="5"
           strokeLinecap="round"
         />
         <path
           d="M10 18c8 10 18 10 28 0s20-10 28 0"
           fill="none"
-          stroke="rgba(255,255,255,0.92)"
+          stroke={color}
           strokeWidth="5"
           strokeLinecap="round"
         />
@@ -134,8 +135,8 @@ export default function HomeControls({
           zIndex: 60,
         }}
       >
-        <Control id="blue" color="rgba(59,130,246,0.92)" />
-        <Control id="red" color="rgba(239,68,68,0.92)" />
+        <Control id="blue" color="rgba(200,152,26,0.88)" />
+        <Control id="red" color="rgba(42,138,184,0.88)" />
       </div>
     </div>
   );
