@@ -182,9 +182,16 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose, onOpenD
           </div>
         </div>
 
-        {/* Bottom infinity logo */}
+        {/* Bottom DREAMengin logo */}
         <div className="flex justify-center" style={{ padding: '16px 0 20px' }}>
-          <InfinityLogo size={52} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/dreamengin-logo.jpg"
+            alt="DREAMengin"
+            width={52}
+            height={52}
+            style={{ borderRadius: '50%', objectFit: 'cover' }}
+          />
         </div>
       </div>
     </div>

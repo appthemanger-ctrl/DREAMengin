@@ -145,24 +145,36 @@ export default function HomeFeedWidgetGrid({ onOpenDrEams }: { onOpenDrEams: () 
       {/* Social quick links */}
       <SocialRow />
 
-      {/* Open Dr. Eams */}
+      {/* Open Dr. Eams -- mascot button */}
       <button
         type="button"
         onClick={onOpenDrEams}
         style={{
           marginTop: 14,
           width: '100%',
-          borderRadius: 14,
+          borderRadius: 18,
           border: '1px solid var(--de-border-gold)',
-          background: 'rgba(200,152,26,0.10)',
+          background: 'rgba(200,152,26,0.08)',
           color: 'var(--de-gold)',
-          padding: '10px 14px',
+          padding: '12px 14px',
           fontWeight: 600,
           fontSize: 13,
           cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 10,
         }}
       >
-        Open Dr. Eams
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/dr-eams-standalone.jpg"
+          alt="Dr. Eams mascot"
+          width={36}
+          height={36}
+          style={{ borderRadius: '50%', objectFit: 'cover' }}
+        />
+        <span>Ask Dr. Eams</span>
       </button>
     </div>
   );

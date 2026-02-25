@@ -23,7 +23,7 @@ function SystemOverlay({ title, onClose }: { title: string; onClose: () => void 
   return (
     <div
       className="fixed inset-0 z-40"
-      style={{ background: 'rgba(2,8,24,0.6)', backdropFilter: 'blur(8px)' }}
+      style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)' }}
       onPointerDown={onClose}
     >
       <div
@@ -35,13 +35,13 @@ function SystemOverlay({ title, onClose }: { title: string; onClose: () => void 
           transform: 'translate(-50%,-50%)',
           width: 'min(22rem, 92vw)',
           padding: '28px 24px',
-          color: 'var(--de-white)',
+          color: 'var(--de-heading)',
           borderRadius: '24px',
         }}
         onPointerDown={(e) => e.stopPropagation()}
       >
         <div className="de-tag" style={{ marginBottom: '6px' }}>System</div>
-        <div className="de-label" style={{ fontSize: '20px', marginBottom: '8px' }}>{title}</div>
+        <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', color: 'var(--de-heading)' }}>{title}</div>
         <p style={{ fontSize: '13px', color: 'var(--de-text-dim)', lineHeight: 1.5, marginBottom: '20px' }}>
           This panel operates within the DREAMengin spatial system. No page navigation occurs.
         </p>
@@ -50,10 +50,10 @@ function SystemOverlay({ title, onClose }: { title: string; onClose: () => void 
           style={{
             width: '100%',
             padding: '11px 16px',
-            background: 'rgba(37,99,235,0.25)',
-            border: '1px solid rgba(37,99,235,0.45)',
+            background: 'rgba(42,138,184,0.15)',
+            border: '1px solid var(--de-border)',
             borderRadius: '12px',
-            color: '#93c5fd',
+            color: 'var(--de-accent)',
             fontSize: '13px',
             fontWeight: 600,
             cursor: 'pointer',

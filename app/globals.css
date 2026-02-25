@@ -2,78 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Universe Design System - Dark Space Premium */
+/* DREAMengin Design System - Dream Ice Default */
 @layer base {
   :root {
-    /* Core Background - Deep space black */
-    --background: 220 16% 4%;
-    --foreground: 210 20% 98%;
+    /* Core Background - Icy light */
+    --background: 215 45% 95%;
+    --foreground: 215 55% 20%;
     
-    /* Cards - Slightly elevated dark surfaces */
-    --card: 220 15% 7%;
-    --card-foreground: 210 20% 98%;
+    /* Cards - White glass surfaces */
+    --card: 210 40% 98%;
+    --card-foreground: 215 55% 20%;
     
-    /* Popovers - Elevated surfaces */
-    --popover: 220 15% 9%;
-    --popover-foreground: 210 20% 98%;
+    /* Popovers */
+    --popover: 210 40% 98%;
+    --popover-foreground: 215 55% 20%;
     
-    /* Primary - Ethereal blue glow */
-    --primary: 210 100% 66%;
-    --primary-foreground: 220 16% 4%;
+    /* Primary - Dream blue */
+    --primary: 210 80% 52%;
+    --primary-foreground: 0 0% 100%;
     
-    /* Secondary - Subtle surface */
-    --secondary: 220 15% 12%;
-    --secondary-foreground: 210 20% 90%;
+    /* Secondary */
+    --secondary: 215 30% 88%;
+    --secondary-foreground: 215 30% 30%;
     
-    /* Muted - Subdued elements */
-    --muted: 220 15% 15%;
-    --muted-foreground: 215 15% 55%;
+    /* Muted */
+    --muted: 215 30% 90%;
+    --muted-foreground: 215 20% 45%;
     
-    /* Accent - Warm amber/orange for contrast */
-    --accent: 24 95% 58%;
-    --accent-foreground: 220 16% 4%;
+    /* Accent - Gold */
+    --accent: 43 70% 48%;
+    --accent-foreground: 215 55% 15%;
     
-    /* Destructive - Soft red */
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 210 20% 98%;
+    /* Destructive */
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 100%;
     
     /* Borders */
-    --border: 220 15% 18%;
-    --input: 220 15% 15%;
-    --ring: 210 100% 66%;
+    --border: 215 35% 85%;
+    --input: 215 35% 85%;
+    --ring: 210 80% 52%;
     
     /* Radius */
-    --radius: 0.75rem;
+    --radius: 0.85rem;
     
-    /* Universe-specific tokens */
-    --glow-primary: 210 100% 66%;
-    --glow-accent: 24 95% 58%;
-    --surface-glass: 220 15% 10% / 0.8;
-    --node-active: 160 84% 50%;
-    --node-inactive: 220 15% 25%;
-  }
-
-  /* Light mode override - still space-themed but lighter */
-  .light {
-    --background: 220 14% 96%;
-    --foreground: 220 16% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 16% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 16% 10%;
-    --primary: 210 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 220 16% 15%;
-    --muted: 220 14% 90%;
-    --muted-foreground: 220 10% 40%;
-    --accent: 24 95% 50%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 88%;
-    --input: 220 13% 88%;
-    --ring: 210 100% 50%;
+    /* Theme tokens */
+    --glow-primary: 210 80% 52%;
+    --glow-accent: 43 70% 48%;
+    --surface-glass: 210 40% 98% / 0.55;
+    --node-active: 210 80% 52%;
+    --node-inactive: 215 20% 70%;
   }
 }
 
@@ -133,13 +110,15 @@
   .glass {
     @apply backdrop-blur-xl;
     background: hsl(var(--surface-glass));
-    border: 1px solid hsl(var(--border) / 0.5);
+    border: 1px solid hsl(var(--border) / 0.4);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
   }
   
   .glass-card {
     @apply backdrop-blur-lg rounded-xl;
-    background: hsl(var(--card) / 0.8);
+    background: hsl(var(--card) / 0.55);
     border: 1px solid hsl(var(--border) / 0.4);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
   }
 }
 
@@ -213,36 +192,36 @@
   animation: orbit 15s linear infinite;
 }
 
-/* Custom scrollbar - Dark theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--background));
-  border-radius: 4px;
+  background: transparent;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted));
-  border-radius: 4px;
-  border: 2px solid hsl(var(--background));
+  background: hsl(var(--muted-foreground) / 0.25);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
+  background: hsl(var(--muted-foreground) / 0.4);
 }
 
-/* Code block styling - Dark theme */
+/* Code block styling */
 pre {
-  background: hsl(var(--card));
+  background: rgba(15,20,40,0.92);
   border-left: 3px solid hsl(var(--primary));
   padding: 1rem;
   overflow-x: auto;
   font-size: 0.875rem;
   line-height: 1.6;
   border-radius: 0.5rem;
+  color: #c8d8ff;
 }
 
 code {

@@ -102,19 +102,17 @@ function TrackBar({ percent = 42 }: { percent?: number }) {
   );
 }
 
-function InfinityLogo({ size = 40 }: { size?: number }) {
-  return (
-    <svg width={size} height={size * 0.45} viewBox="0 0 120 54" fill="none">
-      <path d="M30 27c0-10 8-18 18-18s18 8 18 18-8 18-18 18" stroke="var(--de-gold)" strokeWidth="4.5" strokeLinecap="round" fill="none" />
-      <path d="M90 27c0 10-8 18-18 18s-18-8-18-18 8-18 18-18" stroke="var(--de-accent)" strokeWidth="4.5" strokeLinecap="round" fill="none" />
-    </svg>
-  );
-}
-
 function NodeFooter() {
   return (
     <div className="flex justify-center" style={{ padding: '16px 0 4px' }}>
-      <InfinityLogo />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/dreamengin-logo.jpg"
+        alt="DREAMengin"
+        width={40}
+        height={40}
+        style={{ borderRadius: '50%', objectFit: 'cover' }}
+      />
     </div>
   );
 }

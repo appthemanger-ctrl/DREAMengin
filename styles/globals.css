@@ -3,69 +3,81 @@
 @tailwind utilities;
 
 :root {
-  /* ── DREAMengin Premium Token Set ── */
-  --de-navy:        #020818;
-  --de-deep:        #050f2a;
-  --de-blue:        #0a1f5c;
-  --de-midblue:     #0d2d8a;
-  --de-accent:      #1a4ed8;
-  --de-glow:        #2563eb;
-  --de-gold:        #d4a843;
-  --de-gold-bright: #f0c040;
-  --de-gold-dim:    #8a6820;
-  --de-white:       #f0f4ff;
-  --de-mist:        rgba(160,185,255,0.10);
-  --de-glass:       rgba(8,22,72,0.55);
-  --de-glass2:      rgba(5,15,45,0.72);
-  --de-border:      rgba(100,150,255,0.15);
-  --de-border-gold: rgba(212,168,67,0.28);
-  --de-text:        #c8d8ff;
-  --de-text-dim:    rgba(160,185,255,0.50);
-  --de-red:         #ef4444;
+  /* ── DREAMengin Dream Ice Token Set (default) ── */
+  --de-navy:        #dce8f8;
+  --de-deep:        #e8f0fa;
+  --de-blue:        #2a8ab8;
+  --de-midblue:     #3b9ac8;
+  --de-accent:      #2a8ab8;
+  --de-glow:        #3ba0d0;
+  --de-gold:        #c8981a;
+  --de-gold-bright: #e8b830;
+  --de-gold-dim:    #a08020;
+  --de-white:       #0f2a5c;
+  --de-mist:        rgba(180,210,250,0.22);
+  --de-glass:       rgba(255,255,255,0.52);
+  --de-glass2:      rgba(235,245,255,0.68);
+  --de-border:      rgba(160,195,240,0.45);
+  --de-border-gold: rgba(190,210,245,0.55);
+  --de-text:        #1a3a6a;
+  --de-text-dim:    rgba(60,100,160,0.55);
+  --de-heading:     #0f2a5c;
+  --de-red:         #dc4444;
+  --de-bg-start:    #dce8f8;
+  --de-bg-mid:      #c5d8f0;
+  --de-bg-end:      #b8ceec;
+  --de-widget-bg:   rgba(255,255,255,0.55);
+  --de-widget-border: rgba(160,195,240,0.40);
+
+  /* User override defaults */
+  --user-brightness: 1;
+  --user-saturation: 1;
+  --user-blur: 24px;
+  --starfield-style: light;
 
   /* ── Tailwind HSL tokens (required by shadcn) ── */
-  --background:            220 60% 4%;
-  --foreground:            210 40% 96%;
-  --card:                  220 50% 7%;
-  --card-foreground:       210 40% 96%;
-  --popover:               220 55% 6%;
-  --popover-foreground:    210 40% 96%;
-  --primary:               217 100% 57%;
-  --primary-foreground:    220 60% 4%;
-  --secondary:             220 40% 12%;
-  --secondary-foreground:  210 40% 90%;
-  --muted:                 220 30% 14%;
-  --muted-foreground:      215 20% 50%;
-  --accent:                43  70% 55%;
-  --accent-foreground:     220 60% 4%;
+  --background:            215 45% 95%;
+  --foreground:            215 55% 20%;
+  --card:                  210 40% 98%;
+  --card-foreground:       215 55% 20%;
+  --popover:               210 40% 98%;
+  --popover-foreground:    215 55% 20%;
+  --primary:               210 80% 52%;
+  --primary-foreground:    0 0% 100%;
+  --secondary:             215 30% 88%;
+  --secondary-foreground:  215 30% 30%;
+  --muted:                 215 30% 90%;
+  --muted-foreground:      215 20% 45%;
+  --accent:                43  70% 48%;
+  --accent-foreground:     215 55% 15%;
   --destructive:           0   85% 60%;
-  --destructive-foreground:210 40% 96%;
-  --border:                220 30% 16%;
-  --input:                 220 30% 16%;
-  --ring:                  217 100% 57%;
+  --destructive-foreground:0 0% 100%;
+  --border:                215 35% 85%;
+  --input:                 215 35% 85%;
+  --ring:                  210 80% 52%;
   --radius:                0.85rem;
-  --glow-primary:          217 100% 57%;
-  --glow-accent:           43  70% 55%;
-  --node-active:           217 100% 57%;
-  --node-inactive:         220 20% 25%;
+  --glow-primary:          210 80% 52%;
+  --glow-accent:           43  70% 48%;
+  --node-active:           210 80% 52%;
+  --node-inactive:         215 20% 70%;
 
-  /* Legacy compat tokens (kept so old components don't break) */
-  --c-void:    #020818;
-  --c-deep:    #050f2a;
-  --c-gold:    #d4a843;
-  --c-blue:    #1a4ed8;
-  --glass-10:  rgba(160,185,255,0.10);
-  --glass-14:  rgba(160,185,255,0.14);
-  --glass-border: rgba(100,150,255,0.18);
-  --glass-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  /* Legacy compat tokens */
+  --c-void:    #dce8f8;
+  --c-deep:    #e8f0fa;
+  --c-gold:    #c8981a;
+  --c-blue:    #2a8ab8;
+  --glass-10:  rgba(180,210,250,0.10);
+  --glass-14:  rgba(180,210,250,0.14);
+  --glass-border: rgba(160,195,240,0.18);
+  --glass-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
 
 /* ── Reset ── */
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--de-navy);
-  color: var(--de-white);
+  background: var(--de-bg-start);
+  color: var(--de-text);
   font-family: 'Space Grotesk', system-ui, sans-serif;
   overscroll-behavior: none;
   touch-action: manipulation;
