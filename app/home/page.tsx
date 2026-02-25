@@ -20,31 +20,13 @@ export default async function Home() {
 
     if (!user) redirect('/login');
 
-    // Fetch or create user profile (keeps UI from feeling "empty" when RLS/seed state is new)
+    // Fetch user profile
     const { data: profileData } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .maybeSingle();
-
-    if (!profileData) {
-      const handle = (user.email || '').split('@')[0] || `user-${user.id.slice(0, 8)}`;
-      const { data: created } = await supabase
-        .from('profiles')
-        .upsert(
-          {
-            id: user.id,
-            handle,
-            display_name: handle,
-          },
-          { onConflict: 'id' }
-        )
-        .select('*')
-        .single();
-      profile = created;
-    } else {
-      profile = profileData;
-    }
+      .single();
+    profile = profileData;
 
     // Fetch posts for feed
     const { data: postsData } = await supabase
@@ -52,7 +34,7 @@ export default async function Home() {
       .select(
         `
         *,
-        profiles(handle, display_name, avatar_url)
+        profiles!inner(handle, display_name, avatar_url)
       `
       )
       .eq('visibility', 'public')

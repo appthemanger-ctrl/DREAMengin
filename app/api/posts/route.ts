@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     .from('app_posts')
     .select(`
       *,
-      profiles(id, handle, display_name, avatar_url)
+      profiles!inner(id, handle, display_name, avatar_url)
     `)
     .or(`visibility.eq.public,user_id.eq.${user.id}`)
     .order('created_at', { ascending: false })
@@ -42,8 +42,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { content, visibility = 'public' } = body;
-  const media_json = body.media_json ?? body.media_urls ?? null;
+  const { content, visibility = 'public', media_urls = [] } = body;
 
   if (!content || content.trim().length === 0) {
     return NextResponse.json({ error: 'Content is required' }, { status: 400 });
@@ -55,11 +54,11 @@ export async function POST(req: NextRequest) {
       user_id: user.id,
       content: content.trim(),
       visibility,
-      media_json,
+      media_urls,
     })
     .select(`
       *,
-      profiles(id, handle, display_name, avatar_url)
+      profiles!inner(id, handle, display_name, avatar_url)
     `)
     .single();
 
