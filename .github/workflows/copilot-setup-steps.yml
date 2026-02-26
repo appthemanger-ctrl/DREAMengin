@@ -1,0 +1,149 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{hyperref}
+
+\title{DREAMengin: 100-Point Final Product Definition (What ``Done'' Looks Like)}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{100 points to the final product}
+\begin{enumerate}
+\item The app feels premium on iPhone: clean hierarchy, consistent spacing, consistent radii, readable contrast.
+\item All interactive targets meet iOS tap size (44px+) across the entire UI.
+\item Typography is consistent (weights/sizes), with a clear headline/body/caption system.
+\item Spacing uses a consistent scale (no random padding/margins).
+\item Visual polish is calm: no ``toy app'' vibes, no chaotic gradients, no clutter.
+\item The UI avoids heavy shadows; depth comes from blur + subtle borders.
+\item Animations are intentional and minimal (no decorative JS loops).
+\item Performance is stable at 60fps during interaction; passive surfaces do not burn battery.
+\item Feed scrolling never freezes due to overlays, gesture handlers, or drag capture bugs.
+\item App-wide error states are graceful (no blank screens; readable fallback UI).
+
+\item Landing page is premium and calm, with Dr.\ Eams as the hero.
+\item Landing page does \textbf{not} autoplay a background video.
+\item Landing background is ``middle'' intensity: not flat/boring, not blinding.
+\item Login page is premium and readable; form UI looks native-quality.
+\item Signup/Create Profile page can use subtle background video (low opacity + overlay).
+\item Background video never appears outside auth-related pages.
+\item Auth pages have consistent input styling (focus rings, spacing, error text).
+\item Auth pages have consistent button sizing (min height 44px) and clear primary/secondary states.
+\item Auth flows do not block UI review in dev (see dev bypass), but remain secure in prod.
+\item App has a clear top-level brand system (logo/wordmark usage consistent).
+
+\item Two Home Buttons exist and are draggable independently.
+\item Button dragging uses pointer capture only while dragging and releases correctly.
+\item Dragging one button never blocks scrolling unless the button itself is being dragged.
+\item When buttons come within a threshold distance, they snap together in the center and lock.
+\item Locked state has unmistakable visual: light blue + gold.
+\item Locked state is stable: no jitter, no repeated snapping, no accidental unlocks.
+\item While locked, a single tap opens \textbf{both} menus side-by-side.
+\item Left menu is System; right menu is Daydream shortcuts.
+\item While locked, double tap unlocks reliably.
+\item After menus open (or close—one chosen rule), buttons snap back to saved corners consistently.
+
+\item Home Buttons never perform navigation traversal (no swipe routing, no zoom routing, no stepping through states).
+\item Home Buttons never call navigation setters except a safe Go Home action (if present).
+\item Go Home resets to the Home Dream anchor.
+\item Go Home clears back/heading context so the user doesn’t ``time travel'' back into a prior deep state.
+\item Lock/unlock and positions persist (localStorage MVP; upgradeable later).
+\item Button positions restore correctly after reload.
+\item Buttons have a Settings entry: ``Customize Controls''.
+\item Control customization is behind Settings, not hardwired into button behavior.
+\item All menu strings that look clickable route to real pages (placeholders allowed).
+\item Menus never feel broken: no dead buttons, no missing routes, no silent failures.
+
+\item Daydreams are fixed system apps (not custom).
+\item Exactly six specialized Daydreams exist (shells at minimum).
+\item Each Daydream has a real App Router route (\texttt{app/**/page.tsx}).
+\item Each Daydream has a premium placeholder surface that matches the design system.
+\item Daydream menu includes all six Daydreams and is always accessible from locked menus.
+\item Marketplace exists as a page route (\texttt{/marketplace}).
+\item Shop exists as a page route (\texttt{/shop}).
+\item Marketplace/Shop are accessible from menus regardless of widget placement.
+\item Marketplace/Shop can be added as widgets optionally, without removing the pages.
+\item The naming in UI is consistent: Dreams vs Daydreams are not mixed up.
+
+\item Dreams include Home Dream + Profile Dream (at minimum).
+\item Home Dream is the Home Feed surface and is usable even if Profile is never used.
+\item The home surface supports ``apps/widgets around the feed'' (customizable placements).
+\item The ``eight app slots'' around home exist as a concept and can be configured.
+\item Home feed looks like content moving through widgets, not the whole screen teleporting.
+\item Home feed supports normal scrolling and interaction without triggering navigation accidentally.
+\item Profile Dream is the private profile editor for what becomes public.
+\item Private Profile includes a Save action that persists the user's public-facing configuration.
+\item Every profile UI includes a ``View Profile'' entry.
+\item ``View Profile'' simulates the public view accurately.
+
+\item Public profile exists at \texttt{/u/[handle]}.
+\item Public profile mirrors what the user saved in Private Profile (layout/theme/published widgets).
+\item Public profile updates automatically on private profile Save.
+\item Public profile never leaks private data (connectors, private slices, admin tools).
+\item Public profile still feels ``alive'' (interactive widgets where safe), not a dead screenshot.
+\item Public profile has premium fallbacks when content is missing.
+\item The profile model supports future expansion without breaking saved profiles.
+\item Profile editing has clear publish controls (what is public vs private).
+\item Profile editing has show/hide for sections or widgets intended for public display.
+\item Profile pages respect accessibility (labels, focus states, readable contrast).
+
+\item A universal widget system exists: one widget framework usable in any dream/space.
+\item Widgets have stable IDs and per-placement configuration.
+\item Widget placements are persistent per user.
+\item Widgets can be shown/hidden per destination (Home Feed vs Private Profile vs Public Profile).
+\item Widgets can be rearranged via an editor mode (or Settings-based editor) without breaking layout.
+\item Widgets are composable: containers can hold other widgets (nested widgets) where intended.
+\item Widgets respect performance: heavy widgets lazy-load or defer work until visible/idle.
+\item Widget surfaces share the same premium visual language (glass, borders, spacing).
+\item A dedicated ``Add Widgets'' capability exists (widget and/or settings page).
+\item ``Add Widgets'' appears when new connectors are added or new capabilities become available.
+
+\item Connectors (IG/news/etc.) have a defined abstraction (even if mocked initially).
+\item Connector states are explicit (connected/disconnected/error/expired).
+\item Widget behavior reacts to connected services (unlocks relevant widget options).
+\item Feed wiring exists via ``slices'' of sources (friend/topic/category/etc.).
+\item A Settings page exists for feed wiring: \texttt{/settings/feed}.
+\item User can route slices to Home Feed, Private Profile, or Public Profile.
+\item Feed slice config persists reliably and deterministically.
+\item Feed composition is stable and predictable (no random ordering, no unexpected resets).
+\item Feed updates do not hammer the UI thread; they batch and render smoothly.
+\item Users can remove a slice cleanly without residual ghost UI.
+
+\item A Play Media widget exists and can be placed in any space.
+\item Play Media widget plays saved music and videos reliably on iOS.
+\item Play Media uses native \texttt{<audio>} / \texttt{<video>} controls unless premium custom controls are implemented safely.
+\item Play Media supports a queue/list and clear currently-playing state.
+\item Play Media supports Save/Favorite actions.
+\item Play Media supports Add to Feed and Add to Profile actions.
+\item Media URLs are handled safely (signed URLs or secure access where needed).
+\item Media playback respects user gesture requirements (no autoplay audio).
+\item Media widget has good empty states and loading states.
+\item Media widget does not break navigation gestures or scrolling.
+
+\item Settings includes ``Delete My Data'' that deletes connections and page/widget data but keeps login identity.
+\item Settings includes ``Delete My Dream'' (delete account) with strong confirmations.
+\item Data deletion is explicit about what is removed vs retained.
+\item Account deletion is explicit, final, and correctly guarded.
+\item Destructive actions are accessible only to the authenticated user (or admin tools if applicable).
+\item The app has a consistent Settings IA (information architecture) with clear categories.
+\item Every menu item routes to a Settings/detail page (no dead UI).
+\item Docs/README describe Settings pages and behaviors accurately.
+\item The system supports future marketplace-style extensions without rewriting the Settings structure.
+\item All settings are persisted with safe defaults and predictable restore behavior.
+
+\item The AI triad works immediately: Dr.\ Eams, IDARi, TheBoogieMan.Ai.
+\item Dr.\ Eams is user-facing and available from the System menu.
+\item IDARi is admin-facing only (bug fixer, optimizer, data compressor).
+\item TheBoogieMan.Ai is policy + system overwatch (conservative enforcement, logged).
+\item Each AI has its own server-side API route (\texttt{/api/ai/eams}, \texttt{/api/ai/idari}, \texttt{/api/ai/boogieman}).
+\item AI API keys are server-side only and come from Vercel environment variables (never in client).
+\item AI provider selection is configurable (env-based) without code changes.
+\item IDARi endpoints are admin-guarded even under dev auth bypass.
+\item TheBoogieMan can send summaries/notes to Dr.\ Eams (system status).
+\item Major system update recommendations require unanimous triad approval (consensus gating).
+
+\end{enumerate}
+
+\end{document}
