@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Sliders } from 'lucide-react';
+import PositionIndicatorToggle from './PositionIndicatorToggle';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Controls – DREAMengin Settings' };
@@ -63,6 +64,13 @@ export default async function ControlsSettingsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">Navigation Display</span></div>
+          <div className="de-widget-body">
+            <PositionIndicatorToggle />
           </div>
         </div>
 

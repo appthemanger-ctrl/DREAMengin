@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, RotateCcw, Check } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -105,6 +105,85 @@ function PresetCard({
         </div>
       )}
     </button>
+  );
+}
+
+/* ── Background Image Section ── */
+function BgImageSection() {
+  const [bgImage, setBgImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('dreamengin:bgImage');
+    if (stored) {
+      setBgImage(stored);
+      document.documentElement.style.setProperty('--de-bg-image', `url("${stored}")`);
+    }
+  }, []);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setBgImage(dataUrl);
+      localStorage.setItem('dreamengin:bgImage', dataUrl);
+      document.documentElement.style.setProperty('--de-bg-image', `url("${dataUrl}")`);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemove = () => {
+    setBgImage(null);
+    localStorage.removeItem('dreamengin:bgImage');
+    document.documentElement.style.removeProperty('--de-bg-image');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  return (
+    <section style={{ marginBottom: 24 }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 12 }}>
+        Background Image
+      </div>
+      <div className="de-widget-tile" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {bgImage && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={bgImage}
+            alt="Background preview"
+            style={{ width: '100%', height: 60, objectFit: 'cover', borderRadius: 10, border: '1px solid var(--de-border)' }}
+          />
+        )}
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              padding: '8px 16px', borderRadius: 10,
+              background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+              color: 'var(--de-text)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            }}
+          >
+            Upload Image
+          </button>
+          {bgImage && (
+            <button
+              type="button"
+              onClick={handleRemove}
+              style={{
+                padding: '8px 16px', borderRadius: 10,
+                background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+                color: '#ef4444', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              }}
+            >
+              Remove
+            </button>
+          )}
+        </div>
+        <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFile} />
+      </div>
+    </section>
   );
 }
 
@@ -402,6 +481,9 @@ export default function AppearanceSettingsPage() {
             </div>
           </div>
         </section>
+
+        {/* Background Image */}
+        <BgImageSection />
 
         {/* Current Values Debug */}
         <section style={{ marginBottom: 24 }}>

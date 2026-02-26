@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { FlaskConical, Download, Code, FileText, Terminal } from 'lucide-react';
+import { ArrowLeft, FlaskConical, Download, Code, FileText, Terminal } from 'lucide-react';
 
 interface LabProjectPageProps {
   params: Promise<{ id: string }>;
@@ -76,156 +76,164 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center mb-3">
-                <FlaskConical className="w-6 h-6 mr-2 text-slate-600" />
-                <span className="text-sm text-slate-500">
-                  by @{project.profiles?.handle ?? 'unknown'}
-                </span>
-              </div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">{project.title}</h1>
-              {project.description && (
-                <p className="text-slate-600 max-w-2xl">{project.description}</p>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Link
-                href={`/lab/${project.id}/codespace`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '9px 18px',
-                  borderRadius: 10,
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                  color: 'white',
-                  fontWeight: 700,
-                  fontSize: 14,
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
-                }}
-              >
-                <Terminal size={15} />
-                Open CodeSpace
+    <div className="de-sky-bg min-h-screen">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/lab" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
+          </Link>
+          <FlaskConical className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+          <h1 className="text-lg font-bold flex-1 truncate" style={{ color: 'var(--de-heading)' }}>{project.title}</h1>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/lab/${project.id}/codespace`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '7px 16px',
+                borderRadius: 10,
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                color: 'white',
+                fontWeight: 700,
+                fontSize: 13,
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
+              }}
+            >
+              <Terminal size={14} />
+              Open CodeSpace
+            </Link>
+            {isOwner && (
+              <Link href={`/lab/${project.id}/edit`} className="de-btn de-btn-ghost" style={{ fontSize: 13, padding: '6px 14px' }}>
+                Edit Project
               </Link>
-              {isOwner && (
-                <Link
-                  href={`/lab/${project.id}/edit`}
-                  className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700"
-                >
-                  Edit Project
-                </Link>
-              )}
-            </div>
+            )}
           </div>
         </div>
+      </header>
 
-        <div className="grid grid-cols-12 gap-8">
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-12 gap-6">
+
           {/* Main Content */}
-          <div className="col-span-8">
-            {/* Notebooks (not enabled yet) */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-slate-900 flex items-center">
-                  <FileText className="w-5 h-5 mr-2" />
-                  Notebooks
-                </h2>
+          <div className="col-span-12 md:col-span-8 space-y-6">
+
+            {/* Renders & Simulations */}
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <span className="de-widget-title flex items-center gap-2">
+                  <Code className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
+                  Renders &amp; Simulations
+                </span>
               </div>
-
-              <p className="text-sm text-slate-500">
-                Notebooks aren’t enabled yet. (We’ll wire this up after the Supabase table + policies exist.)
-              </p>
-            </div>
-
-            {/* Widgets/Embeds */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-slate-900 flex items-center mb-4">
-                <Code className="w-5 h-5 mr-2" />
-                Widgets & Simulations
-              </h2>
-
-              <div className="space-y-4">
-                <div className="border border-slate-200 rounded-lg p-4">
-                  <h3 className="font-medium text-slate-900 mb-2">Physics Simulation</h3>
+              <div className="de-widget-body space-y-4">
+                <div style={{ border: '1px solid var(--de-border)', borderRadius: 10, overflow: 'hidden' }}>
+                  <div className="de-widget-body" style={{ paddingBottom: 8 }}>
+                    <div className="font-medium text-sm mb-2" style={{ color: 'var(--de-heading)' }}>Physics Simulation</div>
+                  </div>
                   <iframe
                     src="https://phet.colorado.edu/sims/html/waves-intro/latest/waves-intro_en.html"
                     width="100%"
                     height="400"
-                    className="border border-slate-300 rounded"
+                    style={{ border: 'none', display: 'block' }}
                     title="Waves Intro Simulation"
                   />
                 </div>
 
-                <div className="border border-slate-200 rounded-lg p-4">
-                  <h3 className="font-medium text-slate-900 mb-2">Circuit Builder</h3>
+                <div style={{ border: '1px solid var(--de-border)', borderRadius: 10, overflow: 'hidden' }}>
+                  <div className="de-widget-body" style={{ paddingBottom: 8 }}>
+                    <div className="font-medium text-sm mb-2" style={{ color: 'var(--de-heading)' }}>Circuit Builder</div>
+                  </div>
                   <iframe
                     src="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html"
                     width="100%"
                     height="400"
-                    className="border border-slate-300 rounded"
+                    style={{ border: 'none', display: 'block' }}
                     title="Circuit Construction Kit DC"
                   />
                 </div>
               </div>
             </div>
+
+            {/* Notebooks */}
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <span className="de-widget-title flex items-center gap-2">
+                  <FileText className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
+                  Notebooks
+                </span>
+              </div>
+              <div className="de-widget-body">
+                <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>
+                  Notebooks aren&apos;t enabled yet. (We&apos;ll wire this up after the Supabase table + policies exist.)
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
-          <div className="col-span-4">
+          <div className="col-span-12 md:col-span-4 space-y-6">
+
             {/* Attachments */}
-            <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
-              <h3 className="font-semibold text-slate-900 mb-3 flex items-center">
-                <Download className="w-4 h-4 mr-2" />
-                Attachments
-              </h3>
-
-              <div className="space-y-2">
-                {(project.attachments ?? []).map((attachment: Attachment) => (
-                  <a
-                    key={attachment.id}
-                    href={attachment.storage_path}
-                    className="flex items-center p-2 hover:bg-slate-50 rounded text-sm"
-                  >
-                    <Download className="w-4 h-4 mr-2 text-slate-400" />
-                    <span className="text-slate-700 truncate">{attachment.name}</span>
-                  </a>
-                ))}
-
-                {(project.attachments ?? []).length === 0 && (
-                  <p className="text-sm text-slate-500">No attachments</p>
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <span className="de-widget-title flex items-center gap-2">
+                  <Download className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
+                  Attachments
+                </span>
+              </div>
+              <div className="de-widget-body">
+                {(project.attachments ?? []).length > 0 ? (
+                  <div className="space-y-1">
+                    {(project.attachments ?? []).map((attachment: Attachment) => (
+                      <a
+                        key={attachment.id}
+                        href={attachment.storage_path}
+                        className="de-row"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <Download className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--de-text-dim)' }} />
+                        <span className="text-sm truncate" style={{ color: 'var(--de-text)' }}>{attachment.name}</span>
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>No attachments</p>
                 )}
               </div>
             </div>
 
             {/* Project Info */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="font-semibold text-slate-900 mb-3">Project Info</h3>
-
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Visibility</span>
-                  <span className="font-medium capitalize">{project.visibility}</span>
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <span className="de-widget-title">Project Info</span>
+              </div>
+              <div className="de-widget-body space-y-3">
+                <div className="de-row">
+                  <span className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Visibility</span>
+                  <span className="text-sm font-semibold capitalize" style={{ color: 'var(--de-heading)' }}>{project.visibility}</span>
                 </div>
-
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Created</span>
-                  <span className="font-medium">
+                <div className="de-row">
+                  <span className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Created</span>
+                  <span className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>
                     {new Date(project.created_at).toLocaleDateString()}
                   </span>
                 </div>
-
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Attachments</span>
-                  <span className="font-medium">{(project.attachments ?? []).length}</span>
+                <div className="de-row">
+                  <span className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Attachments</span>
+                  <span className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{(project.attachments ?? []).length}</span>
                 </div>
+                {project.profiles?.handle && (
+                  <div className="de-row">
+                    <span className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Author</span>
+                    <span className="text-sm font-semibold" style={{ color: 'var(--de-accent)' }}>@{project.profiles.handle}</span>
+                  </div>
+                )}
               </div>
             </div>
+
           </div>
         </div>
       </div>

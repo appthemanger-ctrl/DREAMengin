@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import HomeFeedWidgetGrid from '@/components/dreamnav/HomeFeedWidgetGrid';
 
 type CoreFace = 'home' | 'profile';
@@ -17,6 +17,55 @@ type Props = {
     avatar_url?: string | null;
   } | null;
 };
+
+/* ── WallBanner ── */
+function WallBanner() {
+  const [wallImage, setWallImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('dreamengin:wall:image');
+    if (stored) setWallImage(stored);
+  }, []);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const url = ev.target?.result as string;
+      setWallImage(url);
+      localStorage.setItem('dreamengin:wall:image', url);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div style={{ height: 96, overflow: 'hidden', position: 'relative' }}>
+      {wallImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={wallImage} alt="Wall" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      ) : (
+        <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, var(--de-bg-start), var(--de-bg-mid), var(--de-bg-end))' }} />
+      )}
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        style={{
+          position: 'absolute', bottom: 8, right: 8,
+          width: 28, height: 28, borderRadius: '50%',
+          background: 'rgba(0,0,0,0.45)', border: 'none',
+          color: 'white', fontSize: 13, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+        aria-label="Edit wall image"
+      >
+        ✏️
+      </button>
+      <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFile} />
+    </div>
+  );
+}
 
 /* ── Profile Face ── */
 function ProfileFace({ profile }: { profile: Props['profile'] }) {
@@ -159,6 +208,8 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose, onOpenD
           </div>
         </div>
         <div className="de-divider de-divider-gold" />
+
+        <WallBanner />
 
         {/* Flip card content */}
         <div style={{ transformStyle: 'preserve-3d', transition: 'transform .5s', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0)' }}>
