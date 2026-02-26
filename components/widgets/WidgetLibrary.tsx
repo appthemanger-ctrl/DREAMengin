@@ -17,7 +17,7 @@ const WIDGET_CATALOG: WidgetDef[] = [
   { id: 'media-thumb', name: 'Media Gallery',    description: 'Photo and video thumbnails from your vault.', category: 'Media',     icon: '🖼️' },
   { id: 'ig-friend',   name: 'IG: Friend Feed',  description: 'Posts from a specific Instagram friend.',    category: 'Social',    icon: '📸' },
   { id: 'yt-channel',  name: 'YouTube Channel',  description: 'Latest videos from a channel.',              category: 'Social',    icon: '📺' },
-  { id: 'spotify',     name: 'Spotify Now',      description: 'What you\u2019re listening to on Spotify.',  category: 'Social',    icon: '🎵' },
+  { id: 'spotify',     name: 'Spotify Now',      description: 'What you\'re listening to on Spotify.',      category: 'Social',    icon: '🎵' },
   { id: 'weather',     name: 'Weather',          description: 'Current conditions and forecast.',            category: 'Utilities', icon: '🌤️' },
   { id: 'calendar',    name: 'Calendar',         description: 'Upcoming events and schedule.',              category: 'Work',      icon: '📅' },
   { id: 'tasks',       name: 'Tasks',            description: 'Quick task list for today.',                 category: 'Work',      icon: '✅' },

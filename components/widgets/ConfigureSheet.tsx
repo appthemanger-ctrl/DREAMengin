@@ -144,7 +144,7 @@ export default function ConfigureSheet({
         )}
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button type="button" className="de-btn de-btn-primary" style={{ flex: 1 }} onClick={() => { onSave?.(values); onClose(); }}>
+          <button type="button" className="de-btn de-btn-primary" style={{ flex: 1 }} aria-label={`Save ${title} configuration`} onClick={() => { onSave?.(values); onClose(); }}>
             Save
           </button>
           <button type="button" className="de-btn de-btn-ghost" onClick={onClose}>Cancel</button>

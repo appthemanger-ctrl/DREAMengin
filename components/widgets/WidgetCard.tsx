@@ -94,7 +94,6 @@ export default function WidgetCard({
         >
           {[
             { label: '⚙️  Configure', fn: onConfigure },
-            { label: '📌 Pin widget', fn: undefined },
             { label: '👁  Hide from feed', fn: onHide },
             { label: '🗑  Remove widget', fn: onRemove, danger: true },
           ].map(({ label, fn, danger }) => (
