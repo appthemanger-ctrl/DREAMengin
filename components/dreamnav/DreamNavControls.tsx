@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Home } from 'lucide-react';
 
 type ControlId = 'dreams' | 'system';
 type Props = {
@@ -35,8 +36,11 @@ function InfinityHalf({ side }: { side: 'left' | 'right' }) {
 
 export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onOpenBothMenus }: Props) {
   const [mounted, setMounted] = useState(false);
-  const [locked, setLocked] = useState(false);
-  const lockedRef = useRef(false);
+  const [locked, setLocked] = useState(true);
+  const lockedRef = useRef(true);
+  const [showHint, setShowHint] = useState(true);
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const gravityRAFRef = useRef<number | null>(null);
 
   const posRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
   const savedPosRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
@@ -50,6 +54,15 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
   const tapRef = useRef<{ id: ControlId | null; at: number; timer: ReturnType<typeof setTimeout> | null }>({
     id: null, at: 0, timer: null,
   });
+
+  const showHintBriefly = useCallback(() => {
+    setShowHint(true);
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    hintTimerRef.current = setTimeout(() => {
+      setShowHint(false);
+      hintTimerRef.current = null;
+    }, 3000);
+  }, []);
 
   const getRails = () => {
     const w = window.innerWidth;
@@ -136,19 +149,78 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const p = JSON.parse(saved) as Record<ControlId, Pos>;
-        posRef.current.dreams = { x: rails.rightX, y: Math.min(Math.max(p.dreams.y, rails.minY), rails.maxY) };
-        posRef.current.system = { x: rails.leftX, y: Math.min(Math.max(p.system.y, rails.minY), rails.maxY) };
+        savedPosRef.current.dreams = { x: rails.rightX, y: Math.min(Math.max(p.dreams.y, rails.minY), rails.maxY) };
+        savedPosRef.current.system = { x: rails.leftX, y: Math.min(Math.max(p.system.y, rails.minY), rails.maxY) };
       } else {
-        posRef.current = defaults;
+        savedPosRef.current = { ...defaults };
       }
     } catch {
-      posRef.current = defaults;
+      savedPosRef.current = { ...defaults };
     }
-    savedPosRef.current = { ...posRef.current };
+    // Start locked at center-bottom
+    const lockY = rails.maxY - 48;
+    posRef.current.dreams = { x: rails.centerX, y: lockY };
+    posRef.current.system = { x: rails.centerX, y: lockY };
+    lockedRef.current = true;
     setMounted(true);
     requestAnimationFrame(() => { applyPos('dreams'); applyPos('system'); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Show hint when locked, hide when unlocked
+  useEffect(() => {
+    if (locked) {
+      showHintBriefly();
+    } else {
+      if (hintTimerRef.current) { clearTimeout(hintTimerRef.current); hintTimerRef.current = null; }
+      setShowHint(false);
+    }
+  }, [locked, showHintBriefly]);
+
+  // Re-show hint on scroll when locked
+  useEffect(() => {
+    const onScroll = () => { if (lockedRef.current) showHintBriefly(); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [showHintBriefly]);
+
+  // Gravity: when unlocked, slowly pull both buttons toward center-bottom
+  useEffect(() => {
+    if (!mounted || locked) {
+      if (gravityRAFRef.current != null) { cancelAnimationFrame(gravityRAFRef.current); gravityRAFRef.current = null; }
+      return;
+    }
+    const tick = () => {
+      if (lockedRef.current) { gravityRAFRef.current = null; return; }
+      if (dragRef.current.id == null) {
+        const rails = getRails();
+        const target = { x: rails.centerX, y: rails.maxY };
+        let anyMoved = false;
+        for (const cid of (['dreams', 'system'] as ControlId[])) {
+          const curr = posRef.current[cid];
+          const dx = target.x - curr.x;
+          const dy = target.y - curr.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist > 0.5) {
+            const speed = Math.max(0.2, dist * 0.004);
+            posRef.current[cid] = {
+              x: curr.x + (dx / dist) * Math.min(speed, dist),
+              y: curr.y + (dy / dist) * Math.min(speed, dist),
+            };
+            applyPos(cid);
+            anyMoved = true;
+          }
+        }
+        if (anyMoved) checkMagnet();
+      }
+      gravityRAFRef.current = requestAnimationFrame(tick);
+    };
+    gravityRAFRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (gravityRAFRef.current != null) { cancelAnimationFrame(gravityRAFRef.current); gravityRAFRef.current = null; }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locked, mounted]);
 
   const handleTap = (id: ControlId) => {
     const now = performance.now();
@@ -172,9 +244,8 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     tapRef.current.timer = setTimeout(() => {
       tapRef.current.timer = null;
       if (lockedRef.current) {
-        // Single tap while locked → open BOTH menus, then snap back
+        // Single tap while locked → open BOTH menus (stay locked)
         onOpenBothMenus();
-        setTimeout(snapToSavedCorners, 80);
       } else {
         onHome();
       }
@@ -256,8 +327,43 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
 
   return (
     <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 58 }}>
-      {/* Onboarding hint badge */}
+      {/* Pill home button — visible only when locked */}
       {locked && (
+        <button
+          type="button"
+          aria-label="Go home"
+          onClick={onHome}
+          style={{
+            position: 'fixed',
+            bottom: 152,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 62,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '8px 20px',
+            borderRadius: 9999,
+            background: 'rgba(14,165,233,0.18)',
+            border: '1px solid rgba(14,165,233,0.45)',
+            color: '#38bdf8',
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: '0.04em',
+            pointerEvents: 'auto',
+            cursor: 'pointer',
+            WebkitTapHighlightColor: 'transparent',
+            backdropFilter: 'blur(6px)',
+            boxShadow: '0 2px 12px rgba(14,165,233,0.25)',
+          }}
+        >
+          <Home size={14} strokeWidth={2.5} />
+          Home
+        </button>
+      )}
+
+      {/* Onboarding hint badge */}
+      {locked && showHint && (
         <div
           style={{
             position: 'fixed',
@@ -277,7 +383,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
             pointerEvents: 'none',
           }}
         >
-          LOCKED · TAP = MENUS · DOUBLE-TAP = UNLOCK
+          Double-tap to unlock
         </div>
       )}
 
