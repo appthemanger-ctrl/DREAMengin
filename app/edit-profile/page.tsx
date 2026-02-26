@@ -51,6 +51,7 @@ export default function EditProfilePage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const supabase = createClient();
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -80,7 +81,7 @@ export default function EditProfilePage() {
   const pickFile = (ref: React.RefObject<HTMLInputElement | null>, field: 'avatar_url' | 'banner_url') => {
     const input = ref.current;
     if (!input) return;
-    input.onchange = () => {
+    const handleChange = () => {
       const file = input.files?.[0];
       if (!file) return;
       const reader = new FileReader();
@@ -89,7 +90,9 @@ export default function EditProfilePage() {
         setProfile((p) => ({ ...p, [field]: dataUrl }));
       };
       reader.readAsDataURL(file);
+      input.removeEventListener('change', handleChange);
     };
+    input.addEventListener('change', handleChange);
     input.click();
   };
 
@@ -97,7 +100,7 @@ export default function EditProfilePage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await fetch('/api/profile', {
+      const res = await fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -110,7 +113,14 @@ export default function EditProfilePage() {
           location: profile.location,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSaveError((data as { error?: string }).error || 'Failed to save. Please try again.');
+        return;
+      }
       router.push('/profile');
+    } catch {
+      setSaveError('Network error. Please check your connection and try again.');
     } finally {
       setIsSaving(false);
     }
@@ -282,6 +292,14 @@ export default function EditProfilePage() {
               </div>
             </div>
           </div>
+
+          {saveError && (
+            <div style={{ maxWidth: 520, margin: '0 auto', padding: '0 0 8px' }}>
+              <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(220,60,60,0.08)', border: '1px solid rgba(220,60,60,0.2)', color: 'var(--de-red)', fontSize: 13 }}>
+                {saveError}
+              </div>
+            </div>
+          )}
         </div>
       </form>
     </div>

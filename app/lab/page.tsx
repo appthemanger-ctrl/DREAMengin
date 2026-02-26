@@ -179,7 +179,7 @@ export default async function LabPage() {
                   <div key={project.id} className="de-widget" style={{ overflow: 'hidden' }}>
                     <div style={{ height: 180, overflow: 'hidden', borderBottom: '1px solid var(--de-border)', pointerEvents: 'none' }}>
                       <iframe
-                        src={project.renderUrl!}
+                        src={project.renderUrl ?? ''}
                         width="100%"
                         height="180"
                         style={{ border: 'none', display: 'block', pointerEvents: 'none' }}
