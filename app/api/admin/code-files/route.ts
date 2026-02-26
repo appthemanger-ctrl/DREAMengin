@@ -1,25 +1,36 @@
 import { NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
+import { createServerClient } from '@/lib/supabase/server';
 
-// ── Rate-limiter (in-memory, resets on server restart) ──────────────────────
-const attempts = new Map<string, { count: number; resetAt: number }>();
-const MAX_ATTEMPTS = 10;
-const WINDOW_MS = 15 * 60 * 1000; // 15 min window
+// ── Owner gate ───────────────────────────────────────────────────────────────
+// The ONLY email that may call this API.
+const OWNER_EMAIL = 'Appthemanger@gmail.com';
 
-function clientIp(req: Request): string {
-  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+// ── Permanent lockout ────────────────────────────────────────────────────────
+// One wrong password attempt locks this process forever.
+// Process-level flag (survives hot-reloads, resets only on server restart / redeploy).
+// Additionally, set ADMIN_LOCKOUT=1 in your environment for persistence across deployments.
+// To reset: remove ADMIN_LOCKOUT from your environment config AND redeploy.
+let adminLocked = false;
+
+function isLocked(): boolean {
+  return adminLocked || process.env.ADMIN_LOCKOUT === '1';
 }
 
-function rateCheck(ip: string): boolean {
-  const now = Date.now();
-  const entry = attempts.get(ip);
-  if (!entry || entry.resetAt < now) {
-    attempts.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return false; // not limited
-  }
-  entry.count += 1;
-  return entry.count > MAX_ATTEMPTS;
+// ── Blocked domains ──────────────────────────────────────────────────────────
+// Any request whose origin, referer, or host contains one of these strings is denied.
+const BLOCKED_DOMAINS = ['theboogieman.ai'];
+
+function isDomainBlocked(req: Request): boolean {
+  const checkHeaders = [
+    req.headers.get('origin') ?? '',
+    req.headers.get('referer') ?? '',
+    req.headers.get('host') ?? '',
+  ];
+  return checkHeaders.some((h) =>
+    BLOCKED_DOMAINS.some((d) => h.toLowerCase().includes(d))
+  );
 }
 
 // ── File-tree builder ────────────────────────────────────────────────────────
@@ -30,7 +41,7 @@ const BLOCKED_SEGMENTS = new Set(['node_modules', '.git', '.next', 'dist', 'out'
 export interface FileNode {
   name: string;
   type: 'file' | 'dir';
-  path: string;       // relative to project root
+  path: string;
   children?: FileNode[];
 }
 
@@ -53,7 +64,6 @@ async function buildTree(absDir: string, root: string, depth = 0): Promise<FileN
       nodes.push({ name: e.name, type: 'file', path: rel });
     }
   }
-  // dirs first, then files, both alphabetical
   return nodes.sort((a, b) => {
     if (a.type !== b.type) return a.type === 'dir' ? -1 : 1;
     return a.name.localeCompare(b.name);
@@ -69,32 +79,59 @@ function isSafe(relPath: string, root: string): boolean {
   return true;
 }
 
+// ── Deny helper ──────────────────────────────────────────────────────────────
+function deny(msg: string, status: number) {
+  return NextResponse.json({ error: msg }, { status });
+}
+
 // ── Route handler ────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
-  const ip = clientIp(request);
-  if (rateCheck(ip)) {
-    return NextResponse.json({ error: 'Too many attempts. Try again in 15 minutes.' }, { status: 429 });
+  // 1. Block blacklisted domains immediately — no information leakage
+  if (isDomainBlocked(request)) {
+    return deny('Access denied.', 403);
   }
 
+  // 2. Check permanent lockout
+  if (isLocked()) {
+    return deny('Access permanently locked. Edit repository configuration to reset.', 403);
+  }
+
+  // 3. Verify Supabase session — must be owner email
+  try {
+    const supabase = await createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const email = user?.email ?? '';
+    if (email.toLowerCase() !== OWNER_EMAIL.toLowerCase()) {
+      // Do not trigger lockout for wrong user — just deny silently
+      return deny('Access denied.', 403);
+    }
+  } catch {
+    return deny('Authentication error.', 401);
+  }
+
+  // 4. Parse body
   let body: { password?: string; action?: string; filePath?: string };
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    return deny('Invalid request body.', 400);
   }
 
-  // ── Password check (server-side only) ──
+  // 5. Password check — ONE wrong attempt = permanent lockout
   const adminPw = process.env.ADMIN_CODE_PASSWORD;
   if (!adminPw) {
-    return NextResponse.json({ error: 'ADMIN_CODE_PASSWORD env var not set on the server.' }, { status: 503 });
+    return deny('Admin feature not configured on this server.', 503);
   }
   if (!body.password || body.password !== adminPw) {
-    return NextResponse.json({ error: 'Incorrect password.' }, { status: 401 });
+    // Trigger permanent lockout immediately
+    adminLocked = true;
+    // Subtle error — do not reveal that a lockout occurred
+    return deny('Incorrect password.', 401);
   }
 
   const root = process.cwd();
 
-  // ── Action: tree ──
+  // 6. Action: tree
   if (body.action === 'tree') {
     const tree: FileNode[] = [];
     for (const dir of ALLOWED_TOP_DIRS) {
@@ -103,29 +140,30 @@ export async function POST(request: Request) {
         await fs.access(abs);
         tree.push({ name: dir, type: 'dir', path: dir, children: await buildTree(abs, root) });
       } catch {
-        /* skip directories that don't exist */
+        /* skip missing directories */
       }
     }
     return NextResponse.json({ tree });
   }
 
-  // ── Action: read ──
+  // 7. Action: read
   if (body.action === 'read' && body.filePath) {
     const rel = body.filePath;
     if (!isSafe(rel, root)) {
-      return NextResponse.json({ error: 'Access denied.' }, { status: 403 });
+      return deny('Access denied.', 403);
     }
     const abs = path.resolve(root, rel);
     try {
       const raw = await fs.readFile(abs, 'utf-8');
       if (raw.length > 200_000) {
-        return NextResponse.json({ error: 'File too large to display (> 200 KB).' }, { status: 413 });
+        return deny('File too large to display (> 200 KB).', 413);
       }
       return NextResponse.json({ content: raw, path: rel });
     } catch {
-      return NextResponse.json({ error: 'Could not read file.' }, { status: 404 });
+      return deny('Could not read file.', 404);
     }
   }
 
-  return NextResponse.json({ error: 'Unknown action.' }, { status: 400 });
+  return deny('Unknown action.', 400);
 }
+
