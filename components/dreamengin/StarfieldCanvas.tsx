@@ -1,25 +1,18 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface Particle {
   x: number;
   y: number;
-  r: number;
+  size: number;
   speed: number;
-  phase: number;
-  bright: number;
-  vy: number;
+  opacity: number;
+  drift: number;
 }
 
-/**
- * Dual-mode starfield/snowfield canvas.
- * Reads --starfield-style from CSS to decide between
- * soft snow sparkles (light) or twinkling stars (dark).
- */
 export default function StarfieldCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const frameRef = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -27,82 +20,65 @@ export default function StarfieldCanvas() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let W = 0, H = 0;
+    let animId: number;
     let particles: Particle[] = [];
-    let t = 0;
 
-    function getStyle(): 'light' | 'dark' {
-      return getComputedStyle(document.documentElement).getPropertyValue('--starfield-style').trim() === 'light'
-        ? 'light'
-        : 'dark';
-    }
+    const resize = () => {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
 
-    function resize() {
-      W = canvas!.width = window.innerWidth;
-      H = canvas!.height = window.innerHeight;
-      initParticles();
-    }
-
-    function initParticles() {
-      const isLight = getStyle() === 'light';
-      const count = isLight ? 120 : 220;
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: isLight ? Math.random() * 2.0 + 0.5 : Math.random() * 1.3 + 0.2,
-        speed: Math.random() * 0.5 + 0.1,
-        phase: Math.random() * Math.PI * 2,
-        bright: isLight ? Math.random() * 0.35 + 0.08 : Math.random() * 0.65 + 0.1,
-        vy: isLight ? Math.random() * 0.15 + 0.02 : 0,
-      }));
-    }
-
-    function draw() {
-      ctx!.clearRect(0, 0, W, H);
-      t += 0.008;
-      const isLight = getStyle() === 'light';
-
-      for (const p of particles) {
-        const a = p.bright * (0.5 + 0.5 * Math.sin(t * p.speed + p.phase));
-
-        if (isLight) {
-          // Soft sparkle / snow effect for Dream Ice
-          p.y += p.vy;
-          if (p.y > H + 4) { p.y = -4; p.x = Math.random() * W; }
-          ctx!.beginPath();
-          ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx!.fillStyle = `rgba(255,255,255,${(a * 1.2).toFixed(3)})`;
-          ctx!.fill();
-        } else {
-          // Classic twinkling stars for dark themes
-          ctx!.beginPath();
-          ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx!.fillStyle = `rgba(200,220,255,${a.toFixed(3)})`;
-          ctx!.fill();
-        }
+    const init = () => {
+      particles = [];
+      const count = Math.min(55, Math.floor((window.innerWidth * window.innerHeight) / 18000));
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x:       Math.random() * window.innerWidth,
+          y:       Math.random() * window.innerHeight,
+          size:    Math.random() * 1.8 + 0.4,
+          speed:   Math.random() * 0.12 + 0.04, // ultra-slow
+          opacity: Math.random() * 0.22 + 0.06,
+          drift:   (Math.random() - 0.5) * 0.06,
+        });
       }
-      frameRef.current = requestAnimationFrame(draw);
-    }
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,220,255,${p.opacity})`;
+        ctx.fill();
+
+        // ultra-slow drift
+        p.y += p.speed;
+        p.x += p.drift;
+
+        // wrap
+        if (p.y > canvas.height + 4)  p.y = -4;
+        if (p.x > canvas.width + 4)   p.x = -4;
+        if (p.x < -4)                  p.x = canvas.width + 4;
+      }
+      animId = requestAnimationFrame(draw);
+    };
 
     resize();
+    init();
     draw();
-    window.addEventListener('resize', resize);
 
-    // Re-init when theme changes
-    const observer = new MutationObserver(() => { initParticles(); });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
-
+    const handleResize = () => { resize(); init(); };
+    window.addEventListener('resize', handleResize);
     return () => {
-      cancelAnimationFrame(frameRef.current);
-      window.removeEventListener('resize', resize);
-      observer.disconnect();
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-0"
+      className="de-snow-canvas"
       aria-hidden="true"
     />
   );
