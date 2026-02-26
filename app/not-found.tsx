@@ -2,25 +2,18 @@ import Link from 'next/link'
 
 export default function NotFound() {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-6">
-      <div className="max-w-xl w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Page not found.</h2>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          The route you tried doesn’t exist (or it moved). The dream is big; the map is still evolving.
+    <div className="de-sky-bg min-h-screen flex items-center justify-center px-4">
+      <div className="de-sheet text-center" style={{ width: 'min(24rem, 92vw)', padding: '40px 32px' }}>
+        {/* Infinity stamp */}
+        <div style={{ fontSize: 48, marginBottom: 8, opacity: 0.15 }}>∞</div>
+        <div style={{ fontSize: 56, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1 }}>404</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--de-heading)', marginTop: 8 }}>Page not found</div>
+        <p style={{ fontSize: 13, color: 'var(--de-text-dim)', marginTop: 8, marginBottom: 24, lineHeight: 1.6 }}>
+          This page doesn't exist or has been moved. Let's get you back on track.
         </p>
-        <div className="mt-4 flex gap-3">
-          <Link
-            href="/"
-            className="px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 transition-colors"
-          >
-            Go home
-          </Link>
-          <Link
-            href="/discover"
-            className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
-          >
-            Discover
-          </Link>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Link href="/home" className="de-btn de-btn-primary" style={{ justifyContent: 'center' }}>Go to Home Dream</Link>
+          <Link href="/discover" className="de-btn de-btn-ghost" style={{ justifyContent: 'center' }}>Search Profiles</Link>
         </div>
       </div>
     </div>

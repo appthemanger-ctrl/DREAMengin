@@ -1,143 +1,127 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Youtube, Sparkles, Link2, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeft, Plug, CheckCircle, AlertCircle, Clock, RefreshCw } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Connectors – DREAMengin', description: 'Connect your favourite services.' };
+
+type ConnectorStatus = 'connected' | 'not_connected' | 'needs_reauth' | 'error';
+
+interface Connector {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  status: ConnectorStatus;
+  category: 'Social' | 'Music' | 'Video' | 'Utilities';
+}
+
+function StatusBadge({ status }: { status: ConnectorStatus }) {
+  const map: Record<ConnectorStatus, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
+    connected:      { label: 'Connected',       color: '#22c55e', bg: 'rgba(34,197,94,0.1)',   icon: <CheckCircle size={12} /> },
+    not_connected:  { label: 'Not Connected',   color: 'var(--de-text-dim)', bg: 'rgba(160,195,240,0.15)', icon: <Clock size={12} /> },
+    needs_reauth:   { label: 'Reconnect',       color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', icon: <RefreshCw size={12} /> },
+    error:          { label: 'Error',           color: '#dc4444', bg: 'rgba(220,68,68,0.1)',  icon: <AlertCircle size={12} /> },
+  };
+  const { label, color, bg, icon } = map[status];
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 9999, background: bg, color, fontSize: 10, fontWeight: 700 }}>
+      {icon} {label}
+    </span>
+  );
+}
+
+const CONNECTORS: Connector[] = [
+  { id: 'instagram', name: 'Instagram',   icon: '📸', description: 'See your feed, stories, and friend posts.',    status: 'not_connected', category: 'Social'    },
+  { id: 'youtube',   name: 'YouTube',     icon: '📺', description: 'Subscriptions, watch history, saved videos.',  status: 'not_connected', category: 'Video'     },
+  { id: 'spotify',   name: 'Spotify',     icon: '🎵', description: 'Now playing, playlists, liked songs.',         status: 'not_connected', category: 'Music'     },
+  { id: 'tiktok',    name: 'TikTok',      icon: '🎬', description: 'Following feed and saved videos.',             status: 'not_connected', category: 'Social'    },
+  { id: 'twitter',   name: 'X / Twitter', icon: '✖️', description: 'Home timeline and bookmarks.',                status: 'not_connected', category: 'Social'    },
+  { id: 'github',    name: 'GitHub',      icon: '🐙', description: 'Repos, activity, and contributions.',         status: 'not_connected', category: 'Utilities' },
+  { id: 'apple',     name: 'Apple Music', icon: '🎼', description: 'Library, playlists, and recent plays.',       status: 'not_connected', category: 'Music'     },
+  { id: 'weather',   name: 'Weather',     icon: '🌤️', description: 'Current conditions and forecast (by location).', status: 'not_connected', category: 'Utilities' },
+];
 
 export default async function ConnectorsPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
 
-  if (!user) {
-    redirect('/login');
-  }
-
-  // Fetch user's connected accounts
-  const { data: tokensData } = await supabase
-    .from('connectors_tokens')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('revoked', false);
-
-  // Demo tokens when no real data exists
-  const tokens = tokensData ?? [];
+  const categories = ['Social', 'Music', 'Video', 'Utilities'] as const;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Connected Accounts</h1>
+    <div className="de-sky-bg min-h-screen">
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
+          </Link>
+          <Plug className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Connectors</h1>
+        </div>
+      </header>
 
-        <p className="text-slate-600 mb-8">
-          Connect your external accounts to automatically import content into your feed.
-        </p>
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
-        {/* Connected Accounts */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold text-slate-900 mb-4">Your Connections</h2>
-          
-          {tokens && tokens.length > 0 ? (
-            <div className="space-y-3">
-              {tokens.map((token) => (
-                <div key={token.id} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    {token.source === 'youtube' && (
-                      <Youtube className="w-6 h-6 text-red-500" />
-                    )}
-                    {token.source === 'demo' && (
-                      <Sparkles className="w-6 h-6 text-purple-500" />
-                    )}
-                    <div>
-                      <span className="font-medium text-slate-900 capitalize">{token.source}</span>
-                      <p className="text-sm text-slate-600">Connected</p>
+        <div className="de-notice">
+          <span>
+            Connecting a service lets you add its content as widgets or slices in your feed. 
+            You control exactly what appears and where. No surprise changes.
+          </span>
+        </div>
+
+        {categories.map((cat) => {
+          const items = CONNECTORS.filter((c) => c.category === cat);
+          if (!items.length) return null;
+          return (
+            <div key={cat} className="de-widget">
+              <div className="de-widget-header"><span className="de-widget-title">{cat}</span></div>
+              <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+                {items.map((conn) => (
+                  <div key={conn.id} className="de-row">
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(42,138,184,0.08)', border: '1px solid rgba(42,138,184,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                      {conn.icon}
                     </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{conn.name}</span>
+                        <StatusBadge status={conn.status} />
+                      </div>
+                      <div className="text-xs" style={{ color: 'var(--de-text-dim)', marginTop: 1 }}>{conn.description}</div>
+                    </div>
+                    <button
+                      type="button"
+                      className="de-btn de-btn-primary"
+                      style={{ fontSize: 11, padding: '6px 12px', flexShrink: 0 }}
+                    >
+                      {conn.status === 'connected' ? 'Manage' : conn.status === 'needs_reauth' ? 'Reconnect' : 'Connect'}
+                    </button>
                   </div>
-                  <button className="text-red-600 hover:text-red-800">
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">About Connectors</span></div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { q: 'What permissions does DREAMengin request?', a: 'Read-only access to your public content and profile. We never post on your behalf.' },
+                { q: 'Can I disconnect a service?', a: 'Yes. Tap Manage on any connected service and choose Disconnect. Your connector data is wiped immediately.' },
+                { q: 'What if a connection expires?', a: 'The widget shows a "Reconnect" button instead of breaking. Your layout and config are preserved.' },
+              ].map(({ q, a }) => (
+                <div key={q} style={{ padding: '10px 0', borderBottom: '1px solid rgba(160,195,240,0.18)' }}>
+                  <div className="text-sm font-semibold mb-1" style={{ color: 'var(--de-heading)' }}>{q}</div>
+                  <div className="text-xs" style={{ color: 'var(--de-text-dim)', lineHeight: 1.5 }}>{a}</div>
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <Link2 className="w-12 h-12 mx-auto text-slate-400 mb-3" />
-              <p className="text-slate-600">No accounts connected yet.</p>
-            </div>
-          )}
-        </div>
-
-        {/* Available Connections */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-slate-900 mb-4">Available Connections</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* YouTube */}
-            <div className="border border-slate-200 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <Youtube className="w-8 h-8 mr-3 text-red-500" />
-                <div>
-                  <h3 className="font-semibold text-slate-900">YouTube</h3>
-                  <p className="text-sm text-slate-600">Import videos from subscriptions</p>
-                </div>
-              </div>
-              <button className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                Connect YouTube
-              </button>
-            </div>
-
-            {/* Demo Connector */}
-            <div className="border border-slate-200 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <Sparkles className="w-8 h-8 mr-3 text-purple-500" />
-                <div>
-                  <h3 className="font-semibold text-slate-900">Demo Connector</h3>
-                  <p className="text-sm text-slate-600">Sample content for testing</p>
-                </div>
-              </div>
-              <button
-                className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-              >
-                Connect Demo
-              </button>
-            </div>
-
-            {/* Spotify (Coming Soon) */}
-            <div className="border border-slate-200 rounded-lg p-4 opacity-50">
-              <div className="flex items-center mb-3">
-                <div className="w-8 h-8 bg-green-500 rounded flex items-center justify-center mr-3">
-                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900">Spotify</h3>
-                  <p className="text-sm text-slate-600">Coming soon</p>
-                </div>
-              </div>
-              <button disabled className="w-full px-4 py-2 bg-slate-300 text-slate-500 rounded-md cursor-not-allowed">
-                Coming Soon
-              </button>
-            </div>
-
-            {/* Twitter (Coming Soon) */}
-            <div className="border border-slate-200 rounded-lg p-4 opacity-50">
-              <div className="flex items-center mb-3">
-                <div className="w-8 h-8 bg-sky-500 rounded flex items-center justify-center mr-3">
-                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900">X (Twitter)</h3>
-                  <p className="text-sm text-slate-600">Coming soon</p>
-                </div>
-              </div>
-              <button disabled className="w-full px-4 py-2 bg-slate-300 text-slate-500 rounded-md cursor-not-allowed">
-                Coming Soon
-              </button>
-            </div>
           </div>
         </div>
+
       </div>
     </div>
   );
