@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import DangerZoneActions from './DangerZoneActions';
 import { ArrowLeft, User, Mail, Calendar, Shield } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -113,11 +114,9 @@ export default async function AccountSettingsPage() {
         <div className="mt-8 p-4 bg-destructive/5 border border-destructive/20 rounded-xl">
           <h3 className="font-medium text-destructive mb-2">Danger Zone</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Once you delete your account, there is no going back. Please be certain.
+            These actions are destructive and may not be reversible.
           </p>
-          <button className="px-4 py-2 bg-destructive text-destructive-foreground rounded-xl text-sm font-medium hover:bg-destructive/90 transition-colors min-h-[44px]">
-            Delete Account
-          </button>
+          <DangerZoneActions />
         </div>
       </div>
     </div>
