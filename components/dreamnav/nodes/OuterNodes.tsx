@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 // ---- Shared Primitives ----
 
@@ -187,58 +188,69 @@ export function Node2b() {
   );
 }
 
-// ---- NODE 3b -- CODE PREVIEW ----
+// ---- NODE 3b -- CODE DAYDREAM ----
+
+const NODE3B_DEFAULT_HTML = `<!DOCTYPE html><html><head><style>body{margin:0;background:linear-gradient(135deg,#1a1a3e,#0d0d2b);color:#e0e0f0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px}.dot{width:12px;height:12px;border-radius:50%;background:#6366f1;animation:pulse 1.5s infinite}.dot:nth-child(2){animation-delay:.3s;background:#8b5cf6}.dot:nth-child(3){animation-delay:.6s;background:#a78bfa}@keyframes pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.4);opacity:1}}</style></head><body><div class=dot></div><div class=dot></div><div class=dot></div><p style="font-size:13px;opacity:.6">DREAMengin CodeSpace</p></body></html>`;
 
 export function Node3b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 3b" title="Code - Preview" />
+      <Header tag="Day Dream · Code" title="Code Lab" />
       <Divider />
-      <div
-        style={{
-          background: 'rgba(15,20,40,0.90)',
-          border: '1px solid var(--de-border)',
-          borderRadius: '14px',
-          padding: '16px',
-          marginBottom: '12px',
-        }}
-      >
-        <div className="flex gap-2 flex-wrap" style={{ marginBottom: '10px' }}>
-          <span style={{
-            padding: '3px 10px', borderRadius: 100, fontSize: 10, fontWeight: 600,
-            background: 'rgba(42,138,184,0.2)', border: '1px solid rgba(42,138,184,0.35)', color: '#93c5fd',
-          }}>
-            Device: iPhone 14 Pro
-          </span>
-          <span style={{
-            padding: '3px 10px', borderRadius: 100, fontSize: 10, fontWeight: 600,
-            background: 'rgba(200,152,26,0.1)', border: '1px solid var(--de-border-gold)', color: 'var(--de-gold)',
-          }}>
-            58 FPS
-          </span>
-        </div>
-        <div style={{
-          fontSize: '14px', fontWeight: 600, textAlign: 'center', padding: '16px',
-          background: 'rgba(0,20,80,0.4)', borderRadius: '10px', color: '#f0f4ff',
-        }}>
-          {'DreamVerse \u2014 '}
-          <span style={{ color: '#f0c040' }}>Explore the Universe of the Future</span>
-        </div>
+
+      {/* Live render preview */}
+      <div style={{ height: 120, overflow: 'hidden', borderRadius: 12, border: '1px solid var(--de-border)', marginBottom: 12 }}>
+        <iframe
+          srcDoc={NODE3B_DEFAULT_HTML}
+          width="100%"
+          height="100%"
+          style={{ border: 'none', display: 'block' }}
+          sandbox="allow-scripts"
+          title="CodeSpace Preview"
+        />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-        <WidgetTile style={{ padding: '10px' }}>
-          <Tag>Terminal</Tag>
-          <div className="de-code" style={{ marginTop: '4px', color: 'var(--de-text)' }}>npm run build</div>
+
+      {/* Action buttons */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+        <Link href="/lab" className="de-btn de-btn-primary" style={{ textAlign: 'center', textDecoration: 'none' }}>
+          🔬 Open Lab
+        </Link>
+        <Link href="/lab/new" className="de-btn de-btn-gold" style={{ textAlign: 'center', textDecoration: 'none' }}>
+          ✦ New Project
+        </Link>
+        <Link href="/lab/demo-1/codespace" className="de-btn de-btn-ghost" style={{ textAlign: 'center', textDecoration: 'none' }}>
+          💻 CodeSpace Demo
+        </Link>
+      </div>
+
+      {/* Code snippet */}
+      <div style={{
+        background: 'rgba(15,20,40,0.92)',
+        border: '1px solid var(--de-border)',
+        borderRadius: 12,
+        padding: 12,
+        color: '#7dd3fc',
+        fontSize: 12,
+        fontFamily: 'monospace',
+        marginBottom: 12,
+        whiteSpace: 'pre',
+      }}>
+        {`const dream = () => {\n  return <Surface node={node} />;\n};`}
+      </div>
+
+      {/* Stats row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+        <WidgetTile style={{ padding: '10px', textAlign: 'center' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-gold)' }}>189 commits</div>
         </WidgetTile>
-        <WidgetTile style={{ padding: '10px' }}>
-          <Tag>Git</Tag>
-          <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--de-gold)', fontWeight: 600 }}>189 commits</div>
+        <WidgetTile style={{ padding: '10px', textAlign: 'center' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#34d399' }}>{'All tests ✓'}</div>
         </WidgetTile>
-        <WidgetTile style={{ padding: '10px' }}>
-          <Tag>Tests</Tag>
-          <div style={{ fontSize: '12px', marginTop: '4px', color: '#34d399', fontWeight: 600 }}>{'All passing \u2713'}</div>
+        <WidgetTile style={{ padding: '10px', textAlign: 'center' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-accent)' }}>58 FPS</div>
         </WidgetTile>
       </div>
+
       <NodeFooter />
     </OuterShell>
   );
