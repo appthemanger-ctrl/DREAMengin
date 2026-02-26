@@ -140,7 +140,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
       {/* Daydreams menu */}
       <DreamRadialMenu
         open={dreamMenuOpen || bothMenusOpen}
-        anchor={bothMenusOpen ? makeAnchor(-60) : makeAnchor(-60)}
+        anchor={bothMenusOpen ? makeAnchor(-60) : makeAnchor(0)}
         onClose={() => { setDreamMenuOpen(false); if (bothMenusOpen) setBothMenusOpen(false); }}
         onSelectNode={(n) => {
           closeAll();
@@ -151,7 +151,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
       {/* System menu */}
       <SystemRadialMenu
         open={systemMenuOpen || bothMenusOpen}
-        anchor={bothMenusOpen ? makeAnchor(60) : makeAnchor(60)}
+        anchor={bothMenusOpen ? makeAnchor(60) : makeAnchor(0)}
         onClose={() => { setSystemMenuOpen(false); if (bothMenusOpen) setBothMenusOpen(false); }}
         onAction={onSystemAction}
       />

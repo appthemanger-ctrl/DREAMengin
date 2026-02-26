@@ -20,11 +20,9 @@ const STORAGE_KEY = 'dreamengin:controls:v4';
 const DOUBLE_TAP_MS = 280;
 const SNAP_ANIM_MS = 160;
 
-function InfinityHalf({ side, locked }: { side: 'left' | 'right'; locked: boolean }) {
+function InfinityHalf({ side }: { side: 'left' | 'right' }) {
   const flip = side === 'right';
-  const color = locked
-    ? (side === 'left' ? '#0ea5e9' : '#d4a843')
-    : (side === 'left' ? '#0ea5e9' : '#d4a843');
+  const color = side === 'left' ? '#0ea5e9' : '#d4a843';
   return (
     <svg width="26" height="13" viewBox="0 0 80 36" style={{ opacity: 0.92 }}>
       <g transform={flip ? 'translate(80,0) scale(-1,1)' : undefined}>
@@ -303,7 +301,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
         onPointerUp={onPointerUp}
         onPointerCancel={() => { dragRef.current.id = null; }}
       >
-        <InfinityHalf side="left" locked={locked} />
+        <InfinityHalf side="left" />
       </button>
 
       {/* System button (left rail, gold) */}
@@ -326,7 +324,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
         onPointerUp={onPointerUp}
         onPointerCancel={() => { dragRef.current.id = null; }}
       >
-        <InfinityHalf side="right" locked={locked} />
+        <InfinityHalf side="right" />
       </button>
     </div>
   );
