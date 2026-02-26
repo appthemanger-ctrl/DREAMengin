@@ -67,8 +67,8 @@ export async function POST(request: Request) {
     return deny('Access denied.', 403);
   }
 
-  // 2. Check permanent lockout
-  if (isAdminLocked()) {
+  // 2. Check permanent lockout (durable Supabase-backed check)
+  if (await isAdminLocked()) {
     return deny('Access permanently locked. Edit repository configuration to reset.', 403);
   }
 
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
   }
   if (!body.password || body.password !== adminPw) {
     // Trigger permanent lockout immediately
-    triggerAdminLockout();
+    await triggerAdminLockout();
     // Subtle error — do not reveal that a lockout occurred
     return deny('Incorrect password.', 401);
   }
