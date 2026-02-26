@@ -10,7 +10,8 @@ export type SystemMenuAction =
   | 'appearance'
   | 'account'
   | 'view-all-dreams'
-  | 'edit-layout';
+  | 'edit-layout'
+  | 'go-home';
 
 type Props = {
   open: boolean;
@@ -20,12 +21,12 @@ type Props = {
 };
 
 const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string }> = [
-  { id: 'search',          label: 'Search'     },
   { id: 'dr-eams',         label: 'Dr.Eams'    },
-  { id: 'appearance',      label: 'Appearance'  },
-  { id: 'settings',        label: 'Settings'    },
-  { id: 'account',         label: 'Account'     },
-  { id: 'view-all-dreams', label: 'View All'    },
+  { id: 'settings',        label: 'Settings'   },
+  { id: 'account',         label: 'Account'    },
+  { id: 'go-home',         label: 'Go Home'    },
+  { id: 'appearance',      label: 'Appearance' },
+  { id: 'view-all-dreams', label: 'All Dreams' },
 ];
 
 export default function SystemRadialMenu({ open, anchor, onClose, onAction }: Props) {

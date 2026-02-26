@@ -1,208 +1,128 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  User, 
-  Shield, 
-  Plug, 
-  Sliders, 
-  LogOut,
-  ChevronRight,
-  Crown,
-  Bot,
-  ArrowLeft
+import {
+  ArrowLeft, User, Rss, LayoutGrid, Palette, Plug, Sliders,
+  Shield, Database, Bot, Crown, ChevronRight, HelpCircle, LogOut
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Settings – DREAMengin' };
+
+const NAV_GROUPS = [
+  {
+    heading: 'Your Space',
+    items: [
+      { href: '/edit-profile',          icon: User,       label: 'Profile',        desc: 'Edit your name, handle, avatar, bio' },
+      { href: '/settings/feed',         icon: Rss,        label: 'Feed',           desc: 'Control what appears in your feed' },
+      { href: '/settings/widgets',      icon: LayoutGrid, label: 'Widgets',        desc: 'Manage widget layout and pinned cards' },
+      { href: '/settings/appearance',   icon: Palette,    label: 'Theme',          desc: 'Gradient presets, background, live preview' },
+    ],
+  },
+  {
+    heading: 'Connections',
+    items: [
+      { href: '/connectors',            icon: Plug,       label: 'Connectors',     desc: 'Connect Instagram, YouTube, Spotify and more' },
+      { href: '/settings/controls',     icon: Sliders,    label: 'Controls',       desc: 'Customize the Home Button behaviors' },
+    ],
+  },
+  {
+    heading: 'Privacy & Data',
+    items: [
+      { href: '/settings/privacy',      icon: Shield,     label: 'Privacy',        desc: 'Visibility, blocking, public profile settings' },
+      { href: '/settings/data',         icon: Database,   label: 'Data',           desc: 'Export, delete data, delete account' },
+    ],
+  },
+  {
+    heading: 'Help',
+    items: [
+      { href: '/settings/help',         icon: HelpCircle, label: 'Help & Onboarding', desc: 'Re-open tips, how-it-works guides, wizard' },
+    ],
+  },
+];
 
 export default async function SettingsPage() {
   let isAdmin = false;
-
   try {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      redirect('/login');
-    }
-
-    // Check admin status
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
-    } catch {
-      // Not admin
-    }
+    if (!user) redirect('/login');
+    const { data: profile } = await supabase.from('profiles').select('handle').eq('id', user.id).single();
+    isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
   } catch {
     redirect('/login');
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
+    <div className="de-sky-bg min-h-screen">
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
-          <h1 className="text-xl font-bold text-foreground">Settings</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Settings</h1>
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 md:pb-8">
-        <div className="space-y-4">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
-          {/* Admin Section - Only visible to admins */}
-          {isAdmin && (
-            <div className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-2xl border border-purple-500/20 overflow-hidden">
-              <div className="px-4 py-3 border-b border-purple-500/10">
-                <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-                  <Crown className="w-5 h-5 text-purple-500" />
-                  Admin Access
-                </h2>
-              </div>
-              <div className="p-2">
-                <Link
-                  href="/admin"
-                  className="flex items-center justify-between py-3 px-3 hover:bg-purple-500/10 rounded-xl transition-colors min-h-[48px]"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center">
-                      <Bot className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <span className="text-foreground font-medium">Admin Dashboard</span>
-                      <p className="text-xs text-muted-foreground">InnerDreams AI, system management</p>
-                    </div>
+        {/* Admin section */}
+        {isAdmin && (
+          <div className="de-widget" style={{ border: '1px solid rgba(139,92,246,0.3)' }}>
+            <div className="de-widget-header" style={{ background: 'rgba(139,92,246,0.06)' }}>
+              <Crown className="w-4 h-4 mr-2" style={{ color: '#8b5cf6' }} />
+              <span className="de-widget-title" style={{ color: '#8b5cf6' }}>Admin Access</span>
+            </div>
+            <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+              <Link href="/admin" className="de-row" style={{ borderRadius: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#8b5cf6,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Admin Dashboard</div>
+                  <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>AI triad, system health, proposals</div>
+                </div>
+                <ChevronRight className="w-4 h-4" style={{ color: 'var(--de-text-dim)' }} />
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation groups */}
+        {NAV_GROUPS.map((group) => (
+          <div key={group.heading} className="de-widget">
+            <div className="de-widget-header">
+              <span className="de-widget-title">{group.heading}</span>
+            </div>
+            <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+              {group.items.map(({ href, icon: Icon, label, desc }) => (
+                <Link key={href} href={href} className="de-row" style={{ borderRadius: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(42,138,184,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  <div style={{ flex: 1 }}>
+                    <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{label}</div>
+                    <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>{desc}</div>
+                  </div>
+                  <ChevronRight className="w-4 h-4" style={{ color: 'var(--de-text-dim)' }} />
                 </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* Logout */}
+        <div className="de-widget">
+          <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+            <Link href="/api/auth/logout" className="de-row" style={{ borderRadius: 10, color: '#dc4444' }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(220,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LogOut className="w-4 h-4" style={{ color: '#dc4444' }} />
               </div>
-            </div>
-          )}
-
-          {/* Account Section */}
-          <div className="bg-card rounded-2xl border border-border overflow-hidden">
-            <div className="px-4 py-3 border-b border-border">
-              <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-                <User className="w-5 h-5 text-primary" />
-                Account
-              </h2>
-            </div>
-            <div className="p-2">
-              <Link
-                href="/edit-profile"
-                className="flex items-center justify-between py-3 px-3 hover:bg-muted rounded-xl transition-colors min-h-[48px]"
-              >
-                <span className="text-foreground">Edit Profile</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Link>
-              <Link
-                href="/settings/account"
-                className="flex items-center justify-between py-3 px-3 hover:bg-muted rounded-xl transition-colors min-h-[48px]"
-              >
-                <span className="text-foreground">Account Information</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Link>
-            </div>
+              <span className="text-sm font-semibold">Sign Out</span>
+            </Link>
           </div>
-
-          {/* Privacy Section */}
-          <div className="bg-card rounded-2xl border border-border overflow-hidden">
-            <div className="px-4 py-3 border-b border-border">
-              <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-                <Shield className="w-5 h-5 text-green-500" />
-                Privacy & Security
-              </h2>
-            </div>
-            <div className="p-2">
-              <Link
-                href="/settings/privacy"
-                className="flex items-center justify-between py-3 px-3 hover:bg-muted rounded-xl transition-colors min-h-[48px]"
-              >
-                <span className="text-foreground">Privacy Settings</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Link>
-              <Link
-                href="/settings/security"
-                className="flex items-center justify-between py-3 px-3 hover:bg-muted rounded-xl transition-colors min-h-[48px]"
-              >
-                <span className="text-foreground">Security</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Connectors Section */}
-          <div className="bg-card rounded-2xl border border-border overflow-hidden">
-            <div className="px-4 py-3 border-b border-border">
-              <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-                <Plug className="w-5 h-5 text-blue-500" />
-                Connectors
-              </h2>
-            </div>
-            <div className="p-2">
-              <Link
-                href="/connectors"
-                className="flex items-center justify-between py-3 px-3 hover:bg-muted rounded-xl transition-colors min-h-[48px]"
-              >
-                <span className="text-foreground">Manage Connections</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Link>
-              <Link
-                href="/feed-settings"
-                className="flex items-center justify-between py-3 px-3 hover:bg-muted rounded-xl transition-colors min-h-[48px]"
-              >
-                <span className="text-foreground">Feed Rules</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Preferences Section */}
-          <div className="bg-card rounded-2xl border border-border overflow-hidden">
-            <div className="px-4 py-3 border-b border-border">
-              <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-orange-500" />
-                Preferences
-              </h2>
-            </div>
-            <div className="p-2">
-              <Link
-                href="/settings/notifications"
-                className="flex items-center justify-between py-3 px-3 hover:bg-muted rounded-xl transition-colors min-h-[48px]"
-              >
-                <span className="text-foreground">Notifications</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Link>
-              <Link
-                href="/settings/appearance"
-                className="flex items-center justify-between py-3 px-3 hover:bg-muted rounded-xl transition-colors min-h-[48px]"
-              >
-                <span className="text-foreground">Appearance</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Logout */}
-          <div className="bg-card rounded-2xl border border-border overflow-hidden">
-            <div className="p-2">
-              <Link
-                href="/api/auth/logout"
-                className="flex items-center w-full py-3 px-3 text-destructive hover:bg-destructive/10 rounded-xl transition-colors min-h-[48px]"
-              >
-                <LogOut className="w-5 h-5 mr-3" />
-                Logout
-              </Link>
-            </div>
-          </div>
-
         </div>
+
       </div>
     </div>
   );

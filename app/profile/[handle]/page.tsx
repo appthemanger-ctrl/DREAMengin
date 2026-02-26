@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Music, ExternalLink, Store, FlaskConical, Edit2, User, Sparkles } from 'lucide-react';
+import { Music, ExternalLink, Store, FlaskConical, Edit2, User, Sparkles, Share2, UserPlus, ArrowLeft, Globe } from 'lucide-react';
 import ProfileShareButton from '@/components/ProfileShareButton';
 import ProfileWidgetBlock from '@/components/ProfileWidgetBlock';
 
@@ -33,6 +33,14 @@ interface ProfilePageProps {
 }
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: ProfilePageProps) {
+  const { handle } = await params;
+  return {
+    title: `@${handle} – DREAMengin`,
+    description: `${handle}'s public profile on DREAMengin`,
+  };
+}
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { handle } = await params;
@@ -89,7 +97,28 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const posts = profile.posts_count ?? 0;
 
   return (
-    <div className="min-h-screen dream-bg" style={{ paddingBottom: 40 }}>
+    <div className="de-sky-bg min-h-screen" style={{ paddingBottom: 40 }}>
+
+      {/* ── Sticky frosted-glass header ── */}
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
+          </Link>
+          <Globe className="w-4 h-4" style={{ color: 'var(--de-text-dim)' }} />
+          <span className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>@{handle}</span>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+            {isOwner ? (
+              <Link href="/edit-profile" className="de-btn de-btn-ghost" style={{ fontSize: 11, padding: '6px 12px' }}>Edit Profile</Link>
+            ) : (
+              <button type="button" className="de-btn de-btn-primary" style={{ fontSize: 11, padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <UserPlus className="w-3 h-3" /> Follow
+              </button>
+            )}
+            <ProfileShareButton />
+          </div>
+        </div>
+      </header>
 
       {/* ── Cover area ── */}
       <div

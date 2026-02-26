@@ -7,24 +7,49 @@ type Props = {
   onHome: () => void;
   onOpenDreamsMenu: () => void;
   onOpenSystemMenu: () => void;
+  onOpenBothMenus: () => void;
 };
 
 type Pos = { x: number; y: number };
 
 const CTRL_SIZE = 52;
 const RAIL_WIDTH = 0.14;
-const SNAP_DISTANCE = 92;
-const LOCK_DISTANCE = 44;
-const STORAGE_KEY = 'dreamengin:controls:v3';
+const SNAP_DISTANCE = 88;
+const LOCK_HYSTERESIS = 52; // distance to unlock (larger than snap to avoid flicker)
+const STORAGE_KEY = 'dreamengin:controls:v4';
+const DOUBLE_TAP_MS = 280;
+const SNAP_ANIM_MS = 160;
 
-export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu }: Props) {
+function InfinityHalf({ side }: { side: 'left' | 'right' }) {
+  const flip = side === 'right';
+  const color = side === 'left' ? '#0ea5e9' : '#d4a843';
+  return (
+    <svg width="26" height="13" viewBox="0 0 80 36" style={{ opacity: 0.92 }}>
+      <g transform={flip ? 'translate(80,0) scale(-1,1)' : undefined}>
+        <path d="M10 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke={color} strokeWidth="6" strokeLinecap="round"/>
+        <path d="M10 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke={color} strokeWidth="6" strokeLinecap="round"/>
+      </g>
+    </svg>
+  );
+}
+
+export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onOpenBothMenus }: Props) {
   const [mounted, setMounted] = useState(false);
-  const [navLocked, setNavLocked] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const lockedRef = useRef(false);
 
   const posRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
+  const savedPosRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
   const elRef = useRef<Record<ControlId, HTMLButtonElement | null>>({ dreams: null, system: null });
-  const dragRef = useRef<{ id: ControlId | null; startY: number; startPos: Record<ControlId, Pos>; moved: boolean }>({ id: null, startY: 0, startPos: { dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } }, moved: false });
-  const tapRef = useRef<{ id: ControlId | null; at: number; timer: number | null }>({ id: null, at: 0, timer: null });
+  const dragRef = useRef<{
+    id: ControlId | null;
+    startClient: { x: number; y: number };
+    startPos: Record<ControlId, Pos>;
+    moved: boolean;
+  }>({ id: null, startClient: { x: 0, y: 0 }, startPos: { dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } }, moved: false });
+  const tapRef = useRef<{ id: ControlId | null; at: number; timer: ReturnType<typeof setTimeout> | null }>({
+    id: null, at: 0, timer: null,
+  });
 
   const getRails = () => {
     const w = window.innerWidth;
@@ -33,117 +58,138 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     return {
       leftX: Math.round((rail - CTRL_SIZE) / 2),
       rightX: Math.round(w - rail + (rail - CTRL_SIZE) / 2),
-      minY: 48,
-      maxY: h - CTRL_SIZE - 24,
+      minY: 52,
+      maxY: h - CTRL_SIZE - 28,
       centerX: Math.round((w - CTRL_SIZE) / 2),
     };
   };
 
-  const apply = (id: ControlId) => {
+  const applyPos = (id: ControlId) => {
     const p = posRef.current[id];
     const el = elRef.current[id];
     if (el) el.style.transform = `translate3d(${Math.round(p.x)}px,${Math.round(p.y)}px,0)`;
   };
 
-  const setWindowLock = (locked: boolean) => {
-    (window as Window & { __deNavLocked?: boolean }).__deNavLocked = locked;
-    setNavLocked(locked);
+  const setLockState = (val: boolean) => {
+    lockedRef.current = val;
+    setLocked(val);
+    (window as Window & { __deNavLocked?: boolean }).__deNavLocked = val;
   };
 
-  const separateToRails = () => {
+  const animateTo = (id: ControlId, target: Pos) => {
+    const el = elRef.current[id];
+    if (!el) return;
+    const from = `translate3d(${Math.round(posRef.current[id].x)}px,${Math.round(posRef.current[id].y)}px,0)`;
+    const to = `translate3d(${Math.round(target.x)}px,${Math.round(target.y)}px,0)`;
+    posRef.current[id] = target;
+    el.animate([{ transform: from }, { transform: to }], {
+      duration: SNAP_ANIM_MS, easing: 'ease-out', fill: 'forwards',
+    });
+    el.style.transform = to;
+  };
+
+  const snapToSavedCorners = () => {
     const rails = getRails();
+    const dreamsTarget = {
+      x: rails.rightX,
+      y: Math.min(Math.max(savedPosRef.current.dreams.y, rails.minY), rails.maxY),
+    };
+    const systemTarget = {
+      x: rails.leftX,
+      y: Math.min(Math.max(savedPosRef.current.system.y, rails.minY), rails.maxY),
+    };
+    animateTo('dreams', dreamsTarget);
+    animateTo('system', systemTarget);
+    setLockState(false);
+  };
+
+  const lockToCenter = () => {
+    const rails = getRails();
+    // Save positions before locking
+    savedPosRef.current = {
+      dreams: { ...posRef.current.dreams },
+      system: { ...posRef.current.system },
+    };
     const midY = Math.round((posRef.current.dreams.y + posRef.current.system.y) / 2);
-    posRef.current.dreams = { x: rails.rightX, y: Math.min(Math.max(midY, rails.minY), rails.maxY) };
-    posRef.current.system = { x: rails.leftX, y: Math.min(Math.max(midY, rails.minY), rails.maxY) };
-    apply('dreams');
-    apply('system');
-    setWindowLock(false);
+    const y = Math.min(Math.max(midY, rails.minY), rails.maxY);
+    animateTo('dreams', { x: rails.centerX, y });
+    animateTo('system', { x: rails.centerX, y });
+    setLockState(true);
   };
 
-  const lockToMiddle = () => {
-    const rails = getRails();
-    const y = Math.min(Math.max(Math.round((posRef.current.dreams.y + posRef.current.system.y) / 2), rails.minY), rails.maxY);
-    posRef.current.dreams = { x: rails.centerX, y };
-    posRef.current.system = { x: rails.centerX, y };
-    const opts: KeyframeAnimationOptions = { duration: 170, easing: 'ease-out', fill: 'forwards' };
-    elRef.current.dreams?.animate([{ transform: elRef.current.dreams.style.transform }, { transform: `translate3d(${rails.centerX}px,${y}px,0)` }], opts);
-    elRef.current.system?.animate([{ transform: elRef.current.system.style.transform }, { transform: `translate3d(${rails.centerX}px,${y}px,0)` }], opts);
-    apply('dreams');
-    apply('system');
-    setWindowLock(true);
-  };
-
-  const evaluateLock = () => {
+  const checkMagnet = () => {
     const a = posRef.current.dreams;
     const b = posRef.current.system;
     const dist = Math.hypot(a.x - b.x, a.y - b.y);
-    if (!navLocked && dist < SNAP_DISTANCE) lockToMiddle();
-    else if (navLocked && dist > LOCK_DISTANCE) setWindowLock(false);
+    if (!lockedRef.current && dist < SNAP_DISTANCE) lockToCenter();
+    else if (lockedRef.current && dist > LOCK_HYSTERESIS) setLockState(false);
   };
 
+  // Init from storage
   useEffect(() => {
     const rails = getRails();
-    const defaultPos = {
+    const defaults = {
       dreams: { x: rails.rightX, y: rails.maxY - 48 },
       system: { x: rails.leftX, y: rails.maxY - 48 },
     };
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved) as Record<ControlId, Pos>;
-        posRef.current.dreams = { x: rails.rightX, y: Math.min(Math.max(parsed.dreams.y, rails.minY), rails.maxY) };
-        posRef.current.system = { x: rails.leftX, y: Math.min(Math.max(parsed.system.y, rails.minY), rails.maxY) };
+        const p = JSON.parse(saved) as Record<ControlId, Pos>;
+        posRef.current.dreams = { x: rails.rightX, y: Math.min(Math.max(p.dreams.y, rails.minY), rails.maxY) };
+        posRef.current.system = { x: rails.leftX, y: Math.min(Math.max(p.system.y, rails.minY), rails.maxY) };
       } else {
-        posRef.current = defaultPos;
+        posRef.current = defaults;
       }
     } catch {
-      posRef.current = defaultPos;
+      posRef.current = defaults;
     }
+    savedPosRef.current = { ...posRef.current };
     setMounted(true);
-    requestAnimationFrame(() => {
-      apply('dreams');
-      apply('system');
-      setWindowLock(false);
-    });
+    requestAnimationFrame(() => { applyPos('dreams'); applyPos('system'); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleTap = (id: ControlId) => {
     const now = performance.now();
-    const isDouble = tapRef.current.id === id && now - tapRef.current.at < 280;
+    const isDouble = tapRef.current.id === id && now - tapRef.current.at < DOUBLE_TAP_MS;
     tapRef.current.id = id;
     tapRef.current.at = now;
-
-    if (tapRef.current.timer) window.clearTimeout(tapRef.current.timer);
+    if (tapRef.current.timer) { clearTimeout(tapRef.current.timer); tapRef.current.timer = null; }
 
     if (isDouble) {
-      tapRef.current.timer = null;
-      if (navLocked) {
-        separateToRails();
-      } else if (id === 'dreams') {
-        onOpenDreamsMenu();
+      if (lockedRef.current) {
+        // Double tap while locked → unlock
+        snapToSavedCorners();
       } else {
-        onOpenSystemMenu();
+        // Double tap unlocked → open specific menu
+        if (id === 'dreams') onOpenDreamsMenu();
+        else onOpenSystemMenu();
       }
       return;
     }
 
-    tapRef.current.timer = window.setTimeout(() => {
-      if (navLocked) {
-        if (id === 'dreams') onOpenDreamsMenu();
-        else onOpenSystemMenu();
+    tapRef.current.timer = setTimeout(() => {
+      tapRef.current.timer = null;
+      if (lockedRef.current) {
+        // Single tap while locked → open BOTH menus, then snap back
+        onOpenBothMenus();
+        setTimeout(snapToSavedCorners, 80);
       } else {
         onHome();
       }
-    }, 240);
+    }, DOUBLE_TAP_MS + 10);
   };
 
   const onPointerDown = (id: ControlId) => (e: React.PointerEvent) => {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     dragRef.current = {
       id,
-      startY: e.clientY,
-      startPos: { dreams: { ...posRef.current.dreams }, system: { ...posRef.current.system } },
+      startClient: { x: e.clientX, y: e.clientY },
+      startPos: {
+        dreams: { ...posRef.current.dreams },
+        system: { ...posRef.current.system },
+      },
       moved: false,
     };
   };
@@ -152,85 +198,134 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     const drag = dragRef.current;
     if (!drag.id) return;
     const rails = getRails();
-    const dy = e.clientY - drag.startY;
-    if (!drag.moved && Math.abs(dy) > 4) drag.moved = true;
+    const dx = e.clientX - drag.startClient.x;
+    const dy = e.clientY - drag.startClient.y;
+    if (!drag.moved && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) drag.moved = true;
+    if (!drag.moved) return;
 
-    if (navLocked) {
+    if (lockedRef.current) {
+      // Locked: both buttons move together (vertical only)
       const y = Math.min(Math.max(drag.startPos.dreams.y + dy, rails.minY), rails.maxY);
       posRef.current.dreams = { x: rails.centerX, y };
       posRef.current.system = { x: rails.centerX, y };
-      apply('dreams');
-      apply('system');
+      applyPos('dreams');
+      applyPos('system');
       return;
     }
 
+    // Unlocked: button slides along its rail (vertical only)
     const y = Math.min(Math.max(drag.startPos[drag.id].y + dy, rails.minY), rails.maxY);
     if (drag.id === 'dreams') posRef.current.dreams = { x: rails.rightX, y };
     else posRef.current.system = { x: rails.leftX, y };
-    apply(drag.id);
-    evaluateLock();
+    applyPos(drag.id);
+    checkMagnet();
   };
 
-  const onPointerUp = () => {
+  const onPointerUp = (e: React.PointerEvent) => {
     const drag = dragRef.current;
     if (!drag.id) return;
     const id = drag.id;
-    if (!drag.moved) handleTap(id);
     dragRef.current.id = null;
-    if (!navLocked) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posRef.current)); } catch { /* ignore */ }
+    if (!drag.moved) {
+      handleTap(id);
+    } else if (!lockedRef.current) {
+      // Persist positions
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posRef.current)); } catch { /* noop */ }
     }
   };
 
   if (!mounted) return null;
 
-  const base: React.CSSProperties = {
+  const baseStyle: React.CSSProperties = {
     position: 'fixed',
     left: 0,
     top: 0,
     width: CTRL_SIZE,
     height: CTRL_SIZE,
-    borderRadius: '999px',
-    border: navLocked ? '2px solid var(--de-gold)' : '1px solid rgba(255,255,255,0.22)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
+    borderRadius: 9999,
     touchAction: 'none',
     pointerEvents: 'auto',
     zIndex: 60,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    WebkitTapHighlightColor: 'transparent',
+    transition: 'box-shadow 0.2s, border-color 0.2s',
   };
 
   return (
-    <div className="controls" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 58 }}>
-      <div style={{ position: 'fixed', left: 0, top: 0, bottom: 0, width: `${RAIL_WIDTH * 100}%`, pointerEvents: 'none' }} />
-      <div style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: `${RAIL_WIDTH * 100}%`, pointerEvents: 'none' }} />
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 58 }}>
+      {/* Onboarding hint badge */}
+      {locked && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 80,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 61,
+            padding: '5px 14px',
+            borderRadius: 9999,
+            background: 'rgba(200,152,26,0.15)',
+            border: '1px solid rgba(200,152,26,0.4)',
+            color: '#c8981a',
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            pointerEvents: 'none',
+          }}
+        >
+          LOCKED · TAP = MENUS · DOUBLE-TAP = UNLOCK
+        </div>
+      )}
 
+      {/* Dreams button (right rail, light blue) */}
       <button
         ref={(el) => { elRef.current.dreams = el; }}
         type="button"
-        aria-label="Dream controls"
+        aria-label={locked ? 'Open menus (locked)' : 'Open Daydreams menu'}
         style={{
-          ...base,
-          background: navLocked ? 'linear-gradient(135deg,#7c5b1a,#d4a843)' : 'linear-gradient(135deg,#0ea5e9,#38bdf8)',
-          boxShadow: navLocked ? '0 0 24px rgba(212,168,67,.7)' : '0 0 18px rgba(56,189,248,.65)',
+          ...baseStyle,
+          background: locked
+            ? 'linear-gradient(135deg,#0369a1,#0ea5e9)'
+            : 'linear-gradient(135deg,#0ea5e9,#38bdf8)',
+          border: locked ? '2px solid #0ea5e9' : '1px solid rgba(255,255,255,0.3)',
+          boxShadow: locked
+            ? '0 0 0 2px #c8981a, 0 0 28px rgba(14,165,233,0.5)'
+            : '0 4px 18px rgba(14,165,233,0.5)',
         }}
         onPointerDown={onPointerDown('dreams')}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-      />
+        onPointerCancel={() => { dragRef.current.id = null; }}
+      >
+        <InfinityHalf side="left" />
+      </button>
 
+      {/* System button (left rail, gold) */}
       <button
         ref={(el) => { elRef.current.system = el; }}
         type="button"
-        aria-label="System controls"
+        aria-label={locked ? 'Open menus (locked)' : 'Open System menu'}
         style={{
-          ...base,
-          background: navLocked ? 'linear-gradient(135deg,#7c5b1a,#d4a843)' : 'linear-gradient(135deg,#a16207,#d4a843)',
-          boxShadow: navLocked ? '0 0 24px rgba(212,168,67,.7)' : '0 0 18px rgba(212,168,67,.65)',
+          ...baseStyle,
+          background: locked
+            ? 'linear-gradient(135deg,#92400e,#d4a843)'
+            : 'linear-gradient(135deg,#a16207,#d4a843)',
+          border: locked ? '2px solid #d4a843' : '1px solid rgba(255,255,255,0.3)',
+          boxShadow: locked
+            ? '0 0 0 2px #0ea5e9, 0 0 28px rgba(212,168,67,0.5)'
+            : '0 4px 18px rgba(212,168,67,0.5)',
         }}
         onPointerDown={onPointerDown('system')}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-      />
+        onPointerCancel={() => { dragRef.current.id = null; }}
+      >
+        <InfinityHalf side="right" />
+      </button>
     </div>
   );
 }

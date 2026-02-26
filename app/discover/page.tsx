@@ -1,230 +1,118 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Search, Sparkles, Users, Zap, Shield, ArrowRight, Music, Beaker } from 'lucide-react';
+import { ArrowLeft, Search, Users } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Discover – DREAMengin', description: 'Find people on DREAMengin.' };
 
-export default async function DiscoverPage() {
+export default async function DiscoverPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const supabase = await createServerClient();
-  
-  let user = null;
-  let profiles = null;
-  let posts = null;
-  
-  try {
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    user = authUser;
-    
-    // Redirect to landing if not logged in
-    if (!user) {
-      redirect('/');
-    }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
 
-    // Fetch all public profiles
-    const { data: profilesData } = await supabase
+  const { q } = await searchParams;
+
+  let profiles: Array<{ id: string; handle: string; display_name: string | null; bio: string | null; avatar_url: string | null }> = [];
+
+  if (q && q.trim().length > 0) {
+    // Escape special PostgREST/ilike characters to prevent filter injection
+    const safe = q.trim().replace(/[%_\\]/g, (c) => `\\${c}`);
+    const { data } = await supabase
       .from('profiles')
-      .select('*')
-      .not('id', 'eq', user?.id || '');
-
-    // Fetch recent public posts
-    const { data: postsData } = await supabase
-      .from('app_posts')
-      .select(`
-        *,
-        profiles!inner(handle, display_name, avatar_url)
-      `)
-      .eq('visibility', 'public')
-      .order('created_at', { ascending: false })
+      .select('id, handle, display_name, bio, avatar_url')
+      .or(`handle.ilike.%${safe}%,display_name.ilike.%${safe}%`)
       .limit(20);
-
-    // Demo profiles when no real data
-    // Demo posts when no real data
-    profiles = profilesData ?? [];
-    posts = postsData ?? [];
-  } catch {
-    // Supabase not configured - redirect to landing
-    redirect('/');
+    profiles = data || [];
   }
 
-  const categories = [
-    { name: 'Science', slug: 'science', icon: Zap, color: 'from-yellow-500 to-orange-500' },
-    { name: 'Music', slug: 'music', icon: Music, color: 'from-pink-500 to-rose-500' },
-    { name: 'Technology', slug: 'tech', icon: Shield, color: 'from-cyan-500 to-blue-500' },
-    { name: 'Labs', slug: 'labs', icon: Beaker, color: 'from-purple-500 to-violet-500' },
-  ];
-
   return (
-    <div className="min-h-screen bg-universe">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-        {/* Hero */}
-        <div className="relative overflow-hidden rounded-3xl glass-dark p-6 md:p-10 mb-8">
-          {/* Background effects */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-          
-          <div className="relative flex flex-col md:flex-row items-center gap-6 md:gap-10">
-            {/* Dr. Eams mascot */}
-            <div className="relative flex-shrink-0">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-pink-500/30 blur-2xl scale-125" />
-              <Image
-                src="/dr-eams.jpeg"
-                alt="Dr. Eams"
-                width={160}
-                height={160}
-                className="relative w-32 h-32 md:w-40 md:h-40 object-contain animate-float-gentle animate-glow-pulse"
-                priority
+    <div className="de-sky-bg min-h-screen">
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
+          </Link>
+          <Search className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Discover</h1>
+        </div>
+      </header>
+
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+
+        {/* Search form */}
+        <form method="GET" action="/discover">
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <Search className="w-4 h-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--de-text-dim)', pointerEvents: 'none' }} />
+              <input
+                name="q"
+                type="search"
+                defaultValue={q}
+                placeholder="Search by name or @handle"
+                autoComplete="off"
+                style={{
+                  width: '100%',
+                  padding: '12px 12px 12px 36px',
+                  borderRadius: 12,
+                  border: '1px solid rgba(160,195,240,0.4)',
+                  background: 'rgba(255,255,255,0.7)',
+                  backdropFilter: 'blur(12px)',
+                  fontSize: 14,
+                  color: 'var(--de-text)',
+                  outline: 'none',
+                }}
               />
             </div>
-            
-            <div className="text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center cosmic-glow">
-                  <Sparkles className="w-4 h-4 text-white" />
-                </div>
-                <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
-                  <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">Dream</span>
-                  <span>Engin</span>
-                </h1>
-              </div>
-              <p className="mt-3 text-base md:text-lg text-white/60 max-w-xl leading-relaxed">
-                Your privacy-first creator OS with AI-powered tools, social connections, and infinite possibilities.
-              </p>
-              {/* Authenticated-only screen: do not show onboarding/marketing CTAs here. */}
+            <button type="submit" className="de-btn de-btn-primary" style={{ padding: '10px 18px' }}>Search</button>
+          </div>
+        </form>
+
+        {/* Results */}
+        {q && q.trim().length > 0 && (
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <span className="de-widget-title">Results for &quot;{q}&quot;</span>
+              <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{profiles.length} found</span>
             </div>
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative max-w-2xl">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search users and posts..."
-              className="w-full pl-12 pr-4 py-3.5 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all min-h-[44px]"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-8 order-2 lg:order-1">
-            {/* Friend Suggestions */}
-            <section className="mb-8">
-              <h2 className="text-xl font-semibold text-foreground mb-4">Find Friends</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {profiles?.slice(0, 6).map((profile) => (
-                  <div key={profile.id} className="bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
-                    <div className="flex flex-col items-center">
-                      {profile.avatar_url ? (
-                        <Image
-                          src={profile.avatar_url}
-                          alt={profile.display_name || profile.handle}
-                          width={64}
-                          height={64}
-                          className="rounded-full object-cover mb-3 ring-2 ring-border"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-3 ring-2 ring-border">
-                          <span className="text-xl font-bold text-muted-foreground">
-                            {(profile.display_name || profile.handle)?.[0]?.toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <h3 className="font-medium text-foreground text-center text-sm">
-                        {profile.display_name || profile.handle}
-                      </h3>
-                      <p className="text-xs text-muted-foreground text-center mb-3">
-                        @{profile.handle}
-                      </p>
-                      <Link
-                        href={`/profile/${profile.handle}`}
-                        className="w-full text-center px-3 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors min-h-[44px] flex items-center justify-center"
-                      >
-                        View Profile
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {(!profiles || profiles.length === 0) && (
-                <div className="bg-card border border-border rounded-xl p-8 text-center">
-                  <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">No creators to show yet</p>
+            <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+              {profiles.length === 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '20px 0' }}>
+                  <Users className="w-8 h-8 opacity-20" style={{ color: 'var(--de-accent)' }} />
+                  <p className="text-sm font-medium" style={{ color: 'var(--de-heading)' }}>No profiles found</p>
+                  <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Try a different name or handle</p>
                 </div>
-              )}
-            </section>
-
-            {/* Recent Public Posts */}
-            <section>
-              <h2 className="text-xl font-semibold text-foreground mb-4">Recent Posts</h2>
-              <div className="space-y-4">
-                {posts?.map((post) => (
-                  <div key={post.id} className="bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
-                    <div className="flex items-start gap-3">
-                      {post.profiles?.avatar_url ? (
-                        <Image
-                          src={post.profiles.avatar_url}
-                          alt={post.profiles.display_name || post.profiles.handle || ''}
-                          width={40}
-                          height={40}
-                          className="rounded-full object-cover ring-2 ring-border flex-shrink-0"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center ring-2 ring-border flex-shrink-0">
-                          <span className="text-sm font-bold text-muted-foreground">
-                            {(post.profiles?.display_name || post.profiles?.handle)?.[0]?.toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <Link
-                            href={`/profile/${post.profiles?.handle}`}
-                            className="font-medium text-foreground hover:text-primary transition-colors"
-                          >
-                            {post.profiles?.display_name || post.profiles?.handle}
-                          </Link>
-                          <span className="text-sm text-muted-foreground">
-                            @{post.profiles?.handle}
-                          </span>
-                        </div>
-                        <p className="text-secondary-foreground leading-relaxed">{post.content}</p>
-                      </div>
+              ) : (
+                profiles.map((p) => (
+                  <Link key={p.id} href={`/profile/${p.handle}`} className="de-row" style={{ borderRadius: 10 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(42,138,184,0.12)', border: '1px solid rgba(42,138,184,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0, overflow: 'hidden' }}>
+                      {p.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.avatar_url} alt={p.handle} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : '👤'}
                     </div>
-                  </div>
-                ))}
-                {(!posts || posts.length === 0) && (
-                  <div className="bg-card border border-border rounded-xl p-8 text-center">
-                    <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-muted-foreground">No posts to show yet</p>
-                  </div>
-                )}
-              </div>
-            </section>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-4 order-1 lg:order-2">
-            <div className="bg-card border border-border rounded-xl p-5 sticky top-6">
-              <h3 className="font-semibold text-foreground mb-4">Categories</h3>
-              <div className="space-y-1">
-                {categories.map((category) => (
-                  <Link 
-                    key={category.slug}
-                    href={`/discover?category=${category.slug}`} 
-                    className="flex items-center gap-3 px-3 py-2.5 text-secondary-foreground hover:bg-secondary hover:text-foreground rounded-lg transition-colors min-h-[44px]"
-                  >
-                    <category.icon className="w-4 h-4 text-muted-foreground" />
-                    {category.name}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{p.display_name || p.handle}</div>
+                      <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>@{p.handle}</div>
+                    </div>
                   </Link>
-                ))}
-              </div>
+                ))
+              )}
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Default state */}
+        {(!q || q.trim().length === 0) && (
+          <div className="de-widget">
+            <div className="de-widget-body flex flex-col items-center py-8 gap-3">
+              <Search className="w-10 h-10 opacity-15" style={{ color: 'var(--de-accent)' }} />
+              <p className="text-sm font-medium" style={{ color: 'var(--de-heading)' }}>Search for people</p>
+              <p className="text-xs text-center" style={{ color: 'var(--de-text-dim)' }}>Find friends and creators by name or @handle</p>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

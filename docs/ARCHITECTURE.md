@@ -1,4 +1,6 @@
 # DREAM ENGINE ARCHITECTURE
+
+> **For the current design specification and interaction model, see [SPEC.md](./SPEC.md).**
 Version: 1.0.0  
 Status: Active Spec  
 Scope: System architecture, navigation model, interaction model, security/privacy model, and code organization.

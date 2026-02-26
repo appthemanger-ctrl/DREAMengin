@@ -1,135 +1,74 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { VolumeX, TrendingUp, Filter, DollarSign, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeft, Rss, Sliders, Plus } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Feed Settings – DREAMengin' };
 
 export default async function FeedSettingsPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  // Fetch user's feed rules
-  const { data: rulesData } = await supabase
-    .from('feed_rules')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
-
-  // Demo rules when no real data exists
-  const rules = rulesData ?? [];
+  if (!user) redirect('/login');
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Feed Rules</h1>
+    <div className="de-sky-bg min-h-screen">
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
+          </Link>
+          <Rss className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Feed</h1>
+        </div>
+      </header>
 
-        <p className="text-slate-600 mb-8">
-          Customize how content appears in your feed. Create rules to mute, boost, or filter content.
-        </p>
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
-        {/* Rule Types */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg p-6 shadow-sm text-center">
-            <VolumeX className="w-8 h-8 mx-auto mb-3 text-red-500" />
-            <h3 className="font-semibold text-slate-900 mb-2">Mute</h3>
-            <p className="text-sm text-slate-600">Hide content from specific sources</p>
+        <div className="de-notice">
+          Your feed is made of slices — sections of content from connected services. You control what shows up and in what order.
+        </div>
+
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <span className="de-widget-title">Active Slices</span>
+            <Link href="/connectors" className="de-btn de-btn-ghost text-xs" style={{ padding: '4px 10px' }}>
+              <Plus className="w-3 h-3" /> Add
+            </Link>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-sm text-center">
-            <TrendingUp className="w-8 h-8 mx-auto mb-3 text-green-500" />
-            <h3 className="font-semibold text-slate-900 mb-2">Boost</h3>
-            <p className="text-sm text-slate-600">Prioritize content you care about</p>
-          </div>
-          <div className="bg-white rounded-lg p-6 shadow-sm text-center">
-            <Filter className="w-8 h-8 mx-auto mb-3 text-blue-500" />
-            <h3 className="font-semibold text-slate-900 mb-2">Digest</h3>
-            <p className="text-sm text-slate-600">Group similar content together</p>
-          </div>
-          <div className="bg-white rounded-lg p-6 shadow-sm text-center">
-            <DollarSign className="w-8 h-8 mx-auto mb-3 text-purple-500" />
-            <h3 className="font-semibold text-slate-900 mb-2">Budget</h3>
-            <p className="text-sm text-slate-600">Limit content from certain sources</p>
+          <div className="de-widget-body flex flex-col items-center py-6 gap-2">
+            <Rss className="w-8 h-8 opacity-20" style={{ color: 'var(--de-accent)' }} />
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>No feed slices yet</p>
+            <p style={{ fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center', lineHeight: 1.5 }}>
+              Connect a service in <Link href="/connectors" style={{ color: 'var(--de-accent)' }}>Connectors</Link> then choose which parts to add to your feed.
+            </p>
           </div>
         </div>
 
-        {/* Current Rules */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-slate-900">Your Rules</h2>
-            <button className="flex items-center bg-slate-800 text-white px-4 py-2 rounded-md hover:bg-slate-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Rule
-            </button>
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Sliders className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
+            <span className="de-widget-title">Feed Preferences</span>
           </div>
-
-          {rules && rules.length > 0 ? (
-            <div className="space-y-3">
-              {rules.map((rule) => (
-                <div key={rule.id} className="border border-slate-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {rule.type === 'mute' && <VolumeX className="w-5 h-5 text-red-500" />}
-                      {rule.type === 'boost' && <TrendingUp className="w-5 h-5 text-green-500" />}
-                      {rule.type === 'digest' && <Filter className="w-5 h-5 text-blue-500" />}
-                      {rule.type === 'budget' && <DollarSign className="w-5 h-5 text-purple-500" />}
-                      <div>
-                        <span className="font-medium text-slate-900 capitalize">{rule.type}</span>
-                        <span className="text-slate-600 ml-2">{rule.target}</span>
-                      </div>
-                    </div>
-                    <button className="text-red-600 hover:text-red-800">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  {rule.value && (
-                    <p className="text-sm text-slate-600 mt-2">
-                      {JSON.stringify(rule.value)}
-                    </p>
-                  )}
+          <div className="de-widget-body">
+            {[
+              { label: 'Show DREAMengin updates',  desc: 'News and updates from DREAMengin itself.',        on: true  },
+              { label: 'Auto-refresh every 5 min', desc: 'Refresh feed automatically (battery-aware).',     on: true  },
+              { label: 'Show empty state guides',  desc: 'Show helpful tips when the feed is empty.',       on: true  },
+            ].map(({ label, desc, on }) => (
+              <div key={label} className="de-row">
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{desc}</div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-slate-600">No rules yet. Create your first rule to customize your feed!</p>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Add */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-slate-900 mb-4">Quick Add</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="border border-slate-200 rounded-lg p-4">
-              <h3 className="font-medium text-slate-900 mb-2">Mute a Channel</h3>
-              <p className="text-sm text-slate-600 mb-3">Hide content from a specific YouTube channel or source</p>
-              <input
-                type="text"
-                placeholder="Channel name"
-                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500"
-              />
-              <button className="mt-3 w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">
-                Add Mute Rule
-              </button>
-            </div>
-            <div className="border border-slate-200 rounded-lg p-4">
-              <h3 className="font-medium text-slate-900 mb-2">Boost Science Content</h3>
-              <p className="text-sm text-slate-600 mb-3">Prioritize science and research content in your feed</p>
-              <select className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500">
-                <option>Boost by 1.5x</option>
-                <option>Boost by 2x</option>
-                <option>Boost by 3x</option>
-              </select>
-              <button className="mt-3 w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
-                Add Boost Rule
-              </button>
-            </div>
+                <div style={{ width: 44, height: 26, borderRadius: 13, background: on ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)', position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
+                  <div style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', transition: 'left 0.2s' }} />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+
       </div>
     </div>
   );
