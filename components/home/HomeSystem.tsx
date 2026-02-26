@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
 import HomeDreamRuntime from '@/components/dreamnav/HomeDreamRuntime';
 import DreamNavControls from '@/components/dreamnav/DreamNavControls';
@@ -67,6 +67,16 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
   const [overlay, setOverlay]               = useState<string | null>(null);
   const [coreFace, setCoreFace]             = useState<'home' | 'profile'>('home');
   const [coreOpen, setCoreOpen]             = useState(true);
+  // DreamNavControls starts locked; track lock state to hide NavIndicator when not navigating
+  const [navLocked, setNavLocked]           = useState(true);
+  // Read showNavIndicator setting from localStorage (default true)
+  const [showNavIndicator, setShowNavIndicator] = useState(true);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('dreamengin:showNavIndicator');
+      if (saved !== null) setShowNavIndicator(saved !== 'false');
+    } catch { /* noop */ }
+  }, []);
 
   const closeAll = useCallback(() => {
     setDreamMenuOpen(false);
@@ -108,7 +118,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
   return (
     <>
       <StarfieldCanvas />
-      <NavIndicator node={node} />
+      <NavIndicator node={node} hidden={navLocked || !showNavIndicator} />
 
       <HomeDreamRuntime
         profile={profile}
@@ -121,6 +131,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
 
       <DreamNavControls
         onHome={returnHome}
+        onLockChange={setNavLocked}
         onOpenDreamsMenu={() => {
           setSystemMenuOpen(false);
           setBothMenusOpen(false);

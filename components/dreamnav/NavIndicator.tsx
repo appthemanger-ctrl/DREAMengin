@@ -18,7 +18,8 @@ const NODE_LABELS: Record<string, string> = {
   '6b': 'Create',
 };
 
-export default function NavIndicator({ node }: { node: Node }) {
+export default function NavIndicator({ node, hidden }: { node: Node; hidden?: boolean }) {
+  if (hidden) return null;
   const label = NODE_LABELS[String(node)] ?? String(node);
   return (
     <div

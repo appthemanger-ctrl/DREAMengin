@@ -9,12 +9,14 @@ type Props = {
   onOpenDreamsMenu: () => void;
   onOpenSystemMenu: () => void;
   onOpenBothMenus: () => void;
+  onLockChange?: (locked: boolean) => void;
 };
 
 type Pos = { x: number; y: number };
 
 const CTRL_SIZE = 52;
 const RAIL_WIDTH = 0.14;
+const SAFE_EDGE_PX = 24; // minimum px from left/right edges to avoid Safari back/forward swipe
 const SNAP_DISTANCE = 88;
 const LOCK_HYSTERESIS = 52; // distance to unlock (larger than snap to avoid flicker)
 const STORAGE_KEY = 'dreamengin:controls:v4';
@@ -34,7 +36,7 @@ function InfinityHalf({ side }: { side: 'left' | 'right' }) {
   );
 }
 
-export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onOpenBothMenus }: Props) {
+export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onOpenBothMenus, onLockChange }: Props) {
   const [mounted, setMounted] = useState(false);
   const [locked, setLocked] = useState(true);
   const lockedRef = useRef(true);
@@ -69,10 +71,10 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     const h = window.innerHeight;
     const rail = w * RAIL_WIDTH;
     return {
-      leftX: Math.round((rail - CTRL_SIZE) / 2),
-      rightX: Math.round(w - rail + (rail - CTRL_SIZE) / 2),
-      minY: 52,
-      maxY: h - CTRL_SIZE - 28,
+      leftX: Math.max(SAFE_EDGE_PX, Math.round((rail - CTRL_SIZE) / 2)),
+      rightX: Math.min(w - CTRL_SIZE - SAFE_EDGE_PX, Math.round(w - rail + (rail - CTRL_SIZE) / 2)),
+      minY: 64,
+      maxY: h - CTRL_SIZE - 44,
       centerX: Math.round((w - CTRL_SIZE) / 2),
     };
   };
@@ -87,6 +89,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     lockedRef.current = val;
     setLocked(val);
     (window as Window & { __deNavLocked?: boolean }).__deNavLocked = val;
+    onLockChange?.(val);
   };
 
   const animateTo = (id: ControlId, target: Pos) => {
