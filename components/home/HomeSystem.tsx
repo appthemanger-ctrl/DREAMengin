@@ -11,6 +11,7 @@ import AppearanceWidget from '@/components/dreamengin/AppearanceWidget';
 import ViewAllDreamsOverlay from '@/components/dreamengin/ViewAllDreamsOverlay';
 import NavIndicator from '@/components/dreamnav/NavIndicator';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
+import OnboardingTip from '@/components/onboarding/OnboardingTip';
 
 type ProfileLike = {
   id?: string;
@@ -160,6 +161,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
       {viewAllOpen ? <ViewAllDreamsOverlay onClose={() => setViewAllOpen(false)} onReturnHome={returnHome} /> : null}
       {drEamsOpen     ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
       {appearanceOpen ? <AppearanceWidget onClose={() => setAppearanceOpen(false)} /> : null}
+      <OnboardingTip />
     </>
   );
 }

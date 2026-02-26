@@ -1,10 +1,14 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Bot, Send, CircleCheck, ArrowLeft, Shield, Activity, Database, Users } from 'lucide-react';
 import InnerDreams from '@/components/InnerDreams';
 import Link from 'next/link';
+import {
+  ArrowLeft, Bot, Shield, Activity, Users, Database,
+  CheckCircle, XCircle, Clock, AlertTriangle, Zap
+} from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Admin – DREAMengin' };
 
 export default async function AdminPage() {
   let user = null;
@@ -15,15 +19,11 @@ export default async function AdminPage() {
     const supabase = await createServerClient();
     const { data: { user: authUser } } = await supabase.auth.getUser();
     user = authUser;
+    if (!user) redirect('/login');
 
-    if (!user) {
-      redirect('/login');
-    }
-
-    // Check if user is admin
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('*')
+      .select('handle, display_name')
       .eq('id', user.id)
       .single();
     profile = profileData;
@@ -32,135 +32,175 @@ export default async function AdminPage() {
     redirect('/login');
   }
 
-  if (!isAdmin) {
-    redirect('/');
-  }
+  if (!isAdmin) redirect('/');
+
+  // Example proposals (in production, fetch from DB)
+  const proposals = [
+    {
+      id: 'prop-001',
+      title: 'Enable aggressive feed caching',
+      impact: 'High — reduces DB load by ~40%',
+      idari:     { status: 'approved' as const, note: 'Measured 38% reduction in staging.' },
+      boogieman: { status: 'approved' as const, note: 'No policy risk. Rate limits unchanged.' },
+      dreams:    { status: 'pending'  as const, note: 'Awaiting user-impact assessment.' },
+    },
+    {
+      id: 'prop-002',
+      title: 'Add trending topics to discover feed',
+      impact: 'Medium — increases engagement surface',
+      idari:     { status: 'approved' as const, note: 'Engagement uplift estimated +22%.' },
+      boogieman: { status: 'rejected' as const, note: 'Requires content moderation pass first.' },
+      dreams:    { status: 'pending'  as const, note: 'Pending BoogieMan approval.' },
+    },
+  ];
+
+  type ApprovalStatus = 'approved' | 'rejected' | 'pending';
+  const statusIcon: Record<ApprovalStatus, { icon: React.ReactNode; color: string }> = {
+    approved: { icon: <CheckCircle size={14} />, color: '#22c55e' },
+    rejected: { icon: <XCircle size={14} />,    color: '#dc4444' },
+    pending:  { icon: <Clock size={14} />,       color: '#f59e0b' },
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+    <div className="de-sky-bg min-h-screen">
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
-          <Bot className="w-6 h-6 text-purple-500" />
-          <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
+          <Bot className="w-5 h-5" style={{ color: '#8b5cf6' }} />
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Admin Dashboard</h1>
+          <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.2)' }}>Admin Only</span>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-6 pb-24 md:pb-8 space-y-6">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-card rounded-2xl border border-border p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <Users className="w-5 h-5 text-blue-500" />
-              </div>
-              <span className="text-sm text-muted-foreground">Users</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">—</p>
+      <div className="max-w-4xl mx-auto px-4 py-6 pb-24 space-y-5">
+
+        {/* System health */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Activity className="w-4 h-4 mr-2" style={{ color: '#22c55e' }} />
+            <span className="de-widget-title">System Health</span>
           </div>
-          <div className="bg-card rounded-2xl border border-border p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                <Activity className="w-5 h-5 text-green-500" />
-              </div>
-              <span className="text-sm text-muted-foreground">Status</span>
+          <div className="de-widget-body">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: 'Active Users',   value: '—', icon: Users,         color: '#0ea5e9' },
+                { label: 'DB Queries/min', value: '—', icon: Database,      color: '#6366f1' },
+                { label: 'Errors (24h)',   value: '0', icon: AlertTriangle, color: '#22c55e' },
+                { label: 'Connectors OK',  value: '—', icon: Zap,           color: '#f59e0b' },
+              ].map(({ label, value, icon: Icon, color }) => (
+                <div key={label} className="de-surface">
+                  <div className="de-metric">
+                    <Icon className="w-4 h-4 mb-2" style={{ color }} />
+                    <span className="de-metric-value" style={{ fontSize: 22 }}>{value}</span>
+                    <span className="de-metric-label">{label}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <p className="text-2xl font-bold text-green-500">Online</p>
-          </div>
-          <div className="bg-card rounded-2xl border border-border p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                <Database className="w-5 h-5 text-purple-500" />
-              </div>
-              <span className="text-sm text-muted-foreground">Database</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">Supabase</p>
-          </div>
-          <div className="bg-card rounded-2xl border border-border p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-orange-500" />
-              </div>
-              <span className="text-sm text-muted-foreground">RLS</span>
-            </div>
-            <p className="text-2xl font-bold text-green-500">Active</p>
           </div>
         </div>
 
-        {/* InnerDreams Auto-Updater */}
-        <div>
-          <InnerDreams userId={user?.id || ''} isAdmin={isAdmin} />
-        </div>
-
-        {/* Traditional AI Update Request */}
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-2">Manual AI Update Request</h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Submit a prompt describing the changes you want to make to the site. 
-            The AI will generate the code changes for review.
-          </p>
-
-          <form action="/api/admin/ai-request" method="POST">
-            <div className="mb-4">
-              <label htmlFor="prompt" className="block text-sm font-medium text-foreground mb-2">
-                Describe the changes:
-              </label>
-              <textarea
-                id="prompt"
-                name="prompt"
-                rows={4}
-                placeholder="Example: Add a dark mode toggle to the navbar..."
-                className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-              />
+        {/* AI Triad consensus gating */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <span className="de-widget-title">AI Triad · Proposal Gating</span>
+            <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 8 }}>All 3 must approve for major updates</span>
+          </div>
+          <div className="de-widget-body">
+            {/* Triad status */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {[
+                { name: 'Dr. Eams',  role: 'User Impact',        color: '#0ea5e9', icon: '🧠', desc: 'Evaluates user experience impact' },
+                { name: 'IDARi',     role: 'Optimization',       color: '#6366f1', icon: '⚡', desc: 'Analyzes performance & efficiency' },
+                { name: 'BoogieMan', role: 'Policy / Overwatch', color: '#f59e0b', icon: '🛡', desc: 'Assesses policy risk & moderation' },
+              ].map(({ name, role, color, icon, desc }) => (
+                <div key={name} className="de-surface p-3">
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{name}</div>
+                  <div style={{ fontSize: 10, color, fontWeight: 600, marginBottom: 4 }}>{role}</div>
+                  <div style={{ fontSize: 10, color: 'var(--de-text-dim)', lineHeight: 1.4 }}>{desc}</div>
+                </div>
+              ))}
             </div>
 
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                <CircleCheck className="w-4 h-4 text-green-500" />
-                Request will be logged for review
+            {/* Proposals */}
+            {proposals.map((p) => {
+              const allApproved = [p.idari, p.boogieman, p.dreams].every((s) => s.status === 'approved');
+              const anyRejected = [p.idari, p.boogieman, p.dreams].some((s) => s.status === 'rejected');
+              return (
+                <div key={p.id} className="de-surface mb-3" style={{ padding: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{p.title}</div>
+                      <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 1 }}>Impact: {p.impact}</div>
+                    </div>
+                    <span style={{
+                      padding: '3px 8px',
+                      borderRadius: 9999,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      background: allApproved ? 'rgba(34,197,94,0.1)' : anyRejected ? 'rgba(220,68,68,0.1)' : 'rgba(245,158,11,0.1)',
+                      color: allApproved ? '#22c55e' : anyRejected ? '#dc4444' : '#f59e0b',
+                    }}>
+                      {allApproved ? 'Approved' : anyRejected ? 'Blocked' : 'Pending'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {[
+                      { label: 'IDARi',     data: p.idari     },
+                      { label: 'BoogieMan', data: p.boogieman },
+                      { label: 'Dr. Eams',  data: p.dreams    },
+                    ].map(({ label, data }) => {
+                      const { icon, color } = statusIcon[data.status];
+                      return (
+                        <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: 11 }}>
+                          <span style={{ color, marginTop: 1, flexShrink: 0 }}>{icon}</span>
+                          <span style={{ color: 'var(--de-text-dim)', minWidth: 70 }}>{label}:</span>
+                          <span style={{ color: 'var(--de-text)', lineHeight: 1.4 }}>{data.note}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {allApproved && (
+                    <div className="de-widget-actions" style={{ marginTop: 8, padding: '8px 0 0' }}>
+                      <button type="button" className="de-btn de-btn-primary text-xs">Generate PR Checklist</button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* BoogieMan enforcement log */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Shield className="w-4 h-4 mr-2" style={{ color: '#f59e0b' }} />
+            <span className="de-widget-title">BoogieMan Policy Log</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 0' }}>
+              <Shield className="w-8 h-8 opacity-20" style={{ color: '#f59e0b' }} />
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center' }}>
+                No enforcement actions in the last 24 hours. All policies nominal.
               </p>
-              <button
-                type="submit"
-                className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-medium hover:bg-primary/90 transition-colors min-h-[44px]"
-              >
-                <Send className="w-4 h-4" />
-                Submit Request
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Recent Requests */}
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Recent Requests</h2>
-          <div className="space-y-3">
-            <div className="border border-border rounded-xl p-4">
-              <p className="text-sm text-foreground mb-2">
-                &ldquo;Add a physics simulation widget to the lab page using PhET embeds&rdquo;
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">2 hours ago</span>
-                <span className="px-2.5 py-1 text-xs bg-yellow-500/10 text-yellow-500 rounded-full font-medium">
-                  Pending Review
-                </span>
-              </div>
-            </div>
-            <div className="border border-border rounded-xl p-4">
-              <p className="text-sm text-foreground mb-2">
-                &ldquo;Update the navbar to include a messages icon with unread count badge&rdquo;
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">1 day ago</span>
-                <span className="px-2.5 py-1 text-xs bg-green-500/10 text-green-500 rounded-full font-medium">
-                  Completed
-                </span>
-              </div>
             </div>
           </div>
         </div>
+
+        {/* InnerDreams AI chat */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Bot className="w-4 h-4 mr-2" style={{ color: '#8b5cf6' }} />
+            <span className="de-widget-title">InnerDreams AI Console</span>
+          </div>
+          <div className="de-widget-body">
+            <InnerDreams userId={user?.id ?? ''} isAdmin={isAdmin} />
+          </div>
+        </div>
+
       </div>
     </div>
   );

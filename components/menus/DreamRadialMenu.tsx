@@ -2,23 +2,24 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import type { Node } from '@/lib/dreamnav/tau';
 import RadialMenu from './RadialMenu';
 
 type Props = {
   open: boolean;
   anchor: DOMRect | null;
   onClose: () => void;
-  onSelectNode: (node: Node) => void;
+  onSelectNode?: (node: string) => void;
 };
 
 const DREAM_ITEMS = [
-  { id: 'music',  label: 'Music',  node: '1b' as Node, route: null },
-  { id: 'lab',    label: 'Lab',    node: '2b' as Node, route: null },
-  { id: 'code',   label: 'Code',   node: '3b' as Node, route: null },
-  { id: 'brand',  label: 'Brand',  node: '4b' as Node, route: '/daydream/brand' },
-  { id: 'games',  label: 'Games',  node: '5b' as Node, route: '/daydream/games' },
-  { id: 'create', label: 'Create', node: '6b' as Node, route: null },
+  { id: 'music',       label: 'Music',     route: '/daydream/music'       },
+  { id: 'media-vault', label: 'Media',     route: '/daydream/media-vault' },
+  { id: 'create',      label: 'Create',    route: '/daydream/create'      },
+  { id: 'brand',       label: 'Brand',     route: '/daydream/brand'       },
+  { id: 'analytics',   label: 'Analytics', route: '/daydream/analytics'   },
+  { id: 'games',       label: 'Games',     route: '/daydream/games'       },
+  { id: 'play',        label: 'Play',      route: '/daydream/play'        },
+  { id: 'marketplace', label: 'Shop',      route: '/marketplace'          },
 ];
 
 export default function DreamRadialMenu({ open, anchor, onClose, onSelectNode }: Props) {
@@ -34,12 +35,8 @@ export default function DreamRadialMenu({ open, anchor, onClose, onSelectNode }:
         id: item.id,
         label: item.label,
         onSelect: () => {
-          if (item.route) {
-            onClose();
-            router.push(item.route);
-          } else {
-            onSelectNode(item.node);
-          }
+          onClose();
+          router.push(item.route);
         },
       }))}
     />
