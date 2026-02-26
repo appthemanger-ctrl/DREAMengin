@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, Search, ArrowLeft, Loader2, Plus, Image as ImageIcon, Video, Music, FileText, X } from 'lucide-react';
+import { MessageSquare, Send, Search, ArrowLeft, Loader2, Plus, Music, FileText, X, Mail } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatRelativeTime } from '@/lib/utils';
@@ -39,11 +39,47 @@ interface MessagesClientProps {
   initialConversations: Conversation[];
 }
 
+/** Parse a subject line from message content formatted as "**Subject:** [subject]\n\n[body]" */
+function parseSubject(content: string): { subject: string | null; body: string } {
+  const match = content.match(/^\*\*Subject:\*\* (.+?)\n\n([\s\S]*)$/);
+  if (match) return { subject: match[1].trim(), body: match[2].trimStart() };
+  return { subject: null, body: content };
+}
+
+/** Format a message with an optional subject */
+function formatMessageContent(subject: string, body: string): string {
+  if (subject.trim()) return `**Subject:** ${subject.trim()}\n\n${body}`;
+  return body;
+}
+
+/** Render message content with optional subject heading */
+function MessageContent({ content, isMe }: { content: string; isMe: boolean }) {
+  const { subject, body } = parseSubject(content);
+  return (
+    <>
+      {subject && (
+        <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${isMe ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+          📧 {subject}
+        </p>
+      )}
+      <p className="text-sm">{body}</p>
+    </>
+  );
+}
+
+/** Get a preview string for a conversation list item */
+function getConversationPreview(lastMessage: string): string {
+  const { subject, body } = parseSubject(lastMessage);
+  return subject ? `Re: ${subject}` : body;
+}
+
 export default function MessagesClient({ userId, initialConversations }: MessagesClientProps) {
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(initialConversations[0] || null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [newSubject, setNewSubject] = useState('');
+  const [showSubjectField, setShowSubjectField] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -165,8 +201,11 @@ export default function MessagesClient({ userId, initialConversations }: Message
     e.preventDefault();
     if ((!newMessage.trim() && !selectedFile) || !selectedConv || isSending) return;
 
-    const messageContent = newMessage.trim();
+    const rawBody = newMessage.trim();
+    const messageContent = formatMessageContent(newSubject, rawBody);
     setNewMessage('');
+    setNewSubject('');
+    setShowSubjectField(false);
     setIsSending(true);
 
     let mediaUrl: string | undefined;
@@ -221,7 +260,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
       alert(err instanceof Error ? err.message : 'Failed to send message');
       // Remove only the failed optimistic message
       setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
-      setNewMessage(messageContent); // Restore message input
+      setNewMessage(rawBody); // Restore message input
     } finally {
       setIsSending(false);
     }
@@ -237,7 +276,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
       {/* Mobile Header */}
       <header className="md:hidden sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
         <div className="px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
+          <Link href="/home" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors" aria-label="Go home">
             <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </Link>
           <h1 className="text-xl font-bold text-foreground">Messages</h1>
@@ -258,7 +297,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            New Message
+            Compose
           </Link>
         </div>
 
@@ -327,7 +366,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                         </div>
                         {conv.lastMessage && (
                           <p className="text-sm text-muted-foreground truncate">
-                            {conv.lastMessage}
+                            {getConversationPreview(conv.lastMessage)}
                           </p>
                         )}
                       </div>
@@ -445,7 +484,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                                   )}
                                 </div>
                               )}
-                              {msg.content && <p className="text-sm">{msg.content}</p>}
+                              {msg.content && <MessageContent content={msg.content} isMe={isMe} />}
                               <p className={`text-xs mt-1 ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                                 {formatRelativeTime(msg.created_at)}
                               </p>
@@ -460,6 +499,19 @@ export default function MessagesClient({ userId, initialConversations }: Message
 
                 {/* Message Input */}
                 <form onSubmit={sendMessage} className="p-4 border-t border-border">
+                  {/* Subject field (email-style, toggleable) */}
+                  {showSubjectField && (
+                    <div className="mb-2">
+                      <input
+                        type="text"
+                        placeholder="Subject (optional)"
+                        value={newSubject}
+                        onChange={(e) => setNewSubject(e.target.value)}
+                        className="w-full px-4 py-2 bg-muted/50 border-0 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      />
+                    </div>
+                  )}
+
                   {/* File Preview */}
                   {selectedFile && filePreviewUrl && (
                     <div className="mb-3 relative inline-block">
@@ -503,6 +555,17 @@ export default function MessagesClient({ userId, initialConversations }: Message
                       onChange={handleFileSelect}
                       className="hidden"
                     />
+
+                    {/* Email-compose toggle */}
+                    <button
+                      type="button"
+                      onClick={() => setShowSubjectField((v) => !v)}
+                      disabled={isSending}
+                      className={`p-3 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50 ${showSubjectField ? 'bg-primary/20 text-primary' : 'bg-muted hover:bg-muted/80'}`}
+                      title="Toggle subject (email-style)"
+                    >
+                      <Mail className="w-5 h-5" />
+                    </button>
 
                     {/* File Upload Buttons */}
                     <button

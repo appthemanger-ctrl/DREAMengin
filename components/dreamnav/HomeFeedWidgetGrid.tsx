@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 /* ── Dream goal data ── */
 const DREAM_GOALS = [
@@ -144,6 +145,39 @@ export default function HomeFeedWidgetGrid({ onOpenDrEams }: { onOpenDrEams: () 
 
       {/* Social quick links */}
       <SocialRow />
+
+      {/* Messages widget */}
+      <Link
+        href="/messages"
+        style={{
+          marginTop: 14,
+          width: '100%',
+          borderRadius: 18,
+          border: '1px solid var(--de-border)',
+          background: 'rgba(42,100,184,0.10)',
+          color: 'var(--de-accent)',
+          padding: '12px 14px',
+          fontWeight: 600,
+          fontSize: 13,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 10,
+          textDecoration: 'none',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 22 }}>✉️</span>
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--de-heading)', fontSize: 14 }}>Messages</div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 2 }}>
+              Send &amp; receive messages
+            </div>
+          </div>
+        </div>
+        <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Open →</span>
+      </Link>
 
       {/* Open Dr. Eams -- mascot button */}
       <button

@@ -210,8 +210,8 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
         aria-label="Dream controls"
         style={{
           ...base,
-          background: navLocked ? 'linear-gradient(135deg,#7c5b1a,#d4a843)' : 'linear-gradient(135deg,#1d4ed8,#2563eb)',
-          boxShadow: navLocked ? '0 0 24px rgba(212,168,67,.7)' : '0 0 18px rgba(37,99,235,.65)',
+          background: navLocked ? 'linear-gradient(135deg,#7c5b1a,#d4a843)' : 'linear-gradient(135deg,#0ea5e9,#38bdf8)',
+          boxShadow: navLocked ? '0 0 24px rgba(212,168,67,.7)' : '0 0 18px rgba(56,189,248,.65)',
         }}
         onPointerDown={onPointerDown('dreams')}
         onPointerMove={onPointerMove}
@@ -224,8 +224,8 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
         aria-label="System controls"
         style={{
           ...base,
-          background: navLocked ? 'linear-gradient(135deg,#7c5b1a,#d4a843)' : 'linear-gradient(135deg,#7f1d1d,#ef4444)',
-          boxShadow: navLocked ? '0 0 24px rgba(212,168,67,.7)' : '0 0 18px rgba(239,68,68,.65)',
+          background: navLocked ? 'linear-gradient(135deg,#7c5b1a,#d4a843)' : 'linear-gradient(135deg,#a16207,#d4a843)',
+          boxShadow: navLocked ? '0 0 24px rgba(212,168,67,.7)' : '0 0 18px rgba(212,168,67,.65)',
         }}
         onPointerDown={onPointerDown('system')}
         onPointerMove={onPointerMove}
