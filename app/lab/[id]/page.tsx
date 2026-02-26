@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { FlaskConical, Download, Code, FileText } from 'lucide-react';
+import { FlaskConical, Download, Code, FileText, Terminal } from 'lucide-react';
 
 interface LabProjectPageProps {
   params: Promise<{ id: string }>;
@@ -94,14 +94,35 @@ export default async function LabProjectPage({ params }: LabProjectPageProps) {
               )}
             </div>
 
-            {isOwner && (
+            <div className="flex items-center gap-3">
               <Link
-                href={`/lab/${project.id}/edit`}
-                className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700"
+                href={`/lab/${project.id}/codespace`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '9px 18px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: 14,
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
+                }}
               >
-                Edit Project
+                <Terminal size={15} />
+                Open CodeSpace
               </Link>
-            )}
+              {isOwner && (
+                <Link
+                  href={`/lab/${project.id}/edit`}
+                  className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700"
+                >
+                  Edit Project
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 
