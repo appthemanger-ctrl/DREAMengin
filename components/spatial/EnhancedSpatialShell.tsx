@@ -106,8 +106,13 @@ export default function EnhancedSpatialShell({
     
     engineRef.current = engine;
     setActiveWidgets(engine.getWidgetMemory().getActiveWidgetsSorted());
-    
-    return (
+
+    return () => {
+      engine.off('navchange', handleNavChange);
+    };
+  }, [widgets]);
+
+  return (
     <div className="fixed inset-0 bg-background overflow-hidden" style={{ touchAction: "none" }}>
       <PixiPhysicsLayer
         worldWidth={5000}

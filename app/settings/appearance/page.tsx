@@ -109,14 +109,14 @@ function PresetCard({
 }
 
 const ACCENT_SWATCHES = [
-  { label: 'Gold',   hue: 43,  color: '#c8981a' },
-  { label: 'Blue',   hue: 210, color: '#3b82f6' },
-  { label: 'Purple', hue: 265, color: '#8b5cf6' },
-  { label: 'Green',  hue: 142, color: '#22c55e' },
-  { label: 'Red',    hue: 0,   color: '#ef4444' },
-  { label: 'Orange', hue: 25,  color: '#f97316' },
-  { label: 'Pink',   hue: 330, color: '#ec4899' },
-  { label: 'Teal',   hue: 174, color: '#14b8a6' },
+  { label: 'Gold',   hue: 43,  color: '#c8981a', darkText: true },
+  { label: 'Blue',   hue: 210, color: '#3b82f6', darkText: false },
+  { label: 'Purple', hue: 265, color: '#8b5cf6', darkText: false },
+  { label: 'Green',  hue: 142, color: '#22c55e', darkText: false },
+  { label: 'Red',    hue: 0,   color: '#ef4444', darkText: false },
+  { label: 'Orange', hue: 25,  color: '#f97316', darkText: true },
+  { label: 'Pink',   hue: 330, color: '#ec4899', darkText: false },
+  { label: 'Teal',   hue: 174, color: '#14b8a6', darkText: false },
 ];
 
 const BG_STYLES = [
@@ -276,7 +276,7 @@ export default function AppearanceSettingsPage() {
                     {isActive && (
                       <Check
                         size={16}
-                        color={swatch.hue === 43 || swatch.hue === 25 ? '#333' : 'white'}
+                        color={swatch.darkText ? '#333' : 'white'}
                         strokeWidth={3}
                       />
                     )}

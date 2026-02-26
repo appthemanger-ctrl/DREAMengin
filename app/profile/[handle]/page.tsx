@@ -12,6 +12,22 @@ type ProfileLink = {
   url: string;
 };
 
+// Extended profile type — DB row + optional runtime/future fields
+type Profile = {
+  id: string;
+  handle: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  // Optional extended fields (not in current Supabase schema but accessed gracefully)
+  cover_url?: string | null;
+  links?: ProfileLink[] | null;
+  theme?: { primary?: string } | null;
+  followers_count?: number | null;
+  following_count?: number | null;
+  posts_count?: number | null;
+};
+
 interface ProfilePageProps {
   params: Promise<{ handle: string }>;
 }
@@ -24,15 +40,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const { data: { user: currentUser } } = await supabase.auth.getUser();
 
-  const { data: profile } = await supabase
+  const { data: rawProfile } = await supabase
     .from('profiles')
     .select('*')
     .eq('handle', handle)
     .single();
 
-  if (!profile) {
+  if (!rawProfile) {
     notFound();
   }
+
+  // Cast to extended Profile type — extra fields are optional, default to null
+  const profile = rawProfile as Profile;
 
   const [{ data: music }, { data: merch }, { data: projects }] = await Promise.all([
     supabase
@@ -45,13 +64,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     supabase
       .from('merch')
       .select('*')
-      .eq('owner_id', profile.id)
+      .eq('user_id', profile.id)
       .order('created_at', { ascending: false })
       .limit(6),
     supabase
       .from('projects')
       .select('*')
-      .eq('owner_id', profile.id)
+      .eq('user_id', profile.id)
       .eq('visibility', 'public')
       .order('created_at', { ascending: false })
       .limit(6),
@@ -396,12 +415,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   {item.image_url && (
                     <img
                       src={item.image_url}
-                      alt={item.title || ''}
+                      alt={item.name || ''}
                       style={{ width: '100%', height: 100, objectFit: 'cover', display: 'block' }}
                     />
                   )}
                   <div style={{ padding: '8px 10px' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{item.title}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{item.name}</div>
                     <div style={{ fontSize: 12, color: 'var(--de-gold)', fontWeight: 600 }}>${item.price}</div>
                   </div>
                 </Link>
