@@ -15,9 +15,7 @@ build/
 .DS_Store
 Thumbs.db
 
-# Temp
-tmp/
-temp/
+package-lock.json
 *.tmp
 
 # IDE
