@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Check } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
 
@@ -108,6 +108,40 @@ function PresetCard({
   );
 }
 
+const ACCENT_SWATCHES = [
+  { label: 'Gold',   hue: 43,  color: '#c8981a' },
+  { label: 'Blue',   hue: 210, color: '#3b82f6' },
+  { label: 'Purple', hue: 265, color: '#8b5cf6' },
+  { label: 'Green',  hue: 142, color: '#22c55e' },
+  { label: 'Red',    hue: 0,   color: '#ef4444' },
+  { label: 'Orange', hue: 25,  color: '#f97316' },
+  { label: 'Pink',   hue: 330, color: '#ec4899' },
+  { label: 'Teal',   hue: 174, color: '#14b8a6' },
+];
+
+const BG_STYLES = [
+  {
+    presetId: 'dream-ice',
+    label: 'Cosmic',
+    preview: 'linear-gradient(135deg, #dce8f8 0%, #c5d8f0 50%, #b8ceec 100%)',
+  },
+  {
+    presetId: 'dream-dark',
+    label: 'Night',
+    preview: 'linear-gradient(135deg, #0a1628 0%, #071236 50%, #020818 100%)',
+  },
+  {
+    presetId: 'dream-midnight',
+    label: 'Neon',
+    preview: 'linear-gradient(135deg, #0a0a1a 0%, #060614 50%, #020208 100%)',
+  },
+  {
+    presetId: 'dream-sunset',
+    label: 'Minimal',
+    preview: 'linear-gradient(135deg, #fde8d8 0%, #f0c8a8 50%, #e8b898 100%)',
+  },
+];
+
 export default function AppearanceSettingsPage() {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
 
@@ -204,6 +238,123 @@ export default function AppearanceSettingsPage() {
               unit="px"
               onChange={handleBlur}
             />
+          </div>
+        </section>
+
+        {/* Accent Color */}
+        <section style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 12 }}>
+            Accent Color
+          </div>
+          <div className="de-widget-tile" style={{ padding: 16 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+              {ACCENT_SWATCHES.map((swatch) => {
+                const isActive = overrides.accentHue === swatch.hue;
+                return (
+                  <button
+                    key={swatch.hue}
+                    type="button"
+                    onClick={() => setOverrides({ accentHue: swatch.hue })}
+                    title={swatch.label}
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '50%',
+                      background: swatch.color,
+                      border: isActive ? '3px solid var(--de-heading)' : '3px solid transparent',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: isActive ? `0 0 0 2px var(--de-gold)` : '0 2px 8px rgba(0,0,0,0.15)',
+                      transition: 'transform 0.15s, box-shadow 0.15s',
+                      flexShrink: 0,
+                    }}
+                    aria-label={`Set accent to ${swatch.label}`}
+                    aria-pressed={isActive}
+                  >
+                    {isActive && (
+                      <Check
+                        size={16}
+                        color={swatch.hue === 43 || swatch.hue === 25 ? '#333' : 'white'}
+                        strokeWidth={3}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            {overrides.accentHue !== -1 && (
+              <button
+                type="button"
+                onClick={() => setOverrides({ accentHue: -1 })}
+                style={{
+                  marginTop: 10,
+                  fontSize: 11,
+                  color: 'var(--de-text-dim)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  padding: 0,
+                }}
+              >
+                Reset to preset default
+              </button>
+            )}
+          </div>
+        </section>
+
+        {/* Background Style */}
+        <section style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 12 }}>
+            Background Style
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+            {BG_STYLES.map((bg) => {
+              const isActive = presetId === bg.presetId;
+              return (
+                <button
+                  key={bg.presetId}
+                  type="button"
+                  onClick={() => setPreset(bg.presetId)}
+                  className="de-widget-tile"
+                  style={{
+                    padding: 14,
+                    cursor: 'pointer',
+                    borderColor: isActive ? 'var(--de-gold)' : undefined,
+                    borderWidth: isActive ? 2 : 1,
+                    transition: 'border-color 0.2s, transform 0.15s',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                  aria-pressed={isActive}
+                >
+                  <div
+                    style={{
+                      width: '100%',
+                      height: 48,
+                      borderRadius: 10,
+                      background: bg.preview,
+                      border: '1px solid rgba(255,255,255,0.12)',
+                    }}
+                  />
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    {bg.label}
+                  </div>
+                  {isActive && (
+                    <div style={{
+                      fontSize: 9, fontWeight: 700, color: 'var(--de-gold)',
+                      background: 'rgba(200,152,26,0.12)', padding: '2px 8px', borderRadius: 100,
+                    }}>
+                      ACTIVE
+                    </div>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </section>
 
