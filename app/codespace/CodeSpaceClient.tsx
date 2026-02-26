@@ -12,6 +12,7 @@ import {
   ArrowLeft, RefreshCw, Copy, Check, Download, Upload,
   ExternalLink, Terminal, Lock, Unlock, FolderOpen,
   Folder, FileCode, ChevronRight, ChevronDown, X, LoaderCircle,
+  MessageSquare, Bot, Send,
 } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -22,6 +23,11 @@ interface FileNode {
   type: 'file' | 'dir';
   path: string;
   children?: FileNode[];
+}
+
+interface AiMessage {
+  role: 'user' | 'ai';
+  text: string;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -128,6 +134,109 @@ function TreeNode({ node, onSelect }: { node: FileNode; onSelect: (n: FileNode) 
   );
 }
 
+// ── AiChatPanel sub-component ─────────────────────────────────────────────────
+interface AiChatPanelProps {
+  agent: 'idari' | 'boogieman';
+  label: string;
+  accentColor: string;
+  description: string;
+  messages: AiMessage[];
+  input: string;
+  loading: boolean;
+  chatEndRef: React.RefObject<HTMLDivElement | null>;
+  onInputChange: (v: string) => void;
+  onSend: () => void;
+}
+
+function AiChatPanel({
+  agent, label, accentColor, description, messages,
+  input, loading, chatEndRef, onInputChange, onSend,
+}: AiChatPanelProps) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, height: '100%' }}>
+      {/* Agent label */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <Bot size={16} color={accentColor} />
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#e0e0f0' }}>{label}</div>
+          <div style={{ fontSize: 11, color: '#6060a0' }}>{description}</div>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div style={{
+        flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10,
+        minHeight: 120, maxHeight: '38dvh',
+        background: '#0d0d1a', border: '1px solid #2d2d44', borderRadius: 10, padding: 12,
+        marginBottom: 10,
+      }}>
+        {messages.length === 0 && (
+          <p style={{ color: '#6060a0', fontSize: 13, margin: 'auto', textAlign: 'center' }}>
+            Ask {label} anything…
+          </p>
+        )}
+        {messages.map((m, i) => (
+          <div
+            key={i}
+            style={{
+              alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+              maxWidth: '88%', padding: '8px 12px', borderRadius: 10, fontSize: 13, lineHeight: 1.55,
+              background: m.role === 'user'
+                ? `linear-gradient(135deg, ${accentColor}, #8b5cf6)`
+                : '#1e1e38',
+              color: m.role === 'user' ? 'white' : '#c0d0f0',
+              border: m.role === 'ai' ? '1px solid #2d2d44' : 'none',
+              whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+            }}
+          >
+            {m.text}
+          </div>
+        ))}
+        {loading && (
+          <div style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 6, color: '#6060a0', fontSize: 13 }}>
+            <LoaderCircle size={14} className="animate-spin" /> Thinking…
+          </div>
+        )}
+        <div ref={chatEndRef} />
+      </div>
+
+      {/* Input row */}
+      <div style={{ display: 'flex', gap: 8 }}>
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => onInputChange(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend(); } }}
+          placeholder={`Ask ${label}…`}
+          disabled={loading}
+          style={{
+            flex: 1, padding: '10px 12px', borderRadius: 10,
+            background: '#1e1e38', border: '1px solid #3d3d5a',
+            color: '#e0e0f0', fontSize: 13, outline: 'none',
+            opacity: loading ? 0.6 : 1,
+          }}
+          aria-label={`Message ${label}`}
+        />
+        <button
+          type="button"
+          onClick={onSend}
+          disabled={loading || !input.trim()}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 42, height: 42, borderRadius: 10, border: 'none', flexShrink: 0,
+            background: loading || !input.trim() ? '#2d2d44' : `linear-gradient(135deg, ${accentColor}, #8b5cf6)`,
+            color: 'white', cursor: loading || !input.trim() ? 'default' : 'pointer',
+          }}
+          title={`Send to ${label}`}
+          aria-label={`Send to ${label}`}
+        >
+          <Send size={15} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean }) {
   // ── Editor state ──
@@ -149,6 +258,15 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
   const [fileLoading, setFileLoading]     = useState(false);
   const [fileCopied, setFileCopied]       = useState(false);
   const adminPwRef                        = useRef(''); // store pw in ref after auth
+
+  // ── AI chat state ──
+  const [adminTab, setAdminTab]             = useState<'files' | 'idari' | 'boogieman'>('files');
+  const [idariMessages, setIdariMessages]   = useState<AiMessage[]>([]);
+  const [boogieMessages, setBoogieMessages] = useState<AiMessage[]>([]);
+  const [idariInput, setIdariInput]         = useState('');
+  const [boogieInput, setBoogieInput]       = useState('');
+  const [aiLoading, setAiLoading]           = useState(false);
+  const chatEndRef                          = useRef<HTMLDivElement>(null);
 
   // Restore session auth on mount
   useEffect(() => {
@@ -247,6 +365,11 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
     if (adminOpen && adminAuthed && tree.length === 0) loadFileTree();
   }, [adminOpen, adminAuthed, tree.length, loadFileTree]);
 
+  // Scroll AI chat to bottom when messages change
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [idariMessages, boogieMessages]);
+
   const handleFileSelect = useCallback(async (node: FileNode) => {
     if (node.type !== 'file') return;
     setFileLoading(true); setSelectedFile(null);
@@ -289,7 +412,40 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
     setTree([]);
     setSelectedFile(null);
     setPw('');
+    setAdminTab('files');
+    setIdariMessages([]);
+    setBoogieMessages([]);
+    setIdariInput('');
+    setBoogieInput('');
   }, []);
+
+  // ── AI chat send ──
+  const handleAiChat = useCallback(async (agent: 'idari' | 'boogieman') => {
+    const input = agent === 'idari' ? idariInput : boogieInput;
+    const setInput = agent === 'idari' ? setIdariInput : setBoogieInput;
+    const msg = input.trim();
+    if (!msg || aiLoading) return;
+    setInput('');
+    setAiLoading(true);
+    const addMsg = agent === 'idari' ? setIdariMessages : setBoogieMessages;
+    addMsg((prev) => [...prev, { role: 'user', text: msg }]);
+    try {
+      const res = await fetch('/api/admin/ai-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPwRef.current, agent, message: msg }),
+      });
+      const data = await res.json();
+      addMsg((prev) => [...prev, {
+        role: 'ai',
+        text: res.ok ? (data.response ?? 'No response.') : `Error: ${data.error ?? 'Unknown error'}`,
+      }]);
+    } catch {
+      addMsg((prev) => [...prev, { role: 'ai', text: 'Network error. Try again.' }]);
+    } finally {
+      setAiLoading(false);
+    }
+  }, [idariInput, boogieInput, aiLoading]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -488,7 +644,7 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {adminAuthed ? <Unlock size={16} color="#22c55e" /> : <Lock size={16} color="#f59e0b" />}
                 <span style={{ fontSize: 15, fontWeight: 700, color: '#e0e0f0' }}>
-                  {adminAuthed ? 'App File Browser' : 'Admin Access'}
+                  {adminAuthed ? 'Admin Console' : 'Admin Access'}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -502,6 +658,33 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
                 </button>
               </div>
             </div>
+
+            {/* Tab bar — shown only when authenticated */}
+            {adminAuthed && (
+              <div style={{ display: 'flex', gap: 4, padding: '8px 12px', borderBottom: '1px solid #2d2d44', flexShrink: 0 }}>
+                {([
+                  { id: 'files',     label: 'Files',    icon: <FileCode size={13} /> },
+                  { id: 'idari',     label: 'IDARi',    icon: <Bot size={13} /> },
+                  { id: 'boogieman', label: 'Boogieman', icon: <MessageSquare size={13} /> },
+                ] as const).map(({ id, label, icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setAdminTab(id)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 5,
+                      padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                      border: '1px solid',
+                      background: adminTab === id ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : '#1e1e38',
+                      borderColor: adminTab === id ? '#6366f1' : '#3d3d5a',
+                      color: adminTab === id ? 'white' : '#a0a0c0',
+                    }}
+                  >
+                    {icon} {label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div style={{ overflowY: 'auto', flex: 1, padding: 16 }}>
 
@@ -545,7 +728,7 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
               )}
 
               {/* ── Authenticated: file browser ── */}
-              {adminAuthed && !selectedFile && (
+              {adminAuthed && adminTab === 'files' && !selectedFile && (
                 <div>
                   {treeLoading ? (
                     <div style={{ textAlign: 'center', padding: 24, color: '#6060a0' }}>
@@ -563,7 +746,7 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
               )}
 
               {/* ── File viewer ── */}
-              {adminAuthed && selectedFile && (
+              {adminAuthed && adminTab === 'files' && selectedFile && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <button type="button" onClick={() => setSelectedFile(null)} style={{ ...iconBtn, flexShrink: 0 }} title="Back to tree">
@@ -619,6 +802,38 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
                     </>
                   )}
                 </div>
+              )}
+
+              {/* ── IDARi chat tab ── */}
+              {adminAuthed && adminTab === 'idari' && (
+                <AiChatPanel
+                  agent="idari"
+                  label="IDARi"
+                  accentColor="#6366f1"
+                  description="Admin AI — debugger & system overseer"
+                  messages={idariMessages}
+                  input={idariInput}
+                  loading={aiLoading}
+                  chatEndRef={chatEndRef}
+                  onInputChange={setIdariInput}
+                  onSend={() => handleAiChat('idari')}
+                />
+              )}
+
+              {/* ── Boogieman chat tab ── */}
+              {adminAuthed && adminTab === 'boogieman' && (
+                <AiChatPanel
+                  agent="boogieman"
+                  label="Boogieman"
+                  accentColor="#f59e0b"
+                  description="Policy & enforcement AI"
+                  messages={boogieMessages}
+                  input={boogieInput}
+                  loading={aiLoading}
+                  chatEndRef={chatEndRef}
+                  onInputChange={setBoogieInput}
+                  onSend={() => handleAiChat('boogieman')}
+                />
               )}
             </div>
           </div>

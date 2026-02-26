@@ -2,36 +2,12 @@ import { NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
 import { createServerClient } from '@/lib/supabase/server';
-
-// ── Owner gate ───────────────────────────────────────────────────────────────
-// The ONLY email that may call this API.
-const OWNER_EMAIL = 'Appthemanger@gmail.com';
-
-// ── Permanent lockout ────────────────────────────────────────────────────────
-// One wrong password attempt locks this process forever.
-// Process-level flag (survives hot-reloads, resets only on server restart / redeploy).
-// Additionally, set ADMIN_LOCKOUT=1 in your environment for persistence across deployments.
-// To reset: remove ADMIN_LOCKOUT from your environment config AND redeploy.
-let adminLocked = false;
-
-function isLocked(): boolean {
-  return adminLocked || process.env.ADMIN_LOCKOUT === '1';
-}
-
-// ── Blocked domains ──────────────────────────────────────────────────────────
-// Any request whose origin, referer, or host contains one of these strings is denied.
-const BLOCKED_DOMAINS = ['theboogieman.ai'];
-
-function isDomainBlocked(req: Request): boolean {
-  const checkHeaders = [
-    req.headers.get('origin') ?? '',
-    req.headers.get('referer') ?? '',
-    req.headers.get('host') ?? '',
-  ];
-  return checkHeaders.some((h) =>
-    BLOCKED_DOMAINS.some((d) => h.toLowerCase().includes(d))
-  );
-}
+import {
+  isAdminLocked,
+  triggerAdminLockout,
+  isOwner,
+  isDomainBlocked,
+} from '@/lib/admin/lockout';
 
 // ── File-tree builder ────────────────────────────────────────────────────────
 const ALLOWED_TOP_DIRS = ['app', 'components', 'lib', 'hooks', 'types', 'styles'];
@@ -92,7 +68,7 @@ export async function POST(request: Request) {
   }
 
   // 2. Check permanent lockout
-  if (isLocked()) {
+  if (isAdminLocked()) {
     return deny('Access permanently locked. Edit repository configuration to reset.', 403);
   }
 
@@ -101,7 +77,7 @@ export async function POST(request: Request) {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     const email = user?.email ?? '';
-    if (email.toLowerCase() !== OWNER_EMAIL.toLowerCase()) {
+    if (!isOwner(email)) {
       // Do not trigger lockout for wrong user — just deny silently
       return deny('Access denied.', 403);
     }
@@ -124,7 +100,7 @@ export async function POST(request: Request) {
   }
   if (!body.password || body.password !== adminPw) {
     // Trigger permanent lockout immediately
-    adminLocked = true;
+    triggerAdminLockout();
     // Subtle error — do not reveal that a lockout occurred
     return deny('Incorrect password.', 401);
   }
