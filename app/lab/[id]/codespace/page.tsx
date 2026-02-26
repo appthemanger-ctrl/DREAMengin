@@ -211,8 +211,10 @@ export default function CodeSpacePage({ params }: Props) {
             <button
               type="button"
               onClick={() => {
-                const w = window.open('', '_blank');
-                if (w) { w.document.write(previewSrc); w.document.close(); }
+                const blob = new Blob([previewSrc], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
               }}
               style={iconBtnStyle}
               title="Open in new tab"
@@ -223,7 +225,7 @@ export default function CodeSpacePage({ params }: Props) {
         </div>
         <iframe
           srcDoc={previewSrc}
-          sandbox="allow-scripts allow-same-origin allow-forms"
+          sandbox="allow-scripts allow-forms"
           style={{
             flex: 1,
             width: '100%',
