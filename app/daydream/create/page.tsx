@@ -12,11 +12,11 @@ export default async function CreateDaydreamPage() {
   if (!user) redirect('/login');
 
   const widgets = [
-    { icon: Lightbulb,    label: 'Ideas',        desc: 'Capture ideas before they slip away.',      color: '#f59e0b' },
-    { icon: CheckSquare,  label: 'Tasks',         desc: 'Your to-dos, prioritised and trackable.',   color: '#10b981' },
-    { icon: Calendar,     label: 'Calendar',      desc: 'Schedule, plan, and review your timeline.', color: '#6366f1' },
-    { icon: FolderKanban, label: 'Projects',      desc: 'Kanban boards for active projects.',        color: '#0ea5e9' },
-    { icon: ImageIcon,    label: 'Media Library', desc: 'Browse and attach media to your work.',     color: '#ec4899' },
+    { icon: Lightbulb,    label: 'Ideas',        singular: 'Idea',         desc: 'Capture ideas before they slip away.',      color: '#f59e0b' },
+    { icon: CheckSquare,  label: 'Tasks',        singular: 'Task',         desc: 'Your to-dos, prioritised and trackable.',   color: '#10b981' },
+    { icon: Calendar,     label: 'Calendar',     singular: 'Event',        desc: 'Schedule, plan, and review your timeline.', color: '#6366f1' },
+    { icon: FolderKanban, label: 'Projects',     singular: 'Project',      desc: 'Kanban boards for active projects.',        color: '#0ea5e9' },
+    { icon: ImageIcon,    label: 'Media Library',singular: 'Media Item',   desc: 'Browse and attach media to your work.',     color: '#ec4899' },
   ];
 
   return (
@@ -35,7 +35,7 @@ export default async function CreateDaydreamPage() {
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
         <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Everything you make lives here as widgets—not pages.</p>
 
-        {widgets.map(({ icon: Icon, label, desc, color }) => (
+        {widgets.map(({ icon: Icon, label, singular, desc, color }) => (
           <div key={label} className="de-widget">
             <div className="de-widget-header">
               <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export default async function CreateDaydreamPage() {
               </div>
             </div>
             <div className="de-widget-actions">
-              <button type="button" className="de-btn de-btn-ghost text-xs">+ Add {label.slice(0, -1) || label}</button>
+              <button type="button" className="de-btn de-btn-ghost text-xs">+ Add {singular}</button>
             </div>
           </div>
         ))}
