@@ -10,8 +10,24 @@ interface DrEamsPanelProps {
   onClose: () => void;
 }
 
+type Message = { role: 'user' | 'ai'; text: string; image?: string };
+
+function getDemoResponse(text: string): { text: string; image?: string } | null {
+  const t = text.trim().toLowerCase();
+  if (t === 'hello' || t === 'hi') {
+    return { text: "Hey there! ✨ I'm Dr. Eams — your dream AI guide. Ask me anything, or say 'send me a pic' to see my look!" };
+  }
+  if (t === 'how are you') {
+    return { text: "I'm dreaming big and running smooth! Every node in DREAMengin is humming. How can I power your creative journey today? 🚀" };
+  }
+  if (t === 'send me a pic' || t === 'send a pic' || t === 'show me a pic') {
+    return { text: 'Here I am! 👋', image: '/images/dreamengin-logo.jpg' };
+  }
+  return null;
+}
+
 export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
-  const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([
+  const [messages, setMessages] = useState<Message[]>([
     { role: 'ai', text: 'Hello! What are you daydreaming about today?' },
   ]);
   const [input, setInput] = useState('');
@@ -24,6 +40,11 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
     if (!text || loading) return;
     setInput('');
     setMessages((m) => [...m, { role: 'user', text }]);
+    const demo = getDemoResponse(text);
+    if (demo) {
+      setMessages((m) => [...m, { role: 'ai', text: demo.text, image: demo.image }]);
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/dr-eams/hf', {
@@ -113,6 +134,14 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
               }}
             >
               {m.text}
+              {m.image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={m.image}
+                  alt="Dr. Eams"
+                  style={{ display: 'block', marginTop: 8, width: '100%', maxWidth: 180, borderRadius: 12, objectFit: 'cover' }}
+                />
+              )}
             </div>
           ))}
           {loading && (
