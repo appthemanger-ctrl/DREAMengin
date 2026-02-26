@@ -16,6 +16,10 @@ build/
 Thumbs.db
 
 package-lock.json
+
+# Temp
+tmp/
+temp/
 *.tmp
 
 # IDE
