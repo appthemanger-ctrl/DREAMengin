@@ -6,6 +6,7 @@ import {
   ArrowLeft, Bot, Shield, Activity, Users, Database,
   CheckCircle, XCircle, Clock, AlertTriangle, Zap
 } from 'lucide-react';
+import { isDevAdminBypassActive } from '@/lib/dev-bypass';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Admin – DREAMengin' };
@@ -15,24 +16,31 @@ export default async function AdminPage() {
   let profile = null;
   let isAdmin = false;
 
-  try {
-    const supabase = await createServerClient();
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    user = authUser;
-    if (!user) redirect('/login');
+  // Dev admin bypass: when DEV_ADMIN=true the page renders without a real
+  // Supabase session so the admin UI can be inspected in dev (req #31–33).
+  // IDARi API endpoints remain password-protected regardless.
+  const devAdmin = isDevAdminBypassActive();
 
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('handle, display_name')
-      .eq('id', user.id)
-      .single();
-    profile = profileData;
-    isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
-  } catch {
-    redirect('/login');
+  if (!devAdmin) {
+    try {
+      const supabase = await createServerClient();
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      user = authUser;
+      if (!user) redirect('/login');
+
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('handle, display_name')
+        .eq('id', user.id)
+        .single();
+      profile = profileData;
+      isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+    } catch {
+      redirect('/login');
+    }
+
+    if (!isAdmin) redirect('/');
   }
-
-  if (!isAdmin) redirect('/');
 
   // Example proposals (in production, fetch from DB)
   const proposals = [

@@ -15,6 +15,32 @@ export interface GroqChatOptions {
   max_tokens?: number;
 }
 
+// Typed shape of a successful Groq API response.
+interface GroqResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
+function parseGroqResponse(json: unknown): string {
+  if (
+    json == null ||
+    typeof json !== 'object' ||
+    !('choices' in json) ||
+    !Array.isArray((json as GroqResponse).choices) ||
+    (json as GroqResponse).choices.length === 0
+  ) {
+    throw new Error('Groq response missing content');
+  }
+  const content = (json as GroqResponse).choices[0]?.message?.content;
+  if (typeof content !== 'string') {
+    throw new Error('Groq response missing content');
+  }
+  return content;
+}
+
 export async function groqChat(opts: GroqChatOptions): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
 
@@ -42,10 +68,25 @@ export async function groqChat(opts: GroqChatOptions): Promise<string> {
     throw new Error(`Groq error ${res.status}: ${text.slice(0, 500)}`);
   }
 
-  const json: any = await res.json();
-  const content = json?.choices?.[0]?.message?.content;
-  if (typeof content !== 'string') {
-    throw new Error('Groq response missing content');
+  const json: unknown = await res.json();
+  return parseGroqResponse(json);
+}
+
+/**
+ * Health-check ping — returns true when the Groq API is reachable and the
+ * key is valid, false otherwise.  Never throws.  Used by IDARi's health
+ * monitor (req #86).
+ */
+export async function groqHealthCheck(): Promise<boolean> {
+  try {
+    await groqChat({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: 'ping' }],
+      max_tokens: 1,
+      temperature: 0,
+    });
+    return true;
+  } catch {
+    return false;
   }
-  return content;
 }

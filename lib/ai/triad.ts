@@ -34,7 +34,7 @@ export function isOwnerEmail(email?: string | null): boolean {
 
 type EamsPlan = { response_text: string; intents: Intent[]; interpreted_intent?: string };
 
-function safeJsonParse(text: string): any | null {
+function safeJsonParse(text: string): Record<string, unknown> | null {
   try {
     return JSON.parse(text);
   } catch {
@@ -83,7 +83,7 @@ export async function planWithEams(input: {
 
   const tryModels = [AI_MODELS.EAMS_PRIMARY, AI_MODELS.EAMS_FALLBACK];
 
-  let lastErr: any = null;
+  let lastErr: unknown = null;
   for (const model of tryModels) {
     try {
       const raw = await groqChat({ model, messages: [system, user], temperature: 0.2, max_tokens: 700 });
@@ -96,7 +96,7 @@ export async function planWithEams(input: {
 
       const intents: Intent[] = intentsRaw
         .slice(0, 3)
-        .map((x: any) => {
+        .map((x: Record<string, unknown>) => {
           const base = {
             intent_id: x?.intent_id || uuidv4(),
             type: x?.type as IntentType,
