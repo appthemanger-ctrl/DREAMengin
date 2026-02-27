@@ -820,3 +820,14 @@ body, .dreamnav-surface, .controls {
   overflow: hidden;
   background: rgba(160,195,240,0.1);
 }
+
+/* ── MenuPanel animations ── */
+@keyframes de-menu-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes de-menu-panel-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
