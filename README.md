@@ -49,7 +49,34 @@ All secrets are server-side only. See `.env.example` for the full list with desc
 - All AI keys are configured as **Vercel environment variables**, never committed.
 - IDARi and BoogieMan endpoints are admin-guarded even when `DEV_BYPASS_AUTH` is on.
 - Major system updates require unanimous triad approval (consensus gating) via `/admin`.
-- **Dr. Eams full spec:** `docs/DR_EAMS.md` — 100 requirements covering personality, UI, onboarding, privacy, policy, and guided setup.
+- **docs/DR_EAMS.md** (Dr. Eams behavioral spec — 100 requirements covering personality, UI, onboarding, privacy, policy, and guided setup).
+- **BoogieMan full spec:** `docs/policy/theboogie.md` — versioned 100-rule policy (v1) covering scope, violations, enforcement ladder, strikes, transparency, and privacy.
+
+## Policy and enforcement (TheBoogieMan.Ai)
+
+| Item | Location |
+|------|---------|
+| Policy document (versioned) | `docs/policy/theboogie.md` |
+| Policy test plan | `docs/POLICY_TESTS.md` |
+| Public policy page | `/policy` (accessible from Settings → Policy) |
+| Policy constants + rule codes | `lib/ai/boogie-policy.ts` |
+| Core engine | `lib/ai/boogieman.ts` |
+| Appeal endpoint | `POST /api/appeal` |
+| Policy health status | `GET /api/ai/boogieman/status` |
+
+Every enforcement event emitted by `boogieEnforce()` or `boogieEvaluate()` includes:
+- `policy_version` — the exact version of `docs/policy/theboogie.md` that was active
+- `rule_code` — the specific rule (e.g. `C28_SPAM`) that triggered the action
+
+To run policy unit tests locally:
+```bash
+pnpm test tests/boogieman.test.ts
+```
+
+To enable simulation mode (produce audit events without restricting accounts — dev only):
+```bash
+BOOGIE_SIMULATION_MODE=true pnpm dev
+```
 
 ## Dev auth bypass (interface inspection mode)
 

@@ -37,6 +37,7 @@ const NAV_GROUPS = [
     heading: 'Help',
     items: [
       { href: '/settings/help',         icon: HelpCircle, label: 'Help & Onboarding', desc: 'Re-open tips, how-it-works guides, wizard' },
+      { href: '/policy',                icon: Shield,     label: 'Policy',            desc: 'Community + safety policy — TheBoogieMan.Ai' },
     ],
   },
 ];
