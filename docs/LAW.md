@@ -15,7 +15,8 @@ If any code, UI, or architecture conflicts with this law, the code must change â
 4. **docs/WIDGET_SYSTEM_V2.md**
 5. **docs/ARCHITECTURE.md**
 6. **docs/ADD_WORKFLOW.md**
-7. README.md (overview only)
+7. **docs/DR_EAMS.md** (Dr. Eams behavioral spec â€” 100 requirements)
+8. README.md (overview only)
 
 If you find a conflict, you must:
 - cite the exact lines/sections in conflict,

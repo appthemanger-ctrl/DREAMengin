@@ -1,8 +1,11 @@
-version: 1
-product: DREAMengin / Lab
+version: 2
+product: DREAMengin
 description: |
-  Action registry for Dr. Eams. If a feature exists in the app, it should appear here
-  so the assistant can execute it via API tools instead of guessing UI steps.
+  Full action registry for Dr. Eams. Every feature that exists in the app has an entry
+  here so the assistant can execute it via API tools instead of guessing UI steps.
+  Actions map to real routes and real UI surfaces. Dr. Eams never invents actions that
+  don't exist. If a feature is in progress, the action routes to a placeholder page and
+  Eams says "that's coming soon." See docs/DR_EAMS.md for the full 100-requirement spec.
 
 context:
   required: [userId, mode, route]
@@ -10,14 +13,19 @@ context:
 
 safety:
   confirmLevels:
-    none: No confirmation
-    confirm: One-tap confirmation
-    typed: User types phrase
+    none: No confirmation needed
+    confirm: One-tap confirmation required
+    typed: User must type a confirmation phrase
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CATEGORY 1 — System / Setup
+# ─────────────────────────────────────────────────────────────────────────────
 actions:
   - name: setup.check
     description: Check if required env vars/tables/features are configured
     confirm: none
     permission: user
+    req: 99
     inputs:
       - name: scope
         type: enum
@@ -27,3 +35,290 @@ actions:
     returns:
       - name: report
         type: object
+
+  - name: system.status
+    description: Surface a user-friendly system health summary (BoogieMan-sourced)
+    confirm: none
+    permission: user
+    req: 60,61,62
+    returns:
+      - name: status
+        type: object
+        fields: [healthy, degraded_services, message]
+
+  - name: system.bug_report
+    description: Generate a sanitized bug report packet for admins
+    confirm: confirm
+    permission: user
+    req: 68
+    inputs:
+      - name: description
+        type: string
+        required: true
+      - name: reproduction_steps
+        type: string
+        required: false
+    returns:
+      - name: report_id
+        type: string
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CATEGORY 2 — Navigation / Deep-Link
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: nav.open_settings_feed
+    description: Open Feed Settings page
+    confirm: none
+    permission: user
+    req: 19-20,32
+    route: /feed-settings
+
+  - name: nav.open_settings_appearance
+    description: Open Theme / Appearance settings
+    confirm: none
+    permission: user
+    req: 19-20,30,32
+    route: /settings/appearance
+
+  - name: nav.open_settings_widgets
+    description: Open the Add Widgets sheet / settings
+    confirm: none
+    permission: user
+    req: 19-20,29,33
+    route: /settings/widgets
+
+  - name: nav.open_connectors
+    description: Open the Connectors page
+    confirm: none
+    permission: user
+    req: 19-20,34,63
+    route: /connectors
+
+  - name: nav.open_profile
+    description: Open the private Profile editor
+    confirm: none
+    permission: user
+    req: 19-20,35
+    route: /profile
+
+  - name: nav.open_public_profile
+    description: Open the user's Public Profile view
+    confirm: none
+    permission: user
+    req: 19-20,35
+    inputs:
+      - name: handle
+        type: string
+        required: true
+    route: /u/:handle
+
+  - name: nav.open_marketplace
+    description: Open the Marketplace
+    confirm: none
+    permission: user
+    req: 19-20,36
+    route: /marketplace
+
+  - name: nav.open_shop
+    description: Open the Shop
+    confirm: none
+    permission: user
+    req: 19-20,36
+    route: /shop
+
+  - name: nav.open_discover
+    description: Open Discover / People Search
+    confirm: none
+    permission: user
+    req: 19-20,37
+    route: /discover
+
+  - name: nav.open_help
+    description: Open Help / Settings help page
+    confirm: none
+    permission: user
+    req: 24
+    route: /settings/help
+
+  - name: nav.open_privacy
+    description: Open Privacy settings
+    confirm: none
+    permission: user
+    req: 26,41-42,54
+    route: /settings/privacy
+
+  - name: nav.open_data
+    description: Open Data settings (export, delete data, delete account)
+    confirm: none
+    permission: user
+    req: 45-48
+    route: /settings/data
+
+  - name: nav.open_appeal
+    description: >
+      Link to the policy appeal form. The appeal form is accessed through Privacy
+      settings (/settings/privacy) until a dedicated appeal route is available.
+    confirm: none
+    permission: user
+    req: 54
+    route: /settings/privacy
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CATEGORY 3 — Onboarding / Education
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: onboarding.guided_setup
+    description: |
+      Run the full guided setup flow: choose theme → choose core widgets →
+      connect services (optional). One-question entry: "What do you want Dream
+      Engine to be for you — music, creator, social, or all?"
+    confirm: none
+    permission: user
+    req: 91,92,93
+    inputs:
+      - name: focus
+        type: enum
+        values: [music, creator, social, all]
+        required: false
+
+  - name: onboarding.replay_tips
+    description: Replay core onboarding tips on demand (Help mode)
+    confirm: none
+    permission: user
+    req: 24
+
+  - name: onboarding.explain_term
+    description: Explain a DREAMengin term in plain language
+    confirm: none
+    permission: user
+    req: 25-27,72-75
+    inputs:
+      - name: term
+        type: enum
+        values: [dream, daydream, widget, slice, connector, profile, public_profile]
+        required: true
+    returns:
+      - name: explanation
+        type: string
+
+  - name: onboarding.guide_add_slice
+    description: Step-by-step guide to add a slice (pick source → pick slice → choose destination)
+    confirm: none
+    permission: user
+    req: 28
+
+  - name: onboarding.guide_add_widget
+    description: Step-by-step guide to add a widget (pick widget → pick location → configure)
+    confirm: none
+    permission: user
+    req: 29
+
+  - name: onboarding.guide_edit_theme
+    description: Step-by-step guide to edit theme (choose gradient → preview → save → publish optional)
+    confirm: none
+    permission: user
+    req: 30
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CATEGORY 4 — Privacy & Data
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: privacy.explain_visibility
+    description: Explain what is public vs private for the user's current content
+    confirm: none
+    permission: user
+    req: 26,41-43
+
+  - name: privacy.publish_preview
+    description: Explain what will become public if the user presses Save/Publish
+    confirm: none
+    permission: user
+    req: 39,41
+
+  - name: privacy.explain_data
+    description: Explain in plain language what data the app stores about the user
+    confirm: none
+    permission: user
+    req: 45
+
+  - name: privacy.delete_data
+    description: Guide the user through "Delete My Data" (content + connectors, keeps login)
+    confirm: typed
+    permission: user
+    req: 46,47
+    inputs:
+      - name: confirm_phrase
+        type: string
+        required: true
+        expected_phrase: delete my data
+        case_sensitive: false
+
+  - name: privacy.delete_account
+    description: Guide the user through "Delete Account" (everything removed, permanent)
+    confirm: typed
+    permission: user
+    req: 46,47
+    inputs:
+      - name: confirm_phrase
+        type: string
+        required: true
+        expected_phrase: delete my account
+        case_sensitive: false
+
+  - name: privacy.export_data
+    description: Guide or link to data export options
+    confirm: none
+    permission: user
+    req: 48
+    route: /settings/data
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CATEGORY 5 — Policy / BoogieMan Bridge
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: policy.explain_enforcement
+    description: Explain a warning, throttle, or ban in user-safe language
+    confirm: none
+    permission: user
+    req: 51-53,59
+    inputs:
+      - name: enforcement_type
+        type: enum
+        values: [warning, throttle, temporary_ban, permanent_ban]
+        required: true
+
+  - name: policy.suggest_fix
+    description: Suggest actions to resolve a policy violation (edit, remove, adjust visibility)
+    confirm: none
+    permission: user
+    req: 57-58
+    inputs:
+      - name: violation_type
+        type: string
+        required: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CATEGORY 6 — Profile Curation
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: curation.recommend_highlights
+    description: Recommend which 3 items to pin as highlights on the public profile
+    confirm: none
+    permission: user
+    req: 40,94-95
+
+  - name: curation.refresh_stale_slice
+    description: Flag stale slices and offer to refresh or replace
+    confirm: confirm
+    permission: user
+    req: 96
+    inputs:
+      - name: slice_id
+        type: string
+        required: true
+
+  - name: curation.cleanup_hidden_widgets
+    description: List unused/hidden widget placements and offer bulk removal
+    confirm: confirm
+    permission: user
+    req: 97
+    returns:
+      - name: hidden_count
+        type: number
+      - name: placements
+        type: array
