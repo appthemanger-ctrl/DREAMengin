@@ -47,6 +47,19 @@ function isSimulationMode(): boolean {
 }
 
 // ============================================================================
+// BLAST RADIUS THRESHOLD (req 25)
+// Actions at or above this severity level are considered "containment-grade".
+// Wide-impact incidents (blastRadius >= BLAST_RADIUS_ESCALATION_THRESHOLD) that
+// have not yet reached containment severity are upgraded to QUARANTINE.
+// ============================================================================
+
+export const BLAST_RADIUS_ESCALATION_THRESHOLD = 10;
+// Actions that already constitute meaningful containment (no further upgrade needed).
+export const CONTAINMENT_ACTIONS: EnforcementAction[] = [
+  'QUARANTINE', 'FEATURE_LOCK', 'TEMP_SUSPEND', 'TEMP_BAN', 'ESCALATE',
+];
+
+// ============================================================================
 // RISK SCORING (req 21, 22)
 // risk_score = severity × confidence × history_multiplier
 // history_multiplier scales up when multiple strikes occur in rolling 7-day window (req 30)
@@ -250,6 +263,7 @@ export interface BoogieEnforceInput {
   historyMultiplier?: number; // > 1.0 if multiple strikes in rolling 7-day window (req 30)
   priorEventId?: string;
   scopes?: PolicyScope[];     // override scope selection
+  blastRadius?: number;       // req 25: number of users potentially affected
 }
 
 export function boogieEnforce(input: BoogieEnforceInput): BoogieEnforceOutput {
@@ -263,6 +277,7 @@ export function boogieEnforce(input: BoogieEnforceInput): BoogieEnforceOutput {
     historyMultiplier = 1.0,
     priorEventId,
     scopes: scopeOverride,
+    blastRadius = 0,
   } = input;
 
   const simulation = isSimulationMode();
@@ -280,13 +295,19 @@ export function boogieEnforce(input: BoogieEnforceInput): BoogieEnforceOutput {
 
   let action = selectAction({ riskScore, severityLevel, confidence, isFirstOffense, isRepeatOffense });
 
+  // Wide-impact incidents escalate faster (req 25): blast radius ≥ threshold raises to at least QUARANTINE
+  if (blastRadius >= BLAST_RADIUS_ESCALATION_THRESHOLD && !CONTAINMENT_ACTIONS.includes(action)) {
+    action = 'QUARANTINE';
+  }
+
   // Never issue permanent ban autonomously (req 9, 43)
   // Cap at TEMP_BAN; escalate for human review
   const shouldEscalate =
     escalateForUnknown ||
     severityLevel === 'CRITICAL' ||          // req 71, F50
     confidence < THRESHOLDS.MIN_CONFIDENCE_FOR_BAN || // req 23, G57
-    action === 'TEMP_BAN';                   // req 80, I80 — always escalate with temp bans
+    action === 'TEMP_BAN' ||                 // req 80, I80 — always escalate with temp bans
+    blastRadius >= BLAST_RADIUS_ESCALATION_THRESHOLD; // req 25 — wide-impact incidents always escalate
 
   if (shouldEscalate && !['NUDGE', 'WARN'].includes(action)) {
     // Keep the restriction, but also flag for human review (req 73)
@@ -318,12 +339,25 @@ export function boogieEnforce(input: BoogieEnforceInput): BoogieEnforceOutput {
     isSimulation: simulation,
   });
 
+  // IDARi telemetry summary (req 69) — rate, blast radius, performance notes
+  const idariTelemetry = {
+    rule_code: resolvedCode,
+    action,
+    confidence,
+    severity,
+    blast_radius: blastRadius,
+    simulation,
+    timestamp: auditEvent.timestamp,
+  };
+
   return {
     user_explanation: userExplanation,
     audit_event: auditEvent,
     action,
     should_escalate: shouldEscalate,
     simulation,
+    blast_radius: blastRadius,
+    idari_telemetry: idariTelemetry,
   };
 }
 
