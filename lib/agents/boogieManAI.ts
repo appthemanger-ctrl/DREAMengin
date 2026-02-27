@@ -28,7 +28,7 @@ export function createBoogieManAgent(widgetId?: string): BoogieManAgent {
     id: "boogieman-core",
     tier: "boogieman",
     roles: ["policy", "enforcement"],
-    name: "BoogieManAI",
+    name: "TheBoogieMan.Ai",
     description: "Policy / Enforcement AI",
     widget_id: widgetId,
     is_active: true,

@@ -2,7 +2,7 @@
 // Unit tests for TheBoogieMan.Ai policy gate
 
 import { describe, it, expect } from 'vitest';
-import { boogieEvaluate, boogieEnforce, computeRiskScore, selectAction, BOOGIE_POLICY_VERSION } from '@/lib/ai/boogieman';
+import { boogieEvaluate, boogieEnforce, computeRiskScore, selectAction, BOOGIE_POLICY_VERSION, CONTAINMENT_ACTIONS, BLAST_RADIUS_ESCALATION_THRESHOLD } from '@/lib/ai/boogieman';
 import { RULE_CODES, THRESHOLDS } from '@/lib/ai/boogie-policy';
 import type { Intent } from '@/lib/ai/schemas';
 
@@ -246,5 +246,54 @@ describe('boogieEnforce — dual output', () => {
       evidenceRefs: ['sha256:abc123', 'post_id:def456'],
     });
     expect(result.audit_event.evidence_refs).toEqual(['sha256:abc123', 'post_id:def456']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// blast_radius — wide-impact escalation (req 25)
+// ---------------------------------------------------------------------------
+
+describe('boogieEnforce — blast_radius (req 25)', () => {
+  it('escalates and upgrades action when blast_radius >= 10', () => {
+    const result = boogieEnforce({
+      userId: '123e4567-e89b-12d3-a456-426614170001',
+      ruleCode: RULE_CODES.C28_SPAM,
+      severity: 0.2,
+      confidence: 0.8,
+      strikeCount: 0,
+      blastRadius: BLAST_RADIUS_ESCALATION_THRESHOLD,
+    });
+    expect(result.should_escalate).toBe(true);
+    expect(result.blast_radius).toBe(BLAST_RADIUS_ESCALATION_THRESHOLD);
+    // Action must be at least containment-grade for wide-impact incidents
+    expect(CONTAINMENT_ACTIONS).toContain(result.action);
+  });
+
+  it('does not upgrade action when blast_radius is small', () => {
+    const result = boogieEnforce({
+      userId: '123e4567-e89b-12d3-a456-426614170002',
+      ruleCode: RULE_CODES.C28_SPAM,
+      severity: 0.05,
+      confidence: 0.9,
+      strikeCount: 0,
+      blastRadius: 1,
+    });
+    expect(result.blast_radius).toBe(1);
+    // Should still be NUDGE or WARN (no forced upgrade)
+    expect(['NUDGE', 'WARN']).toContain(result.action);
+  });
+
+  it('includes blast_radius in idari_telemetry (req 69)', () => {
+    const result = boogieEnforce({
+      userId: '123e4567-e89b-12d3-a456-426614170003',
+      ruleCode: RULE_CODES.C28_SPAM,
+      severity: 0.3,
+      confidence: 0.85,
+      blastRadius: 5,
+    });
+    expect(result.idari_telemetry).toBeDefined();
+    expect(result.idari_telemetry!.blast_radius).toBe(5);
+    expect(result.idari_telemetry!.rule_code).toBe(RULE_CODES.C28_SPAM);
+    expect(result.idari_telemetry!.action).toBe(result.action);
   });
 });

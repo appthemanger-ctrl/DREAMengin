@@ -239,6 +239,16 @@ export const BoogieEnforceOutputSchema = z.object({
   action: EnforcementActionSchema,
   should_escalate: z.boolean(),
   simulation: z.boolean(),
+  blast_radius: z.number().int().min(0).optional(), // req 25: users affected
+  idari_telemetry: z.object({                        // req 69: summary for IDARi
+    rule_code: z.string(),
+    action: EnforcementActionSchema,
+    confidence: z.number(),
+    severity: z.number(),
+    blast_radius: z.number().int().min(0).optional(),
+    simulation: z.boolean(),
+    timestamp: z.string().datetime(),
+  }).optional(),
 });
 export type BoogieEnforceOutput = z.infer<typeof BoogieEnforceOutputSchema>;
 

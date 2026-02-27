@@ -37,6 +37,9 @@ All secrets are server-side only. See `.env.example` for the full list with desc
 | `ADMIN_CODE_PASSWORD` | ✅ | Password for `/api/admin/ai-chat`. One wrong attempt = permanent lockout. |
 | `NEXT_PUBLIC_DEV_BYPASS_AUTH` | dev only | Set to `true` to skip auth redirects in dev (UI inspection mode) |
 | `DEV_ADMIN` | dev only | Set to `true` (+ bypass above) to access admin panel without login in dev. IDARi APIs remain password-protected. |
+| `BOOGIE_SIMULATION_MODE` | dev only | Set to `true` to produce audit events + UI banners without restricting accounts (req 61–62). Never enable in production. |
+| `BOOGIE_DEGRADED` | ops only | Set to `true` to mark TheBoogieMan.Ai as degraded in the status endpoint. |
+| `BOOGIE_OFFLINE` | ops only | Set to `true` to mark TheBoogieMan.Ai as offline in the status endpoint. |
 
 ## AI Triad
 
