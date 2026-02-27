@@ -1,43 +1,55 @@
 'use client';
+// components/widgets/WidgetLibrary.tsx
+// Single source of truth for widget catalog — uses widgetRegistry (req 41-42)
+// "Add" list and "+" placeholder list are the same component/data (req 42)
+// Suggested section driven by installFlow (req 8, 35)
 
-import React, { useState } from 'react';
-
-interface WidgetDef {
-  id: string;
-  name: string;
-  description: string;
-  category: 'Feed' | 'Media' | 'Social' | 'Utilities' | 'Work' | 'Shop';
-  icon: string;
-}
-
-const WIDGET_CATALOG: WidgetDef[] = [
-  { id: 'feed-main',   name: 'Main Feed',       description: 'Your primary content stream.',               category: 'Feed',      icon: '📰' },
-  { id: 'feed-topic',  name: 'Topic Slice',      description: 'A slice of news or content by topic.',       category: 'Feed',      icon: '🏷️' },
-  { id: 'play-media',  name: 'Play Media',       description: 'Music and video player with queue.',          category: 'Media',     icon: '▶️' },
-  { id: 'media-thumb', name: 'Media Gallery',    description: 'Photo and video thumbnails from your vault.', category: 'Media',     icon: '🖼️' },
-  { id: 'ig-friend',   name: 'IG: Friend Feed',  description: 'Posts from a specific Instagram friend.',    category: 'Social',    icon: '📸' },
-  { id: 'yt-channel',  name: 'YouTube Channel',  description: 'Latest videos from a channel.',              category: 'Social',    icon: '📺' },
-  { id: 'spotify',     name: 'Spotify Now',      description: 'What you\'re listening to on Spotify.',      category: 'Social',    icon: '🎵' },
-  { id: 'weather',     name: 'Weather',          description: 'Current conditions and forecast.',            category: 'Utilities', icon: '🌤️' },
-  { id: 'calendar',    name: 'Calendar',         description: 'Upcoming events and schedule.',              category: 'Work',      icon: '📅' },
-  { id: 'tasks',       name: 'Tasks',            description: 'Quick task list for today.',                 category: 'Work',      icon: '✅' },
-  { id: 'analytics',   name: 'Analytics',        description: 'Key metrics at a glance.',                   category: 'Work',      icon: '📊' },
-  { id: 'shop-feed',   name: 'Shop Feed',        description: 'Featured items from the marketplace.',       category: 'Shop',      icon: '🛍️' },
-];
+import React, { useEffect, useState } from 'react';
+import {
+  WIDGET_REGISTRY,
+  getWidgetTypeDef,
+  resolveConnectorState,
+} from '@/lib/widgets/widgetRegistry';
+import {
+  getSuggestedWidgets,
+  dismissSuggestedWidget,
+  type SuggestedWidget,
+} from '@/lib/connectors/installFlow';
 
 const CATEGORIES = ['All', 'Feed', 'Media', 'Social', 'Utilities', 'Work', 'Shop'] as const;
 
 interface WidgetLibraryProps {
   onAdd?: (widgetId: string, destination: string) => void;
   onClose?: () => void;
+  /** Connected connector IDs (used to show Connect / Reconnect CTAs — req 46-48) */
+  connectedIds?: Set<string>;
+  /** Expired connector IDs (req 48) */
+  expiredIds?: Set<string>;
 }
 
-export default function WidgetLibrary({ onAdd, onClose }: WidgetLibraryProps) {
+export default function WidgetLibrary({
+  onAdd,
+  onClose,
+  connectedIds = new Set(),
+  expiredIds = new Set(),
+}: WidgetLibraryProps) {
   const [activeCategory, setActiveCategory] = useState<typeof CATEGORIES[number]>('All');
   const [adding, setAdding] = useState<string | null>(null);
   const [destination, setDestination] = useState('Home');
+  // Suggested widgets from installFlow store (req 8, 35)
+  const [suggested, setSuggested] = useState<SuggestedWidget[]>([]);
 
-  const filtered = WIDGET_CATALOG.filter(
+  useEffect(() => {
+    setSuggested(getSuggestedWidgets());
+  }, []);
+
+  function handleDismissSuggestion(widgetId: string) {
+    dismissSuggestedWidget(widgetId);
+    setSuggested(getSuggestedWidgets());
+  }
+
+  // Single source of truth: WIDGET_REGISTRY (req 41-42)
+  const filtered = WIDGET_REGISTRY.filter(
     (w) => activeCategory === 'All' || w.category === activeCategory
   );
 
@@ -91,37 +103,107 @@ export default function WidgetLibrary({ onAdd, onClose }: WidgetLibraryProps) {
           ))}
         </div>
 
-        {/* Recently added section (stub) */}
-        {activeCategory === 'All' && (
+        {/* Suggested section — ignored prompts from installFlow (req 8-9, 35) */}
+        {activeCategory === 'All' && suggested.length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--de-text-dim)', marginBottom: 8 }}>Recently Added</div>
-            <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(160,195,240,0.1)', border: '1px dashed rgba(160,195,240,0.3)', fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center' }}>
-              No widgets added recently
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--de-text-dim)', marginBottom: 8 }}>
+              Suggested
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {suggested.map((s) => {
+                const def = getWidgetTypeDef(s.widgetId);
+                if (!def) return null;
+                return (
+                  <div key={s.widgetId} style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '10px 14px', borderRadius: 14,
+                    background: 'rgba(42,138,184,0.06)',
+                    border: '1px solid rgba(42,138,184,0.15)',
+                  }}>
+                    <span style={{ fontSize: 20 }}>{def.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{def.title}</div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>via {s.connectorName}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAdding(def.id)}
+                      style={{
+                        padding: '5px 10px', borderRadius: 8,
+                        background: 'var(--de-accent)', border: 'none',
+                        color: '#fff', fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                      }}
+                    >
+                      Add
+                    </button>
+                    {/* Permanent dismiss (req 9) */}
+                    <button
+                      type="button"
+                      aria-label={`Dismiss ${def.title} suggestion`}
+                      onClick={() => handleDismissSuggestion(def.id)}
+                      style={{
+                        width: 22, height: 22, borderRadius: '50%',
+                        background: 'rgba(160,195,240,0.2)',
+                        border: '1px solid rgba(160,195,240,0.4)',
+                        color: 'var(--de-text-dim)', fontSize: 12, fontWeight: 700,
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* Widget grid */}
+        {/* Widget grid — single source of truth: WIDGET_REGISTRY (req 41-42) */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {filtered.map((widget) => (
-            <div
-              key={widget.id}
-              className="de-surface"
-              style={{ padding: 14, cursor: 'pointer', position: 'relative' }}
-            >
-              <div style={{ fontSize: 24, marginBottom: 6 }}>{widget.icon}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>{widget.name}</div>
-              <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10, lineHeight: 1.4 }}>{widget.description}</div>
-              <button
-                type="button"
-                className="de-btn de-btn-primary"
-                style={{ width: '100%', padding: '7px 12px', fontSize: 11 }}
-                onClick={() => setAdding(widget.id)}
+          {filtered.map((widget) => {
+            const connState = resolveConnectorState(widget.id, connectedIds, expiredIds);
+            return (
+              <div
+                key={widget.id}
+                className="de-surface"
+                style={{ padding: 14, cursor: 'pointer', position: 'relative' }}
               >
-                Add Widget
-              </button>
-            </div>
-          ))}
+                <div style={{ fontSize: 24, marginBottom: 6 }}>{widget.icon}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>{widget.title}</div>
+                <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10, lineHeight: 1.4 }}>{widget.description}</div>
+                {/* Connector CTA (req 46-48) */}
+                {connState === 'not_connected' && widget.connectorDependency === 'required' ? (
+                  <button
+                    type="button"
+                    className="de-btn"
+                    style={{ width: '100%', padding: '7px 12px', fontSize: 11, background: 'rgba(160,195,240,0.2)', border: '1px solid rgba(160,195,240,0.4)', color: 'var(--de-text)' }}
+                    onClick={() => {/* navigate to /connectors */}}
+                  >
+                    Connect
+                  </button>
+                ) : connState === 'expired' ? (
+                  <button
+                    type="button"
+                    className="de-btn"
+                    style={{ width: '100%', padding: '7px 12px', fontSize: 11, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.4)', color: '#c8981a' }}
+                    onClick={() => {/* navigate to /connectors */}}
+                  >
+                    Reconnect
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="de-btn de-btn-primary"
+                    style={{ width: '100%', padding: '7px 12px', fontSize: 11 }}
+                    onClick={() => setAdding(widget.id)}
+                  >
+                    Add Widget
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
