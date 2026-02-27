@@ -49,6 +49,7 @@ All secrets are server-side only. See `.env.example` for the full list with desc
 - All AI keys are configured as **Vercel environment variables**, never committed.
 - IDARi and BoogieMan endpoints are admin-guarded even when `DEV_BYPASS_AUTH` is on.
 - Major system updates require unanimous triad approval (consensus gating) via `/admin`.
+- **Dr. Eams full spec:** `docs/DR_EAMS.md` — 100 requirements covering personality, UI, onboarding, privacy, policy, and guided setup.
 
 ## Dev auth bypass (interface inspection mode)
 
