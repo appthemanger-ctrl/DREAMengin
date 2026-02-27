@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-const TIP_KEY = 'dreamengin:onboarding:button-tip-seen';
+const TIP_KEY = 'dreamengin:onboarding:nav-tip-seen';
 
 export default function OnboardingTip() {
   const [show, setShow] = useState(false);
@@ -10,8 +10,8 @@ export default function OnboardingTip() {
   useEffect(() => {
     try {
       if (!localStorage.getItem(TIP_KEY)) {
-        // Show after 2 seconds
-        const t = setTimeout(() => setShow(true), 2000);
+        // Show after 4 seconds (hint appears at 0.4s, dismisses at 2.4s — this follows after)
+        const t = setTimeout(() => setShow(true), 4000);
         return () => clearTimeout(t);
       }
     } catch { /* noop */ }
@@ -47,10 +47,10 @@ export default function OnboardingTip() {
         <span style={{ fontSize: 20 }}>💡</span>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>
-            Tip: Lock your controls
+            Tip: Access system menus
           </div>
           <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
-            Drag the 🔵 and 🟡 buttons together to lock and access system menus.
+            Double-tap the home control to unlock NAV mode and access the System &amp; Daydreams menus.
           </div>
         </div>
         <button

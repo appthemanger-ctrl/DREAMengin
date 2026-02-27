@@ -2,43 +2,47 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import RadialMenu from './RadialMenu';
+import MenuPanel, { type MenuItem } from './MenuPanel';
 
 type Props = {
   open: boolean;
-  anchor: DOMRect | null;
   onClose: () => void;
   onSelectNode?: (node: string) => void;
 };
 
+// Six fixed Daydream apps + Marketplace + Shop (req 32)
 const DREAM_ITEMS = [
-  { id: 'music',       label: 'Music',     route: '/daydream/music'       },
-  { id: 'media-vault', label: 'Media',     route: '/daydream/media-vault' },
-  { id: 'create',      label: 'Create',    route: '/daydream/create'      },
-  { id: 'brand',       label: 'Brand',     route: '/daydream/brand'       },
-  { id: 'analytics',   label: 'Analytics', route: '/daydream/analytics'   },
-  { id: 'games',       label: 'Games',     route: '/daydream/games'       },
-  { id: 'play',        label: 'Play',      route: '/daydream/play'        },
-  { id: 'marketplace', label: 'Shop',      route: '/marketplace'          },
+  { id: 'music',       label: 'Music',       icon: '🎵', route: '/daydream/music'       },
+  { id: 'create',      label: 'Create',      icon: '⬡',  route: '/daydream/create'      },
+  { id: 'brand',       label: 'Brand',       icon: '✦',  route: '/daydream/brand'       },
+  { id: 'analytics',   label: 'Analytics',   icon: '📊', route: '/daydream/analytics'   },
+  { id: 'games',       label: 'Games',       icon: '🎮', route: '/daydream/games'       },
+  { id: 'lab',         label: 'Lab',         icon: '🔬', route: '/lab'                  },
+  { id: 'marketplace', label: 'Marketplace', icon: '🏪', route: '/marketplace'          },
+  { id: 'shop',        label: 'Shop',        icon: '🛍', route: '/shop'                 },
 ];
 
-export default function DreamRadialMenu({ open, anchor, onClose, onSelectNode }: Props) {
+export default function DreamRadialMenu({ open, onClose, onSelectNode }: Props) {
   const router = useRouter();
 
+  const items: MenuItem[] = DREAM_ITEMS.map((item) => ({
+    id: item.id,
+    label: item.label,
+    icon: item.icon,
+    onSelect: () => {
+      onClose();
+      if (onSelectNode) onSelectNode(item.id);
+      router.push(item.route);
+    },
+  }));
+
   return (
-    <RadialMenu
+    <MenuPanel
       open={open}
-      anchor={anchor}
+      title="Daydreams"
+      accent="blue"
+      items={items}
       onClose={onClose}
-      variant="blue"
-      items={DREAM_ITEMS.map((item) => ({
-        id: item.id,
-        label: item.label,
-        onSelect: () => {
-          onClose();
-          router.push(item.route);
-        },
-      }))}
     />
   );
 }

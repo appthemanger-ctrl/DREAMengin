@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Home } from 'lucide-react';
 
 type ControlId = 'dreams' | 'system';
 type Props = {
   onHome: () => void;
   onOpenDreamsMenu: () => void;
   onOpenSystemMenu: () => void;
-  onOpenBothMenus: () => void;
   onLockChange?: (locked: boolean) => void;
 };
 
@@ -23,6 +21,9 @@ const STORAGE_KEY = 'dreamengin:controls:v4';
 const DOUBLE_TAP_MS = 280;
 const SNAP_ANIM_MS = 160;
 
+/** Shown only once per login session (module-level flag resets on page load). */
+let hintShownThisSession = false;
+
 function InfinityHalf({ side }: { side: 'left' | 'right' }) {
   const flip = side === 'right';
   const color = side === 'left' ? '#0ea5e9' : '#d4a843';
@@ -36,12 +37,16 @@ function InfinityHalf({ side }: { side: 'left' | 'right' }) {
   );
 }
 
-export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onOpenBothMenus, onLockChange }: Props) {
+export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onLockChange }: Props) {
   const [mounted, setMounted] = useState(false);
   const [locked, setLocked] = useState(true);
   const lockedRef = useRef(true);
-  const [showHint, setShowHint] = useState(true);
+  /** "Double tap to unlock" hint — shown only once per login session (req 3, 5) */
+  const [showHint, setShowHint] = useState(false);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** "NAV mode" indicator — briefly shown on entering NAV MODE (req 12) */
+  const [showNavMode, setShowNavMode] = useState(false);
+  const navModeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gravityRAFRef = useRef<number | null>(null);
 
   const posRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
@@ -57,13 +62,14 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     id: null, at: 0, timer: null,
   });
 
-  const showHintBriefly = useCallback(() => {
-    setShowHint(true);
-    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
-    hintTimerRef.current = setTimeout(() => {
-      setShowHint(false);
-      hintTimerRef.current = null;
-    }, 3000);
+  const dismissHint = useCallback(() => {
+    if (hintTimerRef.current) { clearTimeout(hintTimerRef.current); hintTimerRef.current = null; }
+    setShowHint(false);
+  }, []);
+
+  const dismissNavMode = useCallback(() => {
+    if (navModeTimerRef.current) { clearTimeout(navModeTimerRef.current); navModeTimerRef.current = null; }
+    setShowNavMode(false);
   }, []);
 
   const getRails = () => {
@@ -167,25 +173,42 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     lockedRef.current = true;
     setMounted(true);
     requestAnimationFrame(() => { applyPos('dreams'); applyPos('system'); });
+
+    // Show "Double tap to unlock" hint once per login session (req 3, 5)
+    if (!hintShownThisSession) {
+      hintShownThisSession = true;
+      hintTimerRef.current = setTimeout(() => {
+        setShowHint(true);
+        // Auto-dismiss after ~2s (req 3)
+        hintTimerRef.current = setTimeout(() => {
+          setShowHint(false);
+          hintTimerRef.current = null;
+        }, 2000);
+      }, 400);
+    }
+
+    return () => {
+      if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+      if (navModeTimerRef.current) clearTimeout(navModeTimerRef.current);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Show hint when locked, hide when unlocked
+  // Dismiss hint immediately on any pointer interaction (req 4)
   useEffect(() => {
-    if (locked) {
-      showHintBriefly();
-    } else {
-      if (hintTimerRef.current) { clearTimeout(hintTimerRef.current); hintTimerRef.current = null; }
-      setShowHint(false);
-    }
-  }, [locked, showHintBriefly]);
+    if (!showHint) return;
+    const handler = () => dismissHint();
+    window.addEventListener('pointerdown', handler, { once: true });
+    return () => window.removeEventListener('pointerdown', handler);
+  }, [showHint, dismissHint]);
 
-  // Re-show hint on scroll when locked
+  // Dismiss NAV mode indicator on any pointer interaction (req 13)
   useEffect(() => {
-    const onScroll = () => { if (lockedRef.current) showHintBriefly(); };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [showHintBriefly]);
+    if (!showNavMode) return;
+    const handler = () => dismissNavMode();
+    window.addEventListener('pointerdown', handler, { once: true });
+    return () => window.removeEventListener('pointerdown', handler);
+  }, [showNavMode, dismissNavMode]);
 
   // Gravity: when unlocked, slowly pull both buttons toward center-bottom
   useEffect(() => {
@@ -234,12 +257,19 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
 
     if (isDouble) {
       if (lockedRef.current) {
-        // Double tap while locked → unlock
+        // Double tap while locked → enter NAV MODE (req 11)
         snapToSavedCorners();
+        dismissHint();
+        // Show "NAV mode" indicator briefly (req 12)
+        setShowNavMode(true);
+        navModeTimerRef.current = setTimeout(() => {
+          setShowNavMode(false);
+          navModeTimerRef.current = null;
+        }, 2000);
       } else {
-        // Double tap unlocked → open specific menu
-        if (id === 'dreams') onOpenDreamsMenu();
-        else onOpenSystemMenu();
+        // Double tap in NAV MODE → return to LOCKED HOME MODE (req 41)
+        lockToCenter();
+        dismissNavMode();
       }
       return;
     }
@@ -247,10 +277,12 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     tapRef.current.timer = setTimeout(() => {
       tapRef.current.timer = null;
       if (lockedRef.current) {
-        // Single tap while locked → open BOTH menus (stay locked)
-        onOpenBothMenus();
-      } else {
+        // Single tap while locked → Go Home (req 8)
         onHome();
+      } else {
+        // Single tap in NAV MODE → open specific menu (req 21-22)
+        if (id === 'dreams') onOpenDreamsMenu();
+        else onOpenSystemMenu();
       }
     }, DOUBLE_TAP_MS + 10);
   };
@@ -303,7 +335,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     if (!drag.moved) {
       handleTap(id);
     } else if (!lockedRef.current) {
-      // Persist positions
+      // Persist positions on drag end (req 68)
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posRef.current)); } catch { /* noop */ }
     }
   };
@@ -330,42 +362,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
 
   return (
     <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 58 }}>
-      {/* Pill home button — visible only when locked */}
-      {locked && (
-        <button
-          type="button"
-          aria-label="Go home"
-          onClick={onHome}
-          style={{
-            position: 'fixed',
-            bottom: 152,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 62,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '8px 20px',
-            borderRadius: 9999,
-            background: 'rgba(14,165,233,0.18)',
-            border: '1px solid rgba(14,165,233,0.45)',
-            color: '#38bdf8',
-            fontSize: 13,
-            fontWeight: 700,
-            letterSpacing: '0.04em',
-            pointerEvents: 'auto',
-            cursor: 'pointer',
-            WebkitTapHighlightColor: 'transparent',
-            backdropFilter: 'blur(6px)',
-            boxShadow: '0 2px 12px rgba(14,165,233,0.25)',
-          }}
-        >
-          <Home size={14} strokeWidth={2.5} />
-          Home
-        </button>
-      )}
-
-      {/* Onboarding hint badge */}
+      {/* "Double tap to unlock" hint — non-blocking, once per session (req 3-5) */}
       {locked && showHint && (
         <div
           style={{
@@ -383,18 +380,58 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
             fontWeight: 700,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            pointerEvents: 'none',
+            pointerEvents: 'none', // req 4
           }}
         >
           Double-tap to unlock
         </div>
       )}
 
-      {/* Dreams button (right rail, light blue) */}
+      {/* "NAV mode" indicator — brief, non-blocking (req 12-13) */}
+      {showNavMode && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 65,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '5px 16px',
+            borderRadius: 9999,
+            background: 'rgba(5,15,45,0.85)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(100,150,255,0.15)',
+            color: 'rgba(160,185,255,0.7)',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            pointerEvents: 'none', // req 13
+          }}
+        >
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: 'var(--de-gold, #d4a843)',
+              boxShadow: '0 0 6px var(--de-gold, #d4a843)',
+              flexShrink: 0,
+            }}
+          />
+          NAV mode
+        </div>
+      )}
+
+      {/* Dreams button (right rail when unlocked, center when locked) */}
       <button
         ref={(el) => { elRef.current.dreams = el; }}
         type="button"
-        aria-label={locked ? 'Open menus (locked)' : 'Open Daydreams menu'}
+        aria-label={locked ? 'Go Home (double-tap to unlock NAV mode)' : 'Open Daydreams menu'}
         style={{
           ...baseStyle,
           background: locked
@@ -413,11 +450,11 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
         <InfinityHalf side="left" />
       </button>
 
-      {/* System button (left rail, gold) */}
+      {/* System button (left rail when unlocked, center when locked) */}
       <button
         ref={(el) => { elRef.current.system = el; }}
         type="button"
-        aria-label={locked ? 'Open menus (locked)' : 'Open System menu'}
+        aria-label={locked ? 'Go Home (double-tap to unlock NAV mode)' : 'Open System menu'}
         style={{
           ...baseStyle,
           background: locked
