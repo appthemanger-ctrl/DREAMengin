@@ -1,15 +1,15 @@
 // app/policy/page.tsx
-// TheBoogieMan.Ai — public policy page (req 91, 99, K99).
-// Readable, versioned, and accessible from Settings.
-// Single source of truth is docs/policy/theboogie.md — this page mirrors it.
+// TheBoogieMan.Ai — public policy page (req 6–15, K99).
+// Readable, versioned, accessible without login, linked from footer + Settings.
+// Source of truth: docs/BOOGIEMAN_POLICY.md — this page mirrors it.
 
 import Link from 'next/link';
-import { ArrowLeft, Shield, ChevronRight, BookOpen, AlertTriangle, Scale, Eye, Bell, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, Shield, ChevronRight, BookOpen, AlertTriangle, Scale, Eye, Bell, ArrowUpRight, Info, FileText } from 'lucide-react';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 
 export const metadata = {
   title: 'Community + Safety Policy – DREAMengin',
-  description: 'TheBoogieMan.Ai community and safety policy. Every rule is versioned and every enforcement action traces back to this page.',
+  description: 'TheBoogieMan.AI community and safety policy. Every rule is versioned and every enforcement action traces back to this page.',
 };
 
 // Changelog entries (req K100, 94, 95)
@@ -23,6 +23,7 @@ const CHANGELOG = [
 
 // Policy categories for the table of contents
 const CATEGORIES = [
+  { id: 'summary',     label: 'Policy Summary',                icon: Info },
   { id: 'scope',       label: 'A — Scope & mission',           icon: BookOpen },
   { id: 'violations',  label: 'C — Violation categories',      icon: AlertTriangle },
   { id: 'allowed',     label: 'D — Allowed content',           icon: Scale },
@@ -30,6 +31,7 @@ const CATEGORIES = [
   { id: 'strikes',     label: 'F — Strike system',             icon: Shield },
   { id: 'confidence',  label: 'G — Confidence & scoring',      icon: Eye },
   { id: 'messaging',   label: 'H — User messaging',            icon: Bell },
+  { id: 'appeals',     label: 'Appeals',                       icon: FileText },
 ];
 
 export default function PolicyPage() {
@@ -60,25 +62,47 @@ export default function PolicyPage() {
         <div className="de-widget">
           <div className="de-widget-header">
             <Shield className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
-            <span className="de-widget-title">TheBoogieMan.Ai</span>
+            <span className="de-widget-title">TheBoogieMan.AI</span>
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 13, color: 'var(--de-text)', lineHeight: 1.7 }}>
-              TheBoogieMan.Ai enforces DREAMengin&apos;s community and safety rules. Every enforcement
+              TheBoogieMan.AI enforces DREAMengin&apos;s community and safety rules. Every enforcement
               action references a specific rule code and policy version from this page — so you can
               always trace any action back to a published, written rule. If you believe an action
               was made in error, you can{' '}
-              <Link href="/settings/privacy" style={{ color: 'var(--de-accent)' }}>
+              <Link href="/policy#appeals" style={{ color: 'var(--de-accent)' }}>
                 submit an appeal
               </Link>
               .
             </p>
             <p className="mt-2" style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>
-              Policy version: <span className="font-mono">{BOOGIE_POLICY_VERSION}</span> ·{' '}
-              Source: <span className="font-mono">docs/policy/theboogie.md</span>
+              Version: <span className="font-mono">{BOOGIE_POLICY_VERSION}</span> · Last updated: <span className="font-mono">2026-02-27</span> ·{' '}
+              Source: <span className="font-mono">docs/BOOGIEMAN_POLICY.md</span>
             </p>
           </div>
         </div>
+
+        {/* Policy Summary (req 8) */}
+        <section id="summary" className="de-widget" style={{ borderColor: 'rgba(42,138,184,0.3)' }}>
+          <div className="de-widget-header">
+            <Info className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
+            <span className="de-widget-title">Policy Summary — plain language</span>
+          </div>
+          <div className="de-widget-body">
+            <ul style={{ fontSize: 13, color: 'var(--de-text)', lineHeight: 1.8, paddingLeft: 18, listStyle: 'disc' }}>
+              <li>TheBoogieMan.AI watches for harmful content and behavior (spam, harassment, illegal activity, etc.).</li>
+              <li>It always prefers the <strong>least restrictive</strong> response first — a nudge before a warning, a warning before a lock.</li>
+              <li>Every action is <strong>logged</strong>, explained in plain language, and linked to a specific rule on this page.</li>
+              <li>You can always <Link href="/policy#appeals" style={{ color: 'var(--de-accent)' }}>appeal any action</Link>. No permanent bans without human review.</li>
+              <li><strong>Dr. Eams</strong> explains what happened and what you can do next. <strong>IDARi</strong> handles system-level tuning.</li>
+              <li><strong>Dreams</strong> = widget containers. <strong>DayDreams</strong> = full-powered mini-apps. Content inside both is moderated.</li>
+            </ul>
+            <div className="mt-3" style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
+              Version <span className="font-mono">{BOOGIE_POLICY_VERSION}</span> · Last updated 2026-02-27 ·{' '}
+              <Link href="/settings/safety" style={{ color: 'var(--de-accent)' }}>View my safety log</Link>
+            </div>
+          </div>
+        </section>
 
         {/* Table of contents */}
         <div className="de-widget">
@@ -260,8 +284,8 @@ export default function PolicyPage() {
           </div>
         </section>
 
-        {/* Appeal */}
-        <div className="de-widget" style={{ borderColor: 'rgba(42,138,184,0.25)' }}>
+        {/* Appeal (req 13, req 85–89) */}
+        <div id="appeals" className="de-widget" style={{ borderColor: 'rgba(42,138,184,0.25)' }}>
           <div className="de-widget-header">
             <Scale className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
             <span className="de-widget-title">Submit an appeal</span>
@@ -271,10 +295,16 @@ export default function PolicyPage() {
               If you received a policy action and believe it was made in error, you can appeal it.
               Appeals pause escalation and are reviewed with full evidence context.
             </p>
+            <ul className="mt-2" style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.8, paddingLeft: 16, listStyle: 'disc' }}>
+              <li>Provide a short explanation (up to 500 characters).</li>
+              <li>Optionally attach a screenshot or evidence.</li>
+              <li>If reversed: content is restored and penalty record is cleared where appropriate.</li>
+              <li>If upheld: you receive a short explanation and guidance on how to comply next time.</li>
+            </ul>
           </div>
           <div className="de-widget-actions">
-            <Link href="/settings/privacy" className="de-btn de-btn-primary text-xs">
-              Submit an Appeal
+            <Link href="/settings/safety" className="de-btn de-btn-primary text-xs">
+              View Safety Log &amp; Submit Appeal
             </Link>
           </div>
         </div>

@@ -3,6 +3,7 @@ import '@/components/v1-ui/widget-feed-screen.css';
 import type { Metadata, Viewport } from 'next';
 import { Space_Grotesk } from 'next/font/google';
 import ThemeProvider from '@/components/providers/ThemeProvider';
+import Link from 'next/link';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -46,6 +47,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <ThemeProvider>
           <main>{children}</main>
+          {/* Permanent policy footer (req 10) — always accessible, no login required */}
+          <footer
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 9,
+              pointerEvents: 'none',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              padding: '0 12px 8px',
+            }}
+          >
+            <Link
+              href="/policy"
+              style={{
+                pointerEvents: 'auto',
+                fontSize: 11,
+                color: 'var(--de-text-dim, rgba(80,100,130,0.7))',
+                textDecoration: 'none',
+                padding: '3px 8px',
+                borderRadius: 20,
+                background: 'rgba(220,232,248,0.55)',
+                backdropFilter: 'blur(6px)',
+                border: '1px solid rgba(160,195,240,0.2)',
+              }}
+            >
+              Policy
+            </Link>
+          </footer>
         </ThemeProvider>
       </body>
     </html>
