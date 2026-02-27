@@ -1,12 +1,13 @@
 // app/api/ai/boogieman/route.ts
-// BoogieMan policy endpoint — admin-only system overwatch.
+// TheBoogieMan.Ai policy endpoint — admin-only system overwatch.
 // Runs both LLM policy check (boogiePolicyCheck) and rule engine (boogieEvaluate).
+// Every audit log entry carries policy_version + rule_code (req 3, 18).
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-import { boogieEvaluate } from '@/lib/ai/boogieman';
+import { boogieEvaluate, BOOGIE_POLICY_VERSION } from '@/lib/ai/boogieman';
 import { writeAuditLog } from '@/lib/ai/audit';
 import { checkRateLimit } from '@/lib/ai/rateLimit';
 import { boogiePolicyCheck, isOwnerEmail } from '@/lib/ai/triad';
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
       ok: false,
       error_code: 'FORBIDDEN',
       latency_ms: Date.now() - requestStart,
+      policy_version: BOOGIE_POLICY_VERSION,
     });
     return jsonError(403, 'FORBIDDEN', 'Admin access required.');
   }
@@ -84,6 +86,7 @@ export async function POST(req: NextRequest) {
       ok: false,
       error_code: 'RATE_LIMIT',
       latency_ms: Date.now() - requestStart,
+      policy_version: BOOGIE_POLICY_VERSION,
     });
     return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
       retry_after_seconds: rateOk.retry_after_seconds,
@@ -114,6 +117,7 @@ export async function POST(req: NextRequest) {
     ok: !hard_block,
     error_code: hard_block ? 'HARD_BLOCK' : undefined,
     latency_ms: Date.now() - requestStart,
+    policy_version: BOOGIE_POLICY_VERSION,
     payload: {
       message: request.message,
       hard_block,

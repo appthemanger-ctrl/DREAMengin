@@ -152,3 +152,126 @@ export const BoogieOutputSchema = z.object({
   policy_version: z.string(),
 });
 export type BoogieOutput = z.infer<typeof BoogieOutputSchema>;
+
+// ============================================================================
+// THEBOOGIEMAN.AI — ENFORCEMENT SCHEMAS (req 16–50, 96–100)
+// Every enforcement event has two outputs: user-safe explanation + audit event.
+// ============================================================================
+
+// Action types ordered least → most force (req 36)
+export const EnforcementActionSchema = z.enum([
+  'NUDGE',
+  'WARN',
+  'THROTTLE',
+  'FEATURE_LOCK',
+  'QUARANTINE',
+  'TEMP_SUSPEND',
+  'TEMP_BAN',
+  'ESCALATE',
+]);
+export type EnforcementAction = z.infer<typeof EnforcementActionSchema>;
+
+// Per-surface enforcement scopes (req 46)
+export const EnforcementScopeSchema = z.enum([
+  'POSTING',
+  'MESSAGING',
+  'LINKING',
+  'MARKETPLACE',
+  'TEMPLATE_SHARE',
+]);
+export type EnforcementScope = z.infer<typeof EnforcementScopeSchema>;
+
+// Strike severity levels (req 46)
+export const StrikeSeveritySchema = z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']);
+export type StrikeSeverity = z.infer<typeof StrikeSeveritySchema>;
+
+// Strike ledger entry (req 27)
+export const StrikeEntrySchema = z.object({
+  strike_id: z.string().uuid(),
+  rule_code: z.string(),
+  category: z.string(),
+  severity: StrikeSeveritySchema,
+  confidence: z.number().min(0).max(1),
+  action_taken: EnforcementActionSchema,
+  timestamp: z.string().datetime(),
+  expires_at: z.string().datetime().nullable(),
+});
+export type StrikeEntry = z.infer<typeof StrikeEntrySchema>;
+
+// User-safe explanation payload (req 17)
+export const UserSafeExplanationSchema = z.object({
+  what_happened: z.string(),
+  why: z.string(),
+  what_changes: z.string(),
+  what_to_do_next: z.string(),
+  policy_version: z.string(),
+  rule_code: z.string(),
+  appeal_available: z.boolean(),
+  expiry: z.string().datetime().nullable(),
+  scopes_affected: z.array(EnforcementScopeSchema),
+  policy_page_url: z.string(),
+});
+export type UserSafeExplanation = z.infer<typeof UserSafeExplanationSchema>;
+
+// Internal audit event payload (req 18, 19, 20)
+export const InternalAuditEventSchema = z.object({
+  event_id: z.string().uuid(),
+  user_id: z.string(),
+  action: EnforcementActionSchema,
+  severity: z.number().min(0).max(1),
+  confidence: z.number().min(0).max(1),
+  risk_score: z.number().min(0).max(1),
+  rule_code: z.string(),
+  policy_version: z.string(),
+  scopes_restricted: z.array(EnforcementScopeSchema),
+  timestamp: z.string().datetime(),
+  expiry: z.string().datetime().nullable(),
+  evidence_refs: z.array(z.string()),          // hashes/IDs only, never raw content (req 19)
+  prior_event_id: z.string().uuid().nullable(), // append-only corrections (req 20)
+  simulation: z.boolean(),                      // true when BOOGIE_SIMULATION_MODE=true (req 61)
+});
+export type InternalAuditEvent = z.infer<typeof InternalAuditEventSchema>;
+
+// Dual-output enforcement result (req 16)
+export const BoogieEnforceOutputSchema = z.object({
+  user_explanation: UserSafeExplanationSchema,
+  audit_event: InternalAuditEventSchema,
+  action: EnforcementActionSchema,
+  should_escalate: z.boolean(),
+  simulation: z.boolean(),
+});
+export type BoogieEnforceOutput = z.infer<typeof BoogieEnforceOutputSchema>;
+
+// Appeal request (req 44, 75)
+export const AppealRequestSchema = z.object({
+  user_id: z.string(),
+  strike_id: z.string().uuid().optional(),
+  event_id: z.string().uuid().optional(),
+  reason: z.string().min(10).max(2000),
+  new_evidence: z.string().max(500).optional(),
+});
+export type AppealRequest = z.infer<typeof AppealRequestSchema>;
+
+// Appeal queue entry
+export const AppealEntrySchema = z.object({
+  appeal_id: z.string().uuid(),
+  user_id: z.string(),
+  strike_id: z.string().uuid().nullable(),
+  event_id: z.string().uuid().nullable(),
+  reason: z.string(),
+  new_evidence: z.string().nullable(),
+  status: z.enum(['received', 'reviewing', 'resolved']),
+  submitted_at: z.string().datetime(),
+  resolved_at: z.string().datetime().nullable(),
+  policy_version: z.string(),
+});
+export type AppealEntry = z.infer<typeof AppealEntrySchema>;
+
+// Policy health status (req 65)
+export const PolicyHealthSchema = z.object({
+  status: z.enum(['ok', 'degraded', 'offline']),
+  policy_version: z.string(),
+  simulation_mode: z.boolean(),
+  timestamp: z.string().datetime(),
+});
+export type PolicyHealth = z.infer<typeof PolicyHealthSchema>;
