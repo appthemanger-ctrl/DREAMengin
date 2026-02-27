@@ -138,6 +138,7 @@ export const BoogieResultSchema = z.object({
   decision: BoogieDecisionSchema,
   risk_score: z.number().min(0).max(1),
   reason_code: z.string(),
+  policy_version: z.string(),
   modified_payload: z.record(z.unknown()).optional(),
 });
 export type BoogieResult = z.infer<typeof BoogieResultSchema>;
@@ -148,5 +149,6 @@ export const BoogieOutputSchema = z.object({
     cooldown_seconds: z.number().optional(),
   }),
   per_intent: z.array(BoogieResultSchema),
+  policy_version: z.string(),
 });
 export type BoogieOutput = z.infer<typeof BoogieOutputSchema>;
