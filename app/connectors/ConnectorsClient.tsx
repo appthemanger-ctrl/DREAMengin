@@ -25,7 +25,7 @@ const INITIAL_STATUSES: Record<string, ConnectorStatus> = Object.fromEntries(
   CONNECTOR_REGISTRY.map((c) => [c.id, 'not_connected']),
 );
 
-const CATEGORIES = ['Social', 'Music', 'Video', 'Utilities'] as const;
+const CATEGORIES = ['Social', 'Music', 'Video', 'Utilities', 'Gaming'] as const;
 
 export default function ConnectorsClient() {
   const [menuOpen] = useState(false);
