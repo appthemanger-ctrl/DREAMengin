@@ -349,3 +349,21 @@ pre code {
 }
 
 html, body { touch-action: none; overscroll-behavior: none; }
+
+/* Dream alive pulse — used by DreamWidget and UniversalFeed */
+@keyframes dream-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212,168,67,0); }
+  50%       { box-shadow: 0 0 0 5px rgba(212,168,67,0.22); }
+}
+
+/* Dream board — tile wiggle in edit mode */
+@keyframes dream-wiggle {
+  0%, 100% { transform: rotate(-1.2deg) scale(1.01); }
+  50%       { transform: rotate(1.2deg) scale(1.01); }
+}
+
+/* Music widget waveform bars */
+@keyframes waveform-0 { to { transform: scaleY(0.3); } }
+@keyframes waveform-1 { to { transform: scaleY(0.6); } }
+@keyframes waveform-2 { to { transform: scaleY(0.2); } }
+@keyframes waveform-3 { to { transform: scaleY(0.7); } }

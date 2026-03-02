@@ -211,14 +211,9 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose, onOpenD
 
         <WallBanner />
 
-        {/* Flip card content */}
-        <div style={{ transformStyle: 'preserve-3d', transition: 'transform .5s', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0)' }}>
-          <div style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', padding: 14 }}>
-            <HomeFeedWidgetGrid onOpenDrEams={onOpenDrEams} />
-          </div>
-          <div style={{ position: 'absolute', inset: 0, transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
-            <ProfileFace profile={profile} />
-          </div>
+        {/* Content — plain conditional render, no 3D flip */}
+        <div style={{ padding: 14 }}>
+          {flipped ? <ProfileFace profile={profile} /> : <HomeFeedWidgetGrid onOpenDrEams={onOpenDrEams} />}
         </div>
 
         {/* Bottom DREAMengin logo */}

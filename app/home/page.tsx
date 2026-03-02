@@ -46,8 +46,6 @@ export default async function Home() {
   }
 
   return (
-    <DreamNavSurface6 debug={false}>
-      <HomeSystem userId={user?.id || ''} profile={profile} initialPosts={posts || []} />
-    </DreamNavSurface6>
+    <HomeSystem userId={user?.id || ''} profile={profile} initialPosts={posts || []} />
   );
 }
