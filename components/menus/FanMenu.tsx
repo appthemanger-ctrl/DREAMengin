@@ -10,13 +10,15 @@ type Props = {
   anchorX: number;
   anchorY: number;
   accent?: 'blue' | 'gold';
+  /** Force fan direction — used when both menus open simultaneously */
+  side?: 'left' | 'right';
   onClose: () => void;
 };
 
 const ITEM_SIZE = 46; // diameter of each fan item button
 const ITEM_DELAY_MS = 28; // stagger delay between each item's spring animation
 
-export default function FanMenu({ open, items, anchorX, anchorY, accent = 'gold', onClose }: Props) {
+export default function FanMenu({ open, items, anchorX, anchorY, accent = 'gold', side, onClose }: Props) {
   const [sprung, setSprung] = useState(false);
 
   useEffect(() => {
@@ -47,7 +49,13 @@ export default function FanMenu({ open, items, anchorX, anchorY, accent = 'gold'
   const isNearRight = anchorX > screenW * 0.65;
   let startDeg: number, endDeg: number, radius: number;
 
-  if (isNearLeft) {
+  if (side === 'left') {
+    // Forced left — fan up-left arc (used when both menus open simultaneously)
+    startDeg = -175; endDeg = -95; radius = 104;
+  } else if (side === 'right') {
+    // Forced right — fan up-right arc
+    startDeg = -85; endDeg = -5; radius = 104;
+  } else if (isNearLeft) {
     // Left side → fan up-right from ~-140° to ~-10°
     startDeg = -140; endDeg = -10; radius = 88;
   } else if (isNearRight) {

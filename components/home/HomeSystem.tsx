@@ -26,14 +26,18 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
   const [face, setFace]                   = useState<Face>('home');
   const [dreamMenuOpen, setDreamMenuOpen] = useState(false);
   const [systemMenuOpen, setSystemMenuOpen] = useState(false);
+  const [bothOpen, setBothOpen]           = useState(false);
   const [drEamsOpen, setDrEamsOpen]       = useState(false);
   const [menuAnchor, setMenuAnchor]       = useState({ x: 0, y: 0 });
+  const [dreamAnchor, setDreamAnchor]     = useState({ x: 0, y: 0 });
+  const [systemAnchor, setSystemAnchor]   = useState({ x: 0, y: 0 });
 
   const { items, active, loading, toggleDream, forceRefresh } = useDreamFeed();
 
   const closeAll = useCallback(() => {
     setDreamMenuOpen(false);
     setSystemMenuOpen(false);
+    setBothOpen(false);
   }, []);
 
   const returnHome = useCallback(() => {
@@ -163,16 +167,26 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
       {/* ── Fixed controls overlay — never scrolls ── */}
       <DreamNavControls
         onHome={returnHome}
-        onOpenBothMenus={(anchor) => { setMenuAnchor(anchor); setDreamMenuOpen(true); setSystemMenuOpen(true); }}
-        onOpenDreamsMenu={(anchor) => { setMenuAnchor(anchor); setSystemMenuOpen(false); setDreamMenuOpen(true); }}
-        onOpenSystemMenu={(anchor) => { setMenuAnchor(anchor); setDreamMenuOpen(false); setSystemMenuOpen(true); }}
+        onOpenBothMenus={(anchor) => {
+          const w = typeof window !== 'undefined' ? window.innerWidth : 390;
+          setMenuAnchor(anchor);
+          setDreamAnchor({ x: w * 0.78, y: anchor.y });
+          setSystemAnchor({ x: w * 0.22, y: anchor.y });
+          setBothOpen(true);
+          setDreamMenuOpen(true);
+          setSystemMenuOpen(true);
+        }}
+        onOpenDreamsMenu={(anchor) => { setBothOpen(false); setMenuAnchor(anchor); setDreamAnchor(anchor); setSystemMenuOpen(false); setDreamMenuOpen(true); }}
+        onOpenSystemMenu={(anchor) => { setBothOpen(false); setMenuAnchor(anchor); setSystemAnchor(anchor); setDreamMenuOpen(false); setSystemMenuOpen(true); }}
       />
 
-      <DreamRadialMenu open={dreamMenuOpen} onClose={() => setDreamMenuOpen(false)}
-        anchorX={menuAnchor.x} anchorY={menuAnchor.y} onSelectNode={closeAll} />
+      <DreamRadialMenu open={dreamMenuOpen} onClose={() => { setDreamMenuOpen(false); setBothOpen(false); }}
+        anchorX={bothOpen ? dreamAnchor.x : menuAnchor.x} anchorY={bothOpen ? dreamAnchor.y : menuAnchor.y}
+        side={bothOpen ? 'right' : undefined} onSelectNode={closeAll} />
 
-      <SystemRadialMenu open={systemMenuOpen} onClose={() => setSystemMenuOpen(false)}
-        anchorX={menuAnchor.x} anchorY={menuAnchor.y} onAction={onSystemAction} />
+      <SystemRadialMenu open={systemMenuOpen} onClose={() => { setSystemMenuOpen(false); setBothOpen(false); }}
+        anchorX={bothOpen ? systemAnchor.x : menuAnchor.x} anchorY={bothOpen ? systemAnchor.y : menuAnchor.y}
+        side={bothOpen ? 'left' : undefined} onAction={onSystemAction} />
 
       {drEamsOpen && <DrEamsPanel onClose={() => setDrEamsOpen(false)} />}
     </div>
