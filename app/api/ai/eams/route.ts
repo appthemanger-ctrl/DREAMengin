@@ -1,6 +1,13 @@
 // app/api/ai/eams/route.ts
 // Canonical Dr. Eams endpoint — user-facing AI agent.
 // AI keys are server-side only (Vercel env vars, never client).
+//
+// Role restraint (docs/AI_TRIAD_PROTOCOL.md §4):
+//   Dr. Eams cannot enforce, ban, or change policy thresholds.
+//   This route only produces conversation text and safe UI intents.
+//   Enforcement endpoints are exclusively on /api/ai/boogieman (Boogie-only).
+//   System throttle endpoints are exclusively on /api/ai/idari (IDARi-only).
+//   Role guard utility: lib/ai/events.ts → checkAgentPermission()
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';

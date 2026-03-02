@@ -2,6 +2,14 @@
 // TheBoogieMan.Ai policy endpoint — admin-only system overwatch.
 // Runs both LLM policy check (boogiePolicyCheck) and rule engine (boogieEvaluate).
 // Every audit log entry carries policy_version + rule_code (req 3, 18).
+//
+// Role restraint (docs/AI_TRIAD_PROTOCOL.md §4):
+//   Boogie is authoritative for enforcement, ban/lock, and escalation.
+//   Boogie cannot optimize performance (IDARi-exclusive).
+//   Boogie cannot make product UX decisions (Dr. Eams domain).
+//   Boogie cannot deploy code changes alone.
+//   Ban/lock endpoints are Boogie-role only (enforced here + at triad events ingestion).
+//   Role guard utility: lib/ai/events.ts → checkAgentPermission()
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
