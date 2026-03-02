@@ -6,20 +6,12 @@ import { DREAMS_BY_ID } from '@/lib/dreams/catalog';
 import { loadBoard, saveBoard, SIZE_META, defaultBoard } from '@/lib/dreams/board';
 import type { BoardTile, TileSize, DreamWidgetKind } from '@/lib/dreams/board';
 import type { FeedItem } from '@/lib/dreams/types';
+import { loadBackground, type BackgroundConfig } from '@/lib/themes/background';
+import BackgroundEditor from '@/components/home/BackgroundEditor';
+import WidgetDesignPanel, { loadWidgetStyle, widgetStyleToCSS, type WidgetStyle } from '@/components/home/WidgetDesignPanel';
 
 // ── Moods ─────────────────────────────────────────────────────────────────────
 const MOODS = ['🔥','✨','🌊','🎵','🌙','💡','⚡','🎮','🧪','💫','🌈','🎯','🌀','💎','🦋','🌺'];
-
-// ── Themes ───────────────────────────────────────────────────────────────────
-const THEMES = [
-  { id: 'space',   label: 'Space',    bg: 'linear-gradient(160deg,#020818 0%,#040d2c 60%,#0a0525 100%)',   accent: '#6366f1' },
-  { id: 'gold',    label: 'Gold',     bg: 'linear-gradient(160deg,#1a0f00 0%,#2d1a00 60%,#140b00 100%)',   accent: '#d4a843' },
-  { id: 'neon',    label: 'Neon',     bg: 'linear-gradient(160deg,#000d1a 0%,#001a0d 60%,#0d0026 100%)',   accent: '#00ff88' },
-  { id: 'rose',    label: 'Rose',     bg: 'linear-gradient(160deg,#1a0010 0%,#26001a 60%,#0d0008 100%)',   accent: '#f472b6' },
-  { id: 'ocean',   label: 'Ocean',    bg: 'linear-gradient(160deg,#001a26 0%,#002233 60%,#001018 100%)',   accent: '#22d3ee' },
-  { id: 'forest',  label: 'Forest',   bg: 'linear-gradient(160deg,#001a0d 0%,#002618 60%,#000d08 100%)',   accent: '#4ade80' },
-];
-const THEME_KEY = 'dreamengin:board:theme';
 
 // ── Grid span helpers ─────────────────────────────────────────────────────────
 function gridSpan(size: TileSize): React.CSSProperties {
