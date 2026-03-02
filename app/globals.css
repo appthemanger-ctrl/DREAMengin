@@ -349,3 +349,9 @@ pre code {
 }
 
 html, body { touch-action: none; overscroll-behavior: none; }
+
+/* Dream alive pulse — used by DreamWidget and UniversalFeed */
+@keyframes dream-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212,168,67,0); }
+  50%       { box-shadow: 0 0 0 5px rgba(212,168,67,0.22); }
+}

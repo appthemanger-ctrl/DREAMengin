@@ -26,6 +26,7 @@ type Profile = {
   followers_count?: number | null;
   following_count?: number | null;
   posts_count?: number | null;
+  pinned_dreams?: string[] | null;
 };
 
 interface ProfilePageProps {
