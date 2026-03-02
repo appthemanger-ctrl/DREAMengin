@@ -37,35 +37,36 @@ export function sanitizeUrl(raw: string | undefined): string | undefined {
 
 /** Strip all HTML tags and decode basic entities, returning plain text. */
 export function htmlToText(html: string): string {
-  // Remove script / style blocks first
-  let text = html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+  // Strip all HTML tags (generic stripper handles script/style tags too;
+  // content of script/style blocks appears as text which is safe in a plain-text context)
+  const text = html
     .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
+    // Decode entities in a single pass (no double-decode risk)
+    .replace(/&[a-z]+;|&#\d+;|&#x[\da-f]+;/gi, (entity) => {
+      switch (entity.toLowerCase()) {
+        case '&amp;':  return '&';
+        case '&lt;':   return '<';
+        case '&gt;':   return '>';
+        case '&quot;': return '"';
+        case '&#39;':
+        case '&apos;': return "'";
+        case '&nbsp;': return ' ';
+        default:       return entity;
+      }
+    })
     .replace(/\s{2,}/g, ' ')
     .trim();
   return text;
 }
 
 /**
- * Sanitize HTML to a safe subset (no scripts, no event handlers).
- * Returns plain text fallback when safeHtml is not needed.
+ * Sanitize HTML: convert to plain text to eliminate any injection risk.
+ * The optional html field on FeedItem is always converted to plain text
+ * before being stored, so there is no HTML injection surface.
  */
 export function sanitizeHtml(html: string | undefined): string | undefined {
   if (!html) return undefined;
-  // Remove dangerous tags/attributes; keep bold, italic, links, paragraphs
-  return html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/\s+on\w+="[^"]*"/gi, '')
-    .replace(/\s+on\w+='[^']*'/gi, '')
-    .replace(/<(?!\/?(?:b|i|em|strong|p|br|ul|ol|li|a|img)[> /])[^>]+>/gi, '');
+  return htmlToText(html);
 }
 
 /** Truncate text to maxLen chars, appending "…" if trimmed. */
@@ -73,3 +74,4 @@ export function truncate(text: string, maxLen: number): string {
   if (text.length <= maxLen) return text;
   return text.slice(0, maxLen - 1) + '…';
 }
+

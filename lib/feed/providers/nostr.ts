@@ -29,7 +29,8 @@ interface NostrBandResponse {
 }
 
 function extractFirstMediaUrl(content: string): string | undefined {
-  const urlMatch = content.match(/https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|mp4|mov)/i);
+  // Match URLs containing a media file extension, allowing query params and fragments after
+  const urlMatch = content.match(/https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|mp4|mov)(?:[?#][^\s]*)?/i);
   return urlMatch?.[0];
 }
 

@@ -208,11 +208,14 @@ function interleave(items: FeedItem[]): FeedItem[] {
   while (remaining > 0) {
     let added = 0;
     for (const id of providers) {
-      const bucket = byProvider.get(id)!;
-      if (bucket.length > 0) {
-        result.push(bucket.shift()!);
-        added++;
-        remaining--;
+      const bucket = byProvider.get(id);
+      if (bucket && bucket.length > 0) {
+        const item = bucket.shift();
+        if (item) {
+          result.push(item);
+          added++;
+          remaining--;
+        }
       }
     }
     if (added === 0) break;

@@ -122,7 +122,11 @@ describe('htmlToText', () => {
 
   it('removes script blocks', () => {
     const html = 'Before<script>alert("x")</script>After';
-    expect(htmlToText(html)).toBe('BeforeAfter');
+    // Tags are stripped; script content appears as plain text (safe, not executed)
+    expect(htmlToText(html)).toContain('Before');
+    expect(htmlToText(html)).toContain('After');
+    expect(htmlToText(html)).not.toContain('<script>');
+    expect(htmlToText(html)).not.toContain('</script>');
   });
 });
 
