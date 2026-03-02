@@ -3,35 +3,38 @@ import { describe, expect, it } from 'vitest';
 import {
   applyAction,
   closeAllMenus,
+  openBothMenus,
   openMenu,
   resolveHomeTap,
   type MenuState,
 } from '@/lib/home-buttons/home-buttons-state';
 
-describe('resolveHomeTap – LOCKED HOME MODE', () => {
-  it('single tap → go-home', () => {
-    expect(resolveHomeTap('locked', 'single', 'dreams')).toEqual({ type: 'go-home' });
-    expect(resolveHomeTap('locked', 'single', 'system')).toEqual({ type: 'go-home' });
+// SPEC.md §3.1 (v2.0) governs this behavior.
+
+describe('resolveHomeTap – LOCKED MODE', () => {
+  it('single tap → open-both-menus (Daydreams + System side-by-side)', () => {
+    expect(resolveHomeTap('locked', 'single', 'dreams')).toEqual({ type: 'open-both-menus' });
+    expect(resolveHomeTap('locked', 'single', 'system')).toEqual({ type: 'open-both-menus' });
   });
 
-  it('double tap → enter-nav-mode', () => {
+  it('double tap → enter-nav-mode (unlock to saved corners)', () => {
     expect(resolveHomeTap('locked', 'double', 'dreams')).toEqual({ type: 'enter-nav-mode' });
     expect(resolveHomeTap('locked', 'double', 'system')).toEqual({ type: 'enter-nav-mode' });
   });
 });
 
 describe('resolveHomeTap – NAV MODE', () => {
-  it('single tap dreams → open-dreams-menu', () => {
-    expect(resolveHomeTap('nav', 'single', 'dreams')).toEqual({ type: 'open-dreams-menu' });
+  it('single tap → go-home (reset anchor)', () => {
+    expect(resolveHomeTap('nav', 'single', 'dreams')).toEqual({ type: 'go-home' });
+    expect(resolveHomeTap('nav', 'single', 'system')).toEqual({ type: 'go-home' });
   });
 
-  it('single tap system → open-system-menu', () => {
-    expect(resolveHomeTap('nav', 'single', 'system')).toEqual({ type: 'open-system-menu' });
+  it('double tap dreams → open-dreams-menu', () => {
+    expect(resolveHomeTap('nav', 'double', 'dreams')).toEqual({ type: 'open-dreams-menu' });
   });
 
-  it('double tap either button → exit-nav-mode', () => {
-    expect(resolveHomeTap('nav', 'double', 'dreams')).toEqual({ type: 'exit-nav-mode' });
-    expect(resolveHomeTap('nav', 'double', 'system')).toEqual({ type: 'exit-nav-mode' });
+  it('double tap system → open-system-menu', () => {
+    expect(resolveHomeTap('nav', 'double', 'system')).toEqual({ type: 'open-system-menu' });
   });
 });
 
@@ -45,7 +48,11 @@ describe('applyAction – mode transitions', () => {
   });
 
   it('go-home does not change mode', () => {
-    expect(applyAction('locked', { type: 'go-home' })).toBe('locked');
+    expect(applyAction('nav', { type: 'go-home' })).toBe('nav');
+  });
+
+  it('open-both-menus does not change mode', () => {
+    expect(applyAction('locked', { type: 'open-both-menus' })).toBe('locked');
   });
 
   it('open-dreams-menu does not change mode', () => {
@@ -57,17 +64,19 @@ describe('applyAction – mode transitions', () => {
   });
 });
 
-describe('menu exclusivity', () => {
-  it('opening dreams closes system', () => {
-    const prev: MenuState = { dreamsOpen: false, systemOpen: true };
-    const next = openMenu(prev, 'dreams');
-    expect(next).toEqual({ dreamsOpen: true, systemOpen: false });
+describe('menu helpers', () => {
+  it('openBothMenus opens both simultaneously', () => {
+    expect(openBothMenus()).toEqual({ dreamsOpen: true, systemOpen: true });
   });
 
-  it('opening system closes dreams', () => {
+  it('openMenu dreams is exclusive', () => {
+    const prev: MenuState = { dreamsOpen: false, systemOpen: true };
+    expect(openMenu(prev, 'dreams')).toEqual({ dreamsOpen: true, systemOpen: false });
+  });
+
+  it('openMenu system is exclusive', () => {
     const prev: MenuState = { dreamsOpen: true, systemOpen: false };
-    const next = openMenu(prev, 'system');
-    expect(next).toEqual({ dreamsOpen: false, systemOpen: true });
+    expect(openMenu(prev, 'system')).toEqual({ dreamsOpen: false, systemOpen: true });
   });
 
   it('closeAllMenus closes both', () => {
@@ -75,36 +84,38 @@ describe('menu exclusivity', () => {
   });
 });
 
-describe('integration: lock → open system menu → open daydream menu → unlock', () => {
-  it('follows the expected state sequence', () => {
-    // Start locked
+describe('integration: locked → open both → unlock → go home → open specific', () => {
+  it('follows the SPEC §3.1 interaction sequence', () => {
     let mode = 'locked' as const;
     let menus: MenuState = { dreamsOpen: false, systemOpen: false };
 
-    // Double tap → enter NAV MODE
-    const action1 = resolveHomeTap(mode, 'double', 'dreams');
-    expect(action1).toEqual({ type: 'enter-nav-mode' });
-    mode = applyAction(mode, action1) as typeof mode;
+    // Locked: single tap → both menus open
+    const a1 = resolveHomeTap(mode, 'single', 'dreams');
+    expect(a1).toEqual({ type: 'open-both-menus' });
+    menus = openBothMenus();
+    expect(menus).toEqual({ dreamsOpen: true, systemOpen: true });
+
+    // Locked: double tap → enter nav mode
+    const a2 = resolveHomeTap(mode, 'double', 'dreams');
+    expect(a2).toEqual({ type: 'enter-nav-mode' });
+    mode = applyAction(mode, a2) as typeof mode;
+    menus = closeAllMenus();
     expect(mode).toBe('nav');
 
-    // Single tap system → open system menu
-    const action2 = resolveHomeTap(mode, 'single', 'system');
-    expect(action2).toEqual({ type: 'open-system-menu' });
-    menus = openMenu(menus, 'system');
-    expect(menus).toEqual({ dreamsOpen: false, systemOpen: true });
+    // Nav mode: single tap → go home
+    const a3 = resolveHomeTap(mode, 'single', 'system');
+    expect(a3).toEqual({ type: 'go-home' });
 
-    // Single tap dreams → open dreams menu (system closes automatically)
-    const action3 = resolveHomeTap(mode, 'single', 'dreams');
-    expect(action3).toEqual({ type: 'open-dreams-menu' });
+    // Nav mode: double tap dreams → open dreams menu only
+    const a4 = resolveHomeTap(mode, 'double', 'dreams');
+    expect(a4).toEqual({ type: 'open-dreams-menu' });
     menus = openMenu(menus, 'dreams');
     expect(menus).toEqual({ dreamsOpen: true, systemOpen: false });
 
-    // Double tap → exit NAV MODE (menus close)
-    const action4 = resolveHomeTap(mode, 'double', 'system');
-    expect(action4).toEqual({ type: 'exit-nav-mode' });
-    mode = applyAction(mode, action4) as typeof mode;
-    menus = closeAllMenus();
-    expect(mode).toBe('locked');
-    expect(menus).toEqual({ dreamsOpen: false, systemOpen: false });
+    // Nav mode: double tap system → open system menu only
+    const a5 = resolveHomeTap(mode, 'double', 'system');
+    expect(a5).toEqual({ type: 'open-system-menu' });
+    menus = openMenu(menus, 'system');
+    expect(menus).toEqual({ dreamsOpen: false, systemOpen: true });
   });
 });

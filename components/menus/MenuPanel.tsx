@@ -17,6 +17,12 @@ type Props = {
   title: string;
   /** Accent color for the panel header dot and border */
   accent?: 'blue' | 'gold';
+  /**
+   * Side placement for when both menus are shown simultaneously (SPEC §3.1).
+   * 'center' (default) = standard centered overlay.
+   * 'left' | 'right'   = positioned to that side for side-by-side display.
+   */
+  side?: 'left' | 'right' | 'center';
 };
 
 const ACCENT_STYLES = {
@@ -32,10 +38,17 @@ const ACCENT_STYLES = {
   },
 };
 
-export default function MenuPanel({ open, items, onClose, title, accent = 'blue' }: Props) {
+export default function MenuPanel({ open, items, onClose, title, accent = 'blue', side = 'center' }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const colors = ACCENT_STYLES[accent];
+
+  const panelPosition: React.CSSProperties =
+    side === 'left'
+      ? { position: 'absolute', left: '4vw', top: '50%', transform: 'translateY(-42%)' }
+      : side === 'right'
+      ? { position: 'absolute', right: '4vw', top: '50%', transform: 'translateY(-42%)' }
+      : { position: 'relative', top: '8vh' };
 
   // Close on Escape
   useEffect(() => {
@@ -64,21 +77,21 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
         position: 'fixed',
         inset: 0,
         zIndex: 70,
-        background: 'rgba(2,8,24,0.55)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
+        background: side !== 'center' ? 'transparent' : 'rgba(2,8,24,0.55)',
+        backdropFilter: side !== 'center' ? 'none' : 'blur(10px)',
+        WebkitBackdropFilter: side !== 'center' ? 'none' : 'blur(10px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         animation: 'de-menu-overlay-in 0.18s ease-out',
+        pointerEvents: side !== 'center' ? 'none' : 'auto',
       }}
-      onPointerDown={handleOverlayPointerDown}
+      onPointerDown={side !== 'center' ? undefined : handleOverlayPointerDown}
     >
       <div
         ref={panelRef}
         style={{
-          position: 'relative',
-          top: '8vh', // slightly below true center for thumb reach (req 23)
+          ...panelPosition,
           width: 'min(320px, 88vw)',
           background: 'rgba(8,18,48,0.92)',
           backdropFilter: 'blur(28px)',
@@ -88,6 +101,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
           boxShadow: `0 24px 64px rgba(0,0,0,0.45), ${colors.glow}`,
           overflow: 'hidden',
           animation: 'de-menu-panel-in 0.22s cubic-bezier(0.34,1.36,0.64,1)',
+          pointerEvents: 'auto',
         }}
         onPointerDown={(e) => e.stopPropagation()}
       >

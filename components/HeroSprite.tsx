@@ -51,42 +51,43 @@ export default function HeroSprite({
     let lastTime = 0;
     let stopped = false;
 
-    const frameW = Math.floor(img.naturalWidth / COLS);
-    const frameH = Math.floor(img.naturalHeight / ROWS);
-
-    function drawFrame(f: number) {
-      if (!ctx) return;
-      const col = f % COLS;
-      const row = Math.floor(f / COLS);
-      ctx.clearRect(0, 0, width, height);
-      ctx.drawImage(
-        img,
-        col * frameW,
-        row * frameH,
-        frameW,
-        frameH,
-        0,
-        0,
-        width,
-        height
-      );
-    }
-
-    function tick(now: number) {
-      if (stopped) return;
-      if (document.hidden) {
-        rafId = requestAnimationFrame(tick);
-        return;
-      }
-      if (now - lastTime >= FRAME_MS) {
-        drawFrame(frame);
-        frame = (frame + 1) % TOTAL_FRAMES;
-        lastTime = now;
-      }
-      rafId = requestAnimationFrame(tick);
-    }
-
     img.onload = () => {
+      // Frame dimensions must be calculated inside onload after naturalWidth/Height are set
+      const frameW = Math.floor(img.naturalWidth / COLS);
+      const frameH = Math.floor(img.naturalHeight / ROWS);
+
+      function drawFrame(f: number) {
+        if (!ctx) return;
+        const col = f % COLS;
+        const row = Math.floor(f / COLS);
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(
+          img,
+          col * frameW,
+          row * frameH,
+          frameW,
+          frameH,
+          0,
+          0,
+          width,
+          height
+        );
+      }
+
+      function tick(now: number) {
+        if (stopped) return;
+        if (document.hidden) {
+          rafId = requestAnimationFrame(tick);
+          return;
+        }
+        if (now - lastTime >= FRAME_MS) {
+          drawFrame(frame);
+          frame = (frame + 1) % TOTAL_FRAMES;
+          lastTime = now;
+        }
+        rafId = requestAnimationFrame(tick);
+      }
+
       rafId = requestAnimationFrame(tick);
     };
 

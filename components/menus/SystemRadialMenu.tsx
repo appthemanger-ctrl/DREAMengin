@@ -15,6 +15,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onAction: (action: SystemMenuAction) => void;
+  side?: 'left' | 'right' | 'center';
 };
 
 const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string; description?: string; icon?: string }> = [
@@ -26,7 +27,7 @@ const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string; description?: s
   { id: 'go-home',       label: 'Go Home',       icon: '⌂',  description: 'Reset to Home Dream anchor'   },
 ];
 
-export default function SystemRadialMenu({ open, onClose, onAction }: Props) {
+export default function SystemRadialMenu({ open, onClose, onAction, side }: Props) {
   const items: MenuItem[] = SYSTEM_ITEMS.map((item) => ({
     id: item.id,
     label: item.label,
@@ -42,6 +43,7 @@ export default function SystemRadialMenu({ open, onClose, onAction }: Props) {
       accent="gold"
       items={items}
       onClose={onClose}
+      side={side}
     />
   );
 }

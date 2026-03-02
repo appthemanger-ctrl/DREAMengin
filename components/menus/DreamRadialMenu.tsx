@@ -8,6 +8,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onSelectNode?: (node: string) => void;
+  side?: 'left' | 'right' | 'center';
 };
 
 // Six fixed Daydream apps + Marketplace + Shop (req 32)
@@ -22,7 +23,7 @@ const DREAM_ITEMS = [
   { id: 'shop',        label: 'Shop',        icon: '🛍', route: '/shop'                 },
 ];
 
-export default function DreamRadialMenu({ open, onClose, onSelectNode }: Props) {
+export default function DreamRadialMenu({ open, onClose, onSelectNode, side }: Props) {
   const router = useRouter();
 
   const items: MenuItem[] = DREAM_ITEMS.map((item) => ({
@@ -43,6 +44,7 @@ export default function DreamRadialMenu({ open, onClose, onSelectNode }: Props) 
       accent="blue"
       items={items}
       onClose={onClose}
+      side={side}
     />
   );
 }

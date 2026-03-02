@@ -7,6 +7,7 @@ type Props = {
   onHome: () => void;
   onOpenDreamsMenu: () => void;
   onOpenSystemMenu: () => void;
+  onOpenBothMenus: () => void;
   onLockChange?: (locked: boolean) => void;
 };
 
@@ -37,7 +38,7 @@ function InfinityHalf({ side }: { side: 'left' | 'right' }) {
   );
 }
 
-export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onLockChange }: Props) {
+export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onOpenBothMenus, onLockChange }: Props) {
   const [mounted, setMounted] = useState(false);
   const [locked, setLocked] = useState(true);
   const lockedRef = useRef(true);
@@ -257,19 +258,19 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
 
     if (isDouble) {
       if (lockedRef.current) {
-        // Double tap while locked → enter NAV MODE (req 11)
+        // Double tap while locked → enter NAV MODE (SPEC §3.1)
         snapToSavedCorners();
         dismissHint();
-        // Show "NAV mode" indicator briefly (req 12)
+        // Show "NAV mode" indicator briefly
         setShowNavMode(true);
         navModeTimerRef.current = setTimeout(() => {
           setShowNavMode(false);
           navModeTimerRef.current = null;
         }, 2000);
       } else {
-        // Double tap in NAV MODE → return to LOCKED HOME MODE (req 41)
-        lockToCenter();
-        dismissNavMode();
+        // Double tap in NAV MODE → open that button's specific menu (SPEC §3.1)
+        if (id === 'dreams') onOpenDreamsMenu();
+        else onOpenSystemMenu();
       }
       return;
     }
@@ -277,12 +278,11 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     tapRef.current.timer = setTimeout(() => {
       tapRef.current.timer = null;
       if (lockedRef.current) {
-        // Single tap while locked → Go Home (req 8)
-        onHome();
+        // Single tap while locked → open BOTH menus simultaneously (SPEC §3.1)
+        onOpenBothMenus();
       } else {
-        // Single tap in NAV MODE → open specific menu (req 21-22)
-        if (id === 'dreams') onOpenDreamsMenu();
-        else onOpenSystemMenu();
+        // Single tap in NAV MODE → Go Home (SPEC §3.1)
+        onHome();
       }
     }, DOUBLE_TAP_MS + 10);
   };
@@ -431,7 +431,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
       <button
         ref={(el) => { elRef.current.dreams = el; }}
         type="button"
-        aria-label={locked ? 'Go Home (double-tap to unlock NAV mode)' : 'Open Daydreams menu'}
+        aria-label={locked ? 'Tap to open menus · Double-tap to unlock NAV mode' : 'Go Home · Double-tap for Daydreams menu'}
         style={{
           ...baseStyle,
           background: locked
@@ -454,7 +454,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
       <button
         ref={(el) => { elRef.current.system = el; }}
         type="button"
-        aria-label={locked ? 'Go Home (double-tap to unlock NAV mode)' : 'Open System menu'}
+        aria-label={locked ? 'Tap to open menus · Double-tap to unlock NAV mode' : 'Go Home · Double-tap for System menu'}
         style={{
           ...baseStyle,
           background: locked

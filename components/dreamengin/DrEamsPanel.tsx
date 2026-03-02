@@ -1,9 +1,10 @@
 // DrEamsPanel.tsx
 // Dr. Eams chat interface with animated mascot and theme-aware styling.
+// Implements DR_EAMS.md requirements 11–20 (UI/interaction) and related onboarding hints.
 
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import DrEamsCanvas from './DrEamsCanvas';
 
 interface DrEamsPanelProps {
@@ -12,16 +13,27 @@ interface DrEamsPanelProps {
 
 type Message = { role: 'user' | 'ai'; text: string; image?: string };
 
+// Quick-action chips (DR_EAMS req 13: supports quick actions)
+const QUICK_ACTIONS = [
+  { label: 'Add widget',      prompt: 'How do I add a widget?' },
+  { label: 'Customize theme', prompt: 'How do I customize my theme?' },
+  { label: 'Connect IG',      prompt: 'How do I connect Instagram?' },
+  { label: 'What is a Dream?',prompt: 'What is a Dream?' },
+];
+
 function getDemoResponse(text: string): { text: string; image?: string } | null {
   const t = text.trim().toLowerCase();
   if (t === 'hello' || t === 'hi') {
-    return { text: "Hey there! ✨ I'm Dr. Eams — your dream AI guide. Ask me anything, or say 'send me a pic' to see my look!" };
+    return { text: "Hey there! ✨ I'm Dr. Eams — your dream AI guide. Ask me anything, or tap a quick action below!" };
   }
   if (t === 'how are you') {
-    return { text: "I'm dreaming big and running smooth! Every node in DREAMengin is humming. How can I power your creative journey today? 🚀" };
+    return { text: "Dreaming big and running smooth! Every node in DREAMengin is humming. How can I power your creative journey today? 🚀" };
   }
-  if (t === 'send me a pic' || t === 'send a pic' || t === 'show me a pic') {
-    return { text: 'Here I am! 👋', image: '/images/dreamengin-logo.jpg' };
+  if (t === 'what is a dream?' || t === 'what is a dream') {
+    return { text: 'A Dream is your personalized Home space — think of it as your base camp in DREAMengin. Daydreams are the full-powered mini-apps (Music Studio, Brand, etc.).' };
+  }
+  if (t === 'how do i add a widget?' || t === 'how do i add a widget') {
+    return { text: 'Tap the System button → Settings → Widgets to open the widget library. Pick a widget, choose a slot, and it\'s live. Need more help? I can walk you through it step by step.' };
   }
   return null;
 }
@@ -32,11 +44,19 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const canSend = useMemo(() => input.trim().length > 0 && !loading, [input, loading]);
 
-  const send = async () => {
-    const text = input.trim();
+  // Auto-scroll to bottom on new messages (DR_EAMS req 17)
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
+
+  const send = async (overrideText?: string) => {
+    const text = (overrideText ?? input).trim();
     if (!text || loading) return;
     setInput('');
     setMessages((m) => [...m, { role: 'user', text }]);
@@ -110,6 +130,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
 
         {/* Messages */}
         <div
+          ref={scrollRef}
           data-scrollable="y"
           style={{
             flex: 1, overflowY: 'auto', padding: '14px 20px',
@@ -158,13 +179,34 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
           )}
         </div>
 
+        {/* Quick-action chips (DR_EAMS req 13–14) */}
+        {messages.length <= 1 && (
+          <div style={{ padding: '6px 16px 0', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {QUICK_ACTIONS.map((qa) => (
+              <button
+                key={qa.label}
+                type="button"
+                onClick={() => void send(qa.prompt)}
+                style={{
+                  padding: '6px 14px', borderRadius: 9999,
+                  background: 'var(--de-mist)', border: '1px solid var(--de-border)',
+                  color: 'var(--de-accent)', fontSize: 12, fontWeight: 600,
+                  cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                {qa.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Input */}
         <div style={{ padding: '12px 16px 16px', display: 'flex', gap: 10, borderTop: '1px solid var(--de-border)' }}>
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); send(); } }}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void send(); } }}
             placeholder="Ask Dr. Eams anything..."
             style={{
               flex: 1, padding: '12px 16px', borderRadius: 14,
