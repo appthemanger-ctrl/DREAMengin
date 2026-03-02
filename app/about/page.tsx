@@ -1,371 +1,305 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  ArrowLeft, 
-  Sparkles, 
-  Shield, 
-  Users, 
-  Music, 
-  Beaker, 
-  MessageCircle,
-  ShoppingBag,
-  LayoutGrid,
-  Settings,
+import {
+  ArrowLeft,
+  Sparkles,
+  ShieldCheck,
+  Globe,
+  Music2,
+  FlaskConical,
+  Store,
+  MessageSquare,
+  LayoutDashboard,
+  Settings2,
   Lock,
-  Cpu,
+  BrainCircuit,
   Heart,
   ArrowRight,
-  Twitter
+  Twitter,
+  CircleUser,
 } from 'lucide-react';
-import { StarsBackground } from '@/components/StarsBackground';
 import PlatformBadge from '@/components/ui/PlatformBadge';
 
 export default function AboutPage() {
 
   const features = [
     {
-      icon: Shield,
+      icon: ShieldCheck,
       title: 'Privacy-First',
       description: 'Your data belongs to you. End-to-end encryption, no tracking, no selling your info. We built DreamEngin to respect your privacy at every level.',
-      color: 'from-green-500 to-emerald-600'
+      color: 'from-emerald-400 to-teal-500',
     },
     {
-      icon: Cpu,
+      icon: BrainCircuit,
       title: 'AI-Powered Tools',
       description: 'Inner Dreams AI helps you create, organize, and explore. Get intelligent suggestions, automate tasks, and unlock your creative potential.',
-      color: 'from-purple-500 to-violet-600'
+      color: 'from-blue-400 to-cyan-500',
     },
     {
-      icon: Users,
+      icon: Globe,
       title: 'Social Connections',
       description: 'Discover and connect with creators who share your passions. Follow, message, collaborate, and build your community.',
-      color: 'from-blue-500 to-cyan-600'
+      color: 'from-sky-400 to-blue-500',
     },
     {
-      icon: Music,
+      icon: Music2,
       title: 'Music Integration',
       description: 'Share your music, embed tracks from YouTube and Spotify, and showcase your sound. Perfect for artists, producers, and music lovers.',
-      color: 'from-pink-500 to-rose-600'
+      color: 'from-violet-400 to-purple-500',
     },
     {
-      icon: Beaker,
+      icon: FlaskConical,
       title: 'Creative Labs',
-      description: 'Build and share interactive experiments. Physics simulations, data visualizations, AI projects - your playground for innovation.',
-      color: 'from-violet-500 to-purple-600'
+      description: 'Build and share interactive experiments. Physics simulations, data visualizations, AI projects — your playground for innovation.',
+      color: 'from-amber-400 to-orange-500',
     },
     {
-      icon: ShoppingBag,
+      icon: Store,
       title: 'Merch Shop',
-      description: 'Sell your creations directly to your audience. Set up your store, list items, and earn from your work - all within the platform.',
-      color: 'from-orange-500 to-amber-600'
+      description: 'Sell your creations directly to your audience. Set up your store, list items, and earn from your work — all within the platform.',
+      color: 'from-rose-400 to-pink-500',
     },
   ];
 
   const navigationPrinciples = [
     {
-      title: 'Spatial Navigation (Not Pages)',
-      description: 'Home, Profile, Feed, Messages, Marketplace, Lab, Music, Social Hub, and Settings live on a continuous plane.'
+      title: 'Spatial Navigation',
+      description: 'Home, Profile, Feed, Messages, Marketplace, Lab, Music, Social Hub, and Settings live on a continuous plane.',
     },
     {
-      title: 'Torus / Infinite Loop',
-      description: 'Left meets right, up meets down, and zooming cycles layers so every direction eventually returns home.'
+      title: 'Infinite Loop',
+      description: 'Left meets right, up meets down, and zooming cycles layers so every direction eventually returns home.',
     },
     {
-      title: 'Home Anchor (∞)',
-      description: 'Long press the logo, hold with haptics, or zoom out fully to snap back to the Home anchor.'
-    },
-  ];
-
-  const widgetSystem = [
-    {
-      title: 'Widget Rails',
-      description: 'Top, bottom, left, and right rails keep 8 widgets visible while overflow scrolls around the view.'
-    },
-    {
-      title: 'Capacity + Layers',
-      description: 'Each surface holds up to 9 active widgets; advanced layers unlock up to 36 across depth.'
-    },
-    {
-      title: 'Gesture Actions',
-      description: 'Tap to preview, long press for menus, drag to reorder, pinch to resize, and throw into the feed to post.'
+      title: 'Home Anchor ∞',
+      description: 'Long press the logo, hold with haptics, or zoom out fully to snap back to the Home anchor.',
     },
   ];
 
   const spaces = [
-    { name: 'Home (Anchor)', path: '/home', icon: Sparkles, description: 'The gravitational center with Home Dreams and instant recall.' },
-    { name: 'Profile', path: '/profile/jose', icon: Heart, description: 'Living dashboards that morph from Home with public permissions.' },
-    { name: 'Feed', path: '/home', icon: LayoutGrid, description: 'A dynamic surface for personal, social, widget, and AI-generated content.' },
-    { name: 'Messages', path: '/messages', icon: MessageCircle, description: 'Direct conversations and system signals layered into the plane.' },
-    { name: 'Marketplace', path: '/shop', icon: ShoppingBag, description: 'Sell widgets, beats, workflows, and creator goods natively.' },
-    { name: 'Lab', path: '/lab', icon: Beaker, description: 'CCC experiments, simulations, and research tools.' },
-    { name: 'Music', path: '/music', icon: Music, description: 'Recording, sharing, and collaboration spaces for sound.' },
-    { name: 'Social Hub', path: '/discover', icon: Users, description: 'Community clusters, discovery loops, and shared spaces.' },
-    { name: 'Settings', path: '/settings', icon: Settings, description: 'System layer for privacy, security, and personalization.' },
+    { name: 'Home',        path: '/home',       icon: Sparkles,       description: 'The gravitational center — Home Dreams and instant recall.' },
+    { name: 'Profile',     path: '/profile/me', icon: CircleUser,     description: 'Living dashboards that morph from Home with public permissions.' },
+    { name: 'Feed',        path: '/home',       icon: LayoutDashboard,description: 'Personal, social, widget, and AI-generated content.' },
+    { name: 'Messages',    path: '/messages',   icon: MessageSquare,  description: 'Direct conversations and system signals layered into the plane.' },
+    { name: 'Marketplace', path: '/shop',       icon: Store,          description: 'Sell widgets, beats, workflows, and creator goods natively.' },
+    { name: 'Lab',         path: '/lab',        icon: FlaskConical,   description: 'Experiments, simulations, and research tools.' },
+    { name: 'Music',       path: '/music',      icon: Music2,         description: 'Recording, sharing, and collaboration spaces for sound.' },
+    { name: 'Social Hub',  path: '/discover',   icon: Globe,          description: 'Community clusters, discovery loops, and shared spaces.' },
+    { name: 'Settings',    path: '/settings',   icon: Settings2,      description: 'System layer for privacy, security, and personalization.' },
   ];
 
   return (
-    <div className="min-h-screen bg-universe relative overflow-hidden">
-      {/* Hero team background */}
-      <div className="absolute inset-0 overflow-hidden opacity-20">
-        <Image
-          src="/images/HeroTEAMaI.PNG"
-          alt=""
-          fill
-          className="object-cover object-center"
-          aria-hidden="true"
-        />
-      </div>
-
-      {/* Stars background */}
-      <StarsBackground />
-
-      {/* Gradient orbs */}
-      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl" />
+    <div className="min-h-screen de-sky-bg">
 
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-universe/80 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link 
+      <header className="sticky top-0 z-30 de-glass" style={{ borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+          <Link
             href="/"
-            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors p-2 -ml-2"
+            className="flex items-center gap-2 transition-opacity hover:opacity-70"
+            style={{ color: 'var(--de-text)', textDecoration: 'none' }}
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm font-medium">Back</span>
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-semibold">Back</span>
           </Link>
           <Link
             href="/join"
-            className="px-4 py-2 bg-sunrise-heat text-white font-medium rounded-xl hover:opacity-95 transition-all text-sm"
+            className="de-btn de-btn-gold text-sm"
+            style={{ minHeight: 36, padding: '0 18px' }}
           >
             Get Started
           </Link>
         </div>
       </header>
 
-      {/* Content */}
-      <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 pb-20">
-        
-        {/* Hero Section */}
-        <section className="text-center mb-16">
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-pink-500/30 blur-2xl scale-150" />
-              <Image
-                src="/images/HeroAbout.PNG"
-                alt="Dr. Eams — DREAMengin AI Companion"
-                width={160}
-                height={160}
-                className="relative w-32 h-32 object-contain"
-                priority
-              />
-            </div>
-          </div>
-          
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            Welcome to{' '}
-            <span className="bg-nebula-flow bg-clip-text text-transparent">
-              DreamEngin
-            </span>
-          </h1>
-          
-          <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-            DreamEngin is a living interface system that turns your digital life into a navigable universe. Instead of apps, you move through connected spaces that loop, morph, and return home without friction.
-          </p>
-        </section>
+      <main className="max-w-4xl mx-auto px-4 py-10 pb-24 flex flex-col gap-16">
 
-        {/* ── Meet Dr. Eams ── */}
-        <section className="mb-16">
-          <div className="glass-dark rounded-3xl p-6 sm:p-8 border border-white/10">
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <div className="relative flex-shrink-0">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/30 to-cyan-400/20 blur-2xl scale-125" />
-                <Image
-                  src="/images/HeroAbout.PNG"
-                  alt="Dr. Eams"
-                  width={120}
-                  height={160}
-                  className="relative w-24 object-contain drop-shadow-xl"
-                />
-              </div>
-              <div>
-                <div className="text-xs font-bold tracking-[0.18em] uppercase text-cyan-400/80 mb-1">
-                  AI Companion
-                </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Meet Dr. Eams</h2>
-                <p className="text-white/70 leading-relaxed">
-                  Dr. Eams is your always-present AI guide inside DREAMengin. Powered by the Inner Dreams intelligence layer, Dr. Eams helps you navigate the spatial interface, activate widgets, draft and post content, answer questions, and translate your intent into motion — all without leaving your current dream. Think of Dr. Eams as the mind that lives at the center of your universe.
-                </p>
-              </div>
+        {/* ── Hero ── */}
+        <section className="text-center flex flex-col items-center gap-5">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full blur-3xl scale-150"
+              style={{ background: 'radial-gradient(circle, rgba(42,138,184,0.18) 0%, transparent 70%)' }} />
+            <Image
+              src="/images/HeroAbout.PNG"
+              alt="Dr. Eams — DREAMengin AI Companion"
+              width={140}
+              height={140}
+              className="relative object-contain drop-shadow-xl"
+              priority
+            />
+          </div>
+          <div>
+            <div className="de-badge mb-3">
+              <Sparkles className="w-3 h-3" />
+              Social Media Hub
             </div>
+            <h1 className="text-4xl sm:text-5xl font-extrabold mb-4" style={{ color: 'var(--de-heading)', letterSpacing: '-0.02em' }}>
+              Welcome to{' '}
+              <span style={{ color: 'var(--de-accent)' }}>DreamEngin</span>
+            </h1>
+            <p className="text-base sm:text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--de-text-dim)' }}>
+              A living interface system that turns your digital life into a navigable universe — one place to create, connect, and never have to leave.
+            </p>
           </div>
         </section>
 
-        {/* ── Meet Boogie ── */}
-        <section className="mb-16">
-          <div className="glass-dark rounded-3xl p-6 sm:p-8 border border-white/10">
-            <div className="flex flex-col sm:flex-row-reverse items-center gap-6">
-              <div className="relative flex-shrink-0">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600/30 to-pink-500/20 blur-2xl scale-125" />
-                <Image
-                  src="/images/Boogie1.PNG"
-                  alt="Boogie — DREAMengin Safety Guardian"
-                  width={120}
-                  height={120}
-                  className="relative w-24 h-24 object-contain drop-shadow-xl"
-                />
-              </div>
-              <div>
-                <div className="text-xs font-bold tracking-[0.18em] uppercase text-purple-400/80 mb-1">
-                  Safety Guardian
-                </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Meet Boogie</h2>
-                <p className="text-white/70 leading-relaxed">
-                  Boogie is the silent guardian of DREAMengin. Operating as the platform's safety and moderation layer, Boogie monitors for policy violations, harmful content, and suspicious activity — stepping in before problems reach users. Boogie doesn't interfere with your creative flow; it works in the background so your dreams stay safe, fair, and protected.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Meet Idari ── */}
-        <section className="mb-16">
-          <div className="glass-dark rounded-3xl p-6 sm:p-8 border border-white/10">
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <div className="relative flex-shrink-0">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-500/30 to-teal-400/20 blur-2xl scale-125" />
-                <Image
-                  src="/images/idari1.PNG"
-                  alt="Idari — DREAMengin System Intelligence"
-                  width={90}
-                  height={160}
-                  className="relative w-20 object-contain drop-shadow-xl"
-                />
-              </div>
-              <div>
-                <div className="text-xs font-bold tracking-[0.18em] uppercase text-emerald-400/80 mb-1">
-                  System Intelligence
-                </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Meet Idari</h2>
-                <p className="text-white/70 leading-relaxed">
-                  Idari (InnerDreams ADARI) is the autonomous system intelligence that keeps DREAMengin healthy and self-healing. While you dream, Idari silently monitors performance, auto-repairs broken state, maintains widget integrity, and surfaces insights to the platform team. Idari is the reason DREAMengin feels alive — it's the nervous system behind everything that just works.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Unified Interface Vision */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">Unified Interface & Navigation Vision</h2>
+        {/* ── AI Team ── */}
+        <section>
+          <div className="de-tag text-center mb-6">Your AI companions</div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {navigationPrinciples.map((principle) => (
-              <div
-                key={principle.title}
-                className="glass-dark rounded-2xl p-5 border border-white/10"
-              >
-                <h3 className="text-lg font-semibold text-white mb-2">{principle.title}</h3>
-                <p className="text-sm text-white/60 leading-relaxed">{principle.description}</p>
+
+            {/* Dr. Eams */}
+            <div className="de-outer-shell flex flex-col items-center text-center gap-3">
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full blur-xl scale-125"
+                  style={{ background: 'radial-gradient(circle, rgba(42,138,184,0.2) 0%, transparent 70%)' }} />
+                <Image src="/images/HeroAbout.PNG" alt="Dr. Eams" width={88} height={88}
+                  className="relative object-contain drop-shadow-lg" />
               </div>
-            ))}
+              <div className="de-badge" style={{ fontSize: 9 }}>AI Guide</div>
+              <h3 className="font-bold text-base" style={{ color: 'var(--de-heading)' }}>Dr. Eams</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--de-text-dim)' }}>
+                Your always-present AI guide. Navigates, activates widgets, drafts content, and translates intent into motion.
+              </p>
+            </div>
+
+            {/* Boogie */}
+            <div className="de-outer-shell flex flex-col items-center text-center gap-3"
+              style={{ borderColor: 'rgba(146,64,14,0.22)' }}>
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full blur-xl scale-125"
+                  style={{ background: 'radial-gradient(circle, rgba(200,152,26,0.2) 0%, transparent 70%)' }} />
+                <Image src="/images/Boogie1.PNG" alt="Boogie" width={88} height={88}
+                  className="relative object-contain drop-shadow-lg" />
+              </div>
+              <div className="de-badge" style={{ fontSize: 9, color: 'var(--de-gold)', borderColor: 'rgba(200,152,26,0.35)' }}>Safety Guardian</div>
+              <h3 className="font-bold text-base" style={{ color: 'var(--de-heading)' }}>Boogie</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--de-text-dim)' }}>
+                The silent guardian. Monitors for policy violations and harmful content — protecting the platform without disrupting your flow.
+              </p>
+            </div>
+
+            {/* Idari */}
+            <div className="de-outer-shell flex flex-col items-center text-center gap-3"
+              style={{ borderColor: 'rgba(5,120,80,0.22)' }}>
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full blur-xl scale-125"
+                  style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%)' }} />
+                <Image src="/images/idari1.PNG" alt="Idari" width={88} height={88}
+                  className="relative object-contain drop-shadow-lg" />
+              </div>
+              <div className="de-badge" style={{ fontSize: 9, color: '#0d9669', borderColor: 'rgba(5,120,80,0.3)' }}>System Intelligence</div>
+              <h3 className="font-bold text-base" style={{ color: 'var(--de-heading)' }}>Idari</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--de-text-dim)' }}>
+                The autonomous nervous system. Monitors performance, auto-repairs broken state, and keeps DREAMengin alive.
+              </p>
+            </div>
+
           </div>
         </section>
 
-        {/* Widget System */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">Widget Rails & Layers</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {widgetSystem.map((item) => (
-              <div
-                key={item.title}
-                className="glass-dark rounded-2xl p-5 border border-white/10"
-              >
-                <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
-                <p className="text-sm text-white/60 leading-relaxed">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Core Features */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">What Makes Us Different</h2>
+        {/* ── What Makes Us Different ── */}
+        <section>
+          <div className="de-tag text-center mb-6">Core Features</div>
+          <h2 className="text-2xl font-bold text-center mb-6" style={{ color: 'var(--de-heading)' }}>
+            What Makes Us Different
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {features.map((feature) => (
-              <div 
-                key={feature.title}
-                className="glass-dark rounded-2xl p-5 border border-white/10 hover:border-white/20 transition-colors"
-              >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
-                  <feature.icon className="w-6 h-6 text-white" />
+              <div key={feature.title} className="de-tile flex gap-4 items-start" style={{ padding: 18 }}>
+                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center flex-shrink-0`}>
+                  <feature.icon className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-sm text-white/60 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Pages Overview */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">Explore the Spaces</h2>
-          <div className="space-y-3">
-            {spaces.map((page) => (
-              <div 
-                key={page.name}
-                className="glass-dark rounded-xl p-4 border border-white/10 flex items-start gap-4"
-              >
-                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                  <page.icon className="w-5 h-5 text-cyan-300" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-white">{page.name}</h3>
-                  <p className="text-sm text-white/60">{page.description}</p>
+                <div>
+                  <h3 className="font-bold mb-1" style={{ color: 'var(--de-heading)', fontSize: 15 }}>{feature.title}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--de-text-dim)' }}>{feature.description}</p>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Privacy Commitment */}
-        <section className="mb-16">
-          <div className="glass-dark rounded-3xl p-6 sm:p-8 border border-green-500/20 bg-green-500/5">
+        {/* ── Navigation Vision ── */}
+        <section>
+          <div className="de-tag text-center mb-6">How It Works</div>
+          <h2 className="text-2xl font-bold text-center mb-6" style={{ color: 'var(--de-heading)' }}>
+            Unified Navigation
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {navigationPrinciples.map((p) => (
+              <div key={p.title} className="de-glass-blue" style={{ padding: '18px 20px' }}>
+                <h3 className="font-bold mb-2" style={{ color: 'var(--de-accent)', fontSize: 14 }}>{p.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--de-text-dim)' }}>{p.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Explore the Spaces ── */}
+        <section>
+          <div className="de-tag text-center mb-6">Platform Spaces</div>
+          <h2 className="text-2xl font-bold text-center mb-6" style={{ color: 'var(--de-heading)' }}>
+            Explore the Spaces
+          </h2>
+          <div className="de-surface" style={{ padding: 0, overflow: 'hidden' }}>
+            {spaces.map((space, i) => (
+              <Link
+                key={space.name}
+                href={space.path}
+                style={{ textDecoration: 'none' }}
+              >
+                <div
+                  className="de-row"
+                  style={{ borderTop: i > 0 ? '1px solid rgba(160,195,240,0.18)' : 'none', borderRadius: 0 }}
+                >
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(42,138,184,0.10)', border: '1px solid rgba(42,138,184,0.18)' }}>
+                    <space.icon className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm" style={{ color: 'var(--de-heading)' }}>{space.name}</div>
+                    <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>{space.description}</div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--de-text-dim)' }} />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Privacy Promise ── */}
+        <section>
+          <div className="de-outer-shell" style={{ borderColor: 'rgba(5,120,80,0.22)' }}>
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0">
                 <Lock className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-white mb-2">Our Privacy Promise</h2>
-                <ul className="space-y-2 text-white/70 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-0.5">&#10003;</span>
-                    We never sell your data to advertisers or third parties
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-0.5">&#10003;</span>
-                    End-to-end encryption on all private messages
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-0.5">&#10003;</span>
-                    You control who sees your content with granular privacy settings
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-0.5">&#10003;</span>
-                    Delete your data anytime - we actually delete it
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-0.5">&#10003;</span>
-                    No behavioral tracking or surveillance capitalism
-                  </li>
+              <div className="flex-1">
+                <h2 className="font-bold text-lg mb-3" style={{ color: 'var(--de-heading)' }}>Our Privacy Promise</h2>
+                <ul className="space-y-2">
+                  {[
+                    'We never sell your data to advertisers or third parties',
+                    'End-to-end encryption on all private messages',
+                    'Granular privacy controls on all your content',
+                    'Delete your data anytime — we actually delete it',
+                    'No behavioral tracking or surveillance capitalism',
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm" style={{ color: 'var(--de-text)' }}>
+                      <span className="flex-shrink-0 font-bold" style={{ color: '#0d9669' }}>✓</span>
+                      {item}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Connect Everything */}
-        <section className="mb-16 text-center">
-          <h2 className="text-2xl font-bold text-white mb-2">Connect Everything</h2>
-          <p className="text-white/60 mb-6 text-sm">Bring all your platforms into one dream.</p>
+        {/* ── Connect Everything ── */}
+        <section className="text-center">
+          <div className="de-tag mb-2">Integrations</div>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--de-heading)' }}>Connect Everything</h2>
+          <p className="text-sm mb-6" style={{ color: 'var(--de-text-dim)' }}>Bring all your platforms into one dream.</p>
           <div className="flex flex-wrap justify-center gap-3">
             {[
               { name: 'instagram',  label: 'Instagram'  },
@@ -380,55 +314,46 @@ export default function AboutPage() {
               { name: 'dropbox',    label: 'Dropbox'    },
             ].map(({ name, label }) => (
               <Link key={name} href="/join" aria-label={`Connect ${label}`}
-                className="flex flex-col items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity">
+                className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
                 <PlatformBadge name={name} size={48} label={label} />
-                <span className="text-[10px] text-white/50 font-medium">{label}</span>
+                <span className="text-xs font-medium" style={{ color: 'var(--de-text-dim)' }}>{label}</span>
               </Link>
             ))}
           </div>
         </section>
 
-        {/* CTA */}
+        {/* ── CTA ── */}
         <section className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Ready to Navigate the Dream?</h2>
-          <p className="text-white/60 mb-6">Step into a universe where every gesture loops back to meaning.</p>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-sunrise-heat text-white font-semibold rounded-2xl hover:opacity-95 transition-all cosmic-glow active:scale-95"
-          >
+          <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--de-heading)' }}>Ready to Navigate the Dream?</h2>
+          <p className="text-sm mb-6" style={{ color: 'var(--de-text-dim)' }}>Step into a universe where every gesture loops back to meaning.</p>
+          <Link href="/login" className="de-btn de-btn-primary" style={{ display: 'inline-flex', gap: 8 }}>
             Create Your Account
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </section>
 
-        {/* Footer */}
-        <footer className="mt-16 pt-8 border-t border-white/10 text-center">
+        {/* ── Footer ── */}
+        <footer className="pt-8 text-center" style={{ borderTop: '1px solid rgba(160,195,240,0.3)' }}>
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-white">DreamEngin</span>
+            <Image src="/images/logo1.PNG" alt="DREAMengin" width={32} height={32}
+              className="rounded-lg object-contain" />
+            <span className="font-bold" style={{ color: 'var(--de-heading)' }}>DreamEngin</span>
           </div>
-          
-          {/* Social Links */}
           <div className="flex items-center justify-center gap-3 mb-4">
-            <a
-              href="https://x.com/dreamenginx"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 glass-dark rounded-full text-white/70 hover:text-white transition-colors"
-            >
+            <a href="https://x.com/dreamenginx" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 transition-opacity hover:opacity-100"
+              style={{ opacity: 0.65, textDecoration: 'none', color: 'var(--de-text)' }}>
               <Twitter className="w-4 h-4" />
-              <span className="text-sm">Follow @dreamenginx</span>
+              <span className="text-sm">@dreamenginx</span>
             </a>
-            <PlatformBadge name="instagram" size={36} label="Instagram" />
-            <PlatformBadge name="tiktok"    size={36} label="TikTok"    />
+            <PlatformBadge name="instagram" size={32} label="Instagram" />
+            <PlatformBadge name="tiktok"    size={32} label="TikTok"    />
           </div>
-          
-          <p className="text-sm text-white/40 flex items-center justify-center gap-1">
-            Made with <Heart className="w-3 h-3 text-red-400" /> for dreamers everywhere
+          <p className="text-xs flex items-center justify-center gap-1" style={{ color: 'var(--de-text-dim)' }}>
+            Made with <Heart className="w-3 h-3" style={{ color: '#e55' }} /> for dreamers everywhere
           </p>
         </footer>
+
       </main>
     </div>
   );

@@ -6,7 +6,7 @@ export type MenuItem = {
   id: string;
   label: string;
   description?: string;
-  icon?: string;
+  icon?: React.ReactNode;
   onSelect: () => void;
 };
 
@@ -186,7 +186,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
               onPointerLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
             >
               {item.icon && (
-                <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0, width: 26, textAlign: 'center' }}>
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: 26, color: 'rgba(220,235,255,0.85)' }}>
                   {item.icon}
                 </span>
               )}
