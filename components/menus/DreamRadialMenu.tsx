@@ -11,6 +11,7 @@ type Props = {
   onSelectNode?: (node: string) => void;
   anchorX: number;
   anchorY: number;
+  side?: 'left' | 'right';
 };
 
 // Six fixed Daydream apps + Marketplace + Shop (req 32)
@@ -18,14 +19,14 @@ const DREAM_ITEMS = [
   { id: 'music',       label: 'Music',       icon: '🎵', route: '/daydream/music'       },
   { id: 'create',      label: 'Create',      icon: '⬡',  route: '/daydream/create'      },
   { id: 'brand',       label: 'Brand',       icon: '✦',  route: '/daydream/brand'       },
-  { id: 'analytics',   label: 'Analytics',   icon: '📊', route: '/daydream/analytics'   },
   { id: 'games',       label: 'Games',       icon: '🎮', route: '/daydream/games'       },
-  { id: 'lab',         label: 'Lab',         icon: '🔬', route: '/lab'                  },
+  { id: 'lab',         label: 'Lab',         icon: '🔬', route: '/daydream/lab'         },
+  { id: 'code',        label: 'Code',        icon: '💻', route: '/daydream/code'        },
   { id: 'marketplace', label: 'Marketplace', icon: '🏪', route: '/marketplace'          },
   { id: 'shop',        label: 'Shop',        icon: '🛍', route: '/shop'                 },
 ];
 
-export default function DreamRadialMenu({ open, onClose, onSelectNode, anchorX, anchorY }: Props) {
+export default function DreamRadialMenu({ open, onClose, onSelectNode, anchorX, anchorY, side }: Props) {
   const router = useRouter();
 
   const items: MenuItem[] = DREAM_ITEMS.map((item) => ({
@@ -46,6 +47,7 @@ export default function DreamRadialMenu({ open, onClose, onSelectNode, anchorX, 
       anchorX={anchorX}
       anchorY={anchorY}
       accent="blue"
+      side={side}
       onClose={onClose}
     />
   );
