@@ -139,8 +139,8 @@ export default function AboutPage() {
             <div className="relative">
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-pink-500/30 blur-2xl scale-150" />
               <Image
-                src="/branding/AboutHero.png"
-                alt="DREAMengin"
+                src="/images/HeroAbout.PNG"
+                alt="Dr. Eams — DREAMengin AI Companion"
                 width={160}
                 height={160}
                 className="relative w-32 h-32 object-contain"
@@ -161,21 +161,81 @@ export default function AboutPage() {
           </p>
         </section>
 
-        {/* Meet Dr. Eams */}
+        {/* ── Meet Dr. Eams ── */}
         <section className="mb-16">
           <div className="glass-dark rounded-3xl p-6 sm:p-8 border border-white/10">
             <div className="flex flex-col sm:flex-row items-center gap-6">
-              <Image
-                src="/branding/AboutHero.png"
-                alt="DREAMengin"
-                width={120}
-                height={120}
-                className="w-24 h-24 object-contain"
-              />
+              <div className="relative flex-shrink-0">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/30 to-cyan-400/20 blur-2xl scale-125" />
+                <Image
+                  src="/images/HeroAbout.PNG"
+                  alt="Dr. Eams"
+                  width={120}
+                  height={160}
+                  className="relative w-24 object-contain drop-shadow-xl"
+                />
+              </div>
               <div>
+                <div className="text-xs font-bold tracking-[0.18em] uppercase text-cyan-400/80 mb-1">
+                  AI Companion
+                </div>
                 <h2 className="text-2xl font-bold text-white mb-2">Meet Dr. Eams</h2>
                 <p className="text-white/70 leading-relaxed">
-                  Dr. Eams is your AI companion and guide throughout DreamEngin. Powered by Inner Dreams AI, Dr. Eams helps you navigate the platform, set up widgets, post content, and translate intent into motion. Adari (InnerDreams) quietly maintains system health and auto-fixes in the background.
+                  Dr. Eams is your always-present AI guide inside DREAMengin. Powered by the Inner Dreams intelligence layer, Dr. Eams helps you navigate the spatial interface, activate widgets, draft and post content, answer questions, and translate your intent into motion — all without leaving your current dream. Think of Dr. Eams as the mind that lives at the center of your universe.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Meet Boogie ── */}
+        <section className="mb-16">
+          <div className="glass-dark rounded-3xl p-6 sm:p-8 border border-white/10">
+            <div className="flex flex-col sm:flex-row-reverse items-center gap-6">
+              <div className="relative flex-shrink-0">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600/30 to-pink-500/20 blur-2xl scale-125" />
+                <Image
+                  src="/boogeyman-guardian.png"
+                  alt="Boogie — DREAMengin Safety Guardian"
+                  width={120}
+                  height={120}
+                  className="relative w-24 h-24 object-contain drop-shadow-xl"
+                />
+              </div>
+              <div>
+                <div className="text-xs font-bold tracking-[0.18em] uppercase text-purple-400/80 mb-1">
+                  Safety Guardian
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2">Meet Boogie</h2>
+                <p className="text-white/70 leading-relaxed">
+                  Boogie is the silent guardian of DREAMengin. Operating as the platform's safety and moderation layer, Boogie monitors for policy violations, harmful content, and suspicious activity — stepping in before problems reach users. Boogie doesn't interfere with your creative flow; it works in the background so your dreams stay safe, fair, and protected.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Meet Idari ── */}
+        <section className="mb-16">
+          <div className="glass-dark rounded-3xl p-6 sm:p-8 border border-white/10">
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <div className="relative flex-shrink-0">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-500/30 to-teal-400/20 blur-2xl scale-125" />
+                <Image
+                  src="/images/idari1.PNG"
+                  alt="Idari — DREAMengin System Intelligence"
+                  width={90}
+                  height={160}
+                  className="relative w-20 object-contain drop-shadow-xl"
+                />
+              </div>
+              <div>
+                <div className="text-xs font-bold tracking-[0.18em] uppercase text-emerald-400/80 mb-1">
+                  System Intelligence
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2">Meet Idari</h2>
+                <p className="text-white/70 leading-relaxed">
+                  Idari (InnerDreams ADARI) is the autonomous system intelligence that keeps DREAMengin healthy and self-healing. While you dream, Idari silently monitors performance, auto-repairs broken state, maintains widget integrity, and surfaces insights to the platform team. Idari is the reason DREAMengin feels alive — it's the nervous system behind everything that just works.
                 </p>
               </div>
             </div>
