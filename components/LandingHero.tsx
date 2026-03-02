@@ -5,26 +5,26 @@ import { useEffect, useMemo, useState } from 'react';
 import HeroSprite from './HeroSprite';
 import PlatformBadge from './ui/PlatformBadge';
 
-/** Social icons shown in the landing strip — top two rows of iconslist.png */
-const STRIP_ICONS: Array<{ name: string; label: string; href: string }> = [
-  { name: 'facebook',   label: 'Facebook',   href: '/connectors' },
-  { name: 'twitter',    label: 'Twitter',    href: '/connectors' },
-  { name: 'instagram',  label: 'Instagram',  href: '/connectors' },
-  { name: 'linkedin',   label: 'LinkedIn',   href: '/connectors' },
-  { name: 'youtube',    label: 'YouTube',    href: '/connectors' },
-  { name: 'tiktok',     label: 'TikTok',     href: '/connectors' },
-  { name: 'messenger',  label: 'Messenger',  href: '/connectors' },
-  { name: 'discord',    label: 'Discord',    href: '/connectors' },
-  { name: 'spotify',    label: 'Spotify',    href: '/connectors' },
-  { name: 'snapchat',   label: 'Snapchat',   href: '/connectors' },
-  { name: 'reddit',     label: 'Reddit',     href: '/connectors' },
-  { name: 'whatsapp',   label: 'WhatsApp',   href: '/connectors' },
-  { name: 'twitch',     label: 'Twitch',     href: '/connectors' },
-  { name: 'pinterest',  label: 'Pinterest',  href: '/connectors' },
-  { name: 'soundcloud', label: 'SoundCloud', href: '/connectors' },
-  { name: 'dropbox',    label: 'Dropbox',    href: '/connectors' },
-  { name: 'figma',      label: 'Figma',      href: '/connectors' },
-  { name: 'medium',     label: 'Medium',     href: '/connectors' },
+/** Social icons shown in the landing strip — link to /join (sign-up required) */
+const STRIP_ICONS: Array<{ name: string; label: string }> = [
+  { name: 'facebook',   label: 'Facebook'   },
+  { name: 'twitter',    label: 'Twitter'    },
+  { name: 'instagram',  label: 'Instagram'  },
+  { name: 'linkedin',   label: 'LinkedIn'   },
+  { name: 'youtube',    label: 'YouTube'    },
+  { name: 'tiktok',     label: 'TikTok'     },
+  { name: 'messenger',  label: 'Messenger'  },
+  { name: 'discord',    label: 'Discord'    },
+  { name: 'spotify',    label: 'Spotify'    },
+  { name: 'snapchat',   label: 'Snapchat'   },
+  { name: 'reddit',     label: 'Reddit'     },
+  { name: 'whatsapp',   label: 'WhatsApp'   },
+  { name: 'twitch',     label: 'Twitch'     },
+  { name: 'pinterest',  label: 'Pinterest'  },
+  { name: 'soundcloud', label: 'SoundCloud' },
+  { name: 'dropbox',    label: 'Dropbox'    },
+  { name: 'figma',      label: 'Figma'      },
+  { name: 'medium',     label: 'Medium'     },
 ];
 
 export default function LandingHero() {
@@ -198,10 +198,10 @@ export default function LandingHero() {
               gap: 12,
             }}
           >
-            {STRIP_ICONS.map(({ name, label, href }) => (
+            {STRIP_ICONS.map(({ name, label }) => (
               <Link
                 key={name}
-                href={href}
+                href="/join"
                 aria-label={`Connect ${label}`}
                 style={{ display: 'inline-block', outline: 'none' }}
                 className="opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:opacity-100 transition-opacity duration-150"

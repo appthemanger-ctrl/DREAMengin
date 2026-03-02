@@ -26,6 +26,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
   const [drEamsOpen, setDrEamsOpen]         = useState(false);
   const [coreFace, setCoreFace]             = useState<'home' | 'profile'>('home');
   const [coreOpen, setCoreOpen]             = useState(true);
+  const [menuAnchor, setMenuAnchor]         = useState({ x: 0, y: 0 });
   // DreamNavControls starts locked; track lock state to hide NavIndicator when not navigating
   const [navLocked, setNavLocked]           = useState(true);
   // Read showNavIndicator setting from localStorage (default true)
@@ -77,36 +78,41 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
       <DreamNavControls
         onHome={returnHome}
         onLockChange={setNavLocked}
-        onOpenBothMenus={() => {
+        onOpenBothMenus={(anchor) => {
+          setMenuAnchor(anchor);
           setDreamMenuOpen(true);
           setSystemMenuOpen(true);
         }}
-        onOpenDreamsMenu={() => {
+        onOpenDreamsMenu={(anchor) => {
+          setMenuAnchor(anchor);
           setSystemMenuOpen(false);
           setDreamMenuOpen(true);
         }}
-        onOpenSystemMenu={() => {
+        onOpenSystemMenu={(anchor) => {
+          setMenuAnchor(anchor);
           setDreamMenuOpen(false);
           setSystemMenuOpen(true);
         }}
       />
 
-      {/* Daydreams menu — right side when both open (SPEC §3.1), center otherwise */}
+      {/* Daydreams fan — fans out from gold button */}
       <DreamRadialMenu
         open={dreamMenuOpen}
         onClose={() => setDreamMenuOpen(false)}
-        side={dreamMenuOpen && systemMenuOpen ? 'right' : 'center'}
+        anchorX={menuAnchor.x}
+        anchorY={menuAnchor.y}
         onSelectNode={(n) => {
           closeAll();
           navigateTo(n);
         }}
       />
 
-      {/* System menu — left side when both open (SPEC §3.1), center otherwise */}
+      {/* System fan — fans out from gold button */}
       <SystemRadialMenu
         open={systemMenuOpen}
         onClose={() => setSystemMenuOpen(false)}
-        side={dreamMenuOpen && systemMenuOpen ? 'left' : 'center'}
+        anchorX={menuAnchor.x}
+        anchorY={menuAnchor.y}
         onAction={onSystemAction}
       />
 

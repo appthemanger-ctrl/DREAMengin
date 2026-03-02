@@ -2,12 +2,14 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+type AnchorPos = { x: number; y: number };
+
 type ControlId = 'dreams' | 'system';
 type Props = {
   onHome: () => void;
-  onOpenDreamsMenu: () => void;
-  onOpenSystemMenu: () => void;
-  onOpenBothMenus: () => void;
+  onOpenDreamsMenu: (anchor: AnchorPos) => void;
+  onOpenSystemMenu: (anchor: AnchorPos) => void;
+  onOpenBothMenus:  (anchor: AnchorPos) => void;
   onLockChange?: (locked: boolean) => void;
 };
 
@@ -48,8 +50,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
   /** "NAV mode" indicator — briefly shown on entering NAV MODE (req 12) */
   const [showNavMode, setShowNavMode] = useState(false);
   const navModeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const gravityRAFRef = useRef<number | null>(null);
-
+  // Gravity loop removed — buttons stay where you leave them
   const posRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
   const savedPosRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
   const elRef = useRef<Record<ControlId, HTMLButtonElement | null>>({ dreams: null, system: null });
@@ -211,43 +212,21 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     return () => window.removeEventListener('pointerdown', handler);
   }, [showNavMode, dismissNavMode]);
 
-  // Gravity: when unlocked, slowly pull both buttons toward center-bottom
-  useEffect(() => {
-    if (!mounted || locked) {
-      if (gravityRAFRef.current != null) { cancelAnimationFrame(gravityRAFRef.current); gravityRAFRef.current = null; }
-      return;
+  // Gravity loop removed — buttons stay where you leave them
+
+  /** Returns the screen-center of the gold (system) button — the fan anchor. */
+  const getGoldAnchor = (): AnchorPos => {
+    const el = elRef.current.system;
+    if (el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
     }
-    const tick = () => {
-      if (lockedRef.current) { gravityRAFRef.current = null; return; }
-      if (dragRef.current.id == null) {
-        const rails = getRails();
-        const target = { x: rails.centerX, y: rails.maxY };
-        let anyMoved = false;
-        for (const cid of (['dreams', 'system'] as ControlId[])) {
-          const curr = posRef.current[cid];
-          const dx = target.x - curr.x;
-          const dy = target.y - curr.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist > 0.5) {
-            const speed = Math.max(0.2, dist * 0.004);
-            posRef.current[cid] = {
-              x: curr.x + (dx / dist) * Math.min(speed, dist),
-              y: curr.y + (dy / dist) * Math.min(speed, dist),
-            };
-            applyPos(cid);
-            anyMoved = true;
-          }
-        }
-        if (anyMoved) checkMagnet();
-      }
-      gravityRAFRef.current = requestAnimationFrame(tick);
+    // Fallback: use the stored position
+    return {
+      x: posRef.current.system.x + CTRL_SIZE / 2,
+      y: posRef.current.system.y + CTRL_SIZE / 2,
     };
-    gravityRAFRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (gravityRAFRef.current != null) { cancelAnimationFrame(gravityRAFRef.current); gravityRAFRef.current = null; }
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locked, mounted]);
+  };
 
   const handleTap = (id: ControlId) => {
     const now = performance.now();
@@ -269,8 +248,9 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
         }, 2000);
       } else {
         // Double tap in NAV MODE → open that button's specific menu (SPEC §3.1)
-        if (id === 'dreams') onOpenDreamsMenu();
-        else onOpenSystemMenu();
+        const anchor = getGoldAnchor();
+        if (id === 'dreams') onOpenDreamsMenu(anchor);
+        else onOpenSystemMenu(anchor);
       }
       return;
     }
@@ -279,7 +259,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
       tapRef.current.timer = null;
       if (lockedRef.current) {
         // Single tap while locked → open BOTH menus simultaneously (SPEC §3.1)
-        onOpenBothMenus();
+        onOpenBothMenus(getGoldAnchor());
       } else {
         // Single tap in NAV MODE → Go Home (SPEC §3.1)
         onHome();
