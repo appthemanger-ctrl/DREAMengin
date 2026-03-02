@@ -19,6 +19,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 const SPRITE_COLS = 4;
 const SPRITE_ROWS = 6;
+/** Pixel brightness threshold above which a channel is considered "near-white". */
+const WHITE_THRESHOLD = 230;
 
 type Zone = 'idle' | 'head' | 'scan' | 'fall';
 
@@ -117,12 +119,29 @@ export default function HeroSprite({
       const frameW = Math.floor(img.naturalWidth  / SPRITE_COLS);
       const frameH = Math.floor(img.naturalHeight / SPRITE_ROWS);
 
+      // Strip near-white JPEG background → transparency (runs once on load)
+      let source: CanvasImageSource = img;
+      const sheet = document.createElement('canvas');
+      sheet.width  = img.naturalWidth;
+      sheet.height = img.naturalHeight;
+      const sCtx = sheet.getContext('2d', { willReadFrequently: true });
+      if (sCtx) {
+        sCtx.drawImage(img, 0, 0);
+        const id = sCtx.getImageData(0, 0, sheet.width, sheet.height);
+        const d  = id.data;
+        for (let i = 0; i < d.length; i += 4) {
+          if (d[i] > WHITE_THRESHOLD && d[i + 1] > WHITE_THRESHOLD && d[i + 2] > WHITE_THRESHOLD) d[i + 3] = 0;
+        }
+        sCtx.putImageData(id, 0, 0);
+        source = sheet;
+      }
+
       function drawFrame(f: number) {
         if (!ctx) return;
         const col = f % SPRITE_COLS;
         const row = Math.floor(f / SPRITE_COLS);
         ctx.clearRect(0, 0, width, height);
-        ctx.drawImage(img, col * frameW, row * frameH, frameW, frameH, 0, 0, width, height);
+        ctx.drawImage(source, col * frameW, row * frameH, frameW, frameH, 0, 0, width, height);
       }
 
       function tick(now: number) {

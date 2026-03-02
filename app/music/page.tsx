@@ -2,8 +2,32 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Music, Upload, ExternalLink, ArrowLeft, Play } from 'lucide-react';
+import PlatformBadge from '@/components/ui/PlatformBadge';
 
 export const dynamic = 'force-dynamic';
+
+const MUSIC_PLATFORMS = [
+  { name: 'spotify',      label: 'Spotify',      href: '/connectors' },
+  { name: 'youtube',      label: 'YouTube',       href: '/connectors' },
+  { name: 'apple-music',  label: 'Apple Music',   href: '/connectors' },
+  { name: 'soundcloud',   label: 'SoundCloud',    href: '/connectors' },
+  { name: 'tiktok',       label: 'TikTok',        href: '/connectors' },
+  { name: 'twitch',       label: 'Twitch',        href: '/connectors' },
+];
+
+function MusicPlatformRow() {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16 }}>
+      {MUSIC_PLATFORMS.map(({ name, label, href }) => (
+        <Link key={name} href={href} aria-label={`Connect ${label}`}
+          className="flex flex-col items-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity">
+          <PlatformBadge name={name} size={48} label={label} />
+          <span className="text-[10px] text-muted-foreground font-medium">{label}</span>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 export default async function MusicPage() {
   const supabase = await createServerClient();
@@ -174,6 +198,14 @@ export default async function MusicPage() {
             </p>
           </div>
         )}
+
+        {/* Stream on section */}
+        <div className="mt-10">
+          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4 text-center">
+            Stream on
+          </p>
+          <MusicPlatformRow />
+        </div>
       </div>
     </div>
   );
