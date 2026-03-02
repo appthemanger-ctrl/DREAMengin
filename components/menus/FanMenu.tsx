@@ -135,7 +135,7 @@ export default function FanMenu({ open, items, anchorX, anchorY, accent = 'gold'
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 19,
+                color: accentColor,
                 cursor: 'pointer',
                 WebkitTapHighlightColor: 'transparent',
                 boxShadow: `0 4px 16px rgba(0,0,0,0.35), 0 0 10px ${accentColor}33`,
@@ -151,13 +151,14 @@ export default function FanMenu({ open, items, anchorX, anchorY, accent = 'gold'
                 fontWeight: 700,
                 letterSpacing: '0.06em',
                 color: accentColor,
-                background: 'rgba(4,10,28,0.82)',
+                background: 'rgba(255,255,255,0.92)',
                 border: `1px solid ${accentBorder}`,
                 backdropFilter: 'blur(8px)',
                 borderRadius: 6,
                 padding: '3px 7px',
                 whiteSpace: 'nowrap',
                 pointerEvents: 'none',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
               }}
             >
               {item.label}

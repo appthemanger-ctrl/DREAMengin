@@ -178,7 +178,7 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose, onOpenD
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/dreamengin-logo.jpg"
+              src="/images/logo1.PNG"
               alt="DREAMengin logo"
               width={40}
               height={40}
@@ -220,7 +220,7 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose, onOpenD
         <div className="flex justify-center" style={{ padding: '16px 0 20px' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/dreamengin-logo.jpg"
+            src="/images/logo1.PNG"
             alt="DREAMengin"
             width={52}
             height={52}

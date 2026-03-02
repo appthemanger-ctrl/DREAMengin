@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { BrainCircuit, Settings2, CircleUser, Rss, PlugZap, Home } from 'lucide-react';
 import FanMenu from './FanMenu';
 import type { MenuItem } from './MenuPanel';
 
@@ -21,13 +22,13 @@ type Props = {
   side?: 'left' | 'right';
 };
 
-const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string; icon?: string }> = [
-  { id: 'dr-eams',       label: 'Dr. Eams',      icon: '◈'  },
-  { id: 'settings',      label: 'Settings',      icon: '⚙'  },
-  { id: 'account',       label: 'Account',       icon: '👤' },
-  { id: 'feed-settings', label: 'Feed',          icon: '📡' },
-  { id: 'connectors',    label: 'Connectors',    icon: '🔗' },
-  { id: 'go-home',       label: 'Home',          icon: '⌂'  },
+const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string; icon: React.ReactNode }> = [
+  { id: 'dr-eams',       label: 'Dr. Eams',   icon: <BrainCircuit size={22} /> },
+  { id: 'settings',      label: 'Settings',   icon: <Settings2 size={22} />    },
+  { id: 'account',       label: 'Account',    icon: <CircleUser size={22} />   },
+  { id: 'feed-settings', label: 'Feed',       icon: <Rss size={22} />          },
+  { id: 'connectors',    label: 'Connectors', icon: <PlugZap size={22} />      },
+  { id: 'go-home',       label: 'Home',       icon: <Home size={22} />         },
 ];
 
 export default function SystemRadialMenu({ open, onClose, onAction, anchorX, anchorY, side }: Props) {

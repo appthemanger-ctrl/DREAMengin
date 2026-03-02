@@ -172,7 +172,8 @@ export default function LandingHero() {
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
               href="/join"
-              className="min-h-11 rounded-xl bg-indigo-500 px-6 py-3 font-medium text-white hover:opacity-95"
+              className="min-h-11 rounded-xl px-6 py-3 font-medium text-white hover:opacity-95"
+              style={{ background: 'var(--de-accent)' }}
             >
               Get Started
             </Link>

@@ -86,7 +86,7 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
           {/* Logo + name */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/dreamengin-logo.jpg" alt="" width={28} height={28}
+            <img src="/images/logo1.PNG" alt="" width={28} height={28}
               style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
             <span style={{ fontSize: 14, fontWeight: 800, color: 'rgba(240,244,255,0.92)', letterSpacing: '0.02em' }}>
               {face === 'profile' && profile?.display_name
