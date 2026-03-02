@@ -133,21 +133,21 @@ Core gestures:
 
 The Home Buttons system has two modes:
 
-**LOCKED HOME MODE** (default after login):
-- Shows a single unified Home control (two buttons overlapping at center).
-- Single tap → Go Home (reset navigation to the Home Dream anchor).
-- Double tap → Enter NAV MODE. A brief "NAV mode" indicator appears (~2s).
+**LOCKED MODE** (default after login):
+- Two buttons overlap at center (cross-color rings: blue shows gold ring, gold shows blue ring).
+- **Single tap → Open BOTH menus side-by-side** (Daydreams right, System left).
+- **Double tap → Enter NAV MODE.** Buttons snap to saved rail corners. A brief "NAV mode" indicator appears (~2s).
 - "Double tap to unlock" hint appears once per login session, auto-dismissing after ~2s.
-- Safe state: user can scroll feeds and interact normally without accidental mode switching.
 
 **NAV MODE** (unlocked):
-- Two Menu Buttons (System + Daydreams) separate to saved rail positions.
-- Single tap System button → Open System menu (Dr. Eams, Settings, Account, Feed Settings, Connectors, Go Home).
-- Single tap Daydreams button → Open Daydreams menu (6 apps + Marketplace + Shop).
-- Double tap either button → Return to LOCKED HOME MODE, closing any open menu.
-- Button positions persist in localStorage; draggable along their vertical rail.
+- Blue button (Dreams) on right rail; Gold button (System) on left rail.
+- **Single tap either button → Go Home** (reset anchor).
+- **Double tap Dreams button → Open Daydreams menu** (7 Daydreams + Marketplace + Shop).
+- **Double tap System button → Open System menu** (Dr. Eams, Settings, Account, Feed Settings, Connectors, Go Home).
+- Buttons drift back together via gentle gravity; magnetic snap (< 88 px) auto-relocks.
+- Button positions persist in `localStorage` key `dreamengin:controls:v4`; draggable along vertical rail.
 
-**10-second explanation:** Locked by default = safe. Double-tap = unlock. Single-tap menus = navigate. Double-tap again = re-lock. Always recoverable.
+**10-second explanation:** Tap once = see everything. Double-tap = unlock for precision. Tap to go home when done. Buttons auto-lock when left together.
 
 Home controls are persistent “system objects,” not navigation UI.
 They may:

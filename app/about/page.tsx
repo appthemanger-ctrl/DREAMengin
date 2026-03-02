@@ -139,8 +139,8 @@ export default function AboutPage() {
             <div className="relative">
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-pink-500/30 blur-2xl scale-150" />
               <Image
-                src="/dr-eams.jpeg"
-                alt="Dr. Eams"
+                src="/branding/AboutHero.png"
+                alt="DREAMengin"
                 width={160}
                 height={160}
                 className="relative w-32 h-32 object-contain"
@@ -166,8 +166,8 @@ export default function AboutPage() {
           <div className="glass-dark rounded-3xl p-6 sm:p-8 border border-white/10">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <Image
-                src="/dr-eams.jpeg"
-                alt="Dr. Eams"
+                src="/branding/AboutHero.png"
+                alt="DREAMengin"
                 width={120}
                 height={120}
                 className="w-24 h-24 object-contain"

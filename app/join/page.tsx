@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 import { createClient } from "@/lib/supabase/client";
 import PasswordField from "@/components/auth/PasswordField";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function JoinPage() {
   const router = useRouter();
@@ -119,13 +119,10 @@ export default function JoinPage() {
 
       <div className="mx-auto flex w-full max-w-md flex-col items-center relative z-10">
         <div className="mb-6 flex items-center gap-3">
-          <Image
-            src="/logo-icon.jpeg"
-            alt="DreamEngin"
+          <BrandLogo
             width={44}
             height={44}
             className="rounded-xl border border-white/10 bg-white/5"
-            priority
           />
           <div className="leading-tight">
             <p className="text-sm font-medium text-white/80">DreamEngin</p>
