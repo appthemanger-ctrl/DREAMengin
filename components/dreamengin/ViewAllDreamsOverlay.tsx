@@ -14,7 +14,7 @@ const ALL_DREAMS: Array<{ id: string; label: string; icon: string; tag: string; 
   { id: '2',  label: 'Analytics', icon: '📊', tag: 'Analytics',             route: '/analytics'        },
   { id: '3',  label: 'Studio',    icon: '🎵', tag: 'Music',                 route: '/music'            },
   { id: '4',  label: 'Editor',    icon: '💻', tag: 'Profile',               route: '/edit-profile'     },
-  { id: '5',  label: 'Shop',      icon: '🛍', tag: 'Shop',          route: '/shop'             },
+  { id: '5',  label: 'Shop',      icon: '🛍', tag: 'Commerce',      route: '/shop'             },
   { id: '6',  label: 'Market',    icon: '✦',  tag: 'Marketplace',   route: '/marketplace'      },
 ];
 
