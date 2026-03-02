@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import MenuPanel, { type MenuItem } from './MenuPanel';
+import FanMenu from './FanMenu';
+import type { MenuItem } from './MenuPanel';
 
 export type SystemMenuAction =
   | 'dr-eams'
@@ -15,35 +16,35 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onAction: (action: SystemMenuAction) => void;
-  side?: 'left' | 'right' | 'center';
+  anchorX: number;
+  anchorY: number;
 };
 
-const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string; description?: string; icon?: string }> = [
-  { id: 'dr-eams',       label: 'Dr. Eams',      icon: '◈', description: 'Your AI dream companion'      },
-  { id: 'settings',      label: 'Settings',      icon: '⚙',  description: 'App preferences & controls'  },
-  { id: 'account',       label: 'Account',       icon: '👤', description: 'Profile & account details'    },
-  { id: 'feed-settings', label: 'Feed Settings', icon: '📡', description: 'Customize your content feed'  },
-  { id: 'connectors',    label: 'Connectors',    icon: '🔗', description: 'Connect apps & integrations'  },
-  { id: 'go-home',       label: 'Go Home',       icon: '⌂',  description: 'Reset to Home Dream anchor'   },
+const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string; icon?: string }> = [
+  { id: 'dr-eams',       label: 'Dr. Eams',      icon: '◈'  },
+  { id: 'settings',      label: 'Settings',      icon: '⚙'  },
+  { id: 'account',       label: 'Account',       icon: '👤' },
+  { id: 'feed-settings', label: 'Feed',          icon: '📡' },
+  { id: 'connectors',    label: 'Connectors',    icon: '🔗' },
+  { id: 'go-home',       label: 'Home',          icon: '⌂'  },
 ];
 
-export default function SystemRadialMenu({ open, onClose, onAction, side }: Props) {
+export default function SystemRadialMenu({ open, onClose, onAction, anchorX, anchorY }: Props) {
   const items: MenuItem[] = SYSTEM_ITEMS.map((item) => ({
     id: item.id,
     label: item.label,
-    description: item.description,
     icon: item.icon,
     onSelect: () => onAction(item.id),
   }));
 
   return (
-    <MenuPanel
+    <FanMenu
       open={open}
-      title="System"
-      accent="gold"
       items={items}
+      anchorX={anchorX}
+      anchorY={anchorY}
+      accent="gold"
       onClose={onClose}
-      side={side}
     />
   );
 }

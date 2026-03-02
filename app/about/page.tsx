@@ -379,7 +379,7 @@ export default function AboutPage() {
               { name: 'figma',      label: 'Figma'      },
               { name: 'dropbox',    label: 'Dropbox'    },
             ].map(({ name, label }) => (
-              <Link key={name} href="/connectors" aria-label={`Connect ${label}`}
+              <Link key={name} href="/join" aria-label={`Connect ${label}`}
                 className="flex flex-col items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity">
                 <PlatformBadge name={name} size={48} label={label} />
                 <span className="text-[10px] text-white/50 font-medium">{label}</span>

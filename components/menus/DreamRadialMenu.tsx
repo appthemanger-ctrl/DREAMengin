@@ -2,13 +2,15 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import MenuPanel, { type MenuItem } from './MenuPanel';
+import FanMenu from './FanMenu';
+import type { MenuItem } from './MenuPanel';
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onSelectNode?: (node: string) => void;
-  side?: 'left' | 'right' | 'center';
+  anchorX: number;
+  anchorY: number;
 };
 
 // Six fixed Daydream apps + Marketplace + Shop (req 32)
@@ -23,7 +25,7 @@ const DREAM_ITEMS = [
   { id: 'shop',        label: 'Shop',        icon: '🛍', route: '/shop'                 },
 ];
 
-export default function DreamRadialMenu({ open, onClose, onSelectNode, side }: Props) {
+export default function DreamRadialMenu({ open, onClose, onSelectNode, anchorX, anchorY }: Props) {
   const router = useRouter();
 
   const items: MenuItem[] = DREAM_ITEMS.map((item) => ({
@@ -38,13 +40,13 @@ export default function DreamRadialMenu({ open, onClose, onSelectNode, side }: P
   }));
 
   return (
-    <MenuPanel
+    <FanMenu
       open={open}
-      title="Daydreams"
-      accent="blue"
       items={items}
+      anchorX={anchorX}
+      anchorY={anchorY}
+      accent="blue"
       onClose={onClose}
-      side={side}
     />
   );
 }

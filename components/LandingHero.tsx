@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import HeroSprite from './HeroSprite';
 import PlatformBadge from './ui/PlatformBadge';
 
-/** Social icons shown in the landing strip — all link to /join (sign-up gate) */
+/** Social icons shown in the landing strip — link to /join (sign-up required) */
 const STRIP_ICONS: Array<{ name: string; label: string }> = [
   { name: 'facebook',   label: 'Facebook'   },
   { name: 'twitter',    label: 'Twitter'    },
@@ -25,79 +25,6 @@ const STRIP_ICONS: Array<{ name: string; label: string }> = [
   { name: 'dropbox',    label: 'Dropbox'    },
   { name: 'figma',      label: 'Figma'      },
   { name: 'medium',     label: 'Medium'     },
-];
-
-const THROTTLE_DOMAINS = [
-  {
-    icon: '🌌',
-    domain: 'Galaxies',
-    force: 'Acceleration g',
-    limit: 'a₀ ≈ 1.2×10⁻¹⁰ m/s²',
-    throttled: 'Gravitational response μ(g/a₀)',
-    color: 'from-indigo-500/20 to-purple-500/20',
-    border: 'border-indigo-500/30',
-    glow: 'rgba(99,102,241,0.3)',
-  },
-  {
-    icon: '⚫',
-    domain: 'Black Holes',
-    force: 'Total mass M',
-    limit: 'Horizon area',
-    throttled: 'Radiated fraction f ≈ 5%',
-    color: 'from-gray-800/60 to-slate-700/40',
-    border: 'border-slate-500/30',
-    glow: 'rgba(100,116,139,0.3)',
-  },
-  {
-    icon: '⚛️',
-    domain: 'Quantum Decoders',
-    force: 'Thermal load',
-    limit: 'Power envelope',
-    throttled: 'Throughput (Hz)',
-    color: 'from-cyan-500/20 to-teal-500/20',
-    border: 'border-cyan-500/30',
-    glow: 'rgba(6,182,212,0.3)',
-  },
-  {
-    icon: '🤖',
-    domain: 'LLM Training',
-    force: '‖∇L‖ gradient norm',
-    limit: 'Stability threshold',
-    throttled: 'Update success rate',
-    color: 'from-violet-500/20 to-fuchsia-500/20',
-    border: 'border-violet-500/30',
-    glow: 'rgba(139,92,246,0.3)',
-  },
-  {
-    icon: '🔥',
-    domain: 'Accretion Disks',
-    force: 'Accretion rate ṁ',
-    limit: 'Eddington luminosity',
-    throttled: 'L / L_Edd ≈ 0.1',
-    color: 'from-orange-500/20 to-amber-500/20',
-    border: 'border-orange-500/30',
-    glow: 'rgba(249,115,22,0.3)',
-  },
-  {
-    icon: '💥',
-    domain: 'Supernovae',
-    force: 'Binding energy E_bind',
-    limit: 'Neutrino escape rate',
-    throttled: 'Explosion energy ~1%',
-    color: 'from-red-500/20 to-rose-500/20',
-    border: 'border-red-500/30',
-    glow: 'rgba(239,68,68,0.3)',
-  },
-  {
-    icon: '🌍',
-    domain: 'Cosmology',
-    force: 'Total mass-energy',
-    limit: 'Participation filter ΔP',
-    throttled: 'Baryon fraction Ω_b ≈ 5%',
-    color: 'from-emerald-500/20 to-green-500/20',
-    border: 'border-emerald-500/30',
-    glow: 'rgba(16,185,129,0.3)',
-  },
 ];
 
 export default function LandingHero() {
@@ -271,10 +198,10 @@ export default function LandingHero() {
               gap: 12,
             }}
           >
-            {STRIP_ICONS.map(({ name, label, href }) => (
+            {STRIP_ICONS.map(({ name, label }) => (
               <Link
                 key={name}
-                href={href}
+                href="/join"
                 aria-label={`Connect ${label}`}
                 style={{ display: 'inline-block', outline: 'none' }}
                 className="opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:opacity-100 transition-opacity duration-150"
