@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
-import HomeDreamRuntime from '@/components/dreamnav/HomeDreamRuntime';
+import React, { useCallback, useState } from 'react';
+import CoreDream from '@/components/core/CoreDream';
 import DreamNavControls from '@/components/dreamnav/DreamNavControls';
 import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
-import NavIndicator from '@/components/dreamnav/NavIndicator';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
 
 type ProfileLike = {
@@ -18,25 +16,13 @@ type ProfileLike = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function HomeSystem({ userId, profile, initialPosts }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
-  const { dispatch, navigateTo, node } = useDreamNav();
-
+export default function HomeSystem({ profile }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
   const [dreamMenuOpen, setDreamMenuOpen]   = useState(false);
   const [systemMenuOpen, setSystemMenuOpen] = useState(false);
   const [drEamsOpen, setDrEamsOpen]         = useState(false);
   const [coreFace, setCoreFace]             = useState<'home' | 'profile'>('home');
   const [coreOpen, setCoreOpen]             = useState(true);
   const [menuAnchor, setMenuAnchor]         = useState({ x: 0, y: 0 });
-  // DreamNavControls starts locked; track lock state to hide NavIndicator when not navigating
-  const [navLocked, setNavLocked]           = useState(true);
-  // Read showNavIndicator setting from localStorage (default true)
-  const [showNavIndicator, setShowNavIndicator] = useState(true);
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('dreamengin:showNavIndicator');
-      if (saved !== null) setShowNavIndicator(saved !== 'false');
-    } catch { /* noop */ }
-  }, []);
 
   const closeAll = useCallback(() => {
     setDreamMenuOpen(false);
@@ -44,12 +30,11 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
   }, []);
 
   const returnHome = useCallback(() => {
-    dispatch('home');
     closeAll();
     setDrEamsOpen(false);
     setCoreFace('home');
     setCoreOpen(true);
-  }, [dispatch, closeAll]);
+  }, [closeAll]);
 
   const onSystemAction = useCallback((action: SystemMenuAction) => {
     closeAll();
@@ -64,20 +49,23 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
   return (
     <>
       <StarfieldCanvas />
-      <NavIndicator node={node} hidden={navLocked || !showNavIndicator} />
 
-      <HomeDreamRuntime
-        profile={profile}
-        coreFace={coreFace}
-        coreOpen={coreOpen}
-        onToggleCoreFace={() => setCoreFace((p) => (p === 'home' ? 'profile' : 'home'))}
-        onCloseCore={() => { setCoreFace('home'); setCoreOpen(false); }}
-        onOpenDrEams={() => setDrEamsOpen(true)}
-      />
+      <div
+        className="fixed inset-0 z-10 grid place-items-center"
+        style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 62%, var(--de-bg-end) 100%)' }}
+      >
+        <CoreDream
+          face={coreFace}
+          isOpen={coreOpen}
+          onToggleFace={() => setCoreFace((p) => (p === 'home' ? 'profile' : 'home'))}
+          onClose={() => { setCoreFace('home'); setCoreOpen(false); }}
+          onOpenDrEams={() => setDrEamsOpen(true)}
+          profile={profile}
+        />
+      </div>
 
       <DreamNavControls
         onHome={returnHome}
-        onLockChange={setNavLocked}
         onOpenBothMenus={(anchor) => {
           setMenuAnchor(anchor);
           setDreamMenuOpen(true);
@@ -101,10 +89,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         onClose={() => setDreamMenuOpen(false)}
         anchorX={menuAnchor.x}
         anchorY={menuAnchor.y}
-        onSelectNode={(n) => {
-          closeAll();
-          navigateTo(n);
-        }}
+        onSelectNode={closeAll}
       />
 
       {/* System fan — fans out from gold button */}

@@ -1,23 +1,21 @@
 'use client';
 
 import React from 'react';
-import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
-import type { Node } from '@/lib/dreamnav/delta';
-import { dispatchTauPath, findTauPath } from '@/lib/dreamnav/path';
+import { useRouter } from 'next/navigation';
 
-const ALL_DREAMS: Array<{ node: Node; label: string; icon: string; tag: string }> = [
-  { node: '1b', label: 'Music',    icon: '🎵', tag: 'Day Dream · 1b' },
-  { node: '2b', label: 'Lab',      icon: '🔬', tag: 'Day Dream · 2b' },
-  { node: '3b', label: 'Code',     icon: '💻', tag: 'Day Dream · 3b' },
-  { node: '4b', label: 'Brand',    icon: '✦',  tag: 'Day Dream · 4b' },
-  { node: '5b', label: 'Games',    icon: '🎮', tag: 'Day Dream · 5b' },
-  { node: '6b', label: 'Create',   icon: '⬡',  tag: 'Day Dream · 6b' },
-  { node: 1,    label: 'Explore',  icon: '🌌', tag: 'Inner · 1'      },
-  { node: 2,    label: 'Analytics',icon: '📊', tag: 'Inner · 2'      },
-  { node: 3,    label: 'Studio',   icon: '🎵', tag: 'Inner · 3'      },
-  { node: 4,    label: 'Editor',   icon: '💻', tag: 'Inner · 4'      },
-  { node: 5,    label: 'Core',     icon: '◎',  tag: 'Depth · In'     },
-  { node: 6,    label: 'Shell',    icon: '✦',  tag: 'Depth · Out'    },
+const ALL_DREAMS: Array<{ id: string; label: string; icon: string; tag: string; route: string }> = [
+  { id: '1b', label: 'Music',     icon: '🎵', tag: 'Day Dream · Music',     route: '/daydream/music'   },
+  { id: '2b', label: 'Lab',       icon: '🔬', tag: 'Day Dream · Lab',       route: '/lab'              },
+  { id: '3b', label: 'Code',      icon: '💻', tag: 'Day Dream · Code',      route: '/codespace'        },
+  { id: '4b', label: 'Brand',     icon: '✦',  tag: 'Day Dream · Brand',     route: '/daydream/brand'   },
+  { id: '5b', label: 'Games',     icon: '🎮', tag: 'Day Dream · Games',     route: '/daydream/games'   },
+  { id: '6b', label: 'Create',    icon: '⬡',  tag: 'Day Dream · Create',    route: '/create'           },
+  { id: '1',  label: 'Explore',   icon: '🌌', tag: 'Discover',              route: '/discover'         },
+  { id: '2',  label: 'Analytics', icon: '📊', tag: 'Analytics',             route: '/analytics'        },
+  { id: '3',  label: 'Studio',    icon: '🎵', tag: 'Music',                 route: '/music'            },
+  { id: '4',  label: 'Editor',    icon: '💻', tag: 'Profile',               route: '/edit-profile'     },
+  { id: '5',  label: 'Shop',      icon: '🛍', tag: 'Shop',          route: '/shop'             },
+  { id: '6',  label: 'Market',    icon: '✦',  tag: 'Marketplace',   route: '/marketplace'      },
 ];
 
 export default function ViewAllDreamsOverlay({
@@ -27,12 +25,11 @@ export default function ViewAllDreamsOverlay({
   onClose: () => void;
   onReturnHome: () => void;
 }) {
-  const { node, dispatch } = useDreamNav();
+  const router = useRouter();
 
-  const goTo = async (target: Node) => {
-    const path = findTauPath(node, target);
-    await dispatchTauPath(dispatch, path);
+  const goTo = (route: string) => {
     onClose();
+    router.push(route);
   };
 
   return (
@@ -75,11 +72,11 @@ export default function ViewAllDreamsOverlay({
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
-          {ALL_DREAMS.map(({ node: target, label, icon, tag }) => (
+          {ALL_DREAMS.map(({ id, label, icon, tag, route }) => (
             <button
-              key={String(target)}
+              key={id}
               type="button"
-              onClick={() => goTo(target)}
+              onClick={() => goTo(route)}
               className="de-tile"
               style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',

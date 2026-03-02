@@ -1,32 +1,28 @@
 'use client';
 
 import React from 'react';
-import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
-import type { Node } from '@/lib/dreamnav/delta';
-import { dispatchTauPath, findTauPath } from '@/lib/dreamnav/path';
+import { useRouter } from 'next/navigation';
 
 interface OutdreamMenuProps {
   onClose: () => void;
 }
 
+const dayDreams = [
+  { id: 'music',   label: 'Music Studio / Releases',       route: '/daydream/music'     },
+  { id: 'lab',     label: 'Lab: Notes / Simulator',        route: '/lab'                },
+  { id: 'games',   label: 'Games: Library / Play',         route: '/daydream/games'     },
+  { id: 'code',    label: 'Code: Space / Preview',         route: '/codespace'          },
+  { id: 'brand',   label: 'Brand: Management / Analytics', route: '/daydream/brand'     },
+  { id: 'create',  label: 'Create: Projects / Vault',      route: '/create'             },
+];
+
 export default function OutdreamMenu({ onClose }: OutdreamMenuProps) {
-  const { node, dispatch } = useDreamNav();
+  const router = useRouter();
 
-  const goTo = async (target: Node) => {
-    const path = findTauPath(node, target);
-    await dispatchTauPath(dispatch, path);
+  const goTo = (route: string) => {
     onClose();
+    router.push(route);
   };
-
-  const dayDreams = [
-    // Map day dreams to outer-shell nodes. Navigation is generated from τ.
-    { id: 'music', label: 'Music Studio / Releases', node: '1b' as const },
-    { id: 'lab', label: 'Lab: Notes / Simulator', node: '2b' as const },
-    { id: 'games', label: 'Games: Library / Play', node: '5b' as const },
-    { id: 'code', label: 'Code: Space / Preview', node: '3b' as const },
-    { id: 'brand', label: 'Brand: Management / Analytics', node: '4b' as const },
-    { id: 'create', label: 'Create: Projects / Vault', node: '6b' as const },
-  ];
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/45" onClick={onClose}>
@@ -41,9 +37,7 @@ export default function OutdreamMenu({ onClose }: OutdreamMenuProps) {
               <button
                 type="button"
                 className="w-full min-h-11 rounded-2xl px-3 py-2 text-left text-sm hover:bg-white/10"
-                onClick={() => {
-                  void goTo(d.node);
-                }}
+                onClick={() => goTo(d.route)}
               >
                 {d.label}
               </button>
