@@ -30,9 +30,7 @@ const DEMO_NETWORK: NetworkReq[] = [
   {method:'GET',  url:'/api/settings', status:304, ms:8},
 ];
 
-export default function PreviewFace({ previewCode }: { previewCode?: string; onBack?: () => void }) {
-  // suppress unused warning
-  void previewCode;
+export default function PreviewFace({ previewCode: _previewCode }: { previewCode?: string; onBack?: () => void }) {
 
   const [viewport,   setViewport]   = useState<Viewport>('mobile');
   const [env,        setEnv]        = useState('Development');

@@ -5,10 +5,7 @@ import LibraryFace from './LibraryFace';
 import PlayFace from './PlayFace';
 
 export default function GamesShell() {
-  const [activeGame, setActiveGame] = useState<string>('word-sprint');
-
-  // suppress unused warning
-  void activeGame;
+  const [_activeGame, setActiveGame] = useState<string>('word-sprint');
 
   return (
     <DayDreamShell

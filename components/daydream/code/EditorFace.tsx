@@ -1,20 +1,12 @@
 'use client';
 import React, { useState, useRef, useCallback } from 'react';
-import { DSection, DCard, DBtn, FACE_WRAPPER } from '../DayDreamShell';
+import { DSection, DCard, DBtn } from '../DayDreamShell';
 
 const A = '#38bdf8';
 
 type FileEntry = { id: string; name: string; lang: string; content: string; hasErrors: boolean; modified: boolean };
 type BuildLog = { type: 'info'|'warn'|'error'|'success'; msg: string; ts: string };
 
-const LANGS: Record<string,string> = {
-  tsx:'TypeScript','ts':'TypeScript',jsx:'JavaScript',js:'JavaScript',
-  css:'CSS',html:'HTML',json:'JSON',md:'Markdown',py:'Python',sh:'Shell'
-};
-
-// suppress unused warning
-void LANGS;
-void FACE_WRAPPER;
 
 const INITIAL_FILES: FileEntry[] = [
   {id:'1',name:'App.tsx',          lang:'tsx',  hasErrors:false,modified:false,content:`import React from 'react';\n\nexport default function App() {\n  return (\n    <div className="app">\n      <h1>Hello, DREAMengin</h1>\n      <p>Start building your dream project.</p>\n    </div>\n  );\n}`},

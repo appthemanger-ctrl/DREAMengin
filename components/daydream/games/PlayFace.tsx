@@ -27,8 +27,7 @@ export default function PlayFace({ onExit }: { onExit?: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const frameCount = useRef(0);
 
-  // suppress unused warning for onExit
-  void onExit;
+
 
   // FPS monitor
   useEffect(()=>{
@@ -52,7 +51,12 @@ export default function PlayFace({ onExit }: { onExit?: () => void }) {
     setTimeout(()=>inputRef.current?.focus(),100);
     timerRef.current = setInterval(()=>{
       setTimeLeft(t=>{
-        if (t<=1) { clearInterval(timerRef.current!); setPhase('end'); return 0; }
+        if (t<=1) {
+          clearInterval(timerRef.current!);
+          setSaved(s=>({ score, best:Math.max(s.best,score), gamesPlayed:s.gamesPlayed+1 }));
+          setPhase('end');
+          return 0;
+        }
         return t-1;
       });
     },1000);
@@ -67,25 +71,18 @@ export default function PlayFace({ onExit }: { onExit?: () => void }) {
     setPhase('play');
     timerRef.current = setInterval(()=>{
       setTimeLeft(t=>{
-        if (t<=1) { clearInterval(timerRef.current!); setPhase('end'); return 0; }
+        if (t<=1) {
+          clearInterval(timerRef.current!);
+          setSaved(s=>({ score, best:Math.max(s.best,score), gamesPlayed:s.gamesPlayed+1 }));
+          setPhase('end');
+          return 0;
+        }
         return t-1;
       });
     },1000);
     setTimeout(()=>inputRef.current?.focus(),50);
   }
 
-  function endGame(finalScore: number) {
-    clearInterval(timerRef.current!);
-    setSaved(s=>({
-      score:finalScore,
-      best:Math.max(s.best,finalScore),
-      gamesPlayed:s.gamesPlayed+1
-    }));
-    setPhase('end');
-  }
-
-  // suppress unused warning for endGame
-  void endGame;
 
   useEffect(()=>()=>{
     if(timerRef.current) clearInterval(timerRef.current);
