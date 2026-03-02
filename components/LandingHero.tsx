@@ -1,30 +1,103 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import HeroSprite from './HeroSprite';
 import PlatformBadge from './ui/PlatformBadge';
 
-/** Social icons shown in the landing strip — top two rows of iconslist.png */
-const STRIP_ICONS: Array<{ name: string; label: string; href: string }> = [
-  { name: 'facebook',   label: 'Facebook',   href: '/connectors' },
-  { name: 'twitter',    label: 'Twitter',    href: '/connectors' },
-  { name: 'instagram',  label: 'Instagram',  href: '/connectors' },
-  { name: 'linkedin',   label: 'LinkedIn',   href: '/connectors' },
-  { name: 'youtube',    label: 'YouTube',    href: '/connectors' },
-  { name: 'tiktok',     label: 'TikTok',     href: '/connectors' },
-  { name: 'messenger',  label: 'Messenger',  href: '/connectors' },
-  { name: 'discord',    label: 'Discord',    href: '/connectors' },
-  { name: 'spotify',    label: 'Spotify',    href: '/connectors' },
-  { name: 'snapchat',   label: 'Snapchat',   href: '/connectors' },
-  { name: 'reddit',     label: 'Reddit',     href: '/connectors' },
-  { name: 'whatsapp',   label: 'WhatsApp',   href: '/connectors' },
-  { name: 'twitch',     label: 'Twitch',     href: '/connectors' },
-  { name: 'pinterest',  label: 'Pinterest',  href: '/connectors' },
-  { name: 'soundcloud', label: 'SoundCloud', href: '/connectors' },
-  { name: 'dropbox',    label: 'Dropbox',    href: '/connectors' },
-  { name: 'figma',      label: 'Figma',      href: '/connectors' },
-  { name: 'medium',     label: 'Medium',     href: '/connectors' },
+/** Social icons shown in the landing strip — all link to /join (sign-up gate) */
+const STRIP_ICONS: Array<{ name: string; label: string }> = [
+  { name: 'facebook',   label: 'Facebook'   },
+  { name: 'twitter',    label: 'Twitter'    },
+  { name: 'instagram',  label: 'Instagram'  },
+  { name: 'linkedin',   label: 'LinkedIn'   },
+  { name: 'youtube',    label: 'YouTube'    },
+  { name: 'tiktok',     label: 'TikTok'     },
+  { name: 'messenger',  label: 'Messenger'  },
+  { name: 'discord',    label: 'Discord'    },
+  { name: 'spotify',    label: 'Spotify'    },
+  { name: 'snapchat',   label: 'Snapchat'   },
+  { name: 'reddit',     label: 'Reddit'     },
+  { name: 'whatsapp',   label: 'WhatsApp'   },
+  { name: 'twitch',     label: 'Twitch'     },
+  { name: 'pinterest',  label: 'Pinterest'  },
+  { name: 'soundcloud', label: 'SoundCloud' },
+  { name: 'dropbox',    label: 'Dropbox'    },
+  { name: 'figma',      label: 'Figma'      },
+  { name: 'medium',     label: 'Medium'     },
+];
+
+const THROTTLE_DOMAINS = [
+  {
+    icon: '🌌',
+    domain: 'Galaxies',
+    force: 'Acceleration g',
+    limit: 'a₀ ≈ 1.2×10⁻¹⁰ m/s²',
+    throttled: 'Gravitational response μ(g/a₀)',
+    color: 'from-indigo-500/20 to-purple-500/20',
+    border: 'border-indigo-500/30',
+    glow: 'rgba(99,102,241,0.3)',
+  },
+  {
+    icon: '⚫',
+    domain: 'Black Holes',
+    force: 'Total mass M',
+    limit: 'Horizon area',
+    throttled: 'Radiated fraction f ≈ 5%',
+    color: 'from-gray-800/60 to-slate-700/40',
+    border: 'border-slate-500/30',
+    glow: 'rgba(100,116,139,0.3)',
+  },
+  {
+    icon: '⚛️',
+    domain: 'Quantum Decoders',
+    force: 'Thermal load',
+    limit: 'Power envelope',
+    throttled: 'Throughput (Hz)',
+    color: 'from-cyan-500/20 to-teal-500/20',
+    border: 'border-cyan-500/30',
+    glow: 'rgba(6,182,212,0.3)',
+  },
+  {
+    icon: '🤖',
+    domain: 'LLM Training',
+    force: '‖∇L‖ gradient norm',
+    limit: 'Stability threshold',
+    throttled: 'Update success rate',
+    color: 'from-violet-500/20 to-fuchsia-500/20',
+    border: 'border-violet-500/30',
+    glow: 'rgba(139,92,246,0.3)',
+  },
+  {
+    icon: '🔥',
+    domain: 'Accretion Disks',
+    force: 'Accretion rate ṁ',
+    limit: 'Eddington luminosity',
+    throttled: 'L / L_Edd ≈ 0.1',
+    color: 'from-orange-500/20 to-amber-500/20',
+    border: 'border-orange-500/30',
+    glow: 'rgba(249,115,22,0.3)',
+  },
+  {
+    icon: '💥',
+    domain: 'Supernovae',
+    force: 'Binding energy E_bind',
+    limit: 'Neutrino escape rate',
+    throttled: 'Explosion energy ~1%',
+    color: 'from-red-500/20 to-rose-500/20',
+    border: 'border-red-500/30',
+    glow: 'rgba(239,68,68,0.3)',
+  },
+  {
+    icon: '🌍',
+    domain: 'Cosmology',
+    force: 'Total mass-energy',
+    limit: 'Participation filter ΔP',
+    throttled: 'Baryon fraction Ω_b ≈ 5%',
+    color: 'from-emerald-500/20 to-green-500/20',
+    border: 'border-emerald-500/30',
+    glow: 'rgba(16,185,129,0.3)',
+  },
 ];
 
 export default function LandingHero() {
