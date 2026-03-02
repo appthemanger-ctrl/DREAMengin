@@ -1,6 +1,5 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import DreamNavSurface6 from '@/components/dreamnav/DreamNavSurface6';
 import HomeSystem from '@/components/home/HomeSystem';
 
 export const dynamic = 'force-dynamic';
