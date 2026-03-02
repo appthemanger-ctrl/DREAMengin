@@ -3,6 +3,29 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import HeroSprite from './HeroSprite';
+import SheetIcon from './ui/SheetIcon';
+
+/** Social icons shown in the landing strip — top two rows of iconslist.png */
+const STRIP_ICONS: Array<{ name: string; label: string; href: string }> = [
+  { name: 'facebook',   label: 'Facebook',   href: '/connectors' },
+  { name: 'twitter',    label: 'Twitter',    href: '/connectors' },
+  { name: 'instagram',  label: 'Instagram',  href: '/connectors' },
+  { name: 'linkedin',   label: 'LinkedIn',   href: '/connectors' },
+  { name: 'youtube',    label: 'YouTube',    href: '/connectors' },
+  { name: 'tiktok',     label: 'TikTok',     href: '/connectors' },
+  { name: 'messenger',  label: 'Messenger',  href: '/connectors' },
+  { name: 'discord',    label: 'Discord',    href: '/connectors' },
+  { name: 'spotify',    label: 'Spotify',    href: '/connectors' },
+  { name: 'snapchat',   label: 'Snapchat',   href: '/connectors' },
+  { name: 'reddit',     label: 'Reddit',     href: '/connectors' },
+  { name: 'whatsapp',   label: 'WhatsApp',   href: '/connectors' },
+  { name: 'twitch',     label: 'Twitch',     href: '/connectors' },
+  { name: 'pinterest',  label: 'Pinterest',  href: '/connectors' },
+  { name: 'soundcloud', label: 'SoundCloud', href: '/connectors' },
+  { name: 'dropbox',    label: 'Dropbox',    href: '/connectors' },
+  { name: 'figma',      label: 'Figma',      href: '/connectors' },
+  { name: 'medium',     label: 'Medium',     href: '/connectors' },
+];
 
 export default function LandingHero() {
   const messages = useMemo(
@@ -116,10 +139,10 @@ export default function LandingHero() {
                 z-20
               "
             >
-              <div className="relative rounded-2xl bg-white text-black px-4 py-3 shadow-2xl">
+              <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-4 py-3 shadow-2xl">
                 <div
                   className={[
-                    'text-sm font-medium leading-snug transition-opacity duration-200',
+                    'text-sm font-medium leading-snug text-white/90 transition-opacity duration-200',
                     fadeIn ? 'opacity-100' : 'opacity-0',
                   ].join(' ')}
                 >
@@ -133,7 +156,8 @@ export default function LandingHero() {
                     left-[-6px]
                     top-[22px]
                     w-3 h-3
-                    bg-white
+                    bg-white/10
+                    border-l border-b border-white/20
                     rotate-45
                   "
                 />
@@ -158,6 +182,33 @@ export default function LandingHero() {
             >
               About
             </Link>
+          </div>
+        </section>
+
+        {/* ── Icon strip: connect everything ── */}
+        <section className="w-full max-w-3xl mx-auto px-4 pb-10 text-center">
+          <p className="text-xs font-semibold tracking-[0.18em] uppercase text-white/35 mb-4">
+            Connect everything
+          </p>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: 12,
+            }}
+          >
+            {STRIP_ICONS.map(({ name, label, href }) => (
+              <Link
+                key={name}
+                href={href}
+                aria-label={`Connect ${label}`}
+                style={{ display: 'inline-block', borderRadius: 9999, outline: 'none' }}
+                className="opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:opacity-100 transition-opacity duration-150"
+              >
+                <SheetIcon name={name} size={44} ariaLabel={label} />
+              </Link>
+            ))}
           </div>
         </section>
       </div>
