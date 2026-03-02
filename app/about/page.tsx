@@ -104,6 +104,17 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-universe relative overflow-hidden">
+      {/* Hero team background */}
+      <div className="absolute inset-0 overflow-hidden opacity-20">
+        <Image
+          src="/images/HeroTEAMaI.PNG"
+          alt=""
+          fill
+          className="object-cover object-center"
+          aria-hidden="true"
+        />
+      </div>
+
       {/* Stars background */}
       <StarsBackground />
 
@@ -195,7 +206,7 @@ export default function AboutPage() {
               <div className="relative flex-shrink-0">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600/30 to-pink-500/20 blur-2xl scale-125" />
                 <Image
-                  src="/boogeyman-guardian.png"
+                  src="/images/Boogie1.PNG"
                   alt="Boogie — DREAMengin Safety Guardian"
                   width={120}
                   height={120}

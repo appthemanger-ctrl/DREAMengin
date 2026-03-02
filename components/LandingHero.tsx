@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
-import HeroSprite from './HeroSprite';
 import SheetIcon from './ui/SheetIcon';
 
 /** Social icons shown in the landing strip — top two rows of iconslist.png */
@@ -120,10 +120,13 @@ export default function LandingHero() {
 
           {/* character + bubble */}
           <div className="relative flex flex-col items-center">
-            <HeroSprite
+            <Image
+              src="/images/HEROSPRITE1.png"
+              alt="Dr. Eams"
               width={288}
               height={288}
-              className="h-56 w-56 sm:h-72 sm:w-72"
+              className="h-56 w-56 sm:h-72 sm:w-72 object-contain"
+              priority
             />
 
             {/* bubble (right side, attached) */}
