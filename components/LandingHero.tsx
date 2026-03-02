@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import HeroSprite from './HeroSprite';
-import SheetIcon from './ui/SheetIcon';
+import PlatformBadge from './ui/PlatformBadge';
 
 /** Social icons shown in the landing strip — top two rows of iconslist.png */
 const STRIP_ICONS: Array<{ name: string; label: string; href: string }> = [
@@ -203,10 +203,10 @@ export default function LandingHero() {
                 key={name}
                 href={href}
                 aria-label={`Connect ${label}`}
-                style={{ display: 'inline-block', borderRadius: 9999, outline: 'none' }}
+                style={{ display: 'inline-block', outline: 'none' }}
                 className="opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:opacity-100 transition-opacity duration-150"
               >
-                <SheetIcon name={name} size={44} ariaLabel={label} />
+                <PlatformBadge name={name} size={44} label={label} />
               </Link>
             ))}
           </div>

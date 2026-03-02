@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff, User, Globe, Share2 } from 'lucide-react';
+import PlatformBadge from '@/components/ui/PlatformBadge';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Profile – DREAMengin', description: 'Your private profile editor.' };
@@ -94,6 +95,19 @@ export default async function ProfileEditorPage() {
                 dreamengin.app/u/{handle}
               </span>
               <button type="button" className="de-btn de-btn-ghost" style={{ fontSize: 11, padding: '5px 10px', flexShrink: 0 }}>Copy</button>
+            </div>
+            {/* Share to social platforms */}
+            <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(160,195,240,0.18)', flexWrap: 'wrap' }}>
+              {[
+                { name: 'twitter',   label: 'Twitter' },
+                { name: 'instagram', label: 'Instagram' },
+                { name: 'facebook',  label: 'Facebook' },
+                { name: 'linkedin',  label: 'LinkedIn' },
+                { name: 'whatsapp',  label: 'WhatsApp' },
+                { name: 'discord',   label: 'Discord' },
+              ].map(({ name, label }) => (
+                <PlatformBadge key={name} name={name} size={36} label={label} />
+              ))}
             </div>
           </div>
         </div>

@@ -18,6 +18,7 @@ import {
   Twitter
 } from 'lucide-react';
 import { StarsBackground } from '@/components/StarsBackground';
+import PlatformBadge from '@/components/ui/PlatformBadge';
 
 export default function AboutPage() {
 
@@ -104,6 +105,17 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-universe relative overflow-hidden">
+      {/* Hero team background */}
+      <div className="absolute inset-0 overflow-hidden opacity-20">
+        <Image
+          src="/images/HeroTEAMaI.PNG"
+          alt=""
+          fill
+          className="object-cover object-center"
+          aria-hidden="true"
+        />
+      </div>
+
       {/* Stars background */}
       <StarsBackground />
 
@@ -195,7 +207,7 @@ export default function AboutPage() {
               <div className="relative flex-shrink-0">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600/30 to-pink-500/20 blur-2xl scale-125" />
                 <Image
-                  src="/boogeyman-guardian.png"
+                  src="/images/Boogie1.PNG"
                   alt="Boogie — DREAMengin Safety Guardian"
                   width={120}
                   height={120}
@@ -350,6 +362,32 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Connect Everything */}
+        <section className="mb-16 text-center">
+          <h2 className="text-2xl font-bold text-white mb-2">Connect Everything</h2>
+          <p className="text-white/60 mb-6 text-sm">Bring all your platforms into one dream.</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              { name: 'instagram',  label: 'Instagram'  },
+              { name: 'youtube',    label: 'YouTube'    },
+              { name: 'spotify',    label: 'Spotify'    },
+              { name: 'tiktok',     label: 'TikTok'     },
+              { name: 'discord',    label: 'Discord'    },
+              { name: 'twitch',     label: 'Twitch'     },
+              { name: 'soundcloud', label: 'SoundCloud' },
+              { name: 'reddit',     label: 'Reddit'     },
+              { name: 'figma',      label: 'Figma'      },
+              { name: 'dropbox',    label: 'Dropbox'    },
+            ].map(({ name, label }) => (
+              <Link key={name} href="/connectors" aria-label={`Connect ${label}`}
+                className="flex flex-col items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity">
+                <PlatformBadge name={name} size={48} label={label} />
+                <span className="text-[10px] text-white/50 font-medium">{label}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* CTA */}
         <section className="text-center">
           <h2 className="text-2xl font-bold text-white mb-4">Ready to Navigate the Dream?</h2>
@@ -373,7 +411,7 @@ export default function AboutPage() {
           </div>
           
           {/* Social Links */}
-          <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="flex items-center justify-center gap-3 mb-4">
             <a
               href="https://x.com/dreamenginx"
               target="_blank"
@@ -383,6 +421,8 @@ export default function AboutPage() {
               <Twitter className="w-4 h-4" />
               <span className="text-sm">Follow @dreamenginx</span>
             </a>
+            <PlatformBadge name="instagram" size={36} label="Instagram" />
+            <PlatformBadge name="tiktok"    size={36} label="TikTok"    />
           </div>
           
           <p className="text-sm text-white/40 flex items-center justify-center gap-1">
