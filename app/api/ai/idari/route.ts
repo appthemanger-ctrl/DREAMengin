@@ -1,6 +1,13 @@
 // app/api/ai/idari/route.ts
 // Admin-facing IDARi endpoint — diagnostics and builder AI.
 // Admin or owner only. AI keys are server-side only.
+//
+// Role restraint (docs/AI_TRIAD_PROTOCOL.md §4):
+//   IDARi cannot ban users or override Boogie enforcement.
+//   IDARi cannot change public policy text alone.
+//   IDARi can propose changes that affect policy surfaces — must trigger REQUEST_REVIEW to Boogie.
+//   System throttle actions (THROTTLE_SYSTEM, SHED_LOAD) are IDARi-exclusive.
+//   Role guard utility: lib/ai/events.ts → checkAgentPermission()
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';

@@ -71,6 +71,11 @@ Brand assets live in `/public/branding/` — do not modify without updating this
 - All AI keys are configured as **Vercel environment variables**, never committed.
 - IDARi and BoogieMan endpoints are admin-guarded even when `DEV_BYPASS_AUTH` is on.
 - Major system updates require unanimous triad approval (consensus gating) via `/admin`.
+- **[/policy/ai](/policy/ai)** — Public page: what each AI does, capability comparison, glossary.
+- **docs/AI_TRIAD_PROTOCOL.md** — Full triad protocol: roles, restraints, governance, event bus (source of truth).
+- **docs/POLICY_TRIAD_OVERVIEW.md** — Short public overview (mirrored at `/policy/ai`).
+- **docs/TERMS.md** — Shared vocabulary all agents must use.
+- **lib/ai/events.ts** — Canonical typed event schema for all inter-agent communication.
 - **docs/DR_EAMS.md** — Dr. Eams behavioral spec (100 requirements).
 - **BoogieMan full spec:** `docs/policy/theboogie.md` — versioned 100-rule policy (v1).
 
