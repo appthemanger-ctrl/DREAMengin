@@ -1,8 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import HeroSprite from './HeroSprite';
 
 export default function LandingHero() {
   const messages = useMemo(
@@ -97,13 +97,10 @@ export default function LandingHero() {
 
           {/* character + bubble */}
           <div className="relative flex flex-col items-center">
-            <Image
-              src="/IMG_3362.png"
-              alt="Dr. Eams"
-              width={320}
-              height={320}
-              priority
-              className="h-56 w-56 sm:h-72 sm:w-72 object-contain"
+            <HeroSprite
+              width={288}
+              height={288}
+              className="h-56 w-56 sm:h-72 sm:w-72"
             />
 
             {/* bubble (right side, attached) */}

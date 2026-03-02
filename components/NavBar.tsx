@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import type { User } from '@supabase/supabase-js';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -20,6 +19,7 @@ import {
 import ThemeToggle from './ThemeToggle';
 import NotificationCenter from './NotificationCenter';
 import DrEamsModeToggle from './DrEamsModeToggle';
+import BrandLogo from './BrandLogo';
 
 export default function NavBar({ user }: { user: User | null }) {
   const pathname = usePathname();
@@ -39,12 +39,10 @@ export default function NavBar({ user }: { user: User | null }) {
         <div className="flex justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0 flex items-center gap-2">
-            <Image 
-              src="/logo-icon.jpeg" 
-              alt="DREAMengin" 
-              width={40} 
+            <BrandLogo
+              width={40}
               height={40}
-              className="object-contain rounded-lg"
+              className="rounded-lg"
             />
             <span className="text-lg font-bold bg-gradient-to-r from-red-500 via-orange-400 to-blue-500 bg-clip-text text-transparent hidden sm:block tracking-tight">
               DREAMengin
