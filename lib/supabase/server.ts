@@ -3,6 +3,7 @@ import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/types/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { getSupabaseServiceRoleKey } from '@/lib/env/supabase'
 
 type DisabledSupabaseClient = {
   auth: {
@@ -23,7 +24,6 @@ type DisabledSupabaseClient = {
  */
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
 function isSupabaseConfigured() {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
@@ -80,13 +80,15 @@ export async function createServerClient(): Promise<SupabaseClient<Database>> {
 }
 
 export async function createServiceClient(): Promise<SupabaseClient<Database>> {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_URL) {
     throw new Error(
-      'Supabase service role is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.'
+      'Supabase service role is not configured. Set NEXT_PUBLIC_SUPABASE_URL.'
     )
   }
 
-  return createSupabaseServerClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  const serviceRoleKey = getSupabaseServiceRoleKey()
+
+  return createSupabaseServerClient<Database>(SUPABASE_URL, serviceRoleKey, {
     cookies: {
       getAll() {
         return []
