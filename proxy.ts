@@ -32,10 +32,14 @@ export async function proxy(request: NextRequest) {
   //    Creates a response that forwards all request cookies, calls
   //    getUser() to refresh the session, then writes updated auth
   //    cookies back onto the response before handing off.
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL;
   const supabaseAnonKey =
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    process.env.NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY;
 
   // If Supabase is not configured (e.g. local dev without .env.local),
   // skip session refresh and just continue.

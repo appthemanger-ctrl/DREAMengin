@@ -22,8 +22,16 @@ type DisabledSupabaseClient = {
  * - Does not crash builds when env vars are missing.
  * - When unconfigured, returns a "disabled" client that throws only when used.
  */
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL ||
+  ''
+const SUPABASE_ANON_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY ||
+  ''
 
 function isSupabaseConfigured() {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
@@ -56,7 +64,7 @@ function createDisabledClient(reason: string): SupabaseClient<Database> {
 export async function createServerClient(): Promise<SupabaseClient<Database>> {
   if (!isSupabaseConfigured()) {
     return createDisabledClient(
-      'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or legacy NEXT_PUBLIC_SUPABASE_ANON_KEY).'
+      'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL (or NEXT_PUBLIC_dreamengin_SUPABASE_URL) and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY / NEXT_PUBLIC_SUPABASE_ANON_KEY (or NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY / NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY).'
     )
   }
 
@@ -82,7 +90,7 @@ export async function createServerClient(): Promise<SupabaseClient<Database>> {
 export async function createServiceClient(): Promise<SupabaseClient<Database>> {
   if (!SUPABASE_URL) {
     throw new Error(
-      'Supabase service role is not configured. Set NEXT_PUBLIC_SUPABASE_URL.'
+      'Supabase service role is not configured. Set NEXT_PUBLIC_SUPABASE_URL (or NEXT_PUBLIC_dreamengin_SUPABASE_URL).'
     )
   }
 
