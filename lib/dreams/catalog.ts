@@ -21,7 +21,7 @@ export const DREAMS: Dream[] = [
   { id: 'connectors',    label: 'Connectors',     icon: '🔗', tag: 'Settings',  route: '/connectors'      },
   { id: 'feed-settings', label: 'Feed',           icon: '📡', tag: 'Settings',  route: '/feed-settings'   },
   { id: 'settings',      label: 'Settings',       icon: '⚙️', tag: 'Settings',  route: '/settings'        },
-  { id: 'profile',       label: 'Profile',        icon: '👤', tag: 'Social',    route: '/edit-profile'    },
+  { id: 'profile',       label: 'Profile',        icon: '👤', tag: 'Social',    route: '/profile'         },
   { id: 'messages',      label: 'Messages',       icon: '💬', tag: 'Social',    route: '/messages'        },
   { id: 'analytics',     label: 'Analytics',      icon: '📊', tag: 'Insights',  route: '/analytics'       },
   { id: 'dr-eams',       label: 'Dr. Eams',       icon: '◈',  tag: 'AI',        route: '/dr-eams'         },

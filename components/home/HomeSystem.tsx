@@ -20,6 +20,10 @@ type ProfileLike = {
 };
 
 type Face = 'home' | 'profile';
+const MENU_SPREAD_MIN = 36;
+const MENU_SPREAD_MAX = 56;
+const MENU_SPREAD_RATIO = 0.12;
+const MENU_EDGE_PADDING = 32;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function HomeSystem({ profile, userId: _userId, initialPosts: _initialPosts }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
@@ -51,7 +55,7 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
     closeAll();
     if (action === 'dr-eams')       { setDrEamsOpen(true); return; }
     if (action === 'settings')      { window.location.href = '/settings'; return; }
-    if (action === 'account')       { window.location.href = '/edit-profile'; return; }
+    if (action === 'account')       { window.location.href = '/profile'; return; }
     if (action === 'feed-settings') { window.location.href = '/feed-settings'; return; }
     if (action === 'connectors')    { window.location.href = '/connectors'; return; }
     if (action === 'go-home')       { returnHome(); return; }
@@ -169,9 +173,11 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
         onHome={returnHome}
         onOpenBothMenus={(anchor) => {
           const w = typeof window !== 'undefined' ? window.innerWidth : 390;
+          const spread = Math.max(MENU_SPREAD_MIN, Math.min(MENU_SPREAD_MAX, w * MENU_SPREAD_RATIO));
+          const clamp = (x: number) => Math.max(MENU_EDGE_PADDING, Math.min(w - MENU_EDGE_PADDING, x));
           setMenuAnchor(anchor);
-          setDreamAnchor({ x: w * 0.78, y: anchor.y });
-          setSystemAnchor({ x: w * 0.22, y: anchor.y });
+          setDreamAnchor({ x: clamp(anchor.x + spread), y: anchor.y });
+          setSystemAnchor({ x: clamp(anchor.x - spread), y: anchor.y });
           setBothOpen(true);
           setDreamMenuOpen(true);
           setSystemMenuOpen(true);
