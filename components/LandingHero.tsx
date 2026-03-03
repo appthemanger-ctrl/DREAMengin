@@ -30,16 +30,16 @@ const STRIP_ICONS: Array<{ name: string; label: string }> = [
 export default function LandingHero() {
   const messages = useMemo(
     () => [
-      "hey… you were about to open that tab again, weren’t you",
+      "hey… you were about to open that tab again, weren't you",
       "you paused there… deciding or pretending to decide",
       "you always scroll a little slower at night",
       "that idea you just had… yeah, keep that one",
-      "you don’t need to overthink this one",
-      "you already know what you’re gonna do",
+      "you don't need to overthink this one",
+      "you already know what you're gonna do",
       "you almost clicked something else just now",
       "you keep coming back to this for a reason",
-      "it’s fine… take your time",
-      "just start… it’s easier than you think",
+      "it's fine… take your time",
+      "just start… it's easier than you think",
     ],
     []
   );
@@ -72,39 +72,37 @@ export default function LandingHero() {
     return () => clearInterval(interval);
   }, [isValentine, messages.length]);
 
-  const bubbleText = isValentine ? '💜 Happy Valentine’s Day Dreamer 🌹' : messages[msgIndex];
+  const bubbleText = isValentine ? '💜 Happy Valentine\u2019s Day Dreamer 🌹' : messages[msgIndex];
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#070b16] text-white">
-      {/* background */}
-      <div className="absolute inset-0 dream-colorfield" />
-
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 h-full w-full object-cover opacity-[0.15]"
-      >
-        <source src="/videos/signup-bg.mp4" type="video/mp4" />
-      </video>
-
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a1020]/70 via-[#080d1b]/78 to-[#06090f]/90" />
+    <main className="relative min-h-screen overflow-hidden dream-bg">
+      {/* Radial glow accents */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background:
+            'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(42,138,184,0.22) 0%, transparent 70%),' +
+            'radial-gradient(ellipse 50% 40% at 90% 80%, rgba(200,152,26,0.12) 0%, transparent 65%)',
+        }}
+      />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8">
         {/* header */}
         <header className="flex items-center justify-between">
-          <div className="text-lg font-semibold tracking-wide">DREAMengin</div>
+          <div className="text-lg font-bold tracking-wide" style={{ color: 'var(--de-heading)' }}>
+            DREAMengin
+          </div>
           <div className="flex items-center gap-3">
             <Link
               href="/about"
-              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/85 backdrop-blur hover:bg-white/10"
+              className="de-btn de-btn-ghost text-sm"
             >
               About
             </Link>
             <Link
               href="/login"
-              className="min-h-11 rounded-xl bg-white px-4 py-2 text-sm font-medium text-black hover:opacity-95"
+              className="de-btn de-btn-primary text-sm"
             >
               Sign In
             </Link>
@@ -113,9 +111,9 @@ export default function LandingHero() {
 
         {/* content */}
         <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
-          {/* top line */}
-          <div className="rounded-full border border-white/20 bg-white/8 px-4 py-2 text-sm text-white/85 backdrop-blur">
-            Dr. Eams dreams of dreaming. You don’t have to.
+          {/* top badge */}
+          <div className="de-badge text-xs">
+            ✦ Easy to use · Premium design · Light blue &amp; gold
           </div>
 
           {/* character + bubble */}
@@ -139,58 +137,100 @@ export default function LandingHero() {
                 z-20
               "
             >
-              <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-4 py-3 shadow-2xl">
+              <div
+                className="relative rounded-2xl px-4 py-3 shadow-xl"
+                style={{
+                  background: 'var(--de-glass)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1px solid var(--de-border)',
+                }}
+              >
                 <div
                   className={[
-                    'text-sm font-medium leading-snug text-white/90 transition-opacity duration-200',
+                    'text-sm font-medium leading-snug transition-opacity duration-200',
                     fadeIn ? 'opacity-100' : 'opacity-0',
                   ].join(' ')}
+                  style={{ color: 'var(--de-text)' }}
                 >
                   {bubbleText}
                 </div>
 
                 {/* tail */}
                 <div
-                  className="
-                    absolute
-                    left-[-6px]
-                    top-[22px]
-                    w-3 h-3
-                    bg-white/10
-                    border-l border-b border-white/20
-                    rotate-45
-                  "
+                  className="absolute left-[-6px] top-[22px] w-3 h-3 rotate-45"
+                  style={{
+                    background: 'var(--de-glass)',
+                    borderLeft: '1px solid var(--de-border)',
+                    borderBottom: '1px solid var(--de-border)',
+                  }}
                 />
               </div>
             </div>
           </div>
 
-          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-            Navigate your digital world as layered dreams.
+          <h1
+            className="max-w-2xl text-4xl font-extrabold tracking-tight sm:text-5xl"
+            style={{ color: 'var(--de-heading)' }}
+          >
+            Your digital life as{' '}
+            <span
+              style={{
+                background: 'linear-gradient(90deg, var(--de-accent), var(--de-gold))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              layered dreams
+            </span>
+            .
           </h1>
+
+          <p className="max-w-lg text-base" style={{ color: 'var(--de-text-dim)' }}>
+            Widget-powered feed. 6 Daydreams (12 sides). Premium spatial design.
+            One place to create, connect, and never leave.
+          </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
               href="/join"
-              className="min-h-11 rounded-xl px-6 py-3 font-medium text-white hover:opacity-95"
-              style={{ background: 'var(--de-accent)' }}
+              className="de-btn de-btn-gold min-h-11 px-8 py-3 text-base font-bold"
             >
-              Get Started
+              ✦ Get Started Free
             </Link>
             <Link
               href="/about"
-              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10"
+              className="de-btn de-btn-ghost min-h-11 px-8 py-3 text-base"
             >
-              About
+              Learn More
             </Link>
           </div>
         </section>
 
-        {/* ── Icon strip: connect everything ── */}
+        {/* Feature pills */}
+        <section className="w-full max-w-3xl mx-auto pb-6">
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {[
+              '⌂ Widget Feed',
+              '◉ 6 Daydreams',
+              '✦ Premium Design',
+              '🎵 Music Integration',
+              '🔒 Privacy-First',
+              '🤖 AI-Powered',
+            ].map((pill) => (
+              <span
+                key={pill}
+                className="de-badge text-xs"
+              >
+                {pill}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* Icon strip: connect everything */}
         <section className="w-full max-w-3xl mx-auto px-4 pb-10 text-center">
-          <p className="text-xs font-semibold tracking-[0.18em] uppercase text-white/35 mb-4">
-            Connect everything
-          </p>
+          <p className="de-tag mb-4">Connect everything</p>
           <div
             style={{
               display: 'flex',
@@ -205,7 +245,7 @@ export default function LandingHero() {
                 href="/join"
                 aria-label={`Connect ${label}`}
                 style={{ display: 'inline-block', outline: 'none' }}
-                className="opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:opacity-100 transition-opacity duration-150"
+                className="opacity-75 hover:opacity-100 focus-visible:ring-2 focus-visible:opacity-100 transition-opacity duration-150"
               >
                 <PlatformBadge name={name} size={44} label={label} />
               </Link>

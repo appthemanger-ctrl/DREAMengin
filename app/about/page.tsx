@@ -24,68 +24,68 @@ export default function AboutPage() {
 
   const features = [
     {
-      icon: ShieldCheck,
-      title: 'Privacy-First',
-      description: 'Your data belongs to you. End-to-end encryption, no tracking, no selling your info. We built DreamEngin to respect your privacy at every level.',
-      color: 'from-emerald-400 to-teal-500',
-    },
-    {
-      icon: BrainCircuit,
-      title: 'AI-Powered Tools',
-      description: 'Inner Dreams AI helps you create, organize, and explore. Get intelligent suggestions, automate tasks, and unlock your creative potential.',
-      color: 'from-blue-400 to-cyan-500',
-    },
-    {
-      icon: Globe,
-      title: 'Social Connections',
-      description: 'Discover and connect with creators who share your passions. Follow, message, collaborate, and build your community.',
+      icon: LayoutDashboard,
+      title: 'Widget-Powered Feed',
+      description: 'Dreams are widgets — live mini-apps that power your personal feed. Each widget is an interactive piece of your digital life, not just a static card.',
       color: 'from-sky-400 to-blue-500',
     },
     {
-      icon: Music2,
-      title: 'Music Integration',
-      description: 'Share your music, embed tracks from YouTube and Spotify, and showcase your sound. Perfect for artists, producers, and music lovers.',
+      icon: Sparkles,
+      title: '6 Daydreams (12 Sides)',
+      description: 'Six specialized permanent Daydreams — Analytics, Brand, Games, Vault, Music, and Play — each with a Side A and Side B for double the depth.',
+      color: 'from-amber-400 to-yellow-400',
+    },
+    {
+      icon: BrainCircuit,
+      title: 'AI Triad',
+      description: 'Dr. Eams guides you, Boogie keeps the platform safe, and Idari keeps the engine alive. Three AIs working in concert so you never hit a wall.',
+      color: 'from-blue-400 to-cyan-500',
+    },
+    {
+      icon: CircleUser,
+      title: 'Profile as Widget Canvas',
+      description: 'Your profile is itself a widget that can hold other widgets. Any widget you pin to your profile becomes part of your public page — instantly.',
       color: 'from-violet-400 to-purple-500',
     },
     {
-      icon: FlaskConical,
-      title: 'Creative Labs',
-      description: 'Build and share interactive experiments. Physics simulations, data visualizations, AI projects — your playground for innovation.',
-      color: 'from-amber-400 to-orange-500',
+      icon: ShieldCheck,
+      title: 'Privacy-First',
+      description: 'Your data belongs to you. End-to-end encryption, no tracking, no selling your info. Granular controls on everything you publish.',
+      color: 'from-emerald-400 to-teal-500',
     },
     {
       icon: Store,
-      title: 'Merch Shop',
-      description: 'Sell your creations directly to your audience. Set up your store, list items, and earn from your work — all within the platform.',
+      title: 'Creator Economy',
+      description: 'Sell widgets, beats, merch, and lab experiments natively. Set up your storefront once, earn across every space you inhabit.',
       color: 'from-rose-400 to-pink-500',
     },
   ];
 
   const navigationPrinciples = [
     {
-      title: 'Spatial Navigation',
-      description: 'Home, Profile, Feed, Messages, Marketplace, Lab, Music, Social Hub, and Settings live on a continuous plane.',
+      title: 'Golden Button Navigation',
+      description: 'Tap the floating gold button to go Home. Hold for the full menu. Drag it anywhere on screen — it remembers where you left it.',
     },
     {
-      title: 'Infinite Loop',
-      description: 'Left meets right, up meets down, and zooming cycles layers so every direction eventually returns home.',
+      title: 'Widget Canvas',
+      description: 'Your Home and Profile are canvases. Drop any Dream widget in — it lives there, interactive, always on. Your profile canvas is public.',
     },
     {
-      title: 'Home Anchor ∞',
-      description: 'Long press the logo, hold with haptics, or zoom out fully to snap back to the Home anchor.',
+      title: '6 Daydreams (12 Sides)',
+      description: 'Six permanent specialized spaces: Analytics, Brand, Games, Media Vault, Music, and Play. Every Daydream has a Side A and a Side B.',
     },
   ];
 
   const spaces = [
-    { name: 'Home',        path: '/home',       icon: Sparkles,       description: 'The gravitational center — Home Dreams and instant recall.' },
-    { name: 'Profile',     path: '/profile/me', icon: CircleUser,     description: 'Living dashboards that morph from Home with public permissions.' },
-    { name: 'Feed',        path: '/home',       icon: LayoutDashboard,description: 'Personal, social, widget, and AI-generated content.' },
-    { name: 'Messages',    path: '/messages',   icon: MessageSquare,  description: 'Direct conversations and system signals layered into the plane.' },
+    { name: 'Home',        path: '/home',       icon: Sparkles,       description: 'Widget canvas and feed — your gravitational center.' },
+    { name: 'Profile',     path: '/profile',    icon: CircleUser,     description: 'Widget canvas that doubles as your public profile page.' },
+    { name: 'Feed',        path: '/home',       icon: LayoutDashboard,description: 'Dreams-powered feed: personal, social, widget, and AI content.' },
+    { name: 'Messages',    path: '/messages',   icon: MessageSquare,  description: 'Direct conversations and system signals.' },
     { name: 'Marketplace', path: '/shop',       icon: Store,          description: 'Sell widgets, beats, workflows, and creator goods natively.' },
     { name: 'Lab',         path: '/lab',        icon: FlaskConical,   description: 'Experiments, simulations, and research tools.' },
-    { name: 'Music',       path: '/music',      icon: Music2,         description: 'Recording, sharing, and collaboration spaces for sound.' },
+    { name: 'Music',       path: '/music',      icon: Music2,         description: 'Recording, sharing, and collaboration for sound creators.' },
     { name: 'Social Hub',  path: '/discover',   icon: Globe,          description: 'Community clusters, discovery loops, and shared spaces.' },
-    { name: 'Settings',    path: '/settings',   icon: Settings2,      description: 'System layer for privacy, security, and personalization.' },
+    { name: 'Settings',    path: '/settings',   icon: Settings2,      description: 'Privacy, security, and personalization controls.' },
   ];
 
   return (
@@ -131,14 +131,14 @@ export default function AboutPage() {
           <div>
             <div className="de-badge mb-3">
               <Sparkles className="w-3 h-3" />
-              Social Media Hub
+              Widget-Powered Creative Platform
             </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold mb-4" style={{ color: 'var(--de-heading)', letterSpacing: '-0.02em' }}>
               Welcome to{' '}
-              <span style={{ color: 'var(--de-accent)' }}>DreamEngin</span>
+              <span style={{ color: 'var(--de-accent)' }}>DREAMengin</span>
             </h1>
             <p className="text-base sm:text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--de-text-dim)' }}>
-              A living interface system that turns your digital life into a navigable universe — one place to create, connect, and never have to leave.
+              A premium, easy-to-use platform where your digital life becomes a navigable universe of widget-powered dreams — light blue and gold, always yours.
             </p>
           </div>
         </section>
@@ -202,7 +202,7 @@ export default function AboutPage() {
         <section>
           <div className="de-tag text-center mb-6">Core Features</div>
           <h2 className="text-2xl font-bold text-center mb-6" style={{ color: 'var(--de-heading)' }}>
-            What Makes Us Different
+            What Makes DREAMengin Different
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {features.map((feature) => (
@@ -223,7 +223,7 @@ export default function AboutPage() {
         <section>
           <div className="de-tag text-center mb-6">How It Works</div>
           <h2 className="text-2xl font-bold text-center mb-6" style={{ color: 'var(--de-heading)' }}>
-            Unified Navigation
+            How DREAMengin Works
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {navigationPrinciples.map((p) => (
@@ -337,7 +337,7 @@ export default function AboutPage() {
           <div className="flex items-center justify-center gap-2 mb-4">
             <Image src="/images/logo1.PNG" alt="DREAMengin" width={32} height={32}
               className="rounded-lg object-contain" />
-            <span className="font-bold" style={{ color: 'var(--de-heading)' }}>DreamEngin</span>
+            <span className="font-bold" style={{ color: 'var(--de-heading)' }}>DREAMengin</span>
           </div>
           <div className="flex items-center justify-center gap-3 mb-4">
             <a href="https://x.com/dreamenginx" target="_blank" rel="noopener noreferrer"

@@ -1,6 +1,15 @@
 # DREAMengin (Authoritative Spec + Implementation)
 
-DREAMengin is a spatial, gesture-driven creative platform built on **Next.js (App Router)** + **Supabase**.
+DREAMengin is a **premium, easy-to-use widget-powered creative platform** built on **Next.js (App Router)** + **Supabase**.
+
+The design language is **light blue and gold gradients** — Dream Ice palette. Every space is a canvas, every piece of content is a Dream widget.
+
+### Core product concepts
+
+- **Widget (Dream) Feed** — Your Home and Profile are widget canvases. Every Dream is a live mini-app that powers the feed.
+- **6 Daydreams (12 sides)** — Six specialized permanent spaces: Analytics, Brand, Games, Media Vault, Music, and Play. Each has a Side A and Side B.
+- **Profile as widget canvas** — Your Profile page is a widget canvas. Widgets pinned there appear on your public profile page (`/u/[handle]`).
+- **Golden Button** — The single floating gold button is the primary navigation. Tap = Home, hold = full menu.
 
 This repo is **spec-governed**. The documents in `/docs` are **not suggestions** — they are binding constraints on implementation.
 
@@ -20,8 +29,11 @@ If code conflicts with these docs, **code must change**.
 
 - The user is always conceptually inside **Home (node 0)**.
 - Navigation is **τ-only** (state transitions), not a traditional site nav model.
-- **Day Dreams** are protected: they are full-powered mini-apps.
-- The **Golden Button** (two floating buttons, Blue + Gold) is the **primary travel system**. Traditional nav bar links are disabled.
+- **Dreams** are widgets — live mini-apps that power the feed. The feed is widget-powered.
+- **Daydreams** are protected specialized spaces: 6 permanent Daydreams × 2 sides = 12 total. Full-powered mini-apps.
+- **Profile** is a widget canvas — widgets placed on your profile are visible on your public profile at `/u/[handle]`.
+- The **Golden Button** (floating gold button) is the **primary travel system**. Traditional nav bar links are disabled for signed-in users.
+- The landing page (`/`) uses the **Dream Ice** theme: light blue and gold gradients. No dark theme on the public-facing landing.
 
 ## Golden Button (Home Controls)
 
