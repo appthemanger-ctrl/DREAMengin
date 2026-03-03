@@ -9,7 +9,17 @@ const WORDS = ['dream','code','music','create','build','launch','design','brand'
 type Phase = 'menu'|'play'|'pause'|'end';
 type SavedState = { score: number; best: number; gamesPlayed: number };
 
-export default function PlayFace({ onExit }: { onExit?: () => void }) {
+interface PlayFaceProps {
+  onExit?: () => void;
+  /** Called with true when a game session starts (play/pause), false when it ends (menu/end). */
+  onActiveChange?: (active: boolean) => void;
+  /** Increment to trigger an external pause (e.g. from the game home button single tap). */
+  externalPauseSignal?: number;
+  /** Increment to open the in-game menu overlay (e.g. from the game home button double tap). */
+  externalMenuSignal?: number;
+}
+
+export default function PlayFace({ onExit, onActiveChange, externalPauseSignal = 0, externalMenuSignal = 0 }: PlayFaceProps) {
   const [phase,    setPhase]    = useState<Phase>('menu');
   const [wordList, setWordList] = useState<string[]>([]);
   const [current,  setCurrent]  = useState(0);
@@ -20,12 +30,38 @@ export default function PlayFace({ onExit }: { onExit?: () => void }) {
   const [saved,    setSaved]    = useState<SavedState>({score:0,best:0,gamesPlayed:0});
   const [audioVol, setAudioVol] = useState(80);
   const [showSettings,setShowSettings] = useState(false);
+  const [showGameMenu, setShowGameMenu] = useState(false);
   const [fps,      setFps]      = useState(60);
   const [fpsVisible,setFpsVis] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval>|null>(null);
   const fpsRef   = useRef<ReturnType<typeof setInterval>|null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const frameCount = useRef(0);
+
+  // Notify parent when game session becomes active/inactive.
+  useEffect(() => {
+    const active = phase === 'play' || phase === 'pause';
+    onActiveChange?.(active);
+  }, [phase, onActiveChange]);
+
+  // External pause signal from the game home button (single tap).
+  const prevPauseSignal = useRef(externalPauseSignal);
+  useEffect(() => {
+    if (externalPauseSignal !== prevPauseSignal.current) {
+      prevPauseSignal.current = externalPauseSignal;
+      if (phase === 'play') pauseGame();
+    }
+  }, [externalPauseSignal, phase]);
+
+  // External menu signal from the game home button (double tap).
+  const prevMenuSignal = useRef(externalMenuSignal);
+  useEffect(() => {
+    if (externalMenuSignal !== prevMenuSignal.current) {
+      prevMenuSignal.current = externalMenuSignal;
+      if (phase === 'play') pauseGame();
+      setShowGameMenu(true);
+    }
+  }, [externalMenuSignal, phase]);
 
 
 
@@ -107,6 +143,42 @@ export default function PlayFace({ onExit }: { onExit?: () => void }) {
   if (phase==='play'||phase==='pause') {
     return (
       <div style={{minHeight:'calc(100dvh - 52px)',background:'#020818',display:'flex',flexDirection:'column',position:'relative'}}>
+        {/* Game Menu overlay — triggered by double-tap on the game home button */}
+        {showGameMenu && (
+          <div
+            style={{position:'absolute',inset:0,zIndex:50,display:'flex',alignItems:'center',justifyContent:'center',
+              background:'rgba(0,0,0,0.6)',backdropFilter:'blur(6px)'}}
+            onClick={()=>setShowGameMenu(false)}
+          >
+            <div
+              style={{width:'min(22rem,92vw)',borderRadius:24,border:'1px solid rgba(255,255,255,0.15)',
+                background:'rgba(2,8,24,0.95)',padding:20,color:'#fff',boxShadow:'0 16px 48px rgba(0,0,0,0.5)'}}
+              onClick={e=>e.stopPropagation()}
+            >
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:'0.14em',textTransform:'uppercase',
+                color:'rgba(160,185,255,0.45)',marginBottom:12}}>Game Menu</div>
+              <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                {[
+                  ['▶ Resume', ()=>{setShowGameMenu(false);resumeGame();}],
+                  ['↺ Restart', ()=>{setShowGameMenu(false);startGame();}],
+                  ['⚙ Settings', ()=>{setShowGameMenu(false);setShowSettings(v=>!v);}],
+                  ['← Exit Game', ()=>{setShowGameMenu(false);if(timerRef.current)clearInterval(timerRef.current);setPhase('menu');}],
+                ] .map(([label, action])=>(
+                  <button
+                    key={label as string}
+                    type="button"
+                    onClick={action as ()=>void}
+                    style={{width:'100%',minHeight:44,borderRadius:16,padding:'8px 12px',textAlign:'left',
+                      fontSize:13,fontWeight:700,cursor:'pointer',background:'transparent',
+                      border:'1px solid rgba(100,150,255,0.1)',color:'rgba(220,235,255,0.9)'}}
+                  >
+                    {label as string}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         {/* HUD — sticky top */}
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',
           padding:'8px 14px',borderBottom:'1px solid rgba(100,150,255,0.1)',

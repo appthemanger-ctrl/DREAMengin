@@ -76,3 +76,17 @@ export function openBothMenus(): MenuState {
 export function closeAllMenus(): MenuState {
   return { dreamsOpen: false, systemOpen: false };
 }
+
+/**
+ * Game Home Button — in-game overlay of the shell's ⌂ home button.
+ *
+ * While a game is in play/pause mode the shell hides its real home link
+ * and renders a GameHomeButton in the same spot. Tapping that button:
+ *   • single tap → pause-game
+ *   • double tap → open-game-menu  (which contains the exit route)
+ */
+export type GameHomeButtonAction = 'pause-game' | 'open-game-menu';
+
+export function resolveGameHomeTap(tap: TapKind): GameHomeButtonAction {
+  return tap === 'double' ? 'open-game-menu' : 'pause-game';
+}
