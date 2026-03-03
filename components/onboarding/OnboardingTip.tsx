@@ -47,10 +47,10 @@ export default function OnboardingTip() {
         <span style={{ fontSize: 20 }}>💡</span>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>
-            Tip: Access system menus
+            Tip: Access menus
           </div>
           <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
-            Double-tap the home control to unlock NAV mode and access the System &amp; Daydreams menus.
+            Hold the Golden Button to open the menu. Tap it anytime to return home.
           </div>
         </div>
         <button
