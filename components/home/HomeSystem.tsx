@@ -20,6 +20,10 @@ type ProfileLike = {
 };
 
 type Face = 'home' | 'profile';
+const MENU_SPREAD_MIN = 36;
+const MENU_SPREAD_MAX = 56;
+const MENU_SPREAD_RATIO = 0.12;
+const MENU_EDGE_PADDING = 32;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function HomeSystem({ profile, userId: _userId, initialPosts: _initialPosts }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
@@ -169,8 +173,8 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
         onHome={returnHome}
         onOpenBothMenus={(anchor) => {
           const w = typeof window !== 'undefined' ? window.innerWidth : 390;
-          const spread = Math.max(36, Math.min(56, w * 0.12));
-          const clamp = (x: number) => Math.max(32, Math.min(w - 32, x));
+          const spread = Math.max(MENU_SPREAD_MIN, Math.min(MENU_SPREAD_MAX, w * MENU_SPREAD_RATIO));
+          const clamp = (x: number) => Math.max(MENU_EDGE_PADDING, Math.min(w - MENU_EDGE_PADDING, x));
           setMenuAnchor(anchor);
           setDreamAnchor({ x: clamp(anchor.x + spread), y: anchor.y });
           setSystemAnchor({ x: clamp(anchor.x - spread), y: anchor.y });

@@ -79,6 +79,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
         }),
       });
       const data = await res.json().catch(() => ({}));
+      // Supports both triad (/run => response_text) and legacy (/hf => reply/error) payload keys.
       const reply =
         (data && typeof data.response_text === 'string' && data.response_text) ||
         (data && typeof data.reply === 'string' && data.reply) ||
