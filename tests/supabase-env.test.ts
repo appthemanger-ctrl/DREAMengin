@@ -23,6 +23,7 @@ afterEach(() => {
 describe('getSupabasePublicEnv', () => {
   it('throws when both public vars are absent', async () => {
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     const { getSupabasePublicEnv } = await import('@/lib/env/supabase');
     expect(() => getSupabasePublicEnv()).toThrow(/NEXT_PUBLIC_SUPABASE_URL/);
@@ -30,6 +31,7 @@ describe('getSupabasePublicEnv', () => {
 
   it('throws when only URL is set', async () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     const { getSupabasePublicEnv } = await import('@/lib/env/supabase');
     expect(() => getSupabasePublicEnv()).toThrow(/NEXT_PUBLIC_SUPABASE_ANON_KEY/);
@@ -49,6 +51,30 @@ describe('getSupabasePublicEnv', () => {
     expect(getSupabasePublicEnv()).toEqual({
       url: 'https://example.supabase.co',
       anonKey: 'anon-key',
+    });
+  });
+
+  it('uses publishable key when set', async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = 'publishable-key';
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const { getSupabasePublicEnv } = await import('@/lib/env/supabase');
+    expect(getSupabasePublicEnv()).toEqual({
+      url: 'https://example.supabase.co',
+      anonKey: 'publishable-key',
+    });
+  });
+
+  it('falls back to namespaced NEXT_PUBLIC vars', async () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY = 'namespaced-publishable-key';
+    const { getSupabasePublicEnv } = await import('@/lib/env/supabase');
+    expect(getSupabasePublicEnv()).toEqual({
+      url: 'https://example.supabase.co',
+      anonKey: 'namespaced-publishable-key',
     });
   });
 });

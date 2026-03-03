@@ -19,16 +19,28 @@ export async function GET() {
   // - It only reports whether expected config exists
 
   // Check if at least one of the publishable keys is set
-  const hasPublishableKey = !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  const hasLegacyKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const hasPublishableKey =
+    !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    !!process.env.NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY;
+  const hasLegacyKey =
+    !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    !!process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY;
   const hasAnyKey = hasPublishableKey || hasLegacyKey;
+  const hasUrl =
+    !!process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !!process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL;
 
   const checks: Check[] = [
-    envCheck('NEXT_PUBLIC_SUPABASE_URL', 'Set this in Vercel → Project → Settings → Environment Variables.'),
     {
-      key: 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY',
+      key: 'NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_dreamengin_SUPABASE_URL',
+      ok: hasUrl,
+      hint: hasUrl ? undefined : 'Set NEXT_PUBLIC_SUPABASE_URL (or NEXT_PUBLIC_dreamengin_SUPABASE_URL) in Vercel → Project → Settings → Environment Variables.',
+      required: true,
+    },
+    {
+      key: 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY (including NEXT_PUBLIC_dreamengin_* variants)',
       ok: hasAnyKey,
-      hint: hasAnyKey ? undefined : 'Set NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (preferred) or NEXT_PUBLIC_SUPABASE_ANON_KEY (legacy).',
+      hint: hasAnyKey ? undefined : 'Set NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (preferred) or NEXT_PUBLIC_SUPABASE_ANON_KEY (legacy), including NEXT_PUBLIC_dreamengin_* variants if provided by integration.',
       note: hasPublishableKey 
         ? 'Using preferred NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY' 
         : hasLegacyKey 
