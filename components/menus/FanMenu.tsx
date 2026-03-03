@@ -80,10 +80,10 @@ export default function FanMenu({ open, items, anchorX, anchorY, accent = 'gold'
 
   if (side === 'left') {
     // Forced left — fan up-left arc (used when both menus open simultaneously)
-    startDeg = -175; endDeg = -95; radius = 104;
+    startDeg = -200; endDeg = -90; radius = 94;
   } else if (side === 'right') {
     // Forced right — fan up-right arc
-    startDeg = -85; endDeg = -5; radius = 104;
+    startDeg = -90; endDeg = 20; radius = 94;
   } else if (isNearLeft) {
     // Left side → fan up-right from ~-140° to ~-10°
     startDeg = -140; endDeg = -10; radius = 88;

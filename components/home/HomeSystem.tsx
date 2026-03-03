@@ -51,7 +51,7 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
     closeAll();
     if (action === 'dr-eams')       { setDrEamsOpen(true); return; }
     if (action === 'settings')      { window.location.href = '/settings'; return; }
-    if (action === 'account')       { window.location.href = '/edit-profile'; return; }
+    if (action === 'account')       { window.location.href = '/profile'; return; }
     if (action === 'feed-settings') { window.location.href = '/feed-settings'; return; }
     if (action === 'connectors')    { window.location.href = '/connectors'; return; }
     if (action === 'go-home')       { returnHome(); return; }
@@ -169,9 +169,11 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
         onHome={returnHome}
         onOpenBothMenus={(anchor) => {
           const w = typeof window !== 'undefined' ? window.innerWidth : 390;
+          const spread = Math.max(36, Math.min(56, w * 0.12));
+          const clamp = (x: number) => Math.max(32, Math.min(w - 32, x));
           setMenuAnchor(anchor);
-          setDreamAnchor({ x: w * 0.78, y: anchor.y });
-          setSystemAnchor({ x: w * 0.22, y: anchor.y });
+          setDreamAnchor({ x: clamp(anchor.x + spread), y: anchor.y });
+          setSystemAnchor({ x: clamp(anchor.x - spread), y: anchor.y });
           setBothOpen(true);
           setDreamMenuOpen(true);
           setSystemMenuOpen(true);

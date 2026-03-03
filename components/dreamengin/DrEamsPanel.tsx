@@ -67,13 +67,20 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
     }
     setLoading(true);
     try {
-      const res = await fetch('/api/dr-eams/hf', {
+      const res = await fetch('/api/dr-eams/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({
+          message: text,
+          ui: {
+            route: typeof window !== 'undefined' ? window.location.pathname : '/home',
+            nav: { overlay: 'HOME_MENU' },
+          },
+        }),
       });
       const data = await res.json().catch(() => ({}));
       const reply =
+        (data && typeof data.response_text === 'string' && data.response_text) ||
         (data && typeof data.reply === 'string' && data.reply) ||
         (data && typeof data.error === 'string' && `${data.error}${data.hint ? ` — ${data.hint}` : ''}`) ||
         'No response.';
