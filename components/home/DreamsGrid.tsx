@@ -1,3 +1,7 @@
+// DO NOT USE in primary Home flow — legacy launcher grid (tiny-tile pattern).
+// Home is a TV feed experience; use DreamCardLarge rows instead.
+// See docs/HOME_FEED_TV_SPEC.md §4 and docs/PRIMARY_FLOW.md §"Components to Dead-End".
+// CI tripwire scripts/check-home-launcher-grid.mjs enforces this.
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';

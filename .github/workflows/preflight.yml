@@ -33,6 +33,19 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: "Tripwire: no spatial-nav imports in primary Home"
+        run: node scripts/check-primary-home.mjs
+
+      - name: "Tripwire: no nav-mode strings in user-facing files"
+        run: node scripts/check-navmode-strings.mjs
+
+      - name: "Tripwire: Golden Button mounted in exactly one place"
+        run: node scripts/check-golden-mount.mjs
+
+      - name: "Tripwire: no launcher grid in primary Home (known regression — Plan A fix)"
+        continue-on-error: true
+        run: node scripts/check-home-launcher-grid.mjs
+
       - name: Placeholder scan (ellipsis / TODO)
         run: |
           set -e

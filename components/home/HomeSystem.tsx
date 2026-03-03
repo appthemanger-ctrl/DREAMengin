@@ -1,3 +1,7 @@
+// PRIMARY_HOME_COMPONENT
+// This is the canonical entry point for the signed-in Home experience.
+// All Home UI changes must be made here. Do not create alternative Home components.
+// See docs/PRIMARY_FLOW.md and docs/HOME_FEED_TV_SPEC.md for constraints.
 'use client';
 
 import React, { useCallback, useState } from 'react';
