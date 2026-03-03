@@ -10,6 +10,8 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onSelectNode?: (node: string) => void;
+  /** Called when a daydream is accessed so it becomes an active feed source */
+  onActivateDream?: (dreamId: string) => void;
   anchorX: number;
   anchorY: number;
   side?: 'left' | 'right';
@@ -27,7 +29,7 @@ const DREAM_ITEMS = [
   { id: 'shop',        label: 'Shop',        icon: <Package size={22} />,      route: '/shop'            },
 ];
 
-export default function DreamRadialMenu({ open, onClose, onSelectNode, anchorX, anchorY, side }: Props) {
+export default function DreamRadialMenu({ open, onClose, onSelectNode, onActivateDream, anchorX, anchorY, side }: Props) {
   const router = useRouter();
 
   const items: MenuItem[] = DREAM_ITEMS.map((item) => ({
@@ -37,6 +39,7 @@ export default function DreamRadialMenu({ open, onClose, onSelectNode, anchorX, 
     onSelect: () => {
       onClose();
       if (onSelectNode) onSelectNode(item.id);
+      if (onActivateDream) onActivateDream(item.id);
       router.push(item.route);
     },
   }));

@@ -182,7 +182,7 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
 
       <DreamRadialMenu open={dreamMenuOpen} onClose={() => { setDreamMenuOpen(false); setBothOpen(false); }}
         anchorX={bothOpen ? dreamAnchor.x : menuAnchor.x} anchorY={bothOpen ? dreamAnchor.y : menuAnchor.y}
-        side={bothOpen ? 'right' : undefined} onSelectNode={closeAll} />
+        side={bothOpen ? 'right' : undefined} onSelectNode={closeAll} onActivateDream={toggleDream} />
 
       <SystemRadialMenu open={systemMenuOpen} onClose={() => { setSystemMenuOpen(false); setBothOpen(false); }}
         anchorX={bothOpen ? systemAnchor.x : menuAnchor.x} anchorY={bothOpen ? systemAnchor.y : menuAnchor.y}

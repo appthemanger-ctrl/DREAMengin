@@ -10,18 +10,19 @@ import { v4 as uuidv4 } from 'uuid';
 
 const OWNER_EMAIL_DEFAULT = 'appthemanger@gmail.com';
 
+// All models are resolved at call time so env overrides take effect without rebuild.
 export const AI_MODELS = {
-  // User-facing agent
-  EAMS_PRIMARY: 'meta-llama/llama-4-scout-17b-16e-instruct',
+  // User-facing agent — override with AI_MODEL_EAMS env var
+  get EAMS_PRIMARY() { return process.env.AI_MODEL_EAMS ?? 'meta-llama/llama-4-scout-17b-16e-instruct'; },
   EAMS_FALLBACK: 'llama-3.3-70b-versatile',
 
-  // Builder / maintainer
-  IDARI_PRIMARY: 'moonshotai/kimi-k2-instruct-0905',
-  IDARI_FALLBACK: 'openai/gpt-oss-120b',
+  // Builder / maintainer — override with AI_MODEL_IDARI env var
+  get IDARI_PRIMARY() { return process.env.AI_MODEL_IDARI ?? 'moonshotai/kimi-k2-instruct-0905'; },
+  IDARI_FALLBACK: 'llama-3.3-70b-versatile',
 
-  // Policy / safety
-  BOOGIE: 'openai/gpt-oss-safeguard-20b',
-} as const;
+  // Policy / safety — override with AI_MODEL_BOOGIEMAN env var
+  get BOOGIE() { return process.env.AI_MODEL_BOOGIEMAN ?? 'llama-guard-3-8b'; },
+};
 
 export function getOwnerEmail(): string {
   return process.env.OWNER_EMAIL || OWNER_EMAIL_DEFAULT;

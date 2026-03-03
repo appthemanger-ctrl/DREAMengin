@@ -8,8 +8,8 @@ const ACTIVE_KEY = 'dreamengin:dreams:active';
 function loadActive(): Set<string> {
   try {
     const raw = localStorage.getItem(ACTIVE_KEY);
-    return raw ? new Set(JSON.parse(raw) as string[]) : new Set(['news']);
-  } catch { return new Set(['news']); }
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
+  } catch { return new Set(); }
 }
 
 export function saveActive(ids: Set<string>) {
@@ -68,8 +68,8 @@ const CONNECTORS: Record<string, () => Promise<FeedItem[]>> = {
 
 export function useDreamFeed() {
   const [items, setItems] = useState<FeedItem[]>([]);
-  const [active, setActiveState] = useState<Set<string>>(new Set(['news']));
-  const [loading, setLoading] = useState(true);
+  const [active, setActiveState] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refresh = useCallback(async (ids: Set<string>) => {
@@ -86,9 +86,13 @@ export function useDreamFeed() {
   useEffect(() => {
     const ids = loadActive();
     setActiveState(ids);
-    void refresh(ids);
-    // Auto-refresh news every 5 minutes
-    timerRef.current = setInterval(() => { void refresh(ids); }, 5 * 60_000);
+    if (ids.size > 0) {
+      void refresh(ids);
+      // Auto-refresh active dreams every 5 minutes
+      timerRef.current = setInterval(() => { void refresh(ids); }, 5 * 60_000);
+    } else {
+      setLoading(false);
+    }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [refresh]);
 
