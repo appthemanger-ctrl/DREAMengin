@@ -14,6 +14,8 @@ type Props = {
   faceA: React.ReactNode;
   faceB: React.ReactNode;
   accent?: string;
+  /** When provided, replaces the real ⌂ home link (e.g. while a game is active). */
+  gameHomeButton?: React.ReactNode;
 };
 
 export default function DayDreamShell({
@@ -25,6 +27,7 @@ export default function DayDreamShell({
   faceA,
   faceB,
   accent = '#6366f1',
+  gameHomeButton,
 }: Props) {
   const [face, setFace] = useState<DayDreamFace>('a');
 
@@ -38,14 +41,16 @@ export default function DayDreamShell({
         borderBottom: '1px solid rgba(100,150,255,0.1)',
         display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px', height: 52,
       }}>
-        {/* Back to Home */}
-        <Link href="/home" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(100,150,255,0.1)', border: '1px solid rgba(100,150,255,0.2)',
-            fontSize: 14, color: 'rgba(160,185,255,0.7)',
-          }}>⌂</div>
-        </Link>
+        {/* Back to Home — replaced by GameHomeButton while a game is active */}
+        {gameHomeButton ?? (
+          <Link href="/home" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(100,150,255,0.1)', border: '1px solid rgba(100,150,255,0.2)',
+              fontSize: 14, color: 'rgba(160,185,255,0.7)',
+            }}>⌂</div>
+          </Link>
+        )}
 
         {/* Face switcher — pill tabs, no animation, instant switch */}
         <div style={{
