@@ -4,15 +4,11 @@
 // See docs/PRIMARY_FLOW.md and docs/HOME_FEED_TV_SPEC.md for constraints.
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import DreamNavControls from '@/components/dreamnav/DreamNavControls';
-import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
-import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
-import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
-import UniversalFeed from '@/components/home/UniversalFeed';
 import DreamsGrid from '@/components/home/DreamsGrid';
+import HomeFeedTV from '@/components/home/HomeFeedTV';
 import { useDreamFeed } from '@/lib/dreams/useDreamFeed';
 
 type ProfileLike = {
@@ -24,46 +20,12 @@ type ProfileLike = {
 };
 
 type Face = 'home' | 'profile';
-const MENU_SPREAD_MIN = 36;
-const MENU_SPREAD_MAX = 56;
-const MENU_SPREAD_RATIO = 0.12;
-const MENU_EDGE_PADDING = 32;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function HomeSystem({ profile, userId: _userId, initialPosts: _initialPosts }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
-  const [face, setFace]                   = useState<Face>('home');
-  const [dreamMenuOpen, setDreamMenuOpen] = useState(false);
-  const [systemMenuOpen, setSystemMenuOpen] = useState(false);
-  const [bothOpen, setBothOpen]           = useState(false);
-  const [drEamsOpen, setDrEamsOpen]       = useState(false);
-  const [menuAnchor, setMenuAnchor]       = useState({ x: 0, y: 0 });
-  const [dreamAnchor, setDreamAnchor]     = useState({ x: 0, y: 0 });
-  const [systemAnchor, setSystemAnchor]   = useState({ x: 0, y: 0 });
+  const [face, setFace] = useState<Face>('home');
 
-  const { items, active, loading, toggleDream, forceRefresh } = useDreamFeed();
-
-  const closeAll = useCallback(() => {
-    setDreamMenuOpen(false);
-    setSystemMenuOpen(false);
-    setBothOpen(false);
-  }, []);
-
-  const returnHome = useCallback(() => {
-    closeAll();
-    setDrEamsOpen(false);
-    setFace('home');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [closeAll]);
-
-  const onSystemAction = useCallback((action: SystemMenuAction) => {
-    closeAll();
-    if (action === 'dr-eams')       { setDrEamsOpen(true); return; }
-    if (action === 'settings')      { window.location.href = '/settings'; return; }
-    if (action === 'account')       { window.location.href = '/profile'; return; }
-    if (action === 'feed-settings') { window.location.href = '/feed-settings'; return; }
-    if (action === 'connectors')    { window.location.href = '/connectors'; return; }
-    if (action === 'go-home')       { returnHome(); return; }
-  }, [closeAll, returnHome]);
+  const { items, active, loading, forceRefresh } = useDreamFeed();
 
   return (
     <div style={{ minHeight: '100dvh', position: 'relative' }}>
@@ -74,7 +36,8 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
           position: 'relative',
           zIndex: 1,
           minHeight: '100dvh',
-          paddingBottom: 120,
+          /* reserve bottom inset for the global Golden Button overlay */
+          paddingBottom: 100,
           background: 'linear-gradient(180deg,#020818 0%,#040d2c 55%,#020818 100%)',
         }}
       >
@@ -147,58 +110,27 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
           </div>
         </header>
 
-        {/* ── Page content — conditional on face, NO transforms ── */}
-        <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* ── Page content — conditional on face ── */}
+        {face === 'home' && (
+          /* TV feed replaces old UniversalFeed + DreamsGrid tiny-icon grid (A3, A4) */
+          <HomeFeedTV
+            items={items}
+            loading={loading}
+            onRefresh={forceRefresh}
+            active={active}
+          />
+        )}
 
-          {face === 'home' && (
-            <>
-              {/* Live feed from active dreams */}
-              <UniversalFeed items={items} loading={loading} onRefresh={forceRefresh} />
+        {face === 'profile' && (
+          <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Profile card */}
+            <ProfileCard profile={profile} />
 
-              {/* All 48 dreams — activate as live-feed sources */}
-              <DreamsGrid mode="home" active={active} onActiveToggle={toggleDream} />
-            </>
-          )}
-
-          {face === 'profile' && (
-            <>
-              {/* Profile card */}
-              <ProfileCard profile={profile} />
-
-              {/* Dreams grid — pin mode edits public profile */}
-              <DreamsGrid mode="profile" />
-            </>
-          )}
-        </main>
+            {/* Dreams grid — pin mode edits public profile */}
+            <DreamsGrid mode="profile" />
+          </main>
+        )}
       </div>
-
-      {/* ── Fixed controls overlay — never scrolls ── */}
-      <DreamNavControls
-        onHome={returnHome}
-        onOpenBothMenus={(anchor) => {
-          const w = typeof window !== 'undefined' ? window.innerWidth : 390;
-          const spread = Math.max(MENU_SPREAD_MIN, Math.min(MENU_SPREAD_MAX, w * MENU_SPREAD_RATIO));
-          const clamp = (x: number) => Math.max(MENU_EDGE_PADDING, Math.min(w - MENU_EDGE_PADDING, x));
-          setMenuAnchor(anchor);
-          setDreamAnchor({ x: clamp(anchor.x + spread), y: anchor.y });
-          setSystemAnchor({ x: clamp(anchor.x - spread), y: anchor.y });
-          setBothOpen(true);
-          setDreamMenuOpen(true);
-          setSystemMenuOpen(true);
-        }}
-        onOpenDreamsMenu={(anchor) => { setBothOpen(false); setMenuAnchor(anchor); setDreamAnchor(anchor); setSystemMenuOpen(false); setDreamMenuOpen(true); }}
-        onOpenSystemMenu={(anchor) => { setBothOpen(false); setMenuAnchor(anchor); setSystemAnchor(anchor); setDreamMenuOpen(false); setSystemMenuOpen(true); }}
-      />
-
-      <DreamRadialMenu open={dreamMenuOpen} onClose={() => { setDreamMenuOpen(false); setBothOpen(false); }}
-        anchorX={bothOpen ? dreamAnchor.x : menuAnchor.x} anchorY={bothOpen ? dreamAnchor.y : menuAnchor.y}
-        side={bothOpen ? 'right' : undefined} onSelectNode={closeAll} onActivateDream={toggleDream} />
-
-      <SystemRadialMenu open={systemMenuOpen} onClose={() => { setSystemMenuOpen(false); setBothOpen(false); }}
-        anchorX={bothOpen ? systemAnchor.x : menuAnchor.x} anchorY={bothOpen ? systemAnchor.y : menuAnchor.y}
-        side={bothOpen ? 'left' : undefined} onAction={onSystemAction} />
-
-      {drEamsOpen && <DrEamsPanel onClose={() => setDrEamsOpen(false)} />}
     </div>
   );
 }
