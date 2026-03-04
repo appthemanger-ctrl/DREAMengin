@@ -163,4 +163,23 @@ describe('A8: HomeSystem home-face uses HomeFeedTV, not tiny icon grid', () => {
     const homeBlock = src.match(/face === 'home'[\s\S]*?HomeFeedTV/);
     expect(homeBlock).not.toBeNull();
   });
+
+  it('HomeSystem passes server initialPosts into HomeFeedTV', () => {
+    const src = readFile('components/home/HomeSystem.tsx');
+    expect(src).toContain('initialPosts={livePosts}');
+  });
+});
+
+describe('A8: HomeFeedTV renders live post programs when available', () => {
+  it('HomeFeedTV reads initialPosts into livePrograms', () => {
+    const src = readFile('components/home/HomeFeedTV.tsx');
+    expect(src).toContain('livePrograms');
+    expect(src).toContain('initialPosts');
+  });
+
+  it('HomeFeedTV queries decentralized feed endpoint', () => {
+    const src = readFile('components/home/HomeFeedTV.tsx');
+    expect(src).toContain('/api/feed/home');
+    expect(src).toContain('sourceType=mixed');
+  });
 });

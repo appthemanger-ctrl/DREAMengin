@@ -19,7 +19,7 @@
  * - Each "program" card: title/source/time, optional media poster, short excerpt, Open action
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DREAMS } from '@/lib/dreams/catalog';
 import type { FeedItem } from '@/lib/dreams/types';
 import DreamCardLarge from './DreamCardLarge';
@@ -33,13 +33,37 @@ type ProgramCard = {
   source: string;
   time: string;
   poster?: string;
+  mediaType?: 'image' | 'video';
   excerpt: string;
   url?: string;
   dreamId?: string;
 };
 
+type HomePost = {
+  id: string;
+  content: string;
+  created_at: string | null;
+  media_urls?: string[] | null;
+  profiles?: {
+    handle?: string | null;
+    display_name?: string | null;
+  } | null;
+};
+
+type DecentralizedFeedItem = {
+  id: string;
+  source?: string;
+  title?: string;
+  text?: string;
+  url?: string;
+  publishedAt?: string;
+  media?: Array<{ url: string; type?: 'image' | 'video' | 'audio' | 'link' }>;
+};
+
 /* ─── Constants ──────────────────────────────────────────────────────────── */
 const CHANNEL_STORAGE_KEY    = 'dreamengin:home:channel:v1';
+const MAX_FEED_PROGRAMS = 4;
+const MAX_LIVE_PROGRAMS = 8;
 const CHANNELS: Array<{ id: Channel; label: string; icon: string }> = [
   { id: 'analytics',  label: 'Analytics', icon: '📊' },
   { id: 'brand',      label: 'Brand',     icon: '✦'  },
@@ -96,6 +120,27 @@ function ProgramCardView({
   isReducedMotion: boolean;
 }) {
   const dream = card.dreamId ? DREAMS.find((d) => d.id === card.dreamId) : null;
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (card.mediaType !== 'video' || !videoRef.current) return;
+    const video = videoRef.current;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    if (isActive) {
+      void video.play().catch(() => {});
+      timer = setTimeout(() => {
+        video.pause();
+      }, 10_000);
+    } else {
+      video.pause();
+      video.currentTime = 0;
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [card.mediaType, isActive]);
 
   return (
     <div
@@ -184,6 +229,39 @@ function ProgramCardView({
         >
           {card.excerpt}
         </div>
+
+        {card.poster && (
+          card.mediaType === 'video' ? (
+            <video
+              ref={videoRef}
+              src={card.poster}
+              controls
+              muted
+              loop
+              playsInline
+              style={{
+                width: '100%',
+                maxHeight: 220,
+                objectFit: 'cover',
+                borderRadius: 14,
+                border: '1px solid rgba(100,150,255,0.14)',
+              }}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={card.poster}
+              alt={card.title}
+              style={{
+                width: '100%',
+                maxHeight: 220,
+                objectFit: 'cover',
+                borderRadius: 14,
+                border: '1px solid rgba(100,150,255,0.14)',
+              }}
+            />
+          )
+        )}
 
         {/* Open action */}
         {card.url && (
@@ -344,12 +422,37 @@ type Props = {
   loading: boolean;
   onRefresh: () => void;
   active: Set<string>;
+  initialPosts: HomePost[];
 };
 
-export default function HomeFeedTV({ items: _items, loading: _loading, onRefresh: _onRefresh, active }: Props) {
+function timeAgo(date: string | null): string {
+  if (!date) return 'now';
+  const diff = Date.now() - new Date(date).getTime();
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60) return 'now';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
+}
+
+function getMediaType(url?: string): 'image' | 'video' | undefined {
+  if (!url) return undefined;
+  const cleanUrl = url.split('?')[0];
+  if (/\.(mp4|webm|ogg|mov)$/i.test(cleanUrl)) return 'video';
+  if (/\.(jpg|jpeg|png|gif|webp|avif)$/i.test(cleanUrl)) return 'image';
+  return undefined;
+}
+
+function normalizeMediaType(type?: string, url?: string): 'image' | 'video' | undefined {
+  if (type === 'video' || type === 'image') return type;
+  return getMediaType(url);
+}
+
+export default function HomeFeedTV({ items: _items, loading: _loading, onRefresh: _onRefresh, active, initialPosts }: Props) {
   const [channel, setChannel]           = useState<Channel>('music');
   const [activeCard, setActiveCard]     = useState(0);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
+  const [decentralizedPrograms, setDecentralizedPrograms] = useState<ProgramCard[]>([]);
   const cardRefs                        = useRef<(Element | null)[]>([]);
 
   /* Restore channel preference + check reduced-motion */
@@ -372,6 +475,40 @@ export default function HomeFeedTV({ items: _items, loading: _loading, onRefresh
     try { localStorage.setItem(CHANNEL_STORAGE_KEY, ch); } catch { /* noop */ }
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadDecentralizedFeed = async () => {
+      try {
+        const res = await fetch(`/api/feed/home?theme=${channel}&limit=8&sourceType=mixed`);
+        if (!res.ok) {
+          if (!cancelled) setDecentralizedPrograms([]);
+          return;
+        }
+        const data = await res.json() as { items?: DecentralizedFeedItem[] };
+        const programs = (data.items ?? []).map((item) => {
+          const firstMedia = item.media?.[0];
+          return {
+            id: `decent-${item.id}`,
+            title: item.title || item.text || 'Decentralized update',
+            source: item.source || 'Decentralized feed',
+            time: timeAgo(item.publishedAt || null),
+            excerpt: item.text || item.title || 'Live multi-source feed update.',
+            poster: firstMedia?.url,
+            mediaType: normalizeMediaType(firstMedia?.type, firstMedia?.url),
+            url: item.url,
+          };
+        });
+        if (!cancelled) setDecentralizedPrograms(programs);
+      } catch {
+        if (!cancelled) setDecentralizedPrograms([]);
+      }
+    };
+
+    void loadDecentralizedFeed();
+    return () => { cancelled = true; };
+  }, [channel]);
+
   /* IntersectionObserver — detect active program (>=60% visible) */
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -392,6 +529,42 @@ export default function HomeFeedTV({ items: _items, loading: _loading, onRefresh
   const currentChannel = CHANNELS.find((c) => c.id === channel);
   const channelRowTitle = `${currentChannel?.icon ?? ''} ${currentChannel?.label ?? ''} Dreams`;
   const dreamIds = CHANNEL_DREAM_IDS[channel];
+  const feedPrograms = useMemo<ProgramCard[]>(
+    () => _items.slice(0, MAX_FEED_PROGRAMS).map((item) => ({
+      id: `feed-${item.id}`,
+      title: item.title,
+      source: item.dreamLabel || 'Widget feed',
+      time: timeAgo(new Date(item.timestamp).toISOString()),
+      excerpt: item.subtitle || 'Live widget feed update',
+      url: item.url,
+      dreamId: item.dreamId,
+    })),
+    [_items],
+  );
+  const livePrograms = useMemo<ProgramCard[]>(
+    () => initialPosts.slice(0, MAX_LIVE_PROGRAMS).map((post) => {
+      const trimmedContent = post.content?.trim();
+      const mediaUrl = Array.isArray(post.media_urls) && post.media_urls.length > 0 ? post.media_urls[0] : undefined;
+      return {
+        id: post.id,
+        title: trimmedContent || 'Shared media',
+        source: post.profiles?.display_name || post.profiles?.handle || 'Community',
+        time: timeAgo(post.created_at),
+        excerpt: trimmedContent || 'Media update from your live feed.',
+        poster: mediaUrl,
+        mediaType: getMediaType(mediaUrl),
+        url: post.profiles?.handle ? `/profile/${post.profiles.handle}` : undefined,
+      };
+    }),
+    [initialPosts],
+  );
+  const displayPrograms = (() => {
+    if (livePrograms.length > 0) return livePrograms;
+    if (decentralizedPrograms.length > 0) return decentralizedPrograms;
+    if (feedPrograms.length > 0) return feedPrograms;
+    return [STUB_PROGRAMS[0]];
+  })();
+  const baseCardIndex = displayPrograms.length;
 
   return (
     <div style={{ width: '100%', minHeight: '100dvh' }}>
@@ -460,20 +633,22 @@ export default function HomeFeedTV({ items: _items, loading: _loading, onRefresh
           scrollbarWidth: 'none',
         } as React.CSSProperties}
       >
-        {/* Stub program card (first snap panel) */}
-        <div
-          ref={(el) => { cardRefs.current[0] = el; }}
-          style={{ scrollSnapAlign: 'start', height: '85vh', minHeight: 480, flexShrink: 0 }}
-        >
-          <ProgramCardView
-            card={STUB_PROGRAMS[0]}
-            isActive={activeCard === 0}
-            isReducedMotion={isReducedMotion}
-          />
-        </div>
+        {displayPrograms.map((card, index) => (
+          <div
+            key={card.id}
+            ref={(el) => { cardRefs.current[index] = el; }}
+            style={{ scrollSnapAlign: 'start', height: '85vh', minHeight: 480, flexShrink: 0 }}
+          >
+            <ProgramCardView
+              card={card}
+              isActive={activeCard === index}
+              isReducedMotion={isReducedMotion}
+            />
+          </div>
+        )}
 
         {/* Channel-specific Dream row */}
-        <div ref={(el) => { cardRefs.current[1] = el; }}>
+        <div ref={(el) => { cardRefs.current[baseCardIndex] = el; }}>
           <DreamRow
             title={channelRowTitle}
             dreamIds={dreamIds}
@@ -483,7 +658,7 @@ export default function HomeFeedTV({ items: _items, loading: _loading, onRefresh
         </div>
 
         {/* All Dreams row */}
-        <div ref={(el) => { cardRefs.current[2] = el; }}>
+        <div ref={(el) => { cardRefs.current[baseCardIndex + 1] = el; }}>
           <DreamRow
             title="All Dreams"
             dreamIds={DREAMS.slice(0, 8).map((d) => d.id)}

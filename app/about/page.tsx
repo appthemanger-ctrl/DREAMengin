@@ -19,8 +19,34 @@ import {
   CircleUser,
 } from 'lucide-react';
 import PlatformBadge from '@/components/ui/PlatformBadge';
+import HeroSprite from '@/components/HeroSprite';
 
 export default function AboutPage() {
+  const rootAssets = [
+    '/logo.png',
+    '/logo-dark.png',
+    '/logo-icon.png',
+    '/logo-swirling.png',
+    '/dr-eams.jpeg',
+  ] as const;
+  const imageAssets = [
+    '/images/HEROSPRITE.png',
+    '/images/HEROSPRITE1.png',
+    '/images/HeroAbout.PNG',
+    '/images/HeroTEAMaI.PNG',
+    '/images/Boogie1.PNG',
+    '/images/boogie2.PNG',
+    '/images/boogie3.png',
+    '/images/idari1.PNG',
+    '/images/dr-eams.jpeg',
+    '/images/dr-eams-portal.jpeg',
+    '/images/logo1.PNG',
+    '/images/logo2.PNG',
+    '/images/logo3.PNG',
+    '/images/hero2.PNG',
+    '/images/hero3.PNG',
+    '/images/iconslist.png',
+  ] as const;
 
   const features = [
     {
@@ -119,14 +145,9 @@ export default function AboutPage() {
           <div className="relative">
             <div className="absolute inset-0 rounded-full blur-3xl scale-150"
               style={{ background: 'radial-gradient(circle, rgba(42,138,184,0.18) 0%, transparent 70%)' }} />
-            <Image
-              src="/images/HeroAbout.PNG"
-              alt="Dr. Eams — DREAMengin AI Companion"
-              width={140}
-              height={140}
-              className="relative object-contain drop-shadow-xl"
-              priority
-            />
+            <div className="relative">
+              <HeroSprite width={140} height={140} className="drop-shadow-xl" />
+            </div>
           </div>
           <div>
             <div className="de-badge mb-3">
@@ -140,6 +161,27 @@ export default function AboutPage() {
             <p className="text-base sm:text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--de-text-dim)' }}>
               A premium, easy-to-use platform where your digital life becomes a navigable universe of widget-powered dreams — light blue and gold, always yours.
             </p>
+          </div>
+        </section>
+
+        <section>
+          <div className="de-tag text-center mb-6">Asset Library</div>
+          <h2 className="text-2xl font-bold text-center mb-6" style={{ color: 'var(--de-heading)' }}>
+            Live Assets in Use
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+            {rootAssets.map((src) => (
+              <div key={src} className="de-tile" style={{ padding: 10 }}>
+                <Image src={src} alt={src} width={120} height={120} className="w-full h-20 object-contain" />
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {imageAssets.map((src) => (
+              <div key={src} className="de-tile" style={{ padding: 10 }}>
+                <Image src={src} alt={src} width={120} height={120} className="w-full h-20 object-contain" />
+              </div>
+            ))}
           </div>
         </section>
 

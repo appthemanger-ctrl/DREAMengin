@@ -4,12 +4,13 @@
 // See docs/PRIMARY_FLOW.md and docs/HOME_FEED_TV_SPEC.md for constraints.
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
 import DreamsGrid from '@/components/home/DreamsGrid';
 import HomeFeedTV from '@/components/home/HomeFeedTV';
 import { useDreamFeed } from '@/lib/dreams/useDreamFeed';
+import { createClient } from '@/lib/supabase/client';
 
 type ProfileLike = {
   id?: string;
@@ -22,10 +23,42 @@ type ProfileLike = {
 type Face = 'home' | 'profile';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function HomeSystem({ profile, userId: _userId, initialPosts: _initialPosts }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
+export default function HomeSystem({ profile, userId: _userId, initialPosts }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
   const [face, setFace] = useState<Face>('home');
+  const [livePosts, setLivePosts] = useState(initialPosts);
+  const supabase = useMemo(() => createClient(), []);
 
   const { items, active, loading, forceRefresh } = useDreamFeed();
+
+  useEffect(() => {
+    setLivePosts(initialPosts);
+  }, [initialPosts]);
+
+  useEffect(() => {
+    const refreshPosts = async () => {
+      try {
+        const res = await fetch('/api/posts?limit=30', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json() as { posts?: any[] };
+        if (Array.isArray(data.posts)) setLivePosts(data.posts);
+      } catch {
+        // no-op: keep current feed if refresh fails
+      }
+    };
+
+    const channel = supabase
+      .channel('home-posts-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'app_posts' },
+        () => { void refreshPosts(); },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase]);
 
   return (
     <div style={{ minHeight: '100dvh', position: 'relative' }}>
@@ -118,6 +151,7 @@ export default function HomeSystem({ profile, userId: _userId, initialPosts: _in
             loading={loading}
             onRefresh={forceRefresh}
             active={active}
+            initialPosts={livePosts}
           />
         )}
 
