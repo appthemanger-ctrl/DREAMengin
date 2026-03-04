@@ -54,7 +54,7 @@ jobs:
           git rm -f "$ZIP" 2>/dev/null || true
 
           # sync contents into repo root (protect git internals)
-          rsync -a --delete \
+          rsync -a \
             --exclude ".git/" \
             --exclude ".github/" \
             "$ROOT/" "./"
