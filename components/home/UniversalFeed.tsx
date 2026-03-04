@@ -15,9 +15,9 @@ function timeAgo(ts: number): string {
 type Tab = 'home' | 'decentralized' | 'trending';
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'home',          label: 'Home' },
+  { id: 'home', label: 'Home' },
   { id: 'decentralized', label: '🌐 Decentralized' },
-  { id: 'trending',      label: '🔥 Trending' },
+  { id: 'trending', label: '🔥 Trending' },
 ];
 
 type Props = {

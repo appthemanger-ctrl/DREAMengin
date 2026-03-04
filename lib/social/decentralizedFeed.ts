@@ -3,6 +3,8 @@
 // Mastodon, Bluesky, and Nostr. All fetchers gracefully handle errors so
 // one broken source never blocks the others.
 
+import { htmlToText } from '@/lib/feed/sanitize';
+
 export type NormalizedPost = {
   id: string;
   platform: 'mastodon' | 'bluesky' | 'nostr' | 'internal';
@@ -35,19 +37,6 @@ export type DecentralizedFeedConfig = {
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function htmlToText(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .trim();
-}
 
 function extractMediaUrls(content: string): string[] {
   const urls: string[] = [];
@@ -153,6 +142,9 @@ interface BskyFeedPost {
 
 const BSKY_API = 'https://bsky.social/xrpc';
 
+// ─── Nostr constants ──────────────────────────────────────────────────────────
+const NOSTR_FETCH_TIMEOUT_MS = 3000;
+
 export async function fetchBlueskyPosts(
   handle: string,
   appPassword: string,
@@ -250,8 +242,8 @@ export async function fetchNostrPosts(
       resolve(posts);
     }
 
-    // Safety timeout — resolve after 3 s regardless
-    const timer = setTimeout(finish, 3000);
+    // Safety timeout — resolve after NOSTR_FETCH_TIMEOUT_MS regardless
+    const timer = setTimeout(finish, NOSTR_FETCH_TIMEOUT_MS);
 
     // Guard against environments without WebSocket (e.g. edge runtime)
     if (typeof WebSocket === 'undefined') {
