@@ -13,5 +13,5 @@ export const DEFAULT_CHECK_STATUS = {
 } as const;
 
 export const isSupabaseConfigured = () =>
-  hasValue(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
-  hasValue(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  hasValue(process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL) &&
+  hasValue(process.env.dreamengin_SUPABASE_SECRET_KEY);

@@ -6,7 +6,7 @@
  *
  * Security layers (same as /api/admin/code-files):
  *  1. Supabase session must match OWNER_EMAIL
- *  2. Admin password must match ADMIN_CODE_PASSWORD
+ *  2. Admin password must match INNERDREAMS_PASSWORD
  *  3. One wrong password → permanent lockout via shared lockout module
  */
 
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
   }
 
   // 4. Password check — one wrong attempt = permanent lockout
-  const adminPw = process.env.ADMIN_CODE_PASSWORD;
+  const adminPw = process.env.INNERDREAMS_PASSWORD;
   if (!adminPw) {
     return deny('Admin feature not configured on this server.', 503);
   }

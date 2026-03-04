@@ -3,7 +3,7 @@
 // Deletes all user data including profile, then the auth identity.
 //
 // NOTE: Deleting the auth user requires the Supabase service role key
-// (SUPABASE_SERVICE_ROLE_KEY). createServiceClient() uses it when configured.
+// (dreamengin_SUPABASE_SECRET_KEY). createServiceClient() uses it when configured.
 // Without it, data rows are still removed but the auth identity persists.
 
 import { NextRequest, NextResponse } from 'next/server';
