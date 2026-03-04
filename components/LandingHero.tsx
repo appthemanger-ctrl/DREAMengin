@@ -31,7 +31,7 @@ export default function LandingHero() {
   const messages = useMemo(
     () => [
       "hey… you were about to open that tab again, weren't you",
-      "you paused there… deciding or pretending to decide",
+      "you paused there… deciding, pretending to decide",
       "you always scroll a little slower at night",
       "that idea you just had… yeah, keep that one",
       "you don't need to overthink this one",
