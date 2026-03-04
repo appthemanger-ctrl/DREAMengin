@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { FeedItem } from '@/lib/dreams/types';
+import DecentralizedFeedPanel from './DecentralizedFeedPanel';
 
 function timeAgo(ts: number): string {
   const s = Math.floor((Date.now() - ts) / 1000);
@@ -11,6 +12,14 @@ function timeAgo(ts: number): string {
   return `${Math.floor(s / 86400)}d`;
 }
 
+type Tab = 'home' | 'decentralized' | 'trending';
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'home', label: 'Home' },
+  { id: 'decentralized', label: '🌐 Decentralized' },
+  { id: 'trending', label: '🔥 Trending' },
+];
+
 type Props = {
   items: FeedItem[];
   loading: boolean;
@@ -18,6 +27,8 @@ type Props = {
 };
 
 export default function UniversalFeed({ items, loading, onRefresh }: Props) {
+  const [activeTab, setActiveTab] = useState<Tab>('home');
+
   return (
     <section
       style={{
@@ -29,57 +40,98 @@ export default function UniversalFeed({ items, loading, onRefresh }: Props) {
         WebkitBackdropFilter: 'blur(12px)',
       }}
     >
-      {/* Header */}
+      {/* Tab bar */}
       <div
         style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '13px 16px 10px',
+          display: 'flex', alignItems: 'center',
+          padding: '8px 12px 0',
           borderBottom: '1px solid rgba(100,150,255,0.1)',
+          gap: 4,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
             style={{
-              width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
-              background: '#22c55e',
-              boxShadow: '0 0 8px rgba(34,197,94,0.7)',
-              display: 'inline-block',
-              animation: 'dream-pulse 2s ease-in-out infinite',
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 11, fontWeight: activeTab === tab.id ? 700 : 500,
+              color: activeTab === tab.id
+                ? 'rgba(240,244,255,0.95)'
+                : 'rgba(160,185,255,0.45)',
+              padding: '6px 10px 8px',
+              borderBottom: activeTab === tab.id
+                ? '2px solid rgba(100,150,255,0.7)'
+                : '2px solid transparent',
+              transition: 'color 0.15s ease',
+              letterSpacing: '0.01em',
             }}
-          />
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(240,244,255,0.9)', letterSpacing: '0.02em' }}>
-            Live Feed
-          </span>
-          <span style={{ fontSize: 10, color: 'rgba(160,185,255,0.4)', marginLeft: 2 }}>
-            {items.length} items
-          </span>
-        </div>
-        <button
-          type="button"
-          aria-label="Refresh feed"
-          onClick={onRefresh}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(160,185,255,0.4)', fontSize: 15, padding: 4, lineHeight: 1 }}
-        >
-          ↺
-        </button>
+          >
+            {tab.label}
+          </button>
+        ))}
+
+        {/* Refresh / item count — only for Home tab */}
+        {activeTab === 'home' && (
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 10, color: 'rgba(160,185,255,0.4)' }}>
+              {items.length} items
+            </span>
+            <button
+              type="button"
+              aria-label="Refresh feed"
+              onClick={onRefresh}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(160,185,255,0.4)', fontSize: 15, padding: 4, lineHeight: 1 }}
+            >
+              ↺
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Feed items — own independent scroll */}
-      <div style={{ height: 340, overflowY: 'auto', overflowX: 'hidden' }}>
-        {loading && items.length === 0 && (
-          <div style={{ padding: '28px 16px', textAlign: 'center', color: 'rgba(160,185,255,0.35)', fontSize: 12 }}>
-            Loading dreams…
-          </div>
-        )}
-        {!loading && items.length === 0 && (
-          <div style={{ padding: '28px 16px', textAlign: 'center', color: 'rgba(160,185,255,0.35)', fontSize: 12 }}>
-            Activate dreams below to populate your feed
-          </div>
-        )}
-        {items.map((item, i) => (
-          <FeedRow key={item.id} item={item} rank={i + 1} />
-        ))}
-      </div>
+      {/* ── Home tab ── */}
+      {activeTab === 'home' && (
+        <div style={{ height: 340, overflowY: 'auto', overflowX: 'hidden' }}>
+          {loading && items.length === 0 && (
+            <div style={{ padding: '28px 16px', textAlign: 'center', color: 'rgba(160,185,255,0.35)', fontSize: 12 }}>
+              Loading dreams…
+            </div>
+          )}
+          {!loading && items.length === 0 && (
+            <div style={{ padding: '28px 16px', textAlign: 'center', color: 'rgba(160,185,255,0.35)', fontSize: 12 }}>
+              Activate dreams below to populate your feed
+            </div>
+          )}
+          {items.map((item, i) => (
+            <FeedRow key={item.id} item={item} rank={i + 1} />
+          ))}
+        </div>
+      )}
+
+      {/* ── Decentralized tab ── */}
+      {activeTab === 'decentralized' && (
+        <div style={{ padding: '0 14px 14px' }}>
+          <DecentralizedFeedPanel />
+        </div>
+      )}
+
+      {/* ── Trending tab ── */}
+      {activeTab === 'trending' && (
+        <div style={{ height: 340, overflowY: 'auto', overflowX: 'hidden' }}>
+          {items
+            .slice()
+            .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+            .map((item, i) => (
+              <FeedRow key={item.id} item={item} rank={i + 1} />
+            ))}
+          {items.length === 0 && (
+            <div style={{ padding: '28px 16px', textAlign: 'center', color: 'rgba(160,185,255,0.35)', fontSize: 12 }}>
+              No trending items yet
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }
