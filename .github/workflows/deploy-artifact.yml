@@ -53,10 +53,20 @@ jobs:
           rm -f "$ZIP"
           git rm -f "$ZIP" 2>/dev/null || true
 
-          # sync contents into repo root (protect git internals)
-          rsync -a --delete \
+          # sync contents into repo root — never delete existing source files
+          rsync -a \
             --exclude ".git/" \
             --exclude ".github/" \
+            --exclude "src/" \
+            --exclude "node_modules/" \
+            --exclude ".next/" \
+            --exclude "package.json" \
+            --exclude "package-lock.json" \
+            --exclude "pnpm-lock.yaml" \
+            --exclude "tsconfig.json" \
+            --exclude "next.config.*" \
+            --exclude "postcss.config.*" \
+            --exclude "tailwind.config.*" \
             "$ROOT/" "./"
 
           git config user.name "github-actions[bot]"
