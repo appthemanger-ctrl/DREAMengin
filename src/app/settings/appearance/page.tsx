@@ -31,10 +31,10 @@ export default function SettingsAppearance() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">Font Size</label>
-            <select className="de-input">
-              <option>Small</option>
-              <option selected>Medium</option>
-              <option>Large</option>
+            <select className="de-input" defaultValue="medium">
+              <option value="small">Small</option>
+              <option value="medium">Medium</option>
+              <option value="large">Large</option>
             </select>
           </div>
           <div className="pt-2 flex gap-3">
