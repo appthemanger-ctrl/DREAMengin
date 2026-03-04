@@ -58,15 +58,15 @@ Implementation:
 
 ## Branding system
 
-Brand assets live in `/public/branding/` — do not modify without updating this file.
+Brand assets live in `/public/` and `/public/images/` — do not modify without updating this file.
 
 | Asset | Description |
 |-------|-------------|
-| `logo1.png` | Logo variant 1 (RGBA, transparent background) |
-| `logo2.png` | Logo variant 2 (RGBA, transparent background) |
-| `logo3.png` | Logo variant 3 (RGBA, transparent background) |
-| `MainSprite.png` | 4 cols × 6 rows sprite sheet, 24 frames @ 208×208 px |
-| `AboutHero.png` | About page hero image |
+| `/public/images/logo1.PNG` | Logo variant 1 (RGBA, transparent background) |
+| `/public/images/logo2.PNG` | Logo variant 2 (RGBA, transparent background) |
+| `/public/images/logo3.PNG` | Logo variant 3 (RGBA, transparent background) |
+| `/public/images/HEROSPRITE.png` | 4 cols × 6 rows sprite sheet, 24 frames @ 208×208 px |
+| `/public/images/HeroAbout.PNG` | About page hero image |
 
 - `lib/branding/logos.ts` — `getRandomLogo()` picks one logo per page load (Fisher-Yates shuffle, per-load in-memory cache, SSR-safe fallback).
 - `components/BrandLogo.tsx` — SSR-safe logo component (stable placeholder on server, random on mount).
