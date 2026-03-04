@@ -645,7 +645,7 @@ export default function HomeFeedTV({ items: _items, loading: _loading, onRefresh
               isReducedMotion={isReducedMotion}
             />
           </div>
-        )}
+        ))}
 
         {/* Channel-specific Dream row */}
         <div ref={(el) => { cardRefs.current[baseCardIndex] = el; }}>
