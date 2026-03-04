@@ -36,7 +36,7 @@ const MENU_AUTO_CLOSE   = 3000;
 const SAFE_BOTTOM_PX    = 34; // iOS home-bar clearance
 const STORAGE_KEY       = 'dreamengin:goldbtn:pos:v1';
 
-const ROUTE_DENYLIST = ['/login', '/join', '/auth/callback'];
+const ROUTE_DENYLIST = ['/', '/login', '/join', '/auth/callback', '/about', '/policy'];
 
 /* ─── Menu items ─────────────────────────────────────────────────────────── */
 type MenuItemDef = {
@@ -257,7 +257,9 @@ export default function UIOverlayHost() {
   }, [menuOpen, closeMenu]);
 
   /* ── Visibility: hide on denylist routes ── */
-  const hidden = ROUTE_DENYLIST.some((p) => pathname?.startsWith(p));
+  const hidden = ROUTE_DENYLIST.some((p) =>
+    p === '/' ? pathname === '/' : pathname?.startsWith(p)
+  );
   const visibility = !mounted || hidden ? 'hidden' : 'visible';
 
   return (
