@@ -1,0 +1,47 @@
+.video-player-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+  }
+  
+  .engagement-overlay {
+    position: absolute;
+    bottom: 80px; /* Adjust based on post-info height */
+    right: 10px;
+    z-index: 10;
+  }
+  
+  .engagement-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .engagement-btn {
+    background: none;
+    border: none;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-shadow: 0 0 2px rgba(0,0,0,0.8);
+  }
+  
+  .engagement-btn .icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));
+  }
+  
+  .engagement-btn:hover .icon {
+    color: #4a00e0;
+  }

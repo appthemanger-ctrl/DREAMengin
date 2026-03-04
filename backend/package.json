@@ -1,0 +1,33 @@
+{
+    "name": "decentralized-social-aggregator-backend",
+    "version": "1.0.0",
+    "description": "Backend service for decentralized social media aggregator",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+      "start": "node index.js",
+      "dev": "nodemon index.js",
+      "test": "NODE_ENV=test jest --coverage",
+      "lint": "eslint src/"
+    },
+    "dependencies": {
+      "axios": "^1.6.8",
+      "cors": "^2.8.5",
+      "express": "^4.18.2",
+      "express-rate-limit": "^7.1.3",
+      "ipfs-http-client": "^60.0.0",
+      "livekit-server-sdk": "^1.1.0",
+      "mastodon-api": "^1.3.0",
+      "nostr-tools": "^1.13.0",
+      "web3": "^4.2.1"
+    },
+    "devDependencies": {
+      "eslint": "^8.57.0",
+      "jest": "^29.7.0",
+      "nodemon": "^3.1.0",
+      "supertest": "^6.3.4"
+    },
+    "engines": {
+      "node": ">=18.0.0"
+    }
+  }

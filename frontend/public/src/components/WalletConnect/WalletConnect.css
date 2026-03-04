@@ -1,0 +1,47 @@
+.wallet-connect {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+  }
+  
+  .connect-btn, .disconnect-btn {
+    background: #4a00e0;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .connect-btn:hover {
+    background: #8e2de2;
+  }
+  
+  .disconnect-btn {
+    background: #333;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .account-address {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+  }
+  
+  .network-badge {
+    background: #8e2de2;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+  }
