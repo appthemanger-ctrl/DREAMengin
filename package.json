@@ -10,6 +10,30 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "prepare": "husky"
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.30.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --webpack",
+    "vercel-build": "NODE_OPTIONS=--max-old-space-size=4096 next build --webpack",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "playwright test",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "db:generate": "npx supabase gen types typescript --local > types/supabase.ts",
+    "db:reset": "npx supabase db reset",
+    "db:start": "npx supabase start",
+    "db:stop": "npx supabase stop",
+    "postbuild": "node scripts/postbuild.js",
+    "typecheck": "tsc --noEmit --pretty false",
+    "generate:docs": "node scripts/generate-webapp-final-form.mjs",
+    "docs:webapp-final-form": "node scripts/generate-webapp-final-form.mjs",
+    "prepare": "husky",
+    "secrets:scan": "gitleaks detect --source . --no-git --redact",
+    "licenses:check": "node scripts/check-licenses.mjs",
+    "schema:validate": "bash scripts/validate-schema-sync.sh"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1",
@@ -25,7 +49,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.33.0",
     "lucide-react": "^0.408.0",
-    "next": "15.3.3",
+    "next": "16.1.6",
     "pixi-viewport": "^6.0.0",
     "pixi.js": "^8.0.0",
     "react": "^19.0.0",
@@ -41,6 +65,9 @@
     "three": "^0.177.0",
     "uuid": "^10.0.0",
     "zod": "^3.23.0"
+    "three": "^0.182.0",
+    "uuid": "^10.0.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@playwright/test": "^1.45.2",

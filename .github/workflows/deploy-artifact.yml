@@ -93,6 +93,12 @@ jobs:
           rm -f "$ZIP"
           git rm -f "$ZIP" 2>/dev/null || true
 
+          # sync contents into repo root (protect git internals)
+          rsync -a \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            "$ROOT/" "./"
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 

@@ -1,0 +1,77 @@
+.feed-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+  
+  .feed-item {
+    width: 100%;
+    height: 100vh;
+    scroll-snap-align: start;
+    position: relative;
+  }
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    color: white;
+    font-style: italic;
+  }
+  
+  .error {
+    color: #ff5555;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .post-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+  }
+  
+  .display-name {
+    margin: 0;
+    font-size: 1rem;
+  }
+  
+  .handle {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #aaa;
+  }
+  
+  .post-content {
+    margin: 0;
+    font-size: 0.9rem;
+    max-height: 3.6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
