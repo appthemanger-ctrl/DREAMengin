@@ -1,4 +1,4 @@
-name: Extract zip and flatten into repo root (no status)
+name: Extract zip assets into public/
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Unzip -> flatten -> sync -> commit
+      - name: Unzip -> extract assets into public/ -> commit
         shell: bash
         run: |
           set -euo pipefail
@@ -27,29 +27,69 @@ jobs:
           zips=( *.zip )
           shopt -u nullglob
           if [ ${#zips[@]} -eq 0 ]; then
+            echo "No zip files found, nothing to do."
             exit 0
           fi
 
           IFS=$'\n' zips_sorted=($(printf "%s\n" "${zips[@]}" | sort))
           unset IFS
           ZIP="${zips_sorted[-1]}"
+          echo "Processing: $ZIP"
 
           TMP="$(mktemp -d)"
           unzip -q "$ZIP" -d "$TMP"
 
-          # flatten wrapper folder if there is exactly one top-level dir (ignoring __MACOSX)
+          # Flatten single wrapper folder (e.g. DREAMengin-assets/), ignoring __MACOSX
           ROOT="$TMP"
           top_dirs=()
-          for d in "$TMP"/*; do
+          for d in "$TMP"/*/; do
             [ -d "$d" ] || continue
-            [ "$(basename "$d")" = "__MACOSX" ] && continue
+            [[ "$(basename "$d")" == "__MACOSX" ]] && continue
             top_dirs+=( "$d" )
           done
           if [ "${#top_dirs[@]}" -eq 1 ]; then
             ROOT="${top_dirs[0]}"
           fi
 
-          # delete the zip from the repo
+          # If the zip already has a public/ subfolder, use that as the source
+          # so we don't create public/public/ nesting.
+          if [ -d "$ROOT/public" ]; then
+            ASSET_ROOT="$ROOT/public"
+          else
+            ASSET_ROOT="$ROOT"
+          fi
+
+          # Create destination and sync ONLY asset files into public/.
+          # Source code (src/, package.json, etc.) lives outside public/ and
+          # is therefore structurally unreachable — no excludes needed.
+          mkdir -p public
+
+          rsync -a \
+            --include="*.png" \
+            --include="*.PNG" \
+            --include="*.jpg" \
+            --include="*.JPG" \
+            --include="*.jpeg" \
+            --include="*.JPEG" \
+            --include="*.gif" \
+            --include="*.GIF" \
+            --include="*.webp" \
+            --include="*.svg" \
+            --include="*.mp4" \
+            --include="*.webm" \
+            --include="*.mp3" \
+            --include="*.wav" \
+            --include="*.ogg" \
+            --include="*.woff" \
+            --include="*.woff2" \
+            --include="*.ttf" \
+            --include="*.otf" \
+            --include="*.ico" \
+            --include="*/" \
+            --exclude="*" \
+            "$ASSET_ROOT/" "./public/"
+
+          # Remove the zip from the repo tree
           rm -f "$ZIP"
           git rm -f "$ZIP" 2>/dev/null || true
 
@@ -63,5 +103,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
-          git commit -m "Extract zip and flatten" || exit 0
+          git diff --cached --quiet && echo "No asset changes to commit." && exit 0
+          git commit -m "chore: extract zip assets into public/"
           git push
+

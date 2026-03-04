@@ -30,6 +30,9 @@ export async function isAdminLocked(): Promise<boolean> {
   // Fast path 1: emergency env-var override.
   if (process.env.ADMIN_LOCKOUT === '1') return true;
 
+  // Fast path 2: ADMIN_UNLOCK_KEY bypasses lockout entirely.
+  if (process.env.ADMIN_UNLOCK_KEY) return false;
+
   // Fast path 2: already confirmed locked in this process lifetime.
   if (_cachedLocked === true) return true;
 

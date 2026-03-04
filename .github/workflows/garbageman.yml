@@ -26,15 +26,7 @@ jobs:
           find . -name "*.tmp" -delete
           find . -name "*.swp" -delete
 
-          # Remove build artifacts (if committed accidentally)
-          rm -rf .next
-          rm -rf dist
-          rm -rf build
-
-          # Remove prototype dumps (customize this)
-          rm -rf prototypes
-          rm -rf temp
-          rm -rf test-output
+          # Build artifacts and prototype dumps are not removed automatically
 
       - name: Commit cleanup (if needed)
         run: |

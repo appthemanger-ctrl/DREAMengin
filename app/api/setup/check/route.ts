@@ -18,25 +18,23 @@ export async function GET() {
   // - It does NOT return secret values
   // - It only reports whether expected config exists
 
-  // Check if at least one of the publishable keys is set
-  const hasPublishableKey = !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  const hasLegacyKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const hasAnyKey = hasPublishableKey || hasLegacyKey;
+  // Check if anon key is set
+  const hasAnonKey = !!process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY;
 
   const checks: Check[] = [
-    envCheck('NEXT_PUBLIC_SUPABASE_URL', 'Set this in Vercel → Project → Settings → Environment Variables.'),
+    envCheck('NEXT_PUBLIC_dreamengin_SUPABASE_URL', 'Set this in Vercel → Project → Settings → Environment Variables.'),
     {
-      key: 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY',
-      ok: hasAnyKey,
-      hint: hasAnyKey ? undefined : 'Set NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (preferred) or NEXT_PUBLIC_SUPABASE_ANON_KEY (legacy).',
-      note: hasPublishableKey 
-        ? 'Using preferred NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY' 
-        : hasLegacyKey 
-        ? 'Using legacy NEXT_PUBLIC_SUPABASE_ANON_KEY. Consider migrating to NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.' 
-        : undefined,
+      key: 'NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY',
+      ok: hasAnonKey,
+      hint: hasAnonKey ? undefined : 'Set NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY in Vercel Environment Variables.',
       required: true,
     },
-    envCheck('SUPABASE_SERVICE_ROLE_KEY', 'Optional unless you use server-side admin actions.', undefined, false),
+    envCheck('dreamengin_SUPABASE_SECRET_KEY', 'Optional unless you use server-side admin actions.', undefined, false),
+    envCheck('dreamengin_SUPABASE_JWT_SECRET', 'Required for JWT verification.', undefined, false),
+    envCheck('INNERDREAMS_PASSWORD', 'Required to access admin endpoints.', undefined, false),
+    envCheck('ADMIN_UNLOCK_KEY', 'Required to unlock admin lockout.', undefined, false),
+    envCheck('SESSION_SECRET', 'Required for session management.', undefined, false),
+    envCheck('OPENAI_API_KEY', 'Required for OpenAI-powered features.', undefined, false),
   ];
 
   // Overall status: true only if all required checks pass.

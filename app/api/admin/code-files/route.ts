@@ -94,7 +94,7 @@ export async function POST(request: Request) {
   }
 
   // 5. Password check — ONE wrong attempt = permanent lockout
-  const adminPw = process.env.ADMIN_CODE_PASSWORD;
+  const adminPw = process.env.INNERDREAMS_PASSWORD;
   if (!adminPw) {
     return deny('Admin feature not configured on this server.', 503);
   }
