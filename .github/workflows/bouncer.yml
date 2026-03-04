@@ -21,8 +21,8 @@ jobs:
             exit 1
           fi
 
-          # Block env files
-          if git ls-files | grep -q ".env"; then
+          # Block real env files (allow .env.example and next-env.d.ts)
+          if git ls-files | grep -Eq '(^|/)\.env$'; then
             echo "❌ .env file detected"
             exit 1
           fi
