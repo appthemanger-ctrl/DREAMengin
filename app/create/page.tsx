@@ -1,10 +1,12 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Send, Image as ImageIcon, Music, Link as LinkIcon, Globe, Lock, Loader2, X } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+
+const ALLOWED_IMAGE_EXT = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp']);
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -15,12 +17,25 @@ export default function CreatePostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const selectedImagesRef = useRef<Array<{ file: File; preview: string }>>([]);
+
+  useEffect(() => {
+    selectedImagesRef.current = selectedImages;
+  }, [selectedImages]);
+
+  useEffect(() => () => {
+    selectedImagesRef.current.forEach((image) => URL.revokeObjectURL(image.preview));
+  }, []);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     const images = files
-      .filter((file) => file.type.startsWith('image/'))
+      .filter((file) => {
+        if (!file.type.startsWith('image/')) return false;
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+        return ALLOWED_IMAGE_EXT.has(ext);
+      })
       .map((file) => ({ file, preview: URL.createObjectURL(file) }));
     setSelectedImages((prev) => [...prev, ...images]);
     e.target.value = '';
@@ -36,18 +51,31 @@ export default function CreatePostPage() {
   };
 
   const uploadSelectedImages = async () => {
-    const urls: string[] = [];
-    for (const image of selectedImages) {
-      const ext = image.file.name.split('.').pop() || 'jpg';
-      const path = `posts/${Date.now()}-${crypto.randomUUID()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(path, image.file, { cacheControl: '3600', upsert: false });
-      if (uploadError) throw uploadError;
-      const { data } = supabase.storage.from('images').getPublicUrl(path);
-      urls.push(data.publicUrl);
+    const uploadedPaths: string[] = [];
+
+    try {
+      const uploads = selectedImages.map(async (image) => {
+        const ext = (image.file.name.split('.').pop() || 'jpg').toLowerCase();
+        if (!ALLOWED_IMAGE_EXT.has(ext)) throw new Error(`Unsupported image type: ${ext}`);
+        const path = `posts/${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(path, image.file, { cacheControl: '3600', upsert: false });
+        if (uploadError) throw uploadError;
+        uploadedPaths.push(path);
+        return supabase.storage.from('images').getPublicUrl(path).data.publicUrl;
+      });
+
+      return await Promise.all(uploads);
+    } catch (uploadErr) {
+      if (uploadedPaths.length > 0) {
+        const { error: cleanupError } = await supabase.storage.from('images').remove(uploadedPaths);
+        if (cleanupError) {
+          console.error('Failed to rollback uploaded images:', cleanupError.message);
+        }
+      }
+      throw uploadErr;
     }
-    return urls;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -165,7 +193,7 @@ export default function CreatePostPage() {
           {selectedImages.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {selectedImages.map((image, index) => (
-                <div key={`${image.file.name}-${index}`} className="relative rounded-xl overflow-hidden border border-border">
+                <div key={index} className="relative rounded-xl overflow-hidden border border-border">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={image.preview} alt={image.file.name} className="w-full h-28 object-cover" />
                   <button

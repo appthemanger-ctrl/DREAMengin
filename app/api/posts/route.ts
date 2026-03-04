@@ -44,8 +44,24 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { content, visibility = 'public', media_urls = [] } = body;
   const normalizedContent = typeof content === 'string' ? content.trim() : '';
+  const normalizedMediaUrls = Array.isArray(media_urls)
+    ? media_urls
+        .filter((url): url is string => typeof url === 'string')
+        .map((url) => url.trim())
+    : [];
 
-  if (!normalizedContent && (!Array.isArray(media_urls) || media_urls.length === 0)) {
+  if (normalizedMediaUrls.some((url) => {
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol !== 'https:' && parsed.protocol !== 'http:';
+    } catch {
+      return true;
+    }
+  })) {
+    return NextResponse.json({ error: 'Invalid media URL format' }, { status: 400 });
+  }
+
+  if (!normalizedContent && normalizedMediaUrls.length === 0) {
     return NextResponse.json({ error: 'Content or media is required' }, { status: 400 });
   }
 
@@ -55,7 +71,7 @@ export async function POST(req: NextRequest) {
       user_id: user.id,
       content: normalizedContent,
       visibility,
-      media_urls,
+      media_urls: normalizedMediaUrls,
     })
     .select(`
       *,
