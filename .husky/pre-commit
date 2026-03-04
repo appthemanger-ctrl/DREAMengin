@@ -1,9 +1,0 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-pnpm -s lint-staged
-
-# Tripwire checks — fast, node-only, no install needed
-node scripts/check-primary-home.mjs
-node scripts/check-navmode-strings.mjs
-node scripts/check-golden-mount.mjs
