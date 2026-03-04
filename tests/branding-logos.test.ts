@@ -39,8 +39,8 @@ describe('getRandomLogo', () => {
     expect(seen.size).toBe(3);
   });
 
-  it('paths begin with / and end with .png', () => {
+  it('paths match current public image branding assets', () => {
     const logo = getRandomLogo();
-    expect(logo).toMatch(/^\/branding\/logo[123]\.png$/);
+    expect(logo).toMatch(/^\/images\/logo[123]\.PNG$/);
   });
 });
