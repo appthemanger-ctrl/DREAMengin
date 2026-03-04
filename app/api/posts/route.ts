@@ -43,16 +43,17 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const { content, visibility = 'public', media_urls = [] } = body;
+  const normalizedContent = typeof content === 'string' ? content.trim() : '';
 
-  if (!content || content.trim().length === 0) {
-    return NextResponse.json({ error: 'Content is required' }, { status: 400 });
+  if (!normalizedContent && (!Array.isArray(media_urls) || media_urls.length === 0)) {
+    return NextResponse.json({ error: 'Content or media is required' }, { status: 400 });
   }
 
   const { data: post, error } = await supabase
     .from('app_posts')
     .insert({
       user_id: user.id,
-      content: content.trim(),
+      content: normalizedContent,
       visibility,
       media_urls,
     })
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
   await supabase.from('feed_items').insert({
     user_id: user.id,
     type: 'post',
-    content: { text: content.trim(), post_id: post.id },
+    content: { text: normalizedContent, post_id: post.id },
     ts: new Date().toISOString(),
   });
 

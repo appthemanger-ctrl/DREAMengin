@@ -7,6 +7,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import PasswordField from "@/components/auth/PasswordField";
 import BrandLogo from "@/components/BrandLogo";
+import { formatOAuthErrorMessage } from "@/lib/auth/oauth-errors";
 
 export default function JoinPage() {
   const router = useRouter();
@@ -95,7 +96,7 @@ export default function JoinPage() {
           redirectTo: origin ? `${origin}/auth/callback` : undefined,
         },
       });
-      if (oauthError) setError(oauthError.message);
+      if (oauthError) setError(formatOAuthErrorMessage(provider, oauthError.message));
     } finally {
       setBusy(false);
     }

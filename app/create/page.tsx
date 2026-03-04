@@ -1,29 +1,68 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Send, Image as ImageIcon, Music, Link as LinkIcon, Globe, Lock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, Image as ImageIcon, Music, Link as LinkIcon, Globe, Lock, Loader2, X } from 'lucide-react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 
 export default function CreatePostPage() {
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
+  const [selectedImages, setSelectedImages] = useState<Array<{ file: File; preview: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    const images = files
+      .filter((file) => file.type.startsWith('image/'))
+      .map((file) => ({ file, preview: URL.createObjectURL(file) }));
+    setSelectedImages((prev) => [...prev, ...images]);
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages((prev) => {
+      const next = [...prev];
+      URL.revokeObjectURL(next[index].preview);
+      next.splice(index, 1);
+      return next;
+    });
+  };
+
+  const uploadSelectedImages = async () => {
+    const urls: string[] = [];
+    for (const image of selectedImages) {
+      const ext = image.file.name.split('.').pop() || 'jpg';
+      const path = `posts/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(path, image.file, { cacheControl: '3600', upsert: false });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('images').getPublicUrl(path);
+      urls.push(data.publicUrl);
+    }
+    return urls;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    if (!content.trim() && selectedImages.length === 0) return;
 
     setIsSubmitting(true);
     setError('');
 
     try {
+      const mediaUrls = await uploadSelectedImages();
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, visibility }),
+        body: JSON.stringify({ content, visibility, media_urls: mediaUrls }),
       });
 
       const data = await res.json();
@@ -92,6 +131,7 @@ export default function CreatePostPage() {
             <span className="text-sm text-muted-foreground mr-2">Add:</span>
             <button
               type="button"
+              onClick={() => imageInputRef.current?.click()}
               className="p-2 rounded-full hover:bg-muted transition-colors"
               title="Add image"
             >
@@ -112,6 +152,34 @@ export default function CreatePostPage() {
               <LinkIcon className="w-5 h-5 text-primary" />
             </button>
           </div>
+
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+
+          {selectedImages.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {selectedImages.map((image, index) => (
+                <div key={`${image.file.name}-${index}`} className="relative rounded-xl overflow-hidden border border-border">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={image.preview} alt={image.file.name} className="w-full h-28 object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white"
+                    aria-label="Remove image"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Visibility */}
           <div className="flex items-center gap-4 p-4 bg-card border border-border rounded-2xl">

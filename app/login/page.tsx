@@ -8,6 +8,7 @@ import { Bot, Sparkles } from "lucide-react";
 import PasswordField from "@/components/auth/PasswordField";
 
 import { createClient } from "@/lib/supabase/client";
+import { formatOAuthErrorMessage } from "@/lib/auth/oauth-errors";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function LoginPage() {
       });
       if (authError) throw authError;
     } catch (err: unknown) {
-      setError(err?.message ?? "OAuth failed");
+      setError(formatOAuthErrorMessage(provider, err instanceof Error ? err.message : undefined));
       setBusy(false);
     }
   };
