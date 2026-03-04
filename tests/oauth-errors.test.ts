@@ -12,4 +12,8 @@ describe('formatOAuthErrorMessage', () => {
   it('returns original message for other errors', () => {
     expect(formatOAuthErrorMessage('google', 'OAuth callback failed')).toBe('OAuth callback failed');
   });
+
+  it('returns fallback when message is undefined', () => {
+    expect(formatOAuthErrorMessage('google', undefined)).toBe('OAuth failed');
+  });
 });

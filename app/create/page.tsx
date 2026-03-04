@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 
 const ALLOWED_IMAGE_EXT = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp']);
+type UploadedImage = { path: string; publicUrl: string };
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -51,31 +52,40 @@ export default function CreatePostPage() {
   };
 
   const uploadSelectedImages = async () => {
-    const uploadedPaths: string[] = [];
+    const uploads = selectedImages.map(async (image) => {
+      const ext = (image.file.name.split('.').pop() || 'jpg').toLowerCase();
+      if (!ALLOWED_IMAGE_EXT.has(ext)) throw new Error(`Unsupported image type: ${ext}`);
+      const path = `posts/${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(path, image.file, { cacheControl: '3600', upsert: false });
+      if (uploadError) throw uploadError;
+      return {
+        path,
+        publicUrl: supabase.storage.from('images').getPublicUrl(path).data.publicUrl,
+      };
+    });
 
-    try {
-      const uploads = selectedImages.map(async (image) => {
-        const ext = (image.file.name.split('.').pop() || 'jpg').toLowerCase();
-        if (!ALLOWED_IMAGE_EXT.has(ext)) throw new Error(`Unsupported image type: ${ext}`);
-        const path = `posts/${crypto.randomUUID()}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from('images')
-          .upload(path, image.file, { cacheControl: '3600', upsert: false });
-        if (uploadError) throw uploadError;
-        uploadedPaths.push(path);
-        return supabase.storage.from('images').getPublicUrl(path).data.publicUrl;
-      });
+    const results = await Promise.allSettled(uploads);
+    const successfulUploads = results
+      .filter((result): result is PromiseFulfilledResult<UploadedImage> => result.status === 'fulfilled')
+      .map((result) => result.value);
+    const failedUploads = results.filter((result) => result.status === 'rejected');
 
-      return await Promise.all(uploads);
-    } catch (uploadErr) {
-      if (uploadedPaths.length > 0) {
-        const { error: cleanupError } = await supabase.storage.from('images').remove(uploadedPaths);
+    if (failedUploads.length > 0) {
+      if (successfulUploads.length > 0) {
+        const { error: cleanupError } = await supabase.storage.from('images').remove(successfulUploads.map((upload) => upload.path));
         if (cleanupError) {
           console.error('Failed to rollback uploaded images:', cleanupError.message);
         }
       }
-      throw uploadErr;
+      const firstFailure = failedUploads[0];
+      if (firstFailure.reason instanceof Error) throw firstFailure.reason;
+      console.error('Image upload failed with non-Error rejection:', firstFailure.reason);
+      throw new Error(`Failed to upload ${failedUploads.length} image(s)`);
     }
+
+    return successfulUploads.map((upload) => upload.publicUrl);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,7 +131,7 @@ export default function CreatePostPage() {
           </div>
           <button
             onClick={handleSubmit}
-            disabled={!content.trim() || isSubmitting}
+            disabled={(!content.trim() && selectedImages.length === 0) || isSubmitting}
             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors active:scale-95 min-h-[44px]"
           >
             {isSubmitting ? (
