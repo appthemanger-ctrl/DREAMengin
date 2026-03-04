@@ -1,34 +1,33 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Space_Grotesk } from 'next/font/google'
+import './globals.css'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+  weight: ['300', '400', '500', '600', '700'],
+})
 
 export const metadata: Metadata = {
-  title: "DREAMengin",
-  description: "Customizable UI OS · Widget Space · Social Feed · AI Triad",
-};
+  title: 'DREAMengin — Build Your Future',
+  description: 'The decentralized creative platform for dreamers and builders.',
+  icons: { icon: '/logo-icon.png', apple: '/logo-icon.png' },
+  openGraph: {
+    title: 'DREAMengin',
+    description: 'The decentralized creative platform for dreamers and builders.',
+    images: ['/logo.png'],
+  },
+}
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" className={spaceGrotesk.variable}>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+      </head>
+      <body className="bg-de-sheet text-slate-200 antialiased">
         {children}
       </body>
     </html>
-  );
+  )
 }

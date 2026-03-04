@@ -1,0 +1,64 @@
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/lib/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        'de-sky':      '#7DD3FC',
+        'de-sky-dark': '#0EA5E9',
+        'de-gold':     '#F59E0B',
+        'de-gold-light':'#FCD34D',
+        'de-navy':     '#0F172A',
+        'de-sheet':    '#0C1A2E',
+        'de-card':     '#111D30',
+        'de-border':   'rgba(125,211,252,0.15)',
+      },
+      fontFamily: {
+        sans: ['var(--font-space-grotesk)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'monospace'],
+      },
+      backgroundImage: {
+        'sky-gradient': 'linear-gradient(135deg, #0C1A2E 0%, #0F2A4A 50%, #0C1A2E 100%)',
+        'gold-shine':   'linear-gradient(90deg, transparent, rgba(245,158,11,0.3), transparent)',
+      },
+      boxShadow: {
+        'sky-glow':  '0 0 24px rgba(125,211,252,0.25)',
+        'gold-glow': '0 0 24px rgba(245,158,11,0.35)',
+        'card':      '0 4px 32px rgba(0,0,0,0.4)',
+      },
+      animation: {
+        'float':      'float 6s ease-in-out infinite',
+        'gold-shine': 'goldShine 3s ease-in-out infinite',
+        'fade-up':    'fadeUp 0.6s ease-out forwards',
+        'pulse-ring': 'pulseRing 2s ease-out infinite',
+      },
+      keyframes: {
+        float: {
+          '0%,100%': { transform: 'translateY(0px)' },
+          '50%':     { transform: 'translateY(-12px)' },
+        },
+        goldShine: {
+          '0%':   { backgroundPosition: '-200% center' },
+          '100%': { backgroundPosition: '200% center' },
+        },
+        fadeUp: {
+          '0%':   { opacity: '0', transform: 'translateY(24px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        pulseRing: {
+          '0%':   { transform: 'scale(1)', opacity: '0.8' },
+          '100%': { transform: 'scale(1.5)', opacity: '0' },
+        },
+      },
+    },
+  },
+  plugins: [require('tailwindcss-animate')],
+}
+
+export default config

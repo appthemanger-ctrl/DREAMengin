@@ -1,53 +1,35 @@
-"use client";
+import Nav from '@/components/Nav'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 
-import { useState } from "react";
-
-export default function DeleteAccountPage() {
-  const [confirmed, setConfirmed] = useState(false);
-  const [done, setDone] = useState(false);
-
-  function handleDelete() {
-    // TODO: wire to Supabase / backend account-delete API
-    setDone(true);
-  }
-
-  if (done) {
-    return (
-      <main className="flex min-h-screen flex-col items-center bg-black px-4 py-8">
-        <p className="mt-12 text-green-400">Your DREAMengin account has been deleted.</p>
-      </main>
-    );
-  }
-
+export default function SettingsAccount() {
   return (
-    <main className="flex min-h-screen flex-col items-center bg-black px-4 py-8">
-      <header className="mb-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white">Delete My Dream</h1>
-        <p className="mt-2 text-sm text-zinc-500">
-          Permanently deletes your account identity and all associated data.
-        </p>
-      </header>
-
-      <div className="w-full max-w-md rounded-2xl border border-red-500/30 bg-red-950/20 p-6">
-        <label className="flex cursor-pointer items-start gap-3 text-sm text-zinc-300">
-          <input
-            type="checkbox"
-            className="mt-0.5 accent-red-500"
-            checked={confirmed}
-            onChange={(e) => setConfirmed(e.target.checked)}
-          />
-          I understand this permanently deletes my account and cannot be undone.
-        </label>
-
-        <button
-          type="button"
-          disabled={!confirmed}
-          onClick={handleDelete}
-          className="mt-6 w-full rounded-full bg-red-600 py-3 text-sm font-semibold text-white disabled:opacity-40 hover:bg-red-500"
-        >
-          Delete My Dream
-        </button>
+    <div className="min-h-screen bg-sky-gradient">
+      <Nav />
+      <div className="max-w-2xl mx-auto px-4 py-10">
+        <Link href="/settings" className="flex items-center gap-2 text-slate-400 hover:text-de-sky text-sm mb-6 transition-colors">
+          <ArrowLeft size={14} /> Back to Settings
+        </Link>
+        <h1 className="text-2xl font-bold mb-6">Account</h1>
+        <div className="de-card p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">Username</label>
+            <input className="de-input" defaultValue="your_handle" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Email</label>
+            <input type="email" className="de-input" defaultValue="you@example.com" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Bio</label>
+            <textarea className="de-input h-24 resize-none" defaultValue="Creator · Builder · Dreamer" />
+          </div>
+          <div className="pt-2 flex gap-3">
+            <button className="de-btn-primary">Save Changes</button>
+            <Link href="/settings" className="de-btn-ghost">Cancel</Link>
+          </div>
+        </div>
       </div>
-    </main>
-  );
+    </div>
+  )
 }

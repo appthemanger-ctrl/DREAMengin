@@ -40,11 +40,10 @@ export function DreamEnginLogo({
   width = 320,
   height = 160,
   className,
-  ...sceneOptions
 }: DreamEnginLogoProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useDreamLogoScene(canvasRef, sceneOptions);
+  useDreamLogoScene();
 
   return (
     <canvas
