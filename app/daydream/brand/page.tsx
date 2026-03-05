@@ -2,9 +2,22 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Palette, Share2, ImageIcon } from 'lucide-react';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Brand Daydream – DREAMengin', description: 'Build and manage your personal brand identity.' };
+
+
+const WIDGETS: DaydreamWidget[] = [
+  { id: 'post',      emoji: '📢', label: 'New Post',     desc: 'Create and share content',    color: '#ec4899', href: '/create' },
+  { id: 'profile',   emoji: '👤', label: 'Edit Profile', desc: 'Update your public presence', color: '#2a8ab8', href: '/edit-profile' },
+  { id: 'analytics', emoji: '📊', label: 'Analytics',    desc: 'Track your reach and growth', color: '#6366f1', href: '/daydream/analytics' },
+  { id: 'appearance',emoji: '🎨', label: 'Appearance',   desc: 'Gradient theme and style',    color: '#f59e0b', href: '/settings/appearance' },
+  { id: 'connectors',emoji: '🔌', label: 'Social Links', desc: 'Connect your platforms',      color: '#0ea5e9', href: '/connectors' },
+  { id: 'view',      emoji: '🌐', label: 'View Profile', desc: 'See what visitors see',       color: '#22c55e', href: '/profile' },
+  { id: 'shop',      emoji: '🛍️', label: 'Your Shop',    desc: 'Sell products and services',  color: '#c8981a', href: '/shop' },
+  { id: 'music',     emoji: '🎵', label: 'Music Studio', desc: 'Your artist side',            color: '#8b5cf6', href: '/daydream/music' },
+];
 
 export default async function BrandDaydreamPage() {
   const supabase = await createServerClient();
@@ -12,6 +25,7 @@ export default async function BrandDaydreamPage() {
   if (!user) redirect('/login');
 
   return (
+    <DaydreamShell title="Brand" accentColor="#ec4899" widgets={WIDGETS}>
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -94,5 +108,6 @@ export default async function BrandDaydreamPage() {
 
       </div>
     </div>
+    </DaydreamShell>
   );
 }

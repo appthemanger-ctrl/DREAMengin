@@ -26,9 +26,9 @@
 
 ## Current Branch
 
-- **Branch:** `copilot/build-mario-style-game`
+- **Branch:** `copilot/check-sprite-animation-replacement`
 - **Base:** `completedream`
-- **PR purpose:** Mobile-first platform docs + dual-joystick game controls + PS5 gamepad + Supabase env fix + theme reinforcement + feature status tracking
+- **PR purpose:** Full user-facing redesign — sky-blue+gold gradient system, all stubs replaced with working features, DaydreamShell flip for all 7 daydreams, ProfileCanvas all-in-one, AlgorithmEngine, FollowOnboarding, 3 live mini-games
 
 ---
 
@@ -42,7 +42,86 @@ See `docs/ARCHITECTURE.md §17` and `docs/SPEC.md §10` for the full spec.
 
 ---
 
-## What Was Done This Session (2026-03-05)
+## What Was Done This Session (2026-03-05, branch: copilot/check-sprite-animation-replacement)
+
+### 1. Sky-blue + gold gradient design system (`styles/globals.css`)
+- Added `--de-theme-from`, `--de-theme-mid`, `--de-theme-to`, `--de-theme-angle` CSS vars to `html,body`.
+- `de-btn-primary` and `de-btn-gold` now both render as sky-blue→gold gradient pills.
+- Added `.de-marble` bubble class — radial gradient white core to color edges, deep blur, inset shimmer highlight.
+- Added `de-flip-out` / `de-flip-in` keyframes for the page-turn flip animation.
+
+### 2. ThemeApplicator (`components/ThemeApplicator.tsx`)
+- Client component that reads `localStorage('de-theme')` on mount and applies CSS vars.
+- Listens for `de-theme-changed` event so settings changes take effect live without a reload.
+- Wired into root `app/layout.tsx`.
+
+### 3. Appearance settings (`app/settings/appearance/page.tsx`)
+- Added "Gradient Theme Picker" section with 5 presets: Sky+Gold (default), Ocean+Coral, Aurora, Sunrise, Mint+Sky.
+- Each preset writes `de-theme` to localStorage and fires `de-theme-changed`.
+
+### 4. Login + Join redesigned (`app/login/page.tsx`, `app/join/page.tsx`)
+- Both pages now use `de-sky-bg`, `de-widget` frosted glass cards, `de-btn-primary`/`de-btn-gold`.
+- Removed all dark purple / indigo theming.
+
+### 5. About page (`app/about/page.tsx`)
+- Replaced `bg-universe`/`glass-dark` with `de-sky-bg`/`de-widget`.
+
+### 6. Games Daydream — 3 live mini-games (`app/daydream/games/page.tsx`)
+- Dr. Eams Platformer is the hero card (real canvas game, always-on).
+- Word Sprint (`components/games/WordSprint.tsx`) — 60-second typing speed game, client-only.
+- Memory Grid (`components/games/MemoryGrid.tsx`) — 8-pair flip matching game, client-only.
+- Speed Tap (`components/games/SpeedTap.tsx`) — 10-second tap counter with keyboard support.
+- All 3 run immediately — zero coming-soon states.
+
+### 7. Music Studio — real SoundRecorder (`components/music/SoundRecorder.tsx`)
+- MediaRecorder API — record, pause/resume, stop.
+- Live waveform canvas (Web Audio AnalyserNode, 60fps animation loop).
+- Playback via `<audio>` element.
+- One-click download as .webm audio file.
+- Wired into `app/daydream/music/page.tsx`, replaces "waveform will appear here" placeholder.
+
+### 8. Analytics Daydream (`app/daydream/analytics/page.tsx`)
+- Removed all fake chart `<div>` placeholders.
+- Now shows real post count from Supabase + actionable links (Add Connector, Open Shop, Edit Profile).
+
+### 9. Marketplace (`app/marketplace/page.tsx`)
+- Removed "Featured coming soon" dead card and "No trending yet" card.
+- Replaced with real "Publish your first item" CTA.
+
+### 10. Settings / Data (`app/settings/data/page.tsx`)
+- Removed "(Coming Soon)" from the Export Data button.
+
+### 11. Shop (`app/shop/page.tsx`)
+- Now fetches real `merch` rows from Supabase.
+- Shows live grid when listings exist; shows "Create your first listing" CTA when empty.
+
+### 12. ProfileCanvas — all-in-one profile page (`components/profile/ProfileCanvas.tsx`, `app/profile/page.tsx`)
+- Edit + widget visibility toggles + share panel + visitor view link, all in one place.
+- 8 draggable widget slots with visibility toggles (marble bubble style).
+- No separate /edit-profile redirect needed for basic profile management.
+
+### 13. DaydreamShell — flip system (`components/daydream/DaydreamShell.tsx`)
+- Reusable Side A (daydream content) / Side B (widget tray) flip with page-turn animation.
+- Page-corner fold tab in bottom-right triggers flip; Alt+F keyboard shortcut also works.
+- All 7 daydreams wired: Music, Games, Analytics, Create, Brand, Media Vault, Play.
+- Each daydream has 6–8 daydream-specific marble bubble widgets on Side B.
+
+### 14. FollowOnboarding (`components/feed/FollowOnboarding.tsx`, `components/feed/FollowButton.tsx`)
+- Bottom-sheet modal triggered when following a user.
+- 8 frequency options: Everything, Highlights, Once a Day, Weekdays, Weekends, New Releases, Groups Only, Silent.
+- Settings persisted to `localStorage('de-follow-settings')`.
+- `FollowButton` client component replaces static Follow button on public profile page.
+
+### 15. AlgorithmEngine + Settings (`components/feed/AlgorithmEngine.tsx`, `app/settings/algorithm/page.tsx`)
+- My Algorithm vs Dream Algorithm toggle.
+- Preset creator — name a preset, pick 3 sources from follow list.
+- Mix Mode — activate up to 3 presets simultaneously.
+- Share a Setup — copies a shareable setup string.
+- `/settings/algorithm` page with sky-blue header and Settings nav entry added.
+
+---
+
+## What Was Done In Previous Session (2026-03-05, branch: copilot/build-mario-style-game)
 
 ### 1. Supabase env-var resolver (`lib/supabase/env.ts`)
 - Created a single `pick()` resolver that tries every naming convention in
@@ -104,20 +183,27 @@ See `docs/ARCHITECTURE.md §17` and `docs/SPEC.md §10` for the full spec.
 | Theme tokens | `app/globals.css`, `tailwind.config.ts` |
 | Home Buttons state machine | `lib/home-buttons/home-buttons-state.ts` |
 | Golden Button UI | `components/dreamnav/DreamNavControls.tsx` |
+| DaydreamShell flip | `components/daydream/DaydreamShell.tsx` |
+| ProfileCanvas all-in-one | `components/profile/ProfileCanvas.tsx` |
+| FollowOnboarding modal | `components/feed/FollowOnboarding.tsx` |
+| FollowButton | `components/feed/FollowButton.tsx` |
+| AlgorithmEngine | `components/feed/AlgorithmEngine.tsx` |
+| Algorithm settings page | `app/settings/algorithm/page.tsx` |
+| ThemeApplicator | `components/ThemeApplicator.tsx` |
+| SoundRecorder | `components/music/SoundRecorder.tsx` |
+| Mini-games | `components/games/WordSprint.tsx`, `MemoryGrid.tsx`, `SpeedTap.tsx` |
 
 ---
 
 ## Open Issues / Next Priorities
 
-1. **Theme consistency** — blue + gold gradient must be applied to every Daydream
-   page, Shop, Profile, and all settings screens. Currently only the game page
-   and landing are fully themed.
-2. **Dual-joystick haptics** — PS5 DualSense haptic feedback via the Gamepad API
-   vibration extension when stomping enemies or collecting coins.
-3. **Daydream entry loops** — each of the 7 Daydreams needs at least 1-2 working
-   core interactions (most are scaffold pages only).
-4. **Feed system** — widget feed resolver is wired but feed items are demo-only.
-5. **Monetisation** — Shop and Marketplace are UI-only; payment integration pending.
-6. **Music Studio** — audio recorder and upload exist but are not connected to
-   the feed/publish pipeline.
-7. **Connectors** — YouTube and demo connectors exist; IG, Spotify not yet built.
+1. **11 pages still use `bg-background`** — `app/create`, `app/shop/sell`, `app/music`, `app/music/upload`, `app/settings/account`, `app/settings/security`, `app/settings/notifications`, `app/ads/create`, `app/lab/new` — apply `de-sky-bg` + `de-widget` to each.
+2. **Feed system** — widget feed resolver is wired but feed items are demo-only; connect to real DB rows.
+3. **FollowOnboarding → DB** — currently persists to localStorage only; wire to a `follow_settings` Supabase table.
+4. **Algorithm presets → DB** — AlgorithmEngine stores to localStorage; persist to `user_feed_presets` table.
+5. **ProfileCanvas drag** — widget grid shows toggle visibility; actual drag-to-reorder not yet wired (needs `@dnd-kit/core`).
+6. **Music Studio publish pipeline** — SoundRecorder records + downloads; not yet connected to feed publish.
+7. **Payments (Shop / Marketplace)** — UI exists; Stripe integration not started.
+8. **PS5 DualSense haptics** — Gamepad vibration API on stomp/coin; wiring pending.
+9. **Game leaderboard** — score exists in-game; no Supabase persistence yet.
+10. **Connectors** — YouTube + demo exist; Instagram, Spotify not yet built.

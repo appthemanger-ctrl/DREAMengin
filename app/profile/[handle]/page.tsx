@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Music, ExternalLink, Store, FlaskConical, Edit2, User, Sparkles, Share2, UserPlus, ArrowLeft, Globe } from 'lucide-react';
 import ProfileShareButton from '@/components/ProfileShareButton';
 import ProfileWidgetBlock from '@/components/ProfileWidgetBlock';
+import FollowButton from '@/components/feed/FollowButton';
 
 type ProfileLink = {
   label?: string;
@@ -111,9 +112,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             {isOwner ? (
               <Link href="/edit-profile" className="de-btn de-btn-ghost" style={{ fontSize: 11, padding: '6px 12px' }}>Edit Profile</Link>
             ) : (
-              <button type="button" className="de-btn de-btn-primary" style={{ fontSize: 11, padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                <UserPlus className="w-3 h-3" /> Follow
-              </button>
+              <FollowButton handle={profile.handle} displayName={profile.display_name || profile.handle} />
             )}
             <ProfileShareButton />
           </div>

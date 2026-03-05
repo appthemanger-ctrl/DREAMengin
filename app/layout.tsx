@@ -3,6 +3,7 @@ import '@/components/v1-ui/widget-feed-screen.css';
 import type { Metadata, Viewport } from 'next';
 import { Space_Grotesk } from 'next/font/google';
 import ThemeProvider from '@/components/providers/ThemeProvider';
+import ThemeApplicator from '@/components/ThemeApplicator';
 import Link from 'next/link';
 
 const spaceGrotesk = Space_Grotesk({
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ fontFamily: 'var(--font-space-grotesk, "Space Grotesk", system-ui, sans-serif)' }}
       >
         <ThemeProvider>
+          <ThemeApplicator />
           <main>{children}</main>
           {/* Permanent policy footer (req 10) — always accessible, no login required */}
           <footer

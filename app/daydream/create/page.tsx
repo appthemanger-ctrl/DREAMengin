@@ -2,6 +2,18 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle } from 'lucide-react';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
+
+const WIDGETS: DaydreamWidget[] = [
+  { id: 'note',      emoji: '📝', label: 'Quick Note',  desc: 'Capture a thought instantly',  color: '#f59e0b', href: '/daydream/create' },
+  { id: 'task',      emoji: '✅', label: 'New Task',    desc: 'Add to your to-do list',       color: '#10b981', href: '/daydream/create' },
+  { id: 'idea',      emoji: '💡', label: 'New Idea',    desc: 'Drop an idea before it fades', color: '#f59e0b', href: '/daydream/create' },
+  { id: 'project',   emoji: '📁', label: 'New Project', desc: 'Start a project board',        color: '#0ea5e9', href: '/daydream/create' },
+  { id: 'post',      emoji: '📢', label: 'Share Post',  desc: 'Post an update to your feed',  color: '#ec4899', href: '/create' },
+  { id: 'calendar',  emoji: '📅', label: 'Calendar',    desc: 'View your schedule',           color: '#6366f1', href: '/daydream/create' },
+  { id: 'media',     emoji: '🖼️', label: 'Media',       desc: 'Attach photos or videos',      color: '#8b5cf6', href: '/daydream/media-vault' },
+  { id: 'connectors',emoji: '🔌', label: 'Connectors',  desc: 'Link your tools',              color: '#c8981a', href: '/connectors' },
+];
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Create – DREAMengin', description: 'Ideas, tasks, calendar, projects, and media.' };
@@ -20,10 +32,8 @@ export default async function CreateDaydreamPage() {
   ];
 
   return (
+    <DaydreamShell title="Create" accentColor="#f59e0b" widgets={WIDGETS}>
     <div className="de-sky-bg min-h-screen">
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <PlusCircle className="w-5 h-5" style={{ color: '#6366f1' }} />
@@ -58,5 +68,6 @@ export default async function CreateDaydreamPage() {
         ))}
       </div>
     </div>
+    </DaydreamShell>
   );
 }

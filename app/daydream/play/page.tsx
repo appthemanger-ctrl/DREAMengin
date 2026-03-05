@@ -2,9 +2,19 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Play, Heart, BookmarkPlus, ListMusic, Film, Music2 } from 'lucide-react';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Play Daydream – DREAMengin', description: 'Your saved music and videos in one immersive space.' };
+
+const WIDGETS: DaydreamWidget[] = [
+  { id: 'music',   emoji: '🎵', label: 'Your Music',   desc: 'Albums, tracks, and singles', color: '#2a8ab8', href: '/music' },
+  { id: 'vault',   emoji: '🎬', label: 'Media Vault',  desc: 'Your saved videos',           color: '#ef4444', href: '/daydream/media-vault' },
+  { id: 'upload',  emoji: '📤', label: 'Upload Music', desc: 'Add to your collection',      color: '#c8981a', href: '/music/upload' },
+  { id: 'discover',emoji: '🔍', label: 'Discover',     desc: 'Find music and creators',     color: '#22c55e', href: '/discover' },
+  { id: 'studio',  emoji: '🎙️', label: 'Music Studio', desc: 'Record and create',           color: '#ec4899', href: '/daydream/music' },
+  { id: 'algo',    emoji: '🧠', label: 'My Algorithm', desc: 'Control what plays next',     color: '#6366f1', href: '/settings/algorithm' },
+];
 
 export default async function PlayDaydreamPage() {
   const supabase = await createServerClient();
@@ -12,6 +22,7 @@ export default async function PlayDaydreamPage() {
   if (!user) redirect('/login');
 
   return (
+    <DaydreamShell title="Play" accentColor="#8b5cf6" widgets={WIDGETS}>
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -81,5 +92,6 @@ export default async function PlayDaydreamPage() {
 
       </div>
     </div>
+    </DaydreamShell>
   );
 }

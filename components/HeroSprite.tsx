@@ -3,60 +3,87 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
- * HeroSprite – Dr. Eams sprite, always animating.
+ * HeroSprite – Dr. Eams assembled from real body-part assets, always animating.
  *
- * Sheet: /images/HEROSPRITE.png — 4 cols × 6 rows = 24 frames, 208 × 208 px each.
+ * Parts loaded from /public/:
+ *   head_transparent.png  (702 × 560 natural px)
+ *   coat_transparent.png  (622 × 741 natural px)  — torso
+ *   arm1_transparent.png  (245 × 683 natural px)  — back arm
+ *   arm2_transparent.png  (374 × 529 natural px)  — front arm
+ *   shoe1_transparent.png (295 × 362 natural px)  — back leg/shoe
+ *   shoe2_transparent.png (295 × 416 natural px)  — front leg/shoe
  *
- * Touch / click zones (based on y position relative to canvas height):
- *   head  → top 30 %     → rows 1   (frames 4–7)
- *   scan  → mid 38 %     → rows 2–3 (frames 8–15)
- *   fall  → bottom 32 %  → rows 4–5 (frames 16–23)
- *   idle  → default loop → row 0    (frames 0–3)
+ * Touch / pointer zones (based on y position relative to canvas height):
+ *   head  → top 30%     → head wobbles / bounces
+ *   torso → mid 38%     → arms wave
+ *   legs  → bottom 32%  → legs kick
  *
- * The animation never stops — it always cycles through the active range.
+ * The animation never stops — idle loop runs between reactions.
  * After a reaction the loop returns to idle automatically.
  */
 
-const SPRITE_COLS = 4;
-const SPRITE_ROWS = 6;
-/** Pixel brightness threshold above which a channel is considered "near-white". */
-const WHITE_THRESHOLD = 230;
+// ── Natural pixel dimensions of each asset ────────────────────────────────────
+const NAT = {
+  head:  { w: 702, h: 560 },
+  coat:  { w: 622, h: 741 },
+  arm1:  { w: 245, h: 683 },
+  arm2:  { w: 374, h: 529 },
+  shoe1: { w: 295, h: 362 },
+  shoe2: { w: 295, h: 416 },
+} as const;
 
-type Zone = 'idle' | 'head' | 'scan' | 'fall';
+// Draw scale — character total visual height ≈ 208 px inside a 288 px canvas
+const S = 0.13;
 
-/** Inclusive frame [first, last] for each zone */
-const RANGES: Record<Zone, readonly [number, number]> = {
-  idle: [0,   3],
-  head: [4,   7],
-  scan: [8,  15],
-  fall: [16, 23],
+const DIM = {
+  head:  { w: Math.round(NAT.head.w  * S), h: Math.round(NAT.head.h  * S) }, // 91 × 73
+  coat:  { w: Math.round(NAT.coat.w  * S), h: Math.round(NAT.coat.h  * S) }, // 81 × 96
+  arm1:  { w: Math.round(NAT.arm1.w  * S), h: Math.round(NAT.arm1.h  * S) }, // 32 × 89
+  arm2:  { w: Math.round(NAT.arm2.w  * S), h: Math.round(NAT.arm2.h  * S) }, // 49 × 69
+  shoe1: { w: Math.round(NAT.shoe1.w * S), h: Math.round(NAT.shoe1.h * S) }, // 38 × 47
+  shoe2: { w: Math.round(NAT.shoe2.w * S), h: Math.round(NAT.shoe2.h * S) }, // 38 × 54
+} as const;
+
+// ── Interaction zones ─────────────────────────────────────────────────────────
+type Zone = 'idle' | 'head' | 'torso' | 'legs';
+
+const REACT_MS = 1600; // ms before returning to idle
+
+const ZONE_LABEL: Record<Zone, string> = {
+  idle:  '',
+  head:  '🧠 head!',
+  torso: '👋 arms!',
+  legs:  '🦵 legs!',
 };
 
-const FPS_BY_ZONE: Record<Zone, number> = {
-  idle: 8,
-  head: 16,   // snappy head-tap
-  scan: 10,   // slow scanning pulse
-  fall: 13,   // tumble
-};
-
-const REACT_MS = 1600; // reaction duration before returning to idle
-
-/** Hit-test: which zone was the pointer in? */
-function hitZone(offsetY: number, displayH: number): Zone {
+/** Exported for unit tests */
+export function hitZone(offsetY: number, displayH: number): Zone {
   const rel = offsetY / displayH;
   if (rel < 0.30) return 'head';
-  if (rel < 0.68) return 'scan';
-  return 'fall';
+  if (rel < 0.68) return 'torso';
+  return 'legs';
 }
 
-/** Human-readable hint labels shown briefly after a tap */
-const ZONE_LABEL: Record<Zone, string> = {
-  idle: '',
-  head: '👾 head!',
-  scan: '🔬 scan!',
-  fall: '💫 fall!',
+// ── Image loading ─────────────────────────────────────────────────────────────
+type Images = {
+  head:  HTMLImageElement | null;
+  coat:  HTMLImageElement | null;
+  arm1:  HTMLImageElement | null;
+  arm2:  HTMLImageElement | null;
+  shoe1: HTMLImageElement | null;
+  shoe2: HTMLImageElement | null;
 };
 
+function loadImg(src: string): Promise<HTMLImageElement> {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload  = () => resolve(img);
+    img.onerror = () => resolve(img); // guard: null-check before drawImage
+    img.src = src;
+  });
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
 type Props = {
   width?: number;
   height?: number;
@@ -68,19 +95,32 @@ export default function HeroSprite({
   height = 224,
   className = '',
 }: Props) {
-  const canvasRef   = useRef<HTMLCanvasElement>(null);
-  // shared with the rAF loop — no re-render on every frame
-  const zoneRef     = useRef<Zone>('idle');
-  const reactUntil  = useRef<number>(0);
-  const localFrame  = useRef<number>(0);   // index within current range
-  const lastTime    = useRef<number>(0);
+  const canvasRef  = useRef<HTMLCanvasElement>(null);
+  const zoneRef    = useRef<Zone>('idle');
+  const reactUntil = useRef<number>(0);
+  const imgsRef    = useRef<Images>({
+    head: null, coat: null, arm1: null, arm2: null, shoe1: null, shoe2: null,
+  });
 
   const [hint, setHint] = useState<{ label: string; key: number } | null>(null);
+
+  // Load body-part images once on mount
+  useEffect(() => {
+    Promise.all([
+      loadImg('/head_transparent.png'),
+      loadImg('/coat_transparent.png'),
+      loadImg('/arm1_transparent.png'),
+      loadImg('/arm2_transparent.png'),
+      loadImg('/shoe1_transparent.png'),
+      loadImg('/shoe2_transparent.png'),
+    ]).then(([head, coat, arm1, arm2, shoe1, shoe2]) => {
+      imgsRef.current = { head, coat, arm1, arm2, shoe1, shoe2 };
+    });
+  }, []);
 
   const triggerZone = useCallback((zone: Zone) => {
     if (zone === 'idle') return;
     zoneRef.current    = zone;
-    localFrame.current = 0;
     reactUntil.current = performance.now() + REACT_MS;
     setHint({ label: ZONE_LABEL[zone], key: Date.now() });
     setTimeout(() => setHint(null), REACT_MS - 100);
@@ -88,95 +128,174 @@ export default function HeroSprite({
 
   const handlePointer = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = (e.currentTarget as HTMLCanvasElement).getBoundingClientRect();
-    const y    = e.clientY - rect.top;
-    triggerZone(hitZone(y, rect.height));
+    triggerZone(hitZone(e.clientY - rect.top, rect.height));
   }, [triggerZone]);
 
   const handleKey = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') triggerZone('head');
-    if (e.key === ' ')     triggerZone('scan');
+    if (e.key === ' ')     triggerZone('torso');
+    if (e.key === 'ArrowDown') triggerZone('legs');
   }, [triggerZone]);
 
+  // rAF draw loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctxOrNull = canvas.getContext('2d');
+    if (!ctxOrNull) return;
+    const ctx: CanvasRenderingContext2D = ctxOrNull;
 
-    const dpr     = window.devicePixelRatio || 1;
+    const dpr = window.devicePixelRatio || 1;
     canvas.width  = width  * dpr;
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
 
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = '/images/HEROSPRITE.png';
-
     let rafId   = 0;
     let stopped = false;
+    const startTime = performance.now();
 
-    img.onload = () => {
-      const frameW = Math.floor(img.naturalWidth  / SPRITE_COLS);
-      const frameH = Math.floor(img.naturalHeight / SPRITE_ROWS);
+    /** Draw one body part with pivot + rotation, optionally flipped. */
+    function drawPart(
+      img: HTMLImageElement | null,
+      pw: number, ph: number,
+      dx: number, dy: number,
+      pivotX: number, pivotY: number,
+      angle: number,
+    ) {
+      if (!img?.complete || !img.naturalWidth) return;
+      ctx.save();
+      ctx.translate(pivotX, pivotY);
+      ctx.rotate(angle);
+      ctx.drawImage(img, dx - pivotX, dy - pivotY, pw, ph);
+      ctx.restore();
+    }
 
-      // Strip near-white JPEG background → transparency (runs once on load)
-      let source: CanvasImageSource = img;
-      const sheet = document.createElement('canvas');
-      sheet.width  = img.naturalWidth;
-      sheet.height = img.naturalHeight;
-      const sCtx = sheet.getContext('2d', { willReadFrequently: true });
-      if (sCtx) {
-        sCtx.drawImage(img, 0, 0);
-        const id = sCtx.getImageData(0, 0, sheet.width, sheet.height);
-        const d  = id.data;
-        for (let i = 0; i < d.length; i += 4) {
-          if (d[i] > WHITE_THRESHOLD && d[i + 1] > WHITE_THRESHOLD && d[i + 2] > WHITE_THRESHOLD) d[i + 3] = 0;
-        }
-        sCtx.putImageData(id, 0, 0);
-        source = sheet;
+    // Pause on hidden tab (ARCHITECTURE.md §17.3 — battery-aware)
+    function onVisibility() {
+      if (!document.hidden) rafId = requestAnimationFrame(tick);
+    }
+    document.addEventListener('visibilitychange', onVisibility);
+
+    function tick(now: number) {
+      if (stopped) return;
+
+      // Skip draw while tab is hidden — rAF won't fire anyway, but guard is cheap
+      if (document.hidden) { rafId = requestAnimationFrame(tick); return; }
+
+      // Expire reaction → return to idle
+      if (zoneRef.current !== 'idle' && now >= reactUntil.current) {
+        zoneRef.current = 'idle';
       }
 
-      function drawFrame(f: number) {
-        if (!ctx) return;
-        const col = f % SPRITE_COLS;
-        const row = Math.floor(f / SPRITE_COLS);
-        ctx.clearRect(0, 0, width, height);
-        ctx.drawImage(source, col * frameW, row * frameH, frameW, frameH, 0, 0, width, height);
+      const zone = zoneRef.current;
+      const t    = (now - startTime) / 1000; // elapsed seconds
+      const imgs = imgsRef.current;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // ── Idle animation base ──────────────────────────────────────────────
+      const idleBob   = Math.sin(t * 1.6) * 3;          // gentle vertical float
+      const idleArm   = Math.sin(t * 1.6) * 0.10;       // subtle arm sway
+      const idleLeg   = Math.sin(t * 1.6) * 0.06;       // subtle leg sway
+      const idleHead  = Math.sin(t * 0.9) * 0.04;       // gentle head tilt
+
+      // ── Per-zone reaction overrides ──────────────────────────────────────
+      let headAngle  = idleHead;
+      let headBounce = 0;
+      let armAngle   = idleArm;
+      let legAngle   = idleLeg;
+      let bodyBob    = idleBob;
+
+      if (zone !== 'idle') {
+        // progress 0 → 1 over the reaction window
+        const elapsed  = now - (reactUntil.current - REACT_MS);
+        const progress = Math.min(elapsed / REACT_MS, 1);
+
+        if (zone === 'head') {
+          // Head wobbles rapidly left-right, bounces up
+          headAngle  = Math.sin(progress * Math.PI * 10) * 0.45 * (1 - progress);
+          headBounce = Math.sin(progress * Math.PI * 5)  * -12  * (1 - progress);
+        } else if (zone === 'torso') {
+          // Arms wave in large arcs
+          armAngle = Math.sin(progress * Math.PI * 7) * 0.75 * (1 - progress * 0.4);
+          bodyBob  = Math.sin(progress * Math.PI * 4) * 5;
+        } else if (zone === 'legs') {
+          // Legs kick, body hops
+          legAngle = Math.sin(progress * Math.PI * 8) * 0.65 * (1 - progress * 0.3);
+          bodyBob  = Math.abs(Math.sin(progress * Math.PI * 3)) * -10 * (1 - progress);
+        }
       }
 
-      function tick(now: number) {
-        if (stopped) return;
+      // ── Layout (bottom-up from feetY) ────────────────────────────────────
+      const cx        = width / 2;
+      const feetY     = height - 22 + bodyBob;
+      const shoeTopY  = feetY  - DIM.shoe1.h;
+      const coatBotY  = feetY  - DIM.shoe1.h + 4;   // coat overlaps shoe top
+      const coatTopY  = coatBotY - DIM.coat.h;
+      const headTopY  = coatTopY - DIM.head.h + 8 + headBounce; // head overlaps coat top
+      const shoulderY = coatTopY + 6;                // arm pivot near coat top
 
-        // expire reaction → return to idle
-        if (zoneRef.current !== 'idle' && now >= reactUntil.current) {
-          zoneRef.current    = 'idle';
-          localFrame.current = 0;
-          lastTime.current   = now;
-        }
+      // Shadow underfoot
+      ctx.fillStyle = 'rgba(0,0,0,0.20)';
+      ctx.beginPath();
+      ctx.ellipse(cx, feetY + 5, 24, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-        const zone             = zoneRef.current;
-        const [first, last]    = RANGES[zone];
-        const rangeLen         = last - first + 1;
-        const frameMs          = 1000 / FPS_BY_ZONE[zone];
+      // 1. Back arm (behind torso) — swings opposite to front arm
+      drawPart(
+        imgs.arm1, DIM.arm1.w, DIM.arm1.h,
+        cx - DIM.arm1.w / 2 - 8, shoulderY,
+        cx - 8, shoulderY,
+        -armAngle,
+      );
 
-        // always advance — even if tab is hidden keep state consistent
-        if (!document.hidden && now - lastTime.current >= frameMs) {
-          drawFrame(first + (localFrame.current % rangeLen));
-          localFrame.current = (localFrame.current + 1) % rangeLen;
-          lastTime.current   = now;
-        }
+      // 2. Back shoe / leg
+      drawPart(
+        imgs.shoe1, DIM.shoe1.w, DIM.shoe1.h,
+        cx - DIM.shoe1.w / 2 - 5, shoeTopY,
+        cx - 5, shoeTopY,
+        -legAngle,
+      );
 
-        rafId = requestAnimationFrame(tick);
+      // 3. Coat / torso — always upright
+      if (imgs.coat?.complete && imgs.coat.naturalWidth) {
+        ctx.drawImage(imgs.coat, cx - DIM.coat.w / 2, coatTopY, DIM.coat.w, DIM.coat.h);
       }
 
-      // draw first frame immediately so canvas is never blank
-      drawFrame(RANGES['idle'][0]);
+      // 4. Front shoe / leg
+      drawPart(
+        imgs.shoe2, DIM.shoe2.w, DIM.shoe2.h,
+        cx - DIM.shoe2.w / 2 + 5, shoeTopY,
+        cx + 5, shoeTopY,
+        legAngle,
+      );
+
+      // 5. Head — pivots around its vertical centre
+      if (imgs.head?.complete && imgs.head.naturalWidth) {
+        ctx.save();
+        ctx.translate(cx, headTopY + DIM.head.h / 2);
+        ctx.rotate(headAngle);
+        ctx.drawImage(imgs.head, -DIM.head.w / 2, -DIM.head.h / 2, DIM.head.w, DIM.head.h);
+        ctx.restore();
+      }
+
+      // 6. Front arm (in front of torso)
+      drawPart(
+        imgs.arm2, DIM.arm2.w, DIM.arm2.h,
+        cx - DIM.arm2.w / 2 + 8, shoulderY,
+        cx + 8, shoulderY,
+        armAngle,
+      );
+
       rafId = requestAnimationFrame(tick);
+    }
+
+    rafId = requestAnimationFrame(tick);
+    return () => {
+      stopped = true;
+      cancelAnimationFrame(rafId);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
-
-    img.onerror = () => { stopped = true; };
-
-    return () => { stopped = true; cancelAnimationFrame(rafId); };
   }, [width, height]);
 
   return (
@@ -192,7 +311,7 @@ export default function HeroSprite({
           touchAction: 'none',
           display: 'block',
         }}
-        aria-label="Dr. Eams — tap head, belly, or feet to interact"
+        aria-label="Dr. Eams — tap head, torso, or legs to interact"
         role="img"
         tabIndex={0}
         onPointerDown={handlePointer}

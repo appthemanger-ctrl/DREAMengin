@@ -5,6 +5,79 @@ import Link from 'next/link';
 import { ArrowLeft, RotateCcw, Check } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
+import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, type DeTheme } from '@/components/ThemeApplicator';
+
+/* ── Gradient Preset Picker ── */
+function GradientThemePicker() {
+  const [active, setActive] = useState('default');
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('de-theme');
+      if (raw) {
+        const saved = JSON.parse(raw) as DeTheme & { id?: string };
+        if (saved.id) setActive(saved.id);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const select = (id: string) => {
+    const preset = GRADIENT_PRESETS[id];
+    if (!preset) return;
+    setActive(id);
+    const value = { ...preset.theme, id };
+    localStorage.setItem('de-theme', JSON.stringify(value));
+    applyTheme(preset.theme);
+    window.dispatchEvent(new Event('de-theme-changed'));
+  };
+
+  return (
+    <section style={{ marginBottom: 24 }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>
+        Gradient Theme
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 12 }}>
+        Sky-blue + gold gradients, everywhere. Pick your vibe.
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+        {Object.entries(GRADIENT_PRESETS).map(([id, { label, emoji, theme }]) => {
+          const isActive = active === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => select(id)}
+              style={{
+                borderRadius: 16, padding: '14px 12px', cursor: 'pointer', border: 'none',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                background: isActive ? 'rgba(200,152,26,0.08)' : 'rgba(255,255,255,0.5)',
+                outline: isActive ? '2px solid var(--de-gold)' : '1.5px solid rgba(160,195,240,0.35)',
+                boxShadow: isActive ? '0 0 0 3px rgba(200,152,26,0.15)' : '0 1px 4px rgba(0,0,0,0.05)',
+                transition: 'all 0.18s',
+              }}
+              aria-pressed={isActive}
+            >
+              {/* Gradient swatch */}
+              <div style={{
+                width: '100%', height: 36, borderRadius: 10,
+                background: `linear-gradient(135deg, ${theme.from}, ${theme.mid}, ${theme.to})`,
+                border: '1px solid rgba(255,255,255,0.4)',
+              }} />
+              <div style={{ fontSize: 18 }}>{emoji}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{label}</div>
+              {isActive && (
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-gold)', background: 'rgba(200,152,26,0.12)', padding: '2px 8px', borderRadius: 999 }}>
+                  ✦ ACTIVE
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 
 /* ── Slider component (styled with Dream tokens) ── */
 function Slider({
@@ -252,6 +325,9 @@ export default function AppearanceSettingsPage() {
       </header>
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '20px 16px' }}>
+
+        {/* ── Gradient Theme — user-editable sky+gold ── */}
+        <GradientThemePicker />
 
         {/* Theme Presets */}
         <section style={{ marginBottom: 24 }}>

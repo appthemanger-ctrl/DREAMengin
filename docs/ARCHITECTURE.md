@@ -402,7 +402,6 @@ DREAMengin is a **mobile-first platform**. This is not a style preference — it
 - Use `@media (pointer: coarse)` for touch-specific overrides.
 - The root `<html>` viewport must always include `width=device-width, initial-scale=1`.
 - Game pages must additionally export a Next.js `viewport` object with `userScalable: false`.
-- All animations must respect `prefers-reduced-motion`.
 - Battery-aware: pause animations when `visibilitychange` fires or the tab is hidden.
 
 ---
