@@ -43,11 +43,11 @@ These are not suggestions. Violating them invalidates the session's work.
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-05 09:28 UTC | `93c56bd` | copilot/fix-documentation-issues | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-documentation-issues<br> |
 | **auto** | 2026-03-05 09:27 UTC | `5802ab4` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #89 from appthemanger-ctrl/copilot/add-video-background-to-landing-page — Landing page: sky-blue+gold redesign, Playwright full-coverage suite, IDARi bug report, doc hard rules<br> |
 | **auto** | 2026-03-05 06:52 UTC | `2e7cd7c` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #88 from appthemanger-ctrl/copilot/check-sprite-animation-replacement — feat: cohesive sky-blue+gold design system, DaydreamShell flip, ProfileCanvas, AlgorithmEngine, zero coming-soon states<br> |
 | **auto** | 2026-03-05 04:40 UTC | `93c23a8` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #87 from appthemanger-ctrl/copilot/build-mario-style-game — Fix Supabase "not configured" error + auto-updating HANDOFF doc + mobile-first platform docs<br> |
 | **auto** | 2026-03-05 04:34 UTC | `de5e2a3` | copilot/build-mario-style-game | copilot-swe-agent[bot] | +2 added  ~2 modified<br>chore: plan auto-HANDOFF workflow — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `docs/FEATURE_STATUS.md`, `docs/HANDOFF.md`<br>✏️: `docs/ARCHITECTURE.md`, `docs/SPEC.md` |
-| 5 | 2026-03-05 04:30 | `de5e2a3` | `copilot/build-mario-style-game` | copilot | **Supabase env-var fix** — new `lib/supabase/env.ts` centralised resolver; accepts all Vercel-Supabase integration names. Login no longer errors.<br>➕ added: `lib/supabase/env.ts`<br>✏️ modified: `lib/supabase/client.ts`, `lib/supabase/server.ts`, `proxy.ts`, `app/auth/callback/route.ts`, `lib/connectors/demo.ts`, `lib/connectors/youtube.ts`, `app/api/innerdreams/config.ts`, `app/api/setup/check/route.ts`, `.env.example`, `README.md` |
 
 ---
 

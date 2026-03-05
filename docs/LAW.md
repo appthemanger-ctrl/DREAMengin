@@ -1,7 +1,7 @@
 # DREAMengin Law (Binding)
 
 **Status:** LOCKED  
-**Last updated:** 2026-02-23  
+**Last updated:** 2026-03-05  
 **Scope:** This file is the *front door* and enforcement summary for the DREAMengin spec.  
 If any code, UI, or architecture conflicts with this law, the code must change — not the law.
 
@@ -17,7 +17,9 @@ If any code, UI, or architecture conflicts with this law, the code must change �
 6. **docs/ADD_WORKFLOW.md**
 7. **docs/DR_EAMS.md** (Dr. Eams behavioral spec — 100 requirements)
 8. **docs/policy/theboogie.md** (TheBoogieMan.Ai policy — 100 rules, versioned)
-9. README.md (overview only)
+9. **docs/FEATURE_STATUS.md** (live status of every feature — incomplete items are mandatory work)
+10. **docs/BUGS.md** (auto-generated on every push — final vision + open issues + known bugs)
+11. README.md (overview only)
 
 If you find a conflict, you must:
 - cite the exact lines/sections in conflict,
@@ -33,7 +35,7 @@ If you find a conflict, you must:
 - **Do not remove or relocate `proxy.ts`** (Next.js 2026 middleware/proxy layer).
 
 
-## 1. Non‑negotiables (AXIOMS are law)
+## 2. Non‑negotiables (AXIOMS are law)
 
 The product must satisfy the AXIOMS at all times:
 - **Instant understanding.** No hidden interactions *unless* they self‑reveal at the moment of use.
@@ -45,7 +47,7 @@ If something violates an axiom, it must be redesigned or removed.
 
 ---
 
-## 2. Product reality model
+## 3. Product reality model
 
 DREAMengin is a **continuous system**. Users are always “in Home” conceptually (node 0).  
 You may use Next.js routes as *entry doors* (auth, deep links), but the *product* is not route navigation.
@@ -60,7 +62,7 @@ No traditional nav bar required; no page-stack UX.
 
 ---
 
-## 3. Navigation is τ‑only
+## 4. Navigation is τ‑only
 
 All user navigation between surfaces/nodes/windows must be expressed as:
 
@@ -78,7 +80,7 @@ Routes may exist for:
 
 ---
 
-## 4. Home Controls are system objects
+## 5. Home Controls are system objects
 
 The Home controls (dual buttons) are **system objects**, not a navbar.
 
@@ -92,7 +94,7 @@ Controls must not trap gestures; they must be touch-friendly (iOS targets), and 
 
 ---
 
-## 5. Day Dreams are protected
+## 6. Day Dreams are protected
 
 Day Dreams are “full-powered apps” and must not be casually refactored.
 
@@ -110,7 +112,7 @@ To modify protected paths in a PR, the PR title must include:
 
 ---
 
-## 6. No “couldn’t find it so I built a new one”
+## 7. No “couldn’t find it so I built a new one”
 
 Before writing new code:
 1. Search for existing implementations and reuse them.
@@ -121,7 +123,7 @@ If you introduce a duplicate runtime, the change is invalid.
 
 ---
 
-## 7. Enforcement
+## 8. Enforcement
 
 This repo must enforce the law mechanically.
 
@@ -133,7 +135,7 @@ Minimum enforcement requirements:
 
 ---
 
-## 8. Change protocol (how to evolve the law safely)
+## 9. Change protocol (how to evolve the law safely)
 
 Changes to this law require:
 - a motivating problem statement,
