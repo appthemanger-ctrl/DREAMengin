@@ -378,3 +378,101 @@ Dream Engine is “ready to show” when:
 - there are no dead ends (every direction leads somewhere)
 
 ---
+
+---
+
+## 17. Mobile-First Platform
+
+DREAMengin is a **mobile-first platform**. This is not a style preference — it is a product constraint.
+
+### 17.1 What mobile-first means here
+- Every screen is designed and QA'd on a 390 × 844 px viewport (iPhone 14 base) before being tested on larger screens.
+- Touch targets are ≥ 44 × 44 px with no exceptions.
+- No feature requires a hover state to be discoverable or usable.
+- Pinch-zoom is disabled in game surfaces (viewport meta + `touchAction: none`).
+- All interactive controls must be reachable with one thumb while the other holds the device.
+- Performance budget: < 3 s TTI on a mid-range Android device on 4G.
+
+### 17.2 Progressive enhancement order
+1. **Mobile touch** (primary — must always work)
+2. **PS5 DualSense / gamepad** (first controller target)
+3. **Keyboard + mouse** (desktop — enhanced, not primary)
+
+### 17.3 Implementation rules
+- Use `@media (pointer: coarse)` for touch-specific overrides.
+- The root `<html>` viewport must always include `width=device-width, initial-scale=1`.
+- Game pages must additionally export a Next.js `viewport` object with `userScalable: false`.
+- All animations must respect `prefers-reduced-motion`.
+- Battery-aware: pause animations when `visibilitychange` fires or the tab is hidden.
+
+---
+
+## 18. Universal Mobile Remote
+
+The Universal Mobile Remote is the canonical touch control system for all DREAMengin game surfaces.
+
+### 18.1 Design
+
+Two circular thumbstick pads positioned near the bottom corners of the screen,
+slightly inset from the edges (not flush — room for thumb to rest):
+
+```
+┌────────────────────────────────────────────────┐
+│                  game surface                  │
+│                                                │
+│                                                │
+│  ╭──────╮                          ╭──────╮   │
+│  │  L   │                          │  R   │   │
+│  ╰──────╯                          ╰──────╯   │
+└────────────────────────────────────────────────┘
+  LEFT STICK                      RIGHT STICK
+  (move)                          (actions)
+```
+
+### 18.2 Left stick — movement
+| Gesture | Action |
+|---------|--------|
+| Drag left | Move left |
+| Drag right | Move right |
+| Tap (no drag) | Stop / idle |
+
+### 18.3 Right stick — 7 actions (6 directions + tap)
+| Gesture | Action | Power-up required |
+|---------|--------|-------------------|
+| Drag up | Jump (double-jump on second press) | No |
+| Drag down | Duck / crouch | No |
+| Drag left | Spin attack | Yes |
+| Drag right | Shoot laser | Yes |
+| Tap (short, no drag) | Context action (interact / examine) | No |
+| Drag up-left | Jump + spin | Yes |
+| Drag up-right | Jump + shoot | Yes |
+
+### 18.4 PS5 DualSense Gamepad API mapping
+| PS5 Button / Axis | Action |
+|---|---|
+| Left stick X axis | Move left / right |
+| Right stick Y axis (up) | Jump |
+| Right stick Y axis (down) | Duck |
+| Right stick X axis (left) | Spin |
+| Right stick X axis (right) | Shoot |
+| Cross (×) / button 0 | Jump (alternate) |
+| Square (■) / button 2 | Spin |
+| Circle (●) / button 1 | Shoot |
+| Triangle (▲) / button 3 | Context action |
+| L2 / axis 6 | Duck (hold) |
+| R2 / axis 7 | Shoot (hold) |
+| Options / button 9 | Pause / menu |
+
+### 18.5 Adding buttons for other game types
+For game types that need more than the 7 base actions, additional pill buttons
+can be placed around the joystick area. Rules:
+- Maximum 2 extra buttons per side.
+- Always ≥ 44 × 44 px.
+- Use the `de-btn` + `de-btn-gold` or `de-btn-primary` class.
+- Never overlap the joystick drag zone.
+
+### 18.6 Zoom prevention
+All game surfaces must prevent browser pinch-zoom:
+1. Export a Next.js `viewport` object from the page with `userScalable: false`.
+2. Set `style={{ touchAction: 'none' }}` on the canvas element.
+3. Call `e.preventDefault()` in all touch event handlers.

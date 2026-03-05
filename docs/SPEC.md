@@ -177,3 +177,47 @@ All API keys are server-side Vercel env vars. Consensus gating: all 3 must appro
 - Do NOT mix icon sets
 - Do NOT freestyle radii (always use the radius family)
 - Do NOT commit `.env` files or `node_modules`
+
+---
+
+## 10. Universal Mobile Remote
+
+See `docs/ARCHITECTURE.md §18` for the full dual-joystick design specification.
+
+### 10.1 Core principle
+Every game in the Games Daydream must be playable with two thumbs on a phone screen
+using the Universal Mobile Remote layout. No physical keyboard or controller required.
+
+### 10.2 Zoom prevention (required on all game pages)
+```tsx
+// In any Next.js game page — disable pinch-zoom
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+```
+Also set `style={{ touchAction: 'none' }}` on the canvas element.
+
+### 10.3 Joystick rendering
+Draw the two thumbstick pads directly onto the game canvas (or as an overlay div):
+- **Radius:** 44 px outer ring, 20 px inner nub.
+- **Left pad center:** `(CANVAS_W * 0.14, CANVAS_H - 70)` — slightly inset from left edge.
+- **Right pad center:** `(CANVAS_W * 0.86, CANVAS_H - 70)` — slightly inset from right edge.
+- **Colours:** Left pad blue (`#2a8ab8`), right pad gold (`#c8981a`).
+- **Opacity:** 0.45 at rest → 0.85 when a finger is detected within the pad zone.
+
+### 10.4 Existing game (Dr. Eams) action mapping
+| Right-stick direction | Dr. Eams action |
+|---|---|
+| Up | Jump / double-jump |
+| Down | Duck |
+| Left | Spin (activates with spin power-up) |
+| Right | Shoot laser (activates with laser power-up) |
+| Tap | Interact / examine |
+
+### 10.5 PS5 Gamepad API
+The Gamepad API is polled every animation frame via `navigator.getGamepads()`.
+Dead-zone threshold: 0.25 on all axes.
+See `docs/ARCHITECTURE.md §18.4` for the full button mapping.
