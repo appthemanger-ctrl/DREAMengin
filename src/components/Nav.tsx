@@ -9,6 +9,7 @@ const links = [
   { href: '/discover',    label: 'Discover' },
   { href: '/marketplace', label: 'Marketplace' },
   { href: '/shop',        label: 'Shop' },
+  { href: '/game',        label: '🎮 Arcade' },
   { href: '/about',       label: 'About' },
 ]
 

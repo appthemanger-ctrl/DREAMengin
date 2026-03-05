@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/env";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -17,10 +18,7 @@ export async function GET(request: Request) {
 
   if (!code) return response;
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) return response;
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return response;
 
   type CookieToSet = {
     name: string;

@@ -1,15 +1,9 @@
 import { createBrowserClient } from '@supabase/ssr'
-
-// Gracefully handle missing env vars - won't crash at build time
-// but will throw clear errors at runtime if actually used without config
-const SUPABASE_URL = process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL || ''
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY || ''
+import { SUPABASE_URL, SUPABASE_ANON_KEY, SETUP_HINT } from './env'
 
 export function createClient() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    // Return a proxy that throws only when methods are actually called
-    // This prevents build-time crashes while still giving clear runtime errors
-    const errorMsg = 'Supabase is not configured. Set NEXT_PUBLIC_dreamengin_SUPABASE_URL and NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY environment variables.'
+    const errorMsg = `Supabase is not configured. ${SETUP_HINT}`
     const handler: ProxyHandler<object> = {
       get(_target, prop) {
         if (prop === 'auth') {
@@ -27,6 +21,6 @@ export function createClient() {
     }
     return new Proxy({}, handler) as ReturnType<typeof createBrowserClient>
   }
-  
+
   return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 }

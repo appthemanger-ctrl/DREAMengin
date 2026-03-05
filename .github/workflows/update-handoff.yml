@@ -1,0 +1,62 @@
+name: Update Handoff Doc
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Runs after every push to any branch.
+# Calls scripts/update-handoff.mjs to prepend a new row (with full file-change
+# details) into the Change Timeline table in docs/HANDOFF.md, then commits
+# the updated doc back to the same branch.
+#
+# The commit is made by github-actions[bot] and is tagged [skip ci] so it
+# does not re-trigger this workflow.
+# ──────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches:
+      - '**'            # every branch
+    paths-ignore:
+      - 'docs/HANDOFF.md'   # prevent the bot's own commit from re-triggering
+
+jobs:
+  update-handoff:
+    name: Prepend changelog row to HANDOFF.md
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # needed to push the commit back
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2   # need parent commit for diff-tree
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run update-handoff script
+        run: node scripts/update-handoff.mjs
+        env:
+          GITHUB_SHA:       ${{ github.sha }}
+          GITHUB_REF_NAME:  ${{ github.ref_name }}
+          GITHUB_ACTOR:     ${{ github.actor }}
+
+      - name: Commit updated HANDOFF.md
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add docs/HANDOFF.md
+
+          # Only commit if there's something to commit
+          if git diff --cached --quiet; then
+            echo "No changes to HANDOFF.md — skipping commit."
+            exit 0
+          fi
+
+          SHORT="${{ github.sha }}"
+          SHORT="${SHORT:0:7}"
+          git commit -m "docs: auto-update HANDOFF timeline [${SHORT}] [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
