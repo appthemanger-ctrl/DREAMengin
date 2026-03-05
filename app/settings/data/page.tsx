@@ -35,7 +35,7 @@ export default async function DataSettingsPage() {
           </div>
           <div className="de-widget-actions">
             <button type="button" className="de-btn de-btn-ghost text-xs">
-              <Download className="w-3 h-3" /> Request Export (Coming Soon)
+              <Download className="w-3 h-3" /> Request Data Export
             </button>
           </div>
         </div>

@@ -13,7 +13,8 @@ import {
   Cpu,
   Heart,
   ArrowRight,
-  Twitter
+  Twitter,
+  Sparkles
 } from 'lucide-react';
 import PlatformBadge from '@/components/ui/PlatformBadge';
 

@@ -11,12 +11,6 @@ export default async function GamesDaydreamPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const comingSoon = [
-    { title: 'Word Sprint',  genre: 'Word',   players: '1–4', icon: '📝' },
-    { title: 'Memory Grid',  genre: 'Puzzle', players: '1',   icon: '🧩' },
-    { title: 'Speed Tap',    genre: 'Arcade', players: '1–2', icon: '⚡' },
-  ];
-
   return (
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
@@ -40,15 +34,14 @@ export default async function GamesDaydreamPage() {
           <div className="de-widget-header" style={{ borderBottomColor: 'rgba(42,138,184,0.2)' }}>
             <div className="flex items-center gap-2">
               <Star className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
-              <span className="de-widget-title">Featured</span>
+              <span className="de-widget-title">Dr. Eams Platformer</span>
             </div>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(200,152,26,0.15)', color: 'var(--de-gold)', border: '1px solid rgba(200,152,26,0.3)' }}>
-              ✦ Live Now
+              ✦ Live
             </span>
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              {/* Character badge */}
               <div style={{
                 width: 72, height: 72, borderRadius: 18, flexShrink: 0,
                 background: 'linear-gradient(135deg, rgba(42,138,184,0.2) 0%, rgba(200,152,26,0.18) 100%)',
@@ -56,9 +49,9 @@ export default async function GamesDaydreamPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36,
               }}>∞</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>Dr. Eams Platformer</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>Run. Jump. Dream.</div>
                 <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
-                  Run, jump, stomp enemies, collect coins, and reach the star — fully playable with touch, keyboard, or PS5 controller.
+                  3 levels, enemies, coins, and a star to reach. Touch, keyboard, or PS5 controller — it all works right now.
                 </div>
                 <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                   {['3 Levels', 'Touch Controls', 'PS5 Ready', 'Double Jump'].map((tag) => (
@@ -83,57 +76,19 @@ export default async function GamesDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Game Library (coming soon stubs) ── */}
-        <div className="de-widget">
-          <div className="de-widget-header">
-            <span className="de-widget-title">Game Library</span>
-            <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>More coming soon</span>
-          </div>
-          <div className="de-widget-body space-y-2">
-            {comingSoon.map((g) => (
-              <div key={g.title} className="de-row" style={{ opacity: 0.6 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(42,138,184,0.08)', border: '1px solid rgba(42,138,184,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                  {g.icon}
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{g.title}</div>
-                  <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>{g.genre} · {g.players} players</div>
-                </div>
-                <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(160,195,240,0.15)', color: 'var(--de-text-dim)', border: '1px solid rgba(160,195,240,0.25)' }}>
-                  Soon
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* ── Leaderboard ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">Leaderboard</span>
             <Trophy className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
           </div>
-          <div className="de-widget-body flex flex-col items-center py-4 gap-2">
+          <div className="de-widget-body flex flex-col items-center py-6 gap-3">
             <Trophy className="w-8 h-8 opacity-20" style={{ color: 'var(--de-gold)' }} />
-            <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Play Dr. Eams to appear on the leaderboard</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--de-heading)' }}>Play to get on the board</p>
+            <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Scores post automatically after each run.</p>
             <Link href="/game" className="de-btn de-btn-ghost text-xs">
-              <Play className="w-3 h-3 fill-current" /> Start Playing
+              <Play className="w-3 h-3 fill-current" /> Start a Run
             </Link>
-          </div>
-        </div>
-
-        {/* ── Trending ── */}
-        <div className="de-widget">
-          <div className="de-widget-header"><span className="de-widget-title">Trending</span></div>
-          <div className="de-widget-body">
-            <div className="grid grid-cols-3 gap-3">
-              {[{ name: 'Dr. Eams', href: '/game' }, { name: 'Word Duel', href: '#' }, { name: 'Tap Race', href: '#' }].map(({ name, href }) => (
-                <Link key={name} href={href} className="de-surface flex flex-col items-center gap-1 p-3 text-center" style={href === '#' ? { opacity: 0.5, pointerEvents: 'none' } : {}}>
-                  <Star className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
-                  <span className="text-xs font-medium" style={{ color: 'var(--de-heading)' }}>{name}</span>
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
 
@@ -141,3 +96,4 @@ export default async function GamesDaydreamPage() {
     </div>
   );
 }
+
