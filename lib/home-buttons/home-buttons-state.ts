@@ -1,64 +1,39 @@
 /**
  * Pure state machine for the Home Button system.
  *
- * Per SPEC.md §3.1 (v2.1 — authoritative):
+ * Per ARCHITECTURE.md §6.1 (authoritative):
  *
- *  ONE gold System button on the right rail.
+ *  ONE gold button on the right rail. No locked/nav mode distinction.
  *
- *  LOCKED MODE (button snapped to center, subtle gold ring):
- *    • single tap  → open-dreams-menu
- *    • double tap  → enter-nav-mode  (unlock, button snaps to saved corner)
+ *    • single tap  → go-home         (reset anchor, close all overlays)
+ *    • double tap  → open-both-menus (Daydreams on left + System on right, simultaneously)
+ *    • drag        → reposition vertically along right rail
+ *    • position    → persists in localStorage key `dreamengin:controls:v4`
  *
- *  NAV MODE (button on right rail):
- *    • single tap  → go-home        (reset anchor)
- *    • double tap  → open-system-menu
+ *  Two-button layout (back + daydream-action) is only visible on Daydream Side B.
  */
 
-export type Mode = 'locked' | 'nav';
 export type TapKind = 'single' | 'double';
 
 export type HomeButtonAction =
   | { type: 'go-home' }
-  | { type: 'enter-nav-mode' }
-  | { type: 'exit-nav-mode' }
-  | { type: 'open-dreams-menu' }
-  | { type: 'open-system-menu' };
+  | { type: 'open-both-menus' };
 
-/** Resolve what action a tap produces given the current mode. */
-export function resolveHomeTap(
-  mode: Mode,
-  tap: TapKind,
-): HomeButtonAction {
-  if (mode === 'locked') {
-    if (tap === 'single') return { type: 'open-dreams-menu' };
-    return { type: 'enter-nav-mode' };
-  }
-  // NAV MODE
+/** Resolve what action a tap produces. Mode-free — button behavior is constant. */
+export function resolveHomeTap(tap: TapKind): HomeButtonAction {
   if (tap === 'single') return { type: 'go-home' };
-  return { type: 'open-system-menu' };
-}
-
-/** Apply an action to the mode, returning the new mode. */
-export function applyAction(mode: Mode, action: HomeButtonAction): Mode {
-  if (action.type === 'enter-nav-mode') return 'nav';
-  if (action.type === 'exit-nav-mode') return 'locked';
-  return mode;
+  return { type: 'open-both-menus' };
 }
 
 /**
  * Menu state.
+ * When both menus are open they display side-by-side (dreams=left, system=right).
  */
 export type MenuState = { dreamsOpen: boolean; systemOpen: boolean };
 
-/** Open one menu exclusively. */
-export function openMenu(
-  _current: MenuState,
-  menu: 'dreams' | 'system',
-): MenuState {
-  return {
-    dreamsOpen: menu === 'dreams',
-    systemOpen: menu === 'system',
-  };
+/** Open both menus simultaneously. */
+export function openBothMenus(): MenuState {
+  return { dreamsOpen: true, systemOpen: true };
 }
 
 export function closeAllMenus(): MenuState {

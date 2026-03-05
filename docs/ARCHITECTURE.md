@@ -126,37 +126,31 @@ Core gestures:
 - Tap: focus / open / select (no hard route changes unless necessary)
 - Zoom (pinch/scroll): change depth layer
 - Home tap: return to home anchor and reset traversal context
-- Home double-tap: toggle NAV MODE (unlock/lock controls)
-- Menu Button tap (NAV MODE): open System or Daydreams menu
+- Home double-tap: open both menus simultaneously (Daydreams + System)
 - Drag: reposition controls/widgets (User-Shaped Space, Axiom 2)
 
 ### 6.1 Control Objects (Home Button)
 
-There is **one** home button — the **Gold (System) button** on the right rail.
+There is **one** gold button on the right rail. It is always visible and always in the same position (persists via `localStorage` key `dreamengin:controls:v4`).
 
-The two-button layout (blue + gold side by side) is reserved for **daydream-specific controls only** — for example, the Games Daydream uses the dual-button layout as a game remote controller (see §18 Universal Mobile Remote). It is not a home navigation element.
+**Gold button behavior (everywhere except Daydream Side B):**
+- **Single tap → Go Home** (reset to anchor node, close all overlays).
+- **Double tap → Open both menus simultaneously**: Daydreams menu (left panel) + System menu (right panel) appear side-by-side with a shared dim backdrop.
+- **Drag** → reposition vertically along the right rail. Position saved on drag-end.
 
-The single gold button has two modes:
+**Daydream Side B — two-button layout:**
+The two-button layout is visible **only** when the user is on Side B of any Daydream (the tools/widgets flip side). On Side B, the single gold button is replaced by two floating buttons:
+- **Left button: Back icon (←)** — flips back to Daydream Side A.
+- **Right button: Daydream-specific action** — behaviour depends on which Daydream is active (e.g. Record in Music Studio, Upload in Media Vault, New Item in Create, etc.).
 
-**LOCKED MODE** (default after login):
-- Gold button snapped to center-bottom, with subtle blue ring.
-- **Single tap → Open Daydreams menu.**
-- **Double tap → Enter NAV MODE.** Button snaps to saved corner on right rail. A brief "NAV mode" indicator appears (~2s).
-- "Double tap to unlock" hint appears once per login session, auto-dismissing after ~2s.
+The Games Daydream uses the dual-button layout as a game remote controller on Side B (see §18 Universal Mobile Remote).
 
-**NAV MODE** (unlocked):
-- Gold button on right rail, draggable vertically.
-- **Single tap → Go Home** (reset anchor).
-- **Double tap → Open System menu** (Dr. Eams, Settings, Account, Feed Settings, Connectors, Go Home).
-- Button drifts back to center via gentle gravity when released; position persists in `localStorage` key `dreamengin:controls:v4`.
-
-**10-second explanation:** Tap once = open Daydreams. Double-tap = unlock for precision nav. Tap to go home when done.
+**10-second explanation:** Tap to go home. Double-tap to open everything. On a Daydream's tool side, the back button takes you back.
 
 Home controls are persistent “system objects,” not a navbar.
 They may:
-- move (drag)
-- fidget (gentle physics)
-- open menus
+- move (drag along rail)
+- open menus (double-tap)
 - return home (single tap)
 
 They must not:

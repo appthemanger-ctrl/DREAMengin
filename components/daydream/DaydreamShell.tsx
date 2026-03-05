@@ -14,14 +14,29 @@ export type DaydreamWidget = {
   onClick?: () => void;
 };
 
+/** Optional daydream-specific action button shown alongside the back button on Side B.
+ *  Uses `href` (not onClick) so it can be passed from Server Components. */
+export type SideBAction = {
+  /** Accessible label for the button */
+  label: string;
+  /** Emoji or unicode glyph rendered inside the button */
+  icon: string;
+  /** URL to navigate to on tap */
+  href: string;
+  /** Override accent color for the action button (defaults to accentColor) */
+  color?: string;
+};
+
 type Props = {
   title: string;
   accentColor: string;
   widgets: DaydreamWidget[];
   children: React.ReactNode;
+  /** Daydream-specific action button shown on Side B alongside the back button */
+  sideBAction?: SideBAction;
 };
 
-export default function DaydreamShell({ title, accentColor, widgets, children }: Props) {
+export default function DaydreamShell({ title, accentColor, widgets, children, sideBAction }: Props) {
   const [side, setSide]   = useState<'A' | 'B'>('A');
   const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
   const [busy, setBusy]   = useState(false);
@@ -59,52 +74,138 @@ export default function DaydreamShell({ title, accentColor, widgets, children }:
         }
       </div>
 
-      {/* ── Page-corner fold tab — bottom-right ── */}
+      {side === 'A' ? (
+        <>
+          {/* ── Side A: corner fold tab → opens Side B ── */}
+          <button
+            type="button"
+            onClick={flip}
+            aria-label="Open dream tools"
+            title="Dream Tools (Alt+F)"
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              right: 0,
+              width: 64,
+              height: 64,
+              zIndex: 48,
+              clipPath: 'polygon(100% 0, 100% 100%, 0 100%)',
+              cursor: 'pointer',
+              border: 'none',
+              background: `linear-gradient(135deg, ${accentColor}aa, rgba(200,152,26,0.75))`,
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              boxShadow: '-3px -3px 18px rgba(0,0,0,0.22)',
+              padding: 0,
+              transition: 'width 0.2s, height 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.width = '80px'; e.currentTarget.style.height = '80px'; }}
+            onMouseLeave={e => { e.currentTarget.style.width = '64px'; e.currentTarget.style.height = '64px'; }}
+          />
+          <div style={{
+            position: 'fixed', bottom: 18, right: 72, zIndex: 48,
+            fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+            color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 4px rgba(0,0,0,0.3)',
+            pointerEvents: 'none',
+          }}>
+            TOOLS →
+          </div>
+        </>
+      ) : (
+        /* ── Side B: two floating buttons — back + daydream action ── */
+        <SideBFloatingControls
+          accentColor={accentColor}
+          sideBAction={sideBAction}
+          onBack={flip}
+        />
+      )}
+    </>
+  );
+}
+
+/* ── Side B floating two-button controls ── */
+function SideBFloatingControls({
+  accentColor,
+  sideBAction,
+  onBack,
+}: {
+  accentColor: string;
+  sideBAction?: SideBAction;
+  onBack: () => void;
+}) {
+  const BTN = 52;
+  const btnBase: React.CSSProperties = {
+    width: BTN,
+    height: BTN,
+    borderRadius: 9999,
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    touchAction: 'none',
+    WebkitTapHighlightColor: 'transparent',
+    transition: 'transform 0.12s, box-shadow 0.12s',
+    flexShrink: 0,
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        right: 16,
+        bottom: 44,
+        zIndex: 60,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        alignItems: 'center',
+        pointerEvents: 'auto',
+      }}
+    >
+      {/* Back button — returns to Side A */}
       <button
         type="button"
-        onClick={flip}
-        aria-label={side === 'A' ? 'Open dream tools' : 'Back to daydream'}
-        title={`${side === 'A' ? 'Dream Tools' : 'Daydream'} (Alt+F)`}
+        aria-label="Back to daydream (Side A)"
+        title="Back to Daydream (Alt+F)"
+        onClick={onBack}
         style={{
-          position: 'fixed',
-          bottom: 0,
-          right: 0,
-          width: 64,
-          height: 64,
-          zIndex: 48,
-          clipPath: 'polygon(100% 0, 100% 100%, 0 100%)',
-          cursor: 'pointer',
-          border: 'none',
-          background: side === 'A'
-            ? `linear-gradient(135deg, ${accentColor}aa, rgba(200,152,26,0.75))`
-            : `linear-gradient(135deg, rgba(200,152,26,0.75), ${accentColor}aa)`,
+          ...btnBase,
+          background: 'rgba(220,232,248,0.82)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          boxShadow: '-3px -3px 18px rgba(0,0,0,0.22)',
-          padding: 0,
-          transition: 'width 0.2s, height 0.2s, background 0.3s',
+          boxShadow: '0 0 0 1.5px rgba(160,195,240,0.5), 0 4px 16px rgba(0,0,0,0.18)',
         }}
-        onMouseEnter={e => { e.currentTarget.style.width = '80px'; e.currentTarget.style.height = '80px'; }}
-        onMouseLeave={e => { e.currentTarget.style.width = '64px'; e.currentTarget.style.height = '64px'; }}
-      />
+        onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.93)'; }}
+        onPointerUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+        onPointerLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+      >
+        {/* Back arrow (← ) */}
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--de-heading, #0f2a5c)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
+        </svg>
+      </button>
 
-      {/* Side indicator pill */}
-      <div style={{
-        position: 'fixed',
-        bottom: 18,
-        right: 72,
-        zIndex: 48,
-        fontSize: 10,
-        fontWeight: 700,
-        letterSpacing: '0.08em',
-        color: 'rgba(255,255,255,0.85)',
-        textShadow: '0 1px 4px rgba(0,0,0,0.3)',
-        pointerEvents: 'none',
-        transition: 'opacity 0.3s',
-      }}>
-        {side === 'A' ? 'TOOLS →' : '← BACK'}
-      </div>
-    </>
+      {/* Daydream-specific action button */}
+      {sideBAction && (
+        <Link
+          href={sideBAction.href}
+          aria-label={sideBAction.label}
+          title={sideBAction.label}
+          style={{
+            ...btnBase,
+            background: `linear-gradient(135deg, ${sideBAction.color ?? accentColor}cc, ${sideBAction.color ?? accentColor})`,
+            boxShadow: `0 0 0 2px rgba(212,168,67,0.3), 0 4px 20px ${sideBAction.color ?? accentColor}55`,
+            textDecoration: 'none',
+          }}
+          onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.93)'; }}
+          onPointerUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+          onPointerLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+        >
+          <span style={{ fontSize: 22, lineHeight: 1 }}>{sideBAction.icon}</span>
+        </Link>
+      )}
+    </div>
   );
 }
 

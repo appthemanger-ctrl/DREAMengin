@@ -29,7 +29,12 @@ export default async function MediaVaultPage() {
   ];
 
   return (
-    <DaydreamShell title="Media Vault" accentColor="#c8981a" widgets={WIDGETS}>
+    <DaydreamShell
+      title="Media Vault"
+      accentColor="#c8981a"
+      widgets={WIDGETS}
+      sideBAction={{ label: 'Upload media', icon: '📤', href: '/media-vault/upload', color: '#c8981a' }}
+    >
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">

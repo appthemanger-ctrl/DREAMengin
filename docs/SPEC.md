@@ -71,21 +71,18 @@ Menus and modals use `de-sheet` class: `blur(32px)` + white-tinted glass + stron
 ## 3. Navigation Model
 
 ### 3.1 Home Button
-- One floating button: **Gold (System)** — right rail
+- One floating button: **Gold** — always on right rail
 - Drag vertically along the right rail
-- **Locked single-tap** → opens Daydreams menu
-- **Locked double-tap** → unlock (enter NAV Mode), snap to saved corner
-- **Unlocked single-tap** → Go Home (reset anchor)
-- **Unlocked double-tap** → open System menu
+- **Single tap** → Go Home (reset anchor, close all overlays)
+- **Double tap** → Open both menus simultaneously: **Daydreams** (left panel) + **System** (right panel)
 - Position persists via `localStorage` key `dreamengin:controls:v4`
-- Lock state shows gold button with subtle blue ring
 
-> **Note:** The two-button layout (blue + gold side by side) is reserved for daydream-specific controls only — for example, the Games daydream uses the dual-button layout as a game remote controller (see §10 Universal Mobile Remote).
+> **Daydream Side B only:** On Side B of any Daydream (the tools flip side), the single gold button is replaced by **two floating buttons** — a back arrow (←) that flips back to Side A, and a daydream-specific action button (e.g. Record for Music, Upload for Media Vault). The two-button layout for Games uses the dual-button game remote controller (see §10 Universal Mobile Remote).
 
 ### 3.2 Menus
-- **Daydreams menu**: routes to all 7 Daydreams + Marketplace
-- **System menu**: Dr.Eams, Settings, Account, Go Home, Appearance, All Dreams
-- After menus open/close, button snaps back to saved corner
+- **Daydreams menu**: routes to all 7 Daydreams + Marketplace (opens left)
+- **System menu**: Dr. Eams, Settings, Account, Go Home, Feed Settings, Connectors (opens right)
+- Both menus appear side-by-side with a shared dim backdrop; tapping outside closes both
 
 ### 3.3 Edit Mode
 - Enter via "Edit Layout" button in Home Dream
