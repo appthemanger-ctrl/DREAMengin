@@ -107,7 +107,7 @@ export default function HomeDashboard({
         </section>
 
         {/* Mobile Header */}
-        <header className="md:hidden sticky top-14 z-30 bg-background/95 backdrop-blur-xl border-b border-border/50">
+        <header className="md:hidden sticky top-14 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
           <div className="px-4 py-3">
             <div className="flex items-center justify-between">
               <h1 className="text-xl font-bold text-foreground">Home</h1>

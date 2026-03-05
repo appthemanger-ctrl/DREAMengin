@@ -48,7 +48,7 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Widget surface grid | 🔶 Partly done | Layout exists; drag-to-reorder not wired |
-| Golden Button (two floating nav buttons) | ✅ Done | `DreamNavControls.tsx` + state machine |
+| Home Button (single floating nav button) | ✅ Done | `DreamNavControls.tsx` + state machine; two-button layout reserved for daydream-specific controls (e.g. Games remote) |
 | Locked / unlocked mode | ✅ Done | Tested in `tests/home-buttons.test.ts` |
 | Magnetic snap / gravity drift | ✅ Done | Physics in state machine |
 | Edit mode (drag-to-reorder widgets) | 🔶 Partly done | Banner + context exist; actual drag not implemented |
@@ -65,7 +65,7 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Daydreams menu (7 dreams) | ✅ Done | Routes + pages scaffolded |
 | System menu | ✅ Done | Dr. Eams, Settings, Account, Go Home |
 | Deep-link routes | ✅ Done | All major routes exist |
-| Swipe navigation | 🔲 Needs work | Spec'd; not yet implemented on mobile |
+| Swipe navigation | 🔲 Needs work | Disabled on mobile — navigate via Daydreams menu button; will be re-enabled in a future release |
 | Back-navigation / history | 🔶 Partly done | Browser back works; spatial context not preserved |
 
 ---
@@ -199,7 +199,7 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Admin unlock key | ✅ Done | `ADMIN_UNLOCK_KEY` env var |
 | AI chat (admin) | ✅ Done | `/api/admin/ai-chat` |
 | Code file browser | ✅ Done | `/api/admin/code-files` |
-| InnerDreams (AI bug-fix) | 🔶 Partly done | Routes exist; demo mode only |
+| iDari (AI bug-fix) | 🔶 Partly done | Routes exist; demo mode only |
 | Setup health check | ✅ Done | `GET /api/setup/check` — reports all env var status |
 
 ---

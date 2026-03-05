@@ -1,30 +1,26 @@
 /**
- * Pure state machine for the Home Buttons system.
+ * Pure state machine for the Home Button system.
  *
- * Per SPEC.md §3.1 (v2.0 — authoritative):
+ * Per SPEC.md §3.1 (v2.1 — authoritative):
  *
- *  LOCKED MODE (buttons snapped to center, cross-color rings):
- *    • single tap  → open-both-menus (Daydreams + System side-by-side)
- *    • double tap  → enter-nav-mode  (unlock, buttons snap to saved corners)
+ *  ONE gold System button on the right rail.
  *
- *  NAV MODE (buttons on rails):
- *    • single tap        → go-home   (reset anchor)
- *    • double tap dreams → open-dreams-menu
- *    • double tap system → open-system-menu
+ *  LOCKED MODE (button snapped to center, subtle gold ring):
+ *    • single tap  → open-dreams-menu
+ *    • double tap  → enter-nav-mode  (unlock, button snaps to saved corner)
  *
- *  Buttons also auto-lock when dragged within SNAP_DISTANCE of each other
- *  (magnetic snap handled in DreamNavControls).
+ *  NAV MODE (button on right rail):
+ *    • single tap  → go-home        (reset anchor)
+ *    • double tap  → open-system-menu
  */
 
 export type Mode = 'locked' | 'nav';
-export type ButtonId = 'dreams' | 'system';
 export type TapKind = 'single' | 'double';
 
 export type HomeButtonAction =
   | { type: 'go-home' }
   | { type: 'enter-nav-mode' }
   | { type: 'exit-nav-mode' }
-  | { type: 'open-both-menus' }
   | { type: 'open-dreams-menu' }
   | { type: 'open-system-menu' };
 
@@ -32,15 +28,13 @@ export type HomeButtonAction =
 export function resolveHomeTap(
   mode: Mode,
   tap: TapKind,
-  button: ButtonId,
 ): HomeButtonAction {
   if (mode === 'locked') {
-    if (tap === 'single') return { type: 'open-both-menus' };
+    if (tap === 'single') return { type: 'open-dreams-menu' };
     return { type: 'enter-nav-mode' };
   }
   // NAV MODE
   if (tap === 'single') return { type: 'go-home' };
-  if (button === 'dreams') return { type: 'open-dreams-menu' };
   return { type: 'open-system-menu' };
 }
 
@@ -53,11 +47,10 @@ export function applyAction(mode: Mode, action: HomeButtonAction): Mode {
 
 /**
  * Menu state.
- * Both can be open simultaneously (locked single-tap per SPEC §3.1).
  */
 export type MenuState = { dreamsOpen: boolean; systemOpen: boolean };
 
-/** Open one menu exclusively (unlocked mode). */
+/** Open one menu exclusively. */
 export function openMenu(
   _current: MenuState,
   menu: 'dreams' | 'system',
@@ -66,11 +59,6 @@ export function openMenu(
     dreamsOpen: menu === 'dreams',
     systemOpen: menu === 'system',
   };
-}
-
-/** Open both menus simultaneously (locked single-tap per SPEC §3.1). */
-export function openBothMenus(): MenuState {
-  return { dreamsOpen: true, systemOpen: true };
 }
 
 export function closeAllMenus(): MenuState {

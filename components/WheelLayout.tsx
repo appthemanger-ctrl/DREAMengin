@@ -13,7 +13,7 @@ export default function WheelLayout({ center, ring }: WheelLayoutProps) {
   const angleStep = (2 * Math.PI) / ringCount;
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-start">
+    <div className="min-h-screen de-sky-bg text-foreground flex flex-col items-center justify-start">
       <TopBar />
       <div className="relative w-full max-w-5xl flex-grow flex items-center justify-center my-8">
         {ring.slice(0, 8).map((widget, i) => {

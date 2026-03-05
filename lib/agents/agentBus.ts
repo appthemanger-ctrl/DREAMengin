@@ -1,5 +1,5 @@
 /**
- * AgentBus: lightweight client-side event bridge between Dr. Eams and InnerDreams.
+ * AgentBus: lightweight client-side event bridge between Dr. Eams and iDari.
  * - No external deps
  * - Safe to import from client components only
  */

@@ -68,7 +68,7 @@ export default function AIAssistant() {
     return () => off();
   }, [fullExperience]);
 
-  // Surface InnerDreams activity inside this assistant as well
+  // Surface iDari activity inside this assistant as well
   useEffect(() => {
     const unsubscribe = onInnerDreamsEvent((evt) => {
       const shouldSurface =
@@ -84,7 +84,7 @@ export default function AIAssistant() {
         {
           id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
           role: 'assistant',
-          content: `InnerDreams: ${evt.message}${evt.details ? `\n${evt.details}` : ''}`,
+          content: `iDari: ${evt.message}${evt.details ? `\n${evt.details}` : ''}`,
           timestamp: new Date(evt.timestamp),
         },
       ]);
@@ -118,21 +118,21 @@ export default function AIAssistant() {
         body: JSON.stringify(payload),
       });
 
-      if (res.status === 401) return 'InnerDreams needs an admin session. Please sign in as admin, then try again.';
-      if (res.status === 403) return 'InnerDreams is admin-only. Your account is not marked as admin.';
-      if (!res.ok) return `InnerDreams request failed (${res.status}).`;
+      if (res.status === 401) return 'iDari needs an admin session. Please sign in as admin, then try again.';
+      if (res.status === 403) return 'iDari is admin-only. Your account is not marked as admin.';
+      if (!res.ok) return `iDari request failed (${res.status}).`;
 
       const json = await res.json();
       if (mode === 'bug-check') {
         const bugs = json?.bugsFound ?? 0;
         return bugs > 0
-          ? `InnerDreams bug check found ${bugs} potential issue(s). Check the admin audit log for details.`
-          : 'InnerDreams reports: all systems operational. No issues detected.';
+          ? `iDari bug check found ${bugs} potential issue(s). Check the admin audit log for details.`
+          : 'iDari reports: all systems operational. No issues detected.';
       }
 
-      return json?.message ? `InnerDreams: ${json.message}` : 'InnerDreams accepted the update request.';
+      return json?.message ? `iDari: ${json.message}` : 'iDari accepted the update request.';
     } catch (e: unknown) {
-      return `InnerDreams request error: ${e?.message || 'Unknown error'}`;
+      return `iDari request error: ${e?.message || 'Unknown error'}`;
     }
   };
 
@@ -172,7 +172,7 @@ export default function AIAssistant() {
       }
     }
 
-    // InnerDreams bridge: let Dr. Eams hand tasks to the admin auto-updater
+    // iDari bridge: let Dr. Eams hand tasks to the admin auto-updater
     if (
       lower.includes('innerdreams') ||
       lower.includes('inner dreams') ||
@@ -212,7 +212,7 @@ export default function AIAssistant() {
     if (lowerQuery.includes('analytics')) {
       return 'Analytics shows views, growth, and performance. Ask me to open Analytics.';
     }
-    return 'Tell me what you want to do in the app. If it is a safe UI action, I can do it. If it needs admin work, I can hand it to InnerDreams.';
+    return 'Tell me what you want to do in the app. If it is a safe UI action, I can do it. If it needs admin work, I can hand it to iDari.';
   };
 
   if (!isOpen) {

@@ -16,7 +16,7 @@ interface InnerDreamsProps {
   isAdmin: boolean;
 }
 
-export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
+export default function IDariPanel({ userId, isAdmin }: InnerDreamsProps) {
   // Default ON unless the user turns it off. We persist this in localStorage.
   const [isRunning, setIsRunning] = useState(true);
   const [logs, setLogs] = useState<InnerDreamsLog[]>([]);
@@ -39,7 +39,7 @@ export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
         setRefreshInterval(typeof state.refreshInterval === 'number' ? state.refreshInterval : 7000);
         setBugCheckEnabled(state.bugCheckEnabled !== false);
       } catch (e) {
-        console.error('Failed to load InnerDreams state:', e);
+        console.error('Failed to load iDari state:', e);
       }
     }
   }, []);
@@ -182,10 +182,10 @@ export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
     if (isRunning) {
       setIsRunning(false);
       setAutoRefresh(false);
-      addLog('InnerDreams system paused', 'success');
+      addLog('iDari system paused', 'success');
     } else {
       setIsRunning(true);
-      addLog('InnerDreams system activated', 'success');
+      addLog('iDari system activated', 'success');
     }
   };
 
@@ -202,7 +202,7 @@ export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
             <Sparkles className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">InnerDreams</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">iDari</h3>
             <p className="text-sm text-slate-600 dark:text-slate-400">AI Auto-Updater & Bug Monitor</p>
           </div>
         </div>
@@ -215,7 +215,7 @@ export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
           }`}
         >
           {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-          {isRunning ? 'Pause' : 'Activate'}
+          {isRunning ? 'Pause' : 'Activate iDari'}
         </button>
       </div>
 
@@ -273,7 +273,7 @@ export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe the changes you want InnerDreams to make (e.g., 'Fix the navigation alignment issue' or 'Add error handling to the form submission')"
+            placeholder="Describe the changes you want iDari to make (e.g., 'Fix the navigation alignment issue' or 'Add error handling to the form submission')"
             rows={3}
             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-slate-800 dark:text-white resize-none"
             disabled={isProcessing}
@@ -318,7 +318,7 @@ export default function InnerDreams({ userId, isAdmin }: InnerDreamsProps) {
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {logs.length === 0 ? (
             <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
-              No activity yet. Activate InnerDreams to start monitoring.
+              No activity yet. Activate iDari to start monitoring.
             </p>
           ) : (
             logs.map((log, idx) => (

@@ -128,8 +128,8 @@ export default function ProfileSpace({
   };
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border">
+    <div className="flex flex-col h-full de-sky-bg">
+      <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -215,13 +215,15 @@ export default function ProfileSpace({
               <>
                 <button
                   onClick={navigateLeft}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full backdrop-blur-sm shadow-lg flex items-center justify-center transition-colors"
+                  style={{ background: 'rgba(220,232,248,0.8)', border: '1px solid rgba(160,195,240,0.4)' }}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={navigateRight}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full backdrop-blur-sm shadow-lg flex items-center justify-center transition-colors"
+                  style={{ background: 'rgba(220,232,248,0.8)', border: '1px solid rgba(160,195,240,0.4)' }}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -256,7 +258,7 @@ export default function ProfileSpace({
       </main>
 
       {sortedWidgets.length > 1 && (
-        <div className="border-t border-border bg-background/95 backdrop-blur-xl">
+        <div className="backdrop-blur-xl" style={{ borderTop: '1px solid rgba(160,195,240,0.3)', background: 'rgba(220,232,248,0.88)' }}>
           <div className="px-4 py-3 flex items-center gap-3 overflow-x-auto scrollbar-hide">
             {sortedWidgets.map((widget, index) => (
               <button
@@ -536,7 +538,7 @@ function FeedWidget({ config }: { config: Widget["config"] }) {
   return (
     <div className="p-4">
       <div className="flex items-center gap-2 mb-4">
-        <select className="h-8 rounded-md border bg-background px-2 text-sm" defaultValue="24h">
+        <select className="h-8 rounded-md de-widget px-2 text-sm" defaultValue="24h" style={{ color: 'var(--de-text)' }}>
           <option value="24h">Last 24 hours</option>
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>

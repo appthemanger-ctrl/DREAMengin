@@ -145,7 +145,7 @@ export default function HomeFeed({
   };
 
   return (
-    <div className={embedded ? 'h-full' : 'min-h-screen bg-background'}>
+    <div className={embedded ? 'h-full' : 'min-h-screen de-sky-bg'}>
       <div className={embedded ? 'h-full px-4 pt-4 pb-4' : 'max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8'}>
         {/* Feed Tabs */}
         <div className="flex items-center gap-1 mb-6 bg-card rounded-2xl border border-border p-1">

@@ -121,8 +121,8 @@ export default function HomeSpace({ userId, onSwitchToProfile }: HomeSpaceProps)
   }, [selectedIds, deleteContent, clearSelection]);
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border">
+    <div className="flex flex-col h-full de-sky-bg">
+      <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

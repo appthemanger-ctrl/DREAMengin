@@ -1,8 +1,9 @@
 # DREAM ENGINE ARCHITECTURE
 
 > **For the current design specification and interaction model, see [SPEC.md](./SPEC.md).**
-Version: 1.0.0  
+Version: 1.1.0  
 Status: Active Spec  
+Platform: **Next.js 16+** (App Router, TypeScript strict)  
 Scope: System architecture, navigation model, interaction model, security/privacy model, and code organization.
 
 This document describes how Dream Engine is built and how it must evolve without violating the axioms.
@@ -37,8 +38,8 @@ Dream Engine may link out to external services (e.g., Instagram, YouTube, GitHub
 ## 2. Stack and Runtime
 
 Primary stack:
-- Next.js (App Router)
-- TypeScript
+- **Next.js 16+** (App Router) — this is a Next.js 16+ project
+- TypeScript (strict)
 - Tailwind CSS
 - Supabase (Auth + DB + Storage)
 - iOS-first interaction and performance constraints
@@ -129,27 +130,29 @@ Core gestures:
 - Menu Button tap (NAV MODE): open System or Daydreams menu
 - Drag: reposition controls/widgets (User-Shaped Space, Axiom 2)
 
-### 6.1 Control Objects (Home Buttons)
+### 6.1 Control Objects (Home Button)
 
-The Home Buttons system has two modes:
+There is **one** home button — the **Gold (System) button** on the right rail.
+
+The two-button layout (blue + gold side by side) is reserved for **daydream-specific controls only** — for example, the Games Daydream uses the dual-button layout as a game remote controller (see §18 Universal Mobile Remote). It is not a home navigation element.
+
+The single gold button has two modes:
 
 **LOCKED MODE** (default after login):
-- Two buttons overlap at center (cross-color rings: blue shows gold ring, gold shows blue ring).
-- **Single tap → Open BOTH menus side-by-side** (Daydreams right, System left).
-- **Double tap → Enter NAV MODE.** Buttons snap to saved rail corners. A brief "NAV mode" indicator appears (~2s).
+- Gold button snapped to center-bottom, with subtle blue ring.
+- **Single tap → Open Daydreams menu.**
+- **Double tap → Enter NAV MODE.** Button snaps to saved corner on right rail. A brief "NAV mode" indicator appears (~2s).
 - "Double tap to unlock" hint appears once per login session, auto-dismissing after ~2s.
 
 **NAV MODE** (unlocked):
-- Blue button (Dreams) on right rail; Gold button (System) on left rail.
-- **Single tap either button → Go Home** (reset anchor).
-- **Double tap Dreams button → Open Daydreams menu** (7 Daydreams + Marketplace + Shop).
-- **Double tap System button → Open System menu** (Dr. Eams, Settings, Account, Feed Settings, Connectors, Go Home).
-- Buttons drift back together via gentle gravity; magnetic snap (< 88 px) auto-relocks.
-- Button positions persist in `localStorage` key `dreamengin:controls:v4`; draggable along vertical rail.
+- Gold button on right rail, draggable vertically.
+- **Single tap → Go Home** (reset anchor).
+- **Double tap → Open System menu** (Dr. Eams, Settings, Account, Feed Settings, Connectors, Go Home).
+- Button drifts back to center via gentle gravity when released; position persists in `localStorage` key `dreamengin:controls:v4`.
 
-**10-second explanation:** Tap once = see everything. Double-tap = unlock for precision. Tap to go home when done. Buttons auto-lock when left together.
+**10-second explanation:** Tap once = open Daydreams. Double-tap = unlock for precision nav. Tap to go home when done.
 
-Home controls are persistent “system objects,” not navigation UI.
+Home controls are persistent “system objects,” not a navbar.
 They may:
 - move (drag)
 - fidget (gentle physics)

@@ -183,9 +183,9 @@ export default function AboutPage() {
                 <div style={{ width: 80, height: 80, borderRadius: 20, flexShrink: 0, background: 'linear-gradient(135deg, rgba(16,185,129,0.14) 0%, rgba(200,152,26,0.08) 100%)', border: '1.5px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>🧠</div>
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#10b981', marginBottom: 4 }}>System Intelligence</div>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 8 }}>Meet Idari</h2>
+                  <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 8 }}>Meet iDari</h2>
                   <p style={{ fontSize: 14, color: 'var(--de-text-dim)', lineHeight: 1.7 }}>
-                    Idari (InnerDreams ADARI) is the autonomous system intelligence that keeps DREAMengin healthy and self-healing. While you dream, Idari silently monitors performance, auto-repairs broken state, maintains widget integrity, and surfaces insights to the platform team. Idari is the reason DREAMengin feels alive — it's the nervous system behind everything that just works.
+                    iDari is the autonomous system intelligence that keeps DREAMengin healthy and self-healing. While you dream, iDari silently monitors performance, auto-repairs broken state, maintains widget integrity, and surfaces insights to the platform team. iDari is the reason DREAMengin feels alive — it's the nervous system behind everything that just works.
                   </p>
                 </div>
               </div>

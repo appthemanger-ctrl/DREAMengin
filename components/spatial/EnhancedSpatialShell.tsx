@@ -113,7 +113,7 @@ export default function EnhancedSpatialShell({
   }, [widgets]);
 
   return (
-    <div className="fixed inset-0 bg-background overflow-hidden" style={{ touchAction: "none" }}>
+    <div className="fixed inset-0 de-sky-bg overflow-hidden" style={{ touchAction: "none" }}>
       <PixiPhysicsLayer
         worldWidth={5000}
         worldHeight={5000}
@@ -146,7 +146,7 @@ export default function EnhancedSpatialShell({
                     opacity: widget.presentation === WidgetPresentation.FULL ? 1 : 0.95,
                   }}
                 >
-                  <div className="bg-card border border-border rounded-xl p-6 max-w-2xl w-[min(92vw,768px)]">
+                  <div className="de-widget rounded-xl p-6 max-w-2xl w-[min(92vw,768px)]">
                     <div className="text-center">
                       <h2 className="text-2xl font-bold mb-2">{widget.instanceId}</h2>
                       <p className="text-muted-foreground mb-4">{widget.context} Space</p>
@@ -173,15 +173,17 @@ export default function EnhancedSpatialShell({
         <div className="absolute right-4 bottom-4 z-50 flex flex-col gap-3">
           <button
             onClick={() => engineRef.current?.homeAnchorInterrupt()}
-            className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md border border-border shadow-lg flex items-center justify-center"
+            className="h-12 w-12 rounded-full backdrop-blur-md shadow-lg flex items-center justify-center"
+            style={{ background: 'rgba(220,232,248,0.8)', border: '1px solid rgba(160,195,240,0.4)' }}
             aria-label="Home"
           >
-            <Home className="w-5 h-5" />
+            <Home className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
           </button>
 
           <button
             onClick={() => engineRef.current?.homeAnchorSecondary()}
-            className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md border border-border shadow-lg flex items-center justify-center"
+            className="h-12 w-12 rounded-full backdrop-blur-md shadow-lg flex items-center justify-center"
+            style={{ background: 'rgba(220,232,248,0.8)', border: '1px solid rgba(160,195,240,0.4)' }}
             aria-label="Secondary Home"
           >
             <span className="text-xs font-semibold">H2</span>
