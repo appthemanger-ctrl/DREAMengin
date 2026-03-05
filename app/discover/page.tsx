@@ -6,33 +6,7 @@ import { ArrowLeft, Search, Users } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Discover – DREAMengin', description: 'Find people on DREAMengin.' };
 
-const MOCK_PROFILES = [
-  { id: 'm1', handle: 'skylarwaves', display_name: 'Skylar Waves', bio: 'Dreaming in frequencies 🎵', avatar_url: null },
-  { id: 'm2', handle: 'neonpalm', display_name: 'Neon Palm', bio: 'Visual storyteller & night owl', avatar_url: null },
-  { id: 'm3', handle: 'lunarecho', display_name: 'Lunar Echo', bio: 'Chasing stars and coffee ☕', avatar_url: null },
-  { id: 'm4', handle: 'cyberbloom', display_name: 'Cyber Bloom', bio: 'Digital garden curator 🌿', avatar_url: null },
-  { id: 'm5', handle: 'driftingink', display_name: 'Drifting Ink', bio: 'Poet at heart, coder by day', avatar_url: null },
-  { id: 'm6', handle: 'solarcroft', display_name: 'Solar Croft', bio: 'Building dreams one pixel at a time', avatar_url: null },
-  { id: 'm7', handle: 'velvetmoon', display_name: 'Velvet Moon', bio: 'Music producer 🎹 & midnight wanderer', avatar_url: null },
-  { id: 'm8', handle: 'arcticpulse', display_name: 'Arctic Pulse', bio: 'Photographer exploring cold frontiers', avatar_url: null },
-  { id: 'm9', handle: 'prismaticray', display_name: 'Prismatic Ray', bio: 'Color theory enthusiast & designer', avatar_url: null },
-  { id: 'm10', handle: 'zephyrvault', display_name: 'Zephyr Vault', bio: 'Collector of rare moments ✨', avatar_url: null },
-  { id: 'm11', handle: 'chromafield', display_name: 'Chroma Field', bio: '3D artist lost in virtual worlds', avatar_url: null },
-  { id: 'm12', handle: 'novadrift', display_name: 'Nova Drift', bio: 'Astrophysics nerd & amateur filmmaker', avatar_url: null },
-  { id: 'm13', handle: 'foxglovelab', display_name: 'Foxglove Lab', bio: 'Science meets art every morning', avatar_url: null },
-  { id: 'm14', handle: 'tidewatcher', display_name: 'Tide Watcher', bio: 'Ocean lover & surfer 🌊', avatar_url: null },
-  { id: 'm15', handle: 'midnightloom', display_name: 'Midnight Loom', bio: 'Weaving stories from darkness', avatar_url: null },
-  { id: 'm16', handle: 'crystaldawn', display_name: 'Crystal Dawn', bio: 'Meditation guide & sunrise chaser', avatar_url: null },
-  { id: 'm17', handle: 'indigopath', display_name: 'Indigo Path', bio: 'Travel blogger on a shoestring budget', avatar_url: null },
-  { id: 'm18', handle: 'staticforest', display_name: 'Static Forest', bio: 'Ambient musician & nature lover 🌲', avatar_url: null },
-  { id: 'm19', handle: 'glassarchive', display_name: 'Glass Archive', bio: 'Film nerd cataloguing forgotten cinema', avatar_url: null },
-  { id: 'm20', handle: 'emberveil', display_name: 'Ember Veil', bio: 'Fashion designer with a dark aesthetic', avatar_url: null },
-  { id: 'm21', handle: 'quantumleap7', display_name: 'Quantum Leap', bio: 'Physics PhD candidate & meme lord', avatar_url: null },
-  { id: 'm22', handle: 'sablecrest', display_name: 'Sable Crest', bio: 'Mountain climber & hot chocolate aficionado', avatar_url: null },
-  { id: 'm23', handle: 'orchidwave', display_name: 'Orchid Wave', bio: 'Botanist growing things, digital and real', avatar_url: null },
-  { id: 'm24', handle: 'mirrorgate', display_name: 'Mirror Gate', bio: 'Philosopher asking the hard questions 🤔', avatar_url: null },
-  { id: 'm25', handle: 'dawnengine', display_name: 'Dawn Engine', bio: "Builder of tomorrow's tools today ⚙️", avatar_url: null },
-];
+type Profile = { id: string; handle: string; display_name: string | null; bio: string | null; avatar_url: string | null };
 
 export default async function DiscoverPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const supabase = await createServerClient();
@@ -41,7 +15,8 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
 
   const { q } = await searchParams;
 
-  let profiles: Array<{ id: string; handle: string; display_name: string | null; bio: string | null; avatar_url: string | null }> = [];
+  let profiles: Profile[] = [];
+  let suggestedProfiles: Profile[] = [];
 
   if (q && q.trim().length > 0) {
     // Escape special PostgREST/ilike characters to prevent filter injection
@@ -52,6 +27,14 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
       .or(`handle.ilike.%${safe}%,display_name.ilike.%${safe}%`)
       .limit(20);
     profiles = data || [];
+  } else {
+    // Fetch real suggested profiles ordered by most recently joined, limit 20
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, handle, display_name, bio, avatar_url')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    suggestedProfiles = data || [];
   }
 
   return (
@@ -144,21 +127,36 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
             <div className="de-widget">
               <div className="de-widget-header">
                 <span className="de-widget-title">Suggested Dreamers</span>
-                <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{MOCK_PROFILES.length} dreamers</span>
+                {suggestedProfiles.length > 0 && (
+                  <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{suggestedProfiles.length} dreamers</span>
+                )}
               </div>
               <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-                {MOCK_PROFILES.map((p) => (
-                  <div key={p.id} className="de-row" style={{ borderRadius: 10 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(42,138,184,0.12)', border: '1px solid rgba(42,138,184,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
-                      {(p.display_name || p.handle)[0]?.toUpperCase()}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{p.display_name}</div>
-                      <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>@{p.handle}</div>
-                      {p.bio && <div className="text-xs" style={{ color: 'var(--de-text)', marginTop: 2 }}>{p.bio}</div>}
-                    </div>
+                {suggestedProfiles.length === 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '20px 0' }}>
+                    <Users className="w-8 h-8 opacity-20" style={{ color: 'var(--de-accent)' }} />
+                    <p className="text-sm font-medium" style={{ color: 'var(--de-heading)' }}>No dreamers yet</p>
+                    <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Be the first to join!</p>
                   </div>
-                ))}
+                ) : (
+                  suggestedProfiles.map((p) => (
+                    <Link key={p.id} href={`/profile/${p.handle}`} className="de-row" style={{ borderRadius: 10 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(42,138,184,0.12)', border: '1px solid rgba(42,138,184,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0, overflow: 'hidden' }}>
+                        {p.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.avatar_url} alt={p.handle} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          (p.display_name || p.handle)[0]?.toUpperCase() ?? '👤'
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{p.display_name || p.handle}</div>
+                        <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>@{p.handle}</div>
+                        {p.bio && <div className="text-xs" style={{ color: 'var(--de-text)', marginTop: 2 }}>{p.bio}</div>}
+                      </div>
+                    </Link>
+                  ))
+                )}
               </div>
             </div>
           </div>

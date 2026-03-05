@@ -333,13 +333,11 @@ export default function HeroSprite({
   }, [width, height]);
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block', width, height }}>
+    <div style={{ position: 'relative', display: 'inline-block' }}>
       <canvas
         ref={canvasRef}
         className={className}
         style={{
-          width,
-          height,
           cursor: 'pointer',
           WebkitTapHighlightColor: 'transparent',
           touchAction: 'none',
