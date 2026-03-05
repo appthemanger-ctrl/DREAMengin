@@ -1,78 +1,68 @@
 /**
- * Pure state machine for the Home Buttons system.
+ * Pure state machine for the Home Button system.
  *
- * Per SPEC.md §3.1 (v2.0 — authoritative):
+ * Per SPEC.md §3.1 (v3.0 — single button):
  *
- *  LOCKED MODE (buttons snapped to center, cross-color rings):
- *    • single tap  → open-both-menus (Daydreams + System side-by-side)
- *    • double tap  → enter-nav-mode  (unlock, buttons snap to saved corners)
- *
- *  NAV MODE (buttons on rails):
- *    • single tap        → go-home   (reset anchor)
- *    • double tap dreams → open-dreams-menu
- *    • double tap system → open-system-menu
- *
- *  Buttons also auto-lock when dragged within SNAP_DISTANCE of each other
- *  (magnetic snap handled in DreamNavControls).
+ *  One floating button — the DREAMengin home control.
+ *    • single tap  → go-home   (reset anchor / return to home)
+ *    • double tap  → open-menu (opens the combined Daydreams + System menu)
  */
 
-export type Mode = 'locked' | 'nav';
-export type ButtonId = 'dreams' | 'system';
+export type Mode = 'default';
 export type TapKind = 'single' | 'double';
 
 export type HomeButtonAction =
   | { type: 'go-home' }
-  | { type: 'enter-nav-mode' }
-  | { type: 'exit-nav-mode' }
-  | { type: 'open-both-menus' }
-  | { type: 'open-dreams-menu' }
-  | { type: 'open-system-menu' };
+  | { type: 'open-menu' };
 
-/** Resolve what action a tap produces given the current mode. */
+/** Resolve what action a tap produces. */
 export function resolveHomeTap(
-  mode: Mode,
   tap: TapKind,
-  button: ButtonId,
 ): HomeButtonAction {
-  if (mode === 'locked') {
-    if (tap === 'single') return { type: 'open-both-menus' };
-    return { type: 'enter-nav-mode' };
-  }
-  // NAV MODE
   if (tap === 'single') return { type: 'go-home' };
-  if (button === 'dreams') return { type: 'open-dreams-menu' };
-  return { type: 'open-system-menu' };
+  return { type: 'open-menu' };
 }
 
-/** Apply an action to the mode, returning the new mode. */
-export function applyAction(mode: Mode, action: HomeButtonAction): Mode {
-  if (action.type === 'enter-nav-mode') return 'nav';
-  if (action.type === 'exit-nav-mode') return 'locked';
-  return mode;
+/** Menu state for the single combined menu. */
+export type MenuState = { open: boolean };
+
+/** Open the combined menu. */
+export function openMenu(): MenuState {
+  return { open: true };
 }
 
-/**
- * Menu state.
- * Both can be open simultaneously (locked single-tap per SPEC §3.1).
- */
-export type MenuState = { dreamsOpen: boolean; systemOpen: boolean };
-
-/** Open one menu exclusively (unlocked mode). */
-export function openMenu(
-  _current: MenuState,
-  menu: 'dreams' | 'system',
-): MenuState {
-  return {
-    dreamsOpen: menu === 'dreams',
-    systemOpen: menu === 'system',
-  };
+export function closeMenu(): MenuState {
+  return { open: false };
 }
 
-/** Open both menus simultaneously (locked single-tap per SPEC §3.1). */
+// ---------------------------------------------------------------------------
+// Legacy aliases — kept for backward compatibility with existing tests/code
+// that still imports the two-button API names.
+// ---------------------------------------------------------------------------
+
+/** @deprecated Use resolveHomeTap(tap) — ButtonId is no longer used. */
+export type ButtonId = 'dreams' | 'system';
+
+/** @deprecated Two-button mode is removed. Use resolveHomeTap(tap). */
+export function resolveHomeTapLegacy(
+  _mode: 'locked' | 'nav',
+  tap: TapKind,
+  _button: ButtonId,
+): HomeButtonAction {
+  return resolveHomeTap(tap);
+}
+
+/** @deprecated No longer needed — mode is always 'default'. */
+export function applyAction(_mode: unknown, _action: HomeButtonAction): 'default' {
+  return 'default';
+}
+
+/** @deprecated Use openMenu(). */
 export function openBothMenus(): MenuState {
-  return { dreamsOpen: true, systemOpen: true };
+  return { open: true };
 }
 
+/** @deprecated Use closeMenu(). */
 export function closeAllMenus(): MenuState {
-  return { dreamsOpen: false, systemOpen: false };
+  return { open: false };
 }
