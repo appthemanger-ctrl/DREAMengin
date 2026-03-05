@@ -25,8 +25,8 @@ export default function CreateAdSlotPage() {
     { id: 'lab_sidebar', label: 'Lab Sidebar', description: 'Appears in lab projects' },
   ];
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError('');
     setIsLoading(true);
 
@@ -71,7 +71,7 @@ export default function CreateAdSlotPage() {
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
         {/* Placement */}
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Placement Location</span></div>
@@ -164,8 +164,7 @@ export default function CreateAdSlotPage() {
           </div>
           <div className="de-widget-actions">
             <button
-              type="button"
-              onClick={handleSubmit}
+              type="submit"
               disabled={isLoading}
               className="de-btn de-btn-gold"
               style={{ width: '100%', gap: 8 }}
@@ -174,7 +173,7 @@ export default function CreateAdSlotPage() {
             </button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

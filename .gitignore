@@ -36,3 +36,4 @@ temp/
 # Debug / prototype
 prototypes/
 test-output/
+package-lock.json

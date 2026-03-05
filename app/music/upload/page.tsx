@@ -17,8 +17,8 @@ export default function UploadMusicPage() {
   const supabase = createClient();
   const router = useRouter();
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError('');
     setIsLoading(true);
 
@@ -77,6 +77,7 @@ export default function UploadMusicPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
         {/* Track details */}
+        <form onSubmit={handleSubmit}>
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Track Details</span></div>
           <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -169,8 +170,7 @@ export default function UploadMusicPage() {
 
           <div className="de-widget-actions">
             <button
-              type="button"
-              onClick={handleSubmit}
+              type="submit"
               disabled={isLoading || !title}
               className="de-btn de-btn-primary"
               style={{ width: '100%', gap: 8 }}
@@ -179,6 +179,7 @@ export default function UploadMusicPage() {
             </button>
           </div>
         </div>
+        </form>
 
         {/* Supported Platforms */}
         <div className="de-widget">

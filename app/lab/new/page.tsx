@@ -17,8 +17,8 @@ export default function NewProjectPage() {
   const supabase = createClient();
   const router = useRouter();
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError('');
     setIsLoading(true);
 
@@ -108,6 +108,7 @@ export default function NewProjectPage() {
         </div>
 
         {/* Project form */}
+        <form onSubmit={handleSubmit}>
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Project Details</span></div>
           <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -178,8 +179,7 @@ export default function NewProjectPage() {
           </div>
           <div className="de-widget-actions">
             <button
-              type="button"
-              onClick={handleSubmit}
+              type="submit"
               disabled={isLoading || !title}
               className="de-btn de-btn-primary"
               style={{ width: '100%', gap: 8 }}
@@ -188,6 +188,7 @@ export default function NewProjectPage() {
             </button>
           </div>
         </div>
+        </form>
 
         {/* What can you build */}
         <div className="de-widget">
