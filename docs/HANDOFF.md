@@ -2,23 +2,25 @@
 
 > **For the next AI session:** Read this file first. It is the living record of
 > what has been built, what is in flight, and what still needs work.
-> Update the **Change Timeline** every time you commit meaningful changes.
+
+> **⚙️ Auto-updated:** This file is updated automatically after **every push**
+> by `.github/workflows/update-handoff.yml` → `scripts/update-handoff.mjs`.
+> The workflow prepends a new row with the commit hash, datetime, branch,
+> author, every file added/modified/deleted, and the commit message.
+> The table keeps exactly the **5 most-recent** entries at all times.
+> Do **not** manually renumber rows — the script manages that.
 
 ---
 
 ## Change Timeline (last 5 entries, newest first)
 
-| # | Date / Time (UTC) | Revision | Summary |
-|---|---|---|---|
-| 5 | 2026-03-05 04:30 | `de5e2a3` | **Supabase env-var fix** — new `lib/supabase/env.ts` centralised resolver; accepts all Vercel-Supabase integration names (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) plus legacy custom names. Login page no longer errors when the Vercel-Supabase integration is used. Updated `client.ts`, `server.ts`, `proxy.ts`, `auth/callback/route.ts`, connectors, `setup/check` API. Also updated `.env.example` and `README.md` with exact Vercel setup instructions. |
-| 4 | 2026-03-05 04:06 | `7c9975e` | **Lint-staged fix** — replaced broken ESLint FlatCompat pre-commit hook with `vitest --related` so commits no longer fail on lint-staged errors. |
-| 3 | 2026-02-13 16:52 | `2e2f867` | **Dr. Eams Platformer** — full Canvas 2D game engine (`lib/game/dreamengin-game.ts`) with 3 levels, enemies, coins, moving platforms, particles, lives system. Canvas renderer (`DrEamsGameCanvas.tsx`) with assembled character sprite parts, virtual D-pad for touch. Routed at `/daydream/games`. |
-| 2 | 2026-02-10 | *(prior)* | **AI Triad wiring** — Dr. Eams chat panel, IDARi admin optimizer, BoogieMan policy engine. Server routes at `/api/ai/*`. Consensus gating for major system updates. |
-| 1 | 2026-01-15 | *(prior)* | **Foundation** — Next.js App Router scaffold, Supabase auth, Home Space widget surface, Golden Button nav controls, 7 Daydreams routing, Settings hub, Policy system, admin lockout. |
-
-> **How to update:** When you finish a meaningful change, prepend a new row
-> (number = previous highest + 1), shift old row 1 off the bottom, and commit
-> this file alongside your code changes.
+| # | Date / Time (UTC) | Revision | Branch | Author | Summary |
+|---|---|---|---|---|---|
+| **auto** | 2026-03-05 04:34 UTC | `de5e2a3` | copilot/build-mario-style-game | copilot-swe-agent[bot] | +2 added  ~2 modified<br>chore: plan auto-HANDOFF workflow — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `docs/FEATURE_STATUS.md`, `docs/HANDOFF.md`<br>✏️: `docs/ARCHITECTURE.md`, `docs/SPEC.md` |
+| 5 | 2026-03-05 04:30 | `de5e2a3` | `copilot/build-mario-style-game` | copilot | **Supabase env-var fix** — new `lib/supabase/env.ts` centralised resolver; accepts all Vercel-Supabase integration names. Login no longer errors.<br>➕ added: `lib/supabase/env.ts`<br>✏️ modified: `lib/supabase/client.ts`, `lib/supabase/server.ts`, `proxy.ts`, `app/auth/callback/route.ts`, `lib/connectors/demo.ts`, `lib/connectors/youtube.ts`, `app/api/innerdreams/config.ts`, `app/api/setup/check/route.ts`, `.env.example`, `README.md` |
+| 4 | 2026-03-05 04:06 | `7c9975e` | `copilot/build-mario-style-game` | copilot | **Lint-staged fix** — replaced broken ESLint FlatCompat pre-commit hook with `vitest --related`.<br>✏️ modified: `.husky/pre-commit`, `package.json` |
+| 3 | 2026-03-05 *(this session)* | `51f9b0e` | `copilot/build-mario-style-game` | copilot | **Docs: mobile-first + feature status** — ARCHITECTURE §17–18, SPEC §10, HANDOFF.md, FEATURE_STATUS.md created.<br>➕ added: `docs/HANDOFF.md`, `docs/FEATURE_STATUS.md`<br>✏️ modified: `docs/ARCHITECTURE.md`, `docs/SPEC.md` |
+| 2 | 2026-02-13 16:52 | `2e2f867` | `completedream` | copilot | **Dr. Eams Platformer** — full Canvas 2D game engine with 3 levels, enemies, coins, moving platforms, particles, lives.<br>➕ added: `lib/game/dreamengin-game.ts`, `components/dreamengin/DrEamsGameCanvas.tsx`, `src/app/game/page.tsx`, `tests/dreamengin-game.test.ts` |
 
 ---
 
