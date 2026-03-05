@@ -380,7 +380,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
         </div>
       )}
 
-      {/* Dreams button (right rail when unlocked, center when locked) */}
+      {/* Gold home button (right rail when unlocked, center when locked) */}
       <button
         ref={(el) => { elRef.current = el; }}
         type="button"
@@ -388,19 +388,19 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
         style={{
           ...baseStyle,
           background: locked
-            ? 'linear-gradient(135deg,#0369a1,#0ea5e9)'
-            : 'linear-gradient(135deg,#0ea5e9,#38bdf8)',
-          border: locked ? '2px solid #0ea5e9' : '1px solid rgba(255,255,255,0.3)',
+            ? 'linear-gradient(135deg,#92400e,#d4a843)'
+            : 'linear-gradient(135deg,#a16207,#d4a843)',
+          border: locked ? '2px solid #d4a843' : '1px solid rgba(255,255,255,0.3)',
           boxShadow: locked
-            ? '0 0 0 2px #d4a843, 0 0 28px rgba(14,165,233,0.5)'
-            : '0 4px 18px rgba(14,165,233,0.5)',
+            ? '0 0 0 2px #0ea5e9, 0 0 28px rgba(212,168,67,0.5)'
+            : '0 4px 18px rgba(212,168,67,0.5)',
         }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={() => { dragRef.current.active = false; }}
       >
-        <InfinityHalf side="left" />
+        <InfinityHalf side="right" />
       </button>
     </div>
   );

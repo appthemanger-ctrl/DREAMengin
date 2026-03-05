@@ -3,7 +3,7 @@
  *
  * Per SPEC.md §3.1 (v2.1 — authoritative):
  *
- *  ONE blue Dreams button on the right rail.
+ *  ONE gold System button on the right rail.
  *
  *  LOCKED MODE (button snapped to center, subtle gold ring):
  *    • single tap  → open-dreams-menu

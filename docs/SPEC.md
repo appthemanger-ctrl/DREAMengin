@@ -1,9 +1,10 @@
 # DREAMengin Design + System Spec
 
-**Version:** 2.0  
+**Version:** 2.1  
 **Status:** Active  
 **Owner:** appthemanger-ctrl  
-**Last updated:** 2026-02-26
+**Platform:** Next.js 16+ (App Router, TypeScript strict)  
+**Last updated:** 2026-03-05
 
 This is the single source of truth for DREAMengin's design system, UI behavior, and interaction model. Changes to the product must be reflected here.
 
@@ -70,20 +71,20 @@ Menus and modals use `de-sheet` class: `blur(32px)` + white-tinted glass + stron
 ## 3. Navigation Model
 
 ### 3.1 Home Button
-- One floating button: **Blue (Dreams)** — right rail
+- One floating button: **Gold (System)** — right rail
 - Drag vertically along the right rail
 - **Locked single-tap** → opens Daydreams menu
 - **Locked double-tap** → unlock (enter NAV Mode), snap to saved corner
 - **Unlocked single-tap** → Go Home (reset anchor)
 - **Unlocked double-tap** → open System menu
 - Position persists via `localStorage` key `dreamengin:controls:v4`
-- Lock state shows blue button with subtle gold ring
+- Lock state shows gold button with subtle blue ring
 
 > **Note:** The two-button layout (blue + gold side by side) is reserved for daydream-specific controls only — for example, the Games daydream uses the dual-button layout as a game remote controller (see §10 Universal Mobile Remote).
 
 ### 3.2 Menus
-- **Daydreams menu** (blue): routes to all 7 Daydreams + Marketplace
-- **System menu** (gold): Dr.Eams, Settings, Account, Go Home, Appearance, All Dreams
+- **Daydreams menu**: routes to all 7 Daydreams + Marketplace
+- **System menu**: Dr.Eams, Settings, Account, Go Home, Appearance, All Dreams
 - After menus open/close, button snaps back to saved corner
 
 ### 3.3 Edit Mode
