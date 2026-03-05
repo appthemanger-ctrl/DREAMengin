@@ -29,7 +29,15 @@
   --de-widget-bg:   rgba(255,255,255,0.55);
   --de-widget-border: rgba(160,195,240,0.40);
 
-  /* User override defaults */
+  /* ── User-editable gradient theme (overridable via ThemeApplicator) ── */
+  --de-theme-from:  #c8dff5;   /* sky blue */
+  --de-theme-mid:   #d8eaf8;   /* light sky */
+  --de-theme-to:    #f5e8c4;   /* warm gold cream */
+  --de-theme-angle: 148deg;
+  --de-theme-btn-from: #2a8ab8;
+  --de-theme-btn-to:   #c8981a;
+
+  /* ── User override defaults */
   --user-brightness: 1;
   --user-saturation: 1;
   --user-blur: 24px;
@@ -76,7 +84,13 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--de-bg-start);
+  background: linear-gradient(
+    var(--de-theme-angle, 148deg),
+    var(--de-theme-from, #c8dff5) 0%,
+    var(--de-theme-mid,  #d8eaf8) 55%,
+    var(--de-theme-to,   #f5e8c4) 100%
+  );
+  background-attachment: fixed;
   color: var(--de-text);
   font-family: 'Space Grotesk', system-ui, sans-serif;
   overscroll-behavior: none;
@@ -613,14 +627,14 @@ body, .dreamnav-surface, .controls {
 .de-btn:active { transform: scale(0.97); }
 
 .de-btn-primary {
-  background: var(--de-accent, #2a8ab8);
+  background: linear-gradient(135deg, var(--de-theme-btn-from, #2a8ab8) 0%, var(--de-theme-btn-to, #c8981a) 100%);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(42,138,184,0.3);
+  box-shadow: 0 4px 14px rgba(42,138,184,0.28);
 }
-.de-btn-primary:hover { box-shadow: 0 6px 20px rgba(42,138,184,0.4); }
+.de-btn-primary:hover { box-shadow: 0 6px 20px rgba(42,138,184,0.4); opacity: 0.92; }
 
 .de-btn-gold {
-  background: var(--de-gold, #c8981a);
+  background: linear-gradient(135deg, var(--de-gold, #c8981a) 0%, var(--de-gold-bright, #e8b830) 100%);
   color: #fff;
   box-shadow: 0 4px 14px rgba(200,152,26,0.3);
 }
@@ -807,9 +821,14 @@ body, .dreamnav-surface, .controls {
   color: #16a34a;
 }
 
-/* ── Sky gradient background ── */
+/* ── Sky gradient background — sky blue → warm gold, user-editable ── */
 .de-sky-bg {
-  background: linear-gradient(180deg, #dce8f8 0%, #c5d8f0 50%, #b8ceec 100%);
+  background: linear-gradient(
+    var(--de-theme-angle, 148deg),
+    var(--de-theme-from, #c8dff5) 0%,
+    var(--de-theme-mid,  #d8eaf8) 55%,
+    var(--de-theme-to,   #f5e8c4) 100%
+  );
   min-height: 100vh;
 }
 
