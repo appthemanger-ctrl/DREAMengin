@@ -177,6 +177,8 @@ All API keys are server-side Vercel env vars. Consensus gating: all 3 must appro
 - Do NOT mix icon sets
 - Do NOT freestyle radii (always use the radius family)
 - Do NOT commit `.env` files or `node_modules`
+- Do NOT delete documentation for features you did not complete yourself (see `docs/LAW.md §9.1`)
+- Do NOT leave fixed bugs in `docs/BUGS.md` — delete the entry when the fix lands (see `docs/LAW.md §9.2`)
 
 ---
 

@@ -142,3 +142,38 @@ Changes to this law require:
 
 When in doubt, keep the law stable and evolve implementations.
 
+---
+
+## 9. Documentation preservation rules (AI agents + contributors)
+
+These rules apply to every contributor — human or AI.
+
+### 9.1 Do not delete documentation for features you did not complete
+
+If a feature is documented (in `HANDOFF.md`, `FEATURE_STATUS.md`, `SPEC.md`, or any `docs/` file)
+but is **not yet finished**, you must **not remove or truncate that documentation**.
+
+Partial documentation of an incomplete feature is a promise to the next session.
+Deleting it causes the next agent or developer to re-discover the same gap from scratch,
+wasting time and creating duplicate work.
+
+**Allowed:** updating wording, adding notes, marking progress.  
+**Not allowed:** deleting a section, removing a table row, or wiping a spec because you ran out of time.
+
+### 9.2 Do not remove open bugs from `docs/BUGS.md` unless the bug is fixed
+
+`docs/BUGS.md` is a live log of open issues.
+- When a bug is **fixed**, **delete its entry** from `BUGS.md`.
+- When a bug is **not fixed**, leave the entry exactly as-is.
+- Do not mark bugs "resolved" and leave them — remove them cleanly.
+- Do not add "fixed in commit X" notes — delete the entry, trust git history.
+
+### 9.3 Read all docs before every session
+
+Per `BOOGIEMAN_POLICY.md` rule `0.1 RULE_DOCS_FIRST`:  
+Read `docs/LAW.md`, `docs/AXIOMS.md`, `docs/HANDOFF.md`, `docs/SPEC.md`,
+and `docs/BUGS.md` **before making any changes** in a session.
+
+The trigger phrase **"read the docs"** from the project owner means:
+read every file in `docs/` before proceeding.
+
