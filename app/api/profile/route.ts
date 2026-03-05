@@ -32,28 +32,34 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
   }
 
-  // Get follower/following counts
-  const { count: followersCount } = await supabase
-    .from('follows')
-    .select('*', { count: 'exact', head: true })
-    .eq('following_id', profile.id);
+  // Run follower/following counts (and optional follow-check) in parallel
+  const followCheckQuery =
+    user && profile.id !== user.id
+      ? supabase
+          .from('follows')
+          .select('id')
+          .eq('follower_id', user.id)
+          .eq('following_id', profile.id)
+          .single()
+      : Promise.resolve({ data: null });
 
-  const { count: followingCount } = await supabase
-    .from('follows')
-    .select('*', { count: 'exact', head: true })
-    .eq('follower_id', profile.id);
-
-  // Check if current user follows this profile
-  let isFollowing = false;
-  if (user && profile.id !== user.id) {
-    const { data: follow } = await supabase
+  const [
+    { count: followersCount },
+    { count: followingCount },
+    { data: followRow },
+  ] = await Promise.all([
+    supabase
       .from('follows')
-      .select('id')
-      .eq('follower_id', user.id)
-      .eq('following_id', profile.id)
-      .single();
-    isFollowing = !!follow;
-  }
+      .select('*', { count: 'exact', head: true })
+      .eq('following_id', profile.id),
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', profile.id),
+    followCheckQuery,
+  ]);
+
+  const isFollowing = !!followRow;
 
   return NextResponse.json({
     profile: {

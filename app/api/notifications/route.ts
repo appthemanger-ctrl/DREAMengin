@@ -25,18 +25,19 @@ export async function GET(req: NextRequest) {
     query = query.eq('read', false);
   }
 
-  const { data: notifications, error } = await query;
+  // Fetch notifications and unread count in parallel
+  const [{ data: notifications, error }, { count: unreadCount }] = await Promise.all([
+    query,
+    supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('read', false),
+  ]);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  // Get unread count
-  const { count: unreadCount } = await supabase
-    .from('notifications')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .eq('read', false);
 
   return NextResponse.json({ 
     notifications, 

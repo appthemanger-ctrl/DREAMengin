@@ -81,16 +81,17 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // Get counts
-  const { count: followersCount } = await supabase
-    .from('follows')
-    .select('*', { count: 'exact', head: true })
-    .eq('following_id', userId);
-
-  const { count: followingCount } = await supabase
-    .from('follows')
-    .select('*', { count: 'exact', head: true })
-    .eq('follower_id', userId);
+  // Get counts in parallel
+  const [{ count: followersCount }, { count: followingCount }] = await Promise.all([
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('following_id', userId),
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', userId),
+  ]);
 
   return NextResponse.json({
     followers_count: followersCount || 0,

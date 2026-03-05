@@ -2,7 +2,7 @@
 
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import FeedCard from './FeedCard';
 import WidgetBubble from './WidgetBubble';
 import CreatePostModal from './CreatePostModal';
@@ -31,60 +31,62 @@ export default function DashboardLayout({ feed, widgets: initialWidgets, userId,
   const [showPostModal, setShowPostModal] = useState(false);
   const supabase = createClient();
 
-  const moveWidget = async (dragIndex: number, hoverIndex: number) => {
-    const draggedWidget = widgets[dragIndex];
-    const newWidgets = [...widgets];
-    newWidgets.splice(dragIndex, 1);
-    newWidgets.splice(hoverIndex, 0, draggedWidget);
-    
-    // Update order for all widgets
-    const updatedWidgets = newWidgets.map((widget, index) => ({
-      ...widget,
-      order: index
-    }));
-    
-    setWidgets(updatedWidgets);
+  const moveWidget = useCallback(async (dragIndex: number, hoverIndex: number) => {
+    let updatedWidgets: Widget[] = [];
+    setWidgets((prev) => {
+      const next = [...prev];
+      const [dragged] = next.splice(dragIndex, 1);
+      next.splice(hoverIndex, 0, dragged);
+      updatedWidgets = next.map((widget, index) => ({ ...widget, order: index }));
+      return updatedWidgets;
+    });
 
-    // Save to Supabase
-    for (const widget of updatedWidgets) {
-      await supabase
-        .from('widget_instances')
-        .update({ order: widget.order })
-        .eq('id', widget.id);
-    }
-  };
+    // Save all order updates in parallel
+    await Promise.all(
+      updatedWidgets.map((widget) =>
+        supabase
+          .from('widget_instances')
+          .update({ order: widget.order })
+          .eq('id', widget.id)
+      )
+    );
+  }, [supabase]);
 
-  const addWidget = async (type: string) => {
-    const newWidget: Widget = {
-      id: crypto.randomUUID(),
-      type,
-      config_json: {},
-      order: widgets.length,
-      enabled: true
-    };
+  const addWidget = useCallback(async (type: string) => {
+    // Capture the new widget from the functional updater so DB insert stays in sync
+    let insertWidget: Widget | undefined;
+    setWidgets((prev) => {
+      insertWidget = {
+        id: crypto.randomUUID(),
+        type,
+        config_json: {},
+        order: prev.length,
+        enabled: true,
+      };
+      return [...prev, insertWidget];
+    });
 
+    if (!insertWidget) return;
     await supabase
       .from('widget_instances')
       .insert({
-        id: newWidget.id,
+        id: insertWidget.id,
         user_id: userId,
-        type: newWidget.type,
-        config_json: newWidget.config_json,
-        order: newWidget.order,
-        enabled: newWidget.enabled
+        type: insertWidget.type,
+        config_json: insertWidget.config_json,
+        order: insertWidget.order,
+        enabled: insertWidget.enabled,
       });
+  }, [userId, supabase]);
 
-    setWidgets([...widgets, newWidget]);
-  };
-
-  const removeWidget = async (widgetId: string) => {
+  const removeWidget = useCallback(async (widgetId: string) => {
     await supabase
       .from('widget_instances')
       .delete()
       .eq('id', widgetId);
 
-    setWidgets(widgets.filter(w => w.id !== widgetId));
-  };
+    setWidgets((prev) => prev.filter(w => w.id !== widgetId));
+  }, [supabase]);
 
   return (
     <DndProvider backend={HTML5Backend}>

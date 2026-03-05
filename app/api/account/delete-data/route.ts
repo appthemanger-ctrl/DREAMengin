@@ -47,48 +47,36 @@ export async function POST(req: NextRequest) {
   const deleted: string[] = [];
   const errors: string[] = [];
 
-  // Delete feed_rules
-  const { error: feedErr } = await supabase
-    .from('feed_rules')
-    .delete()
-    .eq('user_id', user.id);
-  if (feedErr) {
-    errors.push(`feed_rules: ${feedErr.message}`);
+  // Run all independent deletes in parallel
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabaseAny = supabase as any;
+  const [feedResult, widgetResult, connectorResult, pageResult] = await Promise.all([
+    supabase.from('feed_rules').delete().eq('user_id', user.id),
+    supabase.from('widget_instances').delete().eq('user_id', user.id),
+    supabaseAny.from('connector_configs').delete().eq('user_id', user.id),
+    supabaseAny.from('page_configs').delete().eq('user_id', user.id),
+  ]);
+
+  if (feedResult.error) {
+    errors.push(`feed_rules: ${feedResult.error.message}`);
   } else {
     deleted.push('feed_rules');
   }
 
-  // Delete widget_instances
-  const { error: widgetErr } = await supabase
-    .from('widget_instances')
-    .delete()
-    .eq('user_id', user.id);
-  if (widgetErr) {
-    errors.push(`widget_instances: ${widgetErr.message}`);
+  if (widgetResult.error) {
+    errors.push(`widget_instances: ${widgetResult.error.message}`);
   } else {
     deleted.push('widget_instances');
   }
 
-  // Delete connector_configs
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: connectorErr } = await (supabase as any)
-    .from('connector_configs')
-    .delete()
-    .eq('user_id', user.id);
-  if (connectorErr) {
-    errors.push(`connector_configs: ${(connectorErr as { message: string }).message}`);
+  if (connectorResult.error) {
+    errors.push(`connector_configs: ${(connectorResult.error as { message: string }).message}`);
   } else {
     deleted.push('connector_configs');
   }
 
-  // Delete page_configs
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: pageErr } = await (supabase as any)
-    .from('page_configs')
-    .delete()
-    .eq('user_id', user.id);
-  if (pageErr) {
-    errors.push(`page_configs: ${(pageErr as { message: string }).message}`);
+  if (pageResult.error) {
+    errors.push(`page_configs: ${(pageResult.error as { message: string }).message}`);
   } else {
     deleted.push('page_configs');
   }
