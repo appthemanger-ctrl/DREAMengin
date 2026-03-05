@@ -1,0 +1,64 @@
+name: Update Bugs Doc
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Runs after every push to any branch.
+# Calls scripts/update-bugs.mjs to regenerate docs/BUGS.md with:
+#   • Final vision  — what DREAMengin is supposed to be when complete
+#   • Open issues   — parsed live from docs/FEATURE_STATUS.md
+#   • Known bugs    — TODO/FIXME/HACK annotations found in source
+#   • Upgrade queue — ordered priority list from docs/LAW.md §10.2
+#
+# The commit is made by github-actions[bot] and tagged [skip ci] so it
+# does not re-trigger this workflow.
+# ──────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches:
+      - '**'            # every branch
+    paths-ignore:
+      - 'docs/BUGS.md'  # prevent the bot's own commit from re-triggering
+
+jobs:
+  update-bugs:
+    name: Regenerate docs/BUGS.md
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # needed to push the commit back
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2   # need parent commit for diff-tree
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run update-bugs script
+        run: node scripts/update-bugs.mjs
+        env:
+          GITHUB_SHA:       ${{ github.sha }}
+          GITHUB_REF_NAME:  ${{ github.ref_name }}
+          GITHUB_ACTOR:     ${{ github.actor }}
+
+      - name: Commit updated BUGS.md
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add docs/BUGS.md
+
+          # Only commit if there's something to commit
+          if git diff --cached --quiet; then
+            echo "No changes to BUGS.md — skipping commit."
+            exit 0
+          fi
+
+          SHORT="${{ github.sha }}"
+          SHORT="${SHORT:0:7}"
+          git commit -m "docs: auto-update BUGS.md [${SHORT}] [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
