@@ -3,6 +3,13 @@ import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/types/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import {
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  SUPABASE_SERVICE_ROLE_KEY,
+  isSupabaseConfigured,
+  SETUP_HINT,
+} from './env'
 
 type DisabledSupabaseClient = {
   auth: {
@@ -20,14 +27,8 @@ type DisabledSupabaseClient = {
  *
  * - Does not crash builds when env vars are missing.
  * - When unconfigured, returns a "disabled" client that throws only when used.
+ * - Env vars resolved by lib/supabase/env.ts (accepts multiple naming conventions).
  */
-const SUPABASE_URL = process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL || ''
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY || ''
-const SUPABASE_SERVICE_ROLE_KEY = process.env.dreamengin_SUPABASE_SECRET_KEY || ''
-
-function isSupabaseConfigured() {
-  return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
-}
 
 function createDisabledClient(reason: string): SupabaseClient<Database> {
   const thrower = async () => {
@@ -55,9 +56,7 @@ function createDisabledClient(reason: string): SupabaseClient<Database> {
 
 export async function createServerClient(): Promise<SupabaseClient<Database>> {
   if (!isSupabaseConfigured()) {
-    return createDisabledClient(
-      'Supabase is not configured. Set NEXT_PUBLIC_dreamengin_SUPABASE_URL and NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY.'
-    )
+    return createDisabledClient(`Supabase is not configured. ${SETUP_HINT}`)
   }
 
   // In Next.js 16, cookies() is async
@@ -82,7 +81,7 @@ export async function createServerClient(): Promise<SupabaseClient<Database>> {
 export async function createServiceClient(): Promise<SupabaseClient<Database>> {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
-      'Supabase service role is not configured. Set NEXT_PUBLIC_dreamengin_SUPABASE_URL and dreamengin_SUPABASE_SECRET_KEY.'
+      `Supabase service role is not configured. Set dreamengin_SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY in Vercel environment variables.`
     )
   }
 

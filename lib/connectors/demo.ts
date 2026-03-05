@@ -1,10 +1,10 @@
 import 'server-only'
-
 import { createClient } from '@supabase/supabase-js'
+import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from '@/lib/supabase/env'
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL!,
-  process.env.dreamengin_SUPABASE_SECRET_KEY!
+  SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY
 )
 
 // Demo connector that generates sample feed items

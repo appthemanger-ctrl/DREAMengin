@@ -1,3 +1,5 @@
+import { isSupabaseConfigured } from '@/lib/supabase/env';
+
 const hasValue = (value?: string) => Boolean(value && value.trim().length > 0);
 
 export const ESTIMATED_COMPLETION = {
@@ -12,6 +14,7 @@ export const DEFAULT_CHECK_STATUS = {
   accessibility: 'Pass'
 } as const;
 
-export const isSupabaseConfigured = () =>
-  hasValue(process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL) &&
-  hasValue(process.env.dreamengin_SUPABASE_SECRET_KEY);
+// Re-export from centralised env resolver so every consumer agrees
+export { isSupabaseConfigured };
+// Keep hasValue available for other local checks
+export { hasValue };

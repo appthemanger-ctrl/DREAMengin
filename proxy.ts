@@ -15,6 +15,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './lib/supabase/env';
 
 // ── Blocked hosts ─────────────────────────────────────────────────────────────
 const BLOCKED_HOST = 'theboogieman.ai';
@@ -32,13 +33,10 @@ export async function proxy(request: NextRequest) {
   //    Creates a response that forwards all request cookies, calls
   //    getUser() to refresh the session, then writes updated auth
   //    cookies back onto the response before handing off.
-  const supabaseUrl = process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL;
-  const supabaseAnonKey =
-    process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY;
 
   // If Supabase is not configured (e.g. local dev without .env.local),
   // skip session refresh and just continue.
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     return NextResponse.next({ request });
   }
 
@@ -46,7 +44,7 @@ export async function proxy(request: NextRequest) {
   // headers/cookies so that Server Components can read them.
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
         return request.cookies.getAll();

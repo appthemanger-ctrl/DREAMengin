@@ -232,25 +232,46 @@ Dr. Eams chat panel (`components/dreamengin/DrEamsPanel.tsx`):
 
 All secrets are server-side only. See `.env.example` for the full list.
 
+### Supabase — automatic via Vercel-Supabase integration
+
+If you linked your Supabase project in **Vercel → Integrations → Supabase**, these are injected automatically and the app reads them with no extra setup:
+
+| Variable injected by Vercel | Used as |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL (client + server) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Anon key (client + server) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key legacy alias (client + server) |
+| `dreamengin_SUPABASE_URL` | Project URL (server alias) |
+| `dreamengin_SUPABASE_ANON_KEY` | Anon key (server alias) |
+| `dreamengin_SUPABASE_JWT_SECRET` | JWT secret |
+| `dreamengin_SUPABASE_SERVICE_ROLE_KEY` | Service-role key |
+| `dreamengin_SUPABASE_SECRET_KEY` | Service-role key (manual alias) |
+| `dreamengin_POSTGRES_*` | Direct Postgres connection strings |
+
+> **The app accepts every name in the table above — you do not need to add any extra vars if you used the Vercel-Supabase integration.**  
+> It also accepts the legacy custom names (`NEXT_PUBLIC_dreamengin_SUPABASE_URL`, `NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY`) for backward compatibility.
+
+### Other required secrets
+
+These are **not** injected by the Vercel-Supabase integration — add them manually in **Vercel → Project → Settings → Environment Variables**:
+
 | Variable | Required | Notes |
 |---|---|---|
-| `NEXT_PUBLIC_dreamengin_SUPABASE_URL` | ✅ | Supabase project URL (safe to expose) |
-| `NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY` | ✅ | Supabase anon key for client + SSR |
-| `dreamengin_SUPABASE_ANON_KEY` | ✅ | Same anon key, server-side name |
-| `dreamengin_SUPABASE_PUBLISHABLE_KEY` | ✅ | Publishable key alias (server-side) |
-| `dreamengin_SUPABASE_SECRET_KEY` | ✅ | Service-role key. Server-only. Never `NEXT_PUBLIC_`. |
-| `dreamengin_SUPABASE_JWT_SECRET` | ✅ | JWT secret for server-side token verification |
-| `GROQ_API_KEY` | ✅ | Server-only AI provider key (Groq). Never `NEXT_PUBLIC_`. |
-| `OPENAI_API_KEY` | ✅ (prod) | Server-only OpenAI key. Never `NEXT_PUBLIC_`. |
 | `SESSION_SECRET` | ✅ | Secret used to sign session tokens |
-| `OWNER_EMAIL` | ✅ | Owner email for admin gating |
 | `INNERDREAMS_PASSWORD` | ✅ | Password for `/api/admin/*`. One wrong attempt = permanent lockout. |
 | `ADMIN_UNLOCK_KEY` | ✅ | Emergency key to bypass permanent admin lockout |
+| `OWNER_EMAIL` | ✅ | Owner email for admin gating |
+| `OPENAI_API_KEY` | ✅ (prod) | Server-only OpenAI key. Never `NEXT_PUBLIC_`. |
+| `GROQ_API_KEY` | prod | Server-only Groq key. Never `NEXT_PUBLIC_`. |
 | `NEXT_PUBLIC_DEV_BYPASS_AUTH` | dev only | Set to `true` to skip auth redirects in dev |
 | `DEV_ADMIN` | dev only | Set to `true` (+ bypass above) to access admin panel without login in dev |
 | `BOOGIE_SIMULATION_MODE` | dev only | Audit events without restricting accounts. Never enable in production. |
 | `BOOGIE_DEGRADED` | ops only | Mark TheBoogieMan.Ai as degraded in the status endpoint. |
 | `BOOGIE_OFFLINE` | ops only | Mark TheBoogieMan.Ai as offline in the status endpoint. |
+
+### Diagnosing a "Supabase not configured" error
+
+Visit **`/api/setup/check`** in your deployed app — it returns a JSON report of every resolved env var and which names it checked, without exposing values.
 
 ## Dev auth bypass
 
