@@ -2,9 +2,22 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, BarChart3, TrendingUp, DollarSign, Users, Zap, FileText, ExternalLink, ShoppingBag, Plug } from 'lucide-react';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Analytics Daydream – DREAMengin', description: 'Overview of your reach, revenue, and growth.' };
+
+
+const WIDGETS: DaydreamWidget[] = [
+  { id: 'posts',    emoji: '📈', label: 'Post Stats',    desc: 'Views, likes, and shares',       color: '#6366f1', href: '/daydream/analytics' },
+  { id: 'revenue',  emoji: '💰', label: 'Revenue',       desc: 'Earnings and weekly payouts',    color: '#22c55e', href: '/daydream/analytics' },
+  { id: 'profile',  emoji: '👁️', label: 'Profile Views', desc: 'Who visited your profile',       color: '#0ea5e9', href: '/profile' },
+  { id: 'connect',  emoji: '🔌', label: 'Data Sources',  desc: 'Connect analytics providers',    color: '#f59e0b', href: '/connectors' },
+  { id: 'export',   emoji: '📥', label: 'Export Data',   desc: 'Download your analytics',        color: '#ec4899', href: '/settings/data' },
+  { id: 'shop',     emoji: '🛍️', label: 'Shop Stats',    desc: 'Product and sales metrics',      color: '#c8981a', href: '/shop' },
+  { id: 'brand',    emoji: '🎨', label: 'Brand Hub',     desc: 'Your brand control center',      color: '#8b5cf6', href: '/daydream/brand' },
+  { id: 'discover', emoji: '🔍', label: 'Discover',      desc: 'Find and grow your audience',    color: '#2a8ab8', href: '/discover' },
+];
 
 export default async function AnalyticsDaydreamPage() {
   const supabase = await createServerClient();
@@ -27,6 +40,7 @@ export default async function AnalyticsDaydreamPage() {
   ];
 
   return (
+    <DaydreamShell title="Analytics" accentColor="#6366f1" widgets={WIDGETS}>
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -115,5 +129,6 @@ export default async function AnalyticsDaydreamPage() {
 
       </div>
     </div>
+    </DaydreamShell>
   );
 }

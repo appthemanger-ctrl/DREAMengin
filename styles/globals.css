@@ -417,28 +417,49 @@ html, body {
 .de-node-wrapper::-webkit-scrollbar { width: 3px; }
 .de-node-wrapper::-webkit-scrollbar-thumb { background: var(--de-border); border-radius: 3px; }
 
-/* Widget tile */
+/* ── Marble / Bubble widget tile — looking inside a marble ── */
 .de-widget-tile {
-  background: var(--de-widget-bg, var(--de-glass));
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--de-widget-border, var(--de-border));
-  border-radius: 18px;
+  background: radial-gradient(
+    ellipse at 28% 22%,
+    rgba(255,255,255,0.78) 0%,
+    rgba(210,230,252,0.48) 42%,
+    rgba(245,232,196,0.22) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1.5px solid rgba(255,255,255,0.68);
+  border-radius: 20px;
   padding: 12px;
   min-height: 68px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   cursor: pointer;
-  transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  box-shadow:
+    0 4px 24px rgba(42,138,184,0.10),
+    inset 0 1.5px 0 rgba(255,255,255,0.88),
+    inset 0 -1px 0 rgba(200,152,26,0.07);
 }
 .de-widget-tile:hover {
-  border-color: var(--de-border-gold);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transform: translateY(-2px) scale(1.01);
+  border-color: rgba(200,152,26,0.38);
+  box-shadow:
+    0 8px 32px rgba(42,138,184,0.16),
+    inset 0 1.5px 0 rgba(255,255,255,0.92),
+    inset 0 -1px 0 rgba(200,152,26,0.10);
+}
+
+/* ── Daydream page-flip animation ── */
+@keyframes de-flip-out {
+  from { transform: translateX(0)   scale(1);    opacity: 1; }
+  to   { transform: translateX(-5%) scale(0.97); opacity: 0; }
+}
+@keyframes de-flip-in {
+  from { transform: translateX(5%)  scale(0.97); opacity: 0; }
+  to   { transform: translateX(0)   scale(1);    opacity: 1; }
 }
 
 /* Stat pill */
@@ -570,11 +591,19 @@ body, .dreamnav-surface, .controls {
 
 /* ── Widget card (consistent frame) ── */
 .de-widget {
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(160,195,240,0.4);
-  box-shadow: 0 2px 16px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.65);
+  background: radial-gradient(
+    ellipse at 25% 18%,
+    rgba(255,255,255,0.72) 0%,
+    rgba(215,232,255,0.46) 45%,
+    rgba(245,232,196,0.20) 100%
+  );
+  backdrop-filter: blur(22px) saturate(175%);
+  -webkit-backdrop-filter: blur(22px) saturate(175%);
+  border: 1.5px solid rgba(255,255,255,0.65);
+  box-shadow:
+    0 4px 28px rgba(42,138,184,0.09),
+    inset 0 1.5px 0 rgba(255,255,255,0.85),
+    inset 0 -1px 0 rgba(200,152,26,0.06);
   border-radius: var(--de-radius-xl);
   overflow: hidden;
 }
