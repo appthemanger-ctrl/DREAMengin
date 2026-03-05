@@ -9,6 +9,7 @@ interface OutdreamMenuProps {
   onClose: () => void;
 }
 
+// OutdreamMenu: the Daydreams navigation menu for outer-shell node navigation.
 export default function OutdreamMenu({ onClose }: OutdreamMenuProps) {
   const { node, dispatch } = useDreamNav();
 
@@ -34,7 +35,7 @@ export default function OutdreamMenu({ onClose }: OutdreamMenuProps) {
         className="w-[min(24rem,92vw)] rounded-3xl border border-white/20 bg-slate-950/90 p-4 text-white shadow-sm"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="px-2 text-sm uppercase tracking-[0.2em] text-white/60">Dreams</h2>
+        <h2 className="px-2 text-sm uppercase tracking-[0.2em] text-white/60">Daydreams</h2>
         <ul className="mt-2 space-y-1 max-h-80 overflow-y-auto">
           {dayDreams.map((d) => (
             <li key={d.id}>

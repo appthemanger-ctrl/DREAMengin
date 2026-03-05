@@ -89,7 +89,7 @@ export default function AIAssistantEnhanced() {
 
       const emotion = evt.status === 'error' ? 'concerned' : 'neutral';
       addAssistantMessage(
-        `🔧 InnerDreams Update: ${evt.message}${evt.details ? `\n\nDetails: ${evt.details}` : ''}`,
+        `🔧 iDari Update: ${evt.message}${evt.details ? `\n\nDetails: ${evt.details}` : ''}`,
         emotion
       );
     });
@@ -156,21 +156,21 @@ export default function AIAssistantEnhanced() {
         body: JSON.stringify(payload),
       });
 
-      if (res.status === 401) return '🔐 InnerDreams requires admin authentication. Please sign in with an admin account first, then we can proceed.';
-      if (res.status === 403) return '⚠️ InnerDreams is restricted to administrator accounts. Your current account doesn\'t have the necessary permissions.';
-      if (!res.ok) return `❌ InnerDreams encountered an issue (Status ${res.status}). Let me know if you'd like me to try a different approach.`;
+      if (res.status === 401) return '🔐 iDari requires admin authentication. Please sign in with an admin account first, then we can proceed.';
+      if (res.status === 403) return '⚠️ iDari is restricted to administrator accounts. Your current account doesn\'t have the necessary permissions.';
+      if (!res.ok) return `❌ iDari encountered an issue (Status ${res.status}). Let me know if you'd like me to try a different approach.`;
 
       const json = await res.json();
       if (mode === 'bug-check') {
         const bugs = json?.bugsFound ?? 0;
         return bugs > 0
-          ? `🔍 InnerDreams scan detected ${bugs} potential ${bugs === 1 ? 'issue' : 'issues'}. I've logged the details in the admin audit system. Would you like me to help prioritize the fixes?`
-          : '✅ InnerDreams reports all systems nominal. Everything is running smoothly!';
+          ? `🔍 iDari scan detected ${bugs} potential ${bugs === 1 ? 'issue' : 'issues'}. I've logged the details in the admin audit system. Would you like me to help prioritize the fixes?`
+          : '✅ iDari reports all systems nominal. Everything is running smoothly!';
       }
 
-      return json?.message ? `✨ InnerDreams: ${json.message}` : '✅ InnerDreams has accepted the update request and is working on it.';
+      return json?.message ? `✨ iDari: ${json.message}` : '✅ iDari has accepted the update request and is working on it.';
     } catch (e: unknown) {
-      return `⚠️ I encountered an error communicating with InnerDreams: ${e?.message || 'Unknown error'}. This might be a temporary network issue—would you like me to try again?`;
+      return `⚠️ I encountered an error communicating with iDari: ${e?.message || 'Unknown error'}. This might be a temporary network issue—would you like me to try again?`;
     }
   };
 
@@ -291,7 +291,7 @@ I can explain our creator-first revenue model (85% to creators, 15% platform fee
 When Full Experience mode is enabled, I can perform safe UI operations on your behalf—like navigating to pages, opening tools, or configuring settings.
 
 **🛠️ System Maintenance**
-I can communicate with InnerDreams, our automated system manager, to check for issues or request updates. This requires admin access.
+I can communicate with iDari, our automated system manager, to check for issues or request updates. This requires admin access.
 
 **💬 Natural Conversation**
 Most importantly, I'm here to have genuine conversations about your goals, answer questions, and help you think through creative challenges.
