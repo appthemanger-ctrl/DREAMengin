@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import GameRemote from '@/components/games/GameRemote';
 
 export type DaydreamWidget = {
   id: string;
@@ -19,9 +20,15 @@ type Props = {
   accentColor: string;
   widgets: DaydreamWidget[];
   children: React.ReactNode;
+  /**
+   * Controls which UI renders on Side B.
+   *   'widgets'     (default) — the standard marble widget tray
+   *   'game-remote' — dual analog-stick game controller (Games Daydream)
+   */
+  sideBVariant?: 'widgets' | 'game-remote';
 };
 
-export default function DaydreamShell({ title, accentColor, widgets, children }: Props) {
+export default function DaydreamShell({ title, accentColor, widgets, children, sideBVariant = 'widgets' }: Props) {
   const [side, setSide]   = useState<'A' | 'B'>('A');
   const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
   const [busy, setBusy]   = useState(false);
@@ -55,55 +62,50 @@ export default function DaydreamShell({ title, accentColor, widgets, children }:
       <div style={contentStyle}>
         {side === 'A'
           ? children
-          : <WidgetTray title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />
+          : sideBVariant === 'game-remote'
+            ? <GameRemote onBack={flip} />
+            : <WidgetTray title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />
         }
       </div>
 
-      {/* ── Page-corner fold tab — bottom-right ── */}
-      <button
-        type="button"
-        onClick={flip}
-        aria-label={side === 'A' ? 'Open dream tools' : 'Back to daydream'}
-        title={`${side === 'A' ? 'Dream Tools' : 'Daydream'} (Alt+F)`}
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          right: 0,
-          width: 64,
-          height: 64,
-          zIndex: 48,
-          clipPath: 'polygon(100% 0, 100% 100%, 0 100%)',
-          cursor: 'pointer',
-          border: 'none',
-          background: side === 'A'
-            ? `linear-gradient(135deg, ${accentColor}aa, rgba(200,152,26,0.75))`
-            : `linear-gradient(135deg, rgba(200,152,26,0.75), ${accentColor}aa)`,
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          boxShadow: '-3px -3px 18px rgba(0,0,0,0.22)',
-          padding: 0,
-          transition: 'width 0.2s, height 0.2s, background 0.3s',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.width = '80px'; e.currentTarget.style.height = '80px'; }}
-        onMouseLeave={e => { e.currentTarget.style.width = '64px'; e.currentTarget.style.height = '64px'; }}
-      />
-
-      {/* Side indicator pill */}
-      <div style={{
-        position: 'fixed',
-        bottom: 18,
-        right: 72,
-        zIndex: 48,
-        fontSize: 10,
-        fontWeight: 700,
-        letterSpacing: '0.08em',
-        color: 'rgba(255,255,255,0.85)',
-        textShadow: '0 1px 4px rgba(0,0,0,0.3)',
-        pointerEvents: 'none',
-        transition: 'opacity 0.3s',
-      }}>
-        {side === 'A' ? 'TOOLS →' : '← BACK'}
-      </div>
+      {/* ── Side A only: corner fold tab → opens Side B ── */}
+      {side === 'A' && (
+        <>
+          <button
+            type="button"
+            onClick={flip}
+            aria-label="Open dream tools"
+            title="Dream Tools (Alt+F)"
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              right: 0,
+              width: 64,
+              height: 64,
+              zIndex: 48,
+              clipPath: 'polygon(100% 0, 100% 100%, 0 100%)',
+              cursor: 'pointer',
+              border: 'none',
+              background: `linear-gradient(135deg, ${accentColor}aa, rgba(200,152,26,0.75))`,
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              boxShadow: '-3px -3px 18px rgba(0,0,0,0.22)',
+              padding: 0,
+              transition: 'width 0.2s, height 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.width = '80px'; e.currentTarget.style.height = '80px'; }}
+            onMouseLeave={e => { e.currentTarget.style.width = '64px'; e.currentTarget.style.height = '64px'; }}
+          />
+          <div style={{
+            position: 'fixed', bottom: 18, right: 72, zIndex: 48,
+            fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+            color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 4px rgba(0,0,0,0.3)',
+            pointerEvents: 'none',
+          }}>
+            TOOLS →
+          </div>
+        </>
+      )}
     </>
   );
 }

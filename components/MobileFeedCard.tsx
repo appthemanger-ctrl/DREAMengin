@@ -6,6 +6,7 @@ import {
   Eye, Zap, Award, Play, Volume2
 } from 'lucide-react';
 import Link from 'next/link';
+import CommentSection from '@/components/feed/CommentSection';
 
 interface MobileFeedCardProps {
   item: unknown;
@@ -18,6 +19,7 @@ export default function MobileFeedCard({ item, onSwipeLeft, onSwipeRight }: Mobi
   const [bookmarked, setBookmarked] = useState(false);
   const [likeCount, setLikeCount] = useState(item.likes || Math.floor(Math.random() * 1000));
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [swipeOffset, setSwipeOffset] = useState(0);
@@ -236,10 +238,14 @@ export default function MobileFeedCard({ item, onSwipeLeft, onSwipeRight }: Mobi
               </span>
             </button>
 
-            <button className="flex items-center space-x-2 px-4 py-2.5 rounded-full bg-slate-50 dark:bg-slate-800 transition-all active:scale-95">
-              <MessageCircle className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+            <button className="flex items-center space-x-2 px-4 py-2.5 rounded-full bg-slate-50 dark:bg-slate-800 transition-all active:scale-95"
+              onClick={() => setShowComments((v) => !v)}
+              aria-label={showComments ? 'Hide comments' : 'Show comments'}
+              aria-expanded={showComments}
+            >
+              <MessageCircle className={`w-5 h-5 ${showComments ? 'fill-blue-500 text-blue-500' : 'text-slate-600 dark:text-slate-400'}`} />
               <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                {formatNumber(item.comments || Math.floor(Math.random() * 100))}
+                {formatNumber(item.comments || 0)}
               </span>
             </button>
 
@@ -264,6 +270,13 @@ export default function MobileFeedCard({ item, onSwipeLeft, onSwipeRight }: Mobi
           </button>
         </div>
       </div>
+
+      {/* Collapsible comment section — toggled by the comment button above */}
+      {showComments && item?.id && (
+        <div className="px-4 pb-4">
+          <CommentSection postId={String(item.id)} />
+        </div>
+      )}
 
       {/* Swipe indicators */}
       {swipeOffset > 20 && (

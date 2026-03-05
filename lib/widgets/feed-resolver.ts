@@ -205,7 +205,113 @@ function generateETag(items: FeedItemSummary[]): string {
 }
 
 // =====================================================
-// 4. REALTIME SUBSCRIPTION HELPERS
+// 4. APP_POSTS RESOLVER (real user-created posts)
+// =====================================================
+
+/**
+ * Resolves public posts from the `app_posts` table.
+ *
+ * Architecture justification: ARCHITECTURE.md §8.1 — server components fetch
+ * feed data with visibility constraints.  Only `visibility = 'public'` rows are
+ * returned so private content is never leaked (AXIOM 4 + AXIOM 5).
+ *
+ * @param limit - Maximum number of posts to return (default 20).
+ */
+export async function resolvePublicAppPosts(limit = 20): Promise<HostResolved> {
+  const supabase = await createServerClient();
+
+  try {
+    const { data: posts, error } = await supabase
+      .from('app_posts')
+      .select('id, user_id, content, media_json, visibility, created_at')
+      .eq('visibility', 'public')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('resolvePublicAppPosts error:', error);
+      return {
+        kind: HostKind.HOST_FEED_VIEW,
+        status: HostResolvedStatus.ERROR,
+        error_message: error.message,
+      };
+    }
+
+    const items: FeedItemSummary[] = (posts || []).map((post) => ({
+      item_id: post.id as string,
+      author_id: post.user_id as string,
+      created_at: post.created_at as string,
+      text_preview: (post.content as string | null) ?? '',
+      media_preview_url: extractMediaPreviewUrl(post.media_json),
+      engagement_counts: { likes: 0, comments: 0, shares: 0 },
+      visibility: 'public' as const,
+    }));
+
+    return {
+      kind: HostKind.HOST_FEED_VIEW,
+      status: HostResolvedStatus.OK,
+      items,
+      cursor: items.length > 0 ? items[items.length - 1].created_at : null,
+      etag: generateETag(items),
+      updated_at: new Date().toISOString(),
+    };
+  } catch (err) {
+    console.error('resolvePublicAppPosts unexpected error:', err);
+    return {
+      kind: HostKind.HOST_FEED_VIEW,
+      status: HostResolvedStatus.ERROR,
+      error_message: err instanceof Error ? err.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Subscribes to realtime inserts / updates on `app_posts` (public only).
+ *
+ * Feed updates are dispatched via `requestIdleCallback` (with a `setTimeout`
+ * fallback) so they never block the main thread — per Widget System V2 spec
+ * and ARCHITECTURE.md §11 battery / performance rules.
+ *
+ * @returns An unsubscribe function — call it to tear down the channel.
+ */
+export async function subscribeAppPostsRealtime(
+  onUpdate: (items: FeedItemSummary[]) => void
+): Promise<() => void> {
+  const supabase = await createServerClient();
+
+  const channel = supabase
+    .channel('app_posts:public')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'app_posts',
+        filter: "visibility=eq.public",
+      },
+      async () => {
+        const resolved = await resolvePublicAppPosts();
+        if (resolved.status === HostResolvedStatus.OK && resolved.items) {
+          // Defer the callback to idle time so it never jank the active frame.
+          // Falls back to setTimeout(0) in environments that lack the API
+          // (e.g. Node.js server-side, older browsers).
+          if (typeof requestIdleCallback !== 'undefined') {
+            requestIdleCallback(() => onUpdate(resolved.items!));
+          } else {
+            setTimeout(() => onUpdate(resolved.items!), 0);
+          }
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}
+
+// =====================================================
+// 6. FEED_ITEMS REALTIME SUBSCRIPTION HELPERS (Widget System V2)
 // =====================================================
 
 export function getFeedChannelKey(scope: FeedScope, userId: string): string {

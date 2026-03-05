@@ -21,13 +21,11 @@ type ProfileLike = {
 export default function HomeSystem({ userId, profile, initialPosts }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
   const { dispatch, navigateTo, node } = useDreamNav();
 
-  const [dreamMenuOpen, setDreamMenuOpen]   = useState(false);
-  const [systemMenuOpen, setSystemMenuOpen] = useState(false);
-  const [drEamsOpen, setDrEamsOpen]         = useState(false);
-  const [coreFace, setCoreFace]             = useState<'home' | 'profile'>('home');
-  const [coreOpen, setCoreOpen]             = useState(true);
-  // DreamNavControls starts locked; track lock state to hide NavIndicator when not navigating
-  const [navLocked, setNavLocked]           = useState(true);
+  const [bothMenusOpen, setBothMenusOpen] = useState(false);
+  const [drEamsOpen, setDrEamsOpen]       = useState(false);
+  const [coreFace, setCoreFace]           = useState<'home' | 'profile'>('home');
+  const [coreOpen, setCoreOpen]           = useState(true);
+
   // Read showNavIndicator setting from localStorage (default true)
   const [showNavIndicator, setShowNavIndicator] = useState(true);
   useEffect(() => {
@@ -37,33 +35,32 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
     } catch { /* noop */ }
   }, []);
 
-  const closeAll = useCallback(() => {
-    setDreamMenuOpen(false);
-    setSystemMenuOpen(false);
+  const closeAllMenus = useCallback(() => {
+    setBothMenusOpen(false);
   }, []);
 
   const returnHome = useCallback(() => {
     dispatch('home');
-    closeAll();
+    closeAllMenus();
     setDrEamsOpen(false);
     setCoreFace('home');
     setCoreOpen(true);
-  }, [dispatch, closeAll]);
+  }, [dispatch, closeAllMenus]);
 
   const onSystemAction = useCallback((action: SystemMenuAction) => {
-    closeAll();
+    closeAllMenus();
     if (action === 'dr-eams')       { setDrEamsOpen(true); return; }
     if (action === 'settings')      { window.location.href = '/settings'; return; }
     if (action === 'account')       { window.location.href = '/edit-profile'; return; }
     if (action === 'feed-settings') { window.location.href = '/feed-settings'; return; }
     if (action === 'connectors')    { window.location.href = '/connectors'; return; }
     if (action === 'go-home')       { returnHome(); return; }
-  }, [closeAll, returnHome]);
+  }, [closeAllMenus, returnHome]);
 
   return (
     <>
       <StarfieldCanvas />
-      <NavIndicator node={node} hidden={navLocked || !showNavIndicator} />
+      <NavIndicator node={node} hidden={!showNavIndicator} />
 
       <HomeDreamRuntime
         profile={profile}
@@ -74,35 +71,45 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         onOpenDrEams={() => setDrEamsOpen(true)}
       />
 
+      {/* Gold home button — single tap = Go Home, double tap = both menus (§6.1) */}
       <DreamNavControls
         onHome={returnHome}
-        onLockChange={setNavLocked}
-        onOpenDreamsMenu={() => {
-          setSystemMenuOpen(false);
-          setDreamMenuOpen(true);
-        }}
-        onOpenSystemMenu={() => {
-          setDreamMenuOpen(false);
-          setSystemMenuOpen(true);
-        }}
+        onBothMenus={() => setBothMenusOpen(true)}
       />
 
-      {/* Daydreams menu (SPEC §3.1) */}
+      {/* Shared dim backdrop for dual-menu display */}
+      {bothMenusOpen && (
+        <div
+          role="presentation"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 68,
+            background: 'rgba(2,8,24,0.55)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            animation: 'de-menu-overlay-in 0.18s ease-out',
+          }}
+          onPointerDown={closeAllMenus}
+        />
+      )}
+
+      {/* Daydreams menu — left side when paired, center when solo */}
       <DreamRadialMenu
-        open={dreamMenuOpen}
-        onClose={() => setDreamMenuOpen(false)}
-        side="center"
+        open={bothMenusOpen}
+        onClose={closeAllMenus}
+        side="left"
         onSelectNode={(n) => {
-          closeAll();
+          closeAllMenus();
           navigateTo(n);
         }}
       />
 
-      {/* System menu (SPEC §3.1) */}
+      {/* System menu — right side when paired, center when solo */}
       <SystemRadialMenu
-        open={systemMenuOpen}
-        onClose={() => setSystemMenuOpen(false)}
-        side="center"
+        open={bothMenusOpen}
+        onClose={closeAllMenus}
+        side="right"
         onAction={onSystemAction}
       />
 

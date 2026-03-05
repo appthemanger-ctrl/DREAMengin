@@ -71,7 +71,7 @@ These features exist but are incomplete. They must be finished before the produc
 
 | Status | Feature | Notes |
 |--------|---------|-------|
-| 🔶 | Gradient on all daydreams/settings | 4 daydream pages + settings/algorithm done; 11 pages still use old bg-background |
+| ✅ | Gradient on all daydreams/settings | All pages now use de-sky-bg + de-widget |
 | 🔶 | Dark-mode support | CSS vars in place; not all components respect them |
 | 🔶 | Performance / battery-aware rendering | Game loop throttles; general app idle-throttling pending |
 | 🔶 | Widget surface grid | Layout exists; drag-to-reorder not wired |
@@ -81,7 +81,7 @@ These features exist but are incomplete. They must be finished before the produc
 | 🔶 | Back-navigation / history | Browser back works; spatial context not preserved |
 | 🔶 | Avatar upload | Upload UI exists; Supabase storage wiring needs test |
 | 🔶 | Public-only widget display | Logic exists; not fully enforced |
-| 🔶 | Feed resolver | `lib/widgets/feed-resolver.ts`; demo data only |
+| ✅ | Feed resolver | Connected to real app_posts; realtime subscription via requestIdleCallback |
 | 🔶 | Feed settings | UI at `/feed-settings`; slices not saved to DB |
 | 🔶 | Post creation | `CreatePostModal.tsx` exists; full publish flow needs work |
 | 🔶 | Likes | API route exists; real-time count not wired |
@@ -114,10 +114,10 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 | 🔲 | Password reset flow | Route exists but UI not built |
 | 🔲 | Swipe navigation | Spec'd; not yet implemented on mobile |
 | 🔲 | Widget drag-to-reorder on profile canvas | Toggle visibility done; drag-to-reorder needs `@dnd-kit/core` |
-| 🔲 | Comments | Not yet built |
+| ✅ | Comments | Migration + RLS + API route + CommentSection component + wired into FeedCard |
 | 🔲 | Haptic feedback (DualSense) | Gamepad vibration API not yet wired |
 | 🔲 | Power-ups (spin/shoot effects) | Inputs wired; visual effects + logic pending |
-| 🔲 | Leaderboard | Score exists; no persistence |
+| ✅ | Leaderboard | game_scores migration + RLS + API route + Leaderboard component |
 | 🔲 | More levels / worlds | 3 levels done; more planned |
 | 🔲 | Widget marketplace | Spec'd in WIDGET_SYSTEM_V2.md; not built |
 | 🔲 | Payments (Stripe / etc.) | Not started |

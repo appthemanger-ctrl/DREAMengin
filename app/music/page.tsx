@@ -22,7 +22,7 @@ function MusicPlatformRow() {
         <Link key={name} href={href} aria-label={`Connect ${label}`}
           className="flex flex-col items-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity">
           <PlatformBadge name={name} size={48} label={label} />
-          <span className="text-[10px] text-muted-foreground font-medium">{label}</span>
+          <span className="text-[10px] font-medium" style={{ color: 'var(--de-text-dim)' }}>{label}</span>
         </Link>
       ))}
     </div>

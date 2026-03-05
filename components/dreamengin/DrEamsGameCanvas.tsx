@@ -655,6 +655,23 @@ export default function DrEamsGameCanvas() {
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
   }, [started, resetGame]);
 
+  // GameRemote events — fired by components/games/GameRemote.tsx via CustomEvent('de-game-input')
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { action, active } = (e as CustomEvent<{ action: string; active: boolean }>).detail;
+      const inp = inputRef.current;
+      if (action === 'move-left'  || action === 'move-up-left'   || action === 'move-down-left')  inp.left  = active;
+      if (action === 'move-right' || action === 'move-up-right'  || action === 'move-down-right') inp.right = active;
+      if (action === 'move-stop') { inp.left = false; inp.right = false; }
+      if (action === 'jump' || action === 'jump-spin' || action === 'jump-shoot') {
+        if (active && !inp.jump) inp.jumpJustPressed = true;
+        inp.jump = active;
+      }
+    };
+    window.addEventListener('de-game-input', handler);
+    return () => window.removeEventListener('de-game-input', handler);
+  }, []);
+
   // Touch virtual d-pad
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -48,12 +48,13 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Widget surface grid | 🔶 Partly done | Layout exists; drag-to-reorder not wired |
-| Home Button (single floating nav button) | ✅ Done | `DreamNavControls.tsx` + state machine; two-button layout reserved for daydream-specific controls (e.g. Games remote) |
-| Locked / unlocked mode | ✅ Done | Tested in `tests/home-buttons.test.ts` |
-| Magnetic snap / gravity drift | ✅ Done | Physics in state machine |
+| Home Button (single floating gold button) | ✅ Done | `DreamNavControls.tsx` + state machine; single tap = Go Home, double tap = both menus side-by-side |
+| Daydream Side B two-button layout | ✅ Done | Back (←) + daydream-specific action; visible only on Side B of each Daydream |
+| Button position persistence | ✅ Done | Draggable along right rail; position saved in `localStorage` key `dreamengin:controls:v4` |
+| Magnetic snap / gravity drift | ✅ Done | Snaps to right rail on drag end |
 | Edit mode (drag-to-reorder widgets) | 🔶 Partly done | Banner + context exist; actual drag not implemented |
 | Feed widget | 🔶 Partly done | Widget renders; feed data is demo-only |
-| Home reset (tap to go home) | ✅ Done | Single-tap unlocked button |
+| Home reset (tap to go home) | ✅ Done | Single tap on gold button |
 
 ---
 

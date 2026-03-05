@@ -126,37 +126,31 @@ Core gestures:
 - Tap: focus / open / select (no hard route changes unless necessary)
 - Zoom (pinch/scroll): change depth layer
 - Home tap: return to home anchor and reset traversal context
-- Home double-tap: toggle NAV MODE (unlock/lock controls)
-- Menu Button tap (NAV MODE): open System or Daydreams menu
+- Home double-tap: open both menus simultaneously (Daydreams + System)
 - Drag: reposition controls/widgets (User-Shaped Space, Axiom 2)
 
 ### 6.1 Control Objects (Home Button)
 
-There is **one** home button — the **Gold (System) button** on the right rail.
+There is **one** gold button on the right rail. It is always visible and always in the same position (persists via `localStorage` key `dreamengin:controls:v4`).
 
-The two-button layout (blue + gold side by side) is reserved for **daydream-specific controls only** — for example, the Games Daydream uses the dual-button layout as a game remote controller (see §18 Universal Mobile Remote). It is not a home navigation element.
+**Gold button behavior (everywhere except Daydream Side B):**
+- **Single tap → Go Home** (reset to anchor node, close all overlays).
+- **Double tap → Open both menus simultaneously**: Daydreams menu (left panel) + System menu (right panel) appear side-by-side with a shared dim backdrop.
+- **Drag** → reposition vertically along the right rail. Position saved on drag-end.
 
-The single gold button has two modes:
+**Daydream Side B:**
+The single gold button and the corner fold tab are **only** visible on Side A. On Side B the content replaces the standard daydream view:
+- **Standard daydreams** (Music, Create, Brand, Analytics, Media Vault, Play): Side B shows the marble **Widget Tray** — a grid of quick-launch tiles. The tray's header contains a back arrow (←) to return to Side A.
+- **Games Daydream**: Side B shows the **Game Remote** — a full-screen dual analog-stick controller (see §18 Universal Mobile Remote). The remote has its own ← back button. The `sideBVariant="game-remote"` prop on `DaydreamShell` activates this mode.
 
-**LOCKED MODE** (default after login):
-- Gold button snapped to center-bottom, with subtle blue ring.
-- **Single tap → Open Daydreams menu.**
-- **Double tap → Enter NAV MODE.** Button snaps to saved corner on right rail. A brief "NAV mode" indicator appears (~2s).
-- "Double tap to unlock" hint appears once per login session, auto-dismissing after ~2s.
+The Games Daydream uses the dual-button layout as a game remote controller on Side B (see §18 Universal Mobile Remote).
 
-**NAV MODE** (unlocked):
-- Gold button on right rail, draggable vertically.
-- **Single tap → Go Home** (reset anchor).
-- **Double tap → Open System menu** (Dr. Eams, Settings, Account, Feed Settings, Connectors, Go Home).
-- Button drifts back to center via gentle gravity when released; position persists in `localStorage` key `dreamengin:controls:v4`.
-
-**10-second explanation:** Tap once = open Daydreams. Double-tap = unlock for precision nav. Tap to go home when done.
+**10-second explanation:** Tap to go home. Double-tap to open everything. On a Daydream's tool side, the back button takes you back.
 
 Home controls are persistent “system objects,” not a navbar.
 They may:
-- move (drag)
-- fidget (gentle physics)
-- open menus
+- move (drag along rail)
+- open menus (double-tap)
 - return home (single tap)
 
 They must not:
@@ -438,16 +432,17 @@ slightly inset from the edges (not flush — room for thumb to rest):
 | Drag right | Move right |
 | Tap (no drag) | Stop / idle |
 
-### 18.3 Right stick — 7 actions (6 directions + tap)
+### 18.3 Right stick — 8 directions
 | Gesture | Action | Power-up required |
 |---------|--------|-------------------|
 | Drag up | Jump (double-jump on second press) | No |
 | Drag down | Duck / crouch | No |
 | Drag left | Spin attack | Yes |
 | Drag right | Shoot laser | Yes |
-| Tap (short, no drag) | Context action (interact / examine) | No |
 | Drag up-left | Jump + spin | Yes |
 | Drag up-right | Jump + shoot | Yes |
+| Drag down-left | L2 (duck hold) | No |
+| Drag down-right | R1 (dash / dodge) | Yes |
 
 ### 18.4 PS5 DualSense Gamepad API mapping
 | PS5 Button / Axis | Action |
