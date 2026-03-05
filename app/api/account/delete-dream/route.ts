@@ -53,42 +53,44 @@ export async function POST(req: NextRequest) {
   const deleted: string[] = [];
   const errors: string[] = [];
 
-  // Delete all data tables in dependency order
-  const tables: Array<'feed_rules' | 'widget_instances'> = ['feed_rules', 'widget_instances'];
-  const extraTables = ['connector_configs', 'page_configs', 'profiles'] as const;
-
-  for (const table of tables) {
-    const { error } = await supabase.from(table).delete().eq('user_id', user.id);
-    if (error) {
-      errors.push(`${table}: ${error.message}`);
-    } else {
-      deleted.push(table);
-    }
-  }
-
+  // Run all independent table deletes in parallel (dependency-safe: none reference each other)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabaseAny = supabase as any;
-  for (const table of extraTables) {
-    const { error } = await supabaseAny.from(table).delete().eq('user_id', user.id);
+  const tableResults = await Promise.all([
+    supabase.from('feed_rules').delete().eq('user_id', user.id),
+    supabase.from('widget_instances').delete().eq('user_id', user.id),
+    supabaseAny.from('connector_configs').delete().eq('user_id', user.id),
+    supabaseAny.from('page_configs').delete().eq('user_id', user.id),
+  ]);
+
+  const tableNames = ['feed_rules', 'widget_instances', 'connector_configs', 'page_configs'] as const;
+  for (let i = 0; i < tableNames.length; i++) {
+    const { error } = tableResults[i];
     if (error) {
-      errors.push(`${table}: ${(error as { message: string }).message}`);
+      errors.push(`${tableNames[i]}: ${(error as { message: string }).message}`);
     } else {
-      deleted.push(table);
+      deleted.push(tableNames[i]);
     }
   }
 
-  // Profiles table may use 'id' instead of 'user_id'
-  // Try to clean up profile by id if user_id-based delete didn't work
-  if (!deleted.includes('profiles')) {
-    const { error: profileErr } = await supabase
+  // Profiles table may use 'id' instead of 'user_id' — try user_id first, then id
+  const { error: profileUserIdErr } = await supabaseAny
+    .from('profiles')
+    .delete()
+    .eq('user_id', user.id);
+  if (profileUserIdErr) {
+    // Fallback: try deleting by id
+    const { error: profileIdErr } = await supabase
       .from('profiles')
       .delete()
       .eq('id', user.id);
-    if (!profileErr) {
+    if (profileIdErr) {
+      errors.push(`profiles: ${(profileIdErr as { message: string }).message}`);
+    } else {
       deleted.push('profiles');
-      const idx = errors.findIndex((e) => e.startsWith('profiles:'));
-      if (idx !== -1) errors.splice(idx, 1);
     }
+  } else {
+    deleted.push('profiles');
   }
 
   // Delete auth identity using service role client

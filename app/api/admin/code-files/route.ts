@@ -9,6 +9,9 @@ import {
   isDomainBlocked,
 } from '@/lib/admin/lockout';
 
+// fs/path require Node.js runtime — this route must NOT run on the Edge runtime.
+export const runtime = 'nodejs';
+
 // ── File-tree builder ────────────────────────────────────────────────────────
 const ALLOWED_TOP_DIRS = ['app', 'components', 'lib', 'hooks', 'types', 'styles'];
 const ALLOWED_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.css', '.json', '.md', '.mjs', '.cjs']);

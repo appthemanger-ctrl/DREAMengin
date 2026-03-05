@@ -1,4 +1,11 @@
 {
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm run vercel-build"
+  "buildCommand": "pnpm run vercel-build",
+  "functions": {
+    "app/api/account/delete-dream/route.ts": { "maxDuration": 30 },
+    "app/api/account/delete-data/route.ts": { "maxDuration": 30 },
+    "app/api/upload/route.ts": { "maxDuration": 60 },
+    "app/api/admin/code-files/route.ts": { "maxDuration": 30 },
+    "app/api/ai/**": { "maxDuration": 60 }
+  }
 }
