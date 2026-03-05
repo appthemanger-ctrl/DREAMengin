@@ -83,17 +83,7 @@ export default function DreamenginApp() {
     setOverlayLock(false);
   }, [setOverlayLock]);
 
-  const toggleNexus = useCallback(() => {
-    setShowOutdream(false);
-    setShowDrEams(false);
-    setShowNexus((v) => {
-      const next = !v;
-      setOverlayLock(next);
-      return next;
-    });
-  }, [setOverlayLock]);
-
-  const toggleOutdream = useCallback(() => {
+  const toggleMenu = useCallback(() => {
     setShowNexus(false);
     setShowDrEams(false);
     setShowOutdream((v) => {
@@ -174,8 +164,7 @@ export default function DreamenginApp() {
       <BabylonWorkspace engineRef={engineRef} onZoom={zoomBy} />
 
       <HomeControls
-        onDoubleTapBlue={toggleOutdream}
-        onDoubleTapRed={toggleNexus}
+        onDoubleTap={toggleMenu}
         onGoHome={goHome}
       />
 

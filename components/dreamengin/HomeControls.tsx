@@ -1,9 +1,8 @@
 // components/dreamengin/HomeControls.tsx
-// v2.0.0 behavior (per spec + Feb17 update):
-// - Controls are FIXED (no drag) for now.
-// - Single tap (either): Return Home
-// - Double tap Blue: Dreams (Outdream) menu
-// - Double tap Red:  System (Nexus) menu
+// v3.0.0 behavior (per SPEC.md §3.1 — single home button):
+// - One floating button, fixed at bottom center.
+// - Single tap: Return Home
+// - Double tap: Open Dreams menu
 //
 // Notes:
 // - We intentionally removed hold/drag depth navigation to avoid iOS Safari conflicts (pull-to-refresh / back swipe).
@@ -14,110 +13,82 @@
 import React, { useMemo, useRef } from 'react';
 
 interface HomeControlsProps {
-  onDoubleTapBlue: () => void;
-  onDoubleTapRed: () => void;
+  onDoubleTap: () => void;
   onGoHome: () => void;
 }
 
-type ControlId = 'blue' | 'red';
-
-const BTN = 52;           // smaller bubble
-const GAP = 10;
+const BTN = 52;
 const DOUBLE_TAP_MS = 260;
 
-function InfinityHalf({ side }: { side: 'left' | 'right' }) {
-  const flip = side === 'right';
-  const color = side === 'left' ? 'var(--de-gold, #c8981a)' : 'var(--de-accent, #2a8ab8)';
+function InfinityIcon() {
   return (
     <svg width="28" height="14" viewBox="0 0 80 36" className="opacity-95">
-      <g transform={flip ? 'translate(80,0) scale(-1,1)' : undefined}>
-        <path
-          d="M10 18c8-10 18-10 28 0s20 10 28 0"
-          fill="none"
-          stroke={color}
-          strokeWidth="5"
-          strokeLinecap="round"
-        />
-        <path
-          d="M10 18c8 10 18 10 28 0s20-10 28 0"
-          fill="none"
-          stroke={color}
-          strokeWidth="5"
-          strokeLinecap="round"
-        />
-      </g>
+      <path
+        d="M10 18c8-10 18-10 28 0s20 10 28 0"
+        fill="none"
+        stroke="var(--de-gold, #c8981a)"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M10 18c8 10 18 10 28 0s20-10 28 0"
+        fill="none"
+        stroke="var(--de-gold, #c8981a)"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M38 18c4-5 10-10 18-10s16 8 16 10-6 10-16 10-14-5-18-10"
+        fill="none"
+        stroke="var(--de-accent, #2a8ab8)"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 export default function HomeControls({
-  onDoubleTapBlue,
-  onDoubleTapRed,
+  onDoubleTap,
   onGoHome,
 }: HomeControlsProps) {
-  const lastTapRef = useRef<Record<ControlId, number>>({ blue: 0, red: 0 });
-  const singleTapTimerRef = useRef<Record<ControlId, any>>({ blue: null, red: null });
+  const lastTapRef = useRef<number>(0);
+  const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const commonBtnStyle = useMemo(
+  const btnStyle = useMemo(
     () => ({
       width: BTN,
       height: BTN,
       borderRadius: 9999,
+      background: 'rgba(42,138,184,0.88)',
       boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
       border: '2px solid rgba(255,255,255,0.16)',
       WebkitTapHighlightColor: 'transparent',
-      touchAction: 'none' as const, // avoid iOS gesture conflicts on the controls themselves
+      touchAction: 'none' as const,
     }),
     []
   );
 
-  const handleTap = (id: ControlId) => {
+  const handleTap = () => {
     const now = performance.now();
-    const last = lastTapRef.current[id];
-    lastTapRef.current[id] = now;
+    const last = lastTapRef.current;
+    lastTapRef.current = now;
 
-    // If second tap occurs fast enough, treat as double tap.
     if (now - last <= DOUBLE_TAP_MS) {
-      // Cancel pending single-tap action
-      if (singleTapTimerRef.current[id]) {
-        clearTimeout(singleTapTimerRef.current[id]);
-        singleTapTimerRef.current[id] = null;
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+        singleTapTimerRef.current = null;
       }
-      if (id === 'blue') onDoubleTapBlue();
-      else onDoubleTapRed();
+      onDoubleTap();
       return;
     }
 
-    // Otherwise schedule single tap (home) after the double-tap window.
-    if (singleTapTimerRef.current[id]) clearTimeout(singleTapTimerRef.current[id]);
-    singleTapTimerRef.current[id] = setTimeout(() => {
-      singleTapTimerRef.current[id] = null;
+    if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+    singleTapTimerRef.current = setTimeout(() => {
+      singleTapTimerRef.current = null;
       onGoHome();
     }, DOUBLE_TAP_MS + 10);
   };
-
-  const Control = ({ id, color }: { id: ControlId; color: string }) => (
-    <button
-      type="button"
-      aria-label={id === 'blue' ? 'Dreams' : 'System'}
-      className="flex items-center justify-center select-none"
-      style={{ ...commonBtnStyle, backgroundColor: color }}
-      onPointerDown={(e) => {
-        // prevent iOS Safari edge gestures from starting on the controls
-        e.preventDefault();
-        (e.currentTarget as HTMLButtonElement).setPointerCapture?.(e.pointerId);
-      }}
-      onPointerUp={(e) => {
-        e.preventDefault();
-        handleTap(id);
-      }}
-      onPointerCancel={(e) => {
-        e.preventDefault();
-      }}
-    >
-      <InfinityHalf side={id === 'blue' ? 'left' : 'right'} />
-    </button>
-  );
 
   return (
     <div className="absolute inset-0 pointer-events-none">
@@ -129,14 +100,30 @@ export default function HomeControls({
           bottom: 18,
           transform: 'translateX(-50%)',
           display: 'flex',
-          gap: GAP,
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 60,
         }}
       >
-        <Control id="blue" color="rgba(200,152,26,0.88)" />
-        <Control id="red" color="rgba(42,138,184,0.88)" />
+        <button
+          type="button"
+          aria-label="Go Home · Double-tap for Dreams menu"
+          className="flex items-center justify-center select-none"
+          style={btnStyle}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            (e.currentTarget as HTMLButtonElement).setPointerCapture?.(e.pointerId);
+          }}
+          onPointerUp={(e) => {
+            e.preventDefault();
+            handleTap();
+          }}
+          onPointerCancel={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <InfinityIcon />
+        </button>
       </div>
     </div>
   );
