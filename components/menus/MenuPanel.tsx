@@ -77,7 +77,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
         position: 'fixed',
         inset: 0,
         zIndex: 70,
-        background: side !== 'center' ? 'transparent' : 'rgba(2,8,24,0.55)',
+        background: side !== 'center' ? 'transparent' : 'rgba(15,42,92,0.15)',
         backdropFilter: side !== 'center' ? 'none' : 'blur(10px)',
         WebkitBackdropFilter: side !== 'center' ? 'none' : 'blur(10px)',
         display: 'flex',
@@ -93,12 +93,12 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
         style={{
           ...panelPosition,
           width: 'min(320px, 88vw)',
-          background: 'rgba(8,18,48,0.92)',
-          backdropFilter: 'blur(28px)',
-          WebkitBackdropFilter: 'blur(28px)',
-          border: `1px solid ${colors.border}`,
+          background: 'rgba(255,255,255,0.72)',
+          backdropFilter: 'blur(32px)',
+          WebkitBackdropFilter: 'blur(32px)',
+          border: `1px solid rgba(160,195,240,0.45)`,
           borderRadius: 20,
-          boxShadow: `0 24px 64px rgba(0,0,0,0.45), ${colors.glow}`,
+          boxShadow: `0 8px 40px rgba(15,42,92,0.12), ${colors.glow}`,
           overflow: 'hidden',
           animation: 'de-menu-panel-in 0.22s cubic-bezier(0.34,1.36,0.64,1)',
           pointerEvents: 'auto',
@@ -112,7 +112,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
             alignItems: 'center',
             gap: 10,
             padding: '16px 20px 12px',
-            borderBottom: `1px solid rgba(255,255,255,0.07)`,
+            borderBottom: `1px solid rgba(160,195,240,0.18)`,
           }}
         >
           <span
@@ -131,7 +131,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
               fontWeight: 700,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: 'rgba(180,210,255,0.75)',
+              color: 'var(--de-text-dim)',
             }}
           >
             {title}
@@ -142,7 +142,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
             aria-label="Close menu"
             style={{
               marginLeft: 'auto',
-              background: 'rgba(255,255,255,0.07)',
+              background: 'rgba(14,165,233,0.12)',
               border: 'none',
               borderRadius: 9999,
               width: 28,
@@ -151,7 +151,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              color: 'rgba(180,210,255,0.6)',
+              color: 'var(--de-accent)',
               fontSize: 14,
               flexShrink: 0,
             }}
@@ -176,13 +176,13 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
                 padding: '0 20px',
                 background: 'none',
                 border: 'none',
-                borderTop: idx > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                borderTop: idx > 0 ? '1px solid rgba(160,195,240,0.18)' : 'none',
                 cursor: 'pointer',
                 textAlign: 'left',
                 WebkitTapHighlightColor: 'transparent',
                 transition: 'background 0.12s',
               }}
-              onPointerEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.05)'; }}
+              onPointerEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(14,165,233,0.06)'; }}
               onPointerLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
             >
               {item.icon && (
@@ -195,7 +195,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
                   style={{
                     fontSize: 15,
                     fontWeight: 600,
-                    color: 'rgba(220,235,255,0.92)',
+                    color: 'var(--de-heading)',
                     lineHeight: 1.3,
                   }}
                 >
@@ -205,7 +205,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
                   <div
                     style={{
                       fontSize: 12,
-                      color: 'rgba(160,185,255,0.5)',
+                      color: 'var(--de-text-dim)',
                       lineHeight: 1.4,
                       marginTop: 2,
                     }}

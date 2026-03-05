@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useTick } from '@/hooks/useTick';
-import { onInnerDreamsEvent } from '@/lib/agents/agentBus';
+import { onIdariEvent } from '@/lib/agents/agentBus';
 import { getDrEamsMode, onDrEamsModeChange } from '@/lib/agents/drEamsMode';
 import { hasTaught, markTaught, onTeach } from '@/lib/agents/teachBus';
 import { executeUiAction } from '@/lib/agents/uiActions';
@@ -417,18 +417,18 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   }, [fullExperience]);
 
   useEffect(() => {
-    const unsubscribe = onInnerDreamsEvent((evt) => {
+    const unsubscribe = onIdariEvent((evt) => {
       const shouldSurface =
-        evt.type === 'innerdreams:status' ||
+        evt.type === 'idari:status' ||
         evt.status === 'error' ||
-        (evt.type === 'innerdreams:log' &&
+        (evt.type === 'idari:log' &&
           /completed|failed|queued|initiated|activated|paused|bug/i.test(evt.message));
 
       if (!shouldSurface) return;
 
       const emotion = evt.status === 'error' ? 'concerned' : 'neutral';
       addAssistantMessage(
-        `🔧 InnerDreams Update: ${evt.message}${evt.details ? `\n\nDetails: ${evt.details}` : ''}`,
+        `🔧 Idari Update: ${evt.message}${evt.details ? `\n\nDetails: ${evt.details}` : ''}`,
         emotion
       );
     });
@@ -480,9 +480,9 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     return topics;
   };
 
-  const callInnerDreams = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
+  const callIdari = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
     try {
-      const endpoint = mode === 'bug-check' ? '/api/innerdreams/check-bugs' : '/api/innerdreams/update';
+      const endpoint = mode === 'bug-check' ? '/api/idari/check-bugs' : '/api/idari/update';
       const payload: Record<string, unknown> =
         mode === 'bug-check'
           ? { userId: 'self' }
@@ -494,21 +494,21 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
         body: JSON.stringify(payload),
       });
 
-      if (res.status === 401) return '🔐 InnerDreams requires admin authentication. Please sign in with an admin account first, then we can proceed.';
-      if (res.status === 403) return '⚠️ InnerDreams is restricted to administrator accounts. Your current account doesn\'t have the necessary permissions.';
-      if (!res.ok) return `❌ InnerDreams encountered an issue (Status ${res.status}). Let me know if you'd like me to try a different approach.`;
+      if (res.status === 401) return '🔐 Idari requires admin authentication. Please sign in with an admin account first, then we can proceed.';
+      if (res.status === 403) return '⚠️ Idari is restricted to administrator accounts. Your current account doesn\'t have the necessary permissions.';
+      if (!res.ok) return `❌ Idari encountered an issue (Status ${res.status}). Let me know if you'd like me to try a different approach.`;
 
       const json = await res.json();
       if (mode === 'bug-check') {
         const bugs = json?.bugsFound ?? 0;
         return bugs > 0
-          ? `🔍 InnerDreams scan detected ${bugs} potential ${bugs === 1 ? 'issue' : 'issues'}. I've logged the details in the admin audit system. Would you like me to help prioritize the fixes?`
-          : '✅ InnerDreams reports all systems nominal. Everything is running smoothly!';
+          ? `🔍 Idari scan detected ${bugs} potential ${bugs === 1 ? 'issue' : 'issues'}. I've logged the details in the admin audit system. Would you like me to help prioritize the fixes?`
+          : '✅ Idari reports all systems nominal. Everything is running smoothly!';
       }
 
-      return json?.message ? `✨ InnerDreams: ${json.message}` : '✅ InnerDreams has accepted the update request and is working on it.';
+      return json?.message ? `✨ Idari: ${json.message}` : '✅ Idari has accepted the update request and is working on it.';
     } catch (e: any) {
-      return `⚠️ I encountered an error communicating with InnerDreams: ${e?.message || 'Unknown error'}. This might be a temporary network issue—would you like me to try again?`;
+      return `⚠️ I encountered an error communicating with Idari: ${e?.message || 'Unknown error'}. This might be a temporary network issue—would you like me to try again?`;
     }
   };
 
@@ -739,16 +739,15 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
       return { content: intent.label, emotion: 'helpful' };
     }
 
-    // InnerDreams routing remains as before
+    // Idari routing remains as before
     const lower = query.toLowerCase();
     if (
-      lower.includes('innerdreams') ||
-      lower.includes('inner dreams') ||
+      lower.includes('idari') ||
       (/(fix|patch|update|repair)\b/.test(lower) && /(bug|error|issue|problem|build|deploy|vercel|site)/.test(lower))
     ) {
       const mode = lower.includes('bug') || lower.includes('check') || lower.includes('scan') ? 'bug-check' : 'update';
-      const cleaned = query.replace(/inner\s*dreams\s*[:\-]?/i, '').trim();
-      const reply = await callInnerDreams(mode, cleaned || query);
+      const cleaned = query.replace(/idari\s*[:\-]?/i, '').trim();
+      const reply = await callIdari(mode, cleaned || query);
       return { content: reply, emotion: 'helpful' };
     }
 

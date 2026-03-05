@@ -199,7 +199,7 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Admin unlock key | ✅ Done | `ADMIN_UNLOCK_KEY` env var |
 | AI chat (admin) | ✅ Done | `/api/admin/ai-chat` |
 | Code file browser | ✅ Done | `/api/admin/code-files` |
-| InnerDreams (AI bug-fix) | 🔶 Partly done | Routes exist; demo mode only |
+| Idari (AI bug-fix) | 🔶 Partly done | Routes exist; demo mode only |
 | Setup health check | ✅ Done | `GET /api/setup/check` — reports all env var status |
 
 ---

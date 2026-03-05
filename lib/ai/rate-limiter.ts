@@ -17,7 +17,7 @@ export const RATE_LIMITS: Record<string, RateLimitConfig> = {
     maxRequests: 30,
     windowMinutes: 1,
   },
-  '/api/innerdreams/run': {
+  '/api/idari/run': {
     maxRequests: 20,
     windowMinutes: 1,
   },

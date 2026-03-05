@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     // Log the bug check request
     await supabase.from('admin_audit_log').insert({
       admin_id: user.id,
-      action: 'innerdreams_bug_check',
+      action: 'idari_bug_check',
       details: {
         timestamp: new Date().toISOString(),
         status: 'running'
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     // Simulate bug checking
     const bugsFound = 0;
-    const checks = { ...DEFAULT_CHECK_STATUS };
+    const checks: Record<string, string> = { ...DEFAULT_CHECK_STATUS };
     if (bugsFound > 0) {
       checks.consoleErrors = 'Warning';
     }
@@ -81,14 +81,14 @@ export async function POST(request: NextRequest) {
     // Update audit log with results
     await supabase.from('admin_audit_log').insert({
       admin_id: user.id,
-      action: 'innerdreams_bug_check_complete',
+      action: 'idari_bug_check_complete',
       details: result
     });
 
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error('InnerDreams bug check error:', error);
+    console.error('Idari bug check error:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

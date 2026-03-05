@@ -1,5 +1,5 @@
-// app/api/innerdreams/run/route.ts
-// DREAMENGIN AI SYSTEM v2026.0 - iDari/InnerDreams Agent Endpoint
+// app/api/idari/run/route.ts
+// DREAMENGIN AI SYSTEM v2026.0 - Idari Agent Endpoint
 // Admin-facing AI agent - diagnostics and proposals only
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -69,7 +69,7 @@ async function idariPlanner(
   return { response_text, intents };
 }
 
-// POST /api/innerdreams/run
+// POST /api/idari/run
 export async function POST(req: NextRequest) {
   const requestStart = Date.now();
   const request_id = uuidv4();
@@ -116,14 +116,14 @@ export async function POST(req: NextRequest) {
     return jsonError(403, 'FORBIDDEN', 'Admin access required.');
   }
 
-  const rateLimitCheck = await checkRateLimit(user.id, '/api/innerdreams/run');
+  const rateLimitCheck = await checkRateLimit(user.id, '/api/idari/run');
   if (!rateLimitCheck.allowed) {
     return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
       resetAt: rateLimitCheck.resetAt,
     });
   }
 
-  const rpm = await getCurrentRPM(user.id, '/api/innerdreams/run');
+  const rpm = await getCurrentRPM(user.id, '/api/idari/run');
   const { response_text, intents } = await idariPlanner(
     request.message,
     actor,

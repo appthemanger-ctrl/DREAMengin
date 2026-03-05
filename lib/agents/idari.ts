@@ -1,7 +1,7 @@
 // lib/agents/idari.ts
-// Section 13: IDARi — Admin AI: Debugger / Overseer
+// Section 13: Idari — Admin AI: Debugger / Overseer
 //
-// IDARi operates alongside InnerDreams as the admin-tier AI.
+// Idari is the admin-tier AI agent for DREAMengin.
 // It can debug widget issues, oversee system health, and manage widget state.
 //
 // Output format: patch plans (cause → impact → fix → verification).

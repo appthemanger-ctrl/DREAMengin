@@ -30,7 +30,7 @@ export default function AboutPage() {
     {
       icon: Cpu,
       title: 'AI-Powered Tools',
-      description: 'Inner Dreams AI helps you create, organize, and explore. Get intelligent suggestions, automate tasks, and unlock your creative potential.',
+      description: 'Idari AI helps you create, organize, and explore. Get intelligent suggestions, automate tasks, and unlock your creative potential.',
       color: 'from-purple-500 to-violet-600'
     },
     {
@@ -149,7 +149,7 @@ export default function AboutPage() {
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--de-accent)', marginBottom: 4 }}>AI Companion</div>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 8 }}>Meet Dr. Eams</h2>
                   <p style={{ fontSize: 14, color: 'var(--de-text-dim)', lineHeight: 1.7 }}>
-                    Dr. Eams is your always-present AI guide inside DREAMengin. Powered by the Inner Dreams intelligence layer, Dr. Eams helps you navigate the spatial interface, activate widgets, draft and post content, answer questions, and translate your intent into motion — all without leaving your current dream. Think of Dr. Eams as the mind that lives at the center of your universe.
+                    Dr. Eams is your always-present AI guide inside DREAMengin. Powered by the Idari intelligence layer, Dr. Eams helps you navigate the spatial interface, activate widgets, draft and post content, answer questions, and translate your intent into motion — all without leaving your current dream. Think of Dr. Eams as the mind that lives at the center of your universe.
                   </p>
                 </div>
               </div>
@@ -185,7 +185,7 @@ export default function AboutPage() {
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#10b981', marginBottom: 4 }}>System Intelligence</div>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 8 }}>Meet Idari</h2>
                   <p style={{ fontSize: 14, color: 'var(--de-text-dim)', lineHeight: 1.7 }}>
-                    Idari (InnerDreams ADARI) is the autonomous system intelligence that keeps DREAMengin healthy and self-healing. While you dream, Idari silently monitors performance, auto-repairs broken state, maintains widget integrity, and surfaces insights to the platform team. Idari is the reason DREAMengin feels alive — it's the nervous system behind everything that just works.
+                    Idari is the autonomous system intelligence that keeps DREAMengin healthy and self-healing. While you dream, Idari silently monitors performance, auto-repairs broken state, maintains widget integrity, and surfaces insights to the platform team. Idari is the reason DREAMengin feels alive — it's the nervous system behind everything that just works.
                   </p>
                 </div>
               </div>

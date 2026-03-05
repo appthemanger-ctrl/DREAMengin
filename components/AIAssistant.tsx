@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bot, Maximize2, Minimize2, Send, X } from 'lucide-react';
 
-import { onInnerDreamsEvent } from '@/lib/agents/agentBus';
+import { onIdariEvent } from '@/lib/agents/agentBus';
 import { getDrEamsMode, onDrEamsModeChange } from '@/lib/agents/drEamsMode';
 import { hasTaught, markTaught, onTeach } from '@/lib/agents/teachBus';
 import { executeUiAction, getUiCapabilities } from '@/lib/agents/uiActions';
@@ -68,13 +68,13 @@ export default function AIAssistant() {
     return () => off();
   }, [fullExperience]);
 
-  // Surface InnerDreams activity inside this assistant as well
+  // Surface Idari activity inside this assistant as well
   useEffect(() => {
-    const unsubscribe = onInnerDreamsEvent((evt) => {
+    const unsubscribe = onIdariEvent((evt) => {
       const shouldSurface =
-        evt.type === 'innerdreams:status' ||
+        evt.type === 'idari:status' ||
         evt.status === 'error' ||
-        (evt.type === 'innerdreams:log' &&
+        (evt.type === 'idari:log' &&
           /completed|failed|queued|initiated|activated|paused|bug/i.test(evt.message));
 
       if (!shouldSurface) return;
@@ -84,7 +84,7 @@ export default function AIAssistant() {
         {
           id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
           role: 'assistant',
-          content: `InnerDreams: ${evt.message}${evt.details ? `\n${evt.details}` : ''}`,
+          content: `Idari: ${evt.message}${evt.details ? `\n${evt.details}` : ''}`,
           timestamp: new Date(evt.timestamp),
         },
       ]);
@@ -104,9 +104,9 @@ export default function AIAssistant() {
     ]);
   };
 
-  const callInnerDreams = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
+  const callIdari = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
     try {
-      const endpoint = mode === 'bug-check' ? '/api/innerdreams/check-bugs' : '/api/innerdreams/update';
+      const endpoint = mode === 'bug-check' ? '/api/idari/check-bugs' : '/api/idari/update';
       const payload: Record<string, unknown> =
         mode === 'bug-check'
           ? { userId: 'self' }
@@ -118,21 +118,21 @@ export default function AIAssistant() {
         body: JSON.stringify(payload),
       });
 
-      if (res.status === 401) return 'InnerDreams needs an admin session. Please sign in as admin, then try again.';
-      if (res.status === 403) return 'InnerDreams is admin-only. Your account is not marked as admin.';
-      if (!res.ok) return `InnerDreams request failed (${res.status}).`;
+      if (res.status === 401) return 'Idari needs an admin session. Please sign in as admin, then try again.';
+      if (res.status === 403) return 'Idari is admin-only. Your account is not marked as admin.';
+      if (!res.ok) return `Idari request failed (${res.status}).`;
 
       const json = await res.json();
       if (mode === 'bug-check') {
         const bugs = json?.bugsFound ?? 0;
         return bugs > 0
-          ? `InnerDreams bug check found ${bugs} potential issue(s). Check the admin audit log for details.`
-          : 'InnerDreams reports: all systems operational. No issues detected.';
+          ? `Idari bug check found ${bugs} potential issue(s). Check the admin audit log for details.`
+          : 'Idari reports: all systems operational. No issues detected.';
       }
 
-      return json?.message ? `InnerDreams: ${json.message}` : 'InnerDreams accepted the update request.';
+      return json?.message ? `Idari: ${json.message}` : 'Idari accepted the update request.';
     } catch (e: unknown) {
-      return `InnerDreams request error: ${e?.message || 'Unknown error'}`;
+      return `Idari request error: ${e?.message || 'Unknown error'}`;
     }
   };
 
@@ -172,15 +172,14 @@ export default function AIAssistant() {
       }
     }
 
-    // InnerDreams bridge: let Dr. Eams hand tasks to the admin auto-updater
+    // Idari bridge: let Dr. Eams hand tasks to the admin auto-updater
     if (
-      lower.includes('innerdreams') ||
-      lower.includes('inner dreams') ||
+      lower.includes('idari') ||
       (/(fix|patch|update)\b/.test(lower) && /(bug|error|build|deploy|vercel|site)/.test(lower))
     ) {
       const mode = lower.includes('bug') || lower.includes('check') ? 'bug-check' : 'update';
-      const cleaned = userText.replace(/inner\s*dreams\s*[:\-]?/i, '').trim();
-      const reply = await callInnerDreams(mode, cleaned || userText);
+      const cleaned = userText.replace(/idari\s*[:\-]?/i, '').trim();
+      const reply = await callIdari(mode, cleaned || userText);
       addAssistantMessage(reply);
       setIsLoading(false);
       return;
@@ -212,7 +211,7 @@ export default function AIAssistant() {
     if (lowerQuery.includes('analytics')) {
       return 'Analytics shows views, growth, and performance. Ask me to open Analytics.';
     }
-    return 'Tell me what you want to do in the app. If it is a safe UI action, I can do it. If it needs admin work, I can hand it to InnerDreams.';
+    return 'Tell me what you want to do in the app. If it is a safe UI action, I can do it. If it needs admin work, I can hand it to Idari.';
   };
 
   if (!isOpen) {

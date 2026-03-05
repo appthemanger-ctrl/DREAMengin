@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo, memo } from 'react';
 import { formatRelativeTime } from '@/lib/utils';
-import { UniverseCard, UniverseCardContent } from '@/components/universe';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { inferProviderFromUrl } from '@/lib/widgets/parseConfig';
@@ -138,8 +137,8 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
   const displayTitle = contentTitle || item.title;
 
   return (
-    <UniverseCard>
-      <UniverseCardContent className="p-4">
+    <div className="de-widget" style={{ marginBottom: 12 }}>
+      <div className="p-4">
         <div className="flex items-start gap-3">
           {/* Avatar */}
           <div className="flex-shrink-0">
@@ -323,7 +322,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
             </div>
           </div>
         </div>
-      </UniverseCardContent>
-    </UniverseCard>
+      </div>
+    </div>
   );
 })

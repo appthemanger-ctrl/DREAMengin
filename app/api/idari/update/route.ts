@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       const { prompt, autoRefresh, bugCheck } = payload;
       const result = {
         success: true,
-        message: 'InnerDreams update queued (demo mode - Supabase not configured)',
+        message: 'Idari update queued (demo mode - Supabase not configured)',
         details: {
           promptReceived: prompt,
           bugCheckEnabled: bugCheck,
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     // Log the update request to audit log
     await supabase.from('admin_audit_log').insert({
       admin_id: user.id,
-      action: 'innerdreams_update',
+      action: 'idari_update',
       details: {
         prompt,
         autoRefresh,
@@ -89,16 +89,15 @@ export async function POST(request: NextRequest) {
     });
 
     // In production, this would:
-    // 1. Call your AI service (OpenAI, Anthropic, etc.) with the prompt
+    // 1. Call the AI service (OpenAI, Anthropic, etc.) with the prompt
     // 2. Generate code changes
     // 3. Run tests if bugCheck is enabled
     // 4. Apply changes if tests pass
     // 5. Deploy to staging/production
 
-    // For now, we'll simulate the process
     const result = {
       success: true,
-      message: 'InnerDreams update queued successfully',
+      message: 'Idari update queued successfully',
         details: {
           promptReceived: prompt,
           bugCheckEnabled: bugCheck,
@@ -111,14 +110,14 @@ export async function POST(request: NextRequest) {
     // Update audit log with result
     await supabase.from('admin_audit_log').insert({
       admin_id: user.id,
-      action: 'innerdreams_update_complete',
+      action: 'idari_update_complete',
       details: result
     });
 
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error('InnerDreams update error:', error);
+    console.error('Idari update error:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
