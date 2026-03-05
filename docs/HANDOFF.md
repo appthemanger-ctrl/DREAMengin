@@ -16,11 +16,11 @@
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-05 04:40 UTC | `93c23a8` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #87 from appthemanger-ctrl/copilot/build-mario-style-game — Fix Supabase "not configured" error + auto-updating HANDOFF doc + mobile-first platform docs<br> |
 | **auto** | 2026-03-05 04:34 UTC | `de5e2a3` | copilot/build-mario-style-game | copilot-swe-agent[bot] | +2 added  ~2 modified<br>chore: plan auto-HANDOFF workflow — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `docs/FEATURE_STATUS.md`, `docs/HANDOFF.md`<br>✏️: `docs/ARCHITECTURE.md`, `docs/SPEC.md` |
 | 5 | 2026-03-05 04:30 | `de5e2a3` | `copilot/build-mario-style-game` | copilot | **Supabase env-var fix** — new `lib/supabase/env.ts` centralised resolver; accepts all Vercel-Supabase integration names. Login no longer errors.<br>➕ added: `lib/supabase/env.ts`<br>✏️ modified: `lib/supabase/client.ts`, `lib/supabase/server.ts`, `proxy.ts`, `app/auth/callback/route.ts`, `lib/connectors/demo.ts`, `lib/connectors/youtube.ts`, `app/api/innerdreams/config.ts`, `app/api/setup/check/route.ts`, `.env.example`, `README.md` |
 | 4 | 2026-03-05 04:06 | `7c9975e` | `copilot/build-mario-style-game` | copilot | **Lint-staged fix** — replaced broken ESLint FlatCompat pre-commit hook with `vitest --related`.<br>✏️ modified: `.husky/pre-commit`, `package.json` |
 | 3 | 2026-03-05 *(this session)* | `51f9b0e` | `copilot/build-mario-style-game` | copilot | **Docs: mobile-first + feature status** — ARCHITECTURE §17–18, SPEC §10, HANDOFF.md, FEATURE_STATUS.md created.<br>➕ added: `docs/HANDOFF.md`, `docs/FEATURE_STATUS.md`<br>✏️ modified: `docs/ARCHITECTURE.md`, `docs/SPEC.md` |
-| 2 | 2026-02-13 16:52 | `2e2f867` | `completedream` | copilot | **Dr. Eams Platformer** — full Canvas 2D game engine with 3 levels, enemies, coins, moving platforms, particles, lives.<br>➕ added: `lib/game/dreamengin-game.ts`, `components/dreamengin/DrEamsGameCanvas.tsx`, `src/app/game/page.tsx`, `tests/dreamengin-game.test.ts` |
 
 ---
 
