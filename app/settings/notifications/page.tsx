@@ -59,6 +59,9 @@ export default function NotificationSettingsPage() {
                 </div>
                 <button
                   onClick={() => toggleSetting(item.key)}
+                  role="switch"
+                  aria-checked={!!settings[item.key as keyof typeof settings]}
+                  aria-label={item.label}
                   style={{
                     width: 44, height: 26, borderRadius: 13, flexShrink: 0,
                     background: settings[item.key as keyof typeof settings] ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)',

@@ -21,19 +21,25 @@ These are not suggestions. Violating them invalidates the session's work.
    `ARCHITECTURE.md` → `SPEC.md` → `HANDOFF.md` → `FEATURE_STATUS.md` → `BUGS.md` → `DR_EAMS.md`.
    The trigger phrase **"read the docs"** means read *every* file in `docs/`.
 
-2. **Do not delete documentation for features you did not complete.**
+2. **Always work on the `completedream` branch directly.**
+   Do NOT create new feature branches or open new PRs — commit and push all changes
+   straight to `completedream`. This keeps Vercel preview deployments to a minimum and
+   ensures every session's work lands immediately in the main working branch.
+   To switch: `git fetch origin completedream && git checkout -b completedream FETCH_HEAD`
+
+3. **Do not delete documentation for features you did not complete.**
    If a feature is documented but unfinished, that documentation stays.
    Removing it wastes the next session's time. See `docs/LAW.md §9.1`.
 
-3. **Remove fixed bugs from `docs/BUGS.md` when you fix them.**
+4. **Remove fixed bugs from `docs/BUGS.md` when you fix them.**
    `BUGS.md` is a live open-issue log, not a historical archive.
    Fixed = entry deleted. Not fixed = entry untouched. See `docs/LAW.md §9.2`.
 
-4. **Never use dark-gamer backgrounds on landing/auth pages.**
+5. **Never use dark-gamer backgrounds on landing/auth pages.**
    The design system is sky-blue + gold. `bg-[#070b16]` on the landing page is an
    explicit anti-pattern (SPEC.md §9). Use transparent `<main>` + the body gradient.
 
-5. **Finish what you start.** If a session runs out of context, document exactly what
+6. **Finish what you start.** If a session runs out of context, document exactly what
    was completed and what remains open in the "What Was Done" section below and in
    `docs/BUGS.md`. Do not leave silent half-states.
 

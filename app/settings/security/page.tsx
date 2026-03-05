@@ -61,6 +61,9 @@ export default function SecuritySettingsPage() {
               </div>
               <button
                 onClick={() => setTwoFactor(!twoFactor)}
+                role="switch"
+                aria-checked={twoFactor}
+                aria-label="Two-Factor Authentication"
                 style={{
                   width: 44, height: 26, borderRadius: 13, flexShrink: 0,
                   background: twoFactor ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)',

@@ -42,20 +42,21 @@ export default function CreatePostPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="de-sky-bg min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
-        <div className="px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/home" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
-              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+            <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+              <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
             </Link>
-            <h1 className="text-xl font-bold text-foreground">Create Post</h1>
+            <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Create Post</h1>
           </div>
           <button
             onClick={handleSubmit}
             disabled={!content.trim() || isSubmitting}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors active:scale-95 min-h-[44px]"
+            className="de-btn de-btn-primary"
+            style={{ minHeight: 44, gap: 6 }}
           >
             {isSubmitting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -69,84 +70,81 @@ export default function CreatePostPage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <main className="max-w-2xl mx-auto px-4 py-6 pb-24">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Content */}
-          <div>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="What's on your mind?"
-              className="w-full min-h-[200px] p-4 bg-card border border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-lg"
-              autoFocus
-            />
-            <div className="flex justify-end mt-2">
-              <span className={`text-sm ${content.length > 500 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                {content.length}/500
-              </span>
+          <div className="de-widget">
+            <div className="de-widget-body">
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="What's on your mind?"
+                className="w-full min-h-[200px] resize-none text-lg focus:outline-none"
+                style={{
+                  background: 'transparent',
+                  color: 'var(--de-text)',
+                  border: 'none',
+                }}
+                autoFocus
+              />
+              <div className="flex justify-end mt-2">
+                <span className="text-sm" style={{ color: content.length > 500 ? '#dc4444' : 'var(--de-text-dim)' }}>
+                  {content.length}/500
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Attachments */}
-          <div className="flex items-center gap-2 p-4 bg-card border border-border rounded-2xl">
-            <span className="text-sm text-muted-foreground mr-2">Add:</span>
-            <button
-              type="button"
-              className="p-2 rounded-full hover:bg-muted transition-colors"
-              title="Add image"
-            >
-              <ImageIcon className="w-5 h-5 text-primary" />
-            </button>
-            <button
-              type="button"
-              className="p-2 rounded-full hover:bg-muted transition-colors"
-              title="Add music"
-            >
-              <Music className="w-5 h-5 text-primary" />
-            </button>
-            <button
-              type="button"
-              className="p-2 rounded-full hover:bg-muted transition-colors"
-              title="Add link"
-            >
-              <LinkIcon className="w-5 h-5 text-primary" />
-            </button>
+          <div className="de-widget">
+            <div className="de-widget-body">
+              <div className="flex items-center gap-2">
+                <span className="text-sm mr-2" style={{ color: 'var(--de-text-dim)' }}>Add:</span>
+                <button type="button" className="p-2 rounded-full" style={{ background: 'rgba(42,138,184,0.1)' }} aria-label="Add image">
+                  <ImageIcon className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+                </button>
+                <button type="button" className="p-2 rounded-full" style={{ background: 'rgba(42,138,184,0.1)' }} aria-label="Add music">
+                  <Music className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+                </button>
+                <button type="button" className="p-2 rounded-full" style={{ background: 'rgba(42,138,184,0.1)' }} aria-label="Add link">
+                  <LinkIcon className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Visibility */}
-          <div className="flex items-center gap-4 p-4 bg-card border border-border rounded-2xl">
-            <span className="text-sm text-muted-foreground">Visibility:</span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setVisibility('public')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  visibility === 'public'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
-              >
-                <Globe className="w-4 h-4" />
-                Public
-              </button>
-              <button
-                type="button"
-                onClick={() => setVisibility('private')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  visibility === 'private'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
-              >
-                <Lock className="w-4 h-4" />
-                Private
-              </button>
+          <div className="de-widget">
+            <div className="de-widget-body">
+              <div className="flex items-center gap-4">
+                <span className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Visibility:</span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setVisibility('public')}
+                    className={visibility === 'public' ? 'de-btn de-btn-primary' : 'de-btn de-btn-ghost'}
+                    style={{ minHeight: 40, gap: 6 }}
+                  >
+                    <Globe className="w-4 h-4" />
+                    Public
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVisibility('private')}
+                    className={visibility === 'private' ? 'de-btn de-btn-primary' : 'de-btn de-btn-ghost'}
+                    style={{ minHeight: 40, gap: 6 }}
+                  >
+                    <Lock className="w-4 h-4" />
+                    Private
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-2xl text-destructive text-sm">
+            <div className="de-notice" style={{ background: 'rgba(220,68,68,0.08)', borderColor: 'rgba(220,68,68,0.25)', color: '#dc4444' }}>
               {error}
             </div>
           )}

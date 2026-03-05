@@ -63,14 +63,15 @@ export default function UploadMusicPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="de-sky-bg min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
-        <div className="px-4 py-3 flex items-center gap-3">
-          <Link href="/music" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/music" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
-          <h1 className="text-xl font-bold text-foreground">Upload Music</h1>
+          <Music className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Upload Music</h1>
         </div>
       </header>
 
