@@ -163,7 +163,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const idariResult = validateWithIdari(intents);
+  const idariResult = validateWithIdari(intents, 'admin');
   const validatedIntents = idariResult.intents;
 
   const boogieResult = boogieEvaluate({

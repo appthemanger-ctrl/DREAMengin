@@ -16,10 +16,12 @@ If any code, UI, or architecture conflicts with this law, the code must change �
 5. **docs/ARCHITECTURE.md**
 6. **docs/ADD_WORKFLOW.md**
 7. **docs/DR_EAMS.md** (Dr. Eams behavioral spec — 100 requirements)
-8. **docs/policy/theboogie.md** (TheBoogieMan.Ai policy — 100 rules, versioned)
-9. **docs/FEATURE_STATUS.md** (live status of every feature — incomplete items are mandatory work)
-10. **docs/BUGS.md** (auto-generated on every push — final vision + open issues + known bugs)
-11. README.md (overview only)
+8. **docs/IDARI_CONTRACT.md** (Idari autonomous improvement agent — operational contract)
+9. **docs/policy/theboogie.md** (TheBoogieMan.Ai policy — 100 rules, versioned)
+10. **docs/FEATURE_STATUS.md** (live status of every feature — incomplete items are mandatory work)
+11. **docs/BUGS.md** (auto-generated on every push — final vision + open issues + known bugs)
+12. **docs/COPILOT_TOOLKIT.md** (GitHub Actions reference + Copilot self-reminder — read this too)
+13. README.md (overview only)
 
 If you find a conflict, you must:
 - cite the exact lines/sections in conflict,
@@ -177,5 +179,17 @@ Read `docs/LAW.md`, `docs/AXIOMS.md`, `docs/HANDOFF.md`, `docs/SPEC.md`,
 and `docs/BUGS.md` **before making any changes** in a session.
 
 The trigger phrase **"read the docs"** from the project owner means:
-read every file in `docs/` before proceeding.
+read **every** file in `docs/` before proceeding. That includes:
+
+- `docs/LAW.md` (this file — priority order)
+- `docs/AXIOMS.md` (five non-negotiable axioms)
+- `docs/SECURITY.md` (auth, RLS, secrets rules)
+- `docs/ARCHITECTURE.md` (stack, navigation, performance)
+- `docs/IDARI_CONTRACT.md` (Idari autonomous improvement contract)
+- `docs/COPILOT_TOOLKIT.md` (GitHub Actions reference + Copilot self-reminder)
+- `docs/FEATURE_STATUS.md` (what is done vs mandatory work)
+- `docs/BUGS.md` (live open issues — auto-generated)
+- `docs/HANDOFF.md` (session history and current priorities)
+- `docs/BOOGIEMAN_POLICY.md` (100-rule policy)
+- `docs/DR_EAMS.md` (Dr. Eams behavioral spec)
 
