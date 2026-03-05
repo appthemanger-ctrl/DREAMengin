@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, User, Rss, LayoutGrid, Palette, Plug, Sliders,
-  Shield, Database, Bot, Crown, ChevronRight, HelpCircle, LogOut
+  Shield, Database, Bot, Crown, ChevronRight, HelpCircle, LogOut, Cpu
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +15,7 @@ const NAV_GROUPS = [
     items: [
       { href: '/edit-profile',          icon: User,       label: 'Profile',        desc: 'Edit your name, handle, avatar, bio' },
       { href: '/settings/feed',         icon: Rss,        label: 'Feed',           desc: 'Control what appears in your feed' },
+      { href: '/settings/algorithm',    icon: Cpu,        label: 'My Algorithm',   desc: 'Your presets, your order — you own it' },
       { href: '/settings/widgets',      icon: LayoutGrid, label: 'Widgets',        desc: 'Manage widget layout and pinned cards' },
       { href: '/settings/appearance',   icon: Palette,    label: 'Theme',          desc: 'Gradient presets, background, live preview' },
     ],

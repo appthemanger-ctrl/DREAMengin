@@ -2,9 +2,19 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, FolderOpen, Image, Video, Music2, Upload } from 'lucide-react';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Media Vault – DREAMengin', description: 'Your private media library.' };
+
+const WIDGETS: DaydreamWidget[] = [
+  { id: 'upload',  emoji: '📤', label: 'Upload',       desc: 'Add files to your vault',    color: '#2a8ab8', href: '/api/upload' },
+  { id: 'photos',  emoji: '🖼️', label: 'Photos',       desc: 'Your image library',         color: '#ec4899', href: '/daydream/media-vault' },
+  { id: 'videos',  emoji: '🎬', label: 'Videos',       desc: 'Your video collection',      color: '#ef4444', href: '/daydream/media-vault' },
+  { id: 'audio',   emoji: '🎵', label: 'Audio',        desc: 'Sound files and recordings', color: '#c8981a', href: '/daydream/music' },
+  { id: 'share',   emoji: '🔗', label: 'Share Media',  desc: 'Post to your feed',          color: '#22c55e', href: '/create' },
+  { id: 'privacy', emoji: '🔒', label: 'Privacy',      desc: 'Control who sees what',      color: '#6366f1', href: '/settings/privacy' },
+];
 
 export default async function MediaVaultPage() {
   const supabase = await createServerClient();
@@ -19,6 +29,7 @@ export default async function MediaVaultPage() {
   ];
 
   return (
+    <DaydreamShell title="Media Vault" accentColor="#c8981a" widgets={WIDGETS}>
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -79,5 +90,6 @@ export default async function MediaVaultPage() {
 
       </div>
     </div>
+    </DaydreamShell>
   );
 }
