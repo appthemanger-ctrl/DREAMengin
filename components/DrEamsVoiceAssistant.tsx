@@ -27,11 +27,13 @@ export default function DrEamsVoiceAssistant() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [speechEnabled, setSpeechEnabled] = useState(true);
   const [isWakeWordListening, setIsWakeWordListening] = useState(false);
   const [transcriptBuffer, setTranscriptBuffer] = useState('');
-  
+  const [speechSupported, setSpeechSupported] = useState<boolean | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<unknown>(null);
   const synthRef = useRef<unknown>(null);
@@ -74,6 +76,9 @@ export default function DrEamsVoiceAssistant() {
 
     const SpeechRecognition = (window as unknown).SpeechRecognition || (window as unknown).webkitSpeechRecognition;
     const SpeechSynthesis = window.speechSynthesis;
+
+    // Detect browser support once
+    setSpeechSupported(!!SpeechRecognition);
 
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
@@ -208,6 +213,10 @@ export default function DrEamsVoiceAssistant() {
     if (maleVoice) {
       utterance.voice = maleVoice;
     }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
 
     synthRef.current.speak(utterance);
   };
@@ -374,8 +383,22 @@ export default function DrEamsVoiceAssistant() {
       return 'I can help you navigate anywhere on DREAMengin. Try saying "go to home", "open messages", "show analytics", or "go to settings". I can also scroll pages, go back, refresh, and answer questions about the platform. What would you like to do?';
     }
 
-    // Default to the smart response system
-    return getSmartResponse(command);
+    // Default: call the real Dr. Eams API
+    try {
+      const res = await fetch('/api/dr-eams/hf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: command }),
+      });
+      const data = await res.json().catch(() => ({}));
+      return (
+        (data && typeof data.reply === 'string' && data.reply) ||
+        (data && typeof data.error === 'string' && `Dr. Eams: ${data.error}`) ||
+        "I'm processing that for you. One moment..."
+      );
+    } catch {
+      return "I couldn't reach the server right now. Please check your connection and try again.";
+    }
   };
 
   const handleSend = async () => {
