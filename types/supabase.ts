@@ -1542,6 +1542,21 @@ export type Database = {
         }
         Relationships: []
       }
+      notes: {
+        Row: {
+          id: number
+          title: string
+        }
+        Insert: {
+          id?: number
+          title: string
+        }
+        Update: {
+          id?: number
+          title?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
