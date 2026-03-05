@@ -70,7 +70,7 @@ export default function DangerZoneActions() {
         >
           {deleteDataPending ? 'Deleting…' : 'Delete My Data'}
         </button>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs" style={{ color: 'var(--de-text-dim)' }}>
           Removes connections, widgets, and content. Your login is kept.
         </p>
       </div>
@@ -78,11 +78,12 @@ export default function DangerZoneActions() {
         <button
           onClick={handleDeleteDream}
           disabled={deleteDreamPending}
-          className="px-4 py-2 bg-destructive text-destructive-foreground rounded-xl text-sm font-medium hover:bg-destructive/90 transition-colors min-h-[44px] disabled:opacity-60"
+          className="px-4 py-2 rounded-xl text-sm font-medium transition-colors min-h-[44px] disabled:opacity-60"
+          style={{ background: '#dc4444', color: '#fff' }}
         >
           {deleteDreamPending ? 'Deleting…' : 'Delete My Dream'}
         </button>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs" style={{ color: 'var(--de-text-dim)' }}>
           Permanently deletes your account. Cannot be undone.
         </p>
       </div>
