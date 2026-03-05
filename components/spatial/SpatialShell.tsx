@@ -47,16 +47,7 @@ export default function SpatialShell({ userId, handle, displayName, avatarUrl, b
   };
 
   const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-    const threshold = 100;
-
-    const containerWidth = containerRef.current?.offsetWidth || window.innerWidth;
-    const isEdgeSwipe = touchStartX.current < 50 || touchStartX.current > containerWidth - 50;
-
-    if (Math.abs(diff) > threshold && isEdgeSwipe) {
-      if (diff > 0 && activeSpace === "home") switchSpace("profile");
-      else if (diff < 0 && activeSpace === "profile") switchSpace("home");
-    }
+    // Spatial swipe navigation is disabled — navigate via the Daydreams menu button
   };
 
   useEffect(() => {
@@ -76,12 +67,12 @@ export default function SpatialShell({ userId, handle, displayName, avatarUrl, b
   return (
     <div
       ref={containerRef}
-      className="h-screen w-full overflow-hidden bg-background flex flex-col"
+      className="h-screen w-full overflow-hidden de-sky-bg flex flex-col"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="hidden md:flex items-center justify-center gap-1 p-2 border-b border-border bg-background/95 backdrop-blur-xl">
+      <div className="hidden md:flex items-center justify-center gap-1 p-2 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <button
           onClick={() => switchSpace("home")}
           className={cn(
@@ -138,7 +129,7 @@ export default function SpatialShell({ userId, handle, displayName, avatarUrl, b
         </div>
       </div>
 
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border safe-area-inset-bottom">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 backdrop-blur-xl safe-area-inset-bottom" style={{ background: 'rgba(220,232,248,0.88)', borderTop: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="flex items-center justify-center gap-4 p-3">
           <button
             onClick={() => switchSpace("home")}
@@ -164,10 +155,6 @@ export default function SpatialShell({ userId, handle, displayName, avatarUrl, b
         </div>
       </div>
 
-      <div className="md:hidden fixed bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-border">
-        <div className={cn("w-2 h-2 rounded-full transition-colors", activeSpace === "home" ? "bg-primary" : "bg-muted-foreground/30")} />
-        <div className={cn("w-2 h-2 rounded-full transition-colors", activeSpace === "profile" ? "bg-primary" : "bg-muted-foreground/30")} />
-      </div>
     </div>
   );
 }

@@ -77,10 +77,6 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
       <DreamNavControls
         onHome={returnHome}
         onLockChange={setNavLocked}
-        onOpenBothMenus={() => {
-          setDreamMenuOpen(true);
-          setSystemMenuOpen(true);
-        }}
         onOpenDreamsMenu={() => {
           setSystemMenuOpen(false);
           setDreamMenuOpen(true);
@@ -91,22 +87,22 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         }}
       />
 
-      {/* Daydreams menu — right side when both open (SPEC §3.1), center otherwise */}
+      {/* Daydreams menu (SPEC §3.1) */}
       <DreamRadialMenu
         open={dreamMenuOpen}
         onClose={() => setDreamMenuOpen(false)}
-        side={dreamMenuOpen && systemMenuOpen ? 'right' : 'center'}
+        side="center"
         onSelectNode={(n) => {
           closeAll();
           navigateTo(n);
         }}
       />
 
-      {/* System menu — left side when both open (SPEC §3.1), center otherwise */}
+      {/* System menu (SPEC §3.1) */}
       <SystemRadialMenu
         open={systemMenuOpen}
         onClose={() => setSystemMenuOpen(false)}
-        side={dreamMenuOpen && systemMenuOpen ? 'left' : 'center'}
+        side="center"
         onAction={onSystemAction}
       />
 

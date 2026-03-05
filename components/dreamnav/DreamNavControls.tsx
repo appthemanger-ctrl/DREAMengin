@@ -2,12 +2,10 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-type ControlId = 'dreams' | 'system';
 type Props = {
   onHome: () => void;
   onOpenDreamsMenu: () => void;
   onOpenSystemMenu: () => void;
-  onOpenBothMenus: () => void;
   onLockChange?: (locked: boolean) => void;
 };
 
@@ -16,8 +14,6 @@ type Pos = { x: number; y: number };
 const CTRL_SIZE = 52;
 const RAIL_WIDTH = 0.14;
 const SAFE_EDGE_PX = 24; // minimum px from left/right edges to avoid Safari back/forward swipe
-const SNAP_DISTANCE = 88;
-const LOCK_HYSTERESIS = 52; // distance to unlock (larger than snap to avoid flicker)
 const STORAGE_KEY = 'dreamengin:controls:v4';
 const DOUBLE_TAP_MS = 280;
 const SNAP_ANIM_MS = 160;
@@ -38,29 +34,29 @@ function InfinityHalf({ side }: { side: 'left' | 'right' }) {
   );
 }
 
-export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onOpenBothMenus, onLockChange }: Props) {
+export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSystemMenu, onLockChange }: Props) {
   const [mounted, setMounted] = useState(false);
   const [locked, setLocked] = useState(true);
   const lockedRef = useRef(true);
-  /** "Double tap to unlock" hint — shown only once per login session (req 3, 5) */
+  /** "Double tap to unlock" hint — shown only once per login session */
   const [showHint, setShowHint] = useState(false);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  /** "NAV mode" indicator — briefly shown on entering NAV MODE (req 12) */
+  /** "NAV mode" indicator — briefly shown on entering NAV MODE */
   const [showNavMode, setShowNavMode] = useState(false);
   const navModeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gravityRAFRef = useRef<number | null>(null);
 
-  const posRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
-  const savedPosRef = useRef<Record<ControlId, Pos>>({ dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } });
-  const elRef = useRef<Record<ControlId, HTMLButtonElement | null>>({ dreams: null, system: null });
+  const posRef = useRef<Pos>({ x: 0, y: 0 });
+  const savedPosRef = useRef<Pos>({ x: 0, y: 0 });
+  const elRef = useRef<HTMLButtonElement | null>(null);
   const dragRef = useRef<{
-    id: ControlId | null;
+    active: boolean;
     startClient: { x: number; y: number };
-    startPos: Record<ControlId, Pos>;
+    startPos: Pos;
     moved: boolean;
-  }>({ id: null, startClient: { x: 0, y: 0 }, startPos: { dreams: { x: 0, y: 0 }, system: { x: 0, y: 0 } }, moved: false });
-  const tapRef = useRef<{ id: ControlId | null; at: number; timer: ReturnType<typeof setTimeout> | null }>({
-    id: null, at: 0, timer: null,
+  }>({ active: false, startClient: { x: 0, y: 0 }, startPos: { x: 0, y: 0 }, moved: false });
+  const tapRef = useRef<{ at: number; timer: ReturnType<typeof setTimeout> | null }>({
+    at: 0, timer: null,
   });
 
   const dismissHint = useCallback(() => {
@@ -78,7 +74,6 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     const h = window.innerHeight;
     const rail = w * RAIL_WIDTH;
     return {
-      leftX: Math.max(SAFE_EDGE_PX, Math.round((rail - CTRL_SIZE) / 2)),
       rightX: Math.min(w - CTRL_SIZE - SAFE_EDGE_PX, Math.round(w - rail + (rail - CTRL_SIZE) / 2)),
       minY: 64,
       maxY: h - CTRL_SIZE - 44,
@@ -86,9 +81,9 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     };
   };
 
-  const applyPos = (id: ControlId) => {
-    const p = posRef.current[id];
-    const el = elRef.current[id];
+  const applyPos = () => {
+    const p = posRef.current;
+    const el = elRef.current;
     if (el) el.style.transform = `translate3d(${Math.round(p.x)}px,${Math.round(p.y)}px,0)`;
   };
 
@@ -99,88 +94,62 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     onLockChange?.(val);
   };
 
-  const animateTo = (id: ControlId, target: Pos) => {
-    const el = elRef.current[id];
+  const animateTo = (target: Pos) => {
+    const el = elRef.current;
     if (!el) return;
-    const from = `translate3d(${Math.round(posRef.current[id].x)}px,${Math.round(posRef.current[id].y)}px,0)`;
+    const from = `translate3d(${Math.round(posRef.current.x)}px,${Math.round(posRef.current.y)}px,0)`;
     const to = `translate3d(${Math.round(target.x)}px,${Math.round(target.y)}px,0)`;
-    posRef.current[id] = target;
+    posRef.current = target;
     el.animate([{ transform: from }, { transform: to }], {
       duration: SNAP_ANIM_MS, easing: 'ease-out', fill: 'forwards',
     });
     el.style.transform = to;
   };
 
-  const snapToSavedCorners = () => {
+  const snapToSavedCorner = () => {
     const rails = getRails();
-    const dreamsTarget = {
+    animateTo({
       x: rails.rightX,
-      y: Math.min(Math.max(savedPosRef.current.dreams.y, rails.minY), rails.maxY),
-    };
-    const systemTarget = {
-      x: rails.leftX,
-      y: Math.min(Math.max(savedPosRef.current.system.y, rails.minY), rails.maxY),
-    };
-    animateTo('dreams', dreamsTarget);
-    animateTo('system', systemTarget);
+      y: Math.min(Math.max(savedPosRef.current.y, rails.minY), rails.maxY),
+    });
     setLockState(false);
   };
 
   const lockToCenter = () => {
     const rails = getRails();
-    // Save positions before locking
-    savedPosRef.current = {
-      dreams: { ...posRef.current.dreams },
-      system: { ...posRef.current.system },
-    };
-    const midY = Math.round((posRef.current.dreams.y + posRef.current.system.y) / 2);
-    const y = Math.min(Math.max(midY, rails.minY), rails.maxY);
-    animateTo('dreams', { x: rails.centerX, y });
-    animateTo('system', { x: rails.centerX, y });
+    savedPosRef.current = { ...posRef.current };
+    const y = Math.min(Math.max(posRef.current.y, rails.minY), rails.maxY);
+    animateTo({ x: rails.centerX, y });
     setLockState(true);
-  };
-
-  const checkMagnet = () => {
-    const a = posRef.current.dreams;
-    const b = posRef.current.system;
-    const dist = Math.hypot(a.x - b.x, a.y - b.y);
-    if (!lockedRef.current && dist < SNAP_DISTANCE) lockToCenter();
-    else if (lockedRef.current && dist > LOCK_HYSTERESIS) setLockState(false);
   };
 
   // Init from storage
   useEffect(() => {
     const rails = getRails();
-    const defaults = {
-      dreams: { x: rails.rightX, y: rails.maxY - 48 },
-      system: { x: rails.leftX, y: rails.maxY - 48 },
-    };
+    const defaultPos = { x: rails.rightX, y: rails.maxY - 48 };
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const p = JSON.parse(saved) as Record<ControlId, Pos>;
-        savedPosRef.current.dreams = { x: rails.rightX, y: Math.min(Math.max(p.dreams.y, rails.minY), rails.maxY) };
-        savedPosRef.current.system = { x: rails.leftX, y: Math.min(Math.max(p.system.y, rails.minY), rails.maxY) };
+        const p = JSON.parse(saved) as Pos;
+        savedPosRef.current = { x: rails.rightX, y: Math.min(Math.max(p.y, rails.minY), rails.maxY) };
       } else {
-        savedPosRef.current = { ...defaults };
+        savedPosRef.current = { ...defaultPos };
       }
     } catch {
-      savedPosRef.current = { ...defaults };
+      savedPosRef.current = { ...defaultPos };
     }
     // Start locked at center-bottom
     const lockY = rails.maxY - 48;
-    posRef.current.dreams = { x: rails.centerX, y: lockY };
-    posRef.current.system = { x: rails.centerX, y: lockY };
+    posRef.current = { x: rails.centerX, y: lockY };
     lockedRef.current = true;
     setMounted(true);
-    requestAnimationFrame(() => { applyPos('dreams'); applyPos('system'); });
+    requestAnimationFrame(() => { applyPos(); });
 
-    // Show "Double tap to unlock" hint once per login session (req 3, 5)
+    // Show "Double tap to unlock" hint once per login session
     if (!hintShownThisSession) {
       hintShownThisSession = true;
       hintTimerRef.current = setTimeout(() => {
         setShowHint(true);
-        // Auto-dismiss after ~2s (req 3)
         hintTimerRef.current = setTimeout(() => {
           setShowHint(false);
           hintTimerRef.current = null;
@@ -195,7 +164,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Dismiss hint immediately on any pointer interaction (req 4)
+  // Dismiss hint immediately on any pointer interaction
   useEffect(() => {
     if (!showHint) return;
     const handler = () => dismissHint();
@@ -203,7 +172,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     return () => window.removeEventListener('pointerdown', handler);
   }, [showHint, dismissHint]);
 
-  // Dismiss NAV mode indicator on any pointer interaction (req 13)
+  // Dismiss NAV mode indicator on any pointer interaction
   useEffect(() => {
     if (!showNavMode) return;
     const handler = () => dismissNavMode();
@@ -211,7 +180,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     return () => window.removeEventListener('pointerdown', handler);
   }, [showNavMode, dismissNavMode]);
 
-  // Gravity: when unlocked, slowly pull both buttons toward center-bottom
+  // Gravity: when unlocked, slowly pull button toward center-bottom
   useEffect(() => {
     if (!mounted || locked) {
       if (gravityRAFRef.current != null) { cancelAnimationFrame(gravityRAFRef.current); gravityRAFRef.current = null; }
@@ -219,26 +188,21 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     }
     const tick = () => {
       if (lockedRef.current) { gravityRAFRef.current = null; return; }
-      if (dragRef.current.id == null) {
+      if (!dragRef.current.active) {
         const rails = getRails();
         const target = { x: rails.centerX, y: rails.maxY };
-        let anyMoved = false;
-        for (const cid of (['dreams', 'system'] as ControlId[])) {
-          const curr = posRef.current[cid];
-          const dx = target.x - curr.x;
-          const dy = target.y - curr.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist > 0.5) {
-            const speed = Math.max(0.2, dist * 0.004);
-            posRef.current[cid] = {
-              x: curr.x + (dx / dist) * Math.min(speed, dist),
-              y: curr.y + (dy / dist) * Math.min(speed, dist),
-            };
-            applyPos(cid);
-            anyMoved = true;
-          }
+        const curr = posRef.current;
+        const dx = target.x - curr.x;
+        const dy = target.y - curr.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 0.5) {
+          const speed = Math.max(0.2, dist * 0.004);
+          posRef.current = {
+            x: curr.x + (dx / dist) * Math.min(speed, dist),
+            y: curr.y + (dy / dist) * Math.min(speed, dist),
+          };
+          applyPos();
         }
-        if (anyMoved) checkMagnet();
       }
       gravityRAFRef.current = requestAnimationFrame(tick);
     };
@@ -249,28 +213,25 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locked, mounted]);
 
-  const handleTap = (id: ControlId) => {
+  const handleTap = () => {
     const now = performance.now();
-    const isDouble = tapRef.current.id === id && now - tapRef.current.at < DOUBLE_TAP_MS;
-    tapRef.current.id = id;
+    const isDouble = now - tapRef.current.at < DOUBLE_TAP_MS;
     tapRef.current.at = now;
     if (tapRef.current.timer) { clearTimeout(tapRef.current.timer); tapRef.current.timer = null; }
 
     if (isDouble) {
       if (lockedRef.current) {
         // Double tap while locked → enter NAV MODE (SPEC §3.1)
-        snapToSavedCorners();
+        snapToSavedCorner();
         dismissHint();
-        // Show "NAV mode" indicator briefly
         setShowNavMode(true);
         navModeTimerRef.current = setTimeout(() => {
           setShowNavMode(false);
           navModeTimerRef.current = null;
         }, 2000);
       } else {
-        // Double tap in NAV MODE → open that button's specific menu (SPEC §3.1)
-        if (id === 'dreams') onOpenDreamsMenu();
-        else onOpenSystemMenu();
+        // Double tap in NAV MODE → open System menu (SPEC §3.1)
+        onOpenSystemMenu();
       }
       return;
     }
@@ -278,8 +239,8 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     tapRef.current.timer = setTimeout(() => {
       tapRef.current.timer = null;
       if (lockedRef.current) {
-        // Single tap while locked → open BOTH menus simultaneously (SPEC §3.1)
-        onOpenBothMenus();
+        // Single tap while locked → open Daydreams menu (SPEC §3.1)
+        onOpenDreamsMenu();
       } else {
         // Single tap in NAV MODE → Go Home (SPEC §3.1)
         onHome();
@@ -287,22 +248,19 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     }, DOUBLE_TAP_MS + 10);
   };
 
-  const onPointerDown = (id: ControlId) => (e: React.PointerEvent) => {
+  const onPointerDown = (e: React.PointerEvent) => {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     dragRef.current = {
-      id,
+      active: true,
       startClient: { x: e.clientX, y: e.clientY },
-      startPos: {
-        dreams: { ...posRef.current.dreams },
-        system: { ...posRef.current.system },
-      },
+      startPos: { ...posRef.current },
       moved: false,
     };
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
     const drag = dragRef.current;
-    if (!drag.id) return;
+    if (!drag.active) return;
     const rails = getRails();
     const dx = e.clientX - drag.startClient.x;
     const dy = e.clientY - drag.startClient.y;
@@ -310,32 +268,27 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
     if (!drag.moved) return;
 
     if (lockedRef.current) {
-      // Locked: both buttons move together (vertical only)
-      const y = Math.min(Math.max(drag.startPos.dreams.y + dy, rails.minY), rails.maxY);
-      posRef.current.dreams = { x: rails.centerX, y };
-      posRef.current.system = { x: rails.centerX, y };
-      applyPos('dreams');
-      applyPos('system');
+      // Locked: button moves vertically only, stays at centerX
+      const y = Math.min(Math.max(drag.startPos.y + dy, rails.minY), rails.maxY);
+      posRef.current = { x: rails.centerX, y };
+      applyPos();
       return;
     }
 
-    // Unlocked: button slides along its rail (vertical only)
-    const y = Math.min(Math.max(drag.startPos[drag.id].y + dy, rails.minY), rails.maxY);
-    if (drag.id === 'dreams') posRef.current.dreams = { x: rails.rightX, y };
-    else posRef.current.system = { x: rails.leftX, y };
-    applyPos(drag.id);
-    checkMagnet();
+    // Unlocked: button slides along right rail (vertical only)
+    const y = Math.min(Math.max(drag.startPos.y + dy, rails.minY), rails.maxY);
+    posRef.current = { x: rails.rightX, y };
+    applyPos();
   };
 
-  const onPointerUp = (e: React.PointerEvent) => {
+  const onPointerUp = () => {
     const drag = dragRef.current;
-    if (!drag.id) return;
-    const id = drag.id;
-    dragRef.current.id = null;
+    if (!drag.active) return;
+    dragRef.current.active = false;
     if (!drag.moved) {
-      handleTap(id);
+      handleTap();
     } else if (!lockedRef.current) {
-      // Persist positions on drag end (req 68)
+      // Persist position on drag end
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posRef.current)); } catch { /* noop */ }
     }
   };
@@ -362,7 +315,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
 
   return (
     <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 58 }}>
-      {/* "Double tap to unlock" hint — non-blocking, once per session (req 3-5) */}
+      {/* "Double tap to unlock" hint — non-blocking, once per session */}
       {locked && showHint && (
         <div
           style={{
@@ -380,14 +333,14 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
             fontWeight: 700,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            pointerEvents: 'none', // req 4
+            pointerEvents: 'none',
           }}
         >
           Double-tap to unlock
         </div>
       )}
 
-      {/* "NAV mode" indicator — brief, non-blocking (req 12-13) */}
+      {/* "NAV mode" indicator — brief, non-blocking */}
       {showNavMode && (
         <div
           style={{
@@ -410,7 +363,7 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
             fontWeight: 700,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
-            pointerEvents: 'none', // req 13
+            pointerEvents: 'none',
           }}
         >
           <span
@@ -429,9 +382,9 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
 
       {/* Dreams button (right rail when unlocked, center when locked) */}
       <button
-        ref={(el) => { elRef.current.dreams = el; }}
+        ref={(el) => { elRef.current = el; }}
         type="button"
-        aria-label={locked ? 'Tap to open menus · Double-tap to unlock NAV mode' : 'Go Home · Double-tap for Daydreams menu'}
+        aria-label={locked ? 'Tap to open Daydreams menu · Double-tap to unlock NAV mode' : 'Go Home · Double-tap for System menu'}
         style={{
           ...baseStyle,
           background: locked
@@ -439,38 +392,15 @@ export default function DreamNavControls({ onHome, onOpenDreamsMenu, onOpenSyste
             : 'linear-gradient(135deg,#0ea5e9,#38bdf8)',
           border: locked ? '2px solid #0ea5e9' : '1px solid rgba(255,255,255,0.3)',
           boxShadow: locked
-            ? '0 0 0 2px #c8981a, 0 0 28px rgba(14,165,233,0.5)'
+            ? '0 0 0 2px #d4a843, 0 0 28px rgba(14,165,233,0.5)'
             : '0 4px 18px rgba(14,165,233,0.5)',
         }}
-        onPointerDown={onPointerDown('dreams')}
+        onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerCancel={() => { dragRef.current.id = null; }}
+        onPointerCancel={() => { dragRef.current.active = false; }}
       >
         <InfinityHalf side="left" />
-      </button>
-
-      {/* System button (left rail when unlocked, center when locked) */}
-      <button
-        ref={(el) => { elRef.current.system = el; }}
-        type="button"
-        aria-label={locked ? 'Tap to open menus · Double-tap to unlock NAV mode' : 'Go Home · Double-tap for System menu'}
-        style={{
-          ...baseStyle,
-          background: locked
-            ? 'linear-gradient(135deg,#92400e,#d4a843)'
-            : 'linear-gradient(135deg,#a16207,#d4a843)',
-          border: locked ? '2px solid #d4a843' : '1px solid rgba(255,255,255,0.3)',
-          boxShadow: locked
-            ? '0 0 0 2px #0ea5e9, 0 0 28px rgba(212,168,67,0.5)'
-            : '0 4px 18px rgba(212,168,67,0.5)',
-        }}
-        onPointerDown={onPointerDown('system')}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => { dragRef.current.id = null; }}
-      >
-        <InfinityHalf side="right" />
       </button>
     </div>
   );

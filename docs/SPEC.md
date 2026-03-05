@@ -69,22 +69,22 @@ Menus and modals use `de-sheet` class: `blur(32px)` + white-tinted glass + stron
 
 ## 3. Navigation Model
 
-### 3.1 Home Buttons
-- Two floating buttons: **Blue (Dreams)** right rail, **Gold (System)** left rail
-- Drag vertically along rails
-- When within 88px of each other → magnetic snap → lock to center
-- **Locked single-tap** → opens BOTH menus side-by-side
-- **Locked double-tap** → unlock, snap to saved corners
+### 3.1 Home Button
+- One floating button: **Blue (Dreams)** — right rail
+- Drag vertically along the right rail
+- **Locked single-tap** → opens Daydreams menu
+- **Locked double-tap** → unlock (enter NAV Mode), snap to saved corner
 - **Unlocked single-tap** → Go Home (reset anchor)
-- **Unlocked double-tap** → open that button's menu only
+- **Unlocked double-tap** → open System menu
 - Position persists via `localStorage` key `dreamengin:controls:v4`
-- Lock state uses cross-color rings: blue button shows gold ring, gold button shows blue ring
+- Lock state shows blue button with subtle gold ring
+
+> **Note:** The two-button layout (blue + gold side by side) is reserved for daydream-specific controls only — for example, the Games daydream uses the dual-button layout as a game remote controller (see §10 Universal Mobile Remote).
 
 ### 3.2 Menus
 - **Daydreams menu** (blue): routes to all 7 Daydreams + Marketplace
 - **System menu** (gold): Dr.Eams, Settings, Account, Go Home, Appearance, All Dreams
-- Both menus open simultaneously when locked + tapped
-- After menus open/close, buttons snap back to saved corners
+- After menus open/close, button snaps back to saved corner
 
 ### 3.3 Edit Mode
 - Enter via "Edit Layout" button in Home Dream
@@ -92,6 +92,9 @@ Menus and modals use `de-sheet` class: `blur(32px)` + white-tinted glass + stron
 - Drag handles appear on widget title strips (only in edit mode)
 - Edit gestures never compete with feed scroll
 - Exit via "Done" button
+
+### 3.4 Spatial Swipe Navigation
+Spatial swipe gestures (swipe left/right to navigate between spaces) are currently **disabled**. Navigation between spaces happens via the Daydreams menu (single tap on the home button). This will be re-enabled in a future release.
 
 ---
 
