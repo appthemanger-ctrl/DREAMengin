@@ -1,7 +1,7 @@
 # DREAMengin — Feature Status
 
 > **Owner:** appthemanger-ctrl  
-> **Last updated:** 2026-03-05  
+> **Last updated:** 2026-03-05 (session: copilot/check-sprite-animation-replacement)  
 > **Legend:** ✅ Done · 🔶 Partly done · 🔲 Needs work · ⬆️ Needs upgrade
 
 See `docs/HANDOFF.md` for the change timeline and open priorities.
@@ -14,11 +14,14 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 |---------|--------|-------|
 | Next.js App Router scaffold | ✅ Done | v16.1.6, TypeScript strict |
 | Tailwind + Space Grotesk font | ✅ Done | Design tokens in `globals.css` |
-| Blue + gold gradient theme | 🔶 Partly done | Tokens defined; not fully applied to all pages yet |
-| Mobile-first viewport | 🔶 Partly done | Root layout has `viewport` export; game page needs `userScalable: false` |
+| Sky-blue + gold gradient theme | ✅ Done | CSS vars + ThemeApplicator; 5 gradient presets in Appearance settings |
+| Gradient on all daydreams/settings | 🔶 Partly done | 4 daydream pages + settings/algorithm done; 11 pages still use old bg-background |
+| Mobile-first viewport | ✅ Done | Root layout + game page both set `userScalable: false` |
 | Dark-mode support | 🔶 Partly done | CSS vars in place; not all components respect them |
 | PWA manifest | ✅ Done | `public/manifest.json` |
 | Performance / battery-aware rendering | 🔶 Partly done | Game loop throttles; general app idle-throttling pending |
+| ThemeApplicator (live theme switching) | ✅ Done | `components/ThemeApplicator.tsx`; wired into root layout |
+| No "coming soon" states | ✅ Done | All stub/placeholder content replaced with working features |
 
 ---
 
@@ -71,10 +74,11 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Private profile editor | ✅ Done | `/edit-profile` — name, handle, avatar, bio |
+| ProfileCanvas — edit + widgets + share all-in-one | ✅ Done | `components/profile/ProfileCanvas.tsx`; `/profile` uses it |
 | Public profile mirror | ✅ Done | `/profile/[handle]` and `/u/[handle]` |
+| FollowButton + FollowOnboarding | ✅ Done | `components/feed/FollowButton.tsx` + `FollowOnboarding.tsx`; 8 frequency options |
 | Avatar upload | 🔶 Partly done | Upload UI exists; Supabase storage wiring needs test |
-| Follow / unfollow | 🔶 Partly done | API route exists; UI not wired |
+| Widget drag-to-reorder on profile canvas | 🔲 Needs work | Toggle visibility done; drag-to-reorder needs `@dnd-kit/core` |
 | Public-only widget display | 🔶 Partly done | Logic exists; not fully enforced |
 
 ---
@@ -86,6 +90,9 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Feed resolver | 🔶 Partly done | `lib/widgets/feed-resolver.ts`; demo data only |
 | Feed API route | ✅ Done | `app/api/widgets/feed/route.ts` |
 | Feed settings | 🔶 Partly done | UI at `/feed-settings`; slices not saved to DB |
+| AlgorithmEngine (My Algorithm) | ✅ Done | `components/feed/AlgorithmEngine.tsx`; presets + mix mode + toggle; localStorage for now |
+| Algorithm settings page | ✅ Done | `/settings/algorithm` |
+| FollowOnboarding (own your algorithm) | ✅ Done | 8-option bottom sheet; localStorage |
 | Post creation | 🔶 Partly done | `CreatePostModal.tsx` exists; full publish flow needs work |
 | Likes | 🔶 Partly done | API route exists; real-time count not wired |
 | Comments | 🔲 Needs work | Not yet built |
@@ -97,13 +104,14 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 
 | Daydream | Status | Notes |
 |----------|--------|-------|
-| Music Studio | 🔶 Partly done | Page + audio recorder; not connected to feed/publish |
-| Media Vault | 🔶 Partly done | Scaffold page; upload not wired |
-| Create | 🔶 Partly done | Ideas/tasks UI; no persistence |
-| Brand | 🔶 Partly done | Profile + analytics stub |
-| Analytics | 🔶 Partly done | Charts component exists; real data pending |
-| Games | ✅ Done | Dr. Eams platformer fully playable |
-| Play | 🔶 Partly done | Player UI exists; queue/playlist not wired |
+| Music Studio | 🔶 Partly done | Real SoundRecorder (record+waveform+playback+download); not yet connected to feed publish |
+| Media Vault | 🔶 Partly done | DaydreamShell Side A+B; upload not wired to DB |
+| Create | 🔶 Partly done | DaydreamShell Side A+B; ideas/tasks UI; no persistence |
+| Brand | 🔶 Partly done | DaydreamShell Side A+B; profile + analytics |
+| Analytics | 🔶 Partly done | Real post count from DB; fake charts removed; actionable links |
+| Games | ✅ Done | Dr. Eams platformer + Word Sprint + Memory Grid + Speed Tap — all playable |
+| Play | 🔶 Partly done | DaydreamShell Side A+B; player UI exists; queue/playlist not wired |
+| DaydreamShell flip (all 7) | ✅ Done | Page-turn animation; Side B = daydream-specific marble widget tray; Alt+F shortcut |
 
 ---
 
@@ -211,25 +219,31 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Blue + gold design tokens | ✅ Done | `tailwind.config.ts` + `globals.css` |
+| Sky-blue + gold design tokens | ✅ Done | `tailwind.config.ts` + `globals.css` |
 | Space Grotesk font | ✅ Done | |
-| Frosted glass surfaces | ✅ Done | `.de-surface`, `.de-card` CSS classes |
-| Blue + gold gradient across all pages | 🔶 Partly done | Game + landing themed; Daydreams need it |
+| Frosted glass surfaces | ✅ Done | `.de-surface`, `.de-card`, `.de-widget` CSS classes |
+| Sky-blue + gold gradient across all pages | 🔶 Partly done | Core pages + 4 daydreams done; 11 pages still use old `bg-background` |
+| `.de-marble` bubble widget style | ✅ Done | Radial gradient white core → color edges, deep blur, inset shimmer |
+| Gradient theme presets (5) | ✅ Done | Sky+Gold, Ocean+Coral, Aurora, Sunrise, Mint+Sky — editable in Appearance settings |
+| ThemeApplicator (live, CSS vars) | ✅ Done | `components/ThemeApplicator.tsx`; fires on `de-theme-changed` event |
 | Premium gradient headings | ✅ Done | `.de-gradient-text` |
 | Mobile-first responsive layout | ✅ Done | All pages use Tailwind responsive breakpoints |
 | Pinch-zoom disabled in game | ✅ Done | Viewport meta + `touchAction: none` |
 | Consistent radius family | ✅ Done | 6/10/14/18/24/32/9999px only |
+| DaydreamShell page-turn flip animation | ✅ Done | `de-flip-out`/`de-flip-in` keyframes; all 7 daydreams |
+| Marble bubble widget tray (Side B) | ✅ Done | Each daydream has 6–8 daydream-specific marble widgets |
 
 ---
 
 ## Upgrade Priorities (in order)
 
-1. ⬆️ **Blue + gold gradient** — apply uniformly to all Daydream pages, Shop, Marketplace, Settings
+1. ⬆️ **11 remaining pages** — apply `de-sky-bg` + `de-widget` to: create, shop/sell, music, music/upload, settings/account, settings/security, settings/notifications, ads/create, lab/new
 2. ⬆️ **Feed system** — connect feed resolver to real DB data; real-time updates
-3. ⬆️ **Daydream entry loops** — each of the 7 needs ≥1 real interaction
-4. ⬆️ **Swipe navigation** — implement spatial swipe gestures for mobile
-5. ⬆️ **Game power-ups** — activate spin + shoot with visual effects
-6. ⬆️ **PS5 haptics** — Gamepad vibration API on stomp/coin
-7. ⬆️ **Music Studio pipeline** — record → upload → publish to feed
-8. ⬆️ **Shop / payments** — Stripe integration
+3. ⬆️ **Widget drag on ProfileCanvas** — wire `@dnd-kit/core` for drag-to-reorder
+4. ⬆️ **Follow/Algorithm → DB** — persist FollowOnboarding + Algorithm presets to Supabase instead of localStorage
+5. ⬆️ **Music Studio pipeline** — SoundRecorder → upload → publish to feed
+6. ⬆️ **Swipe navigation** — implement spatial swipe gestures for mobile
+7. ⬆️ **Game power-ups** — activate spin + shoot with visual effects
+8. ⬆️ **PS5 haptics** — Gamepad vibration API on stomp/coin
 9. ⬆️ **Leaderboard** — persist game scores to Supabase
+10. ⬆️ **Shop / payments** — Stripe integration
