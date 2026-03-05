@@ -17,8 +17,8 @@ export default function NewProjectPage() {
   const supabase = createClient();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setError('');
     setIsLoading(true);
 
@@ -44,7 +44,7 @@ export default function NewProjectPage() {
 
       router.push(`/lab/${data.id}`);
     } catch (err: unknown) {
-      setError(err.message || 'Failed to create project');
+      setError(err instanceof Error ? err.message : 'Failed to create project');
     } finally {
       setIsLoading(false);
     }
@@ -71,11 +71,11 @@ export default function NewProjectPage() {
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        {/* Templates */}
-        <div className="mb-8">
-          <h2 className="text-sm font-medium text-muted-foreground mb-3">Quick Start Templates</h2>
-          <div className="grid grid-cols-2 gap-3">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+        {/* Quick Start Templates */}
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">Quick Start Templates</span></div>
+          <div className="de-widget-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {templates.map((template) => (
               <button
                 key={template.name}
@@ -84,127 +84,122 @@ export default function NewProjectPage() {
                   setTitle(template.name);
                   setDescription(template.description);
                 }}
-                className="p-4 bg-card border border-border rounded-xl text-left hover:border-primary/50 transition-colors group"
+                style={{
+                  padding: '14px 12px', borderRadius: 12, textAlign: 'left', cursor: 'pointer',
+                  background: 'rgba(255,255,255,0.45)', border: '1px solid rgba(160,195,240,0.3)',
+                  transition: 'border-color 0.15s, background 0.15s',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--de-accent)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(160,195,240,0.3)'; }}
               >
-                <span className="text-2xl mb-2 block">{template.icon}</span>
-                <span className="font-medium text-foreground block text-sm">{template.name}</span>
-                <span className="text-xs text-muted-foreground">{template.description}</span>
+                <span style={{ fontSize: 24, display: 'block', marginBottom: 6 }}>{template.icon}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', display: 'block', marginBottom: 2 }}>{template.name}</span>
+                <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{template.description}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="relative mb-8">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border" />
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+          <span style={{ fontSize: 12, color: 'var(--de-text-dim)', fontWeight: 500 }}>or create from scratch</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+        </div>
+
+        {/* Project form */}
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">Project Details</span></div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+            {/* Title */}
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Project Title</span>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="My Awesome Project"
+                required
+                style={{ width: '100%', padding: '11px 14px', borderRadius: 10, background: 'var(--de-mist)', border: '1px solid var(--de-border)', color: 'var(--de-text)', fontSize: 14, outline: 'none', minHeight: 48 }}
+              />
+            </label>
+
+            {/* Description */}
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Description</span>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What is this project about?"
+                rows={4}
+                style={{ width: '100%', padding: '11px 14px', borderRadius: 10, background: 'var(--de-mist)', border: '1px solid var(--de-border)', color: 'var(--de-text)', fontSize: 14, outline: 'none', resize: 'none' }}
+              />
+            </label>
+
+            {/* Visibility */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Visibility</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setVisibility('private')}
+                  style={{
+                    padding: '14px 12px', borderRadius: 12, textAlign: 'left', cursor: 'pointer', border: 'none',
+                    background: visibility === 'private' ? 'rgba(42,138,184,0.12)' : 'rgba(255,255,255,0.4)',
+                    outline: visibility === 'private' ? '1.5px solid var(--de-accent)' : '1px solid rgba(160,195,240,0.3)',
+                  }}
+                >
+                  <Lock className="w-5 h-5 mb-1.5" style={{ color: visibility === 'private' ? 'var(--de-accent)' : 'var(--de-text-dim)' }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', display: 'block' }}>Private</span>
+                  <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Only you can see</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVisibility('public')}
+                  style={{
+                    padding: '14px 12px', borderRadius: 12, textAlign: 'left', cursor: 'pointer', border: 'none',
+                    background: visibility === 'public' ? 'rgba(42,138,184,0.12)' : 'rgba(255,255,255,0.4)',
+                    outline: visibility === 'public' ? '1.5px solid var(--de-accent)' : '1px solid rgba(160,195,240,0.3)',
+                  }}
+                >
+                  <Globe className="w-5 h-5 mb-1.5" style={{ color: visibility === 'public' ? 'var(--de-accent)' : 'var(--de-text-dim)' }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', display: 'block' }}>Public</span>
+                  <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Anyone can view</span>
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="de-notice" style={{ background: 'rgba(220,68,68,0.08)', borderColor: 'rgba(220,68,68,0.25)', color: '#dc4444' }}>
+                {error}
+              </div>
+            )}
           </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2" style={{ background: 'rgba(220,232,248,0.8)', color: 'var(--de-text-dim)', fontSize: 13 }}>or create from scratch</span>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isLoading || !title}
+              className="de-btn de-btn-primary"
+              style={{ width: '100%', gap: 8 }}
+            >
+              {isLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> Creating…</> : <><FlaskConical className="w-5 h-5" /> Create Project</>}
+            </button>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Project Title
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="My Awesome Project"
-              required
-              className="w-full px-4 py-3 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[48px]"
-            />
+        {/* What can you build */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Sparkles className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
+            <span className="de-widget-title">What can you build?</span>
           </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Description
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What is this project about?"
-              rows={4}
-              className="w-full px-4 py-3 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-            />
-          </div>
-
-          {/* Visibility */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Visibility
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setVisibility('private')}
-                className={`p-4 rounded-xl border text-left transition-colors ${
-                  visibility === 'private'
-                    ? 'bg-primary/10 border-primary text-foreground'
-                    : 'bg-card border-border text-foreground hover:border-primary/50'
-                }`}
-              >
-                <Lock className={`w-5 h-5 mb-2 ${visibility === 'private' ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span className="font-medium block text-sm">Private</span>
-                <span className="text-xs text-muted-foreground">Only you can see</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setVisibility('public')}
-                className={`p-4 rounded-xl border text-left transition-colors ${
-                  visibility === 'public'
-                    ? 'bg-primary/10 border-primary text-foreground'
-                    : 'bg-card border-border text-foreground hover:border-primary/50'
-                }`}
-              >
-                <Globe className={`w-5 h-5 mb-2 ${visibility === 'public' ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span className="font-medium block text-sm">Public</span>
-                <span className="text-xs text-muted-foreground">Anyone can view</span>
-              </button>
-            </div>
-          </div>
-
-          {error && (
-            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
-              <p className="text-sm text-destructive">{error}</p>
-            </div>
-          )}
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isLoading || !title}
-            className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-medium hover:bg-primary/90 transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              <>
-                <FlaskConical className="w-5 h-5" />
-                Create Project
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Info Section */}
-        <div className="mt-8 p-4 bg-muted/50 rounded-xl">
-          <div className="flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-foreground mb-1">What can you build?</h3>
-              <p className="text-sm text-muted-foreground">
-                Labs are your personal workspace for experiments, simulations, data visualizations, 
-                and creative coding projects. Add notebooks, embed widgets, attach files, and collaborate with others.
-              </p>
-            </div>
+          <div className="de-widget-body">
+            <p className="text-sm" style={{ color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
+              Labs are your personal workspace for experiments, simulations, data visualizations,
+              and creative coding projects. Add notebooks, embed widgets, attach files, and collaborate with others.
+            </p>
           </div>
         </div>
       </div>

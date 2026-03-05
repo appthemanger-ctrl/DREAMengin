@@ -25,8 +25,8 @@ export default function CreateAdSlotPage() {
     { id: 'lab_sidebar', label: 'Lab Sidebar', description: 'Appears in lab projects' },
   ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setError('');
     setIsLoading(true);
 
@@ -71,129 +71,107 @@ export default function CreateAdSlotPage() {
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Placement */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-3">
-              Placement Location
-            </label>
-            <div className="space-y-2">
-              {placements.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setPlacement(p.id)}
-                  className={`w-full p-4 rounded-xl border text-left transition-colors ${
-                    placement === p.id
-                      ? 'bg-primary/10 border-primary'
-                      : 'bg-card border-border hover:border-primary/50'
-                  }`}
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+        {/* Placement */}
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">Placement Location</span></div>
+          <div className="de-widget-body" style={{ padding: 0 }}>
+            {placements.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setPlacement(p.id)}
+                className="de-row"
+                style={{
+                  width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none',
+                  background: placement === p.id ? 'rgba(42,138,184,0.10)' : 'transparent',
+                }}
+              >
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: placement === p.id ? 'rgba(42,138,184,0.2)' : 'rgba(42,138,184,0.08)' }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      placement === p.id ? 'bg-primary/20' : 'bg-muted'
-                    }`}>
-                      <LayoutGrid className={`w-5 h-5 ${placement === p.id ? 'text-primary' : 'text-muted-foreground'}`} />
-                    </div>
-                    <div>
-                      <span className="font-medium text-foreground block">{p.label}</span>
-                      <span className="text-sm text-muted-foreground">{p.description}</span>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+                  <LayoutGrid className="w-5 h-5" style={{ color: placement === p.id ? 'var(--de-accent)' : 'var(--de-text-dim)' }} />
+                </div>
+                <div className="flex-1">
+                  <span className="text-sm font-semibold block" style={{ color: 'var(--de-heading)' }}>{p.label}</span>
+                  <span className="text-xs" style={{ color: 'var(--de-text-dim)' }}>{p.description}</span>
+                </div>
+                {placement === p.id && (
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(42,138,184,0.15)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.3)' }}>Selected</span>
+                )}
+              </button>
+            ))}
           </div>
+        </div>
 
-          {/* Pricing */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-3">
-              Pricing
+        {/* Pricing */}
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">Pricing</span></div>
+          <div className="de-widget-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Daily Rate ($)</span>
+              <div style={{ position: 'relative' }}>
+                <DollarSign style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: 'var(--de-text-dim)' }} />
+                <input
+                  type="number" step="0.01" min="0"
+                  value={priceDay} onChange={(e) => setPriceDay(e.target.value)} required
+                  style={{ width: '100%', padding: '11px 14px 11px 36px', borderRadius: 10, background: 'var(--de-mist)', border: '1px solid var(--de-border)', color: 'var(--de-text)', fontSize: 14, outline: 'none', minHeight: 48 }}
+                />
+              </div>
             </label>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-muted-foreground mb-2">Daily Rate</label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={priceDay}
-                    onChange={(e) => setPriceDay(e.target.value)}
-                    required
-                    className="w-full pl-10 pr-4 py-3 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[48px]"
-                  />
-                </div>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Weekly Rate ($)</span>
+              <div style={{ position: 'relative' }}>
+                <DollarSign style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: 'var(--de-text-dim)' }} />
+                <input
+                  type="number" step="0.01" min="0"
+                  value={priceWeek} onChange={(e) => setPriceWeek(e.target.value)} required
+                  style={{ width: '100%', padding: '11px 14px 11px 36px', borderRadius: 10, background: 'var(--de-mist)', border: '1px solid var(--de-border)', color: 'var(--de-text)', fontSize: 14, outline: 'none', minHeight: 48 }}
+                />
               </div>
-              <div>
-                <label className="block text-sm text-muted-foreground mb-2">Weekly Rate</label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={priceWeek}
-                    onChange={(e) => setPriceWeek(e.target.value)}
-                    required
-                    className="w-full pl-10 pr-4 py-3 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[48px]"
-                  />
-                </div>
-              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Info notice */}
+        <div className="de-notice" style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <Info className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--de-accent)' }} />
+          <span style={{ fontSize: 13 }}>
+            Once created, your ad slot will be available for purchase in the marketplace.
+            You will receive payment when someone books your slot.
+          </span>
+        </div>
+
+        {error && (
+          <div className="de-notice" style={{ background: 'rgba(220,68,68,0.08)', borderColor: 'rgba(220,68,68,0.25)', color: '#dc4444' }}>
+            {error}
+          </div>
+        )}
+
+        {/* Estimated earnings */}
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">Estimated Earnings</span></div>
+          <div className="de-widget-body" style={{ padding: 0 }}>
+            <div className="de-row">
+              <span className="flex-1 text-sm" style={{ color: 'var(--de-text-dim)' }}>Daily bookings (30 days)</span>
+              <span className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>${(parseFloat(priceDay || '0') * 30).toFixed(2)}</span>
+            </div>
+            <div className="de-row" style={{ borderBottom: 'none' }}>
+              <span className="flex-1 text-sm" style={{ color: 'var(--de-text-dim)' }}>Weekly bookings (4 weeks)</span>
+              <span className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>${(parseFloat(priceWeek || '0') * 4).toFixed(2)}</span>
             </div>
           </div>
-
-          {/* Info */}
-          <div className="p-4 bg-muted/50 rounded-xl flex items-start gap-3">
-            <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm text-muted-foreground">
-                Once created, your ad slot will be available for purchase in the marketplace. 
-                You will receive payment when someone books your slot.
-              </p>
-            </div>
-          </div>
-
-          {error && (
-            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
-              <p className="text-sm text-destructive">{error}</p>
-            </div>
-          )}
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-medium hover:bg-primary/90 transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              <>
-                <DollarSign className="w-5 h-5" />
-                Create Ad Slot
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Expected Earnings */}
-        <div className="mt-8 p-4 bg-card border border-border rounded-xl">
-          <h3 className="font-medium text-foreground mb-3">Estimated Earnings</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Daily bookings (30 days)</span>
-              <span className="font-medium text-foreground">${(parseFloat(priceDay || '0') * 30).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Weekly bookings (4 weeks)</span>
-              <span className="font-medium text-foreground">${(parseFloat(priceWeek || '0') * 4).toFixed(2)}</span>
-            </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="de-btn de-btn-gold"
+              style={{ width: '100%', gap: 8 }}
+            >
+              {isLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> Creating…</> : <><DollarSign className="w-5 h-5" /> Create Ad Slot</>}
+            </button>
           </div>
         </div>
       </div>
