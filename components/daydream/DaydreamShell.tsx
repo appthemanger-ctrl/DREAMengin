@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import GameRemote from '@/components/games/GameRemote';
 
 export type DaydreamWidget = {
   id: string;
@@ -14,29 +15,20 @@ export type DaydreamWidget = {
   onClick?: () => void;
 };
 
-/** Optional daydream-specific action button shown alongside the back button on Side B.
- *  Uses `href` (not onClick) so it can be passed from Server Components. */
-export type SideBAction = {
-  /** Accessible label for the button */
-  label: string;
-  /** Emoji or unicode glyph rendered inside the button */
-  icon: string;
-  /** URL to navigate to on tap */
-  href: string;
-  /** Override accent color for the action button (defaults to accentColor) */
-  color?: string;
-};
-
 type Props = {
   title: string;
   accentColor: string;
   widgets: DaydreamWidget[];
   children: React.ReactNode;
-  /** Daydream-specific action button shown on Side B alongside the back button */
-  sideBAction?: SideBAction;
+  /**
+   * Controls which UI renders on Side B.
+   *   'widgets'     (default) — the standard marble widget tray
+   *   'game-remote' — dual analog-stick game controller (Games Daydream)
+   */
+  sideBVariant?: 'widgets' | 'game-remote';
 };
 
-export default function DaydreamShell({ title, accentColor, widgets, children, sideBAction }: Props) {
+export default function DaydreamShell({ title, accentColor, widgets, children, sideBVariant = 'widgets' }: Props) {
   const [side, setSide]   = useState<'A' | 'B'>('A');
   const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
   const [busy, setBusy]   = useState(false);
@@ -70,13 +62,15 @@ export default function DaydreamShell({ title, accentColor, widgets, children, s
       <div style={contentStyle}>
         {side === 'A'
           ? children
-          : <WidgetTray title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />
+          : sideBVariant === 'game-remote'
+            ? <GameRemote onBack={flip} />
+            : <WidgetTray title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />
         }
       </div>
 
-      {side === 'A' ? (
+      {/* ── Side A only: corner fold tab → opens Side B ── */}
+      {side === 'A' && (
         <>
-          {/* ── Side A: corner fold tab → opens Side B ── */}
           <button
             type="button"
             onClick={flip}
@@ -111,101 +105,8 @@ export default function DaydreamShell({ title, accentColor, widgets, children, s
             TOOLS →
           </div>
         </>
-      ) : (
-        /* ── Side B: two floating buttons — back + daydream action ── */
-        <SideBFloatingControls
-          accentColor={accentColor}
-          sideBAction={sideBAction}
-          onBack={flip}
-        />
       )}
     </>
-  );
-}
-
-/* ── Side B floating two-button controls ── */
-function SideBFloatingControls({
-  accentColor,
-  sideBAction,
-  onBack,
-}: {
-  accentColor: string;
-  sideBAction?: SideBAction;
-  onBack: () => void;
-}) {
-  const BTN = 52;
-  const btnBase: React.CSSProperties = {
-    width: BTN,
-    height: BTN,
-    borderRadius: 9999,
-    border: 'none',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    touchAction: 'none',
-    WebkitTapHighlightColor: 'transparent',
-    transition: 'transform 0.12s, box-shadow 0.12s',
-    flexShrink: 0,
-  };
-
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        right: 16,
-        bottom: 44,
-        zIndex: 60,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 12,
-        alignItems: 'center',
-        pointerEvents: 'auto',
-      }}
-    >
-      {/* Back button — returns to Side A */}
-      <button
-        type="button"
-        aria-label="Back to daydream (Side A)"
-        title="Back to Daydream (Alt+F)"
-        onClick={onBack}
-        style={{
-          ...btnBase,
-          background: 'rgba(220,232,248,0.82)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          boxShadow: '0 0 0 1.5px rgba(160,195,240,0.5), 0 4px 16px rgba(0,0,0,0.18)',
-        }}
-        onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.93)'; }}
-        onPointerUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-        onPointerLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-      >
-        {/* Back arrow (← ) */}
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--de-heading, #0f2a5c)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
-        </svg>
-      </button>
-
-      {/* Daydream-specific action button */}
-      {sideBAction && (
-        <Link
-          href={sideBAction.href}
-          aria-label={sideBAction.label}
-          title={sideBAction.label}
-          style={{
-            ...btnBase,
-            background: `linear-gradient(135deg, ${sideBAction.color ?? accentColor}cc, ${sideBAction.color ?? accentColor})`,
-            boxShadow: `0 0 0 2px rgba(212,168,67,0.3), 0 4px 20px ${sideBAction.color ?? accentColor}55`,
-            textDecoration: 'none',
-          }}
-          onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.93)'; }}
-          onPointerUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-          onPointerLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-        >
-          <span style={{ fontSize: 22, lineHeight: 1 }}>{sideBAction.icon}</span>
-        </Link>
-      )}
-    </div>
   );
 }
 

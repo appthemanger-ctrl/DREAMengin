@@ -30,7 +30,7 @@ export default async function GamesDaydreamPage() {
       title="Games"
       accentColor="#2a8ab8"
       widgets={WIDGETS}
-      sideBAction={{ label: 'Play Dr. Eams', icon: '🎮', href: '/game', color: '#2a8ab8' }}
+      sideBVariant="game-remote"
     >
       <div className="de-sky-bg min-h-screen">
         <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>

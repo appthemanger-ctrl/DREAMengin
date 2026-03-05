@@ -44,7 +44,6 @@ export default async function AnalyticsDaydreamPage() {
       title="Analytics"
       accentColor="#6366f1"
       widgets={WIDGETS}
-      sideBAction={{ label: 'View full stats', icon: '📊', href: '/daydream/analytics', color: '#6366f1' }}
     >
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>

@@ -29,7 +29,6 @@ export default async function BrandDaydreamPage() {
       title="Brand"
       accentColor="#ec4899"
       widgets={WIDGETS}
-      sideBAction={{ label: 'Edit brand', icon: '🎨', href: '/daydream/brand', color: '#ec4899' }}
     >
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>

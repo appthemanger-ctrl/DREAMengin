@@ -138,10 +138,10 @@ There is **one** gold button on the right rail. It is always visible and always 
 - **Double tap → Open both menus simultaneously**: Daydreams menu (left panel) + System menu (right panel) appear side-by-side with a shared dim backdrop.
 - **Drag** → reposition vertically along the right rail. Position saved on drag-end.
 
-**Daydream Side B — two-button layout:**
-The two-button layout is visible **only** when the user is on Side B of any Daydream (the tools/widgets flip side). On Side B, the single gold button is replaced by two floating buttons:
-- **Left button: Back icon (←)** — flips back to Daydream Side A.
-- **Right button: Daydream-specific action** — behaviour depends on which Daydream is active (e.g. Record in Music Studio, Upload in Media Vault, New Item in Create, etc.).
+**Daydream Side B:**
+The single gold button and the corner fold tab are **only** visible on Side A. On Side B the content replaces the standard daydream view:
+- **Standard daydreams** (Music, Create, Brand, Analytics, Media Vault, Play): Side B shows the marble **Widget Tray** — a grid of quick-launch tiles. The tray's header contains a back arrow (←) to return to Side A.
+- **Games Daydream**: Side B shows the **Game Remote** — a full-screen dual analog-stick controller (see §18 Universal Mobile Remote). The remote has its own ← back button. The `sideBVariant="game-remote"` prop on `DaydreamShell` activates this mode.
 
 The Games Daydream uses the dual-button layout as a game remote controller on Side B (see §18 Universal Mobile Remote).
 
@@ -432,16 +432,17 @@ slightly inset from the edges (not flush — room for thumb to rest):
 | Drag right | Move right |
 | Tap (no drag) | Stop / idle |
 
-### 18.3 Right stick — 7 actions (6 directions + tap)
+### 18.3 Right stick — 8 directions
 | Gesture | Action | Power-up required |
 |---------|--------|-------------------|
 | Drag up | Jump (double-jump on second press) | No |
 | Drag down | Duck / crouch | No |
 | Drag left | Spin attack | Yes |
 | Drag right | Shoot laser | Yes |
-| Tap (short, no drag) | Context action (interact / examine) | No |
 | Drag up-left | Jump + spin | Yes |
 | Drag up-right | Jump + shoot | Yes |
+| Drag down-left | L2 (duck hold) | No |
+| Drag down-right | R1 (dash / dodge) | Yes |
 
 ### 18.4 PS5 DualSense Gamepad API mapping
 | PS5 Button / Axis | Action |
