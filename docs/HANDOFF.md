@@ -59,13 +59,45 @@ These are not suggestions. Violating them invalidates the session's work.
 
 ## Current Branch
 
-- **Branch:** `copilot/add-video-background-to-landing-page`
+- **Branch:** `copilot/update-idari-restrictions`
 - **Base:** `completedream`
-- **PR purpose:** Landing page sky-blue+gold redesign, full Playwright coverage suite, IDARi bug report, doc hard rules
+- **PR purpose:** Implement Idari System Contract — fix intent restriction, create contract doc, daily workflow, Copilot toolkit, and self-reminder
 
 ---
 
-## What Was Done This Session (2026-03-05, branch: copilot/add-video-background-to-landing-page)
+## What Was Done This Session (2026-03-05, branch: copilot/update-idari-restrictions)
+
+### 1. Fixed Idari intent restriction (`lib/ai/triad.ts`)
+- `validateWithIdari` previously used a single `ALLOWED_INTENT_TYPES` list containing only user-level intents (`NAV_DELTA`, `HOME_MENU_OPEN`, `SEARCH`, `POST_CREATE`).
+- This blocked all admin diagnostic intents even when called from the admin Idari route.
+- **Fix:** split into `USER_ALLOWED_INTENT_TYPES` and `ADMIN_ALLOWED_INTENT_TYPES`, added optional `context: 'user' | 'admin'` parameter (default `'user'`).
+- Admin list extends the user list and adds `DIAG_SCHEMA_SNAPSHOT` + `DIAG_RLS_SNAPSHOT`.
+
+### 2. Updated Idari API route (`app/api/ai/idari/route.ts`)
+- Changed `validateWithIdari(intents)` → `validateWithIdari(intents, 'admin')` so admin diagnostic intents now pass through to BoogieMan evaluation instead of being silently dropped.
+
+### 3. Created Idari System Contract (`docs/IDARI_CONTRACT.md`)
+- Full operational contract for Idari: core principle, daily document sync, self-modification prohibition, daily improvement cycle schedule, direct push permission, architecture verification rules, all four agents (Battery, Scene Architect, UI Polish, Supabase), command interface, intent type table, push conditions, AI triad relationship.
+
+### 4. Created Copilot Toolkit + self-reminder (`docs/COPILOT_TOOLKIT.md`)
+- Comprehensive GitHub Actions reference covering: checkout, Node/Python/Go/Java/Rust, Docker (build/push/login/metadata/QEMU), security scanning (Trivy, CodeQL, Gitleaks, Snyk, OSSF), Vercel, Supabase, AWS, GCP, Kubernetes/Helm, git auto-commit, PR creation, releases, notifications, environment variables, matrix builds, reusable workflows, GitHub Pages, every trigger type, permissions reference, best practices.
+- Self-reminder section with key file map, things never to do, things always to do.
+- All environment variables for this repo in one table.
+
+### 5. Created Idari daily workflow (`.github/workflows/idari-daily.yml`)
+- Runs at midnight UTC daily, also triggerable manually with `dry_run` option.
+- Sequence: checkout `completedream` → read /docs constitution → typecheck → governance guard (ensures /docs and .github/agents are never modified) → run improvement agents (battery, UI, Supabase) → generate cycle report → commit + push [skip ci] → upload artifact.
+- Concurrency group `idari-daily` prevents overlapping runs.
+
+### 6. Created Idari agent definition (`.github/agents/idari.agent.md`)
+- GitHub Copilot agent spec: read-first workflow, role definition, modification prohibitions, commit rules, all five command handlers (`/audit-battery`, `/make-scene`, `/refactor`, `/diag-schema`, `/diag-rls`, `/patch-plan`), daily cycle sequence, push conditions, relationship to triad, key code locations.
+
+### 7. Updated `docs/LAW.md`
+- Added `IDARI_CONTRACT.md` (position 8) and `COPILOT_TOOLKIT.md` (position 12) to priority order.
+- Expanded §9.3 "read the docs" trigger to list every file by name so there is no ambiguity.
+
+### 8. Updated `docs/FEATURE_STATUS.md`
+- Added five new rows to AI Triad section reflecting IDARi restriction fix, system contract, daily workflow, and agent definition.
 
 ### 1. Landing page — sky-blue + gold + transparent video background (`components/LandingHero.tsx`)
 - Removed `bg-[#070b16]` (dark anti-pattern — SPEC.md §9 violation). `<main>` is now transparent; the design-system `html/body` sky-blue→gold-cream gradient is the base layer.

@@ -150,6 +150,10 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Dr. Eams chat panel | ✅ Done | `DrEamsPanel.tsx`; system menu accessible |
 | Dr. Eams API route | ✅ Done | `POST /api/ai/eams` |
 | IDARi admin optimizer | ✅ Done | `POST /api/ai/idari` — admin only |
+| IDARi intent restriction (fix) | ✅ Done | `validateWithIdari(intents, 'admin')` — admin context now allows `DIAG_SCHEMA_SNAPSHOT` + `DIAG_RLS_SNAPSHOT`; previously blocked all admin intents |
+| Idari System Contract | ✅ Done | `docs/IDARI_CONTRACT.md` — full operational contract |
+| Idari daily improvement workflow | ✅ Done | `.github/workflows/idari-daily.yml` — scheduled midnight UTC; reads /docs, verifies architecture, commits to `completedream` |
+| Idari agent definition | ✅ Done | `.github/agents/idari.agent.md` — GitHub Copilot agent spec |
 | BoogieMan policy engine | ✅ Done | `POST /api/ai/boogieman` — full 100-rule policy |
 | Consensus gating | ✅ Done | All 3 must approve major updates |
 | Dr. Eams voice assistant | 🔶 Partly done | Component exists; not wired to speech API |

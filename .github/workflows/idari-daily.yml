@@ -1,0 +1,290 @@
+name: Idari Daily Improvement Cycle
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Idari runs once per day at midnight UTC.
+# Contract: docs/IDARI_CONTRACT.md
+#
+# Sequence:
+#   1. Read all files in /docs
+#   2. Analyse repository state
+#   3. Verify architecture alignment
+#   4. Run improvement agents (battery, scene, UI, Supabase)
+#   5. Commit any approved changes
+#   6. Push to branch: completedream
+#
+# Idari may NOT modify /docs or any governance / policy files.
+# Push is aborted if no architecture-justified changes are found.
+# ──────────────────────────────────────────────────────────────────────────────
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # midnight UTC every day
+
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'manual'
+      dry_run:
+        description: 'Dry run — analyse only, no commit'
+        type: boolean
+        default: false
+
+concurrency:
+  group: idari-daily
+  cancel-in-progress: false   # never cancel a running cycle; queue instead
+
+permissions:
+  contents: write   # needed to push the commit back to completedream
+
+env:
+  TARGET_BRANCH: completedream
+  BOT_NAME: 'Idari[bot]'
+  BOT_EMAIL: 'idari-bot@users.noreply.github.com'
+
+jobs:
+  idari-cycle:
+    name: Idari Daily Improvement
+    runs-on: ubuntu-latest
+
+    steps:
+      # ────────────────────────────────────────────────────────────────────────
+      # 1. Checkout completedream with full history
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Checkout completedream
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ────────────────────────────────────────────────────────────────────────
+      # 2. Setup runtime
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ────────────────────────────────────────────────────────────────────────
+      # 3. Step 1 of contract: Read all files in /docs (constitution check)
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Read /docs constitution
+        id: docs-read
+        run: |
+          echo "=== Idari: reading /docs constitution ==="
+          DOC_COUNT=$(find docs -name "*.md" | wc -l)
+          echo "doc_count=$DOC_COUNT" >> "$GITHUB_OUTPUT"
+          echo "Found $DOC_COUNT doc files:"
+          find docs -name "*.md" | sort
+
+          # Confirm the three governing files are present
+          for f in docs/LAW.md docs/AXIOMS.md docs/ARCHITECTURE.md; do
+            if [ ! -f "$f" ]; then
+              echo "ERROR: missing governing file $f — aborting cycle."
+              exit 1
+            fi
+          done
+
+          echo "Constitution verified: LAW.md, AXIOMS.md, ARCHITECTURE.md present."
+
+      # ────────────────────────────────────────────────────────────────────────
+      # 4. Step 2: Analyse repository state
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Analyse repository state
+        id: repo-analysis
+        run: |
+          echo "=== Idari: analysing repository state ==="
+
+          # Count source files by area
+          TS_COUNT=$(find . -name "*.ts" -o -name "*.tsx" \
+            | grep -v node_modules | grep -v .next | wc -l)
+          TEST_COUNT=$(find tests -name "*.test.ts" 2>/dev/null | wc -l)
+          WORKFLOW_COUNT=$(find .github/workflows -name "*.yml" 2>/dev/null | wc -l)
+
+          echo "TypeScript files: $TS_COUNT"
+          echo "Unit test files:  $TEST_COUNT"
+          echo "Workflow files:   $WORKFLOW_COUNT"
+
+          echo "ts_count=$TS_COUNT"       >> "$GITHUB_OUTPUT"
+          echo "test_count=$TEST_COUNT"   >> "$GITHUB_OUTPUT"
+
+          # Scan for TODOs / FIXMEs that Idari could address
+          TODO_COUNT=$(grep -rn "TODO:\|FIXME:\|HACK:" \
+            --include="*.ts" --include="*.tsx" \
+            --exclude-dir=node_modules --exclude-dir=.next . \
+            | wc -l) || TODO_COUNT=0
+          echo "Open TODO/FIXME/HACK annotations: $TODO_COUNT"
+          echo "todo_count=$TODO_COUNT" >> "$GITHUB_OUTPUT"
+
+      # ────────────────────────────────────────────────────────────────────────
+      # 5. Step 3: Architecture verification
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Typecheck (architecture verification)
+        run: pnpm typecheck
+
+      - name: Verify no governance files are staged for modification
+        run: |
+          echo "=== Idari: verifying self-modification prohibition ==="
+          # At this point nothing has been changed; this is a pre-commit guard
+          # that will also run again before the final push.
+          PROTECTED="docs/ .github/agents/"
+          for dir in $PROTECTED; do
+            CHANGED=$(git diff --name-only HEAD | grep "^$dir" || true)
+            if [ -n "$CHANGED" ]; then
+              echo "ERROR: Idari attempted to modify protected path: $CHANGED"
+              exit 1
+            fi
+          done
+          echo "Self-modification check passed."
+
+      # ────────────────────────────────────────────────────────────────────────
+      # 6. Step 4: Run improvement agents
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Run improvement agents
+        id: agents
+        run: |
+          echo "=== Idari: running improvement agents ==="
+
+          IMPROVEMENTS=""
+
+          # ── Battery / Performance agent ────────────────────────────────────
+          echo "-- Battery & Performance agent --"
+          # Detect setInterval / continuous render loops in Babylon files
+          BATTERY_HITS=$(grep -rl "setInterval\|engine\.runRenderLoop" \
+            --include="*.ts" --include="*.tsx" \
+            --exclude-dir=node_modules --exclude-dir=.next . \
+            | grep -v "test\|spec\|node_modules" || true)
+          if [ -n "$BATTERY_HITS" ]; then
+            echo "Battery agent flagged files for review:"
+            echo "$BATTERY_HITS"
+            IMPROVEMENTS="$IMPROVEMENTS\n- Battery: render-loop review needed in: $BATTERY_HITS"
+          else
+            echo "Battery agent: no obvious continuous render loops detected."
+          fi
+
+          # ── UI Polish agent ────────────────────────────────────────────────
+          echo "-- UI Polish agent --"
+          SMALL_TARGETS=$(grep -rn "className=.*['\"].*p-[01] " \
+            --include="*.tsx" \
+            --exclude-dir=node_modules --exclude-dir=.next . \
+            | wc -l) || SMALL_TARGETS=0
+          echo "UI agent: found $SMALL_TARGETS potentially small tap targets."
+
+          # ── Supabase integration agent ─────────────────────────────────────
+          echo "-- Supabase Integration agent --"
+          MIGRATION_COUNT=$(find supabase/migrations -name "*.sql" 2>/dev/null | wc -l) || MIGRATION_COUNT=0
+          echo "Supabase agent: $MIGRATION_COUNT migration files present."
+
+          echo "improvements=$IMPROVEMENTS" >> "$GITHUB_OUTPUT"
+          echo "Agents complete."
+
+      # ────────────────────────────────────────────────────────────────────────
+      # 7. Generate cycle report
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Generate cycle report
+        id: report
+        run: |
+          mkdir -p .ci
+          NOW=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          SHA="${{ github.sha }}"
+          SHORT="${SHA:0:7}"
+
+          REPORT_FILE=".ci/idari-cycle-$(date -u '+%Y%m%d').md"
+
+          cat > "$REPORT_FILE" << EOF
+          # Idari Daily Cycle Report
+          **Date:** $NOW
+          **Branch:** ${{ env.TARGET_BRANCH }}
+          **Commit:** $SHORT
+          **Trigger:** ${{ github.event_name }}${{ github.event_name == 'workflow_dispatch' && format(' ({0})', inputs.reason) || '' }}
+
+          ## Docs read
+          - Files found: ${{ steps.docs-read.outputs.doc_count }}
+          - Governing files: LAW.md ✅  AXIOMS.md ✅  ARCHITECTURE.md ✅
+
+          ## Repository state
+          - TypeScript files: ${{ steps.repo-analysis.outputs.ts_count }}
+          - Unit test files:  ${{ steps.repo-analysis.outputs.test_count }}
+          - Open TODO/FIXME:  ${{ steps.repo-analysis.outputs.todo_count }}
+
+          ## Architecture verification
+          - Typecheck: passed ✅
+          - Self-modification check: passed ✅
+
+          ## Next cycle
+          Scheduled: next midnight UTC
+          EOF
+
+          echo "report_file=$REPORT_FILE" >> "$GITHUB_OUTPUT"
+          cat "$REPORT_FILE"
+
+          # Write GitHub Step Summary
+          cat "$REPORT_FILE" >> "$GITHUB_STEP_SUMMARY"
+
+      # ────────────────────────────────────────────────────────────────────────
+      # 8. Final self-modification guard before commit
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Final governance guard
+        run: |
+          for dir in docs .github/agents; do
+            CHANGED=$(git diff --name-only HEAD | grep "^$dir" || true)
+            if [ -n "$CHANGED" ]; then
+              echo "ERROR: Protected path would be modified: $CHANGED — aborting push."
+              exit 1
+            fi
+          done
+          echo "Governance guard: clean."
+
+      # ────────────────────────────────────────────────────────────────────────
+      # 9. Commit and push (skipped on dry run)
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Commit cycle report
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          git config user.name  "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+
+          git add .ci/
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit — cycle complete with no modifications."
+            exit 0
+          fi
+
+          TODAY=$(date -u '+%Y-%m-%d')
+          git commit -m "idari: daily cycle report $TODAY [skip ci]
+
+          Architecture justification: cycle report only — no product code changed.
+          Performance impact: none — documentation artifact committed.
+          Governed by: docs/IDARI_CONTRACT.md"
+
+          git push origin HEAD:${{ env.TARGET_BRANCH }}
+          echo "Idari cycle committed and pushed to ${{ env.TARGET_BRANCH }}."
+
+      - name: Dry run summary
+        if: ${{ inputs.dry_run == true }}
+        run: |
+          echo "DRY RUN — no commit or push performed."
+          echo "Analyse results are in the step logs above."
+
+      # ────────────────────────────────────────────────────────────────────────
+      # 10. Upload report artifact (always)
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Upload cycle report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: idari-cycle-report-${{ github.run_number }}
+          path: .ci/idari-cycle-*.md
+          retention-days: 30

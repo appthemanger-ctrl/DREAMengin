@@ -98,13 +98,13 @@ export async function planWithEams(input: {
         .slice(0, 3)
         .map((x: Record<string, unknown>) => {
           const base = {
-            intent_id: x?.intent_id || uuidv4(),
+            intent_id: typeof x?.intent_id === 'string' ? x.intent_id : uuidv4(),
             type: x?.type as IntentType,
             confidence: typeof x?.confidence === 'number' ? x.confidence : 0.6,
             requires_confirmation: Boolean(x?.requires_confirmation),
             rationale: typeof x?.rationale === 'string' ? x.rationale : 'Requested by user',
             idempotency_key: typeof x?.idempotency_key === 'string' ? x.idempotency_key : `eams-${Date.now()}`,
-            payload: (x?.payload && typeof x.payload === 'object') ? x.payload : {},
+            payload: (x?.payload && typeof x.payload === 'object') ? x.payload as Record<string, unknown> : {},
           };
           return base;
         })
@@ -132,12 +132,37 @@ export async function planWithEams(input: {
 // Idari: sanity-check / shrink / normalize. (LLM optional; rule-based default)
 // ---------------------------------------------------------------------------
 
-const ALLOWED_INTENT_TYPES: IntentType[] = ['NAV_DELTA', 'HOME_MENU_OPEN', 'SEARCH', 'POST_CREATE'];
+// User-facing intents — safe for any authenticated actor.
+const USER_ALLOWED_INTENT_TYPES: IntentType[] = [
+  'NAV_DELTA',
+  'HOME_MENU_OPEN',
+  'SEARCH',
+  'POST_CREATE',
+];
 
-export function validateWithIdari(intents: Intent[]): { intents: Intent[]; notes: string[] } {
+// Admin-context intents — Idari builder/diagnostics only.
+// Extends user-allowed list with admin-tier diagnostic types.
+const ADMIN_ALLOWED_INTENT_TYPES: IntentType[] = [
+  ...USER_ALLOWED_INTENT_TYPES,
+  'DIAG_SCHEMA_SNAPSHOT',
+  'DIAG_RLS_SNAPSHOT',
+];
+
+/**
+ * Validate and filter intents produced by an AI planner.
+ *
+ * @param intents  Raw intents from the planner.
+ * @param context  'user' (default) — restricts to safe UI intents only.
+ *                 'admin' — also permits Idari diagnostic intent types.
+ */
+export function validateWithIdari(
+  intents: Intent[],
+  context: 'user' | 'admin' = 'user'
+): { intents: Intent[]; notes: string[] } {
   const notes: string[] = [];
+  const allowed = context === 'admin' ? ADMIN_ALLOWED_INTENT_TYPES : USER_ALLOWED_INTENT_TYPES;
   const filtered = intents
-    .filter((i) => ALLOWED_INTENT_TYPES.includes(i.type))
+    .filter((i) => allowed.includes(i.type))
     .slice(0, 3);
 
   if (filtered.length !== intents.length) {
