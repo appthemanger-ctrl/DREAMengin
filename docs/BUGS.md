@@ -1,164 +1,220 @@
-# DREAMengin — BUGS & Open Issues
+# DREAMengin — Bug Report
 
-> **Auto-generated** by `scripts/update-bugs.mjs` on every push.  
-> **Do not edit manually** — your changes will be overwritten on the next push.  
-> To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
-
-**Last updated:** 2026-03-05 08:09 UTC  
-**Triggered by commit:** `03d35a9` on `copilot/fix-documentation-issues` by copilot-swe-agent[bot]  
-**Commit message:** wip: fix LAW.md section 1 numbering (partial)
+**Format:** IDARi-style live bug log  
+**Policy:** Per `docs/LAW.md §9` — when a bug is **fixed**, **remove its entry from this file**.  
+This file must only contain **open, unresolved bugs**. Fixed bugs live in git history.  
+**Last updated:** 2026-03-05  
+**Branch:** `copilot/add-video-background-to-landing-page`
 
 ---
 
-## 🏆 Final Vision — What DREAMengin Is Supposed to Be
+## How to use this file
 
-DREAMengin is a **spatial, gesture-driven creative OS** built on Next.js (App Router) + Supabase.
-It is not a website. It is not a social media feed. It is a **personal operating surface** where
-every element is a live, interactive widget that the user owns, arranges, and publishes.
-
-### Core product axioms (non-negotiable)
-
-| # | Axiom | One-line rule |
-|---|-------|---------------|
-| 1 | Instant Understanding | No tutorial required. Every interaction self-reveals. |
-| 2 | User-Shaped Space | Control through movement (drag, place). Not settings panels. |
-| 3 | Real Capability | Every widget does real work — not just display. |
-| 4 | Security by Default | Least privilege, RLS everywhere, no secrets to client. |
-| 5 | Privacy by Design | Users own their data. Private by default. Deletable. |
-
-### Navigation model
-
-- The user is always conceptually inside **Home (node 0)**.
-- All navigation is **τ-only** — deterministic state transitions, not browser routing.
-- The **Golden Button** (Blue + Gold floating pair) is the only travel system.
-- Traditional nav bars and back-stacks are **not part of the product**.
-
-### UI design system
-
-- **Sky-blue + gold gradient** throughout — no dark gamer colors, no indigo.
-- **Frosted glass** surfaces (`.de-surface`, `.de-widget`).
-- **Space Grotesk** font. Consistent radius family (6 / 10 / 14 / 18 / 24 / 32 / 9999 px).
-- Every page uses `de-sky-bg` + `de-widget` glass cards.
-
-### AI Triad
-
-| Agent | Role | Audience |
-|-------|------|----------|
-| **Dr. Eams** | User assistant / OS voice | All authenticated users |
-| **IDARi** | Admin bug-fixer + optimizer | Admins only |
-| **TheBoogieMan** | Policy enforcer + overwatch | System / Admins only |
-
-All three must approve (consensus gating) before any major system update is shipped.
-
-### What "done" looks like
-
-When DREAMengin is complete:
-
-- A new user opens the app, sees the animated logo, and can explore without any tutorial.
-- They never feel lost — the Golden Button always takes them home.
-- Every Daydream (7 total) is a fully functional mini-app.
-- Their profile is a live, curated public page they can share.
-- The feed shows real content from real connectors.
-- All games are playable on mobile with two thumbs, on keyboard, and on PS5.
-- Settings, appearance, privacy, data export/delete all work end-to-end.
-- TheBoogieMan silently enforces the 100-rule policy with full audit logs and appeals.
+| Action | What to do |
+|--------|-----------|
+| Bug found | Add an entry with ID, severity, file, description, repro |
+| Bug fixed | **Delete the entry** — do not leave it marked "fixed" |
+| Not sure if fixed | Leave it, add a "Needs verify" note |
 
 ---
 
-## 🔶 Partly Done (31 items)
-
-These features exist but are incomplete. They must be finished before the product ships.
-
-| Status | Feature | Notes |
-|--------|---------|-------|
-| 🔶 | Gradient on all daydreams/settings | 4 daydream pages + settings/algorithm done; 11 pages still use old bg-background |
-| 🔶 | Dark-mode support | CSS vars in place; not all components respect them |
-| 🔶 | Performance / battery-aware rendering | Game loop throttles; general app idle-throttling pending |
-| 🔶 | Widget surface grid | Layout exists; drag-to-reorder not wired |
-| 🔶 | Edit mode (drag-to-reorder widgets) | Banner + context exist; actual drag not implemented |
-| 🔶 | Feed widget | Widget renders; feed data is demo-only |
-| 🔶 | τ-navigation (spatial state transitions) | Discrete model implemented; continuous manifold pending |
-| 🔶 | Back-navigation / history | Browser back works; spatial context not preserved |
-| 🔶 | Avatar upload | Upload UI exists; Supabase storage wiring needs test |
-| 🔶 | Public-only widget display | Logic exists; not fully enforced |
-| 🔶 | Feed resolver | `lib/widgets/feed-resolver.ts`; demo data only |
-| 🔶 | Feed settings | UI at `/feed-settings`; slices not saved to DB |
-| 🔶 | Post creation | `CreatePostModal.tsx` exists; full publish flow needs work |
-| 🔶 | Likes | API route exists; real-time count not wired |
-| 🔶 | Music Studio | Real SoundRecorder (record+waveform+playback+download); not yet connected to feed publish |
-| 🔶 | Media Vault | DaydreamShell Side A+B; upload not wired to DB |
-| 🔶 | Create | DaydreamShell Side A+B; ideas/tasks UI; no persistence |
-| 🔶 | Brand | DaydreamShell Side A+B; profile + analytics |
-| 🔶 | Analytics | Real post count from DB; fake charts removed; actionable links |
-| 🔶 | Play | DaydreamShell Side A+B; player UI exists; queue/playlist not wired |
-| 🔶 | Dr. Eams voice assistant | Component exists; not wired to speech API |
-| 🔶 | Shop page | UI scaffold at `/shop`; no payment integration |
-| 🔶 | Marketplace | Browse page exists; purchase flow not built |
-| 🔶 | Sell page | Form exists; no backend |
-| 🔶 | Feed settings | UI exists; not persisted |
-| 🔶 | Appearance / Theme | Gradient presets UI; not all pages themed |
-| 🔶 | Connectors | YouTube + demo; IG/Spotify pending |
-| 🔶 | Privacy | Page exists; blocking/appeals not wired |
-| 🔶 | Help / wizard | Page exists; Dr. Eams integration pending |
-| 🔶 | InnerDreams (AI bug-fix) | Routes exist; demo mode only |
-| 🔶 | Sky-blue + gold gradient across all pages | Core pages + 4 daydreams done; 11 pages still use old `bg-background` |
+## Open Bugs
 
 ---
 
-## 🔲 Needs Work (10 items)
+### BUG-002 · `example.spec.ts` selector mismatch — **High**
 
-These features are spec'd but not yet built. They are mandatory obligations per **docs/LAW.md §10**.
+| Field | Value |
+|-------|-------|
+| File | `tests/example.spec.ts` |
+| Line | 7 |
+| Severity | High — CI test fails silently |
+| Status | Open |
 
-| Status | Feature | Notes |
-|--------|---------|-------|
-| 🔲 | Password reset flow | Route exists but UI not built |
-| 🔲 | Swipe navigation | Spec'd; not yet implemented on mobile |
-| 🔲 | Widget drag-to-reorder on profile canvas | Toggle visibility done; drag-to-reorder needs `@dnd-kit/core` |
-| 🔲 | Comments | Not yet built |
-| 🔲 | Haptic feedback (DualSense) | Gamepad vibration API not yet wired |
-| 🔲 | Power-ups (spin/shoot effects) | Inputs wired; visual effects + logic pending |
-| 🔲 | Leaderboard | Score exists; no persistence |
-| 🔲 | More levels / worlds | 3 levels done; more planned |
-| 🔲 | Widget marketplace | Spec'd in WIDGET_SYSTEM_V2.md; not built |
-| 🔲 | Payments (Stripe / etc.) | Not started |
+**Description:**  
+`page.fill('[name="email"]', ...)` is used but the login form input has `id="email"`, not `name="email"`. The selector never matches; the test always fails or silently no-ops.
 
----
+**Repro:**  
+```bash
+pnpm test tests/example.spec.ts
+```
+Fails with: element not found for selector `[name="email"]`.
 
-## ⬆️ Upgrade Queue (ordered by priority)
-
-These are pulled from `docs/FEATURE_STATUS.md` and ordered per **docs/LAW.md §10.2**.
-
-1. **11 remaining pages** — apply `de-sky-bg` + `de-widget` to: create, shop/sell, music, music/upload, settings/account, settings/security, settings/notifications, ads/create, lab/new
-2. **Feed system** — connect feed resolver to real DB data; real-time updates
-3. **Widget drag on ProfileCanvas** — wire `@dnd-kit/core` for drag-to-reorder
-4. **Follow/Algorithm → DB** — persist FollowOnboarding + Algorithm presets to Supabase instead of localStorage
-5. **Music Studio pipeline** — SoundRecorder → upload → publish to feed
-6. **Swipe navigation** — implement spatial swipe gestures for mobile
-7. **Game power-ups** — activate spin + shoot with visual effects
-8. **PS5 haptics** — Gamepad vibration API on stomp/coin
-9. **Leaderboard** — persist game scores to Supabase
-10. **Shop / payments** — Stripe integration
+**Fix:**  
+Change selector to `#email` or `input[type="email"]`.
 
 ---
 
-## 🐛 Known Code Annotations (TODO / FIXME / HACK)
+### BUG-003 · `HeroSprite` — responsive Tailwind sizing overridden by inline style — **Medium**
 
-No TODO / FIXME / HACK annotations found in source files.
+| Field | Value |
+|-------|-------|
+| File | `components/HeroSprite.tsx` lines 302–313 |
+| Severity | Medium — sprite always 288 px; `sm:h-72 sm:w-72` has no effect |
+| Status | Open |
 
----
+**Description:**  
+`HeroSprite` receives a `className` prop (e.g. `"h-56 w-56 sm:h-72 sm:w-72"`) that is applied to the `<canvas>` element. However the same canvas also has `style={{ width: 288, height: 288 }}`. Inline styles have higher CSS specificity than Tailwind utility classes, so the responsive breakpoint sizes are ignored. The canvas is always 288 × 288 px on all screen sizes.
 
-## 📚 Reference Docs
-
-| Document | Purpose |
-|----------|---------|
-| [docs/LAW.md](./LAW.md) | Binding rules — code must conform |
-| [docs/AXIOMS.md](./AXIOMS.md) | Non-negotiable product principles |
-| [docs/SPEC.md](./SPEC.md) | Design system + interaction model |
-| [docs/ARCHITECTURE.md](./ARCHITECTURE.md) | Navigation + platform architecture |
-| [docs/SECURITY.md](./SECURITY.md) | RLS, auth boundaries, privacy |
-| [docs/FEATURE_STATUS.md](./FEATURE_STATUS.md) | Live feature completion status |
-| [docs/HANDOFF.md](./HANDOFF.md) | Session-by-session change log |
+**Fix:**  
+Remove `style.width` / `style.height` from the canvas and rely entirely on the `className` prop (and set canvas pixel resolution via `dpr` scaling only), **or** remove the `className` passthrough and handle sizing via the wrapper `<div>`.
 
 ---
 
-*Generated by `scripts/update-bugs.mjs` · Committed by `github-actions[bot]` · [skip ci]*
+### BUG-004 · Multiple pages use `bg-background` / `bg-slate-*` — violates design system — **Medium**
+
+| Field | Value |
+|-------|-------|
+| Files | `app/ads/create/page.tsx`, `app/ads/page.tsx`, `app/ads/slot/[id]/page.tsx`, `app/analytics/page.tsx`, `app/global-error.tsx` |
+| Severity | Medium — visual inconsistency, violates SPEC.md §1.1 and §9 |
+| Status | Open |
+
+**Description:**  
+These pages use `bg-background`, `bg-slate-50`, `bg-slate-950`, etc. instead of the design-system `de-sky-bg` / `dream-bg` gradient. They appear as grey/white pages that don't match the sky-blue + gold identity.
+
+**Affected pages (from FEATURE_STATUS.md "Upgrade Priorities"):**  
+`/create`, `/shop/sell`, `/music`, `/music/upload`, `/settings/account`, `/settings/security`, `/settings/notifications`, `/ads/create`, `/lab/new`
+
+**Fix:**  
+Replace `bg-background` / `bg-slate-*` with `de-sky-bg` wrapper + `de-widget` cards per SPEC.md §2.1.
+
+---
+
+### BUG-005 · `global-error.tsx` uses dark Slate design — **Low**
+
+| Field | Value |
+|-------|-------|
+| File | `app/global-error.tsx` |
+| Severity | Low — only shown on catastrophic render errors |
+| Status | Open |
+
+**Description:**  
+`global-error.tsx` uses `bg-slate-50 dark:bg-slate-950` and slate button styles. If a user ever sees this screen, it looks completely different from the rest of the app.
+
+**Fix:**  
+Apply `de-sky-bg` and `de-btn de-btn-primary` / `de-btn-ghost` to match the design system.
+
+---
+
+### BUG-006 · `discover` page uses 21 mock profiles, not real DB data — **Medium**
+
+| Field | Value |
+|-------|-------|
+| File | `app/discover/page.tsx` |
+| Severity | Medium — users never see real people |
+| Status | Open |
+
+**Description:**  
+`MOCK_PROFILES` array (21 hardcoded fake profiles) is rendered instead of querying the `profiles` table from Supabase. Discover is effectively non-functional for a real deployment.
+
+**Fix:**  
+Replace `MOCK_PROFILES` with a Supabase query: `SELECT id, handle, display_name, bio, avatar_url FROM profiles WHERE visibility = 'public' LIMIT 50`.
+
+---
+
+### BUG-007 · `FollowOnboarding` + `AlgorithmEngine` persist to `localStorage` only — **Medium**
+
+| Field | Value |
+|-------|-------|
+| Files | `components/feed/FollowOnboarding.tsx`, `components/feed/AlgorithmEngine.tsx` |
+| Severity | Medium — user preferences lost on device change / private browsing |
+| Status | Open |
+
+**Description:**  
+Both components store user preferences in `localStorage`. Preferences are not synced to Supabase, so they are lost when the user switches device, clears browser storage, or uses a private window.
+
+**Fix:**  
+Write preferences to a `user_feed_prefs` / `user_follow_settings` Supabase table on save. See HANDOFF.md open issue #3 and #4.
+
+---
+
+### BUG-008 · `ProfileCanvas` widget drag-to-reorder not implemented — **Low**
+
+| Field | Value |
+|-------|-------|
+| File | `components/profile/ProfileCanvas.tsx` |
+| Severity | Low — drag handles are visible in the UI but do nothing |
+| Status | Open |
+
+**Description:**  
+The profile canvas shows drag handle icons on widget slots but `@dnd-kit/core` is not installed and no drag logic is wired. Tapping/dragging the handles has no effect — confusing for users (violates AXIOM 1).
+
+**Fix:**  
+Either install `@dnd-kit/core` and implement drag-to-reorder, **or** hide the drag handle icon until the feature is ready (preferred short-term fix to avoid dead affordances).
+
+---
+
+### BUG-009 · Music Studio `SoundRecorder` not connected to feed publish — **Low**
+
+| Field | Value |
+|-------|-------|
+| File | `components/music/SoundRecorder.tsx` |
+| Severity | Low — record + download works, publish does not |
+| Status | Open |
+
+**Description:**  
+`SoundRecorder` supports record / pause / stop / playback / download as `.webm`. However, there is no upload-to-Supabase-Storage or publish-to-feed path. The "publish" action (if shown) goes nowhere.
+
+**Fix:**  
+Add upload step: `supabase.storage.from('user_uploads').upload(...)` then insert a row to `app_posts` with `media_url`. See HANDOFF.md open issue #6.
+
+---
+
+### BUG-010 · Game leaderboard scores not persisted to Supabase — **Low**
+
+| Field | Value |
+|-------|-------|
+| File | `components/dreamengin/DrEamsGameCanvas.tsx` |
+| Severity | Low — score exists in-game only, lost on page reload |
+| Status | Open |
+
+**Description:**  
+The Dr. Eams platformer tracks score in component state but never writes it to a `leaderboard` or `game_scores` Supabase table. Scores are lost on page reload.
+
+**Fix:**  
+On game-over or level-complete, call a server route `POST /api/game/score` that inserts `{ user_id, score, level, timestamp }`.
+
+---
+
+### BUG-011 · `tests/example.spec.ts` references `/profile/jose` — non-existent profile — **Low**
+
+| Field | Value |
+|-------|-------|
+| File | `tests/example.spec.ts` line 13 |
+| Severity | Low — test always fails in clean environment |
+| Status | Open |
+
+**Description:**  
+`page.goto('/profile/jose')` and `expect(page.locator('text=Jose')).toBeVisible()` will always fail because there is no profile with handle `jose` in any real database. Test was written against a dev fixture that doesn't exist.
+
+**Fix:**  
+Either seed a test profile in a `beforeAll` block, or replace with a test that checks the page renders a "Profile not found" state gracefully.
+
+---
+
+### BUG-012 · Password reset flow has no UI — **Medium**
+
+| Field | Value |
+|-------|-------|
+| File | `app/` (missing: `app/auth/reset-password/`) |
+| Severity | Medium — users who forget their password have no recovery path |
+| Status | Open |
+
+**Description:**  
+FEATURE_STATUS.md notes password reset as "🔲 Needs work — Route exists but UI not built". There is no "Forgot password?" link on the login page and no reset UI page.
+
+**Fix:**  
+1. Add "Forgot password?" link on `/login` → `/auth/reset-password`.  
+2. Build reset page: email input → `supabase.auth.resetPasswordForEmail()`.  
+3. Build confirm page: handles `?code=` from email link → `supabase.auth.updateUser({ password })`.
+
+---
+
+## Resolved (removed from this file)
+
+Per `docs/LAW.md §9`: fixed bugs are deleted from this file, not listed here.  
+Check git history for previously closed bugs.
+
+---
+
+*This file is maintained by IDARi and the engineering team. See `docs/DR_EAMS.md` Category 7 for Dr. Eams system-health communication rules.*

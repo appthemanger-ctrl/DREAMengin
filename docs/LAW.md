@@ -146,72 +146,36 @@ When in doubt, keep the law stable and evolve implementations.
 
 ---
 
-## 10. Open issues are mandatory — not optional
+## 9. Documentation preservation rules (AI agents + contributors)
 
-`docs/FEATURE_STATUS.md` and `docs/BUGS.md` are **binding work queues**, not suggestions.
+These rules apply to every contributor — human or AI.
 
-### 10.1 Rule
+### 9.1 Do not delete documentation for features you did not complete
 
-Every item in `docs/FEATURE_STATUS.md` marked **🔶 Partly done** or **🔲 Needs work** is a
-**mandatory open obligation**. It must be completed before the product is considered shippable.
+If a feature is documented (in `HANDOFF.md`, `FEATURE_STATUS.md`, `SPEC.md`, or any `docs/` file)
+but is **not yet finished**, you must **not remove or truncate that documentation**.
 
-No item may be:
-- silently removed from `FEATURE_STATUS.md` without being completed,
-- deferred without a written motivation + updated status note in that file,
-- "completed" by removing the feature instead of building it (unless the feature is formally
-  deprecated per §9).
+Partial documentation of an incomplete feature is a promise to the next session.
+Deleting it causes the next agent or developer to re-discover the same gap from scratch,
+wasting time and creating duplicate work.
 
-### 10.2 Upgrade priorities (ordered — highest first)
+**Allowed:** updating wording, adding notes, marking progress.  
+**Not allowed:** deleting a section, removing a table row, or wiping a spec because you ran out of time.
 
-These are the binding implementation priorities derived from reading all spec docs:
+### 9.2 Do not remove open bugs from `docs/BUGS.md` unless the bug is fixed
 
-1. **11 remaining pages still use `bg-background`** — apply `de-sky-bg` + `de-widget` to:  
-   `app/create`, `app/shop/sell`, `app/music`, `app/music/upload`,  
-   `app/settings/account`, `app/settings/security`, `app/settings/notifications`,  
-   `app/ads/create`, `app/lab/new` (SPEC §1 — Frosted Glass OS is non-negotiable).
-2. **Feed system → real DB data** — `lib/widgets/feed-resolver.ts` must return live rows,  
-   not demo data (SPEC §5 — widgets do real work, AXIOM 3).
-3. **Widget drag-to-reorder on ProfileCanvas** — wire `@dnd-kit/core`  
-   (AXIOM 2 — control through movement, not settings).
-4. **FollowOnboarding + AlgorithmEngine → Supabase** — currently localStorage only;  
-   must persist to `follow_settings` / `user_feed_presets` tables (SECURITY §8 — data minimization  
-   applies but data that belongs to the user must survive sessions).
-5. **Music Studio publish pipeline** — SoundRecorder → upload → publish to feed  
-   (AXIOM 3 — real capability).
-6. **Password reset UI** — route exists, UI not built; auth is non-negotiable  
-   (SECURITY §5 — required server routes).
-7. **Swipe navigation** — spatial swipe gestures for mobile; core interaction model  
-   (ARCHITECTURE §6, AXIOM 2).
-8. **Comments system** — feed posts must support comments  
-   (AXIOM 3 — real capability; SPEC §6 AI triad needs real engagement data).
-9. **Game power-ups (spin/shoot visual effects)** — inputs already wired; effects pending  
-   (ARCHITECTURE §18 — Universal Mobile Remote must be fully functional).
-10. **PS5 DualSense haptics** — Gamepad vibration API on stomp/coin  
-    (ARCHITECTURE §18.4 — PS5 Gamepad API mapping is part of the spec).
-11. **Game leaderboard → Supabase** — score exists in-game; needs DB persistence  
-    (AXIOM 3 — real capability).
-12. **Shop + Marketplace payments (Stripe)** — UI exists; payment flow not started  
-    (SPEC §4 Daydreams + ARCHITECTURE §15 Phase 5 monetization).
+`docs/BUGS.md` is a live log of open issues.
+- When a bug is **fixed**, **delete its entry** from `BUGS.md`.
+- When a bug is **not fixed**, leave the entry exactly as-is.
+- Do not mark bugs "resolved" and leave them — remove them cleanly.
+- Do not add "fixed in commit X" notes — delete the entry, trust git history.
 
-### 10.3 BUGS.md is auto-generated on every push
+### 9.3 Read all docs before every session
 
-`docs/BUGS.md` is written by `scripts/update-bugs.mjs` and committed by
-`.github/workflows/update-bugs.yml` after every push. It contains:
+Per `BOOGIEMAN_POLICY.md` rule `0.1 RULE_DOCS_FIRST`:  
+Read `docs/LAW.md`, `docs/AXIOMS.md`, `docs/HANDOFF.md`, `docs/SPEC.md`,
+and `docs/BUGS.md` **before making any changes** in a session.
 
-- **Final vision** — what DREAMengin is supposed to be when complete (sourced from SPEC.md).
-- **Current open issues** — parsed live from `docs/FEATURE_STATUS.md`.
-- **Known bugs** — scanned from `TODO` / `FIXME` annotations in the codebase.
-- **Recent change** — the commit that triggered the regeneration.
-
-The content of `docs/BUGS.md` is part of the binding work queue. Anything listed there as
-incomplete must eventually be addressed per §10.1.
-
-### 10.4 No new features over unfinished foundations
-
-A new feature must not be introduced if it:
-- bypasses or duplicates a system that is already "Partly done" in `FEATURE_STATUS.md`, **or**
-- introduces new UI surfaces that do not follow the sky-blue + gold design system (SPEC §1), **or**
-- requires functionality that depends on an item marked 🔲 Needs work in `FEATURE_STATUS.md`
-  without first completing that dependency.
-
+The trigger phrase **"read the docs"** from the project owner means:
+read every file in `docs/` before proceeding.
 
