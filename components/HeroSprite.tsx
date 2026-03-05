@@ -49,12 +49,43 @@ type Zone = 'idle' | 'head' | 'torso' | 'legs';
 
 const REACT_MS = 1600; // ms before returning to idle
 
-const ZONE_LABEL: Record<Zone, string> = {
-  idle:  '',
-  head:  '🧠 head!',
-  torso: '👋 arms!',
-  legs:  '🦵 legs!',
+/**
+ * Funny random quotes per interaction zone.
+ * Parts correctly referenced: head · arms · shoes.
+ * Exported so unit tests can verify pool contents.
+ */
+export const ZONE_QUOTES: Record<Exclude<Zone, 'idle'>, string[]> = {
+  head: [
+    "DNA samples complete — preparing clone. Sending Boogie to \"replace\" original. 🧬",
+    "Brain cell check: all 7 reporting for duty. 💡",
+    "99% meme storage, 1% actual thoughts. Seems fine. 🤔",
+    "Calculating your next bad decision... already done. 😎",
+    "Head empty. Vibes: maximum. 🎶",
+    "Initiating dream sequence... please hold. 💭",
+  ],
+  torso: [
+    "Right arm fully deployed. Charisma: off the charts. 👋",
+    "These arms built a dream engine — and spilled coffee on it twice. ☕",
+    "Wave protocol initiated. Results: spectacular. ✋",
+    "Arms: operational. Rest of life: pending review. 🤷",
+    "Left arm says hey. Right arm is the fun one. 💃",
+    "Wingspan: impressive. Flight cleared. Ready for takeoff. 🛫",
+  ],
+  legs: [
+    "Shoes tied. Dreams: laced up too. 👟",
+    "These shoes walked so your Wi-Fi connection didn't have to. 🚶",
+    "Footwork certified. Dance clearance: classified. 🕺",
+    "Right shoe is the troublemaker. Left shoe just goes along with it. 👠",
+    "Sole purpose: looking fly. Mission: accomplished. ✨",
+    "Step one: believe in yourself. Step two: look at these shoes. 🔥",
+  ],
 };
+
+/** Pick a random funny line for the given zone. Exported for unit tests. */
+export function pickZoneQuote(zone: Exclude<Zone, 'idle'>): string {
+  const pool = ZONE_QUOTES[zone];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 /** Exported for unit tests */
 export function hitZone(offsetY: number, displayH: number): Zone {
@@ -122,7 +153,7 @@ export default function HeroSprite({
     if (zone === 'idle') return;
     zoneRef.current    = zone;
     reactUntil.current = performance.now() + REACT_MS;
-    setHint({ label: ZONE_LABEL[zone], key: Date.now() });
+    setHint({ label: pickZoneQuote(zone), key: Date.now() });
     setTimeout(() => setHint(null), REACT_MS - 100);
   }, []);
 
@@ -195,14 +226,16 @@ export default function HeroSprite({
 
       // ── Idle animation base ──────────────────────────────────────────────
       const idleBob   = Math.sin(t * 1.6) * 3;          // gentle vertical float
-      const idleArm   = Math.sin(t * 1.6) * 0.10;       // subtle arm sway
+      const idleArm   = Math.sin(t * 1.6) * 0.10;       // subtle back-arm sway
+      const idleWave  = Math.sin(t * 2.5) * 0.42;       // right-hand wave (default idle)
       const idleLeg   = Math.sin(t * 1.6) * 0.06;       // subtle leg sway
       const idleHead  = Math.sin(t * 0.9) * 0.04;       // gentle head tilt
 
       // ── Per-zone reaction overrides ──────────────────────────────────────
       let headAngle  = idleHead;
       let headBounce = 0;
-      let armAngle   = idleArm;
+      let armAngle   = idleArm;       // back arm (arm1)
+      let arm2Angle  = idleWave;      // front/right arm — waves by default
       let legAngle   = idleLeg;
       let bodyBob    = idleBob;
 
@@ -216,9 +249,10 @@ export default function HeroSprite({
           headAngle  = Math.sin(progress * Math.PI * 10) * 0.45 * (1 - progress);
           headBounce = Math.sin(progress * Math.PI * 5)  * -12  * (1 - progress);
         } else if (zone === 'torso') {
-          // Arms wave in large arcs
-          armAngle = Math.sin(progress * Math.PI * 7) * 0.75 * (1 - progress * 0.4);
-          bodyBob  = Math.sin(progress * Math.PI * 4) * 5;
+          // Both arms wave in large arcs during torso reaction
+          armAngle  = Math.sin(progress * Math.PI * 7) * 0.75 * (1 - progress * 0.4);
+          arm2Angle = Math.sin(progress * Math.PI * 7) * 0.85 * (1 - progress * 0.4);
+          bodyBob   = Math.sin(progress * Math.PI * 4) * 5;
         } else if (zone === 'legs') {
           // Legs kick, body hops
           legAngle = Math.sin(progress * Math.PI * 8) * 0.65 * (1 - progress * 0.3);
@@ -279,12 +313,12 @@ export default function HeroSprite({
         ctx.restore();
       }
 
-      // 6. Front arm (in front of torso)
+      // 6. Front arm (right arm) — waves by default, reacts on torso tap
       drawPart(
         imgs.arm2, DIM.arm2.w, DIM.arm2.h,
         cx - DIM.arm2.w / 2 + 8, shoulderY,
         cx + 8, shoulderY,
-        armAngle,
+        arm2Angle,
       );
 
       rafId = requestAnimationFrame(tick);
@@ -322,18 +356,21 @@ export default function HeroSprite({
           key={hint.key}
           style={{
             position: 'absolute',
-            top: '50%',
+            top: -72,
             left: '50%',
-            transform: 'translate(-50%, -120%)',
+            transform: 'translateX(-50%)',
             pointerEvents: 'none',
-            fontSize: 13,
-            fontWeight: 700,
-            color: 'rgba(255,255,255,0.9)',
-            background: 'rgba(10,30,80,0.72)',
+            fontSize: 12,
+            fontWeight: 600,
+            lineHeight: 1.4,
+            color: 'rgba(255,255,255,0.95)',
+            background: 'rgba(10,30,80,0.82)',
             border: '1px solid rgba(90,200,250,0.4)',
-            borderRadius: 999,
-            padding: '3px 10px',
-            whiteSpace: 'nowrap',
+            borderRadius: 12,
+            padding: '6px 12px',
+            maxWidth: 220,
+            textAlign: 'center',
+            whiteSpace: 'normal',
             animation: 'de-fade-up 0.25s ease forwards',
           }}
         >
