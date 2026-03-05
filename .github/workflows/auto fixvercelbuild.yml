@@ -1,0 +1,55 @@
+name: Autofix Vercel Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["completedream"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: autofix-vercel-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Attempt autofix loop
+        run: node scripts/autofix-vercel-build.mjs
+
+      - name: Commit + push changes (if any)
+        run: |
+          git config user.name "vercel-build-bot"
+          git config user.email "vercel-build-bot@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "chore: autofix vercel build" || exit 0
+          git pushp
