@@ -46,7 +46,7 @@ export default function DrEamsVoiceAssistant() {
     scrollToBottom();
   }, [messages]);
 
-  // Listen for InnerDreams activity and surface it inside Dr. Eams chat
+  // Listen for iDari activity and surface it inside Dr. Eams chat
   useEffect(() => {
     const unsubscribe = onInnerDreamsEvent((evt) => {
       // Avoid spamming: only surface status + errors, and occasional key logs
@@ -288,7 +288,7 @@ export default function DrEamsVoiceAssistant() {
   const executeCommand = async (command: string): Promise<string> => {
     const lower = command.toLowerCase();
 
-    // InnerDreams command bridge (admin auto-updater / bug monitor)
+    // iDari command bridge (admin auto-updater / bug monitor)
     if (lower.includes('innerdreams') || lower.includes('inner dreams')) {
       if (lower.includes('bug') || lower.includes('check')) {
         return await callInnerDreams('bug-check');

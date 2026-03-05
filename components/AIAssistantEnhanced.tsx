@@ -243,7 +243,7 @@ export default function AIAssistantEnhanced() {
       }
     }
 
-    // InnerDreams bridge
+    // iDari bridge
     if (
       lower.includes('innerdreams') ||
       lower.includes('inner dreams') ||

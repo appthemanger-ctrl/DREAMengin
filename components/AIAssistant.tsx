@@ -68,7 +68,7 @@ export default function AIAssistant() {
     return () => off();
   }, [fullExperience]);
 
-  // Surface InnerDreams activity inside this assistant as well
+  // Surface iDari activity inside this assistant as well
   useEffect(() => {
     const unsubscribe = onInnerDreamsEvent((evt) => {
       const shouldSurface =
@@ -172,7 +172,7 @@ export default function AIAssistant() {
       }
     }
 
-    // InnerDreams bridge: let Dr. Eams hand tasks to the admin auto-updater
+    // iDari bridge: let Dr. Eams hand tasks to the admin auto-updater
     if (
       lower.includes('innerdreams') ||
       lower.includes('inner dreams') ||

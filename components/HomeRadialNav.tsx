@@ -739,7 +739,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
       return { content: intent.label, emotion: 'helpful' };
     }
 
-    // InnerDreams routing remains as before
+    // iDari routing remains as before
     const lower = query.toLowerCase();
     if (
       lower.includes('innerdreams') ||

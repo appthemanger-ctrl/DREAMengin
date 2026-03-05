@@ -100,8 +100,8 @@ These features exist but are incomplete. They must be finished before the produc
 | 🔶 | Connectors | YouTube + demo; IG/Spotify pending |
 | 🔶 | Privacy | Page exists; blocking/appeals not wired |
 | 🔶 | Help / wizard | Page exists; Dr. Eams integration pending |
-| 🔶 | InnerDreams (AI bug-fix) | Routes exist; demo mode only |
-| 🔶 | Sky-blue + gold gradient across all pages | Core pages + 4 daydreams done; 11 pages still use old `bg-background` |
+| 🔶 | iDari (AI bug-fix) | Routes exist; demo mode only |
+| 🔶 | Sky-blue + gold gradient across all pages | bg-background removed from all component files |
 
 ---
 

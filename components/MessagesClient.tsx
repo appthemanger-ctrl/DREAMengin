@@ -272,9 +272,9 @@ export default function MessagesClient({ userId, initialConversations }: Message
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen de-sky-bg">
       {/* Mobile Header */}
-      <header className="md:hidden sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
+      <header className="md:hidden sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="px-4 py-3 flex items-center gap-3">
           <Link href="/home" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors" aria-label="Go home">
             <ArrowLeft className="w-5 h-5 text-muted-foreground" />

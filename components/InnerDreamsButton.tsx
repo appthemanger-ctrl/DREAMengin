@@ -4,11 +4,11 @@ import { Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-interface InnerDreamsButtonProps {
+interface IDariButtonProps {
   isAdmin: boolean;
 }
 
-export default function IDariButton({ isAdmin }: InnerDreamsButtonProps) {
+export default function IDariButton({ isAdmin }: IDariButtonProps) {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
 
