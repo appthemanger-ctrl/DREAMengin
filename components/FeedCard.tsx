@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { inferProviderFromUrl } from '@/lib/widgets/parseConfig';
 import { ExternalLink, FileText, Heart, MessageCircle, Share2, Sparkles, Youtube } from 'lucide-react';
+import CommentSection from '@/components/feed/CommentSection';
 
 interface FeedCardProps {
   item: {
@@ -33,6 +34,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(item.likes_count || 0);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   
   const source = item.source || item.type || 'app';
   const isDemo = item.id.startsWith('demo-');
@@ -301,8 +303,12 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
                 <span className="text-sm font-medium">{likes}</span>
               </button>
               
-              <button className="flex items-center gap-1.5 p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors active:scale-95">
-                <MessageCircle className="w-5 h-5" />
+              <button className="flex items-center gap-1.5 p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors active:scale-95"
+                onClick={() => setShowComments((v) => !v)}
+                aria-label={showComments ? 'Hide comments' : 'Show comments'}
+                aria-expanded={showComments}
+              >
+                <MessageCircle className={cn("w-5 h-5", showComments && "fill-current text-primary")} />
                 <span className="text-sm font-medium">0</span>
               </button>
               
@@ -323,6 +329,8 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
             </div>
           </div>
         </div>
+        {/* Collapsible comment section — toggled by the comment button above */}
+        {showComments && <CommentSection postId={item.id} />}
       </UniverseCardContent>
     </UniverseCard>
   );

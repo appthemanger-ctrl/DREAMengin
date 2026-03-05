@@ -5,6 +5,7 @@ import { ArrowLeft, Gamepad2, Trophy, Star, Play, Zap } from 'lucide-react';
 import WordSprint from '@/components/games/WordSprint';
 import MemoryGrid from '@/components/games/MemoryGrid';
 import SpeedTap from '@/components/games/SpeedTap';
+import Leaderboard from '@/components/games/Leaderboard';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
@@ -86,12 +87,58 @@ export default async function GamesDaydreamPage() {
           </div>
 
           <div className="de-widget">
-            <div className="de-widget-header"><span className="de-widget-title">Leaderboard</span><Trophy className="w-4 h-4" style={{ color: 'var(--de-gold)' }} /></div>
-            <div className="de-widget-body flex flex-col items-center py-5 gap-3">
-              <Trophy className="w-7 h-7 opacity-20" style={{ color: 'var(--de-gold)' }} />
-              <p className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Play to get on the board</p>
-              <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Scores post automatically after each run.</p>
-              <Link href="/game" className="de-btn de-btn-ghost text-xs"><Play className="w-3 h-3 fill-current" /> Start Dr. Eams</Link>
+            <div className="de-widget-header">
+              <Trophy className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
+              <span className="de-widget-title ml-2">Leaderboards</span>
+              <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(200,152,26,0.12)', color: 'var(--de-gold)', border: '1px solid rgba(200,152,26,0.25)' }}>Top 10</span>
+            </div>
+            <div className="de-widget-body space-y-5">
+              {/* Dr. Eams Platformer */}
+              <section>
+                <div className="flex items-center gap-2 mb-2">
+                  <span style={{ fontSize: 14 }}>∞</span>
+                  <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--de-text-dim)' }}>Dr. Eams Platformer</h3>
+                </div>
+                <Leaderboard game="platformer" />
+              </section>
+
+              <div style={{ height: 1, background: 'rgba(160,195,240,0.18)' }} />
+
+              {/* Word Sprint */}
+              <section>
+                <div className="flex items-center gap-2 mb-2">
+                  <span style={{ fontSize: 14 }}>📝</span>
+                  <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--de-text-dim)' }}>Word Sprint</h3>
+                </div>
+                <Leaderboard game="word-sprint" />
+              </section>
+
+              <div style={{ height: 1, background: 'rgba(160,195,240,0.18)' }} />
+
+              {/* Memory Grid */}
+              <section>
+                <div className="flex items-center gap-2 mb-2">
+                  <span style={{ fontSize: 14 }}>🧩</span>
+                  <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--de-text-dim)' }}>Memory Grid</h3>
+                </div>
+                <Leaderboard game="memory-grid" />
+              </section>
+
+              <div style={{ height: 1, background: 'rgba(160,195,240,0.18)' }} />
+
+              {/* Speed Tap */}
+              <section>
+                <div className="flex items-center gap-2 mb-2">
+                  <span style={{ fontSize: 14 }}>⚡</span>
+                  <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--de-text-dim)' }}>Speed Tap</h3>
+                </div>
+                <Leaderboard game="speed-tap" />
+              </section>
+            </div>
+            <div className="de-widget-actions">
+              <Link href="/game" className="de-btn de-btn-ghost text-xs">
+                <Play className="w-3 h-3 fill-current" /> Play to rank up
+              </Link>
             </div>
           </div>
         </div>
