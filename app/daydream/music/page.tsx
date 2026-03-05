@@ -6,17 +6,17 @@ import SoundRecorder from '@/components/music/SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Music Studio – DREAMengin', description: 'Record, release, and manage your music.' };
+export const metadata = { title: 'Music · Release – DREAMengin', description: 'Record, release, and manage your music.' };
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'record',    emoji: '🎙️', label: 'Record',        desc: 'Open the studio recorder',    color: '#2a8ab8', href: '/daydream/music' },
-  { id: 'upload',    emoji: '📤', label: 'Upload Track',  desc: 'Add a track to your library', color: '#6366f1', href: '/music/upload' },
-  { id: 'releases',  emoji: '🎵', label: 'My Releases',   desc: 'Albums, singles, and EPs',    color: '#c8981a', href: '/music' },
-  { id: 'analytics', emoji: '📊', label: 'Music Stats',   desc: 'Streams, plays, and reach',   color: '#22c55e', href: '/daydream/analytics' },
-  { id: 'share',     emoji: '🔗', label: 'Share to Feed', desc: 'Post a track or update',      color: '#ec4899', href: '/create' },
-  { id: 'connect',   emoji: '🔌', label: 'Connectors',    desc: 'Link Spotify, SoundCloud',    color: '#f59e0b', href: '/connectors' },
-  { id: 'brand',     emoji: '🎨', label: 'Brand Hub',     desc: 'Your artist identity',        color: '#0ea5e9', href: '/daydream/brand' },
-  { id: 'play',      emoji: '▶️', label: 'Play Mode',     desc: 'Listen and queue tracks',     color: '#8b5cf6', href: '/daydream/play' },
+  { id: 'releases',  emoji: '🎵', label: 'Release Side →',  desc: 'Albums, singles, EPs — flip here', color: '#c8981a', href: '/music' },
+  { id: 'record',    emoji: '🎙️', label: 'Record',          desc: 'Open the studio recorder',          color: '#2a8ab8', href: '/daydream/music' },
+  { id: 'upload',    emoji: '📤', label: 'Upload Track',    desc: 'Add a track to your library',       color: '#6366f1', href: '/music/upload' },
+  { id: 'analytics', emoji: '📊', label: 'Music Stats',     desc: 'Streams, plays, and reach',         color: '#22c55e', href: '/daydream/analytics' },
+  { id: 'share',     emoji: '🔗', label: 'Share to Feed',   desc: 'Post a track or update',            color: '#ec4899', href: '/create' },
+  { id: 'connect',   emoji: '🔌', label: 'Connectors',      desc: 'Link Spotify, SoundCloud',          color: '#f59e0b', href: '/connectors' },
+  { id: 'brand',     emoji: '🎨', label: 'Brand Hub',       desc: 'Your artist identity',              color: '#0ea5e9', href: '/daydream/brand' },
+  { id: 'play',      emoji: '▶️', label: 'Play Mode',       desc: 'Listen and queue tracks',           color: '#8b5cf6', href: '/daydream/play' },
 ];
 
 export default async function MusicDaydreamPage() {
@@ -25,16 +25,19 @@ export default async function MusicDaydreamPage() {
   if (!user) redirect('/login');
 
   return (
-    <DaydreamShell title="Music Studio" accentColor="#2a8ab8" widgets={WIDGETS}>
+    <DaydreamShell title="Music · Release" accentColor="#2a8ab8" widgets={WIDGETS}>
       <div className="de-sky-bg min-h-screen">
         <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)', minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
             </Link>
             <Music className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
-            <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Music Studio</h1>
-            <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.12)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Daydream</span>
+            <div>
+              <h1 className="text-base font-bold leading-none" style={{ color: 'var(--de-heading)' }}>Music</h1>
+              <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Studio · Release</p>
+            </div>
+            <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.12)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)', minHeight: 28, display: 'flex', alignItems: 'center' }}>Daydream</span>
           </div>
         </header>
 
@@ -66,7 +69,7 @@ export default async function MusicDaydreamPage() {
               </div>
             </div>
             <div className="de-widget-actions">
-              <Link href="/music/upload" className="de-btn de-btn-primary text-xs">+ New Release</Link>
+              <Link href="/music/upload" className="de-btn de-btn-primary text-xs" style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}>+ New Release</Link>
             </div>
           </div>
 
@@ -82,7 +85,7 @@ export default async function MusicDaydreamPage() {
               </div>
             </div>
             <div className="de-widget-actions">
-              <Link href="/connectors" className="de-btn de-btn-ghost text-xs">Connect Music Service</Link>
+              <Link href="/connectors" className="de-btn de-btn-ghost text-xs" style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}>Connect Music Service</Link>
             </div>
           </div>
         </div>

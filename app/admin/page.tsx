@@ -1,6 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import InnerDreams from '@/components/InnerDreams';
+import Idari from '@/components/InnerDreams';
 import Link from 'next/link';
 import {
   ArrowLeft, Bot, Shield, Activity, Users, Database,
@@ -198,14 +198,14 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        {/* InnerDreams AI chat */}
+        {/* iDari AI console */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Bot className="w-4 h-4 mr-2" style={{ color: '#8b5cf6' }} />
-            <span className="de-widget-title">InnerDreams AI Console</span>
+            <span className="de-widget-title">iDari AI Console</span>
           </div>
           <div className="de-widget-body">
-            <InnerDreams userId={user?.id ?? ''} isAdmin={isAdmin} />
+            <Idari userId={user?.id ?? ''} isAdmin={isAdmin} />
           </div>
         </div>
 

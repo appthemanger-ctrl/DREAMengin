@@ -20,12 +20,12 @@ export default function OutdreamMenu({ onClose }: OutdreamMenuProps) {
 
   const dayDreams = [
     // Map day dreams to outer-shell nodes. Navigation is generated from τ.
-    { id: 'music', label: 'Music Studio / Releases', node: '1b' as const },
-    { id: 'lab', label: 'Lab: Notes / Simulator', node: '2b' as const },
-    { id: 'games', label: 'Games: Library / Play', node: '5b' as const },
-    { id: 'code', label: 'Code: Space / Preview', node: '3b' as const },
-    { id: 'brand', label: 'Brand: Management / Analytics', node: '4b' as const },
-    { id: 'create', label: 'Create: Projects / Vault', node: '6b' as const },
+    { id: 'music',  label: 'Music · Release',       node: '1b' as const },
+    { id: 'lab',    label: 'Lab · Simulation',       node: '2b' as const },
+    { id: 'code',   label: 'Code · Preview',         node: '3b' as const },
+    { id: 'brand',  label: 'Brand · Analytics',      node: '4b' as const },
+    { id: 'games',  label: 'Games · Play',           node: '5b' as const },
+    { id: 'create', label: 'Create · Media Vault',   node: '6b' as const },
   ];
 
   return (

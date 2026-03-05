@@ -62,7 +62,7 @@ function NodeFooter() {
 export function Node1b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 1b" title="Releases" />
+      <Header tag="Music · Release" title="Music · Release" />
       <Divider />
 
       {/* Featured release */}
@@ -150,7 +150,7 @@ export function Node1b() {
 export function Node2b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 2b" title="Lab" />
+      <Header tag="Lab · Simulation" title="Lab · Simulation" />
       <Divider />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
         <WidgetTile>
@@ -195,7 +195,7 @@ const NODE3B_DEFAULT_HTML = `<!DOCTYPE html><html><head><style>body{margin:0;bac
 export function Node3b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream · Code" title="Code Lab" />
+      <Header tag="Code · Preview" title="Code · Preview" />
       <Divider />
 
       {/* Live render preview */}
@@ -261,7 +261,7 @@ export function Node3b() {
 export function Node4b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 4b" title="Brand" />
+      <Header tag="Brand · Analytics" title="Brand · Analytics" />
       <Divider />
 
       {/* Profile card */}
@@ -368,7 +368,7 @@ export function Node4b() {
 export function Node5b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 5b" title="Games" />
+      <Header tag="Games · Play" title="Games · Play" />
       <Divider />
 
       {/* Friends & Discover header */}
@@ -459,7 +459,7 @@ export function Node5b() {
 export function Node6b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 6b" title="Create" />
+      <Header tag="Create · Media Vault" title="Create · Media Vault" />
       <Divider />
 
       {/* Ideas & Tasks */}

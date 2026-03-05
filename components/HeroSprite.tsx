@@ -57,7 +57,7 @@ const REACT_MS = 1600; // ms before returning to idle
 export const ZONE_QUOTES: Record<Exclude<Zone, 'idle'>, string[]> = {
   head: [
     "DNA samples complete — preparing clone. Sending Boogie to \"replace\" original. 🧬",
-    "Brain cell check: all 7 reporting for duty. 💡",
+    "Brain cell check: all 6 reporting for duty. 💡",
     "99% meme storage, 1% actual thoughts. Seems fine. 🤔",
     "Calculating your next bad decision... already done. 😎",
     "Head empty. Vibes: maximum. 🎶",

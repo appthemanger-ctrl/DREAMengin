@@ -5,18 +5,18 @@ import { ArrowLeft, Palette, Share2, ImageIcon } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Brand Daydream – DREAMengin', description: 'Build and manage your personal brand identity.' };
+export const metadata = { title: 'Brand · Analytics – DREAMengin', description: 'Build and manage your personal brand identity.' };
 
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'post',      emoji: '📢', label: 'New Post',     desc: 'Create and share content',    color: '#ec4899', href: '/create' },
-  { id: 'profile',   emoji: '👤', label: 'Edit Profile', desc: 'Update your public presence', color: '#2a8ab8', href: '/edit-profile' },
-  { id: 'analytics', emoji: '📊', label: 'Analytics',    desc: 'Track your reach and growth', color: '#6366f1', href: '/daydream/analytics' },
-  { id: 'appearance',emoji: '🎨', label: 'Appearance',   desc: 'Gradient theme and style',    color: '#f59e0b', href: '/settings/appearance' },
-  { id: 'connectors',emoji: '🔌', label: 'Social Links', desc: 'Connect your platforms',      color: '#0ea5e9', href: '/connectors' },
-  { id: 'view',      emoji: '🌐', label: 'View Profile', desc: 'See what visitors see',       color: '#22c55e', href: '/profile' },
-  { id: 'shop',      emoji: '🛍️', label: 'Your Shop',    desc: 'Sell products and services',  color: '#c8981a', href: '/shop' },
-  { id: 'music',     emoji: '🎵', label: 'Music Studio', desc: 'Your artist side',            color: '#8b5cf6', href: '/daydream/music' },
+  { id: 'analytics', emoji: '📊', label: 'Analytics Side →', desc: 'Track your reach and growth',    color: '#6366f1', href: '/daydream/analytics' },
+  { id: 'post',      emoji: '📢', label: 'New Post',         desc: 'Create and share content',        color: '#ec4899', href: '/create' },
+  { id: 'profile',   emoji: '👤', label: 'Edit Profile',     desc: 'Update your public presence',     color: '#2a8ab8', href: '/edit-profile' },
+  { id: 'appearance',emoji: '🎨', label: 'Appearance',       desc: 'Gradient theme and style',        color: '#f59e0b', href: '/settings/appearance' },
+  { id: 'connectors',emoji: '🔌', label: 'Social Links',     desc: 'Connect your platforms',          color: '#0ea5e9', href: '/connectors' },
+  { id: 'view',      emoji: '🌐', label: 'View Profile',     desc: 'See what visitors see',           color: '#22c55e', href: '/profile' },
+  { id: 'shop',      emoji: '🛍️', label: 'Your Shop',        desc: 'Sell products and services',      color: '#c8981a', href: '/shop' },
+  { id: 'music',     emoji: '🎵', label: 'Music Studio',     desc: 'Your artist side',                color: '#8b5cf6', href: '/daydream/music' },
 ];
 
 export default async function BrandDaydreamPage() {
@@ -25,16 +25,19 @@ export default async function BrandDaydreamPage() {
   if (!user) redirect('/login');
 
   return (
-    <DaydreamShell title="Brand" accentColor="#ec4899" widgets={WIDGETS}>
+    <DaydreamShell title="Brand · Analytics" accentColor="#ec4899" widgets={WIDGETS}>
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)', minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <Palette className="w-5 h-5" style={{ color: '#ec4899' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Brand</h1>
-          <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(236,72,153,0.1)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.2)' }}>Daydream</span>
+          <div>
+            <h1 className="text-base font-bold leading-none" style={{ color: 'var(--de-heading)' }}>Brand</h1>
+            <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Identity · Analytics</p>
+          </div>
+          <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(236,72,153,0.1)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.2)', minHeight: 28, display: 'flex', alignItems: 'center' }}>Daydream</span>
         </div>
       </header>
 
@@ -53,8 +56,8 @@ export default async function BrandDaydreamPage() {
             </div>
           </div>
           <div className="de-widget-actions">
-            <Link href="/edit-profile" className="de-btn de-btn-ghost text-xs">Edit Profile</Link>
-            <Link href="/profile" className="de-btn de-btn-primary text-xs">View Public</Link>
+            <Link href="/edit-profile" className="de-btn de-btn-ghost text-xs" style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}>Edit Profile</Link>
+            <Link href="/profile" className="de-btn de-btn-primary text-xs" style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}>View Public</Link>
           </div>
         </div>
 
@@ -84,7 +87,7 @@ export default async function BrandDaydreamPage() {
             </div>
           </div>
           <div className="de-widget-actions">
-            <button type="button" className="de-btn de-btn-ghost text-xs">+ Add Banner</button>
+            <button type="button" className="de-btn de-btn-ghost text-xs" style={{ minHeight: 44 }}>+ Add Banner</button>
           </div>
         </div>
 

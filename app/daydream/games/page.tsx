@@ -8,15 +8,15 @@ import SpeedTap from '@/components/games/SpeedTap';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
+export const metadata = { title: 'Games · Play – DREAMengin', description: 'Play, challenge, and compete.' };
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: '/game' },
-  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: '/daydream/games' },
-  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: '/daydream/games' },
-  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: '/daydream/games' },
-  { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
-  { id: 'media',      emoji: '🎬', label: 'Media Vault',  desc: 'Save your gaming moments',      color: '#ec4899', href: '/daydream/media-vault' },
+  { id: 'play',       emoji: '▶️', label: 'Play Side →',     desc: 'Player controls & queue',         color: '#2a8ab8', href: '/daydream/play' },
+  { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',        desc: '3-level platformer, play now',     color: '#2a8ab8', href: '/game' },
+  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',     desc: '60-second typing challenge',       color: '#10b981', href: '/daydream/games' },
+  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',     desc: 'Flip cards, match all pairs',      color: '#6366f1', href: '/daydream/games' },
+  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',       desc: 'Tap as fast as you can',           color: '#f59e0b', href: '/daydream/games' },
+  { id: 'scores',     emoji: '🏆', label: 'Leaderboard',     desc: 'Your personal bests',              color: '#c8981a', href: '/daydream/games' },
 ];
 
 export default async function GamesDaydreamPage() {
@@ -25,16 +25,19 @@ export default async function GamesDaydreamPage() {
   if (!user) redirect('/login');
 
   return (
-    <DaydreamShell title="Games" accentColor="#2a8ab8" widgets={WIDGETS}>
+    <DaydreamShell title="Games · Play" accentColor="#2a8ab8" widgets={WIDGETS}>
       <div className="de-sky-bg min-h-screen">
         <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)', minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
             </Link>
             <Gamepad2 className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
-            <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Games</h1>
-            <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.12)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Daydream</span>
+            <div>
+              <h1 className="text-base font-bold leading-none" style={{ color: 'var(--de-heading)' }}>Games</h1>
+              <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Play · Challenge · Compete</p>
+            </div>
+            <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.12)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)', minHeight: 28, display: 'flex', alignItems: 'center' }}>Daydream</span>
           </div>
         </header>
 
@@ -60,7 +63,7 @@ export default async function GamesDaydreamPage() {
               </div>
             </div>
             <div className="de-widget-actions">
-              <Link href="/game" className="de-btn de-btn-primary" style={{ gap: 8 }}><Play className="w-4 h-4 fill-current" /> Play Now</Link>
+              <Link href="/game" className="de-btn de-btn-primary" style={{ gap: 8, minHeight: 44 }}><Play className="w-4 h-4 fill-current" /> Play Now</Link>
               <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 'auto' }}><Zap className="w-3 h-3 inline mr-1" style={{ color: 'var(--de-gold)' }} />3 levels · dual joystick</span>
             </div>
           </div>
@@ -86,7 +89,7 @@ export default async function GamesDaydreamPage() {
               <Trophy className="w-7 h-7 opacity-20" style={{ color: 'var(--de-gold)' }} />
               <p className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Play to get on the board</p>
               <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Scores post automatically after each run.</p>
-              <Link href="/game" className="de-btn de-btn-ghost text-xs"><Play className="w-3 h-3 fill-current" /> Start Dr. Eams</Link>
+              <Link href="/game" className="de-btn de-btn-ghost text-xs" style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}><Play className="w-3 h-3 fill-current" /> Start Dr. Eams</Link>
             </div>
           </div>
         </div>
