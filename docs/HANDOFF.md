@@ -12,6 +12,33 @@
 
 ---
 
+## ⚠️ Hard Rules for Every AI Session (read before anything else)
+
+These are not suggestions. Violating them invalidates the session's work.
+
+1. **Read ALL docs first.** Before touching any file, read every document in `docs/`.
+   Priority order: `LAW.md` → `AXIOMS.md` → `SECURITY.md` → `WIDGET_SYSTEM_V2.md` →
+   `ARCHITECTURE.md` → `SPEC.md` → `HANDOFF.md` → `FEATURE_STATUS.md` → `BUGS.md` → `DR_EAMS.md`.
+   The trigger phrase **"read the docs"** means read *every* file in `docs/`.
+
+2. **Do not delete documentation for features you did not complete.**
+   If a feature is documented but unfinished, that documentation stays.
+   Removing it wastes the next session's time. See `docs/LAW.md §9.1`.
+
+3. **Remove fixed bugs from `docs/BUGS.md` when you fix them.**
+   `BUGS.md` is a live open-issue log, not a historical archive.
+   Fixed = entry deleted. Not fixed = entry untouched. See `docs/LAW.md §9.2`.
+
+4. **Never use dark-gamer backgrounds on landing/auth pages.**
+   The design system is sky-blue + gold. `bg-[#070b16]` on the landing page is an
+   explicit anti-pattern (SPEC.md §9). Use transparent `<main>` + the body gradient.
+
+5. **Finish what you start.** If a session runs out of context, document exactly what
+   was completed and what remains open in the "What Was Done" section below and in
+   `docs/BUGS.md`. Do not leave silent half-states.
+
+---
+
 ## Change Timeline (last 5 entries, newest first)
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
@@ -26,9 +53,41 @@
 
 ## Current Branch
 
-- **Branch:** `copilot/check-sprite-animation-replacement`
+- **Branch:** `copilot/add-video-background-to-landing-page`
 - **Base:** `completedream`
-- **PR purpose:** Full user-facing redesign — sky-blue+gold gradient system, all stubs replaced with working features, DaydreamShell flip for all 7 daydreams, ProfileCanvas all-in-one, AlgorithmEngine, FollowOnboarding, 3 live mini-games
+- **PR purpose:** Landing page sky-blue+gold redesign, full Playwright coverage suite, IDARi bug report, doc hard rules
+
+---
+
+## What Was Done This Session (2026-03-05, branch: copilot/add-video-background-to-landing-page)
+
+### 1. Landing page — sky-blue + gold + transparent video background (`components/LandingHero.tsx`)
+- Removed `bg-[#070b16]` (dark anti-pattern — SPEC.md §9 violation). `<main>` is now transparent; the design-system `html/body` sky-blue→gold-cream gradient is the base layer.
+- Removed undefined `dream-colorfield` no-op div.
+- Raised video opacity from `0.15` → `0.38` — video is now actually visible.
+- Removed the near-opaque dark gradient overlay (`from-[#0a1020]/70`).
+- Added thin frosted-glass wash: `rgba(220,232,248,0.52)` → `rgba(245,232,196,0.38)` — sky-blue top, warm gold-cream bottom, keeps text legible while video shows through.
+- **Gold gradient headline:** h1 uses `bg-clip-text` with `--de-heading → --de-accent → --de-gold` gradient.
+- All text updated from `text-white` to `--de-heading` / `--de-text` / `--de-text-dim` CSS var tokens.
+- Buttons: `de-btn de-btn-gold` (Get Started), `de-btn de-btn-primary` (Sign In), `de-btn de-btn-ghost` (About).
+- Speech bubble: white-glass with blue-gold inset border, dark text — matches frosted-glass recipe in SPEC.md §1.3.
+- Added **"tap to interact ✦"** affordance label below Dr. Eams sprite — satisfies AXIOM 1 (instant discoverability).
+
+### 2. Playwright full-coverage suite (`tests/e2e/full-coverage.spec.ts`)
+- Permissions granted: `camera`, `microphone`, `geolocation`, `notifications`.
+- **12 test groups:** landing page, about, policy, login, join, auth redirects (17 protected routes), shop, marketplace, games, discover, design-system tokens, mobile (iPhone 13), media permissions.
+- Covers: video opacity check, sprite canvas + touch interaction, `de-btn-primary` gradient verification, `<main>` transparency check, footer policy link on every public page, all 18 icon-strip badges, OAuth buttons, form fields with correct selectors.
+- Mobile group uses `viewport: { width: 390, height: 844 }` (iPhone 14 base per ARCHITECTURE.md §17.1).
+
+### 3. IDARi bug report (`docs/BUGS.md`)
+- New live open-issue log — 11 documented bugs (BUG-002 through BUG-012).
+- Includes: selector mismatch in `example.spec.ts`, HeroSprite responsive sizing bug, 9+ pages on wrong design system, mock profiles in Discover, localStorage-only persistence, missing password reset UI, and more.
+- Rule embedded: delete entry when bug is fixed, never mark-and-leave.
+
+### 4. Hard rules added to docs
+- **`docs/LAW.md §9`** (new section): 3 binding rules — no deleting unfinished docs, remove fixed bugs from BUGS.md, read all docs before every session.
+- **`docs/SPEC.md §9`**: Added two new anti-patterns — do not delete incomplete-feature docs, do not leave fixed bugs in BUGS.md.
+- **`docs/HANDOFF.md`**: Added "⚠️ Hard Rules for Every AI Session" block at the top — 5 non-negotiable rules that run before any code work.
 
 ---
 
@@ -180,6 +239,7 @@ See `docs/ARCHITECTURE.md §17` and `docs/SPEC.md §10` for the full spec.
 | Feature status | `docs/FEATURE_STATUS.md` |
 | Design spec | `docs/SPEC.md` |
 | Architecture | `docs/ARCHITECTURE.md` |
+| Open bug log (IDARi) | `docs/BUGS.md` |
 | Theme tokens | `app/globals.css`, `tailwind.config.ts` |
 | Home Buttons state machine | `lib/home-buttons/home-buttons-state.ts` |
 | Golden Button UI | `components/dreamnav/DreamNavControls.tsx` |
@@ -192,18 +252,25 @@ See `docs/ARCHITECTURE.md §17` and `docs/SPEC.md §10` for the full spec.
 | ThemeApplicator | `components/ThemeApplicator.tsx` |
 | SoundRecorder | `components/music/SoundRecorder.tsx` |
 | Mini-games | `components/games/WordSprint.tsx`, `MemoryGrid.tsx`, `SpeedTap.tsx` |
+| Landing page | `components/LandingHero.tsx` |
+| E2E full-coverage tests | `tests/e2e/full-coverage.spec.ts` |
 
 ---
 
 ## Open Issues / Next Priorities
 
-1. **11 pages still use `bg-background`** — `app/create`, `app/shop/sell`, `app/music`, `app/music/upload`, `app/settings/account`, `app/settings/security`, `app/settings/notifications`, `app/ads/create`, `app/lab/new` — apply `de-sky-bg` + `de-widget` to each.
+> See `docs/BUGS.md` for the full live bug log. Items below are architectural / feature gaps.
+
+1. **11 pages still use `bg-background`** — `app/create`, `app/shop/sell`, `app/music`, `app/music/upload`, `app/settings/account`, `app/settings/security`, `app/settings/notifications`, `app/ads/create`, `app/lab/new` — apply `de-sky-bg` + `de-widget` to each. (BUG-004)
 2. **Feed system** — widget feed resolver is wired but feed items are demo-only; connect to real DB rows.
-3. **FollowOnboarding → DB** — currently persists to localStorage only; wire to a `follow_settings` Supabase table.
-4. **Algorithm presets → DB** — AlgorithmEngine stores to localStorage; persist to `user_feed_presets` table.
-5. **ProfileCanvas drag** — widget grid shows toggle visibility; actual drag-to-reorder not yet wired (needs `@dnd-kit/core`).
-6. **Music Studio publish pipeline** — SoundRecorder records + downloads; not yet connected to feed publish.
+3. **FollowOnboarding → DB** — currently persists to localStorage only; wire to a `follow_settings` Supabase table. (BUG-007)
+4. **Algorithm presets → DB** — AlgorithmEngine stores to localStorage; persist to `user_feed_presets` table. (BUG-007)
+5. **ProfileCanvas drag** — widget grid shows toggle visibility; actual drag-to-reorder not yet wired (needs `@dnd-kit/core`). (BUG-008)
+6. **Music Studio publish pipeline** — SoundRecorder records + downloads; not yet connected to feed publish. (BUG-009)
 7. **Payments (Shop / Marketplace)** — UI exists; Stripe integration not started.
 8. **PS5 DualSense haptics** — Gamepad vibration API on stomp/coin; wiring pending.
-9. **Game leaderboard** — score exists in-game; no Supabase persistence yet.
+9. **Game leaderboard** — score exists in-game; no Supabase persistence yet. (BUG-010)
 10. **Connectors** — YouTube + demo exist; Instagram, Spotify not yet built.
+11. **Password reset UI** — route exists but no UI. Add "Forgot password?" link on `/login`. (BUG-012)
+12. **Discover mock profiles** — replace `MOCK_PROFILES` array with real Supabase query. (BUG-006)
+13. **HeroSprite responsive sizing** — Tailwind class overridden by inline style; canvas always 288px. (BUG-003)

@@ -53,7 +53,6 @@ export default function LandingHero() {
   const [fadeIn, setFadeIn] = useState(true);
 
   useEffect(() => {
-    // TODAY: no rotation at all. Only the Valentine message all day.
     if (isValentine) return;
 
     const ROTATE_MS = 8000;
@@ -72,53 +71,84 @@ export default function LandingHero() {
     return () => clearInterval(interval);
   }, [isValentine, messages.length]);
 
-  const bubbleText = isValentine ? '💜 Happy Valentine’s Day Dreamer 🌹' : messages[msgIndex];
+  const bubbleText = isValentine
+    ? '\ud83d\udc9c Happy Valentine’s Day Dreamer \ud83c\udf39'
+    : messages[msgIndex];
 
+  /*
+   * Layering (bottom to top):
+   *  1. html/body sky-blue -> gold-cream gradient (globals.css :root — de-theme vars)
+   *  2. <video> at 38% opacity — subtle but visible
+   *  3. Thin frosted-glass wash — keeps text crisp, lets video glow through
+   *  4. Content (z-10)
+   *
+   * <main> is transparent — the design-system body gradient is the base colour.
+   * Matches SPEC.md §1.1 "sky, airy, frosted glass" and §1.2 colour tokens.
+   * Fixes SPEC.md §9 violation: was using dark-gamer bg-[#070b16].
+   */
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#070b16] text-white">
-      {/* background */}
-      <div className="absolute inset-0 dream-colorfield" />
+    <main className="relative min-h-screen overflow-hidden">
 
+      {/* 1. Video — lowest layer, full bleed */}
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 h-full w-full object-cover opacity-[0.15]"
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ opacity: 0.38 }}
+        aria-hidden="true"
       >
         <source src="/videos/signup-bg.mp4" type="video/mp4" />
       </video>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a1020]/70 via-[#080d1b]/78 to-[#06090f]/90" />
+      {/* 2. Frosted-glass wash — sky-blue fading to gold-cream, semi-transparent */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(170deg, rgba(220,232,248,0.52) 0%, rgba(213,226,245,0.55) 55%, rgba(245,232,196,0.38) 100%)',
+        }}
+        aria-hidden="true"
+      />
 
+      {/* 3. Content */}
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8">
-        {/* header */}
+
+        {/* ── Header ── */}
         <header className="flex items-center justify-between">
-          <div className="text-lg font-semibold tracking-wide">DREAMengin</div>
+          <div
+            className="text-lg font-bold tracking-wide"
+            style={{ color: 'var(--de-heading)' }}
+          >
+            DREAMengin
+          </div>
           <div className="flex items-center gap-3">
-            <Link
-              href="/about"
-              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/85 backdrop-blur hover:bg-white/10"
-            >
+            <Link href="/about" className="de-btn de-btn-ghost" style={{ padding: '8px 18px', fontSize: 13 }}>
               About
             </Link>
-            <Link
-              href="/login"
-              className="min-h-11 rounded-xl bg-white px-4 py-2 text-sm font-medium text-black hover:opacity-95"
-            >
+            <Link href="/login" className="de-btn de-btn-primary" style={{ padding: '8px 18px', fontSize: 13 }}>
               Sign In
             </Link>
           </div>
         </header>
 
-        {/* content */}
+        {/* ── Hero section ── */}
         <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
-          {/* top line */}
-          <div className="rounded-full border border-white/20 bg-white/8 px-4 py-2 text-sm text-white/85 backdrop-blur">
+
+          {/* Top pill — sky-blue glass */}
+          <div
+            className="rounded-full px-4 py-2 text-sm backdrop-blur-sm"
+            style={{
+              border: '1px solid rgba(42,138,184,0.30)',
+              background: 'rgba(255,255,255,0.60)',
+              color: 'var(--de-text)',
+            }}
+          >
             Dr. Eams dreams of dreaming. You don’t have to.
           </div>
 
-          {/* character + bubble */}
+          {/* ── Character + speech bubble ── */}
           <div className="relative flex flex-col items-center">
             <HeroSprite
               width={288}
@@ -126,60 +156,69 @@ export default function LandingHero() {
               className="h-56 w-56 sm:h-72 sm:w-72"
             />
 
-            {/* bubble (right side, attached) */}
-            <div
-              className="
-                absolute
-                top-[64px]
-                right-[-6px]
-                sm:right-[-84px]
-                max-w-[260px]
-                sm:max-w-[320px]
-                text-left
-                z-20
-              "
+            {/* Touch affordance — AXIOM 1: all actions must be instantly discoverable */}
+            <p
+              className="mt-2 text-xs font-medium select-none"
+              style={{ color: 'var(--de-text-dim)' }}
             >
-              <div className="relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-4 py-3 shadow-2xl">
+              tap to interact &#x2736;
+            </p>
+
+            {/* Speech bubble — right side, attached */}
+            <div className="absolute top-[64px] right-[-6px] sm:right-[-84px] max-w-[260px] sm:max-w-[320px] text-left z-20">
+              <div
+                className="relative rounded-2xl px-4 py-3 backdrop-blur-sm"
+                style={{
+                  border: '1.5px solid rgba(42,138,184,0.25)',
+                  background: 'rgba(255,255,255,0.75)',
+                  boxShadow:
+                    '0 4px 24px rgba(42,138,184,0.10), inset 0 -1px 0 rgba(200,152,26,0.12)',
+                }}
+              >
                 <div
                   className={[
-                    'text-sm font-medium leading-snug text-white/90 transition-opacity duration-200',
+                    'text-sm font-medium leading-snug transition-opacity duration-200',
                     fadeIn ? 'opacity-100' : 'opacity-0',
                   ].join(' ')}
+                  style={{ color: 'var(--de-text)' }}
                 >
                   {bubbleText}
                 </div>
 
-                {/* tail */}
+                {/* Bubble tail */}
                 <div
-                  className="
-                    absolute
-                    left-[-6px]
-                    top-[22px]
-                    w-3 h-3
-                    bg-white/10
-                    border-l border-b border-white/20
-                    rotate-45
-                  "
+                  className="absolute left-[-6px] top-[22px] w-3 h-3 rotate-45"
+                  style={{
+                    background: 'rgba(255,255,255,0.75)',
+                    borderLeft: '1.5px solid rgba(42,138,184,0.25)',
+                    borderBottom: '1.5px solid rgba(42,138,184,0.25)',
+                  }}
                 />
               </div>
             </div>
           </div>
 
-          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+          {/* ── Gold-gradient headline ── */}
+          <h1
+            className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl"
+            style={{
+              background:
+                'linear-gradient(135deg, var(--de-heading) 0%, var(--de-accent) 42%, var(--de-gold) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
             Navigate your digital world as layered dreams.
           </h1>
 
+          {/* ── CTAs ── */}
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/join"
-              className="min-h-11 rounded-xl bg-indigo-500 px-6 py-3 font-medium text-white hover:opacity-95"
-            >
+            {/* Gold pill — primary action */}
+            <Link href="/join" className="de-btn de-btn-gold" style={{ padding: '12px 28px', fontSize: 15 }}>
               Get Started
             </Link>
-            <Link
-              href="/about"
-              className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10"
-            >
+            <Link href="/about" className="de-btn de-btn-ghost" style={{ padding: '12px 28px', fontSize: 15 }}>
               About
             </Link>
           </div>
@@ -187,30 +226,27 @@ export default function LandingHero() {
 
         {/* ── Icon strip: connect everything ── */}
         <section className="w-full max-w-3xl mx-auto px-4 pb-10 text-center">
-          <p className="text-xs font-semibold tracking-[0.18em] uppercase text-white/35 mb-4">
+          <p
+            className="text-xs font-semibold tracking-[0.18em] uppercase mb-4"
+            style={{ color: 'var(--de-text-dim)' }}
+          >
             Connect everything
           </p>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: 12,
-            }}
-          >
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12 }}>
             {STRIP_ICONS.map(({ name, label, href }) => (
               <Link
                 key={name}
                 href={href}
                 aria-label={`Connect ${label}`}
                 style={{ display: 'inline-block', outline: 'none' }}
-                className="opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:opacity-100 transition-opacity duration-150"
+                className="opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:opacity-100 transition-opacity duration-150"
               >
                 <PlatformBadge name={name} size={44} label={label} />
               </Link>
             ))}
           </div>
         </section>
+
       </div>
     </main>
   );
