@@ -269,25 +269,36 @@ export default function HeroSprite({
       const headTopY  = coatTopY - DIM.head.h + 8 + headBounce; // head overlaps coat top
       const shoulderY = coatTopY + 6;                // arm pivot near coat top
 
+      // Shoulder joints: 44% of half-coat-width from center ≈ at the coat's shoulder seam.
+      // DIM.coat.w = 81 → shoulders at cx ± 36 (coat edge is cx ± 40.5).
+      const shoulderXR = cx + Math.round(DIM.coat.w * 0.44); // right shoulder ≈ cx + 36
+      const shoulderXL = cx - Math.round(DIM.coat.w * 0.44); // left  shoulder ≈ cx - 36
+
+      // Hip/leg pivots: 20% of half-coat-width from center ≈ natural hip separation.
+      const hipXR = cx + Math.round(DIM.coat.w * 0.20); // right hip ≈ cx + 16
+      const hipXL = cx - Math.round(DIM.coat.w * 0.20); // left  hip ≈ cx - 16
+
       // Shadow underfoot
       ctx.fillStyle = 'rgba(0,0,0,0.20)';
       ctx.beginPath();
       ctx.ellipse(cx, feetY + 5, 24, 6, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 1. Back arm (behind torso) — swings opposite to front arm
+      // 1. Back arm (arm1, LEFT arm) — drawn behind torso.
+      //    Pivot = left shoulder (shoulderXL).
+      //    Image placed so its RIGHT edge is at the shoulder → arm extends visibly to the LEFT.
       drawPart(
         imgs.arm1, DIM.arm1.w, DIM.arm1.h,
-        cx - DIM.arm1.w / 2 - 8, shoulderY,
-        cx - 8, shoulderY,
+        shoulderXL - DIM.arm1.w, shoulderY,   // dx: full arm-width left of shoulder
+        shoulderXL, shoulderY,                 // pivot: left shoulder joint
         -armAngle,
       );
 
-      // 2. Back shoe / leg
+      // 2. Back shoe / left leg
       drawPart(
         imgs.shoe1, DIM.shoe1.w, DIM.shoe1.h,
-        cx - DIM.shoe1.w / 2 - 5, shoeTopY,
-        cx - 5, shoeTopY,
+        hipXL - Math.round(DIM.shoe1.w / 2), shoeTopY,   // dx: centered on left hip
+        hipXL, shoeTopY,                                   // pivot: left hip
         -legAngle,
       );
 
@@ -296,11 +307,11 @@ export default function HeroSprite({
         ctx.drawImage(imgs.coat, cx - DIM.coat.w / 2, coatTopY, DIM.coat.w, DIM.coat.h);
       }
 
-      // 4. Front shoe / leg
+      // 4. Front shoe / right leg
       drawPart(
         imgs.shoe2, DIM.shoe2.w, DIM.shoe2.h,
-        cx - DIM.shoe2.w / 2 + 5, shoeTopY,
-        cx + 5, shoeTopY,
+        hipXR - Math.round(DIM.shoe2.w / 2), shoeTopY,   // dx: centered on right hip
+        hipXR, shoeTopY,                                   // pivot: right hip
         legAngle,
       );
 
@@ -313,11 +324,13 @@ export default function HeroSprite({
         ctx.restore();
       }
 
-      // 6. Front arm (right arm) — waves by default, reacts on torso tap
+      // 6. Front arm (arm2, RIGHT arm) — waves by default, reacts on torso tap.
+      //    Pivot = right shoulder (shoulderXR).
+      //    Image placed so shoulder sits ~20% from left edge → arm hangs to the right.
       drawPart(
         imgs.arm2, DIM.arm2.w, DIM.arm2.h,
-        cx - DIM.arm2.w / 2 + 8, shoulderY,
-        cx + 8, shoulderY,
+        shoulderXR - Math.round(DIM.arm2.w * 0.20), shoulderY,   // dx: shoulder at 20% from left
+        shoulderXR, shoulderY,                                     // pivot: right shoulder joint
         arm2Angle,
       );
 
