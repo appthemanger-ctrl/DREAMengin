@@ -137,6 +137,12 @@ export default function LoginPage() {
               autoComplete="current-password"
             />
 
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: -6 }}>
+              <Link href="/auth/reset-password" style={{ fontSize: 12, color: 'var(--de-accent)', fontWeight: 600 }}>
+                Forgot password?
+              </Link>
+            </div>
+
             <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "var(--de-text)", minHeight: 44, cursor: "pointer" }}>
               <input
                 type="checkbox"

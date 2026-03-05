@@ -179,3 +179,21 @@ and `docs/BUGS.md` **before making any changes** in a session.
 The trigger phrase **"read the docs"** from the project owner means:
 read every file in `docs/` before proceeding.
 
+### 9.4 Always work on the `completedream` branch directly
+
+All AI agent work **must be committed and pushed to `completedream`** — do not
+create new feature branches or open new PRs unless the project owner explicitly
+asks for one.
+
+**Why:** Each open branch triggers a Vercel preview deployment, which costs money.
+Working on `completedream` keeps deployments to a single branch.
+
+**How to start a session on `completedream`:**
+```bash
+git fetch origin completedream
+git checkout -b completedream FETCH_HEAD
+```
+
+If `completedream` is already checked out locally, simply verify with
+`git branch --show-current` before making any changes.
+

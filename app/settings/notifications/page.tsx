@@ -31,42 +31,49 @@ export default function NotificationSettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="de-sky-bg min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
-        <div className="px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
-          <h1 className="text-xl font-bold text-foreground">Notifications</h1>
+          <Bell className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Notifications</h1>
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
         {/* Push Notifications */}
-        <div>
-          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">Push Notifications</h2>
-          <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">Push Notifications</span></div>
+          <div className="de-widget-body" style={{ padding: 0 }}>
             {notifications.map((item) => (
-              <div key={item.key} className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl bg-${item.color}-500/10 flex items-center justify-center`}>
-                    <item.icon className={`w-5 h-5 text-${item.color}-500`} />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-foreground">{item.label}</h3>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                  </div>
+              <div key={item.key} className="de-row">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(42,138,184,0.1)' }}>
+                  <item.icon className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{item.label}</h3>
+                  <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>{item.description}</p>
                 </div>
                 <button
                   onClick={() => toggleSetting(item.key)}
-                  className={`w-12 h-7 rounded-full transition-colors ${
-                    settings[item.key as keyof typeof settings] ? 'bg-primary' : 'bg-muted'
-                  }`}
+                  role="switch"
+                  aria-checked={!!settings[item.key as keyof typeof settings]}
+                  aria-label={item.label}
+                  style={{
+                    width: 44, height: 26, borderRadius: 13, flexShrink: 0,
+                    background: settings[item.key as keyof typeof settings] ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)',
+                    position: 'relative', cursor: 'pointer', border: 'none',
+                  }}
                 >
-                  <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
-                    settings[item.key as keyof typeof settings] ? 'translate-x-6' : 'translate-x-1'
-                  }`} />
+                  <div style={{
+                    position: 'absolute', top: 3,
+                    left: settings[item.key as keyof typeof settings] ? 21 : 3,
+                    width: 20, height: 20, borderRadius: '50%', background: '#fff',
+                    transition: 'left 0.15s',
+                  }} />
                 </button>
               </div>
             ))}
@@ -74,16 +81,16 @@ export default function NotificationSettingsPage() {
         </div>
 
         {/* Email Preferences */}
-        <div>
-          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">Email Preferences</h2>
-          <div className="bg-card rounded-2xl border border-border p-4">
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">Email Preferences</span></div>
+          <div className="de-widget-body">
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Bell className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(42,138,184,0.12)' }}>
+                <Bell className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
               </div>
               <div>
-                <h3 className="font-medium text-foreground">Email Digest</h3>
-                <p className="text-sm text-muted-foreground">Summary of your notifications</p>
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Email Digest</h3>
+                <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Summary of your notifications</p>
               </div>
             </div>
             <div className="space-y-2">
@@ -91,23 +98,24 @@ export default function NotificationSettingsPage() {
                 <button
                   key={option}
                   onClick={() => setSettings(prev => ({ ...prev, emailDigest: option }))}
-                  className={`w-full p-3 rounded-xl border text-left transition-colors ${
-                    settings.emailDigest === option
-                      ? 'bg-primary/10 border-primary'
-                      : 'bg-background border-border hover:border-primary/50'
-                  }`}
+                  className="w-full p-3 rounded-xl text-left transition-colors"
+                  style={{
+                    background: settings.emailDigest === option ? 'rgba(42,138,184,0.12)' : 'rgba(255,255,255,0.4)',
+                    border: `1px solid ${settings.emailDigest === option ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)'}`,
+                    minHeight: 44,
+                  }}
                 >
-                  <span className="font-medium text-foreground capitalize">{option}</span>
+                  <span className="text-sm font-medium capitalize" style={{ color: 'var(--de-heading)' }}>{option}</span>
                 </button>
               ))}
             </div>
           </div>
+          <div className="de-widget-actions">
+            <button className="de-btn de-btn-primary" style={{ width: '100%' }}>
+              Save Changes
+            </button>
+          </div>
         </div>
-
-        {/* Save Button */}
-        <button className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium hover:bg-primary/90 transition-colors min-h-[48px]">
-          Save Changes
-        </button>
       </div>
     </div>
   );

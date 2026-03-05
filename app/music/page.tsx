@@ -96,21 +96,18 @@ export default async function MusicPage() {
   const music = musicData && musicData.length > 0 ? musicData : demoMusic;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="de-sky-bg min-h-screen">
       {/* Mobile Header */}
-      <header className="md:hidden sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
+      <header className="md:hidden sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/home" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
-              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+            <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+              <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
             </Link>
-            <h1 className="text-xl font-bold text-foreground">Music</h1>
+            <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Music</h1>
           </div>
-          <Link
-            href="/music/upload"
-            className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors active:scale-95"
-          >
-            <Upload className="w-5 h-5" />
+          <Link href="/music/upload" className="de-btn de-btn-primary" style={{ gap: 6, minHeight: 40 }}>
+            <Upload className="w-4 h-4" />
           </Link>
         </div>
       </header>
@@ -118,16 +115,13 @@ export default async function MusicPage() {
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
         {/* Desktop Header */}
         <div className="hidden md:flex justify-between items-center mb-6">
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center mr-3">
-              <Music className="w-5 h-5 text-pink-500" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(42,138,184,0.12)' }}>
+              <Music className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Music</h1>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--de-heading)' }}>Music</h1>
           </div>
-          <Link
-            href="/music/upload"
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-xl hover:bg-primary/90 transition-colors active:scale-95 min-h-[44px]"
-          >
+          <Link href="/music/upload" className="de-btn de-btn-primary" style={{ gap: 6 }}>
             <Upload className="w-4 h-4" />
             Upload
           </Link>
@@ -136,52 +130,42 @@ export default async function MusicPage() {
         {/* Music Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {music?.map((track) => (
-            <div key={track.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:border-primary/30 transition-colors group">
+            <div key={track.id} className="de-widget overflow-hidden" style={{ padding: 0 }}>
               {track.embed_url ? (
                 <iframe
                   src={track.embed_url}
                   width="100%"
                   height="180"
                   allow="autoplay; clipboard-write; encrypted-media"
-                  className="border-0"
+                  style={{ border: 0, display: 'block' }}
                 />
               ) : (
-                <div className="w-full h-44 bg-muted flex items-center justify-center relative">
-                  <Music className="w-12 h-12 text-muted-foreground" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center">
-                      <Play className="w-6 h-6 text-primary-foreground ml-1" />
+                <div style={{ width: '100%', height: 176, background: 'rgba(42,138,184,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                  <Music style={{ width: 48, height: 48, color: 'var(--de-text-dim)' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', opacity: 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
+                  >
+                    <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--de-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Play style={{ width: 24, height: 24, color: '#fff', marginLeft: 3 }} />
                     </div>
                   </div>
                 </div>
               )}
-              
-              <div className="p-4">
-                <h3 className="font-semibold text-foreground mb-1 line-clamp-1">{track.title}</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  by @{track.profiles?.handle}
-                </p>
-                <div className="flex items-center gap-2">
+              <div style={{ padding: '14px 16px' }}>
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</h3>
+                <p className="text-xs" style={{ color: 'var(--de-text-dim)', marginBottom: 10 }}>by @{track.profiles?.handle}</p>
+                <div style={{ display: 'flex', gap: 8 }}>
                   {track.embed_url?.includes('spotify') && (
-                    <a
-                      href={track.embed_url.replace('embed/', '').replace('track/', 'track/')}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-green-500 bg-green-500/10 rounded-full hover:bg-green-500/20 transition-colors"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      Spotify
+                    <a href={track.embed_url.replace('embed/', '')} target="_blank" rel="noopener noreferrer"
+                      className="de-btn de-btn-ghost" style={{ fontSize: 12, padding: '4px 10px', minHeight: 32, gap: 5 }}>
+                      <ExternalLink style={{ width: 12, height: 12 }} /> Spotify
                     </a>
                   )}
                   {track.embed_url?.includes('youtube') && (
-                    <a
-                      href={track.embed_url.replace('embed/', 'watch?v=')}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-500 bg-red-500/10 rounded-full hover:bg-red-500/20 transition-colors"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      YouTube
+                    <a href={track.embed_url.replace('embed/', 'watch?v=')} target="_blank" rel="noopener noreferrer"
+                      className="de-btn de-btn-ghost" style={{ fontSize: 12, padding: '4px 10px', minHeight: 32, gap: 5 }}>
+                      <ExternalLink style={{ width: 12, height: 12 }} /> YouTube
                     </a>
                   )}
                 </div>
@@ -190,18 +174,16 @@ export default async function MusicPage() {
           ))}
         </div>
 
-        {/* Demo banner when showing demo items */}
+        {/* Demo banner */}
         {(!musicData || musicData.length === 0) && music.length > 0 && (
-          <div className="mt-8 p-4 bg-primary/10 border border-primary/20 rounded-xl text-center">
-            <p className="text-sm text-primary font-medium">
-              These are sample tracks. Upload your first track to share your music!
-            </p>
+          <div className="mt-8 de-notice" style={{ textAlign: 'center' }}>
+            These are sample tracks. Upload your first track to share your music!
           </div>
         )}
 
         {/* Stream on section */}
         <div className="mt-10">
-          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4 text-center">
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--de-text-dim)', textAlign: 'center', marginBottom: 16 }}>
             Stream on
           </p>
           <MusicPlatformRow />

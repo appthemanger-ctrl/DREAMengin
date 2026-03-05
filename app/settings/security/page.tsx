@@ -17,116 +17,117 @@ export default function SecuritySettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="de-sky-bg min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border">
-        <div className="px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
-          <h1 className="text-xl font-bold text-foreground">Security</h1>
+          <Shield className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Security</h1>
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
         {/* Password */}
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Lock className="w-5 h-5 text-primary" />
+        <div className="de-widget">
+          <div className="de-widget-body">
+            <div className="de-row" style={{ borderBottom: 'none' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(42,138,184,0.12)' }}>
+                <Lock className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
               </div>
-              <div>
-                <h3 className="font-medium text-foreground">Password</h3>
-                <p className="text-sm text-muted-foreground">Last changed 30 days ago</p>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Password</h3>
+                <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Last changed 30 days ago</p>
               </div>
+              <button className="de-btn de-btn-ghost" style={{ minHeight: 44 }}>
+                Change
+              </button>
             </div>
-            <button className="px-4 py-2 bg-muted text-foreground rounded-xl text-sm font-medium hover:bg-muted/80 transition-colors min-h-[44px]">
-              Change
-            </button>
           </div>
         </div>
 
         {/* Two-Factor Authentication */}
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                <Smartphone className="w-5 h-5 text-green-500" />
+        <div className="de-widget">
+          <div className="de-widget-body">
+            <div className="de-row" style={{ borderBottom: twoFactor ? undefined : 'none' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(42,138,184,0.12)' }}>
+                <Smartphone className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
               </div>
-              <div>
-                <h3 className="font-medium text-foreground">Two-Factor Authentication</h3>
-                <p className="text-sm text-muted-foreground">Add extra security to your account</p>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Two-Factor Authentication</h3>
+                <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Add extra security to your account</p>
               </div>
+              <button
+                onClick={() => setTwoFactor(!twoFactor)}
+                role="switch"
+                aria-checked={twoFactor}
+                aria-label="Two-Factor Authentication"
+                style={{
+                  width: 44, height: 26, borderRadius: 13, flexShrink: 0,
+                  background: twoFactor ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)',
+                  position: 'relative', cursor: 'pointer', border: 'none',
+                }}
+              >
+                <div style={{
+                  position: 'absolute', top: 3, left: twoFactor ? 21 : 3,
+                  width: 20, height: 20, borderRadius: '50%', background: '#fff',
+                  transition: 'left 0.15s',
+                }} />
+              </button>
             </div>
-            <button
-              onClick={() => setTwoFactor(!twoFactor)}
-              className={`w-12 h-7 rounded-full transition-colors ${
-                twoFactor ? 'bg-green-500' : 'bg-muted'
-              }`}
-            >
-              <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
-                twoFactor ? 'translate-x-6' : 'translate-x-1'
-              }`} />
-            </button>
+            {twoFactor && (
+              <div className="de-row" style={{ borderBottom: 'none' }}>
+                <Check className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--de-accent)' }} />
+                <span className="text-sm" style={{ color: 'var(--de-accent)' }}>Two-factor authentication is enabled</span>
+              </div>
+            )}
           </div>
-          {twoFactor && (
-            <div className="p-3 bg-green-500/10 rounded-xl flex items-center gap-2">
-              <Check className="w-4 h-4 text-green-500" />
-              <span className="text-sm text-green-600">Two-factor authentication is enabled</span>
-            </div>
-          )}
         </div>
 
         {/* Recovery Keys */}
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
-                <Key className="w-5 h-5 text-yellow-500" />
+        <div className="de-widget">
+          <div className="de-widget-body">
+            <div className="de-row" style={{ borderBottom: 'none' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(200,152,26,0.12)' }}>
+                <Key className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
               </div>
-              <div>
-                <h3 className="font-medium text-foreground">Recovery Keys</h3>
-                <p className="text-sm text-muted-foreground">Backup codes for account recovery</p>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Recovery Keys</h3>
+                <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Backup codes for account recovery</p>
               </div>
+              <button className="de-btn de-btn-ghost" style={{ minHeight: 44 }}>
+                Generate
+              </button>
             </div>
-            <button className="px-4 py-2 bg-muted text-foreground rounded-xl text-sm font-medium hover:bg-muted/80 transition-colors min-h-[44px]">
-              Generate
-            </button>
           </div>
         </div>
 
         {/* Active Sessions */}
-        <div className="bg-card rounded-2xl border border-border overflow-hidden">
-          <div className="p-4 border-b border-border">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-blue-500" />
-              </div>
-              <div>
-                <h3 className="font-medium text-foreground">Active Sessions</h3>
-                <p className="text-sm text-muted-foreground">Devices logged into your account</p>
-              </div>
-            </div>
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Shield className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
+            <span className="de-widget-title">Active Sessions</span>
           </div>
-          <div className="divide-y divide-border">
+          <div className="de-widget-body" style={{ padding: 0 }}>
             {sessions.map((session) => (
-              <div key={session.id} className="p-4 flex items-center justify-between">
-                <div>
+              <div key={session.id} className="de-row">
+                <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-foreground">{session.device}</p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{session.device}</p>
                     {session.current && (
-                      <span className="px-2 py-0.5 bg-green-500/10 text-green-500 text-xs rounded-full">
+                      <span className="px-2 py-0.5 text-xs rounded-full" style={{ background: 'rgba(42,138,184,0.12)', color: 'var(--de-accent)' }}>
                         Current
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {session.location} - {session.lastActive}
+                  <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>
+                    {session.location} · {session.lastActive}
                   </p>
                 </div>
                 {!session.current && (
-                  <button className="text-sm text-destructive hover:underline">
+                  <button className="text-sm" style={{ color: '#dc4444' }}>
                     Revoke
                   </button>
                 )}
@@ -135,15 +136,17 @@ export default function SecuritySettingsPage() {
           </div>
         </div>
 
-        {/* Security Alert */}
-        <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-foreground mb-1">Security Tip</h3>
-              <p className="text-sm text-muted-foreground">
-                Enable two-factor authentication and use a unique, strong password to keep your account secure.
-              </p>
+        {/* Security Tip */}
+        <div className="de-widget" style={{ borderColor: 'rgba(200,152,26,0.3)' }}>
+          <div className="de-widget-body">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--de-gold)' }} />
+              <div>
+                <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--de-heading)' }}>Security Tip</h3>
+                <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>
+                  Enable two-factor authentication and use a unique, strong password to keep your account secure.
+                </p>
+              </div>
             </div>
           </div>
         </div>
