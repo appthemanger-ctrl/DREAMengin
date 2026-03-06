@@ -4,6 +4,7 @@
 // Every audit log entry carries policy_version + rule_code (req 3, 18).
 
 import { NextRequest, NextResponse } from 'next/server';
+import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
@@ -21,12 +22,6 @@ const BoogieRequestSchema = z.object({
   summary: z.string().optional(),
 });
 
-function jsonError(status: number, code: string, message: string, details?: unknown) {
-  return NextResponse.json(
-    { ok: false, error: { code, message, details } },
-    { status, headers: { 'Cache-Control': 'no-store' } }
-  );
-}
 
 export async function POST(req: NextRequest) {
   const requestStart = Date.now();
@@ -36,12 +31,12 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
+    return jsonApiError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
   const parseResult = BoogieRequestSchema.safeParse(body);
   if (!parseResult.success) {
-    return jsonError(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.flatten());
+    return jsonApiError(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.flatten());
   }
 
   const request = parseResult.data;
@@ -49,7 +44,7 @@ export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) {
-    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
+    return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,7 +67,7 @@ export async function POST(req: NextRequest) {
       latency_ms: Date.now() - requestStart,
       policy_version: BOOGIE_POLICY_VERSION,
     });
-    return jsonError(403, 'FORBIDDEN', 'Admin access required.');
+    return jsonApiError(403, 'FORBIDDEN', 'Admin access required.');
   }
 
   const actorRole: 'user' | 'admin' | 'owner' = isOwner ? 'owner' : 'admin';
@@ -88,7 +83,7 @@ export async function POST(req: NextRequest) {
       latency_ms: Date.now() - requestStart,
       policy_version: BOOGIE_POLICY_VERSION,
     });
-    return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
+    return jsonApiError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
       retry_after_seconds: rateOk.retry_after_seconds,
     });
   }

@@ -1,7 +1,7 @@
 import '@/styles/globals.css';
 import '@/components/v1-ui/widget-feed-screen.css';
 import type { Metadata, Viewport } from 'next';
-import { Space_Grotesk } from 'next/font/google';
+import { Space_Grotesk, Cormorant_Garamond } from 'next/font/google';
 import ThemeProvider from '@/components/providers/ThemeProvider';
 import ThemeApplicator from '@/components/ThemeApplicator';
 import Link from 'next/link';
@@ -10,6 +10,14 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-space-grotesk',
+  display: 'swap',
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
   display: 'swap',
 });
 
@@ -38,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`scroll-smooth ${spaceGrotesk.variable}`}
+      className={`scroll-smooth ${spaceGrotesk.variable} ${cormorant.variable}`}
       data-theme="dream-ice"
       suppressHydrationWarning
     >

@@ -133,9 +133,14 @@ Location: `components/widgets/WidgetLibrary.tsx`
 
 | Agent | Role | Audience | Location |
 |-------|------|----------|----------|
-| Dr. Eams | User assistant | Users | Home system, /home |
-| IDARi | Optimization | Admins only | /admin |
-| BoogieMan | Policy / Overwatch | Admins only | /admin |
+| Dr. Eams | User assistant | All users | Home system, `/home` |
+| IDARi | Universal AI companion + builder assistant | **All users** (capabilities scale by role) | `/api/ai/idari`, accessible via gold-button menu |
+| BoogieMan | Policy / Overwatch | System (server-only) | `/api/ai/boogieman` |
+
+**IDARi is now available to all authenticated users.** Role capabilities:
+- `user` — platform guidance, personalisation, creative coaching
+- `admin` — + feed config, widget management, system diagnostics
+- `owner` — + schema/RLS inspection, infrastructure access
 
 All API keys are server-side Vercel env vars. Consensus gating: all 3 must approve major system updates.
 

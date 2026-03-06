@@ -83,29 +83,16 @@ export default function LoginPage() {
   return (
     <div className="de-sky-bg min-h-screen flex flex-col items-center justify-center px-4 py-10">
 
-      {/* Dr. Eams welcome banner */}
-      <div className="de-widget w-full max-w-md mb-5" style={{ borderColor: "rgba(42,138,184,0.3)" }}>
-        <div className="de-widget-body flex items-center gap-4 py-4">
-          <div style={{
-            width: 52, height: 52, borderRadius: 14, flexShrink: 0,
-            background: "linear-gradient(135deg, rgba(42,138,184,0.18) 0%, rgba(200,152,26,0.14) 100%)",
-            border: "1.5px solid rgba(42,138,184,0.28)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 26,
-          }}>∞</div>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "var(--de-heading)", lineHeight: 1.2 }}>
-              Welcome back
-            </div>
-            <div style={{ fontSize: 13, color: "var(--de-text-dim)", marginTop: 2 }}>
-              I'm Dr. Eams — ask me anything once you're in.
-            </div>
-          </div>
+      {/* dreamengin wordmark */}
+      <div style={{ marginBottom: 28, textAlign: "center" }}>
+        <span className="de-wordmark" style={{ fontSize: 36 }}>dreamengin</span>
+        <div style={{ fontSize: 13, color: "var(--de-text-dim)", marginTop: 6, letterSpacing: "0.04em" }}>
+          Welcome back — sign in to your space
         </div>
       </div>
 
       {/* Form card */}
-      <div className="de-widget w-full max-w-md">
+      <div className="de-widget w-full max-w-md" style={{ background: "rgba(255,255,255,0.93)", boxShadow: "0 4px 24px rgba(0,0,0,0.07)" }}>
         <div className="de-widget-header">
           <span className="de-widget-title">Sign In</span>
         </div>
@@ -163,7 +150,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <button type="submit" disabled={busy} className="de-btn de-btn-primary" style={{ width: "100%" }}>
+            <button type="submit" disabled={busy} className="de-btn de-btn-gold" style={{ width: "100%" }}>
               {busy ? "Signing in…" : "Sign In"}
             </button>
           </form>

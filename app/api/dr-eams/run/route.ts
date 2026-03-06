@@ -3,6 +3,7 @@
 // User-facing AI agent - JSON-only intents, NO direct execution
 
 import { NextRequest, NextResponse } from 'next/server';
+import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import { DrEamsRunBodySchema, IntentSchema, type Intent, type DrEamsRunResponse } from '@/lib/ai/schemas';
@@ -14,12 +15,6 @@ import { boogiePolicyCheck, isOwnerEmail, planWithEams, validateWithIdari } from
 
 export const dynamic = 'force-dynamic';
 
-function jsonError(status: number, code: string, message: string, details?: unknown) {
-  return NextResponse.json(
-    { ok: false, error: { code, message, details } },
-    { status, headers: { 'Cache-Control': 'no-store' } }
-  );
-}
 
 // NOTE: The old placeholder planner has been replaced by the triad orchestrator:
 // Dr. Eams (LLM planner) -> Idari (sanity check) -> Boogie (policy gate)
@@ -37,13 +32,13 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
+    return jsonApiError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
   // Validate with Zod
   const parseResult = DrEamsRunBodySchema.safeParse(body);
   if (!parseResult.success) {
-    return jsonError(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.flatten());
+    return jsonApiError(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.flatten());
   }
 
   const request = parseResult.data;
@@ -53,7 +48,7 @@ export async function POST(req: NextRequest) {
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
 
   if (userErr || !user) {
-    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
+    return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
   }
 
   // Get user role
@@ -79,7 +74,7 @@ export async function POST(req: NextRequest) {
       latency_ms: Date.now() - requestStart,
     });
 
-    return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
+    return jsonApiError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
       retry_after_seconds: rateLimitCheck.retry_after_seconds,
     });
   }
@@ -103,7 +98,7 @@ export async function POST(req: NextRequest) {
       latency_ms: Date.now() - requestStart,
     });
 
-    return jsonError(403, 'BLOCKED', 'Request blocked by security policy.', {
+    return jsonApiError(403, 'BLOCKED', 'Request blocked by security policy.', {
       reason: pre.reason || 'Blocked',
     });
   }
@@ -174,7 +169,7 @@ export async function POST(req: NextRequest) {
       latency_ms: Date.now() - requestStart,
     });
 
-    return jsonError(403, 'BLOCKED', 'Request blocked by security policy.', {
+    return jsonApiError(403, 'BLOCKED', 'Request blocked by security policy.', {
       cooldown_seconds: boogieOutput.global.cooldown_seconds,
     });
   }

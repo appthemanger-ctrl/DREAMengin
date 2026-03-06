@@ -12,8 +12,20 @@ export function json(data: unknown, init?: ResponseInit) {
   return NextResponse.json(data, init);
 }
 
+/** Simple error response — `{ error: message }` */
 export function jsonError(message: string, status = 400, details?: unknown) {
   return NextResponse.json({ error: message, ...(details ? { details } : {}) }, { status });
+}
+
+/**
+ * Structured AI-route error — `{ ok: false, error: { code, message } }`.
+ * Used by all `/api/ai/*` and `/api/dr-eams/*` routes so the shape is uniform.
+ */
+export function jsonApiError(status: number, code: string, message: string, details?: unknown) {
+  return NextResponse.json(
+    { ok: false, error: { code, message, ...(details !== undefined ? { details } : {}) } },
+    { status, headers: { 'Cache-Control': 'no-store' } }
+  );
 }
 
 export async function withApi(

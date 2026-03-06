@@ -138,10 +138,10 @@ export default function EditProfilePage() {
     <div className="de-sky-bg min-h-screen">
       {/* Sticky header */}
       <header
-        className="sticky top-0 z-30 de-glass"
-        style={{ borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}
+        className="sticky top-0 z-30 backdrop-blur-xl"
+        style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)', borderRadius: 0 }}
       >
-        <div className="flex items-center gap-3" style={{ padding: '14px 16px' }}>
+        <div className="flex items-center gap-3" style={{ padding: '14px 16px', maxWidth: 520, margin: '0 auto' }}>
           <Link
             href="/profile"
             className="flex items-center justify-center"

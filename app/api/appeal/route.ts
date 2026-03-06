@@ -7,6 +7,7 @@
 // - Every appeal entry carries policy_version for traceability (req 3, 18)
 
 import { NextRequest, NextResponse } from 'next/server';
+import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import { AppealRequestSchema } from '@/lib/ai/schemas';
@@ -14,13 +15,6 @@ import { BOOGIE_POLICY_VERSION, RULE_CODES } from '@/lib/ai/boogie-policy';
 import { writeAuditLog } from '@/lib/ai/audit';
 
 export const dynamic = 'force-dynamic';
-
-function jsonError(status: number, code: string, message: string) {
-  return NextResponse.json(
-    { ok: false, error: { code, message } },
-    { status, headers: { 'Cache-Control': 'no-store' } },
-  );
-}
 
 export async function POST(req: NextRequest) {
   const requestStart = Date.now();
@@ -31,18 +25,18 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
+    return jsonApiError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
   const supabase = await createServerClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) {
-    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in to submit an appeal.');
+    return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in to submit an appeal.');
   }
 
   const parseResult = AppealRequestSchema.safeParse({ ...body, user_id: user.id });
   if (!parseResult.success) {
-    return jsonError(400, 'VALIDATION_ERROR', 'Invalid appeal body.');
+    return jsonApiError(400, 'VALIDATION_ERROR', 'Invalid appeal body.');
   }
 
   const appeal = parseResult.data;

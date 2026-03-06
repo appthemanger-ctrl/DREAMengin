@@ -116,12 +116,12 @@ export default function JoinPage() {
     <div className="de-sky-bg min-h-screen flex flex-col items-center justify-center px-4 py-10">
 
       {/* Header wordmark */}
-      <div style={{ marginBottom: 20, textAlign: "center" }}>
-        <div style={{ fontSize: 30, fontWeight: 800, color: "var(--de-heading)", letterSpacing: "-0.02em" }}>∞ DREAMengin</div>
-        <div style={{ fontSize: 13, color: "var(--de-text-dim)", marginTop: 4 }}>Create your account — it's free</div>
+      <div style={{ marginBottom: 28, textAlign: "center" }}>
+        <span className="de-wordmark" style={{ fontSize: 36 }}>dreamengin</span>
+        <div style={{ fontSize: 13, color: "var(--de-text-dim)", marginTop: 6, letterSpacing: "0.04em" }}>Create your account — it&apos;s free</div>
       </div>
 
-      <div className="de-widget w-full max-w-md">
+      <div className="de-widget w-full max-w-md" style={{ background: "rgba(255,255,255,0.93)", boxShadow: "0 4px 24px rgba(0,0,0,0.07)" }}>
         <div className="de-widget-header">
           <span className="de-widget-title">Register</span>
         </div>

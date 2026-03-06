@@ -58,7 +58,7 @@ function MessageContent({ content, isMe }: { content: string; isMe: boolean }) {
   return (
     <>
       {subject && (
-        <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${isMe ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+        <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ opacity: isMe ? 0.75 : 0.6 }}>
           📧 {subject}
         </p>
       )}
@@ -274,12 +274,12 @@ export default function MessagesClient({ userId, initialConversations }: Message
   return (
     <div className="min-h-screen de-sky-bg">
       {/* Mobile Header */}
-      <header className="md:hidden sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+      <header className="md:hidden sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors" aria-label="Go home">
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.12)' }} aria-label="Go home">
+            <ArrowLeft className="w-5 h-5" style={{ color: 'var(--de-text-dim)' }} />
           </Link>
-          <h1 className="text-xl font-bold text-foreground">Messages</h1>
+          <h1 className="text-xl font-bold" style={{ color: 'var(--de-heading)' }}>Messages</h1>
         </div>
       </header>
 
@@ -287,43 +287,45 @@ export default function MessagesClient({ userId, initialConversations }: Message
         {/* Desktop Header */}
         <div className="hidden md:flex items-center justify-between mb-6">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mr-3">
-              <MessageSquare className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mr-3" style={{ background: 'rgba(42,138,184,0.1)' }}>
+              <MessageSquare className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Messages</h1>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--de-heading)' }}>Messages</h1>
           </div>
           <Link
             href="/messages/new"
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
+            className="de-btn de-btn-primary flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Compose
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-0 bg-card rounded-2xl border border-border overflow-hidden min-h-[70vh]">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-0 rounded-2xl overflow-hidden min-h-[70vh]" style={{ background: 'rgba(255,255,255,0.93)', border: '1px solid rgba(160,195,240,0.3)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
           {/* Conversations List */}
-          <div className="md:col-span-4 border-b md:border-b-0 md:border-r border-border">
-            <div className="p-4 border-b border-border">
+          <div className="md:col-span-4" style={{ borderBottom: '1px solid rgba(160,195,240,0.2)' }}>
+            <div className="p-4" style={{ borderBottom: '1px solid rgba(160,195,240,0.2)' }}>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--de-text-dim)' }} />
                 <input
                   type="text"
                   placeholder="Search conversations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-muted/50 border-0 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[44px]"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none min-h-[44px]"
+                  style={{ background: 'rgba(160,195,240,0.12)', border: '1px solid rgba(160,195,240,0.3)', color: 'var(--de-text)' }}
                 />
               </div>
             </div>
             <div className="max-h-[60vh] md:h-[60vh] overflow-y-auto">
               {filteredConversations.length === 0 ? (
                 <div className="p-8 text-center">
-                  <MessageSquare className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-                  <p className="text-muted-foreground text-sm">No conversations yet</p>
+                  <MessageSquare className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--de-text-dim)', opacity: 0.3 }} />
+                  <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>No conversations yet</p>
                   <Link
                     href="/messages/new"
-                    className="text-primary text-sm hover:underline mt-2 inline-block"
+                    className="text-sm mt-2 inline-block"
+                    style={{ color: 'var(--de-accent)' }}
                   >
                     Start a new conversation
                   </Link>
@@ -333,9 +335,8 @@ export default function MessagesClient({ userId, initialConversations }: Message
                   <button
                     key={conv.id}
                     onClick={() => setSelectedConv(conv)}
-                    className={`w-full p-4 hover:bg-muted/50 transition-colors text-left ${
-                      selectedConv?.id === conv.id ? 'bg-muted/50' : ''
-                    }`}
+                    className="w-full p-4 text-left transition-colors"
+                    style={{ background: selectedConv?.id === conv.id ? 'rgba(42,138,184,0.07)' : 'transparent', borderBottom: '1px solid rgba(160,195,240,0.12)' }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="relative flex-shrink-0">
@@ -348,8 +349,8 @@ export default function MessagesClient({ userId, initialConversations }: Message
                             className="w-12 h-12 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-semibold text-primary">
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: 'rgba(42,138,184,0.12)' }}>
+                            <span className="text-sm font-semibold" style={{ color: 'var(--de-accent)' }}>
                               {(conv.otherUser.display_name || conv.otherUser.handle || 'U')[0].toUpperCase()}
                             </span>
                           </div>
@@ -357,15 +358,15 @@ export default function MessagesClient({ userId, initialConversations }: Message
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium text-foreground truncate">
+                          <p className="font-medium truncate" style={{ color: 'var(--de-heading)' }}>
                             {conv.otherUser.display_name || conv.otherUser.handle}
                           </p>
-                          <span className="text-xs text-muted-foreground flex-shrink-0">
+                          <span className="text-xs flex-shrink-0" style={{ color: 'var(--de-text-dim)' }}>
                             {formatRelativeTime(conv.updatedAt)}
                           </span>
                         </div>
                         {conv.lastMessage && (
-                          <p className="text-sm text-muted-foreground truncate">
+                          <p className="text-sm truncate" style={{ color: 'var(--de-text-dim)' }}>
                             {getConversationPreview(conv.lastMessage)}
                           </p>
                         )}
@@ -382,7 +383,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
             {selectedConv ? (
               <>
                 {/* Chat Header */}
-                <div className="p-4 border-b border-border">
+                <div className="p-4" style={{ borderBottom: '1px solid rgba(160,195,240,0.2)' }}>
                   <div className="flex items-center gap-3">
                     {selectedConv.otherUser.avatar_url ? (
                       <Image
@@ -393,17 +394,17 @@ export default function MessagesClient({ userId, initialConversations }: Message
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-semibold text-primary">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(42,138,184,0.12)' }}>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--de-accent)' }}>
                           {(selectedConv.otherUser.display_name || selectedConv.otherUser.handle || 'U')[0].toUpperCase()}
                         </span>
                       </div>
                     )}
                     <div>
-                      <span className="font-medium text-foreground block">
+                      <span className="font-medium block" style={{ color: 'var(--de-heading)' }}>
                         {selectedConv.otherUser.display_name || selectedConv.otherUser.handle}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs" style={{ color: 'var(--de-text-dim)' }}>
                         @{selectedConv.otherUser.handle}
                       </span>
                     </div>
@@ -414,13 +415,13 @@ export default function MessagesClient({ userId, initialConversations }: Message
                 <div className="flex-1 p-4 overflow-y-auto min-h-[40vh]">
                   {isLoading ? (
                     <div className="flex items-center justify-center h-full">
-                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--de-text-dim)' }} />
                     </div>
                   ) : messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center">
-                      <MessageSquare className="w-12 h-12 text-muted-foreground/50 mb-3" />
-                      <p className="text-muted-foreground text-sm">No messages yet</p>
-                      <p className="text-muted-foreground/70 text-xs">Send a message to start the conversation</p>
+                      <MessageSquare className="w-12 h-12 mb-3" style={{ color: 'var(--de-text-dim)', opacity: 0.3 }} />
+                      <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>No messages yet</p>
+                      <p className="text-xs" style={{ color: 'var(--de-text-dim)', opacity: 0.7 }}>Send a message to start the conversation</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -438,17 +439,19 @@ export default function MessagesClient({ userId, initialConversations }: Message
                               />
                             )}
                             {!isMe && !selectedConv.otherUser.avatar_url && (
-                              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span className="text-xs font-semibold text-primary">
+                              <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(42,138,184,0.12)' }}>
+                                <span className="text-xs font-semibold" style={{ color: 'var(--de-accent)' }}>
                                   {(selectedConv.otherUser.display_name || 'U')[0].toUpperCase()}
                                 </span>
                               </div>
                             )}
-                            <div className={`max-w-[75%] ${
-                              isMe 
-                                ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md' 
-                                : 'bg-muted text-foreground rounded-2xl rounded-bl-md'
-                            } p-3`}>
+                            <div
+                              className="max-w-[75%] rounded-2xl p-3"
+                              style={isMe
+                                ? { background: 'var(--de-heading)', color: 'white', borderBottomRightRadius: 6 }
+                                : { background: 'rgba(42,138,184,0.08)', color: 'var(--de-text)', borderBottomLeftRadius: 6, border: '1px solid rgba(160,195,240,0.3)' }
+                              }
+                            >
                               {msg.media_url && msg.media_type && (
                                 <div className="mb-2">
                                   {msg.media_type === 'image' && (
@@ -485,7 +488,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                                 </div>
                               )}
                               {msg.content && <MessageContent content={msg.content} isMe={isMe} />}
-                              <p className={`text-xs mt-1 ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                              <p className="text-xs mt-1" style={{ opacity: 0.6 }}>
                                 {formatRelativeTime(msg.created_at)}
                               </p>
                             </div>
@@ -498,7 +501,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                 </div>
 
                 {/* Message Input */}
-                <form onSubmit={sendMessage} className="p-4 border-t border-border">
+                <form onSubmit={sendMessage} className="p-4" style={{ borderTop: '1px solid rgba(160,195,240,0.2)' }}>
                   {/* Subject field (email-style, toggleable) */}
                   {showSubjectField && (
                     <div className="mb-2">
@@ -507,7 +510,8 @@ export default function MessagesClient({ userId, initialConversations }: Message
                         placeholder="Subject (optional)"
                         value={newSubject}
                         onChange={(e) => setNewSubject(e.target.value)}
-                        className="w-full px-4 py-2 bg-muted/50 border-0 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        className="w-full px-4 py-2 rounded-xl text-sm focus:outline-none"
+                        style={{ background: 'rgba(160,195,240,0.12)', border: '1px solid rgba(160,195,240,0.3)', color: 'var(--de-text)' }}
                       />
                     </div>
                   )}
@@ -515,7 +519,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                   {/* File Preview */}
                   {selectedFile && filePreviewUrl && (
                     <div className="mb-3 relative inline-block">
-                      <div className="relative bg-muted/50 rounded-lg p-2 max-w-xs">
+                      <div className="relative rounded-lg p-2 max-w-xs" style={{ background: 'rgba(160,195,240,0.12)' }}>
                         {getFileType(selectedFile) === 'image' && (
                           <Image
                             src={filePreviewUrl}
@@ -529,7 +533,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                           <video src={filePreviewUrl} className="rounded max-h-32" />
                         )}
                         {(getFileType(selectedFile) === 'audio' || getFileType(selectedFile) === 'file') && (
-                          <div className="flex items-center gap-2 p-2">
+                          <div className="flex items-center gap-2 p-2" style={{ color: 'var(--de-text)' }}>
                             {getFileType(selectedFile) === 'audio' ? <Music className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
                             <span className="text-sm truncate max-w-[150px]">{selectedFile.name}</span>
                           </div>
@@ -537,7 +541,8 @@ export default function MessagesClient({ userId, initialConversations }: Message
                         <button
                           type="button"
                           onClick={removeFile}
-                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                          className="absolute -top-2 -right-2 rounded-full p-1"
+                          style={{ background: '#dc4444', color: 'white' }}
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -561,7 +566,8 @@ export default function MessagesClient({ userId, initialConversations }: Message
                       type="button"
                       onClick={() => setShowSubjectField((v) => !v)}
                       disabled={isSending}
-                      className={`p-3 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50 ${showSubjectField ? 'bg-primary/20 text-primary' : 'bg-muted hover:bg-muted/80'}`}
+                      className="p-3 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
+                      style={{ background: showSubjectField ? 'rgba(42,138,184,0.15)' : 'rgba(160,195,240,0.12)', color: showSubjectField ? 'var(--de-accent)' : 'var(--de-text-dim)' }}
                       title="Toggle subject (email-style)"
                     >
                       <Mail className="w-5 h-5" />
@@ -572,7 +578,8 @@ export default function MessagesClient({ userId, initialConversations }: Message
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isSending}
-                      className="p-3 bg-muted hover:bg-muted/80 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
+                      className="p-3 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
+                      style={{ background: 'rgba(160,195,240,0.12)', color: 'var(--de-text-dim)' }}
                       title="Attach file"
                     >
                       <Plus className="w-5 h-5" />
@@ -583,12 +590,14 @@ export default function MessagesClient({ userId, initialConversations }: Message
                       placeholder="Type a message..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      className="flex-1 px-4 py-3 bg-muted/50 border-0 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[48px]"
+                      className="flex-1 px-4 py-3 rounded-xl text-sm focus:outline-none min-h-[48px]"
+                      style={{ background: 'rgba(160,195,240,0.12)', border: '1px solid rgba(160,195,240,0.3)', color: 'var(--de-text)' }}
                     />
                     <button
                       type="submit"
                       disabled={(!newMessage.trim() && !selectedFile) || isSending}
-                      className="p-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors active:scale-95 min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
+                      className="p-3 rounded-xl transition-colors active:scale-95 min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
+                      style={{ background: 'var(--de-heading)', color: 'white' }}
                     >
                       {isSending ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -602,8 +611,8 @@ export default function MessagesClient({ userId, initialConversations }: Message
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
-                  <MessageSquare className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                  <p className="text-muted-foreground">Select a conversation to start messaging</p>
+                  <MessageSquare className="w-16 h-16 mx-auto mb-4" style={{ color: 'var(--de-text-dim)', opacity: 0.2 }} />
+                  <p style={{ color: 'var(--de-text-dim)' }}>Select a conversation to start messaging</p>
                 </div>
               </div>
             )}
