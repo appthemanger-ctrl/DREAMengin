@@ -54,7 +54,7 @@ export default function HomeDreamRuntime({
   if (node === 0) {
     return (
       <div
-        className="fixed inset-0 z-10 grid place-items-center"
+        className="fixed inset-0 z-10 grid place-items-center overflow-y-auto"
         style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 62%, var(--de-bg-end) 100%)' }}
       >
         <CoreDream
