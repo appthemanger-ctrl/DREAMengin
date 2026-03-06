@@ -32,16 +32,17 @@ const NAT = {
   shoe2: { w: 295, h: 416 },
 } as const;
 
-// Draw scale — character total visual height ≈ 208 px inside a 288 px canvas
-const S = 0.13;
+// Draw scale — arms/legs use S; head & torso use S_HT (+30 %)
+const S    = 0.13;
+const S_HT = S * 1.3;
 
 const DIM = {
-  head:  { w: Math.round(NAT.head.w  * S), h: Math.round(NAT.head.h  * S) }, // 91 × 73
-  coat:  { w: Math.round(NAT.coat.w  * S), h: Math.round(NAT.coat.h  * S) }, // 81 × 96
-  arm1:  { w: Math.round(NAT.arm1.w  * S), h: Math.round(NAT.arm1.h  * S) }, // 32 × 89
-  arm2:  { w: Math.round(NAT.arm2.w  * S), h: Math.round(NAT.arm2.h  * S) }, // 49 × 69
-  shoe1: { w: Math.round(NAT.shoe1.w * S), h: Math.round(NAT.shoe1.h * S) }, // 38 × 47
-  shoe2: { w: Math.round(NAT.shoe2.w * S), h: Math.round(NAT.shoe2.h * S) }, // 38 × 54
+  head:  { w: Math.round(NAT.head.w  * S_HT), h: Math.round(NAT.head.h  * S_HT) }, // ~119 × 95
+  coat:  { w: Math.round(NAT.coat.w  * S_HT), h: Math.round(NAT.coat.h  * S_HT) }, // ~105 × 125
+  arm1:  { w: Math.round(NAT.arm1.w  * S),    h: Math.round(NAT.arm1.h  * S)    }, // 32 × 89
+  arm2:  { w: Math.round(NAT.arm2.w  * S),    h: Math.round(NAT.arm2.h  * S)    }, // 49 × 69
+  shoe1: { w: Math.round(NAT.shoe1.w * S),    h: Math.round(NAT.shoe1.h * S)    }, // 38 × 47
+  shoe2: { w: Math.round(NAT.shoe2.w * S),    h: Math.round(NAT.shoe2.h * S)    }, // 38 × 54
 } as const;
 
 // ── Interaction zones ─────────────────────────────────────────────────────────
@@ -262,7 +263,7 @@ export default function HeroSprite({
 
       // ── Layout (bottom-up from feetY) ────────────────────────────────────
       const cx        = width / 2;
-      const feetY     = height - 22 + bodyBob;
+      const feetY     = height - 8 + bodyBob;   // shifted down so larger head fits at top
       const shoeTopY  = feetY  - DIM.shoe1.h;
       const coatBotY  = feetY  - DIM.shoe1.h + 4;   // coat overlaps shoe top
       const coatTopY  = coatBotY - DIM.coat.h;
@@ -284,13 +285,13 @@ export default function HeroSprite({
       ctx.ellipse(cx, feetY + 5, 24, 6, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 1. Back arm (arm1, LEFT arm) — drawn behind torso.
-      //    Pivot = left shoulder (shoulderXL).
-      //    Image placed so its RIGHT edge is at the shoulder → arm extends visibly to the LEFT.
+      // 1. Back arm (arm1, RIGHT arm) — drawn behind torso.
+      //    Pivot = right shoulder (shoulderXR).
+      //    Image placed so its RIGHT edge is at the shoulder → arm extends to the LEFT across body.
       drawPart(
         imgs.arm1, DIM.arm1.w, DIM.arm1.h,
-        shoulderXL - DIM.arm1.w, shoulderY,   // dx: full arm-width left of shoulder
-        shoulderXL, shoulderY,                 // pivot: left shoulder joint
+        shoulderXR - DIM.arm1.w, shoulderY,   // dx: full arm-width left of shoulder
+        shoulderXR, shoulderY,                 // pivot: right shoulder joint
         -armAngle,
       );
 
@@ -324,13 +325,13 @@ export default function HeroSprite({
         ctx.restore();
       }
 
-      // 6. Front arm (arm2, RIGHT arm) — waves by default, reacts on torso tap.
-      //    Pivot = right shoulder (shoulderXR).
-      //    Image placed so shoulder sits ~20% from left edge → arm hangs to the right.
+      // 6. Front arm (arm2, LEFT arm) — waves by default, reacts on torso tap.
+      //    Pivot = left shoulder (shoulderXL).
+      //    Image placed so shoulder sits ~20% from left edge → arm hangs to the right across body.
       drawPart(
         imgs.arm2, DIM.arm2.w, DIM.arm2.h,
-        shoulderXR - Math.round(DIM.arm2.w * 0.20), shoulderY,   // dx: shoulder at 20% from left
-        shoulderXR, shoulderY,                                     // pivot: right shoulder joint
+        shoulderXL - Math.round(DIM.arm2.w * 0.20), shoulderY,   // dx: shoulder at 20% from left
+        shoulderXL, shoulderY,                                     // pivot: left shoulder joint
         arm2Angle,
       );
 
