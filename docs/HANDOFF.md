@@ -49,11 +49,11 @@ These are not suggestions. Violating them invalidates the session's work.
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-06 05:49 UTC | `307685f` | supabase-connection-issue | vercel[bot] | ~1 modified<br>fix: correct env var prefix for Supabase config — Add debug logs to check env var injection on client side.  Co-authored-by: Jose Mancilla <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/supabase/env.ts` |
 | **auto** | 2026-03-06 05:18 UTC | `fa06ed0` | completedream | appthemanger-ctrl | ~1 modified<br>Remove existing GitHub Actions workflow for checks<br>✏️: `.github/workflows/copilot-setup-steps.yml` |
 | **auto** | 2026-03-05 23:42 UTC | `f820ba7` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #103 from appthemanger-ctrl/copilot/update-docs-content — Fix HeroSprite body part placement, add 8-direction GameRemote, refactor DaydreamShell Side B<br> |
 | **auto** | 2026-03-05 20:36 UTC | `13ec674` | completedream | appthemanger-ctrl | ~1 modified<br>Update GitHub Actions workflow for automated checks<br>✏️: `.github/workflows/copilot-setup-steps.yml` |
 | **auto** | 2026-03-05 20:30 UTC | `cd219ae` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #102 from appthemanger-ctrl/copilot/update-bg-background-theme — fix: restore gold home button; sync ARCHITECTURE.md §6.1 with single-button spec; add explicit Next.js 16+ callouts<br> |
-| **auto** | 2026-03-05 14:23 UTC | `668da29` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #97 from appthemanger-ctrl/copilot/update-idari-restrictions — feat: implement Idari System Contract — unlock admin intents, add daily workflow and Copilot toolkit<br> |
 
 ---
 
