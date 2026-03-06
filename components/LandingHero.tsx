@@ -52,6 +52,18 @@ export default function LandingHero() {
   const [msgIndex, setMsgIndex] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
 
+  // Responsive sprite size — 224 on mobile (<640 px), 288 on sm+ (BUG-003 fix).
+  // Uses matchMedia so it only fires when crossing the 640 px breakpoint, not on every resize.
+  const [spriteSize, setSpriteSize] = useState(288);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const update = (e: MediaQueryListEvent | MediaQueryList) =>
+      setSpriteSize(e.matches ? 224 : 288);
+    update(mq);
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
   useEffect(() => {
     if (isValentine) return;
 
@@ -150,22 +162,10 @@ export default function LandingHero() {
 
           {/* ── Character + speech bubble ── */}
           <div className="relative flex flex-col items-center">
-            <HeroSprite
-              width={288}
-              height={288}
-              className="h-56 w-56 sm:h-72 sm:w-72"
-            />
 
-            {/* Touch affordance — AXIOM 1: all actions must be instantly discoverable */}
-            <p
-              className="mt-2 text-xs font-medium select-none"
-              style={{ color: 'var(--de-text-dim)' }}
-            >
-              tap to interact &#x2736;
-            </p>
-
-            {/* Speech bubble — right side, attached */}
-            <div className="absolute top-[64px] right-[-6px] sm:right-[-84px] max-w-[260px] sm:max-w-[320px] text-left z-20">
+            {/* Speech bubble — in document flow ABOVE sprite on mobile so it never overlaps;
+                absolute to the right side on desktop (sm+). */}
+            <div className="sm:absolute sm:top-[64px] sm:right-[-84px] mb-3 sm:mb-0 max-w-[260px] sm:max-w-[320px] text-center sm:text-left z-20">
               <div
                 className="relative rounded-2xl px-4 py-3 backdrop-blur-sm"
                 style={{
@@ -185,9 +185,18 @@ export default function LandingHero() {
                   {bubbleText}
                 </div>
 
-                {/* Bubble tail */}
+                {/* Bubble tail — bottom-center on mobile (points down toward sprite) */}
                 <div
-                  className="absolute left-[-6px] top-[22px] w-3 h-3 rotate-45"
+                  className="sm:hidden absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 rotate-45"
+                  style={{
+                    background: 'rgba(255,255,255,0.75)',
+                    borderRight: '1.5px solid rgba(42,138,184,0.25)',
+                    borderBottom: '1.5px solid rgba(42,138,184,0.25)',
+                  }}
+                />
+                {/* Bubble tail — left-side on desktop (points left toward sprite) */}
+                <div
+                  className="hidden sm:block absolute left-[-6px] top-[22px] w-3 h-3 rotate-45"
                   style={{
                     background: 'rgba(255,255,255,0.75)',
                     borderLeft: '1.5px solid rgba(42,138,184,0.25)',
@@ -196,6 +205,19 @@ export default function LandingHero() {
                 />
               </div>
             </div>
+
+            <HeroSprite
+              width={spriteSize}
+              height={spriteSize}
+            />
+
+            {/* Touch affordance — AXIOM 1: all actions must be instantly discoverable */}
+            <p
+              className="mt-2 text-xs font-medium select-none"
+              style={{ color: 'var(--de-text-dim)' }}
+            >
+              tap to interact &#x2736;
+            </p>
           </div>
 
           {/* ── Gold-gradient headline ── */}

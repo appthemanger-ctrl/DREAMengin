@@ -286,10 +286,10 @@ export default function HeroSprite({
 
       // 1. Back arm (arm1, LEFT arm) — drawn behind torso.
       //    Pivot = left shoulder (shoulderXL).
-      //    Image placed so its RIGHT edge is at the shoulder → arm extends visibly to the LEFT.
+      //    Shoulder ball sits at ~87% from left / ~4% from top of the arm1 image.
       drawPart(
         imgs.arm1, DIM.arm1.w, DIM.arm1.h,
-        shoulderXL - DIM.arm1.w, shoulderY,   // dx: full arm-width left of shoulder
+        shoulderXL - Math.round(DIM.arm1.w * 0.87), shoulderY - Math.round(DIM.arm1.h * 0.04),
         shoulderXL, shoulderY,                 // pivot: left shoulder joint
         -armAngle,
       );
@@ -315,7 +315,18 @@ export default function HeroSprite({
         legAngle,
       );
 
-      // 5. Head — pivots around its vertical centre
+      // 5. Front arm (arm2, RIGHT arm) — waves by default, reacts on torso tap.
+      //    Pivot = right shoulder (shoulderXR).
+      //    Shoulder socket sits at ~88% from left / ~90% from top of the arm2 image.
+      //    The arm2 image shows the hand at the TOP — so the arm is raised/waving upward.
+      drawPart(
+        imgs.arm2, DIM.arm2.w, DIM.arm2.h,
+        shoulderXR - Math.round(DIM.arm2.w * 0.88), shoulderY - Math.round(DIM.arm2.h * 0.90),
+        shoulderXR, shoulderY,                 // pivot: right shoulder joint
+        arm2Angle,
+      );
+
+      // 6. Head — pivots around its vertical centre, drawn last so it always appears on top.
       if (imgs.head?.complete && imgs.head.naturalWidth) {
         ctx.save();
         ctx.translate(cx, headTopY + DIM.head.h / 2);
@@ -323,16 +334,6 @@ export default function HeroSprite({
         ctx.drawImage(imgs.head, -DIM.head.w / 2, -DIM.head.h / 2, DIM.head.w, DIM.head.h);
         ctx.restore();
       }
-
-      // 6. Front arm (arm2, RIGHT arm) — waves by default, reacts on torso tap.
-      //    Pivot = right shoulder (shoulderXR).
-      //    Image placed so shoulder sits ~20% from left edge → arm hangs to the right.
-      drawPart(
-        imgs.arm2, DIM.arm2.w, DIM.arm2.h,
-        shoulderXR - Math.round(DIM.arm2.w * 0.20), shoulderY,   // dx: shoulder at 20% from left
-        shoulderXR, shoulderY,                                     // pivot: right shoulder joint
-        arm2Angle,
-      );
 
       rafId = requestAnimationFrame(tick);
     }
@@ -355,6 +356,8 @@ export default function HeroSprite({
           WebkitTapHighlightColor: 'transparent',
           touchAction: 'none',
           display: 'block',
+          width: width,
+          height: height,
         }}
         aria-label="Dr. Eams — tap head, torso, or legs to interact"
         role="img"
