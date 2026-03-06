@@ -4,15 +4,15 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-05 12:55 UTC  
-**Triggered by commit:** `bf8b29f` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #95 from appthemanger-ctrl/copilot/fetch-notes-from-database
+**Last updated:** 2026-03-06 01:26 UTC  
+**Triggered by commit:** `9baa73f` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #105 from appthemanger-ctrl/copilot/read-docs-and-fix-issues
 
 ---
 
 ## 🏆 Final Vision — What DREAMengin Is Supposed to Be
 
-DREAMengin is a **spatial creative OS** built on Next.js (App Router) + Supabase, navigated via the Golden Button τ-state machine.
+DREAMengin is a **spatial, gesture-driven creative OS** built on Next.js (App Router) + Supabase.
 It is not a website. It is not a social media feed. It is a **personal operating surface** where
 every element is a live, interactive widget that the user owns, arranges, and publishes.
 
@@ -65,18 +65,17 @@ When DREAMengin is complete:
 
 ---
 
-## 🔶 Partly Done (31 items)
+## 🔶 Partly Done (27 items)
 
 These features exist but are incomplete. They must be finished before the product ships.
 
 | Status | Feature | Notes |
 |--------|---------|-------|
-| ✅ | Gradient on all daydreams/settings | All pages now use de-sky-bg + de-widget |
+| 🔶 | Dark-mode support | CSS vars in place; not all components respect them |
 | 🔶 | Performance / battery-aware rendering | Game loop throttles; general app idle-throttling pending |
 | 🔶 | Widget surface grid | Layout exists; drag-to-reorder not wired |
 | 🔶 | Edit mode (drag-to-reorder widgets) | Banner + context exist; actual drag not implemented |
-| ✅ | Feed resolver | Connected to real app_posts; realtime subscription via requestIdleCallback |
-| ✅ | τ-navigation (Golden Button state machine) | Golden Button drives all navigation; swipe is a future enhancement, not the current model |
+| 🔶 | Feed widget | Widget renders; feed data is demo-only |
 | 🔶 | Back-navigation / history | Browser back works; spatial context not preserved |
 | 🔶 | Avatar upload | Upload UI exists; Supabase storage wiring needs test |
 | 🔶 | Public-only widget display | Logic exists; not fully enforced |
@@ -94,28 +93,26 @@ These features exist but are incomplete. They must be finished before the produc
 | 🔶 | Marketplace | Browse page exists; purchase flow not built |
 | 🔶 | Sell page | Form exists; no backend |
 | 🔶 | Feed settings | UI exists; not persisted |
-| ✅ | Appearance / Theme | All app pages converted to de-sky-bg + de-widget; ads/analytics/error pages done |
+| 🔶 | Appearance / Theme | Gradient presets UI; not all pages themed |
 | 🔶 | Connectors | YouTube + demo; IG/Spotify pending |
 | 🔶 | Privacy | Page exists; blocking/appeals not wired |
 | 🔶 | Help / wizard | Page exists; Dr. Eams integration pending |
 | 🔶 | iDari (AI bug-fix) | Routes exist; demo mode only |
-| ✅ | Sky-blue + gold gradient across all pages | All app pages use de-sky-bg + de-widget |
 
 ---
 
-## 🔲 Needs Work (10 items)
+## 🔲 Needs Work (9 items)
 
 These features are spec'd but not yet built. They are mandatory obligations per **docs/LAW.md §10**.
 
 | Status | Feature | Notes |
 |--------|---------|-------|
-| ✅ | Password reset flow | `/auth/reset-password` — full UI + Supabase `resetPasswordForEmail` + confirmation screen |
-| 🔲 | Swipe navigation | Spec'd; not yet implemented on mobile |
+| 🔲 | Swipe navigation | Disabled on mobile — navigate via Daydreams menu button; will be re-enabled in a future release |
 | 🔲 | Widget drag-to-reorder on profile canvas | Toggle visibility done; drag-to-reorder needs `@dnd-kit/core` |
-| ✅ | Comments | Migration + RLS + API route + CommentSection component + wired into FeedCard |
+| 🔲 | Comments | Not yet built |
 | 🔲 | Haptic feedback (DualSense) | Gamepad vibration API not yet wired |
 | 🔲 | Power-ups (spin/shoot effects) | Inputs wired; visual effects + logic pending |
-| ✅ | Leaderboard | game_scores migration + RLS + API route + Leaderboard component |
+| 🔲 | Leaderboard | Score exists; no persistence |
 | 🔲 | More levels / worlds | 3 levels done; more planned |
 | 🔲 | Widget marketplace | Spec'd in WIDGET_SYSTEM_V2.md; not built |
 | 🔲 | Payments (Stripe / etc.) | Not started |
@@ -126,7 +123,7 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 These are pulled from `docs/FEATURE_STATUS.md` and ordered per **docs/LAW.md §10.2**.
 
-1. **Feed widget in Home** — wire feed widget to show real `app_posts` in the Home space
+1. **Feed system** — real-time feed updates; feed widget in Home shows `app_posts`
 2. **Widget drag on ProfileCanvas** — wire `@dnd-kit/core` for drag-to-reorder
 3. **Follow/Algorithm → DB** — persist FollowOnboarding + Algorithm presets to Supabase instead of localStorage
 4. **Music Studio pipeline** — SoundRecorder → upload → publish to feed
