@@ -5,12 +5,15 @@ import crypto from 'crypto';
 
 const SECRET = process.env.AI_CONFIRM_TOKEN_SECRET;
 
-if (!SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error('AI_CONFIRM_TOKEN_SECRET must be set in production');
-}
+// Resolved at module load; null in production when env var is absent.
+const CACHED_SECRET = SECRET || (process.env.NODE_ENV === 'production' ? null : 'dev-secret-change-in-production');
 
-// Fallback only for development
-const EFFECTIVE_SECRET = SECRET || 'dev-secret-change-in-production';
+function getSecret(): string {
+  if (!CACHED_SECRET) {
+    throw new Error('AI_CONFIRM_TOKEN_SECRET environment variable is required');
+  }
+  return CACHED_SECRET;
+}
 
 interface MakeConfirmTokenInput {
   requestId: string;
@@ -32,7 +35,7 @@ export function makeConfirmToken(input: MakeConfirmTokenInput): string {
   const expiresAt = Date.now() + ttlSeconds * 1000;
   const payload = `${requestId}:${userId}:${expiresAt}`;
   
-  const hmac = crypto.createHmac('sha256', EFFECTIVE_SECRET);
+  const hmac = crypto.createHmac('sha256', getSecret());
   hmac.update(payload);
   const signature = hmac.digest('hex');
   
@@ -70,7 +73,7 @@ export function verifyConfirmToken(input: VerifyConfirmTokenInput): boolean {
     
     // Verify HMAC signature
     const expectedPayload = `${tokenRequestId}:${tokenUserId}:${expiresAtStr}`;
-    const hmac = crypto.createHmac('sha256', EFFECTIVE_SECRET);
+    const hmac = crypto.createHmac('sha256', getSecret());
     hmac.update(expectedPayload);
     const expectedSignature = hmac.digest('hex');
     
