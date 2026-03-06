@@ -95,7 +95,7 @@ export function isSupabaseConfigured(): boolean {
  * Lists the exact names from the user's Vercel project.
  */
 export const SETUP_HINT =
-  'Supabase is not configured. Ensure these environment variables are set in ' +
+  'Ensure these environment variables are set in ' +
   'Vercel → Project → Settings → Environment Variables:\n' +
   '  URL  →  NEXT_PUBLIC_SUPABASE_URL  (already set by Vercel-Supabase integration)\n' +
   '  KEY  →  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY  or  NEXT_PUBLIC_SUPABASE_ANON_KEY\n' +
