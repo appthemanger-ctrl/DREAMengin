@@ -92,7 +92,18 @@ html, body {
   );
   background-attachment: fixed;
   color: var(--de-text);
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: var(--font-space-grotesk, 'Space Grotesk', system-ui, sans-serif);
+
+/* ── dreamengin wordmark utility ── */
+.de-wordmark {
+  font-family: var(--font-cormorant, Georgia, 'Times New Roman', serif);
+  font-style: italic;
+  font-weight: 400;
+  color: #7a5c28;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  user-select: none;
+}
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -956,4 +967,9 @@ body, .dreamnav-surface, .controls {
 @keyframes de-menu-panel-in {
   from { opacity: 0; transform: translateY(12px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes de-dual-menu-up {
+  from { opacity: 0; transform: translateY(48px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
