@@ -1,8 +1,12 @@
 // app/api/ai/idari/route.ts
-// Admin-facing IDARi endpoint — diagnostics and builder AI.
-// Admin or owner only. AI keys are server-side only.
+// IDARi — universal AI for DREAMengin.
+// Available to ALL authenticated users. Capabilities scale with role:
+//   user  → platform guidance, personalization help, creative coaching
+//   admin → + diagnostics, feed config, system status
+//   owner → + schema access, RLS inspection, infrastructure checks
 
 import { NextRequest, NextResponse } from 'next/server';
+import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import { DrEamsRunBodySchema, type Intent } from '@/lib/ai/schemas';
@@ -14,29 +18,56 @@ import { groqChat, type GroqMessage } from '@/lib/ai/groq';
 
 export const dynamic = 'force-dynamic';
 
-function jsonError(status: number, code: string, message: string, details?: unknown) {
-  return NextResponse.json(
-    { ok: false, error: { code, message, details } },
-    { status, headers: { 'Cache-Control': 'no-store' } }
-  );
+type ActorRole = 'user' | 'admin' | 'owner';
+
+
+// Rate limits per role (requests per 60 seconds)
+const RATE_LIMITS: Record<ActorRole, number> = {
+  user:  20,
+  admin: 40,
+  owner: 60,
+};
+
+function buildSystemPrompt(actorRole: ActorRole): string {
+  const base =
+    `You are IDARi, the AI companion inside DREAMengin — a creative platform where users build personalised digital spaces.\n` +
+    `Your personality: warm, precise, proactive. You speak in plain language — no jargon unless asked.\n` +
+    `Always respond with ONLY valid JSON. No markdown wrapping.\n` +
+    `Output shape: { response_text: string, intents: Intent[] }\n` +
+    `Intent types allowed for this session are listed below. Max 3 intents. If unsure, return intents: [].\n\n`;
+
+  if (actorRole === 'owner') {
+    return base +
+      `Actor role: OWNER — full platform access.\n` +
+      `Allowed intents: DIAG_SCHEMA_SNAPSHOT, DIAG_RLS_SNAPSHOT, DIAG_ENV_CHECKLIST, SEARCH.\n` +
+      `You can discuss database structure, RLS policies, environment config, and deployment.\n` +
+      `Be direct, technical, and precise. Include rollback steps for risky suggestions.`;
+  }
+
+  if (actorRole === 'admin') {
+    return base +
+      `Actor role: ADMIN — platform management access.\n` +
+      `Allowed intents: DIAG_SCHEMA_SNAPSHOT, SEARCH.\n` +
+      `Help with feed configuration, widget management, user reports, and platform settings.\n` +
+      `Be direct and technical. Flag anything that requires owner review.`;
+  }
+
+  // user
+  return base +
+    `Actor role: USER — full creative platform access.\n` +
+    `Allowed intents: SEARCH.\n` +
+    `Help the user get the most from DREAMengin: themes, widgets, Daydreams, connections, AI tools.\n` +
+    `Encourage creativity. Suggest features they might not know about. Be warm and motivating.\n` +
+    `Never discuss internal database schemas, RLS policies, or server infrastructure with users.`;
 }
 
 async function idariPlanner(
   message: string,
-  actorRole: 'admin' | 'owner'
+  actorRole: ActorRole
 ): Promise<{ response_text: string; intents: Intent[] }> {
   const system: GroqMessage = {
     role: 'system',
-    content:
-      `You are iDari, the admin-facing builder AI for DREAMengin.\n` +
-      `Your job: help admins diagnose, configure, and maintain the platform.\n\n` +
-      `RULES (strict):\n` +
-      `1) Respond with ONLY JSON. No markdown.\n` +
-      `2) Output shape: { response_text: string, intents: Intent[] }.\n` +
-      `3) Allowed intent types: DIAG_SCHEMA_SNAPSHOT, DIAG_RLS_SNAPSHOT, SEARCH.\n` +
-      `4) Max 3 intents per request.\n` +
-      `5) If unsure, return intents: [] with a helpful response_text.\n\n` +
-      `Actor role: ${actorRole}.`,
+    content: buildSystemPrompt(actorRole),
   };
 
   const userMsg: GroqMessage = { role: 'user', content: message };
@@ -45,7 +76,7 @@ async function idariPlanner(
     const raw = await groqChat({
       model: AI_MODELS.IDARI_PRIMARY,
       messages: [system, userMsg],
-      temperature: 0.1,
+      temperature: actorRole === 'user' ? 0.4 : 0.1,
       max_tokens: 700,
     });
 
@@ -60,10 +91,10 @@ async function idariPlanner(
     }
 
     if (!parsed || typeof parsed !== 'object') {
-      return { response_text: `[iDari] Analyzing: "${message}"`, intents: [] };
+      return { response_text: raw.length > 8 ? raw : `IDARi is here! Ask me anything about DREAMengin.`, intents: [] };
     }
 
-    const response_text = String(parsed.response_text || `[iDari] Analyzing: "${message}"`).trim();
+    const response_text = String(parsed.response_text || `IDARi is here! How can I help?`).trim();
     const rawIntents = Array.isArray(parsed.intents) ? parsed.intents : [];
     const intents: Intent[] = rawIntents
       .slice(0, 3)
@@ -72,13 +103,13 @@ async function idariPlanner(
         type: x?.type as Intent['type'],
         confidence: typeof x?.confidence === 'number' ? x.confidence : 0.7,
         requires_confirmation: Boolean(x?.requires_confirmation),
-        rationale: typeof x?.rationale === 'string' ? x.rationale : 'Admin request',
+        rationale: typeof x?.rationale === 'string' ? x.rationale : 'IDARi request',
         idempotency_key: typeof x?.idempotency_key === 'string' ? x.idempotency_key : `idari-${Date.now()}`,
         payload: (x?.payload && typeof x.payload === 'object') ? x.payload as Record<string, unknown> : {},
       }));
     return { response_text, intents };
   } catch {
-    return { response_text: `[iDari] Analyzing: "${message}"`, intents: [] };
+    return { response_text: `IDARi is here! What can I help you with?`, intents: [] };
   }
 }
 
@@ -90,22 +121,24 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
+    return jsonApiError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
   const parseResult = DrEamsRunBodySchema.safeParse(body);
   if (!parseResult.success) {
-    return jsonError(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.flatten());
+    return jsonApiError(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.flatten());
   }
 
   const request = parseResult.data;
 
+  // Authenticate — ALL users welcome
   const supabase = await createServerClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) {
-    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
+    return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in to talk to IDARi.');
   }
 
+  // Determine role (no blocking — role only affects capabilities)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: roleData } = await (supabase as any)
     .from('user_roles')
@@ -114,23 +147,11 @@ export async function POST(req: NextRequest) {
     .single();
 
   const isOwner = isOwnerEmail(user.email);
-  const isAdmin = isOwner || (roleData as { role?: string } | null)?.role === 'admin';
+  const dbRole = (roleData as { role?: string } | null)?.role;
+  const actorRole: ActorRole = isOwner ? 'owner' : dbRole === 'admin' ? 'admin' : 'user';
 
-  if (!isAdmin) {
-    await writeAuditLog({
-      request_id,
-      user_id: user.id,
-      agent: 'idari',
-      ok: false,
-      error_code: 'FORBIDDEN',
-      latency_ms: Date.now() - requestStart,
-    });
-    return jsonError(403, 'FORBIDDEN', 'Admin access required.');
-  }
-
-  const actorRole: 'admin' | 'owner' = isOwner ? 'owner' : 'admin';
-
-  const rateOk = await checkRateLimit(user.id, '/api/ai/idari', 30, 60);
+  // Rate limit (per-role)
+  const rateOk = await checkRateLimit(user.id, '/api/ai/idari', RATE_LIMITS[actorRole], 60);
   if (!rateOk.allowed) {
     await writeAuditLog({
       request_id,
@@ -140,7 +161,7 @@ export async function POST(req: NextRequest) {
       error_code: 'RATE_LIMIT',
       latency_ms: Date.now() - requestStart,
     });
-    return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
+    return jsonApiError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
       retry_after_seconds: rateOk.retry_after_seconds,
     });
   }
@@ -163,11 +184,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const idariResult = validateWithIdari(intents, 'admin');
+  const idariResult = validateWithIdari(intents, actorRole === 'user' ? 'user' : 'admin');
   const validatedIntents = idariResult.intents;
 
   const boogieResult = boogieEvaluate({
-    actorRole: 'admin',
+    actorRole: actorRole === 'user' ? 'user' : 'admin',
     rateRpm,
     intents: validatedIntents,
   });
@@ -181,7 +202,7 @@ export async function POST(req: NextRequest) {
       error_code: 'HARD_BLOCK',
       latency_ms: Date.now() - requestStart,
     });
-    return jsonError(403, 'BLOCKED', 'Request blocked by security policy.', {
+    return jsonApiError(403, 'BLOCKED', 'Request blocked by safety policy.', {
       cooldown_seconds: boogieResult.global.cooldown_seconds,
     });
   }
@@ -201,7 +222,7 @@ export async function POST(req: NextRequest) {
     agent: 'idari',
     ok: true,
     latency_ms: Date.now() - requestStart,
-    payload: { message: request.message, intent_count: allowedIntents.length },
+    payload: { message: request.message, intent_count: allowedIntents.length, actor_role: actorRole },
   });
 
   return NextResponse.json(

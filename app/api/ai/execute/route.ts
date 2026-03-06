@@ -2,6 +2,7 @@
 // Execute validated intents after confirmation
 
 import { NextRequest, NextResponse } from 'next/server';
+import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import { ExecuteBodySchema, type ExecuteResponse } from '@/lib/ai/schemas';
 import { verifyConfirmToken } from '@/lib/ai/confirm';
@@ -12,13 +13,6 @@ import { boogieEvaluate } from '@/lib/ai/boogieman';
 
 export const dynamic = 'force-dynamic';
 
-function jsonError(status: number, code: string, message: string) {
-  return NextResponse.json(
-    { ok: false, error: { code, message } },
-    { status, headers: { 'Cache-Control': 'no-store' } }
-  );
-}
-
 export async function POST(req: NextRequest) {
   const requestStart = Date.now();
 
@@ -27,12 +21,12 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
+    return jsonApiError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
   const parseResult = ExecuteBodySchema.safeParse(body);
   if (!parseResult.success) {
-    return jsonError(400, 'VALIDATION_ERROR', 'Invalid request body');
+    return jsonApiError(400, 'VALIDATION_ERROR', 'Invalid request body');
   }
 
   const request = parseResult.data;
@@ -42,7 +36,7 @@ export async function POST(req: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
+    return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
   }
 
   // Get user role
@@ -57,12 +51,12 @@ export async function POST(req: NextRequest) {
   // Rate limit
   const rateLimitCheck = await checkRateLimit(user.id, '/api/ai/execute', 30, 60);
   if (!rateLimitCheck.allowed) {
-    return jsonError(429, 'RATE_LIMIT', 'Too many requests.');
+    return jsonApiError(429, 'RATE_LIMIT', 'Too many requests.');
   }
 
   // Demo mode: always require confirmation token
   if (!request.confirm_token) {
-    return jsonError(403, 'CONFIRMATION_REQUIRED', 'Confirmation token required.');
+    return jsonApiError(403, 'CONFIRMATION_REQUIRED', 'Confirmation token required.');
   }
 
   // Verify confirmation token
@@ -82,7 +76,7 @@ export async function POST(req: NextRequest) {
       latency_ms: Date.now() - requestStart,
     });
 
-    return jsonError(403, 'INVALID_TOKEN', 'Confirmation token is invalid or expired.');
+    return jsonApiError(403, 'INVALID_TOKEN', 'Confirmation token is invalid or expired.');
   }
 
   // For demo purposes, we'll just log and return success

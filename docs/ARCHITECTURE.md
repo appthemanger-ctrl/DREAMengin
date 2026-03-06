@@ -127,12 +127,20 @@ Core gestures:
 
 ### 6.1 Control Objects (Home Button)
 
-There is **one** gold button on the right rail. It is always visible and always in the same position (persists via `localStorage` key `dreamengin:controls:v4`).
+There is **one** gold button fixed at the **bottom-center** of the screen. It is always visible.
 
-**Gold button behavior (everywhere except Daydream Side B):**
+The button renders as a **3-D metallic gold sphere** using CSS radial gradients — reflecting the design mockups.
+
+**Gold button behavior:**
 - **Single tap → Go Home** (reset to anchor node, close all overlays).
-- **Double tap → Open both menus simultaneously**: Daydreams menu (left panel) + System menu (right panel) appear side-by-side with a shared dim backdrop.
-- **Drag** → reposition vertically along the right rail. Position saved on drag-end.
+- **Double tap → Open dual bottom menu**: a `DualBottomMenu` slides up from below with two side-by-side frosted-glass panels — System (left) + Daydreams (right).
+
+**Dual bottom menu:**
+- Component: `components/menus/DualBottomMenu.tsx`
+- Replaces the old separate `DreamRadialMenu` + `SystemRadialMenu` overlay pair
+- System items: Profiles, Settings, Marketplace, Feed Sources, Appearance, AI Triad
+- Daydream items: Music/Release, Code/Preview, Create/Assets, Gaming Library, Lab/Test, Brand/Analytics
+- Dismiss: tap backdrop or any item
 
 **Daydream Side B:**
 The single gold button and the corner fold tab are **only** visible on Side A. On Side B the content replaces the standard daydream view:
@@ -145,7 +153,7 @@ The Games Daydream uses the dual-button layout as a game remote controller on Si
 
 Home controls are persistent “system objects,” not a navbar.
 They may:
-- move (drag along rail)
+
 - open menus (double-tap)
 - return home (single tap)
 
@@ -153,7 +161,7 @@ They must not:
 - steal gestures from the surface
 - trap the user
 - freeze the UI
-- get stuck off-screen (always clamp/bounce inside safe bounds)
+
 
 ---
 

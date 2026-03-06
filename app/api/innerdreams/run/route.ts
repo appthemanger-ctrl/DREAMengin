@@ -3,6 +3,7 @@
 // Admin-facing AI agent - diagnostics and proposals only
 
 import { NextRequest, NextResponse } from 'next/server';
+import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -14,12 +15,8 @@ import {
 } from '@/types/ai-system';
 import { buildActorContext } from '@/lib/ai/capability-gate';
 import { verifyIntents } from '@/lib/ai/boogie-verifier';
-import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rate-limiter';
+import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
 import { writeAuditLog } from '@/lib/ai/audit';
-
-function jsonError(status: number, code: string, message: string, details?: unknown) {
-  return NextResponse.json({ ok: false, error: { code, message, details } }, { status });
-}
 
 // iDari PLANNER (Placeholder - In production, call OpenAI/Claude)
 async function idariPlanner(
@@ -78,17 +75,17 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return jsonError(400, 'BAD_JSON', 'Body must be valid JSON.');
+    return jsonApiError(400, 'BAD_JSON', 'Body must be valid JSON.');
   }
 
   const request = body as Partial<IDariRunRequest>;
 
   if (!request.message || typeof request.message !== 'string') {
-    return jsonError(400, 'MISSING_MESSAGE', 'Request must include a message string.');
+    return jsonApiError(400, 'MISSING_MESSAGE', 'Request must include a message string.');
   }
 
   if (!request.ui) {
-    return jsonError(400, 'MISSING_UI', 'Request must include UI context.');
+    return jsonApiError(400, 'MISSING_UI', 'Request must include UI context.');
   }
 
   const supabase = await createServerClient();
@@ -98,7 +95,7 @@ export async function POST(req: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (userErr || !user) {
-    return jsonError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
+    return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
   }
 
   const actor = await buildActorContext(user.id);
@@ -113,12 +110,12 @@ export async function POST(req: NextRequest) {
       latency_ms: Date.now() - requestStart,
     });
 
-    return jsonError(403, 'FORBIDDEN', 'Admin access required.');
+    return jsonApiError(403, 'FORBIDDEN', 'Admin access required.');
   }
 
-  const rateLimitCheck = await checkRateLimit(user.id, '/api/innerdreams/run');
+  const rateLimitCheck = await checkRateLimit(user.id, '/api/innerdreams/run', 20, 60);
   if (!rateLimitCheck.allowed) {
-    return jsonError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
+    return jsonApiError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
       resetAt: rateLimitCheck.resetAt,
     });
   }
@@ -165,7 +162,7 @@ export async function POST(req: NextRequest) {
       latency_ms: Date.now() - requestStart,
     });
 
-    return jsonError(403, 'BLOCKED', 'Request blocked by security policy.', {
+    return jsonApiError(403, 'BLOCKED', 'Request blocked by security policy.', {
       cooldown_seconds: boogieOutput.global.cooldown_seconds,
     });
   }

@@ -19,7 +19,7 @@ const TIPS = [
     step: 2,
     icon: '🔵',
     title: 'The Golden Button',
-    body: 'The floating gold button is your OS control. Single-tap to go home. Double-tap to open the Daydreams and System menus. Drag it to move it anywhere on the rail.',
+    body: 'The gold button at the bottom is your home control. Single-tap to return home. Double-tap to open the Daydreams and System menus.',
     action: null,
     color: '#c8981a',
   },
