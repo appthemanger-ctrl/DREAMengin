@@ -38,6 +38,14 @@ const ACCENT_STYLES = {
   },
 };
 
+const SIDE_MENU_LAYER_Z_INDEX = 58;
+const SIDE_MENU_CIRCLE_SIDE_OFFSET = '-42vw';
+const SIDE_MENU_CIRCLE_BOTTOM_OFFSET = '-62vw';
+const SIDE_MENU_HEADER_PADDING_LEFT = '26px 24px 8px 72px';
+const SIDE_MENU_HEADER_PADDING_RIGHT = '26px 72px 8px 24px';
+const SIDE_MENU_ITEMS_PADDING_LEFT = '8px 20px 52px 68px';
+const SIDE_MENU_ITEMS_PADDING_RIGHT = '8px 68px 52px 20px';
+
 export default function MenuPanel({ open, items, onClose, title, accent = 'blue', side = 'center' }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -46,9 +54,9 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
 
   const panelPosition: React.CSSProperties =
     side === 'left'
-      ? { position: 'fixed', left: '-42vw', bottom: '-62vw' }
+      ? { position: 'fixed', left: SIDE_MENU_CIRCLE_SIDE_OFFSET, bottom: SIDE_MENU_CIRCLE_BOTTOM_OFFSET }
       : side === 'right'
-      ? { position: 'fixed', right: '-42vw', bottom: '-62vw' }
+      ? { position: 'fixed', right: SIDE_MENU_CIRCLE_SIDE_OFFSET, bottom: SIDE_MENU_CIRCLE_BOTTOM_OFFSET }
       : { position: 'relative', top: '8vh' };
 
   // Close on Escape
@@ -77,7 +85,8 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
        style={{
          position: 'fixed',
          inset: 0,
-         zIndex: sideMode ? 58 : 70,
+         // Keep side menus below the fixed home button (z-index 60), but above core content.
+         zIndex: sideMode ? SIDE_MENU_LAYER_Z_INDEX : 70,
          background: sideMode ? 'transparent' : 'rgba(2,8,24,0.55)',
          backdropFilter: sideMode ? 'none' : 'blur(10px)',
          WebkitBackdropFilter: sideMode ? 'none' : 'blur(10px)',
@@ -120,7 +129,11 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
              display: 'flex',
              alignItems: 'center',
              gap: 10,
-             padding: sideMode ? (side === 'left' ? '26px 24px 8px 72px' : '26px 72px 8px 24px') : '16px 20px 12px',
+             padding: sideMode
+               ? side === 'left'
+                 ? SIDE_MENU_HEADER_PADDING_LEFT
+                 : SIDE_MENU_HEADER_PADDING_RIGHT
+               : '16px 20px 12px',
              borderBottom: sideMode ? 'none' : '1px solid rgba(255,255,255,0.07)',
            }}
          >
@@ -171,18 +184,19 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
          </div>
 
          {/* Item list */}
-         <div style={{ padding: sideMode ? (side === 'left' ? '8px 20px 52px 68px' : '8px 68px 52px 20px') : '6px 0 8px' }}>
+         <div style={{ padding: sideMode ? (side === 'left' ? SIDE_MENU_ITEMS_PADDING_LEFT : SIDE_MENU_ITEMS_PADDING_RIGHT) : '6px 0 8px' }}>
            {items.map((item, idx) => (
-             <button
-               key={item.id}
-               type="button"
-               onClick={() => { item.onSelect(); onClose(); }}
-               style={{
+              <button
+                key={item.id}
+                type="button"
+                aria-label={sideMode && item.description ? `${item.label} — ${item.description}` : item.label}
+                onClick={() => { item.onSelect(); onClose(); }}
+                style={{
                  display: 'flex',
                  alignItems: 'center',
                  gap: 14,
                  width: '100%',
-                  minHeight: sideMode ? 44 : 52, // req 36: minimum 44px row height
+                  minHeight: sideMode ? 44 : 52,
                  padding: sideMode ? '0 8px' : '0 20px',
                  background: sideMode ? 'rgba(255,255,255,0.08)' : 'none',
                  border: 'none',
