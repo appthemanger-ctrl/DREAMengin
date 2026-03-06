@@ -90,49 +90,6 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const quickTapArmedRef = useRef(false);
   const justClosedOverlayRef = useRef(0); // Timestamp when overlay was closed
 
-  // User pattern tracking
-  const [userPatterns, setUserPatterns] = useState({
-    frequentDestinations: [] as string[],
-    recentSearches: [] as string[],
-    commonActions: [] as string[],
-  });
-
-  // Load user patterns from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('dr-eam-patterns');
-    if (saved) {
-      try {
-        setUserPatterns(JSON.parse(saved));
-      } catch {}
-    }
-  }, []);
-
-  // Save user patterns to localStorage
-  const saveUserPatterns = (patterns: typeof userPatterns) => {
-    localStorage.setItem('dr-eam-patterns', JSON.stringify(patterns));
-    setUserPatterns(patterns);
-  };
-
-  // Track navigation
-  const trackNavigation = (destination: string) => {
-    const updated = { ...userPatterns };
-    updated.frequentDestinations = [
-      destination,
-      ...updated.frequentDestinations.filter(d => d !== destination)
-    ].slice(0, 10);
-    saveUserPatterns(updated);
-  };
-
-  // Track search
-  const trackSearch = (query: string) => {
-    const updated = { ...userPatterns };
-    updated.recentSearches = [
-      query,
-      ...updated.recentSearches.filter(q => q !== query)
-    ].slice(0, 20);
-    saveUserPatterns(updated);
-  };
-
   // Initialize position from localStorage or default
   useEffect(() => {
     const saved = localStorage.getItem('home-btn-pos');
@@ -840,8 +797,9 @@ Check your earnings dashboard for real-time tracking.`;
     }
 
     // Use recent searches to provide context
-    if (userPatterns.recentSearches.length > 0) {
-      const recent = userPatterns.recentSearches[0];
+    const mem = loadMemory();
+    if (mem.recentSearches.length > 0) {
+      const recent = mem.recentSearches[0];
       return `Try: "${recent}" or ask me to navigate anywhere.`;
     }
 
