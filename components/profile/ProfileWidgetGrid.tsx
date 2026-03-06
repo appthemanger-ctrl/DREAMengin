@@ -1,13 +1,17 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Heart, MessageCircle, Share2, Users, Settings2, X, Check } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import Link from 'next/link';
+import { Heart, MessageCircle, Share2, Users, Settings2, X, Check, Plug } from 'lucide-react';
+import ConnectorWidgetPicker, { type PickerConnector, TOP_10_CONNECTORS } from '@/components/connectors/ConnectorWidgetPicker';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type WidgetType =
   | 'bio' | 'activity' | 'followers' | 'photos'
-  | 'linkedin' | 'twitter' | 'quote';
+  | 'linkedin' | 'twitter' | 'quote'
+  | 'instagram' | 'spotify' | 'youtube' | 'tiktok'
+  | 'github' | 'weather' | 'apple' | 'snapchat';
 
 export type WidgetBgStyle = 'white' | 'glass' | 'warm' | 'tinted' | 'dark';
 
@@ -84,8 +88,13 @@ const BG_STYLES: { value: WidgetBgStyle; label: string }[] = [
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function getWidgetLabel(type: WidgetType): string {
-  return { bio: 'Bio Card', activity: 'Activity', followers: 'Followers',
-    photos: 'Photos', linkedin: 'LinkedIn', twitter: 'Twitter', quote: 'Quote' }[type];
+  return {
+    bio: 'Bio Card', activity: 'Activity', followers: 'Followers',
+    photos: 'Photos', linkedin: 'LinkedIn', twitter: 'Twitter', quote: 'Quote',
+    instagram: 'Instagram', spotify: 'Spotify', youtube: 'YouTube',
+    tiktok: 'TikTok', github: 'GitHub', weather: 'Weather',
+    apple: 'Apple Music', snapchat: 'Snapchat',
+  }[type];
 }
 
 function getCardBg(style: WidgetBgStyle, accent: string): React.CSSProperties {
@@ -337,6 +346,63 @@ function WidgetConfigSheet({
   );
 }
 
+// ── Connector-sourced widget shell ────────────────────────────────────────────
+// Branded card shown for connector-backed widget types.
+
+function ConnectorSourcedWidget({
+  symbol, brandColor, bgColor, name, sub,
+  textColor, dimColor, connected, accent, extra,
+}: {
+  symbol: string; brandColor: string; bgColor: string;
+  name: string; sub: string; textColor: string; dimColor: string;
+  connected?: boolean; accent: string;
+  extra?: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <div style={{
+          width: 30, height: 30, borderRadius: 8,
+          background: bgColor,
+          border: `1.5px solid ${brandColor}28`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: symbol.length > 2 ? 14 : 18,
+          fontWeight: 900, color: brandColor,
+        }}>
+          {symbol}
+        </div>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: textColor }}>{name}</div>
+          <div style={{ fontSize: 10, color: dimColor }}>{sub}</div>
+        </div>
+      </div>
+      {extra}
+      {connected ? (
+        <div style={{
+          marginTop: 8, padding: '6px 10px', borderRadius: 9,
+          background: bgColor, fontSize: 10, color: brandColor, fontWeight: 700,
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+        }}>
+          <Check size={9} /> Connected
+        </div>
+      ) : (
+        <Link
+          href="/connectors"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8,
+            padding: '7px 12px', borderRadius: 9,
+            background: `linear-gradient(135deg, ${accent}, ${accent}cc)`,
+            fontSize: 10, fontWeight: 700, color: '#fff', textDecoration: 'none',
+            boxShadow: `0 3px 8px ${accent}44`,
+          }}
+        >
+          <Plug size={9} /> Connect
+        </Link>
+      )}
+    </div>
+  );
+}
+
 // ── Widget content renderer ────────────────────────────────────────────────────
 
 interface WidgetContentProps {
@@ -514,6 +580,75 @@ function WidgetContent(p: WidgetContentProps) {
       </div>
     );
 
+    // ── Connector-sourced widgets ─────────────────────────────────────────────
+    // Each shows a branded card with "Connect" CTA if not yet linked.
+    // Data content shown once connected.
+
+    case 'instagram': return (
+      <ConnectorSourcedWidget
+        symbol="📸" brandColor="#E1306C" bgColor="rgba(225,48,108,0.12)"
+        name="Instagram" sub="Timeline & stories" textColor={textColor} dimColor={dimColor}
+        connected accent={accent}
+      />
+    );
+
+    case 'spotify': return (
+      <ConnectorSourcedWidget
+        symbol="♫" brandColor="#1DB954" bgColor="rgba(29,185,84,0.12)"
+        name="Spotify" sub="Now playing & playlists" textColor={textColor} dimColor={dimColor}
+        connected accent={accent}
+      />
+    );
+
+    case 'youtube': return (
+      <ConnectorSourcedWidget
+        symbol="▶" brandColor="#FF0000" bgColor="rgba(255,0,0,0.10)"
+        name="YouTube" sub="Subscriptions feed" textColor={textColor} dimColor={dimColor}
+        connected accent={accent}
+      />
+    );
+
+    case 'tiktok': return (
+      <ConnectorSourcedWidget
+        symbol="🎬" brandColor="#69C9D0" bgColor="rgba(105,201,208,0.12)"
+        name="TikTok" sub="Following feed" textColor={textColor} dimColor={dimColor}
+        connected accent={accent}
+      />
+    );
+
+    case 'github': return (
+      <ConnectorSourcedWidget
+        symbol="⬡" brandColor="#6e40c9" bgColor="rgba(110,64,201,0.12)"
+        name="GitHub" sub="Activity & pull requests" textColor={textColor} dimColor={dimColor}
+        connected accent={accent}
+      />
+    );
+
+    case 'weather': return (
+      <ConnectorSourcedWidget
+        symbol="☁" brandColor="#4A9ED6" bgColor="rgba(74,158,214,0.12)"
+        name="Weather" sub="Live forecast" textColor={textColor} dimColor={dimColor}
+        connected accent={accent}
+        extra={<div style={{ fontSize: 24, fontWeight: 800, color: '#4A9ED6', marginTop: 4 }}>72°F ⛅</div>}
+      />
+    );
+
+    case 'apple': return (
+      <ConnectorSourcedWidget
+        symbol="♩" brandColor="#FA243C" bgColor="rgba(250,36,60,0.10)"
+        name="Apple Music" sub="Library & recent plays" textColor={textColor} dimColor={dimColor}
+        connected accent={accent}
+      />
+    );
+
+    case 'snapchat': return (
+      <ConnectorSourcedWidget
+        symbol="👻" brandColor="#c8981a" bgColor="rgba(255,252,0,0.15)"
+        name="Snapchat" sub="Stories & memories" textColor={textColor} dimColor={dimColor}
+        connected accent={accent}
+      />
+    );
+
     default: return null;
   }
 }
@@ -542,6 +677,7 @@ export default function ProfileWidgetGrid({
 }: ProfileWidgetGridProps) {
   const [widgets, setWidgets]     = useState<Widget[]>(initialWidgets ?? DEFAULT_WIDGETS);
   const [showTray, setShowTray]   = useState(false);
+  const [showConnectorPicker, setShowConnectorPicker] = useState(false);
   const [configWidget, setConfigWidget] = useState<Widget | null>(null);
   const dragSrc = useRef<number | null>(null);
 
@@ -577,6 +713,11 @@ export default function ProfileWidgetGrid({
     const next = widgets.map(w => w.id === widgetId ? { ...w, config: cfg } : w);
     setWidgets(next);
     onSave?.(next);
+  };
+
+  // Called when user confirms adding a connector widget from the picker
+  const handleConnectorAdd = (connector: PickerConnector) => {
+    addWidget(connector.widgetType as WidgetType);
   };
 
   const getConfig = (w: Widget): WidgetConfig => ({ ...DEFAULT_CONFIG, ...w.config });
@@ -743,6 +884,61 @@ export default function ProfileWidgetGrid({
               })}
             </div>
           )}
+
+          {/* ── Connect a Service — S.I.C.C. ── */}
+          <div style={{
+            margin: '0 14px 14px',
+            borderTop: showTray ? '1px solid rgba(0,0,0,0.06)' : 'none',
+            paddingTop: showTray ? 14 : 0,
+          }}>
+            <button
+              onClick={() => setShowConnectorPicker(true)}
+              style={{
+                width: '100%', padding: '13px 16px',
+                borderRadius: 16,
+                background: 'linear-gradient(135deg, rgba(200,152,26,0.09) 0%, rgba(74,158,214,0.07) 100%)',
+                border: '1.5px solid rgba(200,152,26,0.22)',
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 10,
+                transition: 'transform 0.1s',
+              }}
+              onPointerDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'; }}
+              onPointerUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+            >
+              <div style={{
+                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+                background: 'linear-gradient(135deg, #c8981a, #e0b830)',
+                boxShadow: '0 3px 10px rgba(200,152,26,0.30)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Plug size={16} style={{ color: '#fff' }} />
+              </div>
+              <div style={{ flex: 1, textAlign: 'left' }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a' }}>
+                  Connect a Service
+                </div>
+                <div style={{ fontSize: 11, color: '#888', marginTop: 1 }}>
+                  Twitter · Instagram · LinkedIn + 7 more
+                </div>
+              </div>
+              {/* Mini connector icons — derived from TOP_10_CONNECTORS */}
+              <div style={{ display: 'flex', gap: -4 }}>
+                {TOP_10_CONNECTORS.slice(0, 5).map((c, i) => (
+                  <div key={c.id} style={{
+                    width: 22, height: 22, borderRadius: '50%',
+                    background: c.brandColor,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: c.symbol.length > 1 ? 8 : 10, fontWeight: 900, color: '#fff',
+                    marginLeft: i > 0 ? -6 : 0,
+                    border: '1.5px solid #f8f8f8',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+                  }}>
+                    {c.symbol}
+                  </div>
+                ))}
+              </div>
+            </button>
+          </div>
         </div>
       )}
 
@@ -752,6 +948,15 @@ export default function ProfileWidgetGrid({
           widget={configWidget}
           onClose={() => setConfigWidget(null)}
           onSave={(cfg) => saveConfig(configWidget.id, cfg)}
+        />
+      )}
+
+      {/* Connector widget picker — edit mode only */}
+      {isEditing && showConnectorPicker && (
+        <ConnectorWidgetPicker
+          activeWidgetTypes={widgets.map(w => w.type)}
+          onAdd={handleConnectorAdd}
+          onClose={() => setShowConnectorPicker(false)}
         />
       )}
     </div>
