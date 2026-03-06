@@ -6,6 +6,7 @@ import {
   FRAME_W,
   FRAME_H,
   ICONS,
+  ICON_ENTRIES,
   getIconPos,
   hasIcon,
   type IconName,
@@ -32,7 +33,7 @@ describe('sheet constants', () => {
 // ─── ICONS map bounds ─────────────────────────────────────────────────────────
 
 describe('ICONS — every entry is within grid bounds', () => {
-  const entries = Object.entries(ICONS) as [IconName, { col: number; row: number }][];
+  const entries = ICON_ENTRIES;
 
   it('has at least one icon', () => {
     expect(entries.length).toBeGreaterThan(0);
