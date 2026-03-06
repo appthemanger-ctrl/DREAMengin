@@ -15,7 +15,7 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Next.js App Router scaffold | ✅ Done | v16.1.6, TypeScript strict |
 | Tailwind + Space Grotesk font | ✅ Done | Design tokens in `globals.css` |
 | Sky-blue + gold gradient theme | ✅ Done | CSS vars + ThemeApplicator; 5 gradient presets in Appearance settings |
-| Gradient on all daydreams/settings | 🔶 Partly done | 4 daydream pages + settings/algorithm done; 11 pages still use old bg-background |
+| Gradient on all daydreams/settings | ✅ Done | All pages use de-sky-bg + de-widget; ads/analytics/error pages converted |
 | Mobile-first viewport | ✅ Done | Root layout + game page both set `userScalable: false` |
 | Dark-mode support | 🔶 Partly done | CSS vars in place; not all components respect them |
 | PWA manifest | ✅ Done | `public/manifest.json` |
@@ -37,7 +37,7 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Session refresh proxy | ✅ Done | `proxy.ts` (Next.js 16 edge proxy) |
 | Dev auth bypass | ✅ Done | `NEXT_PUBLIC_DEV_BYPASS_AUTH=true` |
 | Supabase env-var resolution | ✅ Done | `lib/supabase/env.ts` — accepts all naming conventions |
-| Password reset flow | 🔲 Needs work | Route exists but UI not built |
+| Password reset flow | ✅ Done | `/auth/reset-password` — full UI + Supabase `resetPasswordForEmail` + email confirmation screen |
 | "Remember me" | ✅ Done | localStorage-backed |
 | Persistent session (SSR) | ✅ Done | SSR cookies via server client |
 
@@ -62,7 +62,7 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| τ-navigation (spatial state transitions) | 🔶 Partly done | Discrete model implemented; continuous manifold pending |
+| τ-navigation (Golden Button state machine) | ✅ Done | Golden Button drives all navigation; swipe is a future enhancement, not the current model |
 | Daydreams menu (7 dreams) | ✅ Done | Routes + pages scaffolded |
 | System menu | ✅ Done | Dr. Eams, Settings, Account, Go Home |
 | Deep-link routes | ✅ Done | All major routes exist |
@@ -88,7 +88,7 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Feed resolver | 🔶 Partly done | `lib/widgets/feed-resolver.ts`; demo data only |
+| Feed resolver | ✅ Done | Connected to real `app_posts`; realtime subscription via `requestIdleCallback`; `resolvePublicAppPosts` + `subscribeAppPostsRealtime` |
 | Feed API route | ✅ Done | `app/api/widgets/feed/route.ts` |
 | Feed settings | 🔶 Partly done | UI at `/feed-settings`; slices not saved to DB |
 | AlgorithmEngine (My Algorithm) | ✅ Done | `components/feed/AlgorithmEngine.tsx`; presets + mix mode + toggle; localStorage for now |
@@ -227,7 +227,7 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 | Sky-blue + gold design tokens | ✅ Done | `tailwind.config.ts` + `globals.css` |
 | Space Grotesk font | ✅ Done | |
 | Frosted glass surfaces | ✅ Done | `.de-surface`, `.de-card`, `.de-widget` CSS classes |
-| Sky-blue + gold gradient across all pages | 🔶 Partly done | Core pages + 4 daydreams done; 11 pages still use old `bg-background` |
+| Sky-blue + gold gradient across all pages | ✅ Done | All app pages now use `de-sky-bg` + `de-widget`; error pages updated; ads/analytics converted |
 | `.de-marble` bubble widget style | ✅ Done | Radial gradient white core → color edges, deep blur, inset shimmer |
 | Gradient theme presets (5) | ✅ Done | Sky+Gold, Ocean+Coral, Aurora, Sunrise, Mint+Sky — editable in Appearance settings |
 | ThemeApplicator (live, CSS vars) | ✅ Done | `components/ThemeApplicator.tsx`; fires on `de-theme-changed` event |
@@ -242,13 +242,12 @@ See `docs/HANDOFF.md` for the change timeline and open priorities.
 
 ## Upgrade Priorities (in order)
 
-1. ⬆️ **11 remaining pages** — apply `de-sky-bg` + `de-widget` to: create, shop/sell, music, music/upload, settings/account, settings/security, settings/notifications, ads/create, lab/new
-2. ⬆️ **Feed system** — connect feed resolver to real DB data; real-time updates
-3. ⬆️ **Widget drag on ProfileCanvas** — wire `@dnd-kit/core` for drag-to-reorder
-4. ⬆️ **Follow/Algorithm → DB** — persist FollowOnboarding + Algorithm presets to Supabase instead of localStorage
-5. ⬆️ **Music Studio pipeline** — SoundRecorder → upload → publish to feed
-6. ⬆️ **Swipe navigation** — implement spatial swipe gestures for mobile
-7. ⬆️ **Game power-ups** — activate spin + shoot with visual effects
-8. ⬆️ **PS5 haptics** — Gamepad vibration API on stomp/coin
-9. ⬆️ **Leaderboard** — persist game scores to Supabase
-10. ⬆️ **Shop / payments** — Stripe integration
+1. ⬆️ **Feed system** — real-time feed updates; feed widget in Home shows `app_posts`
+2. ⬆️ **Widget drag on ProfileCanvas** — wire `@dnd-kit/core` for drag-to-reorder
+3. ⬆️ **Follow/Algorithm → DB** — persist FollowOnboarding + Algorithm presets to Supabase instead of localStorage
+4. ⬆️ **Music Studio pipeline** — SoundRecorder → upload → publish to feed
+5. ⬆️ **Swipe navigation** — implement spatial swipe gestures for mobile
+6. ⬆️ **Game power-ups** — activate spin + shoot with visual effects
+7. ⬆️ **PS5 haptics** — Gamepad vibration API on stomp/coin
+8. ⬆️ **Leaderboard** — persist game scores to Supabase
+9. ⬆️ **Shop / payments** — Stripe integration

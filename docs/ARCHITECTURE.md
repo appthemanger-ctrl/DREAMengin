@@ -26,10 +26,10 @@ Architecture choices must satisfy all five. If a change violates an axiom, it mu
 
 ## 1. Product Model
 
-Dream Engine is not a page-based app. It is a spatial operating surface where content and tools are represented as interactive widgets (“objects”) arranged in a navigable manifold (“space”).
+Dream Engine is not a page-based app. It is a spatial operating surface where content and tools are represented as interactive widgets (“objects”) arranged in a personal home space.
 
 Core user loop:
-- Move (swipe) → Focus (tap) → Act (create/edit/share) → Return (home anchor)
+- Navigate (Golden Button) → Focus (tap) → Act (create/edit/share) → Return (home anchor)
 
 Dream Engine may link out to external services (e.g., Instagram, YouTube, GitHub) rather than attempting to replace them. Dream Engine is the “space around the content,” not the content itself.
 
@@ -64,7 +64,7 @@ Home and Profile are not fundamentally different pages. They are focal states in
 
 ---
 
-## 4. Navigation Architecture (Spatial, Not Routes)
+## 4. Navigation Architecture (τ-Based, Not Routes)
 
 Routes exist for:
 - entry points
@@ -72,10 +72,10 @@ Routes exist for:
 - deep links
 - “spaces” with distinct server-side data requirements
 
-But primary navigation is spatial:
-- Swipe directions move across nodes (faces/slots)
-- Zoom changes depth (layers)
-- Home returns to anchor and resets traversal context
+Primary navigation is τ-based (deterministic state transitions), not route-based:
+- The **Golden Button** is the only travel system (single tap = home, double tap = menus)
+- Swipe gestures are **not currently implemented** on mobile — planned as a future enhancement
+- Home returns to anchor (node 0) and resets traversal context
 
 ### 4.1 Navigation State (Discrete, Current)
 
@@ -86,16 +86,12 @@ Minimum discrete state:
 
 This is sufficient to implement strict mapping and maintain consistency without a full physics engine.
 
-### 4.2 Future State (Continuous, Spec-Compatible)
+### 4.2 Future Enhancement (Swipe / Continuous Manifold)
 
-When upgrading to continuous manifold:
-- orientation quaternion `q`
-- position `p ∈ ℝ³`
-- velocities (linear/angular)
-- depth `d` continuous
-- face/slot indices derived from projection
+Swipe navigation and continuous spatial traversal are **planned enhancements**, not the current model.
+If/when implemented, the discrete τ-model must remain the fallback (progressive enhancement).
 
-The system must remain compatible with the discrete model during transition (progressive enhancement).
+Do not describe DREAMengin as “navigable through swipe/zoom/tap” until swipe is shipped and tested on mobile.
 
 ---
 

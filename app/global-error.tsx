@@ -9,28 +9,44 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
 
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-50 dark:bg-slate-950">
-        <div className="min-h-screen flex items-center justify-center px-6">
-          <div className="max-w-xl w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">System hiccup.</h2>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              DREAMengin hit an unexpected error. Try again — if it keeps happening, it’s likely a deployment/env config issue.
-            </p>
-            <div className="mt-4 flex items-center gap-3">
+      <body style={{ margin: 0, fontFamily: "'Space Grotesk', system-ui, sans-serif", background: 'linear-gradient(160deg, #dce8f8 0%, #c5d8f0 50%, #b8ceec 100%)' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{
+            width: '100%', maxWidth: 480,
+            background: 'rgba(255,255,255,0.55)',
+            backdropFilter: 'blur(24px)',
+            border: '1px solid rgba(160,195,240,0.45)',
+            boxShadow: '0 2px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.7)',
+            borderRadius: 24,
+            overflow: 'hidden',
+          }}>
+            <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(160,195,240,0.3)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#dc4444' }}>System hiccup.</span>
+            </div>
+            <div style={{ padding: '16px 18px 12px' }}>
+              <p style={{ fontSize: 13, color: 'rgba(60,100,160,0.75)', marginBottom: 12 }}>
+                DREAMengin hit an unexpected error. Try again — if it keeps happening, it’s likely a deployment or env config issue.
+              </p>
+              {error?.message && (
+                <p style={{ fontSize: 11, fontFamily: 'monospace', wordBreak: 'break-all', padding: '8px 12px', borderRadius: 10, background: 'rgba(220,68,68,0.06)', color: '#dc4444', border: '1px solid rgba(220,68,68,0.15)', marginBottom: 12 }}>
+                  {error.message}
+                </p>
+              )}
+            </div>
+            <div style={{ padding: '10px 18px 16px', display: 'flex', gap: 10 }}>
               <button
                 onClick={() => reset()}
-                className="px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 transition-colors"
+                style={{ flex: 1, minHeight: 44, borderRadius: 9999, background: '#2a8ab8', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
               >
                 Try again
               </button>
               <button
                 onClick={() => location.reload()}
-                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                style={{ flex: 1, minHeight: 44, borderRadius: 9999, background: 'rgba(42,138,184,0.1)', color: '#2a8ab8', border: '1px solid rgba(42,138,184,0.25)', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
               >
                 Reload
               </button>
             </div>
-            <p className="mt-4 text-xs text-slate-500 dark:text-slate-400 break-all">{error?.message}</p>
           </div>
         </div>
       </body>
