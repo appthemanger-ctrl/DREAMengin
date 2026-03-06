@@ -16,6 +16,8 @@ type ProfileLike = {
 
 type Props = {
   profile: ProfileLike | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  posts?: any[];
   coreFace: 'home' | 'profile';
   coreOpen: boolean;
   onToggleCoreFace: () => void;
@@ -42,6 +44,7 @@ function NodeWrapper({ children }: { children: React.ReactNode }) {
 
 export default function HomeDreamRuntime({
   profile,
+  posts,
   coreFace,
   coreOpen,
   onToggleCoreFace,
@@ -64,6 +67,7 @@ export default function HomeDreamRuntime({
           onClose={onCloseCore}
           onOpenDrEams={onOpenDrEams}
           profile={profile}
+          posts={posts}
         />
 
         {/* Navigation field shown when Core Dream is closed */}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
 
 type CoreFace = 'home' | 'profile';
 
@@ -15,6 +16,8 @@ type Props = {
     display_name?: string | null;
     avatar_url?: string | null;
   } | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  posts?: any[];
 };
 
 /* ── Recent activity agent definitions ── */
@@ -224,88 +227,19 @@ function MetricsRow() {
   );
 }
 
-/* ── Home face ── */
-function HomeFace({ onOpenDrEams }: { onOpenDrEams: () => void }) {
+/* ── Home face — delegates to WorkspaceDashboard ── */
+function HomeFace({ onOpenDrEams, profile, posts }: {
+  onOpenDrEams: () => void;
+  profile: Props['profile'];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  posts?: any[];
+}) {
   return (
-    <div style={{ paddingBottom: 100 }}>
-      {/* Search bar */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{
-          background: 'rgba(255,255,255,0.88)',
-          borderRadius: 100,
-          padding: '11px 18px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          boxShadow: '0 1px 8px rgba(0,0,0,0.05)',
-        }}>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, opacity: 0.45 }}>
-            <circle cx="8.5" cy="8.5" r="5.5" stroke="#1a3a6a" strokeWidth="1.8" />
-            <path d="M13 13l3.5 3.5" stroke="#1a3a6a" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search"
-            style={{
-              background: 'none', border: 'none', outline: 'none',
-              fontSize: 15, color: 'var(--de-heading)', width: '100%',
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Feed post card */}
-      <PostCard />
-
-      {/* Recent Activity */}
-      <div style={{ marginTop: 20, marginBottom: 0 }}>
-        <SectionHeader title="Recent Activity" badge={2} />
-        <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
-          {RECENT_AGENTS.map((agent) => (
-            <AgentCard key={agent.id} agent={agent} />
-          ))}
-        </div>
-      </div>
-
-      {/* Key Metrics */}
-      <div style={{ marginTop: 22 }}>
-        <SectionHeader title="Key Metrics" badge={1} />
-        <MetricsRow />
-      </div>
-
-      {/* Quick Actions */}
-      <div style={{ marginTop: 22 }}>
-        <SectionHeader title="Quick Actions" />
-        <div style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none' }}>
-          {[
-            { label: 'Dr. Eams', action: onOpenDrEams },
-            { label: 'Settings', action: () => { window.location.href = '/settings'; } },
-            { label: 'Feed',     action: () => { window.location.href = '/feed-settings'; } },
-            { label: 'Profile',  action: () => { window.location.href = '/edit-profile'; } },
-          ].map(({ label, action }) => (
-            <button
-              key={label}
-              type="button"
-              onClick={action}
-              style={{
-                padding: '10px 22px',
-                borderRadius: 100,
-                background: 'rgba(255,255,255,0.88)',
-                border: '1px solid rgba(160,195,240,0.45)',
-                fontSize: 13, fontWeight: 600,
-                color: 'var(--de-heading)',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+    <WorkspaceDashboard
+      profile={profile}
+      posts={posts ?? []}
+      onOpenDrEams={onOpenDrEams}
+    />
   );
 }
 
@@ -474,7 +408,7 @@ function WallBanner() {
 }
 
 /* ── Main export ── */
-export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClose, onOpenDrEams, profile }: Props) {
+export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClose, onOpenDrEams, profile, posts }: Props) {
   if (!isOpen) return null;
 
   if (face === 'profile') {
@@ -495,25 +429,10 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClos
     );
   }
 
+  // Home face — WorkspaceDashboard is full-screen, owns its own header + layout
   return (
-    <div style={{ width: '100%', padding: '0 18px' }}>
-      {/* dreamengin wordmark */}
-      <div style={{
-        textAlign: 'center',
-        padding: '28px 0 20px',
-        fontFamily: 'Georgia, "Times New Roman", serif',
-        fontStyle: 'italic',
-        fontSize: 'clamp(32px, 8vw, 48px)',
-        fontWeight: 400,
-        color: '#7a5c28',
-        letterSpacing: '-0.01em',
-        lineHeight: 1,
-        userSelect: 'none',
-      }}>
-        dreamengin
-      </div>
-
-      <HomeFace onOpenDrEams={onOpenDrEams} />
+    <div style={{ width: '100%', minHeight: '100svh' }}>
+      <HomeFace onOpenDrEams={onOpenDrEams} profile={profile} posts={posts} />
     </div>
   );
 }
