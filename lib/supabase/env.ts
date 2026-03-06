@@ -87,6 +87,9 @@ export const SUPABASE_JWT_SECRET = pick(
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 export function isSupabaseConfigured(): boolean {
+  console.log("[v0] SUPABASE_URL:", SUPABASE_URL ? "SET" : "NOT SET");
+  console.log("[v0] SUPABASE_ANON_KEY:", SUPABASE_ANON_KEY ? "SET" : "NOT SET");
+  console.log("[v0] isSupabaseConfigured:", Boolean(SUPABASE_URL && SUPABASE_ANON_KEY));
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 }
 
