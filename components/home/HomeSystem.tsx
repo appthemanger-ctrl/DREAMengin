@@ -64,6 +64,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
 
       <HomeDreamRuntime
         profile={profile}
+        posts={initialPosts}
         coreFace={coreFace}
         coreOpen={coreOpen}
         onToggleCoreFace={() => setCoreFace((p) => (p === 'home' ? 'profile' : 'home'))}
@@ -101,7 +102,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         side="left"
         onSelectNode={(n) => {
           closeAllMenus();
-          navigateTo(n);
+          navigateTo(n as import('@/lib/dreamnav/delta').Node);
         }}
       />
 
