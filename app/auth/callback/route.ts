@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     options?: Parameters<typeof response.cookies.set>[2];
   };
 
-  const supabase = createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {
+  const supabase = createSupabaseServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       // Make this async to match modern Next/edge expectations cleanly.
       async getAll() {
