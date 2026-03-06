@@ -31,58 +31,52 @@
  *    NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY  (legacy app name)
  *
  * ──────────────────────────────────────────────────────────────────────────
- * NOTE: Non-NEXT_PUBLIC_ vars are `undefined` in the browser bundle.
- * The fallback chain handles this transparently — client code always hits a
- * NEXT_PUBLIC_ variant before reaching the server-only names.
+ * IMPORTANT: Each env var must be accessed via a LITERAL member expression
+ * (process.env.NEXT_PUBLIC_FOO) so that Next.js/webpack DefinePlugin can
+ * inline NEXT_PUBLIC_* values at build time.  Dynamic bracket access such as
+ * process.env[variable] is not statically analyzable and always returns
+ * undefined in the browser bundle, even when the variable is set.
  */
-
-function pick(...names: string[]): string {
-  for (const n of names) {
-    const v = process.env[n];
-    if (v) return v;
-  }
-  return '';
-}
 
 // ── URL ───────────────────────────────────────────────────────────────────────
 
-export const SUPABASE_URL = pick(
+export const SUPABASE_URL =
   // Manually added / legacy custom name
-  'NEXT_PUBLIC_dreamengin_SUPABASE_URL',
+  process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL ||
   // Standard Vercel-Supabase integration (NEXT_PUBLIC – client + server)
-  'NEXT_PUBLIC_SUPABASE_URL',
-  // Project-prefixed server-only alias
-  'dreamengin_SUPABASE_URL',
-);
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  // Project-prefixed server-only alias (server only – undefined in browser)
+  process.env.dreamengin_SUPABASE_URL ||
+  '';
 
 // ── Anon / publishable key ────────────────────────────────────────────────────
 
-export const SUPABASE_ANON_KEY = pick(
+export const SUPABASE_ANON_KEY =
   // Manually added / legacy custom NEXT_PUBLIC names
-  'NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY',
-  'NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY',
+  process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY ||
   // Standard Vercel-Supabase integration (NEXT_PUBLIC – client + server)
-  'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  // Project-prefixed server-only aliases
-  'dreamengin_SUPABASE_ANON_KEY',
-  'dreamengin_SUPABASE_PUBLISHABLE_KEY',
-);
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  // Project-prefixed server-only aliases (server only – undefined in browser)
+  process.env.dreamengin_SUPABASE_ANON_KEY ||
+  process.env.dreamengin_SUPABASE_PUBLISHABLE_KEY ||
+  '';
 
 // ── Service-role key  (server-only) ──────────────────────────────────────────
 
-export const SUPABASE_SERVICE_ROLE_KEY = pick(
-  'dreamengin_SUPABASE_SECRET_KEY',
-  'dreamengin_SUPABASE_SERVICE_ROLE_KEY',
-  'SUPABASE_SERVICE_ROLE_KEY',
-);
+export const SUPABASE_SERVICE_ROLE_KEY =
+  process.env.dreamengin_SUPABASE_SECRET_KEY ||
+  process.env.dreamengin_SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  '';
 
 // ── JWT secret  (server-only) ─────────────────────────────────────────────────
 
-export const SUPABASE_JWT_SECRET = pick(
-  'dreamengin_SUPABASE_JWT_SECRET',
-  'SUPABASE_JWT_SECRET',
-);
+export const SUPABASE_JWT_SECRET =
+  process.env.dreamengin_SUPABASE_JWT_SECRET ||
+  process.env.SUPABASE_JWT_SECRET ||
+  '';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -95,7 +89,7 @@ export function isSupabaseConfigured(): boolean {
  * Lists the exact names from the user's Vercel project.
  */
 export const SETUP_HINT =
-  'Supabase is not configured. Ensure these environment variables are set in ' +
+  'Ensure these environment variables are set in ' +
   'Vercel → Project → Settings → Environment Variables:\n' +
   '  URL  →  NEXT_PUBLIC_SUPABASE_URL  (already set by Vercel-Supabase integration)\n' +
   '  KEY  →  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY  or  NEXT_PUBLIC_SUPABASE_ANON_KEY\n' +
