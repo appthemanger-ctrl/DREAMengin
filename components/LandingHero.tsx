@@ -164,8 +164,8 @@ export default function LandingHero() {
           <div className="relative flex flex-col items-center">
 
             {/* Speech bubble — in document flow ABOVE sprite on mobile so it never overlaps;
-                absolute to the right side on desktop (sm+). */}
-            <div className="sm:absolute sm:top-[64px] sm:right-[-84px] mb-3 sm:mb-0 max-w-[260px] sm:max-w-[320px] text-center sm:text-left z-20">
+                absolute to the left side on desktop (sm+). */}
+            <div className="sm:absolute sm:top-[64px] sm:left-[-84px] mb-3 sm:mb-0 max-w-[260px] sm:max-w-[320px] text-center sm:text-right z-20">
               <div
                 className="relative rounded-2xl px-4 py-3 backdrop-blur-sm"
                 style={{
@@ -194,13 +194,13 @@ export default function LandingHero() {
                     borderBottom: '1.5px solid rgba(42,138,184,0.25)',
                   }}
                 />
-                {/* Bubble tail — left-side on desktop (points left toward sprite) */}
+                {/* Bubble tail — right-side on desktop (points right toward sprite) */}
                 <div
-                  className="hidden sm:block absolute left-[-6px] top-[22px] w-3 h-3 rotate-45"
+                  className="hidden sm:block absolute right-[-6px] top-[22px] w-3 h-3 rotate-45"
                   style={{
                     background: 'rgba(255,255,255,0.75)',
-                    borderLeft: '1.5px solid rgba(42,138,184,0.25)',
-                    borderBottom: '1.5px solid rgba(42,138,184,0.25)',
+                    borderRight: '1.5px solid rgba(42,138,184,0.25)',
+                    borderTop: '1.5px solid rgba(42,138,184,0.25)',
                   }}
                 />
               </div>
