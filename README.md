@@ -86,13 +86,13 @@ Major system-update recommendations require unanimous approval from all three ag
 
 Copy `.env.example` → `.env.local` and fill in:
 
-```
-NEXT_PUBLIC_dreamengin_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY=your-anon-key
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 dreamengin_SUPABASE_SECRET_KEY=your-service-role-key
-GROQ_API_KEY=your-groq-key     # server-only AI provider key
-OPENAI_API_KEY=your-openai-key # server-only
-INNERDREAMS_PASSWORD=...        # guards /api/admin/*
+GROQ_API_KEY=your-groq-key        # server-only AI provider key
+OPENAI_API_KEY=your-openai-key    # server-only
+INNERDREAMS_PASSWORD=...           # guards /api/admin/*
 ```
 
 Keys are **server-side only** — never shipped to the client.
