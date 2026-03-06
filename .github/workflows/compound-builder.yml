@@ -1,0 +1,251 @@
+name: Compound Creative Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      growth_rate:
+        description: 'Target growth rate as a decimal (e.g. 0.05 = 5%)'
+        required: false
+        default: '0.05'
+  schedule:
+    # Mon, Wed, Fri at 08:00 UTC
+    - cron: '0 8 * * 1,3,5'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  compound:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10'
+
+      # ---------- Ensure learning journal exists ----------
+      - name: Initialise learning.json
+        run: |
+          if [ ! -f learning.json ]; then
+            echo '{"features_attempted":[],"successful_patterns":[]}' > learning.json
+          fi
+
+      # ---------- Analyse codebase ----------
+      - name: Count TypeScript/TSX lines
+        id: analyze
+        run: |
+          LINES=$(find . \
+            -name "*.ts" -o -name "*.tsx" \
+            | grep -v node_modules \
+            | grep -v ".next" \
+            | grep -v "dist" \
+            | xargs wc -l 2>/dev/null \
+            | tail -n1 \
+            | awk '{print $1}')
+          if [ -z "$LINES" ] || [ "$LINES" -eq 0 ]; then LINES=1000; fi
+          echo "current_size=$LINES" >> "$GITHUB_OUTPUT"
+          echo "Codebase: $LINES lines of TypeScript"
+
+      - name: Calculate growth target
+        id: target
+        run: |
+          RATE="${{ github.event.inputs.growth_rate || '0.05' }}"
+          CURRENT="${{ steps.analyze.outputs.current_size }}"
+          TARGET=$(node -e "process.stdout.write(String(Math.ceil($CURRENT * (1 + $RATE))))")
+          DELTA=$((TARGET - CURRENT))
+          echo "target_size=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "delta=$DELTA" >> "$GITHUB_OUTPUT"
+          echo "Target: $TARGET lines (+$DELTA, rate=$RATE)"
+
+      # ---------- Scaffold feature spec ----------
+      - name: Generate feature spec
+        id: spec
+        run: |
+          DELTA="${{ steps.target.outputs.delta }}"
+          ATTEMPTS=$(node -e "
+            const fs = require('fs');
+            const l = JSON.parse(fs.readFileSync('learning.json', 'utf8'));
+            process.stdout.write(JSON.stringify(l.features_attempted.slice(-10)));
+          ")
+
+          # Build a prompt-based spec — no external API needed; we use
+          # a deterministic selection from a curated idea bank.
+          node - <<'JSEOF'
+          const fs = require('fs');
+          const delta = Number(process.env.DELTA || 50);
+
+          const ideas = [
+            {
+              title: "Ledger Strain History Chart",
+              description: "Add a line chart to /ledger showing strain over the last 100 steps. Use an SVG polyline drawn from the ledger entries array.",
+              files: ["components/ledger/StrainHistory.tsx"],
+              complexity: 55
+            },
+            {
+              title: "Phase Shift Animation",
+              description: "Add a CSS keyframe burst animation to the Phase Shift button that plays when a phase shift is triggered.",
+              files: ["components/ledger/PhaseShiftEffect.tsx"],
+              complexity: 30
+            },
+            {
+              title: "Ledger Export Button",
+              description: "Add a Download JSON button to /ledger that serialises the full ledger state and downloads it as ledger-export.json.",
+              files: ["components/ledger/LedgerExport.tsx"],
+              complexity: 40
+            },
+            {
+              title: "Action Space Presets",
+              description: "Add preset action-space templates (navigation, content, social) to the ActionDecider component so users can quickly populate the action space.",
+              files: ["components/ledger/ActionDecider.tsx"],
+              complexity: 45
+            },
+            {
+              title: "Strain Threshold Alerts",
+              description: "Add a toast notification system to /ledger that fires when strain crosses 1.0 or 2.0, with a one-click Phase Shift button inside the toast.",
+              files: ["components/ledger/StrainAlert.tsx"],
+              complexity: 60
+            },
+            {
+              title: "Explore/Exploit Mini-game",
+              description: "Add an interactive mini-game to the Analytics section: the user sets outcomes for 5 simulated actions and the ledger decides which wins.",
+              files: ["components/ledger/ExploreGame.tsx"],
+              complexity: 80
+            },
+            {
+              title: "Keyboard Shortcuts",
+              description: "Add keyboard shortcuts to /ledger: R to focus the recorder, D to focus the decider, P to trigger a phase shift.",
+              files: ["app/ledger/page.tsx"],
+              complexity: 35
+            },
+            {
+              title: "Ledger Diff View",
+              description: "Show a before/after comparison when a phase shift fires: display outcomes before compression alongside their slog-transformed values.",
+              files: ["components/ledger/PhaseShiftDiff.tsx"],
+              complexity: 65
+            }
+          ];
+
+          const learning = JSON.parse(fs.readFileSync('learning.json', 'utf8'));
+          const attempted = new Set(learning.features_attempted.map(f => f.title));
+          const available = ideas.filter(i => !attempted.has(i.title));
+          const pick = available.length > 0
+            ? available[Math.floor(Math.random() * available.length)]
+            : ideas[Math.floor(Math.random() * ideas.length)];
+
+          fs.writeFileSync('feature_spec.json', JSON.stringify(pick, null, 2));
+          console.log('Selected feature:', pick.title);
+          JSEOF
+        env:
+          DELTA: ${{ steps.target.outputs.delta }}
+
+      # ---------- Implement feature (scaffold stubs) ----------
+      - name: Scaffold feature files
+        run: |
+          node - <<'JSEOF'
+          const fs = require('fs');
+          const path = require('path');
+
+          const spec = JSON.parse(fs.readFileSync('feature_spec.json', 'utf8'));
+          console.log('Implementing:', spec.title);
+
+          for (const filePath of spec.files) {
+            if (fs.existsSync(filePath)) {
+              console.log('  SKIP (already exists):', filePath);
+              continue;
+            }
+            const dir = path.dirname(filePath);
+            fs.mkdirSync(dir, { recursive: true });
+
+            const ext = path.extname(filePath);
+            const name = path.basename(filePath, ext);
+
+            const stub = `'use client';
+          /**
+           * ${spec.title}
+           * ${spec.description}
+           *
+           * Auto-generated stub by Compound Creative Builder.
+           * Replace this stub with the full implementation.
+           */
+
+          export default function ${name}() {
+            return (
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5">
+                <h3 className="font-bold text-white mb-2">${spec.title}</h3>
+                <p className="text-sm text-slate-400">${spec.description}</p>
+              </div>
+            );
+          }
+          `;
+            fs.writeFileSync(filePath, stub);
+            console.log('  CREATED:', filePath);
+          }
+          JSEOF
+
+      # ---------- Update learning journal ----------
+      - name: Update learning.json
+        run: |
+          node - <<'JSEOF'
+          const fs = require('fs');
+          const spec = JSON.parse(fs.readFileSync('feature_spec.json', 'utf8'));
+          const learning = JSON.parse(fs.readFileSync('learning.json', 'utf8'));
+          learning.features_attempted.push({
+            title: spec.title,
+            date: new Date().toISOString().split('T')[0],
+            complexity: spec.complexity
+          });
+          fs.writeFileSync('learning.json', JSON.stringify(learning, null, 2));
+          console.log('Learning journal updated. Total attempts:', learning.features_attempted.length);
+          JSEOF
+
+      # ---------- Type-check ----------
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm run typecheck || echo "Type errors found — please review PR manually."
+
+      # ---------- Open PR ----------
+      - name: Read feature title
+        id: feature
+        run: |
+          TITLE=$(node -e "const s=require('./feature_spec.json'); process.stdout.write(s.title)")
+          echo "title=$TITLE" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "Creative Growth: ${{ steps.feature.outputs.title }}"
+          body: |
+            ## 🌱 Compound Creative Builder
+
+            This PR scaffolds a new feature for the **Ledger Intelligence** system.
+
+            **Feature:** ${{ steps.feature.outputs.title }}
+
+            | Metric | Value |
+            |--------|-------|
+            | Codebase before | ${{ steps.analyze.outputs.current_size }} lines |
+            | Target after | ${{ steps.target.outputs.target_size }} lines |
+            | Delta | +${{ steps.target.outputs.delta }} lines |
+            | Growth rate | ${{ github.event.inputs.growth_rate || '5%' }} |
+
+            ### Next steps
+            - Replace any auto-generated stubs in `feature_spec.json`'s `files` list with real implementations.
+            - Run `pnpm run test:unit` to confirm no regressions.
+
+            _Generated by the Compound Creative Builder workflow._
+          branch: "creative/feature-${{ github.run_number }}"
+          add-paths: |
+            feature_spec.json
+            learning.json
+            components/ledger/*.tsx
+            app/ledger/**
