@@ -129,7 +129,7 @@ export default function EditProfilePage() {
     <div style={{
       minHeight: '100svh',
       background: 'linear-gradient(160deg, #dce8f8 0%, #c8d8f0 40%, #f5e8c4 100%)',
-      paddingBottom: 40,
+      paddingBottom: 100,
     }}>
       {/* ── Sticky header ── */}
       <header style={{

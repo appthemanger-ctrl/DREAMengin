@@ -676,7 +676,6 @@ export default function ProfileWidgetGrid({
   initialWidgets, onSave,
 }: ProfileWidgetGridProps) {
   const [widgets, setWidgets]     = useState<Widget[]>(initialWidgets ?? DEFAULT_WIDGETS);
-  const [showTray, setShowTray]   = useState(false);
   const [showConnectorPicker, setShowConnectorPicker] = useState(false);
   const [configWidget, setConfigWidget] = useState<Widget | null>(null);
   const dragSrc = useRef<number | null>(null);
@@ -745,8 +744,46 @@ export default function ProfileWidgetGrid({
     displayName, avatarUrl, bio, coverUrl, followers, posts, likes,
   });
 
+  // Profile strength — ratio of added widgets vs all available
+  const totalAvailable = WIDGET_TRAY.length + TOP_10_CONNECTORS.length;
+  const remaining = totalAvailable - widgets.length;
+  const strengthPct = Math.round((widgets.length / totalAvailable) * 100);
+  let strengthLabel = 'Just started';
+  if (strengthPct >= 85) strengthLabel = 'Complete!';
+  else if (strengthPct >= 60) strengthLabel = 'Looking great';
+  else if (strengthPct >= 30) strengthLabel = 'Taking shape';
+
   return (
-    <div>
+    <div style={{ paddingBottom: isEditing ? 88 : 0 }}>
+      {/* Profile Strength — edit mode only */}
+      {isEditing && (
+        <div style={{
+          marginBottom: 16, padding: '14px 16px',
+          background: 'rgba(255,255,255,0.75)',
+          borderRadius: 18,
+          border: '1.5px solid rgba(200,152,26,0.18)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>Profile Strength</span>
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#c8981a' }}>{strengthPct}% · {strengthLabel}</span>
+          </div>
+          <div style={{ height: 6, background: 'rgba(0,0,0,0.07)', borderRadius: 99, overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', borderRadius: 99,
+              width: `${strengthPct}%`,
+              background: 'linear-gradient(90deg, #c8981a, #e0b830)',
+              transition: 'width 0.5s cubic-bezier(0.34,1.56,0.64,1)',
+            }} />
+          </div>
+          {strengthPct < 100 && (
+            <div style={{ marginTop: 6, fontSize: 10, color: '#888' }}>
+              Add {remaining} more widget{remaining !== 1 ? 's' : ''} to level up your profile
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Bio card — full width */}
       {bioWidget && (() => {
         const idx = widgets.indexOf(bioWidget);
@@ -837,106 +874,72 @@ export default function ProfileWidgetGrid({
         </div>
       </div>
 
-      {/* + Favorite Widgets tray (edit mode) */}
+      {/* + Favorite Widgets — fixed bottom chip strip (edit mode) */}
       {isEditing && (
         <div style={{
-          marginTop: 20,
-          background: 'rgba(255,255,255,0.88)',
-          borderRadius: 22,
-          border: '1.5px solid rgba(0,0,0,0.07)',
-          boxShadow: '0 2px 20px rgba(0,0,0,0.07)',
-          overflow: 'hidden',
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 90,
+          background: 'rgba(240,245,252,0.97)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderTop: '1px solid rgba(160,195,240,0.35)',
+          boxShadow: '0 -4px 24px rgba(0,0,0,0.09)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
         }}>
-          <button onClick={() => setShowTray(t => !t)} style={{
-            width: '100%', padding: '14px 18px',
-            background: 'none', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 8,
-            fontSize: 14, fontWeight: 700, color: '#1a1a1a',
-          }}>
-            <span style={{ fontSize: 16 }}>＋</span>
-            Favorite Widgets
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-              {[0, 1, 2].map(i => (
-                <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: showTray ? (i === 0 ? '#c8981a' : '#ddd') : '#ddd' }} />
-              ))}
-            </div>
-          </button>
-          {showTray && (
-            <div style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '0 16px 16px', scrollbarWidth: 'none' }}>
-              {WIDGET_TRAY.map(({ type, label, icon }) => {
-                const active = widgets.some(w => w.type === type);
-                return (
-                  <button key={type} onClick={() => addWidget(type as WidgetType)} disabled={active} style={{
-                    flexShrink: 0, width: 76, padding: '10px 0 8px',
-                    borderRadius: 14,
-                    background: active ? 'rgba(200,152,26,0.08)' : '#f5f5f5',
-                    border: active ? '1.5px solid rgba(200,152,26,0.3)' : '1.5px solid transparent',
-                    cursor: active ? 'default' : 'pointer',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
-                    opacity: active ? 0.55 : 1,
-                    transition: 'all 0.15s',
-                  }}>
-                    <span style={{ fontSize: 22 }}>{icon}</span>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: '#444' }}>{label}</span>
-                    {active && <span style={{ fontSize: 9, color: '#c8981a', fontWeight: 700 }}>Added</span>}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* ── Connect a Service — S.I.C.C. ── */}
+          {/* drag handle bar */}
+          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8, paddingBottom: 6 }}>
+            <div style={{ width: 32, height: 3, borderRadius: 99, background: 'rgba(0,0,0,0.15)' }} />
+          </div>
+          {/* chip row */}
           <div style={{
-            margin: '0 14px 14px',
-            borderTop: showTray ? '1px solid rgba(0,0,0,0.06)' : 'none',
-            paddingTop: showTray ? 14 : 0,
-          }}>
+            display: 'flex', gap: 8, overflowX: 'auto',
+            padding: '0 14px 10px',
+            scrollbarWidth: 'none',
+          } as React.CSSProperties}>
+            {/* Static widget chips */}
+            {WIDGET_TRAY.map(({ type, label, icon }) => {
+              const active = widgets.some(w => w.type === type);
+              return (
+                <button
+                  key={type}
+                  onClick={() => addWidget(type as WidgetType)}
+                  disabled={active}
+                  style={{
+                    flexShrink: 0,
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    padding: '6px 12px',
+                    borderRadius: 99,
+                    background: active ? 'rgba(200,152,26,0.10)' : 'rgba(255,255,255,0.90)',
+                    border: active ? '1.5px solid rgba(200,152,26,0.30)' : '1.5px solid rgba(0,0,0,0.09)',
+                    cursor: active ? 'default' : 'pointer',
+                    fontSize: 12, fontWeight: 600,
+                    color: active ? '#c8981a' : '#333',
+                    boxShadow: active ? 'none' : '0 1px 4px rgba(0,0,0,0.07)',
+                    transition: 'all 0.15s',
+                    opacity: active ? 0.65 : 1,
+                  }}
+                >
+                  <span style={{ fontSize: 14 }}>{active ? '✓' : icon}</span>
+                  {!active && <span style={{ fontSize: 11 }}>+</span>}
+                  {label}
+                </button>
+              );
+            })}
+            {/* Connect a Service chip */}
             <button
               onClick={() => setShowConnectorPicker(true)}
               style={{
-                width: '100%', padding: '13px 16px',
-                borderRadius: 16,
-                background: 'linear-gradient(135deg, rgba(200,152,26,0.09) 0%, rgba(74,158,214,0.07) 100%)',
-                border: '1.5px solid rgba(200,152,26,0.22)',
+                flexShrink: 0,
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '6px 12px',
+                borderRadius: 99,
+                background: 'linear-gradient(135deg, rgba(200,152,26,0.12), rgba(74,158,214,0.10))',
+                border: '1.5px solid rgba(200,152,26,0.28)',
                 cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 10,
-                transition: 'transform 0.1s',
+                fontSize: 12, fontWeight: 700, color: '#c8981a',
+                boxShadow: '0 1px 6px rgba(200,152,26,0.15)',
               }}
-              onPointerDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'; }}
-              onPointerUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
             >
-              <div style={{
-                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                background: 'linear-gradient(135deg, #c8981a, #e0b830)',
-                boxShadow: '0 3px 10px rgba(200,152,26,0.30)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Plug size={16} style={{ color: '#fff' }} />
-              </div>
-              <div style={{ flex: 1, textAlign: 'left' }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a' }}>
-                  Connect a Service
-                </div>
-                <div style={{ fontSize: 11, color: '#888', marginTop: 1 }}>
-                  Twitter · Instagram · LinkedIn + 7 more
-                </div>
-              </div>
-              {/* Mini connector icons — derived from TOP_10_CONNECTORS */}
-              <div style={{ display: 'flex', gap: -4 }}>
-                {TOP_10_CONNECTORS.slice(0, 5).map((c, i) => (
-                  <div key={c.id} style={{
-                    width: 22, height: 22, borderRadius: '50%',
-                    background: c.brandColor,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: c.symbol.length > 1 ? 8 : 10, fontWeight: 900, color: '#fff',
-                    marginLeft: i > 0 ? -6 : 0,
-                    border: '1.5px solid #f8f8f8',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
-                  }}>
-                    {c.symbol}
-                  </div>
-                ))}
-              </div>
+              <Plug size={12} /> Connect…
             </button>
           </div>
         </div>
