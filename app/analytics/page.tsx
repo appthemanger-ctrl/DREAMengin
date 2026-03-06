@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import AnalyticsPanel from '@/components/AnalyticsPanel';
-import { TrendingUp, Users, Eye, Heart, DollarSign, Calendar } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeft, TrendingUp, Users, Eye, Heart, DollarSign, FileText, Plug, ExternalLink, ShoppingBag } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,167 +13,113 @@ export default async function AnalyticsPage() {
     redirect('/login');
   }
 
-  // In production, fetch real analytics data from your database
-  const analyticsData = {
-    totalViews: 45231,
-    totalLikes: 8921,
-    totalComments: 2341,
-    totalFollowers: 3456,
-    totalRevenue: 5890,
-    viewsChange: 15.3,
-    likesChange: 12.7,
-    commentsChange: -3.2,
-    followersChange: 22.4,
-    revenueChange: 34.6
-  };
+  // Fetch real data from DB
+  const [{ data: profile }, { count: postCount }] = await Promise.all([
+    supabase.from('profiles').select('handle, display_name').eq('id', user.id).single(),
+    supabase.from('app_posts').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+  ]);
+
+  const handle = profile?.handle || 'you';
+
+  const metrics = [
+    { value: String(postCount ?? 0), label: 'Posts',      icon: FileText,    color: 'var(--de-accent)' },
+    { value: '—',                     label: 'Views',       icon: Eye,         color: '#6366f1'          },
+    { value: '—',                     label: 'Likes',       icon: Heart,       color: '#ec4899'          },
+    { value: '—',                     label: 'Followers',   icon: Users,       color: '#10b981'          },
+    { value: '—',                     label: 'Revenue',     icon: DollarSign,  color: '#22c55e'          },
+    { value: '—',                     label: 'Growth',      icon: TrendingUp,  color: 'var(--de-gold)'   },
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            Analytics Dashboard
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Track your performance and engagement across DREAMengin
-          </p>
+    <div className="de-sky-bg min-h-screen">
+      {/* Header */}
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
+          </Link>
+          <TrendingUp className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Analytics</h1>
         </div>
+      </header>
 
-        {/* Main Analytics Panel */}
-        <div className="mb-8">
-          <AnalyticsPanel data={analyticsData} />
-        </div>
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
-        {/* Additional Insights Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Top Posts */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-5 h-5 text-blue-500" />
-              <h3 className="font-semibold text-slate-900 dark:text-white">Top Posts</h3>
-            </div>
-            <div className="space-y-3">
-              {[
-                { title: 'Quantum Computing Breakthrough', views: 12543, engagement: 89 },
-                { title: 'AI Ethics Discussion', views: 8921, engagement: 76 },
-                { title: 'New Music Release', views: 6734, engagement: 91 }
-              ].map((post, idx) => (
-                <div key={idx} className="pb-3 border-b border-slate-200 dark:border-slate-700 last:border-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">
-                    {post.title}
-                  </p>
-                  <div className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-400">
-                    <span className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      {post.views.toLocaleString()}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Heart className="w-3 h-3" />
-                      {post.engagement}%
-                    </span>
-                  </div>
+        {/* Overview grid */}
+        <div className="de-widget">
+          <div className="de-widget-header"><span className="de-widget-title">Overview</span></div>
+          <div className="de-widget-body">
+            <div className="grid grid-cols-3 gap-3">
+              {metrics.map(({ value, label, icon: Icon, color }) => (
+                <div key={label} className="de-surface p-3 text-center">
+                  <Icon className="w-4 h-4 mx-auto mb-1.5" style={{ color }} />
+                  <div className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>{value}</div>
+                  <div className="text-xs mt-0.5" style={{ color: 'var(--de-text-dim)' }}>{label}</div>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Recent Followers */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Users className="w-5 h-5 text-purple-500" />
-              <h3 className="font-semibold text-slate-900 dark:text-white">Recent Followers</h3>
-            </div>
-            <div className="space-y-3">
-              {[
-                { name: 'Dr. Sarah Chen', handle: '@sarahchen', time: '2h ago' },
-                { name: 'Alex Rivera', handle: '@alexr', time: '5h ago' },
-                { name: 'Jordan Kim', handle: '@jordank', time: '1d ago' }
-              ].map((follower, idx) => (
-                <div key={idx} className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 last:border-0">
-                  <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">
-                      {follower.name}
-                    </p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
-                      {follower.handle}
-                    </p>
-                  </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-500">
-                    {follower.time}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Revenue Breakdown */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <DollarSign className="w-5 h-5 text-emerald-500" />
-              <h3 className="font-semibold text-slate-900 dark:text-white">Revenue Sources</h3>
-            </div>
-            <div className="space-y-3">
-              {[
-                { source: 'Ad Placements', amount: 3240, percentage: 55 },
-                { source: 'Shop Sales', amount: 1850, percentage: 31 },
-                { source: 'Tips & Donations', amount: 800, percentage: 14 }
-              ].map((source, idx) => (
-                <div key={idx} className="pb-3 border-b border-slate-200 dark:border-slate-700 last:border-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">
-                      {source.source}
-                    </p>
-                    <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                      ${source.amount.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                    <div
-                      className="bg-emerald-500 h-2 rounded-full"
-                      style={{ width: `${source.percentage}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p className="text-xs mt-3 text-center" style={{ color: 'var(--de-text-dim)' }}>
+              — = data not yet available. Connect sources below.
+            </p>
           </div>
         </div>
 
-        {/* Growth Trends */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-              <h3 className="font-semibold text-slate-900 dark:text-white">Growth Trends</h3>
-            </div>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                Export Data
-              </button>
-            </div>
+        {/* Public profile */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Users className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
+            <span className="de-widget-title">Your Reach</span>
           </div>
-          <div className="h-64 flex items-end justify-between gap-2">
-            {[65, 78, 82, 91, 88, 95, 100].map((height, idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center gap-2">
-                <div 
-                  className="w-full bg-gradient-to-t from-slate-700 to-slate-500 dark:from-slate-600 dark:to-slate-400 rounded-t-lg transition-all hover:opacity-80"
-                  style={{ height: `${height}%` }}
-                />
-                <span className="text-xs text-slate-600 dark:text-slate-400">
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][idx]}
-                </span>
+          <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+            <Link href={`/profile/${handle}`} className="de-row" style={{ borderRadius: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(42,138,184,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ExternalLink className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
               </div>
-            ))}
+              <div style={{ flex: 1 }}>
+                <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>View Public Profile</div>
+                <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>@{handle} · see what others see</div>
+              </div>
+            </Link>
+            <Link href="/connectors" className="de-row" style={{ borderRadius: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Plug className="w-4 h-4" style={{ color: '#6366f1' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Connect Data Sources</div>
+                <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Instagram, YouTube, Spotify and more</div>
+              </div>
+            </Link>
           </div>
         </div>
 
-        {/* Export Options */}
-        <div className="mt-6 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Need more detailed analytics? Export your data or schedule automated reports to be sent to your email.
-          </p>
+        {/* Revenue */}
+        <div className="de-widget" style={{ borderColor: 'rgba(34,197,94,0.2)' }}>
+          <div className="de-widget-header" style={{ borderBottomColor: 'rgba(34,197,94,0.15)' }}>
+            <DollarSign className="w-4 h-4 mr-2" style={{ color: '#22c55e' }} />
+            <span className="de-widget-title">Revenue</span>
+          </div>
+          <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+            <Link href="/shop/sell" className="de-row" style={{ borderRadius: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(34,197,94,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ShoppingBag className="w-4 h-4" style={{ color: '#22c55e' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>List an Item for Sale</div>
+                <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Sell digital products, music, art, or services</div>
+              </div>
+            </Link>
+            <Link href="/shop" className="de-row" style={{ borderRadius: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(34,197,94,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <DollarSign className="w-4 h-4" style={{ color: '#22c55e' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Your Shop</div>
+                <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Manage listings and track sales</div>
+              </div>
+            </Link>
+          </div>
         </div>
+
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 **Customizable UI OS · Widget Space · Social Feed · AI Triad**
 
-A Next.js 16.1.6 App Router application with a Babylon.js animated logo, gesture-driven spatial navigation, widget space, social feed, and an AI triad (Dr. Eams · IDARi · TheBoogieMan).
+A Next.js 16.1.6 App Router application with a Babylon.js animated logo, τ-navigation via the Golden Button, widget space, social feed, and an AI triad (Dr. Eams · IDARi · TheBoogieMan).
 
 ---
 
@@ -138,7 +138,7 @@ DEV_ADMIN=true
 Pushing a `.zip` triggers `.github/workflows/deploy-artifact.yml`, which extracts and merges files into the repo root. Source code (`src/`, `package.json`, etc.) is **never overwritten** — only new/updated asset files are added.
 # DREAMengin (Authoritative Spec + Implementation)
 
-DREAMengin is a spatial, gesture-driven creative platform built on **Next.js (App Router)** + **Supabase**.
+DREAMengin is a spatial creative platform built on **Next.js (App Router)** + **Supabase**, navigated via the Golden Button τ-state machine.
 
 This repo is **spec-governed**. The documents in `/docs` are **not suggestions** — they are binding constraints on implementation.
 
