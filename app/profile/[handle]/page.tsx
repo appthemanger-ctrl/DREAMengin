@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Pencil } from 'lucide-react';
 import ProfileWidgetGrid from '@/components/profile/ProfileWidgetGrid';
 import FollowButton from '@/components/feed/FollowButton';
 import ProfileShareButton from '@/components/ProfileShareButton';
@@ -96,7 +97,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               }}
               title="Edit profile"
             >
-              A
+              <Pencil size={14} />
             </Link>
           ) : (
             <FollowButton handle={profile.handle} displayName={displayName} />

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Home, User, MessageCircle, Compass, Settings,
   Bell, BarChart3, TrendingUp, Users, Zap,
@@ -278,6 +279,7 @@ function BottomTabBar({ active = 'home' }: { active?: string }) {
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
 export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: WorkspaceDashboardProps) {
+  const router = useRouter();
   const [searchVal, setSearchVal] = useState('');
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const initials = name[0]?.toUpperCase() || 'D';
@@ -477,9 +479,9 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
               background: 'rgba(255,255,255,0.35)',
             }}>
               <ActionBtn icon={Sparkles}    label="Dr. Eams"  onClick={onOpenDrEams} primary />
-              <ActionBtn icon={Music}       label="Music"     onClick={() => { window.location.href = '/daydream/music'; }} />
-              <ActionBtn icon={ShoppingBag} label="Shop"      onClick={() => { window.location.href = '/shop'; }} />
-              <ActionBtn icon={Zap}         label="Create"    onClick={() => { window.location.href = '/create'; }} />
+              <ActionBtn icon={Music}       label="Music"     onClick={() => router.push('/daydream/music')} />
+              <ActionBtn icon={ShoppingBag} label="Shop"      onClick={() => router.push('/shop')} />
+              <ActionBtn icon={Zap}         label="Create"    onClick={() => router.push('/create')} />
             </div>
           </div>
 

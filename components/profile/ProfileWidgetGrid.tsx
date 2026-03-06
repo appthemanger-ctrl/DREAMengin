@@ -493,10 +493,10 @@ function WidgetContent(p: WidgetContentProps) {
           <span style={{ fontWeight: 700, fontSize: 13, color: textColor }}>Twitter</span>
         </div>
         <div style={{ fontSize: 12, fontWeight: 600, color: textColor, marginBottom: 2 }}>
-          {config.twitterHandle ?? 'TechNews'}
+          @{config.twitterHandle ?? 'TechNews'}
         </div>
         <div style={{ fontSize: 11, color: dimColor, marginBottom: 8 }}>
-          {config.linkedinRole ?? 'Senior UX Designer'} at {config.linkedinCompany ?? 'Google'}
+          Latest posts &amp; updates
         </div>
         <BarChart data={[3, 5, 4, 7, 6, 8, 7]} color={accent} />
         <div style={{ fontSize: 10, color: dimColor, marginTop: 4 }}>
