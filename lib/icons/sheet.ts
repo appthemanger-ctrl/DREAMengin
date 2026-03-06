@@ -169,6 +169,8 @@ export const ICONS: Record<IconName, { col: number; row: number }> = {
   dot:      { col: 0,  row: 8 },
 };
 
+export const ICON_ENTRIES = Object.entries(ICONS) as [IconName, { col: number; row: number }][];
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Returns the CSS background-position offset (negative px) for a named icon. */
@@ -192,7 +194,7 @@ export function hasIcon(name: string): name is IconName {
 export function validateIconMap(): void {
   if (process.env.NODE_ENV !== 'development') return;
   const seen = new Map<string, IconName>();
-  for (const [name, { col, row }] of Object.entries(ICONS) as [IconName, { col: number; row: number }][]) {
+  for (const [name, { col, row }] of ICON_ENTRIES) {
     if (col < 0 || col >= COLS || row < 0 || row >= ROWS) {
       console.warn(`[icons] "${name}" is out of bounds (col=${col}, row=${row})`);
     }
