@@ -19,10 +19,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: pnpm
 
-      - name: Generate lockfile (fallback ignores scripts)
-        run: |
-          pnpm install --no-frozen-lockfile || pnpm install --no-frozen-lockfile --ignore-scripts
+      - name: Generate pnpm lockfile only
+        run: pnpm install --lockfile-only --no-frozen-lockfile
 
       - name: Commit & push pnpm-lock.yaml (only if changed)
         run: |
@@ -35,21 +35,3 @@ jobs:
           fi
           git commit -m "chore: add/update pnpm lockfile"
           git push
-
-      - name: Summary (copy/paste)
-        if: always()
-        run: |
-          {
-            echo "## Lockfile result"
-            echo "- pnpm: $(pnpm -v)"
-            echo "- node: $(node -v)"
-            echo "- lockfile: $(test -f pnpm-lock.yaml && echo '✅ present' || echo '❌ missing')"
-            echo ""
-            echo "## If lockfile is still missing"
-            echo "It means install failed early or ran in the wrong directory."
-            echo ""
-            echo "### Try (local)"
-            echo "```bash"
-            echo "pnpm install --no-frozen-lockfile --ignore-scripts"
-            echo "```"
-          } >> "$GITHUB_STEP_SUMMARY"
