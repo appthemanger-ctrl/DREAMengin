@@ -227,7 +227,7 @@ export default function HeroSprite({
       // ── Idle animation base ──────────────────────────────────────────────
       const idleBob   = Math.sin(t * 1.6) * 3;          // gentle vertical float
       const idleArm   = Math.sin(t * 1.6) * 0.10;       // subtle back-arm sway
-      const idleWave  = Math.sin(t * 2.5) * 0.42;       // right-hand wave (default idle)
+      const idleWave  = Math.sin(t * 2.0) * 0.18;       // right-hand gentle wave (default idle)
       const idleLeg   = Math.sin(t * 1.6) * 0.06;       // subtle leg sway
       const idleHead  = Math.sin(t * 0.9) * 0.04;       // gentle head tilt
 
@@ -286,11 +286,11 @@ export default function HeroSprite({
 
       // 1. Back arm (arm1, LEFT arm) — drawn behind torso.
       //    Pivot = left shoulder (shoulderXL).
-      //    Image placed so its RIGHT edge is at the shoulder → arm extends visibly to the LEFT.
+      //    Shoulder joint sits ~8% from the left edge of the arm image → arm hangs down and slightly right.
       drawPart(
         imgs.arm1, DIM.arm1.w, DIM.arm1.h,
-        shoulderXL - DIM.arm1.w, shoulderY,   // dx: full arm-width left of shoulder
-        shoulderXL, shoulderY,                 // pivot: left shoulder joint
+        shoulderXL - Math.round(DIM.arm1.w * 0.08), shoulderY,   // dx: shoulder at 8% from left
+        shoulderXL, shoulderY,                                     // pivot: left shoulder joint
         -armAngle,
       );
 
@@ -326,10 +326,10 @@ export default function HeroSprite({
 
       // 6. Front arm (arm2, RIGHT arm) — waves by default, reacts on torso tap.
       //    Pivot = right shoulder (shoulderXR).
-      //    Image placed so shoulder sits ~20% from left edge → arm hangs to the right.
+      //    Shoulder joint sits ~32% from the left edge of the arm image → arm hangs down and slightly right.
       drawPart(
         imgs.arm2, DIM.arm2.w, DIM.arm2.h,
-        shoulderXR - Math.round(DIM.arm2.w * 0.20), shoulderY,   // dx: shoulder at 20% from left
+        shoulderXR - Math.round(DIM.arm2.w * 0.32), shoulderY,   // dx: shoulder at 32% from left
         shoulderXR, shoulderY,                                     // pivot: right shoulder joint
         arm2Angle,
       );

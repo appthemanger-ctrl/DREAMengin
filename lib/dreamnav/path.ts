@@ -6,8 +6,8 @@ const ACTIONS: Action[] = [
   'swipe_right',
   'swipe_up',
   'swipe_down',
-  'zoom_in',
-  'zoom_out',
+  'depth_in',
+  'depth_out',
   'home',
 ];
 

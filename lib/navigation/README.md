@@ -1,10 +1,16 @@
-# Gesture-Driven Spatial Navigation Engine
+# Spatial Navigation Math Library
 
-Mobile-first navigation system for DREAMengin that uses gestures (pinch, swipe, hold) instead of traditional nav bars and routes.
+Low-level math and subsystem primitives for DREAMengin's navigation layer.
+
+> **Active navigation:** The app navigates via the **τ-transition system** implemented in
+> `lib/dreamnav/` (`DreamNavSurface6`, `delta.ts`, `tau()`). Spatial swipe gestures are
+> **disabled** per spec §3.4; space changes happen through the Daydreams menu.
+> This module provides the math foundation (quaternions, manifold projections, physics)
+> used internally by that system.
 
 ## Mathematical Foundation (v1.0.4+)
 
-The navigation system is built on a rigorous mathematical foundation implementing a **Spatial UI OS / Navigation Manifold Engine**.
+The navigation math implements a **Spatial UI OS / Navigation Manifold Engine** underpinning the τ-transition model.
 
 ### Topology: 3-Torus × Sphere Hybrid
 
@@ -133,12 +139,12 @@ where κ = curvature constant
 
 ## Overview
 
-The spatial navigation engine implements a low-level, mobile-optimized navigation system based on the technical spec defined in `@dreamengin_interface.md`. It provides:
+This module provides low-level subsystems consumed by the τ-transition navigation engine defined in `lib/dreamnav/`. It provides:
 
-- **Zero-allocation gesture detection** - Int32Array buffers, no GC pressure
+- **Zero-allocation state buffers** - Int32Array buffers, no GC pressure
 - **60fps performance target** - GPU-accelerated transforms
-- **Touch-first interaction** - Pointer events with mobile Safari optimization
-- **No traditional routing** - Navigation is a continuous spatial axis (zoom/rotate)
+- **Touch-first pointer tracking** - Pointer events with mobile Safari optimization
+- **τ-transition routing** - Navigation via DreamNavSurface6 + tau(), not continuous gesture axis
 - **Guaranteed return path** - ReturnStack ensures users can always go back
 
 ## Architecture
