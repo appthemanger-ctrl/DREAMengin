@@ -49,11 +49,11 @@ These are not suggestions. Violating them invalidates the session's work.
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-06 08:29 UTC | `1c2e46c` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #110 from appthemanger-ctrl/copilot/update-home-menu-design — Redesign home dual-menu to fixed split-glass radial layout and remove non-Dr. Eams triad entries<br> |
 | **auto** | 2026-03-06 06:02 UTC | `bd29f35` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #108 from appthemanger-ctrl/copilot/refactor-duplicated-code — Redesign home UI to match mockups, replace radial menus with dual bottom sheet, open IDARi to all users, dedup API error helpers<br> |
 | **auto** | 2026-03-06 05:18 UTC | `fa06ed0` | completedream | appthemanger-ctrl | ~1 modified<br>Remove existing GitHub Actions workflow for checks<br>✏️: `.github/workflows/copilot-setup-steps.yml` |
 | **auto** | 2026-03-05 23:42 UTC | `f820ba7` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #103 from appthemanger-ctrl/copilot/update-docs-content — Fix HeroSprite body part placement, add 8-direction GameRemote, refactor DaydreamShell Side B<br> |
 | **auto** | 2026-03-05 20:36 UTC | `13ec674` | completedream | appthemanger-ctrl | ~1 modified<br>Update GitHub Actions workflow for automated checks<br>✏️: `.github/workflows/copilot-setup-steps.yml` |
-| **auto** | 2026-03-05 20:30 UTC | `cd219ae` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #102 from appthemanger-ctrl/copilot/update-bg-background-theme — fix: restore gold home button; sync ARCHITECTURE.md §6.1 with single-button spec; add explicit Next.js 16+ callouts<br> |
 
 ---
 

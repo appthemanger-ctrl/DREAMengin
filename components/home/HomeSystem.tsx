@@ -78,23 +78,6 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         onBothMenus={() => setBothMenusOpen(true)}
       />
 
-      {/* Shared dim backdrop for dual-menu display */}
-      {bothMenusOpen && (
-        <div
-          role="presentation"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 68,
-            background: 'rgba(2,8,24,0.55)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            animation: 'de-menu-overlay-in 0.18s ease-out',
-          }}
-          onPointerDown={closeAllMenus}
-        />
-      )}
-
       {/* Daydreams menu — left side when paired, center when solo */}
       <DreamRadialMenu
         open={bothMenusOpen}
