@@ -8,9 +8,38 @@ Date: March 6, 2026
 
 1. Purpose and Product Definition
 
-DREAMengin is a customizable web app for creating, sharing, organizing, and connecting interactive modules across personal, creative, and social spaces. This is a real product specification, not a concept sketch.
+DREAMengin is a customizable web app for creating, sharing, organizing, and connecting interactive modules across personal, creative, and social spaces. A social modular app whose navigation begins as a calm HomeDream and matures into an iOS Photos-style stacked surface system across the whole product. 
+*This is a real product specification, not a concept sketch.*
 
 The system is privacy-first, user-first, deeply customizable, modular, interconnected, and built for full creative freedom.
+
+	•	HomeDream is the root surface
+	•	everything else opens from it, not away from it
+	•	navigation should feel like depth, not page switching
+	•	profile is a flip/paired surface
+	•	Dreams open into deeper layers
+	•	Daydreams are not random routes, they are deeper spaces
+	•	going back should restore context, not reload a new world
+You’re not asking for:
+	•	tabs plus pages
+	•	dashboard cards plus links
+	•	web nav dressed up as native
+	•	surface stack navigation
+	•	state-preserving depth
+	•	IOS Photos-style continuity
+	•	across the whole app
+
+If a navigation move feels like:
+	•	leaving the world,
+	•	reloading the world,
+	•	or forgetting where you were,
+
+then it’s wrong.
+
+If it feels like:
+	•	opening deeper,
+	•	staying oriented,
+	•	and being able to flip back naturally,
 
 1.1 System Surfaces and Modules
 
@@ -41,28 +70,6 @@ Platform Modules
 	•	No accidental sharing.
 	•	No hidden posting.
 	•	No platform system may bypass privacy rules.
-
-⸻
-
-## Design Language
-
-**Colors (non-negotiable):**
-
-| Role | Color |
-|---|---|
-| Primary | Light Blue `#4A9ED6` |
-| Secondary | White `#FFFFFF` |
-| Accent | Gold `#C8981A` |
-| Background | Light blue → white gradient |
-| Text | Deep navy `#0F2A5C` |
-
-**Style:**
-- Glassmorphism panels with soft light-blue tint
-- Gold accent glow on active/interactive elements
-- White surfaces with subtle blue-border glass
-- Minimal borders, rounded shapes, soft shadows
-- No purple. No dark backgrounds on user-facing surfaces.
-- Premium, clean, futuristic — never gamified
 
 ⸻
 
@@ -789,10 +796,12 @@ The AI system is a three-agent triad with distinct roles, strict access controls
 	•	a platform guide
 	•	a context-sensitive assistant
 	•	a primary search surface (as defined in HomeDream behavior)
+•only AI that non admin users can ask questions to. 
 	•	IDARi is admin-facing only and must not be accessible through standard user UI.
 	•	TheBoogieMan.Ai is system-level, conservative by default, and operates as enforcement + auditing.
 
 24.3 API Routes (Server-Side Only)
+
 
 Each AI has its own server-side API route:
 	•	/api/ai/eams
