@@ -5,7 +5,7 @@ import { ArrowLeft, FolderOpen, Image, Video, Music2, Upload } from 'lucide-reac
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Media Vault – DREAMengin', description: 'Your private media library.' };
+export const metadata = { title: 'Asset Library – DREAMengin', description: 'Support surface for private media and reusable assets.' };
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'upload',  emoji: '📤', label: 'Upload',       desc: 'Add files to your vault',    color: '#2a8ab8', href: '/api/upload' },
@@ -30,7 +30,7 @@ export default async function MediaVaultPage() {
 
   return (
     <DaydreamShell
-      title="Media Vault"
+      title="Asset Library"
       enginName="MediaEngin"
       accentColor="#c8981a"
       widgets={WIDGETS}
@@ -38,11 +38,11 @@ export default async function MediaVaultPage() {
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <FolderOpen className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Media Vault</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Asset Library</h1>
           <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(200,152,26,0.1)', color: 'var(--de-gold)', border: '1px solid rgba(200,152,26,0.2)' }}>Daydream</span>
         </div>
       </header>

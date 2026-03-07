@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Gamepad2, Trophy, Star, Play, Zap } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Trophy, Star, Playback, Zap } from 'lucide-react';
 import WordSprint from '@/components/games/WordSprint';
 import MemoryGrid from '@/components/games/MemoryGrid';
 import SpeedTap from '@/components/games/SpeedTap';
@@ -9,7 +9,7 @@ import Leaderboard from '@/components/games/Leaderboard';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
+export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Playback, challenge, and compete.' };
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: '/game' },
@@ -17,7 +17,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: '/daydream/games' },
   { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: '/daydream/games' },
   { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
-  { id: 'media',      emoji: '🎬', label: 'Media Vault',  desc: 'Save your gaming moments',      color: '#ec4899', href: '/daydream/media-vault' },
+  { id: 'media',      emoji: '🎬', label: 'Asset Library',  desc: 'Save your gaming moments',      color: '#ec4899', href: '/daydream/media-vault' },
 ];
 
 export default async function GamesDaydreamPage() {
@@ -36,7 +36,7 @@ export default async function GamesDaydreamPage() {
       <div className="de-sky-bg min-h-screen">
         <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+            <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
               <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
             </Link>
             <div style={{ flex: 1 }}>
@@ -72,7 +72,7 @@ export default async function GamesDaydreamPage() {
               </div>
             </div>
             <div className="de-widget-actions">
-              <Link href="/game" className="de-btn de-btn-primary" style={{ gap: 8 }}><Play className="w-4 h-4 fill-current" /> Play Now</Link>
+              <Link href="/game" className="de-btn de-btn-primary" style={{ gap: 8 }}><Playback className="w-4 h-4 fill-current" /> Playback Now</Link>
               <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 'auto' }}><Zap className="w-3 h-3 inline mr-1" style={{ color: 'var(--de-gold)' }} />3 levels · dual joystick</span>
             </div>
           </div>
@@ -143,7 +143,7 @@ export default async function GamesDaydreamPage() {
             </div>
             <div className="de-widget-actions">
               <Link href="/game" className="de-btn de-btn-ghost text-xs">
-                <Play className="w-3 h-3 fill-current" /> Play to rank up
+                <Playback className="w-3 h-3 fill-current" /> Playback to rank up
               </Link>
             </div>
           </div>

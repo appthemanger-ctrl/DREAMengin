@@ -79,7 +79,7 @@ export default async function HelpPage() {
             </p>
           </div>
           <div className="de-widget-actions">
-            <Link href="/home" className="de-btn de-btn-primary text-xs">Open Dr. Eams →</Link>
+            <Link href="/homedream" className="de-btn de-btn-primary text-xs">Open Dr. Eams →</Link>
           </div>
         </div>
 

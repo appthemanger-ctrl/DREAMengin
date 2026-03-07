@@ -130,9 +130,9 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const getMenuItems = (): RadialMenuItem[] => {
     if (user) {
       return [
-        { id: 'home', label: 'Home', icon: Home, path: '/home', action: () => router.push('/home') },
+        { id: 'home', label: 'HomeDream', icon: Home, path: '/homedream', action: () => router.push('/homedream') },
         { id: 'discover', label: 'Discover', icon: Search, path: '/discover', action: () => router.push('/discover') },
-        { id: 'create', label: 'Create', icon: PlusCircle, path: '/home?modal=create', action: () => router.push('/home?modal=create') },
+        { id: 'create', label: 'Create', icon: PlusCircle, path: '/homedream?modal=create', action: () => router.push('/homedream?modal=create') },
         { id: 'music', label: 'Music', icon: Music, path: '/music', action: () => router.push('/music') },
         { id: 'lab', label: 'Lab', icon: FlaskConical, path: '/lab', action: () => router.push('/lab') },
         { id: 'shop', label: 'Shop', icon: Store, path: '/shop', action: () => router.push('/shop') },
@@ -330,11 +330,11 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
         setIsMenuOpen(false);
         setHighlightedItemIndex(null);
       } else {
-        // Second press (nothing open): navigate to /home
+        // Second press (nothing open): navigate to /homedream
         // But only if we're outside the cooldown window
         const timeSinceClose = Date.now() - justClosedOverlayRef.current;
         if (timeSinceClose > OVERLAY_CLOSE_COOLDOWN) {
-          router.push('/home');
+          router.push('/homedream');
         }
       }
     }
@@ -613,14 +613,14 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   };
 
   const NAV_MAP: Array<{ key: string; match: RegExp; path: string; label: string }> = [
-    { key: 'home', match: /\b(home|profile|widgets|widget|layout|configure)\b/i, path: '/home', label: 'Home & Widgets' },
+    { key: 'home', match: /\b(home|profile|widgets|widget|layout|configure)\b/i, path: '/homedream', label: 'HomeDream & Dreams' },
     { key: 'discover', match: /\b(discover|explore|find|browse)\b/i, path: '/discover', label: 'Discover' },
     { key: 'music', match: /\b(music|audio|track|playlist|upload music|songs?)\b/i, path: '/music', label: 'Music' },
     { key: 'lab', match: /\b(lab|physics|experiment|science|quantum)\b/i, path: '/lab', label: 'Lab' },
     { key: 'shop', match: /\b(shop|store|merch|sell|buy)\b/i, path: '/shop', label: 'Shop' },
     { key: 'messages', match: /\b(message|dm|chat|inbox)\b/i, path: '/messages', label: 'Messages' },
     { key: 'settings', match: /\b(settings?|preferences?|privacy|security|account)\b/i, path: '/settings', label: 'Settings' },
-    { key: 'create', match: /\b(create|new post|post|upload|publish)\b/i, path: '/home?modal=create', label: 'Create' },
+    { key: 'create', match: /\b(create|new post|post|upload|publish)\b/i, path: '/homedream?modal=create', label: 'Create' },
     { key: 'analytics', match: /\b(analytics|stats|metrics|performance)\b/i, path: '/analytics', label: 'Analytics' },
   ];
 
@@ -941,7 +941,7 @@ Check your earnings dashboard for real-time tracking.`;
             <div className="px-4 pb-3 overflow-x-auto scrollbar-hide">
               <div className="flex gap-2 w-max">
                 {[
-                  { label: 'Home', q: 'go home' },
+                  { label: 'HomeDream', q: 'go home' },
                   { label: 'Discover', q: 'open discover' },
                   { label: 'Music', q: 'open music' },
                   { label: 'Lab', q: 'open lab' },

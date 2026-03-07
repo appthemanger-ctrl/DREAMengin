@@ -44,7 +44,7 @@ const TIPS = [
     icon: '👤',
     title: 'Your Public Profile',
     body: 'Your public profile at /u/yourhandle shows only what you choose to publish. Everything else stays private.',
-    action: { label: 'Edit Profile', href: '/edit-profile' },
+    action: { label: 'Edit ProfileDream', href: '/edit-profiledream' },
     color: '#ec4899',
   },
 ];
@@ -58,11 +58,11 @@ export default async function OnboardingPage() {
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Getting Started</h1>
-          <Link href="/home" className="ml-auto text-xs font-semibold" style={{ color: 'var(--de-text-dim)' }}>Skip →</Link>
+          <Link href="/homedream" className="ml-auto text-xs font-semibold" style={{ color: 'var(--de-text-dim)' }}>Skip →</Link>
         </div>
       </header>
 
@@ -104,7 +104,7 @@ export default async function OnboardingPage() {
         ))}
 
         <div style={{ textAlign: 'center', paddingTop: 8 }}>
-          <Link href="/home" className="de-btn de-btn-gold" style={{ display: 'inline-flex', fontSize: 14, padding: '12px 28px' }}>
+          <Link href="/homedream" className="de-btn de-btn-gold" style={{ display: 'inline-flex', fontSize: 14, padding: '12px 28px' }}>
             Start Using DREAMengin →
           </Link>
         </div>

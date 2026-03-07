@@ -5,7 +5,7 @@ import { ArrowLeft, BarChart3, TrendingUp, DollarSign, Users, Zap, FileText, Ext
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Analytics Daydream – DREAMengin', description: 'Overview of your reach, revenue, and growth.' };
+export const metadata = { title: 'Performance Signals – DREAMengin', description: 'Support surface for reach, revenue, and growth signals.' };
 
 
 const WIDGETS: DaydreamWidget[] = [
@@ -41,22 +41,22 @@ export default async function AnalyticsDaydreamPage() {
 
   return (
     <DaydreamShell
-      title="Analytics"
-      enginName="AnalyticsEngin"
+      title="Performance Signals"
+      enginName="BrandingEngin"
       accentColor="#6366f1"
       widgets={WIDGETS}
     >
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>dreamengin</div>
             <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
               <BarChart3 className="w-4 h-4" style={{ color: '#6366f1' }} />
-              <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Analytics</h1>
+              <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Performance Signals</h1>
             </div>
           </div>
           <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.2)' }}>Daydream</span>

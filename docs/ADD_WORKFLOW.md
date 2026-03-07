@@ -1,19 +1,15 @@
-# Enable GitHub Actions (manual step)
+# GitHub Actions Workflow Note
 
-Your GitHub importer/push tool is blocked from creating/updating files under `.github/workflows/`.
+Last updated: 2026-03-06
 
-To enable CI/CD:
+This repo keeps workflow source under:
+- `workflows/github-actions.yml`
 
-1. Open your repo on GitHub (web).
-2. Tap **Add file** → **Create new file**.
-3. Name the file:
+If the GitHub importer or mobile flow cannot write into `.github/workflows/`, create the file manually in GitHub and paste in the workflow contents.
 
-   `.github/workflows/github-actions.yml`
+## Reminder
 
-4. Copy/paste the contents of:
-
-   `workflows/github-actions.yml`
-
-5. Commit.
-
-That's it.
+Workflow additions should preserve the current repo assumptions:
+- Node 24
+- pnpm 10.30.0
+- Next.js App Router repo layout

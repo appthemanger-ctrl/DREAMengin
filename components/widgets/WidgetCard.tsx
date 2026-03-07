@@ -53,7 +53,7 @@ export default function WidgetCard({
           {/* Widget menu button */}
           <button
             type="button"
-            aria-label="Widget options"
+            aria-label="Dream options"
             onClick={() => setMenuOpen((v) => !v)}
             style={{
               width: 28,
@@ -95,7 +95,7 @@ export default function WidgetCard({
           {[
             { label: '⚙️  Configure', fn: onConfigure },
             { label: '👁  Hide from feed', fn: onHide },
-            { label: '🗑  Remove widget', fn: onRemove, danger: true },
+            { label: '🗑  Remove Dream', fn: onRemove, danger: true },
           ].map(({ label, fn, danger }) => (
             <button
               key={label}

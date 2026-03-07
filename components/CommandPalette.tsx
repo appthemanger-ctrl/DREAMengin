@@ -30,7 +30,7 @@ export default function CommandPalette() {
       label: 'Go to Home',
       icon: Home,
       keywords: ['home', 'feed', 'dashboard'],
-      action: () => router.push('/home'),
+      action: () => router.push('/homedream'),
       category: 'Navigation'
     },
     {
@@ -86,7 +86,7 @@ export default function CommandPalette() {
       label: 'View Profile',
       icon: User,
       keywords: ['profile', 'account', 'me'],
-      action: () => router.push('/edit-profile'),
+      action: () => router.push('/edit-profiledream'),
       category: 'Settings'
     },
   ];

@@ -55,7 +55,7 @@ export default function LoginPage() {
       } else {
         window.localStorage.removeItem("rememberedEmail");
       }
-      router.replace("/home");
+      router.replace("/homedream");
       router.refresh();
     } catch (err: unknown) {
       setError((err as { message?: string })?.message ?? "Login failed");

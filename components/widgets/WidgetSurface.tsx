@@ -72,7 +72,7 @@ export default function WidgetSurface({ surface, surfaceKey }: WidgetSurfaceProp
         if (!aborted) setWidgets(items);
       } catch (err) {
         console.error('[WidgetSurface] Error:', err);
-        if (!aborted) setError(err instanceof Error ? err.message : 'Failed to load widgets');
+        if (!aborted) setError(err instanceof Error ? err.message : 'Failed to load Dreams');
       } finally {
         if (!aborted) setLoading(false);
       }
@@ -103,7 +103,7 @@ export default function WidgetSurface({ surface, surfaceKey }: WidgetSurfaceProp
     return (
       <div className="w-full max-w-4xl mx-auto px-4 py-6">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-center">
-          <p className="text-red-800 dark:text-red-200 font-medium">Failed to load widgets</p>
+          <p className="text-red-800 dark:text-red-200 font-medium">Failed to load Dreams</p>
           <p className="text-red-600 dark:text-red-400 text-sm mt-1">{error}</p>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function WidgetSurface({ surface, surfaceKey }: WidgetSurfaceProp
     return (
       <div className="w-full max-w-4xl mx-auto px-4 py-6">
         <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 text-center">
-          <p className="text-slate-600 dark:text-slate-400">No widgets configured for this surface.</p>
+          <p className="text-slate-600 dark:text-slate-400">No Dreams configured for this surface.</p>
           <p className="text-slate-500 dark:text-slate-500 text-sm mt-2">
             surface={surface} key={surfaceKey}
           </p>

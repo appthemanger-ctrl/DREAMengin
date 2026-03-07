@@ -31,7 +31,7 @@ export default function NavBarEnhanced({ session }: NavBarProps) {
   }, []);
 
   const navItems = [
-    { href: '/home', label: 'Home', icon: Home },
+    { href: '/homedream', label: 'Home', icon: Home },
     { href: '/discover', label: 'Discover', icon: Compass },
     { href: '/analytics', label: 'Analytics', icon: TrendingUp },
     { href: '/shop', label: 'Shop', icon: ShoppingBag },

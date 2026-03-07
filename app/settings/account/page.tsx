@@ -90,7 +90,7 @@ export default async function AccountSettingsPage() {
             </div>
           </div>
           <div className="de-widget-actions" style={{ flexDirection: 'column', gap: 10 }}>
-            <Link href="/edit-profile" className="de-btn de-btn-primary" style={{ width: '100%', textAlign: 'center' }}>
+            <Link href="/edit-profiledream" className="de-btn de-btn-primary" style={{ width: '100%', textAlign: 'center' }}>
               Edit Profile
             </Link>
             <Link href="/settings/security" className="de-btn de-btn-ghost" style={{ width: '100%', textAlign: 'center' }}>

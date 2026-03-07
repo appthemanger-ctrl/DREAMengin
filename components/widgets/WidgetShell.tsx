@@ -146,7 +146,7 @@ export default function WidgetShell({
         <div ref={menuRef} style={{ position: 'relative' }}>
           <button
             type="button"
-            aria-label="Widget options"
+            aria-label="Dream options"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((v) => !v)}
             style={{
@@ -173,8 +173,8 @@ export default function WidgetShell({
             }}>
               {[
                 { label: '⚙️  Configure', fn: onConfigure },
-                { label: '👁  Hide widget', fn: onHide },      // req 72
-                { label: '🗑  Remove widget', fn: onRemove, danger: true }, // req 74
+                { label: '👁  Hide Dream', fn: onHide },      // req 72
+                { label: '🗑  Remove Dream', fn: onRemove, danger: true }, // req 74
               ].map(({ label, fn, danger }) => (
                 <button
                   key={label}

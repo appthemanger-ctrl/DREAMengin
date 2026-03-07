@@ -23,19 +23,19 @@ export default async function PlayDaydreamPage() {
 
   return (
     <DaydreamShell
-      title="Play"
-      enginName="PlayEngin"
+      title="Playback"
+      enginName="GameEngin"
       accentColor="#8b5cf6"
       widgets={WIDGETS}
     >
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <Play className="w-5 h-5 fill-current" style={{ color: 'var(--de-accent)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Play</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Playback</h1>
           <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Daydream</span>
         </div>
       </header>

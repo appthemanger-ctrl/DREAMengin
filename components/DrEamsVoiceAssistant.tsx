@@ -317,7 +317,7 @@ export default function DrEamsVoiceAssistant() {
 
     // Navigation commands
     if (lower.includes('go to home') || lower.includes('open home') || lower.includes('home page')) {
-      router.push('/home');
+      router.push('/homedream');
       return 'Navigating to your home feed now.';
     }
     if (lower.includes('go to discover') || lower.includes('open discover') || lower.includes('explore')) {
@@ -349,7 +349,7 @@ export default function DrEamsVoiceAssistant() {
       return 'Opening the lab for your research projects.';
     }
     if (lower.includes('go to profile') || lower.includes('my profile') || lower.includes('edit profile')) {
-      router.push('/edit-profile');
+      router.push('/edit-profiledream');
       return 'Opening your profile editor.';
     }
 

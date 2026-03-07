@@ -1,14 +1,14 @@
-# Dream Engine Guardrails (2026)
+# DREAMengin Engineering Guardrails
 
-This repo treats **Supabase migrations** as the schema source of truth and enforces the following in CI:
+Last updated: 2026-03-06
 
-- **Secrets scanning** via Gitleaks.
-- **License compliance**: blocks GPL/AGPL in production dependency graph.
-- **Schema drift**: local reset from migrations must match shadow schema diff (`supabase db diff --local` must be empty).
-- **TypeScript strict**: `tsc --noEmit`.
-- **Build correctness**: `next build` must pass.
+## Guardrails
 
-Local commands:
-
-- `pnpm licenses:check`
-- `pnpm schema:validate` (requires `supabase` CLI)
+- `README.md` is the product authority.
+- Favor spec names over legacy repo wording.
+- Repurpose existing systems before adding new ones.
+- Keep privacy-first behavior intact.
+- Keep HomeDream private-source logic separate from ViewProfile output logic.
+- Keep DreamAds separate from platform promotion systems.
+- Keep AI roles separated: Dr. Eams user-facing, IDARi admin-only, TheBoogieMan.Ai enforcement.
+- Keep Node 24, pnpm, Next.js 16+, and Supabase assumptions stable unless a real repo need requires change.

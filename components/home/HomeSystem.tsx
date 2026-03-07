@@ -51,7 +51,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
     closeAllMenus();
     if (action === 'dr-eams')       { setDrEamsOpen(true); return; }
     if (action === 'settings')      { window.location.href = '/settings'; return; }
-    if (action === 'account')       { window.location.href = '/edit-profile'; return; }
+    if (action === 'account')       { window.location.href = '/edit-profiledream'; return; }
     if (action === 'feed-settings') { window.location.href = '/feed-settings'; return; }
     if (action === 'connectors')    { window.location.href = '/connectors'; return; }
     if (action === 'go-home')       { returnHome(); return; }
