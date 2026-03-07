@@ -1,303 +1,837 @@
-# DREAMengin
+DREAMengin — Full System Specification
 
-**Customizable UI OS · Widget Space · Social Feed · AI Triad**
+Next.js 16+ / Supabase / Privacy-First Modular Platform
+Author: José Mancilla
+Date: March 6, 2026
 
-A Next.js 16.1.6 App Router application with a Babylon.js animated logo, τ-navigation via the Golden Button, widget space, social feed, and an AI triad (Dr. Eams · IDARi · TheBoogieMan).
+⸻
 
----
+1. Purpose and Product Definition
 
-## Quick start
+DREAMengin is a customizable web app for creating, sharing, organizing, and connecting interactive modules across personal, creative, and social spaces. This is a real product specification, not a concept sketch.
 
-```bash
-npm install
-npm run dev
-```
+The system is privacy-first, user-first, deeply customizable, modular, interconnected, and built for full creative freedom.
 
-Open [http://localhost:3000](http://localhost:3000).
+1.1 System Surfaces and Modules
 
----
+The system is composed of:
 
-## Routes
+Core Dreams (primary system surfaces)
+	•	HomeDream (main private user surface)
+	•	Edit ProfileDream (profile composition and layout builder)
+	•	View Profile (public/shared-facing profile view)
 
-| Route | Description |
-|---|---|
-| `/` | Landing page — animated DREAMengin logo |
-| `/home` | Home Dream (widget space + feed) |
-| `/profile` | Profile Dream (private editing surface) |
-| `/u/[handle]` | Public profile mirror |
-| `/marketplace` | Browse widgets / themes |
-| `/shop` | Purchase premium content |
-| `/settings` | Settings hub |
-| `/settings/controls` | Customize home-button gesture controls |
-| `/settings/feed` | Feed source slices |
-| `/settings/connectors` | Connect external services (IG, etc.) |
-| `/settings/appearance` | Theme + layout editor |
-| `/settings/data` | Delete My Data (keeps login) |
-| `/settings/account` | Delete My Dream (full account delete) |
+Daydream Pair System
+	•	6 Daydreams (Side A experiences, user-facing)
+	•	6 DayDreamengin systems (Side B engine environments, control layers)
 
-### API routes
+Platform Modules
+	•	Dreams (widgets/modules)
+	•	DreamShop
+	•	DreamMarketplace
+	•	DreamMenu
+	•	DreamDM
+	•	DreamAds
 
-| Route | Description | Auth |
-|---|---|---|
-| `POST /api/ai/eams` | Chat with Dr. Eams | Public |
-| `POST /api/ai/idari` | IDARi system optimizer | Admin only |
-| `POST /api/ai/boogieman` | TheBoogieMan policy AI | Internal |
+1.2 Global Platform Rules (Non-Negotiable)
+	•	Nothing is public by default.
+	•	All creation starts private.
+	•	Every visible action must do something real.
+	•	No fake buttons.
+	•	No accidental sharing.
+	•	No hidden posting.
+	•	No platform system may bypass privacy rules.
 
----
+⸻
 
-## Animated logo
+2. Technical Foundation
 
-The DREAMengin logo is rendered in a Babylon.js WebGL canvas. Use the component anywhere:
+2.1 Frontend
+	•	Framework: Next.js 16+
+	•	Architecture: App Router
+	•	Language: TypeScript
+	•	Styling: tokenized design system with Tailwind CSS or equivalent
+	•	Animation: Framer Motion or equivalent UI motion layer
+	•	Component Model: modular, widget-driven, reusable surfaces
+	•	Rendering Strategy: client-heavy interactive surfaces with controlled server rendering where appropriate
 
-```tsx
-import { DreamEnginLogo } from "@/components/DreamEnginLogo";
+2.2 Backend (Supabase)
+	•	Database: Supabase Postgres
+	•	Authentication: Supabase Auth
+	•	Storage: Supabase Storage
+	•	Realtime: Supabase Realtime for feed, messaging, and synchronized updates
+	•	Security: strict Row Level Security on all user-owned data
+	•	Media/uploads: Supabase Storage buckets with permissions by user and visibility state
+
+⸻
+
+3. Global Product Architecture
 
-<DreamEnginLogo width={480} height={240} />
-```
+The product is structured into two major kinds of surfaces:
+
+3.1 Core Dreams (Not Daydreams)
+
+These are primary system-level surfaces and are not part of the Daydream pair system:
+	•	HomeDream (Core System)
+	•	Edit ProfileDream (Core System)
+	•	View Profile (Core Link/Destination)
+
+3.2 Daydream Pair Model
+
+Each Daydream has:
+	•	Side A: user-facing domain experience
+	•	Side B: corresponding engine system (control layer)
 
-### What it does
+Only Side B uses the Engin suffix.
 
-- **DREAM plane** — slow y-float, ±1.5° rotation, gold emissive shine pulse (loop).
-- **ENGIN plane** — micro-bob synced at half the DREAM amplitude; stays steady.
-- **Texture sampling** — `NEAREST` so crisp pixel-art / vector PNGs stay sharp.
-- **Battery-aware** — pauses when the canvas scrolls offscreen (`IntersectionObserver`) or the tab is hidden (`visibilitychange`). Runs at 60 fps when visible; drops to 30 fps when idle.
+⸻
 
-### Using the sprite sheet (if needed)
+4. HomeDream (Core System, Private Operating Surface)
 
-Load `sprite_2x_transparent.png` and set sampling to `NEAREST` (no linear blur). Match the sprite cell size exactly so Babylon never scales individual frames.
+4.1 Purpose
 
----
+HomeDream is the user’s main private customizable operating surface. It is where:
+	•	content appears first
+	•	widgets live and interact and feed the feed
+	•	feeds are personalized
+	•	routing decisions happen
+	•	signals are gathered
+	•	the user manages their own connected world
+
+Default styling is Gold, Light Blue, White.
+
+4.2 Persistent Gold Button Navigation (Primary Control System)
+
+GOLD BUTTON NAVIGATION
+	•	Gold button is persistent and moves with user.
+	•	When menus open, they are also screen-persistent, slightly transparent, and close when the user taps elsewhere.
+	•	Shop, Marketplace, and Ads are accessible here.
+
+Gestures
+	•	Single tap: Go Home.
+	•	Double tap: Open dual menus.
+
+Dual Menus (Locked/Primary Menu Behavior)
+	•	Left menu: 6 DayDream navigation and Dr. Eams Chat.
+	•	Right menu: regular menu and Dr. Eams Chat.
+
+Dr. Eams in HomeDream
+	•	Dr. Eams serves as the primary search bar and “create a message” launcher.
+	•	Search bar is separate from “Message Eams.”
+	•	When the user presses send, they are sent to DreamDM.
+	•	If the user searches for a specific location, it suggests the link (Shop, Settings, Daydream, etc.).
+
+4.3 HomeDream Characteristics
+
+HomeDream is:
+	•	private by default
+	•	persistent between sessions
+	•	centered around a personalized feed
+	•	surrounded/supported by modular Dreams (widgets)
+	•	customizable in color, widget arrangement, and behavior
+	•	controllable by feed mode and source selection
+	•	designed as the daily primary entry point into DREAMengin
+
+4.4 HomeDream Feed
+
+The feed supports:
+	•	personalized content
+	•	widget broadcasts
+	•	algorithm mode or manual mode
+	•	customizable source selection
+	•	favorites-prioritized or individually chosen source modes
+	•	post composition and routing
+	•	ambient or active content presentation
+	•	internal content + selected connected world content
+
+The feed may contain:
+	•	user-created posts
+	•	activity from selected widgets
+	•	DreamDM content
+	•	music or media signals
+	•	shop or marketplace highlights if allowed
+	•	system announcements
+	•	utility modules like weather/news if enabled
+
+4.5 HomeDream Widget Behavior
+
+Widgets on HomeDream:
+	•	represent connected modules or systems
+	•	may stay dormant until touched
+	•	may surface passive signals
+	•	may broadcast into the feed
+	•	may open into deeper interaction surfaces
+	•	may be customized individually
+
+4.6 HomeDream Customization Controls
+
+Users may customize:
+	•	widget layout
+	•	widget color and visual treatment
+	•	feed algorithm settings
+	•	active sources
+	•	favorites
+	•	posting routes
+	•	feed density and prioritization
+
+⸻
+
+5. Edit ProfileDream (Core System, Private Builder Surface)
+
+5.1 Purpose
+
+Edit ProfileDream is the private builder surface for the user’s profile and public/shared-facing presentation.
+
+5.2 Functions
+
+Users may:
+	•	drag widgets
+	•	resize widgets
+	•	reshape widgets
+	•	place widgets spatially
+	•	control widget visibility
+	•	choose which content surfaces publicly
+	•	customize visual presentation
+	•	build profile structure intentionally
+
+5.3 Editing Rules
+	•	editing is visual
+	•	editing is direct
+	•	edits must be reversible
+	•	layout must persist
+	•	no private HomeDream content appears publicly without explicit user action
+
+5.4 Profile Configuration
+
+Users may configure:
+	•	public widgets
+	•	follower-only widgets
+	•	hidden widgets
+	•	bio and profile identity
+	•	featured modules
+	•	layout hierarchy
+	•	thematic styling
+
+⸻
+
+6. View Profile (Public/Shared Output Surface)
+
+6.1 Purpose
+
+View Profile is the public or shared-facing result of what the user builds in Edit ProfileDream.
+
+6.2 Access and Preview
+	•	View Profile is a separate link available from Edit ProfileDream so the user can preview before saving.
+
+6.3 Required Behavior
+
+View Profile must:
+	•	reflect the current profile configuration
+	•	show only explicitly allowed public/shared content
+	•	preserve widget interactions allowed in public context
+	•	never expose private HomeDream content
+	•	support preview mode before save
+	•	support public or permission-limited viewing based on settings
+
+6.4 Preview Before Save Requirements
+
+Inside Edit ProfileDream, the user must be able to:
+	•	click View Profile
+	•	see the profile as a viewer would see it
+	•	return to editing
+	•	save only when satisfied
+
+⸻
+
+7. Daydream Pair System (6 Daydreams + 6 DayDreamengin Systems)
+
+7.1 Definition
+
+Each Daydream has:
+	•	a Side A experience
+	•	a Side B Engin system
+	•	specialized tools
+	•	specialized widget support
+	•	a small, separate dual-button control pill for the Engin side menu
+
+7.2 Domain List (As Defined)
+	1.	Music / StarMakerEngin
+	2.	Games / GameEngin
+	3.	Lab / LabEngin
+	4.	Code / CodeEngin
+	5.	Brand / BrandingEngin
+	6.	Create / ContentEngin
+
+⸻
+
+8. Music / StarMakerEngin
+
+8.1 Music (Side A)
+
+Functions include:
+	•	music creation
+	•	organization
+	•	upload
+	•	listening
+	•	managing projects, songs, drafts, and audio assets
+	•	arranging music-oriented widgets
+	•	previewing tracks and collections
+
+8.2 StarMakerEngin (Side B)
+
+Functions include:
+	•	release workflows
+	•	music sharing
+	•	publishing logic
+	•	sell/distribution pathways
+	•	metadata setup
+	•	launch and rollout configuration
+	•	music performance and status management
+
+8.3 Specialized Widgets (Examples)
+	•	track widget
+	•	playlist widget
+	•	release widget
+	•	lyrics widget
+	•	audio project widget
+	•	sales / launch status widget
+
+⸻
+
+9. Games / GameEngin
+
+9.1 Games (Side A)
+
+Functions include:
+	•	game access
+	•	game creation entry
+	•	play surfaces
+	•	world browsing
+	•	player-facing project interaction
+
+9.2 GameEngin (Side B)
+
+Functions include:
+	•	world logic
+	•	game mechanics
+	•	runtime states
+	•	entity behavior
+	•	game structure
+	•	creation tools
+	•	system rules and internal powering
+
+9.3 Specialized Widgets (Examples)
+	•	game world widget
+	•	build widget
+	•	logic widget
+	•	player state widget
+	•	environment widget
+	•	inventory/system widget
+
+⸻
+
+10. Lab / LabEngin
+
+10.1 Lab (Side A)
+
+Functions include:
+	•	experiments
+	•	prototypes
+	•	tests
+	•	models
+	•	scenario building
+	•	simulation viewing
+
+10.2 LabEngin (Side B)
+
+Functions include:
+	•	state modeling
+	•	system rules
+	•	simulation control
+	•	test orchestration
+	•	iteration environments
+	•	lab tool configuration
+
+10.3 Specialized Widgets (Examples)
+	•	experiment widget
+	•	state widget
+	•	model widget
+	•	results widget
+	•	parameter widget
+	•	simulation viewer widget
+
+⸻
+
+11. Code / CodeEngin
+
+11.1 Code (Side A)
+
+Functions include:
+	•	code project access
+	•	snippets
+	•	file grouping
+	•	project views
+	•	drafts
+	•	code creation surfaces
+
+11.2 CodeEngin (Side B)
+
+Functions include:
+	•	project engine behavior
+	•	code organization systems
+	•	runtime logic
+	•	deployment pathways
+	•	build and execution workflows
+	•	engineering tools
+
+11.3 Specialized Widgets (Examples)
+	•	project widget
+	•	code file widget
+	•	snippet widget
+	•	terminal widget
+	•	deployment widget
+	•	runtime widget
+
+⸻
+
+12. Brand / BrandingEngin
+
+12.1 Brand (Side A)
+
+Functions include:
+	•	brand visuals
+	•	campaign planning
+	•	brand surfaces
+	•	content identity
+	•	creative packaging
+	•	brand-facing assets
+
+12.2 BrandingEngin (Side B)
+
+Functions include:
+	•	brand system configuration
+	•	performance views
+	•	content structure
+	•	audience or campaign system logic
+	•	optimization flows
+	•	identity and strategy tools
+
+12.3 Specialized Widgets (Examples)
+	•	campaign widget
+	•	brand kit widget
+	•	performance widget
+	•	audience widget
+	•	asset widget
+	•	identity widget
+
+⸻
+
+13. Create / ContentEngin
+
+13.1 Create (Side A)
+
+Functions include:
+	•	writing
+	•	media composition
+	•	post drafting
+	•	creative assembly
+	•	mixed-content authoring
+	•	post/project development
+
+13.2 ContentEngin (Side B)
+
+Functions include:
+	•	content routing
+	•	publishing logic
+	•	formatting systems
+	•	scheduling or draft states
+	•	output structure
+	•	reusable templates and creation mechanics
+
+13.3 Specialized Widgets (Examples)
+	•	draft widget
+	•	composition widget
+	•	media attach widget
+	•	publishing widget
+	•	template widget
+	•	output routing widget
+
+⸻
+
+14. Navigation Model (Core + Daydream Pair System)
+
+14.1 Seamless Movement Requirement
+
+Users must move between:
+	•	HomeDream
+	•	Edit ProfileDream
+	•	View Profile
+	•	any Daydream
+	•	its corresponding DayDreamengin
+without feeling like they are leaving the overall DREAMengin environment.
+
+14.2 Side A → Side B Relationship
+
+Each Side A must lead naturally into its Side B. Side B must feel like:
+	•	the powered version
+	•	the control layer
+	•	the deeper system surface
+
+14.3 Engin Dual Button Controls
+
+Each DayDreamengin includes a small “pill” style dual-button control area for engine-side control actions. These controls are:
+	•	compact
+	•	specialized
+	•	separate from the main DreamMenu
+	•	contextual to the Engin environment
+
+⸻
+
+15. Dreams (Widgets)
+
+15.1 Definition
+
+Dreams are the modular interactive widget units used throughout the system.
+
+15.2 Role
+
+Dreams may:
+	•	display content
+	•	accept content
+	•	route content
+	•	surface signals
+	•	open into more detailed views
+	•	represent a Daydream or system component
+	•	exist on HomeDream, Edit ProfileDream, View Profile, and Daydream surfaces where allowed
+
+15.3 Widget Menu Requirement
+
+Every widget must include a customization menu.
+
+15.4 Widget Menu Functions (May Include)
+	•	rename
+	•	recolor
+	•	resize
+	•	visibility control
+	•	source selection
+	•	behavior selection
+	•	pin/favorite
+	•	move
+	•	duplicate
+	•	remove
+	•	route settings
+	•	permissions
+
+15.5 Widget Data (Minimum)
+
+Each Dream should minimally support:
+	•	id
+	•	type
+	•	owner
+	•	config
+	•	size
+	•	position
+	•	visibility
+	•	source bindings
+	•	destination rules
+	•	active state
+
+⸻
+
+16. Commerce and Ecosystem Modules
+
+16.1 DreamShop (Official/Platform Commerce)
+
+Purpose: platform-owned commerce layer.
+
+Users may:
+	•	buy official items
+	•	access premium modules
+	•	acquire themes, assets, tools, or official packs
+	•	manage owned DreamShop items
+
+Supported item types (examples):
+	•	widget skins
+	•	themes
+	•	design packs
+	•	official add-ons
+	•	enhanced tools
+	•	cosmetic or functional upgrades
+
+16.2 DreamMarketplace (Community Exchange)
+
+Purpose: user/community exchange layer.
+
+Users may:
+	•	discover user-made items
+	•	sell or share creations
+	•	browse widgets, modules, tools, assets, and experiences
+	•	acquire community-made Dream objects
+	•	promote their own works
+
+Difference:
+	•	DreamShop = official/platform items
+	•	DreamMarketplace = community/user-driven ecosystem
+
+⸻
+
+17. DreamMenu (Dual Menu Navigation System)
+
+17.1 Structure
+
+DreamMenu is a dual-menu navigation system.
+
+17.2 Left Side
+
+Contains:
+	•	Daydream navigation
+	•	movement between the 6 Daydreams
+	•	movement into core spaces where appropriate
+
+17.3 Right Side
+
+Contains:
+	•	standard app menu functions
+	•	account/settings
+	•	utilities
+	•	profile access
+	•	and Dr. Eams
+
+17.4 Dr. Eams Presence in Menu
+
+Dr. Eams is the platform guide and assistant presence. Dr. Eams may:
+	•	assist onboarding
+	•	explain surfaces
+	•	help users understand systems
+	•	provide guidance
+	•	surface context-sensitive suggestions
+Dr. Eams must remain useful, not intrusive.
 
-## AI Triad
+⸻
+
+18. DreamDM (Messaging and Discussion)
+
+18.1 Purpose
+
+DreamDM is the platform messaging and threaded discussion system.
 
-Three server-side AI agents with distinct roles:
+18.2 Modes
 
-| Agent | Role | Exposed to |
-|---|---|---|
-| **Dr. Eams** | User-facing assistant / chat | All users |
-| **IDARi** | Admin bug-fixer + optimiser | Admins only |
-| **TheBoogieMan** | Policy enforcer + system overwatch | Internal / server |
+DreamDM supports:
+	•	direct messaging
+	•	group-style threads
+	•	Reddit-style board or message-board experiences
+	•	topic-based discussion surfaces
 
-### Consensus gating
+18.3 Visibility
 
-Major system-update recommendations require unanimous approval from all three agents before they are applied.
+DreamDM is viewable from HomeDream and may also exist as its own focus environment.
 
-### Env vars
-
-Copy `.env.example` → `.env.local` and fill in:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
-dreamengin_SUPABASE_SECRET_KEY=your-service-role-key
-GROQ_API_KEY=your-groq-key        # server-only AI provider key
-OPENAI_API_KEY=your-openai-key    # server-only
-INNERDREAMS_PASSWORD=...           # guards /api/admin/*
-```
-
-Keys are **server-side only** — never shipped to the client.
-
----
-
-## Home Buttons
-
-Two independent draggable buttons manage lock/unlock and menus:
-
-- **Drag together** → snap + lock (light blue + gold visual).
-- **Single tap while locked** → both menus open side-by-side (System left, Daydream right).
-- **Double tap while locked** → unlock.
-- After menus open, buttons snap back to saved corner positions.
-- Buttons **never drive navigation**.
-- Positions persisted to `localStorage` (Supabase later).
-
-Gesture behaviour is configurable at `/settings/controls`.
-
----
-
-## Profile / Public profile
-
-- `/profile` → private editing surface. Save publishes to the public mirror.
-- `/u/[handle]` → public profile; mirrors exactly what was last saved.
-
----
-
-## Dev auth bypass
-
-```bash
-# .env.local
-NEXT_PUBLIC_DEV_BYPASS_AUTH=true
-DEV_ADMIN=true
-```
-
-**Never enable in production.**
-
----
-
-## Zip asset uploads
-
-Pushing a `.zip` triggers `.github/workflows/deploy-artifact.yml`, which extracts and merges files into the repo root. Source code (`src/`, `package.json`, etc.) is **never overwritten** — only new/updated asset files are added.
-# DREAMengin (Authoritative Spec + Implementation)
-
-DREAMengin is a spatial creative platform built on **Next.js (App Router)** + **Supabase**, navigated via the Golden Button τ-state machine.
-
-This repo is **spec-governed**. The documents in `/docs` are **not suggestions** — they are binding constraints on implementation.
-
-## Start here (LAW)
-
-- **docs/LAW.md** — front door + enforcement summary (LOCKED)
-- **docs/AXIOMS.md** — non-negotiables (LOCKED)
-- **docs/SPEC.md** — design system, UI behavior, interaction model (v2.0, single source of truth)
-- **docs/WIDGET_SYSTEM_V2.md** — widgets, instances, and window presentation
-- **docs/ARCHITECTURE.md** — τ navigation, Home model, controls
-- **docs/SECURITY.md** — Supabase/RLS, privacy, least-privilege
-- **docs/ADD_WORKFLOW.md** — how additions must be integrated
-
-If code conflicts with these docs, **code must change**.
-
-## Product model (high level)
-
-- The user is always conceptually inside **Home (node 0)**.
-- Navigation is **τ-only** (state transitions), not a traditional site nav model.
-- **Day Dreams** are protected: they are full-powered mini-apps.
-- The **Golden Button** (two floating buttons, Blue + Gold) is the **primary travel system**. Traditional nav bar links are disabled.
-
-## Golden Button (Home Controls)
-
-The two floating buttons are system objects, not a navbar. Per **SPEC.md §3.1**:
-
-| State | Single tap | Double tap |
-|-------|-----------|------------|
-| **Locked** (buttons at center) | Open **both** menus side-by-side | Unlock → snap to saved rail corners |
-| **Unlocked** (buttons on rails) | Go Home (reset anchor) | Open **that button's** menu only |
-
-- Buttons drift back together via gentle gravity and auto-lock (magnetic snap < 88 px).
-- Blue button = Daydreams menu (right rail when unlocked).
-- Gold button = System menu (left rail when unlocked).
-- Cross-color rings indicate locked state (blue shows gold ring, gold shows blue ring).
-- Positions persist in `localStorage` key `dreamengin:controls:v4`.
-
-Implementation:
-- `components/dreamnav/DreamNavControls.tsx` — UI + drag/snap/tap logic
-- `lib/home-buttons/home-buttons-state.ts` — pure state machine (tested)
-- `components/menus/DreamRadialMenu.tsx` + `SystemRadialMenu.tsx` — menu panels
-- `components/menus/MenuPanel.tsx` — shared panel (supports `side` prop for side-by-side)
-
-## Branding system
-
-Brand assets live in `/public/branding/` — do not modify without updating this file.
-
-| Asset | Description |
-|-------|-------------|
-| `logo1.png` | Logo variant 1 (RGBA, transparent background) |
-| `logo2.png` | Logo variant 2 (RGBA, transparent background) |
-| `logo3.png` | Logo variant 3 (RGBA, transparent background) |
-| `MainSprite.png` | 4 cols × 6 rows sprite sheet, 24 frames @ 208×208 px |
-| `AboutHero.png` | About page hero image |
-
-- `lib/branding/logos.ts` — `getRandomLogo()` picks one logo per page load (Fisher-Yates shuffle, per-load in-memory cache, SSR-safe fallback).
-- `components/BrandLogo.tsx` — SSR-safe logo component (stable placeholder on server, random on mount).
-- `components/HeroSprite.tsx` — Canvas sprite animator for the landing hero (replaces static image).
-
-## AI Triad
-
-| Agent | Role | Endpoint | Auth |
-|---|---|---|---|
-| Dr. Eams | User-facing assistant | `POST /api/ai/eams` | Authenticated user |
-| IDARi | Admin optimizer / debugger | `POST /api/ai/idari` | Admin only |
-| BoogieMan | Policy + system overwatch | `POST /api/ai/boogieman` | Admin only |
-
-- All AI keys are configured as **Vercel environment variables**, never committed.
-- IDARi and BoogieMan endpoints are admin-guarded even when `DEV_BYPASS_AUTH` is on.
-- Major system updates require unanimous triad approval (consensus gating) via `/admin`.
-- **docs/DR_EAMS.md** — Dr. Eams behavioral spec (100 requirements).
-- **BoogieMan full spec:** `docs/policy/theboogie.md` — versioned 100-rule policy (v1).
-
-Dr. Eams chat panel (`components/dreamengin/DrEamsPanel.tsx`):
-- Opens from the System menu (tap Gold button → Dr. Eams).
-- Animated mascot, quick-action chips, auto-scroll to latest message.
-
-## Policy and enforcement (TheBoogieMan.Ai)
-
-| Item | Location |
-|------|---------|
-| Policy document (versioned) | `docs/policy/theboogie.md` |
-| Policy test plan | `docs/POLICY_TESTS.md` |
-| Public policy page | `/policy` (accessible from Settings → Policy) |
-| Policy constants + rule codes | `lib/ai/boogie-policy.ts` |
-| Core engine | `lib/ai/boogieman.ts` |
-| Appeal endpoint | `POST /api/appeal` |
-| Policy health status | `GET /api/ai/boogieman/status` |
-
-## Environment variables
-
-All secrets are server-side only. See `.env.example` for the full list.
-
-### Supabase — automatic via Vercel-Supabase integration
-
-If you linked your Supabase project in **Vercel → Integrations → Supabase**, these are injected automatically and the app reads them with no extra setup:
-
-| Variable injected by Vercel | Used as |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Project URL (client + server) |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Anon key (client + server) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key legacy alias (client + server) |
-| `dreamengin_SUPABASE_URL` | Project URL (server alias) |
-| `dreamengin_SUPABASE_ANON_KEY` | Anon key (server alias) |
-| `dreamengin_SUPABASE_JWT_SECRET` | JWT secret |
-| `dreamengin_SUPABASE_SERVICE_ROLE_KEY` | Service-role key |
-| `dreamengin_SUPABASE_SECRET_KEY` | Service-role key (manual alias) |
-| `dreamengin_POSTGRES_*` | Direct Postgres connection strings |
-
-> **The app accepts every name in the table above — you do not need to add any extra vars if you used the Vercel-Supabase integration.**  
-> It also accepts the legacy custom names (`NEXT_PUBLIC_dreamengin_SUPABASE_URL`, `NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY`) for backward compatibility.
-
-### Other required secrets
-
-These are **not** injected by the Vercel-Supabase integration — add them manually in **Vercel → Project → Settings → Environment Variables**:
-
-| Variable | Required | Notes |
-|---|---|---|
-| `SESSION_SECRET` | ✅ | Secret used to sign session tokens |
-| `INNERDREAMS_PASSWORD` | ✅ | Password for `/api/admin/*`. One wrong attempt = permanent lockout. |
-| `ADMIN_UNLOCK_KEY` | ✅ | Emergency key to bypass permanent admin lockout |
-| `OWNER_EMAIL` | ✅ | Owner email for admin gating |
-| `OPENAI_API_KEY` | ✅ (prod) | Server-only OpenAI key. Never `NEXT_PUBLIC_`. |
-| `GROQ_API_KEY` | prod | Server-only Groq key. Never `NEXT_PUBLIC_`. |
-| `NEXT_PUBLIC_DEV_BYPASS_AUTH` | dev only | Set to `true` to skip auth redirects in dev |
-| `DEV_ADMIN` | dev only | Set to `true` (+ bypass above) to access admin panel without login in dev |
-| `BOOGIE_SIMULATION_MODE` | dev only | Audit events without restricting accounts. Never enable in production. |
-| `BOOGIE_DEGRADED` | ops only | Mark TheBoogieMan.Ai as degraded in the status endpoint. |
-| `BOOGIE_OFFLINE` | ops only | Mark TheBoogieMan.Ai as offline in the status endpoint. |
-
-### Diagnosing a "Supabase not configured" error
-
-Visit **`/api/setup/check`** in your deployed app — it returns a JSON report of every resolved env var and which names it checked, without exposing values.
-
-## Dev auth bypass
-
-Set in `.env.local` for UI review without a live Supabase account:
-
-```bash
-NEXT_PUBLIC_DEV_BYPASS_AUTH=true   # skips auth redirects on user-facing pages
-DEV_ADMIN=true                      # also opens /admin without login
-```
-
-**Never** set these in Vercel production environment variables.
-
-## Development
-
-### Local
-1. Install deps: `pnpm install`
-2. Copy `.env.example` to `.env.local` and fill in all values
-3. Run dev server: `pnpm dev`
-
-### Testing
-```bash
-pnpm test:unit tests/home-buttons.test.ts    # Golden Button state machine
-pnpm test:unit tests/branding-logos.test.ts  # Logo rotation utility
-pnpm test:unit tests/boogieman.test.ts        # Policy engine
-```
-
-### Repo guardrails
-- Protected Day Dream paths require `[DAYDREAM_OK]` in PR title.
-- See `docs/LAW.md` and `.github/workflows/law.yml`.
+18.4 Behaviors (May Support)
+	•	replies
+	•	threads
+	•	boards
+	•	favorites
+	•	pinned posts
+	•	routing content into HomeDream
+	•	contextual discussion around creations or widgets
+
+⸻
+
+19. DreamAds (Promotions and Advertising)
+
+19.1 Purpose
+
+DreamAds is the controlled advertising and promotion system.
+
+19.2 Functions (May Support)
+	•	promoted content
+	•	creator boosts
+	•	marketplace promotion
+	•	sponsored placements
+	•	official promotional surfaces
+
+19.3 Rules
+
+DreamAds must:
+	•	be transparent
+	•	respect privacy
+	•	not override user control
+	•	not violate HomeDream or Profile visibility rules
+
+⸻
+
+20. Customization System
+
+20.1 Global Customization
+
+Users may customize:
+	•	layout
+	•	colors
+	•	widget arrangement
+	•	feed behavior
+	•	widget activity
+	•	algorithm settings
+	•	profile composition
+	•	DreamMenu configuration where allowed
+
+20.2 Domain-Specific Customization
+
+Each Daydream may support specialized customization tied to its own tools and widgets.
+
+Customization is platform-wide, not a side feature.
+
+⸻
+
+21. Algorithm and Source Control
+
+21.1 Feed Control
+
+Users may control:
+	•	feed mode
+	•	source priority
+	•	favorites
+	•	algorithm behavior
+	•	manual vs mixed vs algorithmic sorting
+
+21.2 Widget Source Control
+
+Users may choose what widgets contribute to feeds or surfaces.
+
+21.3 Transparency Requirement
+
+Users must always be able to understand what is contributing to what they are seeing.
+
+⸻
+
+22. Privacy Model
+
+22.1 Surface Privacy Defaults
+	•	HomeDream: private by default.
+	•	Edit ProfileDream: private editing environment.
+	•	View Profile: shows only explicit public/shared-facing content.
+	•	Daydreams: respect user permissions and visibility models.
+
+22.2 Platform Module Privacy Rules
+
+Marketplace / Shop / Ads / DM: no system may bypass core privacy guarantees.
+
+22.3 General Rule
+
+Nothing becomes public without user intent.
+
+⸻
+
+23. Data Model Overview (Supabase)
+
+Minimum platform tables/domains should include:
+	•	users
+	•	profiles
+	•	widgets (Dreams)
+	•	widget configs
+	•	daydream states
+	•	daydreamengin states
+	•	feeds
+	•	feed items
+	•	messages
+	•	boards
+	•	shop items
+	•	marketplace items
+	•	ad objects
+	•	music objects
+	•	game objects
+	•	code objects
+	•	lab objects
+	•	brand objects
+	•	create/content objects
+	•	permissions
+	•	favorites
+	•	algorithm preferences
+	•	visibility mappings
+
+All protected through RLS.
+
+⸻
+
+24. AI Triad (Platform Intelligence System)
+
+The AI system is a three-agent triad with distinct roles, strict access controls, and privacy-first enforcement.
+
+24.1 The Three AIs
+	1.	Dr. Eams — user-facing assistant
+	2.	IDARi — admin-only internal operator (bug fixer, optimizer, data compressor)
+	3.	TheBoogieMan.Ai — policy + system overwatch (conservative enforcement, logged)
+
+24.2 Access Model and Surface Placement
+	•	Dr. Eams is available to users from the System menu and appears as:
+	•	a platform guide
+	•	a context-sensitive assistant
+	•	a primary search surface (as defined in HomeDream behavior)
+	•	IDARi is admin-facing only and must not be accessible through standard user UI.
+	•	TheBoogieMan.Ai is system-level, conservative by default, and operates as enforcement + auditing.
+
+24.3 API Routes (Server-Side Only)
+
+Each AI has its own server-side API route:
+	•	/api/ai/eams
+	•	/api/ai/idari
+	•	/api/ai/boogieman
+
+24.4 Key Management and Provider Configuration
+	•	AI API keys are server-side only.
+	•	Keys must come from Vercel environment variables and must never be exposed to the client.
+	•	AI provider selection must be configurable via env without code changes.
+
+24.5 Guarding Rules
+	•	IDARi endpoints are admin-guarded even under dev auth bypass.
+	•	TheBoogieMan.Ai is allowed to log and enforce policy decisions.
+	•	No AI may bypass:
+	•	privacy rules
+	•	visibility rules
+	•	RLS constraints
+	•	“nothing public by default”
+
+24.6 Triad Coordination and Consensus Gating
+	•	TheBoogieMan.Ai can send summaries/notes to Dr. Eams as “system status.”
+	•	Major system update recommendations require unanimous triad approval (consensus gating).
+
+24.7 AI Behavior Rules (Product Integrity)
+	•	Dr. Eams must remain useful, not intrusive.
+	•	AI actions presented to the user must map to real system actions (no fake buttons, no implied actions).
+	•	Any action that could affect visibility/publicity must require explicit user intent.
+
+⸻
+
+25. Launch Standard (Minimum “Truthful” Release)
+
+The launch version must:
+	•	feel complete as a product
+	•	support HomeDream as a real private daily surface
+	•	support Edit ProfileDream as a real builder
+	•	support View Profile as a real destination
+	•	support the 6 Daydream / 6 DayDreamengin structure
+	•	support Dreams as real customizable widgets
+	•	include DreamShop, DreamMarketplace, DreamMenu, DreamDM, and DreamAds in truthful form
+	•	include only working interactions, not implied ones
+
+⸻
+
+26. Final Product Philosophy
+
+DREAMengin is a modular creative and social operating environment.
+
+HomeDream is where the user lives privately.
+Edit ProfileDream is where the user crafts public expression.
+View Profile is where that expression is shown.
+The 6 Daydreams are the lived domains.
+The 6 DayDreamengin systems are the powered control layers behind them.
+Dreams are the modular units connecting everything.
+DreamShop, DreamMarketplace, DreamMenu, DreamDM, and DreamAds complete the ecosystem.
+
+Everything is connected.
+Everything is customizable.
+Everything is user-first.
+Everything is privacy-first.
+Everything must feel owned by the user.
+
+END SPEC
