@@ -100,9 +100,17 @@ function getWidgetLabel(type: WidgetType): string {
   }[type];
 }
 
+const LARGE_DEFAULT_TYPES: ReadonlySet<WidgetType> = new Set(['bio', 'activity', 'photos']);
+
 function getDefaultSize(type: WidgetType): WidgetSize {
-  return (['bio', 'activity', 'photos'] as WidgetType[]).includes(type) ? 'large' : 'small';
+  return LARGE_DEFAULT_TYPES.has(type) ? 'large' : 'small';
 }
+
+// ── Layout / content constants ─────────────────────────────────────────────────
+const MIN_SMALL_WIDGET_HEIGHT = 120;
+const BIO_SMALL_TRUNCATE      = 35;   // chars shown in compact bio
+const BIO_LARGE_TRUNCATE      = 55;
+const PLACEHOLDER_FOLLOWING   = 524;  // mock — replace with real data prop when available
 
 function getCardBg(style: WidgetBgStyle, accent: string): React.CSSProperties {
   switch (style) {
@@ -125,7 +133,7 @@ function getDimColor(style: WidgetBgStyle): string {
 
 function DotGrid() {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 4px)', gap: '3px', opacity: 0.32 }}>
+    <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 4px)', gap: '3px', opacity: 0.32 }}>
       {Array.from({ length: 9 }).map((_, i) => (
         <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: '#444' }} />
       ))}
@@ -462,7 +470,7 @@ interface WidgetContentProps {
   likes: number;
 }
 
-const PHOTO_SRCS = [
+const PLACEHOLDER_PHOTO_SRCS = [
   'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=200&q=75',
   'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&q=75',
   'https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&q=75',
@@ -501,7 +509,7 @@ function WidgetContent(p: WidgetContentProps) {
                 <div style={{ fontWeight: 700, fontSize: 13, color: textColor, lineHeight: 1.2 }}>{displayName}</div>
                 {bio && (
                   <div style={{ fontSize: 10, color: dimColor, lineHeight: 1.3, marginTop: 2 }}>
-                    {bio.length > 35 ? bio.slice(0, 35) + '…' : bio}
+                    {bio.length > BIO_SMALL_TRUNCATE ? bio.slice(0, BIO_SMALL_TRUNCATE) + '…' : bio}
                   </div>
                 )}
               </div>
@@ -542,7 +550,7 @@ function WidgetContent(p: WidgetContentProps) {
               <div style={{ fontWeight: 700, fontSize: 15, color: textColor }}>{displayName}</div>
               {bio && (
                 <div style={{ fontSize: 11, color: dimColor, marginTop: 2, lineHeight: 1.35 }}>
-                  {bio.length > 55 ? bio.slice(0, 55) + '…' : bio}
+                  {bio.length > BIO_LARGE_TRUNCATE ? bio.slice(0, BIO_LARGE_TRUNCATE) + '…' : bio}
                 </div>
               )}
             </div>
@@ -618,7 +626,7 @@ function WidgetContent(p: WidgetContentProps) {
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, color: textColor, lineHeight: 1 }}>{fmt(followers)}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, fontSize: 10, color: dimColor }}>
-              <span style={{ fontSize: 12 }}>🪙</span> Following 524
+              <span style={{ fontSize: 12 }}>🪙</span> Following {PLACEHOLDER_FOLLOWING}
             </div>
           </div>
         );
@@ -638,7 +646,7 @@ function WidgetContent(p: WidgetContentProps) {
               <div style={{ fontSize: 10, color: dimColor, marginTop: 3 }}>Followers</div>
             </div>
             <div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: textColor, lineHeight: 1 }}>524</div>
+              <div style={{ fontSize: 32, fontWeight: 800, color: textColor, lineHeight: 1 }}>{PLACEHOLDER_FOLLOWING}</div>
               <div style={{ fontSize: 10, color: dimColor, marginTop: 3 }}>Following</div>
             </div>
           </div>
@@ -658,7 +666,7 @@ function WidgetContent(p: WidgetContentProps) {
             Recent Photos
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 5 }}>
-            {PHOTO_SRCS.slice(0, count).map((src, i) => (
+            {PLACEHOLDER_PHOTO_SRCS.slice(0, count).map((src, i) => (
               <div key={i} style={{ aspectRatio: '1', borderRadius: 10, overflow: 'hidden', background: '#eee' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -957,7 +965,7 @@ export default function ProfileWidgetGrid({
     cursor: isEditing ? 'grab' : 'default',
     transition: 'box-shadow 0.15s',
     gridColumn: isFullSpan(w) ? 'span 2' : 'span 1',
-    minHeight: isFullSpan(w) ? undefined : 120,
+    minHeight: isFullSpan(w) ? undefined : MIN_SMALL_WIDGET_HEIGHT,
   });
 
   const contentProps = (w: Widget): WidgetContentProps => ({
@@ -1040,6 +1048,7 @@ export default function ProfileWidgetGrid({
                   <button
                     onClick={() => toggleSize(w.id)}
                     title={getSize(w) === 'small' ? 'Expand to full width' : 'Shrink to half width'}
+                    aria-label={getSize(w) === 'small' ? 'Expand widget to full width' : 'Shrink widget to half width'}
                     style={{
                       height: 22, padding: '0 6px', borderRadius: 7,
                       background: 'rgba(255,255,255,0.88)',
@@ -1055,6 +1064,7 @@ export default function ProfileWidgetGrid({
                   </button>
                   <button
                     onClick={() => setConfigWidget(w)}
+                    aria-label={`Customize ${getWidgetLabel(w.type)} widget`}
                     style={{
                       width: 26, height: 26, borderRadius: 8,
                       background: 'rgba(255,255,255,0.88)',
