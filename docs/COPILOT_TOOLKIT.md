@@ -1,6 +1,9 @@
 # DREAMengin Repo Working Rules
 
-Last updated: 2026-03-06
+Last updated: 2026-03-07
+
+> **📖 Primary agent guide:** [`docs/AGENT_PLAYBOOK.md`](./AGENT_PLAYBOOK.md)  
+> Read that file at the start of every session. It contains the full repo map, all runnable commands, the pre-commit checklist, and the session state tracker. This file contains the condensed quick-reference rules only.
 
 This file summarizes how automation or coding agents should work in this repo.
 
