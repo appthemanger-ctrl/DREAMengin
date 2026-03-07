@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { Heart, MessageCircle, Share2, Users, X, Check, Plug, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Users, X, Check, Plug, ChevronLeft, ChevronRight, Eye, EyeOff, Lock } from 'lucide-react';
 import ConnectorWidgetPicker, { type PickerConnector, TOP_10_CONNECTORS } from '@/components/connectors/ConnectorWidgetPicker';
+import { tierToDbVisibility, type WidgetShellVisibilityTier } from '@/types/widgets';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -35,6 +36,18 @@ export type Widget = {
   type: WidgetType;
   size?: WidgetSize;
   config?: WidgetConfig;
+  /**
+   * Supabase widget_instances.instance_id for this widget.
+   * Present when the widget was loaded from or saved to the DB.
+   * When set, mutations (reorder, visibility) are synced to the DB via
+   * PATCH /api/widgets/instances.
+   */
+  instanceId?: string;
+  /**
+   * Audience visibility tier for the profile output surface.
+   * Defaults to 'hidden' (private) — nothing public by default (LAW.md §2).
+   */
+  visibilityTier?: WidgetShellVisibilityTier;
 };
 
 export const DEFAULT_CONFIG: WidgetConfig = {
@@ -71,7 +84,7 @@ export const WIDGET_TRAY: { type: WidgetType; label: string; icon: string }[] = 
 const COLOR_SWATCHES = [
   { color: '#c8981a', label: 'Gold' },
   { color: '#4A9ED6', label: 'Blue' },
-  { color: '#6366f1', label: 'Indigo' },
+  { color: '#3b7dd8', label: 'Dark Blue' },
   { color: '#22c55e', label: 'Green' },
   { color: '#ec4899', label: 'Pink' },
   { color: '#f97316', label: 'Orange' },
@@ -898,6 +911,58 @@ export default function ProfileWidgetGrid({
   const dragSrc                                         = useRef<number | null>(null);
   const [dragOverIdx, setDragOverIdx]                   = useState<number | null>(null);
 
+  // ── Supabase persistence helpers ─────────────────────────────────────────────
+  // Fire-and-forget: never block the UI. Optimistic updates happen immediately
+  // in local state; the PATCH call syncs to Supabase in the background.
+  // Only runs for widgets that have a DB-backed instanceId.
+
+  const patchInstance = useCallback(
+    async (instanceId: string, patch: Record<string, unknown>) => {
+      try {
+        const res = await fetch('/api/widgets/instances', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ instance_id: instanceId, ...patch }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          console.warn('[ProfileWidgetGrid] instance patch failed:', err);
+        }
+      } catch (e) {
+        console.warn('[ProfileWidgetGrid] instance patch error:', e);
+      }
+    },
+    [],
+  );
+
+  /**
+   * After a reorder, sync every widget that has an instanceId.
+   * Maps array position → focus_rank (0 = first / highest priority).
+   */
+  const syncOrder = useCallback(
+    (ordered: Widget[]) => {
+      ordered.forEach((w, idx) => {
+        if (w.instanceId) {
+          void patchInstance(w.instanceId, { focus_rank: idx });
+        }
+      });
+    },
+    [patchInstance],
+  );
+
+  /**
+   * After a visibility change, sync the single affected widget.
+   * Uses tierToDbVisibility from types/widgets to convert to DB enum.
+   */
+  const syncVisibility = useCallback(
+    (w: Widget, tier: WidgetShellVisibilityTier) => {
+      if (w.instanceId) {
+        void patchInstance(w.instanceId, { visibility: tierToDbVisibility(tier) });
+      }
+    },
+    [patchInstance],
+  );
+
   // Drag-and-drop
   const onDragStart = (i: number) => { dragSrc.current = i; };
   const onDrop = (i: number) => {
@@ -909,6 +974,8 @@ export default function ProfileWidgetGrid({
     setDragOverIdx(null);
     setWidgets(next);
     onSave?.(next);
+    // Sync new sort order to Supabase for any DB-backed instances.
+    syncOrder(next);
   };
 
   const addWidget = (type: WidgetType) => {
@@ -945,6 +1012,26 @@ export default function ProfileWidgetGrid({
     });
     setWidgets(next);
     onSave?.(next);
+  };
+
+  /**
+   * Cycle widget visibility tier: hidden → everyone → followers-only → hidden.
+   * Optimistic: local state updates immediately; DB sync fires in background.
+   */
+  const cycleVisibility = (widgetId: string) => {
+    const CYCLE: WidgetShellVisibilityTier[] = ['hidden', 'everyone', 'followers-only'];
+    let synced: Widget | undefined;
+    const next = widgets.map(w => {
+      if (w.id !== widgetId) return w;
+      const current = w.visibilityTier ?? 'hidden';
+      const nextTier = CYCLE[(CYCLE.indexOf(current) + 1) % CYCLE.length];
+      synced = { ...w, visibilityTier: nextTier };
+      return synced;
+    });
+    setWidgets(next);
+    onSave?.(next);
+    // Persist to Supabase for DB-backed instances.
+    if (synced) syncVisibility(synced, synced.visibilityTier ?? 'hidden');
   };
 
   const handleConnectorAdd = (connector: PickerConnector) => {
@@ -1048,7 +1135,7 @@ export default function ProfileWidgetGrid({
                   <X size={10} style={{ color: '#fff' }} />
                 </button>
 
-                {/* Size toggle + settings — top right */}
+                {/* Size toggle + visibility + settings — top right */}
                 <div style={{
                   position: 'absolute', top: 8, right: 8, zIndex: 2,
                   display: 'flex', alignItems: 'center', gap: 4,
@@ -1070,6 +1157,43 @@ export default function ProfileWidgetGrid({
                       : <><ChevronRight size={9} /><ChevronLeft size={9} /></>
                     }
                   </button>
+
+                  {/* Visibility cycle button — hidden / everyone / followers-only */}
+                  <button
+                    onClick={() => cycleVisibility(w.id)}
+                    title={
+                      (w.visibilityTier ?? 'hidden') === 'hidden'
+                        ? 'Hidden (click to make public)'
+                        : (w.visibilityTier ?? 'hidden') === 'everyone'
+                        ? 'Public — everyone (click for followers-only)'
+                        : 'Followers-only (click to hide)'
+                    }
+                    aria-label={`Widget visibility: ${w.visibilityTier ?? 'hidden'}`}
+                    style={{
+                      width: 26, height: 22, borderRadius: 7,
+                      background: (w.visibilityTier ?? 'hidden') === 'hidden'
+                        ? 'rgba(255,255,255,0.88)'
+                        : (w.visibilityTier ?? 'hidden') === 'everyone'
+                        ? 'rgba(200,152,26,0.15)'
+                        : 'rgba(74,158,214,0.15)',
+                      border: (w.visibilityTier ?? 'hidden') === 'hidden'
+                        ? '1px solid rgba(0,0,0,0.09)'
+                        : (w.visibilityTier ?? 'hidden') === 'everyone'
+                        ? '1px solid rgba(200,152,26,0.35)'
+                        : '1px solid rgba(74,158,214,0.35)',
+                      cursor: 'pointer', padding: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    {(w.visibilityTier ?? 'hidden') === 'hidden'
+                      ? <EyeOff size={10} style={{ color: '#999' }} />
+                      : (w.visibilityTier ?? 'hidden') === 'everyone'
+                      ? <Eye size={10} style={{ color: '#c8981a' }} />
+                      : <Lock size={10} style={{ color: '#4A9ED6' }} />
+                    }
+                  </button>
+
                   <button
                     onClick={() => setConfigWidget(w)}
                     aria-label={`Customize ${getWidgetLabel(w.type)} widget`}

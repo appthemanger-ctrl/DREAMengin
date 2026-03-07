@@ -4,6 +4,40 @@ import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
+import StarMakerEngin from '@/components/daydream/StarMakerEngin';
+import LabEngin       from '@/components/daydream/LabEngin';
+import CodeEngin      from '@/components/daydream/CodeEngin';
+import BrandingEngin  from '@/components/daydream/BrandingEngin';
+import ContentEngin   from '@/components/daydream/ContentEngin';
+import { createClient } from '@/lib/supabase/client';
+
+/* ── Daydream state persistence helpers (AXIOM 4 / AXIOM 5) ──────────────────
+ * Fire-and-forget writes so they never block the UI (AXIOM 1).
+ * Only executes when the user is authenticated.
+ * Stores minimal state: daydream_type, side, last_visited.
+ * Table: daydream_states (Side A) / daydreamengin_states (Side B)
+ * Created in supabase/migrations/20260307000000_readme_gaps.sql
+ * ──────────────────────────────────────────────────────────────────────────── */
+async function saveDaydreamState(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+  daydreamType: string,
+  side: 'A' | 'B',
+): Promise<void> {
+  const table = side === 'A' ? 'daydream_states' : 'daydreamengin_states';
+  const payload = {
+    user_id: userId,
+    daydream_type: daydreamType,
+    side,
+    last_visited: new Date().toISOString(),
+  };
+  // upsert keyed on (user_id, daydream_type) — no await, fire-and-forget
+  supabase
+    .from(table)
+    .upsert(payload, { onConflict: 'user_id,daydream_type' })
+    .then(() => { /* intentionally silent */ })
+    .catch(() => { /* intentionally silent — never block UI */ });
+}
 
 export type DaydreamWidget = {
   id: string;
@@ -28,23 +62,60 @@ type Props = {
    *   'game-remote' — dual analog-stick game controller (Games Daydream)
    */
   sideBVariant?: 'widgets' | 'game-remote';
+  /**
+   * Canonical daydream type key used for state persistence.
+   * e.g. "music", "games", "lab", "code", "brand", "create"
+   */
+  daydreamType?: string;
 };
 
-export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBVariant = 'widgets' }: Props) {
+export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBVariant = 'widgets', daydreamType }: Props) {
   const [side, setSide]   = useState<'A' | 'B'>('A');
   const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
   const [busy, setBusy]   = useState(false);
+
+  /* ── Persist state on flip (fire-and-forget, auth-gated) ── */
+  const persistSide = useCallback((newSide: 'A' | 'B') => {
+    if (!daydreamType) return;
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        saveDaydreamState(supabase, data.user.id, daydreamType, newSide);
+      }
+    }).catch(() => { /* silent */ });
+  }, [daydreamType]);
 
   const flip = useCallback(() => {
     if (busy) return;
     setBusy(true);
     setPhase('out');
     setTimeout(() => {
-      setSide(s => s === 'A' ? 'B' : 'A');
+      setSide(s => {
+        const next = s === 'A' ? 'B' : 'A';
+        persistSide(next);
+        return next;
+      });
       setPhase('in');
       setTimeout(() => { setPhase('idle'); setBusy(false); }, 340);
     }, 250);
-  }, [busy]);
+  }, [busy, persistSide]);
+
+  /* ── On mount: load previous side from DB (auth-gated) ── */
+  useEffect(() => {
+    if (!daydreamType) return;
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return;
+      const { data: row } = await supabase
+        .from('daydream_states')
+        .select('side')
+        .eq('user_id', data.user.id)
+        .eq('daydream_type', daydreamType)
+        .maybeSingle();
+      if (row?.side === 'B') setSide('B');
+    }).catch(() => { /* silent */ });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [daydreamType]);
 
   // Alt + F = flip (keyboard shortcut)
   useEffect(() => {
@@ -64,9 +135,26 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
       <div style={contentStyle}>
         {side === 'A'
           ? children
-          : sideBVariant === 'game-remote'
-            ? <GameRemote onBack={flip} />
-            : <EnginSurface enginName={enginName} title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />
+          : (() => {
+              if (sideBVariant === 'game-remote') return <GameRemote onBack={flip} />;
+              // Specialized Side B engines (README spec §8.2–§13.2 / ARCHITECTURE.md §1)
+              switch (enginName) {
+                case 'StarMakerEngin': return <StarMakerEngin onBack={flip} />;
+                case 'LabEngin':       return <LabEngin       onBack={flip} />;
+                case 'CodeEngin':      return <CodeEngin      onBack={flip} />;
+                case 'BrandingEngin':  return <BrandingEngin  onBack={flip} />;
+                case 'ContentEngin':   return <ContentEngin   onBack={flip} />;
+                default:               return (
+                  <EnginSurface
+                    enginName={enginName}
+                    title={title}
+                    accentColor={accentColor}
+                    widgets={widgets}
+                    onBack={flip}
+                  />
+                );
+              }
+            })()
         }
       </div>
 

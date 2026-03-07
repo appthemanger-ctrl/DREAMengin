@@ -3,8 +3,15 @@
 // Presentation modes for gesture-driven navigation
 export type WidgetPresentationMode = "FLOATING" | "DOCKED" | "FULL";
 
-// Widget visibility states
+// Widget visibility states (spatial/runtime state machine)
 export type WidgetVisibilityState = "ACTIVE" | "BACKGROUND" | "PARKED";
+
+/**
+ * WidgetShellVisibilityTier — the three audience tiers selectable from the
+ * WidgetShell overflow menu.  Maps to the `visibility` field on WidgetInstance
+ * ("public" → "everyone", "followers" → "followers-only", "private" → "hidden").
+ */
+export type WidgetShellVisibilityTier = "everyone" | "followers-only" | "hidden";
 
 // Transform state for spatial positioning
 export interface WidgetTransformState {
@@ -76,7 +83,10 @@ export interface WidgetInstance {
 
   space?: "home" | "profile";
   order?: number;
+  /** DB-level visibility stored as legacy strings (kept for backward compat). */
   visibility?: "private" | "public" | "followers";
+  /** Shell-level UI tier — use this for menu state in WidgetShell. */
+  visibilityTier?: WidgetShellVisibilityTier;
   layers?: WidgetLayer[];
   sub_widgets?: SubWidgetRef[];
 
@@ -154,4 +164,28 @@ export function isTextWidget(widget: unknown): widget is WidgetInstance {
 
 export function isMediaWidget(widget: unknown): widget is WidgetInstance {
   return getWidgetType(widget) === "media";
+}
+
+// -------- WidgetShellVisibilityTier ↔ DB visibility helpers --------
+
+/**
+ * Convert a DB-level visibility string to the shell UI tier used by the menu.
+ */
+export function dbVisibilityToTier(
+  v: "private" | "public" | "followers" | undefined,
+): WidgetShellVisibilityTier {
+  if (v === "public") return "everyone";
+  if (v === "followers") return "followers-only";
+  return "hidden"; // "private" or undefined → hidden
+}
+
+/**
+ * Convert a shell UI tier back to the DB-level visibility string.
+ */
+export function tierToDbVisibility(
+  tier: WidgetShellVisibilityTier,
+): "private" | "public" | "followers" {
+  if (tier === "everyone") return "public";
+  if (tier === "followers-only") return "followers";
+  return "private";
 }
