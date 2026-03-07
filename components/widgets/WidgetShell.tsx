@@ -8,8 +8,13 @@
 // • Overflow menu "…" always present (req 25)
 // • Graceful error: "Retry / Reconnect" — no raw error stacks (req 28-30)
 // • Widget never crashes the space (req 29) — ErrorBoundary below
+// • 3-state visibility tier: everyone / followers-only / hidden (req 72-73)
+// • Full menu groups: [Configure, Source, Rename, Recolor] |
+//                     [Pin, Duplicate, Move] |
+//                     [Permissions, Visible to everyone, Followers only, Hidden, Remove]
 
 import React, { Component, useEffect, useRef, useState } from 'react';
+import type { WidgetShellVisibilityTier } from '@/types/widgets';
 
 // ── Error Boundary (req 29-30) ─────────────────────────────────────────────
 interface EBState { hasError: boolean; }
@@ -58,6 +63,17 @@ function SkeletonRow({ width = '100%' }: { width?: string }) {
   );
 }
 
+// ── Menu separator ─────────────────────────────────────────────────────────
+function MenuSeparator() {
+  return (
+    <div style={{
+      height: 1,
+      background: 'rgba(160,195,240,0.35)',
+      margin: '4px 6px',
+    }} />
+  );
+}
+
 // ── WidgetShell props ──────────────────────────────────────────────────────
 export type WidgetDataState = 'loading' | 'ready' | 'error' | 'reconnect_required';
 
@@ -76,7 +92,10 @@ export interface WidgetShellProps {
   onRetry?: () => void;
   /** Called when user taps Reconnect (req 28, 49) */
   onReconnect?: () => void;
-  /** Called when user taps Hide (req 72-73) */
+  /**
+   * @deprecated Prefer `onVisibilityChange` with the 3-state tier system.
+   * Still supported as a "set hidden" shortcut for backward compat.
+   */
   onHide?: () => void;
   /** Called when user taps Remove (req 74) */
   onRemove?: () => void;
@@ -86,6 +105,41 @@ export interface WidgetShellProps {
   minContentHeight?: number;
   className?: string;
   style?: React.CSSProperties;
+
+  // ── Visibility tier (3-state system) ──────────────────────────────────
+  /**
+   * Current visibility tier for this Dream.
+   * Defaults to 'everyone' when not provided.
+   */
+  visibility?: WidgetShellVisibilityTier;
+  /**
+   * Called when the user selects a different visibility tier from the menu.
+   * When provided, replaces the legacy `onHide` item with 3 radio options.
+   */
+  onVisibilityChange?: (tier: WidgetShellVisibilityTier) => void;
+
+  // ── New menu actions ───────────────────────────────────────────────────
+  /** Opens a rename flow for this Dream */
+  onRename?: () => void;
+  /** Opens a color/theme picker for this Dream */
+  onRecolor?: () => void;
+  /** Toggles pin / favorite status */
+  onPin?: () => void;
+  /** Whether this Dream is currently pinned (shows checkmark in menu) */
+  isPinned?: boolean;
+  /** Creates a duplicate of this Dream */
+  onDuplicate?: () => void;
+  /** Opens position/move controls for this Dream */
+  onMove?: () => void;
+  /** Opens source selector (data provider) for this Dream */
+  onSourceSelect?: () => void;
+  /** Opens permissions panel for this Dream */
+  onPermissions?: () => void;
+  /**
+   * When true, all menu items are shown regardless of whether their callback
+   * prop is provided (useful in edit mode where stubs are wired separately).
+   */
+  editMode?: boolean;
 }
 
 export default function WidgetShell({
@@ -102,6 +156,17 @@ export default function WidgetShell({
   minContentHeight = 120,
   className = '',
   style,
+  visibility = 'everyone',
+  onVisibilityChange,
+  onRename,
+  onRecolor,
+  onPin,
+  isPinned = false,
+  onDuplicate,
+  onMove,
+  onSourceSelect,
+  onPermissions,
+  editMode = false,
 }: WidgetShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -118,6 +183,72 @@ export default function WidgetShell({
     return () => document.removeEventListener('mousedown', handleClick);
   }, [menuOpen]);
 
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  /** Show a menu item only when its callback exists OR we're in edit mode */
+  const show = (fn: (() => void) | undefined) => !!fn || editMode;
+
+  function menuBtn(
+    label: string,
+    fn: (() => void) | undefined,
+    opts?: { danger?: boolean; checked?: boolean; disabled?: boolean },
+  ) {
+    return (
+      <button
+        key={label}
+        type="button"
+        disabled={opts?.disabled}
+        onClick={() => { setMenuOpen(false); fn?.(); }}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          width: '100%', textAlign: 'left',
+          padding: '9px 12px', borderRadius: 10,
+          background: 'none', border: 'none',
+          cursor: opts?.disabled ? 'default' : 'pointer',
+          fontSize: 12, fontWeight: 600,
+          color: opts?.danger ? '#dc4444'
+               : opts?.disabled ? 'var(--de-text-dim)'
+               : 'var(--de-text)',
+          opacity: opts?.disabled ? 0.45 : 1,
+        }}
+      >
+        {opts?.checked && (
+          <span style={{ color: 'var(--de-gold)', fontWeight: 800, fontSize: 11 }}>✓</span>
+        )}
+        {!opts?.checked && <span style={{ width: 14, display: 'inline-block' }} />}
+        {label}
+      </button>
+    );
+  }
+
+  // ── Visibility section ────────────────────────────────────────────────────
+  // If onVisibilityChange is wired up, render 3-state radio items.
+  // Otherwise fall back to the legacy single "Hide Dream" item (onHide).
+  const hasVisibilityControl = !!onVisibilityChange || editMode;
+
+  const visibilityItems = hasVisibilityControl ? (
+    <>
+      {menuBtn(
+        '🌐  Visible to everyone',
+        onVisibilityChange ? () => onVisibilityChange('everyone') : undefined,
+        { checked: visibility === 'everyone', disabled: !onVisibilityChange && editMode },
+      )}
+      {menuBtn(
+        '👥  Followers only',
+        onVisibilityChange ? () => onVisibilityChange('followers-only') : undefined,
+        { checked: visibility === 'followers-only', disabled: !onVisibilityChange && editMode },
+      )}
+      {menuBtn(
+        '🙈  Hidden',
+        onVisibilityChange ? () => onVisibilityChange('hidden') : undefined,
+        { checked: visibility === 'hidden', disabled: !onVisibilityChange && editMode },
+      )}
+    </>
+  ) : (
+    show(onHide)
+      ? menuBtn('👁  Hide Dream', onHide)
+      : null
+  );
+
   return (
     <div
       data-widget-id={widgetId}
@@ -129,6 +260,9 @@ export default function WidgetShell({
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 18 }}>{icon}</span>
           <span className="de-widget-title">{title}</span>
+          {isPinned && (
+            <span title="Pinned" style={{ fontSize: 10, color: 'var(--de-gold)' }}>📌</span>
+          )}
           {dataState === 'loading' && (
             <span style={{
               fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
@@ -168,29 +302,42 @@ export default function WidgetShell({
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
               border: '1px solid rgba(160,195,240,0.5)',
-              borderRadius: 14, padding: 6, minWidth: 160,
+              borderRadius: 14, padding: 6, minWidth: 190,
               boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
             }}>
-              {[
-                { label: '⚙️  Configure', fn: onConfigure },
-                { label: '👁  Hide Dream', fn: onHide },      // req 72
-                { label: '🗑  Remove Dream', fn: onRemove, danger: true }, // req 74
-              ].map(({ label, fn, danger }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => { setMenuOpen(false); fn?.(); }}
-                  style={{
-                    display: 'block', width: '100%', textAlign: 'left',
-                    padding: '9px 12px', borderRadius: 10,
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    fontSize: 12, fontWeight: 600,
-                    color: danger ? '#dc4444' : 'var(--de-text)',
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
+
+              {/* ── Group 1: Configure · Source · Rename · Recolor ── */}
+              {show(onConfigure) && menuBtn('⚙️  Configure', onConfigure)}
+              {show(onSourceSelect) && menuBtn('🔌  Source', onSourceSelect)}
+              {show(onRename) && menuBtn('✏️  Rename', onRename)}
+              {show(onRecolor) && menuBtn('🎨  Recolor', onRecolor)}
+
+              {/* separator before group 2 (only if group 1 AND group 2 have items) */}
+              {(show(onConfigure) || show(onSourceSelect) || show(onRename) || show(onRecolor)) &&
+               (show(onPin) || show(onDuplicate) || show(onMove)) && (
+                <MenuSeparator />
+              )}
+
+              {/* ── Group 2: Pin · Duplicate · Move ── */}
+              {show(onPin) && menuBtn(
+                isPinned ? '📌  Unpin' : '📌  Pin / Favorite',
+                onPin,
+                { checked: isPinned },
+              )}
+              {show(onDuplicate) && menuBtn('⧉  Duplicate', onDuplicate)}
+              {show(onMove) && menuBtn('↕  Move', onMove)}
+
+              {/* separator before group 3 */}
+              {(show(onPin) || show(onDuplicate) || show(onMove) ||
+                show(onConfigure) || show(onSourceSelect) || show(onRename) || show(onRecolor)) &&
+               (show(onPermissions) || hasVisibilityControl || show(onHide) || show(onRemove)) && (
+                <MenuSeparator />
+              )}
+
+              {/* ── Group 3: Permissions · Visibility · Remove ── */}
+              {show(onPermissions) && menuBtn('🔐  Permissions', onPermissions)}
+              {visibilityItems}
+              {show(onRemove) && menuBtn('🗑  Remove Dream', onRemove, { danger: true })}
             </div>
           )}
         </div>
@@ -268,3 +415,4 @@ export default function WidgetShell({
     </div>
   );
 }
+
