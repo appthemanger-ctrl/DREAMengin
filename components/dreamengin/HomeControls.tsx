@@ -3,7 +3,7 @@
 // - Controls are FIXED (no drag) for now.
 // - Single tap (either): Return Home
 // - Double tap Blue: Dreams (Outdream) menu
-// - Double tap Red:  System (Nexus) menu
+// - Double tap Gold: System (Nexus) menu
 //
 // Notes:
 // - We intentionally removed hold/drag depth navigation to avoid iOS Safari conflicts (pull-to-refresh / back swipe).
