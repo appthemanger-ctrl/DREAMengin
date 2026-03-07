@@ -1309,6 +1309,59 @@ export type Database = {
           },
         ]
       }
+      marketplace_items: {
+        Row: {
+          id: string
+          seller_id: string
+          title: string
+          description: string | null
+          category: string
+          price_cents: number
+          file_url: string | null
+          preview_url: string | null
+          is_published: boolean
+          tags: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          title: string
+          description?: string | null
+          category?: string
+          price_cents?: number
+          file_url?: string | null
+          preview_url?: string | null
+          is_published?: boolean
+          tags?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          title?: string
+          description?: string | null
+          category?: string
+          price_cents?: number
+          file_url?: string | null
+          preview_url?: string | null
+          is_published?: boolean
+          tags?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_items_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
