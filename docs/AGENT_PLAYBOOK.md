@@ -14,7 +14,13 @@ DREAMengin is a **spatial, privacy-first creative OS** — not a traditional web
 - Built with **Next.js 16+ (App Router) + TypeScript + Supabase + Tailwind CSS**
 - Users own a private **HomeDream** (operating surface), a private **EditProfileDream** (builder), and a public **ViewProfile** (shared output)
 - All content lives inside modular **Dreams** (interactive widgets with real capability)
-- Six **Daydream pairs** (Music, Games, Lab, Code, Brand, Create) are mini-apps inside the OS
+- Six **Daydream / Engin pairs** are mini-apps inside the OS — each has a Daydream side (the user's creative space) and an Engin side (the tooling/capability engine):
+  1. **Music Daydream** / **StarMakerEngin** — music creation, organisation, projects
+  2. **Games Daydream** / **GameEngin** — gaming experiences
+  3. **Lab Daydream** / **LabEngin** — experimental tools and lab workspace
+  4. **Code Daydream** / **CodeEngin** — code creation and management
+  5. **Brand Daydream** / **BrandingEngin** — branding tools
+  6. **Create Daydream** / **ContentEngin** — content creation and publishing
 - Three AI agents: **Dr. Eams** (user assistant), **IDARi** (admin fixer), **TheBoogieMan** (policy enforcer)
 - Navigation is **gesture/τ-based** — not browser routing; the **Golden Button** is the only travel system
 
@@ -52,6 +58,12 @@ Always use these names — not old/legacy variations:
 | HomeDream | `/homedream` | `/home` |
 | EditProfileDream | `/edit-profiledream` | `/edit-profile` |
 | ViewProfile | `/view-profile` | `/profile/[handle]`, `/u/[handle]` |
+| **Music Daydream / StarMakerEngin** | `/daydream/music` | — |
+| **Games Daydream / GameEngin** | `/daydream/games` | — |
+| **Lab Daydream / LabEngin** | `/daydream/lab` | — |
+| **Code Daydream / CodeEngin** | `/daydream/code` | — |
+| **Brand Daydream / BrandingEngin** | `/daydream/brand` | — |
+| **Create Daydream / ContentEngin** | `/daydream/create` | — |
 | DreamShop | `/shop` | — |
 | DreamMarketplace | `/marketplace` | — |
 | DreamDM | `/messages` | — |
@@ -59,6 +71,9 @@ Always use these names — not old/legacy variations:
 | Dr. Eams | `/api/ai/eams` | `/api/dr-eams/*` |
 | IDARi | `/api/ai/idari` | — |
 | TheBoogieMan.Ai | `/api/ai/boogieman` | — |
+
+> **Legacy Daydream routes** (repurpose, do not treat as canonical product surfaces):  
+> `/daydream/analytics`, `/daydream/media-vault`, `/daydream/play`
 
 ---
 
@@ -163,7 +178,15 @@ This section maps the most important files and what they do. Read this before se
 | `app/edit-profiledream/page.tsx` | EditProfileDream (canonical profile builder) |
 | `app/view-profile/page.tsx` | ViewProfile (canonical public output) |
 | `app/profile/[handle]/page.tsx` | Public profile by handle (current shared destination) |
-| `app/daydream/[type]/page.tsx` | Daydream pair pages (music/games/lab/code/brand/create) |
+| `app/daydream/music/page.tsx` | **Music Daydream / StarMakerEngin** — music creation & projects |
+| `app/daydream/games/page.tsx` | **Games Daydream / GameEngin** — gaming experiences |
+| `app/daydream/lab/page.tsx` | **Lab Daydream / LabEngin** — experimental tools & lab workspace |
+| `app/daydream/code/page.tsx` | **Code Daydream / CodeEngin** — code creation & management |
+| `app/daydream/brand/page.tsx` | **Brand Daydream / BrandingEngin** — branding tools |
+| `app/daydream/create/page.tsx` | **Create Daydream / ContentEngin** — content creation & publishing |
+| `app/daydream/analytics/page.tsx` | Legacy — repurpose, not a canonical product surface |
+| `app/daydream/media-vault/page.tsx` | Legacy — repurpose, not a canonical product surface |
+| `app/daydream/play/page.tsx` | Legacy — repurpose, not a canonical product surface |
 | `app/messages/page.tsx` | DreamDM |
 | `app/shop/page.tsx` | DreamShop |
 | `app/marketplace/page.tsx` | DreamMarketplace |
@@ -346,7 +369,12 @@ Dev server supports hot-reload — changes appear immediately without restart.
 | Navigation | `http://localhost:3000/homedream` |
 | Profile builder | `http://localhost:3000/edit-profiledream` |
 | Public profile | `http://localhost:3000/view-profile` |
-| Daydream | `http://localhost:3000/daydream/music` |
+| Music Daydream / StarMakerEngin | `http://localhost:3000/daydream/music` |
+| Games Daydream / GameEngin | `http://localhost:3000/daydream/games` |
+| Lab Daydream / LabEngin | `http://localhost:3000/daydream/lab` |
+| Code Daydream / CodeEngin | `http://localhost:3000/daydream/code` |
+| Brand Daydream / BrandingEngin | `http://localhost:3000/daydream/brand` |
+| Create Daydream / ContentEngin | `http://localhost:3000/daydream/create` |
 | Shop | `http://localhost:3000/shop` |
 | Messages | `http://localhost:3000/messages` |
 
@@ -484,4 +512,13 @@ Build:             pnpm build
 Path alias:        @/ → project root (configured in tsconfig.json)
 DB/Auth:           Supabase — config in lib/supabase/
 Env template:      .env.example → copy to .env.local
+
+Canonical Daydream / Engin pairs:
+  /daydream/music   → Music Daydream  / StarMakerEngin
+  /daydream/games   → Games Daydream  / GameEngin
+  /daydream/lab     → Lab Daydream    / LabEngin
+  /daydream/code    → Code Daydream   / CodeEngin
+  /daydream/brand   → Brand Daydream  / BrandingEngin
+  /daydream/create  → Create Daydream / ContentEngin
+  (analytics, media-vault, play are legacy — repurpose, not canonical)
 ```
