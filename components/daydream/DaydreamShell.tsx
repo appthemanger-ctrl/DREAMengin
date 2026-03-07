@@ -4,6 +4,11 @@ import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
+import StarMakerEngin from '@/components/daydream/StarMakerEngin';
+import LabEngin       from '@/components/daydream/LabEngin';
+import CodeEngin      from '@/components/daydream/CodeEngin';
+import BrandingEngin  from '@/components/daydream/BrandingEngin';
+import ContentEngin   from '@/components/daydream/ContentEngin';
 
 export type DaydreamWidget = {
   id: string;
@@ -64,9 +69,26 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
       <div style={contentStyle}>
         {side === 'A'
           ? children
-          : sideBVariant === 'game-remote'
-            ? <GameRemote onBack={flip} />
-            : <EnginSurface enginName={enginName} title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />
+          : (() => {
+              if (sideBVariant === 'game-remote') return <GameRemote onBack={flip} />;
+              // Specialized Side B engines (README spec §8.2–§13.2 / ARCHITECTURE.md §1)
+              switch (enginName) {
+                case 'StarMakerEngin': return <StarMakerEngin onBack={flip} />;
+                case 'LabEngin':       return <LabEngin       onBack={flip} />;
+                case 'CodeEngin':      return <CodeEngin      onBack={flip} />;
+                case 'BrandingEngin':  return <BrandingEngin  onBack={flip} />;
+                case 'ContentEngin':   return <ContentEngin   onBack={flip} />;
+                default:               return (
+                  <EnginSurface
+                    enginName={enginName}
+                    title={title}
+                    accentColor={accentColor}
+                    widgets={widgets}
+                    onBack={flip}
+                  />
+                );
+              }
+            })()
         }
       </div>
 
