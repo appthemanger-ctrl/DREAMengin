@@ -3,8 +3,8 @@
 /**
  * DualBottomMenu — slides up from the bottom as two side-by-side panels.
  *
- * Left panel:  System  (Profiles, Settings, Marketplace, Feed Sources, Appearance, AI Triad)
- * Right panel: Daydreams (Music/Release, Code/Preview, Create/Assets, Gaming Library, Lab/Test, Brand/Analytics)
+ * Left panel:  6 Daydream navigation (per spec §17.2 / §4.2)
+ * Right panel: System menu + Dr. Eams Chat (per spec §17.3 / §4.2)
  *
  * Double-tap the gold ball → this opens.
  * Tap the dim backdrop or any item → closes.
@@ -35,22 +35,24 @@ type Props = {
 
 /* ── Data ───────────────────────────────────────────────────────────────────── */
 
+/** Left panel: the 6 Daydreams (spec §7.2 domain list) */
+const DAYDREAM_ITEMS: Array<{ icon: string; label: string; route: string }> = [
+  { icon: '🎵', label: 'Music',  route: '/daydream/music'  },
+  { icon: '🎮', label: 'Games',  route: '/daydream/games'  },
+  { icon: '🔬', label: 'Lab',    route: '/daydream/lab'    },
+  { icon: '💻', label: 'Code',   route: '/daydream/code'   },
+  { icon: '🎨', label: 'Brand',  route: '/daydream/brand'  },
+  { icon: '✨', label: 'Create', route: '/daydream/create' },
+];
+
+/** Right panel: standard app menu functions + Dr. Eams (spec §17.3) */
 const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; icon: string; label: string }> = [
+  { id: 'dr-eams',       icon: '∞',  label: 'Dr. Eams'     },
   { id: 'profiles',      icon: '👤', label: 'Profiles'      },
   { id: 'settings',      icon: '⚙️', label: 'Settings'      },
   { id: 'marketplace',   icon: '🏪', label: 'Marketplace'   },
   { id: 'feed-settings', icon: '📡', label: 'Feed Sources'  },
   { id: 'appearance',    icon: '🎨', label: 'Appearance'    },
-  { id: 'ai-triad',      icon: '🤖', label: 'AI Triad'      },
-];
-
-const DAYDREAM_ITEMS: Array<{ icon: string; label: string; route: string }> = [
-  { icon: '🎵', label: 'Music/Release',   route: '/daydream/music'     },
-  { icon: '💻', label: 'Code/Preview',    route: '/daydream/create'    },
-  { icon: '✨', label: 'Create/Assets',   route: '/create'             },
-  { icon: '🎮', label: 'Gaming Library',  route: '/daydream/games'     },
-  { icon: '🔬', label: 'Lab/Test',        route: '/lab'                },
-  { icon: '📊', label: 'Brand/Analytics', route: '/daydream/brand'     },
 ];
 
 /* ── Sub-components ─────────────────────────────────────────────────────────── */
@@ -183,19 +185,7 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
           animation: 'de-dual-menu-up 0.26s cubic-bezier(0.34,1.22,0.64,1)',
         }}
       >
-        {/* System panel */}
-        <Panel title="System">
-          {SYSTEM_ITEMS.map((item) => (
-            <PanelItem
-              key={item.id}
-              icon={item.icon}
-              label={item.label}
-              onClick={() => { onClose(); onSystemAction(item.id); }}
-            />
-          ))}
-        </Panel>
-
-        {/* Daydreams panel */}
+        {/* Daydreams panel — LEFT (spec §17.2 / §4.2) */}
         <Panel title="Daydreams">
           {DAYDREAM_ITEMS.map((item) => (
             <PanelItem
@@ -203,6 +193,18 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
               icon={item.icon}
               label={item.label}
               onClick={() => { onClose(); router.push(item.route); }}
+            />
+          ))}
+        </Panel>
+
+        {/* System panel — RIGHT with Dr. Eams at top (spec §17.3 / §4.2) */}
+        <Panel title="Menu">
+          {SYSTEM_ITEMS.map((item) => (
+            <PanelItem
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              onClick={() => { onClose(); onSystemAction(item.id); }}
             />
           ))}
         </Panel>

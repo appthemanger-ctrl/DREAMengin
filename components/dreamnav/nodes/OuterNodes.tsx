@@ -62,7 +62,7 @@ function NodeFooter() {
 export function Node1b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 1b" title="Releases" />
+      <Header tag="StarMakerEngin" title="Releases" />
       <Divider />
 
       {/* Featured release */}
@@ -150,7 +150,7 @@ export function Node1b() {
 export function Node2b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 2b" title="Lab" />
+      <Header tag="LabEngin" title="Lab" />
       <Divider />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
         <WidgetTile>
@@ -195,7 +195,7 @@ const NODE3B_DEFAULT_HTML = `<!DOCTYPE html><html><head><style>body{margin:0;bac
 export function Node3b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream · Code" title="Code Lab" />
+      <Header tag="CodeEngin" title="Code Lab" />
       <Divider />
 
       {/* Live render preview */}
@@ -212,14 +212,14 @@ export function Node3b() {
 
       {/* Action buttons */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
-        <Link href="/lab" className="de-btn de-btn-primary" style={{ textAlign: 'center', textDecoration: 'none' }}>
+        <Link href="/daydream/code" className="de-btn de-btn-primary" style={{ textAlign: 'center', textDecoration: 'none' }}>
+          💻 Open Code
+        </Link>
+        <Link href="/daydream/lab" className="de-btn de-btn-gold" style={{ textAlign: 'center', textDecoration: 'none' }}>
           🔬 Open Lab
         </Link>
-        <Link href="/lab/new" className="de-btn de-btn-gold" style={{ textAlign: 'center', textDecoration: 'none' }}>
-          ✦ New Project
-        </Link>
-        <Link href="/lab/demo-1/codespace" className="de-btn de-btn-ghost" style={{ textAlign: 'center', textDecoration: 'none' }}>
-          💻 CodeSpace Demo
+        <Link href="/codespace" className="de-btn de-btn-ghost" style={{ textAlign: 'center', textDecoration: 'none' }}>
+          💻 CodeSpace
         </Link>
       </div>
 
@@ -261,7 +261,7 @@ export function Node3b() {
 export function Node4b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 4b" title="Brand" />
+      <Header tag="BrandingEngin" title="Brand" />
       <Divider />
 
       {/* Profile card */}
@@ -368,7 +368,7 @@ export function Node4b() {
 export function Node5b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 5b" title="Games" />
+      <Header tag="GameEngin" title="Games" />
       <Divider />
 
       {/* Friends & Discover header */}
@@ -459,7 +459,7 @@ export function Node5b() {
 export function Node6b() {
   return (
     <OuterShell>
-      <Header tag="Day Dream - 6b" title="Create" />
+      <Header tag="ContentEngin" title="Create" />
       <Divider />
 
       {/* Ideas & Tasks */}

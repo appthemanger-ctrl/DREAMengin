@@ -24,6 +24,7 @@ export default async function PlayDaydreamPage() {
   return (
     <DaydreamShell
       title="Play"
+      enginName="PlayEngin"
       accentColor="#8b5cf6"
       widgets={WIDGETS}
     >

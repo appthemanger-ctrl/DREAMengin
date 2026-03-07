@@ -27,6 +27,7 @@ export default async function BrandDaydreamPage() {
   return (
     <DaydreamShell
       title="Brand"
+      enginName="BrandingEngin"
       accentColor="#ec4899"
       widgets={WIDGETS}
     >

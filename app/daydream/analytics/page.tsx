@@ -42,6 +42,7 @@ export default async function AnalyticsDaydreamPage() {
   return (
     <DaydreamShell
       title="Analytics"
+      enginName="AnalyticsEngin"
       accentColor="#6366f1"
       widgets={WIDGETS}
     >

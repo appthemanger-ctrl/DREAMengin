@@ -34,6 +34,7 @@ export default async function CreateDaydreamPage() {
   return (
     <DaydreamShell
       title="Create"
+      enginName="ContentEngin"
       accentColor="#f59e0b"
       widgets={WIDGETS}
     >
