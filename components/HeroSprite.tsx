@@ -185,19 +185,28 @@ export default function HeroSprite({
     let stopped = false;
     const startTime = performance.now();
 
-    /** Draw one body part with pivot + rotation, optionally flipped. */
+    /** Draw one body part with pivot + rotation, optionally mirrored horizontally. */
     function drawPart(
       img: HTMLImageElement | null,
       pw: number, ph: number,
       dx: number, dy: number,
       pivotX: number, pivotY: number,
       angle: number,
+      flipH = false,
     ) {
       if (!img?.complete || !img.naturalWidth) return;
       ctx.save();
       ctx.translate(pivotX, pivotY);
       ctx.rotate(angle);
-      ctx.drawImage(img, dx - pivotX, dy - pivotY, pw, ph);
+      if (flipH) {
+        ctx.scale(-1, 1);
+        // After scale(-1,1) the x-axis is mirrored around the pivot (now at origin).
+        // Original draw position relative to pivot is (dx - pivotX); negating it and
+        // subtracting pw (image width) keeps the image anchored at the same pivot point.
+        ctx.drawImage(img, -(dx - pivotX) - pw, dy - pivotY, pw, ph);
+      } else {
+        ctx.drawImage(img, dx - pivotX, dy - pivotY, pw, ph);
+      }
       ctx.restore();
     }
 
@@ -284,14 +293,14 @@ export default function HeroSprite({
       ctx.ellipse(cx, feetY + 5, 24, 6, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 1. Back arm (arm1, LEFT arm) — drawn behind torso.
-      //    Pivot = left shoulder (shoulderXL).
-      //    Shoulder ball sits at ~87% from left / ~4% from top of the arm1 image.
+      // 1. Back arm (arm1) — now on RIGHT side, mirrored so it faces outward.
+      //    Pivot = right shoulder (shoulderXR).
       drawPart(
         imgs.arm1, DIM.arm1.w, DIM.arm1.h,
-        shoulderXL - Math.round(DIM.arm1.w * 0.87), shoulderY - Math.round(DIM.arm1.h * 0.04),
-        shoulderXL, shoulderY,                 // pivot: left shoulder joint
-        -armAngle,
+        shoulderXR - Math.round(DIM.arm1.w * 0.87), shoulderY - Math.round(DIM.arm1.h * 0.04),
+        shoulderXR, shoulderY,                 // pivot: right shoulder joint
+        armAngle,
+        true,                                  // mirror horizontally
       );
 
       // 2. Back shoe / left leg
@@ -315,15 +324,14 @@ export default function HeroSprite({
         legAngle,
       );
 
-      // 5. Front arm (arm2, RIGHT arm) — waves by default, reacts on torso tap.
-      //    Pivot = right shoulder (shoulderXR).
-      //    Shoulder socket sits at ~88% from left / ~90% from top of the arm2 image.
-      //    The arm2 image shows the hand at the TOP — so the arm is raised/waving upward.
+      // 5. Front arm (arm2) — now on LEFT side, mirrored so it faces outward.
+      //    Pivot = left shoulder (shoulderXL).
       drawPart(
         imgs.arm2, DIM.arm2.w, DIM.arm2.h,
-        shoulderXR - Math.round(DIM.arm2.w * 0.88), shoulderY - Math.round(DIM.arm2.h * 0.90),
-        shoulderXR, shoulderY,                 // pivot: right shoulder joint
-        arm2Angle,
+        shoulderXL - Math.round(DIM.arm2.w * 0.88), shoulderY - Math.round(DIM.arm2.h * 0.90),
+        shoulderXL, shoulderY,                 // pivot: left shoulder joint
+        -arm2Angle,
+        true,                                  // mirror horizontally
       );
 
       // 6. Head — pivots around its vertical centre, drawn last so it always appears on top.

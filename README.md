@@ -44,6 +44,28 @@ Platform Modules
 
 ⸻
 
+## Design Language
+
+**Colors (non-negotiable):**
+
+| Role | Color |
+|---|---|
+| Primary | Light Blue `#4A9ED6` |
+| Secondary | White `#FFFFFF` |
+| Accent | Gold `#C8981A` |
+| Background | Light blue → white gradient |
+| Text | Deep navy `#0F2A5C` |
+
+**Style:**
+- Glassmorphism panels with soft light-blue tint
+- Gold accent glow on active/interactive elements
+- White surfaces with subtle blue-border glass
+- Minimal borders, rounded shapes, soft shadows
+- No purple. No dark backgrounds on user-facing surfaces.
+- Premium, clean, futuristic — never gamified
+
+⸻
+
 2. Technical Foundation
 
 2.1 Frontend
