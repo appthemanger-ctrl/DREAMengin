@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
 
 type CoreFace = 'home' | 'profile';
@@ -308,6 +309,27 @@ function ProfileFace({ profile, onToggleFace }: { profile: Props['profile']; onT
         >
           Follow
         </button>
+        {/* Spec-first navigation: EditProfileDream + ViewProfile shortcuts */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+          <Link href="/edit-profiledream" style={{
+            padding: '6px 14px', borderRadius: 100,
+            background: 'rgba(200,152,26,0.12)',
+            border: '1px solid rgba(200,152,26,0.3)',
+            color: '#c8981a', fontSize: 11, fontWeight: 700,
+            textDecoration: 'none',
+          }}>
+            ✎ Edit ProfileDream
+          </Link>
+          <Link href={handle ? `/profile/${handle}` : '/view-profile'} style={{
+            padding: '6px 14px', borderRadius: 100,
+            background: 'rgba(42,138,184,0.1)',
+            border: '1px solid rgba(42,138,184,0.25)',
+            color: 'var(--de-accent)', fontSize: 11, fontWeight: 700,
+            textDecoration: 'none',
+          }}>
+            👁 ViewProfile
+          </Link>
+        </div>
       </div>
 
       {/* Stats grid */}

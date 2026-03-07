@@ -19,12 +19,12 @@ type Props = {
 };
 
 const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string; description?: string; icon?: string }> = [
-  { id: 'dr-eams',       label: 'Dr. Eams',      icon: '◈', description: 'Your AI dream companion'      },
-  { id: 'settings',      label: 'Settings',      icon: '⚙',  description: 'App preferences & controls'  },
-  { id: 'account',       label: 'Account',       icon: '👤', description: 'Profile & account details'    },
-  { id: 'feed-settings', label: 'Feed Settings', icon: '📡', description: 'Customize your content feed'  },
-  { id: 'connectors',    label: 'Connectors',    icon: '🔗', description: 'Connect apps & integrations'  },
-  { id: 'go-home',       label: 'Go Home',       icon: '⌂',  description: 'Reset to Home Dream anchor'   },
+  { id: 'dr-eams',       label: 'Dr. Eams',          icon: '◈', description: 'Your AI dream companion'            },
+  { id: 'settings',      label: 'Settings',          icon: '⚙',  description: 'App preferences & controls'         },
+  { id: 'account',       label: 'Edit ProfileDream', icon: '👤', description: 'Build your profile — private builder' },
+  { id: 'feed-settings', label: 'Feed Settings',     icon: '📡', description: 'Customize your content feed'         },
+  { id: 'connectors',    label: 'Connectors',        icon: '🔗', description: 'Connect apps & integrations'         },
+  { id: 'go-home',       label: 'HomeDream',         icon: '⌂',  description: 'Return to your HomeDream'            },
 ];
 
 export default function SystemRadialMenu({ open, onClose, onAction, side }: Props) {
@@ -39,7 +39,7 @@ export default function SystemRadialMenu({ open, onClose, onAction, side }: Prop
   return (
     <MenuPanel
       open={open}
-      title="System"
+      title="DreamMenu"
       accent="gold"
       items={items}
       onClose={onClose}

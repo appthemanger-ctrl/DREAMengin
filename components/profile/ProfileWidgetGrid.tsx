@@ -1100,15 +1100,34 @@ export default function ProfileWidgetGrid({
           </div>
           {remaining > 0 && (
             <div style={{ marginTop: 6, fontSize: 10, color: '#888' }}>
-              Add {remaining} more widget{remaining !== 1 ? 's' : ''} to level up your profile
+              Add {remaining} more Dream{remaining !== 1 ? 's' : ''} to level up your profile
             </div>
           )}
         </div>
       )}
 
       {/* ── Unified 2-col widget grid ── */}
+      {/* In public view (isEditing=false): only render Dreams explicitly set to 'everyone'.
+          Nothing is public by default — LAW.md §2 / AXIOM 5 / ARCHITECTURE.md §5. */}
+      {!isEditing && widgets.filter(w => (w.visibilityTier ?? 'hidden') === 'everyone').length === 0 && (
+        <div style={{
+          textAlign: 'center', padding: '40px 24px',
+          background: 'rgba(255,255,255,0.55)',
+          borderRadius: 20,
+          border: '1.5px dashed rgba(160,195,240,0.4)',
+        }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 6 }}>
+            Nothing is public yet
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+            Dreams are private by default.<br />
+            Open Edit ProfileDream to choose what's visible.
+          </div>
+        </div>
+      )}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
-        {widgets.map((w, idx) => (
+        {(isEditing ? widgets : widgets.filter(w => (w.visibilityTier ?? 'hidden') === 'everyone')).map((w, idx) => (
           <div
             key={w.id}
             style={cardStyle(w, idx)}
@@ -1143,7 +1162,7 @@ export default function ProfileWidgetGrid({
                   <button
                     onClick={() => toggleSize(w.id)}
                     title={getSize(w) === 'small' ? 'Expand to full width' : 'Shrink to half width'}
-                    aria-label={getSize(w) === 'small' ? 'Expand widget to full width' : 'Shrink widget to half width'}
+                    aria-label={getSize(w) === 'small' ? 'Expand Dream to full width' : 'Shrink Dream to half width'}
                     style={{
                       height: 22, padding: '0 6px', borderRadius: 7,
                       background: 'rgba(255,255,255,0.88)',
@@ -1168,7 +1187,7 @@ export default function ProfileWidgetGrid({
                         ? 'Public — everyone (click for followers-only)'
                         : 'Followers-only (click to hide)'
                     }
-                    aria-label={`Widget visibility: ${w.visibilityTier ?? 'hidden'}`}
+                    aria-label={`Dream visibility: ${w.visibilityTier ?? 'hidden'}`}
                     style={{
                       width: 26, height: 22, borderRadius: 7,
                       background: (w.visibilityTier ?? 'hidden') === 'hidden'
@@ -1196,7 +1215,7 @@ export default function ProfileWidgetGrid({
 
                   <button
                     onClick={() => setConfigWidget(w)}
-                    aria-label={`Customize ${getWidgetLabel(w.type)} widget`}
+                    aria-label={`Customize ${getWidgetLabel(w.type)} Dream`}
                     style={{
                       width: 26, height: 26, borderRadius: 8,
                       background: 'rgba(255,255,255,0.88)',

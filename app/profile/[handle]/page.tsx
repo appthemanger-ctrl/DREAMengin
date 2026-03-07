@@ -72,32 +72,41 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         </span>
       </div>
 
-      {/* ── "My Profile" row ── */}
+      {/* ── ViewProfile header row ── */}
       <div style={{
         maxWidth: 520, margin: '0 auto',
         padding: '8px 16px 16px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
-          {isOwner ? 'My Profile' : `@${handle}`}
-        </h1>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
+            {isOwner ? 'ViewProfile' : `@${handle}`}
+          </h1>
+          {isOwner && (
+            <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0', lineHeight: 1 }}>
+              Public output — built in Edit ProfileDream
+            </p>
+          )}
+        </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <ProfileShareButton />
           {isOwner ? (
             <Link
-              href="/edit-profile"
+              href="/edit-profiledream"
               style={{
-                width: 34, height: 34, borderRadius: '50%',
+                height: 34, padding: '0 14px', borderRadius: 10,
                 background: 'rgba(255,255,255,0.75)',
-                border: '1.5px solid rgba(0,0,0,0.1)',
+                border: '1.5px solid rgba(200,152,26,0.3)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 14, textDecoration: 'none', color: '#666',
+                gap: 6, fontSize: 12, fontWeight: 700,
+                textDecoration: 'none', color: '#c8981a',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
               }}
-              title="Edit profile"
+              title="Open Edit ProfileDream"
             >
-              <Pencil size={14} />
+              <Pencil size={12} />
+              Edit ProfileDream
             </Link>
           ) : (
             <FollowButton handle={profile.handle} displayName={displayName} />
@@ -105,7 +114,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         </div>
       </div>
 
-      {/* ── Widget grid ── */}
+      {/* ── Dream grid ── */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '0 16px' }}>
         <ProfileWidgetGrid
           displayName={displayName}

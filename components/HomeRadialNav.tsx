@@ -613,7 +613,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   };
 
   const NAV_MAP: Array<{ key: string; match: RegExp; path: string; label: string }> = [
-    { key: 'home', match: /\b(home|profile|widgets|widget|layout|configure)\b/i, path: '/homedream', label: 'HomeDream & Dreams' },
+    { key: 'home', match: /\b(home|profile|dreams|dream|layout|configure)\b/i, path: '/homedream', label: 'HomeDream & Dreams' },
     { key: 'discover', match: /\b(discover|explore|find|browse)\b/i, path: '/discover', label: 'Discover' },
     { key: 'music', match: /\b(music|audio|track|playlist|upload music|songs?)\b/i, path: '/music', label: 'Music' },
     { key: 'lab', match: /\b(lab|physics|experiment|science|quantum)\b/i, path: '/lab', label: 'Lab' },
@@ -746,9 +746,9 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const getDetailedCapabilities = (): string => {
     return `I can take you anywhere in DREAMengin:
 
-**Navigate**: Home • Discover • Music • Lab • Shop • Messages • Settings
+**Navigate**: HomeDream • Discover • Music Daydream • Lab Daydream • DreamShop • DreamDM • Settings
 **Create**: Posts • Experiments • Content
-**Manage**: Profile • Widgets • Analytics • Revenue
+**Manage**: EditProfileDream • Dreams • Performance Signals • Revenue
 
 Just tell me where you want to go or what you want to do.`;
   };
