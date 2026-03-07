@@ -1,14 +1,42 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Home, User, MessageCircle, Compass, Settings,
   Bell, BarChart3, TrendingUp, Users, Zap,
   Music, ShoppingBag, Plus, Star, ChevronRight,
-  Search, Sparkles,
+  Search, Sparkles, X,
 } from 'lucide-react';
+
+// ── Navigation search suggestions ─────────────────────────────────────────────
+
+const NAV_SUGGESTIONS = [
+  { label: 'Home',        href: '/home',              icon: '🏠' },
+  { label: 'Shop',        href: '/shop',              icon: '🛍️' },
+  { label: 'Marketplace', href: '/marketplace',       icon: '🏪' },
+  { label: 'Settings',    href: '/settings',          icon: '⚙️' },
+  { label: 'Music',       href: '/daydream/music',    icon: '🎵' },
+  { label: 'Games',       href: '/daydream/games',    icon: '🎮' },
+  { label: 'Lab',         href: '/daydream/lab',      icon: '🧪' },
+  { label: 'Code',        href: '/daydream/code',     icon: '💻' },
+  { label: 'Brand',       href: '/daydream/brand',    icon: '🎨' },
+  { label: 'Create',      href: '/daydream/create',   icon: '✏️' },
+  { label: 'Messages',    href: '/messages',          icon: '💬' },
+  { label: 'Profile',     href: '/edit-profile',      icon: '👤' },
+  { label: 'Analytics',   href: '/analytics',         icon: '📊' },
+  { label: 'Discover',    href: '/discover',          icon: '🔭' },
+  { label: 'Dr. Eams',    href: null,                 icon: '🤖' },
+] as const;
+
+// ── AI Triad agent definitions ─────────────────────────────────────────────────
+
+const AI_AGENTS = [
+  { id: 'dr-eams',    name: 'Dr. Eams',      initial: 'A', bg: '#4A90D9', iconColor: '#fff',    time: '11:50 Pm', sub: '03:40 pm' },
+  { id: 'idari',      name: 'IDARi',         initial: '⬡', bg: '#1a1a1a', iconColor: '#c8981a', time: '1:50 Pm',  sub: '02:30 pm' },
+  { id: 'boogieman',  name: 'TheBoogieMan',  initial: '👁', bg: '#2d1a4a', iconColor: '#fff',    time: '1:30 Pm',  sub: '1:30 pm'  },
+] as const;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -218,6 +246,137 @@ const TABS = [
   { id: 'profile',  icon: User,          label: 'Profile',  href: '/edit-profile' },
 ];
 
+// ── AI Agent activity card ─────────────────────────────────────────────────────
+
+function AgentActivityCard({ agent }: { agent: typeof AI_AGENTS[number] }) {
+  return (
+    <div style={{
+      minWidth: 148, flexShrink: 0,
+      padding: '14px 16px',
+      background: 'rgba(255,255,255,0.92)',
+      borderRadius: 16,
+      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+      border: '1px solid rgba(160,195,240,0.18)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <div style={{
+          width: 32, height: 32, borderRadius: '50%',
+          background: agent.bg,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 14, fontWeight: 700, color: agent.iconColor, flexShrink: 0,
+        }}>
+          {agent.initial}
+        </div>
+        <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--de-heading)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 88 }}>
+          {agent.name}
+        </span>
+      </div>
+      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)', marginBottom: 2 }}>{agent.time}</div>
+      <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{agent.sub}</div>
+    </div>
+  );
+}
+
+// ── Social media widget card ───────────────────────────────────────────────────
+
+type SocialCard = {
+  platform: string;
+  icon: string;
+  color: string;
+  headline: string;
+  sub: string;
+  stat?: string;
+  action?: string;
+  actionHref?: string;
+  trendData?: number[];
+};
+
+const SOCIAL_CARDS: SocialCard[] = [
+  {
+    platform: 'Twitter',
+    icon: '🐦',
+    color: '#1da1f2',
+    headline: 'BREAKING: Major AI breakthrough announced today. Stocks surge.',
+    sub: 'TechNews · #AI #Tech',
+    stat: '1.2K · 5.4K',
+    action: 'View Thread',
+    trendData: [100, 120, 110, 140, 135, 160, 180],
+  },
+  {
+    platform: 'Instagram',
+    icon: '📷',
+    color: '#e1306c',
+    headline: 'Delicious brunch at @CafeDeluxe #SundayBrunch',
+    sub: '1,500 Likes · 89 Comments',
+    action: 'Follow',
+  },
+  {
+    platform: 'LinkedIn',
+    icon: '💼',
+    color: '#0077b5',
+    headline: 'Senior UX Designer at Google',
+    sub: '200+ applicants · Posted 2 days ago',
+    action: 'Apply Now',
+    actionHref: '/shop',
+  },
+];
+
+function SocialWidgetCard({ card }: { card: SocialCard }) {
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.92)',
+      borderRadius: 18,
+      boxShadow: '0 2px 14px rgba(0,0,0,0.07)',
+      border: '1px solid rgba(160,195,240,0.18)',
+      padding: '14px 16px',
+      minWidth: 220,
+      flexShrink: 0,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 18 }}>{card.icon}</span>
+        <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--de-heading)' }}>{card.platform}</span>
+        {card.trendData && (
+          <div style={{ marginLeft: 'auto' }}>
+            <MiniLine data={card.trendData} color={card.color} />
+          </div>
+        )}
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--de-heading)', lineHeight: 1.5, marginBottom: 8 }}>
+        {card.headline}
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: card.action ? 10 : 0 }}>
+        {card.sub}
+      </div>
+      {card.stat && (
+        <div style={{ fontSize: 11, color: card.color, marginBottom: 8, fontWeight: 600 }}>
+          {card.stat}
+        </div>
+      )}
+      {card.action && (
+        <Link
+          href={card.actionHref || '#'}
+          style={{
+            display: 'inline-block',
+            padding: '7px 18px', borderRadius: 100,
+            background: card.action === 'Apply Now'
+              ? 'linear-gradient(135deg, #c8981a, #e0b830)'
+              : card.action === 'Follow'
+              ? '#1a1a1a'
+              : 'rgba(160,195,240,0.25)',
+            color: card.action === 'Apply Now' ? '#fff'
+              : card.action === 'Follow' ? '#fff'
+              : card.color,
+            fontSize: 12, fontWeight: 700, textDecoration: 'none',
+            boxShadow: card.action === 'Apply Now' ? '0 3px 10px rgba(200,152,26,0.30)' : 'none',
+          }}
+        >
+          {card.action}
+        </Link>
+      )}
+    </div>
+  );
+}
+
 function BottomTabBar({ active = 'home' }: { active?: string }) {
   return (
     <div style={{
@@ -281,6 +440,8 @@ function BottomTabBar({ active = 'home' }: { active?: string }) {
 export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: WorkspaceDashboardProps) {
   const router = useRouter();
   const [searchVal, setSearchVal] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const initials = name[0]?.toUpperCase() || 'D';
   const avatarUrl = profile?.avatar_url;
@@ -298,6 +459,22 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
       avatar_url: null,
     },
   }));
+
+  // Filter nav suggestions by search query
+  const filteredSuggestions = searchVal.trim().length > 0
+    ? NAV_SUGGESTIONS.filter(s => s.label.toLowerCase().includes(searchVal.toLowerCase()))
+    : [];
+
+  // Close search dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   return (
     <>
@@ -329,22 +506,73 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
           </span>
 
           {/* Search pill — expands to fill remaining space */}
-          <div style={{
-            flex: 1,
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: 'rgba(255,255,255,0.75)',
-            borderRadius: 100, padding: '9px 14px',
-            border: '1px solid rgba(160,195,240,0.30)',
-            boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
-          }}>
-            <Search size={13} style={{ color: 'var(--de-text-dim)', flexShrink: 0 }} />
-            <input
-              value={searchVal}
-              onChange={e => setSearchVal(e.target.value)}
-              placeholder="Search everything…"
-              style={{ background: 'none', border: 'none', outline: 'none',
-                fontSize: 13, color: 'var(--de-heading)', width: '100%' }}
-            />
+          <div ref={searchRef} style={{ flex: 1, position: 'relative' }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: 'rgba(255,255,255,0.75)',
+              borderRadius: searchOpen && filteredSuggestions.length > 0 ? '16px 16px 0 0' : 100,
+              padding: '9px 14px',
+              border: '1px solid rgba(160,195,240,0.30)',
+              boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
+            }}>
+              <Search size={13} style={{ color: 'var(--de-text-dim)', flexShrink: 0 }} />
+              <input
+                value={searchVal}
+                onChange={e => { setSearchVal(e.target.value); setSearchOpen(true); }}
+                onFocus={() => setSearchOpen(true)}
+                placeholder="Search everything…"
+                style={{ background: 'none', border: 'none', outline: 'none',
+                  fontSize: 13, color: 'var(--de-heading)', width: '100%' }}
+              />
+              {searchVal.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => { setSearchVal(''); setSearchOpen(false); }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}
+                >
+                  <X size={12} style={{ color: 'var(--de-text-dim)' }} />
+                </button>
+              )}
+            </div>
+            {/* Search suggestions dropdown */}
+            {searchOpen && filteredSuggestions.length > 0 && (
+              <div style={{
+                position: 'absolute', left: 0, right: 0, top: '100%',
+                background: 'rgba(255,255,255,0.97)',
+                border: '1px solid rgba(160,195,240,0.30)',
+                borderTop: 'none',
+                borderRadius: '0 0 16px 16px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                zIndex: 100,
+                overflow: 'hidden',
+              }}>
+                {filteredSuggestions.map((s) => (
+                  <button
+                    key={s.label}
+                    type="button"
+                    onClick={() => {
+                      setSearchOpen(false);
+                      setSearchVal('');
+                      if (s.href) {
+                        router.push(s.href);
+                      } else if (s.label === 'Dr. Eams') {
+                        onOpenDrEams();
+                      }
+                    }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      width: '100%', padding: '10px 14px',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      borderBottom: '1px solid rgba(160,195,240,0.12)',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <span style={{ fontSize: 16 }}>{s.icon}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Notification bell */}
@@ -413,6 +641,13 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
                 }}>
                   {feedPosts.length} new
                 </span>
+              </div>
+
+              {/* AI Triad agent cards — horizontal scroll */}
+              <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', marginBottom: 4 }}>
+                {AI_AGENTS.map(agent => (
+                  <AgentActivityCard key={agent.id} agent={agent} />
+                ))}
               </div>
 
               {/* Full-width feed cards */}
@@ -534,6 +769,18 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
                     <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 1 }}>{sub}</div>
                   </div>
                 </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Social media widget cards — horizontal scroll ── */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 10 }}>
+              Connected Feeds
+            </div>
+            <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
+              {SOCIAL_CARDS.map(card => (
+                <SocialWidgetCard key={card.platform} card={card} />
               ))}
             </div>
           </div>

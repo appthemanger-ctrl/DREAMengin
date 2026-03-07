@@ -31,6 +31,24 @@ const RECENT_AGENTS = [
     time1: '11:50 Pm',
     time2: '03:40 pm',
   },
+  {
+    id: 'idari',
+    name: 'IDARi',
+    initial: '⬡',
+    bg: '#1a1a1a',
+    iconColor: '#c8981a',
+    time1: '1:50 Pm',
+    time2: '02:30 pm',
+  },
+  {
+    id: 'boogieman',
+    name: 'TheBoogieMan',
+    initial: '👁',
+    bg: '#2d1a4a',
+    iconColor: '#fff',
+    time1: '1:30 Pm',
+    time2: '0:30 pm',
+  },
 ] as const;
 
 /* ── Shared section header row ── */
