@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
-import { Heart, MessageCircle, Share2, Users, Settings2, X, Check, Plug } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Users, X, Check, Plug, ChevronLeft, ChevronRight } from 'lucide-react';
 import ConnectorWidgetPicker, { type PickerConnector, TOP_10_CONNECTORS } from '@/components/connectors/ConnectorWidgetPicker';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -12,6 +12,9 @@ export type WidgetType =
   | 'linkedin' | 'twitter' | 'quote'
   | 'instagram' | 'spotify' | 'youtube' | 'tiktok'
   | 'github' | 'weather' | 'apple' | 'snapchat';
+
+/** small = 1 column (half-width), large = 2 columns (full-width) */
+export type WidgetSize = 'small' | 'large';
 
 export type WidgetBgStyle = 'white' | 'glass' | 'warm' | 'tinted' | 'dark';
 
@@ -30,6 +33,7 @@ export type WidgetConfig = {
 export type Widget = {
   id: string;
   type: WidgetType;
+  size?: WidgetSize;
   config?: WidgetConfig;
 };
 
@@ -45,13 +49,13 @@ export const DEFAULT_CONFIG: WidgetConfig = {
 };
 
 export const DEFAULT_WIDGETS: Widget[] = [
-  { id: 'bio',       type: 'bio' },
-  { id: 'followers', type: 'followers' },
-  { id: 'activity',  type: 'activity' },
-  { id: 'photos',    type: 'photos' },
-  { id: 'twitter',   type: 'twitter' },
-  { id: 'linkedin',  type: 'linkedin' },
-  { id: 'quote',     type: 'quote' },
+  { id: 'bio',       type: 'bio',       size: 'large' },
+  { id: 'activity',  type: 'activity',  size: 'large' },
+  { id: 'photos',    type: 'photos',    size: 'large' },
+  { id: 'followers', type: 'followers', size: 'small' },
+  { id: 'twitter',   type: 'twitter',   size: 'small' },
+  { id: 'linkedin',  type: 'linkedin',  size: 'small' },
+  { id: 'quote',     type: 'quote',     size: 'small' },
 ];
 
 export const WIDGET_TRAY: { type: WidgetType; label: string; icon: string }[] = [
@@ -73,7 +77,6 @@ const COLOR_SWATCHES = [
   { color: '#f97316', label: 'Orange' },
   { color: '#ef4444', label: 'Red' },
   { color: '#14b8a6', label: 'Teal' },
-  { color: '#8b5cf6', label: 'Purple' },
   { color: '#1a1a1a', label: 'Dark' },
 ];
 
@@ -97,6 +100,18 @@ function getWidgetLabel(type: WidgetType): string {
   }[type];
 }
 
+const LARGE_DEFAULT_TYPES: ReadonlySet<WidgetType> = new Set(['bio', 'activity', 'photos']);
+
+function getDefaultSize(type: WidgetType): WidgetSize {
+  return LARGE_DEFAULT_TYPES.has(type) ? 'large' : 'small';
+}
+
+// ── Layout / content constants ─────────────────────────────────────────────────
+const MIN_SMALL_WIDGET_HEIGHT = 120;
+const BIO_SMALL_TRUNCATE      = 35;   // chars shown in compact bio
+const BIO_LARGE_TRUNCATE      = 55;
+const PLACEHOLDER_FOLLOWING   = 524;  // mock — replace with real data prop when available
+
 function getCardBg(style: WidgetBgStyle, accent: string): React.CSSProperties {
   switch (style) {
     case 'glass':  return { background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
@@ -114,24 +129,24 @@ function getDimColor(style: WidgetBgStyle): string {
   return style === 'dark' ? 'rgba(255,255,255,0.55)' : '#999';
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────────
+// ── Dot-grid icon (iOS-style drag/settings handle) ────────────────────────────
 
-function DragHandle() {
+function DotGrid() {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 5px)', gap: '3px', opacity: 0.28 }}>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: '#444' }} />
+    <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 4px)', gap: '3px', opacity: 0.32 }}>
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: '#444' }} />
       ))}
     </div>
   );
 }
 
-function SparkLine({ data, color }: { data: number[]; color: string }) {
+function SparkLine({ data, color, height = 56 }: { data: number[]; color: string; height?: number }) {
   const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
-  const W = 200, H = 56;
+  const W = 200, H = height;
   const pts = data.map((v, i) => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 56 }} preserveAspectRatio="none">
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height }} preserveAspectRatio="none">
       <polyline points={pts} fill="none" stroke={color} strokeWidth="2.2"
         strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -160,9 +175,10 @@ function WidgetConfigSheet({
 }: {
   widget: Widget;
   onClose: () => void;
-  onSave: (config: WidgetConfig) => void;
+  onSave: (config: WidgetConfig, size: WidgetSize) => void;
 }) {
-  const cfg = { ...DEFAULT_CONFIG, ...widget.config };
+  const cfg  = { ...DEFAULT_CONFIG, ...widget.config };
+  const [size,       setSize]       = useState<WidgetSize>(widget.size ?? getDefaultSize(widget.type));
   const [color,      setColor]      = useState(cfg.accentColor);
   const [bgStyle,    setBgStyle]    = useState<WidgetBgStyle>(cfg.bgStyle);
   const [quoteText,  setQuoteText]  = useState(cfg.quoteText ?? DEFAULT_CONFIG.quoteText!);
@@ -177,10 +193,10 @@ function WidgetConfigSheet({
     background: 'rgba(240,244,250,0.9)', border: '1px solid rgba(160,195,240,0.30)',
     color: '#1a1a1a', fontSize: 13, outline: 'none', boxSizing: 'border-box',
   };
-  const labelStyle: React.CSSProperties = {
+  const sectionLabel: React.CSSProperties = {
     fontSize: 10, fontWeight: 700, color: '#888',
     letterSpacing: '0.06em', textTransform: 'uppercase',
-    display: 'block', marginBottom: 6, marginTop: 14,
+    display: 'block', marginBottom: 6, marginTop: 16,
   };
 
   return (
@@ -224,13 +240,47 @@ function WidgetConfigSheet({
 
         <div style={{ padding: '0 18px 8px' }}>
 
+          {/* ── Widget Size ── */}
+          <label style={sectionLabel}>Size</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {(['small', 'large'] as WidgetSize[]).map(s => (
+              <button key={s} onClick={() => setSize(s)} style={{
+                padding: '12px 0', borderRadius: 12,
+                background: size === s ? color : 'rgba(255,255,255,0.85)',
+                border: size === s ? 'none' : '1px solid rgba(160,195,240,0.25)',
+                color: size === s ? '#fff' : '#555',
+                fontWeight: 700, fontSize: 12, cursor: 'pointer',
+                transition: 'all 0.15s',
+                boxShadow: size === s ? `0 3px 10px ${color}44` : 'none',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+              }}>
+                {/* Mini size preview */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: s === 'small' ? '1fr' : '1fr 1fr',
+                  gap: 3,
+                  width: s === 'small' ? 20 : 44,
+                  height: 20,
+                }}>
+                  {(s === 'small' ? [1] : [1, 2]).map(n => (
+                    <div key={n} style={{
+                      borderRadius: 4,
+                      background: size === s ? 'rgba(255,255,255,0.45)' : `${color}25`,
+                    }} />
+                  ))}
+                </div>
+                {s === 'small' ? 'Half width' : 'Full width'}
+              </button>
+            ))}
+          </div>
+
           {/* ── Accent Color ── */}
-          <label style={labelStyle}>Accent Color</label>
+          <label style={sectionLabel}>Accent Color</label>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {COLOR_SWATCHES.map(({ color: c, label }) => (
               <button key={c} onClick={() => setColor(c)} title={label} style={{
                 width: 34, height: 34, borderRadius: '50%', background: c,
-                border: color === c ? `3px solid #fff` : '3px solid transparent',
+                border: color === c ? '3px solid #fff' : '3px solid transparent',
                 outline: color === c ? `2.5px solid ${c}` : 'none',
                 cursor: 'pointer', flexShrink: 0,
                 boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
@@ -241,7 +291,7 @@ function WidgetConfigSheet({
           </div>
 
           {/* ── Background Style ── */}
-          <label style={labelStyle}>Background</label>
+          <label style={sectionLabel}>Background</label>
           <div style={{ display: 'flex', gap: 8 }}>
             {BG_STYLES.map(({ value, label }) => (
               <button key={value} onClick={() => setBgStyle(value)} style={{
@@ -261,7 +311,7 @@ function WidgetConfigSheet({
           {/* ── Widget-specific options ── */}
           {widget.type === 'quote' && (
             <>
-              <label style={labelStyle}>Quote Text</label>
+              <label style={sectionLabel}>Quote Text</label>
               <textarea value={quoteText} onChange={e => setQuoteText(e.target.value)}
                 rows={3} style={{ ...inputStyle, resize: 'none' }} />
             </>
@@ -269,16 +319,16 @@ function WidgetConfigSheet({
 
           {widget.type === 'linkedin' && (
             <>
-              <label style={labelStyle}>Role / Title</label>
+              <label style={sectionLabel}>Role / Title</label>
               <input value={liRole} onChange={e => setLiRole(e.target.value)} style={inputStyle} />
-              <label style={labelStyle}>Company</label>
+              <label style={sectionLabel}>Company</label>
               <input value={liCompany} onChange={e => setLiCompany(e.target.value)} style={inputStyle} />
             </>
           )}
 
           {widget.type === 'twitter' && (
             <>
-              <label style={labelStyle}>Twitter Handle</label>
+              <label style={sectionLabel}>Twitter Handle</label>
               <input value={twHandle} onChange={e => setTwHandle(e.target.value)}
                 placeholder="@handle" style={inputStyle} />
             </>
@@ -286,7 +336,7 @@ function WidgetConfigSheet({
 
           {widget.type === 'activity' && (
             <>
-              <label style={labelStyle}>Time Range</label>
+              <label style={sectionLabel}>Time Range</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {([7, 30, 90] as const).map(d => (
                   <button key={d} onClick={() => setActDays(d)} style={{
@@ -305,7 +355,7 @@ function WidgetConfigSheet({
 
           {widget.type === 'photos' && (
             <>
-              <label style={labelStyle}>Photo Count</label>
+              <label style={sectionLabel}>Photo Count</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {([3, 6, 9] as const).map(n => (
                   <button key={n} onClick={() => setPhotoCount(n)} style={{
@@ -322,13 +372,13 @@ function WidgetConfigSheet({
             </>
           )}
 
-          {/* ── Save ── */}
+          {/* ── Apply ── */}
           <button onClick={() => {
             onSave({
               accentColor: color, bgStyle,
               quoteText, linkedinRole: liRole, linkedinCompany: liCompany,
               twitterHandle: twHandle, activityDays: actDays, photoCount,
-            });
+            }, size);
             onClose();
           }} style={{
             width: '100%', marginTop: 20, padding: '14px 0',
@@ -347,32 +397,34 @@ function WidgetConfigSheet({
 }
 
 // ── Connector-sourced widget shell ────────────────────────────────────────────
-// Branded card shown for connector-backed widget types.
 
 function ConnectorSourcedWidget({
   symbol, brandColor, bgColor, name, sub,
-  textColor, dimColor, connected, accent, extra,
+  textColor, dimColor, connected, accent, extra, size,
 }: {
   symbol: string; brandColor: string; bgColor: string;
   name: string; sub: string; textColor: string; dimColor: string;
   connected?: boolean; accent: string;
   extra?: React.ReactNode;
+  size: WidgetSize;
 }) {
+  const isLarge = size === 'large';
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isLarge ? 10 : 6 }}>
         <div style={{
-          width: 30, height: 30, borderRadius: 8,
+          width: isLarge ? 34 : 28, height: isLarge ? 34 : 28,
+          borderRadius: isLarge ? 10 : 8,
           background: bgColor,
           border: `1.5px solid ${brandColor}28`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: symbol.length > 2 ? 14 : 18,
+          fontSize: symbol.length > 2 ? 13 : (isLarge ? 18 : 15),
           fontWeight: 900, color: brandColor,
         }}>
           {symbol}
         </div>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: textColor }}>{name}</div>
+          <div style={{ fontSize: isLarge ? 15 : 13, fontWeight: 700, color: textColor }}>{name}</div>
           <div style={{ fontSize: 10, color: dimColor }}>{sub}</div>
         </div>
       </div>
@@ -403,10 +455,11 @@ function ConnectorSourcedWidget({
   );
 }
 
-// ── Widget content renderer ────────────────────────────────────────────────────
+// ── Widget content (size-aware) ────────────────────────────────────────────────
 
 interface WidgetContentProps {
   type: WidgetType;
+  size: WidgetSize;
   config: WidgetConfig;
   displayName: string;
   avatarUrl?: string | null;
@@ -417,175 +470,339 @@ interface WidgetContentProps {
   likes: number;
 }
 
+const PLACEHOLDER_PHOTO_SRCS = [
+  'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=200&q=75',
+  'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&q=75',
+  'https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&q=75',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=75',
+];
+
 function WidgetContent(p: WidgetContentProps) {
-  const { type, config, displayName, avatarUrl, bio, coverUrl, followers, posts, likes } = p;
-  const accent = config.accentColor;
+  const { type, size, config, displayName, avatarUrl, bio, coverUrl, followers, posts, likes } = p;
+  const accent    = config.accentColor;
   const textColor = getTextColor(config.bgStyle);
   const dimColor  = getDimColor(config.bgStyle);
   const initials  = (displayName || 'D')[0].toUpperCase();
+  const isLarge   = size === 'large';
 
   switch (type) {
 
-    case 'bio': return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
-            overflow: 'hidden',
-            background: `linear-gradient(135deg, ${accent}, ${accent}99)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, fontWeight: 800, color: '#fff',
-          }}>
-            {avatarUrl
-              // eslint-disable-next-line @next/next/no-img-element
-              ? <img src={avatarUrl} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : initials}
-          </div>
+    // ── Bio ──────────────────────────────────────────────────────────────────
+    case 'bio': {
+      if (!isLarge) {
+        return (
           <div>
-            <div style={{ fontWeight: 700, fontSize: 15, color: textColor }}>{displayName}</div>
-            {bio && <div style={{ fontSize: 11, color: dimColor, marginTop: 2, lineHeight: 1.3 }}>
-              {bio.length > 40 ? bio.slice(0, 40) + '…' : bio}
-            </div>}
-          </div>
-        </div>
-        {coverUrl
-          ? <div style={{ borderRadius: 14, overflow: 'hidden', height: 120 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={coverUrl} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                overflow: 'hidden',
+                background: `linear-gradient(135deg, ${accent}, ${accent}99)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 14, fontWeight: 800, color: '#fff',
+              }}>
+                {avatarUrl
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={avatarUrl} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : initials}
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: textColor, lineHeight: 1.2 }}>{displayName}</div>
+                {bio && (
+                  <div style={{ fontSize: 10, color: dimColor, lineHeight: 1.3, marginTop: 2 }}>
+                    {bio.length > BIO_SMALL_TRUNCATE ? bio.slice(0, BIO_SMALL_TRUNCATE) + '…' : bio}
+                  </div>
+                )}
+              </div>
             </div>
-          : <div style={{ borderRadius: 14, height: 110, background: `linear-gradient(135deg, ${accent}30, ${accent}18)` }} />
-        }
-        <div style={{ display: 'flex', gap: 4 }}>
-          {[{ icon: <Heart size={13} />, label: 'Like' },
-            { icon: <MessageCircle size={13} />, label: 'Comment' },
-            { icon: <Share2 size={13} />, label: 'Share' }].map(({ icon, label }) => (
-            <button key={label} style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-              padding: '7px 0', borderRadius: 10,
-              background: config.bgStyle === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.04)',
-              border: 'none', cursor: 'pointer',
-              fontSize: 11, fontWeight: 600, color: dimColor,
+            <div style={{ display: 'flex', gap: 6 }}>
+              {[{ icon: <Heart size={11} />, label: 'Like' }, { icon: <Share2 size={11} />, label: 'Share' }].map(({ icon, label }) => (
+                <button key={label} style={{
+                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3,
+                  padding: '6px 0', borderRadius: 9,
+                  background: config.bgStyle === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.04)',
+                  border: 'none', cursor: 'pointer',
+                  fontSize: 10, fontWeight: 600, color: dimColor,
+                }}>
+                  {icon} {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      }
+      // large
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+              overflow: 'hidden',
+              background: `linear-gradient(135deg, ${accent}, ${accent}99)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 18, fontWeight: 800, color: '#fff',
             }}>
-              {icon} {label}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-
-    case 'followers': return (
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: `${accent}18`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Users size={14} style={{ color: accent }} />
-          </div>
-          <span style={{ fontWeight: 700, fontSize: 13, color: textColor }}>Followers</span>
-        </div>
-        <div style={{ fontSize: 30, fontWeight: 800, color: textColor, lineHeight: 1 }}>
-          {followers >= 1000 ? `${(followers / 1000).toFixed(1)}K` : followers || '0'}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 8 }}>
-          <span style={{ fontSize: 15 }}>🪙</span>
-          <span style={{ fontSize: 11, color: dimColor }}>Following 524</span>
-        </div>
-      </div>
-    );
-
-    case 'activity': return (
-      <div>
-        <div style={{ fontWeight: 700, fontSize: 13, color: textColor, marginBottom: 4 }}>Activity Summary</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: dimColor, marginBottom: 2 }}>
-          <span>200</span><span>150</span><span>100</span>
-        </div>
-        <SparkLine data={[100, 130, 115, 160, 180, 165, 205]} color={accent} />
-        <div style={{ marginTop: 8, fontSize: 11, color: dimColor, lineHeight: 1.7 }}>
-          <span>Last {config.activityDays ?? 7} Days:</span><br />
-          {posts || 12} Posts, {likes || 46} Likes
-        </div>
-      </div>
-    );
-
-    case 'photos': return (
-      <div>
-        <div style={{ fontWeight: 700, fontSize: 13, color: textColor, marginBottom: 8 }}>Recent Photos</div>
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(config.photoCount ?? 3, 3)}, 1fr)`, gap: 5 }}>
-          {[
-            'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=120&q=75',
-            'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=120&q=75',
-            'https://images.unsplash.com/photo-1552053831-71594a27632d?w=120&q=75',
-          ].slice(0, config.photoCount ?? 3).map((src, i) => (
-            <div key={i} style={{ aspectRatio: '1', borderRadius: 9, overflow: 'hidden', background: '#eee' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {avatarUrl
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={avatarUrl} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : initials}
             </div>
-          ))}
-        </div>
-      </div>
-    );
-
-    case 'linkedin': return (
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{ width: 26, height: 26, borderRadius: 6, background: '#0A66C2',
-            display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: '#fff', fontWeight: 900, fontSize: 11 }}>in</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: textColor }}>{displayName}</div>
+              {bio && (
+                <div style={{ fontSize: 11, color: dimColor, marginTop: 2, lineHeight: 1.35 }}>
+                  {bio.length > BIO_LARGE_TRUNCATE ? bio.slice(0, BIO_LARGE_TRUNCATE) + '…' : bio}
+                </div>
+              )}
+            </div>
           </div>
-          <span style={{ fontWeight: 700, fontSize: 13, color: textColor }}>LinkedIn</span>
-        </div>
-        <div style={{ fontSize: 12, color: textColor, lineHeight: 1.45, marginBottom: 10 }}>
-          {config.linkedinRole ?? 'Senior UX Designer'}<br />
-          at {config.linkedinCompany ?? 'Google'}
-        </div>
-        <button style={{
-          width: '100%', padding: '9px 0',
-          background: `linear-gradient(135deg, ${accent}, ${accent}cc)`,
-          border: 'none', borderRadius: 10, color: '#fff',
-          fontWeight: 700, fontSize: 12, cursor: 'pointer',
-          boxShadow: `0 3px 10px ${accent}44`,
-        }}>
-          Apply Now
-        </button>
-      </div>
-    );
-
-    case 'twitter': return (
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-          <div style={{ width: 26, height: 26, borderRadius: 6, background: '#1DA1F2',
-            display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: '#fff', fontWeight: 900, fontSize: 13 }}>𝕏</span>
+          {coverUrl
+            ? (
+              <div style={{ borderRadius: 14, overflow: 'hidden', height: 130 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={coverUrl} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            )
+            : <div style={{ borderRadius: 14, height: 120, background: `linear-gradient(135deg, ${accent}30, ${accent}18)` }} />
+          }
+          <div style={{ display: 'flex', gap: 4 }}>
+            {[{ icon: <Heart size={13} />, label: 'Like' },
+              { icon: <MessageCircle size={13} />, label: 'Comment' },
+              { icon: <Share2 size={13} />, label: 'Share' }].map(({ icon, label }) => (
+              <button key={label} style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                padding: '7px 0', borderRadius: 10,
+                background: config.bgStyle === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.04)',
+                border: 'none', cursor: 'pointer',
+                fontSize: 11, fontWeight: 600, color: dimColor,
+              }}>
+                {icon} {label}
+              </button>
+            ))}
           </div>
-          <span style={{ fontWeight: 700, fontSize: 13, color: textColor }}>Twitter</span>
         </div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: textColor, marginBottom: 2 }}>
-          @{config.twitterHandle ?? 'TechNews'}
-        </div>
-        <div style={{ fontSize: 11, color: dimColor, marginBottom: 8 }}>
-          Latest posts &amp; updates
-        </div>
-        <BarChart data={[3, 5, 4, 7, 6, 8, 7]} color={accent} />
-        <div style={{ fontSize: 10, color: dimColor, marginTop: 4 }}>
-          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · Today
-        </div>
-      </div>
-    );
+      );
+    }
 
-    case 'quote': return (
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: 90 }}>
-        <div style={{ fontSize: 28, color: `${accent}55`, lineHeight: 1, marginBottom: 4 }}>"</div>
-        <p style={{ fontSize: 12, color: textColor, fontStyle: 'italic', lineHeight: 1.55, margin: 0 }}>
-          {config.quoteText ?? DEFAULT_CONFIG.quoteText}
-        </p>
-      </div>
-    );
+    // ── Activity ─────────────────────────────────────────────────────────────
+    case 'activity': {
+      if (!isLarge) {
+        return (
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 12, color: textColor, marginBottom: 6 }}>Activity</div>
+            <SparkLine data={[100, 130, 115, 160, 180, 165, 205]} color={accent} height={40} />
+            <div style={{ fontSize: 10, color: dimColor, marginTop: 4 }}>
+              {posts || 12} Posts · {likes || 46} Likes
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 15, color: textColor, marginBottom: 4 }}>Activity Summary</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: dimColor, marginBottom: 2 }}>
+            <span>200</span><span>150</span><span>100</span>
+          </div>
+          <SparkLine data={[100, 120, 115, 145, 160, 155, 180, 175, 195, 205]} color={accent} height={64} />
+          <div style={{ marginTop: 8, fontSize: 12, color: dimColor, lineHeight: 1.8 }}>
+            <span style={{ fontWeight: 600, color: textColor }}>Last {config.activityDays ?? 7} Days</span><br />
+            {posts || 12} Posts &nbsp;·&nbsp; {likes || 46} Likes
+          </div>
+        </div>
+      );
+    }
 
-    // ── Connector-sourced widgets ─────────────────────────────────────────────
-    // Each shows a branded card with "Connect" CTA if not yet linked.
-    // Data content shown once connected.
+    // ── Followers ─────────────────────────────────────────────────────────────
+    case 'followers': {
+      const fmt = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n || 0);
+      if (!isLarge) {
+        return (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <div style={{ width: 26, height: 26, borderRadius: 8, background: `${accent}18`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Users size={13} style={{ color: accent }} />
+              </div>
+              <span style={{ fontWeight: 700, fontSize: 12, color: textColor }}>Followers</span>
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: textColor, lineHeight: 1 }}>{fmt(followers)}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, fontSize: 10, color: dimColor }}>
+              <span style={{ fontSize: 12 }}>🪙</span> Following {PLACEHOLDER_FOLLOWING}
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: `${accent}18`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Users size={16} style={{ color: accent }} />
+            </div>
+            <span style={{ fontWeight: 700, fontSize: 15, color: textColor }}>Followers</span>
+          </div>
+          <div style={{ display: 'flex', gap: 28, marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 32, fontWeight: 800, color: textColor, lineHeight: 1 }}>{fmt(followers)}</div>
+              <div style={{ fontSize: 10, color: dimColor, marginTop: 3 }}>Followers</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 32, fontWeight: 800, color: textColor, lineHeight: 1 }}>{PLACEHOLDER_FOLLOWING}</div>
+              <div style={{ fontSize: 10, color: dimColor, marginTop: 3 }}>Following</div>
+            </div>
+          </div>
+          <SparkLine data={[40, 55, 48, 62, 70, 65, 80]} color={accent} height={44} />
+          <div style={{ fontSize: 10, color: dimColor, marginTop: 4 }}>Growth — last 7 days</div>
+        </div>
+      );
+    }
+
+    // ── Photos ────────────────────────────────────────────────────────────────
+    case 'photos': {
+      const count = isLarge ? 4 : 3;
+      const cols  = isLarge ? 2 : 3;
+      return (
+        <div>
+          <div style={{ fontWeight: 700, fontSize: isLarge ? 15 : 12, color: textColor, marginBottom: 8 }}>
+            Recent Photos
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 5 }}>
+            {PLACEHOLDER_PHOTO_SRCS.slice(0, count).map((src, i) => (
+              <div key={i} style={{ aspectRatio: '1', borderRadius: 10, overflow: 'hidden', background: '#eee' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            ))}
+          </div>
+          {isLarge && (
+            <div style={{ fontSize: 11, color: dimColor, marginTop: 8 }}>
+              Last 7 Days: {posts || 10} Posts, {likes || 38} Likes
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ── LinkedIn ──────────────────────────────────────────────────────────────
+    case 'linkedin': {
+      return (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isLarge ? 10 : 8 }}>
+            <div style={{
+              width: isLarge ? 30 : 26, height: isLarge ? 30 : 26, borderRadius: 7,
+              background: '#0A66C2', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{ color: '#fff', fontWeight: 900, fontSize: 11 }}>in</span>
+            </div>
+            <span style={{ fontWeight: 700, fontSize: isLarge ? 15 : 13, color: textColor }}>
+              {isLarge ? 'LinkedIn Job Alert' : 'LinkedIn'}
+            </span>
+          </div>
+          <div style={{ fontSize: isLarge ? 13 : 12, color: textColor, lineHeight: 1.5, marginBottom: isLarge ? 4 : 8 }}>
+            {config.linkedinRole ?? 'Senior UX Designer'}<br />
+            at {config.linkedinCompany ?? 'Google'}
+          </div>
+          {isLarge && (
+            <div style={{ fontSize: 11, color: dimColor, marginBottom: 10 }}>
+              200+ applicants · Posted 2 days ago
+            </div>
+          )}
+          <button style={{
+            width: '100%', padding: isLarge ? '11px 0' : '9px 0',
+            background: `linear-gradient(135deg, ${accent}, ${accent}cc)`,
+            border: 'none', borderRadius: 10, color: '#fff',
+            fontWeight: 700, fontSize: 12, cursor: 'pointer',
+            boxShadow: `0 3px 10px ${accent}44`,
+          }}>
+            Apply Now
+          </button>
+        </div>
+      );
+    }
+
+    // ── Twitter ───────────────────────────────────────────────────────────────
+    case 'twitter': {
+      if (!isLarge) {
+        return (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+              <div style={{ width: 26, height: 26, borderRadius: 7, background: '#1DA1F2',
+                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: '#fff', fontWeight: 900, fontSize: 13 }}>𝕏</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: textColor }}>Twitter</div>
+                <div style={{ fontSize: 10, color: dimColor }}>@{config.twitterHandle ?? 'TechNews'}</div>
+              </div>
+            </div>
+            <BarChart data={[3, 5, 4, 7, 6, 8, 7]} color={accent} />
+            <div style={{ fontSize: 10, color: dimColor, marginTop: 4 }}>
+              {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 9, background: '#1DA1F2',
+                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: '#fff', fontWeight: 900, fontSize: 15 }}>𝕏</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: textColor }}>Twitter</div>
+                <div style={{ fontSize: 11, color: dimColor }}>@{config.twitterHandle ?? 'TechNews'}</div>
+              </div>
+            </div>
+          </div>
+          <div style={{
+            padding: '10px 12px', borderRadius: 12, marginBottom: 10,
+            background: config.bgStyle === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.035)',
+          }}>
+            <div style={{ fontSize: 12, color: textColor, lineHeight: 1.55 }}>
+              BREAKING: Major AI breakthrough announced today. Stocks surge.{' '}
+              <span style={{ color: accent }}>#AI #Tech</span>
+            </div>
+            <div style={{ fontSize: 10, color: dimColor, marginTop: 6 }}>
+              {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · Today
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ flex: 1 }}>
+              <BarChart data={[3, 5, 4, 7, 6, 8, 7]} color={accent} />
+            </div>
+            <div style={{ display: 'flex', gap: 14, fontSize: 11, color: dimColor, marginLeft: 12, flexShrink: 0 }}>
+              <span style={{ color: '#1DA1F2' }}>♥ 1.2K</span>
+              <span>♻ 5.4K</span>
+            </div>
+          </div>
+          <button style={{
+            width: '100%', marginTop: 10, padding: '8px 0',
+            background: 'none', border: `1.5px solid ${accent}44`,
+            borderRadius: 10, color: accent, fontWeight: 700, fontSize: 11, cursor: 'pointer',
+          }}>
+            View Thread
+          </button>
+        </div>
+      );
+    }
+
+    // ── Quote ─────────────────────────────────────────────────────────────────
+    case 'quote': {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: isLarge ? 110 : 80 }}>
+          <div style={{ fontSize: isLarge ? 36 : 26, color: `${accent}55`, lineHeight: 1, marginBottom: 4 }}>&ldquo;</div>
+          <p style={{ fontSize: isLarge ? 13 : 11, color: textColor, fontStyle: 'italic', lineHeight: 1.55, margin: 0 }}>
+            {config.quoteText ?? DEFAULT_CONFIG.quoteText}
+          </p>
+        </div>
+      );
+    }
+
+    // ── Connector widgets ─────────────────────────────────────────────────────
 
     case 'instagram': return (
-      <ConnectorSourcedWidget
+      <ConnectorSourcedWidget size={size}
         symbol="📸" brandColor="#E1306C" bgColor="rgba(225,48,108,0.12)"
         name="Instagram" sub="Timeline & stories" textColor={textColor} dimColor={dimColor}
         connected accent={accent}
@@ -593,7 +810,7 @@ function WidgetContent(p: WidgetContentProps) {
     );
 
     case 'spotify': return (
-      <ConnectorSourcedWidget
+      <ConnectorSourcedWidget size={size}
         symbol="♫" brandColor="#1DB954" bgColor="rgba(29,185,84,0.12)"
         name="Spotify" sub="Now playing & playlists" textColor={textColor} dimColor={dimColor}
         connected accent={accent}
@@ -601,7 +818,7 @@ function WidgetContent(p: WidgetContentProps) {
     );
 
     case 'youtube': return (
-      <ConnectorSourcedWidget
+      <ConnectorSourcedWidget size={size}
         symbol="▶" brandColor="#FF0000" bgColor="rgba(255,0,0,0.10)"
         name="YouTube" sub="Subscriptions feed" textColor={textColor} dimColor={dimColor}
         connected accent={accent}
@@ -609,7 +826,7 @@ function WidgetContent(p: WidgetContentProps) {
     );
 
     case 'tiktok': return (
-      <ConnectorSourcedWidget
+      <ConnectorSourcedWidget size={size}
         symbol="🎬" brandColor="#69C9D0" bgColor="rgba(105,201,208,0.12)"
         name="TikTok" sub="Following feed" textColor={textColor} dimColor={dimColor}
         connected accent={accent}
@@ -617,7 +834,7 @@ function WidgetContent(p: WidgetContentProps) {
     );
 
     case 'github': return (
-      <ConnectorSourcedWidget
+      <ConnectorSourcedWidget size={size}
         symbol="⬡" brandColor="#6e40c9" bgColor="rgba(110,64,201,0.12)"
         name="GitHub" sub="Activity & pull requests" textColor={textColor} dimColor={dimColor}
         connected accent={accent}
@@ -625,16 +842,16 @@ function WidgetContent(p: WidgetContentProps) {
     );
 
     case 'weather': return (
-      <ConnectorSourcedWidget
+      <ConnectorSourcedWidget size={size}
         symbol="☁" brandColor="#4A9ED6" bgColor="rgba(74,158,214,0.12)"
         name="Weather" sub="Live forecast" textColor={textColor} dimColor={dimColor}
         connected accent={accent}
-        extra={<div style={{ fontSize: 24, fontWeight: 800, color: '#4A9ED6', marginTop: 4 }}>72°F ⛅</div>}
+        extra={<div style={{ fontSize: isLarge ? 28 : 22, fontWeight: 800, color: '#4A9ED6', marginTop: 4 }}>72°F ⛅</div>}
       />
     );
 
     case 'apple': return (
-      <ConnectorSourcedWidget
+      <ConnectorSourcedWidget size={size}
         symbol="♩" brandColor="#FA243C" bgColor="rgba(250,36,60,0.10)"
         name="Apple Music" sub="Library & recent plays" textColor={textColor} dimColor={dimColor}
         connected accent={accent}
@@ -642,7 +859,7 @@ function WidgetContent(p: WidgetContentProps) {
     );
 
     case 'snapchat': return (
-      <ConnectorSourcedWidget
+      <ConnectorSourcedWidget size={size}
         symbol="👻" brandColor="#c8981a" bgColor="rgba(255,252,0,0.15)"
         name="Snapchat" sub="Stories & memories" textColor={textColor} dimColor={dimColor}
         connected accent={accent}
@@ -675,16 +892,12 @@ export default function ProfileWidgetGrid({
   isEditing = false,
   initialWidgets, onSave,
 }: ProfileWidgetGridProps) {
-  const [widgets, setWidgets]     = useState<Widget[]>(initialWidgets ?? DEFAULT_WIDGETS);
-  const [showTray, setShowTray]   = useState(false);
-  const [showConnectorPicker, setShowConnectorPicker] = useState(false);
-  const [configWidget, setConfigWidget] = useState<Widget | null>(null);
-  const dragSrc = useRef<number | null>(null);
+  const [widgets, setWidgets]                           = useState<Widget[]>(initialWidgets ?? DEFAULT_WIDGETS);
+  const [showConnectorPicker, setShowConnectorPicker]   = useState(false);
+  const [configWidget, setConfigWidget]                 = useState<Widget | null>(null);
+  const dragSrc                                         = useRef<number | null>(null);
 
-  const bioWidget   = widgets.find(w => w.type === 'bio');
-  const gridWidgets = widgets.filter(w => w.type !== 'bio');
-
-  // Drag handlers
+  // Drag-and-drop
   const onDragStart = (i: number) => { dragSrc.current = i; };
   const onDrop = (i: number) => {
     if (dragSrc.current === null || dragSrc.current === i) return;
@@ -698,7 +911,12 @@ export default function ProfileWidgetGrid({
 
   const addWidget = (type: WidgetType) => {
     if (widgets.some(w => w.type === type)) return;
-    const next = [...widgets, { id: `${type}-${Date.now()}`, type, config: { ...DEFAULT_CONFIG } }];
+    const next = [...widgets, {
+      id: `${type}-${Date.now()}`,
+      type,
+      size: getDefaultSize(type),
+      config: { ...DEFAULT_CONFIG },
+    }];
     setWidgets(next);
     onSave?.(next);
   };
@@ -709,123 +927,168 @@ export default function ProfileWidgetGrid({
     onSave?.(next);
   };
 
-  const saveConfig = (widgetId: string, cfg: WidgetConfig) => {
-    const next = widgets.map(w => w.id === widgetId ? { ...w, config: cfg } : w);
+  /** Save both config and size from the config sheet */
+  const saveWidget = (widgetId: string, cfg: WidgetConfig, size: WidgetSize) => {
+    const next = widgets.map(w => w.id === widgetId ? { ...w, config: cfg, size } : w);
     setWidgets(next);
     onSave?.(next);
   };
 
-  // Called when user confirms adding a connector widget from the picker
+  /** Quick toggle between small and large directly on the card */
+  const toggleSize = (widgetId: string) => {
+    const next = widgets.map(w => {
+      if (w.id !== widgetId) return w;
+      const current = w.size ?? getDefaultSize(w.type);
+      return { ...w, size: (current === 'small' ? 'large' : 'small') as WidgetSize };
+    });
+    setWidgets(next);
+    onSave?.(next);
+  };
+
   const handleConnectorAdd = (connector: PickerConnector) => {
     addWidget(connector.widgetType as WidgetType);
   };
 
-  const getConfig = (w: Widget): WidgetConfig => ({ ...DEFAULT_CONFIG, ...w.config });
+  const getConfig  = (w: Widget): WidgetConfig => ({ ...DEFAULT_CONFIG, ...w.config });
+  const getSize    = (w: Widget): WidgetSize   => w.size ?? getDefaultSize(w.type);
+  const isFullSpan = (w: Widget): boolean      => getSize(w) === 'large';
 
-  const bioTagsDisplay = bio
-    ? bio.split('|').map(t => t.trim()).filter(Boolean).join(' | ')
-    : '';
-
-  const cardStyle = (w: Widget): React.CSSProperties => {
-    const cfg = getConfig(w);
-    return {
-      ...getCardBg(cfg.bgStyle, cfg.accentColor),
-      borderRadius: 20,
-      padding: 16,
-      boxShadow: isEditing ? '0 2px 12px rgba(0,0,0,0.06)' : '0 2px 16px rgba(0,0,0,0.08)',
-      border: isEditing ? '2px dashed rgba(0,0,0,0.14)' : '1.5px solid rgba(0,0,0,0.05)',
-      position: 'relative',
-      cursor: isEditing ? 'grab' : 'default',
-      transition: 'box-shadow 0.15s',
-    };
-  };
+  const cardStyle = (w: Widget): React.CSSProperties => ({
+    ...getCardBg(getConfig(w).bgStyle, getConfig(w).accentColor),
+    borderRadius: 20,
+    padding: isFullSpan(w) ? 18 : 14,
+    boxShadow: isEditing ? '0 2px 12px rgba(0,0,0,0.06)' : '0 2px 16px rgba(0,0,0,0.08)',
+    border: isEditing
+      ? '2px dashed rgba(0,0,0,0.11)'
+      : '1.5px solid rgba(0,0,0,0.05)',
+    position: 'relative',
+    cursor: isEditing ? 'grab' : 'default',
+    transition: 'box-shadow 0.15s',
+    gridColumn: isFullSpan(w) ? 'span 2' : 'span 1',
+    minHeight: isFullSpan(w) ? undefined : MIN_SMALL_WIDGET_HEIGHT,
+  });
 
   const contentProps = (w: Widget): WidgetContentProps => ({
-    type: w.type, config: getConfig(w),
+    type: w.type, size: getSize(w), config: getConfig(w),
     displayName, avatarUrl, bio, coverUrl, followers, posts, likes,
   });
 
+  // Profile strength
+  const totalAvailable = WIDGET_TRAY.length + TOP_10_CONNECTORS.length;
+  const remaining      = totalAvailable - widgets.length;
+  const strengthPct    = Math.round((widgets.length / totalAvailable) * 100);
+  let strengthLabel    = 'Just started';
+  if (strengthPct >= 85) strengthLabel = 'Complete!';
+  else if (strengthPct >= 60) strengthLabel = 'Looking great';
+  else if (strengthPct >= 30) strengthLabel = 'Taking shape';
+
   return (
-    <div>
-      {/* Bio card — full width */}
-      {bioWidget && (() => {
-        const idx = widgets.indexOf(bioWidget);
-        return (
+    <div style={{ paddingBottom: isEditing ? 96 : 0 }}>
+
+      {/* ── Profile Strength bar (edit mode only) ── */}
+      {isEditing && (
+        <div style={{
+          marginBottom: 16, padding: '14px 16px',
+          background: 'rgba(255,255,255,0.75)', borderRadius: 18,
+          border: '1.5px solid rgba(200,152,26,0.18)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>Profile Strength</span>
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#c8981a' }}>{strengthPct}% · {strengthLabel}</span>
+          </div>
+          <div style={{ height: 6, background: 'rgba(0,0,0,0.07)', borderRadius: 99, overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', borderRadius: 99, width: `${strengthPct}%`,
+              background: 'linear-gradient(90deg, #c8981a, #e0b830)',
+              transition: 'width 0.5s cubic-bezier(0.34,1.56,0.64,1)',
+            }} />
+          </div>
+          {remaining > 0 && (
+            <div style={{ marginTop: 6, fontSize: 10, color: '#888' }}>
+              Add {remaining} more widget{remaining !== 1 ? 's' : ''} to level up your profile
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Unified 2-col widget grid ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
+        {widgets.map((w, idx) => (
           <div
-            style={{ ...cardStyle(bioWidget), marginBottom: 14 }}
+            key={w.id}
+            style={cardStyle(w)}
             draggable={isEditing}
             onDragStart={() => onDragStart(idx)}
             onDragOver={e => e.preventDefault()}
             onDrop={() => onDrop(idx)}
           >
+            {/* Edit-mode controls */}
             {isEditing && (
-              <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 2, display: 'flex', gap: 6 }}>
-                <button onClick={() => setConfigWidget(bioWidget)} style={{
-                  width: 26, height: 26, borderRadius: 8, background: 'rgba(255,255,255,0.85)',
-                  border: '1px solid rgba(0,0,0,0.08)', cursor: 'pointer', padding: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Settings2 size={13} style={{ color: '#666' }} />
+              <>
+                {/* Remove — top left */}
+                <button
+                  onClick={() => removeWidget(w.id)}
+                  style={{
+                    position: 'absolute', top: 8, left: 8, zIndex: 2,
+                    width: 20, height: 20, borderRadius: '50%',
+                    background: '#ff5f57', border: 'none', cursor: 'pointer', padding: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.20)',
+                  }}
+                >
+                  <X size={10} style={{ color: '#fff' }} />
                 </button>
-                <DragHandle />
-              </div>
-            )}
-            <WidgetContent {...contentProps(bioWidget)} />
-          </div>
-        );
-      })()}
 
-      {/* 2-column grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        {gridWidgets.map(w => {
-          const globalIdx = widgets.findIndex(x => x.id === w.id);
-          return (
-            <div
-              key={w.id}
-              style={cardStyle(w)}
-              draggable={isEditing}
-              onDragStart={() => onDragStart(globalIdx)}
-              onDragOver={e => e.preventDefault()}
-              onDrop={() => onDrop(globalIdx)}
-            >
-              {isEditing && (
-                <>
-                  <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 2 }}>
-                    <button onClick={() => removeWidget(w.id)} style={{
-                      width: 20, height: 20, borderRadius: '50%',
-                      background: '#ff5f57', border: 'none', cursor: 'pointer', padding: 0,
+                {/* Size toggle + settings — top right */}
+                <div style={{
+                  position: 'absolute', top: 8, right: 8, zIndex: 2,
+                  display: 'flex', alignItems: 'center', gap: 4,
+                }}>
+                  <button
+                    onClick={() => toggleSize(w.id)}
+                    title={getSize(w) === 'small' ? 'Expand to full width' : 'Shrink to half width'}
+                    aria-label={getSize(w) === 'small' ? 'Expand widget to full width' : 'Shrink widget to half width'}
+                    style={{
+                      height: 22, padding: '0 6px', borderRadius: 7,
+                      background: 'rgba(255,255,255,0.88)',
+                      border: '1px solid rgba(0,0,0,0.09)', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 1,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    {getSize(w) === 'small'
+                      ? <><ChevronLeft size={9} /><ChevronRight size={9} /></>
+                      : <><ChevronRight size={9} /><ChevronLeft size={9} /></>
+                    }
+                  </button>
+                  <button
+                    onClick={() => setConfigWidget(w)}
+                    aria-label={`Customize ${getWidgetLabel(w.type)} widget`}
+                    style={{
+                      width: 26, height: 26, borderRadius: 8,
+                      background: 'rgba(255,255,255,0.88)',
+                      border: '1px solid rgba(0,0,0,0.09)', cursor: 'pointer', padding: 0,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <X size={11} style={{ color: '#fff' }} />
-                    </button>
-                  </div>
-                  <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 2, display: 'flex', gap: 5 }}>
-                    <button onClick={() => setConfigWidget(w)} style={{
-                      width: 24, height: 24, borderRadius: 7, background: 'rgba(255,255,255,0.85)',
-                      border: '1px solid rgba(0,0,0,0.08)', cursor: 'pointer', padding: 0,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <Settings2 size={12} style={{ color: '#666' }} />
-                    </button>
-                    <DragHandle />
-                  </div>
-                </>
-              )}
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <DotGrid />
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Content — pad top in edit mode to clear the controls */}
+            <div style={{ paddingTop: isEditing ? 18 : 0 }}>
               <WidgetContent {...contentProps(w)} />
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      {/* Bio tags */}
-      {bioTagsDisplay && (
-        <div style={{ marginTop: 18, textAlign: 'center', fontSize: 13, color: '#888', letterSpacing: '0.01em' }}>
-          {bioTagsDisplay}
-        </div>
-      )}
-
-      {/* ∞ gold button */}
-      <div style={{ textAlign: 'center', marginTop: 22 }}>
+      {/* ── ∞ gold button ── */}
+      <div style={{ textAlign: 'center', marginTop: 28 }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           width: 52, height: 52, borderRadius: '50%',
@@ -837,106 +1100,66 @@ export default function ProfileWidgetGrid({
         </div>
       </div>
 
-      {/* + Favorite Widgets tray (edit mode) */}
+      {/* ── Fixed bottom widget chip strip (edit mode only) ── */}
       {isEditing && (
         <div style={{
-          marginTop: 20,
-          background: 'rgba(255,255,255,0.88)',
-          borderRadius: 22,
-          border: '1.5px solid rgba(0,0,0,0.07)',
-          boxShadow: '0 2px 20px rgba(0,0,0,0.07)',
-          overflow: 'hidden',
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 90,
+          background: 'rgba(240,245,252,0.97)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderTop: '1px solid rgba(160,195,240,0.35)',
+          boxShadow: '0 -4px 24px rgba(0,0,0,0.09)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
         }}>
-          <button onClick={() => setShowTray(t => !t)} style={{
-            width: '100%', padding: '14px 18px',
-            background: 'none', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 8,
-            fontSize: 14, fontWeight: 700, color: '#1a1a1a',
-          }}>
-            <span style={{ fontSize: 16 }}>＋</span>
-            Favorite Widgets
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-              {[0, 1, 2].map(i => (
-                <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: showTray ? (i === 0 ? '#c8981a' : '#ddd') : '#ddd' }} />
-              ))}
-            </div>
-          </button>
-          {showTray && (
-            <div style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '0 16px 16px', scrollbarWidth: 'none' }}>
-              {WIDGET_TRAY.map(({ type, label, icon }) => {
-                const active = widgets.some(w => w.type === type);
-                return (
-                  <button key={type} onClick={() => addWidget(type as WidgetType)} disabled={active} style={{
-                    flexShrink: 0, width: 76, padding: '10px 0 8px',
-                    borderRadius: 14,
-                    background: active ? 'rgba(200,152,26,0.08)' : '#f5f5f5',
-                    border: active ? '1.5px solid rgba(200,152,26,0.3)' : '1.5px solid transparent',
-                    cursor: active ? 'default' : 'pointer',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
-                    opacity: active ? 0.55 : 1,
-                    transition: 'all 0.15s',
-                  }}>
-                    <span style={{ fontSize: 22 }}>{icon}</span>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: '#444' }}>{label}</span>
-                    {active && <span style={{ fontSize: 9, color: '#c8981a', fontWeight: 700 }}>Added</span>}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* ── Connect a Service — S.I.C.C. ── */}
+          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8, paddingBottom: 6 }}>
+            <div style={{ width: 32, height: 3, borderRadius: 99, background: 'rgba(0,0,0,0.15)' }} />
+          </div>
           <div style={{
-            margin: '0 14px 14px',
-            borderTop: showTray ? '1px solid rgba(0,0,0,0.06)' : 'none',
-            paddingTop: showTray ? 14 : 0,
-          }}>
+            display: 'flex', gap: 8, overflowX: 'auto',
+            padding: '0 14px 10px',
+            scrollbarWidth: 'none',
+          } as React.CSSProperties}>
+            {WIDGET_TRAY.map(({ type, label, icon }) => {
+              const active = widgets.some(w => w.type === type);
+              return (
+                <button
+                  key={type}
+                  onClick={() => addWidget(type as WidgetType)}
+                  disabled={active}
+                  style={{
+                    flexShrink: 0,
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    padding: '6px 12px', borderRadius: 99,
+                    background: active ? 'rgba(200,152,26,0.10)' : 'rgba(255,255,255,0.90)',
+                    border: active ? '1.5px solid rgba(200,152,26,0.30)' : '1.5px solid rgba(0,0,0,0.09)',
+                    cursor: active ? 'default' : 'pointer',
+                    fontSize: 12, fontWeight: 600,
+                    color: active ? '#c8981a' : '#333',
+                    boxShadow: active ? 'none' : '0 1px 4px rgba(0,0,0,0.07)',
+                    transition: 'all 0.15s',
+                    opacity: active ? 0.65 : 1,
+                  }}
+                >
+                  <span style={{ fontSize: 14 }}>{active ? '✓' : icon}</span>
+                  {!active && <span style={{ fontSize: 11 }}>+</span>}
+                  {label}
+                </button>
+              );
+            })}
             <button
               onClick={() => setShowConnectorPicker(true)}
               style={{
-                width: '100%', padding: '13px 16px',
-                borderRadius: 16,
-                background: 'linear-gradient(135deg, rgba(200,152,26,0.09) 0%, rgba(74,158,214,0.07) 100%)',
-                border: '1.5px solid rgba(200,152,26,0.22)',
+                flexShrink: 0,
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '6px 12px', borderRadius: 99,
+                background: 'linear-gradient(135deg, rgba(200,152,26,0.12), rgba(74,158,214,0.10))',
+                border: '1.5px solid rgba(200,152,26,0.28)',
                 cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 10,
-                transition: 'transform 0.1s',
+                fontSize: 12, fontWeight: 700, color: '#c8981a',
+                boxShadow: '0 1px 6px rgba(200,152,26,0.15)',
               }}
-              onPointerDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'; }}
-              onPointerUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
             >
-              <div style={{
-                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                background: 'linear-gradient(135deg, #c8981a, #e0b830)',
-                boxShadow: '0 3px 10px rgba(200,152,26,0.30)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Plug size={16} style={{ color: '#fff' }} />
-              </div>
-              <div style={{ flex: 1, textAlign: 'left' }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#1a1a1a' }}>
-                  Connect a Service
-                </div>
-                <div style={{ fontSize: 11, color: '#888', marginTop: 1 }}>
-                  Twitter · Instagram · LinkedIn + 7 more
-                </div>
-              </div>
-              {/* Mini connector icons — derived from TOP_10_CONNECTORS */}
-              <div style={{ display: 'flex', gap: -4 }}>
-                {TOP_10_CONNECTORS.slice(0, 5).map((c, i) => (
-                  <div key={c.id} style={{
-                    width: 22, height: 22, borderRadius: '50%',
-                    background: c.brandColor,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: c.symbol.length > 1 ? 8 : 10, fontWeight: 900, color: '#fff',
-                    marginLeft: i > 0 ? -6 : 0,
-                    border: '1.5px solid #f8f8f8',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
-                  }}>
-                    {c.symbol}
-                  </div>
-                ))}
-              </div>
+              <Plug size={12} /> Connect…
             </button>
           </div>
         </div>
@@ -947,11 +1170,11 @@ export default function ProfileWidgetGrid({
         <WidgetConfigSheet
           widget={configWidget}
           onClose={() => setConfigWidget(null)}
-          onSave={(cfg) => saveConfig(configWidget.id, cfg)}
+          onSave={(cfg, size) => saveWidget(configWidget.id, cfg, size)}
         />
       )}
 
-      {/* Connector widget picker — edit mode only */}
+      {/* Connector widget picker */}
       {isEditing && showConnectorPicker && (
         <ConnectorWidgetPicker
           activeWidgetTypes={widgets.map(w => w.type)}
