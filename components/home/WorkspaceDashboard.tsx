@@ -82,7 +82,7 @@ function ActivityCard({ post, index }: { post: Post; index: number }) {
     ? new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : `${index + 1}h ago`;
 
-  const COLORS = ['#4A9ED6', '#c8981a', '#6366f1', '#22c55e', '#ec4899'];
+  const COLORS = ['#4A9ED6', '#c8981a', '#3b7dd8', '#22c55e', '#ec4899'];
   const color = COLORS[index % COLORS.length];
 
   return (
@@ -688,7 +688,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
                   color="#4A9ED6" trend={[60, 70, 65, 80, 90, 88, 100]} />
                 <MetricWidget
                   icon={Star} label="Engagement" value="4.2%" sub="Above avg"
-                  color="#6366f1" trend={[3, 4, 3.5, 4.5, 4, 4.2, 4.8]} />
+                  color="#3b7dd8" trend={[3, 4, 3.5, 4.5, 4, 4.2, 4.8]} />
                 <MetricWidget
                   icon={BarChart3} label="Posts" value="47" sub="12 this week"
                   color="#22c55e" trend={[30, 32, 35, 38, 40, 44, 47]} />
@@ -704,7 +704,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
             }}>
               <MetricBandCell value="47"   label="Posts"     color="var(--de-gold)" />
               <MetricBandCell value="1.6K" label="Followers" color="#4A9ED6" />
-              <MetricBandCell value="524"  label="Following" color="#6366f1" />
+              <MetricBandCell value="524"  label="Following" color="#3b7dd8" />
               <MetricBandCell value="98%"  label="Health"    color="#22c55e" last />
             </div>
 

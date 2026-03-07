@@ -261,7 +261,7 @@ export default function WidgetShell({
           <span style={{ fontSize: 18 }}>{icon}</span>
           <span className="de-widget-title">{title}</span>
           {isPinned && (
-            <span title="Pinned" style={{ fontSize: 10, color: 'var(--de-gold)' }}>📌</span>
+            <span role="img" aria-label="Pinned" title="Pinned" style={{ fontSize: 10, color: 'var(--de-gold)' }}>📌</span>
           )}
           {dataState === 'loading' && (
             <span style={{

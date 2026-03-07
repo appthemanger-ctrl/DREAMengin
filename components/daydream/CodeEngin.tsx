@@ -27,7 +27,7 @@ interface Project {
   visibility: string;
 }
 
-const ACCENT = '#6366f1';
+const ACCENT = '#3b7dd8';
 
 export default function CodeEngin({ onBack }: Props) {
   const [projects, setProjects] = useState<Project[]>([]);

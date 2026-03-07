@@ -84,7 +84,7 @@ export const WIDGET_TRAY: { type: WidgetType; label: string; icon: string }[] = 
 const COLOR_SWATCHES = [
   { color: '#c8981a', label: 'Gold' },
   { color: '#4A9ED6', label: 'Blue' },
-  { color: '#6366f1', label: 'Indigo' },
+  { color: '#3b7dd8', label: 'Dark Blue' },
   { color: '#22c55e', label: 'Green' },
   { color: '#ec4899', label: 'Pink' },
   { color: '#f97316', label: 'Orange' },

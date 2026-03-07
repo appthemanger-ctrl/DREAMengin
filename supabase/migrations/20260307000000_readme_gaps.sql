@@ -16,9 +16,12 @@ CREATE TABLE IF NOT EXISTS public.daydream_states (
   id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id       UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   daydream_type TEXT        NOT NULL,
+  side          TEXT        NOT NULL DEFAULT 'A' CHECK (side IN ('A', 'B')),
+  last_visited  TIMESTAMPTZ NOT NULL DEFAULT now(),
   state         JSONB       NOT NULL DEFAULT '{}'::jsonb,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, daydream_type)
 );
 
 ALTER TABLE public.daydream_states ENABLE ROW LEVEL SECURITY;
@@ -50,9 +53,12 @@ CREATE TABLE IF NOT EXISTS public.daydreamengin_states (
   id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id       UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   daydream_type TEXT        NOT NULL,
+  side          TEXT        NOT NULL DEFAULT 'B' CHECK (side IN ('A', 'B')),
+  last_visited  TIMESTAMPTZ NOT NULL DEFAULT now(),
   state         JSONB       NOT NULL DEFAULT '{}'::jsonb,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, daydream_type)
 );
 
 ALTER TABLE public.daydreamengin_states ENABLE ROW LEVEL SECURITY;
