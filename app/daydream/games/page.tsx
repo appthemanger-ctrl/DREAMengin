@@ -28,6 +28,7 @@ export default async function GamesDaydreamPage() {
   return (
     <DaydreamShell
       title="Games"
+      enginName="GameEngin"
       accentColor="#2a8ab8"
       widgets={WIDGETS}
       sideBVariant="game-remote"

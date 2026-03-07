@@ -27,6 +27,7 @@ export default async function MusicDaydreamPage() {
   return (
     <DaydreamShell
       title="Music Studio"
+      enginName="StarMakerEngin"
       accentColor="#2a8ab8"
       widgets={WIDGETS}
     >

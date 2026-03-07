@@ -17,6 +17,8 @@ export type DaydreamWidget = {
 
 type Props = {
   title: string;
+  /** The Side B engine name, e.g. "StarMakerEngin", "GameEngin" (spec §7.2) */
+  enginName: string;
   accentColor: string;
   widgets: DaydreamWidget[];
   children: React.ReactNode;
@@ -28,7 +30,7 @@ type Props = {
   sideBVariant?: 'widgets' | 'game-remote';
 };
 
-export default function DaydreamShell({ title, accentColor, widgets, children, sideBVariant = 'widgets' }: Props) {
+export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBVariant = 'widgets' }: Props) {
   const [side, setSide]   = useState<'A' | 'B'>('A');
   const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
   const [busy, setBusy]   = useState(false);
@@ -58,24 +60,24 @@ export default function DaydreamShell({ title, accentColor, widgets, children, s
 
   return (
     <>
-      {/* Animated content — swaps between Side A (daydream) and Side B (tools) */}
+      {/* Animated content — swaps between Side A (daydream) and Side B (engin) */}
       <div style={contentStyle}>
         {side === 'A'
           ? children
           : sideBVariant === 'game-remote'
             ? <GameRemote onBack={flip} />
-            : <WidgetTray title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />
+            : <EnginSurface enginName={enginName} title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />
         }
       </div>
 
-      {/* ── Side A only: corner fold tab → opens Side B ── */}
+      {/* ── Side A only: corner fold tab → opens Side B (Engin) ── */}
       {side === 'A' && (
         <>
           <button
             type="button"
             onClick={flip}
-            aria-label="Open dream tools"
-            title="Dream Tools (Alt+F)"
+            aria-label={`Open ${enginName}`}
+            title={`${enginName} (Alt+F)`}
             style={{
               position: 'fixed',
               bottom: 0,
@@ -102,7 +104,7 @@ export default function DaydreamShell({ title, accentColor, widgets, children, s
             color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 4px rgba(0,0,0,0.3)',
             pointerEvents: 'none',
           }}>
-            TOOLS →
+            ENGIN →
           </div>
         </>
       )}
@@ -110,8 +112,9 @@ export default function DaydreamShell({ title, accentColor, widgets, children, s
   );
 }
 
-/* ── Widget Tray — Side B ── */
-function WidgetTray({ title, accentColor, widgets, onBack }: {
+/* ── Engin Surface — Side B ── */
+function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
+  enginName: string;
   title: string;
   accentColor: string;
   widgets: DaydreamWidget[];
@@ -129,7 +132,7 @@ function WidgetTray({ title, accentColor, widgets, onBack }: {
             onClick={onBack}
             className="p-2 -ml-2 rounded-full"
             style={{ background: 'rgba(160,195,240,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            aria-label="Back to daydream"
+            aria-label={`Back to ${title}`}
           >
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </button>
@@ -140,8 +143,8 @@ function WidgetTray({ title, accentColor, widgets, onBack }: {
             }}
           />
           <div>
-            <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>Dream Tools</div>
-            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{title}</div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>{enginName}</div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{title} · Control Layer</div>
           </div>
           <span
             className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
@@ -153,16 +156,80 @@ function WidgetTray({ title, accentColor, widgets, onBack }: {
       </header>
 
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
-        {/* Intro line */}
+        {/* Engin intro */}
         <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 16 }}>
-          Quick-launch anything in {title}. Tap to go, Alt+F to flip back.
+          {enginName} — the powered control layer for {title}. Tap any tool to launch.
         </p>
 
+        {/* Engin pill dual-button controls (spec §7.1 / §14.3) */}
+        <EnginPillControls enginName={enginName} accentColor={accentColor} onBack={onBack} />
+
         {/* Marble widget grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 20 }}>
           {widgets.map(w => <MarbleWidget key={w.id} w={w} />)}
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ── Engin Pill Dual-Button Controls (spec §7.1 / §14.3) ── */
+function EnginPillControls({ enginName, accentColor, onBack }: {
+  enginName: string;
+  accentColor: string;
+  onBack: () => void;
+}) {
+  return (
+    <div style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 0,
+      background: 'rgba(255,255,255,0.75)',
+      backdropFilter: 'blur(18px)',
+      WebkitBackdropFilter: 'blur(18px)',
+      borderRadius: 999,
+      border: `1.5px solid ${accentColor}30`,
+      boxShadow: `0 2px 12px ${accentColor}18`,
+      overflow: 'hidden',
+      fontSize: 12,
+      fontWeight: 700,
+    }}>
+      <button
+        type="button"
+        onClick={onBack}
+        style={{
+          padding: '8px 18px',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: accentColor,
+          fontWeight: 700,
+          fontSize: 12,
+          letterSpacing: '0.04em',
+          borderRight: `1.5px solid ${accentColor}20`,
+          whiteSpace: 'nowrap',
+        }}
+        aria-label="Return to Side A"
+      >
+        ← Side A
+      </button>
+      <button
+        type="button"
+        style={{
+          padding: '8px 18px',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: 'var(--de-heading)',
+          fontWeight: 700,
+          fontSize: 12,
+          letterSpacing: '0.04em',
+          whiteSpace: 'nowrap',
+        }}
+        aria-label={`${enginName} engine controls`}
+      >
+        {enginName} ⚙
+      </button>
     </div>
   );
 }
