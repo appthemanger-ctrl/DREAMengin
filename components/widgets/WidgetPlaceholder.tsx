@@ -41,7 +41,7 @@ export default function WidgetPlaceholder({
     >
       <button
         type="button"
-        aria-label={slot !== undefined ? `Add widget to slot ${slot + 1}` : 'Add widget'}
+        aria-label={slot !== undefined ? `Add Dream to slot ${slot + 1}` : 'Add Dream'}
         onClick={onOpenLibrary}
         style={{
           width: '100%',

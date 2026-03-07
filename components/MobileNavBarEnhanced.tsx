@@ -29,7 +29,7 @@ export default function MobileNavBarEnhanced({ user }: MobileNavBarProps) {
   }, [showSearch]);
 
   const navItems = [
-    { href: '/home', icon: Home, label: 'Home' },
+    { href: '/homedream', icon: Home, label: 'HomeDream' },
     { href: '/discover', icon: Compass, label: 'Discover' },
     { href: '/create', icon: Plus, label: 'Create', isSpecial: true },
     { href: '/music', icon: Music, label: 'Music' },

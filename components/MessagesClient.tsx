@@ -95,7 +95,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
     { id: '2', sender_id: 'demo-user-1', content: 'Your project looks amazing! Let me know if you need help with the AI integration.', created_at: new Date(Date.now() - 240000).toISOString() },
     { id: '3', sender_id: userId, content: 'Thanks! I have been working on it for weeks.', created_at: new Date(Date.now() - 180000).toISOString() },
     { id: '4', sender_id: 'demo-user-1', content: 'What framework are you using?', created_at: new Date(Date.now() - 120000).toISOString() },
-    { id: '5', sender_id: userId, content: 'Using TensorFlow with a custom model. Want to check it out?', created_at: new Date(Date.now() - 60000).toISOString() },
+    { id: '5', sender_id: userId, content: 'Using TensorFlow with a custom model. Want to check it out in DreamDM?', created_at: new Date(Date.now() - 60000).toISOString() },
   ];
 
   useEffect(() => {
@@ -276,7 +276,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
       {/* Mobile Header */}
       <header className="md:hidden sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.12)' }} aria-label="Go home">
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.12)' }} aria-label="Go home">
             <ArrowLeft className="w-5 h-5" style={{ color: 'var(--de-text-dim)' }} />
           </Link>
           <h1 className="text-xl font-bold" style={{ color: 'var(--de-heading)' }}>Messages</h1>

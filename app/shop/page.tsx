@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Store, PlusCircle, Package } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Shop – DREAMengin', description: 'Sell and discover digital products.' };
+export const metadata = { title: 'DreamShop – DREAMengin', description: 'Official commerce, listings, and creator selling surfaces.' };
 
 export default async function ShopPage() {
   const supabase = await createServerClient();
@@ -30,11 +30,11 @@ export default async function ShopPage() {
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <Store className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Shop</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>DreamShop</h1>
           <Link href="/shop/sell" className="ml-auto de-btn de-btn-primary text-xs" style={{ padding: '6px 12px', gap: 5 }}>
             <PlusCircle className="w-3 h-3" /> Sell
           </Link>

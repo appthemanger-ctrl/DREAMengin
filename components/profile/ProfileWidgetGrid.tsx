@@ -227,7 +227,7 @@ function WidgetConfigSheet({
             <div style={{ fontSize: 17, fontWeight: 800, color: '#1a1a1a' }}>
               {getWidgetLabel(widget.type)}
             </div>
-            <div style={{ fontSize: 11, color: '#999', marginTop: 1 }}>Customize widget</div>
+            <div style={{ fontSize: 11, color: '#999', marginTop: 1 }}>Customize Dream</div>
           </div>
           <button onClick={onClose} style={{
             width: 32, height: 32, borderRadius: '50%', background: '#e8eaed',

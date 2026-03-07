@@ -1,231 +1,62 @@
-# DREAMengin Design + System Spec
+# DREAMengin Repo Companion Spec
 
-**Version:** 2.1  
-**Status:** Active  
-**Owner:** appthemanger-ctrl  
-**Platform:** Next.js 16+ (App Router, TypeScript strict)  
-**Last updated:** 2026-03-05
+Status: active companion document  
+Last updated: 2026-03-06
 
-This is the single source of truth for DREAMengin's design system, UI behavior, and interaction model. Changes to the product must be reflected here.
+`README.md` is the canonical full system specification.
 
----
+This file is not a replacement for that master spec. It exists only as a repo companion for implementation notes that are useful during alignment.
 
-## 1. Design Language: Frosted Glass OS
+## 1. What this file is for
 
-### 1.1 Core Principle
-DREAMengin feels like a premium mobile OS — not a website, not a dark-gamer app. Think: iOS frosted glass, ice, sky, airy.
+Use this file for:
+- repo-local implementation notes
+- route and component pointers
+- design implementation reminders
+- alignment notes that help engineers apply the README spec to the existing codebase
 
-### 1.2 Color System
-| Token | Value | Use |
-|-------|-------|-----|
-| `--de-accent` | `#2a8ab8` | Primary blue |
-| `--de-gold` | `#c8981a` | System gold |
-| `--de-heading` | `#0f2a5c` | High-contrast text |
-| `--de-text` | `#1a3a6a` | Body text |
-| `--de-text-dim` | `rgba(60,100,160,0.55)` | Secondary text |
-| `--de-bg-start` | `#dce8f8` | Sky gradient top |
-| `--de-bg-mid` | `#c5d8f0` | Sky gradient mid |
-| `--de-bg-end` | `#b8ceec` | Sky gradient bottom |
+Do not use this file to override the README.
 
-### 1.3 Glass Recipe (single source)
-```css
-.de-surface {
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(160,195,240,0.45);
-  box-shadow: 0 2px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.7);
-  border-radius: 24px;
-}
-```
+## 2. Canonical product names
 
-### 1.4 Radius Family
-All corners use one of: `6px, 10px, 14px, 18px, 24px, 32px, 9999px` (pill). Never freestyle.
+- HomeDream
+- EditProfileDream
+- ViewProfile
+- Dreams
+- DreamShop
+- DreamMarketplace
+- DreamMenu
+- DreamDM
+- DreamAds
+- Dr. Eams
+- IDARi
+- TheBoogieMan.Ai
 
-### 1.5 Typography
-- Font: Space Grotesk
-- Headings: 700–800 weight, `--de-heading` color
-- Body: 400–600 weight, `--de-text` color
-- Labels/caps: 600–700, `letter-spacing: 0.06em`, uppercase
+## 3. Canonical route intent
 
----
+- `/homedream` = HomeDream
+- `/edit-profiledream` = EditProfileDream
+- `/view-profile` = ViewProfile preview/share entry
+- `/profile/[handle]` = current public/shared profile destination in the repo
+- `/shop` = DreamShop
+- `/marketplace` = DreamMarketplace
+- `/messages` = DreamDM
+- `/ads` = DreamAds
 
-## 2. Component Anatomy
+## 4. Universal Dreams rule
 
-### 2.1 Widget Card
-Every surface is a widget. Every widget has:
-1. **Title Strip** — `de-widget-header`: title (uppercase caps), optional actions
-2. **Content Area** — `de-widget-body`: the content
-3. **Actions Row** — `de-widget-actions` (optional): pill buttons
+All widgets are Dreams in the product model.
 
-### 2.2 Button
-All buttons use `de-btn` base class. Variants: `de-btn-primary` (blue), `de-btn-gold`, `de-btn-ghost`. Always pill-shaped. Minimum 44px height.
+Use the four-layer Dream language first:
+1. DreamShell
+2. Connector/Identity
+3. Feature
+4. Output/Projection
 
-### 2.3 Row
-List items use `de-row` class. Thin `rgba(160,195,240,0.18)` dividers between rows.
+## 5. Privacy rule
 
-### 2.4 Sheet (menus/modals)
-Menus and modals use `de-sheet` class: `blur(32px)` + white-tinted glass + strong box shadow.
+Nothing becomes public without explicit user intent. Public/shared surfaces should render saved output, not unrestricted private source state.
 
----
+## 6. Design rule
 
-## 3. Navigation Model
-
-### 3.1 Home Button
-- One floating button: **Gold** — always on right rail
-- Drag vertically along the right rail
-- **Single tap** → Go Home (reset anchor, close all overlays)
-- **Double tap** → Open both menus simultaneously: **Daydreams** (left panel) + **System** (right panel)
-- Position persists via `localStorage` key `dreamengin:controls:v4`
-
-> **Daydream Side B only:** On Side B of any Daydream (the tools flip side), the single gold button is replaced by **two floating buttons** — a back arrow (←) that flips back to Side A, and a daydream-specific action button (e.g. Record for Music, Upload for Media Vault). The two-button layout for Games uses the dual-button game remote controller (see §10 Universal Mobile Remote).
-
-### 3.2 Menus
-- **Daydreams menu**: routes to all 7 Daydreams + Marketplace (opens left)
-- **System menu**: Dr. Eams, Settings, Account, Go Home, Feed Settings, Connectors (opens right)
-- Both menus appear side-by-side with a shared dim backdrop; tapping outside closes both
-
-### 3.3 Edit Mode
-- Enter via "Edit Layout" button in Home Dream
-- Visual indicator: gold stripe at top + "EDIT MODE" badge + "Done" button
-- Drag handles appear on widget title strips (only in edit mode)
-- Edit gestures never compete with feed scroll
-- Exit via "Done" button
-
-### 3.4 Spatial Swipe Navigation
-Spatial swipe gestures (swipe left/right to navigate between spaces) are currently **disabled**. Navigation between spaces happens via the Daydreams menu (single tap on the home button). This will be re-enabled in a future release.
-
----
-
-## 4. Daydreams
-
-All 7 Daydreams are fixed categories (not renamable). Users can add widgets to them.
-
-| Daydream | Route | Focus |
-|----------|-------|-------|
-| Music Studio | `/daydream/music` | Label, releases, recorder, playlist |
-| Media Vault | `/daydream/media-vault` | Private media library |
-| Create | `/daydream/create` | Ideas, tasks, calendar, projects |
-| Brand | `/daydream/brand` | Profile, social scheduling, analytics |
-| Analytics | `/daydream/analytics` | Traffic, revenue, growth metrics |
-| Games | `/daydream/games` | Game library, leaderboard, trending |
-| Play | `/daydream/play` | Music + video player, queue |
-
-Also accessible: Marketplace (`/marketplace`), Shop (`/shop`).
-
----
-
-## 5. Widget System
-
-### 5.1 Widget Library
-Location: `components/widgets/WidgetLibrary.tsx`
-- 12 curated widgets in 6 categories: Feed, Media, Social, Utilities, Work, Shop
-- Each widget: icon, name, description, Add button, destination chooser
-
-### 5.2 Widget Config
-`ConfigureSheet.tsx` — supports toggle, text, select fields. Always: title, description, Save, Cancel, Reset.
-
-### 5.3 Edit Mode
-`EditModeProvider.tsx` — React context. `EditModeBanner.tsx` — visual indicator. `WidgetCard.tsx` — shows drag handle + options menu.
-
----
-
-## 6. AI Triad
-
-| Agent | Role | Audience | Location |
-|-------|------|----------|----------|
-| Dr. Eams | User assistant | All users | Home system, `/home` |
-| IDARi | Universal AI companion + builder assistant | **All users** (capabilities scale by role) | `/api/ai/idari`, accessible via gold-button menu |
-| BoogieMan | Policy / Overwatch | System (server-only) | `/api/ai/boogieman` |
-
-**IDARi is now available to all authenticated users.** Role capabilities:
-- `user` — platform guidance, personalisation, creative coaching
-- `admin` — + feed config, widget management, system diagnostics
-- `owner` — + schema/RLS inspection, infrastructure access
-
-All API keys are server-side Vercel env vars. Consensus gating: all 3 must approve major system updates.
-
----
-
-## 7. Settings Structure
-
-| Section | Path | Contents |
-|---------|------|----------|
-| Profile | `/edit-profile` | Name, handle, avatar, bio |
-| Feed | `/settings/feed` → `/feed-settings` | Slices, preferences |
-| Widgets | `/settings/widgets` | Pin, hide, reorder widgets |
-| Theme | `/settings/appearance` | Gradient presets, upload, reset |
-| Connectors | `/connectors` | IG, YouTube, Spotify, etc. |
-| Controls | `/settings/controls` | Home button behaviors |
-| Privacy | `/settings/privacy` | Visibility, blocking, appeals |
-| Data | `/settings/data` | Export, Delete Data, Delete Account |
-| Help | `/settings/help` | Wizard, guides, Dr.Eams |
-
----
-
-## 8. Profile Model
-
-- **Private editor** → `/profile` (authenticated, `profiles` table)
-- **Public mirror** → `/profile/[handle]` and `/u/[handle]` (redirect)
-- Saving private profile syncs public profile immediately
-- Public profile shows ONLY published widgets and posts
-- Connector data never leaks to public view
-
----
-
-## 9. Anti-Patterns (Do Not Do)
-
-- Do NOT use radial menus with dark overlays (use glass panels)
-- Do NOT add neon, dark-gamer colors, random decoration
-- Do NOT add full-screen blocking modals for onboarding
-- Do NOT trigger edit mode by accident (drag during normal scroll)
-- Do NOT route from Home Buttons (only: home/lock/menus)
-- Do NOT show raw connectors on public profile
-- Do NOT mix icon sets
-- Do NOT freestyle radii (always use the radius family)
-- Do NOT commit `.env` files or `node_modules`
-- Do NOT delete documentation for features you did not complete yourself (see `docs/LAW.md §9.1`)
-- Do NOT leave fixed bugs in `docs/BUGS.md` — delete the entry when the fix lands (see `docs/LAW.md §9.2`)
-
----
-
-## 10. Universal Mobile Remote
-
-See `docs/ARCHITECTURE.md §18` for the full dual-joystick design specification.
-
-### 10.1 Core principle
-Every game in the Games Daydream must be playable with two thumbs on a phone screen
-using the Universal Mobile Remote layout. No physical keyboard or controller required.
-
-### 10.2 Zoom prevention (required on all game pages)
-```tsx
-// In any Next.js game page — disable pinch-zoom
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-};
-```
-Also set `style={{ touchAction: 'none' }}` on the canvas element.
-
-### 10.3 Joystick rendering
-Draw the two thumbstick pads directly onto the game canvas (or as an overlay div):
-- **Radius:** 44 px outer ring, 20 px inner nub.
-- **Left pad center:** `(CANVAS_W * 0.14, CANVAS_H - 70)` — slightly inset from left edge.
-- **Right pad center:** `(CANVAS_W * 0.86, CANVAS_H - 70)` — slightly inset from right edge.
-- **Colours:** Left pad blue (`#2a8ab8`), right pad gold (`#c8981a`).
-- **Opacity:** 0.45 at rest → 0.85 when a finger is detected within the pad zone.
-
-### 10.4 Existing game (Dr. Eams) action mapping
-| Right-stick direction | Dr. Eams action |
-|---|---|
-| Up | Jump / double-jump |
-| Down | Duck |
-| Left | Spin (activates with spin power-up) |
-| Right | Shoot laser (activates with laser power-up) |
-| Tap | Interact / examine |
-
-### 10.5 PS5 Gamepad API
-The Gamepad API is polled every animation frame via `navigator.getGamepads()`.
-Dead-zone threshold: 0.25 on all axes.
-See `docs/ARCHITECTURE.md §18.4` for the full button mapping.
+Use gold, light blue, and white as the primary semantic design language with restrained motion and a premium mobile-first feel.

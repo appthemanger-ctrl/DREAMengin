@@ -83,8 +83,8 @@ export default function WidgetLibrary({
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)' }}>Add Widget</div>
-            <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 2 }}>Choose a widget to add to your space</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)' }}>Add Dream</div>
+            <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 2 }}>Choose a Dream to add to your space</div>
           </div>
           <button type="button" className="de-btn de-btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }} onClick={onClose}>Close</button>
         </div>
@@ -198,7 +198,7 @@ export default function WidgetLibrary({
                     style={{ width: '100%', padding: '7px 12px', fontSize: 11 }}
                     onClick={() => setAdding(widget.id)}
                   >
-                    Add Widget
+                    Add Dream
                   </button>
                 )}
               </div>
@@ -230,7 +230,7 @@ export default function WidgetLibrary({
               Where should this go?
             </div>
             <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 16 }}>
-              Choose where this widget will appear.
+              Choose where this Dream will appear.
             </div>
             <div style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
               {['Home', 'Profile', 'Public Profile'].map((dest) => (

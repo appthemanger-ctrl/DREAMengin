@@ -26,10 +26,10 @@ export default async function WidgetsSettingsPage() {
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
         <div className="de-widget">
-          <div className="de-widget-header"><span className="de-widget-title">Home Dream Widgets</span></div>
+          <div className="de-widget-header"><span className="de-widget-title">HomeDream Widgets</span></div>
           <div className="de-widget-body">
             <p className="text-sm" style={{ color: 'var(--de-text-dim)', marginBottom: 12 }}>
-              Manage which widgets appear on your Home Dream. Removing a widget only hides it — your config is preserved.
+              Manage which widgets appear on your HomeDream. Removing a widget only hides it — your config is preserved.
             </p>
             {[
               { name: 'Main Feed',   pinned: true,  visible: true },
@@ -55,7 +55,7 @@ export default async function WidgetsSettingsPage() {
             ))}
           </div>
           <div className="de-widget-actions">
-            <Link href="/home" className="de-btn de-btn-primary text-xs">
+            <Link href="/homedream" className="de-btn de-btn-primary text-xs">
               <Plus className="w-3 h-3" /> Add Widgets
             </Link>
           </div>
@@ -65,11 +65,11 @@ export default async function WidgetsSettingsPage() {
           <div className="de-widget-header"><span className="de-widget-title">Edit Mode</span></div>
           <div className="de-widget-body">
             <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>
-              Enter Edit Mode from the Home Dream to drag, reorder, resize, and pin widgets. Changes auto-save when you tap Done.
+              Enter Edit Mode from the HomeDream to drag, reorder, resize, and pin widgets. Changes auto-save when you tap Done.
             </p>
           </div>
           <div className="de-widget-actions">
-            <Link href="/home" className="de-btn de-btn-ghost text-xs">Go to Home Dream →</Link>
+            <Link href="/homedream" className="de-btn de-btn-ghost text-xs">Go to HomeDream →</Link>
           </div>
         </div>
 

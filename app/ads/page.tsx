@@ -49,7 +49,7 @@ export default async function AdsPage() {
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <DollarSign className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
@@ -88,7 +88,7 @@ export default async function AdsPage() {
         {/* My Slots */}
         <div className="de-widget">
           <div className="de-widget-header">
-            <span className="de-widget-title">My Ad Slots</span>
+            <span className="de-widget-title">My DreamAds Slots</span>
             <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{mySlots.length} slot{mySlots.length !== 1 ? 's' : ''}</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
@@ -136,7 +136,7 @@ export default async function AdsPage() {
         <div className="de-widget">
           <div className="de-widget-header">
             <ShoppingCart className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
-            <span className="de-widget-title">Available Slots</span>
+            <span className="de-widget-title">Available DreamAds Slots</span>
             <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{marketplace.length} listing{marketplace.length !== 1 ? 's' : ''}</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>

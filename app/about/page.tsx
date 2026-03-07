@@ -90,11 +90,11 @@ export default function AboutPage() {
   ];
 
   const spaces = [
-    { name: 'Home (Anchor)', path: '/home', icon: Sparkles, description: 'The gravitational center with Home Dreams and instant recall.' },
-    { name: 'Profile', path: '/profile/jose', icon: Heart, description: 'Living dashboards that morph from Home with public permissions.' },
-    { name: 'Feed', path: '/home', icon: LayoutGrid, description: 'A dynamic surface for personal, social, widget, and AI-generated content.' },
-    { name: 'Messages', path: '/messages', icon: MessageCircle, description: 'Direct conversations and system signals layered into the plane.' },
-    { name: 'Marketplace', path: '/shop', icon: ShoppingBag, description: 'Sell widgets, beats, workflows, and creator goods natively.' },
+    { name: 'HomeDream', path: '/homedream', icon: Sparkles, description: 'The gravitational center with Home Dreams and instant recall.' },
+    { name: 'ViewProfile', path: '/view-profile', icon: Heart, description: 'Living dashboards that morph from Home with public permissions.' },
+    { name: 'Feed', path: '/homedream', icon: LayoutGrid, description: 'A dynamic surface for personal, social, widget, and AI-generated content.' },
+    { name: 'DreamDM', path: '/messages', icon: MessageCircle, description: 'Direct conversations and system signals layered into the plane.' },
+    { name: 'DreamMarketplace', path: '/marketplace', icon: ShoppingBag, description: 'Sell widgets, beats, workflows, and creator goods natively.' },
     { name: 'Lab', path: '/lab', icon: Beaker, description: 'CCC experiments, simulations, and research tools.' },
     { name: 'Music', path: '/music', icon: Music, description: 'Recording, sharing, and collaboration spaces for sound.' },
     { name: 'Social Hub', path: '/discover', icon: Users, description: 'Community clusters, discovery loops, and shared spaces.' },

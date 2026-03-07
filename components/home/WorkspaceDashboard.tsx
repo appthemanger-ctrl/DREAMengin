@@ -13,7 +13,7 @@ import {
 // ── Navigation search suggestions ─────────────────────────────────────────────
 
 const NAV_SUGGESTIONS = [
-  { label: 'Home',        href: '/home',              icon: '🏠' },
+  { label: 'HomeDream',        href: '/homedream',              icon: '🏠' },
   { label: 'Shop',        href: '/shop',              icon: '🛍️' },
   { label: 'Marketplace', href: '/marketplace',       icon: '🏪' },
   { label: 'Settings',    href: '/settings',          icon: '⚙️' },
@@ -24,7 +24,7 @@ const NAV_SUGGESTIONS = [
   { label: 'Brand',       href: '/daydream/brand',    icon: '🎨' },
   { label: 'Create',      href: '/daydream/create',   icon: '✏️' },
   { label: 'Messages',    href: '/messages',          icon: '💬' },
-  { label: 'Profile',     href: '/edit-profile',      icon: '👤' },
+  { label: 'Edit ProfileDream',     href: '/edit-profiledream',      icon: '👤' },
   { label: 'Analytics',   href: '/analytics',         icon: '📊' },
   { label: 'Discover',    href: '/discover',          icon: '🔭' },
   { label: 'Dr. Eams',    href: null,                 icon: '🤖' },
@@ -239,11 +239,11 @@ function WindowChrome({ title }: { title: string }) {
 // ── Bottom tab bar ─────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'home',     icon: Home,          label: 'Home',     href: '/home' },
+  { id: 'home',     icon: Home,          label: 'HomeDream',     href: '/homedream' },
   { id: 'discover', icon: Compass,       label: 'Discover', href: '/discover' },
   { id: 'create',   icon: Plus,          label: 'Create',   href: '/create' },
   { id: 'messages', icon: MessageCircle, label: 'Messages', href: '/messages' },
-  { id: 'profile',  icon: User,          label: 'Profile',  href: '/edit-profile' },
+  { id: 'profile',  icon: User,          label: 'Edit ProfileDream',  href: '/edit-profiledream' },
 ];
 
 // ── AI Agent activity card ─────────────────────────────────────────────────────
@@ -586,7 +586,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
           </div>
 
           {/* Avatar */}
-          <Link href="/edit-profile" style={{
+          <Link href="/edit-profiledream" style={{
             width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
             overflow: 'hidden',
             background: avatarUrl ? undefined : 'linear-gradient(135deg, #c8981a, #4A9ED6)',

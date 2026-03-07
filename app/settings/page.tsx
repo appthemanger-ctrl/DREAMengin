@@ -13,7 +13,7 @@ const NAV_GROUPS = [
   {
     heading: 'Your Space',
     items: [
-      { href: '/edit-profile',          icon: User,       label: 'Profile',        desc: 'Edit your name, handle, avatar, bio',             iconBg: '#2a8ab8' },
+      { href: '/edit-profiledream',          icon: User,       label: 'Edit ProfileDream',        desc: 'Build and save what ViewProfile can show',             iconBg: '#2a8ab8' },
       { href: '/settings/feed',         icon: Rss,        label: 'Feed',           desc: 'Control what appears in your feed',               iconBg: '#10b981' },
       { href: '/settings/algorithm',    icon: Cpu,        label: 'My Algorithm',   desc: 'Your presets, your order — you own it',           iconBg: '#6366f1' },
       { href: '/settings/widgets',      icon: LayoutGrid, label: 'Widgets',        desc: 'Manage widget layout and pinned cards',           iconBg: '#f59e0b' },
@@ -59,7 +59,7 @@ export default async function SettingsPage() {
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Settings</h1>

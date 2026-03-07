@@ -13,24 +13,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create sanitized repo zip
+      - name: Create sanitized code-only repo zip
         shell: bash
         run: |
           set -e
           mkdir -p _export
 
-          ZIP_NAME="repo-export-${GITHUB_REF_NAME}-${GITHUB_SHA}.zip"
+          ZIP_NAME="repo-export-code-${GITHUB_REF_NAME}-${GITHUB_SHA}.zip"
 
-          # Create zip from the working directory, excluding heavy/sensitive paths
-          zip -r "_export/$ZIP_NAME" . \
-            -x ".git/*" \
-            -x "node_modules/*" \
-            -x ".next/*" \
-            -x ".vercel/*" \
-            -x ".turbo/*" \
-            -x "**/.DS_Store" \
-            -x ".env" \
-            -x ".env.*"
+          # Create a code-only zip from the working directory, excluding heavy,
+          # sensitive, and media asset paths so exports stay upload-friendly.
+          zip -r "_export/$ZIP_NAME" .             -x ".git/*"             -x "node_modules/*"             -x ".next/*"             -x ".vercel/*"             -x ".turbo/*"             -x "_export/*"             -x "**/.DS_Store"             -x ".env"             -x ".env.*"             -x "*.png" -x "*.PNG"             -x "*.jpg" -x "*.JPG"             -x "*.jpeg" -x "*.JPEG"             -x "*.gif" -x "*.GIF"             -x "*.webp" -x "*.WEBP"             -x "*.svg" -x "*.SVG"             -x "*.ico" -x "*.ICO"             -x "*.avif" -x "*.AVIF"             -x "*.bmp" -x "*.BMP"             -x "*.tif" -x "*.TIF"             -x "*.tiff" -x "*.TIFF"             -x "*.mp4" -x "*.MP4"             -x "*.webm" -x "*.WEBM"             -x "*.mov" -x "*.MOV"             -x "*.m4v" -x "*.M4V"             -x "*.avi" -x "*.AVI"             -x "*.mkv" -x "*.MKV"             -x "*.mp3" -x "*.MP3"             -x "*.wav" -x "*.WAV"             -x "*.ogg" -x "*.OGG"             -x "*.m4a" -x "*.M4A"             -x "*.flac" -x "*.FLAC"             -x "*.woff" -x "*.WOFF"             -x "*.woff2" -x "*.WOFF2"             -x "*.ttf" -x "*.TTF"             -x "*.otf" -x "*.OTF"
 
           echo "Created: _export/$ZIP_NAME"
           ls -la _export
@@ -38,5 +31,5 @@ jobs:
       - name: Upload repo export artifact
         uses: actions/upload-artifact@v4
         with:
-          name: repo-export
+          name: repo-export-code
           path: _export/*.zip

@@ -311,7 +311,7 @@ export default function AppearanceSettingsPage() {
       >
         <div className="flex items-center gap-3" style={{ padding: '14px 16px' }}>
           <Link
-            href="/home"
+            href="/homedream"
             className="flex items-center justify-center"
             style={{
               width: 40, height: 40, borderRadius: 12,

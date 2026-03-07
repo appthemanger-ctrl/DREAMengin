@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const next = url.searchParams.get("next");
 
   // Prevent open-redirects: only allow relative paths inside this app.
-  const safeNext = next && next.startsWith("/") ? next : "/home";
+  const safeNext = next && next.startsWith("/") ? next : "/homedream";
 
   // Build the redirect response FIRST so we can attach auth cookies to it.
   const redirectUrl = new URL(safeNext, url.origin);

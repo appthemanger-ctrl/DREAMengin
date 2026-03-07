@@ -90,7 +90,7 @@ export default function JoinPage() {
         window.localStorage.removeItem("rememberedEmail");
       }
 
-      router.replace("/home");
+      router.replace("/homedream");
     } finally {
       setBusy(false);
     }

@@ -48,7 +48,7 @@ const ACTIONS: Action[] = [
     match: (q) => /\b(go to|open|take me to|navigate to|show me)\b/.test(q),
     run: (q, ctx) => {
       const routes: Array<{ k: RegExp; path: string; label: string }> = [
-        { k: /\b(home|dashboard)\b/, path: '/home', label: 'Home' },
+        { k: /\b(home|dashboard)\b/, path: '/homedream', label: 'HomeDream' },
         { k: /\b(discover|search)\b/, path: '/discover', label: 'Discover' },
         { k: /\b(messages|dms|inbox|chat)\b/, path: '/messages', label: 'Messages' },
         { k: /\b(music|tracks|playlists)\b/, path: '/music', label: 'Music' },
@@ -57,7 +57,7 @@ const ACTIONS: Action[] = [
         { k: /\b(shop|merch|store)\b/, path: '/shop', label: 'Shop' },
         { k: /\b(ads|monetize|monetization)\b/, path: '/ads', label: 'Ads' },
         { k: /\b(settings|preferences)\b/, path: '/settings', label: 'Settings' },
-        { k: /\b(profile|edit profile)\b/, path: '/edit-profile', label: 'Edit Profile' },
+        { k: /\b(profile|edit profile)\b/, path: '/edit-profiledream', label: 'Edit ProfileDream' },
         { k: /\b(connectors|imports|youtube)\b/, path: '/connectors', label: 'Connectors' },
         { k: /\b(admin)\b/, path: '/admin', label: 'Admin' },
       ];
@@ -72,7 +72,7 @@ const ACTIONS: Action[] = [
     description: 'Open the Create flow',
     match: (q) => /\b(create|new)\b/.test(q) && /\b(post|content)\b/.test(q),
     run: (_q, ctx) => {
-      ctx.navigate('/home?modal=create');
+      ctx.navigate('/homedream?modal=create');
       return { handled: true, reply: 'Opening Create.' };
     },
   },
