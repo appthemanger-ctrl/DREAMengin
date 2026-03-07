@@ -896,6 +896,7 @@ export default function ProfileWidgetGrid({
   const [showConnectorPicker, setShowConnectorPicker]   = useState(false);
   const [configWidget, setConfigWidget]                 = useState<Widget | null>(null);
   const dragSrc                                         = useRef<number | null>(null);
+  const [dragOverIdx, setDragOverIdx]                   = useState<number | null>(null);
 
   // Drag-and-drop
   const onDragStart = (i: number) => { dragSrc.current = i; };
@@ -905,6 +906,7 @@ export default function ProfileWidgetGrid({
     const [moved] = next.splice(dragSrc.current, 1);
     next.splice(i, 0, moved);
     dragSrc.current = null;
+    setDragOverIdx(null);
     setWidgets(next);
     onSave?.(next);
   };
@@ -953,19 +955,24 @@ export default function ProfileWidgetGrid({
   const getSize    = (w: Widget): WidgetSize   => w.size ?? getDefaultSize(w.type);
   const isFullSpan = (w: Widget): boolean      => getSize(w) === 'large';
 
-  const cardStyle = (w: Widget): React.CSSProperties => ({
+  const cardStyle = (w: Widget, idx: number): React.CSSProperties => ({
     ...getCardBg(getConfig(w).bgStyle, getConfig(w).accentColor),
     borderRadius: 20,
     padding: isFullSpan(w) ? 18 : 14,
-    boxShadow: isEditing ? '0 2px 12px rgba(0,0,0,0.06)' : '0 2px 16px rgba(0,0,0,0.08)',
-    border: isEditing
+    boxShadow: dragOverIdx === idx && isEditing
+      ? '0 0 0 3px #c8981a, 0 4px 20px rgba(200,152,26,0.22)'
+      : isEditing ? '0 2px 12px rgba(0,0,0,0.06)' : '0 2px 16px rgba(0,0,0,0.08)',
+    border: dragOverIdx === idx && isEditing
+      ? '2px dashed #c8981a'
+      : isEditing
       ? '2px dashed rgba(0,0,0,0.11)'
       : '1.5px solid rgba(0,0,0,0.05)',
     position: 'relative',
     cursor: isEditing ? 'grab' : 'default',
-    transition: 'box-shadow 0.15s',
+    transition: 'box-shadow 0.15s, border-color 0.15s, opacity 0.15s',
     gridColumn: isFullSpan(w) ? 'span 2' : 'span 1',
     minHeight: isFullSpan(w) ? undefined : MIN_SMALL_WIDGET_HEIGHT,
+    opacity: dragSrc.current === idx && isEditing ? 0.45 : 1,
   });
 
   const contentProps = (w: Widget): WidgetContentProps => ({
@@ -1017,10 +1024,11 @@ export default function ProfileWidgetGrid({
         {widgets.map((w, idx) => (
           <div
             key={w.id}
-            style={cardStyle(w)}
+            style={cardStyle(w, idx)}
             draggable={isEditing}
             onDragStart={() => onDragStart(idx)}
-            onDragOver={e => e.preventDefault()}
+            onDragOver={e => { e.preventDefault(); if (isEditing) setDragOverIdx(idx); }}
+            onDragLeave={() => setDragOverIdx(null)}
             onDrop={() => onDrop(idx)}
           >
             {/* Edit-mode controls */}

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Eye, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import ProfileWidgetGrid, { DEFAULT_WIDGETS, type Widget } from '@/components/profile/ProfileWidgetGrid';
 
@@ -159,6 +159,24 @@ export default function EditProfilePage() {
               Drag widgets to customize your profile
             </p>
           </div>
+          {/* View Profile preview button — spec §6.4 */}
+          {profile.handle && (
+            <Link
+              href={`/u/${profile.handle}`}
+              target="_blank"
+              style={{
+                padding: '7px 14px', borderRadius: 10,
+                background: 'rgba(255,255,255,0.70)',
+                border: '1px solid rgba(160,195,240,0.30)',
+                display: 'flex', alignItems: 'center', gap: 5,
+                textDecoration: 'none', color: 'var(--de-heading)',
+                fontSize: 12, fontWeight: 700, flexShrink: 0,
+              }}
+            >
+              <Eye size={13} />
+              View
+            </Link>
+          )}
           <button
             onClick={handleSave}
             disabled={isSaving}
