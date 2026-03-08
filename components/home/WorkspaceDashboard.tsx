@@ -54,6 +54,7 @@ interface WorkspaceDashboardProps {
   profile: ProfileLike | null;
   posts: Post[];
   onOpenDrEams: () => void;
+  onFlipToProfile?: () => void;
 }
 
 // ── Mini sparkline ─────────────────────────────────────────────────────────────
@@ -377,6 +378,134 @@ function SocialWidgetCard({ card }: { card: SocialCard }) {
   );
 }
 
+// ── Simplified feed post card (Mockup 1 style) ────────────────────────────────
+
+function FeedPostCard({ post, index }: { post: Post; index: number }) {
+  const [liked, setLiked] = useState(false);
+  const name = post?.profiles?.display_name || `User ${index + 1}`;
+  const handle = post?.profiles?.handle || 'user';
+  const avatarUrl = post?.profiles?.avatar_url;
+  const content = post?.content || post?.body || 'Shared a new dream';
+  const initials = name[0]?.toUpperCase() || 'U';
+  const COLORS = ['#4A9ED6', '#c8981a', '#3b7dd8', '#22c55e', '#ec4899'];
+  const color = COLORS[index % COLORS.length];
+
+  return (
+    <div style={{ marginBottom: 14, paddingBottom: 14, borderBottom: '1px solid rgba(160,195,240,0.12)' }}>
+      {/* Avatar + name row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <div style={{
+          width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+          overflow: 'hidden', background: avatarUrl ? undefined : color,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 14, fontWeight: 700, color: '#fff',
+          boxShadow: `0 2px 8px ${color}44`,
+        }}>
+          {avatarUrl
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={avatarUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : initials}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{name}</div>
+          <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>@{handle}</div>
+        </div>
+        <span style={{ fontSize: 17, color: 'var(--de-text-dim)', letterSpacing: 3, lineHeight: 1 }}>···</span>
+      </div>
+
+      {/* Content text */}
+      <div style={{ fontSize: 13, color: 'var(--de-heading)', lineHeight: 1.5, marginBottom: 10 }}>
+        {content}
+      </div>
+
+      {/* Image placeholder */}
+      <div style={{
+        height: 110, borderRadius: 14,
+        background: `linear-gradient(135deg, ${color}28 0%, ${color}14 100%)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginBottom: 10, fontSize: 30, opacity: 0.7,
+        border: `1px solid ${color}22`,
+      }}>
+        🖼️
+      </div>
+
+      {/* Action row */}
+      <div style={{ display: 'flex', gap: 18 }}>
+        {([
+          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked(v => !v), active: liked },
+          { icon: '💬',               label: 'Comment', action: undefined,                active: false },
+          { icon: '↗',               label: 'Share',   action: undefined,                active: false },
+        ] as const).map(({ icon, label, action, active }) => (
+          <button
+            key={label}
+            type="button"
+            onClick={action}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5,
+              fontSize: 12, color: active ? '#e54' : 'var(--de-text-dim)',
+              fontWeight: 500, padding: 0,
+            }}
+          >
+            <span style={{ fontSize: 15 }}>{icon}</span>
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── My Dreams placeholder card ─────────────────────────────────────────────────
+
+const DREAM_TILES = [
+  { label: 'Music',  dot: '#c8981a', emoji: '🎵' },
+  { label: 'Games',  dot: '#4A9ED6', emoji: '🎮' },
+  { label: 'Create', dot: '#22c55e', emoji: '✏️' },
+  { label: 'Lab',    dot: '#6366f1', emoji: '🧪' },
+] as const;
+
+function MyDreamsCard() {
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.60)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderRadius: 24,
+      border: '1px solid rgba(255,255,255,0.85)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.09)',
+      padding: '16px 14px',
+      marginBottom: 16,
+    }}>
+      <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 12 }}>
+        My Dreams
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+        {DREAM_TILES.map(tile => (
+          <div key={tile.label} style={{
+            background: 'rgba(255,255,255,0.85)',
+            borderRadius: 16, padding: '12px 6px',
+            border: '1px solid rgba(160,195,240,0.2)',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+            position: 'relative',
+          }}>
+            {/* Live dot indicator */}
+            <div style={{
+              position: 'absolute', top: 7, right: 7,
+              width: 6, height: 6, borderRadius: '50%',
+              background: tile.dot,
+              boxShadow: `0 0 6px ${tile.dot}`,
+            }} />
+            <span style={{ fontSize: 20 }}>{tile.emoji}</span>
+            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-heading)' }}>{tile.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function BottomTabBar({ active = 'home' }: { active?: string }) {
   return (
     <div style={{
@@ -437,10 +566,11 @@ function BottomTabBar({ active = 'home' }: { active?: string }) {
 
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onFlipToProfile }: WorkspaceDashboardProps) {
   const router = useRouter();
   const [searchVal, setSearchVal] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
+  const [feedTab, setFeedTab] = useState<'home' | 'feed'>('home');
   const searchRef = useRef<HTMLDivElement>(null);
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const initials = name[0]?.toUpperCase() || 'D';
@@ -486,131 +616,199 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
         overflowX: 'hidden',
         paddingBottom: 100,
       }}>
-        {/* ── Sticky top header — full width glass ── */}
+        {/* ── Sticky top header — dreamengin + Flip to Profile (Mockup 1) ── */}
         <div style={{
           position: 'sticky', top: 0, zIndex: 50,
           background: 'rgba(220,232,248,0.88)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           borderBottom: '1px solid rgba(160,195,240,0.25)',
-          padding: '14px 16px 12px',
-          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '14px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           {/* dreamengin wordmark */}
           <span style={{
             fontFamily: 'Georgia, serif', fontStyle: 'italic',
             fontSize: 22, fontWeight: 400, color: '#c8981a',
-            letterSpacing: '-0.01em', flexShrink: 0,
+            letterSpacing: '-0.01em',
           }}>
             dreamengin
           </span>
 
-          {/* Search pill — expands to fill remaining space */}
-          <div ref={searchRef} style={{ flex: 1, position: 'relative' }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: 'rgba(255,255,255,0.75)',
-              borderRadius: searchOpen && filteredSuggestions.length > 0 ? '16px 16px 0 0' : 100,
-              padding: '9px 14px',
-              border: '1px solid rgba(160,195,240,0.30)',
-              boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
-            }}>
-              <Search size={13} style={{ color: 'var(--de-text-dim)', flexShrink: 0 }} />
-              <input
-                value={searchVal}
-                onChange={e => { setSearchVal(e.target.value); setSearchOpen(true); }}
-                onFocus={() => setSearchOpen(true)}
-                placeholder="Search everything…"
-                style={{ background: 'none', border: 'none', outline: 'none',
-                  fontSize: 13, color: 'var(--de-heading)', width: '100%' }}
-              />
-              {searchVal.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => { setSearchVal(''); setSearchOpen(false); }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}
-                >
-                  <X size={12} style={{ color: 'var(--de-text-dim)' }} />
-                </button>
-              )}
-            </div>
-            {/* Search suggestions dropdown */}
-            {searchOpen && filteredSuggestions.length > 0 && (
-              <div style={{
-                position: 'absolute', left: 0, right: 0, top: '100%',
-                background: 'rgba(255,255,255,0.97)',
-                border: '1px solid rgba(160,195,240,0.30)',
-                borderTop: 'none',
-                borderRadius: '0 0 16px 16px',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                zIndex: 100,
-                overflow: 'hidden',
-              }}>
-                {filteredSuggestions.map((s) => (
-                  <button
-                    key={s.label}
-                    type="button"
-                    onClick={() => {
-                      setSearchOpen(false);
-                      setSearchVal('');
-                      if (s.href) {
-                        router.push(s.href);
-                      } else if (s.label === 'Dr. Eams') {
-                        onOpenDrEams();
-                      }
-                    }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      width: '100%', padding: '10px 14px',
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      borderBottom: '1px solid rgba(160,195,240,0.12)',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <span style={{ fontSize: 16 }}>{s.icon}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{s.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Notification bell */}
-          <div style={{ position: 'relative', flexShrink: 0 }}>
-            <Bell size={20} style={{ color: 'var(--de-text-dim)' }} />
-            <div style={{
-              position: 'absolute', top: -1, right: -1,
-              width: 8, height: 8, borderRadius: '50%',
-              background: '#c8981a', border: '1.5px solid rgba(220,232,248,0.9)',
-            }} />
-          </div>
-
-          {/* Avatar */}
-          <Link href="/edit-profiledream" style={{
-            width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-            overflow: 'hidden',
-            background: avatarUrl ? undefined : 'linear-gradient(135deg, #c8981a, #4A9ED6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 700, color: '#fff', textDecoration: 'none',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-          }}>
-            {avatarUrl
-              // eslint-disable-next-line @next/next/no-img-element
-              ? <img src={avatarUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : initials}
-          </Link>
+          {/* Flip to Profile link */}
+          <button
+            type="button"
+            onClick={onFlipToProfile}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 13, color: '#c8981a', fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: 3, padding: 0,
+              opacity: onFlipToProfile ? 1 : 0,
+            }}
+          >
+            Flip to Profile ›
+          </button>
         </div>
 
         {/* ── Page body ── */}
         <div style={{ padding: '16px 14px 0' }}>
 
           {/* Greeting */}
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 14 }}>
             <div style={{ fontSize: 12, color: 'var(--de-text-dim)', fontWeight: 600 }}>{greeting},</div>
             <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>
               {name} 👋
             </div>
           </div>
+
+          {/* ── Secondary search + notifications row ── */}
+          <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
+            <div ref={searchRef} style={{ flex: 1, position: 'relative' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: 'rgba(255,255,255,0.75)',
+                borderRadius: searchOpen && filteredSuggestions.length > 0 ? '16px 16px 0 0' : 100,
+                padding: '9px 14px',
+                border: '1px solid rgba(160,195,240,0.30)',
+                boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
+              }}>
+                <Search size={13} style={{ color: 'var(--de-text-dim)', flexShrink: 0 }} />
+                <input
+                  value={searchVal}
+                  onChange={e => { setSearchVal(e.target.value); setSearchOpen(true); }}
+                  onFocus={() => setSearchOpen(true)}
+                  placeholder="Search everything…"
+                  style={{ background: 'none', border: 'none', outline: 'none',
+                    fontSize: 13, color: 'var(--de-heading)', width: '100%' }}
+                />
+                {searchVal.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => { setSearchVal(''); setSearchOpen(false); }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}
+                  >
+                    <X size={12} style={{ color: 'var(--de-text-dim)' }} />
+                  </button>
+                )}
+              </div>
+              {/* Search suggestions dropdown */}
+              {searchOpen && filteredSuggestions.length > 0 && (
+                <div style={{
+                  position: 'absolute', left: 0, right: 0, top: '100%',
+                  background: 'rgba(255,255,255,0.97)',
+                  border: '1px solid rgba(160,195,240,0.30)',
+                  borderTop: 'none',
+                  borderRadius: '0 0 16px 16px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                  zIndex: 100,
+                  overflow: 'hidden',
+                }}>
+                  {filteredSuggestions.map((s) => (
+                    <button
+                      key={s.label}
+                      type="button"
+                      onClick={() => {
+                        setSearchOpen(false);
+                        setSearchVal('');
+                        if (s.href) {
+                          router.push(s.href);
+                        } else if (s.label === 'Dr. Eams') {
+                          onOpenDrEams();
+                        }
+                      }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        width: '100%', padding: '10px 14px',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        borderBottom: '1px solid rgba(160,195,240,0.12)',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <span style={{ fontSize: 16 }}>{s.icon}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{s.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Notification bell (secondary) */}
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <Bell size={20} style={{ color: 'var(--de-text-dim)' }} />
+              <div style={{
+                position: 'absolute', top: -1, right: -1,
+                width: 8, height: 8, borderRadius: '50%',
+                background: '#c8981a', border: '1.5px solid rgba(220,232,248,0.9)',
+              }} />
+            </div>
+            {/* Avatar link (secondary) */}
+            <Link href="/edit-profiledream" style={{
+              width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+              overflow: 'hidden',
+              background: avatarUrl ? undefined : 'linear-gradient(135deg, #c8981a, #4A9ED6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 13, fontWeight: 700, color: '#fff', textDecoration: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            }}>
+              {avatarUrl
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={avatarUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : initials}
+            </Link>
+          </div>
+
+          {/* ── Home / Feed card — frosted glass (Mockup 1) ── */}
+          <div style={{
+            background: 'rgba(255,255,255,0.68)',
+            backdropFilter: 'blur(28px)',
+            WebkitBackdropFilter: 'blur(28px)',
+            borderRadius: 24,
+            border: '1px solid rgba(255,255,255,0.85)',
+            boxShadow: '0 12px 48px rgba(0,0,0,0.13), 0 4px 16px rgba(0,0,0,0.07)',
+            overflow: 'hidden',
+            marginBottom: 16,
+          }}>
+            {/* Home / Feed tabs */}
+            <div style={{
+              display: 'flex',
+              borderBottom: '1px solid rgba(160,195,240,0.18)',
+              padding: '0 16px',
+            }}>
+              {(['home', 'feed'] as const).map(tab => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setFeedTab(tab)}
+                  style={{
+                    padding: '14px 18px',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 15, fontWeight: feedTab === tab ? 800 : 500,
+                    color: feedTab === tab ? '#c8981a' : 'var(--de-text-dim)',
+                    borderBottom: feedTab === tab ? '2.5px solid #c8981a' : '2.5px solid transparent',
+                    marginBottom: -1,
+                    textTransform: 'capitalize',
+                  }}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            {/* Feed items */}
+            <div style={{ padding: '14px 16px 4px' }}>
+              {feedPosts.slice(0, 3).map((post, i) => (
+                <FeedPostCard key={post.id || i} post={post} index={i} />
+              ))}
+              <Link href="/discover" style={{
+                display: 'flex', alignItems: 'center', gap: 4, padding: '8px 0 10px',
+                fontSize: 12, color: 'var(--de-accent)', fontWeight: 700, textDecoration: 'none',
+              }}>
+                View all <ChevronRight size={13} />
+              </Link>
+            </div>
+          </div>
+
+          {/* ── My Dreams card (Mockup 1) ── */}
+          <MyDreamsCard />
 
           {/* ── WORKSPACE WINDOW PANEL — full width, elevated ── */}
           <div style={{
