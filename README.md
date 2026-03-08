@@ -975,4 +975,62 @@ Everything is user-first.
 Everything is privacy-first.
 Everything must feel owned by the user.
 
+⸻
+
+27. Generation Law (AI Build Constraint)
+
+Every AI agent working on DREAMengin — Dr. Eams, IDARi, TheBoogieMan.Ai, or any external Copilot — must follow the Generation Law defined in docs/GENERATION_LAW.md.
+
+27.1 Allowed-Output Formula
+
+For each generation pass, compute:
+
+	allowed next output = base spec fidelity × (ДР/2) × (1 + ДРх)
+
+	•	base spec fidelity — how closely the current codebase matches this README (0–1 scale)
+	•	ДР — the delta ratio: fraction of the spec addressed by this pass
+	•	ДРх — the residual-adjusted delta ratio (see docs/GENERATION_LAW.md)
+
+A pass whose scope would exceed the allowed output must be split into smaller passes or down-graded to patch-only mode.
+
+27.2 App-Build Load (χ)
+
+Before writing a single line, compute:
+
+	χ = w₁T + w₂F + w₃D + w₄A + w₅U
+
+Where:
+	•	T = tasks being attempted in the same pass
+	•	F = files touched
+	•	D = dependency surface changed (new imports, packages, DB columns)
+	•	A = architecture depth affected (how many of the 4 layers are touched)
+	•	U = unresolved spec ambiguities carried into this pass
+
+Mode thresholds:
+	•	χ < 4 → create — new files, new routes, new systems permitted
+	•	4 ≤ χ < 8 → conform — modify existing files to match spec; no new top-level systems
+	•	χ ≥ 8 → patch only — single-file, single-function fixes; no structural change
+
+If a planned pass yields χ ≥ 8, the agent must decompose it into sub-passes before proceeding.
+
+27.3 Residual Classes
+
+Residuals are structured mismatches between actual output and spec-intended output:
+
+	r = actual output − predicted output
+
+Every pass must audit for all seven residual classes:
+
+	•	architecture residual — does code match the 4-layer Dream model?
+	•	naming residual — are canonical README names used?
+	•	token residual — are gold/sky/white design tokens applied correctly?
+	•	behavior residual — does every visible action do something real?
+	•	privacy residual — was private builder state exposed publicly?
+	•	performance residual — are render-on-demand and fps rules respected?
+	•	projection residual — does ViewProfile show only saved shared projections?
+
+DREAMengin-specific checks per class and a per-pass audit checklist are in docs/GENERATION_LAW.md.
+
+⸻
+
 END SPEC
