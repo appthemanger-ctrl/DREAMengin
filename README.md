@@ -847,7 +847,117 @@ The launch version must:
 
 ⸻
 
-26. Final Product Philosophy
+**27. Addendum: Expanded Platform Guarantees and Behaviors**  
+
+This section formalizes additional commitments and design requirements that emerged from review, ensuring the platform’s privacy-first, user-first foundation is reinforced in every layer.
+
+---
+
+### 27.1 Data Portability and User Control
+
+**27.1.1 Export Format**  
+Users may export all their personal data—including profile information, widget configurations, created content, messages, and purchase history—in a **machine-readable, non-proprietary format** (JSON + associated media files). The export must be available through a clearly accessible interface (e.g., within Account Settings) and delivered as a downloadable archive within 48 hours of request.
+
+**27.1.2 Backup Guarantees**  
+The platform does not guarantee automatic backups of user-generated content beyond standard database redundancy. However, users are encouraged to use the export feature as their own backup mechanism. The platform will retain data only as long as the account is active or required by law.
+
+**27.1.3 Account Deletion**  
+Users may permanently delete their account and all associated data at any time. Deletion must be irreversible after a grace period (e.g., 30 days) during which the account can be restored. The deletion process must clearly inform the user of what data will be removed and what (if anything) may remain (e.g., public comments in forums, where removal would break threads, must be anonymized rather than deleted).
+
+---
+
+### 27.2 Failure State Design Principles
+
+Every interaction must anticipate failure and respond in a way that preserves user trust and system integrity.
+
+**27.2.1 Widget Source Deletion**  
+If a widget’s data source (e.g., a specific feed, a connected service) is deleted or becomes unavailable:
+- The widget should display a **graceful placeholder** indicating the source is gone, along with an option to reconfigure or remove the widget.
+- The widget must not crash the surrounding surface or affect other widgets.
+- Notifications may alert the user to the broken source, but only if the user has opted into such alerts.
+
+**27.2.2 Daydreamengin Action Failures**  
+When an action within a Side B Engin fails (e.g., publish error, save conflict):
+- The system must display a **clear, non-technical error message** explaining what went wrong and suggesting next steps (retry, check settings, contact support).
+- The failure must not leave the user in an inconsistent state (e.g., partial saves must be rolled back or flagged as drafts).
+- Critical failures (e.g., payment processing) must trigger an immediate notification and, where appropriate, log an incident for admin review (via IDARi).
+
+**27.2.3 Dr. Eams Misunderstanding**  
+If Dr. Eams cannot understand a user request:
+- It must respond with a **humble, helpful message** (e.g., “I didn’t quite catch that. Could you rephrase or try one of these options?”).
+- It should offer fallback options: manual search, browsing help topics, or connecting to a human support contact if available.
+- Dr. Eams must never simulate understanding or invent an action.
+
+**27.2.4 Marketplace Purchase Failure**  
+Failed transactions (payment declined, item unavailable) must:
+- Immediately revert any pending state (e.g., remove temporary holds on items).
+- Show a clear explanation and next steps (e.g., “Your payment didn’t go through. Please check your payment method or try again.”).
+- Never charge the user without explicit confirmation of success.
+
+**27.2.5 RLS Blocking Legitimate Access**  
+If Row Level Security incorrectly blocks a user’s access to their own content (due to policy misconfiguration or race condition):
+- The system should log the incident (via TheBoogieMan.Ai) for admin review.
+- The user-facing surface should display a generic “content unavailable” message with an option to report the problem.
+- Admins (via IDARi) must be able to audit and correct such failures without exposing private data.
+
+---
+
+### 27.3 Offline Behavior and Resilience
+
+**27.3.1 Offline Capability**  
+While DREAMengin is primarily an online platform, the following surfaces **must** support basic offline read access:
+- HomeDream (cached version of last-loaded feed and widget states)
+- View Profile (cached public profile data)
+- Previously accessed Daydream surfaces (if the user explicitly marks them for offline use)
+
+**27.3.2 Caching Policy**  
+Cached data must be:
+- Encrypted at rest on the device.
+- Automatically refreshed when connectivity is restored.
+- Subject to user control (clear cache, disable offline mode).
+- Limited in size and age to prevent stale or excessive storage.
+
+**26.3.3 Offline Actions**  
+Any action initiated offline (e.g., composing a post, reconfiguring a widget) must be queued and executed when connectivity returns, with clear visual indication of pending actions. Conflicts (e.g., edits made both offline and online) must be resolved via user prompt or a deterministic last-write-wins rule, with an audit trail.
+
+---
+
+### 27.4 Analytics Philosophy and Privacy
+
+**27.4.1 Telemetry Principles**  
+- **No data collection without consent:** All analytics are opt-in at account creation, with granular controls (e.g., crash reports, usage patterns, feature interaction).
+- **Anonymization by default:** If the user opts into analytics, data must be stripped of personally identifiable information (PII) before transmission.
+- **Minimal necessary:** Only collect data essential for improving the product and fixing errors. No behavioral profiling for advertising.
+- **Transparency:** Users can view exactly what data is collected, how it is used, and request deletion of their analytics history at any time.
+
+**27.4.2 Implementation**  
+Analytics will be handled by a privacy-respecting provider (e.g., Plausible, Simple Analytics) or a self-hosted solution that adheres to the above principles. No analytics data will be shared with third parties.
+
+---
+
+### 27.5 TheBoogieMan.Ai Logging and Audit Scope
+
+**27.5.1 Logged Events**  
+TheBoogieMan.Ai logs only events related to policy enforcement and system integrity, including:
+- Attempted violations of privacy rules (e.g., access to private data without permission)
+- Anomalous patterns that might indicate abuse or malfunction
+- Consensus decisions (when triad approval is required)
+- Administrative actions taken by IDARi
+
+**27.5.2 Data in Logs**  
+- Logs **must not** contain user-identifiable information unless absolutely necessary for debugging a specific policy violation. In such cases, the identifier must be hashed and accessible only to authorized admins under explicit protocols.
+- All logs are encrypted at rest and retained for a maximum of 90 days, after which they are permanently deleted.
+
+**27.5.3 Audit Access**  
+- Only designated platform administrators may access TheBoogieMan.Ai logs, and such access is itself logged.
+- Regular audits of the logging system will be conducted to ensure compliance with privacy commitments.
+- Users have the right to request information about whether their data appeared in TheBoogieMan.Ai logs, subject to verification and legal constraints.
+
+---
+
+*These additions reinforce DREAMengin’s commitment to being a platform users can truly own, trust, and rely on—even when things go wrong.*
+
+28. Final Product Philosophy
 
 DREAMengin is a modular creative and social operating environment.
 
