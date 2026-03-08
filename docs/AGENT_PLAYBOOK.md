@@ -24,7 +24,9 @@ DREAMengin is a **spatial, privacy-first creative OS** — not a traditional web
 - Three AI agents: **Dr. Eams** (user assistant), **IDARi** (admin fixer), **TheBoogieMan** (policy enforcer)
 - Navigation is **gesture/τ-based** — not browser routing; the **Golden Button** is the only travel system
 
-**The single source of truth for what the product is:** `README.md` (859 lines, always authoritative).
+**The single source of truth for what the product is:** `README.md` (always authoritative).
+
+**The binding AI build constraint:** `docs/GENERATION_LAW.md` — compute χ and select a mode before every generation pass.
 
 ---
 
@@ -247,6 +249,7 @@ This section maps the most important files and what they do. Read this before se
 |------|---------|
 | `README.md` | **Master product spec — always authoritative** |
 | `docs/AGENT_PLAYBOOK.md` | **This file — read at session start** |
+| `docs/GENERATION_LAW.md` | **AI build constraint — compute χ before every pass** |
 | `docs/ARCHITECTURE.md` | How repo maps to spec; route and implementation zones |
 | `docs/FEATURE_STATUS.md` | Live feature completion matrix (✅/🟡/⏳) |
 | `docs/BUGS.md` | Auto-generated bugs tracker (run `node scripts/update-bugs.mjs`) |
@@ -498,6 +501,7 @@ Feature status:    docs/FEATURE_STATUS.md
 Bugs tracker:      docs/BUGS.md   (auto-generated — run node scripts/update-bugs.mjs)
 Architecture:      docs/ARCHITECTURE.md
 Rules:             docs/LAW.md
+Build constraint:  docs/GENERATION_LAW.md  (χ + residual audit)
 Design:            docs/THEME.md
 Security:          docs/SECURITY.md
 AI agents:         docs/DR_EAMS.md, docs/IDARI_CONTRACT.md, docs/BOOGIEMAN_POLICY.md
