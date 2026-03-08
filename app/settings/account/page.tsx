@@ -91,7 +91,7 @@ export default async function AccountSettingsPage() {
           </div>
           <div className="de-widget-actions" style={{ flexDirection: 'column', gap: 10 }}>
             <Link href="/edit-profiledream" className="de-btn de-btn-primary" style={{ width: '100%', textAlign: 'center' }}>
-              Edit Profile
+              Edit ProfileDream
             </Link>
             <Link href="/settings/security" className="de-btn de-btn-ghost" style={{ width: '100%', textAlign: 'center' }}>
               Change Password

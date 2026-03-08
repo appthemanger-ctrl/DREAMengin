@@ -43,7 +43,7 @@ export default function AddDreamCTA({ hasWidgets, onOpenLibrary }: AddDreamCTAPr
         fontSize: 13, color: 'var(--de-text-dim)',
         lineHeight: 1.5, maxWidth: 240, marginBottom: 20,
       }}>
-        Connect a service or pick a widget to bring your space to life.
+        Connect a service or pick a Dream to bring your space to life.
       </p>
       <button
         type="button"
@@ -56,7 +56,7 @@ export default function AddDreamCTA({ hasWidgets, onOpenLibrary }: AddDreamCTAPr
           boxShadow: '0 4px 20px rgba(42,138,184,0.3)',
         }}
       >
-        + Add Widget
+        + Add Dream
       </button>
     </div>
   );

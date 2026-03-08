@@ -169,13 +169,13 @@ export default function EditProfileDreamPage() {
               Edit ProfileDream
             </h1>
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0, lineHeight: 1 }}>
-              Arrange Dreams and choose what View Profile exposes
+              Private builder — set visibility per Dream before saving to ViewProfile
             </p>
           </div>
           {/* View Profile preview button — spec §6.4 */}
           {profile.handle && (
             <Link
-              href={`/u/${profile.handle}`}
+              href={`/profile/${profile.handle}`}
               
               style={{
                 padding: '7px 14px', borderRadius: 10,

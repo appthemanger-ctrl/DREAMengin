@@ -1,6 +1,6 @@
 # DREAMengin Feature Status
 
-Last updated: 2026-03-06  
+Last updated: 2026-03-08 (IDARi alignment pass 3)
 Source of truth for product naming: `README.md`
 
 Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly aligned
@@ -10,8 +10,8 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 | Surface | Status | Repo truth |
 |---|---|---|
 | HomeDream | ✅ | Canonical route exists at `/homedream`; support route also exists at `/home`. |
-| EditProfileDream | 🟡 | Canonical route exists at `/edit-profiledream`; support route also exists at `/edit-profile`. Builder logic exists but naming is still mixed. |
-| ViewProfile | 🟡 | Canonical route exists at `/view-profile`; public/shared output also lives at `/profile/[handle]`. Public projection boundaries need cleaner language and wiring. |
+| EditProfileDream | 🟡 | Canonical route exists at `/edit-profiledream`; support route also exists at `/edit-profile`. Header subtitle now says "Private builder — set visibility per Dream before saving to ViewProfile". View Profile preview button now correctly links to `/profile/[handle]`. Naming is mostly aligned; projection boundary is clearer. |
+| ViewProfile | 🟡 | Canonical route at `/view-profile` redirects to `/profile/[handle]`. Public profile page now shows "ViewProfile" heading for owner (not "My Profile"). Edit link now goes to `/edit-profiledream` (canonical). Privacy enforcement added: public view only renders Dreams with `visibilityTier==='everyone'`. Locked empty state shown when no Dreams are explicitly made public. |
 
 ## 2. Dreams system
 
@@ -21,7 +21,7 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 | Connector/Identity layer | ✅ | `components/dreams/DreamConnectorLayer.tsx` exists. |
 | Feature layer | ✅ | `components/dreams/DreamFeatureLayer.tsx` exists. |
 | Output/Projection layer | ✅ | `components/dreams/DreamOutputLayer.tsx` exists. |
-| Legacy widget absorption into Dreams naming | 🟡 | `components/widgets/*` still exists and is being repurposed. |
+| Legacy widget absorption into Dreams naming | 🟡 | `components/widgets/*` still exists. UI labels in `AddDreamCTA`, `ConnectWidgetPrompt`, `ConnectorWidgetPicker`, and `ProfileWidgetGrid` now use "Dream" language. File names in `components/widgets/` remain for compatibility but all visible labels use spec names. |
 | Automatic Super Widget composition | 🟡 | `components/dreams/SuperDreamWidget.tsx` exists, but profile-wide composition rules still need full alignment. |
 
 ## 3. Daydream pairs
@@ -40,17 +40,17 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 
 | Module | Status | Repo truth |
 |---|---|---|
-| DreamMenu | 🟡 | Menu systems exist in `components/menus/*`, `components/dreamnav/*`, and `components/HomeRadialNav.tsx`; naming is still mixed. |
+| DreamMenu | 🟡 | `SystemRadialMenu` panel title updated to "DreamMenu"; "Account" item relabeled to "Edit ProfileDream"; "Go Home" to "HomeDream". `DualBottomMenu` right panel title updated to "DreamMenu"; "Profiles" item to "ViewProfile"; "Marketplace" to "DreamMarketplace". Core naming is now spec-first in menus. Further cleanup of legacy label references still possible. |
 | DreamDM | ✅ | `app/messages/page.tsx` and `app/api/messages/route.ts` exist. |
 | DreamShop | ✅ | `app/shop/page.tsx` and `app/api/shop/route.ts` exist. |
 | DreamMarketplace | ✅ | `app/marketplace/page.tsx` exists. |
-| DreamAds | 🟡 | `app/ads/page.tsx` exists; user-owned DreamAds vs platform promotions still need clearer separation in code and UI language. |
+| DreamAds | 🟡 | `app/ads/page.tsx` header now says "DreamAds" (not "Ads Marketplace"). "My DreamAds Slots" section now tagged "User-owned — you control placement & pricing". Buyer section renamed "Buy Ad Space — Slots published by other creators — not platform ads". Create page updated to say "DreamAds Slot". User-owned vs platform separation is now explicit in UI. |
 
 ## 5. AI triad
 
 | AI | Status | Repo truth |
 |---|---|---|
-| Dr. Eams | ✅ | Canonical route exists at `/api/ai/eams`; legacy support routes still exist under `/api/dr-eams/*`. |
+| Dr. Eams | ✅ | Canonical route exists at `/api/ai/eams`; legacy support routes still exist under `/api/dr-eams/*`. All Dr. Eams assistant responses now use "Edit ProfileDream" and "DreamAds" spec names. |
 | IDARi | ✅ | `/api/ai/idari` exists. |
 | TheBoogieMan.Ai | ✅ | `/api/ai/boogieman` exists. |
 
@@ -58,8 +58,8 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 
 | Rule | Status | Repo truth |
 |---|---|---|
-| Nothing public by default | 🟡 | This is the intended rule and is documented throughout the repo, but naming and projection boundaries still need cleanup. |
-| Save before public/shared update | 🟡 | Edit/view split exists, but docs and some owner-facing profile flows still need stronger separation. |
+| Nothing public by default | 🟡 | `ProfileWidgetGrid` now enforces this in public view: only renders Dreams with `visibilityTier==='everyone'`; shows locked empty state otherwise. LAW.md §2 is now enforced at the component level. DB-backed visibility syncing (via `widget_instances`) exists but full flow from DB on public page load still needs wiring. |
+| Save before public/shared update | 🟡 | EditProfileDream saves before navigating to ViewProfile. Subtitle now explicitly says "Private builder". Quick-link to EditProfileDream added to CoreDream ProfileFace. |
 | No fake actions | ✅ | Repo direction and docs explicitly reject fake buttons and fake states. |
 
 ## 7. Design language
@@ -72,7 +72,7 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 
 ## 8. Current alignment priorities
 
-1. Make spec names primary everywhere in docs and UI copy.
-2. Continue folding legacy widget naming into Dreams naming.
-3. Tighten EditProfileDream → ViewProfile projection boundaries.
-4. Repurpose extra legacy routes into spec-defined systems instead of keeping them as free-floating product names.
+1. Wire public profile page to load actual saved widget visibility from DB (not just localStorage).
+2. Continue folding remaining `components/widgets/*.tsx` file names into Dreams naming.
+3. Repurpose extra legacy routes into spec-defined systems instead of keeping them as free-floating product names.
+4. Tighten automatic SuperDreamWidget composition rules for profile output.

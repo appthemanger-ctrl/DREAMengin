@@ -213,7 +213,7 @@ export default function ConnectorWidgetPicker({
                 Connect a Service
               </div>
               <div style={{ fontSize: 11, color: '#888', marginTop: 1 }}>
-                Tap to add as a widget
+                Tap to add as a Dream
               </div>
             </div>
           </div>
