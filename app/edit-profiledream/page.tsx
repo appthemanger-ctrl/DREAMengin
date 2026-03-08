@@ -169,7 +169,7 @@ export default function EditProfileDreamPage() {
               Edit ProfileDream
             </h1>
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0, lineHeight: 1 }}>
-              Private builder — set visibility per Dream before saving to ViewProfile
+              Editing Profile Dream
             </p>
           </div>
           {/* View Profile preview button — spec §6.4 */}
@@ -241,6 +241,113 @@ export default function EditProfileDreamPage() {
       {/* ── Widgets tab ── */}
       {activeTab === 'widgets' && (
         <div style={{ padding: '16px 14px' }}>
+
+          {/* ── My Dream Profile section header ── */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 14,
+          }}>
+            <div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--de-heading)' }}>My Dream Profile</div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 2 }}>
+                Private builder — set visibility per Dream
+              </div>
+            </div>
+            <button type="button" style={{
+              background: 'rgba(255,255,255,0.70)',
+              border: '1px solid rgba(160,195,240,0.30)',
+              borderRadius: 10, padding: '6px 12px',
+              fontSize: 16, color: 'var(--de-text-dim)', cursor: 'pointer',
+              fontWeight: 700, lineHeight: 1,
+            }}>
+              ···
+            </button>
+          </div>
+
+          {/* ── My Vibe music widget (Mockup 3) ── */}
+          <div style={{
+            background: 'rgba(255,255,255,0.75)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: 22,
+            border: '1px solid rgba(255,255,255,0.90)',
+            boxShadow: '0 6px 24px rgba(0,0,0,0.10)',
+            overflow: 'hidden',
+            marginBottom: 16,
+          }}>
+            {/* Widget header */}
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '14px 16px 10px',
+            }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>My Vibe</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{
+                  fontSize: 10, fontWeight: 700, color: '#c8981a',
+                  background: 'rgba(200,152,26,0.12)',
+                  border: '1px solid rgba(200,152,26,0.25)',
+                  borderRadius: 100, padding: '3px 8px',
+                }}>
+                  Music
+                </span>
+                <button type="button" style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: 14, color: 'var(--de-text-dim)', padding: 0, lineHeight: 1,
+                }}>
+                  ×
+                </button>
+              </div>
+            </div>
+
+            {/* Concert image placeholder */}
+            <div style={{
+              height: 140,
+              background: 'linear-gradient(135deg, #1a0a2e 0%, #2d1654 40%, #c8981a44 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              position: 'relative',
+              margin: '0 14px',
+              borderRadius: 14,
+              marginBottom: 12,
+            }}>
+              <span style={{ fontSize: 42, opacity: 0.8 }}>🎤</span>
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0, height: 40,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)',
+                borderRadius: '0 0 14px 14px',
+              }} />
+            </div>
+
+            {/* Song info + playback */}
+            <div style={{ padding: '0 16px 16px' }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 2 }}>
+                Starlight Muse ft MOON
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 12 }}>
+                Tick &amp; remsecia s feuiltile
+              </div>
+              {/* Playback controls */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, alignItems: 'center' }}>
+                {['⏮', '⏸', '⏭'].map(icon => (
+                  <button key={icon} type="button" style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 18, color: 'var(--de-heading)', padding: 0,
+                  }}>
+                    {icon}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Drag Dream section ── */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 12,
+          }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)' }}>Drag Dream</span>
+            <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Drag to reorder</span>
+          </div>
+
           <ProfileWidgetGrid
             displayName={profile.display_name || profile.handle || 'You'}
             handle={profile.handle}
@@ -251,6 +358,20 @@ export default function EditProfileDreamPage() {
             initialWidgets={widgets}
             onSave={setWidgets}
           />
+
+          {/* ── Gold infinity button ── */}
+          <div style={{ textAlign: 'center', marginTop: 28 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 60, height: 60, borderRadius: '50%',
+              background: 'linear-gradient(135deg, #c8981a, #e0b830)',
+              boxShadow: '0 6px 24px rgba(200,152,26,0.50)',
+              fontSize: 26, color: '#fff', fontWeight: 800,
+              cursor: 'pointer',
+            }}>
+              ∞
+            </div>
+          </div>
         </div>
       )}
 

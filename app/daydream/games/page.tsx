@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Gamepad2, Trophy, Star, Playback, Zap } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Trophy, Star, Play, Zap } from 'lucide-react';
 import WordSprint from '@/components/games/WordSprint';
 import MemoryGrid from '@/components/games/MemoryGrid';
 import SpeedTap from '@/components/games/SpeedTap';
@@ -72,7 +72,7 @@ export default async function GamesDaydreamPage() {
               </div>
             </div>
             <div className="de-widget-actions">
-              <Link href="/game" className="de-btn de-btn-primary" style={{ gap: 8 }}><Playback className="w-4 h-4 fill-current" /> Playback Now</Link>
+              <Link href="/game" className="de-btn de-btn-primary" style={{ gap: 8 }}><Play className="w-4 h-4 fill-current" /> Playback Now</Link>
               <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 'auto' }}><Zap className="w-3 h-3 inline mr-1" style={{ color: 'var(--de-gold)' }} />3 levels · dual joystick</span>
             </div>
           </div>
@@ -143,7 +143,7 @@ export default async function GamesDaydreamPage() {
             </div>
             <div className="de-widget-actions">
               <Link href="/game" className="de-btn de-btn-ghost text-xs">
-                <Playback className="w-3 h-3 fill-current" /> Playback to rank up
+                <Play className="w-3 h-3 fill-current" /> Playback to rank up
               </Link>
             </div>
           </div>
