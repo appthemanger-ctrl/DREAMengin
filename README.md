@@ -8,7 +8,9 @@ Date: March 6, 2026
 
 1. Purpose and Product Definition
 
-DREAMengin is a customizable web app for creating, sharing, organizing, and connecting interactive modules across personal, creative, and social spaces. A social modular app whose navigation begins as a calm HomeDream and matures into an iOS Photos-style stacked surface system across the whole product. 
+DREAMengin is a customizable web app for creating, sharing, organizing, and connecting interactive modules across personal, creative, and social spaces. A social modular app whose navigation begins as a calm HomeDream and matures into an iOS Photos-style stacked surface system across the whole product.  DreamEngin introduces the DreamDM Bar connect you continuously to different sides of your world. 
+
+
 *This is a real product specification, not a concept sketch.*
 
 The system is privacy-first, user-first, deeply customizable, modular, interconnected, and built for full creative freedom.
@@ -211,6 +213,8 @@ Users may customize:
 
 Edit ProfileDream is the private builder surface for the user’s profile and public/shared-facing presentation.
 
+It is accessed from HomeDream and acts as the editing version of the profile surface.
+
 5.2 Functions
 
 Users may:
@@ -229,6 +233,9 @@ Users may:
 	•	edits must be reversible
 	•	layout must persist
 	•	no private HomeDream content appears publicly without explicit user action
+	•	Edit ProfileDream may visually match the public profile layout, but it remains a private builder surface
+	•	moving widgets in Edit ProfileDream does not automatically update the public-facing profile
+	•	public-facing changes occur only when the user explicitly confirms Update Public View
 
 5.4 Profile Configuration
 
@@ -241,6 +248,16 @@ Users may configure:
 	•	layout hierarchy
 	•	thematic styling
 
+5.5 View Flow
+
+The intended profile flow is:
+
+	•	HomeDream → Edit ProfileDream
+	•	inside Edit ProfileDream, the user may choose Update Public View
+	•	inside Edit ProfileDream, the user may choose View Profile / Public View to see the public-facing result
+
+Edit ProfileDream is not itself the public view, even when it visually resembles it.
+
 ⸻
 
 6. View Profile (Public/Shared Output Surface)
@@ -249,13 +266,17 @@ Users may configure:
 
 View Profile is the public or shared-facing result of what the user builds in Edit ProfileDream.
 
+It is the public-facing profile surface and does not act as the live editing surface.
+
 6.2 Access and Preview
-	•	View Profile is a separate link available from Edit ProfileDream so the user can preview before saving.
+	•	View Profile is reached from Edit ProfileDream.
+	•	The View Profile / Public View control inside Edit ProfileDream opens the public-facing profile view.
+	•	Users do not edit directly inside View Profile.
 
 6.3 Required Behavior
 
 View Profile must:
-	•	reflect the current profile configuration
+	•	reflect the current public profile configuration
 	•	show only explicitly allowed public/shared content
 	•	preserve widget interactions allowed in public context
 	•	never expose private HomeDream content
@@ -265,10 +286,19 @@ View Profile must:
 6.4 Preview Before Save Requirements
 
 Inside Edit ProfileDream, the user must be able to:
-	•	click View Profile
+	•	click View Profile / Public View
 	•	see the profile as a viewer would see it
 	•	return to editing
+	•	click Update Public View when ready
 	•	save only when satisfied
+
+6.5 Public View Update Rule
+
+View Profile does not live-update from widget movement inside Edit ProfileDream.
+
+The public-facing profile changes only after explicit user confirmation through Update Public View.
+
+This separation helps preserve intentional publishing and allows users to compare their private builder state against the public-facing result.
 
 ⸻
 
@@ -1033,4 +1063,135 @@ DREAMengin-specific checks per class and a per-pass audit checklist are in docs/
 
 ⸻
 
-END SPEC
+29. DreamDM Bar (Persistent Interaction Rail)
+
+29.1 Purpose
+
+The DreamDM Bar is a persistent interaction rail that serves as the communication, notification, and quick-action layer across the DREAMengin system.
+
+It exists as the boundary interface between the active surface and the Dream layer, allowing users to interact, compose, respond, and manage notifications without leaving their current context.
+
+The DreamDM Bar must always preserve the user’s working state.
+
+29.2 Position and Behavior
+
+The DreamDM Bar exists between the top content surface and the bottom Dream layer.
+
+Active Surface
+(HomeDream / Video / Game / Code / Feed)
+
+────────────
+DreamDM Bar
+────────────
+
+Dream Layer
+(Dream widgets / Daydream access)
+
+The bar can move between three primary states:
+
+Collapsed
+- minimal bar
+- shows notification indicators
+- shows compose icon
+- unobtrusive
+
+Expanded
+- opens the message board
+- shows active drafts
+- shows notifications
+- allows quick reply
+
+Pinned
+- locks to the top or bottom edge
+- allows multitasking while the user interacts with other surfaces
+
+29.3 Core Functions
+
+The DreamDM Bar provides:
+
+- quick message composition
+- notification aggregation
+- draft persistence
+- quick replies
+- search shortcuts
+- content routing
+- quick post creation
+- command surface access
+
+Users should be able to:
+
+- start writing a message without leaving the current surface
+- respond to notifications inline
+- save or resume drafts
+- route content into DreamDM, feeds, or widgets
+
+29.4 Persistent Draft Memory
+
+Messages written in the DreamDM Bar must persist until the user deletes or sends them.
+
+This includes persistence across:
+
+- surface changes
+- page refresh
+- browser restart
+- temporary offline states
+
+The system must restore the last draft automatically when the bar is reopened.
+
+29.5 Notification Aggregation
+
+The DreamDM Bar functions as the platform notification center.
+
+Instead of presenting a long system list, notifications appear as interactive cards inside the bar.
+
+Each notification may allow:
+
+- quick reply
+- open source surface
+- dismiss
+- save for later
+
+Notifications may originate from:
+
+- DreamDM conversations
+- widget signals
+- Daydream activities
+- marketplace events
+- system announcements
+
+29.6 Multitasking Interaction
+
+The DreamDM Bar allows simultaneous interaction with other surfaces.
+
+Examples include:
+
+- watching video while replying to messages
+- coding while referencing a draft message
+- browsing feeds while responding to notifications
+- playing a game while opening a conversation
+
+The bar must never force the user to leave their current activity.
+
+29.7 State Reset
+
+double tapping the Gold Button (Home) resets surface position while preserving message state.
+
+:
+
+- the DreamDM Bar is, Home returns the user to HomeDream without deleting the draft.
+- If the bar is collapsed, Home returns the user to the main HomeDream feed.
+
+Drafts and notifications remain intact.
+
+29.8 Design Principle
+
+The DreamDM Bar exists to eliminate context switching.
+
+Users should never need to leave their current activity simply to:
+
+- send a message
+- respond to a notification
+- save a thought
+- route content
+
+The DreamDM Bar provides a continuous interaction channel across the entire DREAMengin system.
