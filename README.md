@@ -1196,8 +1196,6 @@ Users should never need to leave their current activity simply to:
 
 The DreamDM Bar provides a continuous interaction channel across the entire DREAMengin system.
 
-***this is critical for app labeled 22 but the spec is not in numerical order with web*****+
-
 bro this thing is gonna look simple and you’ll be able to do so much i had to write its own system architecture 
 
 
