@@ -51,29 +51,6 @@ export default function EditProfileDreamPage() {
       };
       setProfile(loadedProfile);
 
-      let loadedWidgets = DEFAULT_WIDGETS;
-      try {
-        const resp = await fetch('/api/widgets/instances?surface=PROFILE');
-        if (resp.ok) {
-          const json = await resp.json() as { items?: { id: string; widget_definitions?: { name?: string }; config?: Record<string,unknown>; visibility?: string }[] };
-          if (json.items && json.items.length > 0) {
-            loadedWidgets = json.items.map(item => ({
-              id: item.id,
-              type: (item.widget_definitions?.name ?? 'bio') as import('@/components/profile/ProfileWidgetGrid').WidgetType,
-              config: item.config as import('@/components/profile/ProfileWidgetGrid').WidgetConfig | undefined,
-              visibility: (item.visibility ?? 'private') as Widget['visibility'],
-            }));
-          } else {
-            const saved = localStorage.getItem('de-profile-widget-order');
-            if (saved) loadedWidgets = JSON.parse(saved) as Widget[];
-          }
-        } else {
-          const saved = localStorage.getItem('de-profile-widget-order');
-          if (saved) loadedWidgets = JSON.parse(saved) as Widget[];
-        }
-      } catch {
-        const saved = localStorage.getItem('de-profile-widget-order');
-        if (saved) loadedWidgets = JSON.parse(saved) as Widget[];
       // Load Dream projection from Supabase (server-persisted projection state)
       // Fall back to localStorage for migration compatibility, then DEFAULT_DREAMS
       let loadedDreams: ProfileDream[] = DEFAULT_DREAMS;
