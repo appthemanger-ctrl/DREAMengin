@@ -1,9 +1,12 @@
 # DREAMengin Feature Status
 
-Last updated: 2026-03-06  
+Last updated: 2026-03-10  
 Source of truth for product naming: `README.md`
 
 Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly aligned
+
+**Current phase:** Phase 6 — Platform Completion (AI Triad, Privacy Enforcement, Module Consolidation)  
+See `docs/dreamengin_phase6.md` for the full 50-point specification.
 
 ## 1. Core surfaces
 
@@ -28,13 +31,15 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 
 | Pair | Status | Repo truth |
 |---|---|---|
-| Music / StarMakerEngin | ✅ | `app/daydream/music/page.tsx` exists. |
-| Games / GameEngin | ✅ | `app/daydream/games/page.tsx` exists. |
-| Lab / LabEngin | ✅ | `app/daydream/lab/page.tsx` exists. |
-| Code / CodeEngin | ✅ | `app/daydream/code/page.tsx` exists. |
-| Brand / BrandingEngin | ✅ | `app/daydream/brand/page.tsx` exists. |
-| Create / ContentEngin | ✅ | `app/daydream/create/page.tsx` exists. |
-| Legacy extra daydream routes | 🟡 | `analytics`, `media-vault`, and `play` still exist and should be repurposed, not treated as canonical product surfaces. |
+| Music / StarMakerEngin | ✅ | `app/daydream/music/page.tsx` exists; `components/daydream/StarMakerEngin.tsx` exists. |
+| Games / GameEngin | ✅ | `app/daydream/games/page.tsx` exists; `components/daydream/GameEngin.tsx` created (Phase 6). |
+| Lab / LabEngin | ✅ | `app/daydream/lab/page.tsx` exists; `components/daydream/LabEngin.tsx` exists. |
+| Code / CodeEngin | ✅ | `app/daydream/code/page.tsx` exists; `components/daydream/CodeEngin.tsx` exists. |
+| Brand / BrandingEngin | ✅ | `app/daydream/brand/page.tsx` exists; `components/daydream/BrandingEngin.tsx` exists. |
+| Create / ContentEngin | ✅ | `app/daydream/create/page.tsx` exists; `components/daydream/ContentEngin.tsx` exists. |
+| DaydreamShell sideBComponent prop | ✅ | `components/daydream/DaydreamShell.tsx` now accepts `sideBComponent` prop (Phase 6). |
+| useDaydreamState hook | ✅ | `lib/daydream/useDaydreamState.ts` created (Phase 6). |
+| Legacy extra daydream routes | 🟡 | `analytics`, `media-vault`, and `play` still exist and must be repurposed (Phase 6). |
 
 ## 4. Platform modules
 
@@ -50,17 +55,19 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 
 | AI | Status | Repo truth |
 |---|---|---|
-| Dr. Eams | ✅ | Canonical route exists at `/api/ai/eams`; legacy support routes still exist under `/api/dr-eams/*`. |
-| IDARi | ✅ | `/api/ai/idari` exists. |
-| TheBoogieMan.Ai | ✅ | `/api/ai/boogieman` exists. |
+| Dr. Eams | 🟡 | Canonical route exists at `/api/ai/eams`; legacy support routes still exist under `/api/dr-eams/*`. HomeDream integration (search bar, send-to-DreamDM) is a Phase 6 item. |
+| IDARi | 🟡 | `/api/ai/idari` exists; admin-guard under dev bypass needs verification (Phase 6 item). |
+| TheBoogieMan.Ai | 🟡 | `/api/ai/boogieman` exists; privacy-adjacent event logging is a Phase 6 item. |
+| AI Triad coordination bus | 🟡 | `lib/agents/agentBus.ts` exists; triad consensus gate is a Phase 6 item. |
 
 ## 6. Privacy and profile integrity
 
 | Rule | Status | Repo truth |
 |---|---|---|
-| Nothing public by default | 🟡 | This is the intended rule and is documented throughout the repo, but naming and projection boundaries still need cleanup. |
-| Save before public/shared update | 🟡 | Edit/view split exists, but docs and some owner-facing profile flows still need stronger separation. |
-| No fake actions | ✅ | Repo direction and docs explicitly reject fake buttons and fake states. |
+| Nothing public by default | 🟡 | This is the intended rule and is documented throughout the repo, but `visibility_mappings` table consultation in ViewProfile is a Phase 6 item. |
+| Save before public/shared update | 🟡 | Edit/view split exists, but the private-save vs explicit-share distinction in EditProfileDream is a Phase 6 item. |
+| No fake actions | 🟡 | Repo direction and docs reject fake buttons, but a real capability audit across all pages is a Phase 6 item. |
+| RLS on all user tables | 🟡 | RLS is documented as required; full audit of all Supabase tables is a Phase 6 item. |
 
 ## 7. Design language
 
@@ -70,9 +77,19 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 | Minimal clutter | 🟡 | Many surfaces are visually rich; continued cleanup is still needed. |
 | Intentional motion | 🟡 | Motion exists, but not every surface is equally restrained yet. |
 
-## 8. Current alignment priorities
+## 8. Phase 6 priorities
 
-1. Make spec names primary everywhere in docs and UI copy.
-2. Continue folding legacy widget naming into Dreams naming.
-3. Tighten EditProfileDream → ViewProfile projection boundaries.
-4. Repurpose extra legacy routes into spec-defined systems instead of keeping them as free-floating product names.
+The following items are the Phase 6 focus. See `docs/dreamengin_phase6.md` for the full 50-point spec.
+
+1. ✅ Add `components/daydream/GameEngin.tsx` (Games Daydream Side B) — done.
+2. ✅ Create `lib/daydream/useDaydreamState.ts` (shared Daydream/Engin state hook) — done.
+3. ✅ Wire `sideBComponent` prop into `DaydreamShell`; wire `GameEngin` into Games page — done.
+4. ⏳ Integrate Dr. Eams as HomeDream search bar with send-to-DreamDM routing.
+5. ⏳ Enforce IDARi admin-guard even under dev auth bypass.
+6. ⏳ Wire TheBoogieMan privacy-event logging for visibility changes.
+7. ⏳ Consult `visibility_mappings` before rendering any content on ViewProfile.
+8. ⏳ Separate private-save and explicit-share flows in EditProfileDream.
+9. ⏳ Unify DreamMenu under a single canonical implementation.
+10. ⏳ Separate user DreamAds from platform promotions in code and UI language.
+11. ⏳ Repurpose legacy Daydream routes (`analytics`, `media-vault`, `play`).
+12. ⏳ Complete real-capability audit: replace all fake actions with real ones.

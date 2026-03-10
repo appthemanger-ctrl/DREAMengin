@@ -1,7 +1,7 @@
 # DREAMengin — Agent Session Playbook
 
 **Read this at the start of every session.**  
-Last updated: 2026-03-07
+Last updated: 2026-03-10
 
 This is the single document an AI agent or developer reads before touching code in this repo. It covers orientation, all runnable commands, the key file map, how to verify changes don't break anything, how to see the UI, and a session state tracker.
 
@@ -453,27 +453,53 @@ pnpm build
 
 ### Current focus
 
-> _(Update with the task being worked on in this session)_
+Phase 6 — Platform Completion: AI Triad Integration, Privacy System Enforcement, and Module Consolidation.  
+Full spec: `docs/dreamengin_phase6.md`
 
 ### Files modified in this sprint
 
-> _(List files changed so far — path + one-line description of change)_
+- `docs/dreamengin_phase6.md` — created Phase 6 specification (50-point spec)
+- `docs/FEATURE_STATUS.md` — updated to reflect Phase 6 status and priorities
+- `docs/AGENT_PLAYBOOK.md` — updated Session State Tracker for Phase 6
+- `docs/BUGS.md` — added Phase 4 carry-over gaps and marked resolved items
+- `docs/alignment/DOCS_CHANGE_TRACKER.md` — recorded Phase 6 documentation pass
+- `components/daydream/GameEngin.tsx` — created GameEngin (Games Daydream Side B Engin)
+- `components/daydream/DaydreamShell.tsx` — added `sideBComponent` prop
+- `lib/daydream/useDaydreamState.ts` — created shared Daydream/Engin state hook
+- `app/daydream/games/page.tsx` — wired GameEngin as sideBComponent
 
 ### Completed this sprint
 
-> _(List items done — use the same format as the task checklist)_
+- [x] Created `docs/dreamengin_phase6.md` — full 50-point Phase 6 spec
+- [x] Updated `docs/FEATURE_STATUS.md` — Phase 6 current state and 12-point priority list
+- [x] Updated `docs/AGENT_PLAYBOOK.md` Section 12 — Phase 6 session context
+- [x] Updated `docs/BUGS.md` — documented and resolved missing Phase 4 carry-over items
+- [x] Updated `docs/alignment/DOCS_CHANGE_TRACKER.md` — Phase 6 documentation pass
+- [x] Created `components/daydream/GameEngin.tsx` — Games Daydream Side B (Phase 6 point 33)
+- [x] Created `lib/daydream/useDaydreamState.ts` — shared Daydream/Engin state hook (Phase 6 point 34)
+- [x] Added `sideBComponent` prop to `DaydreamShell` (Phase 6 point 35)
+- [x] Wired `GameEngin` into `app/daydream/games/page.tsx`
 
 ### Remaining this sprint
 
-> _(List items not yet done)_
+Phase 6 code implementation (remaining items for a subsequent session):
+- [ ] Integrate Dr. Eams as HomeDream search bar with send-to-DreamDM routing
+- [ ] Enforce IDARi admin-guard under dev bypass
+- [ ] Wire TheBoogieMan privacy-event logging for visibility changes
+- [ ] Consult `visibility_mappings` before rendering content on ViewProfile
+- [ ] Separate private-save and explicit-share flows in EditProfileDream
+- [ ] Unify DreamMenu under a single canonical implementation
+- [ ] Separate user DreamAds from platform promotions in code and UI language
+- [ ] Repurpose legacy Daydream routes (analytics, media-vault, play)
+- [ ] Real-capability audit: replace all fake actions with real ones
 
 ### Known issues / blockers
 
-> _(Anything broken, unresolved, or blocked — with reproduction steps if known)_
+- Pre-existing TypeScript type errors exist in the `completedream` base branch (Supabase table type mismatches in `app/api/comments/route.ts`, `app/api/game-scores/route.ts`, `app/api/ai/execute/route.ts`, and others). These are pre-existing and unrelated to Phase 6 changes.
 
 ### Handoff note for next session
 
-> _(What the next agent needs to know to pick up where this left off)_
+Phase 6 documentation is complete and three Phase 4 carry-over code items are resolved (GameEngin.tsx, useDaydreamState hook, DaydreamShell sideBComponent prop). The next session should continue Phase 6 code work starting with Dr. Eams HomeDream integration, then IDARi admin-guard enforcement, then ViewProfile visibility_mappings consultation. Use `docs/dreamengin_phase6.md` as the acceptance checklist — all 50 points must pass before Phase 7 begins.
 
 ---
 

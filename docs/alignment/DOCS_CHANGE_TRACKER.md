@@ -1,7 +1,7 @@
 # DREAMengin Docs Change Tracker
 
 Status: active alignment ledger  
-Last updated: 2026-03-06
+Last updated: 2026-03-10
 
 This file is the working list for the README-first documentation pass. It exists to keep the alignment work explicit, traceable, and conservative.
 
@@ -101,3 +101,41 @@ This file is the working list for the README-first documentation pass. It exists
 - Continue renaming UI labels and route references to spec-first names.
 - Continue repurposing legacy extras into spec-defined modules.
 - Keep additions minimal and only where README requires missing architecture.
+
+---
+
+## Phase 6 documentation pass (2026-03-10)
+
+### Phase 6 spec created
+
+- `docs/dreamengin_phase6.md` — new file; 50-point Phase 6 specification covering AI Triad Integration, Privacy System Enforcement, and Platform Module Consolidation.
+
+### Docs updated in this pass
+
+- `docs/FEATURE_STATUS.md` — Phase 6 current state, updated Daydream pairs table, AI triad table, privacy table, and Phase 6 12-point priority list.
+- `docs/AGENT_PLAYBOOK.md` — Section 12 Session State Tracker populated with Phase 6 context, files modified, completed items, remaining items, known issues, and handoff note.
+- `docs/BUGS.md` — added Daydream carry-over gaps (GameEngin.tsx, useDaydreamState, DaydreamShell prop), AI triad gaps (Dr. Eams HomeDream integration, IDARi admin-guard, TheBoogieMan logging, triad consensus gate), and privacy system gaps.
+- `docs/alignment/DOCS_CHANGE_TRACKER.md` — this entry.
+
+### Code changes applied in Phase 6
+
+#### Phase 4 carry-over items resolved
+- `components/daydream/GameEngin.tsx` — created; Games Daydream Side B Engin component with real Supabase score reads (Phase 6 point 33).
+- `lib/daydream/useDaydreamState.ts` — created; shared Daydream/Engin state hook with localStorage persistence (Phase 6 point 34).
+- `components/daydream/DaydreamShell.tsx` — added `sideBComponent?: React.ComponentType<{onBack: () => void}>` prop; renders custom Engin component when provided (Phase 6 point 35).
+- `app/daydream/games/page.tsx` — replaced `sideBVariant="game-remote"` with `sideBComponent={GameEngin}` to wire GameEngin as the Games Daydream Side B.
+
+| Gap | Doc location |
+|-----|-------------|
+| `components/daydream/GameEngin.tsx` missing | BUGS.md, FEATURE_STATUS.md |
+| `lib/daydream/useDaydreamState.ts` missing | BUGS.md, FEATURE_STATUS.md |
+| DaydreamShell `sideBComponent` prop missing | BUGS.md, FEATURE_STATUS.md |
+| Dr. Eams HomeDream search bar unwired | BUGS.md, FEATURE_STATUS.md |
+| IDARi admin-guard under dev bypass unverified | BUGS.md, FEATURE_STATUS.md |
+| TheBoogieMan privacy-event logging missing | BUGS.md, FEATURE_STATUS.md |
+| `visibility_mappings` not consulted in ViewProfile | BUGS.md, FEATURE_STATUS.md |
+| Private-save vs explicit-share not separated in EditProfileDream | BUGS.md, FEATURE_STATUS.md |
+| DreamMenu not unified under single implementation | BUGS.md |
+| DreamAds user vs platform boundary missing | BUGS.md |
+| Legacy Daydream routes not repurposed | FEATURE_STATUS.md |
+| Real capability audit not done | BUGS.md |
