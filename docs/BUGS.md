@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-10 13:53 UTC  
-**Triggered by commit:** `a4c9239` on `completedream` by appthemanger-ctrl  
-**Commit message:** Enhance README with detailed product specifications
+**Last updated:** 2026-03-10 14:57 UTC  
+**Triggered by commit:** `47fbc26` on `completedream` by appthemanger-ctrl  
+**Commit message:** Document DreamDM Bar specifications in README
 
 ---
 
