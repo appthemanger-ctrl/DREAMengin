@@ -225,11 +225,11 @@ export default function HeroSprite({
       ctx.clearRect(0, 0, width, height);
 
       // ── Idle animation base ──────────────────────────────────────────────
-      const idleBob   = Math.sin(t * 1.6) * 3;          // gentle vertical float
-      const idleArm   = Math.sin(t * 1.6) * 0.10;       // subtle back-arm sway
-      const idleWave  = Math.sin(t * 2.5) * 0.42;       // right-hand wave (default idle)
-      const idleLeg   = Math.sin(t * 1.6) * 0.06;       // subtle leg sway
-      const idleHead  = Math.sin(t * 0.9) * 0.04;       // gentle head tilt
+      const idleBob   = Math.sin(t * 1.6) * 3;                     // gentle vertical float
+      const idleArm   = 0.65 + Math.sin(t * 1.6) * 0.08;          // left arm raised outward
+      const idleWave  = -0.40 + Math.sin(t * 2.0) * 0.10;         // right arm peace-sign pose, gentle sway
+      const idleLeg   = Math.sin(t * 1.6) * 0.06;                  // subtle leg sway
+      const idleHead  = Math.sin(t * 0.9) * 0.04;                  // gentle head tilt
 
       // ── Per-zone reaction overrides ──────────────────────────────────────
       let headAngle  = idleHead;
