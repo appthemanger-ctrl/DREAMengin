@@ -34,16 +34,8 @@ type Props = {
    *   'game-remote' — dual analog-stick game controller (legacy fallback)
    */
   sideBVariant?: 'widgets' | 'game-remote';
-  /**
-   * Optional custom Side B component. When provided, renders instead of
-   * the built-in sideBVariant logic. Receives an `onBack` callback prop.
-   * Use this to inject a domain-specific Engin (e.g. GameEngin, StarMakerEngin).
-   * (Phase 6, point 35 — docs/dreamengin_phase6.md)
-   */
-  sideBComponent?: React.ComponentType<{ onBack: () => void }>;
 };
 
-export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBComponent, sideBVariant = 'widgets' }: Props) {
 export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBVariant = 'widgets', sideBComponent: SideBComponent }: Props) {
   const [side, setSide]   = useState<'A' | 'B'>('A');
   const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
@@ -78,14 +70,6 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
       <div style={contentStyle}>
         {side === 'A'
           ? children
-          : (() => {
-              if (sideBComponent) {
-                const EnginComponent = sideBComponent;
-                return <EnginComponent onBack={flip} />;
-              }
-              if (sideBVariant === 'game-remote') return <GameRemote onBack={flip} />;
-              return <EnginSurface enginName={enginName} title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />;
-            })()
           : SideBComponent
             ? <SideBComponent onBack={flip} />
             : sideBVariant === 'game-remote'
