@@ -250,6 +250,9 @@ This section maps the most important files and what they do. Read this before se
 | `README.md` | **Master product spec — always authoritative** |
 | `docs/AGENT_PLAYBOOK.md` | **This file — read at session start** |
 | `docs/GENERATION_LAW.md` | **AI build constraint — compute χ before every pass** |
+| `docs/PRODUCT_DEFINITION.md` | **Phase 7 — Locked product definition (what DREAMengin is and is not)** |
+| `docs/NAMING_AUTHORITY.md` | **Phase 7 — Locked naming authority (canonical names, validation rules)** |
+| `docs/CONSTITUTION.md` | **Phase 7 — Locked product constitution (binding rules for all systems)** |
 | `docs/ARCHITECTURE.md` | How repo maps to spec; route and implementation zones |
 | `docs/FEATURE_STATUS.md` | Live feature completion matrix (✅/🟡/⏳) |
 | `docs/BUGS.md` | Auto-generated bugs tracker (run `node scripts/update-bugs.mjs`) |
@@ -279,6 +282,7 @@ This section maps the most important files and what they do. Read this before se
 | `tests/icons.test.ts` | Icon system |
 | `tests/dev-bypass.test.ts` | Dev auth bypass (never in production) |
 | `tests/dreamengin-game.test.ts` | Game system |
+| `tests/phase7-naming.test.ts` | **Phase 7 — Canonical naming authority validation** |
 | `tests/e2e/demo.spec.ts` | Playwright E2E demo |
 | `tests/e2e/full-coverage.spec.ts` | Playwright full coverage E2E |
 
@@ -505,6 +509,12 @@ Build constraint:  docs/GENERATION_LAW.md  (χ + residual audit)
 Design:            docs/THEME.md
 Security:          docs/SECURITY.md
 AI agents:         docs/DR_EAMS.md, docs/IDARI_CONTRACT.md, docs/BOOGIEMAN_POLICY.md
+
+Phase 7 authority:
+  Product identity:  docs/PRODUCT_DEFINITION.md  (what DREAMengin is and is not)
+  Naming authority:  docs/NAMING_AUTHORITY.md     (canonical names, validation rules)
+  Constitution:      docs/CONSTITUTION.md         (binding rules for every system)
+  Naming library:    lib/identity/canonical-names.ts
 
 Dev server:        pnpm dev        → http://localhost:3000
 Type check:        pnpm typecheck
