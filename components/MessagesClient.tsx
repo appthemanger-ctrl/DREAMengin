@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { MessageSquare, Send, Search, ArrowLeft, Loader2, Plus, Music, FileText, X, Mail } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -88,6 +89,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
+  const router = useRouter();
 
   // Demo messages for demo conversations
   const demoMessages: Message[] = [
@@ -273,6 +275,34 @@ export default function MessagesClient({ userId, initialConversations }: Message
 
   return (
     <div className="min-h-screen de-sky-bg">
+      {/* DM / Boards tab bar */}
+      <div style={{
+        display: 'flex', borderBottom: '1px solid rgba(160,195,240,0.25)',
+        background: 'rgba(255,255,255,0.7)',
+        position: 'sticky', top: 0, zIndex: 31,
+      }}>
+        <button
+          onClick={() => { /* stay on DMs */ }}
+          style={{
+            flex: 1, padding: '12px 0', background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: 13, fontWeight: 700, color: 'var(--de-heading)',
+            borderBottom: '2.5px solid #c8981a',
+          }}
+        >
+          💬 Direct Messages
+        </button>
+        <button
+          onClick={() => router.push('/messages/boards')}
+          style={{
+            flex: 1, padding: '12px 0', background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: 13, fontWeight: 500, color: 'var(--de-text-dim)',
+            borderBottom: '2.5px solid transparent',
+          }}
+        >
+          📋 Boards
+        </button>
+      </div>
+
       {/* Mobile Header */}
       <header className="md:hidden sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="px-4 py-3 flex items-center gap-3">
