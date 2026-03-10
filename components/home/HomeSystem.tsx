@@ -9,6 +9,7 @@ import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/Syst
 import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
 import NavIndicator from '@/components/dreamnav/NavIndicator';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
+import DreamDMBar from '@/components/messaging/DreamDMBar';
 
 type ProfileLike = {
   id?: string;
@@ -71,6 +72,9 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         onCloseCore={() => { setCoreFace('home'); setCoreOpen(false); }}
         onOpenDrEams={() => setDrEamsOpen(true)}
       />
+
+      {/* DreamDM Bar — persistent interaction rail + spatial divider (§22) */}
+      <DreamDMBar />
 
       {/* Gold home button — single tap = Go Home, double tap = both menus (§6.1) */}
       <DreamNavControls
