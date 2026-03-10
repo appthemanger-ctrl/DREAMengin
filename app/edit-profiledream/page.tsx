@@ -51,11 +51,17 @@ export default function EditProfileDreamPage() {
       };
       setProfile(loadedProfile);
 
+      // Load widget order from Supabase (server-persisted projection state)
+      // Fall back to localStorage for migration compatibility, then DEFAULT_WIDGETS
       let loadedWidgets = DEFAULT_WIDGETS;
-      try {
-        const saved = localStorage.getItem('de-profile-widget-order');
-        if (saved) loadedWidgets = JSON.parse(saved);
-      } catch { /* noop */ }
+      if (data?.profile_dream_widgets && Array.isArray(data.profile_dream_widgets) && data.profile_dream_widgets.length > 0) {
+        loadedWidgets = data.profile_dream_widgets;
+      } else {
+        try {
+          const saved = localStorage.getItem('de-profile-widget-order');
+          if (saved) loadedWidgets = JSON.parse(saved);
+        } catch { /* noop */ }
+      }
 
       setWidgets(loadedWidgets);
       setInitialProfile(loadedProfile);
@@ -84,6 +90,7 @@ export default function EditProfileDreamPage() {
           banner_url: profile.banner_url,
           website: profile.website,
           location: profile.location,
+          widget_order: widgets,
         }),
       });
       if (!res.ok) {
@@ -91,8 +98,6 @@ export default function EditProfileDreamPage() {
         setSaveError((data as { error?: string }).error || 'Failed to save.');
         return;
       }
-      // Persist widget order locally
-      localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
       setInitialProfile(profile);
       setInitialWidgets(widgets);
       router.push('/view-profile');
