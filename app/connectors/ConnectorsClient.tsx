@@ -1,6 +1,16 @@
 'use client';
-// app/connectors/ConnectorsClient.tsx
-// Client-side wrapper that wires up the Connect → Widget Install flow (req 1-100)
+/**
+ * app/connectors/ConnectorsClient.tsx
+ *
+ * Phase 5 — Client-side connector manager.
+ * Uses defaultStatus from registry (no fake 'not_connected' override for tier2/tier3).
+ * Shows Sync Now button for connected tier-1 providers.
+ *
+ * Groups: Tier 1 (Supported), Tier 2 (Requires Approval / Setup), Tier 3 (Unsupported).
+ *
+ * ARCHITECTURE.md §3 — Component layer; logic lives in lib/ and API routes.
+ * AXIOMS.md §3 — Every visible action does something real.
+ */
 
 import React, { useState } from 'react';
 import { CONNECTOR_REGISTRY } from '@/lib/connectors/connectorRegistry';
@@ -17,28 +27,89 @@ import { getConnectorDef } from '@/lib/connectors/connectorRegistry';
 import { useConnectorInstallFlow } from '@/hooks/useConnectorInstallFlow';
 import type { SlotGrid } from '@/lib/connectors/installFlow';
 import type { FeedSlice } from '@/components/connectors/AddSliceSheet';
+import { RefreshCw } from 'lucide-react';
 
 // Demo initial grid: 6 slots, all empty
 const DEMO_GRID: SlotGrid = { totalSlots: 6, filledSlots: new Set() };
 
+// Use defaultStatus from registry — tier2/tier3 never start as 'not_connected'
 const INITIAL_STATUSES: Record<string, ConnectorStatus> = Object.fromEntries(
-  CONNECTOR_REGISTRY.map((c) => [c.id, 'not_connected']),
+  CONNECTOR_REGISTRY.map((c) => [c.id, c.defaultStatus]),
 );
 
-const CATEGORIES = ['Social', 'Music', 'Video', 'Utilities'] as const;
+const TIER1_IDS = new Set(CONNECTOR_REGISTRY.filter((c) => c.tier === 'tier1').map((c) => c.id));
+
+// ── Sync button ────────────────────────────────────────────────────────────
+
+function SyncButton({ connectorId, connectorName }: { connectorId: string; connectorName: string }) {
+  const [syncing, setSyncing] = useState(false);
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
+  async function handleSync() {
+    if (syncing) return;
+    setSyncing(true);
+    setSyncError(null);
+    try {
+      const res = await fetch(`/api/connectors/${connectorId}/sync`, { method: 'POST' });
+      const data = await res.json() as { ok: boolean; fetched?: number; last_synced_at?: string; error?: string };
+      if (data.ok) {
+        setLastSynced(data.last_synced_at ?? new Date().toISOString());
+      } else {
+        setSyncError(data.error ?? 'Sync failed.');
+      }
+    } catch {
+      setSyncError('Network error — please try again.');
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 6px' }}>
+      <button
+        type="button"
+        disabled={syncing}
+        onClick={handleSync}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+          padding: '4px 10px', borderRadius: 8,
+          background: 'rgba(160,195,240,0.15)',
+          border: '1px solid rgba(160,195,240,0.25)',
+          color: 'var(--de-accent)', fontSize: 11, fontWeight: 600,
+          cursor: syncing ? 'not-allowed' : 'pointer',
+          opacity: syncing ? 0.7 : 1,
+        }}
+      >
+        <RefreshCw size={10} style={{ animation: syncing ? 'de-spin 1s linear infinite' : 'none' }} />
+        {syncing ? 'Syncing…' : `Sync ${connectorName}`}
+      </button>
+      {lastSynced && (
+        <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>
+          Last synced {new Date(lastSynced).toLocaleTimeString()}
+        </span>
+      )}
+      {syncError && (
+        <span style={{ fontSize: 10, color: '#dc4444' }}>{syncError}</span>
+      )}
+    </div>
+  );
+}
+
+// ── Main component ─────────────────────────────────────────────────────────
 
 export default function ConnectorsClient() {
   const [menuOpen] = useState(false);
   const [slices, setSlices] = useState<FeedSlice[]>([]);
-  // Widgets that have been installed (for display) — req 21-30
   const [installedWidgets, setInstalledWidgets] = useState<Array<{
     widgetId: string; dataState: WidgetDataState;
   }>>([]);
   const [grid, setGrid] = useState<SlotGrid>(DEMO_GRID);
+  // Track which connectors are connected (for showing Sync Now)
+  const [connectedIds, setConnectedIds] = useState<Set<string>>(new Set());
 
-  // Auto-lock handler (req 84-90): in a real app this calls a navigation state setter
   function handleAutoLock() {
-    // Caller is responsible for locking to LOCKED / safe mode (req 83-84)
+    // Caller is responsible for locking to LOCKED / safe mode
   }
 
   const flow = useConnectorInstallFlow({
@@ -47,14 +118,12 @@ export default function ConnectorsClient() {
     isMenuOpen: menuOpen,
   });
 
-  // When a widget is added, update the grid and installedWidgets list
   function handlePromptAdd(widgetId: string) {
     flow.onPromptAdd(widgetId);
   }
 
   function handlePlacementDone(slot: number) {
     if (flow.placementRequest) {
-      // Mark slot as filled
       setGrid((prev) => ({
         ...prev,
         filledSlots: new Set([...prev.filledSlots, slot]),
@@ -63,7 +132,6 @@ export default function ConnectorsClient() {
         ...prev,
         { widgetId: flow.placementRequest!.widgetId, dataState: 'loading' },
       ]);
-      // Simulate async data arriving after 1.5s (req 27)
       const wid = flow.placementRequest.widgetId;
       setTimeout(() => {
         setInstalledWidgets((prev) =>
@@ -74,10 +142,16 @@ export default function ConnectorsClient() {
     flow.onPlacementDone(slot);
   }
 
-  // If prompt was adding to auto-slot (not placement mode), apply it now
+  function handleConnectSuccess(connectorId: string, connectorName: string) {
+    // Add to connected set so Sync Now button appears
+    if (TIER1_IDS.has(connectorId)) {
+      setConnectedIds((prev) => new Set([...prev, connectorId]));
+    }
+    flow.onConnectSuccess(connectorId, connectorName);
+  }
+
   React.useEffect(() => {
     if (flow.placementRequest && !flow.placementRequest.noSlotAvailable) {
-      // Auto-placed into a slot (req 31) — find best slot
       const slots = grid.filledSlots;
       let bestSlot = -1;
       for (let i = 0; i < grid.totalSlots; i++) {
@@ -88,30 +162,75 @@ export default function ConnectorsClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flow.placementRequest?.widgetId, flow.placementRequest?.noSlotAvailable]);
 
+  // Group connectors by tier for display
+  const tier1 = CONNECTOR_REGISTRY.filter((c) => c.tier === 'tier1');
+  const tier2 = CONNECTOR_REGISTRY.filter((c) => c.tier === 'tier2');
+  const tier3 = CONNECTOR_REGISTRY.filter((c) => c.tier === 'tier3');
+
   return (
     <>
-      {/* Connector list */}
-      {CATEGORIES.map((cat) => {
-        const items = CONNECTOR_REGISTRY.filter((c) => c.category === cat);
-        if (!items.length) return null;
-        return (
-          <div key={cat} className="de-widget">
-            <div className="de-widget-header"><span className="de-widget-title">{cat}</span></div>
-            <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-              {items.map((conn) => (
-                <ConnectorRow
-                  key={conn.id}
-                  connector={conn}
-                  status={INITIAL_STATUSES[conn.id]}
-                  onConnectSuccess={flow.onConnectSuccess}
-                />
-              ))}
+      {/* ── Tier 1: Fully supported ──────────────────────────────────── */}
+      <div className="de-widget">
+        <div className="de-widget-header">
+          <span className="de-widget-title">✅ Supported Connections</span>
+        </div>
+        <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+          {tier1.map((conn) => (
+            <div key={conn.id}>
+              <ConnectorRow
+                connector={conn}
+                status={INITIAL_STATUSES[conn.id]}
+                onConnectSuccess={handleConnectSuccess}
+              />
+              {connectedIds.has(conn.id) && (
+                <SyncButton connectorId={conn.id} connectorName={conn.name} />
+              )}
             </div>
-          </div>
-        );
-      })}
+          ))}
+        </div>
+      </div>
 
-      {/* Installed widget shells (req 21-30) */}
+      {/* ── Tier 2: Gated (requires approval or admin setup) ─────────── */}
+      <div className="de-widget">
+        <div className="de-widget-header">
+          <span className="de-widget-title">⚙️ Requires Approval or Setup</span>
+        </div>
+        <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+          {tier2.map((conn) => (
+            <ConnectorRow
+              key={conn.id}
+              connector={conn}
+              status={INITIAL_STATUSES[conn.id]}
+              onConnectSuccess={handleConnectSuccess}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Tier 3: Unsupported ──────────────────────────────────────── */}
+      <div className="de-widget">
+        <div className="de-widget-header">
+          <span className="de-widget-title">🚫 Not Available via Official API</span>
+        </div>
+        <div className="de-widget-body" style={{ padding: '4px 6px' }}>
+          {tier3.map((conn) => (
+            <ConnectorRow
+              key={conn.id}
+              connector={conn}
+              status={INITIAL_STATUSES[conn.id]}
+              onConnectSuccess={handleConnectSuccess}
+            />
+          ))}
+        </div>
+        <div className="de-widget-body" style={{ paddingTop: 0 }}>
+          <div style={{ fontSize: 11, color: 'var(--de-text-dim)', padding: '4px 6px 8px', lineHeight: 1.5 }}>
+            These platforms do not expose a public API for the data shown.
+            Consider using <strong>Mastodon</strong>, <strong>Bluesky</strong>, or <strong>Nostr</strong> for full follow/feed access.
+          </div>
+        </div>
+      </div>
+
+      {/* ── Installed widget shells ──────────────────────────────────── */}
       {installedWidgets.length > 0 && (
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Your Widgets</span></div>
@@ -147,7 +266,7 @@ export default function ConnectorsClient() {
         </div>
       )}
 
-      {/* Toast (req 11) */}
+      {/* ── Toast ────────────────────────────────────────────────────── */}
       {flow.toastMessage && (
         <div
           role="status"
@@ -169,7 +288,7 @@ export default function ConnectorsClient() {
         </div>
       )}
 
-      {/* Widget install prompt (req 12-20) — one at a time (req 18) */}
+      {/* ── Widget install prompt ─────────────────────────────────────── */}
       {flow.prompt && (
         <ConnectWidgetPrompt
           connectorId={flow.prompt.connectorId}
@@ -182,7 +301,7 @@ export default function ConnectorsClient() {
         />
       )}
 
-      {/* No-slot dialog (req 33) */}
+      {/* ── No-slot dialog ────────────────────────────────────────────── */}
       {flow.placementRequest?.noSlotAvailable && (() => {
         const def = getWidgetTypeDef(flow.placementRequest.widgetId);
         if (!def) return null;
@@ -195,7 +314,7 @@ export default function ConnectorsClient() {
         );
       })()}
 
-      {/* Placement mode (req 36-40) */}
+      {/* ── Placement mode ────────────────────────────────────────────── */}
       {flow.placementRequest && !flow.placementRequest.noSlotAvailable && (() => {
         const def = getWidgetTypeDef(flow.placementRequest.widgetId);
         if (!def) return null;
@@ -211,7 +330,7 @@ export default function ConnectorsClient() {
         );
       })()}
 
-      {/* Feed Slice sheet (req 51-60) */}
+      {/* ── Feed slice sheet ──────────────────────────────────────────── */}
       {flow.sliceSheetConnectorId && (() => {
         const connDef = getConnectorDef(flow.sliceSheetConnectorId);
         if (!connDef) return null;
@@ -231,6 +350,10 @@ export default function ConnectorsClient() {
         @keyframes de-slide-up {
           from { opacity: 0; transform: translateX(-50%) translateY(8px); }
           to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        @keyframes de-spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
         }
       `}</style>
     </>

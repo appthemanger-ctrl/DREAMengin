@@ -1,0 +1,329 @@
+/**
+ * lib/connectors/normalise.ts
+ *
+ * Phase 5 — Feed & Friends Connections
+ * Feed item normalisation utilities.
+ *
+ * Converts provider-native API responses into the UnifiedFeedItem shape
+ * so every provider's content looks the same to the rest of the system.
+ *
+ * Rules:
+ * - Pure functions only — no side effects, no DB calls, no fetch
+ * - Every function is independently unit-testable
+ * - If a field is missing in the provider response, use a safe default
+ *
+ * ARCHITECTURE.md §3 — Logic layer (lib/)
+ */
+
+import type { UnifiedFeedItem, FeedItemMedia } from '@/types/connector';
+
+// ── Mastodon ──────────────────────────────────────────────────────────────
+
+interface MastodonMediaAttachment {
+  type: string;
+  url: string;
+  preview_url?: string;
+  description?: string;
+}
+
+interface MastodonStatus {
+  id: string;
+  url?: string;
+  uri?: string;
+  content?: string;
+  created_at?: string;
+  account?: {
+    acct?: string;
+    display_name?: string;
+  };
+  media_attachments?: MastodonMediaAttachment[];
+  reblog?: MastodonStatus | null;
+  text?: string;
+}
+
+export function normaliseMastodon(
+  status: MastodonStatus,
+  instanceUrl: string,
+): UnifiedFeedItem {
+  // If this is a reblog (boost), normalise the inner status
+  const s = status.reblog ?? status;
+
+  const media: FeedItemMedia[] = (s.media_attachments ?? []).map((m) => ({
+    url: m.url,
+    type: m.type === 'video' ? 'video' : m.type === 'audio' ? 'audio' : 'image',
+    alt: m.description,
+    thumbnail_url: m.preview_url,
+  }));
+
+  const plainText = stripHtml(s.content ?? '');
+
+  return {
+    provider: 'mastodon',
+    external_id: s.id,
+    author_handle: `${s.account?.acct ?? 'unknown'}@${hostFromUrl(instanceUrl)}`,
+    author_name: s.account?.display_name ?? s.account?.acct ?? 'Unknown',
+    content_text: plainText,
+    content_html: s.content,
+    media,
+    permalink: s.url ?? s.uri ?? `${instanceUrl}/@${s.account?.acct ?? 'unknown'}/${s.id}`,
+    published_at: s.created_at ?? new Date().toISOString(),
+    raw: status,
+  };
+}
+
+// ── Bluesky (AT Protocol) ─────────────────────────────────────────────────
+
+interface BlueskyFeedViewPost {
+  post: {
+    uri: string;
+    cid: string;
+    author: {
+      handle: string;
+      displayName?: string;
+    };
+    record: {
+      $type?: string;
+      text?: string;
+      createdAt?: string;
+    };
+    embed?: {
+      $type?: string;
+      images?: Array<{
+        thumb?: string;
+        fullsize?: string;
+        alt?: string;
+      }>;
+      video?: {
+        thumbnail?: string;
+        playlist?: string;
+      };
+    };
+    indexedAt?: string;
+  };
+}
+
+export function normaliseBluesky(feedItem: BlueskyFeedViewPost): UnifiedFeedItem {
+  const { post } = feedItem;
+  const record = post.record ?? {};
+
+  const media: FeedItemMedia[] = [];
+  const embed = post.embed;
+  if (embed) {
+    if (embed.images) {
+      for (const img of embed.images) {
+        media.push({
+          url: img.fullsize ?? img.thumb ?? '',
+          type: 'image',
+          alt: img.alt,
+          thumbnail_url: img.thumb,
+        });
+      }
+    }
+    if (embed.video) {
+      media.push({
+        url: embed.video.playlist ?? '',
+        type: 'video',
+        thumbnail_url: embed.video.thumbnail,
+      });
+    }
+  }
+
+  return {
+    provider: 'bluesky',
+    external_id: post.uri,
+    author_handle: post.author.handle,
+    author_name: post.author.displayName ?? post.author.handle,
+    content_text: record.text ?? '',
+    media,
+    permalink: atUriToHttps(post.uri, post.author.handle),
+    published_at: record.createdAt ?? post.indexedAt ?? new Date().toISOString(),
+    raw: feedItem,
+  };
+}
+
+// ── GitHub ────────────────────────────────────────────────────────────────
+
+interface GitHubEvent {
+  id: string;
+  type?: string;
+  actor?: {
+    login?: string;
+    display_login?: string;
+  };
+  repo?: {
+    name?: string;
+    url?: string;
+  };
+  payload?: {
+    action?: string;
+    commits?: Array<{ message?: string }>;
+    pull_request?: { title?: string; html_url?: string };
+    issue?: { title?: string; html_url?: string };
+  };
+  created_at?: string;
+}
+
+export function normaliseGitHub(event: GitHubEvent): UnifiedFeedItem {
+  const handle = event.actor?.login ?? 'unknown';
+  const displayName = event.actor?.display_login ?? handle;
+  const repoName = event.repo?.name ?? '';
+
+  let text = `[${event.type ?? 'Event'}] on ${repoName}`;
+  let permalink = `https://github.com/${repoName}`;
+
+  if (event.payload) {
+    const p = event.payload;
+    if (event.type === 'PushEvent') {
+      const msg = p.commits?.[0]?.message ?? '';
+      text = `Pushed to ${repoName}${msg ? `: ${msg}` : ''}`;
+    } else if (event.type === 'PullRequestEvent' && p.pull_request) {
+      text = `${p.action ?? 'Updated'} PR: ${p.pull_request.title ?? ''}`;
+      permalink = p.pull_request.html_url ?? permalink;
+    } else if (event.type === 'IssuesEvent' && p.issue) {
+      text = `${p.action ?? 'Updated'} issue: ${p.issue.title ?? ''}`;
+      permalink = p.issue.html_url ?? permalink;
+    }
+  }
+
+  return {
+    provider: 'github',
+    external_id: event.id,
+    author_handle: handle,
+    author_name: displayName,
+    content_text: text,
+    media: [],
+    permalink,
+    published_at: event.created_at ?? new Date().toISOString(),
+    raw: event,
+  };
+}
+
+// ── Reddit ────────────────────────────────────────────────────────────────
+
+interface RedditPost {
+  data: {
+    id: string;
+    name?: string;
+    title?: string;
+    selftext?: string;
+    url?: string;
+    permalink?: string;
+    author?: string;
+    subreddit_name_prefixed?: string;
+    thumbnail?: string;
+    post_hint?: string;
+    created_utc?: number;
+  };
+}
+
+export function normaliseReddit(post: RedditPost): UnifiedFeedItem {
+  const d = post.data;
+  const handle = d.author ?? 'unknown';
+  const sub = d.subreddit_name_prefixed ?? 'r/unknown';
+
+  const media: FeedItemMedia[] = [];
+  if (d.thumbnail && d.thumbnail !== 'self' && d.thumbnail !== 'nsfw' && d.thumbnail !== 'default') {
+    media.push({
+      url: d.thumbnail,
+      type: d.post_hint === 'video' ? 'video' : 'image',
+    });
+  }
+
+  return {
+    provider: 'reddit',
+    external_id: d.id,
+    author_handle: `u/${handle}`,
+    author_name: handle,
+    content_text: d.title ?? d.selftext ?? '',
+    media,
+    permalink: d.permalink
+      ? `https://reddit.com${d.permalink}`
+      : d.url ?? `https://reddit.com/${d.name ?? ''}`,
+    published_at: d.created_utc
+      ? new Date(d.created_utc * 1000).toISOString()
+      : new Date().toISOString(),
+    raw: post,
+  };
+}
+
+// ── Nostr ─────────────────────────────────────────────────────────────────
+
+interface NostrEvent {
+  id: string;
+  pubkey: string;
+  kind: number;
+  content?: string;
+  created_at?: number;
+  tags?: string[][];
+  /** Resolved display name from kind-0 profile (caller provides) */
+  authorName?: string;
+  /** Resolved NIP-19 npub (caller provides) */
+  npub?: string;
+}
+
+export function normaliseNostr(event: NostrEvent): UnifiedFeedItem {
+  const handle = event.npub ?? event.pubkey.slice(0, 16);
+  const created = event.created_at
+    ? new Date(event.created_at * 1000).toISOString()
+    : new Date().toISOString();
+
+  return {
+    provider: 'nostr',
+    external_id: event.id,
+    author_handle: handle,
+    author_name: event.authorName ?? handle,
+    content_text: event.content ?? '',
+    media: [],
+    permalink: `https://njump.me/${event.id}`,
+    published_at: created,
+    raw: event,
+  };
+}
+
+// ── Dedup helper ──────────────────────────────────────────────────────────
+
+/**
+ * Deduplicates a list of UnifiedFeedItems by (provider, external_id).
+ * The first occurrence wins; duplicates are dropped.
+ */
+export function deduplicateFeedItems(items: UnifiedFeedItem[]): UnifiedFeedItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = `${item.provider}:${item.external_id}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// ── Internal helpers ──────────────────────────────────────────────────────
+
+/** Strip HTML tags from a string, returning plain text. */
+export function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Extract hostname from a URL, falling back to the raw string on failure. */
+export function hostFromUrl(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+}
+
+/** Convert an AT Protocol URI (at://did:plc:.../app.bsky.feed.post/...) to an https URL. */
+export function atUriToHttps(atUri: string, handle: string): string {
+  // at://did:plc:xxx/app.bsky.feed.post/yyy → https://bsky.app/profile/{handle}/post/yyy
+  const parts = atUri.split('/');
+  const rkey = parts[parts.length - 1];
+  return `https://bsky.app/profile/${handle}/post/${rkey}`;
+}
