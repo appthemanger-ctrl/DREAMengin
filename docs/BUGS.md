@@ -1,13 +1,12 @@
 # DREAMengin — BUGS & Open Issues
 
-Last updated: 2026-03-10
 > **Auto-generated** by `scripts/update-bugs.mjs` on every push.  
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-10 15:02 UTC  
-**Triggered by commit:** `2d12175` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #147 from appthemanger-ctrl/copilot/create-product-identity-consitution
+**Last updated:** 2026-03-10 15:04 UTC  
+**Triggered by commit:** `d5df0d3` on `copilot/update-phase-6-docs` by appthemanger-ctrl  
+**Commit message:** Merge branch 'completedream' into copilot/update-phase-6-docs
 
 ---
 
@@ -27,13 +26,6 @@ every element is a live, interactive widget that the user owns, arranges, and pu
 | 4 | Security by Default | Least privilege, RLS everywhere, no secrets to client. |
 | 5 | Privacy by Design | Users own their data. Private by default. Deletable. |
 
-| Area | Status | Current gap |
-|---|---|---|
-| Canonical six pairs | 🟡 | Six canonical Side A routes exist, but extra daydream routes remain in the repo. |
-| GameEngin component | ✅ | `components/daydream/GameEngin.tsx` created in Phase 6. |
-| useDaydreamState hook | ✅ | `lib/daydream/useDaydreamState.ts` created in Phase 6. |
-| DaydreamShell sideBComponent | ✅ | `DaydreamShell` now accepts `sideBComponent` prop; `GameEngin` wired into Games Daydream page. |
-| Engin naming | 🟡 | Some Engin-side behavior exists in components rather than clearly named Engin surfaces. |
 ### Navigation model
 
 - The user is always conceptually inside **Home (node 0)**.
@@ -48,21 +40,6 @@ every element is a live, interactive widget that the user owns, arranges, and pu
 - **Space Grotesk** font. Consistent radius family (6 / 10 / 14 / 18 / 24 / 32 / 9999 px).
 - Every page uses `de-sky-bg` + `de-widget` glass cards.
 
-| Area | Status | Current gap |
-|---|---|---|
-| Dr. Eams routing | 🟡 | Canonical `/api/ai/eams` exists, but legacy `/api/dr-eams/*` routes remain. HomeDream search bar integration is unimplemented. Phase 6 item. |
-| Dr. Eams send-to-DreamDM | 🟡 | Dr. Eams must launch DreamDM when user presses send in HomeDream. Phase 6 item. |
-| IDARi exposure rules | 🟡 | Admin-only model is documented but IDARi guard under dev bypass is unverified. Phase 6 item. |
-| TheBoogieMan.Ai privacy logging | 🟡 | TheBoogieMan must log privacy-adjacent events (visibility changes, profile publication). Phase 6 item. |
-| AI Triad consensus gate | 🟡 | Unanimous triad approval for major updates is not yet enforced. Phase 6 item. |
-
-## Privacy system
-
-| Area | Status | Current gap |
-|---|---|---|
-| visibility_mappings consultation | 🟡 | ViewProfile and public profile routes must consult the `visibility_mappings` table before rendering; this is not yet enforced. Phase 6 item. |
-| Private-save vs explicit-share | 🟡 | EditProfileDream has a save flow but does not distinguish between local private save and explicit public share. Phase 6 item. |
-| Real capability audit | 🟡 | No systematic audit has been done to confirm all visible actions map to real system calls. Phase 6 item. |
 ### AI Triad
 
 | Agent | Role | Audience |
