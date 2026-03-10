@@ -93,3 +93,19 @@ The following items are the Phase 6 focus. See `docs/dreamengin_phase6.md` for t
 10. ⏳ Separate user DreamAds from platform promotions in code and UI language.
 11. ⏳ Repurpose legacy Daydream routes (`analytics`, `media-vault`, `play`).
 12. ⏳ Complete real-capability audit: replace all fake actions with real ones.
+## 8. Current alignment priorities
+
+1. Make spec names primary everywhere in docs and UI copy.
+2. Continue folding legacy widget naming into Dreams naming.
+3. Tighten EditProfileDream → ViewProfile projection boundaries.
+4. Repurpose extra legacy routes into spec-defined systems instead of keeping them as free-floating product names.
+
+## 9. Phase 7 — Product Identity, Naming, and Constitution
+
+| Item | Status | Repo truth |
+|---|---|---|
+| Product definition document | ✅ | `docs/PRODUCT_DEFINITION.md` — locked final authority on what DREAMengin is and is not. |
+| Naming authority document | ✅ | `docs/NAMING_AUTHORITY.md` — locked canonical names, rejection list, validation rules, AI agent reference. |
+| Product constitution document | ✅ | `docs/CONSTITUTION.md` — locked binding rules covering privacy, action honesty, user intent, navigation, anti-patterns, and valid proposals. |
+| Machine-readable naming library | ✅ | `lib/identity/canonical-names.ts` — TypeScript exports for all canonical names and validation functions. |
+| Naming authority tests | ✅ | `tests/phase7-naming.test.ts` — programmatic validation of naming authority rules. |
