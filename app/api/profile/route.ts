@@ -82,7 +82,7 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { display_name, bio, avatar_url, banner_url, website, location } = body;
+  const { display_name, bio, avatar_url, banner_url, website, location, dreams } = body;
 
   const updateData: Record<string, unknown> = {
     updated_at: new Date().toISOString(),
@@ -94,6 +94,18 @@ export async function PUT(req: NextRequest) {
   if (banner_url !== undefined) updateData.banner_url = banner_url;
   if (website !== undefined) updateData.website = website?.trim();
   if (location !== undefined) updateData.location = location?.trim();
+  // dreams: Widget[] JSON — stores the user's Dream configuration for ViewProfile.
+  // Validate each item has at minimum an id (string) and type (string) before persisting.
+  if (Array.isArray(dreams)) {
+    const sanitised = (dreams as unknown[]).filter(
+      (item): item is Record<string, unknown> =>
+        item !== null &&
+        typeof item === 'object' &&
+        typeof (item as Record<string, unknown>).id === 'string' &&
+        typeof (item as Record<string, unknown>).type === 'string',
+    );
+    updateData.profile_dreams = sanitised;
+  }
 
   const { data: profile, error } = await supabase
     .from('profiles')

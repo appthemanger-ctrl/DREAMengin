@@ -31,7 +31,7 @@ export default async function MediaVaultPage() {
   return (
     <DaydreamShell
       title="Asset Library"
-      enginName="MediaEngin"
+      enginName="ContentEngin"
       accentColor="#c8981a"
       widgets={WIDGETS}
     >

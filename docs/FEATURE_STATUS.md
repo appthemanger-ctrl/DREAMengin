@@ -1,6 +1,6 @@
 # DREAMengin Feature Status
 
-Last updated: 2026-03-08 (IDARi alignment pass 3)
+Last updated: 2026-03-10 (IDARi alignment pass 4)
 Source of truth for product naming: `README.md`
 
 Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly aligned
@@ -10,8 +10,8 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 | Surface | Status | Repo truth |
 |---|---|---|
 | HomeDream | ✅ | Canonical route exists at `/homedream`; support route also exists at `/home`. |
-| EditProfileDream | 🟡 | Canonical route exists at `/edit-profiledream`; support route also exists at `/edit-profile`. Header subtitle now says "Private builder — set visibility per Dream before saving to ViewProfile". View Profile preview button now correctly links to `/profile/[handle]`. Naming is mostly aligned; projection boundary is clearer. |
-| ViewProfile | 🟡 | Canonical route at `/view-profile` redirects to `/profile/[handle]`. Public profile page now shows "ViewProfile" heading for owner (not "My Profile"). Edit link now goes to `/edit-profiledream` (canonical). Privacy enforcement added: public view only renders Dreams with `visibilityTier==='everyone'`. Locked empty state shown when no Dreams are explicitly made public. |
+| EditProfileDream | 🟡 | Canonical route exists at `/edit-profiledream`; support route also exists at `/edit-profile`. Header subtitle now says "Private builder — set visibility per Dream before saving to ViewProfile". View Profile preview button correctly links to `/profile/[handle]`. On save, Dream configuration (including visibility tiers) is now persisted to the `profiles.profile_dreams` DB column via `/api/profile` PUT. |
+| ViewProfile | ✅ | Canonical route at `/view-profile` redirects to `/profile/[handle]`. Public profile page loads `profile_dreams` from Supabase and passes to `ProfileWidgetGrid` as `initialWidgets`. Only Dreams with `visibilityTier==='everyone'` render; locked empty state shown when none are public. DB-backed privacy enforcement complete. |
 
 ## 2. Dreams system
 
@@ -34,7 +34,7 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 | Code / CodeEngin | ✅ | `app/daydream/code/page.tsx` exists. |
 | Brand / BrandingEngin | ✅ | `app/daydream/brand/page.tsx` exists. |
 | Create / ContentEngin | ✅ | `app/daydream/create/page.tsx` exists. |
-| Legacy extra daydream routes | 🟡 | `analytics`, `media-vault`, and `play` still exist and should be repurposed, not treated as canonical product surfaces. |
+| Legacy extra daydream routes | 🟡 | `analytics` (Performance Signals / BrandingEngin), `media-vault` (Asset Library / ContentEngin — fixed from MediaEngin), and `play` (Playback / GameEngin) now all use canonical Engin names. Routes still exist at legacy paths; internal redirects or spec-defined route aliases still needed. |
 
 ## 4. Platform modules
 
@@ -58,8 +58,8 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 
 | Rule | Status | Repo truth |
 |---|---|---|
-| Nothing public by default | 🟡 | `ProfileWidgetGrid` now enforces this in public view: only renders Dreams with `visibilityTier==='everyone'`; shows locked empty state otherwise. LAW.md §2 is now enforced at the component level. DB-backed visibility syncing (via `widget_instances`) exists but full flow from DB on public page load still needs wiring. |
-| Save before public/shared update | 🟡 | EditProfileDream saves before navigating to ViewProfile. Subtitle now explicitly says "Private builder". Quick-link to EditProfileDream added to CoreDream ProfileFace. |
+| Nothing public by default | ✅ | `ProfileWidgetGrid` enforces in public view: only renders Dreams with `visibilityTier==='everyone'`; shows locked empty state otherwise. DB-backed: `profiles.profile_dreams` column (JSONB) stores Dream configuration including visibility tiers. Public profile page loads from DB and passes as `initialWidgets`. LAW.md §2 / AXIOM 5 enforced end-to-end. |
+| Save before public/shared update | ✅ | EditProfileDream saves Dream config (including visibility) to DB via `/api/profile` PUT before navigating to ViewProfile. Profile privacy is server-side durable. |
 | No fake actions | ✅ | Repo direction and docs explicitly reject fake buttons and fake states. |
 
 ## 7. Design language
@@ -72,7 +72,7 @@ Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly
 
 ## 8. Current alignment priorities
 
-1. Wire public profile page to load actual saved widget visibility from DB (not just localStorage).
-2. Continue folding remaining `components/widgets/*.tsx` file names into Dreams naming.
-3. Repurpose extra legacy routes into spec-defined systems instead of keeping them as free-floating product names.
-4. Tighten automatic SuperDreamWidget composition rules for profile output.
+1. Continue folding remaining `components/widgets/*.tsx` file names into Dreams naming.
+2. Deepen the depth of each Daydream mini-app (routes exist; content depth varies).
+3. Tighten automatic SuperDreamWidget composition rules for profile output.
+4. Build real feed content from real connectors.

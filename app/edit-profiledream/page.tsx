@@ -84,6 +84,8 @@ export default function EditProfileDreamPage() {
           banner_url: profile.banner_url,
           website: profile.website,
           location: profile.location,
+          // Persist Dream configuration to DB so ViewProfile loads correct visibility.
+          dreams: widgets,
         }),
       });
       if (!res.ok) {
@@ -91,7 +93,7 @@ export default function EditProfileDreamPage() {
         setSaveError((data as { error?: string }).error || 'Failed to save.');
         return;
       }
-      // Persist widget order locally
+      // Also persist widget order locally as a fast-load cache.
       localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
       setInitialProfile(profile);
       setInitialWidgets(widgets);

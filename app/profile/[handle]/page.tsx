@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Menu, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
-import ProfileWidgetGrid from '@/components/profile/ProfileWidgetGrid';
+import ProfileWidgetGrid, { type Widget } from '@/components/profile/ProfileWidgetGrid';
 import FollowButton from '@/components/feed/FollowButton';
 import ProfileShareButton from '@/components/ProfileShareButton';
 
@@ -17,6 +17,8 @@ type Profile = {
   followers_count?: number | null;
   following_count?: number | null;
   posts_count?: number | null;
+  /** DB-backed Dream configuration saved from EditProfileDream (Pass 4). */
+  profile_dreams?: unknown;
 };
 
 interface ProfilePageProps {
@@ -50,6 +52,23 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const profile = rawProfile as Profile;
   const isOwner = currentUser?.id === profile.id;
   const displayName = profile.display_name || profile.handle;
+
+  // Load DB-backed Dream configuration for the public profile (Pass 4).
+  // profile_dreams is stored as Widget[] JSON in the profiles table.
+  // Falls back to undefined (ProfileWidgetGrid uses DEFAULT_WIDGETS then filters
+  // by visibilityTier — showing the locked empty state if none are public).
+  let initialDreams: Widget[] | undefined;
+  if (Array.isArray(profile.profile_dreams) && profile.profile_dreams.length > 0) {
+    // Keep only well-formed items (must have id: string and type: string).
+    const validated = (profile.profile_dreams as unknown[]).filter(
+      (item): item is Widget =>
+        item !== null &&
+        typeof item === 'object' &&
+        typeof (item as Record<string, unknown>).id === 'string' &&
+        typeof (item as Record<string, unknown>).type === 'string',
+    );
+    if (validated.length > 0) initialDreams = validated;
+  }
 
   return (
     <div style={{
@@ -359,6 +378,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             posts={profile.posts_count ?? 12}
             likes={46}
             isEditing={false}
+            initialWidgets={initialDreams}
           />
         </div>
 
