@@ -198,7 +198,7 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
         </Panel>
 
         {/* System panel — RIGHT with Dr. Eams at top (spec §17.3 / §4.2) */}
-        <Panel title="Menu">
+        <Panel title="DreamMenu">
           {SYSTEM_ITEMS.map((item) => (
             <PanelItem
               key={item.id}

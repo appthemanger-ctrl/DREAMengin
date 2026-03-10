@@ -53,7 +53,7 @@ export default async function AdsPage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <DollarSign className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Ads Marketplace</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>DreamAds</h1>
           <Link href="/ads/create" className="de-btn de-btn-gold ml-auto" style={{ gap: 6, minHeight: 40 }}>
             <Plus className="w-4 h-4" />
             Create Slot

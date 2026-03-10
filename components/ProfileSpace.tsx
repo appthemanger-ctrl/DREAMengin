@@ -12,6 +12,10 @@ interface ProfileSpaceProps {
 }
 
 /**
+ * Profile Dream slot surface used by EditProfileDream and ViewProfile.
+ * "ProfileSpace" is the legacy internal name; the spec surfaces are
+ * EditProfileDream (editing=true) and ViewProfile (editing=false).
+ *
  * ProfileSpace - Freeform widget instance space for PROFILE mode
  * Widgets use continuous transform coordinates, z-order sorted
  */

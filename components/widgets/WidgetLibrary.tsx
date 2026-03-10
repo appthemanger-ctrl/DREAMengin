@@ -35,7 +35,7 @@ export default function WidgetLibrary({
 }: WidgetLibraryProps) {
   const [activeCategory, setActiveCategory] = useState<typeof CATEGORIES[number]>('All');
   const [adding, setAdding] = useState<string | null>(null);
-  const [destination, setDestination] = useState('Home');
+  const [destination, setDestination] = useState('HomeDream');
   // Suggested widgets from installFlow store (req 8, 35)
   const [suggested, setSuggested] = useState<SuggestedWidget[]>([]);
 
@@ -233,7 +233,7 @@ export default function WidgetLibrary({
               Choose where this Dream will appear.
             </div>
             <div style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
-              {['Home', 'Profile', 'Public Profile'].map((dest) => (
+              {['HomeDream', 'EditProfileDream', 'ViewProfile'].map((dest) => (
                 <button
                   key={dest}
                   type="button"
@@ -250,10 +250,10 @@ export default function WidgetLibrary({
                     color: destination === dest ? 'var(--de-accent)' : 'var(--de-text)',
                   }}
                 >
-                  {dest === 'Public Profile' ? '🌐 ' : dest === 'Profile' ? '👤 ' : '🏠 '}{dest}
-                  {dest === 'Public Profile' && (
+                  {dest === 'ViewProfile' ? '🌐 ' : dest === 'EditProfileDream' ? '👤 ' : '🏠 '}{dest}
+                  {dest === 'ViewProfile' && (
                     <span style={{ display: 'block', fontSize: 10, fontWeight: 400, color: 'var(--de-text-dim)', marginTop: 2 }}>
-                      Visible to anyone visiting your profile URL
+                      Visible to anyone visiting your ViewProfile URL
                     </span>
                   )}
                 </button>
