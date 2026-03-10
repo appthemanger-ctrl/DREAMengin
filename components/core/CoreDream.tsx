@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
 import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
 
 type CoreFace = 'home' | 'profile';
@@ -247,168 +246,129 @@ function MetricsRow() {
 }
 
 /* ── Home face — delegates to WorkspaceDashboard ── */
-function HomeFace({ onOpenDrEams, profile, posts, onFlipToProfile }: {
+function HomeFace({ onOpenDrEams, profile, posts }: {
   onOpenDrEams: () => void;
   profile: Props['profile'];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   posts?: any[];
-  onFlipToProfile?: () => void;
 }) {
   return (
     <WorkspaceDashboard
       profile={profile}
       posts={posts ?? []}
       onOpenDrEams={onOpenDrEams}
-      onFlipToProfile={onFlipToProfile}
     />
   );
 }
 
-/* ── Profile face — Mockup 2: avatar hero card + connected app tiles grid ── */
-const PROFILE_APP_TILES = [
-  { label: 'TikTok',    emoji: '🎵', color: '#010101' },
-  { label: 'Music',     emoji: '🎶', color: '#1DB954' },
-  { label: 'Spotify',   emoji: '🎧', color: '#1DB954' },
-  { label: 'Instagram', emoji: '📷', color: '#e1306c' },
-  { label: 'YouTube',   emoji: '▶️', color: '#FF0000' },
-  { label: 'Twitter',   emoji: '🐦', color: '#1da1f2' },
-  { label: 'LinkedIn',  emoji: '💼', color: '#0077b5' },
-  { label: 'Messages',  emoji: '💬', color: '#25D366' },
-  { label: 'Snapchat',  emoji: '👻', color: '#FFFC00' },
-] as const;
-
+/* ── Profile face ── */
 function ProfileFace({ profile, onToggleFace }: { profile: Props['profile']; onToggleFace: () => void }) {
-  const name    = profile?.display_name || 'Dreamer';
-  const handle  = profile?.handle || 'dreamer';
-  const avatarUrl = profile?.avatar_url;
+  const name   = profile?.display_name || 'Dreamer';
+  const handle = profile?.handle || 'dreamer';
 
   return (
     <div style={{ padding: '0 0 24px' }}>
+      {/* Back button */}
+      <button
+        type="button"
+        onClick={onToggleFace}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 6,
+          fontSize: 13, color: 'var(--de-text-dim)', padding: '12px 0 8px',
+          fontWeight: 600,
+        }}
+      >
+        ← Home
+      </button>
 
-      {/* ── Avatar hero card ── */}
-      <div style={{
-        background: 'rgba(255,255,255,0.68)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderRadius: 24,
-        border: '1px solid rgba(255,255,255,0.85)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
-        marginBottom: 16,
-        overflow: 'hidden',
-      }}>
-        {/* Banner area */}
+      {/* Avatar + info */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginBottom: 22 }}>
         <div style={{
-          height: 80,
-          background: 'linear-gradient(135deg, var(--de-bg-start), var(--de-bg-mid), var(--de-bg-end))',
-        }} />
+          width: 80, height: 80, borderRadius: '50%',
+          background: 'linear-gradient(135deg, var(--de-gold), var(--de-accent))',
+          border: '3px solid rgba(200,152,26,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 32, fontWeight: 700, color: 'white',
+        }}>
+          {name[0]?.toUpperCase()}
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--de-heading)' }}>{name}</div>
+          <div style={{ fontSize: 14, color: 'var(--de-text-dim)' }}>@{handle}</div>
+          <div style={{ fontSize: 13, color: 'var(--de-text-dim)', marginTop: 4 }}>24,981 Followers</div>
+        </div>
+        <button
+          type="button"
+          style={{
+            padding: '8px 28px', borderRadius: 100,
+            background: 'var(--de-heading)', color: 'white',
+            fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer',
+          }}
+        >
+          Follow
+        </button>
+      </div>
 
-        {/* Avatar + info + chevron row */}
-        <div style={{ padding: '0 16px 16px', position: 'relative', marginTop: -36 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14 }}>
-            {/* Large avatar */}
-            <div style={{
-              width: 72, height: 72, borderRadius: '50%', flexShrink: 0,
-              border: '3px solid rgba(200,152,26,0.45)',
-              background: avatarUrl ? undefined : 'linear-gradient(135deg, #c8981a, #4A9ED6)',
-              overflow: 'hidden',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 26, fontWeight: 700, color: '#fff',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
-            }}>
-              {avatarUrl
-                // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={avatarUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : name[0]?.toUpperCase()}
-            </div>
-
-            {/* Name + handle */}
-            <div style={{ flex: 1, paddingBottom: 4 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>{name}</div>
-              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 2 }}>@{handle}</div>
-              <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 1 }}>24,981 Followers</div>
-            </div>
-
-            {/* Chevron — flip back to home */}
-            <button
-              type="button"
-              onClick={onToggleFace}
-              style={{
-                width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-                background: 'rgba(200,152,26,0.12)',
-                border: '1px solid rgba(200,152,26,0.30)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', fontSize: 18, color: '#c8981a',
-                alignSelf: 'center',
-              }}
-              aria-label="Flip to home"
-            >
-              ›
-            </button>
+      {/* Stats grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
+        {[
+          { label: 'Photos',       value: '637'           },
+          { label: 'Achievements', value: '23', badge: 23 },
+          { label: 'Dream Goals',  value: '12', badge: 12 },
+          { label: 'About Me',     value: 'Bio & Interests' },
+        ].map((item) => (
+          <div key={item.label} style={{
+            background: 'rgba(255,255,255,0.88)', borderRadius: 14,
+            boxShadow: '0 1px 8px rgba(0,0,0,0.05)',
+            textAlign: 'center', padding: '14px 8px', position: 'relative',
+          }}>
+            {item.badge !== undefined && (
+              <span style={{
+                position: 'absolute', top: -4, right: -4,
+                background: 'var(--de-gold)', color: 'white',
+                fontSize: 10, fontWeight: 700, borderRadius: 100,
+                width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {item.badge}
+              </span>
+            )}
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', marginBottom: 4 }}>{item.label}</div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{item.value}</div>
           </div>
+        ))}
+      </div>
 
-          {/* Spec-first navigation shortcuts */}
-          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <Link href="/edit-profiledream" style={{
-              padding: '6px 14px', borderRadius: 100,
-              background: 'rgba(200,152,26,0.12)',
-              border: '1px solid rgba(200,152,26,0.3)',
-              color: '#c8981a', fontSize: 11, fontWeight: 700,
-              textDecoration: 'none',
-            }}>
-              ✎ Edit ProfileDream
-            </Link>
-            <Link href={handle ? `/profile/${handle}` : '/view-profile'} style={{
-              padding: '6px 14px', borderRadius: 100,
-              background: 'rgba(42,138,184,0.10)',
-              border: '1px solid rgba(42,138,184,0.25)',
-              color: 'var(--de-accent)', fontSize: 11, fontWeight: 700,
-              textDecoration: 'none',
-            }}>
-              👁 ViewProfile
-            </Link>
-          </div>
+      {/* Social widgets row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+        <div style={{ background: 'rgba(255,255,255,0.88)', borderRadius: 16, boxShadow: '0 1px 8px rgba(0,0,0,0.05)', padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8 }}>TikTok</div>
+          <div style={{ fontSize: 12, color: 'var(--de-text)', lineHeight: 1.5 }}>NEW VIDEO! Exploring the World!</div>
+          <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 6 }}>218.7K views</div>
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.88)', borderRadius: 16, boxShadow: '0 1px 8px rgba(0,0,0,0.05)', padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8 }}>Music</div>
+          <div style={{ fontSize: 12, color: 'var(--de-text)', lineHeight: 1.5 }}>Vlay Vibe - chill &amp; resonance</div>
+          <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 6 }}>4:38</div>
         </div>
       </div>
 
-      {/* ── Connected app tiles — 3-column iOS grid (Mockup 2) ── */}
-      <div style={{
-        background: 'rgba(255,255,255,0.52)',
-        backdropFilter: 'blur(18px)',
-        WebkitBackdropFilter: 'blur(18px)',
-        borderRadius: 24,
-        border: '1px solid rgba(255,255,255,0.80)',
-        boxShadow: '0 6px 24px rgba(0,0,0,0.08)',
-        padding: '16px 14px',
-        marginBottom: 16,
-      }}>
-        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 12 }}>
-          Connected Apps
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-          {PROFILE_APP_TILES.map(app => (
-            <div key={app.label} style={{
-              background: 'rgba(255,255,255,0.80)',
-              backdropFilter: 'blur(12px)',
-              borderRadius: 18, padding: '14px 8px',
-              border: '1px solid rgba(255,255,255,0.90)',
-              boxShadow: '0 3px 12px rgba(0,0,0,0.06)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
-              cursor: 'pointer',
-            }}>
-              <div style={{
-                width: 42, height: 42, borderRadius: 13,
-                background: `${app.color}18`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 22,
-              }}>
-                {app.emoji}
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-heading)', textAlign: 'center' }}>
-                {app.label}
-              </span>
-            </div>
-          ))}
-        </div>
+      {/* Bottom row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+        {[
+          { label: 'YouTube', value: '95k views'   },
+          { label: 'Friends', value: '257'          },
+          { label: 'Twitter', value: '#dreamingbig' },
+        ].map((item) => (
+          <div key={item.label} style={{
+            background: 'rgba(255,255,255,0.88)', borderRadius: 14,
+            boxShadow: '0 1px 8px rgba(0,0,0,0.05)',
+            textAlign: 'center', padding: 12,
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{item.label}</div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 4 }}>{item.value}</div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -490,7 +450,7 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClos
   // Home face — WorkspaceDashboard is full-screen, owns its own header + layout
   return (
     <div style={{ width: '100%', minHeight: '100svh' }}>
-      <HomeFace onOpenDrEams={onOpenDrEams} profile={profile} posts={posts} onFlipToProfile={onToggleFace} />
+      <HomeFace onOpenDrEams={onOpenDrEams} profile={profile} posts={posts} />
     </div>
   );
 }

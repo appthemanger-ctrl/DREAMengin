@@ -31,7 +31,7 @@ type WidgetSlot = {
 const WIDGET_SLOTS: WidgetSlot[] = [
   { id: 'music',       icon: Music,       label: 'Music',        desc: 'Your releases & playlists',  color: '#2a8ab8' },
   { id: 'shop',        icon: ShoppingBag, label: 'Shop',         desc: 'Your products & listings',   color: '#c8981a' },
-  { id: 'posts',       icon: FileText,    label: 'Posts',        desc: 'Recent updates & thoughts',  color: '#3b7dd8' },
+  { id: 'posts',       icon: FileText,    label: 'Posts',        desc: 'Recent updates & thoughts',  color: '#6366f1' },
   { id: 'connections', icon: Users,       label: 'Connections',  desc: 'Your top follows',           color: '#22c55e' },
   { id: 'media',       icon: ImageIcon,   label: 'Asset Library',  desc: 'Photos & videos you share',  color: '#ec4899' },
   { id: 'analytics',   icon: BarChart3,   label: 'Performance Signals',  desc: 'Public reach numbers',       color: '#f59e0b' },

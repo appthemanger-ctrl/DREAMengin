@@ -47,12 +47,12 @@ const DAYDREAM_ITEMS: Array<{ icon: string; label: string; route: string }> = [
 
 /** Right panel: standard app menu functions + Dr. Eams (spec §17.3) */
 const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; icon: string; label: string }> = [
-  { id: 'dr-eams',       icon: '∞',  label: 'Dr. Eams'            },
-  { id: 'profiles',      icon: '👤', label: 'ViewProfile'          },
-  { id: 'settings',      icon: '⚙️', label: 'Settings'             },
-  { id: 'marketplace',   icon: '🏪', label: 'DreamMarketplace'     },
-  { id: 'feed-settings', icon: '📡', label: 'Feed Sources'         },
-  { id: 'appearance',    icon: '🎨', label: 'Appearance'           },
+  { id: 'dr-eams',       icon: '∞',  label: 'Dr. Eams'     },
+  { id: 'profiles',      icon: '👤', label: 'Profiles'      },
+  { id: 'settings',      icon: '⚙️', label: 'Settings'      },
+  { id: 'marketplace',   icon: '🏪', label: 'Marketplace'   },
+  { id: 'feed-settings', icon: '📡', label: 'Feed Sources'  },
+  { id: 'appearance',    icon: '🎨', label: 'Appearance'    },
 ];
 
 /* ── Sub-components ─────────────────────────────────────────────────────────── */
@@ -197,8 +197,8 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
           ))}
         </Panel>
 
-        {/* DreamMenu panel — RIGHT with Dr. Eams at top (spec §17.3 / §4.2) */}
-        <Panel title="DreamMenu">
+        {/* System panel — RIGHT with Dr. Eams at top (spec §17.3 / §4.2) */}
+        <Panel title="Menu">
           {SYSTEM_ITEMS.map((item) => (
             <PanelItem
               key={item.id}

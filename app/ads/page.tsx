@@ -53,12 +53,7 @@ export default async function AdsPage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <DollarSign className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <div style={{ flex: 1 }}>
-            <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>DreamAds</h1>
-            <p style={{ fontSize: 10, color: 'var(--de-text-dim)', margin: 0, lineHeight: 1 }}>
-              Your ad spaces — user-owned, not platform ads
-            </p>
-          </div>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Ads Marketplace</h1>
           <Link href="/ads/create" className="de-btn de-btn-gold ml-auto" style={{ gap: 6, minHeight: 40 }}>
             <Plus className="w-4 h-4" />
             Create Slot
@@ -94,10 +89,7 @@ export default async function AdsPage() {
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">My DreamAds Slots</span>
-            <span style={{ fontSize: 10, color: 'var(--de-text-dim)', marginLeft: 4 }}>
-              User-owned — you control placement &amp; pricing
-            </span>
-            <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 'auto' }}>{mySlots.length} slot{mySlots.length !== 1 ? 's' : ''}</span>
+            <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{mySlots.length} slot{mySlots.length !== 1 ? 's' : ''}</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
             {mySlots.length === 0 ? (
@@ -144,12 +136,7 @@ export default async function AdsPage() {
         <div className="de-widget">
           <div className="de-widget-header">
             <ShoppingCart className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
-            <div style={{ flex: 1 }}>
-              <span className="de-widget-title">Buy Ad Space</span>
-              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1 }}>
-                Slots published by other creators — not platform ads
-              </div>
-            </div>
+            <span className="de-widget-title">Available DreamAds Slots</span>
             <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{marketplace.length} listing{marketplace.length !== 1 ? 's' : ''}</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>

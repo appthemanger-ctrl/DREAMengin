@@ -31,13 +31,3 @@ Prefer these names in docs and UI copy:
 - DreamAds
 
 Support and legacy routes may still exist, but they should not win the language model.
-
-## Generation law
-
-All AI agents operating on this repo are bound by the Generation Law (docs/GENERATION_LAW.md).
-
-Key obligations:
-- Compute χ (app-build load) before every generation pass and select the correct mode (create / conform / patch only).
-- Respect the allowed-output formula; split over-scoped passes into sub-passes.
-- Audit every pass for all seven residual classes (architecture, naming, token, behavior, privacy, performance, projection).
-- File unresolved residuals in BUGS.md before opening a new create-mode pass.

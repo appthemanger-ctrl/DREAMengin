@@ -198,7 +198,7 @@ export default function AIAssistant() {
       return 'To create a post, use the Create entry in the nav. You can add text, images, and tags. Ask me to open Create and I will do it.';
     }
     if (lowerQuery.includes('profile')) {
-      return 'Edit ProfileDream lets you tune your presence: bio, avatar, theme, showcases, and more. Ask me to open Edit ProfileDream.';
+      return 'Edit Profile lets you tune your presence: bio, avatar, theme, showcases, and more. Ask me to open Edit Profile.';
     }
     if (lowerQuery.includes('ad') || lowerQuery.includes('monetize')) {
       return 'Ads is your monetization surface. You can configure slots and pricing, then track performance. Ask me to open Ads.';

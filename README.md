@@ -8,40 +8,9 @@ Date: March 6, 2026
 
 1. Purpose and Product Definition
 
-DREAMengin is a customizable web app for creating, sharing, organizing, and connecting interactive modules across personal, creative, and social spaces. A social modular app whose navigation begins as a calm HomeDream and matures into an iOS Photos-style stacked surface system across the whole product.  DreamEngin introduces the DreamDM Bar connect you continuously to different sides of your world. 
-
-
-*This is a real product specification, not a concept sketch.*
+DREAMengin is a customizable web app for creating, sharing, organizing, and connecting interactive modules across personal, creative, and social spaces. This is a real product specification, not a concept sketch.
 
 The system is privacy-first, user-first, deeply customizable, modular, interconnected, and built for full creative freedom.
-
-	•	HomeDream is the root surface
-	•	everything else opens from it, not away from it
-	•	navigation should feel like depth, not page switching
-	•	profile is a flip/paired surface
-	•	Dreams open into deeper layers
-	•	Daydreams are not random routes, they are deeper spaces
-	•	going back should restore context, not reload a new world
-You’re not asking for:
-	•	tabs plus pages
-	•	dashboard cards plus links
-	•	web nav dressed up as native
-	•	surface stack navigation
-	•	state-preserving depth
-	•	IOS Photos-style continuity
-	•	across the whole app
-
-If a navigation move feels like:
-	•	leaving the world,
-	•	reloading the world,
-	•	or forgetting where you were,
-
-then it’s wrong.
-
-If it feels like:
-	•	opening deeper,
-	•	staying oriented,
-	•	and being able to flip back naturally,
 
 1.1 System Surfaces and Modules
 
@@ -213,8 +182,6 @@ Users may customize:
 
 Edit ProfileDream is the private builder surface for the user’s profile and public/shared-facing presentation.
 
-It is accessed from HomeDream and acts as the editing version of the profile surface.
-
 5.2 Functions
 
 Users may:
@@ -233,9 +200,6 @@ Users may:
 	•	edits must be reversible
 	•	layout must persist
 	•	no private HomeDream content appears publicly without explicit user action
-	•	Edit ProfileDream may visually match the public profile layout, but it remains a private builder surface
-	•	moving widgets in Edit ProfileDream does not automatically update the public-facing profile
-	•	public-facing changes occur only when the user explicitly confirms Update Public View
 
 5.4 Profile Configuration
 
@@ -248,16 +212,6 @@ Users may configure:
 	•	layout hierarchy
 	•	thematic styling
 
-5.5 View Flow
-
-The intended profile flow is:
-
-	•	HomeDream → Edit ProfileDream
-	•	inside Edit ProfileDream, the user may choose Update Public View
-	•	inside Edit ProfileDream, the user may choose View Profile / Public View to see the public-facing result
-
-Edit ProfileDream is not itself the public view, even when it visually resembles it.
-
 ⸻
 
 6. View Profile (Public/Shared Output Surface)
@@ -266,17 +220,13 @@ Edit ProfileDream is not itself the public view, even when it visually resembles
 
 View Profile is the public or shared-facing result of what the user builds in Edit ProfileDream.
 
-It is the public-facing profile surface and does not act as the live editing surface.
-
 6.2 Access and Preview
-	•	View Profile is reached from Edit ProfileDream.
-	•	The View Profile / Public View control inside Edit ProfileDream opens the public-facing profile view.
-	•	Users do not edit directly inside View Profile.
+	•	View Profile is a separate link available from Edit ProfileDream so the user can preview before saving.
 
 6.3 Required Behavior
 
 View Profile must:
-	•	reflect the current public profile configuration
+	•	reflect the current profile configuration
 	•	show only explicitly allowed public/shared content
 	•	preserve widget interactions allowed in public context
 	•	never expose private HomeDream content
@@ -286,19 +236,10 @@ View Profile must:
 6.4 Preview Before Save Requirements
 
 Inside Edit ProfileDream, the user must be able to:
-	•	click View Profile / Public View
+	•	click View Profile
 	•	see the profile as a viewer would see it
 	•	return to editing
-	•	click Update Public View when ready
 	•	save only when satisfied
-
-6.5 Public View Update Rule
-
-View Profile does not live-update from widget movement inside Edit ProfileDream.
-
-The public-facing profile changes only after explicit user confirmation through Update Public View.
-
-This separation helps preserve intentional publishing and allows users to compare their private builder state against the public-facing result.
 
 ⸻
 
@@ -826,12 +767,10 @@ The AI system is a three-agent triad with distinct roles, strict access controls
 	•	a platform guide
 	•	a context-sensitive assistant
 	•	a primary search surface (as defined in HomeDream behavior)
-•only AI that non admin users can ask questions to. 
 	•	IDARi is admin-facing only and must not be accessible through standard user UI.
 	•	TheBoogieMan.Ai is system-level, conservative by default, and operates as enforcement + auditing.
 
 24.3 API Routes (Server-Side Only)
-
 
 Each AI has its own server-side API route:
 	•	/api/ai/eams
@@ -877,117 +816,7 @@ The launch version must:
 
 ⸻
 
-**27. Addendum: Expanded Platform Guarantees and Behaviors**  
-
-This section formalizes additional commitments and design requirements that emerged from review, ensuring the platform’s privacy-first, user-first foundation is reinforced in every layer.
-
----
-
-### 27.1 Data Portability and User Control
-
-**27.1.1 Export Format**  
-Users may export all their personal data—including profile information, widget configurations, created content, messages, and purchase history—in a **machine-readable, non-proprietary format** (JSON + associated media files). The export must be available through a clearly accessible interface (e.g., within Account Settings) and delivered as a downloadable archive within 48 hours of request.
-
-**27.1.2 Backup Guarantees**  
-The platform does not guarantee automatic backups of user-generated content beyond standard database redundancy. However, users are encouraged to use the export feature as their own backup mechanism. The platform will retain data only as long as the account is active or required by law.
-
-**27.1.3 Account Deletion**  
-Users may permanently delete their account and all associated data at any time. Deletion must be irreversible after a grace period (e.g., 30 days) during which the account can be restored. The deletion process must clearly inform the user of what data will be removed and what (if anything) may remain (e.g., public comments in forums, where removal would break threads, must be anonymized rather than deleted).
-
----
-
-### 27.2 Failure State Design Principles
-
-Every interaction must anticipate failure and respond in a way that preserves user trust and system integrity.
-
-**27.2.1 Widget Source Deletion**  
-If a widget’s data source (e.g., a specific feed, a connected service) is deleted or becomes unavailable:
-- The widget should display a **graceful placeholder** indicating the source is gone, along with an option to reconfigure or remove the widget.
-- The widget must not crash the surrounding surface or affect other widgets.
-- Notifications may alert the user to the broken source, but only if the user has opted into such alerts.
-
-**27.2.2 Daydreamengin Action Failures**  
-When an action within a Side B Engin fails (e.g., publish error, save conflict):
-- The system must display a **clear, non-technical error message** explaining what went wrong and suggesting next steps (retry, check settings, contact support).
-- The failure must not leave the user in an inconsistent state (e.g., partial saves must be rolled back or flagged as drafts).
-- Critical failures (e.g., payment processing) must trigger an immediate notification and, where appropriate, log an incident for admin review (via IDARi).
-
-**27.2.3 Dr. Eams Misunderstanding**  
-If Dr. Eams cannot understand a user request:
-- It must respond with a **humble, helpful message** (e.g., “I didn’t quite catch that. Could you rephrase or try one of these options?”).
-- It should offer fallback options: manual search, browsing help topics, or connecting to a human support contact if available.
-- Dr. Eams must never simulate understanding or invent an action.
-
-**27.2.4 Marketplace Purchase Failure**  
-Failed transactions (payment declined, item unavailable) must:
-- Immediately revert any pending state (e.g., remove temporary holds on items).
-- Show a clear explanation and next steps (e.g., “Your payment didn’t go through. Please check your payment method or try again.”).
-- Never charge the user without explicit confirmation of success.
-
-**27.2.5 RLS Blocking Legitimate Access**  
-If Row Level Security incorrectly blocks a user’s access to their own content (due to policy misconfiguration or race condition):
-- The system should log the incident (via TheBoogieMan.Ai) for admin review.
-- The user-facing surface should display a generic “content unavailable” message with an option to report the problem.
-- Admins (via IDARi) must be able to audit and correct such failures without exposing private data.
-
----
-
-### 27.3 Offline Behavior and Resilience
-
-**27.3.1 Offline Capability**  
-While DREAMengin is primarily an online platform, the following surfaces **must** support basic offline read access:
-- HomeDream (cached version of last-loaded feed and widget states)
-- View Profile (cached public profile data)
-- Previously accessed Daydream surfaces (if the user explicitly marks them for offline use)
-
-**27.3.2 Caching Policy**  
-Cached data must be:
-- Encrypted at rest on the device.
-- Automatically refreshed when connectivity is restored.
-- Subject to user control (clear cache, disable offline mode).
-- Limited in size and age to prevent stale or excessive storage.
-
-**26.3.3 Offline Actions**  
-Any action initiated offline (e.g., composing a post, reconfiguring a widget) must be queued and executed when connectivity returns, with clear visual indication of pending actions. Conflicts (e.g., edits made both offline and online) must be resolved via user prompt or a deterministic last-write-wins rule, with an audit trail.
-
----
-
-### 27.4 Analytics Philosophy and Privacy
-
-**27.4.1 Telemetry Principles**  
-- **No data collection without consent:** All analytics are opt-in at account creation, with granular controls (e.g., crash reports, usage patterns, feature interaction).
-- **Anonymization by default:** If the user opts into analytics, data must be stripped of personally identifiable information (PII) before transmission.
-- **Minimal necessary:** Only collect data essential for improving the product and fixing errors. No behavioral profiling for advertising.
-- **Transparency:** Users can view exactly what data is collected, how it is used, and request deletion of their analytics history at any time.
-
-**27.4.2 Implementation**  
-Analytics will be handled by a privacy-respecting provider (e.g., Plausible, Simple Analytics) or a self-hosted solution that adheres to the above principles. No analytics data will be shared with third parties.
-
----
-
-### 27.5 TheBoogieMan.Ai Logging and Audit Scope
-
-**27.5.1 Logged Events**  
-TheBoogieMan.Ai logs only events related to policy enforcement and system integrity, including:
-- Attempted violations of privacy rules (e.g., access to private data without permission)
-- Anomalous patterns that might indicate abuse or malfunction
-- Consensus decisions (when triad approval is required)
-- Administrative actions taken by IDARi
-
-**27.5.2 Data in Logs**  
-- Logs **must not** contain user-identifiable information unless absolutely necessary for debugging a specific policy violation. In such cases, the identifier must be hashed and accessible only to authorized admins under explicit protocols.
-- All logs are encrypted at rest and retained for a maximum of 90 days, after which they are permanently deleted.
-
-**27.5.3 Audit Access**  
-- Only designated platform administrators may access TheBoogieMan.Ai logs, and such access is itself logged.
-- Regular audits of the logging system will be conducted to ensure compliance with privacy commitments.
-- Users have the right to request information about whether their data appeared in TheBoogieMan.Ai logs, subject to verification and legal constraints.
-
----
-
-*These additions reinforce DREAMengin’s commitment to being a platform users can truly own, trust, and rely on—even when things go wrong.*
-
-28. Final Product Philosophy
+26. Final Product Philosophy
 
 DREAMengin is a modular creative and social operating environment.
 
@@ -1005,193 +834,4 @@ Everything is user-first.
 Everything is privacy-first.
 Everything must feel owned by the user.
 
-⸻
-
-27. Generation Law (AI Build Constraint)
-
-Every AI agent working on DREAMengin — Dr. Eams, IDARi, TheBoogieMan.Ai, or any external Copilot — must follow the Generation Law defined in docs/GENERATION_LAW.md.
-
-27.1 Allowed-Output Formula
-
-For each generation pass, compute:
-
-	allowed next output = base spec fidelity × (ДР/2) × (1 + ДРх)
-
-	•	base spec fidelity — how closely the current codebase matches this README (0–1 scale)
-	•	ДР — the delta ratio: fraction of the spec addressed by this pass
-	•	ДРх — the residual-adjusted delta ratio (see docs/GENERATION_LAW.md)
-
-A pass whose scope would exceed the allowed output must be split into smaller passes or down-graded to patch-only mode.
-
-27.2 App-Build Load (χ)
-
-Before writing a single line, compute:
-
-	χ = w₁T + w₂F + w₃D + w₄A + w₅U
-
-Where:
-	•	T = tasks being attempted in the same pass
-	•	F = files touched
-	•	D = dependency surface changed (new imports, packages, DB columns)
-	•	A = architecture depth affected (how many of the 4 layers are touched)
-	•	U = unresolved spec ambiguities carried into this pass
-
-Mode thresholds:
-	•	χ < 4 → create — new files, new routes, new systems permitted
-	•	4 ≤ χ < 8 → conform — modify existing files to match spec; no new top-level systems
-	•	χ ≥ 8 → patch only — single-file, single-function fixes; no structural change
-
-If a planned pass yields χ ≥ 8, the agent must decompose it into sub-passes before proceeding.
-
-27.3 Residual Classes
-
-Residuals are structured mismatches between actual output and spec-intended output:
-
-	r = actual output − predicted output
-
-Every pass must audit for all seven residual classes:
-
-	•	architecture residual — does code match the 4-layer Dream model?
-	•	naming residual — are canonical README names used?
-	•	token residual — are gold/sky/white design tokens applied correctly?
-	•	behavior residual — does every visible action do something real?
-	•	privacy residual — was private builder state exposed publicly?
-	•	performance residual — are render-on-demand and fps rules respected?
-	•	projection residual — does ViewProfile show only saved shared projections?
-
-DREAMengin-specific checks per class and a per-pass audit checklist are in docs/GENERATION_LAW.md.
-
-⸻
-
-29. DreamDM Bar (Persistent Interaction Rail)
-
-29.1 Purpose
-
-The DreamDM Bar is a persistent interaction rail that serves as the communication, notification, and quick-action layer across the DREAMengin system.
-
-It exists as the boundary interface between the active surface and the Dream layer, allowing users to interact, compose, respond, and manage notifications without leaving their current context.
-
-The DreamDM Bar must always preserve the user’s working state.
-
-29.2 Position and Behavior
-
-The DreamDM Bar exists between the top content surface and the bottom Dream layer.
-
-Active Surface
-(HomeDream / Video / Game / Code / Feed)
-
-────────────
-DreamDM Bar
-────────────
-
-Dream Layer
-(Dream widgets / Daydream access)
-
-The bar can move between three primary states:
-
-Collapsed
-- minimal bar
-- shows notification indicators
-- shows compose icon
-- unobtrusive
-
-Expanded
-- opens the message board
-- shows active drafts
-- shows notifications
-- allows quick reply
-
-Pinned
-- locks to the top or bottom edge
-- allows multitasking while the user interacts with other surfaces
-
-29.3 Core Functions
-
-The DreamDM Bar provides:
-
-- quick message composition
-- notification aggregation
-- draft persistence
-- quick replies
-- search shortcuts
-- content routing
-- quick post creation
-- command surface access
-
-Users should be able to:
-
-- start writing a message without leaving the current surface
-- respond to notifications inline
-- save or resume drafts
-- route content into DreamDM, feeds, or widgets
-
-29.4 Persistent Draft Memory
-
-Messages written in the DreamDM Bar must persist until the user deletes or sends them.
-
-This includes persistence across:
-
-- surface changes
-- page refresh
-- browser restart
-- temporary offline states
-
-The system must restore the last draft automatically when the bar is reopened.
-
-29.5 Notification Aggregation
-
-The DreamDM Bar functions as the platform notification center.
-
-Instead of presenting a long system list, notifications appear as interactive cards inside the bar.
-
-Each notification may allow:
-
-- quick reply
-- open source surface
-- dismiss
-- save for later
-
-Notifications may originate from:
-
-- DreamDM conversations
-- widget signals
-- Daydream activities
-- marketplace events
-- system announcements
-
-29.6 Multitasking Interaction
-
-The DreamDM Bar allows simultaneous interaction with other surfaces.
-
-Examples include:
-
-- watching video while replying to messages
-- coding while referencing a draft message
-- browsing feeds while responding to notifications
-- playing a game while opening a conversation
-
-The bar must never force the user to leave their current activity.
-
-29.7 State Reset
-
-double tapping the Gold Button (Home) resets surface position while preserving message state.
-
-:
-
-- the DreamDM Bar is, Home returns the user to HomeDream without deleting the draft.
-- If the bar is collapsed, Home returns the user to the main HomeDream feed.
-
-Drafts and notifications remain intact.
-
-29.8 Design Principle
-
-The DreamDM Bar exists to eliminate context switching.
-
-Users should never need to leave their current activity simply to:
-
-- send a message
-- respond to a notification
-- save a thought
-- route content
-
-The DreamDM Bar provides a continuous interaction channel across the entire DREAMengin system.
+END SPEC

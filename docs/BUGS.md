@@ -1,110 +1,43 @@
-# DREAMengin — BUGS & Open Issues
+# DREAMengin Open Alignment Gaps
 
-> **Auto-generated** by `scripts/update-bugs.mjs` on every push.  
-> **Do not edit manually** — your changes will be overwritten on the next push.  
-> To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
+Last updated: 2026-03-06
 
-**Last updated:** 2026-03-09 02:26 UTC  
-**Triggered by commit:** `a1d003c` on `completedream` by appthemanger-ctrl  
-**Commit message:** Enhance README with DreamDM Bar details
+This file tracks known gaps using README-first naming.
 
----
+## Core surfaces
 
-## 🏆 Final Vision — What DREAMengin Is Supposed to Be
+| Area | Status | Current gap |
+|---|---|---|
+| HomeDream | 🟡 | Legacy `/home` and mixed Home Space naming still appear beside canonical HomeDream language. |
+| EditProfileDream | 🟡 | Builder exists, but owner profile workspace and builder naming are still partially mixed. |
+| ViewProfile | 🟡 | Public output exists, but preview/share terminology is not yet fully consistent. |
 
-DREAMengin is a **spatial, gesture-driven creative OS** built on Next.js (App Router) + Supabase.
-It is not a website. It is not a social media feed. It is a **personal operating surface** where
-every element is a live, interactive widget that the user owns, arranges, and publishes.
+## Dreams
 
-### Core product axioms (non-negotiable)
+| Area | Status | Current gap |
+|---|---|---|
+| Dreams naming | 🟡 | Legacy widget naming still appears in components, docs, and some code paths. |
+| Source vs projection | 🟡 | DreamOutputLayer exists, but docs and product copy still need stricter saved-projection wording. |
+| Super Widget rules | 🟡 | Combined Dream output exists conceptually and partly in code, but compatibility rules still need full cleanup. |
 
-| # | Axiom | One-line rule |
-|---|-------|---------------|
-| 1 | Instant Understanding | No tutorial required. Every interaction self-reveals. |
-| 2 | User-Shaped Space | Control through movement (drag, place). Not settings panels. |
-| 3 | Real Capability | Every widget does real work — not just display. |
-| 4 | Security by Default | Least privilege, RLS everywhere, no secrets to client. |
-| 5 | Privacy by Design | Users own their data. Private by default. Deletable. |
+## Daydream model
 
-### Navigation model
+| Area | Status | Current gap |
+|---|---|---|
+| Canonical six pairs | 🟡 | Six canonical Side A routes exist, but extra daydream routes remain in the repo. |
+| Engin naming | 🟡 | Some Engin-side behavior exists in components rather than clearly named Engin surfaces. |
 
-- The user is always conceptually inside **Home (node 0)**.
-- All navigation is **τ-only** — deterministic state transitions, not browser routing.
-- The **Golden Button** (Blue + Gold floating pair) is the only travel system.
-- Traditional nav bars and back-stacks are **not part of the product**.
+## Platform modules
 
-### UI design system
+| Area | Status | Current gap |
+|---|---|---|
+| DreamMenu | 🟡 | Menus exist across multiple folders with mixed names. |
+| DreamAds | 🟡 | Ads surface exists, but user DreamAds vs platform promotions still need clearer boundary language. |
 
-- **Sky-blue + gold gradient** throughout — no dark gamer colors, no indigo.
-- **Frosted glass** surfaces (`.de-surface`, `.de-widget`).
-- **Space Grotesk** font. Consistent radius family (6 / 10 / 14 / 18 / 24 / 32 / 9999 px).
-- Every page uses `de-sky-bg` + `de-widget` glass cards.
+## AI triad
 
-### AI Triad
-
-| Agent | Role | Audience |
-|-------|------|----------|
-| **Dr. Eams** | User assistant / OS voice | All authenticated users |
-| **IDARi** | Admin bug-fixer + optimizer | Admins only |
-| **TheBoogieMan** | Policy enforcer + overwatch | System / Admins only |
-
-All three must approve (consensus gating) before any major system update is shipped.
-
-### What "done" looks like
-
-When DREAMengin is complete:
-
-- A new user opens the app, sees the animated logo, and can explore without any tutorial.
-- They never feel lost — the Golden Button always takes them home.
-- Every Daydream (7 total) is a fully functional mini-app.
-- Their profile is a live, curated public page they can share.
-- The feed shows real content from real connectors.
-- All games are playable on mobile with two thumbs, on keyboard, and on PS5.
-- Settings, appearance, privacy, data export/delete all work end-to-end.
-- TheBoogieMan silently enforces the 100-rule policy with full audit logs and appeals.
-
----
-
-## 🔶 Partly Done (0 items)
-
-These features exist but are incomplete. They must be finished before the product ships.
-
-| Status | Feature | Notes |
-|--------|---------|-------|
-| — | (none) | — |
-
----
-
-## 🔲 Needs Work (0 items)
-
-These features are spec'd but not yet built. They are mandatory obligations per **docs/LAW.md §10**.
-
-| Status | Feature | Notes |
-|--------|---------|-------|
-| — | (none) | — |
-
-
-
----
-
-## 🐛 Known Code Annotations (TODO / FIXME / HACK)
-
-No TODO / FIXME / HACK annotations found in source files.
-
----
-
-## 📚 Reference Docs
-
-| Document | Purpose |
-|----------|---------|
-| [docs/LAW.md](./LAW.md) | Binding rules — code must conform |
-| [docs/AXIOMS.md](./AXIOMS.md) | Non-negotiable product principles |
-| [docs/SPEC.md](./SPEC.md) | Design system + interaction model |
-| [docs/ARCHITECTURE.md](./ARCHITECTURE.md) | Navigation + platform architecture |
-| [docs/SECURITY.md](./SECURITY.md) | RLS, auth boundaries, privacy |
-| [docs/FEATURE_STATUS.md](./FEATURE_STATUS.md) | Live feature completion status |
-| [docs/HANDOFF.md](./HANDOFF.md) | Session-by-session change log |
-
----
-
-*Generated by `scripts/update-bugs.mjs` · Committed by `github-actions[bot]` · [skip ci]*
+| Area | Status | Current gap |
+|---|---|---|
+| Dr. Eams routing | 🟡 | Canonical `/api/ai/eams` exists, but legacy `/api/dr-eams/*` routes remain. |
+| IDARi exposure rules | ✅ | Admin-only model is documented and should remain enforced. |
+| TheBoogieMan.Ai naming | 🟡 | Route and file identifiers are shorter than the preferred product wording. |

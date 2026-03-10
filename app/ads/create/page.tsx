@@ -67,7 +67,7 @@ export default function CreateAdSlotPage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <DollarSign className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Create DreamAds Slot</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Create Ad Slot</h1>
         </div>
       </header>
 
@@ -139,7 +139,7 @@ export default function CreateAdSlotPage() {
           {/* Info notice */}
           <div className="de-notice">
             <Info className="w-4 h-4 flex-shrink-0" style={{ marginTop: 1, color: 'var(--de-gold)' }} />
-            <p>Once created, your DreamAds slot will be visible to buyers. You control the placement and pricing — this is your ad space, not a platform ad.</p>
+            <p>Once created, your ad slot will be available for purchase in the marketplace. You will receive payment when someone books your slot.</p>
           </div>
 
           {error && <div className="de-notice error">{error}</div>}
@@ -154,7 +154,7 @@ export default function CreateAdSlotPage() {
             {isLoading ? (
               <><Loader2 className="w-5 h-5 animate-spin" /> Creating…</>
             ) : (
-              <><DollarSign className="w-5 h-5" /> Create DreamAds Slot</>
+              <><DollarSign className="w-5 h-5" /> Create Ad Slot</>
             )}
           </button>
         </form>

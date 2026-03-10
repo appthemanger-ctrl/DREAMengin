@@ -399,7 +399,7 @@ Want me to open the Create page for you?`;
       return `Your profile is your creative identity on DREAMengin. Here's what makes a great profile:
 
 **Essential elements:**
-- **Avatar** - A clear, recognizable image (supports upload via Edit ProfileDream)
+- **Avatar** - A clear, recognizable image (supports upload via Edit Profile)
 - **Bio** - Tell people who you are and what you create (150-500 characters)
 - **Links** - Connect your other platforms
 - **Theme** - Customize colors and layout
@@ -411,7 +411,7 @@ Want me to open the Create page for you?`;
 
 Your profile is also where ad revenue is generated—a well-configured profile can increase your earnings potential significantly.
 
-Shall I navigate you to Edit ProfileDream?`;
+Shall I navigate you to Edit Profile?`;
     }
 
     if (/\b(analytics|stats|performance|views|engagement)\b/.test(lower)) {

@@ -31,14 +31,7 @@ export interface WidgetTypeDef {
   /** Connector ID that satisfies this widget's dependency (req 45) */
   connectorId?: string;
   /** Library category */
-  category: 'Feed' | 'Media' | 'Social' | 'Utilities' | 'Work' | 'Shop' | 'Daydream';
-  /**
-   * The Daydream domain this widget belongs to.
-   * Matches the six canonical Daydream/Engin pairs from docs/ARCHITECTURE.md §1:
-   *   music | games | lab | code | brand | create
-   * Undefined for platform-level widgets that are not domain-specific.
-   */
-  daydream?: 'music' | 'games' | 'lab' | 'code' | 'brand' | 'create';
+  category: 'Feed' | 'Media' | 'Social' | 'Utilities' | 'Work' | 'Shop';
 }
 
 // ── Registry ───────────────────────────────────────────────────────────────
@@ -213,113 +206,6 @@ export const WIDGET_REGISTRY: ReadonlyArray<WidgetTypeDef> = [
     connectorId: 'apple',
     category: 'Media',
   },
-
-  // ── Music / StarMakerEngin widgets (Daydream: music) ─────────────────────
-
-  {
-    id: 'music-release',
-    title: 'Music Release',
-    icon: '🎵',
-    description: 'Showcase your latest or featured music release with album art and a play button.',
-    defaultConfig: { release_id: null },
-    permissions: {},
-    connectorDependency: 'none',
-    category: 'Daydream',
-    daydream: 'music',
-  },
-  {
-    id: 'music-playlist',
-    title: 'Music Playlist',
-    icon: '🎶',
-    description: 'Display a curated playlist with a scrollable track list.',
-    defaultConfig: { playlist_id: null },
-    permissions: {},
-    connectorDependency: 'none',
-    category: 'Daydream',
-    daydream: 'music',
-  },
-
-  // ── Games / GameEngin widgets (Daydream: games) ──────────────────────────
-
-  {
-    id: 'game-leaderboard',
-    title: 'Game Leaderboard',
-    icon: '🏆',
-    description: 'Show your top scores and ranking for a DREAMengin mini-game.',
-    defaultConfig: { game_type: 'WordSprint' },
-    permissions: {},
-    connectorDependency: 'none',
-    category: 'Daydream',
-    daydream: 'games',
-  },
-  {
-    id: 'game-challenge',
-    title: 'Daily Challenge',
-    icon: '⚡',
-    description: "Surface today's game challenge and invite visitors to beat your score.",
-    defaultConfig: { challenge_type: 'daily' },
-    permissions: {},
-    connectorDependency: 'none',
-    category: 'Daydream',
-    daydream: 'games',
-  },
-
-  // ── Lab / LabEngin widgets (Daydream: lab) ───────────────────────────────
-
-  {
-    id: 'lab-experiment',
-    title: 'Lab Experiment',
-    icon: '🔬',
-    description: 'Show the live status and progress of an active Lab experiment.',
-    defaultConfig: { experiment_id: null },
-    permissions: {},
-    connectorDependency: 'none',
-    category: 'Daydream',
-    daydream: 'lab',
-  },
-
-  // ── Code / CodeEngin widgets (Daydream: code) ────────────────────────────
-
-  {
-    id: 'code-project',
-    title: 'Code Project',
-    icon: '💻',
-    description: 'Show a code project card with repository info and an optional README preview.',
-    defaultConfig: { project_id: null, show_readme: false },
-    permissions: {},
-    connectorDependency: 'optional',
-    connectorId: 'github',
-    category: 'Daydream',
-    daydream: 'code',
-  },
-
-  // ── Brand / BrandingEngin widgets (Daydream: brand) ──────────────────────
-
-  {
-    id: 'brand-analytics',
-    title: 'Brand Analytics',
-    icon: '📈',
-    description: 'Mini analytics chart showing views, followers, or engagement over time.',
-    defaultConfig: { metric: 'views' },
-    permissions: {},
-    connectorDependency: 'none',
-    category: 'Daydream',
-    daydream: 'brand',
-  },
-
-  // ── Create / ContentEngin widgets (Daydream: create) ─────────────────────
-
-  {
-    id: 'create-draft',
-    title: 'Recent Drafts',
-    icon: '✍️',
-    description: 'Show your most recent draft notes and content ideas from the Create Daydream.',
-    defaultConfig: { max_items: 3 },
-    permissions: {},
-    connectorDependency: 'none',
-    category: 'Daydream',
-    daydream: 'create',
-  },
 ] as const;
 
 // ── Lookup helpers (req 43) ────────────────────────────────────────────────
@@ -330,16 +216,6 @@ export function getWidgetTypeDef(id: string): WidgetTypeDef | undefined {
 /** All widget types that belong to a given connector (req 45) */
 export function getWidgetTypesForConnector(connectorId: string): WidgetTypeDef[] {
   return WIDGET_REGISTRY.filter((w) => w.connectorId === connectorId);
-}
-
-/**
- * All widget types that belong to a given Daydream domain.
- * Used by Daydream-specific widget pickers (music, games, lab, code, brand, create).
- */
-export function getWidgetTypesForDaydream(
-  daydream: WidgetTypeDef['daydream'],
-): WidgetTypeDef[] {
-  return WIDGET_REGISTRY.filter((w) => w.daydream === daydream);
 }
 
 /** Connector status used to determine what CTA to show (req 46-48) */

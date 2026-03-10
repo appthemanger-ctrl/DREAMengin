@@ -97,7 +97,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         onAction={onSystemAction}
       />
 
-      {drEamsOpen ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} showDMButton={true} /> : null}
+      {drEamsOpen ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
     </>
   );
 }

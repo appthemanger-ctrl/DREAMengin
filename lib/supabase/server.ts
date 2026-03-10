@@ -14,6 +14,7 @@ import {
 type DisabledSupabaseClient = {
   auth: {
     getUser: () => Promise<never>
+    getSession: () => Promise<never>
     signOut: () => Promise<never>
   }
   from: (..._args: unknown[]) => never
@@ -37,6 +38,7 @@ function createDisabledClient(reason: string): SupabaseClient<Database> {
   const disabled: DisabledSupabaseClient = {
     auth: {
       getUser: thrower,
+      getSession: thrower,
       signOut: thrower,
     },
     from() {
