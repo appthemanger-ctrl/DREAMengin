@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Palette, Share2, ImageIcon } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
+import BrandingEngin from '@/components/daydream/BrandingEngin';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Brand Daydream – DREAMengin', description: 'Build and manage your personal brand identity.' };
@@ -30,6 +31,7 @@ export default async function BrandDaydreamPage() {
       enginName="BrandingEngin"
       accentColor="#ec4899"
       widgets={WIDGETS}
+      sideBComponent={BrandingEngin}
     >
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
@@ -38,7 +40,7 @@ export default async function BrandDaydreamPage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>dreamengin</div>
+            <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>DREAMengin</div>
             <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
               <Palette className="w-4 h-4" style={{ color: '#ec4899' }} />
               <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Brand</h1>
