@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { recipient_id, content, conversation_id } = body;
+  const { recipient_id, content, conversation_id, media_url, media_type } = body;
 
   if (!content || content.trim().length === 0) {
     return NextResponse.json({ error: 'Message content is required' }, { status: 400 });
@@ -98,13 +98,17 @@ export async function POST(req: NextRequest) {
   }
 
   // Insert the message
+  const messageRow: Record<string, unknown> = {
+    conversation_id: convId,
+    sender_id: user.id,
+    content: content.trim(),
+  };
+  if (media_url) messageRow.media_url = media_url;
+  if (media_type) messageRow.media_type = media_type;
+
   const { data: message, error } = await supabase
     .from('messages')
-    .insert({
-      conversation_id: convId,
-      sender_id: user.id,
-      content: content.trim(),
-    })
+    .insert(messageRow)
     .select(`
       *,
       sender:profiles!sender_id(id, handle, display_name, avatar_url)
@@ -127,8 +131,11 @@ export async function POST(req: NextRequest) {
     await supabase.from('notifications').insert({
       user_id: recipientId,
       type: 'message',
-      message: `New message from ${user.email}`,
-      data: { conversation_id: convId, message_id: message.id },
+      content: {
+        message: `New message from ${user.email}`,
+        conversation_id: convId,
+        message_id: message.id,
+      },
     });
   }
 
