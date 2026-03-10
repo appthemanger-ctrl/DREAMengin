@@ -7,6 +7,7 @@ import MemoryGrid from '@/components/games/MemoryGrid';
 import SpeedTap from '@/components/games/SpeedTap';
 import Leaderboard from '@/components/games/Leaderboard';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
+import GameEngin from '@/components/daydream/GameEngin';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – Dreamengin', description: 'Play, challenge, and compete.' };
@@ -31,7 +32,7 @@ export default async function GamesDaydreamPage() {
       enginName="GameEngin"
       accentColor="#2a8ab8"
       widgets={WIDGETS}
-      sideBVariant="game-remote"
+      sideBComponent={GameEngin}
     >
       <div className="de-sky-bg min-h-screen">
         <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
