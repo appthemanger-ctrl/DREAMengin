@@ -74,6 +74,7 @@ export default function EditProfileDreamPage() {
       } catch {
         const saved = localStorage.getItem('de-profile-widget-order');
         if (saved) loadedWidgets = JSON.parse(saved) as Widget[];
+      }
       // Load Dream projection from Supabase (server-persisted projection state)
       // Fall back to localStorage for migration compatibility, then DEFAULT_DREAMS
       let loadedDreams: ProfileDream[] = DEFAULT_DREAMS;

@@ -7,7 +7,6 @@ import { redirect } from 'next/navigation';
  * Per docs/ARCHITECTURE.md §9 and COPILOT_TOOLKIT.md: "Rename and repurpose
  * before rebuilding." This route now forwards traffic to /daydream/create.
  */
-export default function MediaVaultLegacyPage() {
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Media Vault – Dreamengin', description: 'Your private media library.' };
 
