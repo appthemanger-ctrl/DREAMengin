@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
 import Link from 'next/link';
-import ProfileWidgetGrid, { DEFAULT_WIDGETS, type Widget } from '@/components/profile/ProfileWidgetGrid';
+import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
 import { Pencil, Eye } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +15,7 @@ type Profile = {
   cover_url?: string | null;
   followers_count?: number | null;
   posts_count?: number | null;
-  profile_dream_widgets?: Widget[] | null;
+  profile_dream_widgets?: ProfileDream[] | null;
 };
 
 export default async function ViewProfilePage() {
@@ -35,10 +35,10 @@ export default async function ViewProfilePage() {
   const profile = rawProfile as unknown as Profile;
 
   // Use server-persisted widget projection (falls back to defaults if not set)
-  const savedWidgets: Widget[] =
+  const savedDreams: ProfileDream[] =
     Array.isArray(profile.profile_dream_widgets) && profile.profile_dream_widgets.length > 0
       ? profile.profile_dream_widgets
-      : DEFAULT_WIDGETS;
+      : DEFAULT_DREAMS;
 
   const displayName = profile.display_name || profile.handle;
 
@@ -106,7 +106,7 @@ export default async function ViewProfilePage() {
         </h1>
       </div>
 
-      {/* ── Widget grid (saved projection) ── */}
+      {/* ── Dream grid (saved projection) ── */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '0 16px' }}>
         <ProfileWidgetGrid
           displayName={displayName}
@@ -118,7 +118,7 @@ export default async function ViewProfilePage() {
           posts={profile.posts_count ?? 0}
           likes={0}
           isEditing={false}
-          initialWidgets={savedWidgets}
+          initialWidgets={savedDreams}
         />
       </div>
 
