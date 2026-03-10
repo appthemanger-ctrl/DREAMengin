@@ -8,7 +8,6 @@ import { redirect } from 'next/navigation';
  * "Rename and repurpose before rebuilding." This route now forwards traffic
  * to the canonical Brand Daydream at /daydream/brand.
  */
-export default function AnalyticsLegacyPage() {
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Analytics Daydream – Dreamengin', description: 'Overview of your reach, revenue, and growth.' };
 

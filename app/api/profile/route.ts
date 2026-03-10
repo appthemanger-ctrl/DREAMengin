@@ -82,8 +82,7 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { display_name, bio, avatar_url, banner_url, website, location, widget_config } = body;
-  const { display_name, bio, avatar_url, banner_url, website, location, widget_order } = body;
+  const { display_name, bio, avatar_url, banner_url, website, location, widget_config, widget_order } = body;
 
   const updateData: Record<string, unknown> = {
     updated_at: new Date().toISOString(),

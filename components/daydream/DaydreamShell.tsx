@@ -23,9 +23,11 @@ type Props = {
   widgets: DaydreamWidget[];
   children: React.ReactNode;
   /**
-   * Pass the real Engin component class here (spec §7.2 / Phase 4).
-   * DaydreamShell instantiates it with the onBack (flip) callback.
+   * Optional custom Side B component. When provided, renders instead of
+   * the built-in sideBVariant logic. Receives an `onBack` callback prop.
+   * Use this to inject a domain-specific Engin (e.g. GameEngin, StarMakerEngin).
    * Takes precedence over sideBVariant when provided.
+   * (spec §7.2 / Phase 4 / Phase 6, point 35 — docs/dreamengin_phase6.md)
    */
   sideBComponent?: React.ComponentType<{ onBack: () => void }>;
   /**
@@ -34,17 +36,9 @@ type Props = {
    *   'game-remote' — dual analog-stick game controller (legacy fallback)
    */
   sideBVariant?: 'widgets' | 'game-remote';
-  /**
-   * Optional custom Side B component. When provided, renders instead of
-   * the built-in sideBVariant logic. Receives an `onBack` callback prop.
-   * Use this to inject a domain-specific Engin (e.g. GameEngin, StarMakerEngin).
-   * (Phase 6, point 35 — docs/dreamengin_phase6.md)
-   */
-  sideBComponent?: React.ComponentType<{ onBack: () => void }>;
 };
 
 export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBComponent, sideBVariant = 'widgets' }: Props) {
-export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBVariant = 'widgets', sideBComponent: SideBComponent }: Props) {
   const [side, setSide]   = useState<'A' | 'B'>('A');
   const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
   const [busy, setBusy]   = useState(false);
@@ -86,11 +80,6 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
               if (sideBVariant === 'game-remote') return <GameRemote onBack={flip} />;
               return <EnginSurface enginName={enginName} title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />;
             })()
-          : SideBComponent
-            ? <SideBComponent onBack={flip} />
-            : sideBVariant === 'game-remote'
-              ? <GameRemote onBack={flip} />
-              : <EnginSurface enginName={enginName} title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />
         }
       </div>
 
