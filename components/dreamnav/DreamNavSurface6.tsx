@@ -25,7 +25,7 @@ const VELOCITY_THRESHOLD = 0.45;
 const DOUBLE_TAP_MS = 280;
 const TRIPLE_TAP_MS = 420;
 
-export default function DreamNavSurface6({ debug = false, initialNode = 0, children }: { debug?: boolean; initialNode?: Node; children: React.ReactNode }) {
+export default function DreamNavSurface6({ debug = false, initialNode = 0, disableGestures = false, children }: { debug?: boolean; initialNode?: Node; disableGestures?: boolean; children: React.ReactNode }) {
   const [nav, setNav] = useState<NavState>({ ...DEFAULT_NAV_STATE, node: initialNode });
   const [lastAction, setLastAction] = useState<Action | null>(null);
   const [gctDebug, setGctDebug] = useState<GCTDebug | null>(null);
@@ -177,13 +177,13 @@ export default function DreamNavSurface6({ debug = false, initialNode = 0, child
       <div
         className="relative min-h-screen w-full overflow-hidden"
         style={{ touchAction: 'manipulation' }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => { pointerRef.current.active = false; }}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
+        onPointerDown={disableGestures ? undefined : onPointerDown}
+        onPointerMove={disableGestures ? undefined : onPointerMove}
+        onPointerUp={disableGestures ? undefined : onPointerUp}
+        onPointerCancel={disableGestures ? undefined : () => { pointerRef.current.active = false; }}
+        onTouchStart={disableGestures ? undefined : onTouchStart}
+        onTouchMove={disableGestures ? undefined : onTouchMove}
+        onTouchEnd={disableGestures ? undefined : onTouchEnd}
       >
         <div style={stageStyle}>{children}</div>
 

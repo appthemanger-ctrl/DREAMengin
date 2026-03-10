@@ -47,7 +47,7 @@ export default async function Home() {
   }
 
   return (
-    <DreamNavSurface6 debug={false}>
+    <DreamNavSurface6 debug={false} disableGestures>
       <HomeSystem userId={user?.id || ''} profile={profile} initialPosts={posts || []} />
     </DreamNavSurface6>
   );

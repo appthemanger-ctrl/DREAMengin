@@ -1,25 +1,20 @@
 'use client';
 
 /**
- * DreamDMBar — Pass 2
+ * DreamDMBar — Pass 3 (Window Model)
  *
- * Persistent spatial-divider interaction rail with real messaging capability.
+ * DreamDMBar is a draggable window, not a thin rail.
  *
- * Pass 2 upgrades:
- *   - Real inline message send via useMessagingCore (spec §21, §64)
- *   - Universal search with Dr. Eams toggle in Dream Space (spec §31–50, §71)
- *   - Compact conversation list in Dream Space (spec §18, §68)
- *   - Conversation selection + message thread view (spec §4, §24)
- *   - Draft persistence via useDreamDMDraft (spec §9–10, §23)
- *   - Attachment picker (compact) via useMessagingCore (spec §8, §22)
- *   - Unread count badge on bar rail (spec §19, §26)
- *   - Notification-driven conversation open (spec §11–12)
- *   - Dr. Eams mode toggle (spec §41–45, §78)
+ * Behaviour:
+ *   - Rests at the bottom as a thick bar (BAR_H = 80 px)
+ *   - Gold button is locked to the top edge of the bar
+ *   - Drag UP → bar expands from bottom; HomeDream content is revealed above
+ *   - Past threshold (bar top < 40 % from screen top) → snaps to top as a panel
+ *   - When snapped to top, gold button unlocks and floats to natural bottom-centre
+ *   - Swipe DOWN on bar or gold → bar returns to bottom, gold re-locks
+ *   - All Phase-2 messaging / search / Dr. Eams capability preserved
  *
- * Architecture: Component layer — logic lives in lib/dreamdm/ hooks.
- * Privacy: drafts localStorage-only; messages via RLS-enforced API.
- *
- * Spec: README.md §22 / §29 / docs/dreamdm_messaging_phase2.md
+ * Architecture: drag state lives here; messaging logic in lib/dreamdm/ hooks.
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -27,7 +22,6 @@ import Image from 'next/image';
 import {
   Bot,
   FileText,
-  GripHorizontal,
   Loader2,
   MessageCircle,
   Music,
@@ -37,7 +31,6 @@ import {
   X,
 } from 'lucide-react';
 
-import { useDreamDMBar, type DreamDMSnapPoint } from '@/lib/daydream/useDreamDMBar';
 import { useDreamDMMessages }                    from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamDMDraft }                        from '@/lib/dreamdm/useDreamDMDraft';
 import { useDreamSearch, type SearchResult }      from '@/lib/dreamdm/useDreamSearch';
@@ -49,16 +42,22 @@ import {
 } from '@/lib/dreamdm/useDreamDMConversations';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 
-/** Height of the interaction rail in pixels */
-const BAR_H = 48;
-
-const SPRING_TRANSITION = '0.40s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-const SNAP_LABELS: Record<DreamDMSnapPoint, string> = {
-  'surface-focus': 'Surface focus — expand surface space',
-  'balanced':      'Balanced — equal split',
-  'dream-focus':   'Dream focus — expand dream space',
-};
+// ── Layout constants ─────────────────────────────────────────────────────────
+/** Thick bar height when locked at the bottom */
+const BAR_H        = 80;
+/** Panel height when locked at the top */
+const TOP_H        = 340;
+/** Gold button diameter */
+const GOLD_SZ      = 64;
+const GOLD_R       = GOLD_SZ / 2;
+/** Snap to top when bar top edge is above this fraction of screen height */
+const SNAP_UP_PCT  = 0.40;
+/** Snap to bottom when dragged down this many px from top */
+const SNAP_DOWN_PX = 88;
+/** Spring animation string */
+const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
+/** Double-tap window (ms) for gold button */
+const DOUBLE_TAP   = 280;
 
 const DEMO_CONVERSATIONS: DMConversation[] = [
   {
@@ -107,17 +106,137 @@ function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | nul
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar() {
-  const {
-    snapPoint, setSnapPoint, barTopPct, isDragging,
-    draft: quickDraft, setDraft: setQuickDraft,
-    containerRef, handleDragStart, handleDragMove, handleDragEnd,
-  } = useDreamDMBar();
+// Props
+// ─────────────────────────────────────────────────────────────────────────────
+interface DreamDMBarProps {
+  /** Single-tap the gold button → go home */
+  onHome: () => void;
+  /** Double-tap the gold button → open radial menus */
+  onBothMenus: () => void;
+}
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Main component
+// ─────────────────────────────────────────────────────────────────────────────
+export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
+  // ── Screen geometry ────────────────────────────────────────────────────────
+  const [screenH, setScreenH] = useState(900);
+  useEffect(() => {
+    const update = () => setScreenH(window.innerHeight);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  // ── Window position state ──────────────────────────────────────────────────
+  /** Whether bar is snapped to top (panel mode) */
+  const [isTop,    setIsTop]    = useState(false);
+  /** Current bar height while dragging from bottom (px). Rests at BAR_H. */
+  const [dragH,    setDragH]    = useState(BAR_H);
+  /** How far bar has slid down from the top during a top→bottom drag (px) */
+  const [slideDown, setSlideDown] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const dragRef = useRef({
+    active: false, startY: 0,
+    startH: BAR_H, startSlide: 0,
+    fromTop: false,
+  });
+
+  // ── Gold button double-tap ─────────────────────────────────────────────────
+  const goldRef = useRef({ lastAt: 0, timer: 0 as ReturnType<typeof setTimeout> | 0 });
+
+  const handleGoldTap = useCallback(() => {
+    const now = Date.now();
+    clearTimeout(goldRef.current.timer);
+    if (now - goldRef.current.lastAt < DOUBLE_TAP) {
+      goldRef.current.lastAt = 0;
+      onBothMenus();
+    } else {
+      goldRef.current.lastAt = now;
+      goldRef.current.timer = setTimeout(() => {
+        // Single tap → go home AND collapse bar if at top
+        onHome();
+        if (isTop) { setIsTop(false); setDragH(BAR_H); setSlideDown(0); }
+      }, DOUBLE_TAP + 10);
+    }
+  }, [isTop, onHome, onBothMenus]);
+
+  // Also collapse bar on swipe-down on gold (pointer drag down > 30px)
+  const goldDragRef = useRef({ active: false, startY: 0 });
+  const handleGoldPointerDown = (e: React.PointerEvent) => {
+    goldDragRef.current = { active: true, startY: e.clientY };
+  };
+  const handleGoldPointerUp = (e: React.PointerEvent) => {
+    if (!goldDragRef.current.active) return;
+    goldDragRef.current.active = false;
+    const dy = e.clientY - goldDragRef.current.startY;
+    if (dy > 30 && isTop) {
+      setIsTop(false); setDragH(BAR_H); setSlideDown(0);
+    } else {
+      handleGoldTap();
+    }
+  };
+
+  // ── Drag handlers ─────────────────────────────────────────────────────────
+  const handleDragStart = (e: React.PointerEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = {
+      active: true, startY: e.clientY,
+      startH: dragH, startSlide: slideDown,
+      fromTop: isTop,
+    };
+    setIsDragging(true);
+  };
+
+  const handleDragMove = (e: React.PointerEvent) => {
+    if (!dragRef.current.active) return;
+    const dy = e.clientY - dragRef.current.startY; // positive = dragging DOWN
+
+    if (!dragRef.current.fromTop) {
+      // Expanding from bottom: dragging UP increases bar height
+      const newH = Math.max(BAR_H, Math.min(screenH * 0.85, dragRef.current.startH - dy));
+      setDragH(newH);
+    } else {
+      // Collapsing from top: dragging DOWN slides bar away from top
+      const newSlide = Math.max(0, Math.min(screenH * 0.5, dragRef.current.startSlide + dy));
+      setSlideDown(newSlide);
+    }
+  };
+
+  const handleDragEnd = (e: React.PointerEvent) => {
+    if (!dragRef.current.active) return;
+    dragRef.current.active = false;
+    setIsDragging(false);
+
+    if (!dragRef.current.fromTop) {
+      // Decide: snap to top or return to bottom
+      const barTopFromScreenTop = screenH - dragH;
+      if (barTopFromScreenTop < screenH * SNAP_UP_PCT) {
+        // Snap to top
+        setIsTop(true); setDragH(BAR_H); setSlideDown(0);
+      } else {
+        // Spring back to bottom
+        setDragH(BAR_H);
+      }
+    } else {
+      // Decide: collapse to bottom or spring back to top
+      const dy = e.clientY - dragRef.current.startY;
+      if (dy > SNAP_DOWN_PX || slideDown > SNAP_DOWN_PX) {
+        setIsTop(false); setDragH(BAR_H); setSlideDown(0);
+      } else {
+        setSlideDown(0); // spring back
+      }
+    }
+  };
+
+  // ── Messaging state ────────────────────────────────────────────────────────
   const [mounted,        setMounted]        = useState(false);
   const [composeFocused, setComposeFocused] = useState(false);
   const [userId,         setUserId]         = useState('');
   const [selectedConv,   setSelectedConv]   = useState<DMConversation | null>(null);
+  const [quickDraft,     setQuickDraft]     = useState('');
 
   const { conversations, reload: reloadConvs } = useDreamDMConversations(userId, DEMO_CONVERSATIONS);
   const { unreadCount, markAllRead }            = useNotifications();
@@ -165,7 +284,7 @@ export default function DreamDMBar() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Quick-compose send
+  // ── Send handlers ──────────────────────────────────────────────────────────
   const handleQuickSend = useCallback(async () => {
     if (!quickDraft.trim()) return;
     if (selectedConv) {
@@ -175,9 +294,8 @@ export default function DreamDMBar() {
     } else {
       window.location.href = `/messages?compose=${encodeURIComponent(quickDraft.trim())}`;
     }
-  }, [quickDraft, selectedConv, sendMessage, clearDraft, setQuickDraft, userId]);
+  }, [quickDraft, selectedConv, sendMessage, clearDraft, userId]);
 
-  // Panel compose send
   const handlePanelSend = useCallback(async () => {
     if (!selectedConv) return;
     const result = await sendMessage({
@@ -204,15 +322,12 @@ export default function DreamDMBar() {
 
   const removeFile = () => {
     if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
-    setSelectedFile(null);
-    setFilePreviewUrl(null);
+    setSelectedFile(null); setFilePreviewUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleSearchResultSelect = useCallback((result: SearchResult) => {
-    setSearchQuery('');
-    clearResults();
-    setShowSearch(false);
+    setSearchQuery(''); clearResults(); setShowSearch(false);
     if (result.type === 'conversation' && result.targetId) {
       const conv = conversations.find((c) => c.id === result.targetId);
       if (conv) { setSelectedConv(conv); markAllRead(); }
@@ -226,151 +341,228 @@ export default function DreamDMBar() {
 
   if (!mounted) return null;
 
-  const springTransition = isDragging ? 'none' : SPRING_TRANSITION;
-  const isExpanded = snapPoint !== 'surface-focus';
+  // ── Derived layout values ─────────────────────────────────────────────────
+  const transition = isDragging ? 'none' : SPRING;
 
+  // Bar geometry
+  const barH: number    = isTop ? TOP_H : dragH;
+  const barTop: number  = isTop
+    ? slideDown                          // slides away from top on collapse drag
+    : (screenH - dragH);                 // grows from bottom
+  const showFull: boolean = isTop || dragH > 180;
+
+  // Gold button geometry
+  // When not top-locked: gold center sits on bar's top edge
+  // When top-locked (and not dragging down): gold floats to natural bottom-centre
+  const goldTopPx: number = isTop && slideDown === 0 && !isDragging
+    ? screenH - GOLD_R - 28              // floats near bottom
+    : barTop - GOLD_R;                   // center on bar top edge
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div
-      ref={containerRef}
-      aria-label="DreamDM Bar"
-      style={{ position: 'fixed', inset: 0, zIndex: 20, pointerEvents: 'none', overflow: 'hidden' }}
-    >
-      {/* ── Dream Space ─────────────────────────────────────────────────────── */}
-      <div
-        aria-label="Dream Space"
+    <>
+      {/* ── Gold sphere button ──────────────────────────────────────────────── */}
+      <button
+        type="button"
+        aria-label="Gold button — tap to go home, double-tap for menus"
+        onPointerDown={handleGoldPointerDown}
+        onPointerUp={handleGoldPointerUp}
+        onPointerCancel={() => { goldDragRef.current.active = false; }}
         style={{
-          position: 'absolute', top: `calc(${barTopPct * 100}% + ${BAR_H}px)`,
-          left: 0, right: 0, bottom: 0,
+          position: 'fixed',
+          top: goldTopPx,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: GOLD_SZ, height: GOLD_SZ,
+          borderRadius: '50%',
+          border: 'none',
+          cursor: 'pointer',
+          zIndex: 102,
+          pointerEvents: 'auto',
+          touchAction: 'manipulation',
+          WebkitTapHighlightColor: 'transparent',
+          outline: 'none',
+          transition,
+          background: `radial-gradient(circle at 36% 32%,
+            #fffde0 0%, #f7e07a 12%, #d4a843 38%, #a16207 68%, #6b3c03 100%)`,
+          boxShadow: `
+            inset 0 2px 4px rgba(255,255,220,0.85),
+            inset -3px -3px 10px rgba(80,40,0,0.40),
+            0 6px 24px rgba(100,58,4,0.55),
+            0 2px 8px rgba(212,168,67,0.50),
+            0 0 0 1.5px rgba(180,120,20,0.45)`,
+        }}
+      >
+        <span aria-hidden style={{
+          position: 'absolute', top: '14%', left: '18%',
+          width: '36%', height: '22%', borderRadius: '50%',
+          background: 'rgba(255,255,245,0.55)', filter: 'blur(3px)', pointerEvents: 'none',
+        }} />
+        <svg width="28" height="14" viewBox="0 0 80 36"
+          style={{ opacity: 0.82, flexShrink: 0, position: 'relative' }} aria-hidden>
+          <path d="M10 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
+          <path d="M10 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
+        </svg>
+      </button>
+
+      {/* ── DreamDM window ───────────────────────────────────────────────────── */}
+      <div
+        aria-label="DreamDM Bar"
+        style={{
+          position: 'fixed',
+          top: barTop,
+          left: 0, right: 0,
+          height: barH,
+          zIndex: 100,
+          pointerEvents: 'auto',
+          overflow: 'hidden',
+          transition,
+          display: 'flex',
+          // Drag handle at TOP when growing from bottom; at BOTTOM when at top
+          flexDirection: isTop ? 'column-reverse' : 'column',
           background: 'linear-gradient(180deg, rgba(220,232,248,0.97) 0%, rgba(200,218,242,0.99) 100%)',
-          backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-          overflowY: 'auto', overflowX: 'hidden', pointerEvents: 'auto', transition: springTransition,
+          backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+          borderTop: isTop ? 'none' : '1.5px solid rgba(200,152,26,0.45)',
+          borderBottom: isTop ? '1.5px solid rgba(200,152,26,0.45)' : 'none',
+          boxShadow: isTop
+            ? '0 4px 24px rgba(0,0,0,0.12)'
+            : '0 -4px 24px rgba(0,0,0,0.10)',
         }}
       >
-        {isExpanded ? (
-          <DreamSpaceMessaging
-            conversations={conversations} selectedConv={selectedConv}
-            onSelectConv={(c) => { setSelectedConv(c); markAllRead(); }}
-            messages={messages} msgsLoading={msgsLoading} msgsEndRef={msgsEndRef}
-            userId={userId} messageBody={messageBody}
-            onMessageBodyChange={(v) => { setMessageBody(v); saveDraft({ subject: '', body: v }); }}
-            draftRestored={draftRestored} selectedFile={selectedFile} filePreviewUrl={filePreviewUrl}
-            fileInputRef={fileInputRef} onFileSelect={handleFileSelect} onRemoveFile={removeFile}
-            getFileType={getFileType} isSending={isSending} sendError={sendError}
-            onClearSendError={clearSendError} onPanelSend={handlePanelSend}
-            searchQuery={searchQuery}
-            onSearchQueryChange={(v) => { setSearchQuery(v); setShowSearch(true); }}
-            showSearch={showSearch} onShowSearch={setShowSearch}
-            searchResults={searchResults} isSearching={isSearching}
-            drEamsMode={drEamsMode} onToggleDrEams={toggleDrEams}
-            onSearchResultSelect={handleSearchResultSelect}
-          />
-        ) : (
-          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 20px', gap: 12 }}>
-            <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Dream Space</span>
-            <button
-              type="button" onClick={() => setSnapPoint('balanced')}
-              aria-label="Expand Dream Space"
-              style={{ fontSize: 11, color: 'var(--de-blue)', background: 'transparent', border: '1px solid rgba(42,138,184,0.35)', borderRadius: 9999, padding: '2px 10px', cursor: 'pointer' }}
-            >
-              Expand
-            </button>
-          </div>
-        )}
-      </div>
+        {/* ── Drag handle ──────────────────────────────────────────────────── */}
+        <div
+          role="separator" aria-label="Drag to resize DreamDM"
+          onPointerDown={handleDragStart}
+          onPointerMove={handleDragMove}
+          onPointerUp={handleDragEnd}
+          onPointerCancel={handleDragEnd}
+          style={{
+            height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, cursor: isDragging ? 'grabbing' : 'grab',
+            touchAction: 'none', userSelect: 'none',
+          }}
+        >
+          <div style={{
+            width: 40, height: 4, borderRadius: 99,
+            background: 'rgba(200,152,26,0.45)',
+          }} />
+        </div>
 
-      {/* ── Bar rail ────────────────────────────────────────────────────────── */}
-      <div
-        role="separator" aria-label="DreamDM Bar — drag to resize"
-        onPointerDown={handleDragStart} onPointerMove={handleDragMove}
-        onPointerUp={handleDragEnd} onPointerCancel={handleDragEnd}
-        style={{
-          position: 'absolute', top: `${barTopPct * 100}%`, left: 0, right: 0, height: BAR_H,
-          display: 'flex', alignItems: 'center', gap: 10, padding: '0 16px',
-          cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'none', userSelect: 'none',
-          pointerEvents: 'auto', zIndex: 1, transition: springTransition,
-          background: 'linear-gradient(135deg, rgba(200,152,26,0.16) 0%, rgba(42,138,184,0.14) 100%)',
-          backdropFilter: 'blur(22px)', WebkitBackdropFilter: 'blur(22px)',
-          borderTop: '1.5px solid rgba(200,152,26,0.38)', borderBottom: '1px solid rgba(42,138,184,0.22)',
-          boxShadow: '0 -2px 12px rgba(0,0,0,0.07)',
-        }}
-      >
-        <GripHorizontal size={16} aria-hidden style={{ color: 'var(--de-gold)', opacity: 0.75, flexShrink: 0 }} />
+        {/* ── Bar body ─────────────────────────────────────────────────────── */}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {showFull ? (
+            /* Full messaging panel (top-locked or expanded past 180 px) */
+            <DreamSpaceMessaging
+              conversations={conversations} selectedConv={selectedConv}
+              onSelectConv={(c) => { setSelectedConv(c); markAllRead(); }}
+              messages={messages} msgsLoading={msgsLoading} msgsEndRef={msgsEndRef}
+              userId={userId} messageBody={messageBody}
+              onMessageBodyChange={(v) => { setMessageBody(v); saveDraft({ subject: '', body: v }); }}
+              draftRestored={draftRestored} selectedFile={selectedFile} filePreviewUrl={filePreviewUrl}
+              fileInputRef={fileInputRef} onFileSelect={handleFileSelect} onRemoveFile={removeFile}
+              getFileType={getFileType} isSending={isSending} sendError={sendError}
+              onClearSendError={clearSendError} onPanelSend={handlePanelSend}
+              searchQuery={searchQuery}
+              onSearchQueryChange={(v) => { setSearchQuery(v); setShowSearch(true); }}
+              showSearch={showSearch} onShowSearch={setShowSearch}
+              searchResults={searchResults} isSearching={isSearching}
+              drEamsMode={drEamsMode} onToggleDrEams={toggleDrEams}
+              onSearchResultSelect={handleSearchResultSelect}
+            />
+          ) : (
+            /* Compact bar — quick compose + unread badge */
+            <div style={{
+              flex: 1, display: 'flex', alignItems: 'center',
+              gap: 10, padding: '0 16px 0 14px',
+            }}>
+              {/* DreamDM icon + unread badge */}
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <MessageCircle size={18} aria-hidden style={{ color: 'var(--de-blue)' }} />
+                {unreadCount > 0 && (
+                  <span
+                    aria-label={`${unreadCount} unread`}
+                    style={{
+                      position: 'absolute', top: -6, right: -6,
+                      background: 'var(--de-gold)', color: 'white',
+                      borderRadius: 9999, fontSize: 9, fontWeight: 700,
+                      lineHeight: 1, padding: '2px 4px', minWidth: 14, textAlign: 'center',
+                    }}
+                  >
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </div>
 
-        {/* DreamDM icon + unread badge */}
-        <div style={{ position: 'relative', flexShrink: 0 }}>
-          <MessageCircle size={17} aria-hidden style={{ color: 'var(--de-blue)' }} />
-          {unreadCount > 0 && (
-            <span
-              aria-label={`${unreadCount} unread`}
-              style={{
-                position: 'absolute', top: -6, right: -6,
-                background: 'var(--de-gold)', color: 'white',
-                borderRadius: 9999, fontSize: 9, fontWeight: 700,
-                lineHeight: 1, padding: '2px 4px', minWidth: 14, textAlign: 'center',
-              }}
-            >
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </span>
+              {/* Quick compose */}
+              <input
+                type="text" value={quickDraft}
+                onChange={(e) => setQuickDraft(e.target.value)}
+                onFocus={() => setComposeFocused(true)}
+                onBlur={() => setComposeFocused(false)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleQuickSend(); }
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                placeholder={selectedConv
+                  ? `Message ${selectedConv.otherUser.display_name || selectedConv.otherUser.handle}…`
+                  : 'DreamDM…'}
+                aria-label="Quick compose"
+                style={{
+                  flex: 1, minWidth: 0,
+                  background: composeFocused ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.40)',
+                  border: composeFocused
+                    ? '1.5px solid rgba(200,152,26,0.55)'
+                    : '1px solid rgba(160,195,240,0.45)',
+                  borderRadius: 9999, padding: '7px 14px', fontSize: 13,
+                  color: 'var(--de-text)', outline: 'none', cursor: 'text',
+                  transition: 'background 0.18s, border 0.18s',
+                }}
+              />
+
+              {/* Send */}
+              {quickDraft.trim() && (
+                <button
+                  type="button" onClick={handleQuickSend}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  disabled={isSending} aria-label="Send DreamDM"
+                  style={{
+                    background: 'linear-gradient(135deg, var(--de-gold), var(--de-blue))',
+                    border: 'none', borderRadius: '50%', width: 34, height: 34,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: isSending ? 'not-allowed' : 'pointer', flexShrink: 0, color: 'white',
+                    opacity: isSending ? 0.6 : 1,
+                  }}
+                >
+                  {isSending
+                    ? <Loader2 size={14} aria-hidden style={{ animation: 'spin 1s linear infinite' }} />
+                    : <Send size={14} aria-hidden />}
+                </button>
+              )}
+
+              {/* Dr. Eams toggle */}
+              <button
+                type="button" onClick={toggleDrEams}
+                onPointerDown={(e) => e.stopPropagation()}
+                aria-pressed={drEamsMode}
+                aria-label={drEamsMode ? 'Dr. Eams mode ON' : 'Dr. Eams mode OFF'}
+                style={{
+                  flexShrink: 0,
+                  background: drEamsMode ? 'var(--de-gold)' : 'rgba(160,195,240,0.18)',
+                  border: 'none', borderRadius: '50%', width: 30, height: 30,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', color: drEamsMode ? 'white' : 'var(--de-text-dim)',
+                  transition: 'background 0.18s, color 0.18s',
+                }}
+              >
+                <Bot size={13} aria-hidden />
+              </button>
+            </div>
           )}
         </div>
-
-        {/* Quick compose */}
-        <input
-          type="text" value={quickDraft}
-          onChange={(e) => setQuickDraft(e.target.value)}
-          onFocus={() => setComposeFocused(true)} onBlur={() => setComposeFocused(false)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleQuickSend(); } }}
-          onPointerDown={(e) => e.stopPropagation()}
-          placeholder={selectedConv
-            ? `Message ${selectedConv.otherUser.display_name || selectedConv.otherUser.handle}…`
-            : 'DreamDM…'}
-          aria-label="Quick compose"
-          style={{
-            flex: 1, minWidth: 0,
-            background: composeFocused ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.40)',
-            border: composeFocused ? '1.5px solid rgba(200,152,26,0.55)' : '1px solid rgba(160,195,240,0.45)',
-            borderRadius: 9999, padding: '5px 12px', fontSize: 13,
-            color: 'var(--de-text)', outline: 'none', cursor: 'text',
-            transition: 'background 0.18s ease, border 0.18s ease',
-          }}
-        />
-
-        {/* Send */}
-        {quickDraft.trim() && (
-          <button
-            type="button" onClick={handleQuickSend} onPointerDown={(e) => e.stopPropagation()}
-            disabled={isSending} aria-label="Send DreamDM"
-            style={{
-              background: 'linear-gradient(135deg, var(--de-gold) 0%, var(--de-blue) 100%)',
-              border: 'none', borderRadius: '50%', width: 32, height: 32,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: isSending ? 'not-allowed' : 'pointer', flexShrink: 0, color: 'white',
-              opacity: isSending ? 0.6 : 1,
-            }}
-          >
-            {isSending ? <Loader2 size={14} aria-hidden style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} aria-hidden />}
-          </button>
-        )}
-
-        {/* Snap dots */}
-        <div style={{ display: 'flex', gap: 5, flexShrink: 0 }} onPointerDown={(e) => e.stopPropagation()}>
-          {(['surface-focus', 'balanced', 'dream-focus'] as const).map((snap) => (
-            <button
-              key={snap} type="button" onClick={() => setSnapPoint(snap)}
-              aria-label={SNAP_LABELS[snap]} aria-pressed={snapPoint === snap}
-              style={{
-                width: 8, height: 8, borderRadius: '50%', border: 'none', cursor: 'pointer',
-                background: snapPoint === snap ? 'var(--de-gold)' : 'rgba(42,138,184,0.35)',
-                transition: 'background 0.18s', padding: 0,
-              }}
-            />
-          ))}
-        </div>
       </div>
-    </div>
+    </>
   );
 }
-
 // ─────────────────────────────────────────────────────────────────────────────
 // DreamSpaceMessaging
 // ─────────────────────────────────────────────────────────────────────────────
