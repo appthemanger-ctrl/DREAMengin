@@ -35,6 +35,7 @@ export type Widget = {
   type: WidgetType;
   size?: WidgetSize;
   config?: WidgetConfig;
+  visibility?: 'private' | 'followers' | 'public';
 };
 
 export const DEFAULT_CONFIG: WidgetConfig = {
@@ -175,7 +176,7 @@ function WidgetConfigSheet({
 }: {
   widget: Widget;
   onClose: () => void;
-  onSave: (config: WidgetConfig, size: WidgetSize) => void;
+  onSave: (config: WidgetConfig, size: WidgetSize, visibility: Widget['visibility']) => void;
 }) {
   const cfg  = { ...DEFAULT_CONFIG, ...widget.config };
   const [size,       setSize]       = useState<WidgetSize>(widget.size ?? getDefaultSize(widget.type));
@@ -187,6 +188,7 @@ function WidgetConfigSheet({
   const [twHandle,   setTwHandle]   = useState(cfg.twitterHandle ?? DEFAULT_CONFIG.twitterHandle!);
   const [actDays,    setActDays]    = useState<7|30|90>(cfg.activityDays ?? 7);
   const [photoCount, setPhotoCount] = useState<3|6|9>(cfg.photoCount ?? 3);
+  const [visibility, setVisibility] = useState<Widget['visibility']>(widget.visibility ?? 'private');
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '10px 12px', borderRadius: 10,
@@ -308,6 +310,30 @@ function WidgetConfigSheet({
             ))}
           </div>
 
+          {/* ── Visibility ── */}
+          <label style={sectionLabel}>Visibility</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+            {([
+              { value: 'private',   icon: '🔒', label: 'Private' },
+              { value: 'followers', icon: '👥', label: 'Followers' },
+              { value: 'public',    icon: '🌐', label: 'Public' },
+            ] as { value: Widget['visibility']; icon: string; label: string }[]).map(({ value, icon, label }) => (
+              <button key={value} onClick={() => setVisibility(value)} style={{
+                padding: '10px 4px', borderRadius: 12,
+                background: visibility === value ? color : 'rgba(255,255,255,0.85)',
+                border: visibility === value ? 'none' : '1px solid rgba(160,195,240,0.25)',
+                color: visibility === value ? '#fff' : '#555',
+                fontWeight: 700, fontSize: 11, cursor: 'pointer',
+                transition: 'all 0.15s',
+                boxShadow: visibility === value ? `0 3px 10px ${color}44` : 'none',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              }}>
+                <span style={{ fontSize: 16 }}>{icon}</span>
+                {label}
+              </button>
+            ))}
+          </div>
+
           {/* ── Widget-specific options ── */}
           {widget.type === 'quote' && (
             <>
@@ -378,7 +404,7 @@ function WidgetConfigSheet({
               accentColor: color, bgStyle,
               quoteText, linkedinRole: liRole, linkedinCompany: liCompany,
               twitterHandle: twHandle, activityDays: actDays, photoCount,
-            }, size);
+            }, size, visibility);
             onClose();
           }} style={{
             width: '100%', marginTop: 20, padding: '14px 0',
@@ -929,9 +955,9 @@ export default function ProfileWidgetGrid({
     onSave?.(next);
   };
 
-  /** Save both config and size from the config sheet */
-  const saveWidget = (widgetId: string, cfg: WidgetConfig, size: WidgetSize) => {
-    const next = widgets.map(w => w.id === widgetId ? { ...w, config: cfg, size } : w);
+  /** Save config, size, and visibility from the config sheet */
+  const saveWidget = (widgetId: string, cfg: WidgetConfig, size: WidgetSize, vis: Widget['visibility']) => {
+    const next = widgets.map(w => w.id === widgetId ? { ...w, config: cfg, size, visibility: vis } : w);
     setWidgets(next);
     onSave?.(next);
   };
@@ -1053,6 +1079,17 @@ export default function ProfileWidgetGrid({
                   position: 'absolute', top: 8, right: 8, zIndex: 2,
                   display: 'flex', alignItems: 'center', gap: 4,
                 }}>
+                  {/* Visibility badge */}
+                  <div title={`Visibility: ${w.visibility ?? 'private'}`} style={{
+                    height: 22, padding: '0 6px', borderRadius: 7,
+                    background: 'rgba(255,255,255,0.88)',
+                    border: '1px solid rgba(0,0,0,0.09)',
+                    display: 'flex', alignItems: 'center',
+                    fontSize: 12, lineHeight: 1,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                  }}>
+                    {(w.visibility ?? 'private') === 'public' ? '🌐' : (w.visibility ?? 'private') === 'followers' ? '👥' : '🔒'}
+                  </div>
                   <button
                     onClick={() => toggleSize(w.id)}
                     title={getSize(w) === 'small' ? 'Expand to full width' : 'Shrink to half width'}
@@ -1178,7 +1215,7 @@ export default function ProfileWidgetGrid({
         <WidgetConfigSheet
           widget={configWidget}
           onClose={() => setConfigWidget(null)}
-          onSave={(cfg, size) => saveWidget(configWidget.id, cfg, size)}
+          onSave={(cfg, size, vis) => saveWidget(configWidget.id, cfg, size, vis)}
         />
       )}
 

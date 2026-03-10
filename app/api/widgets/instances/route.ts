@@ -113,3 +113,92 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+// ── PUT — upsert widget instances for a surface ────────────────────────────────
+
+const WidgetPutSchema = z.object({
+  surface: z.string().default('PROFILE'),
+  widgets: z.array(z.object({
+    id: z.string().optional(),
+    type: z.string(),
+    size: z.string().optional(),
+    config: z.record(z.unknown()).optional(),
+    visibility: z.enum(['private', 'followers', 'public']).optional().default('private'),
+  })),
+});
+
+export async function PUT(req: NextRequest) {
+  try {
+    const supabase = await createServerClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+
+    const parseResult = WidgetPutSchema.safeParse(body);
+    if (!parseResult.success) {
+      return NextResponse.json({ error: 'Invalid body', details: parseResult.error.flatten() }, { status: 400 });
+    }
+
+    const { widgets } = parseResult.data;
+    const surface = Surface.PROFILE;
+    const surfaceKey = 0;
+
+    // Build upsert rows
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const rows = widgets.map((w, idx) => ({
+      ...(w.id && UUID_RE.test(w.id) ? { id: w.id } : {}),
+      owner_id: user.id,
+      surface,
+      surface_key: surfaceKey,
+      widget_slug: w.type,
+      config: w.config ?? {},
+      visibility: w.visibility ?? 'private',
+      focus_rank: idx,
+      z_index: widgets.length - idx,
+    }));
+
+    // Get existing IDs to find deletions
+    const { data: existing } = await supabase
+      .from('widget_instances')
+      .select('id')
+      .eq('owner_id', user.id)
+      .eq('surface', surface)
+      .eq('surface_key', surfaceKey);
+
+    const submittedIds = new Set(rows.filter(r => r.id).map(r => r.id));
+    const toDelete = (existing ?? [])
+      .map(r => r.id as string)
+      .filter(id => !submittedIds.has(id));
+
+    // Upsert
+    const { error: upsertError } = await supabase
+      .from('widget_instances')
+      .upsert(rows, { onConflict: 'id' });
+
+    if (upsertError) {
+      console.error('[widgets/instances PUT] Upsert error:', upsertError);
+      return NextResponse.json({ error: 'Failed to save widgets' }, { status: 500 });
+    }
+
+    // Delete removed widgets
+    if (toDelete.length > 0) {
+      await supabase
+        .from('widget_instances')
+        .delete()
+        .in('id', toDelete);
+    }
+
+    return NextResponse.json({ ok: true, count: rows.length }, { headers: { 'Cache-Control': 'no-store' } });
+  } catch (error) {
+    console.error('[widgets/instances PUT] Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

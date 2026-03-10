@@ -53,9 +53,30 @@ export default function EditProfileDreamPage() {
 
       let loadedWidgets = DEFAULT_WIDGETS;
       try {
+        const resp = await fetch('/api/widgets/instances?surface=PROFILE');
+        if (resp.ok) {
+          const json = await resp.json();
+          if (json.items && json.items.length > 0) {
+            // Map widget_instances to Widget objects
+            loadedWidgets = json.items.map((item: { id: string; widget_slug: string; config?: Record<string,unknown>; visibility?: string }) => ({
+              id: item.id,
+              type: item.widget_slug,
+              config: item.config,
+              visibility: item.visibility ?? 'private',
+            }));
+          } else {
+            // Fall back to localStorage for users who saved before this migration
+            const saved = localStorage.getItem('de-profile-widget-order');
+            if (saved) loadedWidgets = JSON.parse(saved);
+          }
+        } else {
+          const saved = localStorage.getItem('de-profile-widget-order');
+          if (saved) loadedWidgets = JSON.parse(saved);
+        }
+      } catch {
         const saved = localStorage.getItem('de-profile-widget-order');
         if (saved) loadedWidgets = JSON.parse(saved);
-      } catch { /* noop */ }
+      }
 
       setWidgets(loadedWidgets);
       setInitialProfile(loadedProfile);
@@ -91,7 +112,12 @@ export default function EditProfileDreamPage() {
         setSaveError((data as { error?: string }).error || 'Failed to save.');
         return;
       }
-      // Persist widget order locally
+      // Persist widget order to Supabase, with localStorage as backup
+      await fetch('/api/widgets/instances', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ surface: 'PROFILE', widgets }),
+      });
       localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
       setInitialProfile(profile);
       setInitialWidgets(widgets);
