@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 const DEMO_PROJECTS = [
   { id: 'demo-1', title: 'Waves Simulator', description: 'Interactive wave physics — interference, diffraction, reflection.', visibility: 'public', created_at: '2025-01-01T00:00:00.000Z', renderUrl: 'https://phet.colorado.edu/sims/html/waves-intro/latest/waves-intro_en.html' },
   { id: 'demo-2', title: 'Circuit Builder', description: 'Build and test DC circuits with resistors, batteries and bulbs.', visibility: 'public', created_at: '2025-01-01T00:00:00.000Z', renderUrl: 'https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html' },
-  { id: 'demo-3', title: 'DREAMengin Hello', description: 'A simple branded HTML hello-world render.', visibility: 'private', created_at: '2025-01-01T00:00:00.000Z', renderUrl: null },
+  { id: 'demo-3', title: 'Dreamengin Hello', description: 'A simple branded HTML hello-world render.', visibility: 'private', created_at: '2025-01-01T00:00:00.000Z', renderUrl: null },
   { id: 'demo-4', title: 'Gravity Lab', description: 'Explore gravitational forces and orbital mechanics.', visibility: 'public', created_at: '2025-01-01T00:00:00.000Z', renderUrl: 'https://phet.colorado.edu/sims/html/gravity-and-orbits/latest/gravity-and-orbits_en.html' },
   { id: 'demo-5', title: 'Color Vision', description: 'Mix light colors and see how they combine.', visibility: 'public', created_at: '2025-01-01T00:00:00.000Z', renderUrl: 'https://phet.colorado.edu/sims/html/color-vision/latest/color-vision_en.html' },
   { id: 'demo-6', title: 'Creative Starter', description: 'Blank canvas — start building anything you imagine.', visibility: 'private', created_at: '2025-01-01T00:00:00.000Z', renderUrl: null },

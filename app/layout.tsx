@@ -22,7 +22,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: 'DREAMengin - Your Creative Platform',
+  title: 'Dreamengin - Your Creative Platform',
   description: 'A living interface system that turns your digital life into a navigable universe of connected spaces.',
   icons: {
     icon: '/branding/logo1.png',

@@ -1,5 +1,5 @@
 // app/api/ai/idari/route.ts
-// IDARi — universal AI for DREAMengin.
+// IDARi — universal AI for Dreamengin.
 // Available to ALL authenticated users. Capabilities scale with role:
 //   user  → platform guidance, personalization help, creative coaching
 //   admin → + diagnostics, feed config, system status
@@ -30,7 +30,7 @@ const RATE_LIMITS: Record<ActorRole, number> = {
 
 function buildSystemPrompt(actorRole: ActorRole): string {
   const base =
-    `You are IDARi, the AI companion inside DREAMengin — a creative platform where users build personalised digital spaces.\n` +
+    `You are IDARi, the AI companion inside Dreamengin — a creative platform where users build personalised digital spaces.\n` +
     `Your personality: warm, precise, proactive. You speak in plain language — no jargon unless asked.\n` +
     `Always respond with ONLY valid JSON. No markdown wrapping.\n` +
     `Output shape: { response_text: string, intents: Intent[] }\n` +
@@ -56,7 +56,7 @@ function buildSystemPrompt(actorRole: ActorRole): string {
   return base +
     `Actor role: USER — full creative platform access.\n` +
     `Allowed intents: SEARCH.\n` +
-    `Help the user get the most from DREAMengin: themes, widgets, Daydreams, connections, AI tools.\n` +
+    `Help the user get the most from Dreamengin: themes, widgets, Daydreams, connections, AI tools.\n` +
     `Encourage creativity. Suggest features they might not know about. Be warm and motivating.\n` +
     `Never discuss internal database schemas, RLS policies, or server infrastructure with users.`;
 }
@@ -91,7 +91,7 @@ async function idariPlanner(
     }
 
     if (!parsed || typeof parsed !== 'object') {
-      return { response_text: raw.length > 8 ? raw : `IDARi is here! Ask me anything about DREAMengin.`, intents: [] };
+      return { response_text: raw.length > 8 ? raw : `IDARi is here! Ask me anything about Dreamengin.`, intents: [] };
     }
 
     const response_text = String(parsed.response_text || `IDARi is here! How can I help?`).trim();

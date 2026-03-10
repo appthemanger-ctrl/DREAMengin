@@ -108,10 +108,7 @@ function NodeFooter() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/dreamengin-logo.jpg"
-        alt="DREAMengin"
-        width={40}
-        height={40}
-        style={{ borderRadius: '50%', objectFit: 'cover' }}
+        alt="Dreamengin"
       />
     </div>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import GestureNavigationDemo from '@/components/GestureNavigationDemo';
 
 export const metadata: Metadata = {
-  title: 'Gesture Navigation Demo | DREAMengin',
+  title: 'Gesture Navigation Demo | Dreamengin',
   description: 'Mobile-optimized gesture-driven spatial navigation',
 };
 

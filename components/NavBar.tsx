@@ -39,7 +39,7 @@ export default function NavBar({ user }: { user: User | null }) {
               className="rounded-lg"
             />
             <span className="text-lg font-bold bg-gradient-to-r from-[var(--de-gold)] to-[var(--de-accent)] bg-clip-text text-transparent hidden sm:block tracking-tight">
-              DREAMengin
+              Dreamengin
             </span>
           </Link>
 

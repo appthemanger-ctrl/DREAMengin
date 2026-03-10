@@ -66,7 +66,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     {
       id: '1',
       role: 'assistant',
-      content: "Hello! I'm Dr. Eam, your creative companion in DREAMengin. Think of me as your guide through this platform—I'm here to help you discover features, understand complex concepts, and even run safe operations on your behalf. What brings you here today?",
+      content: "Hello! I'm Dr. Eam, your creative companion in Dreamengin. Think of me as your guide through this platform—I'm here to help you discover features, understand complex concepts, and even run safe operations on your behalf. What brings you here today?",
       timestamp: new Date(),
       emotion: 'helpful',
     },
@@ -641,7 +641,7 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
 
     // Search-like queries
     if (/(search|find|look up|where is|how do i|how to)\b/i.test(query) || query.length > 18) {
-      return { kind: 'search', label: 'Searching DREAMengin…', confidence: 'med' };
+      return { kind: 'search', label: 'Searching Dreamengin…', confidence: 'med' };
     }
 
     // Questions
@@ -737,14 +737,14 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     const greetings = [
       "Hello! Great to see you. How can I help with your creative journey today?",
       "Hey there! I'm ready to assist. What would you like to explore?",
-      "Hi! I'm here to make your DREAMengin experience smoother. What's on your mind?",
+      "Hi! I'm here to make your Dreamengin experience smoother. What's on your mind?",
       "Welcome back! What can I help you accomplish today?",
     ];
     return greetings[Math.floor(Math.random() * greetings.length)];
   };
 
   const getDetailedCapabilities = (): string => {
-    return `I can take you anywhere in DREAMengin:
+    return `I can take you anywhere in Dreamengin:
 
 **Navigate**: Home • Discover • Music • Lab • Shop • Messages • Settings
 **Create**: Posts • Experiments • Content

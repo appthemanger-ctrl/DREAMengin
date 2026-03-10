@@ -20,7 +20,7 @@ export default function DrEamsVoiceAssistant() {
     {
       id: '1',
       role: 'assistant',
-      content: 'Hello! I\'m Dr. Eams, your voice-enabled personal guide to DREAMengin. Say "Hey Doc" at any time to activate me, and I\'ll help you navigate the platform hands-free. What would you like to explore today?',
+      content: 'Hello! I\'m Dr. Eams, your voice-enabled personal guide to Dreamengin. Say "Hey Doc" at any time to activate me, and I\'ll help you navigate the platform hands-free. What would you like to explore today?',
       timestamp: new Date()
     }
   ]);
@@ -380,7 +380,7 @@ export default function DrEamsVoiceAssistant() {
       return `You're currently on the ${pageName} page.`;
     }
     if (lower.includes('help') || lower.includes('what can you do')) {
-      return 'I can help you navigate anywhere on DREAMengin. Try saying "go to home", "open messages", "show analytics", or "go to settings". I can also scroll pages, go back, refresh, and answer questions about the platform. What would you like to do?';
+      return 'I can help you navigate anywhere on Dreamengin. Try saying "go to home", "open messages", "show analytics", or "go to settings". I can also scroll pages, go back, refresh, and answer questions about the platform. What would you like to do?';
     }
 
     // Default: call the real Dr. Eams API
@@ -437,7 +437,7 @@ export default function DrEamsVoiceAssistant() {
     if (lowerQuery.includes('post') || lowerQuery.includes('create')) {
       return 'Great question! To create a post, simply click the "+ Create" button in the navigation bar, or you can press Ctrl+P for quick access. You can add text, images, and tags to make your posts engaging. Would you like me to walk you through the posting process step by step?';
     } else if (lowerQuery.includes('profile')) {
-      return 'Your profile is your creative hub on DREAMengin! Navigate to Settings → Edit Profile to customize everything about your presence. You can update your bio, change your avatar, select a theme, showcase your music, display merchandise, and highlight your lab projects. Think of it as your personal portfolio that tells your story!';
+      return 'Your profile is your creative hub on Dreamengin! Navigate to Settings → Edit Profile to customize everything about your presence. You can update your bio, change your avatar, select a theme, showcase your music, display merchandise, and highlight your lab projects. Think of it as your personal portfolio that tells your story!';
     } else if (lowerQuery.includes('ad') || lowerQuery.includes('monetize')) {
       return 'Monetization is one of the most powerful features here! The Ad Marketplace lets you create ad slots on your profile and set your own pricing. You manage bookings, track performance, and revenue sharing is built right in. Head to the Ads page to get started. Many creators find this to be a great passive income stream!';
     } else if (lowerQuery.includes('lab') || lowerQuery.includes('science')) {
@@ -445,7 +445,7 @@ export default function DrEamsVoiceAssistant() {
     } else if (lowerQuery.includes('feed') || lowerQuery.includes('dashboard')) {
       return 'Your dashboard is fully customizable to fit your workflow! You can drag and drop widgets to rearrange them however you like. Add widgets for notifications, promotions, quick stats, analytics, and more. Try clicking and dragging one of your widgets now to see how easy it is to personalize your experience!';
     } else if (lowerQuery.includes('music')) {
-      return 'Music is a first-class citizen on DREAMengin! Head to the Music page to upload your tracks, create playlists, and embed them directly on your profile. We support Spotify integration, SoundCloud embeds, and direct uploads. Your music becomes part of your creative identity here!';
+      return 'Music is a first-class citizen on Dreamengin! Head to the Music page to upload your tracks, create playlists, and embed them directly on your profile. We support Spotify integration, SoundCloud embeds, and direct uploads. Your music becomes part of your creative identity here!';
     } else if (lowerQuery.includes('shop') || lowerQuery.includes('merch')) {
       return 'Your merch shop is your direct line to your audience! You can add products with images, detailed descriptions, and pricing. Your fans can browse and purchase right from your profile without leaving the platform. It\'s a great way to build your brand and connect with supporters through physical goods!';
     } else if (lowerQuery.includes('connector') || lowerQuery.includes('youtube') || lowerQuery.includes('import')) {
@@ -455,9 +455,9 @@ export default function DrEamsVoiceAssistant() {
     } else if (lowerQuery.includes('analytics')) {
       return 'Analytics help you understand your impact! Visit the Analytics page to see comprehensive metrics including views, likes, comments, follower growth, and revenue tracking. You can filter by time range, identify your top-performing content, and even export data for deeper analysis. Knowledge is power!';
     } else if (lowerQuery.includes('who are you') || lowerQuery.includes('what are you')) {
-      return 'I\'m Dr. Eams, your dedicated voice-enabled AI assistant for DREAMengin! Think of me as your knowledgeable companion who knows every corner of this platform. I\'m here to help you succeed hands-free. Just say "Hey Doc" anytime you need me, and I\'ll spring into action!';
+      return 'I\'m Dr. Eams, your dedicated voice-enabled AI assistant for Dreamengin! Think of me as your knowledgeable companion who knows every corner of this platform. I\'m here to help you succeed hands-free. Just say "Hey Doc" anytime you need me, and I\'ll spring into action!';
     } else {
-      return 'I\'m here to help with anything DREAMengin-related! You can ask me about creating posts, customizing your profile, setting up ads, managing lab projects, organizing your feed, exploring analytics, or navigating anywhere on the platform. Try saying "Hey Doc, go to home" or "Hey Doc, open messages". What would you like to do?';
+      return 'I\'m here to help with anything Dreamengin-related! You can ask me about creating posts, customizing your profile, setting up ads, managing lab projects, organizing your feed, exploring analytics, or navigating anywhere on the platform. Try saying "Hey Doc, go to home" or "Hey Doc, open messages". What would you like to do?';
     }
   };
 

@@ -35,7 +35,7 @@ export default function AIAssistantEnhanced() {
       id: '1',
       role: 'assistant',
       content:
-        "Hello! I'm Dr. Eams, your creative companion in DREAMengin. Think of me as your guide through this platform—I'm here to help you discover features, understand complex concepts, and even run safe operations on your behalf. What brings you here today?",
+        "Hello! I'm Dr. Eams, your creative companion in Dreamengin. Think of me as your guide through this platform—I'm here to help you discover features, understand complex concepts, and even run safe operations on your behalf. What brings you here today?",
       timestamp: new Date(),
       emotion: 'helpful',
     },
@@ -269,14 +269,14 @@ export default function AIAssistantEnhanced() {
     const greetings = [
       "Hello! Great to see you. How can I help with your creative journey today?",
       "Hey there! I'm ready to assist. What would you like to explore?",
-      "Hi! I'm here to make your DREAMengin experience smoother. What's on your mind?",
+      "Hi! I'm here to make your Dreamengin experience smoother. What's on your mind?",
       "Welcome back! What can I help you accomplish today?",
     ];
     return greetings[Math.floor(Math.random() * greetings.length)];
   };
 
   const getDetailedCapabilities = (): string => {
-    return `I'm designed to be your intelligent companion throughout DREAMengin. Here's what I can do for you:
+    return `I'm designed to be your intelligent companion throughout Dreamengin. Here's what I can do for you:
 
 **🧭 Navigation & Discovery**
 I can guide you to any section of the platform, explain features as you encounter them, and help you discover capabilities you might not know about yet.
@@ -305,7 +305,7 @@ What aspect interests you most right now?`;
 
 The key insight is that what appears as "information loss" in systems like black holes is actually **information redistribution** to boundaries and records—nothing is fundamentally lost.
 
-In DREAMengin's Physics Lab, you can:
+In Dreamengin's Physics Lab, you can:
 - Design experiments testing CCC predictions
 - Explore the 99-layer transfer architecture (ADA)
 - Simulate coherence functionals across spectral windows
@@ -332,7 +332,7 @@ For CCC-based experiments, you can configure:
 I can navigate you to the Lab now, or we can discuss your hypothesis first. What would be most helpful?`;
     }
 
-    return `The Physics Lab is one of DREAMengin's most innovative features. It allows you to:
+    return `The Physics Lab is one of Dreamengin's most innovative features. It allows you to:
 
 - Design and run theoretical experiments
 - Test predictions from frameworks like CCC
@@ -346,7 +346,7 @@ What aspect of physics are you most interested in exploring?`;
   };
 
   const getRevenueGuidance = (): string => {
-    return `DREAMengin implements a **creator-first revenue model** that's designed to be fair and transparent:
+    return `Dreamengin implements a **creator-first revenue model** that's designed to be fair and transparent:
 
 **💎 Revenue Split**
 - **85% to creators** (you!)
@@ -382,7 +382,7 @@ Would you like me to navigate you to your earnings dashboard, or do you have que
 
     // Analyze query intent
     if (/\b(post|create|upload|publish|share)\b/.test(lower)) {
-      return `Creating content is the heart of DREAMengin! To create a post:
+      return `Creating content is the heart of Dreamengin! To create a post:
 
 1. Click **Create** in the navigation (or ask me to open it)
 2. Choose your content type: text, images, video, or a mix
@@ -396,7 +396,7 @@ Want me to open the Create page for you?`;
     }
 
     if (/\b(profile|avatar|bio|about|page)\b/.test(lower)) {
-      return `Your profile is your creative identity on DREAMengin. Here's what makes a great profile:
+      return `Your profile is your creative identity on Dreamengin. Here's what makes a great profile:
 
 **Essential elements:**
 - **Avatar** - A clear, recognizable image (supports upload via Edit Profile)
@@ -415,7 +415,7 @@ Shall I navigate you to Edit Profile?`;
     }
 
     if (/\b(analytics|stats|performance|views|engagement)\b/.test(lower)) {
-      return `Analytics help you understand your impact and optimize your strategy. DREAMengin provides:
+      return `Analytics help you understand your impact and optimize your strategy. Dreamengin provides:
 
 **📈 Core Metrics**
 - Views and unique visitors
@@ -465,7 +465,7 @@ Ready to upload your first track?`;
     }
 
     if (/\b(ad|ads|advertising|promote|promotion)\b/.test(lower)) {
-      return `DREAMengin's advertising system is unique—it's designed to empower creators as publishers:
+      return `Dreamengin's advertising system is unique—it's designed to empower creators as publishers:
 
 **📺 For Content Creators**
 - Configure ad slots on your profile
@@ -495,7 +495,7 @@ Want to configure your first ad slot?`;
     if (ctx.recentTopics.length > 0) {
       return `I notice we've been discussing ${ctx.recentTopics.slice(0, 2).join(' and ')}. I'm here to help with whatever you need.
 
-You can ask me about features, navigation, your earnings, experiments, content strategy, or anything else related to DREAMengin. I can also perform actions like opening pages or checking system status.
+You can ask me about features, navigation, your earnings, experiments, content strategy, or anything else related to Dreamengin. I can also perform actions like opening pages or checking system status.
 
 What would you like to explore next?`;
     }

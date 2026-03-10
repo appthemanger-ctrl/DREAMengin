@@ -9,6 +9,142 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      board_posts: {
+        Row: {
+          author_id: string
+          board_id: string
+          content: string
+          created_at: string
+          id: string
+          is_pinned: boolean
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          board_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          board_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "board_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "board_posts_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      boards: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          owner_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          owner_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          owner_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boards_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          file_url: string | null
+          id: string
+          is_published: boolean
+          preview_url: string | null
+          price_cents: number
+          seller_id: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean
+          preview_url?: string | null
+          price_cents?: number
+          seller_id: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean
+          preview_url?: string | null
+          price_cents?: number
+          seller_id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_items_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ad_campaigns: {
         Row: {
           ad_slot_id: string
@@ -1619,33 +1755,45 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banner_url: string | null
           bio: string | null
           created_at: string
           display_name: string | null
           handle: string
           has_seen_intro: boolean
           id: string
+          location: string | null
           updated_at: string
+          website: string | null
+          widget_config: Json
         }
         Insert: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
           handle: string
           has_seen_intro?: boolean
           id: string
+          location?: string | null
           updated_at?: string
+          website?: string | null
+          widget_config?: Json
         }
         Update: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
           handle?: string
           has_seen_intro?: boolean
           id?: string
+          location?: string | null
           updated_at?: string
+          website?: string | null
+          widget_config?: Json
         }
         Relationships: []
       }

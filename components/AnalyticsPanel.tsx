@@ -144,7 +144,7 @@ export default function AnalyticsPanel({ data }: AnalyticsPanelProps) {
 
       <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
         <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
-          Analytics are updated in real-time and reflect activity across all your content on DREAMengin.
+          Analytics are updated in real-time and reflect activity across all your content on Dreamengin.
         </p>
       </div>
     </div>

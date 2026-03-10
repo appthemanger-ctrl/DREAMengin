@@ -58,7 +58,7 @@ export default function NavBarEnhanced({ session }: NavBarProps) {
                 <Sparkles className="w-8 h-8 text-slate-900 dark:text-white relative z-10 group-hover:rotate-12 transition-transform" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                DREAMengin
+                Dreamengin
               </span>
             </Link>
 

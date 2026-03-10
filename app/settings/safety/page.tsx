@@ -9,7 +9,7 @@ import { ArrowLeft, Shield, AlertTriangle, Download, FileText, ChevronRight } fr
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Policy & Safety – DREAMengin Settings' };
+export const metadata = { title: 'Policy & Safety – Dreamengin Settings' };
 
 // Placeholder log entries — in production these come from the enforcement log DB.
 // Shape matches the audit_event schema from lib/ai/schemas.ts.
@@ -166,7 +166,7 @@ export default async function SafetySettingsPage() {
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
-              TheBoogieMan.AI is DREAMengin&apos;s safety system. It enforces the community policy by
+              TheBoogieMan.AI is Dreamengin&apos;s safety system. It enforces the community policy by
               logging enforcement events with rule codes that trace back to the published policy.
               It always prefers the least restrictive action first and never issues a permanent ban
               without human review.

@@ -10,7 +10,7 @@ import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/Daydre
 import GameEngin from '@/components/daydream/GameEngin';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
+export const metadata = { title: 'Games Daydream – Dreamengin', description: 'Play, challenge, and compete.' };
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: '/game' },
@@ -41,7 +41,7 @@ export default async function GamesDaydreamPage() {
               <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
             </Link>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>dreamengin</div>
+              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>DREAMengin</div>
               <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
                 <Gamepad2 className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
                 <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Games</h1>

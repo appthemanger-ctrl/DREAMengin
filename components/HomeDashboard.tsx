@@ -80,7 +80,7 @@ export default function HomeDashboard({
               {/* Welcome message */}
               <div className="flex-1">
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                  Welcome back to DREAMengin
+                  Welcome back to Dreamengin
                 </h1>
                 <p className="text-muted-foreground text-sm md:text-base">
                   Your creative universe awaits. Explore, create, and connect.

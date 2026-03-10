@@ -1,5 +1,5 @@
 /**
- * DREAMengin — CodeSpace page (Server Component wrapper)
+ * Dreamengin — CodeSpace page (Server Component wrapper)
  *
  * Checks the authenticated Supabase user on the server.
  * Passes isAdminUser=true ONLY when the signed-in email exactly matches
