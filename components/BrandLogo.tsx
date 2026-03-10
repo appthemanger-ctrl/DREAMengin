@@ -21,7 +21,7 @@ type Props = {
 export default function BrandLogo({
   width = 40,
   height = 40,
-  alt = 'DREAMengin',
+  alt = 'Dreamengin',
   className = '',
 }: Props) {
   // Stable SSR value – avoids hydration mismatch.

@@ -8,7 +8,7 @@ import { ArrowLeft, Shield, ChevronRight, BookOpen, AlertTriangle, Scale, Eye, B
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 
 export const metadata = {
-  title: 'Community + Safety Policy – DREAMengin',
+  title: 'Community + Safety Policy – Dreamengin',
   description: 'TheBoogieMan.AI community and safety policy. Every rule is versioned and every enforcement action traces back to this page.',
 };
 
@@ -66,7 +66,7 @@ export default function PolicyPage() {
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 13, color: 'var(--de-text)', lineHeight: 1.7 }}>
-              TheBoogieMan.AI enforces DREAMengin&apos;s community and safety rules. Every enforcement
+              TheBoogieMan.AI enforces Dreamengin&apos;s community and safety rules. Every enforcement
               action references a specific rule code and policy version from this page — so you can
               always trace any action back to a published, written rule. If you believe an action
               was made in error, you can{' '}

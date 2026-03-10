@@ -25,7 +25,7 @@ export default function AIAssistant() {
       id: '1',
       role: 'assistant',
       content:
-        "Hello. I'm Dr. Eams. I can guide you through DREAMengin, explain features as you use them, and perform safe UI actions on request.",
+        "Hello. I'm Dr. Eams. I can guide you through Dreamengin, explain features as you use them, and perform safe UI actions on request.",
       timestamp: new Date(),
     },
   ]);

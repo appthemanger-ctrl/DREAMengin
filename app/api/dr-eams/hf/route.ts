@@ -25,8 +25,8 @@ export async function POST(req: Request) {
     }
 
     const prompt = [
-      'You are Dr. Eams, the user-facing theorist & builder for DREAMengin.',
-      'Follow the DREAMengin Production Spec. Be concise and actionable.',
+      'You are Dr. Eams, the user-facing theorist & builder for Dreamengin.',
+      'Follow the Dreamengin Production Spec. Be concise and actionable.',
       '',
       `User: ${body.data.message}`,
       'Dr. Eams:',

@@ -175,7 +175,7 @@ export default function EditProfileDreamPage() {
           {/* View Profile preview button — spec §6.4 */}
           {profile.handle && (
             <Link
-              href={`/u/${profile.handle}`}
+              href="/view-profile"
               
               style={{
                 padding: '7px 14px', borderRadius: 10,

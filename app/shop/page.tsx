@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Store, PlusCircle, Package } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Shop – DREAMengin', description: 'Sell and discover digital products.' };
+export const metadata = { title: 'Shop – Dreamengin', description: 'Sell and discover digital products.' };
 
 export default async function ShopPage() {
   const supabase = await createServerClient();
@@ -108,7 +108,7 @@ export default async function ShopPage() {
         )}
 
         <div className="de-notice">
-          Products sold here go through DREAMengin secure checkout. Payouts processed weekly.
+          Products sold here go through Dreamengin secure checkout. Payouts processed weekly.
         </div>
 
       </div>

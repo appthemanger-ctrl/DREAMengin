@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Database, Download, Trash2, AlertTriangle } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Data – DREAMengin Settings' };
+export const metadata = { title: 'Data – Dreamengin Settings' };
 
 export default async function DataSettingsPage() {
   const supabase = await createServerClient();

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Search, Users } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Discover – DREAMengin', description: 'Find people on DREAMengin.' };
+export const metadata = { title: 'Discover – Dreamengin', description: 'Find people on Dreamengin.' };
 
 type Profile = { id: string; handle: string; display_name: string | null; bio: string | null; avatar_url: string | null };
 

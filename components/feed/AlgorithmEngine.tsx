@@ -269,7 +269,7 @@ export default function AlgorithmEngine() {
   }, [activeId]);
 
   const sharePreset = useCallback((p: FeedPreset) => {
-    const text = `Check out my "${p.emoji} ${p.name}" feed setup on DREAMengin! ${p.description}`;
+    const text = `Check out my "${p.emoji} ${p.name}" feed setup on Dreamengin! ${p.description}`;
     navigator.clipboard.writeText(text).catch(() => {});
     setShareAlert(`"${p.name}" copied — paste it in a new post to share!`);
     setTimeout(() => setShareAlert(''), 3500);
@@ -289,7 +289,7 @@ export default function AlgorithmEngine() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {[
               { id: 'mine',  emoji: '🧠', label: 'My Algorithm',    desc: 'Your rules. Your presets. Your order.' },
-              { id: 'dream', emoji: '✨', label: 'Dream Algorithm', desc: 'DREAMengin curates for you.' },
+              { id: 'dream', emoji: '✨', label: 'Dream Algorithm', desc: 'Dreamengin curates for you.' },
             ].map(opt => {
               const active = mode === opt.id;
               return (

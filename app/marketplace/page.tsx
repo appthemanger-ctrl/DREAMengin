@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, ShoppingBag, PlusCircle } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Marketplace – DREAMengin', description: 'Discover tools, themes, and widgets.' };
+export const metadata = { title: 'Marketplace – Dreamengin', description: 'Discover tools, themes, and widgets.' };
 
 export default async function MarketplacePage() {
   const supabase = await createServerClient();
@@ -39,7 +39,7 @@ export default async function MarketplacePage() {
         <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.1), rgba(200,152,26,0.08))', borderColor: 'rgba(42,138,184,0.2)' }}>
           <div className="de-widget-body text-center py-5">
             <div style={{ fontSize: 38, marginBottom: 8 }}>∞</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>DREAMengin Marketplace</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>Dreamengin Marketplace</div>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 16px' }}>
               Sell your themes, widgets, sounds, and tools. The first creator is you.
             </p>

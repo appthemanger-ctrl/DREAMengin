@@ -5,7 +5,7 @@ import { ArrowLeft, Play, Heart, BookmarkPlus, ListMusic, Film, Music2 } from 'l
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Play Daydream – DREAMengin', description: 'Your saved music and videos in one immersive space.' };
+export const metadata = { title: 'Play Daydream – Dreamengin', description: 'Your saved music and videos in one immersive space.' };
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'music',   emoji: '🎵', label: 'Your Music',   desc: 'Albums, tracks, and singles', color: '#2a8ab8', href: '/music' },

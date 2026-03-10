@@ -5,7 +5,7 @@ import { ArrowLeft, Sliders } from 'lucide-react';
 import PositionIndicatorToggle from './PositionIndicatorToggle';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Controls – DREAMengin Settings' };
+export const metadata = { title: 'Controls – Dreamengin Settings' };
 
 export default async function ControlsSettingsPage() {
   const supabase = await createServerClient();

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * DREAMengin — CodeSpace client component.
+ * Dreamengin — CodeSpace client component.
  * Receives `isAdminUser` from the server wrapper.
  * The 🔒 admin icon is ONLY rendered when isAdminUser is true.
  */
@@ -54,7 +54,7 @@ const DEFAULT_CODE = `<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <h1>✨ DREAMengin CodeSpace</h1>
+  <h1>✨ Dreamengin CodeSpace</h1>
   <p>Edit the code in the editor below, then press Run & Preview.</p>
 </body>
 </html>`;
@@ -479,7 +479,7 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
           <div style={{ fontSize: 15, fontWeight: 700, color: '#e0e0f0', lineHeight: 1.1 }}>
             CodeSpace
           </div>
-          <div style={{ fontSize: 11, color: '#6060a0' }}>DREAMengin IDE</div>
+          <div style={{ fontSize: 11, color: '#6060a0' }}>Dreamengin IDE</div>
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>

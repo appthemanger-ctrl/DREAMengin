@@ -14,7 +14,7 @@ type Message = { role: 'user' | 'ai'; text: string };
 
 // Quick-action chips — shown before the first user message
 const QUICK_ACTIONS = [
-  { label: '✨ Explore DREAMengin', prompt: 'Give me a quick tour of what DREAMengin can do.' },
+  { label: '✨ Explore Dreamengin', prompt: 'Give me a quick tour of what Dreamengin can do.' },
   { label: '🎨 Customize my theme',  prompt: 'How do I change my theme and colors?' },
   { label: '🔗 Connect my socials',  prompt: 'How do I connect Instagram, TikTok, or Spotify?' },
   { label: '🧩 Add a widget',        prompt: 'How do I add and arrange widgets on my home?' },
@@ -63,7 +63,7 @@ function TypingDots() {
 
 export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'ai', text: "Hey! I'm IDARi — your AI companion inside DREAMengin. What are you dreaming up today? ✦" },
+    { role: 'ai', text: "Hey! I'm IDARi — your AI companion inside Dreamengin. What are you dreaming up today? ✦" },
   ]);
   const [input, setInput]   = useState('');
   const [loading, setLoading] = useState(false);
@@ -164,7 +164,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
             <IDARiAvatar size={44} />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.2 }}>IDARi</div>
-              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 2 }}>Your DREAMengin AI · always on</div>
+              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 2 }}>Your Dreamengin AI · always on</div>
             </div>
             <button
               type="button"

@@ -16,7 +16,7 @@ const DEFAULT_HTML = `<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <h1>Hello DREAMengin! ✨</h1>
+  <h1>Hello Dreamengin! ✨</h1>
 </body>
 </html>`;
 

@@ -92,7 +92,7 @@ function PostCard() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 14, color: 'white', fontWeight: 700, flexShrink: 0,
           }}>D</div>
-          <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--de-heading)' }}>DREAMengin</span>
+          <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--de-heading)' }}>Dreamengin</span>
         </div>
         <span style={{ color: 'var(--de-text-dim)', fontSize: 18, letterSpacing: 3, lineHeight: 1 }}>···</span>
       </div>

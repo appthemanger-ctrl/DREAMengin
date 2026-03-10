@@ -5,7 +5,7 @@ import { ArrowLeft, FolderOpen, Image, Video, Music2, Upload } from 'lucide-reac
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Media Vault – DREAMengin', description: 'Your private media library.' };
+export const metadata = { title: 'Media Vault – Dreamengin', description: 'Your private media library.' };
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'upload',  emoji: '📤', label: 'Upload',       desc: 'Add files to your vault',    color: '#2a8ab8', href: '/api/upload' },

@@ -6,7 +6,7 @@ import SoundRecorder from '@/components/music/SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Music Studio – DREAMengin', description: 'Record, release, and manage your music.' };
+export const metadata = { title: 'Music Studio – Dreamengin', description: 'Record, release, and manage your music.' };
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'record',    emoji: '🎙️', label: 'Record',        desc: 'Open the studio recorder',    color: '#2a8ab8', href: '/daydream/music' },

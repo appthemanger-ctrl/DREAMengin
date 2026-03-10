@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Settings – DREAMengin' };
+export const metadata = { title: 'Settings – Dreamengin' };
 
 const NAV_GROUPS = [
   {

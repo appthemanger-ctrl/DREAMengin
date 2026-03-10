@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Shield, EyeOff, UserX, Flag } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Privacy – DREAMengin Settings' };
+export const metadata = { title: 'Privacy – Dreamengin Settings' };
 
 export default async function PrivacySettingsPage() {
   const supabase = await createServerClient();

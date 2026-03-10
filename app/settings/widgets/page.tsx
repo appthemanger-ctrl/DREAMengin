@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, LayoutGrid, Pin, Eye, EyeOff, Plus } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Widgets – DREAMengin Settings' };
+export const metadata = { title: 'Widgets – Dreamengin Settings' };
 
 export default async function WidgetsSettingsPage() {
   const supabase = await createServerClient();

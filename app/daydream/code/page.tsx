@@ -5,7 +5,7 @@ import { ArrowLeft, Code2 } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Code Daydream – DREAMengin', description: 'Code projects, snippets, files, and deployments.' };
+export const metadata = { title: 'Code Daydream – Dreamengin', description: 'Code projects, snippets, files, and deployments.' };
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'codespace',   emoji: '💻', label: 'Codespace',      desc: 'Open the code editor',          color: '#6366f1', href: '/codespace'   },

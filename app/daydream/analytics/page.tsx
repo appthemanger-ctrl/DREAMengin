@@ -5,7 +5,7 @@ import { ArrowLeft, BarChart3, TrendingUp, DollarSign, Users, Zap, FileText, Ext
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Analytics Daydream – DREAMengin', description: 'Overview of your reach, revenue, and growth.' };
+export const metadata = { title: 'Analytics Daydream – Dreamengin', description: 'Overview of your reach, revenue, and growth.' };
 
 
 const WIDGETS: DaydreamWidget[] = [

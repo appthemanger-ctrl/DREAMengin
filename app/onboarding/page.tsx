@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Welcome – DREAMengin' };
+export const metadata = { title: 'Welcome – Dreamengin' };
 
 const TIPS = [
   {
@@ -105,7 +105,7 @@ export default async function OnboardingPage() {
 
         <div style={{ textAlign: 'center', paddingTop: 8 }}>
           <Link href="/homedream" className="de-btn de-btn-gold" style={{ display: 'inline-flex', fontSize: 14, padding: '12px 28px' }}>
-            Start Using DREAMengin →
+            Start Using Dreamengin →
           </Link>
         </div>
 
