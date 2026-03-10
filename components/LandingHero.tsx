@@ -52,13 +52,13 @@ export default function LandingHero() {
   const [msgIndex, setMsgIndex] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
 
-  // Responsive sprite size — 224 on mobile (<640 px), 288 on sm+ (BUG-003 fix).
+  // Responsive sprite size — 448 on mobile (<640 px), 576 on sm+ (2× original sizes).
   // Uses matchMedia so it only fires when crossing the 640 px breakpoint, not on every resize.
-  const [spriteSize, setSpriteSize] = useState(288);
+  const [spriteSize, setSpriteSize] = useState(576);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
     const update = (e: MediaQueryListEvent | MediaQueryList) =>
-      setSpriteSize(e.matches ? 224 : 288);
+      setSpriteSize(e.matches ? 448 : 576);
     update(mq);
     mq.addEventListener('change', update);
     return () => mq.removeEventListener('change', update);
