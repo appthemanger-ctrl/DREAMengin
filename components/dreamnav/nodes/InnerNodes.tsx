@@ -108,7 +108,9 @@ function NodeFooter() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/dreamengin-logo.jpg"
-        alt="Dreamengin"    </div>
+        alt="Dreamengin"
+      />
+    </div>
   );
 }
 

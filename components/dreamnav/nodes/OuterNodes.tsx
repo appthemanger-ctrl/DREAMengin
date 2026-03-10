@@ -49,6 +49,7 @@ function NodeFooter() {
       <img
         src="/images/dreamengin-logo.jpg"
         alt="Dreamengin"
+      />
     </div>
   );
 }

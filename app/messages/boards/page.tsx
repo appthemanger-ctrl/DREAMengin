@@ -11,26 +11,29 @@ export default async function BoardsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const [{ data: myBoards }, { data: publicBoards }] = await Promise.all([
+  type Board = { id: string; title: string; description: string | null; is_public: boolean; updated_at: string; owner_id?: string };
+
+  const [{ data: myBoardsRaw }, { data: publicBoardsRaw }] = await Promise.all([
     supabase
       .from('boards')
-      .select('id, title, description, is_public, updated_at')
+      .select('*')
       .eq('owner_id', user.id)
       .order('updated_at', { ascending: false }),
     supabase
       .from('boards')
-      .select('id, title, description, is_public, owner_id, updated_at')
+      .select('*')
       .eq('is_public', true)
       .neq('owner_id', user.id)
       .order('updated_at', { ascending: false })
       .limit(10),
   ]);
 
-  type Board = { id: string; title: string; description: string | null; is_public: boolean; updated_at: string };
+  const myBoards = (myBoardsRaw ?? []) as Board[];
+  const publicBoards = (publicBoardsRaw ?? []) as Board[];
 
   const renderBoard = (b: Board) => (
-    <Link key={b.id} href={`/messages/boards/${b.id}`} style={{ textDecoration: 'none' }}
-      className="de-row" style={{ borderRadius: 12, marginBottom: 2 }}>
+    <Link key={b.id} href={`/messages/boards/${b.id}`}
+      className="de-row" style={{ borderRadius: 12, marginBottom: 2, textDecoration: 'none' }}>
       <div style={{
         width: 40, height: 40, borderRadius: 11, flexShrink: 0,
         background: b.is_public ? 'rgba(42,138,184,0.12)' : 'rgba(200,152,26,0.10)',

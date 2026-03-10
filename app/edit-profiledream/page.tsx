@@ -55,27 +55,25 @@ export default function EditProfileDreamPage() {
       try {
         const resp = await fetch('/api/widgets/instances?surface=PROFILE');
         if (resp.ok) {
-          const json = await resp.json();
+          const json = await resp.json() as { items?: { id: string; widget_definitions?: { name?: string }; config?: Record<string,unknown>; visibility?: string }[] };
           if (json.items && json.items.length > 0) {
-            // Map widget_instances to Widget objects
-            loadedWidgets = json.items.map((item: { id: string; widget_slug: string; config?: Record<string,unknown>; visibility?: string }) => ({
+            loadedWidgets = json.items.map(item => ({
               id: item.id,
-              type: item.widget_slug,
-              config: item.config,
-              visibility: item.visibility ?? 'private',
+              type: (item.widget_definitions?.name ?? 'bio') as import('@/components/profile/ProfileWidgetGrid').WidgetType,
+              config: item.config as import('@/components/profile/ProfileWidgetGrid').WidgetConfig | undefined,
+              visibility: (item.visibility ?? 'private') as Widget['visibility'],
             }));
           } else {
-            // Fall back to localStorage for users who saved before this migration
             const saved = localStorage.getItem('de-profile-widget-order');
-            if (saved) loadedWidgets = JSON.parse(saved);
+            if (saved) loadedWidgets = JSON.parse(saved) as Widget[];
           }
         } else {
           const saved = localStorage.getItem('de-profile-widget-order');
-          if (saved) loadedWidgets = JSON.parse(saved);
+          if (saved) loadedWidgets = JSON.parse(saved) as Widget[];
         }
       } catch {
         const saved = localStorage.getItem('de-profile-widget-order');
-        if (saved) loadedWidgets = JSON.parse(saved);
+        if (saved) loadedWidgets = JSON.parse(saved) as Widget[];
       }
 
       setWidgets(loadedWidgets);
@@ -112,11 +110,11 @@ export default function EditProfileDreamPage() {
         setSaveError((data as { error?: string }).error || 'Failed to save.');
         return;
       }
-      // Persist widget order to Supabase, with localStorage as backup
-      await fetch('/api/widgets/instances', {
+      // Persist widget config to profile (widget_config column) and localStorage as backup
+      await fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ surface: 'PROFILE', widgets }),
+        body: JSON.stringify({ widget_config: widgets }),
       });
       localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
       setInitialProfile(profile);
