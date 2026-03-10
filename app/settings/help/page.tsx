@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, HelpCircle, BookOpen, Wand2, MessageCircle } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Help – DREAMengin Settings' };
+export const metadata = { title: 'Help – Dreamengin Settings' };
 
 export default async function HelpPage() {
   const supabase = await createServerClient();

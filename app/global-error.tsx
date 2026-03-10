@@ -25,7 +25,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
             </div>
             <div style={{ padding: '16px 18px 12px' }}>
               <p style={{ fontSize: 13, color: 'rgba(60,100,160,0.75)', marginBottom: 12 }}>
-                DREAMengin hit an unexpected error. Try again — if it keeps happening, it’s likely a deployment or env config issue.
+                Dreamengin hit an unexpected error. Try again — if it keeps happening, it’s likely a deployment or env config issue.
               </p>
               {error?.message && (
                 <p style={{ fontSize: 11, fontFamily: 'monospace', wordBreak: 'break-all', padding: '8px 12px', borderRadius: 10, background: 'rgba(220,68,68,0.06)', color: '#dc4444', border: '1px solid rgba(220,68,68,0.15)', marginBottom: 12 }}>

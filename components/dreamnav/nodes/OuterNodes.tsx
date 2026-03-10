@@ -48,10 +48,7 @@ function NodeFooter() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/dreamengin-logo.jpg"
-        alt="DREAMengin"
-        width={40}
-        height={40}
-        style={{ borderRadius: '50%', objectFit: 'cover' }}
+        alt="Dreamengin"
       />
     </div>
   );
@@ -190,7 +187,7 @@ export function Node2b() {
 
 // ---- NODE 3b -- CODE DAYDREAM ----
 
-const NODE3B_DEFAULT_HTML = `<!DOCTYPE html><html><head><style>body{margin:0;background:linear-gradient(135deg,#1a1a3e,#0d0d2b);color:#e0e0f0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px}.dot{width:12px;height:12px;border-radius:50%;background:#6366f1;animation:pulse 1.5s infinite}.dot:nth-child(2){animation-delay:.3s;background:#8b5cf6}.dot:nth-child(3){animation-delay:.6s;background:#a78bfa}@keyframes pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.4);opacity:1}}</style></head><body><div class=dot></div><div class=dot></div><div class=dot></div><p style="font-size:13px;opacity:.6">DREAMengin CodeSpace</p></body></html>`;
+const NODE3B_DEFAULT_HTML = `<!DOCTYPE html><html><head><style>body{margin:0;background:linear-gradient(135deg,#1a1a3e,#0d0d2b);color:#e0e0f0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px}.dot{width:12px;height:12px;border-radius:50%;background:#6366f1;animation:pulse 1.5s infinite}.dot:nth-child(2){animation-delay:.3s;background:#8b5cf6}.dot:nth-child(3){animation-delay:.6s;background:#a78bfa}@keyframes pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.4);opacity:1}}</style></head><body><div class=dot></div><div class=dot></div><div class=dot></div><p style="font-size:13px;opacity:.6">Dreamengin CodeSpace</p></body></html>`;
 
 export function Node3b() {
   return (

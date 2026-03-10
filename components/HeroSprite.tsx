@@ -65,7 +65,7 @@ export const ZONE_QUOTES: Record<Exclude<Zone, 'idle'>, string[]> = {
   ],
   torso: [
     "Right arm fully deployed. Charisma: off the charts. 👋",
-    "These arms built a dream engine — and spilled coffee on it twice. ☕",
+    "These arms built a Dreamengin — and spilled coffee on it twice. ☕",
     "Wave protocol initiated. Results: spectacular. ✋",
     "Arms: operational. Rest of life: pending review. 🤷",
     "Left arm says hey. Right arm is the fun one. 💃",

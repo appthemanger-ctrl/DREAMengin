@@ -6,7 +6,7 @@ import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/Daydre
 import BrandingEngin from '@/components/daydream/BrandingEngin';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Brand Daydream – DREAMengin', description: 'Build and manage your personal brand identity.' };
+export const metadata = { title: 'Brand Daydream – Dreamengin', description: 'Build and manage your personal brand identity.' };
 
 
 const WIDGETS: DaydreamWidget[] = [
@@ -96,7 +96,7 @@ export default async function BrandDaydreamPage() {
             </div>
           </div>
           <div className="de-widget-actions">
-            <button type="button" className="de-btn de-btn-ghost text-xs">+ Add Banner</button>
+            <Link href="/settings/appearance" className="de-btn de-btn-ghost text-xs">+ Add Banner</Link>
           </div>
         </div>
 

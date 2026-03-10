@@ -5,7 +5,7 @@ import { ArrowLeft, User } from 'lucide-react';
 import ProfileCanvas from '@/components/profile/ProfileCanvas';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Profile – DREAMengin', description: 'Your profile — edit and choose what the world sees.' };
+export const metadata = { title: 'Profile – Dreamengin', description: 'Your profile — edit and choose what the world sees.' };
 
 export default async function ProfileEditorPage() {
   const supabase = await createServerClient();

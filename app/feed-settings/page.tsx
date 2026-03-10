@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Rss, Sliders, Plus } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Feed Settings – DREAMengin' };
+export const metadata = { title: 'Feed Settings – Dreamengin' };
 
 export default async function FeedSettingsPage() {
   const supabase = await createServerClient();
@@ -52,7 +52,7 @@ export default async function FeedSettingsPage() {
           </div>
           <div className="de-widget-body">
             {[
-              { label: 'Show DREAMengin updates',  desc: 'News and updates from DREAMengin itself.',        on: true  },
+              { label: 'Show Dreamengin updates',  desc: 'News and updates from Dreamengin itself.',        on: true  },
               { label: 'Auto-refresh every 5 min', desc: 'Refresh feed automatically (battery-aware).',     on: true  },
               { label: 'Show empty state guides',  desc: 'Show helpful tips when the feed is empty.',       on: true  },
             ].map(({ label, desc, on }) => (

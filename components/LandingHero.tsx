@@ -133,7 +133,7 @@ export default function LandingHero() {
             className="text-lg font-bold tracking-wide"
             style={{ color: 'var(--de-heading)' }}
           >
-            DREAMengin
+            Dreamengin
           </div>
           <div className="flex items-center gap-3">
             <Link href="/about" className="de-btn de-btn-ghost" style={{ padding: '8px 18px', fontSize: 13 }}>

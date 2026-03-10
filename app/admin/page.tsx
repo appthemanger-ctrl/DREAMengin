@@ -9,7 +9,7 @@ import {
 import { isDevAdminBypassActive } from '@/lib/dev-bypass';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Admin – DREAMengin' };
+export const metadata = { title: 'Admin – Dreamengin' };
 
 export default async function AdminPage() {
   let user = null;

@@ -5,7 +5,7 @@ import { ArrowLeft, Plug } from 'lucide-react';
 import ConnectorsClient from './ConnectorsClient';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Connectors – DREAMengin', description: 'Connect your favourite services.' };
+export const metadata = { title: 'Connectors – Dreamengin', description: 'Connect your favourite services.' };
 
 export default async function ConnectorsPage() {
   const supabase = await createServerClient();
@@ -41,7 +41,7 @@ export default async function ConnectorsPage() {
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { q: 'What permissions does DREAMengin request?', a: 'Read-only access to your public content and profile. We never post on your behalf.' },
+                { q: 'What permissions does Dreamengin request?', a: 'Read-only access to your public content and profile. We never post on your behalf.' },
                 { q: 'Can I disconnect a service?', a: 'Yes. Tap Manage on any connected service and choose Disconnect. Your connector data is wiped immediately.' },
                 { q: 'What if a connection expires?', a: 'The widget shows a "Reconnect" button instead of breaking. Your layout and config are preserved.' },
               ].map(({ q, a }) => (

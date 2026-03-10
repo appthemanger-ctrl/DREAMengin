@@ -2,21 +2,41 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ShoppingBag, PlusCircle } from 'lucide-react';
+import MarketplaceListingCard from '@/components/marketplace/MarketplaceListingCard';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Marketplace – DREAMengin', description: 'Discover tools, themes, and widgets.' };
+export const metadata = { title: 'Marketplace – Dreamengin', description: 'Discover themes, widgets, and tools from the community.' };
+
+type MarketplaceListing = {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  price_cents: number;
+  preview_url: string | null;
+  tags: string[];
+};
+
+const FALLBACK_CATEGORIES = [
+  { icon: '🎨', label: 'Themes',     href: '/shop',           desc: 'Gradient packs and glass presets' },
+  { icon: '🧩', label: 'Widgets',    href: '/shop',           desc: 'Add-on widgets for your spaces' },
+  { icon: '🔌', label: 'Connectors', href: '/connectors',     desc: 'Third-party service integrations' },
+  { icon: '🎵', label: 'Music',      href: '/daydream/music', desc: 'Sample packs and sound kits' },
+];
 
 export default async function MarketplacePage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const categories = [
-    { icon: '🎨', label: 'Themes',    href: '/shop', desc: 'Gradient packs and glass presets' },
-    { icon: '🧩', label: 'Widgets',   href: '/shop', desc: 'Add-on widgets for your spaces' },
-    { icon: '🔌', label: 'Connectors',href: '/connectors', desc: 'Third-party service integrations' },
-    { icon: '🎵', label: 'Music',     href: '/daydream/music', desc: 'Sample packs and sound kits' },
-  ];
+  const { data: rawListings } = await supabase
+    .from('marketplace_items')
+    .select('id, title, description, category, price_cents, preview_url, tags')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+    .limit(24);
+
+  const listings: MarketplaceListing[] = rawListings ?? [];
 
   return (
     <div className="de-sky-bg min-h-screen">
@@ -39,7 +59,7 @@ export default async function MarketplacePage() {
         <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.1), rgba(200,152,26,0.08))', borderColor: 'rgba(42,138,184,0.2)' }}>
           <div className="de-widget-body text-center py-5">
             <div style={{ fontSize: 38, marginBottom: 8 }}>∞</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>DREAMengin Marketplace</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>Dreamengin Marketplace</div>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 16px' }}>
               Sell your themes, widgets, sounds, and tools. The first creator is you.
             </p>
@@ -49,21 +69,37 @@ export default async function MarketplacePage() {
           </div>
         </div>
 
-        {/* Categories — each links somewhere real */}
-        <div className="de-widget">
-          <div className="de-widget-header"><span className="de-widget-title">Browse</span></div>
-          <div className="de-widget-body">
-            <div className="grid grid-cols-2 gap-3">
-              {categories.map(({ icon, label, href, desc }) => (
-                <Link key={label} href={href} className="de-surface text-left p-3 flex flex-col gap-1" style={{ textDecoration: 'none' }}>
-                  <span style={{ fontSize: 22 }}>{icon}</span>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{label}</div>
-                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{desc}</div>
-                </Link>
-              ))}
+        {/* Live listings or fallback */}
+        {listings.length > 0 ? (
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <span className="de-widget-title">Browse Listings</span>
+              <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{listings.length} item{listings.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div className="de-widget-body">
+              <div className="grid grid-cols-2 gap-3">
+                {listings.map(item => (
+                  <MarketplaceListingCard key={item.id} item={item} />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="de-widget">
+            <div className="de-widget-header"><span className="de-widget-title">Explore Categories</span></div>
+            <div className="de-widget-body">
+              <div className="grid grid-cols-2 gap-3">
+                {FALLBACK_CATEGORIES.map(({ icon, label, href, desc }) => (
+                  <Link key={label} href={href} className="de-surface text-left p-3 flex flex-col gap-1" style={{ textDecoration: 'none' }}>
+                    <span style={{ fontSize: 22 }}>{icon}</span>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{label}</div>
+                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{desc}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Shop link */}
         <div className="de-widget">

@@ -6,7 +6,7 @@ import AlgorithmEngine from '@/components/feed/AlgorithmEngine';
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
-  title: 'My Algorithm – DREAMengin',
+  title: 'My Algorithm – Dreamengin',
   description: 'Build your own feed. Your rules, your presets, your order.',
 };
 

@@ -9,7 +9,7 @@ export default function DemoPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">
-            DREAMengin Demo
+            Dreamengin Demo
           </h1>
           <p className="text-slate-300">
             Torus grid navigation with wrapping in both directions

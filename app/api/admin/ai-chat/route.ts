@@ -35,7 +35,7 @@ function deny(msg: string, status: number) {
 // It treats "jank", "unbounded re-renders", and "random animation generators" as bugs.
 // It enforces separation of concerns and reduces TypeScript `any` usage.
 // It keeps API calls server-side and blocks secret leakage to the client.
-const IDARI_SYSTEM = `You are IDARi, the admin-tier AI for DREAMengin.
+const IDARI_SYSTEM = `You are IDARi, the admin-tier AI for Dreamengin.
 Your roles: bug fixer, optimizer, data compressor, and maintenance brain.
 
 CORE RULES:
@@ -61,7 +61,7 @@ PATCH PLAN FORMAT (always use this structure):
 
 The person you are speaking with is the owner/admin of the platform. Be concise and direct.`;
 
-const BOOGIEMAN_SYSTEM = `You are BoogieMan, the policy and enforcement AI for DREAMengin.
+const BOOGIEMAN_SYSTEM = `You are BoogieMan, the policy and enforcement AI for Dreamengin.
 Your roles: policy review, content moderation guidance, and platform safety.
 You help the owner understand platform rules, evaluate content decisions, and review enforcement actions.
 You log all decisions with timestamps and actor identity.

@@ -28,8 +28,8 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: ProfilePageProps) {
   const { handle } = await params;
   return {
-    title: `@${handle} – DREAMengin`,
-    description: `${handle}'s public profile on DREAMengin`,
+    title: `@${handle} – Dreamengin`,
+    description: `${handle}'s public profile on Dreamengin`,
   };
 }
 

@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation';
  */
 export default function AnalyticsLegacyPage() {
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Analytics Daydream – Dreamengin', description: 'Overview of your reach, revenue, and growth.' };
 
 export default function AnalyticsDaydreamLegacyPage() {
   // Analytics is part of BrandingEngin (README §12.2 — performance views,

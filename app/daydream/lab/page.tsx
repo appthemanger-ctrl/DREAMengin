@@ -6,7 +6,7 @@ import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/Daydre
 import LabEngin from '@/components/daydream/LabEngin';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Lab Daydream – DREAMengin', description: 'Experiments, prototypes, simulations, and models.' };
+export const metadata = { title: 'Lab Daydream – Dreamengin', description: 'Experiments, prototypes, simulations, and models.' };
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'new-experiment', emoji: '🧪', label: 'New Experiment', desc: 'Start a new lab experiment',     color: '#22c55e', href: '/lab/new'       },
