@@ -7,6 +7,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { formatRelativeTime } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
+import { useDreamDMMessages } from '@/lib/dreamdm/useDreamDMMessages';
+import { useDreamDMDraft } from '@/lib/dreamdm/useDreamDMDraft';
+import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 
 interface Conversation {
   id: string;
@@ -18,21 +21,6 @@ interface Conversation {
   };
   lastMessage?: string;
   updatedAt: string;
-}
-
-interface Message {
-  id: string;
-  sender_id: string;
-  content: string;
-  created_at: string;
-  media_url?: string;
-  media_type?: 'image' | 'video' | 'audio' | 'file';
-  sender?: {
-    id: string;
-    display_name: string | null;
-    handle: string | null;
-    avatar_url: string | null;
-  };
 }
 
 interface MessagesClientProps {
@@ -77,11 +65,9 @@ function getConversationPreview(lastMessage: string): string {
 export default function MessagesClient({ userId, initialConversations }: MessagesClientProps) {
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(initialConversations[0] || null);
-  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [newSubject, setNewSubject] = useState('');
   const [showSubjectField, setShowSubjectField] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -91,8 +77,10 @@ export default function MessagesClient({ userId, initialConversations }: Message
   const supabase = createClient();
   const router = useRouter();
 
+  const isDemoConv = selectedConv?.id.startsWith('demo-') ?? false;
+
   // Demo messages for demo conversations
-  const demoMessages: Message[] = [
+  const demoMessages: DMMessage[] = [
     { id: '1', sender_id: 'demo-user-1', content: 'Hey! I saw your latest project in the Labs.', created_at: new Date(Date.now() - 300000).toISOString() },
     { id: '2', sender_id: 'demo-user-1', content: 'Your project looks amazing! Let me know if you need help with the AI integration.', created_at: new Date(Date.now() - 240000).toISOString() },
     { id: '3', sender_id: userId, content: 'Thanks! I have been working on it for weeks.', created_at: new Date(Date.now() - 180000).toISOString() },
@@ -100,25 +88,41 @@ export default function MessagesClient({ userId, initialConversations }: Message
     { id: '5', sender_id: userId, content: 'Using TensorFlow with a custom model. Want to check it out?', created_at: new Date(Date.now() - 60000).toISOString() },
   ];
 
+  // Realtime messages via hook
+  const { messages, isLoading, addOptimistic, replaceOptimistic, removeOptimistic } = useDreamDMMessages(
+    selectedConv?.id ?? null,
+    isDemoConv,
+    demoMessages,
+  );
+
+  // Draft persistence via hook
+  const { draft, saveDraft, clearDraft, draftRestored } = useDreamDMDraft(selectedConv?.id ?? null);
+
+  // Restore draft when conversation changes
   useEffect(() => {
-    if (selectedConv) {
-      loadMessages(selectedConv.id);
+    if (draft) {
+      setNewMessage(draft.body);
+      setNewSubject(draft.subject);
+      setShowSubjectField(!!draft.subject.trim());
+    } else {
+      setNewMessage('');
+      setNewSubject('');
+      setShowSubjectField(false);
     }
-  }, [selectedConv]);
+  // Only re-run when conversation changes. `draft` is intentionally excluded:
+  // we read it once on conversation select; subsequent draft changes are driven
+  // by user input via handleMessageChange/handleSubjectChange.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConv?.id]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [messages]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (50MB max)
     const maxSize = 50 * 1024 * 1024;
     if (file.size > maxSize) {
       alert('File must be smaller than 50MB');
@@ -178,25 +182,14 @@ export default function MessagesClient({ userId, initialConversations }: Message
     return publicUrl;
   };
 
-  const loadMessages = async (conversationId: string) => {
-    // For demo conversations, use demo messages
-    if (conversationId.startsWith('demo-')) {
-      setMessages(demoMessages);
-      return;
-    }
+  const handleMessageChange = (value: string) => {
+    setNewMessage(value);
+    saveDraft({ subject: newSubject, body: value });
+  };
 
-    setIsLoading(true);
-    try {
-      const res = await fetch(`/api/messages?conversation_id=${conversationId}`);
-      const data = await res.json();
-      if (data.messages) {
-        setMessages(data.messages);
-      }
-    } catch (err) {
-      console.error('Failed to load messages:', err);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSubjectChange = (value: string) => {
+    setNewSubject(value);
+    saveDraft({ subject: value, body: newMessage });
   };
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -214,15 +207,13 @@ export default function MessagesClient({ userId, initialConversations }: Message
     let mediaType: 'image' | 'video' | 'audio' | 'file' | undefined;
 
     try {
-      // Upload file if present
       if (selectedFile) {
         mediaUrl = await uploadFile(selectedFile);
         mediaType = getFileType(selectedFile);
         removeFile();
       }
 
-      // Optimistically add message
-      const optimisticMessage: Message = {
+      const optimisticMessage: DMMessage = {
         id: `temp-${Date.now()}`,
         sender_id: userId,
         content: messageContent,
@@ -230,9 +221,11 @@ export default function MessagesClient({ userId, initialConversations }: Message
         media_url: mediaUrl,
         media_type: mediaType,
       };
-      setMessages(prev => [...prev, optimisticMessage]);
+      addOptimistic(optimisticMessage);
 
-      // For demo conversations, just keep the optimistic message
+      // Clear draft optimistically on send
+      clearDraft(selectedConv.id);
+
       if (selectedConv.id.startsWith('demo-')) {
         setIsSending(false);
         return;
@@ -252,23 +245,27 @@ export default function MessagesClient({ userId, initialConversations }: Message
 
       const data = await res.json();
       if (data.message) {
-        // Replace optimistic message with real one
-        setMessages(prev => prev.map(m => 
-          m.id === optimisticMessage.id ? data.message : m
-        ));
+        replaceOptimistic(optimisticMessage.id, data.message);
+        // Update conversation list updated_at
+        setConversations(prev =>
+          prev.map(c =>
+            c.id === selectedConv.id
+              ? { ...c, lastMessage: messageContent, updatedAt: new Date().toISOString() }
+              : c
+          )
+        );
       }
     } catch (err) {
       console.error('Failed to send message:', err);
       alert(err instanceof Error ? err.message : 'Failed to send message');
-      // Remove only the failed optimistic message
-      setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
-      setNewMessage(rawBody); // Restore message input
+      removeOptimistic(optimisticMessage.id);
+      setNewMessage(rawBody);
     } finally {
       setIsSending(false);
     }
   };
 
-  const filteredConversations = conversations.filter(conv => 
+  const filteredConversations = conversations.filter(conv =>
     conv.otherUser.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.otherUser.handle?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -532,6 +529,17 @@ export default function MessagesClient({ userId, initialConversations }: Message
 
                 {/* Message Input */}
                 <form onSubmit={sendMessage} className="p-4" style={{ borderTop: '1px solid rgba(160,195,240,0.2)' }}>
+                  {/* Draft restored indicator */}
+                  {draftRestored && (
+                    <p
+                      className="text-xs mb-2"
+                      style={{ color: 'var(--de-text-dim)', opacity: 0.8 }}
+                      aria-live="polite"
+                    >
+                      Draft restored
+                    </p>
+                  )}
+
                   {/* Subject field (email-style, toggleable) */}
                   {showSubjectField && (
                     <div className="mb-2">
@@ -539,7 +547,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                         type="text"
                         placeholder="Subject (optional)"
                         value={newSubject}
-                        onChange={(e) => setNewSubject(e.target.value)}
+                        onChange={(e) => handleSubjectChange(e.target.value)}
                         className="w-full px-4 py-2 rounded-xl text-sm focus:outline-none"
                         style={{ background: 'rgba(160,195,240,0.12)', border: '1px solid rgba(160,195,240,0.3)', color: 'var(--de-text)' }}
                       />
@@ -603,7 +611,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                       <Mail className="w-5 h-5" />
                     </button>
 
-                    {/* File Upload Buttons */}
+                    {/* File Upload Button */}
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
@@ -619,7 +627,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
                       type="text"
                       placeholder="Type a message..."
                       value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
+                      onChange={(e) => handleMessageChange(e.target.value)}
                       className="flex-1 px-4 py-3 rounded-xl text-sm focus:outline-none min-h-[48px]"
                       style={{ background: 'rgba(160,195,240,0.12)', border: '1px solid rgba(160,195,240,0.3)', color: 'var(--de-text)' }}
                     />
