@@ -32,16 +32,16 @@ const NAT = {
   shoe2: { w: 295, h: 416 },
 } as const;
 
-// Draw scale — character total visual height ≈ 208 px inside a 288 px canvas
-const S = 0.13;
+// Draw scale — character total visual height ≈ 416 px inside a 576 px canvas
+const S = 0.26;
 
 const DIM = {
-  head:  { w: Math.round(NAT.head.w  * S), h: Math.round(NAT.head.h  * S) }, // 91 × 73
-  coat:  { w: Math.round(NAT.coat.w  * S), h: Math.round(NAT.coat.h  * S) }, // 81 × 96
-  arm1:  { w: Math.round(NAT.arm1.w  * S), h: Math.round(NAT.arm1.h  * S) }, // 32 × 89
-  arm2:  { w: Math.round(NAT.arm2.w  * S), h: Math.round(NAT.arm2.h  * S) }, // 49 × 69
-  shoe1: { w: Math.round(NAT.shoe1.w * S), h: Math.round(NAT.shoe1.h * S) }, // 38 × 47
-  shoe2: { w: Math.round(NAT.shoe2.w * S), h: Math.round(NAT.shoe2.h * S) }, // 38 × 54
+  head:  { w: Math.round(NAT.head.w  * S), h: Math.round(NAT.head.h  * S) }, // 183 × 146
+  coat:  { w: Math.round(NAT.coat.w  * S), h: Math.round(NAT.coat.h  * S) }, // 162 × 193
+  arm1:  { w: Math.round(NAT.arm1.w  * S), h: Math.round(NAT.arm1.h  * S) }, // 64 × 178
+  arm2:  { w: Math.round(NAT.arm2.w  * S), h: Math.round(NAT.arm2.h  * S) }, // 97 × 138
+  shoe1: { w: Math.round(NAT.shoe1.w * S), h: Math.round(NAT.shoe1.h * S) }, // 77 × 94
+  shoe2: { w: Math.round(NAT.shoe2.w * S), h: Math.round(NAT.shoe2.h * S) }, // 77 × 108
 } as const;
 
 // ── Interaction zones ─────────────────────────────────────────────────────────
@@ -56,28 +56,28 @@ const REACT_MS = 1600; // ms before returning to idle
  */
 export const ZONE_QUOTES: Record<Exclude<Zone, 'idle'>, string[]> = {
   head: [
-    "DNA samples complete — preparing clone. Sending Boogie to \"replace\" original. 🧬",
-    "Brain cell check: all 7 reporting for duty. 💡",
-    "99% meme storage, 1% actual thoughts. Seems fine. 🤔",
-    "Calculating your next bad decision... already done. 😎",
-    "Head empty. Vibes: maximum. 🎶",
-    "Initiating dream sequence... please hold. 💭",
+    "Brain cell rollcall: 3 dreaming, 3 scheming, 1 filing for overtime. 🧠",
+    "DREAM.exe running. All neurons allocated. Sleep mode: suspended indefinitely. 💡",
+    "Scanning for bad ideas... zero found. You're DREAMengin-level smart. ✨",
+    "Head so full of DREAMs, even IDARi can't find the bugs. 🤖",
+    "99% DREAMs, 1% awake. Normal operation confirmed. 😌",
+    "Thought logged. Routing to your HomeDream immediately. 💭",
   ],
   torso: [
-    "Right arm fully deployed. Charisma: off the charts. 👋",
-    "These arms built a Dreamengin — and spilled coffee on it twice. ☕",
-    "Wave protocol initiated. Results: spectacular. ✋",
-    "Arms: operational. Rest of life: pending review. 🤷",
-    "Left arm says hey. Right arm is the fun one. 💃",
-    "Wingspan: impressive. Flight cleared. Ready for takeoff. 🛫",
+    "Right arm: deployed. Left arm: backup. DREAMs: on schedule. 💪",
+    "These arms built DREAMengin. The coffee got credit it didn't earn. ☕",
+    "Wave protocol active. Welcome to the platform. Stay a while. 👋",
+    "Built with these arms, powered by your DREAMs. Engin-eering at its finest. 🛠️",
+    "Left arm for balance. Right arm for shipping features. Both arms: legendary. 🙌",
+    "Arms extended. Ready to catch every idea you throw at us. 🚀",
   ],
   legs: [
-    "Shoes tied. Dreams: laced up too. 👟",
-    "These shoes walked so your Wi-Fi connection didn't have to. 🚶",
-    "Footwork certified. Dance clearance: classified. 🕺",
-    "Right shoe is the troublemaker. Left shoe just goes along with it. 👠",
-    "Sole purpose: looking fly. Mission: accomplished. ✨",
-    "Step one: believe in yourself. Step two: look at these shoes. 🔥",
+    "These shoes walked through every version of DREAMengin. Worth every step. 👟",
+    "Sole purpose: building the foundation you stand on. Literally. ✨",
+    "Step 1: dream it. Step 2: build it. Step 3: these shoes. That's the formula. 🔥",
+    "Left shoe: logic. Right shoe: vibes. Both: absolutely necessary. 👠",
+    "Legs run on DREAMs and impossible timelines. Currently running both. 🌟",
+    "Every great journey on this platform starts right here. These feet know the path. 🚶",
   ],
 };
 
@@ -122,8 +122,8 @@ type Props = {
 };
 
 export default function HeroSprite({
-  width  = 224,
-  height = 224,
+  width  = 480,
+  height = 480,
   className = '',
 }: Props) {
   const canvasRef  = useRef<HTMLCanvasElement>(null);
@@ -226,8 +226,8 @@ export default function HeroSprite({
 
       // ── Idle animation base ──────────────────────────────────────────────
       const idleBob   = Math.sin(t * 1.6) * 3;          // gentle vertical float
-      const idleArm   = Math.sin(t * 1.6) * 0.10;       // subtle back-arm sway
-      const idleWave  = Math.sin(t * 2.5) * 0.42;       // right-hand wave (default idle)
+      const idleArm   = Math.sin(t * 1.8) * 0.14;       // back arm — natural sway
+      const idleWave  = Math.sin(t * 1.8) * 0.14;       // front arm — same formula; -armAngle vs +arm2Angle gives natural opposing swing
       const idleLeg   = Math.sin(t * 1.6) * 0.06;       // subtle leg sway
       const idleHead  = Math.sin(t * 0.9) * 0.04;       // gentle head tilt
 
@@ -315,13 +315,13 @@ export default function HeroSprite({
         legAngle,
       );
 
-      // 5. Front arm (arm2, RIGHT arm) — waves by default, reacts on torso tap.
+      // 5. Front arm (arm2, RIGHT arm) — swings in natural opposition to arm1.
       //    Pivot = right shoulder (shoulderXR).
-      //    Shoulder socket sits at ~88% from left / ~90% from top of the arm2 image.
-      //    The arm2 image shows the hand at the TOP — so the arm is raised/waving upward.
+      //    Shoulder socket sits at ~88% from left / ~10% from top of the arm2 image,
+      //    so the arm hangs DOWN from the shoulder in its natural resting position.
       drawPart(
         imgs.arm2, DIM.arm2.w, DIM.arm2.h,
-        shoulderXR - Math.round(DIM.arm2.w * 0.88), shoulderY - Math.round(DIM.arm2.h * 0.90),
+        shoulderXR - Math.round(DIM.arm2.w * 0.88), shoulderY - Math.round(DIM.arm2.h * 0.10),
         shoulderXR, shoulderY,                 // pivot: right shoulder joint
         arm2Angle,
       );
@@ -370,19 +370,19 @@ export default function HeroSprite({
           key={hint.key}
           style={{
             position: 'absolute',
-            top: -72,
+            top: -Math.round(height * 0.25),
             left: '50%',
             transform: 'translateX(-50%)',
             pointerEvents: 'none',
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 600,
             lineHeight: 1.4,
             color: 'rgba(255,255,255,0.95)',
             background: 'rgba(10,30,80,0.82)',
             border: '1px solid rgba(90,200,250,0.4)',
             borderRadius: 12,
-            padding: '6px 12px',
-            maxWidth: 220,
+            padding: '7px 14px',
+            maxWidth: Math.round(width * 0.65),
             textAlign: 'center',
             whiteSpace: 'normal',
             animation: 'de-fade-up 0.25s ease forwards',
