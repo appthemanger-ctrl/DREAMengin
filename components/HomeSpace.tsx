@@ -10,6 +10,10 @@ interface HomeSpaceProps {
 }
 
 /**
+ * HomeDream widget slot surface.
+ * This component renders the 8-slot widget grid for the HomeDream surface.
+ * "HomeSpace" is the legacy internal name; the spec name is HomeDream.
+ *
  * HomeSpace - 8-slot widget surface for HOME mode
  * Each slot can be blank or bound to a widget
  */

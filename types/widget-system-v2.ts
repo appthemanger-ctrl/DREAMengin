@@ -17,6 +17,16 @@ export enum HostKind {
 // 2. SURFACE ENUM
 // =====================================================
 
+// Canonical surface names — preferred over Surface enum for new code
+export const DreamSurface = {
+  HOMEDREAM:          0, // was Surface.HOME
+  EDIT_PROFILE_DREAM: 2, // was Surface.PROFILE
+  VIEW_PROFILE:       2, // public-safe projection of EDIT_PROFILE_DREAM
+  DOCK:               3, // was Surface.DOCK
+} as const;
+export type DreamSurfaceKey = keyof typeof DreamSurface;
+
+/** @deprecated Use DreamSurface constants instead */
 export enum Surface {
   HOME = 0,
   FACE = 1,

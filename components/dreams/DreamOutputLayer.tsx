@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { canRenderProjection } from '@/lib/dreams/profileProjection';
 
 export type DreamOutputMode = 'home' | 'profile';
 export type DreamVisibility = 'private' | 'followers' | 'public';
@@ -19,7 +20,10 @@ export default function DreamOutputLayer({
   children,
 }: DreamOutputLayerProps) {
   if (mode === 'profile') {
-    const canRender = visibility !== 'private' && isExplicitlyShared;
+    const canRender = canRenderProjection(
+      { widgetId: '', visibility, exposedFields: [] },
+      isExplicitlyShared,
+    );
     return canRender ? <>{children}</> : null;
   }
 
