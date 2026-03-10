@@ -3,6 +3,10 @@
 /**
  * GameEngin — Side B control layer for the Games Daydream.
  *
+ * Responsibilities (README spec §7.2 / ARCHITECTURE.md §1 Daydream pairs):
+ *   - Surface the user's personal game scores and achievements.
+ *   - Provide direct entry points to each playable game.
+ *   - Show leaderboard ranking summary.
  * Responsibilities (README spec §9.2 / ARCHITECTURE.md §1 Daydream pairs):
  *   - Show the user's game scores and personal bests.
  *   - Allow one-tap publish of high scores (real Supabase write).
@@ -16,6 +20,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { ArrowLeft, Gamepad2, Trophy, Play } from 'lucide-react';
 import { ArrowLeft, Gamepad2, Trophy, Play, Share2 } from 'lucide-react';
 
 interface Props {
@@ -26,12 +31,22 @@ interface GameScore {
   id: string;
   game: string;
   score: number;
+  created_at: string;
   shared: boolean;
 }
 
 const ACCENT = '#2a8ab8';
 
 const GAME_LABELS: Record<string, string> = {
+  platformer: 'Dr. Eams Platformer',
+  'word-sprint': 'Word Sprint',
+  'memory-grid': 'Memory Grid',
+  'speed-tap': 'Speed Tap',
+};
+
+export default function GameEngin({ onBack }: Props) {
+  const [scores, setScores]   = useState<GameScore[]>([]);
+  const [loading, setLoading] = useState(true);
   'platformer':  'Dr. Eams Platformer',
   'word-sprint': 'Word Sprint',
   'memory-grid': 'Memory Grid',
@@ -52,6 +67,7 @@ export default function GameEngin({ onBack }: Props) {
       if (!user || cancelled) { setLoading(false); return; }
       const { data } = await supabase
         .from('game_scores')
+        .select('id, game, score, created_at')
         .select('id, game, score, shared')
         .eq('user_id', user.id)
         .order('score', { ascending: false })
@@ -65,6 +81,11 @@ export default function GameEngin({ onBack }: Props) {
     return () => { cancelled = true; };
   }, []);
 
+  /* Group scores by game, keep personal best per game */
+  const bestByGame = scores.reduce<Record<string, number>>((acc, s) => {
+    if (acc[s.game] === undefined || s.score > acc[s.game]) acc[s.game] = s.score;
+    return acc;
+  }, {});
   async function handleShare(scoreId: string) {
     setSharing(scoreId);
     const supabase = createClient();
@@ -113,6 +134,7 @@ export default function GameEngin({ onBack }: Props) {
             <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>
               GameEngin
             </div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Games · Control Layer</div>
             <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Games Studio · Control Layer</div>
           </div>
 
@@ -128,6 +150,14 @@ export default function GameEngin({ onBack }: Props) {
       {/* ── Body ── */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
+        {/* Personal Bests */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Trophy className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--de-gold)' }} />
+            <span className="de-widget-title ml-2">Personal Bests</span>
+            <Link href="/daydream/games" className="text-xs font-semibold ml-auto" style={{ color: ACCENT }}>
+              View All →
+            </Link>
         {/* Quick Launch */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
@@ -185,6 +215,7 @@ export default function GameEngin({ onBack }: Props) {
               <p style={{ fontSize: 12, color: 'var(--de-text-dim)', padding: '8px 0' }}>
                 Loading scores…
               </p>
+            ) : Object.keys(bestByGame).length === 0 ? (
             ) : scores.length === 0 ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' }}>
                 <Gamepad2 className="w-6 h-6 flex-shrink-0" style={{ color: ACCENT, opacity: 0.3 }} />
@@ -193,12 +224,16 @@ export default function GameEngin({ onBack }: Props) {
                     No scores yet
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+                    Play a game to see your personal bests here.
                     Play a game above to record your first score.
                   </div>
                 </div>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {Object.entries(bestByGame).map(([game, best]) => (
+                  <div
+                    key={game}
                 {scores.map(s => (
                   <div
                     key={s.id}
@@ -209,6 +244,25 @@ export default function GameEngin({ onBack }: Props) {
                       border: '1px solid rgba(160,195,240,0.18)',
                     }}
                   >
+                    <Gamepad2 className="w-4 h-4 flex-shrink-0" style={{ color: ACCENT, opacity: 0.7 }} />
+                    <span
+                      style={{
+                        flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--de-heading)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0,
+                      }}
+                    >
+                      {GAME_LABELS[game] ?? game}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 12, fontWeight: 800, color: ACCENT,
+                        background: `${ACCENT}14`, padding: '2px 10px',
+                        borderRadius: 999, border: `1px solid ${ACCENT}25`,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {best.toLocaleString()}
+                    </span>
                     <Trophy className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--de-gold)', opacity: 0.7 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div
@@ -229,6 +283,51 @@ export default function GameEngin({ onBack }: Props) {
               </div>
             )}
           </div>
+
+          <div className="de-widget-actions">
+            <Link href="/game" className="de-btn de-btn-primary" style={{ gap: 8 }}>
+              <Play className="w-3 h-3 fill-current" />
+              Play Now
+            </Link>
+            <Link href="/daydream/games" className="de-btn de-btn-ghost text-xs">
+              All Games
+            </Link>
+          </div>
+        </div>
+
+        {/* Quick Launch */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <span className="de-widget-title">Quick Launch</span>
+          </div>
+
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { key: 'platformer',   label: 'Dr. Eams Platformer', emoji: '∞',  href: '/game' },
+                { key: 'word-sprint',  label: 'Word Sprint',          emoji: '📝', href: '/daydream/games' },
+                { key: 'memory-grid',  label: 'Memory Grid',          emoji: '🧩', href: '/daydream/games' },
+                { key: 'speed-tap',    label: 'Speed Tap',            emoji: '⚡', href: '/daydream/games' },
+              ].map(g => (
+                <Link
+                  key={g.key}
+                  href={g.href}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '10px 12px', borderRadius: 10, textDecoration: 'none',
+                    background: 'rgba(255,255,255,0.45)',
+                    border: '1px solid rgba(160,195,240,0.14)',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{g.emoji}</span>
+                  <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>
+                    {g.label}
+                  </span>
+                  <Play className="w-3 h-3 flex-shrink-0" style={{ color: ACCENT, opacity: 0.7 }} />
+                </Link>
+              ))}
+            </div>
         </div>
 
         {/* Share Controls */}
