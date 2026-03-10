@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, LayoutGrid, Pin, Eye, EyeOff, Plus } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Widgets – DREAMengin Settings' };
+export const metadata = { title: 'Dreams – DREAMengin Settings' };
 
 export default async function WidgetsSettingsPage() {
   const supabase = await createServerClient();
@@ -19,17 +19,17 @@ export default async function WidgetsSettingsPage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <LayoutGrid className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Widgets</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Dreams</h1>
         </div>
       </header>
 
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
         <div className="de-widget">
-          <div className="de-widget-header"><span className="de-widget-title">HomeDream Widgets</span></div>
+          <div className="de-widget-header"><span className="de-widget-title">HomeDream Dreams</span></div>
           <div className="de-widget-body">
             <p className="text-sm" style={{ color: 'var(--de-text-dim)', marginBottom: 12 }}>
-              Manage which widgets appear on your HomeDream. Removing a widget only hides it — your config is preserved.
+              Manage which Dreams appear on your HomeDream. Removing a Dream only hides it — your config is preserved.
             </p>
             {[
               { name: 'Main Feed',   pinned: true,  visible: true },
@@ -56,7 +56,7 @@ export default async function WidgetsSettingsPage() {
           </div>
           <div className="de-widget-actions">
             <Link href="/homedream" className="de-btn de-btn-primary text-xs">
-              <Plus className="w-3 h-3" /> Add Widgets
+              <Plus className="w-3 h-3" /> Add Dream
             </Link>
           </div>
         </div>
@@ -65,7 +65,7 @@ export default async function WidgetsSettingsPage() {
           <div className="de-widget-header"><span className="de-widget-title">Edit Mode</span></div>
           <div className="de-widget-body">
             <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>
-              Enter Edit Mode from the HomeDream to drag, reorder, resize, and pin widgets. Changes auto-save when you tap Done.
+              Enter Edit Mode from the HomeDream to drag, reorder, resize, and pin Dreams. Changes auto-save when you tap Done.
             </p>
           </div>
           <div className="de-widget-actions">

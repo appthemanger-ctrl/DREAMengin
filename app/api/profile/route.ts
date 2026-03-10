@@ -82,7 +82,7 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { display_name, bio, avatar_url, banner_url, website, location } = body;
+  const { display_name, bio, avatar_url, banner_url, website, location, widget_order } = body;
 
   const updateData: Record<string, unknown> = {
     updated_at: new Date().toISOString(),
@@ -94,6 +94,7 @@ export async function PUT(req: NextRequest) {
   if (banner_url !== undefined) updateData.banner_url = banner_url;
   if (website !== undefined) updateData.website = website?.trim();
   if (location !== undefined) updateData.location = location?.trim();
+  if (widget_order !== undefined) updateData.profile_dream_widgets = widget_order;
 
   const { data: profile, error } = await supabase
     .from('profiles')

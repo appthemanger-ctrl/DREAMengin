@@ -1,4 +1,10 @@
 'use client'
+/**
+ * @deprecated v1-ui legacy surface — not used in active routes.
+ * HomeDream is now implemented via components/home/HomeSystem.tsx
+ * and components/dreamnav/. Do not import from here.
+ * Scheduled for removal in Phase 3.
+ */
 
 import { useState, useRef, useEffect } from 'react'
 import type { TouchEvent, MouseEvent } from 'react'
