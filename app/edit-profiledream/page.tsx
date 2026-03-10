@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import ProfileWidgetGrid, { DEFAULT_WIDGETS, type Widget } from '@/components/profile/ProfileWidgetGrid';
+import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,9 +24,9 @@ export default function EditProfileDreamPage() {
     display_name: '', handle: '', bio: '',
     avatar_url: null, banner_url: null, location: '', website: '',
   });
-  const [widgets, setWidgets] = useState<Widget[]>(DEFAULT_WIDGETS);
+  const [widgets, setWidgets] = useState<ProfileDream[]>(DEFAULT_DREAMS);
   const [initialProfile, setInitialProfile] = useState<Profile | null>(null);
-  const [initialWidgets, setInitialWidgets] = useState<Widget[]>(DEFAULT_WIDGETS);
+  const [initialWidgets, setInitialWidgets] = useState<ProfileDream[]>(DEFAULT_DREAMS);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -74,11 +74,21 @@ export default function EditProfileDreamPage() {
       } catch {
         const saved = localStorage.getItem('de-profile-widget-order');
         if (saved) loadedWidgets = JSON.parse(saved) as Widget[];
+      // Load Dream projection from Supabase (server-persisted projection state)
+      // Fall back to localStorage for migration compatibility, then DEFAULT_DREAMS
+      let loadedDreams: ProfileDream[] = DEFAULT_DREAMS;
+      if (data?.profile_dream_widgets && Array.isArray(data.profile_dream_widgets) && data.profile_dream_widgets.length > 0) {
+        loadedDreams = data.profile_dream_widgets as ProfileDream[];
+      } else {
+        try {
+          const saved = localStorage.getItem('de-profile-widget-order');
+          if (saved) loadedDreams = JSON.parse(saved);
+        } catch { /* noop */ }
       }
 
-      setWidgets(loadedWidgets);
+      setWidgets(loadedDreams);
       setInitialProfile(loadedProfile);
-      setInitialWidgets(loadedWidgets);
+      setInitialWidgets(loadedDreams);
       setIsLoading(false);
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -103,6 +113,7 @@ export default function EditProfileDreamPage() {
           banner_url: profile.banner_url,
           website: profile.website,
           location: profile.location,
+          widget_order: widgets,
         }),
       });
       if (!res.ok) {

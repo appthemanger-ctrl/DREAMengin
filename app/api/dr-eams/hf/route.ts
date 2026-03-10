@@ -1,5 +1,4 @@
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from 'next/server';
 
 const BodySchema = z.object({
   message: z.string().min(1).max(8000),
@@ -68,4 +67,8 @@ export async function POST(req: Request) {
   } catch (e) {
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
   }
+// Legacy route — canonical Dr. Eams endpoint is /api/ai/eams
+// Redirects are 308 (Permanent Redirect) to preserve POST method.
+export async function POST(req: NextRequest) {
+  return NextResponse.redirect(new URL('/api/ai/eams', req.url), 308);
 }

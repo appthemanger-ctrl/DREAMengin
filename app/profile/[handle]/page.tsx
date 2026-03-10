@@ -58,6 +58,22 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       paddingBottom: 100,
     }}>
 
+      {/* ── Owner preview banner ── */}
+      {isOwner && (
+        <div style={{
+          background: 'rgba(200,152,26,0.12)',
+          borderBottom: '1px solid rgba(200,152,26,0.25)',
+          padding: '8px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+          fontSize: 12, color: '#8a6800',
+        }}>
+          <span>You are viewing your public ViewProfile.</span>
+          <Link href="/edit-profiledream" style={{ fontWeight: 700, color: '#c8981a', textDecoration: 'underline' }}>
+            Edit in EditProfileDream →
+          </Link>
+        </div>
+      )}
+
       {/* ── dreamengin brand header ── */}
       <div style={{ paddingTop: 18, paddingBottom: 2, textAlign: 'center' }}>
         <span style={{
@@ -79,7 +95,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
-          {isOwner ? 'My Profile' : `@${handle}`}
+          {isOwner ? 'ViewProfile' : `@${handle}`}
         </h1>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>

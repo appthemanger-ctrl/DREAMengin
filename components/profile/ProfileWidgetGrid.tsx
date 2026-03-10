@@ -59,6 +59,16 @@ export const DEFAULT_WIDGETS: Widget[] = [
   { id: 'quote',     type: 'quote',     size: 'small' },
 ];
 
+// ── Canonical aliases (preferred for new code) ────────────────────────────
+export type DreamType    = WidgetType;
+export type DreamSize    = WidgetSize;
+export type DreamBgStyle = WidgetBgStyle;
+export type DreamConfig  = WidgetConfig;
+/** Canonical name for Widget — preferred for new code */
+export type ProfileDream = Widget;
+/** Canonical name for DEFAULT_WIDGETS — preferred for new code */
+export const DEFAULT_DREAMS: ProfileDream[] = DEFAULT_WIDGETS;
+
 export const WIDGET_TRAY: { type: WidgetType; label: string; icon: string }[] = [
   { type: 'bio',       label: 'Bio',       icon: '👤' },
   { type: 'photos',    label: 'Photos',    icon: '📷' },
