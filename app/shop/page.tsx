@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Store, PlusCircle, Package } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'DreamShop – DREAMengin', description: 'Official commerce, listings, and creator selling surfaces.' };
+export const metadata = { title: 'Shop – DREAMengin', description: 'Sell and discover digital products.' };
 
 export default async function ShopPage() {
   const supabase = await createServerClient();
@@ -34,7 +34,7 @@ export default async function ShopPage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <Store className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>DreamShop</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Shop</h1>
           <Link href="/shop/sell" className="ml-auto de-btn de-btn-primary text-xs" style={{ padding: '6px 12px', gap: 5 }}>
             <PlusCircle className="w-3 h-3" /> Sell
           </Link>

@@ -33,8 +33,8 @@ const WIDGET_SLOTS: WidgetSlot[] = [
   { id: 'shop',        icon: ShoppingBag, label: 'Shop',         desc: 'Your products & listings',   color: '#c8981a' },
   { id: 'posts',       icon: FileText,    label: 'Posts',        desc: 'Recent updates & thoughts',  color: '#6366f1' },
   { id: 'connections', icon: Users,       label: 'Connections',  desc: 'Your top follows',           color: '#22c55e' },
-  { id: 'media',       icon: ImageIcon,   label: 'Asset Library',  desc: 'Photos & videos you share',  color: '#ec4899' },
-  { id: 'analytics',   icon: BarChart3,   label: 'Performance Signals',  desc: 'Public reach numbers',       color: '#f59e0b' },
+  { id: 'media',       icon: ImageIcon,   label: 'Media Vault',  desc: 'Photos & videos you share',  color: '#ec4899' },
+  { id: 'analytics',   icon: BarChart3,   label: 'Reach Stats',  desc: 'Public reach numbers',       color: '#f59e0b' },
   { id: 'games',       icon: Gamepad2,    label: 'Game Scores',  desc: 'Dr. Eams high scores',       color: '#ef4444' },
   { id: 'site',        icon: Globe,       label: 'Website',      desc: 'Your link in bio',           color: '#0ea5e9' },
 ];

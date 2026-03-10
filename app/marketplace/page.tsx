@@ -26,7 +26,7 @@ export default async function MarketplacePage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <ShoppingBag className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>DreamMarketplace</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Marketplace</h1>
           <Link href="/shop/sell" className="ml-auto de-btn de-btn-primary text-xs" style={{ padding: '6px 12px', gap: 5 }}>
             <PlusCircle className="w-3 h-3" /> Sell
           </Link>

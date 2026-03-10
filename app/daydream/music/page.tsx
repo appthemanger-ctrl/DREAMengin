@@ -16,7 +16,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'share',     emoji: '🔗', label: 'Share to Feed', desc: 'Post a track or update',      color: '#ec4899', href: '/create' },
   { id: 'connect',   emoji: '🔌', label: 'Connectors',    desc: 'Link Spotify, SoundCloud',    color: '#f59e0b', href: '/connectors' },
   { id: 'brand',     emoji: '🎨', label: 'Brand Hub',     desc: 'Your artist identity',        color: '#0ea5e9', href: '/daydream/brand' },
-  { id: 'play',      emoji: '▶️', label: 'Playback Mode',     desc: 'Listen and queue tracks',     color: '#8b5cf6', href: '/daydream/play' },
+  { id: 'play',      emoji: '▶️', label: 'Play Mode',     desc: 'Listen and queue tracks',     color: '#8b5cf6', href: '/daydream/play' },
 ];
 
 export default async function MusicDaydreamPage() {
@@ -81,7 +81,7 @@ export default async function MusicDaydreamPage() {
           </div>
 
           <div className="de-widget">
-            <div className="de-widget-header"><span className="de-widget-title">Playbacklists</span></div>
+            <div className="de-widget-header"><span className="de-widget-title">Playlists</span></div>
             <div className="de-widget-body">
               <div className="flex items-center gap-3 py-4" style={{ color: 'var(--de-text-dim)', fontSize: 13 }}>
                 <ListMusic className="w-8 h-8 opacity-30" />

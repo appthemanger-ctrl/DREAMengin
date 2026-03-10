@@ -23,8 +23,8 @@ export default async function PlayDaydreamPage() {
 
   return (
     <DaydreamShell
-      title="Playback"
-      enginName="GameEngin"
+      title="Play"
+      enginName="PlayEngin"
       accentColor="#8b5cf6"
       widgets={WIDGETS}
     >
@@ -35,7 +35,7 @@ export default async function PlayDaydreamPage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <Play className="w-5 h-5 fill-current" style={{ color: 'var(--de-accent)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Playback</h1>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Play</h1>
           <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Daydream</span>
         </div>
       </header>

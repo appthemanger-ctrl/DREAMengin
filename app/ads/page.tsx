@@ -88,7 +88,7 @@ export default async function AdsPage() {
         {/* My Slots */}
         <div className="de-widget">
           <div className="de-widget-header">
-            <span className="de-widget-title">My DreamAds Slots</span>
+            <span className="de-widget-title">My Ad Slots</span>
             <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{mySlots.length} slot{mySlots.length !== 1 ? 's' : ''}</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
@@ -136,7 +136,7 @@ export default async function AdsPage() {
         <div className="de-widget">
           <div className="de-widget-header">
             <ShoppingCart className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
-            <span className="de-widget-title">Available DreamAds Slots</span>
+            <span className="de-widget-title">Available Slots</span>
             <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{marketplace.length} listing{marketplace.length !== 1 ? 's' : ''}</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>

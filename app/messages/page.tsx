@@ -4,9 +4,7 @@ import MessagesClient from '@/components/MessagesClient';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: "DreamDM – DREAMengin", description: "Private messages, threads, and signal-aware discussion." };
-
-export default async function DreamDMPage() {
+export default async function MessagesPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

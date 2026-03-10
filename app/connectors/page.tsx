@@ -5,7 +5,7 @@ import { ArrowLeft, Plug } from 'lucide-react';
 import ConnectorsClient from './ConnectorsClient';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Connectors – DREAMengin', description: 'Connect services to activate Dream capabilities.' };
+export const metadata = { title: 'Connectors – DREAMengin', description: 'Connect your favourite services.' };
 
 export default async function ConnectorsPage() {
   const supabase = await createServerClient();
@@ -28,8 +28,8 @@ export default async function ConnectorsPage() {
 
         <div className="de-notice">
           <span>
-            Connecting a service lets you activate Dream capabilities and feed signals.
-            You control exactly what appears, where it appears, and what stays private.
+            Connecting a service lets you add its content as widgets or slices in your feed.
+            You control exactly what appears and where. No surprise changes.
           </span>
         </div>
 
@@ -43,7 +43,7 @@ export default async function ConnectorsPage() {
               {[
                 { q: 'What permissions does DREAMengin request?', a: 'Read-only access to your public content and profile. We never post on your behalf.' },
                 { q: 'Can I disconnect a service?', a: 'Yes. Tap Manage on any connected service and choose Disconnect. Your connector data is wiped immediately.' },
-                { q: 'What if a connection expires?', a: 'The Dream stays visually intact and shows a reconnect path instead of breaking. Your layout and config are preserved.' },
+                { q: 'What if a connection expires?', a: 'The widget shows a "Reconnect" button instead of breaking. Your layout and config are preserved.' },
               ].map(({ q, a }) => (
                 <div key={q} style={{ padding: '10px 0', borderBottom: '1px solid rgba(160,195,240,0.18)' }}>
                   <div className="text-sm font-semibold mb-1" style={{ color: 'var(--de-heading)' }}>{q}</div>
