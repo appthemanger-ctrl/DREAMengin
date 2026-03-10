@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Music, DiscAlbum, TrendingUp, Upload, ListMusic } from 'lucide-react';
 import SoundRecorder from '@/components/music/SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
+import StarMakerEngin from '@/components/daydream/StarMakerEngin';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Music Studio – Dreamengin', description: 'Record, release, and manage your music.' };
@@ -30,6 +31,7 @@ export default async function MusicDaydreamPage() {
       enginName="StarMakerEngin"
       accentColor="#2a8ab8"
       widgets={WIDGETS}
+      sideBComponent={StarMakerEngin}
     >
       <div className="de-sky-bg min-h-screen">
         <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
@@ -38,7 +40,7 @@ export default async function MusicDaydreamPage() {
               <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
             </Link>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>dreamengin</div>
+              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>DREAMengin</div>
               <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
                 <Music className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
                 <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Music Studio</h1>

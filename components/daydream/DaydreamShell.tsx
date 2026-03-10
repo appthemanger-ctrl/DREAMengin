@@ -23,9 +23,15 @@ type Props = {
   widgets: DaydreamWidget[];
   children: React.ReactNode;
   /**
-   * Controls which UI renders on Side B.
+   * Pass the real Engin component class here (spec §7.2 / Phase 4).
+   * DaydreamShell instantiates it with the onBack (flip) callback.
+   * Takes precedence over sideBVariant when provided.
+   */
+  sideBComponent?: React.ComponentType<{ onBack: () => void }>;
+  /**
+   * Controls which UI renders on Side B when sideBComponent is not provided.
    *   'widgets'     (default) — the standard marble widget tray
-   *   'game-remote' — dual analog-stick game controller (Games Daydream)
+   *   'game-remote' — dual analog-stick game controller (legacy fallback)
    */
   sideBVariant?: 'widgets' | 'game-remote';
   /**
@@ -37,6 +43,7 @@ type Props = {
   sideBComponent?: React.ComponentType<{ onBack: () => void }>;
 };
 
+export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBComponent, sideBVariant = 'widgets' }: Props) {
 export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBVariant = 'widgets', sideBComponent: SideBComponent }: Props) {
   const [side, setSide]   = useState<'A' | 'B'>('A');
   const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
@@ -71,6 +78,14 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
       <div style={contentStyle}>
         {side === 'A'
           ? children
+          : (() => {
+              if (sideBComponent) {
+                const EnginComponent = sideBComponent;
+                return <EnginComponent onBack={flip} />;
+              }
+              if (sideBVariant === 'game-remote') return <GameRemote onBack={flip} />;
+              return <EnginSurface enginName={enginName} title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />;
+            })()
           : SideBComponent
             ? <SideBComponent onBack={flip} />
             : sideBVariant === 'game-remote'
