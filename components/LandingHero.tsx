@@ -124,7 +124,7 @@ export default function LandingHero() {
             className="text-lg font-bold tracking-wide"
             style={{ color: 'var(--de-heading)' }}
           >
-            Dreamengin
+            DREAMengin
           </div>
           <div className="flex items-center gap-3">
             <Link href="/about" className="de-btn de-btn-ghost" style={{ padding: '8px 18px', fontSize: 13 }}>
@@ -235,7 +235,7 @@ export default function LandingHero() {
               { value: '20',  label: 'Games',              icon: '🎮' },
               { value: '25+', label: 'Integrations',       icon: '🔗' },
               { value: 'v2',  label: 'Engine',             icon: '⚡' },
-              { value: '331', label: 'Tests Passing',      icon: '✅' },
+              { value: '437', label: 'Tests Passing',      icon: '✅' },
             ].map(({ value, label, icon }) => (
               <div
                 key={label}

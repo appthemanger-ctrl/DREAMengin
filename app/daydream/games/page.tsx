@@ -9,10 +9,9 @@ import Leaderboard from '@/components/games/Leaderboard';
 import GamesHub from '@/components/games/GamesHub';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
-import GamesHub from '@/components/games/GamesHub';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Games Daydream – Dreamengin', description: 'Play, challenge, and compete.' };
+export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: '/game' },
