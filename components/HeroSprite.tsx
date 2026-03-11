@@ -25,9 +25,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 // ── Natural pixel dimensions of each asset ────────────────────────────────────
 const NAT = {
   head:  { w: 702, h: 560 },
-  coat:  { w: 622, h: 841 },
-  arm1:  { w: 245, h: 683 },
-  arm2:  { w: 374, h: 529 },
+  coat:  { w: 68, h: 901 },
+  arm1:  { w: 445, h: 683 },
+  arm2:  { w: 445, h: 529 },
   shoe1: { w: 295, h: 400 },
   shoe2: { w: 295, h: 416 },
 } as const;
@@ -47,7 +47,7 @@ const DIM = {
 // ── Interaction zones ─────────────────────────────────────────────────────────
 type Zone = 'idle' | 'head' | 'torso' | 'legs';
 
-const REACT_MS = 2000; // ms before returning to idle
+const REACT_MS = 2300; // ms before returning to idle
 
 /**
  * Funny random quotes per interaction zone.
@@ -147,7 +147,7 @@ export default function HeroSprite({
       loadImg('/arm1_transparent.png'),
       loadImg('/shoe2_transparent.png'),
       loadImg('/shoe1_transparent.png'),
-    ]).then(([head, coat, arm1, arm2, shoe1, shoe2]) => {
+                ]).then(([head, coat, arm1, arm2, shoe1, shoe2]) => {
       imgsRef.current = { head, coat, arm1, arm2, shoe1, shoe2 };
     });
   }, []);
@@ -258,8 +258,8 @@ export default function HeroSprite({
           headBounce = Math.sin(progress * Math.PI * 5)  * -12  * (1 - progress);
         } else if (zone === 'torso') {
           // Both arms wave in large arcs during torso reaction
-          armAngle  = Math.sin(progress * Math.PI * 7) * 0.75 * (1 - progress * 0.4);
-          arm2Angle = Math.sin(progress * Math.PI * 7) * 0.85 * (1 - progress * 0.4);
+          armAngle  = Math.sin(progress * Math.PI * 7) * 0.95* (1 - progress * 0.4);
+          arm2Angle = Math.sin(progress * Math.PI * 7) * 0.95* (1 - progress * 0.4);
           bodyBob   = Math.sin(progress * Math.PI * 4) * 5;
         } else if (zone === 'legs') {
           // Legs kick, body hops
@@ -279,8 +279,8 @@ export default function HeroSprite({
 
       // Shoulder joints: 44% of half-coat-width from center ≈ at the coat's shoulder seam.
       // DIM.coat.w = 81 → shoulders at cx ± 36 (coat edge is cx ± 40.5).
-      const shoulderXR = cx + Math.round(DIM.coat.w * 0.44); // right shoulder ≈ cx + 36
-      const shoulderXL = cx - Math.round(DIM.coat.w * 0.44); // left  shoulder ≈ cx - 36
+      const shoulderXR = cx - Math.round(DIM.coat.w * 0.44); // right shoulder ≈ cx - 36
+      const shoulderXL = cx + Math.round(DIM.coat.w * 0.44); // left  shoulder ≈ cx + 36
 
       // Hip/leg pivots: 20% of half-coat-width from center ≈ natural hip separation.
       const hipXR = cx + Math.round(DIM.coat.w * 0.20); // right hip ≈ cx + 16
@@ -296,8 +296,8 @@ export default function HeroSprite({
       //    Pivot = left shoulder (shoulderXL).
       //    Shoulder ball sits at ~87% from left / ~4% from top of the arm1 image.
       drawPart(
-        imgs.arm1, DIM.arm1.w, DIM.arm1.h,
-        shoulderXL - Math.round(DIM.arm1.w * 0.87), shoulderY - Math.round(DIM.arm1.h * 0.04),
+        imgs.arm2, DIM.arm2.w, DIM.arm2.h,
+        shoulderXL - Math.round(DIM.arm2.w * 0.87), shoulderY - Math.round(DIM.arm2.h * 0.04),
         shoulderXL, shoulderY,                 // pivot: left shoulder joint
         -armAngle,
       );
@@ -328,8 +328,8 @@ export default function HeroSprite({
       //    Shoulder socket sits at ~88% from left / ~10% from top of the arm2 image,
       //    so the arm hangs DOWN from the shoulder in its natural resting position.
       drawPart(
-        imgs.arm2, DIM.arm2.w, DIM.arm2.h,
-        shoulderXR - Math.round(DIM.arm2.w * 0.88), shoulderY - Math.round(DIM.arm2.h * 0.10),
+        imgs.arm1, DIM.arm1.w, DIM.arm1.h,
+        shoulderXR - Math.round(DIM.arm1.w * 0.88), shoulderY - Math.round(DIM.arm1.h * 0.10),
         shoulderXR, shoulderY,                 // pivot: right shoulder joint
         arm2Angle,
       );
