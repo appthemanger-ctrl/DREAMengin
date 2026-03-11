@@ -7,7 +7,7 @@ import PortfolioEngin from '@/components/daydream/PortfolioEngin';
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
-  title: 'Portfolio Optimizer – DREAMengin',
+  title: 'Optimizero – DREAMengin',
   description: 'Markowitz portfolio optimization powered by quantum algorithms (VQE / QAOA).',
 };
 
@@ -23,14 +23,14 @@ const WIDGETS: DaydreamWidget[] = [
 // ── accent colour for this Daydream ────────────────────────────
 const ACCENT = '#2a8ab8';
 
-export default async function PortfolioOptimizerPage() {
+export default async function OptimizeroPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
   return (
     <DaydreamShell
-      title="Portfolio Optimizer"
+      title="Optimizero"
       enginName="PortfolioEngin"
       accentColor={ACCENT}
       widgets={WIDGETS}
@@ -57,7 +57,7 @@ export default async function PortfolioOptimizerPage() {
               </div>
               <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
                 <TrendingUp className="w-4 h-4" style={{ color: ACCENT }} />
-                <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Portfolio Optimizer</h1>
+                <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Optimizero</h1>
               </div>
             </div>
             <span
@@ -82,7 +82,7 @@ export default async function PortfolioOptimizerPage() {
             border: `1px solid ${ACCENT}20`,
           }}>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>
-              Quantum Portfolio Optimizer
+              Quantum Optimizero
             </h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6, margin: 0 }}>
               Markowitz mean-variance optimization formulated as a QUBO problem and solved
