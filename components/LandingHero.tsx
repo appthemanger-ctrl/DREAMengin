@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import HeroSprite from './HeroSprite';
 import PlatformBadge from './ui/PlatformBadge';
+import PortfolioOptimizationScene from './dreamengin/PortfolioOptimizationScene';
 
 /** Social icons shown in the landing strip — top two rows of iconslist.png */
 const STRIP_ICONS: Array<{ name: string; label: string; href: string }> = [
@@ -90,8 +91,8 @@ export default function LandingHero() {
   /*
    * Layering (bottom to top):
    *  1. html/body sky-blue -> gold-cream gradient (globals.css :root — de-theme vars)
-   *  2. <video> at 38% opacity — subtle but visible
-   *  3. Thin frosted-glass wash — keeps text crisp, lets video glow through
+   *  2. PortfolioOptimizationScene canvas — animated node-graph
+   *  3. Thin frosted-glass wash — keeps text crisp, lets animation glow through
    *  4. Content (z-10)
    *
    * <main> is transparent — the design-system body gradient is the base colour.
@@ -101,25 +102,15 @@ export default function LandingHero() {
   return (
     <main className="relative min-h-screen overflow-hidden">
 
-      {/* 1. Video — lowest layer, full bleed */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{ opacity: 0.38 }}
-        aria-hidden="true"
-      >
-        <source src="/videos/signup-bg.mp4" type="video/mp4" />
-      </video>
+      {/* 1. Portfolio Optimization canvas — animated node-graph background */}
+      <PortfolioOptimizationScene />
 
       {/* 2. Frosted-glass wash — sky-blue fading to gold-cream, semi-transparent */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(170deg, rgba(220,232,248,0.52) 0%, rgba(213,226,245,0.55) 55%, rgba(245,232,196,0.38) 100%)',
+            'linear-gradient(170deg, rgba(220,232,248,0.68) 0%, rgba(213,226,245,0.62) 55%, rgba(245,232,196,0.45) 100%)',
         }}
         aria-hidden="true"
       />
