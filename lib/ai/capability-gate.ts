@@ -4,6 +4,7 @@
 
 import { ActorContext, IntentType } from '@/types/ai-system';
 import { createServerClient } from '@/lib/supabase/server';
+import { isOwnerEmail } from '@/lib/ai/triad';
 
 // ============================================================================
 // ROLE RANKS
@@ -26,14 +27,22 @@ export function getRoleRank(role: string): number {
 export async function buildActorContext(userId: string): Promise<ActorContext> {
   const supabase = await createServerClient();
 
-  // Get user role from DB
-  const { data: roleData } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .single();
+  // Get authenticated user to check email for owner admin role
+  const { data: { user } } = await supabase.auth.getUser();
 
-  const role = roleData?.role ?? 'user';
+  // Owner email always gets admin role, regardless of DB state
+  let role = 'user';
+  if (user && isOwnerEmail(user.email)) {
+    role = 'admin';
+  } else {
+    // Get user role from DB
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .single();
+    role = roleData?.role ?? 'user';
+  }
 
   // Get capabilities (from DB function)
   const { data: capsData } = await supabase.rpc('get_user_capabilities', {

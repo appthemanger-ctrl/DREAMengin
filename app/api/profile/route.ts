@@ -82,13 +82,14 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { display_name, bio, avatar_url, banner_url, website, location, widget_config, widget_order } = body;
+  const { display_name, handle, bio, avatar_url, banner_url, website, location, widget_config, widget_order } = body;
 
   const updateData: Record<string, unknown> = {
     updated_at: new Date().toISOString(),
   };
 
   if (display_name !== undefined) updateData.display_name = display_name?.trim();
+  if (handle !== undefined && handle?.trim()) updateData.handle = handle.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
   if (bio !== undefined) updateData.bio = bio?.trim();
   if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
   if (banner_url !== undefined) updateData.banner_url = banner_url;

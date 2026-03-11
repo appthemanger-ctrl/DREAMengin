@@ -18,7 +18,7 @@ type ProfileLike = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function HomeSystem({ userId, profile, initialPosts }: { userId: string; profile: ProfileLike | null; initialPosts: any[] }) {
+export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
   const { dispatch, navigateTo, node } = useDreamNav();
 
   const [bothMenusOpen, setBothMenusOpen] = useState(false);
@@ -70,6 +70,7 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         onToggleCoreFace={() => setCoreFace((p) => (p === 'home' ? 'profile' : 'home'))}
         onCloseCore={() => { setCoreFace('home'); setCoreOpen(false); }}
         onOpenDrEams={() => setDrEamsOpen(true)}
+        isAdmin={isAdmin}
       />
 
       {/*

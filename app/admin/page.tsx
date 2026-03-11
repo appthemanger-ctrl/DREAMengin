@@ -7,6 +7,7 @@ import {
   CheckCircle, XCircle, Clock, AlertTriangle, Zap
 } from 'lucide-react';
 import { isDevAdminBypassActive } from '@/lib/dev-bypass';
+import { isOwnerEmail } from '@/lib/ai/triad';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Admin – Dreamengin' };
@@ -34,7 +35,22 @@ export default async function AdminPage() {
         .eq('id', user.id)
         .single();
       profile = profileData;
-      isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+
+      // Primary check: owner email match (canonical admin authority)
+      // Fallback: user_roles table or legacy metadata/handle check
+      if (isOwnerEmail(user.email)) {
+        isAdmin = true;
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: roleData } = await (supabase as any)
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+        isAdmin =
+          (roleData as { role?: string } | null)?.role === 'admin' ||
+          user.user_metadata?.role === 'admin';
+      }
     } catch {
       redirect('/login');
     }

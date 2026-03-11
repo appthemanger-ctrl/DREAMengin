@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import DreamNavSurface6 from '@/components/dreamnav/DreamNavSurface6';
 import HomeSystem from '@/components/home/HomeSystem';
+import { isOwnerEmail } from '@/lib/ai/triad';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +11,7 @@ export default async function Home() {
   let profile = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let posts: any[] = [];
+  let isAdmin = false;
 
   try {
     const supabase = await createServerClient();
@@ -27,6 +29,19 @@ export default async function Home() {
       .eq('id', user.id)
       .single();
     profile = profileData;
+
+    // Determine admin status: owner email OR user_roles table
+    if (isOwnerEmail(user.email)) {
+      isAdmin = true;
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: roleData } = await (supabase as any)
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      isAdmin = (roleData as { role?: string } | null)?.role === 'admin';
+    }
 
     // Fetch posts for feed
     const { data: postsData } = await supabase
@@ -48,7 +63,7 @@ export default async function Home() {
 
   return (
     <DreamNavSurface6 debug={false} disableGestures>
-      <HomeSystem userId={user?.id || ''} profile={profile} initialPosts={posts || []} />
+      <HomeSystem userId={user?.id || ''} profile={profile} initialPosts={posts || []} isAdmin={isAdmin} />
     </DreamNavSurface6>
   );
 }

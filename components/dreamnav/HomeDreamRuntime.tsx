@@ -23,6 +23,7 @@ type Props = {
   onToggleCoreFace: () => void;
   onCloseCore: () => void;
   onOpenDrEams: () => void;
+  isAdmin?: boolean;
 };
 
 /** Wrapper that provides the consistent viewport background + node entrance animation */
@@ -50,6 +51,7 @@ export default function HomeDreamRuntime({
   onToggleCoreFace,
   onCloseCore,
   onOpenDrEams,
+  isAdmin,
 }: Props) {
   const { node } = useDreamNav();
 
@@ -66,6 +68,7 @@ export default function HomeDreamRuntime({
           onToggleFace={onToggleCoreFace}
           onClose={onCloseCore}
           onOpenDrEams={onOpenDrEams}
+          isAdmin={isAdmin}
           profile={profile}
           posts={posts}
         />
