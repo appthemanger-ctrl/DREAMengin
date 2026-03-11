@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-11 07:06 UTC  
-**Triggered by commit:** `f082ee1` on `completedream` by appthemanger-ctrl  
-**Commit message:** Update HeroSprite.tsx
+**Last updated:** 2026-03-11 07:33 UTC  
+**Triggered by commit:** `020751e` on `completedream` by appthemanger-ctrl  
+**Commit message:** Update dimensions and positions for HeroSprite components
 
 ---
 
