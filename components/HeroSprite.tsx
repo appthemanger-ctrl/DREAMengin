@@ -57,14 +57,12 @@ const REACT_MS = 2300; // ms before returning to idle
 export const ZONE_QUOTES: Record<Exclude<Zone, 'idle'>, string[]> = {
   head: [
     "SCAN COMPLET. Cheese Balls. ",
-    "DREAM.exe"
-    "Al
-    "%%|€~€,¥,¥,'dnsn. Sleep mode: suspended indefinitely. 💡",
-    "Scanning for bad ideas... 7459xndnm error 
-  "found. Hello um... you're just gonna leave tab oper. ✨",
+    "DREAM.exe loaded. All systems operational. 💻",
+    "Sleep mode: suspended indefinitely. 💡",
+    "Scanning for bad ideas... none found. Hello! ✨",
     "Head so full of DREAMs, even IDARi can't find the bugs. 🤖",
     "99 problems but a Electroencephalographically aint 1. 😌",
-     " Credit Card confimed buying 300000 hand sanitizers . 💭",
+    "Credit Card confirmed buying 300000 hand sanitizers. 💭",
   ],
   torso: [
     "Right arm: deployed. Left arm: backup. DREAMs: on schedule. 💪",
