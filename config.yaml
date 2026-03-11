@@ -1,0 +1,40 @@
+project_name: quantum_portfolio_optimizer
+version: 0.2.0
+
+# ──────────────────────────────────────────────
+# Optimization goal
+# ──────────────────────────────────────────────
+primary_goal: markowitz_portfolio_optimization
+problem_formulation: quadratic_unconstrained_binary_optimization
+
+# ──────────────────────────────────────────────
+# Algorithm selection
+# Options: vqe | qaoa
+# ──────────────────────────────────────────────
+algorithm: vqe
+
+# ──────────────────────────────────────────────
+# Backend selection
+# Options: local_simulator | ibm_quantum
+# ──────────────────────────────────────────────
+backend: local_simulator
+
+# ──────────────────────────────────────────────
+# Ansatz selection
+# Options: real_amplitudes | efficient_su2
+# ──────────────────────────────────────────────
+ansatz: real_amplitudes
+
+# ──────────────────────────────────────────────
+# Portfolio constraints
+# ──────────────────────────────────────────────
+max_assets: 25
+
+# ──────────────────────────────────────────────
+# Optional features
+# ──────────────────────────────────────────────
+cvar_qaoa: true        # Conditional Value-at-Risk objective for QAOA
+xy_mixer: true         # XY mixer for QAOA (enforces cardinality constraint)
+esg_constraints: true  # Environmental, Social, and Governance constraints
+mip_baseline: true     # Mixed-Integer Programming classical baseline
+zne_local: true        # Zero-Noise Extrapolation (local simulator)
