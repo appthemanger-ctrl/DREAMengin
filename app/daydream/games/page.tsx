@@ -9,6 +9,7 @@ import Leaderboard from '@/components/games/Leaderboard';
 import GamesHub from '@/components/games/GamesHub';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
+import GamesHub from '@/components/games/GamesHub';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – Dreamengin', description: 'Play, challenge, and compete.' };
@@ -22,6 +23,17 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
 ];
 
+/**
+ * Games Daydream page.
+ *
+ * Side A: GamesHub — the canonical games hub component (reclassified from
+ *   the previous inline layout).  All live games are registered here.
+ * Side B: GameEngin — the control layer for personal bests, leaderboard
+ *   sharing, game launcher, and the GameRemote controller.
+ *
+ * Wiring: GamesHub ←→ GameEngin via DaydreamShell (flip with Alt+F or the
+ * engine button).
+ */
 export default async function GamesDaydreamPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

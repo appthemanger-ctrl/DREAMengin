@@ -1,0 +1,125 @@
+name: Brand Daydream + BrandingEngin Health
+
+# Builds, updates, checks, and auto-fixes the Brand Daydream and BrandingEngin.
+# Covers: app/daydream/brand/, app/daydream/analytics/, app/edit-profiledream/,
+#         components/daydream/BrandingEngin.tsx, app/analytics/
+
+on:
+  push:
+    paths:
+      - 'app/daydream/brand/**'
+      - 'app/daydream/analytics/**'
+      - 'app/edit-profiledream/**'
+      - 'components/daydream/BrandingEngin.tsx'
+      - 'app/analytics/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * *'   # daily 05:00 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daydream-brand-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  DAYDREAM: 'brand'
+  ENGIN: 'BrandingEngin'
+
+jobs:
+  health:
+    name: Brand Daydream · Build · Upgrade · Bug-Check · Fix
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ─────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build check ───────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Upgrade audit ─────────────────────────────────────────────────────────
+      - name: Check for outdated packages
+        run: pnpm outdated || true
+
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Bug check ─────────────────────────────────────────────────────────────
+      - name: Lint (Brand Daydream scope)
+        id: lint
+        run: |
+          pnpm lint \
+            --file app/daydream/brand \
+            --file app/edit-profiledream \
+            --file components/daydream/BrandingEngin.tsx \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix (Brand Daydream)
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --dir app/daydream/brand \
+            --dir app/edit-profiledream \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "daydream-brand-bot"
+          git config user.email "daydream-brand-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(brand-daydream): ESLint auto-fix in Brand Daydream + BrandingEngin [skip ci]"
+            git push
+          fi
+
+      # ── Summary ───────────────────────────────────────────────────────────────
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## 🎨 Brand Daydream + BrandingEngin Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Daydream | Brand |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engine | BrandingEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
