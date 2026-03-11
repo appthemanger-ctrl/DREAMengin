@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@babylonjs/core':
+        specifier: ^8.54.3
+        version: 8.54.3
       '@react-three/drei':
         specifier: ^10.7.7
         version: 10.7.7(@react-three/fiber@9.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.167.1))(@types/react@19.2.14)(@types/three@0.183.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.167.1)
@@ -164,6 +167,9 @@ packages:
   '@babel/types@7.29.0':
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
+
+  '@babylonjs/core@8.54.3':
+    resolution: {integrity: sha512-ww3dbzXJF+c/5fqyZEzPKihYjDF8fJDrJSabMrndxD82c2/R3VD35izS1pnnPxSHxYwdHFjBLl+/0VtKaUcB9w==}
 
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
@@ -2952,6 +2958,8 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
+
+  '@babylonjs/core@8.54.3': {}
 
   '@dimforge/rapier3d-compat@0.12.0': {}
 

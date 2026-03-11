@@ -234,6 +234,34 @@ export default function LandingHero() {
             Navigate your digital world as layered dreams.
           </h1>
 
+          {/* ── Platform stats strip ── */}
+          <div
+            className="flex flex-wrap justify-center gap-3"
+            aria-label="Platform statistics"
+          >
+            {[
+              { value: '3',   label: 'AI Agents',         icon: '🤖' },
+              { value: '20',  label: 'Games',              icon: '🎮' },
+              { value: '25+', label: 'Integrations',       icon: '🔗' },
+              { value: 'v2',  label: 'Engine',             icon: '⚡' },
+              { value: '331', label: 'Tests Passing',      icon: '✅' },
+            ].map(({ value, label, icon }) => (
+              <div
+                key={label}
+                className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm"
+                style={{
+                  border: '1px solid rgba(42,138,184,0.22)',
+                  background: 'rgba(255,255,255,0.55)',
+                  color: 'var(--de-text)',
+                }}
+              >
+                <span aria-hidden="true">{icon}</span>
+                <span style={{ color: 'var(--de-accent)', fontWeight: 800 }}>{value}</span>
+                <span style={{ color: 'var(--de-text-dim)' }}>{label}</span>
+              </div>
+            ))}
+          </div>
+
           {/* ── CTAs ── */}
           <div className="flex flex-col gap-3 sm:flex-row">
             {/* Gold pill — primary action */}

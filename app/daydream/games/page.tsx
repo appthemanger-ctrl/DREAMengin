@@ -1,11 +1,12 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Gamepad2, Trophy, Star, Play, Zap } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Trophy, Star, Play, Zap, Grid3x3 } from 'lucide-react';
 import WordSprint from '@/components/games/WordSprint';
 import MemoryGrid from '@/components/games/MemoryGrid';
 import SpeedTap from '@/components/games/SpeedTap';
 import Leaderboard from '@/components/games/Leaderboard';
+import GamesHub from '@/components/games/GamesHub';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
 
@@ -14,11 +15,11 @@ export const metadata = { title: 'Games Daydream – Dreamengin', description: '
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: '/game' },
+  { id: 'all-games',  emoji: '🎮', label: 'All 20 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
   { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: '/daydream/games' },
   { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: '/daydream/games' },
   { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: '/daydream/games' },
   { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
-  { id: 'media',      emoji: '🎬', label: 'Media Vault',  desc: 'Save your gaming moments',      color: '#ec4899', href: '/daydream/media-vault' },
 ];
 
 export default async function GamesDaydreamPage() {
@@ -146,6 +147,20 @@ export default async function GamesDaydreamPage() {
               <Link href="/game" className="de-btn de-btn-ghost text-xs">
                 <Play className="w-3 h-3 fill-current" /> Play to rank up
               </Link>
+            </div>
+          </div>
+
+          {/* All 20 Games Hub */}
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <Grid3x3 className="w-4 h-4" style={{ color: '#7c3aed' }} />
+              <span className="de-widget-title ml-2">All Games</span>
+              <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}>
+                20 Games
+              </span>
+            </div>
+            <div className="de-widget-body">
+              <GamesHub />
             </div>
           </div>
         </div>
