@@ -1,0 +1,70 @@
+name: Portfolio Optimization
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # ──────────────────────────────────────────────────────────────
+  # Build: self-bootstrap the quantum portfolio optimizer from
+  # source so the pipeline never relies on pre-cached layers.
+  # ──────────────────────────────────────────────────────────────
+  build:
+    name: Build optimizer
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Clone quantum-portfolio-optimizer
+        run: |
+          git clone --depth=1 --branch v0.2.0 https://github.com/shymonski-dev/quantum-portfolio-optimizer.git /tmp/qpo
+
+      - name: Install optimizer (all extras)
+        run: |
+          pip install -e "/tmp/qpo[all]"
+
+      - name: Smoke-test CLI
+        run: qpo --version
+
+      - name: Run optimizer test suite
+        run: |
+          cd /tmp/qpo
+          pytest --tb=short -q
+
+  # ──────────────────────────────────────────────────────────────
+  # Optimize: run the action-packaged optimizer against config.yaml
+  # and surface all six result outputs.
+  # ──────────────────────────────────────────────────────────────
+  optimize:
+    name: Optimize portfolio
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: build
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run quantum portfolio optimizer
+        id: optimizer
+        uses: shymonski-dev/quantum-portfolio-optimizer@main
+        with:
+          config-path: config.yaml
+          python-version: "3.11"
+
+      - name: Print summary
+        run: |
+          echo "Algorithm: ${{ steps.optimizer.outputs.algorithm }}"
+          echo "Backend: ${{ steps.optimizer.outputs.backend }}"
+          echo "Objective value: ${{ steps.optimizer.outputs.objective-value }}"
+          echo "Expected return (%): ${{ steps.optimizer.outputs.expected-return-pct }}"
+          echo "Portfolio risk (%): ${{ steps.optimizer.outputs.portfolio-risk-pct }}"
+          echo "Sharpe ratio: ${{ steps.optimizer.outputs.sharpe-ratio }}"
