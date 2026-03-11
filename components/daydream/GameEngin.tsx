@@ -36,10 +36,27 @@ interface GameScore {
 const ACCENT = '#2a8ab8';
 
 const GAME_LABELS: Record<string, string> = {
-  platformer: 'Dr. Eams Platformer',
-  'word-sprint': 'Word Sprint',
-  'memory-grid': 'Memory Grid',
-  'speed-tap': 'Speed Tap',
+  platformer:      'Dr. Eams Platformer',
+  'word-sprint':   'Word Sprint',
+  'memory-grid':   'Memory Grid',
+  'speed-tap':     'Speed Tap',
+  rts:             'Red Alert RTS',
+  'tower-defense': 'Tower Defense',
+  'space-shooter': 'Space Shooter',
+  match3:          'Match-3 Gems',
+  snake:           'Snake',
+  breakout:        'Breakout',
+  tetris:          'Tetris',
+  flappy:          'Flappy Bird',
+  pong:            'Pong',
+  minesweeper:     'Minesweeper',
+  chess:           'Chess',
+  racing:          'Racing',
+  trivia:          'Trivia Quiz',
+  rpg:             'RPG Adventure',
+  rhythm:          'Rhythm Master',
+  maze:            'Maze Runner',
+  solitaire:       'Solitaire',
 };
 
 export default function GameEngin({ onBack }: Props) {
@@ -141,14 +158,26 @@ export default function GameEngin({ onBack }: Props) {
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
             <span className="de-widget-title ml-2">Quick Launch</span>
+            <span
+              className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+              style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}
+            >
+              20 Games
+            </span>
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
-                { key: 'platformer',   label: 'Dr. Eams Platformer', emoji: '∞',  href: '/game' },
-                { key: 'word-sprint',  label: 'Word Sprint',          emoji: '📝', href: '/daydream/games' },
-                { key: 'memory-grid',  label: 'Memory Grid',          emoji: '🧩', href: '/daydream/games' },
-                { key: 'speed-tap',    label: 'Speed Tap',            emoji: '⚡', href: '/daydream/games' },
+                { key: 'platformer',    label: 'Dr. Eams Platformer', emoji: '∞',   href: '/game' },
+                { key: 'rts',           label: 'Red Alert RTS',       emoji: '⚔️',  href: '/daydream/games' },
+                { key: 'tower-defense', label: 'Tower Defense',       emoji: '🏰',  href: '/daydream/games' },
+                { key: 'space-shooter', label: 'Space Shooter',       emoji: '🚀',  href: '/daydream/games' },
+                { key: 'tetris',        label: 'Tetris',              emoji: '🟦',  href: '/daydream/games' },
+                { key: 'chess',         label: 'Chess',               emoji: '♛',   href: '/daydream/games' },
+                { key: 'rpg',           label: 'RPG Adventure',       emoji: '🗡️', href: '/daydream/games' },
+                { key: 'word-sprint',   label: 'Word Sprint',         emoji: '📝',  href: '/daydream/games' },
+                { key: 'memory-grid',   label: 'Memory Grid',         emoji: '🧩',  href: '/daydream/games' },
+                { key: 'speed-tap',     label: 'Speed Tap',           emoji: '⚡',  href: '/daydream/games' },
               ].map(g => (
                 <Link
                   key={g.key}
@@ -169,6 +198,11 @@ export default function GameEngin({ onBack }: Props) {
                 </Link>
               ))}
             </div>
+          </div>
+          <div className="de-widget-actions">
+            <Link href="/daydream/games" className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
+              <Gamepad2 className="w-3 h-3" /> View All 20 Games
+            </Link>
           </div>
         </div>
 

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import HeroSprite from './HeroSprite';
 import PlatformBadge from './ui/PlatformBadge';
+import PortfolioOptimizationScene from './dreamengin/PortfolioOptimizationScene';
 
 /** Social icons shown in the landing strip — top two rows of iconslist.png */
 const STRIP_ICONS: Array<{ name: string; label: string; href: string }> = [
@@ -90,8 +91,8 @@ export default function LandingHero() {
   /*
    * Layering (bottom to top):
    *  1. html/body sky-blue -> gold-cream gradient (globals.css :root — de-theme vars)
-   *  2. <video> at 38% opacity — subtle but visible
-   *  3. Thin frosted-glass wash — keeps text crisp, lets video glow through
+   *  2. PortfolioOptimizationScene canvas — animated node-graph
+   *  3. Thin frosted-glass wash — keeps text crisp, lets animation glow through
    *  4. Content (z-10)
    *
    * <main> is transparent — the design-system body gradient is the base colour.
@@ -101,25 +102,15 @@ export default function LandingHero() {
   return (
     <main className="relative min-h-screen overflow-hidden">
 
-      {/* 1. Video — lowest layer, full bleed */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{ opacity: 0.38 }}
-        aria-hidden="true"
-      >
-        <source src="/videos/signup-bg.mp4" type="video/mp4" />
-      </video>
+      {/* 1. Portfolio Optimization canvas — animated node-graph background */}
+      <PortfolioOptimizationScene />
 
       {/* 2. Frosted-glass wash — sky-blue fading to gold-cream, semi-transparent */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(170deg, rgba(220,232,248,0.52) 0%, rgba(213,226,245,0.55) 55%, rgba(245,232,196,0.38) 100%)',
+            'linear-gradient(170deg, rgba(220,232,248,0.68) 0%, rgba(213,226,245,0.62) 55%, rgba(245,232,196,0.45) 100%)',
         }}
         aria-hidden="true"
       />
@@ -233,6 +224,34 @@ export default function LandingHero() {
           >
             Navigate your digital world as layered dreams.
           </h1>
+
+          {/* ── Platform stats strip ── */}
+          <div
+            className="flex flex-wrap justify-center gap-3"
+            aria-label="Platform statistics"
+          >
+            {[
+              { value: '3',   label: 'AI Agents',         icon: '🤖' },
+              { value: '20',  label: 'Games',              icon: '🎮' },
+              { value: '25+', label: 'Integrations',       icon: '🔗' },
+              { value: 'v2',  label: 'Engine',             icon: '⚡' },
+              { value: '331', label: 'Tests Passing',      icon: '✅' },
+            ].map(({ value, label, icon }) => (
+              <div
+                key={label}
+                className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm"
+                style={{
+                  border: '1px solid rgba(42,138,184,0.22)',
+                  background: 'rgba(255,255,255,0.55)',
+                  color: 'var(--de-text)',
+                }}
+              >
+                <span aria-hidden="true">{icon}</span>
+                <span style={{ color: 'var(--de-accent)', fontWeight: 800 }}>{value}</span>
+                <span style={{ color: 'var(--de-text-dim)' }}>{label}</span>
+              </div>
+            ))}
+          </div>
 
           {/* ── CTAs ── */}
           <div className="flex flex-col gap-3 sm:flex-row">

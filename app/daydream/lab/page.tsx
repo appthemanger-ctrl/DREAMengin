@@ -73,7 +73,7 @@ export default async function LabDaydreamPage() {
               { emoji: '⚗️', label: 'My Projects',        href: '/lab',                            color: '#6366f1' },
               { emoji: '⚛️', label: 'Physics Lab',         href: '/physics-lab',                    color: '#f59e0b' },
               { emoji: '💻', label: 'Codespace',           href: '/codespace',                      color: '#8b5cf6' },
-              { emoji: '📈', label: 'Portfolio Optimizer', href: '/daydream/lab/portfolio',         color: '#2a8ab8' },
+              { emoji: '📈', label: 'Optimizero',           href: '/daydream/lab/portfolio',         color: '#2a8ab8' },
             ].map(item => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                 <div style={{

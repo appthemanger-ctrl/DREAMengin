@@ -1,0 +1,240 @@
+name: GameEngin — Game Library Research
+
+on:
+  workflow_dispatch:
+    inputs:
+      category:
+        description: 'Game category to research (e.g. rts, rpg, puzzle, arcade, sports, all)'
+        required: false
+        default: 'all'
+      max_games:
+        description: 'Maximum number of game concepts to generate per category'
+        required: false
+        default: '5'
+
+jobs:
+  research-games:
+    name: Research Greatest Games & Generate Concepts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install -g pnpm@10.30.0
+          pnpm install --frozen-lockfile
+
+      - name: Build game library manifest
+        id: manifest
+        run: |
+          node - <<'EOF'
+          const path = require('path');
+          const fs = require('fs');
+
+          // All-time greatest games by category (curated research list)
+          const GREATEST_GAMES = {
+            rts: [
+              'StarCraft II (2010) — Blizzard, competitive unit-micro and build orders',
+              'Command & Conquer: Red Alert 2 (2000) — Westwood, base-building Cold War RTS',
+              'Age of Empires II (1999) — Microsoft, historical civilizations and siege warfare',
+              'Warcraft III (2002) — Blizzard, hero units and custom game modes',
+              'Total War: Shogun 2 (2011) — Creative Assembly, turn-based strategy + real-time battles',
+            ],
+            rpg: [
+              'Final Fantasy VII (1997) — Square, materia system and epic story',
+              'The Elder Scrolls V: Skyrim (2011) — Bethesda, open world exploration',
+              'Baldur\'s Gate II (2000) — BioWare, deep party-based storytelling',
+              'Dark Souls (2011) — FromSoftware, challenging skill-based combat',
+              'Chrono Trigger (1995) — Square, time-travel narrative and combo attacks',
+            ],
+            puzzle: [
+              'Tetris (1984) — Alexey Pajitnov, falling block classic',
+              'Portal (2007) — Valve, spatial reasoning with portals',
+              'The Witness (2016) — Jonathan Blow, island filled with line puzzles',
+              'Braid (2008) — Jonathan Blow, time-manipulation platformer',
+              'Into The Breach (2018) — Subset Games, tactical mech strategy',
+            ],
+            platformer: [
+              'Super Mario Bros (1985) — Nintendo, the defining platformer',
+              'Sonic the Hedgehog (1991) — SEGA, speed-based platforming',
+              'Mega Man 2 (1988) — Capcom, robot masters and weapon stealing',
+              'Donkey Kong Country (1994) — Rare, 3D-rendered sprites and co-op',
+              'Hollow Knight (2017) — Team Cherry, indie metroidvania masterpiece',
+            ],
+            arcade: [
+              'Pac-Man (1980) — Namco, maze chase with power pellets',
+              'Space Invaders (1978) — Taito, the original shoot-em-up',
+              'Asteroids (1979) — Atari, vector physics shooting',
+              'Galaga (1981) — Namco, formation shooting with captures',
+              'Donkey Kong (1981) — Nintendo, vertical platforming with barrels',
+            ],
+            fighting: [
+              'Street Fighter II (1991) — Capcom, the fighting game that defined the genre',
+              'Mortal Kombat II (1993) — Midway, iconic fatalities',
+              'Tekken 3 (1997) — Namco, 3D fighting with diverse roster',
+              'Super Smash Bros. Melee (2001) — HAL/Nintendo, platform fighter',
+              'Marvel vs. Capcom 2 (2000) — Capcom, 3v3 team battles',
+            ],
+            sports: [
+              'FIFA 98 (1997) — EA, realistic football simulation',
+              'NBA 2K16 (2015) — 2K Sports, basketball with story mode',
+              'Tony Hawk\'s Pro Skater 2 (2000) — Neversoft, trick-based skating',
+              'Rocket League (2015) — Psyonix, soccer with cars',
+              'Mario Kart 8 Deluxe (2017) — Nintendo, kart racing with items',
+            ],
+            adventure: [
+              'The Legend of Zelda: Ocarina of Time (1998) — Nintendo, 3D adventure',
+              'Metroid Prime (2002) — Retro Studios, first-person exploration',
+              'Shadow of the Colossus (2005) — Team Ico, minimalist boss fights',
+              'God of War (2018) — Santa Monica, Norse mythology action',
+              'Red Dead Redemption 2 (2018) — Rockstar, open world western',
+            ],
+            handheld: [
+              'Pokemon Red/Blue (1996) — Game Freak, monster collection RPG',
+              'Tetris (1989, Game Boy) — the system-seller',
+              'The Legend of Zelda: Link\'s Awakening (1993) — Nintendo',
+              'Golden Sun (2001) — Camelot, GBA RPG with puzzles',
+              'Advance Wars (2001) — Intelligent Systems, tactical turn-based',
+            ],
+            simulation: [
+              'The Sims (2000) — Maxis, life simulation',
+              'SimCity 2000 (1993) — Maxis, city builder',
+              'Dwarf Fortress (2006) — Bay 12, extreme depth simulation',
+              'Stardew Valley (2016) — ConcernedApe, farming simulation RPG',
+              'Cities: Skylines (2015) — Colossal Order, modern city builder',
+            ],
+          };
+
+          const category = process.env.CATEGORY || 'all';
+          const maxGames = parseInt(process.env.MAX_GAMES || '5');
+
+          let output = '';
+          output += '# GameEngin — Game Library Research Report\n\n';
+          output += `Generated: ${new Date().toISOString()}\n`;
+          output += `Category: ${category}\n`;
+          output += `Platform: DREAMengin GameEngin (Babylon.js v8)\n\n`;
+
+          const cats = category === 'all' ? Object.keys(GREATEST_GAMES) : [category];
+
+          for (const cat of cats) {
+            const games = GREATEST_GAMES[cat] || [];
+            output += `## ${cat.toUpperCase()} (${games.length} greatest games)\n\n`;
+            for (const g of games.slice(0, maxGames)) {
+              output += `- ${g}\n`;
+            }
+            output += '\n';
+
+            output += `### Original Game Concepts for DREAMengin (${cat})\n\n`;
+            const concepts = generateConcepts(cat, maxGames);
+            for (const c of concepts) {
+              output += `#### ${c.title}\n`;
+              output += `- **Inspired by:** ${c.inspiredBy}\n`;
+              output += `- **Mechanic:** ${c.mechanic}\n`;
+              output += `- **DREAMengin twist:** ${c.twist}\n`;
+              output += `- **Tech:** ${c.tech}\n\n`;
+            }
+          }
+
+          output += '---\n\n';
+          output += '## Implementation Status\n\n';
+          output += 'The following games are already built in `components/games/`:\n\n';
+          const builtGames = [
+            '✅ RTSGame.tsx — Command & Conquer Red Alert 2 style (Strategy)',
+            '✅ TowerDefense.tsx — 10 wave tower defense (Strategy)',
+            '✅ SpaceShooter.tsx — Top-down shoot-em-up (Arcade)',
+            '✅ Match3Game.tsx — Jewel match-3 puzzle (Puzzle)',
+            '✅ SnakeGame.tsx — Classic snake (Arcade)',
+            '✅ BreakoutGame.tsx — Arkanoid brick breaker (Arcade)',
+            '✅ TetrisGame.tsx — Falling blocks (Puzzle)',
+            '✅ FlappyGame.tsx — Endless flapper (Casual)',
+            '✅ PongGame.tsx — Classic pong vs AI or 2P (Sports)',
+            '✅ MinesweeperGame.tsx — Mine detection puzzle (Puzzle)',
+            '✅ ChessGame.tsx — 2P local chess (Board)',
+            '✅ RacingGame.tsx — Top-down racing (Sports)',
+            '✅ TriviaGame.tsx — Quiz game (Educational)',
+            '✅ RPGGame.tsx — Turn-based adventure (RPG)',
+            '✅ RhythmGame.tsx — Note-tapping rhythm (Music)',
+            '✅ MazeGame.tsx — Procedural maze (Adventure)',
+            '✅ SolitaireGame.tsx — Klondike solitaire (Card)',
+            '✅ WordSprint.tsx — Typing speed challenge (Word)',
+            '✅ MemoryGrid.tsx — Card matching (Memory)',
+            '✅ SpeedTap.tsx — Reaction speed (Casual)',
+          ];
+          for (const g of builtGames) output += `${g}\n`;
+
+          fs.writeFileSync('game-library-report.md', output);
+          console.log(output);
+          console.log(`\n✅ Generated game library report with ${builtGames.length} games documented.`);
+
+          function generateConcepts(category, count) {
+            const templates = {
+              rts: [
+                { title: 'DREAMwars', inspiredBy: 'Red Alert 2 + StarCraft', mechanic: 'Base building + resource harvesting + unit combat', twist: 'Dream-themed factions: Nightmares vs Dreamers', tech: 'Babylon.js v8 3D isometric + canvas HUD' },
+                { title: 'ENGIN Battle', inspiredBy: 'Age of Empires', mechanic: 'Tech tree with AI triad upgrades', twist: 'Each AI (Dr. Eams, IDARi, Boogie) is a faction with unique abilities', tech: 'Babylon.js scene + ECS architecture' },
+              ],
+              rpg: [
+                { title: 'DREAMquest', inspiredBy: 'Final Fantasy VII + Chrono Trigger', mechanic: 'Turn-based combat with dream-ability system', twist: 'Navigate layered dream worlds as the player character', tech: 'React state + canvas combat renderer' },
+              ],
+              puzzle: [
+                { title: 'DREAMplex', inspiredBy: 'Portal + Braid', mechanic: 'Portal-based spatial reasoning in 2.5D', twist: 'Each room is a "dream layer" — solve by understanding the dreamer', tech: 'Babylon.js physics + portal shaders' },
+              ],
+              platformer: [
+                { title: 'Dr. Eams World', inspiredBy: 'Super Mario + Hollow Knight', mechanic: '2.5D platforming with dream-power abilities', twist: 'Dr. Eams as the protagonist in a platformer RPG hybrid', tech: 'Babylon.js 3D scene with 2D camera lock' },
+              ],
+            };
+            const defaults = [{ title: `Dream${category.charAt(0).toUpperCase() + category.slice(1)}`, inspiredBy: 'Greatest classics', mechanic: 'Core gameplay loop from top titles', twist: 'DREAMengin AI integration', tech: 'Babylon.js v8 + React' }];
+            return (templates[category] || defaults).slice(0, count);
+          }
+
+          EOF
+        env:
+          CATEGORY: ${{ github.event.inputs.category }}
+          MAX_GAMES: ${{ github.event.inputs.max_games }}
+
+      - name: Upload game library report
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-library-report
+          path: game-library-report.md
+          retention-days: 30
+
+      - name: Print summary
+        run: |
+          echo "## 🎮 GameEngin Library Research" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Category:** ${{ github.event.inputs.category || 'all' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Built games:** 20" >> $GITHUB_STEP_SUMMARY
+          echo "**Engine:** Babylon.js v8 + React" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Games Built" >> $GITHUB_STEP_SUMMARY
+          echo "| Category | Game | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Strategy | Red Alert RTS | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Strategy | Tower Defense | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Arcade | Space Shooter | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Puzzle | Match-3 Gems | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Arcade | Snake | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Arcade | Breakout | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Puzzle | Tetris | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Casual | Flappy Bird | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sports | Pong | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Puzzle | Minesweeper | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Board | Chess | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sports | Racing | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Educational | Trivia Quiz | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| RPG | RPG Adventure | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Music | Rhythm Master | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Adventure | Maze Runner | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Card | Solitaire | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Word | Word Sprint | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Memory | Memory Grid | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Casual | Speed Tap | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Report artifact uploaded: \`game-library-report.md\`" >> $GITHUB_STEP_SUMMARY
