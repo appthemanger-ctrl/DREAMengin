@@ -11,7 +11,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:ci": "vitest run",
+    "test:watch": "vitest",
+    "preflight": "node scripts/vercel-preflight.cjs . && node scripts/spec-check.cjs . && pnpm run typecheck && pnpm run lint && pnpm run test:ci"
   },
   "dependencies": {
     "@babylonjs/core": "^8.54.3",

@@ -1,0 +1,109 @@
+name: DREAMengin Preflight
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - completedream
+      - develop
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+
+    outputs:
+      chi: ${{ steps.score.outputs.chi }}
+      mode: ${{ steps.score.outputs.mode }}
+      app-root: ${{ steps.root.outputs.app_root }}
+      changed-files: ${{ steps.score.outputs.changed_files }}
+      allowed: ${{ steps.score.outputs.allowed }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 10
+
+      - name: Detect app root
+        id: root
+        shell: bash
+        run: |
+          APP_ROOT="."
+          if [ -f "frontend/package.json" ]; then
+            APP_ROOT="frontend"
+          elif [ -f "src/package.json" ]; then
+            APP_ROOT="src"
+          elif [ -f "app/package.json" ]; then
+            APP_ROOT="app"
+          fi
+          echo "app_root=$APP_ROOT" >> "$GITHUB_OUTPUT"
+          echo "APP_ROOT=$APP_ROOT" >> "$GITHUB_ENV"
+          echo "Detected app root: $APP_ROOT"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm install --frozen-lockfile
+
+      - name: Score pass / compute chi
+        id: score
+        shell: bash
+        run: |
+          node scripts/score-pass.cjs "$APP_ROOT"
+
+      - name: Vercel preflight
+        shell: bash
+        run: |
+          node scripts/vercel-preflight.cjs "$APP_ROOT"
+
+      - name: DREAMengin spec check
+        shell: bash
+        run: |
+          node scripts/spec-check.cjs "$APP_ROOT"
+
+      - name: Typecheck
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm run typecheck
+
+      - name: Lint
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm run lint
+
+      - name: Test CI
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm run test:ci
+
+      - name: Build
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm run build
+
+      - name: Print summary
+        shell: bash
+        run: |
+          echo "APP ROOT: ${{ steps.root.outputs.app_root }}"
+          echo "CHANGED FILES: ${{ steps.score.outputs.changed_files }}"
+          echo "CHI: ${{ steps.score.outputs.chi }}"
+          echo "MODE: ${{ steps.score.outputs.mode }}"
+          echo "ALLOWED: ${{ steps.score.outputs.allowed }}"
