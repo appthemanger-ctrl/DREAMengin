@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { MessageSquare, Send, Search, ArrowLeft, Loader2, Plus, Music, FileText, X, Mail } from 'lucide-react';
+import { Bot, MessageSquare, Send, Search, ArrowLeft, Loader2, Plus, Music, FileText, X, Mail } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatRelativeTime } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { useDreamDMMessages } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamDMDraft } from '@/lib/dreamdm/useDreamDMDraft';
+import { useDreamSearch } from '@/lib/dreamdm/useDreamSearch';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 
 interface Conversation {
@@ -62,6 +63,10 @@ function getConversationPreview(lastMessage: string): string {
   return subject ? `Re: ${subject}` : body;
 }
 
+/** Delay in ms before hiding the suggestion dropdown after input blur.
+ *  Must be long enough for a mousedown on a suggestion to fire before blur hides the list. */
+const SUGGESTIONS_CLOSE_DELAY_MS = 200;
+
 export default function MessagesClient({ userId, initialConversations }: MessagesClientProps) {
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(initialConversations[0] || null);
@@ -69,13 +74,18 @@ export default function MessagesClient({ userId, initialConversations }: Message
   const [newSubject, setNewSubject] = useState('');
   const [showSubjectField, setShowSubjectField] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery,   setSearchQuery]   = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
   const router = useRouter();
+
+  // ── Universal search + Dr. Eams toggle (shared with DreamDM Bar) ──────────
+  const { results: searchSuggestions, isSearching: isSuggesting, drEamsMode, toggleDrEams, clearResults: clearSuggestions } =
+    useDreamSearch(searchQuery);
 
   const isDemoConv = selectedConv?.id.startsWith('demo-') ?? false;
 
@@ -332,17 +342,110 @@ export default function MessagesClient({ userId, initialConversations }: Message
           {/* Conversations List */}
           <div className="md:col-span-4" style={{ borderBottom: '1px solid rgba(160,195,240,0.2)' }}>
             <div className="p-4" style={{ borderBottom: '1px solid rgba(160,195,240,0.2)' }}>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--de-text-dim)' }} />
-                <input
-                  type="text"
-                  placeholder="Search conversations..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none min-h-[44px]"
-                  style={{ background: 'rgba(160,195,240,0.12)', border: '1px solid rgba(160,195,240,0.3)', color: 'var(--de-text)' }}
-                />
+              {/* Search bar with Dr. Eams toggle */}
+              <div className="relative flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--de-text-dim)' }} />
+                  <input
+                    type="text"
+                    placeholder={drEamsMode ? 'Dr. Eams search…' : 'Search people, conversations, boards…'}
+                    value={searchQuery}
+                    onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), SUGGESTIONS_CLOSE_DELAY_MS)}
+                    aria-label={drEamsMode ? 'Dr. Eams search' : 'Universal search'}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none min-h-[44px]"
+                    style={{
+                      background: drEamsMode ? 'rgba(255,245,215,0.85)' : 'rgba(160,195,240,0.12)',
+                      border: drEamsMode ? '1.5px solid rgba(200,152,26,0.55)' : '1px solid rgba(160,195,240,0.3)',
+                      color: 'var(--de-text)',
+                    }}
+                  />
+                </div>
+                {/* Dr. Eams toggle button */}
+                <button
+                  type="button"
+                  onClick={toggleDrEams}
+                  aria-pressed={drEamsMode}
+                  aria-label={drEamsMode ? 'Dr. Eams mode active — click to switch to standard search' : 'Switch to Dr. Eams mode'}
+                  title={drEamsMode ? 'Dr. Eams mode ON' : 'Switch to Dr. Eams'}
+                  className="flex items-center justify-center rounded-full min-w-[36px] min-h-[36px] transition-colors"
+                  style={{
+                    background: drEamsMode ? 'var(--de-gold)' : 'rgba(160,195,240,0.18)',
+                    border: 'none',
+                    color: drEamsMode ? 'white' : 'var(--de-text-dim)',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Bot className="w-4 h-4" />
+                </button>
               </div>
+
+              {/* Dr. Eams mode indicator */}
+              {drEamsMode && (
+                <p className="text-xs mt-1 text-center" style={{ color: 'var(--de-gold)' }}>
+                  Dr. Eams mode active
+                </p>
+              )}
+
+              {/* Search suggestions dropdown */}
+              {showSuggestions && (searchQuery.trim() || isSuggesting) && (
+                <div
+                  role="listbox"
+                  aria-label="Search suggestions"
+                  className="mt-2 rounded-xl overflow-hidden"
+                  style={{ background: 'rgba(255,255,255,0.98)', border: '1px solid rgba(160,195,240,0.3)', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', maxHeight: 240, overflowY: 'auto' }}
+                >
+                  {isSuggesting && (
+                    <div className="flex items-center gap-2 px-4 py-2.5">
+                      <Loader2 className="w-3 h-3 animate-spin" style={{ color: 'var(--de-text-dim)' }} />
+                      <span className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Searching…</span>
+                    </div>
+                  )}
+                  {!isSuggesting && searchSuggestions.length === 0 && searchQuery.trim() && (
+                    <p className="px-4 py-2.5 text-xs" style={{ color: 'var(--de-text-dim)' }}>No results for &ldquo;{searchQuery}&rdquo;</p>
+                  )}
+                  {searchSuggestions.map((result) => (
+                    <button
+                      key={`${result.type}-${result.id}`}
+                      role="option"
+                      aria-selected={false}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // prevent blur from firing first
+                        clearSuggestions();
+                        setShowSuggestions(false);
+                        if (result.type === 'conversation' && result.targetId) {
+                          const conv = conversations.find((c) => c.id === result.targetId);
+                          if (conv) setSelectedConv(conv);
+                          else if (result.href) router.push(result.href);
+                        } else if (result.type === 'person' && result.targetId) {
+                          router.push(`/messages/new?recipient=${result.targetId}`);
+                        } else if (result.href) {
+                          router.push(result.href);
+                        }
+                        setSearchQuery('');
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors"
+                      style={{ background: 'transparent', border: 'none', borderBottom: '1px solid rgba(160,195,240,0.12)', cursor: 'pointer' }}
+                    >
+                      {result.avatarUrl ? (
+                        <Image src={result.avatarUrl} alt={result.label} width={32} height={32} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold" style={{ background: 'rgba(42,138,184,0.12)', color: 'var(--de-accent)' }}>
+                          {(result.label || 'U')[0].toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate" style={{ color: 'var(--de-heading)' }}>{result.label}</p>
+                        {result.sublabel && <p className="text-xs truncate" style={{ color: 'var(--de-text-dim)' }}>{result.sublabel}</p>}
+                      </div>
+                      <span className="text-xs flex-shrink-0" style={{ color: 'var(--de-text-dim)', opacity: 0.7 }}>{result.type}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="max-h-[60vh] md:h-[60vh] overflow-y-auto">
               {filteredConversations.length === 0 ? (

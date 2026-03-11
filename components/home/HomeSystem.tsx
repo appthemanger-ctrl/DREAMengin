@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
 import HomeDreamRuntime from '@/components/dreamnav/HomeDreamRuntime';
-import DreamNavControls from '@/components/dreamnav/DreamNavControls';
 import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
@@ -73,11 +72,12 @@ export default function HomeSystem({ userId, profile, initialPosts }: { userId: 
         onOpenDrEams={() => setDrEamsOpen(true)}
       />
 
-      {/* DreamDM Bar — persistent interaction rail + spatial divider (§22) */}
-      <DreamDMBar />
-
-      {/* Gold home button — single tap = Go Home, double tap = both menus (§6.1) */}
-      <DreamNavControls
+      {/*
+        DreamDM Bar — draggable window (Pass 3).
+        The gold button is now embedded inside DreamDMBar.
+        Single-tap gold = go home; double-tap = open radial menus.
+      */}
+      <DreamDMBar
         onHome={returnHome}
         onBothMenus={() => setBothMenusOpen(true)}
       />

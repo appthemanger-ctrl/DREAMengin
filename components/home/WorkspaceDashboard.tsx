@@ -788,8 +788,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
         </div>
       </div>
 
-      {/* ── Fixed bottom tab bar — iOS-style ── */}
-      <BottomTabBar active="home" />
     </>
   );
 }
