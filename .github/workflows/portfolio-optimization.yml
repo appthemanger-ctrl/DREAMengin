@@ -1,4 +1,4 @@
-name: OptimizeroDDE
+name: Optemizero
 
 on:
   workflow_dispatch:
@@ -85,7 +85,7 @@ jobs:
       - name: Print DREAMengin Daydream→Engin optimization summary
         run: |
           echo "══════════════════════════════════════════════════"
-          echo "  OptimizeroDDE — DREAMengin Daydream/Engin Results"
+          echo "  Optemizero — DREAMengin Daydream/Engin Results"
           echo "══════════════════════════════════════════════════"
           echo ""
           echo "  Music     │ ${{ env.DD_MUSIC_ENGIN }}  │ Algorithm:       ${{ steps.optimizer.outputs.algorithm }}"

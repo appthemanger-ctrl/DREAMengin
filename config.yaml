@@ -1,5 +1,19 @@
-project_name: quantum_portfolio_optimizer
+project_name: optemizero
 version: 0.2.0  # quantum-portfolio-optimizer release version (shymonski-dev/quantum-portfolio-optimizer)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Optemizero — DREAMengin Daydream/Engin adaptation
+# Canonical Daydream → Engin mapping (source: lib/identity/canonical-names.ts)
+#
+#   Daydream  │  Engin           │  Role in optimization
+#   ──────────┼──────────────────┼──────────────────────────────────────
+#   Music     │  StarMakerEngin  │  Algorithm selection
+#   Games     │  GameEngin       │  Objective value
+#   Lab       │  LabEngin        │  Backend
+#   Code      │  CodeEngin       │  Sharpe ratio
+#   Brand     │  BrandingEngin   │  Expected return
+#   Create    │  ContentEngin    │  Portfolio risk
+# ──────────────────────────────────────────────────────────────────────────────
 
 # ──────────────────────────────────────────────
 # Optimization goal
@@ -27,8 +41,10 @@ ansatz: real_amplitudes
 
 # ──────────────────────────────────────────────
 # Portfolio constraints
+# max_assets maps to the 6 DREAMengin Daydream
+# domains (Music, Games, Lab, Code, Brand, Create)
 # ──────────────────────────────────────────────
-max_assets: 25
+max_assets: 6
 
 # ──────────────────────────────────────────────
 # Optional features
