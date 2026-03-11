@@ -35,13 +35,13 @@ const NAV_SUGGESTIONS = [
 // ── AI Triad agent definitions — only the user-facing agent is shown to all users ──
 // IDARi and TheBoogieMan are admin-only per IDARI_CONTRACT.md
 const AI_AGENTS_USER = [
-  { id: 'dr-eams', name: 'Dr. Eams', initial: '◈', bg: '#4A90D9', iconColor: '#fff', time: '11:50 Pm', sub: '03:40 pm' },
+  { id: 'dr-eams', name: 'Dr. Eams', initial: '◈', bg: '#4A90D9', iconColor: '#fff', time: '11:50 PM', sub: '03:40 PM' },
 ] as const;
 
 const AI_AGENTS_ADMIN = [
-  { id: 'dr-eams',   name: 'Dr. Eams',     initial: '◈', bg: '#4A90D9', iconColor: '#fff',    time: '11:50 Pm', sub: '03:40 pm' },
-  { id: 'idari',     name: 'IDARi',        initial: '⬡', bg: '#1a1a1a', iconColor: '#c8981a', time: '1:50 Pm',  sub: '02:30 pm' },
-  { id: 'boogieman', name: 'TheBoogieMan', initial: '👁', bg: '#2d1a4a', iconColor: '#fff',    time: '1:30 Pm',  sub: '1:30 pm'  },
+  { id: 'dr-eams',   name: 'Dr. Eams',     initial: '◈', bg: '#4A90D9', iconColor: '#fff',    time: '11:50 PM', sub: '03:40 PM' },
+  { id: 'idari',     name: 'IDARi',        initial: '⬡', bg: '#1a1a1a', iconColor: '#c8981a', time: '1:50 PM',  sub: '02:30 PM' },
+  { id: 'boogieman', name: 'TheBoogieMan', initial: '👁', bg: '#2d1a4a', iconColor: '#fff',    time: '1:30 PM',  sub: '1:30 PM'  },
 ] as const;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
