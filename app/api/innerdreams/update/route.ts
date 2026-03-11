@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { ESTIMATED_COMPLETION, isSupabaseConfigured } from '../config';
+import { isOwnerEmail } from '@/lib/ai/triad';
 
 type UpdatePayload = {
   prompt?: string;
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    const isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
+    const isAdmin = isOwnerEmail(user.email) || user.user_metadata?.role === 'admin';
 
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });

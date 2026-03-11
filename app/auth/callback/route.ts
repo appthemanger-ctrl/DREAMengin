@@ -8,9 +8,21 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next");
+  const error = url.searchParams.get("error");
+  const errorDescription = url.searchParams.get("error_description");
 
   // Prevent open-redirects: only allow relative paths inside this app.
   const safeNext = next && next.startsWith("/") ? next : "/homedream";
+
+  // If OAuth provider returned an error, redirect to login with error info
+  if (error) {
+    const loginUrl = new URL("/login", url.origin);
+    loginUrl.searchParams.set("error", error);
+    if (errorDescription) {
+      loginUrl.searchParams.set("error_description", errorDescription);
+    }
+    return NextResponse.redirect(loginUrl);
+  }
 
   // Build the redirect response FIRST so we can attach auth cookies to it.
   const redirectUrl = new URL(safeNext, url.origin);
@@ -44,7 +56,14 @@ export async function GET(request: Request) {
   });
 
   try {
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    if (exchangeError) {
+      // Exchange failed — redirect to login with error
+      const loginUrl = new URL("/login", url.origin);
+      loginUrl.searchParams.set("error", "exchange_failed");
+      loginUrl.searchParams.set("error_description", exchangeError.message);
+      return NextResponse.redirect(loginUrl);
+    }
   } catch {
     // If exchange fails, fall through and redirect without a session.
   }

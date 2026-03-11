@@ -66,7 +66,7 @@ export default async function BrandDaydreamPage() {
           </div>
           <div className="de-widget-actions">
             <Link href="/edit-profiledream" className="de-btn de-btn-ghost text-xs">Edit ProfileDream</Link>
-            <Link href="/profile" className="de-btn de-btn-primary text-xs">View Profile</Link>
+            <Link href="/view-profile" className="de-btn de-btn-primary text-xs">View Profile</Link>
           </div>
         </div>
 

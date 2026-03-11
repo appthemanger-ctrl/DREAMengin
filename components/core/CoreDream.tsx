@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
 
 type CoreFace = 'home' | 'profile';
@@ -11,6 +12,7 @@ type Props = {
   onToggleFace: () => void;
   onClose: () => void;
   onOpenDrEams: () => void;
+  isAdmin?: boolean;
   profile: {
     handle?: string | null;
     display_name?: string | null;
@@ -246,9 +248,10 @@ function MetricsRow() {
 }
 
 /* ── Home face — delegates to WorkspaceDashboard ── */
-function HomeFace({ onOpenDrEams, profile, posts }: {
+function HomeFace({ onOpenDrEams, profile, posts, isAdmin }: {
   onOpenDrEams: () => void;
   profile: Props['profile'];
+  isAdmin?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   posts?: any[];
 }) {
@@ -257,6 +260,7 @@ function HomeFace({ onOpenDrEams, profile, posts }: {
       profile={profile}
       posts={posts ?? []}
       onOpenDrEams={onOpenDrEams}
+      isAdmin={isAdmin}
     />
   );
 }
@@ -296,18 +300,34 @@ function ProfileFace({ profile, onToggleFace }: { profile: Props['profile']; onT
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--de-heading)' }}>{name}</div>
           <div style={{ fontSize: 14, color: 'var(--de-text-dim)' }}>@{handle}</div>
-          <div style={{ fontSize: 13, color: 'var(--de-text-dim)', marginTop: 4 }}>24,981 Followers</div>
         </div>
-        <button
-          type="button"
-          style={{
-            padding: '8px 28px', borderRadius: 100,
-            background: 'var(--de-heading)', color: 'white',
-            fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer',
-          }}
-        >
-          Follow
-        </button>
+        {/* Profile action buttons */}
+        <div style={{ display: 'flex', gap: 10 }}>
+          <Link
+            href="/edit-profiledream"
+            style={{
+              padding: '8px 22px', borderRadius: 100,
+              background: 'linear-gradient(135deg, #c8981a, #e0b830)',
+              color: 'white', fontSize: 13, fontWeight: 600,
+              textDecoration: 'none', display: 'inline-block',
+              boxShadow: '0 2px 10px rgba(200,152,26,0.3)',
+            }}
+          >
+            Edit Profile
+          </Link>
+          <Link
+            href="/view-profile"
+            style={{
+              padding: '8px 22px', borderRadius: 100,
+              background: 'rgba(160,195,240,0.2)',
+              border: '1px solid rgba(160,195,240,0.4)',
+              color: 'var(--de-heading)', fontSize: 13, fontWeight: 600,
+              textDecoration: 'none', display: 'inline-block',
+            }}
+          >
+            View Profile
+          </Link>
+        </div>
       </div>
 
       {/* Stats grid */}
@@ -426,7 +446,7 @@ function WallBanner() {
 }
 
 /* ── Main export ── */
-export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClose, onOpenDrEams, profile, posts }: Props) {
+export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClose, onOpenDrEams, isAdmin, profile, posts }: Props) {
   if (!isOpen) return null;
 
   if (face === 'profile') {
@@ -450,7 +470,7 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClos
   // Home face — WorkspaceDashboard is full-screen, owns its own header + layout
   return (
     <div style={{ width: '100%', minHeight: '100svh' }}>
-      <HomeFace onOpenDrEams={onOpenDrEams} profile={profile} posts={posts} />
+      <HomeFace onOpenDrEams={onOpenDrEams} profile={profile} posts={posts} isAdmin={isAdmin} />
     </div>
   );
 }

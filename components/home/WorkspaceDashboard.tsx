@@ -32,10 +32,16 @@ const NAV_SUGGESTIONS = [
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
-const AI_AGENTS = [
-  { id: 'dr-eams',    name: 'Dr. Eams',      initial: 'A', bg: '#4A90D9', iconColor: '#fff',    time: '11:50 Pm', sub: '03:40 pm' },
-  { id: 'idari',      name: 'IDARi',         initial: '⬡', bg: '#1a1a1a', iconColor: '#c8981a', time: '1:50 Pm',  sub: '02:30 pm' },
-  { id: 'boogieman',  name: 'TheBoogieMan',  initial: '👁', bg: '#2d1a4a', iconColor: '#fff',    time: '1:30 Pm',  sub: '1:30 pm'  },
+// ── AI Triad agent definitions — only the user-facing agent is shown to all users ──
+// IDARi and TheBoogieMan are admin-only per IDARI_CONTRACT.md
+const AI_AGENTS_USER = [
+  { id: 'dr-eams', name: 'Dr. Eams', initial: '◈', bg: '#4A90D9', iconColor: '#fff', time: '11:50 Pm', sub: '03:40 pm' },
+] as const;
+
+const AI_AGENTS_ADMIN = [
+  { id: 'dr-eams',   name: 'Dr. Eams',     initial: '◈', bg: '#4A90D9', iconColor: '#fff',    time: '11:50 Pm', sub: '03:40 pm' },
+  { id: 'idari',     name: 'IDARi',        initial: '⬡', bg: '#1a1a1a', iconColor: '#c8981a', time: '1:50 Pm',  sub: '02:30 pm' },
+  { id: 'boogieman', name: 'TheBoogieMan', initial: '👁', bg: '#2d1a4a', iconColor: '#fff',    time: '1:30 Pm',  sub: '1:30 pm'  },
 ] as const;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -54,6 +60,7 @@ interface WorkspaceDashboardProps {
   profile: ProfileLike | null;
   posts: Post[];
   onOpenDrEams: () => void;
+  isAdmin?: boolean;
 }
 
 // ── Mini sparkline ─────────────────────────────────────────────────────────────
@@ -248,16 +255,30 @@ const TABS = [
 
 // ── AI Agent activity card ─────────────────────────────────────────────────────
 
-function AgentActivityCard({ agent }: { agent: typeof AI_AGENTS[number] }) {
+type AgentType = typeof AI_AGENTS_USER[number] | typeof AI_AGENTS_ADMIN[number];
+
+function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDrEams?: () => void }) {
+  const isDrEams = agent.id === 'dr-eams';
+  const isIdari  = agent.id === 'idari';
+
+  const handleClick = isDrEams ? onOpenDrEams : undefined;
+
   return (
-    <div style={{
-      minWidth: 148, flexShrink: 0,
-      padding: '14px 16px',
-      background: 'rgba(255,255,255,0.92)',
-      borderRadius: 16,
-      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-      border: '1px solid rgba(160,195,240,0.18)',
-    }}>
+    <button
+      type="button"
+      onClick={handleClick}
+      style={{
+        minWidth: 148, flexShrink: 0,
+        padding: '14px 16px',
+        background: 'rgba(255,255,255,0.92)',
+        borderRadius: 16,
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        border: `1px solid ${isDrEams ? 'rgba(74,144,217,0.25)' : 'rgba(160,195,240,0.18)'}`,
+        cursor: handleClick ? 'pointer' : 'default',
+        textAlign: 'left',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <div style={{
           width: 32, height: 32, borderRadius: '50%',
@@ -271,9 +292,10 @@ function AgentActivityCard({ agent }: { agent: typeof AI_AGENTS[number] }) {
           {agent.name}
         </span>
       </div>
-      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)', marginBottom: 2 }}>{agent.time}</div>
-      <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{agent.sub}</div>
-    </div>
+      <div style={{ fontSize: 11, color: isDrEams ? 'var(--de-accent)' : 'var(--de-text-dim)', fontWeight: isDrEams ? 600 : 400 }}>
+        {isDrEams ? 'Tap to chat ◈' : isIdari ? 'Admin only ⬡' : 'Policy enforcer 👁'}
+      </div>
+    </button>
   );
 }
 
@@ -437,7 +459,7 @@ function BottomTabBar({ active = 'home' }: { active?: string }) {
 
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
   const [searchVal, setSearchVal] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -445,6 +467,9 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const initials = name[0]?.toUpperCase() || 'D';
   const avatarUrl = profile?.avatar_url;
+
+  // Use admin or user agent list based on role
+  const AI_AGENTS = isAdmin ? AI_AGENTS_ADMIN : AI_AGENTS_USER;
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
@@ -646,7 +671,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams }: Wor
               {/* AI Triad agent cards — horizontal scroll */}
               <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', marginBottom: 4 }}>
                 {AI_AGENTS.map(agent => (
-                  <AgentActivityCard key={agent.id} agent={agent} />
+                  <AgentActivityCard key={agent.id} agent={agent} onOpenDrEams={onOpenDrEams} />
                 ))}
               </div>
 

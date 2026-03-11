@@ -52,10 +52,17 @@ export default async function ViewProfilePage() {
   const profile = rawProfile as unknown as Profile;
 
   // Use server-persisted widget projection (falls back to defaults if not set)
-  const savedDreams: ProfileDream[] =
+  const allSavedDreams: ProfileDream[] =
     Array.isArray(profile.profile_dream_widgets) && profile.profile_dream_widgets.length > 0
       ? profile.profile_dream_widgets
       : DEFAULT_DREAMS;
+
+  // Filter to only publicly visible widgets — owner preview mirrors what visitors see.
+  // Per ARCHITECTURE.md §5: ViewProfile renders only saved/shared output.
+  // Widgets with no visibility set default to 'private' (nothing public by default).
+  const savedDreams = allSavedDreams.filter(
+    (w) => w.visibility === 'public' || w.visibility === 'followers'
+  );
 
   const displayName = profile.display_name || profile.handle;
   const handle = profile.handle ?? '';
@@ -143,18 +150,49 @@ export default async function ViewProfilePage() {
 
       {/* ── Widget grid (saved output only) ── */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '0 16px' }}>
-        <ProfileWidgetGrid
-          displayName={displayName}
-          handle={handle}
-          avatarUrl={profile.avatar_url ?? null}
-          bio={profile.bio ?? null}
-          coverUrl={profile.cover_url ?? null}
-          followers={profile.followers_count ?? 0}
-          posts={profile.posts_count ?? 0}
-          likes={0}
-          isEditing={false}
-          initialWidgets={savedDreams}
-        />
+        {savedDreams.length === 0 ? (
+          <div style={{
+            textAlign: 'center', padding: '48px 24px',
+            background: 'rgba(255,255,255,0.7)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: 24, margin: '20px 0',
+            border: '1px solid rgba(200,152,26,0.2)',
+          }}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8 }}>
+              No public Dreams yet
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 20 }}>
+              Your profile is private. Go to EditProfileDream and set widget visibility to <strong>Public</strong> or <strong>Followers</strong> to share them here.
+            </div>
+            <Link
+              href="/edit-profiledream"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '10px 24px', borderRadius: 9999,
+                background: 'linear-gradient(135deg, #c8981a, #e0b830)',
+                color: '#fff', fontWeight: 700, fontSize: 13,
+                textDecoration: 'none',
+                boxShadow: '0 4px 16px rgba(200,152,26,0.3)',
+              }}
+            >
+              Edit Profile Dreams
+            </Link>
+          </div>
+        ) : (
+          <ProfileWidgetGrid
+            displayName={displayName}
+            handle={handle}
+            avatarUrl={profile.avatar_url ?? null}
+            bio={profile.bio ?? null}
+            coverUrl={profile.cover_url ?? null}
+            followers={profile.followers_count ?? 0}
+            posts={profile.posts_count ?? 0}
+            likes={0}
+            isEditing={false}
+            initialWidgets={savedDreams}
+          />
+        )}
       </div>
 
       {/* ── Return to EditProfileDream CTA ── */}

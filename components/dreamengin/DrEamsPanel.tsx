@@ -1,6 +1,6 @@
-// DrEamsPanel.tsx — IDARi universal AI chat panel.
-// Available to ALL authenticated users (no admin gate).
-// Capabilities adapt to the user's role on the server side.
+// DrEamsPanel.tsx — Dr. Eams user-facing AI chat panel.
+// Available to ALL authenticated users — connects to /api/ai/eams.
+// Dr. Eams is the friendly user companion in the AI triad.
 
 'use client';
 
@@ -20,25 +20,25 @@ const QUICK_ACTIONS = [
   { label: '🧩 Add a widget',        prompt: 'How do I add and arrange widgets on my home?' },
 ];
 
-/* ── IDARi avatar ── */
-function IDARiAvatar({ size = 44 }: { size?: number }) {
+/* ── Dr. Eams avatar ── */
+function DrEamsAvatar({ size = 44 }: { size?: number }) {
   return (
     <div
       style={{
         width: size,
         height: size,
         borderRadius: '50%',
-        background: 'linear-gradient(135deg, #2a8ab8 0%, #c8981a 100%)',
+        background: 'linear-gradient(135deg, #4A90D9 0%, #2a8ab8 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: size * 0.42,
         flexShrink: 0,
-        boxShadow: '0 2px 12px rgba(42,138,184,0.3)',
+        boxShadow: '0 2px 12px rgba(74,144,217,0.35)',
       }}
       aria-hidden="true"
     >
-      ✦
+      ◈
     </div>
   );
 }
@@ -53,7 +53,7 @@ function TypingDots() {
           style={{
             width: 6, height: 6, borderRadius: '50%',
             background: 'var(--de-text-dim)',
-            animation: `idari-dot 1.2s ${i * 0.2}s ease-in-out infinite`,
+            animation: `dreams-dot 1.2s ${i * 0.2}s ease-in-out infinite`,
           }}
         />
       ))}
@@ -63,7 +63,7 @@ function TypingDots() {
 
 export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'ai', text: "Hey! I'm IDARi — your AI companion inside Dreamengin. What are you dreaming up today? ✦" },
+    { role: 'ai', text: "Hey! I'm Dr. Eams — your AI companion inside Dreamengin. What are you dreaming up today? ◈" },
   ]);
   const [input, setInput]   = useState('');
   const [loading, setLoading] = useState(false);
@@ -93,7 +93,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
     setMessages((m) => [...m, { role: 'user', text }]);
     setLoading(true);
     try {
-      const res = await fetch('/api/ai/idari', {
+      const res = await fetch('/api/ai/eams', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text }),
@@ -101,7 +101,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
 
       const data = await res.json().catch(() => ({}));
 
-      // IDARi returns { response_text, proposed_intents, boogie_decisions }
+      // Dr. Eams returns { response_text, proposed_intents, boogie_decisions }
       // or { ok: false, error: { code, message } }
       const reply =
         (data?.response_text && typeof data.response_text === 'string')
@@ -122,7 +122,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
     <>
       {/* Keyframes injected inline once */}
       <style>{`
-        @keyframes idari-dot {
+        @keyframes dreams-dot {
           0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
           40% { transform: scale(1.1); opacity: 1; }
         }
@@ -138,7 +138,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="IDARi AI"
+          aria-label="Dr. Eams AI"
           style={{
             width: 'min(30rem, 96vw)',
             maxHeight: '88vh',
@@ -161,15 +161,15 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
             display: 'flex', alignItems: 'center', gap: 12,
             borderBottom: '1px solid rgba(160,195,240,0.25)',
           }}>
-            <IDARiAvatar size={44} />
+            <DrEamsAvatar size={44} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.2 }}>IDARi</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.2 }}>Dr. Eams</div>
               <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 2 }}>Your Dreamengin AI · always on</div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close IDARi"
+              aria-label="Close Dr. Eams"
               style={{
                 width: 34, height: 34, borderRadius: '50%',
                 background: 'rgba(160,195,240,0.15)',
@@ -202,7 +202,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
                   gap: 8,
                 }}
               >
-                {m.role === 'ai' && <IDARiAvatar size={28} />}
+                {m.role === 'ai' && <DrEamsAvatar size={28} />}
                 <div style={{
                   maxWidth: '78%',
                   padding: '10px 14px',
@@ -223,7 +223,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
 
             {loading && (
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
-                <IDARiAvatar size={28} />
+                <DrEamsAvatar size={28} />
                 <div style={{
                   background: 'rgba(240,245,255,0.95)',
                   border: '1px solid rgba(160,195,240,0.3)',
@@ -271,7 +271,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send(); } }}
-              placeholder="Ask IDARi anything…"
+              placeholder="Ask Dr. Eams anything…"
               style={{
                 flex: 1, padding: '12px 16px', borderRadius: 100,
                 background: 'rgba(240,245,255,0.9)',

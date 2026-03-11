@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import PasswordField from "@/components/auth/PasswordField";
@@ -19,8 +19,9 @@ const INPUT_STYLE: React.CSSProperties = {
   outline: "none",
 };
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = useMemo(() => createClient(), []);
 
   const [email, setEmail]         = useState("");
@@ -28,6 +29,19 @@ export default function LoginPage() {
   const [busy, setBusy]           = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError]         = useState<string | null>(null);
+
+  // Show errors from OAuth callback (e.g. Google auth redirect mismatch)
+  useEffect(() => {
+    const cbError = searchParams.get("error");
+    const cbErrorDesc = searchParams.get("error_description");
+    if (cbError) {
+      const friendlyErrors: Record<string, string> = {
+        access_denied: "Sign-in was cancelled. Please try again.",
+        exchange_failed: "Authentication failed. Please try again.",
+      };
+      setError(friendlyErrors[cbError] ?? cbErrorDesc ?? `Sign-in error: ${cbError}`);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const storedRemember = window.localStorage.getItem("rememberMe");
@@ -183,5 +197,19 @@ export default function LoginPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="de-sky-bg min-h-screen flex items-center justify-center">
+        <div className="de-widget" style={{ padding: 32, textAlign: 'center' }}>
+          <span className="de-wordmark" style={{ fontSize: 28 }}>dreamengin</span>
+        </div>
+      </div>
+    }>
+      <LoginPageInner />
+    </Suspense>
   );
 }
