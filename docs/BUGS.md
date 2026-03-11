@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-11 12:50 UTC  
-**Triggered by commit:** `93c5253` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #161 from appthemanger-ctrl/claude/fix-design-spec-requirements
+**Last updated:** 2026-03-11 13:21 UTC  
+**Triggered by commit:** `403aff2` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #163 from appthemanger-ctrl/copilot/add-markowitz-portfolio-optimization
 
 ---
 
@@ -89,7 +89,16 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-No TODO / FIXME / HACK annotations found in source files.
+### 📝 TODO (6)
+
+| Location | Description |
+|----------|-------------|
+| `lib/optimizer/index.ts:54` | Get from user preferences |
+| `lib/optimizer/index.ts:131` | Get from device context |
+| `lib/optimizer/index.ts:132` | Get from device context |
+| `lib/optimizer/index.ts:133` | Calculate from current layout |
+| `lib/optimizer/index.ts:206` | Get from user relationships |
+| `lib/optimizer/index.ts:265` | Get from user preferences |
 
 ---
 

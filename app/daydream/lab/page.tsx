@@ -69,10 +69,11 @@ export default async function LabDaydreamPage() {
           {/* Quick action cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
             {[
-              { emoji: '🧪', label: 'New Experiment', href: '/lab/new', color: '#22c55e' },
-              { emoji: '⚗️', label: 'My Projects',    href: '/lab',     color: '#6366f1' },
-              { emoji: '⚛️', label: 'Physics Lab',    href: '/physics-lab', color: '#f59e0b' },
-              { emoji: '💻', label: 'Codespace',      href: '/codespace',   color: '#8b5cf6' },
+              { emoji: '🧪', label: 'New Experiment',      href: '/lab/new',                        color: '#22c55e' },
+              { emoji: '⚗️', label: 'My Projects',        href: '/lab',                            color: '#6366f1' },
+              { emoji: '⚛️', label: 'Physics Lab',         href: '/physics-lab',                    color: '#f59e0b' },
+              { emoji: '💻', label: 'Codespace',           href: '/codespace',                      color: '#8b5cf6' },
+              { emoji: '📈', label: 'Portfolio Optimizer', href: '/daydream/lab/portfolio',         color: '#2a8ab8' },
             ].map(item => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                 <div style={{

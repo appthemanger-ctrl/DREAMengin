@@ -4,13 +4,26 @@ name: Idari Daily Improvement Cycle
 # Idari runs once per day at midnight UTC.
 # Contract: docs/IDARI_CONTRACT.md
 #
-# Sequence:
-#   1. Read all files in /docs
-#   2. Analyse repository state
-#   3. Verify architecture alignment
-#   4. Run improvement agents (battery, scene, UI, Supabase)
-#   5. Commit any approved changes
-#   6. Push to branch: completedream
+# Sequence (mirrors portfolio-optimizer two-job pattern):
+#   JOB 1 — spec-check  (like portfolio-optimizer "build"):
+#     Verify spec requirements and architecture alignment BEFORE any changes.
+#     Reads SPEC.md + FEATURE_STATUS.md, runs tripwires, checks for drift.
+#     If this job fails, idari-cycle is skipped entirely.
+#
+#   JOB 2 — idari-cycle  (existing improvement cycle):
+#     Runs only after spec-check passes (needs: spec-check).
+#     1. Read all files in /docs
+#     2. Analyse repository state
+#     3. Verify architecture alignment
+#     4. Run improvement agents (battery, scene, UI, Supabase)
+#     5. Commit any approved changes
+#     6. Push to branch: completedream
+#
+#   JOB 3 — vercel-build-verify  (like portfolio-optimizer "optimize"):
+#     Runs only after idari-cycle (needs: idari-cycle).
+#     Runs `next build` against the 2026 Vercel-compatible runtime:
+#       Node 24 · pnpm 10.30.0 · Next.js 16+  (docs/ARCHITECTURE.md §10)
+#     Ensures every change Idari makes or proposes still compiles on Vercel.
 #
 # Idari may NOT modify /docs or any governance / policy files.
 # Push is aborted if no architecture-justified changes are found.
@@ -42,11 +55,238 @@ env:
   TARGET_BRANCH: completedream
   BOT_NAME: 'Idari[bot]'
   BOT_EMAIL: 'idari-bot@users.noreply.github.com'
+  # 2026 Vercel-compatible runtime (docs/ARCHITECTURE.md §10)
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10.30.0'
 
 jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 1 — spec-check
+  # Mirrors portfolio-optimizer "build" job: verify before optimise.
+  # Reads the spec and feature-status docs, runs architecture tripwires, and
+  # checks for any drift between the spec and the current codebase state.
+  # The idari-cycle job is SKIPPED if this job fails.
+  # ────────────────────────────────────────────────────────────────────────────
+  spec-check:
+    name: Spec requirements check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      spec_version: ${{ steps.read-spec.outputs.spec_version }}
+      feature_gaps: ${{ steps.check-features.outputs.feature_gaps }}
+
+    steps:
+      - name: Checkout completedream
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js (2026 target)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Read constitution (same guard as idari-cycle) ──────────────────────
+      - name: Verify governing docs exist
+        run: |
+          for f in docs/LAW.md docs/AXIOMS.md docs/ARCHITECTURE.md docs/SPEC.md docs/FEATURE_STATUS.md; do
+            if [ ! -f "$f" ]; then
+              echo "ERROR: missing governing doc $f — spec-check cannot proceed."
+              exit 1
+            fi
+          done
+          echo "All required governing docs present."
+
+      # ── Identify spec version ──────────────────────────────────────────────
+      - name: Read spec version
+        id: read-spec
+        run: |
+          # Derive spec version from the most recent phase doc
+          SPEC_VER=$(grep -h "phase\|Phase" docs/FEATURE_STATUS.md \
+            | grep -i "Current phase" | head -1 | sed 's/.*Phase /phase/' \
+            | tr '[:upper:]' '[:lower:]' | tr ' ' '_' | head -c 40 || echo "unknown")
+          echo "spec_version=$SPEC_VER" >> "$GITHUB_OUTPUT"
+          echo "Spec version: $SPEC_VER"
+
+      # ── Check canonical spec requirements ─────────────────────────────────
+      - name: Check canonical spec requirements
+        id: check-features
+        run: |
+          echo "=== IDARi spec-check: verifying spec requirements ==="
+
+          GAPS=""
+
+          # ── Core surfaces ──────────────────────────────────────────────────
+          echo "-- Core surfaces --"
+          for route in "app/homedream/page.tsx" "app/edit-profiledream/page.tsx" "app/view-profile/page.tsx"; do
+            if [ ! -f "$route" ]; then
+              echo "MISSING: $route"
+              GAPS="$GAPS\n- MISSING canonical route file: $route"
+            else
+              echo "OK: $route"
+            fi
+          done
+
+          # ── Dream layers ───────────────────────────────────────────────────
+          echo "-- Dream layers --"
+          for f in \
+            "components/dreams/DreamShell.tsx" \
+            "components/dreams/DreamConnectorLayer.tsx" \
+            "components/dreams/DreamFeatureLayer.tsx" \
+            "components/dreams/DreamOutputLayer.tsx"; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING: $f"
+              GAPS="$GAPS\n- MISSING Dream layer: $f"
+            else
+              echo "OK: $f"
+            fi
+          done
+
+          # ── Daydream pairs (6 canonical pairs) ────────────────────────────
+          echo "-- Daydream pairs --"
+          for pair in "music/StarMakerEngin" "games/GameEngin" "lab/LabEngin" "code/CodeEngin" "brand/BrandingEngin" "create/ContentEngin"; do
+            NAME="${pair#*/}"
+            ROUTE="app/daydream/${pair%/*}/page.tsx"
+            ENGIN="components/daydream/${NAME}.tsx"
+            for f in "$ROUTE" "$ENGIN"; do
+              if [ ! -f "$f" ]; then
+                echo "MISSING: $f"
+                GAPS="$GAPS\n- MISSING Daydream file: $f"
+              else
+                echo "OK: $f"
+              fi
+            done
+          done
+
+          # ── AI triad ───────────────────────────────────────────────────────
+          echo "-- AI triad routes --"
+          for f in "app/api/ai/idari/route.ts" "app/api/ai/eams/route.ts"; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING: $f"
+              GAPS="$GAPS\n- MISSING AI triad route: $f"
+            else
+              echo "OK: $f"
+            fi
+          done
+
+          # ── IDARi agent library ────────────────────────────────────────────
+          echo "-- IDARi agent library --"
+          if [ ! -f "lib/agents/idari.ts" ]; then
+            echo "MISSING: lib/agents/idari.ts"
+            GAPS="$GAPS\n- MISSING IDARi agent library"
+          else
+            # Verify key exports are present
+            for sym in createPatchPlan evaluateSpecRequirements createVercelBuildResult; do
+              if ! grep -q "export function $sym\|export const $sym" lib/agents/idari.ts; then
+                echo "MISSING export: $sym in lib/agents/idari.ts"
+                GAPS="$GAPS\n- MISSING export $sym in lib/agents/idari.ts"
+              else
+                echo "OK: $sym"
+              fi
+            done
+          fi
+
+          # ── Platform modules ───────────────────────────────────────────────
+          echo "-- Platform modules --"
+          for f in "app/messages/page.tsx" "app/shop/page.tsx" "app/marketplace/page.tsx"; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING: $f"
+              GAPS="$GAPS\n- MISSING platform module: $f"
+            else
+              echo "OK: $f"
+            fi
+          done
+
+          # ── Summary ────────────────────────────────────────────────────────
+          if [ -n "$GAPS" ]; then
+            echo ""
+            echo "Spec check found gaps:"
+            echo -e "$GAPS"
+            echo "feature_gaps=true" >> "$GITHUB_OUTPUT"
+            # Gaps are warnings; they should not block the improvement cycle
+            # (Idari's job is to FIX gaps, not refuse to run when they exist).
+            echo "Spec-check: gaps recorded — idari-cycle will address them."
+          else
+            echo "Spec-check: all required files and exports are present."
+            echo "feature_gaps=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── Architecture tripwires ─────────────────────────────────────────────
+      - name: Architecture tripwires
+        run: |
+          echo "=== IDARi spec-check: architecture tripwires ==="
+
+          FAIL=0
+
+          # Tripwire: no governance doc should be empty
+          for f in docs/LAW.md docs/AXIOMS.md docs/ARCHITECTURE.md docs/SPEC.md; do
+            LINES=$(wc -l < "$f")
+            if [ "$LINES" -lt 5 ]; then
+              echo "FAIL: $f has only $LINES lines — suspiciously short."
+              FAIL=1
+            else
+              echo "OK: $f ($LINES lines)"
+            fi
+          done
+
+          # Tripwire: IDARi must not be exposed without auth guard
+          if grep -r "idari" app/api/ai/idari/route.ts | grep -q "createServerClient\|getUser"; then
+            echo "OK: IDARi route has auth guard."
+          else
+            echo "WARN: IDARi route may be missing auth guard — review app/api/ai/idari/route.ts."
+          fi
+
+          # Tripwire: BoogieMan policy file must exist and be non-empty
+          if [ -f "lib/ai/boogieman.ts" ] && [ "$(wc -l < lib/ai/boogieman.ts)" -ge 5 ]; then
+            echo "OK: lib/ai/boogieman.ts present."
+          else
+            echo "FAIL: lib/ai/boogieman.ts missing or empty — BoogieMan policy gate is broken."
+            FAIL=1
+          fi
+
+          if [ "$FAIL" -ne 0 ]; then
+            echo "Tripwires FAILED — aborting spec-check."
+            exit 1
+          fi
+          echo "All architecture tripwires passed."
+
+      # ── Typecheck against 2026 runtime ────────────────────────────────────
+      - name: Typecheck (2026 Node 24 runtime)
+        run: pnpm typecheck || true   # pre-existing TS errors do not block cycle
+
+      # ── Spec-check summary ─────────────────────────────────────────────────
+      - name: Spec-check summary
+        run: |
+          {
+            echo "## IDARi Spec-Check"
+            echo ""
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Governing docs | ✅ present |"
+            echo "| Spec version | ${{ steps.read-spec.outputs.spec_version }} |"
+            echo "| Feature gaps | ${{ steps.check-features.outputs.feature_gaps == 'true' && '⚠️ gaps found (idari-cycle will address)' || '✅ none' }} |"
+            echo "| Architecture tripwires | ✅ passed |"
+            echo "| Typecheck | ✅ run (pre-existing errors allowed) |"
+            echo ""
+            echo "Spec-check passed — idari-cycle may proceed."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   idari-cycle:
     name: Idari Daily Improvement
     runs-on: ubuntu-latest
+    needs: spec-check   # only run after spec-check passes
 
     steps:
       # ────────────────────────────────────────────────────────────────────────
@@ -65,12 +305,12 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.4.0
+          version: ${{ env.PNPM_VERSION }}
 
-      - name: Setup Node.js
+      - name: Setup Node.js (2026 target — docs/ARCHITECTURE.md §10)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
       - name: Install dependencies
@@ -287,4 +527,139 @@ jobs:
         with:
           name: idari-cycle-report-${{ github.run_number }}
           path: .ci/idari-cycle-*.md
+          retention-days: 30
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 3 — vercel-build-verify
+  # Mirrors portfolio-optimizer "optimize" job: runs only after the improvement
+  # cycle passes.  Performs a full `next build` on the 2026 Vercel-compatible
+  # runtime so every change Idari makes or proposes is confirmed buildable
+  # before the run is considered successful.
+  #
+  # 2026 runtime targets (docs/ARCHITECTURE.md §10):
+  #   Node 24 · pnpm 10.30.0 · Next.js 16+
+  # ────────────────────────────────────────────────────────────────────────────
+  vercel-build-verify:
+    name: Vercel build verification (2026 runtime)
+    runs-on: ubuntu-latest
+    needs: idari-cycle
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout completedream (post-cycle state)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm (${{ env.PNPM_VERSION }})
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }} (2026 Vercel target)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Smoke-test: confirm expected entry-points exist ───────────────────
+      - name: Smoke-test entry-points
+        id: smoke
+        run: |
+          echo "=== IDARi vercel-build-verify: smoke-testing entry-points ==="
+          FAIL=0
+          for f in \
+            "app/homedream/page.tsx" \
+            "app/api/ai/idari/route.ts" \
+            "lib/agents/idari.ts"; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING: $f"
+              FAIL=1
+            else
+              echo "OK: $f"
+            fi
+          done
+          if [ "$FAIL" -ne 0 ]; then
+            echo "Smoke-test FAILED — critical files missing."
+            exit 1
+          fi
+          echo "Smoke-test passed."
+
+      # ── Run next build (Vercel-equivalent) ────────────────────────────────
+      - name: Run next build
+        id: build
+        run: |
+          echo "=== IDARi vercel-build-verify: running next build ==="
+          echo "Runtime: Node $(node --version) · pnpm $(pnpm --version)"
+          echo "Next.js: $(node -e "const p=require('./package.json'); console.log(p.dependencies?.next || p.devDependencies?.next || 'unknown')")"
+
+          BUILD_OUTPUT=$(pnpm run build 2>&1) && BUILD_EXIT=0 || BUILD_EXIT=$?
+
+          echo "$BUILD_OUTPUT"
+
+          # Count compiled routes from build output
+          ROUTE_COUNT=$(echo "$BUILD_OUTPUT" | grep -cE "^[○●λ]|Route \(app\)" || echo "0")
+
+          mkdir -p .ci
+          NOW=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          BUILD_RESULT_FILE=".ci/idari-vercel-build-$(date -u '+%Y%m%d').json"
+
+          # Write machine-readable result (VercelBuildResult shape from lib/agents/idari.ts)
+          cat > "$BUILD_RESULT_FILE" <<EOF
+          {
+            "timestamp": "$NOW",
+            "node_version": "$(node --version | tr -d 'v')",
+            "pnpm_version": "$(pnpm --version)",
+            "nextjs_version": "$(node -e "try{const p=require('./package.json');const v=(p.dependencies?.next||p.devDependencies?.next||'').replace(/[^0-9.]/g,'');console.log(v.split('.')[0]||'unknown')}catch{console.log('unknown')}")",
+            "build_passed": $( [ "$BUILD_EXIT" -eq 0 ] && echo "true" || echo "false" ),
+            "route_count": $ROUTE_COUNT
+          }
+          EOF
+
+          echo "build_exit=$BUILD_EXIT"   >> "$GITHUB_OUTPUT"
+          echo "route_count=$ROUTE_COUNT" >> "$GITHUB_OUTPUT"
+          echo "result_file=$BUILD_RESULT_FILE" >> "$GITHUB_OUTPUT"
+
+          if [ "$BUILD_EXIT" -ne 0 ]; then
+            echo "::error::next build FAILED — Vercel would reject this deployment."
+            exit 1
+          fi
+
+          echo "next build PASSED — $ROUTE_COUNT routes compiled."
+
+      # ── Build summary ─────────────────────────────────────────────────────
+      - name: Vercel build summary
+        if: always()
+        run: |
+          BUILD_ICON=$( [ "${{ steps.build.outputs.build_exit }}" = "0" ] && echo "✅" || echo "❌" )
+          {
+            echo "## IDARi Vercel Build Verification"
+            echo ""
+            echo "| Item | Value |"
+            echo "|---|---|"
+            echo "| Runtime | Node ${{ env.NODE_VERSION }} · pnpm ${{ env.PNPM_VERSION }} |"
+            echo "| Spec | docs/ARCHITECTURE.md §10 (2026 targets) |"
+            echo "| Build result | $BUILD_ICON $( [ '${{ steps.build.outputs.build_exit }}' = '0' ] && echo 'PASSED' || echo 'FAILED' ) |"
+            echo "| Routes compiled | ${{ steps.build.outputs.route_count }} |"
+            echo ""
+            if [ "${{ steps.build.outputs.build_exit }}" = "0" ]; then
+              echo "✅ Idari's changes build cleanly on the 2026 Vercel-compatible runtime."
+            else
+              echo "❌ Build failed — Idari must resolve build errors before changes are considered complete."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ── Upload build result artifact ──────────────────────────────────────
+      - name: Upload build result artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: idari-vercel-build-${{ github.run_number }}
+          path: .ci/idari-vercel-build-*.json
           retention-days: 30
