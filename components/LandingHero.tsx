@@ -6,26 +6,11 @@ import HeroSprite from './HeroSprite';
 import PlatformBadge from './ui/PlatformBadge';
 import PortfolioOptimizationScene from './dreamengin/PortfolioOptimizationScene';
 
-/** Social icons shown in the landing strip — top two rows of iconslist.png */
-const STRIP_ICONS: Array<{ name: string; label: string; href: string }> = [
-  { name: 'facebook',   label: 'Facebook',   href: '/connectors' },
-  { name: 'twitter',    label: 'Twitter',    href: '/connectors' },
-  { name: 'instagram',  label: 'Instagram',  href: '/connectors' },
-  { name: 'linkedin',   label: 'LinkedIn',   href: '/connectors' },
-  { name: 'youtube',    label: 'YouTube',    href: '/connectors' },
-  { name: 'tiktok',     label: 'TikTok',     href: '/connectors' },
-  { name: 'messenger',  label: 'Messenger',  href: '/connectors' },
-  { name: 'discord',    label: 'Discord',    href: '/connectors' },
-  { name: 'spotify',    label: 'Spotify',    href: '/connectors' },
-  { name: 'snapchat',   label: 'Snapchat',   href: '/connectors' },
-  { name: 'reddit',     label: 'Reddit',     href: '/connectors' },
-  { name: 'whatsapp',   label: 'WhatsApp',   href: '/connectors' },
-  { name: 'twitch',     label: 'Twitch',     href: '/connectors' },
-  { name: 'pinterest',  label: 'Pinterest',  href: '/connectors' },
-  { name: 'soundcloud', label: 'SoundCloud', href: '/connectors' },
-  { name: 'dropbox',    label: 'Dropbox',    href: '/connectors' },
-  { name: 'figma',      label: 'Figma',      href: '/connectors' },
-  { name: 'medium',     label: 'Medium',     href: '/connectors' },
+/** Social icons shown in the landing strip — using new SVG icons */
+const STRIP_ICONS: Array<{ name: string; label: string }> = [
+  { name: 'file',   label: 'Documents' },
+  { name: 'globe',  label: 'Web' },
+  { name: 'window', label: 'Apps' },
 ];
 
 export default function LandingHero() {
@@ -274,16 +259,15 @@ export default function LandingHero() {
             Connect everything
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12 }}>
-            {STRIP_ICONS.map(({ name, label, href }) => (
-              <Link
+            {STRIP_ICONS.map(({ name, label }) => (
+              <div
                 key={name}
-                href={href}
-                aria-label={`Connect ${label}`}
-                style={{ display: 'inline-block', outline: 'none' }}
-                className="opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:opacity-100 transition-opacity duration-150"
+                aria-label={label}
+                style={{ display: 'inline-block' }}
+                className="opacity-80 hover:opacity-100 transition-opacity duration-150"
               >
                 <PlatformBadge name={name} size={44} label={label} />
-              </Link>
+              </div>
             ))}
           </div>
         </section>
