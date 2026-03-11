@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * PortfolioEngin — Side B control layer for the Portfolio Optimizer Daydream.
+ * PortfolioEngin — Side B control layer for the Optimizero Daydream.
  *
  * Lets the user configure and trigger a Markowitz / QUBO portfolio optimization
  * run directly from the DREAMengin UI.  All computation is dispatched to the
@@ -14,6 +14,7 @@
 
 import { useState } from 'react';
 import { ArrowLeft, TrendingUp, Activity, ShieldCheck, Cpu } from 'lucide-react';
+import QuantumCircuitCanvas from './QuantumCircuitCanvas';
 
 interface Props {
   onBack: () => void;
@@ -106,7 +107,7 @@ export default function PortfolioEngin({ onBack }: Props) {
               background: 'rgba(160,195,240,0.15)', border: 'none',
               cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
-            aria-label="Back to Portfolio Optimizer"
+            aria-label="Back to Optimizero"
           >
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </button>
@@ -120,9 +121,9 @@ export default function PortfolioEngin({ onBack }: Props) {
 
           <div>
             <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>
-              PortfolioEngin
+              Optimizero
             </div>
-            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Quantum Optimizer · Control Layer</div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Quantum Optimizero · Control Layer</div>
           </div>
 
           <span
@@ -275,13 +276,37 @@ export default function PortfolioEngin({ onBack }: Props) {
           </div>
         </div>
 
+        {/* Quantum circuit visualizer */}
+        <div className="de-widget" style={{ marginBottom: 14, overflow: 'hidden' }}>
+          <div className="de-widget-header">
+            <span className="de-widget-title">Quantum Circuit</span>
+            {running && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                style={{ background: `${ACCENT}18`, color: ACCENT, border: `1px solid ${ACCENT}35` }}>
+                Active
+              </span>
+            )}
+          </div>
+          <div style={{ padding: '0 0 4px' }}>
+            <QuantumCircuitCanvas
+              active={running}
+              accentColor={ACCENT}
+              secondaryColor={PURPLE}
+              height={120}
+            />
+          </div>
+        </div>
+
         {/* Run button */}
         <button
           type="button"
           onClick={handleRun}
           disabled={running}
           className="de-btn de-btn-gold"
-          style={{ width: '100%', fontSize: 14, fontWeight: 800, padding: '14px 0', borderRadius: 14, marginBottom: 14, opacity: running ? 0.7 : 1 }}
+          style={{ width: '100%', fontSize: 14, fontWeight: 800, padding: '14px 0', borderRadius: 14, marginBottom: 14, opacity: running ? 0.7 : 1,
+            // Optimised touch: disable 300 ms delay on mobile tap
+            touchAction: 'manipulation',
+          }}
         >
           {running ? (
             <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
@@ -291,7 +316,7 @@ export default function PortfolioEngin({ onBack }: Props) {
           ) : (
             <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
               <TrendingUp style={{ width: 16, height: 16 }} />
-              Run Portfolio Optimization
+              Run Optimizero
             </span>
           )}
         </button>
@@ -358,7 +383,7 @@ export default function PortfolioEngin({ onBack }: Props) {
                 ))}
               </div>
               <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 10, lineHeight: 1.5 }}>
-                Configure your algorithm and backend above, then tap <strong>Run Portfolio Optimization</strong> to see results here.
+                Configure your algorithm and backend above, then tap <strong>Run Optimizero</strong> to see results here.
               </p>
             </div>
           </div>
