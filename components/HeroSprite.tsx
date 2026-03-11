@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  *
  * Parts loaded from /public/:
  *   head_transparent.png  (702 × 560 natural px)
- *   coat_transparent.png  (622 × 741 natural px)  — torso
+ *   coat_transparent.png  (662 × 781 natural px)  — torso
  *   arm1_transparent.png  (245 × 683 natural px)  — back arm
  *   arm2_transparent.png  (374 × 529 natural px)  — front arm
  *   shoe1_transparent.png (295 × 362 natural px)  — back leg/shoe
@@ -25,15 +25,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 // ── Natural pixel dimensions of each asset ────────────────────────────────────
 const NAT = {
   head:  { w: 702, h: 560 },
-  coat:  { w: 622, h: 741 },
+  coat:  { w: 622, h: 841 },
   arm1:  { w: 245, h: 683 },
   arm2:  { w: 374, h: 529 },
-  shoe1: { w: 295, h: 362 },
+  shoe1: { w: 295, h: 400 },
   shoe2: { w: 295, h: 416 },
 } as const;
 
 // Draw scale — character total visual height ≈ 416 px inside a 576 px canvas
-const S = 0.26;
+const S = 0.35;
 
 const DIM = {
   head:  { w: Math.round(NAT.head.w  * S), h: Math.round(NAT.head.h  * S) }, // 183 × 146
@@ -47,7 +47,7 @@ const DIM = {
 // ── Interaction zones ─────────────────────────────────────────────────────────
 type Zone = 'idle' | 'head' | 'torso' | 'legs';
 
-const REACT_MS = 1600; // ms before returning to idle
+const REACT_MS = 2000; // ms before returning to idle
 
 /**
  * Funny random quotes per interaction zone.
@@ -56,12 +56,15 @@ const REACT_MS = 1600; // ms before returning to idle
  */
 export const ZONE_QUOTES: Record<Exclude<Zone, 'idle'>, string[]> = {
   head: [
-    "Brain cell rollcall: 3 dreaming, 3 scheming, 1 filing for overtime. 🧠",
-    "DREAM.exe running. All neurons allocated. Sleep mode: suspended indefinitely. 💡",
-    "Scanning for bad ideas... zero found. You're DREAMengin-level smart. ✨",
+    "SCAN COMPLET. Cheese Balls. ",
+    "DREAM.exe"
+    "Al
+    "%%|€~€,¥,¥,'dnsn. Sleep mode: suspended indefinitely. 💡",
+    "Scanning for bad ideas... 7459xndnm error 
+  "found. Hello um... you're just gonna leave tab oper. ✨",
     "Head so full of DREAMs, even IDARi can't find the bugs. 🤖",
-    "99% DREAMs, 1% awake. Normal operation confirmed. 😌",
-    "Thought logged. Routing to your HomeDream immediately. 💭",
+    "99 problems but a Electroencephalographically aint 1. 😌",
+     " Credit Card confimed buying 300000 hand sanitizers . 💭",
   ],
   torso: [
     "Right arm: deployed. Left arm: backup. DREAMs: on schedule. 💪",
@@ -140,10 +143,10 @@ export default function HeroSprite({
     Promise.all([
       loadImg('/head_transparent.png'),
       loadImg('/coat_transparent.png'),
-      loadImg('/arm1_transparent.png'),
       loadImg('/arm2_transparent.png'),
-      loadImg('/shoe1_transparent.png'),
+      loadImg('/arm1_transparent.png'),
       loadImg('/shoe2_transparent.png'),
+      loadImg('/shoe1_transparent.png'),
     ]).then(([head, coat, arm1, arm2, shoe1, shoe2]) => {
       imgsRef.current = { head, coat, arm1, arm2, shoe1, shoe2 };
     });
