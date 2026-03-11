@@ -1,16 +1,17 @@
-import { permanentRedirect } from 'next/navigation';
-
-export const dynamic = 'force-dynamic';
-
-interface PublicProfileRedirectProps {
-  params: Promise<{ handle: string }>;
-}
+import { redirect } from 'next/navigation';
 
 /**
- * Canonical public profile URL: /u/[handle]
- * Redirects to the full profile page at /profile/[handle].
+ * Legacy /u/[handle] route — redirects to canonical /profile/[handle].
+ *
+ * Per docs/ARCHITECTURE.md §2 and docs/PRODUCT_DEFINITION.md, the canonical
+ * public profile route is /profile/[handle].
+ * This route redirects to maintain backward compatibility.
  */
-export default async function PublicProfileRedirect({ params }: PublicProfileRedirectProps) {
+export const dynamic = 'force-dynamic';
+
+type Params = Promise<{ handle: string }>;
+
+export default async function UHandleLegacyPage({ params }: { params: Params }) {
   const { handle } = await params;
-  permanentRedirect(`/profile/${handle}`);
+  redirect(`/profile/${handle}`);
 }
