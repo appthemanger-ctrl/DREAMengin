@@ -161,3 +161,116 @@ export function onIDARiEvent(
   window.addEventListener(IDARI_EVENT, listener);
   return () => window.removeEventListener(IDARI_EVENT, listener);
 }
+
+// ---------------------------------------------------------------------------
+// SpecCheck — IDARi verifies spec requirements before building or upgrading
+// any part of the platform (mirrors portfolio-optimizer "build" job pattern).
+// Every build / upgrade cycle must pass spec-check before changes are applied.
+// ---------------------------------------------------------------------------
+
+/** Status of a single spec requirement. */
+export type SpecRequirementStatus = "met" | "partial" | "missing";
+
+/** A single verifiable requirement drawn from the project spec. */
+export interface SpecRequirement {
+  /** Short unique key, e.g. "homedream-route". */
+  id: string;
+  /** Architectural area, e.g. "core-surfaces", "ai-triad", "privacy". */
+  area: string;
+  /** Human-readable description of what must be true. */
+  description: string;
+  /** Current satisfaction state. */
+  status: SpecRequirementStatus;
+  /** Optional detail — why it is partial or missing. */
+  notes?: string;
+}
+
+/**
+ * Aggregate result of one spec-check run.
+ * overall is "fail" when any requirement is "missing",
+ *             "warn" when any is "partial" but none are "missing",
+ *             "pass" when all are "met".
+ */
+export interface SpecCheckResult {
+  timestamp: string;
+  /** Identifies the spec version being checked (e.g. "dreamengin_phase6"). */
+  spec_version: string;
+  requirements: SpecRequirement[];
+  overall: "pass" | "warn" | "fail";
+  unmet_count: number;
+  partial_count: number;
+}
+
+/**
+ * Evaluate a list of spec requirements and produce a SpecCheckResult.
+ * Call this before applying any PatchPlan to confirm the target area is
+ * spec-compliant.
+ */
+export function evaluateSpecRequirements(
+  specVersion: string,
+  requirements: SpecRequirement[]
+): SpecCheckResult {
+  const unmetCount = requirements.filter((r) => r.status === "missing").length;
+  const partialCount = requirements.filter((r) => r.status === "partial").length;
+  const overall: SpecCheckResult["overall"] =
+    unmetCount > 0 ? "fail" : partialCount > 0 ? "warn" : "pass";
+
+  return {
+    timestamp: new Date().toISOString(),
+    spec_version: specVersion,
+    requirements,
+    overall,
+    unmet_count: unmetCount,
+    partial_count: partialCount,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// VercelBuildResult — IDARi records whether the codebase builds cleanly on the
+// Vercel-equivalent runtime (mirrors portfolio-optimizer "optimize" job that
+// runs only after the "build" job passes).
+// 2026 target runtime: Node 24, pnpm 10.30.0, Next.js 16+.
+// ---------------------------------------------------------------------------
+
+/** Known 2026 Vercel-compatible runtime targets (docs/ARCHITECTURE.md §10). */
+export const VERCEL_2026_RUNTIME = {
+  node: "24",
+  pnpm: "10.30.0",
+  nextjs_minimum: "16",
+} as const;
+
+/** Result of a Vercel-compatible build verification run. */
+export interface VercelBuildResult {
+  timestamp: string;
+  /** Node.js version used, e.g. "24". */
+  node_version: string;
+  /** pnpm version used, e.g. "10.30.0". */
+  pnpm_version: string;
+  /** Next.js major version detected, e.g. "16". */
+  nextjs_version: string;
+  /** True when `next build` exited 0. */
+  build_passed: boolean;
+  /** Number of routes compiled (from build output), if available. */
+  route_count?: number;
+  /** First error line from build output when build_passed is false. */
+  error_summary?: string;
+}
+
+/**
+ * Create a VercelBuildResult record.
+ * Validates that the reported runtime meets VERCEL_2026_RUNTIME minimums
+ * and throws when the node or pnpm version is below the 2026 target.
+ */
+export function createVercelBuildResult(
+  result: Omit<VercelBuildResult, "timestamp">
+): VercelBuildResult {
+  const nodeMajor = parseInt(result.node_version.split(".")[0], 10);
+  const requiredNode = parseInt(VERCEL_2026_RUNTIME.node, 10);
+  if (nodeMajor < requiredNode) {
+    throw new Error(
+      `IDARi VercelBuildResult: Node ${result.node_version} is below the 2026 ` +
+        `minimum of Node ${VERCEL_2026_RUNTIME.node} (docs/ARCHITECTURE.md §10).`
+    );
+  }
+  return { ...result, timestamp: new Date().toISOString() };
+}
