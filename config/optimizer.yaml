@@ -242,6 +242,32 @@ system_routing:
       priority: "medium"
   output: "target_surface"
 
+# CREATIVE OPTIONS
+# Generate interesting options first, then keep only the ones that do not break the system
+# Algorithm: explore wildly, reject breakage, rank by interestingness + usefulness
+creative_options:
+  enabled: true
+  constraints:
+    - name: "novelty"
+      weight: 0.30
+      priority: "high"
+    - name: "usefulness"
+      weight: 0.25
+      priority: "high"
+    - name: "delight"
+      weight: 0.20
+      priority: "medium"
+    - name: "fit"
+      weight: 0.15
+      priority: "high"
+    - name: "cost"
+      weight: 0.05
+      priority: "medium"
+    - name: "risk"
+      weight: 0.05
+      priority: "medium"
+  output: "ranked_creative_options"
+
 # Performance thresholds
 performance:
   max_optimization_time_ms: 100

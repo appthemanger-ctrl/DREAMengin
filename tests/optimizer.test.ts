@@ -5,6 +5,7 @@
 import { describe, it, expect } from 'vitest';
 import { ConstraintSolver } from '@/lib/optimizer/constraint-solver';
 import { DreamOptimizer } from '@/lib/optimizer';
+import { validateCreativeOption } from '@/lib/optimizer/creative-validator';
 import type {
   OptimizerConfig,
   FeedItem,
@@ -13,6 +14,8 @@ import type {
   Notification,
   Asset,
   QueuedAction,
+  CreativeOption,
+  CreativeContext,
 } from '@/lib/optimizer/types';
 
 describe('ConstraintSolver', () => {
@@ -391,6 +394,465 @@ describe('DreamOptimizer', () => {
       expect(result[0].rank).toBe(1);
       // High priority, recent, small actions with no failures should rank first
       expect(result[0].item.failure_count).toBe(0);
+    });
+  });
+});
+
+describe('Creative Validator', () => {
+  it('should validate a safe creative option', () => {
+    const option: CreativeOption = {
+      id: 'opt1',
+      content: 'This is a beautiful and elegant design that helps users be more productive',
+      variant_type: 'standard',
+      tone: 'professional',
+      style: 'elegant',
+    };
+
+    const result = validateCreativeOption(option);
+
+    expect(result.valid).toBe(true);
+    expect(result.failures).toBeUndefined();
+  });
+
+  it('should reject options that break privacy', () => {
+    const option: CreativeOption = {
+      id: 'opt1',
+      content: 'This feature will expose user data publicly for everyone to see',
+      metadata: {
+        breaksPrivacy: true,
+      },
+    };
+
+    const result = validateCreativeOption(option);
+
+    expect(result.valid).toBe(false);
+    expect(result.failures).toBeDefined();
+    expect(result.failures?.some(f => f.type === 'breaks_privacy')).toBe(true);
+  });
+
+  it('should reject options with invalid TypeScript', () => {
+    const option: CreativeOption = {
+      id: 'opt1',
+      content: 'function test() { if (true) { return "missing closing brace"',
+    };
+
+    const result = validateCreativeOption(option);
+
+    expect(result.valid).toBe(false);
+    expect(result.failures?.some(f => f.type === 'invalid_typescript')).toBe(true);
+  });
+
+  it('should reject options with infinite loops', () => {
+    const option: CreativeOption = {
+      id: 'opt1',
+      content: 'while (true) { console.log("infinite loop"); }',
+    };
+
+    const result = validateCreativeOption(option);
+
+    expect(result.valid).toBe(false);
+    expect(result.failures?.some(f => f.type === 'infinite_loop')).toBe(true);
+  });
+
+  it('should reject fake actions', () => {
+    const option: CreativeOption = {
+      id: 'opt1',
+      content: 'console.log("saving") instead of actually saving to database',
+      metadata: {
+        fakeAction: true,
+      },
+    };
+
+    const result = validateCreativeOption(option);
+
+    expect(result.valid).toBe(false);
+    expect(result.failures?.some(f => f.type === 'fake_action')).toBe(true);
+  });
+
+  it('should reject options that break navigation', () => {
+    const option: CreativeOption = {
+      id: 'opt1',
+      content: 'This change will create a navigation loop that users cannot escape',
+    };
+
+    const result = validateCreativeOption(option);
+
+    expect(result.valid).toBe(false);
+    expect(result.failures?.some(f => f.type === 'breaks_navigation')).toBe(true);
+  });
+});
+
+describe('Creative Optimizer', () => {
+  const createMockConfigWithCreative = (): OptimizerConfig => ({
+    version: '1.0.0',
+    optimizer: {
+      algorithm: 'constraint-solver',
+      max_iterations: 1000,
+      convergence_threshold: 0.001,
+    },
+    creative_options: {
+      enabled: true,
+      constraints: [
+        { name: 'novelty', weight: 0.30, priority: 'high' },
+        { name: 'usefulness', weight: 0.25, priority: 'high' },
+        { name: 'delight', weight: 0.20, priority: 'medium' },
+        { name: 'fit', weight: 0.15, priority: 'high' },
+        { name: 'cost', weight: 0.05, priority: 'medium' },
+        { name: 'risk', weight: 0.05, priority: 'medium' },
+      ],
+      output: 'ranked_creative_options',
+    },
+    performance: {
+      max_optimization_time_ms: 100,
+      cache_results: true,
+      cache_ttl_seconds: 300,
+      parallel_optimization: true,
+      max_concurrent_optimizations: 4,
+    },
+    logging: {
+      enabled: false,
+      level: 'info',
+      log_optimizations: false,
+      log_constraint_violations: false,
+      output_path: '.optimization-logs/',
+    },
+  });
+
+  describe('CREATIVE OPTIMIZERO Algorithm', () => {
+    it('should optimize creative options and return best candidate', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'A standard, safe option that helps users accomplish their tasks',
+          variant_type: 'standard',
+          tone: 'professional',
+          style: 'clean',
+          metadata: {
+            practicalityScore: 0.8,
+            visualImpact: 0.5,
+          },
+        },
+        {
+          id: 'opt2',
+          content: 'An innovative and delightful approach that enables users to be more creative',
+          variant_type: 'innovative',
+          tone: 'enthusiastic',
+          style: 'vibrant',
+          metadata: {
+            isUnique: true,
+            practicalityScore: 0.7,
+            visualImpact: 0.9,
+          },
+        },
+        {
+          id: 'opt3',
+          content: 'A beautiful and elegant solution that will help users achieve amazing results',
+          variant_type: 'standard',
+          tone: 'inspiring',
+          style: 'elegant',
+          metadata: {
+            practicalityScore: 0.9,
+            visualImpact: 0.8,
+          },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates);
+
+      expect(result.best_candidate).toBeDefined();
+      expect(result.ranked_candidates).toHaveLength(3);
+      expect(result.rejected_candidates).toHaveLength(0);
+      expect(result.best_candidate?.rank).toBe(1);
+      expect(result.best_candidate?.final_score).toBeGreaterThan(0);
+      expect(result.ranked_candidates[0].validation.valid).toBe(true);
+    });
+
+    it('should filter out unsafe options', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'A safe and useful option',
+          variant_type: 'standard',
+        },
+        {
+          id: 'opt2',
+          content: 'This option will expose user data and leak credentials',
+          metadata: {
+            breaksPrivacy: true,
+          },
+        },
+        {
+          id: 'opt3',
+          content: 'while (true) { /* infinite loop */ }',
+          metadata: {
+            infiniteLoop: true,
+          },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates);
+
+      expect(result.best_candidate?.id).toBe('opt1');
+      expect(result.ranked_candidates).toHaveLength(1);
+      expect(result.rejected_candidates).toHaveLength(2);
+    });
+
+    it('should score novelty correctly', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'Standard approach',
+          variant_type: 'standard',
+        },
+        {
+          id: 'opt2',
+          content: 'Experimental and avant-garde approach',
+          variant_type: 'experimental',
+          tone: 'avant-garde',
+          metadata: {
+            isUnique: true,
+            innovationScore: 0.9,
+          },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates);
+
+      // The experimental option should score higher on novelty
+      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      expect(opt2?.scores.novelty).toBeGreaterThan(0.5);
+    });
+
+    it('should score usefulness based on actionable content', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const context: CreativeContext = {
+        topic: 'productivity',
+      };
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'Vague concept',
+        },
+        {
+          id: 'opt2',
+          content: 'This productivity tool helps users accomplish tasks efficiently and enables them to track progress',
+          metadata: {
+            practicalityScore: 0.9,
+          },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates, context);
+
+      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      expect(opt2?.scores.usefulness).toBeGreaterThan(0.5);
+    });
+
+    it('should score delight based on emotional language', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'Basic functionality',
+          style: 'plain',
+        },
+        {
+          id: 'opt2',
+          content: 'A beautiful, elegant, and stunning design that creates a wonderful and delightful experience',
+          style: 'elegant',
+          tone: 'enthusiastic',
+          metadata: {
+            visualImpact: 0.9,
+          },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates);
+
+      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      expect(opt2?.scores.delight).toBeGreaterThan(0.6);
+    });
+
+    it('should score fit based on context alignment', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const context: CreativeContext = {
+        topic: 'music',
+        style_guide: 'vibrant',
+        user_preferences: {
+          colorScheme: 'colorful',
+        },
+      };
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'A generic option about something else',
+          style: 'plain',
+        },
+        {
+          id: 'opt2',
+          content: 'This music player helps users discover and enjoy music',
+          style: 'vibrant',
+          metadata: {
+            colorScheme: 'colorful',
+          },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates, context);
+
+      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      const opt1 = result.ranked_candidates.find(c => c.id === 'opt1');
+      expect(opt2?.scores.fit).toBeGreaterThan(opt1?.scores.fit || 0);
+    });
+
+    it('should minimize cost for simple implementations', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'Simple solution',
+          metadata: {
+            implementationCost: 0.2,
+          },
+        },
+        {
+          id: 'opt2',
+          content: 'Complex algorithm that requires migration and is a breaking change with large refactor',
+          metadata: {
+            implementationCost: 0.9,
+          },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates);
+
+      const opt1 = result.ranked_candidates.find(c => c.id === 'opt1');
+      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      expect(opt1?.scores.cost).toBeLessThan(opt2?.scores.cost || 1);
+    });
+
+    it('should minimize risk for tested approaches', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'Proven approach',
+          variant_type: 'standard',
+          metadata: {
+            riskLevel: 0.1,
+          },
+        },
+        {
+          id: 'opt2',
+          content: 'Experimental and untested approach that may cause issues',
+          variant_type: 'experimental',
+          metadata: {
+            riskLevel: 0.8,
+          },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates);
+
+      const opt1 = result.ranked_candidates.find(c => c.id === 'opt1');
+      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      expect(opt1?.scores.risk).toBeLessThan(opt2?.scores.risk || 1);
+    });
+
+    it('should handle empty candidate list', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const result = optimizer.optimizeCreativeOptions([]);
+
+      expect(result.best_candidate).toBeNull();
+      expect(result.ranked_candidates).toHaveLength(0);
+      expect(result.rejected_candidates).toHaveLength(0);
+    });
+
+    it('should handle all candidates being rejected', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'Breaks privacy',
+          metadata: { breaksPrivacy: true },
+        },
+        {
+          id: 'opt2',
+          content: 'Infinite loop',
+          metadata: { infiniteLoop: true },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates);
+
+      expect(result.best_candidate).toBeNull();
+      expect(result.ranked_candidates).toHaveLength(0);
+      expect(result.rejected_candidates).toHaveLength(2);
+    });
+
+    it('should apply weighted formula correctly', () => {
+      const optimizer = new DreamOptimizer(createMockConfigWithCreative());
+
+      const candidates: CreativeOption[] = [
+        {
+          id: 'opt1',
+          content: 'An innovative, useful, delightful, and well-fitting solution that is cheap and low-risk',
+          variant_type: 'innovative',
+          tone: 'enthusiastic',
+          style: 'elegant',
+          metadata: {
+            isUnique: true,
+            innovationScore: 0.9,
+            practicalityScore: 0.9,
+            visualImpact: 0.9,
+            implementationCost: 0.1,
+            riskLevel: 0.1,
+          },
+        },
+        {
+          id: 'opt2',
+          content: 'Basic option',
+          metadata: {
+            practicalityScore: 0.3,
+          },
+        },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates);
+
+      expect(result.best_candidate?.id).toBe('opt1');
+      expect(result.best_candidate?.final_score).toBeGreaterThan(result.ranked_candidates[1]?.final_score || 0);
+    });
+
+    it('should return candidates when disabled', () => {
+      const config = createMockConfigWithCreative();
+      config.creative_options!.enabled = false;
+
+      const optimizer = new DreamOptimizer(config);
+
+      const candidates: CreativeOption[] = [
+        { id: 'opt1', content: 'Option 1' },
+      ];
+
+      const result = optimizer.optimizeCreativeOptions(candidates);
+
+      expect(result.best_candidate).toBeNull();
+      expect(result.ranked_candidates).toHaveLength(0);
     });
   });
 });

@@ -135,6 +135,59 @@ Choose best surface to send user to:
 
 **Output**: `target_surface`
 
+### 12. **Creative Options (CREATIVE OPTIMIZERO Algorithm)**
+Generate interesting options first, then keep only the ones that do not break the system:
+- Novelty (30% weight, high priority)
+- Usefulness (25% weight, high priority)
+- Delight (20% weight, medium priority)
+- Fit (15% weight, high priority)
+- Cost (5% weight, medium priority)
+- Risk (5% weight, medium priority)
+
+**Algorithm**: Explore wildly, reject breakage, rank by interestingness + usefulness
+
+**Hard Failure Rules** (automatic rejection):
+- Breaks build
+- Breaks Vercel
+- Breaks privacy
+- Breaks navigation continuity
+- Fake action
+- Invalid TypeScript
+- Invalid imports
+- Infinite loops
+- Severe performance regression
+
+**Soft Scores** (weighted ranking):
+- **Novelty**: How unique and interesting is this option?
+- **Usefulness**: How practical and valuable is this option?
+- **Delight**: How visually appealing and emotionally engaging is this option?
+- **Fit**: How well does this option fit the context?
+- **Cost**: What is the implementation/maintenance cost? (minimized)
+- **Risk**: What are the potential downsides? (minimized)
+
+**Formula**:
+```
+final_score =
+  (w_novelty × novelty) +
+  (w_usefulness × usefulness) +
+  (w_delight × delight) +
+  (w_fit × fit) -
+  (w_cost × cost) -
+  (w_risk × risk)
+```
+
+**Selection Rule**:
+1. Discard hard fails
+2. Sort by final_score descending
+3. Choose top item as best_candidate
+4. Return all ranked options for review
+
+**Tuning for Chaos vs Stability**:
+- **More chaos**: Increase w_novelty and w_delight
+- **More stability**: Increase w_fit and w_risk
+
+**Output**: `ranked_creative_options` (best_candidate + alternatives + rejected_candidates)
+
 ## Usage
 
 ### CLI Tool
@@ -167,6 +220,73 @@ const rankedFeed = optimizer.optimizeFeed(feedItems);
 rankedFeed.forEach(result => {
   console.log(`Rank ${result.rank}: ${result.item.id} (score: ${result.score})`);
 });
+```
+
+### Creative Options Optimization
+
+```typescript
+import { DreamOptimizer } from '@/lib/optimizer';
+import type { CreativeOption, CreativeContext, OptimizerConfig } from '@/lib/optimizer/types';
+
+// Load configuration
+const config: OptimizerConfig = loadConfig();
+
+// Create optimizer
+const optimizer = new DreamOptimizer(config);
+
+// Define candidate options
+const candidates: CreativeOption[] = [
+  {
+    id: 'opt1',
+    content: 'A standard, safe approach that helps users accomplish tasks',
+    variant_type: 'standard',
+    tone: 'professional',
+    style: 'clean',
+    metadata: {
+      practicalityScore: 0.8,
+      visualImpact: 0.5,
+    },
+  },
+  {
+    id: 'opt2',
+    content: 'An innovative and delightful approach that enables creativity',
+    variant_type: 'innovative',
+    tone: 'enthusiastic',
+    style: 'vibrant',
+    metadata: {
+      isUnique: true,
+      practicalityScore: 0.7,
+      visualImpact: 0.9,
+      implementationCost: 0.3,
+      riskLevel: 0.2,
+    },
+  },
+];
+
+// Optional context for better fit scoring
+const context: CreativeContext = {
+  topic: 'user interface',
+  style_guide: 'vibrant',
+  user_preferences: {
+    colorScheme: 'colorful',
+  },
+  constraints: ['avoid complexity', 'maintain simplicity'],
+};
+
+// Optimize
+const result = optimizer.optimizeCreativeOptions(candidates, context);
+
+// Access results
+console.log('Best Option:', result.best_candidate);
+console.log('All Ranked Options:', result.ranked_candidates);
+console.log('Rejected Options:', result.rejected_candidates);
+
+// Each ranked option includes:
+// - All original option fields (id, content, variant_type, etc.)
+// - scores: { novelty, usefulness, delight, fit, cost, risk }
+// - final_score: weighted combined score
+// - rank: 1, 2, 3, etc.
+// - validation: { valid: true }
 ```
 
 ### Low-Level Constraint Solver
