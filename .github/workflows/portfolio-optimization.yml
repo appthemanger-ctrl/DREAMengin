@@ -1,7 +1,29 @@
-name: Portfolio Optimization
+name: OptimizeroDDE
 
 on:
   workflow_dispatch:
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Hardcoded DREAMengin Daydream → Engin mapping (canonical — do not edit)
+# Source of truth: lib/identity/canonical-names.ts → DAYDREAM_TO_ENGIN
+# Each of the 6 quantum optimizer outputs is assigned to one Daydream/Engin pair.
+#
+#   Daydream  │  Engin           │  Optimizer output
+#   ──────────┼──────────────────┼───────────────────────
+#   Music     │  StarMakerEngin  │  algorithm
+#   Games     │  GameEngin       │  objective-value
+#   Lab       │  LabEngin        │  backend
+#   Code      │  CodeEngin       │  sharpe-ratio
+#   Brand     │  BrandingEngin   │  expected-return-pct
+#   Create    │  ContentEngin    │  portfolio-risk-pct
+# ──────────────────────────────────────────────────────────────────────────────
+env:
+  DD_MUSIC_ENGIN: StarMakerEngin
+  DD_GAMES_ENGIN: GameEngin
+  DD_LAB_ENGIN: LabEngin
+  DD_CODE_ENGIN: CodeEngin
+  DD_BRAND_ENGIN: BrandingEngin
+  DD_CREATE_ENGIN: ContentEngin
 
 jobs:
   # ──────────────────────────────────────────────────────────────
@@ -41,7 +63,7 @@ jobs:
 
   # ──────────────────────────────────────────────────────────────
   # Optimize: run the action-packaged optimizer against config.yaml
-  # and surface all six result outputs.
+  # and map all six result outputs to their Daydream / Engin pair.
   # ──────────────────────────────────────────────────────────────
   optimize:
     name: Optimize portfolio
@@ -60,11 +82,17 @@ jobs:
           config-path: config.yaml
           python-version: "3.11"
 
-      - name: Print summary
+      - name: Print DREAMengin Daydream→Engin optimization summary
         run: |
-          echo "Algorithm: ${{ steps.optimizer.outputs.algorithm }}"
-          echo "Backend: ${{ steps.optimizer.outputs.backend }}"
-          echo "Objective value: ${{ steps.optimizer.outputs.objective-value }}"
-          echo "Expected return (%): ${{ steps.optimizer.outputs.expected-return-pct }}"
-          echo "Portfolio risk (%): ${{ steps.optimizer.outputs.portfolio-risk-pct }}"
-          echo "Sharpe ratio: ${{ steps.optimizer.outputs.sharpe-ratio }}"
+          echo "══════════════════════════════════════════════════"
+          echo "  OptimizeroDDE — DREAMengin Daydream/Engin Results"
+          echo "══════════════════════════════════════════════════"
+          echo ""
+          echo "  Music     │ ${{ env.DD_MUSIC_ENGIN }}  │ Algorithm:       ${{ steps.optimizer.outputs.algorithm }}"
+          echo "  Games     │ ${{ env.DD_GAMES_ENGIN }}      │ Objective value: ${{ steps.optimizer.outputs.objective-value }}"
+          echo "  Lab       │ ${{ env.DD_LAB_ENGIN }}      │ Backend:         ${{ steps.optimizer.outputs.backend }}"
+          echo "  Code      │ ${{ env.DD_CODE_ENGIN }}      │ Sharpe ratio:    ${{ steps.optimizer.outputs.sharpe-ratio }}"
+          echo "  Brand     │ ${{ env.DD_BRAND_ENGIN }}  │ Expected return: ${{ steps.optimizer.outputs.expected-return-pct }}%"
+          echo "  Create    │ ${{ env.DD_CREATE_ENGIN }}   │ Portfolio risk:  ${{ steps.optimizer.outputs.portfolio-risk-pct }}%"
+          echo ""
+          echo "══════════════════════════════════════════════════"
