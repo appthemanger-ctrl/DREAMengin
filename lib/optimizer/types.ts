@@ -41,6 +41,7 @@ export interface OptimizerConfig {
   offline_queue?: OptimizationTarget & { actions: string[] };
   ai_suggestions?: OptimizationTarget;
   system_routing?: OptimizationTarget;
+  creative_options?: OptimizationTarget;
   performance: {
     max_optimization_time_ms: number;
     cache_results: boolean;
@@ -151,4 +152,58 @@ export interface QueuedAction {
   timestamp: Date;
   data_size_bytes: number;
   failure_count: number;
+}
+
+// Creative option types
+export interface CreativeOption {
+  id: string;
+  content: string;
+  variant_type?: string;
+  tone?: string;
+  style?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface CreativeContext {
+  user_preferences?: Record<string, any>;
+  topic?: string;
+  style_guide?: string;
+  constraints?: string[];
+}
+
+export interface CreativeScore {
+  novelty: number;
+  usefulness: number;
+  delight: number;
+  fit: number;
+  cost: number;
+  risk: number;
+}
+
+export interface HardFailureReason {
+  type: 'breaks_build' | 'breaks_vercel' | 'breaks_privacy' | 'breaks_navigation' |
+        'fake_action' | 'invalid_typescript' | 'invalid_imports' | 'infinite_loop' |
+        'performance_regression';
+  message: string;
+}
+
+export interface CreativeValidationResult {
+  valid: boolean;
+  failures?: HardFailureReason[];
+}
+
+export interface RankedCreativeOption extends CreativeOption {
+  scores: CreativeScore;
+  final_score: number;
+  rank: number;
+  validation: CreativeValidationResult;
+}
+
+export interface CreativeOptimizerResult {
+  best_candidate: RankedCreativeOption | null;
+  ranked_candidates: RankedCreativeOption[];
+  rejected_candidates: Array<{
+    option: CreativeOption;
+    reasons: HardFailureReason[];
+  }>;
 }
