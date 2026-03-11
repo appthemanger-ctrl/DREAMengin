@@ -327,3 +327,112 @@ export function atUriToHttps(atUri: string, handle: string): string {
   const rkey = parts[parts.length - 1];
   return `https://bsky.app/profile/${handle}/post/${rkey}`;
 }
+
+// ── YouTube ───────────────────────────────────────────────────────────────
+
+type ThumbnailMap = Record<string, { url?: string }>;
+
+export interface YouTubePlaylistItem {
+  id?: string;
+  snippet?: {
+    title?: string;
+    description?: string;
+    publishedAt?: string;
+    channelTitle?: string;
+    videoOwnerChannelTitle?: string;
+    thumbnails?: ThumbnailMap;
+    resourceId?: {
+      videoId?: string;
+    };
+  };
+  contentDetails?: {
+    videoId?: string;
+    videoPublishedAt?: string;
+  };
+}
+
+export interface YouTubeSearchItem {
+  id?: {
+    videoId?: string;
+  };
+  snippet?: {
+    title?: string;
+    description?: string;
+    publishedAt?: string;
+    channelTitle?: string;
+    thumbnails?: ThumbnailMap;
+  };
+}
+
+function bestYouTubeThumb(thumbnails?: ThumbnailMap): string | undefined {
+  if (!thumbnails) return undefined;
+  return thumbnails.maxres?.url
+    ?? thumbnails.standard?.url
+    ?? thumbnails.high?.url
+    ?? thumbnails.medium?.url
+    ?? thumbnails.default?.url;
+}
+
+export function normaliseYouTubePlaylistItem(
+  item: YouTubePlaylistItem,
+  source: 'history' | 'watch_later',
+): UnifiedFeedItem {
+  const videoId = item.contentDetails?.videoId ?? item.snippet?.resourceId?.videoId ?? item.id ?? '';
+  const title = item.snippet?.title ?? 'Untitled video';
+  const channelTitle = item.snippet?.videoOwnerChannelTitle ?? item.snippet?.channelTitle ?? 'YouTube';
+  const permalink = videoId ? `https://www.youtube.com/watch?v=${videoId}` : 'https://www.youtube.com';
+  const thumbnail = bestYouTubeThumb(item.snippet?.thumbnails);
+
+  const media: FeedItemMedia[] = videoId
+    ? [{
+        url: permalink,
+        type: 'video',
+        thumbnail_url: thumbnail,
+        alt: title,
+      }]
+    : [];
+
+  return {
+    provider: 'youtube',
+    external_id: `${source}:${videoId || title}`,
+    author_handle: channelTitle,
+    author_name: channelTitle,
+    content_text: title,
+    media,
+    permalink,
+    published_at:
+      item.snippet?.publishedAt
+      ?? item.contentDetails?.videoPublishedAt
+      ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+export function normaliseYouTubeSearchResult(item: YouTubeSearchItem): UnifiedFeedItem {
+  const videoId = item.id?.videoId ?? '';
+  const title = item.snippet?.title ?? 'Untitled video';
+  const channelTitle = item.snippet?.channelTitle ?? 'YouTube';
+  const permalink = videoId ? `https://www.youtube.com/watch?v=${videoId}` : 'https://www.youtube.com';
+  const thumbnail = bestYouTubeThumb(item.snippet?.thumbnails);
+
+  const media: FeedItemMedia[] = videoId
+    ? [{
+        url: permalink,
+        type: 'video',
+        thumbnail_url: thumbnail,
+        alt: title,
+      }]
+    : [];
+
+  return {
+    provider: 'youtube',
+    external_id: `subs:${videoId || title}`,
+    author_handle: channelTitle,
+    author_name: channelTitle,
+    content_text: title,
+    media,
+    permalink,
+    published_at: item.snippet?.publishedAt ?? new Date().toISOString(),
+    raw: item,
+  };
+}

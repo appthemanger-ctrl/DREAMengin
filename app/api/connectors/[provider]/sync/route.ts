@@ -22,6 +22,7 @@ import { blueskySync } from '@/lib/connectors/providers/bluesky';
 import { githubSync } from '@/lib/connectors/providers/github';
 import { redditSync } from '@/lib/connectors/providers/reddit';
 import { nostrSync } from '@/lib/connectors/providers/nostr';
+import { youtubeSync } from '@/lib/connectors/providers/youtube';
 import { deduplicateFeedItems } from '@/lib/connectors/normalise';
 import type { ConnectorSyncResponse, UnifiedFeedItem } from '@/types/connector';
 
@@ -97,6 +98,9 @@ export async function POST(
         items = await nostrSync({ pubkey: String(creds.pubkey ?? ''), relays });
         break;
       }
+      case 'youtube':
+        items = await youtubeSync({ access_token: String(creds.access_token ?? '') });
+        break;
       default:
         return NextResponse.json(
           { ok: false, fetched: 0, stored: 0, last_synced_at: '', error: `Provider "${provider}" sync not supported.` },

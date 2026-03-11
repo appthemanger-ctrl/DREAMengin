@@ -162,6 +162,16 @@ function getCredentialFields(provider: string): CredentialField[] {
         { key: 'pubkey', label: 'Public Key (npub or hex)', placeholder: 'npub1... or 64-char hex', type: 'text', hint: 'Your Nostr public key from Damus, Amethyst, or Snort.' },
         { key: 'relays', label: 'Relay URLs (comma-separated)', placeholder: 'wss://relay.damus.io, wss://nos.lol', type: 'text', hint: 'WebSocket relay URLs.' },
       ];
+    case 'youtube':
+      return [
+        {
+          key: 'access_token',
+          label: 'Google OAuth Access Token',
+          placeholder: 'ya29.a0AfH6S...',
+          type: 'password',
+          hint: 'Needs the youtube.readonly scope. This implementation uses a real Google token and then syncs subscriptions, watch history, and Watch Later into widgets.',
+        },
+      ];
     default:
       return [
         { key: 'access_token', label: 'Access Token', placeholder: 'Paste your access token here', type: 'password', hint: 'Generate a token from the provider\'s developer settings.' },
