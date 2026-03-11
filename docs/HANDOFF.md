@@ -40,3 +40,8 @@ The docs now treat `README.md` as the authoritative full specification and use s
 ## Tracking doc
 
 Use `docs/alignment/DOCS_CHANGE_TRACKER.md` as the ledger for this pass.
+
+## Change Timeline
+
+| # | Date / Time (UTC) | Revision | Branch | Author | Summary |
+|---|---|---|---|---|---|
