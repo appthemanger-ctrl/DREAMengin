@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-11 14:33 UTC  
-**Triggered by commit:** `b0a7c9d` on `copilot/add-quantum-portfolio-optimizer` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/add-quantum-portfolio-optimizer
+**Last updated:** 2026-03-11 16:35 UTC  
+**Triggered by commit:** `210bd6a` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #172 from appthemanger-ctrl/claude/optimize-creative-options
 
 ---
 
@@ -93,12 +93,12 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 | Location | Description |
 |----------|-------------|
-| `lib/optimizer/index.ts:54` | Get from user preferences |
-| `lib/optimizer/index.ts:131` | Get from device context |
-| `lib/optimizer/index.ts:132` | Get from device context |
-| `lib/optimizer/index.ts:133` | Calculate from current layout |
-| `lib/optimizer/index.ts:206` | Get from user relationships |
-| `lib/optimizer/index.ts:265` | Get from user preferences |
+| `lib/optimizer/index.ts:60` | Get from user preferences |
+| `lib/optimizer/index.ts:137` | Get from device context |
+| `lib/optimizer/index.ts:138` | Get from device context |
+| `lib/optimizer/index.ts:139` | Calculate from current layout |
+| `lib/optimizer/index.ts:212` | Get from user relationships |
+| `lib/optimizer/index.ts:630` | Get from user preferences |
 
 ---
 
