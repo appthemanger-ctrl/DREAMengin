@@ -1,0 +1,259 @@
+# DREAMengin Optimization Framework Configuration
+# This configuration defines the optimization parameters for all DREAMengin modules
+
+version: "1.0.0"
+
+# Core optimization pattern:
+# maximize usefulness
+# minimize cost
+# subject to constraints
+
+optimizer:
+  algorithm: "constraint-solver"
+  max_iterations: 1000
+  convergence_threshold: 0.001
+
+# FEED SELECTION
+# Choose which posts appear first on HomeDream
+feed_selection:
+  enabled: true
+  constraints:
+    - name: "favorites"
+      weight: 0.25
+      priority: "high"
+    - name: "source_preference"
+      weight: 0.20
+      priority: "high"
+    - name: "recency"
+      weight: 0.20
+      priority: "medium"
+    - name: "privacy"
+      weight: 0.15
+      priority: "critical"
+    - name: "engagement"
+      weight: 0.15
+      priority: "medium"
+    - name: "user_selected_sources"
+      weight: 0.05
+      priority: "high"
+  output: "ranked_feed_items"
+
+# SEARCH RANKING
+# When Dr. Eams searches the system
+search_ranking:
+  enabled: true
+  constraints:
+    - name: "relevance"
+      weight: 0.40
+      priority: "critical"
+    - name: "user_permissions"
+      weight: 0.25
+      priority: "critical"
+    - name: "system_location"
+      weight: 0.15
+      priority: "medium"
+    - name: "recency"
+      weight: 0.10
+      priority: "low"
+    - name: "content_type"
+      weight: 0.10
+      priority: "low"
+  output: "ranked_surfaces"
+
+# WIDGET PRIORITY
+# Choose which Dreams appear most prominently
+widget_priority:
+  enabled: true
+  constraints:
+    - name: "interaction_frequency"
+      weight: 0.35
+      priority: "high"
+    - name: "screen_size"
+      weight: 0.25
+      priority: "medium"
+    - name: "device_type"
+      weight: 0.20
+      priority: "medium"
+    - name: "layout_density"
+      weight: 0.20
+      priority: "low"
+  output: "widget_focus_ranks"
+
+# LAYOUT BALANCING
+# Decide best widget distribution on HomeDream
+layout_balancing:
+  enabled: true
+  constraints:
+    - name: "screen_space"
+      weight: 0.30
+      priority: "critical"
+    - name: "widget_type"
+      weight: 0.25
+      priority: "high"
+    - name: "interaction_cost"
+      weight: 0.25
+      priority: "medium"
+    - name: "visibility_priority"
+      weight: 0.20
+      priority: "high"
+  output: "layout_grid"
+
+# ASSET LOADING PRIORITY
+# Decide which assets load first
+asset_loading:
+  enabled: true
+  constraints:
+    - name: "bandwidth"
+      weight: 0.30
+      priority: "critical"
+    - name: "memory"
+      weight: 0.25
+      priority: "critical"
+    - name: "scene_importance"
+      weight: 0.25
+      priority: "high"
+    - name: "user_viewport"
+      weight: 0.20
+      priority: "high"
+  asset_types:
+    - images
+    - models
+    - audio
+    - ui_elements
+    - widget_data
+  output: "asset_load_queue"
+
+# RENDER BUDGET CONTROL
+# Choose visual fidelity level dynamically
+render_budget:
+  enabled: true
+  constraints:
+    - name: "device_performance"
+      weight: 0.30
+      priority: "critical"
+    - name: "battery_level"
+      weight: 0.25
+      priority: "high"
+    - name: "frame_rate"
+      weight: 0.25
+      priority: "high"
+    - name: "thermal_limits"
+      weight: 0.20
+      priority: "medium"
+  output: "render_quality_level"
+
+# CACHE DECISIONS
+# Decide what to keep cached
+cache_strategy:
+  enabled: true
+  constraints:
+    - name: "storage_space"
+      weight: 0.30
+      priority: "critical"
+    - name: "usage_frequency"
+      weight: 0.30
+      priority: "high"
+    - name: "reload_cost"
+      weight: 0.25
+      priority: "high"
+    - name: "expiration_time"
+      weight: 0.15
+      priority: "medium"
+  output: "cache_retention_policy"
+
+# NOTIFICATION PRIORITY
+# Order notifications in DreamDM Bar
+notification_priority:
+  enabled: true
+  constraints:
+    - name: "urgency"
+      weight: 0.35
+      priority: "high"
+    - name: "interaction_history"
+      weight: 0.25
+      priority: "medium"
+    - name: "sender_priority"
+      weight: 0.25
+      priority: "medium"
+    - name: "recency"
+      weight: 0.15
+      priority: "low"
+  output: "notification_order"
+
+# OFFLINE QUEUE ORDER
+# When connection returns, choose sync order
+offline_queue:
+  enabled: true
+  constraints:
+    - name: "action_priority"
+      weight: 0.35
+      priority: "high"
+    - name: "timestamp"
+      weight: 0.25
+      priority: "medium"
+    - name: "data_size"
+      weight: 0.20
+      priority: "medium"
+    - name: "failure_count"
+      weight: 0.20
+      priority: "medium"
+  actions:
+    - message_sends
+    - uploads
+    - post_publishing
+    - widget_updates
+  output: "sync_queue_order"
+
+# AI SUGGESTION SELECTION
+# Dr. Eams deciding what to suggest
+ai_suggestions:
+  enabled: true
+  constraints:
+    - name: "user_intent"
+      weight: 0.40
+      priority: "critical"
+    - name: "system_context"
+      weight: 0.25
+      priority: "high"
+    - name: "available_actions"
+      weight: 0.20
+      priority: "high"
+    - name: "permissions"
+      weight: 0.15
+      priority: "critical"
+  output: "ranked_suggestions"
+
+# SYSTEM ROUTING
+# Choose best surface to send user to
+system_routing:
+  enabled: true
+  constraints:
+    - name: "user_intent"
+      weight: 0.40
+      priority: "critical"
+    - name: "surface_availability"
+      weight: 0.25
+      priority: "high"
+    - name: "navigation_cost"
+      weight: 0.20
+      priority: "medium"
+    - name: "context_preservation"
+      weight: 0.15
+      priority: "medium"
+  output: "target_surface"
+
+# Performance thresholds
+performance:
+  max_optimization_time_ms: 100
+  cache_results: true
+  cache_ttl_seconds: 300
+  parallel_optimization: true
+  max_concurrent_optimizations: 4
+
+# Logging and monitoring
+logging:
+  enabled: true
+  level: "info"
+  log_optimizations: true
+  log_constraint_violations: true
+  output_path: ".optimization-logs/"
