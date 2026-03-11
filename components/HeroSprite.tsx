@@ -57,14 +57,12 @@ const REACT_MS = 2300; // ms before returning to idle
 export const ZONE_QUOTES: Record<Exclude<Zone, 'idle'>, string[]> = {
   head: [
     "SCAN COMPLET. Cheese Balls. ",
-    "DREAM.exe"
-    "Al
-    "%%|€~€,¥,¥,'dnsn. Sleep mode: suspended indefinitely. 💡",
-    "Scanning for bad ideas... 7459xndnm error 
-  "found. Hello um... you're just gonna leave tab oper. ✨",
+    "DREAM.exe loaded. All systems operational. 💻",
+    "Sleep mode: suspended indefinitely. 💡",
+    "Scanning for bad ideas... none found. Hello! ✨",
     "Head so full of DREAMs, even IDARi can't find the bugs. 🤖",
     "99 problems but a Electroencephalographically aint 1. 😌",
-     " Credit Card confimed buying 300000 hand sanitizers . 💭",
+    "Credit Card confirmed buying 300000 hand sanitizers. 💭",
   ],
   torso: [
     "Right arm: deployed. Left arm: backup. DREAMs: on schedule. 💪",
@@ -233,11 +231,6 @@ export default function HeroSprite({
       const idleWave  = -0.40 + Math.sin(t * 2.0) * 0.10;         // right arm peace-sign pose, gentle sway
       const idleLeg   = Math.sin(t * 1.6) * 0.06;                  // subtle leg sway
       const idleHead  = Math.sin(t * 0.9) * 0.04;                  // gentle head tilt
-      const idleBob   = Math.sin(t * 1.6) * 3;          // gentle vertical float
-      const idleArm   = Math.sin(t * 1.8) * 0.14;       // back arm — natural sway
-      const idleWave  = Math.sin(t * 1.8) * 0.14;       // front arm — same formula; -armAngle vs +arm2Angle gives natural opposing swing
-      const idleLeg   = Math.sin(t * 1.6) * 0.06;       // subtle leg sway
-      const idleHead  = Math.sin(t * 0.9) * 0.04;       // gentle head tilt
 
       // ── Per-zone reaction overrides ──────────────────────────────────────
       let headAngle  = idleHead;
