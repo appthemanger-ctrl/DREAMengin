@@ -1,17 +1,28 @@
 'use client';
 
 /**
- * DreamDMBar — Pass 3 (Window Model)
+ * DreamDMBar — Pass 3 (Window Model) — CORRECTED GOLD BUTTON SPEC
  *
  * DreamDMBar is a draggable window, not a thin rail.
  *
+ * GOLD BUTTON ATTACHMENT RULE (CORRECTED):
+ *   1. The Gold button is attached to the TOP of the DreamDM Bar by default
+ *   2. It stays attached while the bar is visible and on screen
+ *   3. It detaches ONLY when dragging the bar upward causes the button's
+ *      normal attached position to go off the top of the screen
+ *   4. When detached, the Gold button locks to the SCREEN/viewport (not the bar)
+ *   5. It does NOT move with page scroll when screen-locked
+ *   6. It does NOT detach for typing, keyboard, or compose state
+ *   7. When the bar is dragged back down and the top-of-box position is back
+ *      on screen, the Gold button unlocks and reattaches to the TOP of the bar
+ *
  * Behaviour:
  *   - Rests at the bottom as a thick bar (BAR_H = 80 px)
- *   - Gold button is locked to the top edge of the bar
- *   - Drag UP → bar expands from bottom; HomeDream content is revealed above
- *   - Past threshold (bar top < 40 % from screen top) → snaps to top as a panel
- *   - When snapped to top, gold button unlocks and floats to natural bottom-centre
- *   - Swipe DOWN on bar or gold → bar returns to bottom, gold re-locks
+ *   - Gold button attached to the top edge of the bar
+ *   - Drag UP → bar expands from bottom; HomeDream content revealed above
+ *   - Past threshold (bar top < 40% from screen top) → snaps to top as panel
+ *   - If button's attached position goes off-screen → button screen-locks at top
+ *   - Swipe DOWN on bar or gold → bar returns to bottom, gold re-attaches
  *   - All Phase-2 messaging / search / Dr. Eams capability preserved
  *
  * Architecture: drag state lives here; messaging logic in lib/dreamdm/ hooks.
@@ -145,6 +156,7 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
 
   // ── Gold button double-tap ─────────────────────────────────────────────────
   const goldRef = useRef({ lastAt: 0, timer: 0 as ReturnType<typeof setTimeout> | 0 });
+  const [isHomeActive, setIsHomeActive] = useState(true); // Track if Home is the active runtime
 
   const handleGoldTap = useCallback(() => {
     const now = Date.now();
@@ -157,6 +169,7 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
       goldRef.current.timer = setTimeout(() => {
         // Single tap → go home AND collapse bar if at top
         onHome();
+        setIsHomeActive(true);
         if (isTop) { setIsTop(false); setDragH(BAR_H); setSlideDown(0); }
       }, DOUBLE_TAP + 10);
     }
@@ -351,12 +364,18 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
     : (screenH - dragH);                 // grows from bottom
   const showFull: boolean = isTop || dragH > 180;
 
-  // Gold button geometry
-  // When not top-locked: gold center sits on bar's top edge
-  // When top-locked (and not dragging down): gold floats to natural bottom-centre
-  const goldTopPx: number = isTop && slideDown === 0 && !isDragging
-    ? screenH - GOLD_R - 28              // floats near bottom
-    : barTop - GOLD_R;                   // center on bar top edge
+  // Gold button geometry - CORRECTED PER SPEC
+  // The Gold button is attached to the TOP of the bar by default.
+  // It detaches ONLY when the attached position would go off the top of the screen.
+  // When detached, it locks to the screen (viewport fixed, not moving with scroll).
+  const attachedGoldTop: number = barTop - GOLD_R; // Normal attached position (center on bar top edge)
+  const isGoldOffScreen: boolean = attachedGoldTop < 0; // Would the attached position be off-screen?
+  const goldTopPx: number = isGoldOffScreen
+    ? 10                                 // Screen-locked at top when attached position would be off-screen
+    : attachedGoldTop;                   // Attached to bar top edge
+
+  // Track if button is in screen-locked mode (for styling/behavior)
+  const isScreenLocked: boolean = isGoldOffScreen;
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -369,7 +388,7 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
         onPointerUp={handleGoldPointerUp}
         onPointerCancel={() => { goldDragRef.current.active = false; }}
         style={{
-          position: 'fixed',
+          position: 'fixed', // Always fixed to ensure no scroll movement when screen-locked
           top: goldTopPx,
           left: '50%',
           transform: 'translateX(-50%)',
@@ -390,7 +409,7 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
             inset -3px -3px 10px rgba(80,40,0,0.40),
             0 6px 24px rgba(100,58,4,0.55),
             0 2px 8px rgba(212,168,67,0.50),
-            0 0 0 1.5px rgba(180,120,20,0.45)`,
+            0 0 0 1.5px rgba(180,120,20,0.45)${isScreenLocked ? ', 0 0 20px rgba(200,152,26,0.6)' : ''}`,
         }}
       >
         <span aria-hidden style={{

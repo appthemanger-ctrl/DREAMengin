@@ -2,7 +2,8 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
-import HomeDreamRuntime from '@/components/dreamnav/HomeDreamRuntime';
+import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
+import RuntimeView from '@/components/runtime/RuntimeView';
 import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
@@ -17,9 +18,10 @@ type ProfileLike = {
   avatar_url?: string | null;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
+// Inner component that uses the dual runtime context
+function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
   const { dispatch, navigateTo, node } = useDreamNav();
+  const dualRuntime = useDualRuntime();
 
   const [bothMenusOpen, setBothMenusOpen] = useState(false);
   const [drEamsOpen, setDrEamsOpen]       = useState(false);
@@ -40,12 +42,26 @@ export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: {
   }, []);
 
   const returnHome = useCallback(() => {
+    // Check if Home is already the active top runtime
+    const wasHomeActive = dualRuntime.isHomeActive();
+
+    // Make Home the active top runtime (or refresh if already active)
+    dualRuntime.goToHome();
+
+    // Traditional navigation dispatch for backwards compatibility
     dispatch('home');
     closeAllMenus();
     setDrEamsOpen(false);
     setCoreFace('home');
     setCoreOpen(true);
-  }, [dispatch, closeAllMenus]);
+
+    // If Home was already active, this acts as a "refresh"
+    // The spec says: "if Home is already the active top runtime, refresh Home"
+    if (wasHomeActive) {
+      // Trigger a visual refresh indicator or reload logic here if needed
+      console.log('[HomeSystem] Refreshing Home (already active)');
+    }
+  }, [dispatch, closeAllMenus, dualRuntime]);
 
   const onSystemAction = useCallback((action: SystemMenuAction) => {
     closeAllMenus();
@@ -62,20 +78,31 @@ export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: {
       <StarfieldCanvas />
       <NavIndicator node={node} hidden={!showNavIndicator} />
 
-      <HomeDreamRuntime
-        profile={profile}
-        posts={initialPosts}
-        coreFace={coreFace}
-        coreOpen={coreOpen}
-        onToggleCoreFace={() => setCoreFace((p) => (p === 'home' ? 'profile' : 'home'))}
-        onCloseCore={() => { setCoreFace('home'); setCoreOpen(false); }}
-        onOpenDrEams={() => setDrEamsOpen(true)}
-        isAdmin={isAdmin}
-      />
+      {/* Dual Runtime Views */}
+      <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
+        <RuntimeView
+          world={dualRuntime.state.topRuntime}
+          isActive={dualRuntime.state.dominantRuntime === 'top'}
+          profile={profile}
+          posts={initialPosts}
+          isAdmin={isAdmin}
+          onOpenDrEams={() => setDrEamsOpen(true)}
+        />
+        <RuntimeView
+          world={dualRuntime.state.bottomRuntime}
+          isActive={dualRuntime.state.dominantRuntime === 'bottom'}
+          profile={profile}
+          posts={initialPosts}
+          isAdmin={isAdmin}
+          onOpenDrEams={() => setDrEamsOpen(true)}
+        />
+      </div>
 
       {/*
-        DreamDM Bar — draggable window (Pass 3).
+        DreamDM Bar — draggable window (Pass 3 - CORRECTED SPEC).
         The gold button is now embedded inside DreamDMBar.
+        Gold button attaches to TOP of bar, detaches only when position goes off-screen.
+        When detached, it screen-locks and does NOT move with scroll.
         Single-tap gold = go home; double-tap = open radial menus.
       */}
       <DreamDMBar
@@ -104,5 +131,22 @@ export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: {
 
       {drEamsOpen ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
     </>
+  );
+}
+
+// Main export wraps with DualRuntimeContainer
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
+  return (
+    <DualRuntimeContainer>
+      {() => (
+        <HomeSystemInner
+          userId={userId}
+          profile={profile}
+          initialPosts={initialPosts}
+          isAdmin={isAdmin}
+        />
+      )}
+    </DualRuntimeContainer>
   );
 }
