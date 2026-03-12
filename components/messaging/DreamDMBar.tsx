@@ -47,11 +47,11 @@ import { useDreamDMDraft }                        from '@/lib/dreamdm/useDreamDM
 import { useDreamSearch, type SearchResult }      from '@/lib/dreamdm/useDreamSearch';
 import { useMessagingCore, type MediaType }       from '@/lib/dreamdm/useMessagingCore';
 import { useNotifications }                       from '@/lib/dreamdm/useNotifications';
-import {
-  useDreamDMConversations,
+import { useDreamDMConversations,
   type DMConversation,
 } from '@/lib/dreamdm/useDreamDMConversations';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
+import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
 /** Thick bar height when locked at the bottom */
@@ -251,6 +251,8 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
   const [selectedConv,   setSelectedConv]   = useState<DMConversation | null>(null);
   const [quickDraft,     setQuickDraft]     = useState('');
 
+  /** Active tab when panel is expanded: 'messages' or 'dreams' */
+  const [activeTab, setActiveTab] = useState<'messages' | 'dreams'>('dreams');
   const { conversations, reload: reloadConvs } = useDreamDMConversations(userId, DEMO_CONVERSATIONS);
   const { unreadCount, markAllRead }            = useNotifications();
 
@@ -470,24 +472,79 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
         {/* ── Bar body ─────────────────────────────────────────────────────── */}
         <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {showFull ? (
-            /* Full messaging panel (top-locked or expanded past 180 px) */
-            <DreamSpaceMessaging
-              conversations={conversations} selectedConv={selectedConv}
-              onSelectConv={(c) => { setSelectedConv(c); markAllRead(); }}
-              messages={messages} msgsLoading={msgsLoading} msgsEndRef={msgsEndRef}
-              userId={userId} messageBody={messageBody}
-              onMessageBodyChange={(v) => { setMessageBody(v); saveDraft({ subject: '', body: v }); }}
-              draftRestored={draftRestored} selectedFile={selectedFile} filePreviewUrl={filePreviewUrl}
-              fileInputRef={fileInputRef} onFileSelect={handleFileSelect} onRemoveFile={removeFile}
-              getFileType={getFileType} isSending={isSending} sendError={sendError}
-              onClearSendError={clearSendError} onPanelSend={handlePanelSend}
-              searchQuery={searchQuery}
-              onSearchQueryChange={(v) => { setSearchQuery(v); setShowSearch(true); }}
-              showSearch={showSearch} onShowSearch={setShowSearch}
-              searchResults={searchResults} isSearching={isSearching}
-              drEamsMode={drEamsMode} onToggleDrEams={toggleDrEams}
-              onSearchResultSelect={handleSearchResultSelect}
-            />
+            /* Expanded panel — Dreams Space + Messages tabs */
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              {/* Tab switcher */}
+              <div style={{
+                display: 'flex', gap: 0, padding: '4px 10px 0',
+                borderBottom: '1px solid rgba(200,152,26,0.2)',
+                flexShrink: 0,
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('dreams')}
+                  style={{
+                    padding: '6px 14px 5px',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 12, fontWeight: activeTab === 'dreams' ? 800 : 500,
+                    color: activeTab === 'dreams' ? '#d4a843' : 'var(--de-text-dim)',
+                    borderBottom: activeTab === 'dreams' ? '2px solid #d4a843' : '2px solid transparent',
+                    marginBottom: -1,
+                  }}
+                >
+                  ✨ Dreams
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('messages')}
+                  style={{
+                    padding: '6px 14px 5px',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 12, fontWeight: activeTab === 'messages' ? 800 : 500,
+                    color: activeTab === 'messages' ? '#d4a843' : 'var(--de-text-dim)',
+                    borderBottom: activeTab === 'messages' ? '2px solid #d4a843' : '2px solid transparent',
+                    marginBottom: -1,
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}
+                >
+                  <MessageCircle size={12} aria-hidden />
+                  Messages
+                  {unreadCount > 0 && (
+                    <span style={{
+                      background: '#ef4444', color: '#fff', fontSize: 9, fontWeight: 800,
+                      borderRadius: 9999, padding: '1px 5px', minWidth: 14, textAlign: 'center',
+                    }}>
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Tab content */}
+              <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+                {activeTab === 'dreams' ? (
+                  <DreamsSpacePanel />
+                ) : (
+                  <DreamSpaceMessaging
+                    conversations={conversations} selectedConv={selectedConv}
+                    onSelectConv={(c) => { setSelectedConv(c); markAllRead(); }}
+                    messages={messages} msgsLoading={msgsLoading} msgsEndRef={msgsEndRef}
+                    userId={userId} messageBody={messageBody}
+                    onMessageBodyChange={(v) => { setMessageBody(v); saveDraft({ subject: '', body: v }); }}
+                    draftRestored={draftRestored} selectedFile={selectedFile} filePreviewUrl={filePreviewUrl}
+                    fileInputRef={fileInputRef} onFileSelect={handleFileSelect} onRemoveFile={removeFile}
+                    getFileType={getFileType} isSending={isSending} sendError={sendError}
+                    onClearSendError={clearSendError} onPanelSend={handlePanelSend}
+                    searchQuery={searchQuery}
+                    onSearchQueryChange={(v) => { setSearchQuery(v); setShowSearch(true); }}
+                    showSearch={showSearch} onShowSearch={setShowSearch}
+                    searchResults={searchResults} isSearching={isSearching}
+                    drEamsMode={drEamsMode} onToggleDrEams={toggleDrEams}
+                    onSearchResultSelect={handleSearchResultSelect}
+                  />
+                )}
+              </div>
+            </div>
           ) : (
             /* Compact bar — quick compose + unread badge */
             <div style={{

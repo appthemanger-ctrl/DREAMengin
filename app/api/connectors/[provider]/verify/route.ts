@@ -20,6 +20,7 @@ import { blueskyVerify } from '@/lib/connectors/providers/bluesky';
 import { githubVerify } from '@/lib/connectors/providers/github';
 import { redditVerify } from '@/lib/connectors/providers/reddit';
 import { nostrVerify } from '@/lib/connectors/providers/nostr';
+import { youtubeVerify } from '@/lib/connectors/providers/youtube';
 import type { ConnectorVerifyResponse } from '@/types/connector';
 
 const VERIFY_CACHE_MS = 5 * 60 * 1000; // 5 minutes
@@ -104,6 +105,9 @@ export async function GET(
         await nostrVerify({ pubkey: String(creds.pubkey ?? ''), relays });
         break;
       }
+      case 'youtube':
+        await youtubeVerify({ access_token: String(creds.access_token ?? '') });
+        break;
       default:
         newStatus = 'unsupported';
     }

@@ -19,6 +19,7 @@ import { blueskyVerify } from '@/lib/connectors/providers/bluesky';
 import { githubVerify } from '@/lib/connectors/providers/github';
 import { redditVerify } from '@/lib/connectors/providers/reddit';
 import { nostrVerify } from '@/lib/connectors/providers/nostr';
+import { youtubeVerify } from '@/lib/connectors/providers/youtube';
 import type { ConnectorConnectResponse } from '@/types/connector';
 
 export async function POST(
@@ -78,6 +79,9 @@ export async function POST(
         await nostrVerify({ pubkey: credentials.pubkey ?? '', relays });
         break;
       }
+      case 'youtube':
+        await youtubeVerify({ access_token: credentials.access_token ?? '' });
+        break;
       default:
         return NextResponse.json(
           { ok: false, status: 'unsupported', message: `Provider "${provider}" is not supported for direct connection.` },

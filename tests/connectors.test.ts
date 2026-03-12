@@ -28,6 +28,8 @@ import {
   normaliseGitHub,
   normaliseReddit,
   normaliseNostr,
+  normaliseYouTubePlaylistItem,
+  normaliseYouTubeSearchResult,
   deduplicateFeedItems,
 } from '@/lib/connectors/normalise';
 import { isValidNostrPubkey } from '@/lib/connectors/providers/nostr';
@@ -35,12 +37,12 @@ import { isValidNostrPubkey } from '@/lib/connectors/providers/nostr';
 // ── A. ConnectorRegistry ──────────────────────────────────────────────────
 
 describe('CONNECTOR_REGISTRY', () => {
-  it('has at least 5 tier-1 connectors', () => {
+  it('has at least 6 tier-1 connectors', () => {
     const tier1 = CONNECTOR_REGISTRY.filter((c) => c.tier === 'tier1');
-    expect(tier1.length).toBeGreaterThanOrEqual(5);
+    expect(tier1.length).toBeGreaterThanOrEqual(6);
   });
 
-  it('includes Mastodon, Bluesky, GitHub, Reddit, Nostr as tier-1', () => {
+  it('includes Mastodon, Bluesky, GitHub, Reddit, Nostr, YouTube as tier-1', () => {
     const tier1Ids = CONNECTOR_REGISTRY
       .filter((c) => c.tier === 'tier1')
       .map((c) => c.id);
@@ -49,6 +51,7 @@ describe('CONNECTOR_REGISTRY', () => {
     expect(tier1Ids).toContain('github');
     expect(tier1Ids).toContain('reddit');
     expect(tier1Ids).toContain('nostr');
+    expect(tier1Ids).toContain('youtube');
   });
 
   it('tier-1 connectors have defaultStatus of "not_connected"', () => {
@@ -297,6 +300,44 @@ describe('normaliseNostr', () => {
     expect(item.author_name).toBe('Alice');
     expect(item.content_text).toBe('Hello Nostr!');
     expect(item.permalink).toBe('https://njump.me/abc123def456');
+  });
+});
+
+describe('normaliseYouTubePlaylistItem', () => {
+  it('normalises a playlist item into a video feed item', () => {
+    const item = normaliseYouTubePlaylistItem({
+      contentDetails: { videoId: 'abc123', videoPublishedAt: '2026-01-01T12:00:00.000Z' },
+      snippet: {
+        title: 'Dreamengin walkthrough',
+        channelTitle: 'Dream Channel',
+        thumbnails: { high: { url: 'https://img.youtube.com/vi/abc123/hqdefault.jpg' } },
+      },
+    }, 'history');
+
+    expect(item.provider).toBe('youtube');
+    expect(item.external_id).toBe('history:abc123');
+    expect(item.permalink).toBe('https://www.youtube.com/watch?v=abc123');
+    expect(item.media[0].type).toBe('video');
+    expect(item.author_name).toBe('Dream Channel');
+  });
+});
+
+describe('normaliseYouTubeSearchResult', () => {
+  it('normalises a subscription search result', () => {
+    const item = normaliseYouTubeSearchResult({
+      id: { videoId: 'sub123' },
+      snippet: {
+        title: 'Latest build log',
+        channelTitle: 'Dreamengin Dev',
+        publishedAt: '2026-01-03T05:00:00.000Z',
+        thumbnails: { medium: { url: 'https://i.ytimg.com/vi/sub123/mqdefault.jpg' } },
+      },
+    });
+
+    expect(item.provider).toBe('youtube');
+    expect(item.external_id).toBe('subs:sub123');
+    expect(item.author_handle).toBe('Dreamengin Dev');
+    expect(item.content_text).toBe('Latest build log');
   });
 });
 
