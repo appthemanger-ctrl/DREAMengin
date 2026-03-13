@@ -12,6 +12,8 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // Space-dark palette (HomeDream + dark-UI components).
+      // CSS variables in globals.css provide the Dream-Ice light-mode palette.
       colors: {
         'de-sky':       '#7DD3FC',
         'de-sky-dark':  '#0EA5E9',

@@ -1,0 +1,29 @@
+{
+  "routes": {
+    "HomeDream": "app/homedream/page.tsx",
+    "EditProfileDream": "app/edit-profiledream/page.tsx",
+    "ViewProfile": "app/view-profile/page.tsx",
+    "DreamDM": "app/messages/page.tsx",
+    "DreamShop": "app/shop/page.tsx",
+    "DreamMarketplace": "app/marketplace/page.tsx",
+    "DreamAds": "app/ads/page.tsx",
+    "Music": "app/daydream/music/page.tsx",
+    "Games": "app/daydream/games/page.tsx",
+    "Lab": "app/daydream/lab/page.tsx",
+    "Code": "app/daydream/code/page.tsx",
+    "Brand": "app/daydream/brand/page.tsx",
+    "Create": "app/daydream/create/page.tsx"
+  },
+  "features": [
+    "HomeDream",
+    "EditProfileDream",
+    "ViewProfile",
+    "DreamDM",
+    "DreamShop",
+    "DreamMarketplace",
+    "DreamAds",
+    "Music",
+    "Games",
+    "Lab"
+  ]
+}

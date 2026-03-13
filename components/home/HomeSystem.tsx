@@ -145,13 +145,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         </div>
       </div>
 
-      {/*
-        DreamDM Bar — draggable window (Pass 3 - CORRECTED SPEC).
-        The gold button is now embedded inside DreamDMBar.
-        Gold button attaches to TOP of bar, detaches only when position goes off-screen.
-        When detached, it screen-locks and does NOT move with scroll.
-        Single-tap gold = open radial menus; double-tap = go home.
-      */}
+      {/* DreamDM Bar — gold button embedded; single-tap opens menus, double-tap goes home */}
       <DreamDMBar
         onHome={returnHome}
         onBothMenus={() => setBothMenusOpen(true)}

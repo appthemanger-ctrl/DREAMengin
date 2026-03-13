@@ -1,0 +1,128 @@
+project_name: DREAMengin
+version: "1.0.0"
+workflow_action: supported
+test_count: 10
+
+# Weighted objectives for overall score computation
+weighted_objectives:
+  functionality:    1.0
+  efficiency:       0.8
+  maintainability:  0.7
+
+problem:
+  description: >
+    DREAMengin UI/UX specification — defines what a 100/100 implementation
+    looks like for each route and component.
+  specs:
+    - "features: HomeDream, EditProfileDream, ViewProfile, DreamDM, DreamShop,
+       DreamMarketplace, DreamAds, Music, Games, Lab"
+
+# ── Per-route audit criteria (regex patterns that must appear in the file) ──
+criteria:
+  routes:
+    HomeDream:
+      - "createClient|supabase"           # auth integration
+      - "HomeSystem|HomeDream"            # uses the HomeSystem component
+      - "force-dynamic|dynamic"           # dynamic rendering
+      - "redirect|auth"                   # auth guard
+
+    EditProfileDream:
+      - "createClient|supabase"           # auth integration
+      - "avatar|profile"                  # profile editing features
+      - "save|handleSave|onSave"          # save functionality
+      - "label|aria-label|htmlFor"        # accessibility labels
+
+    ViewProfile:
+      - "createClient|supabase"           # auth integration
+      - "public|viewProfile|view-profile" # public profile view
+      - "privacy|followers|public"        # privacy controls
+
+    DreamDM:
+      - "createClient|supabase"           # auth integration
+      - "messages|conversations"          # messaging data
+      - "MessagesClient|DreamDMBar"       # messaging component
+
+    DreamShop:
+      - "createClient|supabase"           # auth integration
+      - "shop_items|listings"             # shop data
+      - "sell|Sell|listing"               # sell functionality
+      - "price|Price"                     # pricing display
+
+    DreamMarketplace:
+      - "createClient|supabase"           # auth integration
+      - "marketplace|listings"            # marketplace data
+      - "sell|Sell"                       # create listing
+
+    DreamAds:
+      - "createClient|supabase"           # auth integration
+      - "ad_slots|ads"                    # ads data
+      - "revenue|Revenue|earned"          # revenue display
+      - "active|Active|status"            # status display
+
+    Music:
+      - "DaydreamShell"                   # uses daydream shell
+      - "music|Music|StarMaker"           # music features
+      - "accent.*color|accentColor"       # branded accent
+
+    Games:
+      - "DaydreamShell"                   # uses daydream shell
+      - "GameEngin|games"                 # games component
+      - "leaderboard|Leaderboard"         # leaderboard
+
+    Lab:
+      - "DaydreamShell"                   # uses daydream shell
+      - "LabEngin|lab"                    # lab component
+      - "experiment|project|Experiment"   # lab features
+
+  components:
+    HomeSystem:
+      - "DualRuntimeContainer|dualRuntime" # dual runtime system
+      - "DreamDMBar"                       # messaging bar
+      - "DreamRadialMenu|SystemRadialMenu" # radial navigation
+      - "DrEamsPanel"                      # AI panel
+      - "StarfieldCanvas"                  # background canvas
+
+    NavBar:
+      - "aria-label"                       # accessibility labels
+      - "aria-expanded"                    # expanded state
+      - "BrandLogo"                        # uses brand logo
+      - "ThemeToggle"                      # theme toggle
+      - "NotificationCenter"               # notifications
+
+    Layout:
+      - "Space Grotesk|font-space-grotesk" # brand font
+      - "ThemeProvider|ThemeApplicator"    # theme system
+      - "viewport|metadata"               # meta tags
+
+    GlobalsCSS:
+      - "--de-gold"                        # gold design token
+      - "--de-blue"                        # blue design token
+      - "de-glass"                         # glassmorphism class
+      - "de-widget-tile"                   # widget tile class
+      - "de-btn|pillBtn"                   # button system
+      - "de-fade-up|fadeUp"               # animations
+
+    TailwindCfg:
+      - "de-sky"                           # sky color defined
+      - "de-gold"                          # gold color defined
+      - "de-navy"                          # navy color defined
+      - "Space Grotesk|font-space-grotesk" # font family
+      - "tailwindcss-animate"              # animation plugin
+
+# ── Accessibility spot-check patterns ──
+accessibility:
+  required_patterns:
+    - aria-label
+    - aria-expanded
+    - role=
+    - sr-only
+    - focus-visible
+
+# ── Design token consistency rules ──
+design_tokens:
+  must_define:
+    - "--de-gold"
+    - "--de-blue"
+    - "--de-glass"
+    - "de-sky"          # tailwind name
+    - "Space Grotesk"   # font
