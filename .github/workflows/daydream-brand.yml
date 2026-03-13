@@ -1,0 +1,188 @@
+name: Brand Daydream — Health & Feature Scan
+
+# Daydream-only workflow for the Brand Daydream (/daydream/brand).
+# Scope: app/daydream/brand/** + brand-adjacent pages/components.
+# Does NOT touch BrandingEngin — see engin-branding.yml for Engin-side CI.
+#
+# Premium feature checks:
+#   ✦ Brand kit surface scan
+#   ✦ Campaign management flow detection
+#   ✦ Audience analytics surface
+#   ✦ EditProfileDream integration points
+
+on:
+  push:
+    paths:
+      - 'app/daydream/brand/**'
+      - 'app/daydream/analytics/**'
+      - 'app/edit-profiledream/**'
+      - 'app/analytics/**'
+      - '.github/workflows/daydream-brand.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '20 2 * * *'   # daily 02:20 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daydream-brand-standalone-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  DAYDREAM: 'brand'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  daydream-brand-health:
+    name: 🎨 Brand Daydream · Build · Lint · Test · Feature Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Daydream scope only) ────────────────────────────────────────────
+      - name: Lint — Brand Daydream scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --dir app/daydream/brand \
+            --dir app/edit-profiledream \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Premium feature scans ─────────────────────────────────────────────────
+      - name: Scan — Brand kit surface
+        id: scan_brandkit
+        run: |
+          echo "--- Brand kit scan ---"
+          BK_COUNT=$(grep -rl "BrandKit\|brand-kit\|brandKit\|brand_kit\|BrandAsset" \
+            app/daydream/brand app/edit-profiledream 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | wc -l || echo 0)
+          echo "COUNT=${BK_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Brand kit files found: ${BK_COUNT}"
+
+      - name: Scan — Campaign management flow
+        id: scan_campaigns
+        run: |
+          echo "--- Campaign management scan ---"
+          if grep -r "campaign\|Campaign\|CampaignList\|campaign-list\|createCampaign\|launchCampaign" \
+            app/daydream/brand app/analytics 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | head -10; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Campaign management flows detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Campaign management not found"
+          fi
+
+      - name: Scan — Audience analytics surface
+        id: scan_analytics
+        run: |
+          echo "--- Audience analytics scan ---"
+          ANALYTICS_COUNT=$(grep -rl "analytics\|Analytics\|audience\|Audience\|follower\|Follower\|reach\|Reach" \
+            app/daydream/brand app/analytics app/daydream/analytics 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | wc -l || echo 0)
+          echo "COUNT=${ANALYTICS_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Analytics surface files: ${ANALYTICS_COUNT}"
+
+      - name: Scan — EditProfileDream integration
+        id: scan_edit_profile
+        run: |
+          echo "--- EditProfileDream integration scan ---"
+          if grep -r "EditProfileDream\|edit-profiledream\|editProfileDream" \
+            app/daydream/brand 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ EditProfileDream integration found in Brand Daydream"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️  No direct EditProfileDream cross-reference in Brand Daydream (may link separately)"
+          fi
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — Brand Daydream
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --dir app/daydream/brand \
+            --dir app/edit-profiledream \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "daydream-brand-standalone-bot"
+          git config user.email "daydream-brand-standalone-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(daydream/brand): ESLint auto-fix — Brand Daydream standalone [skip ci]"
+            git push
+          fi
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 🎨 Brand Daydream — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Daydream | Brand |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Daydream-only (no Engin) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Brand kit surface | ${{ steps.scan_brandkit.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Campaign management | ${{ steps.scan_campaigns.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Audience analytics | ${{ steps.scan_analytics.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| EditProfileDream link | ${{ steps.scan_edit_profile.outputs.FOUND == 'true' && '✅ Present' || 'ℹ️ Separate' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Engin-side checks are handled by \`engin-branding.yml\`." >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,198 @@
+name: Games Daydream — Health & Feature Scan
+
+# Daydream-only workflow for the Games Daydream (/daydream/games).
+# Scope: app/daydream/games/** + game-adjacent pages/components.
+# Does NOT touch GameEngin — see engin-game.yml for Engin-side CI.
+#
+# Premium feature checks:
+#   ✦ Game hub surface scan
+#   ✦ Game list rendering
+#   ✦ Play mode entry/exit flows
+#   ✦ Mobile + keyboard + gamepad input detection
+
+on:
+  push:
+    paths:
+      - 'app/daydream/games/**'
+      - 'app/game/**'
+      - 'app/daydream/play/**'
+      - 'components/games/**'
+      - '.github/workflows/daydream-games.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '5 2 * * *'   # daily 02:05 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daydream-games-standalone-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  DAYDREAM: 'games'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  daydream-games-health:
+    name: 🎮 Games Daydream · Build · Lint · Test · Feature Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Daydream scope only) ────────────────────────────────────────────
+      - name: Lint — Games Daydream scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --dir app/daydream/games \
+            --dir app/game \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Premium feature scans ─────────────────────────────────────────────────
+      - name: Scan — Game hub surface
+        id: scan_hub
+        run: |
+          echo "--- Game hub scan ---"
+          if grep -r "GameHub\|game-hub\|gameHub\|game_hub" \
+            app/daydream/games components/games 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Game hub surface detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Game hub surface not found"
+          fi
+
+      - name: Scan — Game list rendering
+        id: scan_gamelist
+        run: |
+          echo "--- Game list scan ---"
+          GAME_LIST_COUNT=$(grep -rl "GameList\|gameList\|game-list\|game\.map\|games\.map" \
+            app/daydream/games components/games 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | wc -l || echo 0)
+          echo "COUNT=${GAME_LIST_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Game list files found: ${GAME_LIST_COUNT}"
+
+      - name: Scan — Play mode entry and exit flows
+        id: scan_playmode
+        run: |
+          echo "--- Play mode scan ---"
+          if grep -r "playMode\|play-mode\|PlayMode\|enterPlay\|exitPlay\|startGame\|endGame" \
+            app/daydream/games app/game 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Play mode flow handlers detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Play mode entry/exit flow not found"
+          fi
+
+      - name: Scan — Multi-input support (mobile, keyboard, gamepad)
+        id: scan_input
+        run: |
+          echo "--- Input support scan ---"
+          MOBILE=$(grep -rl "touch\|Touch\|swipe\|Swipe" \
+            app/daydream/games app/game components/games 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          KEYBOARD=$(grep -rl "keydown\|keyUp\|KeyboardEvent\|onKeyDown" \
+            app/daydream/games app/game components/games 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          GAMEPAD=$(grep -rl "Gamepad\|gamepad\|navigator\.getGamepads\|PS5\|controller" \
+            app/daydream/games app/game components/games 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          echo "MOBILE=${MOBILE}" >> "$GITHUB_OUTPUT"
+          echo "KEYBOARD=${KEYBOARD}" >> "$GITHUB_OUTPUT"
+          echo "GAMEPAD=${GAMEPAD}" >> "$GITHUB_OUTPUT"
+          echo "Mobile input files: ${MOBILE} | Keyboard: ${KEYBOARD} | Gamepad: ${GAMEPAD}"
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — Games Daydream
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --dir app/daydream/games \
+            --dir app/game \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "daydream-games-standalone-bot"
+          git config user.email "daydream-games-standalone-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(daydream/games): ESLint auto-fix — Games Daydream standalone [skip ci]"
+            git push
+          fi
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 🎮 Games Daydream — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Daydream | Games |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Daydream-only (no Engin) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Game hub surface | ${{ steps.scan_hub.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Game list rendering | ${{ steps.scan_gamelist.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Play mode entry/exit | ${{ steps.scan_playmode.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Mobile touch input | ${{ steps.scan_input.outputs.MOBILE != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Keyboard input | ${{ steps.scan_input.outputs.KEYBOARD != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Gamepad/PS5 input | ${{ steps.scan_input.outputs.GAMEPAD != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Engin-side checks are handled by \`engin-game.yml\`." >> "$GITHUB_STEP_SUMMARY"

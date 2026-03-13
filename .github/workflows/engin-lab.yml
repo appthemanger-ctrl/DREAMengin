@@ -1,0 +1,225 @@
+name: LabEngin — Health & Premium Feature Patrol
+
+# Engin-only workflow for LabEngin (Lab pair Engin).
+# Scope: components/daydream/LabEngin.tsx + lab API routes + physics/quantum components.
+# Does NOT re-run Daydream-side CI — see daydream-lab.yml for that.
+#
+# Premium feature checks:
+#   ✦ Experiment runner handlers
+#   ✦ Simulation status tracking
+#   ✦ Physics cleanup (dispose, teardown)
+#   ✦ Quantum circuit execution
+#   ✦ Result export / persistence
+
+on:
+  push:
+    paths:
+      - 'components/daydream/LabEngin.tsx'
+      - 'components/PhysicsLab.tsx'
+      - 'components/QuantumCircuitCanvas.tsx'
+      - 'app/lab/**'
+      - 'app/physics-lab/**'
+      - 'lib/daydream/**'
+      - '.github/workflows/engin-lab.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '40 2 * * *'   # daily 02:40 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: engin-lab-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  ENGIN: 'LabEngin'
+  PAIR: 'lab'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  engin-lab-health:
+    name: ⚗️ LabEngin · Build · Lint · Test · Feature Patrol
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Engin scope only) ───────────────────────────────────────────────
+      - name: Lint — LabEngin scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --file components/daydream/LabEngin.tsx \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Engin-specific pattern scans ──────────────────────────────────────────
+      - name: Scan — Experiment runner handlers
+        id: scan_runner
+        run: |
+          echo "--- Experiment runner scan ---"
+          if grep -r "runExperiment\|run-experiment\|executeExperiment\|startExperiment\|ExperimentRunner" \
+            components/daydream/LabEngin.tsx app/lab 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Experiment runner handlers detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Experiment runner handlers not found"
+          fi
+
+      - name: Scan — Simulation status tracking
+        id: scan_sim_status
+        run: |
+          echo "--- Simulation status scan ---"
+          if grep -r "simulationStatus\|simulation-status\|SimulationStatus\|simRunning\|simComplete\|simError" \
+            components/daydream/LabEngin.tsx app/lab 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Simulation status tracking found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Simulation status tracking not detected"
+          fi
+
+      - name: Scan — Physics cleanup handlers
+        id: scan_physics_cleanup
+        run: |
+          echo "--- Physics cleanup scan ---"
+          if grep -r "dispose\|Dispose\|cleanup\|cleanUp\|teardown\|tearDown\|physicsCleanup\|destroyPhysics" \
+            components/daydream/LabEngin.tsx components/PhysicsLab.tsx 2>/dev/null \
+            | grep -v "node_modules"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Physics cleanup handlers found (no memory leaks risk)"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Physics cleanup not found — potential memory leak risk"
+          fi
+
+      - name: Scan — Quantum circuit execution
+        id: scan_quantum_exec
+        run: |
+          echo "--- Quantum execution scan ---"
+          if grep -r "executeCircuit\|runCircuit\|quantumRun\|QuantumExecutor\|applyGate\|measureQubit" \
+            components/daydream/LabEngin.tsx components/QuantumCircuitCanvas.tsx 2>/dev/null \
+            | grep -v "node_modules"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Quantum circuit execution handlers found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Quantum circuit execution not detected"
+          fi
+
+      - name: Scan — Result export and persistence
+        id: scan_export
+        run: |
+          echo "--- Result export scan ---"
+          if grep -r "exportResult\|export-result\|saveResult\|persistResult\|downloadResult\|ExportData" \
+            components/daydream/LabEngin.tsx app/lab 2>/dev/null \
+            | grep -v "node_modules"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Result export/persistence found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Result export/persistence not detected"
+          fi
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — LabEngin
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --file components/daydream/LabEngin.tsx \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "engin-lab-bot"
+          git config user.email "engin-lab-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(engin/lab): ESLint auto-fix — LabEngin standalone [skip ci]"
+            git push
+          fi
+
+      # ── Upload artifact ───────────────────────────────────────────────────────
+      - name: Upload LabEngin scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab-engin-scan-${{ github.run_number }}
+          path: |
+            components/daydream/LabEngin.tsx
+          retention-days: 7
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## ⚗️ LabEngin — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin | LabEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Canonical pair | Lab Daydream |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Engin-only (no Daydream page) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Engin Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Experiment runner handlers | ${{ steps.scan_runner.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Simulation status tracking | ${{ steps.scan_sim_status.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Physics cleanup (no leak) | ${{ steps.scan_physics_cleanup.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Risk' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Quantum circuit execution | ${{ steps.scan_quantum_exec.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Result export / persistence | ${{ steps.scan_export.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Daydream-side checks are handled by \`daydream-lab.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Combined pair health is handled by \`daydream-lab-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"

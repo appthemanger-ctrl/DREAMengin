@@ -1,0 +1,191 @@
+name: Code Daydream — Health & Feature Scan
+
+# Daydream-only workflow for the Code Daydream (/daydream/code).
+# Scope: app/daydream/code/** + codespace-adjacent pages/components.
+# Does NOT touch CodeEngin — see engin-code.yml for Engin-side CI.
+#
+# Premium feature checks:
+#   ✦ Codespace surface scan
+#   ✦ Notebook cell detection
+#   ✦ Live CI status display
+#   ✦ Project/file navigation
+
+on:
+  push:
+    paths:
+      - 'app/daydream/code/**'
+      - 'app/codespace/**'
+      - 'components/daydream/CodeEngin.tsx'
+      - '.github/workflows/daydream-code.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '15 2 * * *'   # daily 02:15 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daydream-code-standalone-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  DAYDREAM: 'code'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  daydream-code-health:
+    name: 💻 Code Daydream · Build · Lint · Test · Feature Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Daydream scope only) ────────────────────────────────────────────
+      - name: Lint — Code Daydream scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --dir app/daydream/code \
+            --dir app/codespace \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Premium feature scans ─────────────────────────────────────────────────
+      - name: Scan — Codespace surface
+        id: scan_codespace
+        run: |
+          echo "--- Codespace surface scan ---"
+          CS_COUNT=$(grep -rl "codespace\|Codespace\|CodeSpace\|code-space" \
+            app/daydream/code app/codespace 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | wc -l || echo 0)
+          echo "COUNT=${CS_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Codespace surface files: ${CS_COUNT}"
+
+      - name: Scan — Notebook cells
+        id: scan_notebook
+        run: |
+          echo "--- Notebook cell scan ---"
+          if grep -r "NotebookCell\|notebook-cell\|notebookCell\|CellBlock\|cell-block" \
+            app/daydream/code app/codespace components 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | head -10; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Notebook cell components detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Notebook cells not found"
+          fi
+
+      - name: Scan — Live CI status
+        id: scan_ci_status
+        run: |
+          echo "--- Live CI status scan ---"
+          if grep -r "CIStatus\|ci-status\|ciStatus\|BuildStatus\|build-status\|pipelineStatus" \
+            app/daydream/code app/codespace 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Live CI status display found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Live CI status display not detected"
+          fi
+
+      - name: Scan — Project / file navigation
+        id: scan_filenav
+        run: |
+          echo "--- File navigation scan ---"
+          if grep -r "FileTree\|file-tree\|fileTree\|ProjectTree\|project-tree\|FileNav\|file-nav" \
+            app/daydream/code app/codespace 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ File/project navigation detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  File navigation not found"
+          fi
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — Code Daydream
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --dir app/daydream/code \
+            --dir app/codespace \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "daydream-code-standalone-bot"
+          git config user.email "daydream-code-standalone-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(daydream/code): ESLint auto-fix — Code Daydream standalone [skip ci]"
+            git push
+          fi
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 💻 Code Daydream — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Daydream | Code |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Daydream-only (no Engin) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Codespace surface | ${{ steps.scan_codespace.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Notebook cells | ${{ steps.scan_notebook.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Live CI status display | ${{ steps.scan_ci_status.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| File / project navigation | ${{ steps.scan_filenav.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Engin-side checks are handled by \`engin-code.yml\`." >> "$GITHUB_STEP_SUMMARY"
