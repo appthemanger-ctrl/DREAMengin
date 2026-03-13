@@ -6,6 +6,39 @@ Date: March 6, 2026
 
 ⸻
 
+## Current Implementation Status
+
+**Phase:** Phase 6 — Platform Completion (AI Triad, Privacy Enforcement, Module Consolidation)
+
+**Build status:** 98 routes · Tests 495/495 passing
+
+**Tech stack:**
+- Next.js 16.1.6 (App Router) · React 19 · TypeScript · Tailwind CSS
+- Supabase (Auth + PostgreSQL + Realtime + Storage)
+- pnpm 10.30.0 · Node 24
+
+**Canonical routes:**
+
+| Surface | Canonical Route | Support/Legacy Route |
+|---------|----------------|----------------------|
+| HomeDream | `/homedream` | `/home` → redirects to `/homedream` |
+| EditProfileDream | `/edit-profiledream` | `/edit-profile` |
+| ViewProfile | `/view-profile` | `/profile/[handle]`, `/u/[handle]` |
+| DreamDM | `/messages` | — |
+| DreamShop | `/shop` | `/shop/sell` |
+| DreamMarketplace | `/marketplace` | — |
+| DreamAds | `/ads` | `/ads/create` |
+| Daydream pairs | `/daydream/{music,games,lab,code,brand,create}` | — |
+
+**Key component locations:**
+- DreamDMBar (Pass 3 Window Model): `components/messaging/DreamDMBar.tsx` — single canonical component
+- HomeDream canonical: `app/homedream/page.tsx` → `components/home/HomeSystem.tsx`
+- AI Triad: `/api/ai/eams` (Dr. Eams), `/api/ai/idari` (IDARi), `/api/ai/boogieman` (TheBoogieMan.Ai)
+
+*This section is maintained by IDARi. For the full feature matrix see `docs/FEATURE_STATUS.md`.*
+
+⸻
+
 1. Purpose and Product Definition
 
 DREAMengin is a customizable web app for creating, sharing, organizing, and connecting interactive modules across personal, creative, and social spaces. A social modular app whose navigation begins as a calm HomeDream and matures into an iOS Photos-style stacked surface system across the whole product.  DreamEngin introduces the DreamDM Bar connect you continuously to different sides of your world. 

@@ -4,15 +4,15 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-13 07:24 UTC  
-**Triggered by commit:** `aa9f576` on `codex/redesign-dream-bar-and-layout-features-7sa6pd` by appthemanger-ctrl  
-**Commit message:** Align DreamDM runtime layering and wire dreamspace links
+**Last updated:** 2026-03-13 08:32 UTC  
+**Triggered by commit:** `8da4269` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #181 from appthemanger-ctrl/copilot/run-daydreams-and-engin-actions
 
 ---
 
 ## 🏆 Final Vision — What DREAMengin Is Supposed to Be
 
-DREAMengin is a **spatial, gesture-driven creative OS** built on Next.js (App Router) + Supabase.
+DREAMengin is a **dual runtime, gesture-driven creative OS** built on Next.js (App Router) + Supabase.
 It is not a website. It is not a social media feed. It is a **personal operating surface** where
 every element is a live, interactive widget that the user owns, arranges, and publishes.
 
@@ -35,7 +35,7 @@ every element is a live, interactive widget that the user owns, arranges, and pu
 
 ### UI design system
 
-- **Sky-blue + gold gradient** throughout — no dark gamer colors, no indigo.
+- **Sky-blue + gold + white gradient** throughout — no dark gamer colors, no indigo.
 - **Frosted glass** surfaces (`.de-surface`, `.de-widget`).
 - **Space Grotesk** font. Consistent radius family (6 / 10 / 14 / 18 / 24 / 32 / 9999 px).
 - Every page uses `de-sky-bg` + `de-widget` glass cards.
