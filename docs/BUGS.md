@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-11 20:10 UTC  
-**Triggered by commit:** `e879621` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #177 from appthemanger-ctrl/claude/replace-landing-page-animation
+**Last updated:** 2026-03-13 07:24 UTC  
+**Triggered by commit:** `aa9f576` on `codex/redesign-dream-bar-and-layout-features-7sa6pd` by appthemanger-ctrl  
+**Commit message:** Align DreamDM runtime layering and wire dreamspace links
 
 ---
 
