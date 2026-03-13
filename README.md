@@ -1,6 +1,6 @@
 DREAMengin — Full System Specification
 
-Next.js 16+ / Supabase / Privacy-First Modular Platform
+Next.js 16+ / Supabase / Dual Rumtime Privacy-First Modular Platform
 Author: José Mancilla
 Date: March 6, 2026
 
