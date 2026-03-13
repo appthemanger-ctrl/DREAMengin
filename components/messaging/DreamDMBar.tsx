@@ -61,8 +61,6 @@ const TOP_H        = 340;
 /** Gold button diameter */
 const GOLD_SZ      = 64;
 const GOLD_R       = GOLD_SZ / 2;
-/** Snap to top when bar top edge is above this fraction of screen height */
-const SNAP_UP_PCT  = 0.40;
 /** Snap to bottom when dragged down this many px from top */
 const SNAP_DOWN_PX = 88;
 /** Spring animation string */
@@ -120,16 +118,20 @@ function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | nul
 // Props
 // ─────────────────────────────────────────────────────────────────────────────
 interface DreamDMBarProps {
-  /** Single-tap the gold button → go home */
-  onHome: () => void;
-  /** Double-tap the gold button → open radial menus */
+  /** Single-tap the gold button → open radial menus */
   onBothMenus: () => void;
+  /** Double-tap the gold button → go home */
+  onHome: () => void;
+  /** Bridge bar state to the dual-runtime host */
+  onRuntimeModeChange?: (mode: 'home' | 'blend' | 'dreamspace') => void;
+  /** 0..1 blend for dragging second runtime from off-screen */
+  onRuntimeBlendChange?: (value: number) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
+export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, onRuntimeBlendChange }: DreamDMBarProps) {
   // ── Screen geometry ────────────────────────────────────────────────────────
   const [screenH, setScreenH] = useState(900);
   useEffect(() => {
@@ -156,21 +158,18 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
 
   // ── Gold button double-tap ─────────────────────────────────────────────────
   const goldRef = useRef({ lastAt: 0, timer: 0 as ReturnType<typeof setTimeout> | 0 });
-  const [isHomeActive, setIsHomeActive] = useState(true); // Track if Home is the active runtime
-
   const handleGoldTap = useCallback(() => {
     const now = Date.now();
     clearTimeout(goldRef.current.timer);
     if (now - goldRef.current.lastAt < DOUBLE_TAP) {
       goldRef.current.lastAt = 0;
-      onBothMenus();
+      onHome();
+      if (isTop) { setIsTop(false); setDragH(BAR_H); setSlideDown(0); }
     } else {
       goldRef.current.lastAt = now;
       goldRef.current.timer = setTimeout(() => {
-        // Single tap → go home AND collapse bar if at top
-        onHome();
-        setIsHomeActive(true);
-        if (isTop) { setIsTop(false); setDragH(BAR_H); setSlideDown(0); }
+        // Single tap → open dual menus
+        onBothMenus();
       }, DOUBLE_TAP + 10);
     }
   }, [isTop, onHome, onBothMenus]);
@@ -224,14 +223,12 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
     setIsDragging(false);
 
     if (!dragRef.current.fromTop) {
-      // Decide: snap to top or return to bottom
+      // Free settle where released; lock only if user reaches the top.
       const barTopFromScreenTop = screenH - dragH;
-      if (barTopFromScreenTop < screenH * SNAP_UP_PCT) {
-        // Snap to top
+      if (barTopFromScreenTop <= 8 || dragH >= screenH * 0.84) {
         setIsTop(true); setDragH(BAR_H); setSlideDown(0);
       } else {
-        // Spring back to bottom
-        setDragH(BAR_H);
+        setDragH(Math.max(BAR_H, Math.min(screenH * 0.85, dragH)));
       }
     } else {
       // Decide: collapse to bottom or spring back to top
@@ -354,6 +351,31 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
     }
   }, [conversations, clearResults, markAllRead]);
 
+  useEffect(() => {
+    if (!onRuntimeModeChange) return;
+    if (isTop) {
+      onRuntimeModeChange('dreamspace');
+      return;
+    }
+    if (dragH <= BAR_H + 6) {
+      onRuntimeModeChange('home');
+      return;
+    }
+    onRuntimeModeChange('blend');
+  }, [dragH, isTop, onRuntimeModeChange]);
+
+  useEffect(() => {
+    if (!onRuntimeBlendChange) return;
+    if (isTop) {
+      onRuntimeBlendChange(1);
+      return;
+    }
+    const maxDrag = (screenH * 0.85) - BAR_H;
+    const raw = maxDrag > 0 ? (dragH - BAR_H) / maxDrag : 0;
+    const blend = Math.max(0, Math.min(1, raw));
+    onRuntimeBlendChange(blend);
+  }, [dragH, isTop, onRuntimeBlendChange, screenH]);
+
   if (!mounted) return null;
 
   // ── Derived layout values ─────────────────────────────────────────────────
@@ -372,12 +394,12 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
   // When detached, it locks to the screen (viewport fixed, not moving with scroll).
   const attachedGoldTop: number = barTop - GOLD_R; // Normal attached position (center on bar top edge)
   const isGoldOffScreen: boolean = attachedGoldTop < 0; // Would the attached position be off-screen?
-  const goldTopPx: number = isGoldOffScreen
-    ? 10                                 // Screen-locked at top when attached position would be off-screen
-    : attachedGoldTop;                   // Attached to bar top edge
+  const goldTopPx: number = isTop
+    ? (screenH - GOLD_SZ - 18)
+    : (isGoldOffScreen ? 10 : attachedGoldTop);
 
   // Track if button is in screen-locked mode (for styling/behavior)
-  const isScreenLocked: boolean = isGoldOffScreen;
+  const isScreenLocked: boolean = isTop || isGoldOffScreen;
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -385,14 +407,14 @@ export default function DreamDMBar({ onHome, onBothMenus }: DreamDMBarProps) {
       {/* ── Gold sphere button ──────────────────────────────────────────────── */}
       <button
         type="button"
-        aria-label="Gold button — tap to go home, double-tap for menus"
+        aria-label="Gold button — tap for menus, double-tap to go home"
         onPointerDown={handleGoldPointerDown}
         onPointerUp={handleGoldPointerUp}
         onPointerCancel={() => { goldDragRef.current.active = false; }}
         style={{
           position: 'fixed', // Always fixed to ensure no scroll movement when screen-locked
           top: goldTopPx,
-          left: '50%',
+          left: isTop ? '62%' : '50%',
           transform: 'translateX(-50%)',
           width: GOLD_SZ, height: GOLD_SZ,
           borderRadius: '50%',

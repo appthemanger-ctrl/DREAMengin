@@ -12,6 +12,7 @@ type Props = {
   onToggleFace: () => void;
   onClose: () => void;
   onOpenDrEams: () => void;
+  onOpenDreamSpace?: () => void;
   isAdmin?: boolean;
   profile: {
     handle?: string | null;
@@ -248,8 +249,9 @@ function MetricsRow() {
 }
 
 /* ── Home face — delegates to WorkspaceDashboard ── */
-function HomeFace({ onOpenDrEams, profile, posts, isAdmin }: {
+function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: {
   onOpenDrEams: () => void;
+  onOpenDreamSpace?: () => void;
   profile: Props['profile'];
   isAdmin?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -260,6 +262,7 @@ function HomeFace({ onOpenDrEams, profile, posts, isAdmin }: {
       profile={profile}
       posts={posts ?? []}
       onOpenDrEams={onOpenDrEams}
+      onOpenDreamSpace={onOpenDreamSpace}
       isAdmin={isAdmin}
     />
   );
@@ -446,7 +449,7 @@ function WallBanner() {
 }
 
 /* ── Main export ── */
-export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClose, onOpenDrEams, isAdmin, profile, posts }: Props) {
+export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClose, onOpenDrEams, onOpenDreamSpace, isAdmin, profile, posts }: Props) {
   if (!isOpen) return null;
 
   if (face === 'profile') {
@@ -470,7 +473,7 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClos
   // Home face — WorkspaceDashboard is full-screen, owns its own header + layout
   return (
     <div style={{ width: '100%', minHeight: '100svh' }}>
-      <HomeFace onOpenDrEams={onOpenDrEams} profile={profile} posts={posts} isAdmin={isAdmin} />
+      <HomeFace onOpenDrEams={onOpenDrEams} onOpenDreamSpace={onOpenDreamSpace} profile={profile} posts={posts} isAdmin={isAdmin} />
     </div>
   );
 }

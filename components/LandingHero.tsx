@@ -220,7 +220,6 @@ export default function LandingHero() {
               { value: '20',  label: 'Games',              icon: '🎮' },
               { value: '25+', label: 'Integrations',       icon: '🔗' },
               { value: 'v2',  label: 'Engine',             icon: '⚡' },
-              { value: '437', label: 'Tests Passing',      icon: '✅' },
             ].map(({ value, label, icon }) => (
               <div
                 key={label}

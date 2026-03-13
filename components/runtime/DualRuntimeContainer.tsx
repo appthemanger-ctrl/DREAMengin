@@ -31,6 +31,7 @@ interface DualRuntimeContextValue {
   state: DualRuntimeState;
   setTopRuntime: (world: RuntimeWorld) => void;
   setBottomRuntime: (world: RuntimeWorld) => void;
+  setDominantRuntime: (runtime: 'top' | 'bottom') => void;
   swapDominance: () => void;
   goToHome: () => void;
   isHomeActive: () => boolean;
@@ -67,6 +68,10 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
     setState((prev) => swapDominantRuntime(prev));
   }, []);
 
+  const setDominantRuntime = useCallback((runtime: 'top' | 'bottom') => {
+    setState((prev) => ({ ...prev, dominantRuntime: runtime }));
+  }, []);
+
   const goToHome = useCallback(() => {
     setState((prev) => {
       // If Home is already the active top runtime, this will be a "refresh"
@@ -83,6 +88,7 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
     state,
     setTopRuntime,
     setBottomRuntime,
+    setDominantRuntime,
     swapDominance,
     goToHome,
     isHomeActive,
