@@ -73,6 +73,19 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     if (action === 'go-home')       { returnHome(); return; }
   }, [closeAllMenus, returnHome]);
 
+  const handleBarRuntimeMode = useCallback((mode: 'home' | 'blend' | 'dreamspace') => {
+    if (mode === 'dreamspace') {
+      dualRuntime.setBottomRuntime('dreamspace');
+      dualRuntime.setDominantRuntime('bottom');
+      return;
+    }
+
+    if (mode === 'home') {
+      dualRuntime.setTopRuntime('home');
+      dualRuntime.setDominantRuntime('top');
+    }
+  }, [dualRuntime]);
+
   return (
     <>
       <StarfieldCanvas />
@@ -103,11 +116,12 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         The gold button is now embedded inside DreamDMBar.
         Gold button attaches to TOP of bar, detaches only when position goes off-screen.
         When detached, it screen-locks and does NOT move with scroll.
-        Single-tap gold = go home; double-tap = open radial menus.
+        Single-tap gold = open radial menus; double-tap = go home.
       */}
       <DreamDMBar
         onHome={returnHome}
         onBothMenus={() => setBothMenusOpen(true)}
+        onRuntimeModeChange={handleBarRuntimeMode}
       />
 
       {/* Daydreams menu — left side when paired, center when solo */}
