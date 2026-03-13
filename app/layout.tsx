@@ -56,7 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <ThemeProvider>
           <ThemeApplicator />
-          <main>{children}</main>
+          <main role="main" aria-label="Main content">{children}</main>
           {/* Permanent policy footer (req 10) — always accessible, no login required */}
           <footer
             style={{

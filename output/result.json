@@ -1,0 +1,176 @@
+{
+  "project_name": "DREAMengin",
+  "version": "1.0.0",
+  "pre_score": 100,
+  "overall_score": 100,
+  "routes": {
+    "HomeDream": {
+      "path": "app/homedream/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "EditProfileDream": {
+      "path": "app/edit-profiledream/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "ViewProfile": {
+      "path": "app/view-profile/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "DreamDM": {
+      "path": "app/messages/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "DreamShop": {
+      "path": "app/shop/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "DreamMarketplace": {
+      "path": "app/marketplace/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "DreamAds": {
+      "path": "app/ads/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "Music": {
+      "path": "app/daydream/music/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "Games": {
+      "path": "app/daydream/games/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "Lab": {
+      "path": "app/daydream/lab/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "Code": {
+      "path": "app/daydream/code/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "Brand": {
+      "path": "app/daydream/brand/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "Create": {
+      "path": "app/daydream/create/page.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    }
+  },
+  "components": {
+    "HomeSystem": {
+      "path": "components/home/HomeSystem.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "NavBar": {
+      "path": "components/NavBar.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "Layout": {
+      "path": "app/layout.tsx",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "GlobalsCSS": {
+      "path": "styles/globals.css",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    },
+    "TailwindCfg": {
+      "path": "tailwind.config.ts",
+      "exists": true,
+      "score": 100,
+      "missing": []
+    }
+  },
+  "accessibility": {
+    "score": 100,
+    "coverage": {
+      "aria_label": 2,
+      "aria_expanded": 1,
+      "alt_text": 1,
+      "role_attr": 2,
+      "focus_visible": 1,
+      "sr_only": 1
+    },
+    "per_file": {
+      "components/NavBar.tsx": {
+        "aria_label": true,
+        "aria_expanded": true,
+        "alt_text": false,
+        "role_attr": true,
+        "focus_visible": true,
+        "sr_only": true
+      },
+      "app/layout.tsx": {
+        "aria_label": true,
+        "aria_expanded": false,
+        "alt_text": false,
+        "role_attr": true,
+        "focus_visible": false,
+        "sr_only": false
+      },
+      "app/homedream/page.tsx": {
+        "aria_label": false,
+        "aria_expanded": false,
+        "alt_text": false,
+        "role_attr": false,
+        "focus_visible": false,
+        "sr_only": false
+      },
+      "app/edit-profiledream/page.tsx": {
+        "aria_label": false,
+        "aria_expanded": false,
+        "alt_text": true,
+        "role_attr": false,
+        "focus_visible": false,
+        "sr_only": false
+      },
+      "app/view-profile/page.tsx": {
+        "aria_label": false,
+        "aria_expanded": false,
+        "alt_text": false,
+        "role_attr": false,
+        "focus_visible": false,
+        "sr_only": false
+      }
+    }
+  },
+  "design_tokens": {
+    "score": 100,
+    "missing": []
+  },
+  "patches": []
+}
