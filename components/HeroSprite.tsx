@@ -2,6 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+// ── Particle type ────────────────────────────────────────────────────────────
+type Particle = {
+  x: number; y: number;
+  vx: number; vy: number;
+  life: number;
+  color: string;
+  size: number;
+};
+
 /**
  * HeroSprite – Dr. Eams assembled from real body-part assets, always animating.
  *
@@ -134,6 +143,8 @@ export default function HeroSprite({
     head: null, coat: null, arm1: null, arm2: null, shoe1: null, shoe2: null,
   });
 
+  const particlesRef = useRef<Particle[]>([]);
+
   const [hint, setHint] = useState<{ label: string; key: number } | null>(null);
 
   // Load body-part images once on mount
@@ -150,6 +161,30 @@ export default function HeroSprite({
     });
   }, []);
 
+  // Emit PBR-themed particles from the touch point
+  const emitParticlesAt = useCallback((x: number, y: number, zone: Zone) => {
+    if (zone === 'idle') return;
+    const palettes: Record<Exclude<Zone, 'idle'>, string[]> = {
+      head:  ['#FFE600', '#00E5FF', '#FFFFFF', '#FFD700', '#40F0FF'],
+      torso: ['#C0D4E8', '#8ABEDC', '#E0EEF8', '#A8C8DC', '#D0E8F4'],
+      legs:  ['#6080A0', '#8090B0', '#A0B4C8', '#B0C0D0', '#90A8BC'],
+    };
+    const colors = palettes[zone];
+    for (let i = 0; i < 18; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.5 + Math.random() * 3.5;
+      particlesRef.current.push({
+        x: x + (Math.random() - 0.5) * 20,
+        y: y + (Math.random() - 0.5) * 20,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 2.5,
+        life: 1.0,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: 1.5 + Math.random() * 4,
+      });
+    }
+  }, []);
+
   const triggerZone = useCallback((zone: Zone) => {
     if (zone === 'idle') return;
     zoneRef.current    = zone;
@@ -160,8 +195,12 @@ export default function HeroSprite({
 
   const handlePointer = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = (e.currentTarget as HTMLCanvasElement).getBoundingClientRect();
-    triggerZone(hitZone(e.clientY - rect.top, rect.height));
-  }, [triggerZone]);
+    const relX = e.clientX - rect.left;
+    const relY = e.clientY - rect.top;
+    const zone = hitZone(relY, rect.height);
+    triggerZone(zone);
+    emitParticlesAt(relX, relY, zone);
+  }, [triggerZone, emitParticlesAt]);
 
   const handleKey = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') triggerZone('head');
@@ -334,6 +373,64 @@ export default function HeroSprite({
         ctx.rotate(headAngle);
         ctx.drawImage(imgs.head, -DIM.head.w / 2, -DIM.head.h / 2, DIM.head.w, DIM.head.h);
         ctx.restore();
+      }
+
+      // 7. Glowing ∞ symbol on the helmet face screen (yellow left lobe, cyan right lobe).
+      {
+        const symX  = cx;
+        const symY  = headTopY + Math.round(DIM.head.h * 0.54) + headBounce;
+        const fsize = Math.round(DIM.head.w * 0.38);
+        const glow  = 8 + Math.sin(t * 3.2) * 4;
+        ctx.save();
+        ctx.font          = `bold ${fsize}px "Arial Unicode MS","Segoe UI Symbol","Helvetica","DejaVu Sans",sans-serif`;
+        ctx.textAlign     = 'center';
+        ctx.textBaseline  = 'middle';
+        // yellow — left half
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, symY - fsize, symX, fsize * 2);
+        ctx.clip();
+        ctx.fillStyle   = '#FFE600';
+        ctx.shadowColor = '#FFE600';
+        ctx.shadowBlur  = glow;
+        ctx.fillText('∞', symX, symY);
+        ctx.restore();
+        // cyan — right half
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(symX, symY - fsize, width, fsize * 2);
+        ctx.clip();
+        ctx.fillStyle   = '#00E5FF';
+        ctx.shadowColor = '#00E5FF';
+        ctx.shadowBlur  = glow;
+        ctx.fillText('∞', symX, symY);
+        ctx.restore();
+        ctx.restore();
+      }
+
+      // 8. Particles — PBR-themed burst on touch
+      {
+        const live: Particle[] = [];
+        for (const p of particlesRef.current) {
+          p.x  += p.vx;
+          p.y  += p.vy;
+          p.vy += 0.14;   // gravity
+          p.vx *= 0.96;   // air friction
+          p.life -= 0.025;
+          if (p.life > 0) {
+            live.push(p);
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, p.life);
+            ctx.fillStyle   = p.color;
+            ctx.shadowColor = p.color;
+            ctx.shadowBlur  = 10;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+        particlesRef.current = live;
       }
 
       rafId = requestAnimationFrame(tick);
