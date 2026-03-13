@@ -24,6 +24,7 @@ interface RuntimeViewProps {
   posts?: any[];
   isAdmin?: boolean;
   onOpenDrEams: () => void;
+  onOpenDreamSpace?: () => void;
 }
 
 export default function RuntimeView({
@@ -33,6 +34,7 @@ export default function RuntimeView({
   posts,
   isAdmin,
   onOpenDrEams,
+  onOpenDreamSpace,
 }: RuntimeViewProps) {
   // Home runtime
   if (world === 'home') {
@@ -54,6 +56,7 @@ export default function RuntimeView({
           onToggleCoreFace={() => {}}
           onCloseCore={() => {}}
           onOpenDrEams={onOpenDrEams}
+          onOpenDreamSpace={onOpenDreamSpace}
           isAdmin={isAdmin}
         />
       </div>
@@ -124,6 +127,7 @@ export default function RuntimeView({
           onToggleCoreFace={() => {}}
           onCloseCore={() => {}}
           onOpenDrEams={onOpenDrEams}
+          onOpenDreamSpace={onOpenDreamSpace}
           isAdmin={isAdmin}
         />
       </div>

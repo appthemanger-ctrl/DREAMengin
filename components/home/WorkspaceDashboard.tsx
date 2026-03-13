@@ -60,6 +60,7 @@ interface WorkspaceDashboardProps {
   profile: ProfileLike | null;
   posts: Post[];
   onOpenDrEams: () => void;
+  onOpenDreamSpace?: () => void;
   isAdmin?: boolean;
 }
 
@@ -459,7 +460,7 @@ function BottomTabBar({ active = 'home' }: { active?: string }) {
 
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, isAdmin = false }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
   const [searchVal, setSearchVal] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -635,6 +636,45 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, isAdm
             <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>
               {name} 👋
             </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+              {[
+                { href: '/edit-profiledream', label: 'DreamProfile' },
+                { href: '/discover', label: 'Feed' },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  style={{
+                    borderRadius: 999,
+                    border: '1px solid rgba(160,195,240,0.35)',
+                    background: 'rgba(255,255,255,0.6)',
+                    color: 'var(--de-heading)',
+                    padding: '6px 12px',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <button
+                type="button"
+                onClick={() => onOpenDreamSpace?.()}
+                style={{
+                  borderRadius: 999,
+                  border: '1px solid rgba(160,195,240,0.35)',
+                  background: 'rgba(255,255,255,0.6)',
+                  color: 'var(--de-heading)',
+                  padding: '6px 12px',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Your Dreams
+              </button>
+            </div>
           </div>
 
           {/* ── WORKSPACE WINDOW PANEL — full width, elevated ── */}
@@ -675,10 +715,12 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, isAdm
                 ))}
               </div>
 
-              {/* Full-width feed cards */}
-              {feedPosts.slice(0, 4).map((post, i) => (
-                <ActivityCard key={post.id || i} post={post} index={i} />
-              ))}
+              {/* Feed area remains independently scrollable */}
+              <div style={{ maxHeight: 300, overflowY: 'auto', paddingRight: 4 }}>
+                {feedPosts.slice(0, 8).map((post, i) => (
+                  <ActivityCard key={post.id || i} post={post} index={i} />
+                ))}
+              </div>
 
               <Link href="/discover" style={{
                 display: 'flex', alignItems: 'center', gap: 4,
@@ -745,7 +787,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, isAdm
             </div>
           </div>
 
-          {/* ── Second panel: Quick-nav modules — 2×2 full width ── */}
+          {/* ── Widget glass zone (empty placeholders) ── */}
           <div style={{
             background: 'rgba(255,255,255,0.60)',
             backdropFilter: 'blur(20px)',
@@ -758,42 +800,27 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, isAdm
           }}>
             <div style={{ padding: '14px 16px 6px' }}>
               <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)' }}>
-                Modules
+                Widget Spaces
               </span>
             </div>
             <div style={{
               display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
               gap: 12, padding: '6px 14px 16px',
             }}>
-              {[
-                { icon: Compass,     label: 'Discover',   sub: 'Explore the feed',   href: '/discover',       color: '#4A9ED6' },
-                { icon: BarChart3,   label: 'Analytics',  sub: 'View your stats',    href: '/analytics',      color: '#c8981a' },
-                { icon: Music,       label: 'Music',      sub: 'Your releases',      href: '/daydream/music', color: '#6366f1' },
-                { icon: ShoppingBag, label: 'Shop',       sub: 'Manage listings',    href: '/shop',           color: '#22c55e' },
-                { icon: MessageCircle, label: 'Messages', sub: 'Your conversations', href: '/messages',       color: '#ec4899' },
-                { icon: Settings,    label: 'Settings',   sub: 'Preferences',        href: '/settings',       color: '#94a3b8' },
-              ].map(({ icon: Icon, label, sub, href, color }) => (
-                <Link key={label} href={href} style={{
-                  background: 'rgba(255,255,255,0.80)',
-                  borderRadius: 18, padding: '14px',
-                  border: '1px solid rgba(160,195,240,0.18)',
-                  boxShadow: '0 3px 12px rgba(0,0,0,0.06)',
-                  textDecoration: 'none',
-                  display: 'flex', flexDirection: 'column', gap: 8,
-                  transition: 'transform 0.12s',
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={`widget-space-${i}`} style={{
+                  minHeight: 92,
+                  borderRadius: 18,
+                  border: '1px solid rgba(255,255,255,0.45)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.30), rgba(255,255,255,0.08))',
+                  boxShadow: 'inset 0 1px 10px rgba(255,255,255,0.22), 0 4px 14px rgba(0,0,0,0.05)',
+                  backdropFilter: 'blur(14px)',
+                  WebkitBackdropFilter: 'blur(14px)',
                 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 10,
-                    background: `${color}15`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {React.createElement(Icon as React.ElementType<{ size: number; style: React.CSSProperties }>, { size: 17, style: { color } })}
+                  <div style={{ padding: 12, fontSize: 11, color: 'var(--de-text-dim)', fontWeight: 600 }}>
+                    Empty glass slot {i + 1}
                   </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{label}</div>
-                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 1 }}>{sub}</div>
-                  </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -816,4 +843,3 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, isAdm
     </>
   );
 }
-

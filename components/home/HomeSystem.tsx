@@ -27,6 +27,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
   const [drEamsOpen, setDrEamsOpen]       = useState(false);
   const [coreFace, setCoreFace]           = useState<'home' | 'profile'>('home');
   const [coreOpen, setCoreOpen]           = useState(true);
+  const [barBlend, setBarBlend]           = useState(0);
 
   // Read showNavIndicator setting from localStorage (default true)
   const [showNavIndicator, setShowNavIndicator] = useState(true);
@@ -54,6 +55,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     setDrEamsOpen(false);
     setCoreFace('home');
     setCoreOpen(true);
+    setBarBlend(0);
 
     // If Home was already active, this acts as a "refresh"
     // The spec says: "if Home is already the active top runtime, refresh Home"
@@ -73,6 +75,25 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     if (action === 'go-home')       { returnHome(); return; }
   }, [closeAllMenus, returnHome]);
 
+  const handleBarRuntimeMode = useCallback((mode: 'home' | 'blend' | 'dreamspace') => {
+    if (mode === 'dreamspace') {
+      dualRuntime.setBottomRuntime('dreamspace');
+      dualRuntime.setDominantRuntime('bottom');
+      return;
+    }
+
+    if (mode === 'home') {
+      dualRuntime.setTopRuntime('home');
+      dualRuntime.setDominantRuntime('top');
+    }
+  }, [dualRuntime]);
+
+  const openDreamSpace = useCallback(() => {
+    dualRuntime.setBottomRuntime('dreamspace');
+    dualRuntime.setDominantRuntime('bottom');
+    setBarBlend(1);
+  }, [dualRuntime]);
+
   return (
     <>
       <StarfieldCanvas />
@@ -80,22 +101,48 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
 
       {/* Dual Runtime Views */}
       <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
-        <RuntimeView
-          world={dualRuntime.state.topRuntime}
-          isActive={dualRuntime.state.dominantRuntime === 'top'}
-          profile={profile}
-          posts={initialPosts}
-          isAdmin={isAdmin}
-          onOpenDrEams={() => setDrEamsOpen(true)}
-        />
-        <RuntimeView
-          world={dualRuntime.state.bottomRuntime}
-          isActive={dualRuntime.state.dominantRuntime === 'bottom'}
-          profile={profile}
-          posts={initialPosts}
-          isAdmin={isAdmin}
-          onOpenDrEams={() => setDrEamsOpen(true)}
-        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            transform: 'translate3d(0,0,0)',
+            opacity: 1 - (barBlend * 0.18),
+            pointerEvents: dualRuntime.state.dominantRuntime === 'top' ? 'auto' : 'none',
+            transition: 'opacity 180ms ease',
+          }}
+        >
+          <RuntimeView
+            world={dualRuntime.state.topRuntime}
+            isActive={dualRuntime.state.dominantRuntime === 'top'}
+            profile={profile}
+            posts={initialPosts}
+            isAdmin={isAdmin}
+            onOpenDrEams={() => setDrEamsOpen(true)}
+            onOpenDreamSpace={openDreamSpace}
+          />
+        </div>
+
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            transform: `translate3d(0, ${(1 - barBlend) * 100}%, 0)`,
+            opacity: 0.45 + (barBlend * 0.55),
+            pointerEvents: dualRuntime.state.dominantRuntime === 'bottom' ? 'auto' : 'none',
+            transition: 'transform 180ms ease, opacity 180ms ease',
+            willChange: 'transform, opacity',
+          }}
+        >
+          <RuntimeView
+            world={dualRuntime.state.bottomRuntime}
+            isActive={dualRuntime.state.dominantRuntime === 'bottom'}
+            profile={profile}
+            posts={initialPosts}
+            isAdmin={isAdmin}
+            onOpenDrEams={() => setDrEamsOpen(true)}
+            onOpenDreamSpace={openDreamSpace}
+          />
+        </div>
       </div>
 
       {/*
@@ -103,11 +150,13 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         The gold button is now embedded inside DreamDMBar.
         Gold button attaches to TOP of bar, detaches only when position goes off-screen.
         When detached, it screen-locks and does NOT move with scroll.
-        Single-tap gold = go home; double-tap = open radial menus.
+        Single-tap gold = open radial menus; double-tap = go home.
       */}
       <DreamDMBar
         onHome={returnHome}
         onBothMenus={() => setBothMenusOpen(true)}
+        onRuntimeModeChange={handleBarRuntimeMode}
+        onRuntimeBlendChange={setBarBlend}
       />
 
       {/* Daydreams menu — left side when paired, center when solo */}

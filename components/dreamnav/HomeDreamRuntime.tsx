@@ -23,6 +23,7 @@ type Props = {
   onToggleCoreFace: () => void;
   onCloseCore: () => void;
   onOpenDrEams: () => void;
+  onOpenDreamSpace?: () => void;
   isAdmin?: boolean;
 };
 
@@ -51,6 +52,7 @@ export default function HomeDreamRuntime({
   onToggleCoreFace,
   onCloseCore,
   onOpenDrEams,
+  onOpenDreamSpace,
   isAdmin,
 }: Props) {
   const { node } = useDreamNav();
@@ -68,6 +70,7 @@ export default function HomeDreamRuntime({
           onToggleFace={onToggleCoreFace}
           onClose={onCloseCore}
           onOpenDrEams={onOpenDrEams}
+          onOpenDreamSpace={onOpenDreamSpace}
           isAdmin={isAdmin}
           profile={profile}
           posts={posts}
