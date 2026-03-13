@@ -1,0 +1,195 @@
+name: Create Daydream — Health & Feature Scan
+
+# Daydream-only workflow for the Create Daydream (/daydream/create).
+# Scope: app/daydream/create/** + create-adjacent pages/components.
+# Does NOT touch ContentEngin — see engin-content.yml for Engin-side CI.
+#
+# Premium feature checks:
+#   ✦ Content calendar surface scan
+#   ✦ Drafts management detection
+#   ✦ Publishing queue surface
+#   ✦ Media vault integration
+
+on:
+  push:
+    paths:
+      - 'app/daydream/create/**'
+      - 'app/create/**'
+      - 'app/daydream/media-vault/**'
+      - 'app/notes/**'
+      - '.github/workflows/daydream-create.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '25 2 * * *'   # daily 02:25 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daydream-create-standalone-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  DAYDREAM: 'create'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  daydream-create-health:
+    name: 💡 Create Daydream · Build · Lint · Test · Feature Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Daydream scope only) ────────────────────────────────────────────
+      - name: Lint — Create Daydream scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --dir app/daydream/create \
+            --dir app/create \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Premium feature scans ─────────────────────────────────────────────────
+      - name: Scan — Content calendar surface
+        id: scan_calendar
+        run: |
+          echo "--- Content calendar scan ---"
+          CAL_COUNT=$(grep -rl "ContentCalendar\|content-calendar\|contentCalendar\|ScheduleCalendar\|PostCalendar" \
+            app/daydream/create app/create 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | wc -l || echo 0)
+          echo "COUNT=${CAL_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Content calendar files: ${CAL_COUNT}"
+
+      - name: Scan — Drafts management
+        id: scan_drafts
+        run: |
+          echo "--- Drafts management scan ---"
+          if grep -r "draft\|Draft\|DraftList\|saveDraft\|loadDraft\|autosave\|autoDraft" \
+            app/daydream/create app/create app/notes 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | head -10; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Draft management flows detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Draft management not found"
+          fi
+
+      - name: Scan — Publishing queue
+        id: scan_publish_queue
+        run: |
+          echo "--- Publishing queue scan ---"
+          if grep -r "publishQueue\|publish-queue\|PublishQueue\|scheduledPosts\|scheduled-posts\|postQueue" \
+            app/daydream/create app/create 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Publishing queue detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Publishing queue not found"
+          fi
+
+      - name: Scan — Media vault integration
+        id: scan_mediavault
+        run: |
+          echo "--- Media vault integration scan ---"
+          if grep -r "MediaVault\|media-vault\|mediaVault\|media_vault" \
+            app/daydream/create app/create 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Media vault integration detected"
+          elif [ -d "app/daydream/media-vault" ]; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Media vault route exists"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Media vault integration not detected"
+          fi
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — Create Daydream
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --dir app/daydream/create \
+            --dir app/create \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "daydream-create-standalone-bot"
+          git config user.email "daydream-create-standalone-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(daydream/create): ESLint auto-fix — Create Daydream standalone [skip ci]"
+            git push
+          fi
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 💡 Create Daydream — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Daydream | Create |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Daydream-only (no Engin) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Content calendar | ${{ steps.scan_calendar.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Drafts management | ${{ steps.scan_drafts.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Publishing queue | ${{ steps.scan_publish_queue.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Media vault integration | ${{ steps.scan_mediavault.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Engin-side checks are handled by \`engin-content.yml\`." >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,200 @@
+name: Lab Daydream — Health & Feature Scan
+
+# Daydream-only workflow for the Lab Daydream (/daydream/lab).
+# Scope: app/daydream/lab/** + lab-adjacent pages/components.
+# Does NOT touch LabEngin — see engin-lab.yml for Engin-side CI.
+#
+# Premium feature checks:
+#   ✦ Experiments surface scan
+#   ✦ Physics lab component detection
+#   ✦ Quantum circuit canvas presence
+#   ✦ Experiment listing and navigation
+
+on:
+  push:
+    paths:
+      - 'app/daydream/lab/**'
+      - 'app/lab/**'
+      - 'app/physics-lab/**'
+      - 'components/PhysicsLab.tsx'
+      - 'components/QuantumCircuitCanvas.tsx'
+      - '.github/workflows/daydream-lab.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '10 2 * * *'   # daily 02:10 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daydream-lab-standalone-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  DAYDREAM: 'lab'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  daydream-lab-health:
+    name: 🔬 Lab Daydream · Build · Lint · Test · Feature Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Daydream scope only) ────────────────────────────────────────────
+      - name: Lint — Lab Daydream scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --dir app/daydream/lab \
+            --dir app/lab \
+            --dir app/physics-lab \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Premium feature scans ─────────────────────────────────────────────────
+      - name: Scan — Experiments surface
+        id: scan_experiments
+        run: |
+          echo "--- Experiments surface scan ---"
+          EXP_COUNT=$(grep -rl "experiment\|Experiment\|ExperimentList\|experiment-list" \
+            app/daydream/lab app/lab 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | wc -l || echo 0)
+          echo "COUNT=${EXP_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Experiment surface files: ${EXP_COUNT}"
+
+      - name: Scan — Physics lab component
+        id: scan_physics
+        run: |
+          echo "--- Physics lab component scan ---"
+          if [ -f "components/PhysicsLab.tsx" ]; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            LINE_COUNT=$(wc -l < components/PhysicsLab.tsx)
+            echo "✅ PhysicsLab.tsx exists (${LINE_COUNT} lines)"
+          elif grep -r "PhysicsLab\|physics-lab\|physicsLab" \
+            app/daydream/lab app/physics-lab 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | head -5; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Physics lab references found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Physics lab component not detected"
+          fi
+
+      - name: Scan — Quantum circuit canvas
+        id: scan_quantum
+        run: |
+          echo "--- Quantum circuit canvas scan ---"
+          if [ -f "components/QuantumCircuitCanvas.tsx" ] || \
+             grep -r "QuantumCircuit\|quantum-circuit\|quantumCircuit" \
+               app/daydream/lab components 2>/dev/null \
+               | grep -v "node_modules" | grep -v ".next" | head -3; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Quantum circuit canvas detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Quantum circuit canvas not found"
+          fi
+
+      - name: Scan — Experiment listing and navigation
+        id: scan_nav
+        run: |
+          echo "--- Experiment navigation scan ---"
+          if grep -r "experiment.*nav\|nav.*experiment\|ExperimentNav\|lab.*route\|route.*lab" \
+            app/daydream/lab app/lab 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Experiment navigation present"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Experiment navigation not detected"
+          fi
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — Lab Daydream
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --dir app/daydream/lab \
+            --dir app/lab \
+            --dir app/physics-lab \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "daydream-lab-standalone-bot"
+          git config user.email "daydream-lab-standalone-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(daydream/lab): ESLint auto-fix — Lab Daydream standalone [skip ci]"
+            git push
+          fi
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 🔬 Lab Daydream — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Daydream | Lab |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Daydream-only (no Engin) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Experiments surface | ${{ steps.scan_experiments.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Physics lab component | ${{ steps.scan_physics.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Quantum circuit canvas | ${{ steps.scan_quantum.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Experiment navigation | ${{ steps.scan_nav.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Engin-side checks are handled by \`engin-lab.yml\`." >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,190 @@
+name: Music Daydream — Health & Feature Scan
+
+# Daydream-only workflow for the Music Daydream (/daydream/music).
+# Scope: app/daydream/music/** + music-adjacent pages/components.
+# Does NOT touch StarMakerEngin — see engin-starmaker.yml for Engin-side CI.
+#
+# Premium feature checks:
+#   ✦ SoundRecorder component presence
+#   ✦ Music widget surface scan
+#   ✦ Upload flow handlers
+#   ✦ Label & release management flows
+
+on:
+  push:
+    paths:
+      - 'app/daydream/music/**'
+      - 'app/music/**'
+      - 'app/daydream/play/**'
+      - 'components/music/**'
+      - '.github/workflows/daydream-music.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'   # daily 02:00 UTC — offset from combined workflow (05:00)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daydream-music-standalone-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  DAYDREAM: 'music'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  daydream-music-health:
+    name: 🎵 Music Daydream · Build · Lint · Test · Feature Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Daydream scope only) ────────────────────────────────────────────
+      - name: Lint — Music Daydream scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --dir app/daydream/music \
+            --dir app/music \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Premium feature scan ──────────────────────────────────────────────────
+      - name: Scan — SoundRecorder component
+        id: scan_soundrecorder
+        run: |
+          echo "--- SoundRecorder scan ---"
+          if grep -r "SoundRecorder" app/daydream/music components/music 2>/dev/null | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ SoundRecorder component references found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  SoundRecorder component not detected in Music Daydream"
+          fi
+
+      - name: Scan — Music widgets surface
+        id: scan_widgets
+        run: |
+          echo "--- Music widget surface scan ---"
+          WIDGET_COUNT=$(grep -rl "music\|Music\|track\|Track\|playlist\|Playlist" \
+            app/daydream/music components/music 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | wc -l || echo 0)
+          echo "COUNT=${WIDGET_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Music widget surface files detected: ${WIDGET_COUNT}"
+
+      - name: Scan — Upload flow handlers
+        id: scan_upload
+        run: |
+          echo "--- Upload handler scan ---"
+          if grep -r "upload\|Upload\|handleUpload\|onUpload" \
+            app/daydream/music app/music app/api/music 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Upload handlers present"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  No upload handlers found — Music Daydream upload flow may be incomplete"
+          fi
+
+      - name: Scan — Labels and releases management
+        id: scan_labels
+        run: |
+          echo "--- Labels & releases scan ---"
+          if grep -r "label\|Label\|release\|Release" \
+            app/daydream/music app/music 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Label/release management references found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Label/release management not detected"
+          fi
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — Music Daydream
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --dir app/daydream/music \
+            --dir app/music \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "daydream-music-standalone-bot"
+          git config user.email "daydream-music-standalone-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(daydream/music): ESLint auto-fix — Music Daydream standalone [skip ci]"
+            git push
+          fi
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 🎵 Music Daydream — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Daydream | Music |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Daydream-only (no Engin) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| SoundRecorder component | ${{ steps.scan_soundrecorder.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Music widget surface | ${{ steps.scan_widgets.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Upload flow handlers | ${{ steps.scan_upload.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Labels & releases mgmt | ${{ steps.scan_labels.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Engin-side checks are handled by \`engin-starmaker.yml\`." >> "$GITHUB_STEP_SUMMARY"

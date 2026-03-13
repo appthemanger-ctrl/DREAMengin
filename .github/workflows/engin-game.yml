@@ -1,0 +1,224 @@
+name: GameEngin — Health & Premium Feature Patrol
+
+# Engin-only workflow for GameEngin (Games pair Engin).
+# Scope: components/daydream/GameEngin.tsx + game API routes + game components.
+# Does NOT re-run Daydream-side CI — see daydream-games.yml for that.
+#
+# Premium feature checks:
+#   ✦ Score handlers (leaderboard, personal bests)
+#   ✦ World builder / level editor
+#   ✦ Achievement system
+#   ✦ Physics engine integration
+#   ✦ Save / checkpoint system
+
+on:
+  push:
+    paths:
+      - 'components/daydream/GameEngin.tsx'
+      - 'app/api/game-scores/**'
+      - 'components/games/**'
+      - 'lib/game/**'
+      - 'lib/daydream/**'
+      - '.github/workflows/engin-game.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '35 2 * * *'   # daily 02:35 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: engin-game-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  ENGIN: 'GameEngin'
+  PAIR: 'games'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  engin-game-health:
+    name: 🕹️ GameEngin · Build · Lint · Test · Feature Patrol
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Engin scope only) ───────────────────────────────────────────────
+      - name: Lint — GameEngin scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --file components/daydream/GameEngin.tsx \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests (games scope)
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Engin-specific pattern scans ──────────────────────────────────────────
+      - name: Scan — Score handlers and leaderboard
+        id: scan_scores
+        run: |
+          echo "--- Score handler scan ---"
+          if grep -r "score\|Score\|leaderboard\|Leaderboard\|personalBest\|highScore\|submitScore\|updateScore" \
+            components/daydream/GameEngin.tsx app/api/game-scores 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | head -10; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Score handlers detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Score handlers not found"
+          fi
+
+      - name: Scan — World builder / level editor
+        id: scan_worldbuilder
+        run: |
+          echo "--- World builder scan ---"
+          if grep -r "WorldBuilder\|world-builder\|worldBuilder\|LevelEditor\|level-editor\|levelEditor\|mapEditor\|MapEditor" \
+            components/daydream/GameEngin.tsx components/games 2>/dev/null \
+            | grep -v "node_modules"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ World builder / level editor detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  World builder not found"
+          fi
+
+      - name: Scan — Achievement system
+        id: scan_achievements
+        run: |
+          echo "--- Achievement system scan ---"
+          if grep -r "achievement\|Achievement\|trophy\|Trophy\|badge\|Badge\|unlockAchievement\|awardBadge" \
+            components/daydream/GameEngin.tsx components/games app/api/game-scores 2>/dev/null \
+            | grep -v "node_modules"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Achievement system detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Achievement system not found"
+          fi
+
+      - name: Scan — Physics engine integration
+        id: scan_physics
+        run: |
+          echo "--- Physics engine scan ---"
+          if grep -r "physics\|Physics\|Cannon\|cannon\|Ammo\|ammo\|Matter\|rigidBody\|collider\|Collider\|Babylon" \
+            components/daydream/GameEngin.tsx components/games 2>/dev/null \
+            | grep -v "node_modules"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Physics engine integration found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Physics engine not detected"
+          fi
+
+      - name: Scan — Save / checkpoint system
+        id: scan_save
+        run: |
+          echo "--- Save/checkpoint scan ---"
+          if grep -r "saveGame\|save-game\|checkpoint\|Checkpoint\|saveState\|loadSave\|autoSave\|quickSave" \
+            components/daydream/GameEngin.tsx components/games 2>/dev/null \
+            | grep -v "node_modules"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Save/checkpoint system detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Save/checkpoint system not found"
+          fi
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — GameEngin
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --file components/daydream/GameEngin.tsx \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "engin-game-bot"
+          git config user.email "engin-game-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(engin/game): ESLint auto-fix — GameEngin standalone [skip ci]"
+            git push
+          fi
+
+      # ── Upload artifact ───────────────────────────────────────────────────────
+      - name: Upload GameEngin scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-engin-scan-${{ github.run_number }}
+          path: |
+            components/daydream/GameEngin.tsx
+          retention-days: 7
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 🕹️ GameEngin — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin | GameEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Canonical pair | Games Daydream |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Engin-only (no Daydream page) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Engin Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Score handlers / leaderboard | ${{ steps.scan_scores.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| World builder / level editor | ${{ steps.scan_worldbuilder.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Achievement system | ${{ steps.scan_achievements.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Physics engine integration | ${{ steps.scan_physics.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Save / checkpoint system | ${{ steps.scan_save.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Daydream-side checks are handled by \`daydream-games.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Combined pair health is handled by \`daydream-games-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"

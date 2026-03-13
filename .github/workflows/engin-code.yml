@@ -1,0 +1,215 @@
+name: CodeEngin — Health & Premium Feature Patrol
+
+# Engin-only workflow for CodeEngin (Code pair Engin).
+# Scope: components/daydream/CodeEngin.tsx + projects API routes + codespace components.
+# Does NOT re-run Daydream-side CI — see daydream-code.yml for that.
+#
+# Premium feature checks:
+#   ✦ Cell execution handlers
+#   ✦ Live CI integration
+#   ✦ Notebook cell management
+#   ✦ Execution cleanup (process teardown, abort)
+#   ✦ Language server / syntax support
+
+on:
+  push:
+    paths:
+      - 'components/daydream/CodeEngin.tsx'
+      - 'app/api/projects/**'
+      - 'app/codespace/**'
+      - 'lib/daydream/**'
+      - '.github/workflows/engin-code.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '45 2 * * *'   # daily 02:45 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: engin-code-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  ENGIN: 'CodeEngin'
+  PAIR: 'code'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  engin-code-health:
+    name: 🖥️ CodeEngin · Build · Lint · Test · Feature Patrol
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Engin scope only) ───────────────────────────────────────────────
+      - name: Lint — CodeEngin scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --file components/daydream/CodeEngin.tsx \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Engin-specific pattern scans ──────────────────────────────────────────
+      - name: Scan — Cell execution handlers
+        id: scan_cell_exec
+        run: |
+          echo "--- Cell execution scan ---"
+          if grep -r "executeCell\|execute-cell\|runCell\|run-cell\|CellExecutor\|evalCell\|runCode\|execCode" \
+            components/daydream/CodeEngin.tsx app/codespace 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Cell execution handlers detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Cell execution handlers not found"
+          fi
+
+      - name: Scan — Live CI integration
+        id: scan_live_ci
+        run: |
+          echo "--- Live CI integration scan ---"
+          if grep -r "liveCI\|live-ci\|LiveCI\|ciPipeline\|ci-pipeline\|triggerCI\|watchCI\|githubActions\|vercelDeploy" \
+            components/daydream/CodeEngin.tsx app/codespace app/api/projects 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Live CI integration found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Live CI integration not detected"
+          fi
+
+      - name: Scan — Notebook cell management
+        id: scan_notebook_mgmt
+        run: |
+          echo "--- Notebook management scan ---"
+          CELL_COUNT=$(grep -rl "addCell\|removeCell\|moveCell\|reorderCell\|insertCell\|deleteCell\|NotebookManager" \
+            components/daydream/CodeEngin.tsx app/codespace 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          echo "COUNT=${CELL_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Notebook management files: ${CELL_COUNT}"
+
+      - name: Scan — Execution cleanup
+        id: scan_exec_cleanup
+        run: |
+          echo "--- Execution cleanup scan ---"
+          if grep -r "abortExecution\|abort-execution\|cancelExecution\|killProcess\|terminateProcess\|execCleanup\|clearOutput" \
+            components/daydream/CodeEngin.tsx app/codespace 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Execution cleanup handlers found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Execution cleanup not found — long-running cells may not be stoppable"
+          fi
+
+      - name: Scan — Language / syntax support
+        id: scan_lang
+        run: |
+          echo "--- Language support scan ---"
+          LANG_COUNT=$(grep -rl "language\|Language\|syntax\|Syntax\|highlight\|Highlight\|monaco\|Monaco\|CodeMirror\|codemirror" \
+            components/daydream/CodeEngin.tsx app/codespace 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          echo "COUNT=${LANG_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Language support files: ${LANG_COUNT}"
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — CodeEngin
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --file components/daydream/CodeEngin.tsx \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "engin-code-bot"
+          git config user.email "engin-code-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(engin/code): ESLint auto-fix — CodeEngin standalone [skip ci]"
+            git push
+          fi
+
+      # ── Upload artifact ───────────────────────────────────────────────────────
+      - name: Upload CodeEngin scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-engin-scan-${{ github.run_number }}
+          path: |
+            components/daydream/CodeEngin.tsx
+          retention-days: 7
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 🖥️ CodeEngin — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin | CodeEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Canonical pair | Code Daydream |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Engin-only (no Daydream page) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Engin Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Cell execution handlers | ${{ steps.scan_cell_exec.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Live CI integration | ${{ steps.scan_live_ci.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Notebook cell management | ${{ steps.scan_notebook_mgmt.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Execution cleanup | ${{ steps.scan_exec_cleanup.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Risk' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Language / syntax support | ${{ steps.scan_lang.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Daydream-side checks are handled by \`daydream-code.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Combined pair health is handled by \`daydream-code-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"

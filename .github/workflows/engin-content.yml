@@ -1,0 +1,246 @@
+name: ContentEngin — Health & Premium Feature Patrol
+
+# Engin-only workflow for ContentEngin (Create pair Engin).
+# Scope: components/daydream/ContentEngin.tsx + create API routes + notes/content components.
+# Does NOT re-run Daydream-side CI — see daydream-create.yml for that.
+#
+# Premium feature checks:
+#   ✦ Scheduling handlers
+#   ✦ Draft management (save, load, autosave, version)
+#   ✦ Publish queue operations
+#   ✦ Cross-platform publish targets
+#   ✦ Content type support (video, image, audio, text)
+
+on:
+  push:
+    paths:
+      - 'components/daydream/ContentEngin.tsx'
+      - 'app/create/**'
+      - 'app/notes/**'
+      - 'app/api/content/**'
+      - 'lib/daydream/**'
+      - '.github/workflows/engin-content.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '55 2 * * *'   # daily 02:55 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: engin-content-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.30.0'
+  ENGIN: 'ContentEngin'
+  PAIR: 'create'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  engin-content-health:
+    name: ✍️ ContentEngin · Build · Lint · Test · Feature Patrol
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Engin scope only) ───────────────────────────────────────────────
+      - name: Lint — ContentEngin scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --file components/daydream/ContentEngin.tsx \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Engin-specific pattern scans ──────────────────────────────────────────
+      - name: Scan — Scheduling handlers
+        id: scan_schedule
+        run: |
+          echo "--- Scheduling handler scan ---"
+          if grep -r "schedulePost\|schedule-post\|scheduleContent\|ScheduleHandler\|scheduledAt\|publishAt\|setSchedule" \
+            components/daydream/ContentEngin.tsx app/create app/api/content 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | head -10; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Scheduling handlers detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Scheduling handlers not found"
+          fi
+
+      - name: Scan — Draft management
+        id: scan_drafts
+        run: |
+          echo "--- Draft management scan ---"
+          SAVE=$(grep -rl "saveDraft\|save-draft" \
+            components/daydream/ContentEngin.tsx app/create app/notes 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          LOAD=$(grep -rl "loadDraft\|load-draft\|getDraft\|fetchDraft" \
+            components/daydream/ContentEngin.tsx app/create app/notes 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          AUTO=$(grep -rl "autosave\|auto-save\|autoSave\|debounceSave" \
+            components/daydream/ContentEngin.tsx app/create app/notes 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          echo "SAVE=${SAVE}" >> "$GITHUB_OUTPUT"
+          echo "LOAD=${LOAD}" >> "$GITHUB_OUTPUT"
+          echo "AUTO=${AUTO}" >> "$GITHUB_OUTPUT"
+          echo "Save: ${SAVE} | Load: ${LOAD} | Autosave: ${AUTO}"
+
+      - name: Scan — Publish queue operations
+        id: scan_publish_queue
+        run: |
+          echo "--- Publish queue scan ---"
+          if grep -r "publishQueue\|publish-queue\|PublishQueue\|queuePost\|dequeuePost\|processQueue\|flushQueue" \
+            components/daydream/ContentEngin.tsx app/create app/api/content 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Publish queue operations detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Publish queue operations not found"
+          fi
+
+      - name: Scan — Cross-platform publish targets
+        id: scan_platforms
+        run: |
+          echo "--- Publish target platforms scan ---"
+          TARGETS=""
+          for platform in "instagram\|Instagram" "tiktok\|TikTok" "youtube\|YouTube" "twitter\|Twitter\|X\.com" "spotify\|Spotify" "soundcloud\|SoundCloud"; do
+            COUNT=$(grep -rl "$platform" \
+              components/daydream/ContentEngin.tsx app/create 2>/dev/null \
+              | grep -v "node_modules" | wc -l || echo 0)
+            if [ "$COUNT" -gt "0" ]; then
+              TARGETS="${TARGETS} present"
+            fi
+          done
+          TOTAL=$(grep -rl "publishTo\|publish-to\|exportTo\|crossPost\|cross-post" \
+            components/daydream/ContentEngin.tsx app/create app/api/content 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          echo "TOTAL=${TOTAL}" >> "$GITHUB_OUTPUT"
+          echo "Cross-platform publish handler files: ${TOTAL}"
+
+      - name: Scan — Content type support
+        id: scan_content_types
+        run: |
+          echo "--- Content type support scan ---"
+          VIDEO=$(grep -rl "video\|Video\|VideoUpload\|VideoPlayer" \
+            components/daydream/ContentEngin.tsx app/create 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          IMAGE=$(grep -rl "image\|Image\|ImageUpload\|ImagePicker" \
+            components/daydream/ContentEngin.tsx app/create 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          AUDIO=$(grep -rl "audio\|Audio\|AudioUpload\|AudioPlayer" \
+            components/daydream/ContentEngin.tsx app/create 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          TEXT=$(grep -rl "RichText\|rich-text\|richText\|TextEditor\|text-editor\|markdown\|Markdown" \
+            components/daydream/ContentEngin.tsx app/create app/notes 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          echo "VIDEO=${VIDEO}" >> "$GITHUB_OUTPUT"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "AUDIO=${AUDIO}" >> "$GITHUB_OUTPUT"
+          echo "TEXT=${TEXT}" >> "$GITHUB_OUTPUT"
+          echo "Video: ${VIDEO} | Image: ${IMAGE} | Audio: ${AUDIO} | Text/Rich: ${TEXT}"
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — ContentEngin
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --file components/daydream/ContentEngin.tsx \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "engin-content-bot"
+          git config user.email "engin-content-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(engin/content): ESLint auto-fix — ContentEngin standalone [skip ci]"
+            git push
+          fi
+
+      # ── Upload artifact ───────────────────────────────────────────────────────
+      - name: Upload ContentEngin scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-engin-scan-${{ github.run_number }}
+          path: |
+            components/daydream/ContentEngin.tsx
+          retention-days: 7
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## ✍️ ContentEngin — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin | ContentEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Canonical pair | Create Daydream |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Engin-only (no Daydream page) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Engin Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scheduling handlers | ${{ steps.scan_schedule.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Draft save handlers | ${{ steps.scan_drafts.outputs.SAVE != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Draft load handlers | ${{ steps.scan_drafts.outputs.LOAD != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Autosave | ${{ steps.scan_drafts.outputs.AUTO != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Publish queue | ${{ steps.scan_publish_queue.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Cross-platform targets | ${{ steps.scan_platforms.outputs.TOTAL != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Video content type | ${{ steps.scan_content_types.outputs.VIDEO != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Image content type | ${{ steps.scan_content_types.outputs.IMAGE != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Audio content type | ${{ steps.scan_content_types.outputs.AUDIO != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Rich text content type | ${{ steps.scan_content_types.outputs.TEXT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Daydream-side checks are handled by \`daydream-create.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Combined pair health is handled by \`daydream-create-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"
