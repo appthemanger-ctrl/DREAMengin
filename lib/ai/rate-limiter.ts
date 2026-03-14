@@ -49,7 +49,7 @@ export async function checkRateLimit(
     return { allowed: true, rpm: 0 };
   }
 
-  const allowed = data === true;
+  const allowed = data?.allowed === true;
 
   // Calculate reset time
   const now = new Date();
@@ -67,7 +67,7 @@ export async function checkRateLimit(
     .limit(1)
     .single();
 
-  const rpm = rateLimitData?.request_count ?? 0;
+  const rpm = data?.rpm ?? rateLimitData?.request_count ?? 0;
 
   return { allowed, rpm, resetAt };
 }

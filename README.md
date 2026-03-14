@@ -894,6 +894,30 @@ Each AI has its own server-side API route:
 	•	AI actions presented to the user must map to real system actions (no fake buttons, no implied actions).
 	•	Any action that could affect visibility/publicity must require explicit user intent.
 
+24.8 AI Rate-Limiting System
+
+All AI API routes use a **single, unified rate-limit system**:
+
+| Component | Name |
+|-----------|------|
+| Supabase RPC | `check_ai_rate_limit` |
+| Supabase table | `ai_rate_limits` |
+
+**Do NOT use:**
+- RPC `rate_limit_hit` (removed)
+- Table `rate_limit_counters` (removed)
+
+The TypeScript layer (`lib/ai/rateLimit.ts`) exports:
+- `checkRateLimit(userId, endpoint, limit, windowSeconds)` → `RateLimitResult`
+- `getCurrentRPM(userId, endpoint)` → `number`
+
+`RateLimitResult` shape:
+```ts
+{ allowed: boolean; rpm: number; retry_after_seconds?: number }
+```
+
+`checkRateLimit` is **fail-closed**: any RPC error or invalid response returns `{ allowed: false, rpm: 0, retry_after_seconds }`.
+
 ⸻
 
 25. Launch Standard (Minimum “Truthful” Release)

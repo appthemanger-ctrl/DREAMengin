@@ -152,3 +152,32 @@ These remain open and should be documented honestly:
 - Supabase for auth, database, storage, and realtime
 
 These assumptions should remain stable unless a change is truly required.
+
+## 11. AI Rate-Limiting System
+
+All AI API routes use a **single, unified rate-limit system**. There must be no deviation from this in future builds.
+
+| Component | Canonical name |
+|-----------|---------------|
+| Supabase RPC | `check_ai_rate_limit` |
+| Supabase table | `ai_rate_limits` |
+
+**Removed / must not be used:**
+- RPC `rate_limit_hit` — replaced by `check_ai_rate_limit`
+- Table `rate_limit_counters` — replaced by `ai_rate_limits`
+
+The TypeScript entry-point is `lib/ai/rateLimit.ts`:
+- `checkRateLimit(userId, endpoint, limit, windowSeconds)` → `RateLimitResult`
+- `getCurrentRPM(userId, endpoint)` → `number`
+
+`RateLimitResult` interface:
+```ts
+{ allowed: boolean; rpm: number; retry_after_seconds?: number }
+```
+
+`checkRateLimit` is fail-closed: any RPC error or invalid response returns
+`{ allowed: false, rpm: 0, retry_after_seconds }`.
+
+The `lib/ai/rate-limiter.ts` file is a separate higher-level service that also
+uses `check_ai_rate_limit` + `ai_rate_limits` and is not a replacement for
+`rateLimit.ts` — both must stay consistent with the canonical table/RPC above.
