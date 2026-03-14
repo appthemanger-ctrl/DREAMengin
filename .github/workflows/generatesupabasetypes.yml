@@ -29,4 +29,4 @@ jobs:
           git config user.email "actions@github.com"
           git add types/supabase.ts
           git commit -m "chore: regenerate supabase types" || echo "No changes"
-          git push
+          git push || true

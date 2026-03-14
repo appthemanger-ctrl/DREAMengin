@@ -107,14 +107,7 @@ jobs:
           else
             git add -A
             git commit -m "fix(code-daydream): ESLint auto-fix in Code Daydream + CodeEngin [skip ci]"
-            git push
-          fi
-
-      # ── Summary ───────────────────────────────────────────────────────────────
-      - name: Job summary
-        if: always()
-        run: |
-          echo "## 💻 Code Daydream + CodeEngin Health Report" >> "$GITHUB_STEP_SUMMARY"
+            git push || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"

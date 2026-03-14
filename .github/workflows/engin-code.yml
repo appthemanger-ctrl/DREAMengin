@@ -173,11 +173,7 @@ jobs:
           else
             git add -A
             git commit -m "fix(engin/code): ESLint auto-fix — CodeEngin standalone [skip ci]"
-            git push
-          fi
-
-      # ── Upload artifact ───────────────────────────────────────────────────────
-      - name: Upload CodeEngin scan report
+            git push || true
         if: always()
         uses: actions/upload-artifact@v4
         with:

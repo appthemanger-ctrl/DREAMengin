@@ -109,14 +109,7 @@ jobs:
           else
             git add -A
             git commit -m "fix(games-daydream): ESLint auto-fix in Games Daydream + GameEngin [skip ci]"
-            git push
-          fi
-
-      # ── Summary ───────────────────────────────────────────────────────────────
-      - name: Job summary
-        if: always()
-        run: |
-          echo "## 🎮 Games Daydream + GameEngin Health Report" >> "$GITHUB_STEP_SUMMARY"
+            git push || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
