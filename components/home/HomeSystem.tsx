@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
+import React, { useCallback, useState } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
 import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
-import NavIndicator from '@/components/dreamnav/NavIndicator';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
 import DreamDMBar from '@/components/messaging/DreamDMBar';
 
@@ -20,23 +18,11 @@ type ProfileLike = {
 
 // Inner component that uses the dual runtime context
 function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
-  const { dispatch, navigateTo, node } = useDreamNav();
   const dualRuntime = useDualRuntime();
 
   const [bothMenusOpen, setBothMenusOpen] = useState(false);
   const [drEamsOpen, setDrEamsOpen]       = useState(false);
-  const [coreFace, setCoreFace]           = useState<'home' | 'profile'>('home');
-  const [coreOpen, setCoreOpen]           = useState(true);
   const [barBlend, setBarBlend]           = useState(0);
-
-  // Read showNavIndicator setting from localStorage (default true)
-  const [showNavIndicator, setShowNavIndicator] = useState(true);
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('dreamengin:showNavIndicator');
-      if (saved !== null) setShowNavIndicator(saved !== 'false');
-    } catch { /* noop */ }
-  }, []);
 
   const closeAllMenus = useCallback(() => {
     setBothMenusOpen(false);
@@ -49,21 +35,15 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     // Make Home the active top runtime (or refresh if already active)
     dualRuntime.goToHome();
 
-    // Traditional navigation dispatch for backwards compatibility
-    dispatch('home');
     closeAllMenus();
     setDrEamsOpen(false);
-    setCoreFace('home');
-    setCoreOpen(true);
     setBarBlend(0);
 
     // If Home was already active, this acts as a "refresh"
-    // The spec says: "if Home is already the active top runtime, refresh Home"
     if (wasHomeActive) {
-      // Trigger a visual refresh indicator or reload logic here if needed
       console.log('[HomeSystem] Refreshing Home (already active)');
     }
-  }, [dispatch, closeAllMenus, dualRuntime]);
+  }, [closeAllMenus, dualRuntime]);
 
   const onSystemAction = useCallback((action: SystemMenuAction) => {
     closeAllMenus();
@@ -97,7 +77,6 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
   return (
     <>
       <StarfieldCanvas />
-      <NavIndicator node={node} hidden={!showNavIndicator} />
 
       {/* Dual Runtime Views */}
       <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
@@ -158,10 +137,6 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         open={bothMenusOpen}
         onClose={closeAllMenus}
         side="left"
-        onSelectNode={(n) => {
-          closeAllMenus();
-          navigateTo(n as import('@/lib/dreamnav/delta').Node);
-        }}
       />
 
       {/* System menu — right side when paired, center when solo */}

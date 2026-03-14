@@ -9,7 +9,7 @@
 
 import React from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
-import HomeDreamRuntime from '@/components/dreamnav/HomeDreamRuntime';
+import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
 
 interface RuntimeViewProps {
   world: RuntimeWorld;
@@ -48,13 +48,9 @@ export default function RuntimeView({
           transition: 'opacity 0.3s ease',
         }}
       >
-        <HomeDreamRuntime
+        <WorkspaceDashboard
           profile={profile}
-          posts={posts}
-          coreFace="home"
-          coreOpen={true}
-          onToggleCoreFace={() => {}}
-          onCloseCore={() => {}}
+          posts={posts ?? []}
           onOpenDrEams={onOpenDrEams}
           onOpenDreamSpace={onOpenDreamSpace}
           isAdmin={isAdmin}
@@ -119,13 +115,9 @@ export default function RuntimeView({
           transition: 'opacity 0.3s ease',
         }}
       >
-        <HomeDreamRuntime
+        <WorkspaceDashboard
           profile={profile}
-          posts={posts}
-          coreFace="profile"
-          coreOpen={true}
-          onToggleCoreFace={() => {}}
-          onCloseCore={() => {}}
+          posts={posts ?? []}
           onOpenDrEams={onOpenDrEams}
           onOpenDreamSpace={onOpenDreamSpace}
           isAdmin={isAdmin}
