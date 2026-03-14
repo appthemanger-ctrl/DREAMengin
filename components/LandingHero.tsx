@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import HeroSprite from './HeroSprite';
+import DrEamsBabylonHero from './landing/DrEamsBabylonHero';
 import PlatformBadge from './ui/PlatformBadge';
 import PortfolioOptimizationScene from './dreamengin/PortfolioOptimizationScene';
 
@@ -255,11 +255,17 @@ export default function LandingHero() {
               </div>
             </div>
 
-            {/* Character — full PBR sprite with touch interaction */}
-            <HeroSprite
-              width={spriteSize}
-              height={spriteSize}
-            />
+            {/* Character — Babylon.js 3-D Dr. Eams with touch interaction */}
+            <div
+              style={{
+                width: spriteSize,
+                height: spriteSize,
+                position: 'relative',
+                flexShrink: 0,
+              }}
+            >
+              <DrEamsBabylonHero width={spriteSize} height={spriteSize} />
+            </div>
 
             {/* Touch affordance */}
             <p
@@ -270,7 +276,7 @@ export default function LandingHero() {
                 opacity: 0.75,
               }}
             >
-              tap to interact ✦
+              tap · drag · interact ✦
             </p>
           </div>
 
