@@ -186,11 +186,7 @@ jobs:
           else
             git add -A
             git commit -m "fix(engin/branding): ESLint auto-fix — BrandingEngin standalone [skip ci]"
-            git push
-          fi
-
-      # ── Upload artifact ───────────────────────────────────────────────────────
-      - name: Upload BrandingEngin scan report
+            git push || true
         if: always()
         uses: actions/upload-artifact@v4
         with:

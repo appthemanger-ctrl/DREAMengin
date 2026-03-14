@@ -171,11 +171,7 @@ jobs:
           else
             git add -A
             git commit -m "fix(engin/starmaker): ESLint auto-fix — StarMakerEngin standalone [skip ci]"
-            git push
-          fi
-
-      # ── Upload artifact ───────────────────────────────────────────────────────
-      - name: Upload StarMakerEngin scan report
+            git push || true
         if: always()
         uses: actions/upload-artifact@v4
         with:

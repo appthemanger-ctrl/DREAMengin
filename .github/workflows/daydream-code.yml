@@ -162,14 +162,7 @@ jobs:
           else
             git add -A
             git commit -m "fix(daydream/code): ESLint auto-fix — Code Daydream standalone [skip ci]"
-            git push
-          fi
-
-      # ── Job Summary ───────────────────────────────────────────────────────────
-      - name: Job Summary
-        if: always()
-        run: |
-          echo "## 💻 Code Daydream — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+            git push || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"

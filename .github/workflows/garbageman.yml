@@ -36,4 +36,4 @@ jobs:
           git add -A
 
           git diff --cached --quiet || git commit -m "chore: auto cleanup"
-          git push
+          git push || true

@@ -142,10 +142,7 @@ jobs:
           else
             git add -A
             git commit -m "fix(games): GameEngin patrol auto-fix [skip ci]"
-            git push
-          fi
-
-      # ── Upload patrol report ──────────────────────────────────────────────────
+            git push || true
       - name: Upload patrol report
         if: always()
         uses: actions/upload-artifact@v4
