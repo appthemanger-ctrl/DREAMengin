@@ -1,0 +1,302 @@
+{
+  "generated_at": "2026-03-14T20:40:52.182Z",
+  "generator": "scripts/sync-build-memory.mjs",
+  "count": 39,
+  "routes": [
+    {
+      "path": "/api/account/delete-data",
+      "file": "app/api/account/delete-data/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/account/delete-dream",
+      "file": "app/api/account/delete-dream/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/account/export-data",
+      "file": "app/api/account/export-data/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/admin/ai-chat",
+      "file": "app/api/admin/ai-chat/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/admin/ai-request",
+      "file": "app/api/admin/ai-request/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/admin/code-files",
+      "file": "app/api/admin/code-files/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/ai/boogieman",
+      "file": "app/api/ai/boogieman/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/ai/boogieman/status",
+      "file": "app/api/ai/boogieman/status/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/ai/eams",
+      "file": "app/api/ai/eams/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/ai/execute",
+      "file": "app/api/ai/execute/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/ai/idari",
+      "file": "app/api/ai/idari/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/appeal",
+      "file": "app/api/appeal/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/auth/logout",
+      "file": "app/api/auth/logout/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/comments",
+      "file": "app/api/comments/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/connectors/[provider]/connect",
+      "file": "app/api/connectors/[provider]/connect/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/connectors/[provider]/items",
+      "file": "app/api/connectors/[provider]/items/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/connectors/[provider]/sync",
+      "file": "app/api/connectors/[provider]/sync/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/connectors/[provider]/verify",
+      "file": "app/api/connectors/[provider]/verify/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/dr-eams/hf",
+      "file": "app/api/dr-eams/hf/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/dr-eams/run",
+      "file": "app/api/dr-eams/run/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/follow",
+      "file": "app/api/follow/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/game-scores",
+      "file": "app/api/game-scores/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/innerdreams/check-bugs",
+      "file": "app/api/innerdreams/check-bugs/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/innerdreams/run",
+      "file": "app/api/innerdreams/run/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/innerdreams/update",
+      "file": "app/api/innerdreams/update/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/likes",
+      "file": "app/api/likes/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/marketplace",
+      "file": "app/api/marketplace/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/messages",
+      "file": "app/api/messages/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/messages/boards",
+      "file": "app/api/messages/boards/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/music",
+      "file": "app/api/music/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/notifications",
+      "file": "app/api/notifications/route.ts",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/posts",
+      "file": "app/api/posts/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/profile",
+      "file": "app/api/profile/route.ts",
+      "methods": [
+        "GET",
+        "PUT"
+      ]
+    },
+    {
+      "path": "/api/projects",
+      "file": "app/api/projects/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/setup/check",
+      "file": "app/api/setup/check/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/shop",
+      "file": "app/api/shop/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/upload",
+      "file": "app/api/upload/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/widgets/feed",
+      "file": "app/api/widgets/feed/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/widgets/instances",
+      "file": "app/api/widgets/instances/route.ts",
+      "methods": [
+        "GET"
+      ]
+    }
+  ]
+}

@@ -13,6 +13,8 @@
     "test": "vitest run",
     "test:ci": "vitest run",
     "test:watch": "vitest",
+    "build-memory:sync": "node scripts/sync-build-memory.mjs",
+    "build-memory:check": "node scripts/check-build-memory-drift.mjs",
     "preflight": "node scripts/vercel-preflight.cjs . && node scripts/spec-check.cjs . && pnpm run typecheck && pnpm run lint && pnpm run test:ci"
   },
   "dependencies": {
