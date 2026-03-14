@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-14 16:49 UTC  
-**Triggered by commit:** `8ce9e2d` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #194 from appthemanger-ctrl/copilot/run-every-agent-into-production
+**Last updated:** 2026-03-14 17:20 UTC  
+**Triggered by commit:** `5cee6bc` on `copilot/migrate-to-one-rate-limit-system` by Copilot  
+**Commit message:** feat: migrate to unified rate-limit system (check_ai_rate_limit + ai_rate_limits)
 
 ---
 
