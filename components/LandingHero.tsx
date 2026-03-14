@@ -5,7 +5,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import DrEamsBabylonHero from './landing/DrEamsBabylonHero';
 import PlatformBadge from './ui/PlatformBadge';
-import PortfolioOptimizationScene from './dreamengin/PortfolioOptimizationScene';
+// PortfolioOptimizationScene was removed in Pass 2.
+// It rendered stock/financial tickers (AAPL, MSFT, GOOG…) and a "QPO hub"
+// node in the background — semantically misaligned with a creative OS product.
+// Brand justification: AXIOMS.md Axiom 1 (Coherent), BUGS.md "Final Vision"
+// (sky-blue + gold, no dark gamer/fintech aesthetics).
+// The de-sky-bg gradient (sky → warm gold) is the correct sole background.
 
 /**
  * LandingHero — root landing page hero component.
@@ -15,6 +20,20 @@ import PortfolioOptimizationScene from './dreamengin/PortfolioOptimizationScene'
  * Animation: Framer Motion AnimatePresence for speech bubble transitions.
  * Architecture: ARCHITECTURE.md §8 (Gold = action, Light Blue = connected,
  *   White = base surface), THEME.md (no dark gamer colours, mobile-first polish).
+ *
+ * Pass 2 changes (Idari):
+ *   - Removed PortfolioOptimizationScene (financial tickers brand mismatch).
+ *   - Root element changed from <main> → <div>: layout.tsx already provides
+ *     the page-level <main> landmark; nesting two <main> violates WCAG 1.3.6.
+ *   - Added aria-live="polite" + aria-atomic on speech bubble for screen readers.
+ *   - Logo text is now a <Link href="/"> — standard accessible brand-home pattern.
+ *   - Secondary hero CTA changed "About" → "Sign In" (/login) so the two CTAs
+ *     serve distinct user types (new vs returning), eliminating the duplicate
+ *     /about link that was already present in the header nav.
+ *   - Added aria-labelledby on hero section pointing to the h1.
+ *   - Added aria-label on DrEamsBabylonHero wrapper for assistive tech.
+ * Stats TODO: "20 Games" and "25+ Integrations" are not yet confirmed in
+ *   FEATURE_STATUS.md — update when accurate figures are sourced.
  */
 
 /** Platform icons shown in the connection strip */
@@ -75,29 +94,33 @@ export default function LandingHero() {
     : messages[msgIndex];
 
   return (
-    <main
+    // Root is a <div>, NOT <main> — layout.tsx already wraps every page in
+    // <main role="main">.  Two nested <main> elements violate WCAG 1.3.6 and
+    // the HTML spec (only one <main> landmark per document is allowed).
+    <div
       className="de-sky-bg relative min-h-screen overflow-hidden"
-      aria-label="DREAMengin — your personal creative operating surface"
     >
-
-      {/* ── Animated node-graph canvas — transparent, renders over the sky gradient ── */}
-      <PortfolioOptimizationScene />
 
       {/* ── Content ── */}
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8">
 
         {/* ── Header ── */}
         <header className="flex items-center justify-between">
-          <div
+          {/* Logo — Link to / so screen-reader users and keyboard users can
+              always reach the root without hunting for a nav item. */}
+          <Link
+            href="/"
             className="text-lg font-bold tracking-widest uppercase"
             style={{
               fontFamily: FONT_SG,
               color: 'var(--de-heading)',
               letterSpacing: '0.22em',
+              textDecoration: 'none',
             }}
+            aria-label="DREAMengin — go to home"
           >
             DREAMengin
-          </div>
+          </Link>
           <nav className="flex items-center gap-3" aria-label="Site navigation">
             <Link
               href="/about"
@@ -117,7 +140,11 @@ export default function LandingHero() {
         </header>
 
         {/* ── Hero section ── */}
-        <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
+        {/* aria-labelledby links this landmark to the visible h1 below */}
+        <section
+          className="flex flex-1 flex-col items-center justify-center gap-8 text-center"
+          aria-labelledby="hero-heading"
+        >
 
           {/* Top pill — brand signal */}
           <div
@@ -169,9 +196,14 @@ export default function LandingHero() {
               </div>
             </div>
 
-            {/* Speech bubble — frosted glass, Framer Motion transitions */}
+            {/* Speech bubble — frosted glass, Framer Motion transitions.
+                aria-live="polite" + aria-atomic="true" ensures screen readers
+                announce the new message each time it rotates without
+                interrupting ongoing announcements. */}
             <div
               className="sm:absolute sm:top-[64px] sm:right-[-84px] mb-3 sm:mb-0 max-w-[260px] sm:max-w-[280px] text-center sm:text-left z-20"
+              aria-live="polite"
+              aria-atomic="true"
             >
               <div className="de-widget relative rounded-2xl px-4 py-3">
                 <AnimatePresence mode="wait">
@@ -211,7 +243,9 @@ export default function LandingHero() {
               </div>
             </div>
 
-            {/* Character — Babylon.js 3-D Dr. Eams with touch interaction */}
+            {/* Character — Babylon.js 3-D Dr. Eams with touch interaction.
+                The wrapper div carries an aria-label so screen-reader users
+                know this is an interactive 3-D character rather than an image. */}
             <div
               style={{
                 width: spriteSize,
@@ -219,6 +253,8 @@ export default function LandingHero() {
                 position: 'relative',
                 flexShrink: 0,
               }}
+              aria-label="Dr. Eams — interactive 3-D character. Tap or drag to interact."
+              role="img"
             >
               <DrEamsBabylonHero width={spriteSize} height={spriteSize} />
             </div>
@@ -238,6 +274,7 @@ export default function LandingHero() {
 
           {/* ── Headline — sky-blue → navy → gold brand gradient ── */}
           <h1
+            id="hero-heading"
             className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl"
             style={{
               fontFamily: FONT_SG,
@@ -251,7 +288,10 @@ export default function LandingHero() {
             Navigate your digital world as layered dreams.
           </h1>
 
-          {/* ── Platform stats strip — frosted glass pills ── */}
+          {/* ── Platform stats strip — frosted glass pills ──
+              TODO: verify "20 Games" and "25+ Integrations" against
+              FEATURE_STATUS.md once canonical figures are published.
+              "3 AI Agents" (Dr. Eams, IDARi, TheBoogieMan) is confirmed. ── */}
           <div
             className="flex flex-wrap justify-center gap-3"
             aria-label="Platform statistics"
@@ -274,9 +314,12 @@ export default function LandingHero() {
             ))}
           </div>
 
-          {/* ── CTAs ── */}
+          {/* ── CTAs ──
+              Primary:   "Get Started" → /join   (new users — sign up)
+              Secondary: "Sign In"     → /login  (returning users)
+              These two serve distinct user types, so there is no duplication.
+              The header-nav "About" link already covers that destination. ── */}
           <div className="flex flex-col gap-3 sm:flex-row">
-            {/* Gold-blue gradient primary CTA */}
             <Link
               href="/join"
               className="de-btn de-btn-primary"
@@ -284,13 +327,12 @@ export default function LandingHero() {
             >
               Get Started
             </Link>
-            {/* Ghost secondary */}
             <Link
-              href="/about"
+              href="/login"
               className="de-btn de-btn-ghost"
               style={{ padding: '12px 28px', fontSize: 15 }}
             >
-              About
+              Sign In
             </Link>
           </div>
         </section>
@@ -321,6 +363,6 @@ export default function LandingHero() {
         </section>
 
       </div>
-    </main>
+    </div>
   );
 }
