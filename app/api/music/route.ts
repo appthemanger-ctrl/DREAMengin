@@ -79,7 +79,8 @@ export async function POST(req: NextRequest) {
   }
 
   // Create feed item
-  await supabase.from('feed_items').insert({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase as any).from('feed_items').insert({
     user_id: user.id,
     type: 'music',
     content: { title: release.title, release_id: release.id },

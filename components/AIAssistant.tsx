@@ -132,7 +132,7 @@ export default function AIAssistant() {
 
       return json?.message ? `iDari: ${json.message}` : 'iDari accepted the update request.';
     } catch (e: unknown) {
-      return `iDari request error: ${e?.message || 'Unknown error'}`;
+      return `iDari request error: ${e instanceof Error ? e.message : 'Unknown error'}`;
     }
   };
 

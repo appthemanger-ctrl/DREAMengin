@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in to submit an appeal.');
   }
 
-  const parseResult = AppealRequestSchema.safeParse({ ...body, user_id: user.id });
+  const parseResult = AppealRequestSchema.safeParse({ ...(body as Record<string, unknown>), user_id: user.id });
   if (!parseResult.success) {
     return jsonApiError(400, 'VALIDATION_ERROR', 'Invalid appeal body.');
   }

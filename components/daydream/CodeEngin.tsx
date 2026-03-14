@@ -193,7 +193,7 @@ export default function CodeEngin({ onBack }: Props) {
     let cancelled = false;
     const supabase = createClient();
 
-    supabase.auth.getUser().then(async (res) => {
+    supabase.auth.getUser().then(async (res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
       const u = res.data.user;
       if (!u || cancelled) { setLoading(false); return; }
       if (!cancelled) setUser(u);

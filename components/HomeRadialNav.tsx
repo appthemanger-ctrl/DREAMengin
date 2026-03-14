@@ -511,12 +511,12 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
     
     // Show immediate intent interpretation
     const intent = interpretIntent(userText);
-    setInterpretingIntent(intent);
+    setInterpretingIntent(intent.label);
     setIsLoading(true);
 
     
     // Instant intent acknowledgment
-    const navigated = handleNavigation(userText);
+    const navigated = handleNavigation(intent);
     trackSearch(userText);
 
     if (navigated) {

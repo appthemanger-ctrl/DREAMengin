@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 interface CommandItem {
   id: string;
   label: string;
-  icon: React.ComponentType<unknown>;
+  icon: React.ComponentType<{ className?: string }>;
   keywords: string[];
   action: () => void;
   category: string;

@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
 
   if (conversationId) {
     // Fetch messages for a specific conversation
-    const { data: messages, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: messages, error } = await (supabase as any)
       .from('messages')
       .select(`
         *,
@@ -32,7 +33,8 @@ export async function GET(req: NextRequest) {
   }
 
   // Fetch all conversations for the user
-  const { data: conversations, error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: conversations, error } = await (supabase as any)
     .from('conversations')
     .select(`
       *,
@@ -106,9 +108,11 @@ export async function POST(req: NextRequest) {
   if (media_url) messageRow.media_url = media_url;
   if (media_type) messageRow.media_type = media_type;
 
-  const { data: message, error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: message, error } = await (supabase as any)
     .from('messages')
-    .insert(messageRow)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .insert(messageRow as any)
     .select(`
       *,
       sender:profiles!sender_id(id, handle, display_name, avatar_url)
@@ -128,13 +132,14 @@ export async function POST(req: NextRequest) {
   // Create notification for recipient
   const recipientId = conversation_id ? null : recipient_id;
   if (recipientId) {
-    await supabase.from('notifications').insert({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from('notifications').insert({
       user_id: recipientId,
       type: 'message',
       content: {
         message: `New message from ${user.email}`,
         conversation_id: convId,
-        message_id: message.id,
+        message_id: (message as Record<string, unknown>).id,
       },
     });
   }

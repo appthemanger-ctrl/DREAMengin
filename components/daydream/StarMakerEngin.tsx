@@ -180,7 +180,7 @@ export default function StarMakerEngin({ onBack }: Props) {
     let cancelled = false;
     const supabase = createClient();
 
-    supabase.auth.getUser().then(async (res) => {
+    supabase.auth.getUser().then(async (res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
       const user = res.data.user;
       if (!user || cancelled) { setLoading(false); return; }
 

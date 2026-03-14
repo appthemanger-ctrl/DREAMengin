@@ -139,7 +139,7 @@ export default function LabEngin({ onBack }: Props) {
 
   // ── Export handler ─────────────────────────────────────────────────────────
   function handleExportData() {
-    bridge.emit('lab', 'lab:data-exported', { format: 'json', rowCount: 42 });
+    bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });
     setExportFlash(true);
     setTimeout(() => setExportFlash(false), 1800);
   }

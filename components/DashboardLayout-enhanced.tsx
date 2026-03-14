@@ -11,10 +11,13 @@ import {
 import Link from 'next/link';
 
 interface DashboardLayoutProps {
-  feed: unknown[];
-  widgets: unknown[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  feed: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  widgets: any[];
   userId: string;
-  notifications: unknown[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  notifications: any[];
 }
 
 interface Widget {
@@ -26,7 +29,7 @@ interface Widget {
 }
 
 export default function DashboardLayoutEnhanced({ feed, widgets: initialWidgets, userId, notifications }: DashboardLayoutProps) {
-  const [widgets, setWidgets] = useState<Widget[]>(initialWidgets);
+  const [widgets, setWidgets] = useState<Widget[]>(initialWidgets as Widget[]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -324,8 +327,16 @@ export default function DashboardLayoutEnhanced({ feed, widgets: initialWidgets,
   );
 }
 
+interface DraggableWidgetEnhancedProps {
+  widget: Widget;
+  index: number;
+  moveWidget: (dragIndex: number, hoverIndex: number) => Promise<void>;
+  isEditMode: boolean;
+  onRemove: () => Promise<void>;
+}
+
 // Enhanced draggable widget component
-function DraggableWidgetEnhanced({ widget, index, moveWidget, isEditMode, onRemove }: unknown) {
+function DraggableWidgetEnhanced({ widget, index, moveWidget, isEditMode, onRemove }: DraggableWidgetEnhancedProps) {
   const [{ isDragging }, drag] = useDrag({
     type: 'widget',
     item: { index },
@@ -370,14 +381,15 @@ function DraggableWidgetEnhanced({ widget, index, moveWidget, isEditMode, onRemo
         )}
       </div>
       <div className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-        {widget.config_json?.text || 'Active'}
+        {(widget.config_json as Record<string, unknown>)?.['text'] as string || 'Active'}
       </div>
     </div>
   );
 }
 
 // Placeholder for enhanced feed card
-function EnhancedFeedCardPlaceholder({ item }: { item: unknown }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function EnhancedFeedCardPlaceholder({ item }: { item: any }) {
   return (
     <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all group">
       <div className="flex items-center space-x-3 mb-4">

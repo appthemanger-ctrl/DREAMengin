@@ -215,6 +215,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
 
     let mediaUrl: string | undefined;
     let mediaType: 'image' | 'video' | 'audio' | 'file' | undefined;
+    let optimisticMessage: DMMessage | undefined;
 
     try {
       if (selectedFile) {
@@ -223,7 +224,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
         removeFile();
       }
 
-      const optimisticMessage: DMMessage = {
+      optimisticMessage = {
         id: `temp-${Date.now()}`,
         sender_id: userId,
         content: messageContent,
@@ -255,7 +256,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
 
       const data = await res.json();
       if (data.message) {
-        replaceOptimistic(optimisticMessage.id, data.message);
+        replaceOptimistic(optimisticMessage!.id, data.message);
         // Update conversation list updated_at
         setConversations(prev =>
           prev.map(c =>
@@ -268,7 +269,7 @@ export default function MessagesClient({ userId, initialConversations }: Message
     } catch (err) {
       console.error('Failed to send message:', err);
       alert(err instanceof Error ? err.message : 'Failed to send message');
-      removeOptimistic(optimisticMessage.id);
+      if (optimisticMessage) removeOptimistic(optimisticMessage.id);
       setNewMessage(rawBody);
     } finally {
       setIsSending(false);

@@ -7,6 +7,8 @@ import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 
 interface WriteAuditLogInput {
   request_id: string;
+  intent_id?: string;
+  intent_type?: string;
   user_id: string;
   agent: string;
   ok: boolean;

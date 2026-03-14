@@ -88,7 +88,8 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const handleWebSocketMessage = (data: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleWebSocketMessage = (data: any) => {
     switch (data.type) {
       case 'cursor':
         updateCursor(data);
@@ -114,7 +115,8 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     }
   };
 
-  const updateCursor = (data: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateCursor = (data: any) => {
     setCursors(prev => {
       const existing = prev.find(c => c.userId === data.userId);
       if (existing) {
@@ -134,7 +136,8 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     });
   };
 
-  const addCollaborator = (user: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const addCollaborator = (user: any) => {
     setCollaborators(prev => [...prev, {
       id: user.id,
       name: user.name,
@@ -149,7 +152,8 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     setCursors(prev => prev.filter(c => c.userId !== userId));
   };
 
-  const addMessage = (data: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const addMessage = (data: any) => {
     setMessages(prev => [...prev, {
       user: data.userName,
       text: data.text,
@@ -191,7 +195,8 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     return pc;
   };
 
-  const handleOffer = async (data: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleOffer = async (data: any) => {
     const pc = createPeerConnection(data.userId);
     await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
     
@@ -207,14 +212,16 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     }
   };
 
-  const handleAnswer = async (data: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleAnswer = async (data: any) => {
     const pc = peerConnections.current.get(data.userId);
     if (pc) {
       await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
     }
   };
 
-  const handleIceCandidate = async (data: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleIceCandidate = async (data: any) => {
     const pc = peerConnections.current.get(data.userId);
     if (pc) {
       await pc.addIceCandidate(new RTCIceCandidate(data.candidate));

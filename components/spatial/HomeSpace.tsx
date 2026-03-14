@@ -246,7 +246,7 @@ export default function HomeSpace({ userId, onSwitchToProfile }: HomeSpaceProps)
               All Content
             </button>
 
-            {albums.map((album) => (
+            {albums.map((album: Album) => (
               <button
                 key={album.id}
                 onClick={() => setActiveAlbumId(album.id)}
@@ -355,11 +355,11 @@ export default function HomeSpace({ userId, onSwitchToProfile }: HomeSpaceProps)
       )}
 
       {showUploadModal && (
-        <UploadModal userId={userId} onClose={() => setShowUploadModal(false)} onUpload={createContent} />
+        <UploadModal userId={userId} onClose={() => setShowUploadModal(false)} onUpload={createContent as (input: unknown) => Promise<unknown>} />
       )}
 
       {showAlbumModal && (
-        <AlbumModal userId={userId} onClose={() => setShowAlbumModal(false)} onCreate={createAlbum} />
+        <AlbumModal userId={userId} onClose={() => setShowAlbumModal(false)} onCreate={createAlbum as (input: unknown) => Promise<unknown>} />
       )}
     </div>
   );

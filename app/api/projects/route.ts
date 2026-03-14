@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Check access
-    if (project.visibility !== 'public' && project.owner_id !== user.id) {
+    if (project.visibility !== 'public' && project.user_id !== user.id) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -48,14 +48,14 @@ export async function GET(req: NextRequest) {
     .order('created_at', { ascending: false });
 
   if (ownerId) {
-    query = query.eq('owner_id', ownerId);
+    query = query.eq('user_id', ownerId);
     if (ownerId !== user.id) {
       query = query.eq('visibility', 'public');
     }
   } else if (visibility === 'public') {
     query = query.eq('visibility', 'public');
   } else {
-    query = query.or(`visibility.eq.public,owner_id.eq.${user.id}`);
+    query = query.or(`visibility.eq.public,user_id.eq.${user.id}`);
   }
 
   const { data: projects, error } = await query;
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
   const { data: project, error } = await supabase
     .from('projects')
     .insert({
-      owner_id: user.id,
+      user_id: user.id,
       title: title.trim(),
       description: description?.trim() || null,
       visibility,
@@ -106,7 +106,8 @@ export async function POST(req: NextRequest) {
 
   // Create feed item if public
   if (visibility === 'public') {
-    await supabase.from('feed_items').insert({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from('feed_items').insert({
       user_id: user.id,
       type: 'project',
       content: { title: project.title, project_id: project.id },
@@ -147,7 +148,7 @@ export async function PUT(req: NextRequest) {
     .from('projects')
     .update(updateData)
     .eq('id', id)
-    .eq('owner_id', user.id)
+    .eq('user_id', user.id)
     .select()
     .single();
 
@@ -178,7 +179,7 @@ export async function DELETE(req: NextRequest) {
     .from('projects')
     .delete()
     .eq('id', id)
-    .eq('owner_id', user.id);
+    .eq('user_id', user.id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

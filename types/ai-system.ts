@@ -140,7 +140,7 @@ export type IntentType = z.infer<typeof IntentType>;
 export const IntentSchema = z.object({
   intent_id: z.string().uuid(),
   type: IntentType,
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
   confidence: z.number().min(0).max(1),
   requires_confirmation: z.boolean(),
   rationale: z.string().max(240),
@@ -179,7 +179,7 @@ export type IntentEnvelope = z.infer<typeof IntentEnvelopeSchema>;
 // Navigation intents
 export const NavDeltaPayload = z.object({
   delta_route: z.string().optional(),
-  delta_nav: z.record(z.unknown()).optional(),
+  delta_nav: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const HomeAnchorSetStatePayload = z.object({
@@ -199,7 +199,7 @@ export const DreamOpenPayload = z.object({
 
 export const DreamConfigPatchPayload = z.object({
   dream_id: z.string().uuid(),
-  config_patch: z.record(z.unknown()),
+  config_patch: z.record(z.string(), z.unknown()),
 });
 
 export const DreamReorderPayload = z.object({
@@ -218,7 +218,7 @@ export const DreamRemovePayload = z.object({
 // Post intents
 export const PostCreatePayload = z.object({
   content: z.string(),
-  media_json: z.record(z.unknown()).optional(),
+  media_json: z.record(z.string(), z.unknown()).optional(),
   visibility: z.enum(['public', 'followers', 'private']).optional(),
 });
 
@@ -241,7 +241,7 @@ export const SearchPayload = z.object({
 export const DraftSavePayload = z.object({
   draft_id: z.string().uuid().optional(),
   content: z.string(),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
 });
 
 // Admin/diagnostic intents
@@ -277,6 +277,24 @@ export const ModerationFlagContentPayload = z.object({
   reason: z.string(),
   severity: z.enum(['low', 'medium', 'high']).optional(),
 });
+
+// ============================================================================
+// PAYLOAD TYPE EXPORTS (z.infer aliases for use as TypeScript types)
+// ============================================================================
+
+export type NavDeltaPayload = z.infer<typeof NavDeltaPayload>;
+export type HomeAnchorSetStatePayload = z.infer<typeof HomeAnchorSetStatePayload>;
+export type DreamPreviewPayload = z.infer<typeof DreamPreviewPayload>;
+export type DreamOpenPayload = z.infer<typeof DreamOpenPayload>;
+export type DreamConfigPatchPayload = z.infer<typeof DreamConfigPatchPayload>;
+export type DreamReorderPayload = z.infer<typeof DreamReorderPayload>;
+export type DreamAddFromPresetPayload = z.infer<typeof DreamAddFromPresetPayload>;
+export type DreamRemovePayload = z.infer<typeof DreamRemovePayload>;
+export type PostCreatePayload = z.infer<typeof PostCreatePayload>;
+export type PostLikePayload = z.infer<typeof PostLikePayload>;
+export type FollowUserPayload = z.infer<typeof FollowUserPayload>;
+export type SearchPayload = z.infer<typeof SearchPayload>;
+export type DraftSavePayload = z.infer<typeof DraftSavePayload>;
 
 // ============================================================================
 // BOOGIE MAN (VERIFIER) TYPES
@@ -407,7 +425,7 @@ export const DrEamsRunRequest = z.object({
   message: z.string(),
   ui: UIContextSchema,
   client_session_id: z.string().optional(),
-  device_hints: z.record(z.unknown()).optional(),
+  device_hints: z.record(z.string(), z.unknown()).optional(),
 });
 export type DrEamsRunRequest = z.infer<typeof DrEamsRunRequest>;
 
@@ -467,7 +485,7 @@ export const AIMemory = z.object({
   agent: AgentType,
   scope: MemoryScope,
   key: z.string(),
-  value: z.record(z.unknown()),
+  value: z.record(z.string(), z.unknown()),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });

@@ -23,7 +23,8 @@ export async function checkRateLimit(
     const supabase = await createServerClient();
     const key = `${userId}:${endpoint}`;
     
-    const { data, error } = await supabase.rpc('rate_limit_hit', {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any).rpc('rate_limit_hit', {
       p_key: key,
       p_limit: limit,
       p_window_seconds: windowSeconds,
@@ -72,7 +73,8 @@ export async function getCurrentRPM(userId: string, endpoint: string): Promise<n
     const supabase = await createServerClient();
     const key = `${userId}:${endpoint}`;
     
-    const { data } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
       .from('rate_limit_counters')
       .select('count, window_start')
       .eq('key', key)

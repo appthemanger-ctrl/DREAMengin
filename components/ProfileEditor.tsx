@@ -31,7 +31,7 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
   });
 
   const [links, setLinks] = useState<Array<{ platform: string; url: string }>>(
-    Array.isArray(profile.links) ? profile.links : []
+    Array.isArray(profile.links) ? (profile.links as Array<{ platform: string; url: string }>) : []
   );
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -92,7 +92,7 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
       alert('Avatar updated successfully!');
     } catch (error: unknown) {
       console.error('Avatar upload error:', error);
-      alert(`Failed to upload avatar: ${error.message}`);
+      alert(`Failed to upload avatar: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setUploadingAvatar(false);
     }
@@ -146,7 +146,7 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
       alert('Cover image updated successfully!');
     } catch (error: unknown) {
       console.error('Cover upload error:', error);
-      alert(`Failed to upload cover: ${error.message}`);
+      alert(`Failed to upload cover: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setUploadingCover(false);
     }
@@ -170,7 +170,7 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
       alert('Profile updated successfully!');
     } catch (error: unknown) {
       console.error('Save error:', error);
-      alert(`Failed to save profile: ${error.message}`);
+      alert(`Failed to save profile: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setSaving(false);
     }

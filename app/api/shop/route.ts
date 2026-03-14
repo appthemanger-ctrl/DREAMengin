@@ -63,12 +63,10 @@ export async function POST(req: NextRequest) {
     .from('merch')
     .insert({
       user_id: user.id,
-      title: title.trim(),
+      name: title.trim(),
       description: description?.trim() || null,
       price: parseFloat(price),
-      stock: parseInt(stock) || 0,
       image_url: image_url || null,
-      category: category?.trim() || null,
     })
     .select(`
       *,
@@ -81,10 +79,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Create feed item
-  await supabase.from('feed_items').insert({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase as any).from('feed_items').insert({
     user_id: user.id,
     type: 'merch',
-    content: { title: item.title, item_id: item.id, price: item.price },
+    content: { title: item.name, item_id: item.id, price: item.price },
     ts: new Date().toISOString(),
   });
 
@@ -101,23 +100,21 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { id, title, description, price, stock, image_url, category } = body;
+  const { id, title, description, price, image_url } = body;
 
   if (!id) {
     return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
   }
 
+  const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (title !== undefined) updatePayload.name = title.trim();
+  if (description !== undefined) updatePayload.description = description?.trim();
+  if (price !== undefined) updatePayload.price = parseFloat(price);
+  if (image_url !== undefined) updatePayload.image_url = image_url;
+
   const { data: item, error } = await supabase
     .from('merch')
-    .update({
-      title: title?.trim(),
-      description: description?.trim(),
-      price: price ? parseFloat(price) : undefined,
-      stock: stock !== undefined ? parseInt(stock) : undefined,
-      image_url,
-      category: category?.trim(),
-      updated_at: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq('id', id)
     .eq('user_id', user.id)
     .select()

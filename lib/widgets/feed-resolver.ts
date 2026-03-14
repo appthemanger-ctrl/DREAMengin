@@ -47,7 +47,8 @@ export async function resolveFeedHost(
     }
     
     // Build query for feed items
-    let query = supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query = (supabase as any)
       .from('feed_items')
       .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
       .eq('user_id', targetUserId)
@@ -76,14 +77,16 @@ export async function resolveFeedHost(
     }
     
     // Transform to FeedItemSummary format and fetch engagement counts
-    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item) => {
+    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item: Record<string, unknown>) => {
       // Fetch engagement counts for this item
-      const { data: engagementData } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: engagementData } = await (supabase as any)
         .from('content_engagement')
         .select('engagement_type')
         .eq('content_id', item.id);
 
-      const engagementCounts = (engagementData || []).reduce((acc, eng) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const engagementCounts = (engagementData || []).reduce((acc: { likes: number; comments: number; shares: number }, eng: { engagement_type: string }) => {
         if (eng.engagement_type === 'like') acc.likes++;
         else if (eng.engagement_type === 'comment') acc.comments++;
         else if (eng.engagement_type === 'share') acc.shares++;

@@ -14,14 +14,14 @@ export default async function ShopPage() {
   // Fetch this user's listings
   const { data: myItems } = await supabase
     .from('merch')
-    .select('id, title, description, price, stock, image_url')
+    .select('id, name, description, price, image_url')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   // Fetch all other listings for browsing
   const { data: allItems } = await supabase
     .from('merch')
-    .select('id, title, description, price, stock, image_url, user_id')
+    .select('id, name, description, price, image_url, user_id')
     .neq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(20);
@@ -63,9 +63,9 @@ export default async function ShopPage() {
                     {!item.image_url && <Package className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{item.title}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{item.name}</div>
                     <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-                      ${Number(item.price).toFixed(2)} · {item.stock} in stock
+                      ${Number(item.price).toFixed(2)}
                     </div>
                   </div>
                 </div>
@@ -98,7 +98,7 @@ export default async function ShopPage() {
                     }}>
                       {!item.image_url && <Package className="w-6 h-6 opacity-30" style={{ color: 'var(--de-gold)' }} />}
                     </div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.3 }}>{item.title}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.3 }}>{item.name}</div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-gold)' }}>${Number(item.price).toFixed(2)}</div>
                   </div>
                 ))}

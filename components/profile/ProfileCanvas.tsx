@@ -22,7 +22,7 @@ type Profile = {
 
 type WidgetSlot = {
   id: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   label: string;
   desc: string;
   color: string;

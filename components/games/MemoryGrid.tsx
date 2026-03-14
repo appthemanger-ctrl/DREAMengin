@@ -110,7 +110,7 @@ export default function MemoryGrid() {
             type="button"
             onClick={() => flip(i)}
             style={{
-              aspectRatio:'1', borderRadius:12, border:'none', cursor: card.matched ? 'default' : 'pointer',
+              aspectRatio:'1', borderRadius:12, cursor: card.matched ? 'default' : 'pointer',
               fontSize:24, display:'flex', alignItems:'center', justifyContent:'center',
               transition:'all 0.25s',
               background: card.matched

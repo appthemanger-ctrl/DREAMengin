@@ -199,7 +199,7 @@ export const RULE_CODES = {
   RATE_LIMIT:          'RATE_LIMIT',
   OK:                  'OK',
   SIMULATION:          'SIMULATION',
-} as const;
+};
 
 export type RuleCode = typeof RULE_CODES[keyof typeof RULE_CODES];
 

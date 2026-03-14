@@ -149,8 +149,8 @@ export async function consumeConfirmToken(
 
   return {
     valid: true,
-    requestId: data.request_id,
-    intentIds: data.intent_ids,
+    requestId: data.request_id ?? undefined,
+    intentIds: data.intent_ids ?? undefined,
     uiSnapshot: data.ui_snapshot as UIContext,
   };
 }

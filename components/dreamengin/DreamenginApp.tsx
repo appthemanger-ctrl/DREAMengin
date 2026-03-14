@@ -186,6 +186,7 @@ export default function DreamenginApp() {
             setOverlayLock(false);
           }}
           onOpenDrEams={openDrEams}
+          onViewAllDreams={() => setShowNexus(false)}
         />
       )}
       {showOutdream && (

@@ -157,7 +157,7 @@ export function parseSocialFeedConfig(raw: unknown): SocialFeedWidgetConfig {
     if (!isRecord(s)) throw new Error('source entry must be object');
     const provider = asProvider(s.provider);
     if (!provider || provider === 'website') throw new Error('source entry requires provider');
-    const mode = asString(s.mode) === 'authenticated' ? 'authenticated' : 'public';
+    const mode: 'public' | 'authenticated' = asString(s.mode) === 'authenticated' ? 'authenticated' : 'public';
     return {
       provider: provider as Exclude<SocialProvider, 'website'>,
       mode,
