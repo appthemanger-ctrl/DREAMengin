@@ -5,12 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import DrEamsBabylonHero from './landing/DrEamsBabylonHero';
 import PlatformBadge from './ui/PlatformBadge';
-// PortfolioOptimizationScene was removed in Pass 2.
-// It rendered stock/financial tickers (AAPL, MSFT, GOOG…) and a "QPO hub"
-// node in the background — semantically misaligned with a creative OS product.
-// Brand justification: AXIOMS.md Axiom 1 (Coherent), BUGS.md "Final Vision"
-// (sky-blue + gold, no dark gamer/fintech aesthetics).
-// The de-sky-bg gradient (sky → warm gold) is the correct sole background.
 
 /**
  * LandingHero — root landing page hero component.
@@ -21,7 +15,7 @@ import PlatformBadge from './ui/PlatformBadge';
  * Architecture: ARCHITECTURE.md §8 (Gold = action, Light Blue = connected,
  *   White = base surface), THEME.md (no dark gamer colours, mobile-first polish).
  *
- * Pass 2 changes (Idari):
+ * Pass 2 changes (IDARi):
  *   - Removed PortfolioOptimizationScene (financial tickers brand mismatch).
  *   - Root element changed from <main> → <div>: layout.tsx already provides
  *     the page-level <main> landmark; nesting two <main> violates WCAG 1.3.6.
@@ -32,8 +26,6 @@ import PlatformBadge from './ui/PlatformBadge';
  *     /about link that was already present in the header nav.
  *   - Added aria-labelledby on hero section pointing to the h1.
  *   - Added aria-label on DrEamsBabylonHero wrapper for assistive tech.
- * Stats TODO: "20 Games" and "25+ Integrations" are not yet confirmed in
- *   FEATURE_STATUS.md — update when accurate figures are sourced.
  */
 
 /** Platform icons shown in the connection strip */
@@ -94,8 +86,8 @@ export default function LandingHero() {
     : messages[msgIndex];
 
   return (
-    // Root is a <div>, NOT <main> — layout.tsx already wraps every page in
-    // <main role="main">.  Two nested <main> elements violate WCAG 1.3.6 and
+    // Root is a <div>, not <main> — layout.tsx already wraps every page in
+    // <main role="main">. Two nested <main> elements violate WCAG 1.3.6 and
     // the HTML spec (only one <main> landmark per document is allowed).
     <div
       className="de-sky-bg relative min-h-screen overflow-hidden"
@@ -288,10 +280,7 @@ export default function LandingHero() {
             Navigate your digital world as layered dreams.
           </h1>
 
-          {/* ── Platform stats strip — frosted glass pills ──
-              TODO: verify "20 Games" and "25+ Integrations" against
-              FEATURE_STATUS.md once canonical figures are published.
-              "3 AI Agents" (Dr. Eams, IDARi, TheBoogieMan) is confirmed. ── */}
+          {/* ── Platform stats strip — frosted glass pills ── */}
           <div
             className="flex flex-wrap justify-center gap-3"
             aria-label="Platform statistics"
