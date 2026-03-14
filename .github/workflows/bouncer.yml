@@ -1,1 +1,40 @@
- 
+name: Bouncer — Hard-Block Guard Check
+
+# Enforces only the hard-block rules from docs/engineering/guardrails.md:
+# - No public-by-default patterns in user data routes
+# - No auto-publish / implicit-share patterns
+# - No fake action markers
+# Lint warnings and typecheck issues are NOT bounced — they are advisory.
+
+on:
+  push:
+    branches: [main, develop, completedream]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: bouncer-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  hard-block-check:
+    name: Hard-Block Guard Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run spec-check (hard-block patterns only)
+        run: node scripts/spec-check.cjs .
+
+      - name: Summary
+        if: success()
+        run: echo "Bouncer passed — no hard-block violations found."
