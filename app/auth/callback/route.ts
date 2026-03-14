@@ -38,16 +38,25 @@ export async function GET(request: Request) {
     options?: Parameters<typeof response.cookies.set>[2];
   };
 
+  // Resolve the cookie store ONCE before building the Supabase client.
+  // @supabase/ssr calls getAll() as a synchronous snapshot getter — it does
+  // NOT await a returned Promise. If getAll() is async and cookies() is
+  // awaited inside it, the library receives a Promise<cookie[]> instead of
+  // cookie[], silently finds no code_verifier, and the PKCE exchange fails
+  // with a 400 from Supabase's token endpoint.
+  // This matches the canonical pattern in lib/supabase/server.ts.
+  const cookieStore = await cookies();
+
   const supabase = createSupabaseServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
-      // Make this async to match modern Next/edge expectations cleanly.
-      async getAll() {
-        const store = await cookies();
-        return store.getAll();
+      // Synchronous: returns the pre-resolved snapshot.
+      getAll() {
+        return cookieStore.getAll();
       },
 
-      // Also async; Supabase may call it in async flows.
-      async setAll(cookiesToSet: CookieToSet[]) {
+      // Synchronous: writes session tokens (and deletes the code_verifier
+      // cookie) onto the redirect response so they reach the browser.
+      setAll(cookiesToSet: CookieToSet[]) {
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options);
         });
