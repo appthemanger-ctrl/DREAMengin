@@ -112,13 +112,13 @@ export default function DrEamsBabylonHero({
     coatMat.roughness = 0.82;
     coatMat.environmentIntensity = 0.7;
 
-    // Helmet & head armour — dark metallic
+    // Helmet & head armour — near-black glossy dome (matches reference)
     const helmetMat = new PBRMaterial('helmet', scene);
-    helmetMat.albedoColor = new Color3(0.16, 0.20, 0.26);
-    helmetMat.metallic = 0.72;
-    helmetMat.roughness = 0.28;
-    helmetMat.environmentIntensity = 1.35;
-    helmetMat.emissiveColor = new Color3(0.04, 0.18, 0.28);
+    helmetMat.albedoColor = new Color3(0.05, 0.06, 0.08);
+    helmetMat.metallic = 0.88;
+    helmetMat.roughness = 0.16;
+    helmetMat.environmentIntensity = 1.80;
+    helmetMat.emissiveColor = new Color3(0.01, 0.04, 0.06);
 
     // Robot arms / shoulders / boots — brushed silver
     const metalMat = new PBRMaterial('metal', scene);
@@ -189,27 +189,25 @@ export default function DrEamsBabylonHero({
     torso.position.y = 1.20;
     torso.parent = root;
 
-    // Chest stripe — left
-    const stripeL = MeshBuilder.CreateBox(
-      'stripeL',
-      { width: 0.07, height: 0.56, depth: 0.45 },
+    // Coat button strip — thin white vertical line down center
+    const buttonStrip = MeshBuilder.CreateBox(
+      'buttonStrip',
+      { width: 0.03, height: 0.72, depth: 0.46 },
       scene,
     );
-    stripeL.material = accentMat;
-    stripeL.position = new Vector3(0.13, 1.20, 0);
-    stripeL.parent = root;
-    glow.addIncludedOnlyMesh(stripeL as Mesh);
+    buttonStrip.material = coatMat;
+    buttonStrip.position = new Vector3(0, 1.22, 0);
+    buttonStrip.parent = root;
 
-    // Chest stripe — right
-    const stripeR = MeshBuilder.CreateBox(
-      'stripeR',
-      { width: 0.07, height: 0.56, depth: 0.45 },
+    // "Dr. Eams" name badge — small metallic plate on right chest
+    const badgePlate = MeshBuilder.CreateBox(
+      'badgePlate',
+      { width: 0.19, height: 0.07, depth: 0.46 },
       scene,
     );
-    stripeR.material = accentMat;
-    stripeR.position = new Vector3(-0.13, 1.20, 0);
-    stripeR.parent = root;
-    glow.addIncludedOnlyMesh(stripeR as Mesh);
+    badgePlate.material = metalMat;
+    badgePlate.position = new Vector3(0.20, 1.34, 0);
+    badgePlate.parent = root;
 
     // Collar / neck ring
     const collar = MeshBuilder.CreateCylinder(
@@ -236,10 +234,10 @@ export default function DrEamsBabylonHero({
     headNode.position = new Vector3(0, 2.08, 0);
     headNode.parent = root;
 
-    // Main head box
-    const head = MeshBuilder.CreateBox(
+    // Main head — spherical dome (matches reference rounded black dome)
+    const head = MeshBuilder.CreateSphere(
       'head',
-      { width: 0.64, height: 0.54, depth: 0.56 },
+      { diameter: 0.72, segments: 20 },
       scene,
     );
     head.material = helmetMat;
@@ -247,110 +245,114 @@ export default function DrEamsBabylonHero({
     head.parent = headNode;
     glow.addIncludedOnlyMesh(head as Mesh);
 
-    // Helmet top plate (slightly overhangs)
-    const helmetTop = MeshBuilder.CreateBox(
+    // Helmet crown band — subtle metallic ring at top of dome
+    const helmetTop = MeshBuilder.CreateCylinder(
       'helmetTop',
-      { width: 0.70, height: 0.11, depth: 0.60 },
+      { height: 0.06, diameterTop: 0.38, diameterBottom: 0.42, tessellation: 20 },
       scene,
     );
-    helmetTop.material = helmetMat;
-    helmetTop.position.y = 0.32;
+    helmetTop.material = metalMat;
+    helmetTop.position.y = 0.30;
     helmetTop.parent = headNode;
 
-    // Helmet chin guard
+    // Helmet chin guard — sits below sphere
     const helmetChin = MeshBuilder.CreateBox(
       'helmetChin',
-      { width: 0.40, height: 0.10, depth: 0.44 },
+      { width: 0.34, height: 0.09, depth: 0.38 },
       scene,
     );
     helmetChin.material = helmetMat;
-    helmetChin.position = new Vector3(0, -0.30, 0.06);
+    helmetChin.position = new Vector3(0, -0.34, 0.04);
     helmetChin.parent = headNode;
 
-    // Left ear plate
-    const earL = MeshBuilder.CreateBox(
+    // Left ear stud — small disc on side of sphere
+    const earL = MeshBuilder.CreateCylinder(
       'earL',
-      { width: 0.11, height: 0.36, depth: 0.38 },
+      { height: 0.08, diameter: 0.20, tessellation: 16 },
       scene,
     );
-    earL.material = helmetMat;
-    earL.position = new Vector3(-0.36, 0, 0);
+    earL.material = metalMat;
+    earL.rotation.z = Math.PI / 2;
+    earL.position = new Vector3(-0.37, 0.02, 0);
     earL.parent = headNode;
 
-    // Right ear plate
-    const earR = MeshBuilder.CreateBox(
+    // Right ear stud
+    const earR = MeshBuilder.CreateCylinder(
       'earR',
-      { width: 0.11, height: 0.36, depth: 0.38 },
+      { height: 0.08, diameter: 0.20, tessellation: 16 },
       scene,
     );
-    earR.material = helmetMat;
-    earR.position = new Vector3(0.36, 0, 0);
+    earR.material = metalMat;
+    earR.rotation.z = Math.PI / 2;
+    earR.position = new Vector3(0.37, 0.02, 0);
     earR.parent = headNode;
 
     // Ear indicator dots — glowing
     const earDotL = MeshBuilder.CreateSphere(
       'earDotL',
-      { diameter: 0.09, segments: 8 },
+      { diameter: 0.07, segments: 8 },
       scene,
     );
     earDotL.material = accentMat;
-    earDotL.position = new Vector3(-0.42, 0, 0);
+    earDotL.position = new Vector3(-0.42, 0.02, 0);
     earDotL.parent = headNode;
     glow.addIncludedOnlyMesh(earDotL as Mesh);
 
     const earDotR = MeshBuilder.CreateSphere(
       'earDotR',
-      { diameter: 0.09, segments: 8 },
+      { diameter: 0.07, segments: 8 },
       scene,
     );
     earDotR.material = accentMat;
-    earDotR.position = new Vector3(0.42, 0, 0);
+    earDotR.position = new Vector3(0.42, 0.02, 0);
     earDotR.parent = headNode;
     glow.addIncludedOnlyMesh(earDotR as Mesh);
 
-    // Visor face screen (outer glass pane)
+    // Visor face screen (outer glass pane) — positioned at front of dome
     const visor = MeshBuilder.CreateBox(
       'visor',
-      { width: 0.50, height: 0.30, depth: 0.06 },
+      { width: 0.46, height: 0.28, depth: 0.06 },
       scene,
     );
     visor.material = visorMat;
-    visor.position = new Vector3(0, 0.04, 0.28);
+    visor.position = new Vector3(0, 0.04, 0.30);
     visor.parent = headNode;
     glow.addIncludedOnlyMesh(visor as Mesh);
 
     // Screen inner glow surface (sits flush with visor front)
     const screenPlane = MeshBuilder.CreateBox(
       'screen',
-      { width: 0.42, height: 0.22, depth: 0.02 },
+      { width: 0.38, height: 0.20, depth: 0.02 },
       scene,
     );
     screenPlane.material = screenMat;
-    screenPlane.position = new Vector3(0, 0.04, 0.31);
+    screenPlane.position = new Vector3(0, 0.04, 0.33);
     screenPlane.parent = headNode;
     glow.addIncludedOnlyMesh(screenPlane as Mesh);
 
-    // Yellow eye dot (∞ left lobe symbol)
-    const dotL = MeshBuilder.CreateSphere(
-      'dotL',
-      { diameter: 0.065, segments: 8 },
+    // ∞ symbol — yellow left lobe (torus ring facing camera)
+    const infL = MeshBuilder.CreateTorus(
+      'infL',
+      { diameter: 0.155, thickness: 0.030, tessellation: 32 },
       scene,
     );
-    dotL.material = dotLMat;
-    dotL.position = new Vector3(-0.09, 0.04, 0.32);
-    dotL.parent = headNode;
-    glow.addIncludedOnlyMesh(dotL as Mesh);
+    infL.material = dotLMat;
+    infL.rotation.x = Math.PI / 2; // rotate torus normal from Y → Z so ring faces camera
+    infL.position = new Vector3(-0.077, 0.04, 0.35);
+    infL.parent = headNode;
+    glow.addIncludedOnlyMesh(infL as Mesh);
 
-    // Cyan eye dot (∞ right lobe symbol)
-    const dotRMesh = MeshBuilder.CreateSphere(
-      'dotR',
-      { diameter: 0.065, segments: 8 },
+    // ∞ symbol — cyan right lobe
+    const infR = MeshBuilder.CreateTorus(
+      'infR',
+      { diameter: 0.155, thickness: 0.030, tessellation: 32 },
       scene,
     );
-    dotRMesh.material = dotRMat;
-    dotRMesh.position = new Vector3(0.09, 0.04, 0.32);
-    dotRMesh.parent = headNode;
-    glow.addIncludedOnlyMesh(dotRMesh as Mesh);
+    infR.material = dotRMat;
+    infR.rotation.x = Math.PI / 2;
+    infR.position = new Vector3(0.077, 0.04, 0.35);
+    infR.parent = headNode;
+    glow.addIncludedOnlyMesh(infR as Mesh);
 
     // Top antenna (small cylinder + dot)
     const antenna = MeshBuilder.CreateCylinder(
@@ -842,9 +844,13 @@ export default function DrEamsBabylonHero({
       const visorScaleY = Math.max(visorCollapsed, 0.012);
       visor.scaling.y = visorScaleY;
       screenPlane.scaling.y = visorScaleY;
+      infL.scaling.y = visorScaleY;
+      infR.scaling.y = visorScaleY;
       // Shift slightly toward center (CRT scanline shutoff effect)
       visor.position.y = 0.04 + (1 - visorCollapsed) * 0.012;
       screenPlane.position.y = visor.position.y;
+      infL.position.y = visor.position.y;
+      infR.position.y = visor.position.y;
 
       // ── Emissive gating on visor blink ──
       const emissiveGate = 1 - smoothstep(0.02, 0.72, blinkStrength);
@@ -902,6 +908,10 @@ export default function DrEamsBabylonHero({
   return (
     <canvas
       ref={canvasRef}
+      // HTML attributes set the drawing-buffer pixel size; CSS styles set the display size.
+      // Both must match so Babylon.js renders at full resolution without stretching.
+      width={width}
+      height={height}
       className={className}
       style={{
         width,
