@@ -2,31 +2,41 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import DrEamsBabylonHero from './landing/DrEamsBabylonHero';
 import PlatformBadge from './ui/PlatformBadge';
-import PortfolioOptimizationScene from './dreamengin/PortfolioOptimizationScene';
 
-/** Social icons shown in the landing strip — using new SVG icons */
+/**
+ * LandingHero — root landing page hero component.
+ *
+ * Design system: de-sky-bg (sky-blue → warm gold), de-widget frosted glass,
+ * de-btn-primary (blue → gold CTA), Space Grotesk font, design token CSS vars.
+ * Animation: Framer Motion AnimatePresence for speech bubble transitions.
+ * Architecture: ARCHITECTURE.md §8 (Gold = action, Light Blue = connected,
+ *   White = base surface), THEME.md (no dark gamer colours, mobile-first polish).
+ *
+ * Pass 2 changes (IDARi):
+ *   - Removed PortfolioOptimizationScene (financial tickers brand mismatch).
+ *   - Root element changed from <main> → <div>: layout.tsx already provides
+ *     the page-level <main> landmark; nesting two <main> violates WCAG 1.3.6.
+ *   - Added aria-live="polite" + aria-atomic on speech bubble for screen readers.
+ *   - Logo text is now a <Link href="/"> — standard accessible brand-home pattern.
+ *   - Secondary hero CTA changed "About" → "Sign In" (/login) so the two CTAs
+ *     serve distinct user types (new vs returning), eliminating the duplicate
+ *     /about link that was already present in the header nav.
+ *   - Added aria-labelledby on hero section pointing to the h1.
+ *   - Added aria-label on DrEamsBabylonHero wrapper for assistive tech.
+ */
+
+/** Platform icons shown in the connection strip */
 const STRIP_ICONS: Array<{ name: string; label: string }> = [
   { name: 'file',   label: 'Documents' },
   { name: 'globe',  label: 'Web' },
   { name: 'window', label: 'Apps' },
 ];
 
-// ── Dark sci-fi colour tokens ──────────────────────────────────────────────
-const C = {
-  bg:           '#020810',
-  panel:        'rgba(0, 18, 42, 0.78)',
-  border:       'rgba(0, 229, 255, 0.22)',
-  borderGold:   'rgba(255, 230, 0, 0.22)',
-  cyan:         '#00E5FF',
-  yellow:       '#FFE600',
-  white:        'rgba(255,255,255,0.92)',
-  dim:          'rgba(255,255,255,0.46)',
-  glow:         '0 0 18px rgba(0,229,255,0.18)',
-  glowStrong:   '0 0 32px rgba(0,229,255,0.28)',
-  scanLine:     'rgba(0,229,255,0.04)',
-} as const;
+/** CSS font-family shorthand honouring the Space Grotesk design token */
+const FONT_SG = 'var(--font-space-grotesk, "Space Grotesk", system-ui, sans-serif)';
 
 export default function LandingHero() {
   const messages = useMemo(
@@ -51,7 +61,6 @@ export default function LandingHero() {
   }, []);
 
   const [msgIndex, setMsgIndex] = useState(0);
-  const [fadeIn, setFadeIn] = useState(true);
 
   const [spriteSize, setSpriteSize] = useState(576);
   useEffect(() => {
@@ -66,16 +75,10 @@ export default function LandingHero() {
   useEffect(() => {
     if (isValentine) return;
     const ROTATE_MS = 8000;
-    const FADE_MS   = 220;
-    const interval  = setInterval(() => {
-      setFadeIn(false);
-      const swap = setTimeout(() => {
-        setMsgIndex((prev) => (prev + 1) % messages.length);
-        setFadeIn(true);
-      }, FADE_MS);
-      return () => clearTimeout(swap);
+    const timer = setInterval(() => {
+      setMsgIndex((prev) => (prev + 1) % messages.length);
     }, ROTATE_MS);
-    return () => clearInterval(interval);
+    return () => clearInterval(timer);
   }, [isValentine, messages.length]);
 
   const bubbleText = isValentine
@@ -83,179 +86,158 @@ export default function LandingHero() {
     : messages[msgIndex];
 
   return (
-    <main
-      className="relative min-h-screen overflow-hidden"
-      style={{ background: C.bg }}
+    // Root is a <div>, not <main> — layout.tsx already wraps every page in
+    // <main role="main">. Two nested <main> elements violate WCAG 1.3.6 and
+    // the HTML spec (only one <main> landmark per document is allowed).
+    <div
+      className="de-sky-bg relative min-h-screen overflow-hidden"
     >
 
-      {/* ── 1. Animated node-graph background — dark canvas ── */}
-      <PortfolioOptimizationScene />
-
-      {/* ── 2. Sci-fi dark overlay — vignette + subtle cyan tint ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 90% 60% at 50% 0%, rgba(0,40,80,0.55) 0%, rgba(2,8,16,0.72) 70%, rgba(1,4,10,0.90) 100%)',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* ── 3. Horizontal scan lines — subtle PBR UV grid feeling ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            `repeating-linear-gradient(0deg, transparent, transparent 3px, ${C.scanLine} 3px, ${C.scanLine} 4px)`,
-          opacity: 0.45,
-        }}
-        aria-hidden="true"
-      />
-
-      {/* ── 4. Content ── */}
-      <div
-        className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8"
-      >
+      {/* ── Content ── */}
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8">
 
         {/* ── Header ── */}
         <header className="flex items-center justify-between">
-          <div
+          {/* Logo — Link to / so screen-reader users and keyboard users can
+              always reach the root without hunting for a nav item. */}
+          <Link
+            href="/"
             className="text-lg font-bold tracking-widest uppercase"
             style={{
-              color: C.cyan,
-              textShadow: `0 0 12px ${C.cyan}`,
+              fontFamily: FONT_SG,
+              color: 'var(--de-heading)',
               letterSpacing: '0.22em',
+              textDecoration: 'none',
             }}
+            aria-label="DREAMengin — go to home"
           >
             DREAMengin
-          </div>
-          <div className="flex items-center gap-3">
+          </Link>
+          <nav className="flex items-center gap-3" aria-label="Site navigation">
             <Link
               href="/about"
               className="de-btn de-btn-ghost"
-              style={{
-                padding: '8px 18px', fontSize: 13,
-                color: C.white, borderColor: C.border,
-                background: C.panel,
-              }}
+              style={{ padding: '8px 18px', fontSize: 13 }}
             >
               About
             </Link>
             <Link
               href="/login"
-              className="de-btn"
-              style={{
-                padding: '8px 18px', fontSize: 13,
-                background: 'rgba(0,229,255,0.12)',
-                border: `1px solid ${C.border}`,
-                color: C.cyan,
-                boxShadow: C.glow,
-              }}
+              className="de-btn de-btn-primary"
+              style={{ padding: '8px 18px', fontSize: 13 }}
             >
               Sign In
             </Link>
-          </div>
+          </nav>
         </header>
 
         {/* ── Hero section ── */}
-        <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
+        {/* aria-labelledby links this landmark to the visible h1 below */}
+        <section
+          className="flex flex-1 flex-col items-center justify-center gap-8 text-center"
+          aria-labelledby="hero-heading"
+        >
 
-          {/* Top pill — PBR material label style */}
+          {/* Top pill — brand signal */}
           <div
-            className="rounded-full px-4 py-2 text-sm backdrop-blur-sm"
+            className="de-widget rounded-full px-4 py-2 text-sm"
             style={{
-              border: `1px solid ${C.border}`,
-              background: C.panel,
-              color: C.cyan,
-              boxShadow: C.glow,
+              color: 'var(--de-text)',
               letterSpacing: '0.06em',
+              fontFamily: FONT_SG,
             }}
           >
-            <span style={{ color: C.yellow }}>∞</span>
-            {' '}Dr. Eams dreams of dreaming. You don't have to.{' '}
-            <span style={{ color: C.cyan }}>∞</span>
+            <span style={{ color: 'var(--de-gold)' }}>∞</span>
+            {' '}Dr. Eams dreams of dreaming. You don&apos;t have to.{' '}
+            <span style={{ color: 'var(--de-blue)' }}>∞</span>
           </div>
 
           {/* ── Character + speech bubble ── */}
           <div className="relative flex flex-col items-center">
 
-            {/* Dr. Eams sci-fi title — above character on mobile, left on desktop */}
+            {/* Dr. Eams title — above character on mobile, left on desktop */}
             <div
               className="sm:absolute sm:top-[20px] sm:left-[-120px] mb-4 sm:mb-0 z-20"
               style={{ textAlign: 'right' }}
             >
               <div
                 style={{
-                  fontFamily: '"Arial Black","Helvetica Neue",Impact,"Franklin Gothic Medium",sans-serif',
+                  fontFamily: FONT_SG,
                   fontWeight: 900,
                   fontSize: 28,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  color: '#FFFFFF',
-                  textShadow: `0 0 20px ${C.cyan}, 0 0 40px rgba(0,229,255,0.4)`,
+                  color: 'var(--de-heading)',
                   lineHeight: 1.1,
                 }}
               >
-                Dr Eams
+                Dr. Eams
               </div>
               <div
                 style={{
+                  fontFamily: FONT_SG,
                   fontSize: 10,
                   letterSpacing: '0.28em',
-                  color: C.cyan,
+                  color: 'var(--de-blue)',
                   textTransform: 'uppercase',
                   marginTop: 4,
                   opacity: 0.75,
                 }}
               >
-                PBR · Sci-Fi · v2
+                Your AI guide
               </div>
             </div>
 
-            {/* Speech bubble — dark glass sci-fi style */}
+            {/* Speech bubble — frosted glass, Framer Motion transitions.
+                aria-live="polite" + aria-atomic="true" ensures screen readers
+                announce the new message each time it rotates without
+                interrupting ongoing announcements. */}
             <div
               className="sm:absolute sm:top-[64px] sm:right-[-84px] mb-3 sm:mb-0 max-w-[260px] sm:max-w-[280px] text-center sm:text-left z-20"
+              aria-live="polite"
+              aria-atomic="true"
             >
-              <div
-                className="relative rounded-2xl px-4 py-3 backdrop-blur-sm"
-                style={{
-                  border: `1.5px solid ${C.border}`,
-                  background: C.panel,
-                  boxShadow: C.glowStrong,
-                }}
-              >
-                <div
-                  className={[
-                    'text-sm font-medium leading-snug transition-opacity duration-200',
-                    fadeIn ? 'opacity-100' : 'opacity-0',
-                  ].join(' ')}
-                  style={{ color: C.white }}
-                >
-                  {bubbleText}
-                </div>
+              <div className="de-widget relative rounded-2xl px-4 py-3">
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={bubbleText}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.22, ease: 'easeInOut' }}
+                    className="text-sm font-medium leading-snug"
+                    style={{ color: 'var(--de-text)', fontFamily: FONT_SG }}
+                  >
+                    {bubbleText}
+                  </motion.p>
+                </AnimatePresence>
 
                 {/* Bubble tail — bottom-center on mobile */}
                 <div
                   className="sm:hidden absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 rotate-45"
                   style={{
-                    background: 'rgba(0,18,42,0.78)',
-                    borderRight: `1.5px solid ${C.border}`,
-                    borderBottom: `1.5px solid ${C.border}`,
+                    background: 'var(--de-glass)',
+                    borderRight: '1.5px solid var(--de-border)',
+                    borderBottom: '1.5px solid var(--de-border)',
                   }}
+                  aria-hidden="true"
                 />
                 {/* Bubble tail — left-side on desktop */}
                 <div
                   className="hidden sm:block absolute left-[-6px] top-[22px] w-3 h-3 rotate-45"
                   style={{
-                    background: 'rgba(0,18,42,0.78)',
-                    borderLeft: `1.5px solid ${C.border}`,
-                    borderBottom: `1.5px solid ${C.border}`,
+                    background: 'var(--de-glass)',
+                    borderLeft: '1.5px solid var(--de-border)',
+                    borderBottom: '1.5px solid var(--de-border)',
                   }}
+                  aria-hidden="true"
                 />
               </div>
             </div>
 
-            {/* Character — Babylon.js 3-D Dr. Eams with touch interaction */}
+            {/* Character — Babylon.js 3-D Dr. Eams with touch interaction.
+                The wrapper div carries an aria-label so screen-reader users
+                know this is an interactive 3-D character rather than an image. */}
             <div
               style={{
                 width: spriteSize,
@@ -263,6 +245,8 @@ export default function LandingHero() {
                 position: 'relative',
                 flexShrink: 0,
               }}
+              aria-label="Dr. Eams — interactive 3-D character. Tap or drag to interact."
+              role="img"
             >
               <DrEamsBabylonHero width={spriteSize} height={spriteSize} />
             </div>
@@ -271,8 +255,8 @@ export default function LandingHero() {
             <p
               className="mt-2 text-xs font-medium select-none tracking-widest uppercase"
               style={{
-                color: C.cyan,
-                textShadow: `0 0 8px ${C.cyan}`,
+                fontFamily: FONT_SG,
+                color: 'var(--de-blue)',
                 opacity: 0.75,
               }}
             >
@@ -280,21 +264,23 @@ export default function LandingHero() {
             </p>
           </div>
 
-          {/* ── Headline — yellow → white → cyan gradient ── */}
+          {/* ── Headline — sky-blue → navy → gold brand gradient ── */}
           <h1
+            id="hero-heading"
             className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl"
             style={{
-              background: `linear-gradient(135deg, ${C.yellow} 0%, #FFFFFF 42%, ${C.cyan} 100%)`,
+              fontFamily: FONT_SG,
+              background:
+                'linear-gradient(135deg, var(--de-blue) 0%, var(--de-heading) 42%, var(--de-gold) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-              textShadow: 'none',
             }}
           >
             Navigate your digital world as layered dreams.
           </h1>
 
-          {/* ── Platform stats strip — dark glass pills ── */}
+          {/* ── Platform stats strip — frosted glass pills ── */}
           <div
             className="flex flex-wrap justify-center gap-3"
             aria-label="Platform statistics"
@@ -307,59 +293,47 @@ export default function LandingHero() {
             ].map(({ value, label, icon }) => (
               <div
                 key={label}
-                className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm"
-                style={{
-                  border: `1px solid ${C.border}`,
-                  background: C.panel,
-                  color: C.white,
-                  boxShadow: C.glow,
-                }}
+                className="de-widget flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
+                style={{ fontFamily: FONT_SG }}
               >
                 <span aria-hidden="true">{icon}</span>
-                <span style={{ color: C.cyan, fontWeight: 800 }}>{value}</span>
-                <span style={{ color: C.dim }}>{label}</span>
+                <span style={{ color: 'var(--de-blue)', fontWeight: 800 }}>{value}</span>
+                <span style={{ color: 'var(--de-text-dim)' }}>{label}</span>
               </div>
             ))}
           </div>
 
-          {/* ── CTAs ── */}
+          {/* ── CTAs ──
+              Primary:   "Get Started" → /join   (new users — sign up)
+              Secondary: "Sign In"     → /login  (returning users)
+              These two serve distinct user types, so there is no duplication.
+              The header-nav "About" link already covers that destination. ── */}
           <div className="flex flex-col gap-3 sm:flex-row">
-            {/* Cyan primary */}
             <Link
               href="/join"
-              className="de-btn"
-              style={{
-                padding: '12px 28px', fontSize: 15,
-                background: 'rgba(0,229,255,0.14)',
-                border: `1.5px solid ${C.cyan}`,
-                color: C.cyan,
-                boxShadow: C.glowStrong,
-                fontWeight: 700,
-                letterSpacing: '0.06em',
-              }}
+              className="de-btn de-btn-primary"
+              style={{ padding: '12px 28px', fontSize: 15 }}
             >
               Get Started
             </Link>
             <Link
-              href="/about"
-              className="de-btn"
-              style={{
-                padding: '12px 28px', fontSize: 15,
-                background: C.panel,
-                border: `1.5px solid ${C.border}`,
-                color: C.white,
-              }}
+              href="/login"
+              className="de-btn de-btn-ghost"
+              style={{ padding: '12px 28px', fontSize: 15 }}
             >
-              About
+              Sign In
             </Link>
           </div>
         </section>
 
-        {/* ── Icon strip ── */}
-        <section className="w-full max-w-3xl mx-auto px-4 pb-10 text-center">
+        {/* ── Connection strip ── */}
+        <section
+          className="w-full max-w-3xl mx-auto px-4 pb-10 text-center"
+          aria-label="Supported integrations"
+        >
           <p
             className="text-xs font-semibold tracking-[0.22em] uppercase mb-4"
-            style={{ color: C.dim }}
+            style={{ color: 'var(--de-text-dim)', fontFamily: FONT_SG }}
           >
             Connect everything
           </p>
@@ -378,6 +352,6 @@ export default function LandingHero() {
         </section>
 
       </div>
-    </main>
+    </div>
   );
 }
