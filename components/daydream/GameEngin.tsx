@@ -227,7 +227,7 @@ export default function GameEngin({ onBack }: Props) {
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
-    supabase.auth.getUser().then(async (res) => {
+    supabase.auth.getUser().then(async (res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
       const user = res.data.user;
       if (!user || cancelled) { setLoading(false); return; }
       const { data } = await supabase

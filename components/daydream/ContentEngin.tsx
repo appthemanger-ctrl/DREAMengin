@@ -144,10 +144,9 @@ export default function ContentEngin({ onBack }: Props) {
 
   function broadcast() {
     if (selectedPlatforms.size === 0) return;
-    bridge.emit('create', 'create:content-published', {
+    bridge.emit('create', 'create:published', {
       contentId: 'draft-' + Date.now(),
-      platforms: [...selectedPlatforms],
-      visibility: 'public',
+      platform: [...selectedPlatforms].join(','),
     });
     setBroadcastMsg(`Broadcast sent to ${selectedPlatforms.size} platform${selectedPlatforms.size > 1 ? 's' : ''}`);
     setTimeout(() => setBroadcastMsg(''), 3000);

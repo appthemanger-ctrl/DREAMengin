@@ -11,10 +11,13 @@ import { Plus, X, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 interface DashboardLayoutProps {
-  feed: unknown[];
-  widgets: unknown[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  feed: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  widgets: any[];
   userId: string;
-  notifications: unknown[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  notifications: any[];
 }
 
 interface Widget {
@@ -26,7 +29,7 @@ interface Widget {
 }
 
 export default function DashboardLayout({ feed, widgets: initialWidgets, userId, notifications }: DashboardLayoutProps) {
-  const [widgets, setWidgets] = useState<Widget[]>(initialWidgets);
+  const [widgets, setWidgets] = useState<Widget[]>(initialWidgets as Widget[]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
   const supabase = createClient();
@@ -257,7 +260,7 @@ function DraggableWidget({ widget, index, moveWidget, isEditMode, onRemove }: Dr
           </button>
         )}
       </div>
-      <WidgetContent type={widget.type} config={widget.config_json} />
+      <WidgetContent type={widget.type} config={widget.config_json as Record<string, unknown>} />
     </div>
   );
 }
@@ -265,13 +268,13 @@ function DraggableWidget({ widget, index, moveWidget, isEditMode, onRemove }: Dr
 function WidgetContent({ type, config }: { type: string; config: Record<string, unknown> }) {
   switch (type) {
     case 'notifications':
-      return <div className="text-xs text-slate-500 mt-1">{config.unread || 0} unread</div>;
+      return <div className="text-xs text-slate-500 mt-1">{String(config.unread ?? 0)} unread</div>;
     case 'promo':
-      return <div className="text-xs text-slate-500 mt-1">{config.text || 'Active promo'}</div>;
+      return <div className="text-xs text-slate-500 mt-1">{String(config.text ?? 'Active promo')}</div>;
     case 'next_stream':
-      return <div className="text-xs text-slate-500 mt-1">{config.channel || 'No stream scheduled'}</div>;
+      return <div className="text-xs text-slate-500 mt-1">{String(config.channel ?? 'No stream scheduled')}</div>;
     case 'messages':
-      return <div className="text-xs text-slate-500 mt-1">{config.unread || 0} messages</div>;
+      return <div className="text-xs text-slate-500 mt-1">{String(config.unread ?? 0)} messages</div>;
     case 'lab':
       return <div className="text-xs text-slate-500 mt-1">Open lab projects</div>;
     default:

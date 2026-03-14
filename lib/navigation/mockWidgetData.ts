@@ -2,6 +2,7 @@
 // This provides sample widget instances for testing and demo purposes
 
 import type { WidgetInstanceRecord } from '@/lib/navigation/WidgetInstanceMemory';
+import { WidgetPresentation, WidgetBindingType, WidgetVisibility } from '@/lib/navigation/WidgetInstanceMemory';
 
 /**
  * Generate mock widget instances for demo
@@ -14,10 +15,10 @@ export function generateMockWidgetInstances(): WidgetInstanceRecord[] {
       context: 'HOME',
       transformState: { x: 0, y: 0, scale: 1, rotation: 0 },
       zIndex: 1,
-      presentation: 'FLOATING' as const,
-      bindingType: 'STATIC' as const,
+      presentation: WidgetPresentation.FLOATING,
+      bindingType: WidgetBindingType.STATIC,
       bindingConfig: {},
-      visibility: 'ACTIVE' as const,
+      visibility: WidgetVisibility.ACTIVE,
       internalState: {}
     },
     {
@@ -26,10 +27,10 @@ export function generateMockWidgetInstances(): WidgetInstanceRecord[] {
       context: 'PROFILE',
       transformState: { x: 100, y: 100, scale: 1, rotation: 0 },
       zIndex: 1,
-      presentation: 'FLOATING' as const,
-      bindingType: 'LIVE' as const,
+      presentation: WidgetPresentation.FLOATING,
+      bindingType: WidgetBindingType.LIVE,
       bindingConfig: {},
-      visibility: 'ACTIVE' as const,
+      visibility: WidgetVisibility.ACTIVE,
       internalState: {}
     },
     {
@@ -38,10 +39,10 @@ export function generateMockWidgetInstances(): WidgetInstanceRecord[] {
       context: 'PROFILE',
       transformState: { x: 200, y: 150, scale: 1, rotation: 0 },
       zIndex: 2,
-      presentation: 'FLOATING' as const,
-      bindingType: 'LIVE' as const,
+      presentation: WidgetPresentation.FLOATING,
+      bindingType: WidgetBindingType.LIVE,
       bindingConfig: {},
-      visibility: 'ACTIVE' as const,
+      visibility: WidgetVisibility.ACTIVE,
       internalState: {}
     }
   ];

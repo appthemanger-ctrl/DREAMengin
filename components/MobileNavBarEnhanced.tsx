@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { 
   Home, Compass, ShoppingBag, Music, MessageSquare,
-  Plus, Bell, Search, User, Menu, X, Sparkles
+  Plus, Bell, Search, User as UserIcon, Menu, X, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import type { User } from '@supabase/supabase-js';
@@ -77,7 +77,7 @@ export default function MobileNavBarEnhanced({ user }: MobileNavBarProps) {
                 className="p-2 rounded-full active:scale-95 transition-transform"
                 aria-label="Settings"
               >
-                <User className="w-5 h-5" />
+                <UserIcon className="w-5 h-5" />
               </Link>
             </div>
           </div>

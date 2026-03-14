@@ -57,7 +57,8 @@ export function useDreamDMConversations(userId: string, initial: DMConversation[
 
       if (error || !data) return;
 
-      const formatted: DMConversation[] = data.map((conv) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const formatted: DMConversation[] = (data as any[]).map((conv) => {
         const other = conv.participant1_id === userId ? conv.participant2 : conv.participant1;
         return {
           id: conv.id,

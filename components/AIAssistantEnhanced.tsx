@@ -170,7 +170,7 @@ export default function AIAssistantEnhanced() {
 
       return json?.message ? `✨ iDari: ${json.message}` : '✅ iDari has accepted the update request and is working on it.';
     } catch (e: unknown) {
-      return `⚠️ I encountered an error communicating with iDari: ${e?.message || 'Unknown error'}. This might be a temporary network issue—would you like me to try again?`;
+      return `⚠️ I encountered an error communicating with iDari: ${e instanceof Error ? e.message : 'Unknown error'}. This might be a temporary network issue—would you like me to try again?`;
     }
   };
 

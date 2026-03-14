@@ -63,7 +63,7 @@ export default function WidgetFeedScreen({
           .eq('follower_id', userId)
 
         if (followsData) {
-          const followingIds = followsData.map(f => f.following_id)
+          const followingIds = followsData.map((f: { following_id: string }) => f.following_id)
           
           const { data: followingWidgetsData } = await supabase
             .from('widget_instances')

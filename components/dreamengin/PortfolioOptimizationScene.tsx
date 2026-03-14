@@ -74,7 +74,8 @@ export default function PortfolioOptimizationScene() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const ctx = canvas.getContext('2d')!;
     if (!ctx) return;
 
     let raf = 0;

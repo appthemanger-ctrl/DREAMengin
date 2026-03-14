@@ -30,5 +30,6 @@ export type AdOrder = {
   id: string;
   buyer_id?: string;
   created_at?: string;
+  status?: string;
   ad_listings?: AdListing;
 };

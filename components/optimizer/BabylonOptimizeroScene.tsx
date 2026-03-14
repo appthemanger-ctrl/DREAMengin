@@ -12,8 +12,8 @@ import {
   BabylonUIOptimizero,
   BabylonUIGenerator,
   type BabylonUICandidate,
-  type OptimizeroResult,
 } from '@/lib/optimizer/babylon-optimizero';
+import { type OptimizeroResult } from '@/lib/optimizer/creative-optimizero';
 import {
   DEFAULT_WEIGHTS,
   CHAOS_WEIGHTS,

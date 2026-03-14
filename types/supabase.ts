@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_lock: {
+        Row: {
+          id: boolean
+          locked: boolean
+          locked_at: string | null
+          reason: string | null
+        }
+        Insert: {
+          id?: boolean
+          locked?: boolean
+          locked_at?: string | null
+          reason?: string | null
+        }
+        Update: {
+          id?: boolean
+          locked?: boolean
+          locked_at?: string | null
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      ai_rate_limits: {
+        Row: {
+          endpoint: string
+          id: string
+          request_count: number
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          endpoint: string
+          id?: string
+          request_count?: number
+          user_id: string
+          window_start?: string
+        }
+        Update: {
+          endpoint?: string
+          id?: string
+          request_count?: number
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       board_posts: {
         Row: {
           author_id: string
@@ -761,6 +806,84 @@ export type Database = {
           },
         ]
       }
+      comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "app_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      confirm_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          intent_ids: string[] | null
+          request_id: string | null
+          token: string
+          ui_snapshot: Json | null
+          used: boolean
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          intent_ids?: string[] | null
+          request_id?: string | null
+          token: string
+          ui_snapshot?: Json | null
+          used?: boolean
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          intent_ids?: string[] | null
+          request_id?: string | null
+          token?: string
+          ui_snapshot?: Json | null
+          used?: boolean
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       connectors_tokens: {
         Row: {
           created_at: string
@@ -978,7 +1101,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          id: string
+          id?: string
           participant1_id: string
           participant2_id: string
           updated_at?: string
@@ -1236,6 +1359,65 @@ export type Database = {
           input?: Json
           ok?: boolean
           output?: Json | null
+        }
+        Relationships: []
+      }
+      game_scores: {
+        Row: {
+          achieved_at: string
+          game: string
+          id: string
+          level: number | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          game: string
+          id?: string
+          level?: number | null
+          score: number
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          game?: string
+          id?: string
+          level?: number | null
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idempotency_keys: {
+        Row: {
+          created_at: string
+          id: string
+          intent_type: string | null
+          key: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          intent_type?: string | null
+          key: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          intent_type?: string | null
+          key?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2114,24 +2296,71 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       widget_content: {
         Row: {
           content: Json
+          content_body: string | null
+          content_encoding: string | null
+          content_hash: string | null
           created_at: string
+          id: string
+          metadata: Json | null
+          owner_id: string | null
           updated_at: string
-          widget_id: string
+          widget_id: string | null
         }
         Insert: {
           content?: Json
+          content_body?: string | null
+          content_encoding?: string | null
+          content_hash?: string | null
           created_at?: string
+          id?: string
+          metadata?: Json | null
+          owner_id?: string | null
           updated_at?: string
-          widget_id: string
+          widget_id?: string | null
         }
         Update: {
           content?: Json
+          content_body?: string | null
+          content_encoding?: string | null
+          content_hash?: string | null
           created_at?: string
+          id?: string
+          metadata?: Json | null
+          owner_id?: string | null
           updated_at?: string
-          widget_id?: string
+          widget_id?: string | null
         }
         Relationships: [
           {
@@ -2175,28 +2404,37 @@ export type Database = {
       }
       widget_events: {
         Row: {
+          actor_id: string | null
           channel: string | null
+          event_type: string | null
           id: string
           payload: Json | null
           timestamp: string | null
           type: string | null
           widget_id: string | null
+          widget_instance_id: string | null
         }
         Insert: {
+          actor_id?: string | null
           channel?: string | null
+          event_type?: string | null
           id?: string
           payload?: Json | null
           timestamp?: string | null
           type?: string | null
           widget_id?: string | null
+          widget_instance_id?: string | null
         }
         Update: {
+          actor_id?: string | null
           channel?: string | null
+          event_type?: string | null
           id?: string
           payload?: Json | null
           timestamp?: string | null
           type?: string | null
           widget_id?: string | null
+          widget_instance_id?: string | null
         }
         Relationships: [
           {
@@ -2562,6 +2800,19 @@ export type Database = {
     }
     Functions: {
       bootstrap_user_spaces: { Args: { p_user_id: string }; Returns: undefined }
+      check_ai_rate_limit: {
+        Args: {
+          p_user_id: string
+          p_endpoint: string
+          p_max_requests: number
+          p_window_minutes: number
+        }
+        Returns: boolean
+      }
+      get_user_capabilities: {
+        Args: { p_user_id: string }
+        Returns: string[]
+      }
       increment_likes: {
         Args: { row_id: string; table_name: string }
         Returns: undefined

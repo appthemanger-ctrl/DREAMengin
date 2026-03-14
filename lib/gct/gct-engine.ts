@@ -34,7 +34,8 @@ type PreparedInput = {
 export class GCTEngine {
   private config: Required<GCTConfig>;
   private gpuAvailable = false;
-  private device: GPUDevice | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private device: any = null;
 
   constructor(config: GCTConfig = {}) {
     this.config = {

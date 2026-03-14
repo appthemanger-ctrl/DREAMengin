@@ -387,7 +387,8 @@ export async function verifyIntents(
   let policy: PolicyVersion = DEFAULT_POLICY;
 
   try {
-    const { data } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
       .from('policy_versions')
       .select('version, rules_json, weights, thresholds')
       .eq('active', true)
@@ -396,7 +397,7 @@ export async function verifyIntents(
       .single();
 
     if (data) {
-      policy = data as PolicyVersion;
+      policy = data as unknown as PolicyVersion;
     }
   } catch (error) {
     console.warn('Failed to load policy from DB, using default:', error);
@@ -476,12 +477,14 @@ export function redactSecrets(payload: Record<string, unknown>): Record<string, 
 
   function redactValue(val: unknown): unknown {
     if (typeof val === 'string') {
-      // Redact JWT patterns
-      val = val.replace(/eyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, '[REDACTED_JWT]');
+      // Redact JWT patterns, API keys, hex keys
+      let s: string = val;
+      s = s.replace(/eyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, '[REDACTED_JWT]');
       // Redact API keys
-      val = val.replace(/sk-[a-zA-Z0-9]{32,}/gi, '[REDACTED_KEY]');
+      s = s.replace(/sk-[a-zA-Z0-9]{32,}/gi, '[REDACTED_KEY]');
       // Redact hex keys
-      val = val.replace(/\b[a-f0-9]{32,}\b/gi, '[REDACTED_HEX]');
+      s = s.replace(/\b[a-f0-9]{32,}\b/gi, '[REDACTED_HEX]');
+      return s;
     } else if (typeof val === 'object' && val !== null) {
       if (Array.isArray(val)) {
         return val.map(redactValue);

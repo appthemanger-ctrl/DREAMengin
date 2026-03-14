@@ -61,7 +61,7 @@ export const IntentSchema = z.object({
   requires_confirmation: z.boolean(),
   rationale: z.string(),
   idempotency_key: z.string(),
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
 });
 export type Intent = z.infer<typeof IntentSchema>;
 
@@ -72,7 +72,7 @@ export const IntentEnvelopeSchema = z.object({
   timestamp: z.string(),
   ui: UIContextSchema,
   intents: z.array(IntentSchema).max(3),
-  meta: z.record(z.unknown()).optional(),
+  meta: z.record(z.string(), z.unknown()).optional(),
 });
 export type IntentEnvelope = z.infer<typeof IntentEnvelopeSchema>;
 
@@ -139,7 +139,7 @@ export const BoogieResultSchema = z.object({
   risk_score: z.number().min(0).max(1),
   reason_code: z.string(),
   policy_version: z.string(),
-  modified_payload: z.record(z.unknown()).optional(),
+  modified_payload: z.record(z.string(), z.unknown()).optional(),
 });
 export type BoogieResult = z.infer<typeof BoogieResultSchema>;
 

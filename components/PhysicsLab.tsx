@@ -309,7 +309,7 @@ export default function PhysicsLab() {
                   </label>
                   <select
                     value={cccParams.boundaryCondition}
-                    onChange={(e) => setCCCParams(prev => ({ ...prev, boundaryCondition: e.target.value as unknown }))}
+                    onChange={(e) => setCCCParams(prev => ({ ...prev, boundaryCondition: e.target.value as 'open' | 'closed' | 'periodic' }))}
                     className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"
                   >
                     <option value="closed">Closed (Full Ledger)</option>

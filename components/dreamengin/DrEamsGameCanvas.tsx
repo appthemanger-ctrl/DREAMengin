@@ -588,11 +588,11 @@ function drawTitleScreen(
   const px = CANVAS_W/2 - 250, py = CANVAS_H/2 - 80;
   if (imgs.coat?.complete && imgs.coat.naturalWidth) {
     ctx.drawImage(imgs.coat,  px + 2,  py + 22, COAT.w * 2, COAT.h * 2);
-    ctx.drawImage(imgs.head,  px - 2,  py,       HEAD.w * 2, HEAD.h * 2);
-    ctx.drawImage(imgs.shoe1, px,      py + 22 + COAT.h*2 - 4, SHO1.w * 2, SHO1.h * 2);
-    ctx.drawImage(imgs.shoe2, px + 12, py + 22 + COAT.h*2 - 4, SHO2.w * 2, SHO2.h * 2);
-    ctx.drawImage(imgs.arm1,  px - 8,  py + 26,  ARM1.w * 2, ARM1.h * 2);
-    ctx.drawImage(imgs.arm2,  px + 24, py + 28,  ARM2.w * 2, ARM2.h * 2);
+    if (imgs.head) ctx.drawImage(imgs.head,  px - 2,  py,       HEAD.w * 2, HEAD.h * 2);
+    if (imgs.shoe1) ctx.drawImage(imgs.shoe1, px,      py + 22 + COAT.h*2 - 4, SHO1.w * 2, SHO1.h * 2);
+    if (imgs.shoe2) ctx.drawImage(imgs.shoe2, px + 12, py + 22 + COAT.h*2 - 4, SHO2.w * 2, SHO2.h * 2);
+    if (imgs.arm1) ctx.drawImage(imgs.arm1,  px - 8,  py + 26,  ARM1.w * 2, ARM1.h * 2);
+    if (imgs.arm2) ctx.drawImage(imgs.arm2,  px + 24, py + 28,  ARM2.w * 2, ARM2.h * 2);
   }
 
   // Mini enemy preview

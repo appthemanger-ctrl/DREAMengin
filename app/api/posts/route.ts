@@ -67,7 +67,8 @@ export async function POST(req: NextRequest) {
   }
 
   // Also create a feed item for the user
-  await supabase.from('feed_items').insert({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase as any).from('feed_items').insert({
     user_id: user.id,
     type: 'post',
     content: { text: content.trim(), post_id: post.id },

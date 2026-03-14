@@ -308,12 +308,12 @@ export function useContent(userId: string) {
 
   // Separate private and shared content
   const privateContent = useMemo(
-    () => content?.filter((c) => c.visibility === "private") || [],
+    () => content?.filter((c: ContentObject) => c.visibility === "private") || [],
     [content]
   );
 
   const sharedContent = useMemo(
-    () => content?.filter((c) => c.visibility === "shared") || [],
+    () => content?.filter((c: ContentObject) => c.visibility === "shared") || [],
     [content]
   );
 

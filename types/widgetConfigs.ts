@@ -76,13 +76,17 @@ export type DreamenginWidgetType =
   | 'text';
 
 export interface EmbedWidgetConfig {
-  url: string;
+  url?: string;
+  src?: string;
   title?: string;
+  provider?: 'iframe' | 'custom';
+  aspectRatio?: '16:9' | '4:3' | '1:1';
   sandbox?: boolean;
 }
 
 export interface TextWidgetConfig {
-  text: string;
+  text?: string;
+  body?: string;
   format?: 'plain' | 'markdown';
 }
 

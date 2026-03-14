@@ -35,8 +35,10 @@ export default function DrEamsVoiceAssistant() {
   const [speechSupported, setSpeechSupported] = useState<boolean | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<unknown>(null);
-  const synthRef = useRef<unknown>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const synthRef = useRef<any>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -74,7 +76,8 @@ export default function DrEamsVoiceAssistant() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const SpeechRecognition = (window as unknown).SpeechRecognition || (window as unknown).webkitSpeechRecognition;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const SpeechSynthesis = window.speechSynthesis;
 
     // Detect browser support once
@@ -86,7 +89,8 @@ export default function DrEamsVoiceAssistant() {
       recognition.interimResults = true;
       recognition.lang = 'en-US';
 
-      recognition.onresult = (event: unknown) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      recognition.onresult = (event: any) => {
         let interimTranscript = '';
         let finalTranscript = '';
 
@@ -115,7 +119,8 @@ export default function DrEamsVoiceAssistant() {
         }
       };
 
-      recognition.onerror = (event: unknown) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         if (event.error === 'no-speech') {
           // Restart recognition if no speech detected
@@ -207,7 +212,8 @@ export default function DrEamsVoiceAssistant() {
 
     // Try to use a male voice for Dr. Eams
     const voices = synthRef.current.getVoices();
-    const maleVoice = voices.find((voice: unknown) => 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const maleVoice = voices.find((voice: any) => 
       voice.name.includes('Male') || voice.name.includes('Daniel') || voice.name.includes('David')
     );
     if (maleVoice) {
@@ -290,7 +296,7 @@ export default function DrEamsVoiceAssistant() {
         ? `iDari: ${json.message}`
         : 'iDari accepted the update request.';
     } catch (e: unknown) {
-      return `iDari request error: ${e?.message || 'Unknown error'}`;
+      return `iDari request error: ${e instanceof Error ? e.message : 'Unknown error'}`;
     }
   };
 

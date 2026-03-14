@@ -53,18 +53,18 @@ export class PointerEventCapture {
     this.onMove = onMove;
     this.onEnd = onEnd;
     
-    this.element.addEventListener('pointerdown', this.handlePointerDown);
-    this.element.addEventListener('pointermove', this.handlePointerMove);
-    this.element.addEventListener('pointerup', this.handlePointerUp);
-    this.element.addEventListener('pointercancel', this.handlePointerCancel);
+    this.element.addEventListener('pointerdown', this.handlePointerDown as EventListener);
+    this.element.addEventListener('pointermove', this.handlePointerMove as EventListener);
+    this.element.addEventListener('pointerup', this.handlePointerUp as EventListener);
+    this.element.addEventListener('pointercancel', this.handlePointerCancel as EventListener);
   }
   
   // Stop capturing events
   stop(): void {
-    this.element.removeEventListener('pointerdown', this.handlePointerDown);
-    this.element.removeEventListener('pointermove', this.handlePointerMove);
-    this.element.removeEventListener('pointerup', this.handlePointerUp);
-    this.element.removeEventListener('pointercancel', this.handlePointerCancel);
+    this.element.removeEventListener('pointerdown', this.handlePointerDown as EventListener);
+    this.element.removeEventListener('pointermove', this.handlePointerMove as EventListener);
+    this.element.removeEventListener('pointerup', this.handlePointerUp as EventListener);
+    this.element.removeEventListener('pointercancel', this.handlePointerCancel as EventListener);
     
     this.onMove = null;
     this.onEnd = null;

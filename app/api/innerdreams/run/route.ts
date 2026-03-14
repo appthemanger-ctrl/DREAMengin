@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
   const rateLimitCheck = await checkRateLimit(user.id, '/api/innerdreams/run', 20, 60);
   if (!rateLimitCheck.allowed) {
     return jsonApiError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.', {
-      resetAt: rateLimitCheck.resetAt,
+      retry_after_seconds: rateLimitCheck.retry_after_seconds,
     });
   }
 

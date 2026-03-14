@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Simulate bug checking
     const bugsFound = 0;
-    const checks = { ...DEFAULT_CHECK_STATUS };
+    const checks: Record<string, string> = { ...DEFAULT_CHECK_STATUS };
     if (bugsFound > 0) {
       checks.consoleErrors = 'Warning';
     }

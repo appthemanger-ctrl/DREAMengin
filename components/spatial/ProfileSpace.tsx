@@ -96,7 +96,7 @@ export default function ProfileSpace({
       const ids = widget.overlap?.source_content_ids;
       if (!ids || ids.length === 0) return [];
       const set = new Set(ids);
-      return content.filter((c) => set.has(c.id));
+      return content.filter((c: ContentObject) => set.has(c.id));
     },
     [content]
   );
