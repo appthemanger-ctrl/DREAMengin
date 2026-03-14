@@ -35,6 +35,7 @@ export type Database = {
           endpoint: string
           id: string
           request_count: number
+          updated_at: string
           user_id: string
           window_start: string
         }
@@ -42,6 +43,7 @@ export type Database = {
           endpoint: string
           id?: string
           request_count?: number
+          updated_at?: string
           user_id: string
           window_start?: string
         }
@@ -49,6 +51,7 @@ export type Database = {
           endpoint?: string
           id?: string
           request_count?: number
+          updated_at?: string
           user_id?: string
           window_start?: string
         }
@@ -2807,7 +2810,11 @@ export type Database = {
           p_max_requests: number
           p_window_minutes: number
         }
-        Returns: boolean
+        Returns: {
+          allowed: boolean
+          rpm: number
+          retry_after_seconds: number | null
+        }
       }
       get_user_capabilities: {
         Args: { p_user_id: string }
