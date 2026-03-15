@@ -1,6 +1,6 @@
 # DREAMengin Feature Status
 
-Last updated: 2026-03-10  
+Last updated: 2026-03-15  
 Source of truth for product naming: `README.md`
 
 Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly aligned
@@ -26,6 +26,16 @@ See `docs/dreamengin_phase6.md` for the full 50-point specification.
 | Output/Projection layer | ✅ | `components/dreams/DreamOutputLayer.tsx` exists. |
 | Legacy widget absorption into Dreams naming | 🟡 | `components/widgets/*` still exists and is being repurposed. |
 | Automatic Super Widget composition | 🟡 | `components/dreams/SuperDreamWidget.tsx` exists, but profile-wide composition rules still need full alignment. |
+
+## 2a. Dreams Space (second runtime)
+
+| Feature | Status | Repo truth |
+|---|---|---|
+| DreamsSpacePanel — separate runtime panel | ✅ | `components/dreams/DreamsSpacePanel.tsx`; revealed by dragging DreamDMBar upward. |
+| useDreamsRuntime hook | ✅ | `lib/dreams/useDreamsRuntime.ts`; independent navigation state separate from home runtime. |
+| Daydreams as priority in Dreams Space | ✅ | DreamsSpacePanel surfaces all 6 Daydreams as the first/default tab (`✦ Daydreams`), per README runtime model. |
+| Live routes to all 6 Daydreams from Dreams Space | ✅ | Each tile in the Daydreams tab links directly to `/daydream/music`, `/daydream/games`, `/daydream/lab`, `/daydream/code`, `/daydream/brand`, `/daydream/create`. |
+| Connector feeds (YouTube / GitHub / Spotify) | ✅ | Available in the secondary `✨ Feeds` tab; service sub-tabs preserved. |
 
 ## 3. Daydream pairs
 
@@ -84,15 +94,16 @@ The following items are the Phase 6 focus. See `docs/dreamengin_phase6.md` for t
 1. ✅ Add `components/daydream/GameEngin.tsx` (Games Daydream Side B) — done.
 2. ✅ Create `lib/daydream/useDaydreamState.ts` (shared Daydream/Engin state hook) — done.
 3. ✅ Wire `sideBComponent` prop into `DaydreamShell`; wire `GameEngin` into Games page — done.
-4. ⏳ Integrate Dr. Eams as HomeDream search bar with send-to-DreamDM routing.
-5. ⏳ Enforce IDARi admin-guard even under dev auth bypass.
-6. ⏳ Wire TheBoogieMan privacy-event logging for visibility changes.
-7. ⏳ Consult `visibility_mappings` before rendering any content on ViewProfile.
-8. ⏳ Separate private-save and explicit-share flows in EditProfileDream.
-9. ⏳ Unify DreamMenu under a single canonical implementation.
-10. ⏳ Separate user DreamAds from platform promotions in code and UI language.
-11. ⏳ Repurpose legacy Daydream routes (`analytics`, `media-vault`, `play`).
-12. ⏳ Complete real-capability audit: replace all fake actions with real ones.
+4. ✅ Surface Daydreams as priority in Dreams Space with live routes from second runtime — done.
+5. ⏳ Integrate Dr. Eams as HomeDream search bar with send-to-DreamDM routing.
+6. ⏳ Enforce IDARi admin-guard even under dev auth bypass.
+7. ⏳ Wire TheBoogieMan privacy-event logging for visibility changes.
+8. ⏳ Consult `visibility_mappings` before rendering any content on ViewProfile.
+9. ⏳ Separate private-save and explicit-share flows in EditProfileDream.
+10. ⏳ Unify DreamMenu under a single canonical implementation.
+11. ⏳ Separate user DreamAds from platform promotions in code and UI language.
+12. ⏳ Repurpose legacy Daydream routes (`analytics`, `media-vault`, `play`).
+13. ⏳ Complete real-capability audit: replace all fake actions with real ones.
 ## 8. Current alignment priorities
 
 1. Make spec names primary everywhere in docs and UI copy.
