@@ -38,6 +38,15 @@ function LoginPageInner() {
       const friendlyErrors: Record<string, string> = {
         access_denied: "Sign-in was cancelled. Please try again.",
         exchange_failed: "Authentication failed. Please try again.",
+        // Google returns these when the redirect URI is not in the allowed list
+        redirect_uri_mismatch:
+          "Google sign-in is misconfigured (redirect URI mismatch). Please use email/password or contact support.",
+        invalid_client:
+          "Google sign-in is misconfigured (invalid client). Please use email/password or contact support.",
+        // Supabase / generic OAuth errors
+        server_error: "A server error occurred during sign-in. Please try again.",
+        temporarily_unavailable:
+          "The sign-in service is temporarily unavailable. Please try again shortly.",
       };
       setError(friendlyErrors[cbError] ?? cbErrorDesc ?? `Sign-in error: ${cbError}`);
     }

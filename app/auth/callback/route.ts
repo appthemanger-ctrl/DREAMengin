@@ -73,8 +73,16 @@ export async function GET(request: Request) {
       loginUrl.searchParams.set("error_description", exchangeError.message);
       return NextResponse.redirect(loginUrl);
     }
-  } catch {
-    // If exchange fails, fall through and redirect without a session.
+  } catch (err: unknown) {
+    // Unexpected exception during PKCE exchange — redirect to login with error
+    // so the user sees a helpful message instead of a silent broken redirect.
+    const loginUrl = new URL("/login", url.origin);
+    loginUrl.searchParams.set("error", "exchange_failed");
+    loginUrl.searchParams.set(
+      "error_description",
+      (err as { message?: string })?.message ?? "Unexpected error during sign-in"
+    );
+    return NextResponse.redirect(loginUrl);
   }
 
   return response;
