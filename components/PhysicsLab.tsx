@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Atom, Play, Pause, RotateCcw, Save, Share2, Users, 
   FlaskConical, LineChart, Settings, FileText, Sparkles,
-  TrendingUp, Zap, Layers, Binary
+  TrendingUp, Zap, Layers, Binary, Check, Loader2
 } from 'lucide-react';
 
 interface ExperimentParameter {
@@ -47,6 +48,9 @@ export default function PhysicsLab() {
   const [isRunning, setIsRunning] = useState(false);
   const [experiments, setExperiments] = useState<ExperimentRun[]>([]);
   const [currentRun, setCurrentRun] = useState<number>(1);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const router = useRouter();
   
   const [cccParams, setCCCParams] = useState<CCCParameters>({
     layers: 99,
@@ -59,6 +63,46 @@ export default function PhysicsLab() {
 
   const [hypothesis, setHypothesis] = useState('');
   const [methodology, setMethodology] = useState('');
+
+  const handleSaveExperiment = useCallback(() => {
+    if (experiments.length === 0) {
+      setSaveMsg('Run an experiment first to save results.');
+      setTimeout(() => setSaveMsg(''), 2500);
+      return;
+    }
+    setIsSaving(true);
+    try {
+      // Persist experiment summary to localStorage (offline-first persistence)
+      const saved = JSON.parse(localStorage.getItem('de-physics-experiments') || '[]');
+      const summary = experiments.slice(0, 5).map((e) => ({
+        id: e.id,
+        runNumber: e.runNumber,
+        status: e.status,
+        savedAt: new Date().toISOString(),
+      }));
+      localStorage.setItem('de-physics-experiments', JSON.stringify([...summary, ...saved].slice(0, 20)));
+      setSaveMsg('Experiment saved.');
+      setTimeout(() => setSaveMsg(''), 2500);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [experiments]);
+
+  const handleShare = useCallback(() => {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: 'Physics Lab — Dreamengin', url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        setSaveMsg('Link copied to clipboard.');
+        setTimeout(() => setSaveMsg(''), 2000);
+      }).catch(() => {});
+    }
+  }, []);
+
+  const handleCollaborate = useCallback(() => {
+    router.push('/messages');
+  }, [router]);
 
   const runExperiment = async () => {
     setIsRunning(true);
@@ -184,17 +228,30 @@ export default function PhysicsLab() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                onClick={handleCollaborate}
+                type="button"
+              >
                 <Users className="w-4 h-4" />
                 <span>Collaborate</span>
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                onClick={handleShare}
+                type="button"
+              >
                 <Share2 className="w-4 h-4" />
                 <span>Share</span>
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-colors shadow-lg">
-                <Save className="w-4 h-4" />
-                <span>Save Experiment</span>
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-colors shadow-lg"
+                onClick={handleSaveExperiment}
+                disabled={isSaving}
+                type="button"
+              >
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : saveMsg.includes('saved') ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                <span>{saveMsg && !saveMsg.includes('copied') ? saveMsg : 'Save Experiment'}</span>
               </button>
             </div>
           </div>

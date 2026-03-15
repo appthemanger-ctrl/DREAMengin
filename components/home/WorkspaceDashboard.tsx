@@ -312,16 +312,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
 
   const realPostCount = posts.length;
 
-  const feedPosts = posts.length > 0 ? posts.slice(0, 5) : Array.from({ length: 5 }).map((_, i) => ({
-    id: `mock-${i}`,
-    content: ['Dropped a new beat 🎵', 'Launched a new project ✨', 'Hit a milestone 🏆', 'Going live tonight 🔴', 'New collab dropping soon 🤝'][i],
-    created_at: new Date(Date.now() - i * 3600000).toISOString(),
-    profiles: {
-      handle: ['dreamer', 'creator', 'builder', 'artist', 'maker'][i],
-      display_name: ['Dreamer', 'Creator', 'Builder', 'Artist', 'Maker'][i],
-      avatar_url: null,
-    },
-  }));
+  const feedPosts = posts.length > 0 ? posts.slice(0, 5) : [];
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -536,9 +527,18 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 data-scroll
                 style={{ maxHeight: 300, overflowY: 'auto', paddingRight: 4, WebkitOverflowScrolling: 'touch' }}
               >
-                {feedPosts.slice(0, 8).map((post, i) => (
-                  <ActivityCard key={post.id || i} post={post} index={i} />
-                ))}
+                {feedPosts.length > 0 ? (
+                  feedPosts.slice(0, 8).map((post, i) => (
+                    <ActivityCard key={post.id || i} post={post} index={i} />
+                  ))
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--de-text-dim)', fontSize: 12 }}>
+                    No activity yet.{' '}
+                    <Link href="/discover" style={{ color: 'var(--de-accent)' }}>Discover creators</Link>
+                    {' '}or{' '}
+                    <Link href="/daydream/create" style={{ color: 'var(--de-accent)' }}>create your first post</Link>.
+                  </div>
+                )}
               </div>
 
               <Link href="/discover" style={{
