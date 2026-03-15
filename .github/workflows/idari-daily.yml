@@ -78,7 +78,7 @@ jobs:
 
     steps:
       - name: Checkout completedream
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 0
@@ -90,7 +90,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js (2026 target)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -293,7 +293,7 @@ jobs:
       # 1. Checkout completedream with full history
       # ────────────────────────────────────────────────────────────────────────
       - name: Checkout completedream
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 0
@@ -308,7 +308,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js (2026 target — docs/ARCHITECTURE.md §10)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -548,7 +548,7 @@ jobs:
 
     steps:
       - name: Checkout completedream (post-cycle state)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 1
@@ -560,7 +560,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js ${{ env.NODE_VERSION }} (2026 Vercel target)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
