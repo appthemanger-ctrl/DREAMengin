@@ -78,6 +78,12 @@ export async function GET() {
       hint: 'Required for OpenAI-powered features.',
       required: false,
     },
+    {
+      key: 'GOOGLE_OAUTH_CLIENT_ID',
+      ok: Boolean(process.env.GOOGLE_OAUTH_CLIENT_ID),
+      hint: 'Google OAuth client ID — configure in Supabase Auth → Providers → Google. See /api/setup/google-oauth for setup instructions.',
+      required: false,
+    },
   ];
 
   const ok = checks.filter(c => c.required !== false).every(c => c.ok);
