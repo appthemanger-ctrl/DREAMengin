@@ -51,10 +51,7 @@ jobs:
           version: 10.30.0
 
       - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: pnpm
+        uses: ./.github/actions/setup-node
 
       - name: Install dependencies
         shell: bash
@@ -124,16 +121,3 @@ jobs:
             echo "| Allowed | ${{ steps.score.outputs.allowed }} |"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Commit auto-fixes (if any)
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          if git diff --quiet; then
-            echo "No fixes to commit."
-            exit 0
-          fi
-
-          git add -A
-          git commit -m "chore: auto-fix lint"
-          git push || true

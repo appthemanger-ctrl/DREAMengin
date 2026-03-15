@@ -33,9 +33,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
+        uses: ./.github/actions/setup-node
 
       - name: Regenerate build-memory
         run: node scripts/sync-build-memory.mjs

@@ -30,10 +30,7 @@ jobs:
           version: 10.30.0
       
       - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+        uses: ./.github/actions/setup-node
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -62,10 +59,7 @@ jobs:
           version: 10.30.0
       
       - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+        uses: ./.github/actions/setup-node
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -260,16 +254,3 @@ jobs:
           echo "Deployment failed! Check logs."
           # Add Slack/Discord webhook here
 
-      - name: Commit auto-fixes (if any)
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          if git diff --quiet; then
-            echo "No fixes to commit."
-            exit 0
-          fi
-
-          git add -A
-          git commit -m "chore: auto-fix lint"
-          git push || true
