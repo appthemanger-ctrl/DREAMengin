@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import HeroSprite from '@/components/HeroSprite';
+import DrEamsBabylonHero from '@/components/landing/DrEamsBabylonHero';
 
 /**
  * LandingHero — Premium phone-grade landing hero.
@@ -33,12 +33,21 @@ const springMed  = { type: 'spring', stiffness: 260, damping: 28 } as const;
 
 export default function LandingHero() {
   const [actionIdx, setActionIdx] = useState(0);
+  // Single Babylon.js instance — size derived once on mount to avoid two engines running.
+  const [heroSize, setHeroSize] = useState(480);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setActionIdx((i) => (i + 1) % ACTIONS.length);
     }, 2200);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const update = () => setHeroSize(window.innerWidth < 768 ? 340 : 480);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
   }, []);
 
   return (
@@ -206,20 +215,31 @@ export default function LandingHero() {
         </motion.div>
       </div>
 
-      {/* ── Dr. Eams sprite — animated, interactive ── */}
+      {/* ── Dr. Eams 3D Babylon.js robot — interactive, PBR materials, glow ── */}
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ ...springMed, delay: 0.65 }}
-        className="relative z-10 flex justify-center pb-8 md:absolute md:bottom-0 md:right-0 md:pb-0 md:pr-8"
-        aria-label="Dr. Eams — interactive character. Tap or drag to interact."
-        role="img"
+        className="relative z-10 flex flex-col items-center justify-center pb-8 md:absolute md:bottom-0 md:right-0 md:pb-0 md:pr-4"
       >
-        <div className="w-[220px] h-[220px] md:w-[320px] md:h-[320px] overflow-hidden">
-          {/* HeroSprite renders at a fixed canvas size; overflow-hidden clips it
-              cleanly on mobile while the full-res render is used on desktop. */}
-          <HeroSprite width={320} height={320} />
-        </div>
+        {/* Ambient glow ring behind the robot */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
+          style={{
+            background: 'radial-gradient(ellipse 80% 60% at 50% 70%, rgba(14,165,233,0.18) 0%, transparent 70%)',
+            filter: 'blur(20px)',
+          }}
+        />
+        {/* Single Babylon.js instance — size is computed from window width to avoid
+            running two WebGL engines simultaneously (one was being hidden by CSS). */}
+        <DrEamsBabylonHero width={heroSize} height={heroSize} />
+        <p
+          className="mt-1 text-xs font-medium select-none tracking-widest uppercase"
+          style={{ color: 'rgba(125,211,252,0.6)' }}
+        >
+          tap · drag · interact ✦
+        </p>
       </motion.div>
 
     </div>
