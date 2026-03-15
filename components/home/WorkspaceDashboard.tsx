@@ -294,7 +294,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
 
   useEffect(() => {
     if (!profile?.id) return;
-    fetch(`/api/profile?user_id=${profile.id}`)
+    fetch(`/api/profile?user_id=${encodeURIComponent(profile.id)}`)
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (data?.followers_count !== undefined) {

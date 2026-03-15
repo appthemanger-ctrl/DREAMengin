@@ -73,14 +73,15 @@ export default function PhysicsLab() {
     setIsSaving(true);
     try {
       // Persist experiment summary to localStorage (offline-first persistence)
-      const saved = JSON.parse(localStorage.getItem('de-physics-experiments') || '[]');
+      let savedExps: unknown[] = [];
+      try { savedExps = JSON.parse(localStorage.getItem('de-physics-experiments') || '[]'); } catch { savedExps = []; }
       const summary = experiments.slice(0, 5).map((e) => ({
         id: e.id,
         runNumber: e.runNumber,
         status: e.status,
         savedAt: new Date().toISOString(),
       }));
-      localStorage.setItem('de-physics-experiments', JSON.stringify([...summary, ...saved].slice(0, 20)));
+      localStorage.setItem('de-physics-experiments', JSON.stringify([...summary, ...savedExps].slice(0, 20)));
       setSaveMsg('Experiment saved.');
       setTimeout(() => setSaveMsg(''), 2500);
     } finally {
