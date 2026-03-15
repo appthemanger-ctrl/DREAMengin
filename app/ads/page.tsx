@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, DollarSign, ShoppingCart, BarChart3, Plus, LayoutGrid } from 'lucide-react';
 import type { AdSlot, AdListing, AdOrder } from '@/types/ads';
+import DreamWord from '@/components/ui/DreamWord';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,13 +48,13 @@ export default async function AdsPage() {
   return (
     <div className="de-sky-bg min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(245,243,238,0.92)', borderBottom: '1px solid rgba(200,165,80,0.18)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(200,152,26,0.10)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <DollarSign className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>DreamAds</h1>
+          <h1 className="text-lg font-bold"><DreamWord />Ads</h1>
           <Link href="/ads/create" className="de-btn de-btn-gold ml-auto" style={{ gap: 6, minHeight: 40 }}>
             <Plus className="w-4 h-4" />
             Create Slot

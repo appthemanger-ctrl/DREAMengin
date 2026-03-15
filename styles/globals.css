@@ -107,13 +107,14 @@ html, body {
   scroll-behavior: smooth;
 }
 
-/* ── All overflow scroll containers get momentum scrolling ── */
+/* ── All overflow scroll containers get momentum scrolling + smooth scroll ── */
 [data-scroll],
 .scroll-ios,
 [style*="overflow-y: auto"],
 [style*="overflow-y:auto"],
 [style*="overflowY"] {
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 /* ── Button / Link active press states — mobile-first ── */
@@ -166,6 +167,45 @@ a:active {
   letter-spacing: -0.01em;
   line-height: 1;
   user-select: none;
+}
+
+/* ── "Dream" metallic gold word — used in all Dream-surface headers ──────────
+   Apply to any <span> wrapping the word "Dream" in platform headings.
+   The Cormorant italic gives it expressive weight; the gold gradient
+   creates the metallic sheen. Prefix/suffix text keeps its own font.
+── */
+.de-dream-word {
+  font-family: var(--font-cormorant, Georgia, 'Times New Roman', serif);
+  font-style: italic;
+  font-weight: 700;
+  /* Fallback for high-contrast / no-CSS-gradient environments */
+  color: #c8981a;
+  /* 5-stop metallic gold gradient */
+  background: linear-gradient(
+    145deg,
+    #8a6010 0%,
+    #c8981a 18%,
+    #f0d060 38%,
+    #ffd700 50%,
+    #f0d060 62%,
+    #c8981a 82%,
+    #8a6010 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+  line-height: inherit;
+  display: inline;
+  user-select: none;
+}
+/* Graceful degradation: show plain gold if background-clip unsupported */
+@supports not (-webkit-background-clip: text) {
+  .de-dream-word {
+    background: none;
+    -webkit-text-fill-color: unset;
+    color: #c8981a;
+  }
 }
 
 /* ── Dream background (theme-aware) ── */

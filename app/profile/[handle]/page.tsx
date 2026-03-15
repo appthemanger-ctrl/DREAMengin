@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Pencil } from 'lucide-react';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
 import FollowButton from '@/components/feed/FollowButton';
+import DreamWord from '@/components/ui/DreamWord';
 import ProfileShareButton from '@/components/ProfileShareButton';
 
 // Extended profile type
@@ -88,15 +89,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
       {/* ── dreamengin brand header ── */}
       <div style={{ paddingTop: 18, paddingBottom: 2, textAlign: 'center' }}>
-        <span style={{
-          fontFamily: 'Georgia, "Times New Roman", serif',
-          fontStyle: 'italic',
-          fontSize: 28,
-          fontWeight: 400,
-          color: '#c8981a',
-          letterSpacing: '-0.01em',
-        }}>
-          dreamengin
+        <span className="de-wordmark" style={{ fontSize: 28 }}>
+          <DreamWord />engin
         </span>
       </div>
 

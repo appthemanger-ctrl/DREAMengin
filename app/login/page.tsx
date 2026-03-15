@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import DreamWord from "@/components/ui/DreamWord";
 
 import PasswordField from "@/components/auth/PasswordField";
 import { createClient } from "@/lib/supabase/client";
@@ -108,7 +109,7 @@ function LoginPageInner() {
 
       {/* dreamengin wordmark */}
       <div style={{ marginBottom: 28, textAlign: "center" }}>
-        <span className="de-wordmark" style={{ fontSize: 36 }}>dreamengin</span>
+        <span className="de-wordmark" style={{ fontSize: 36 }}><DreamWord />engin</span>
         <div style={{ fontSize: 13, color: "var(--de-text-dim)", marginTop: 6, letterSpacing: "0.04em" }}>
           Welcome back — sign in to your space
         </div>
@@ -214,7 +215,7 @@ export default function LoginPage() {
     <Suspense fallback={
       <div className="de-sky-bg min-h-screen flex items-center justify-center">
         <div className="de-widget" style={{ padding: 32, textAlign: 'center' }}>
-          <span className="de-wordmark" style={{ fontSize: 28 }}>dreamengin</span>
+          <span className="de-wordmark" style={{ fontSize: 28 }}><DreamWord />engin</span>
         </div>
       </div>
     }>

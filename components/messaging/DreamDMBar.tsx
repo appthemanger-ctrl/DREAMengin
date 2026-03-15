@@ -56,6 +56,7 @@ import { useDreamDMConversations,
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
+import DreamWord from '@/components/ui/DreamWord';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
 /** Thick bar height when locked at the bottom */
@@ -623,7 +624,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
                     marginBottom: -1,
                   }}
                 >
-                  ✨ Dreams
+                  ✨ <DreamWord />s
                 </button>
                 <button
                   type="button"
@@ -1047,7 +1048,7 @@ function DreamSpaceMessaging({
           <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 }}>
             <MessageCircle size={28} style={{ color: 'var(--de-text-dim)', opacity: 0.3 }} aria-hidden />
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Select a conversation</p>
-            <a href="/messages" style={{ fontSize: 11, color: 'var(--de-blue)', textDecoration: 'none' }}>Open DreamDMessaging →</a>
+            <a href="/messages" style={{ fontSize: 11, color: 'var(--de-gold)', textDecoration: 'none' }}>Open <DreamWord />DM →</a>
           </div>
         )}
       </div>

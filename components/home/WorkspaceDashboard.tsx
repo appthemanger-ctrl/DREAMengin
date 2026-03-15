@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import NotificationCenter from '@/components/NotificationCenter';
 import { useNotifications } from '@/lib/notifications/useNotifications';
+import DreamWord from '@/components/ui/DreamWord';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -318,14 +319,15 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           pointerEvents: 'auto',
         }}>
-          {/* dreamengin wordmark */}
+          {/* dreamengin wordmark — "dream" gets metallic gold, "engin" keeps cormorant italic */}
           <span style={{
-            fontFamily: 'Georgia, serif', fontStyle: 'italic',
-            fontSize: 26, fontWeight: 400, color: '#c8981a',
+            fontFamily: 'var(--font-cormorant, Georgia, serif)', fontStyle: 'italic',
+            fontSize: 26, fontWeight: 400,
             letterSpacing: '-0.01em', flexShrink: 0,
-            textShadow: '0 1px 12px rgba(255,255,255,0.7)',
+            display: 'flex', alignItems: 'baseline',
           }}>
-            dreamengin
+            <span className="de-dream-word">dream</span>
+            <span style={{ color: '#a07828' }}>engin</span>
           </span>
 
           {/* Right side: notification bell + flip to profile */}

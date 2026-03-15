@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
+import DreamWord from '@/components/ui/DreamWord';
 
 export const dynamic = 'force-dynamic';
 
@@ -178,7 +179,7 @@ export default function EditProfileDreamPage() {
           </Link>
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', margin: 0, lineHeight: 1.1 }}>
-              Edit ProfileDream
+              Edit Profile<DreamWord />
             </h1>
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0, lineHeight: 1 }}>
               Arrange Dreams and choose what View Profile exposes
