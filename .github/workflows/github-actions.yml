@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  contents: write
+
 env:
   NODE_VERSION: '24.x'
   REGISTRY: ghcr.io
@@ -131,7 +134,7 @@ jobs:
     needs: [build, security]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - uses: actions/checkout@v5
@@ -256,3 +259,17 @@ jobs:
         run: |
           echo "Deployment failed! Check logs."
           # Add Slack/Discord webhook here
+
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          if git diff --quiet; then
+            echo "No fixes to commit."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "chore: auto-fix lint"
+          git push || true

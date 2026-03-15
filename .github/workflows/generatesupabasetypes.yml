@@ -30,3 +30,17 @@ jobs:
           git add types/supabase.ts
           git commit -m "chore: regenerate supabase types" || echo "No changes"
           git push || true
+
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          if git diff --quiet; then
+            echo "No fixes to commit."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "chore: auto-fix lint"
+          git push || true

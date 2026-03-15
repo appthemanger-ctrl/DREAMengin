@@ -12,6 +12,9 @@ on:
         required: false
         default: '5'
 
+permissions:
+  contents: write
+
 jobs:
   research-games:
     name: Research Greatest Games & Generate Concepts
@@ -238,3 +241,17 @@ jobs:
           echo "| Casual | Speed Tap | ✅ |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Report artifact uploaded: \`game-library-report.md\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          if git diff --quiet; then
+            echo "No fixes to commit."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "chore: auto-fix lint"
+          git push || true

@@ -24,6 +24,9 @@ on:
     # Run daily at 3 AM UTC
     - cron: '0 3 * * *'
 
+permissions:
+  contents: write
+
 jobs:
   optimize:
     runs-on: ubuntu-latest
@@ -135,3 +138,17 @@ jobs:
               repo: context.repo.repo,
               body: comment
             });
+
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          if git diff --quiet; then
+            echo "No fixes to commit."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "chore: auto-fix lint"
+          git push || true
