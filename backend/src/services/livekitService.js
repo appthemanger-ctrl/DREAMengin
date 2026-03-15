@@ -2,26 +2,32 @@ import { AccessToken } from 'livekit-server-sdk';
 
 export default class LiveKitService {
   constructor() {
-    // Mock credentials for testing
-    this.apiKey = 'mock-api-key';
-    this.apiSecret = 'mock-api-secret';
+    this.apiKey = process.env.LIVEKIT_API_KEY ?? '';
+    this.apiSecret = process.env.LIVEKIT_API_SECRET ?? '';
   }
 
   generateToken(roomName, participantIdentity) {
-    // Mock implementation for testing
-    console.log('Generating mock token for:', { roomName, participantIdentity });
-    return 'mock-token-' + Date.now();
+    if (!this.apiKey || !this.apiSecret) {
+      throw new Error('LiveKit credentials not configured');
+    }
+    const at = new AccessToken(this.apiKey, this.apiSecret, {
+      identity: participantIdentity,
+    });
+    at.addGrant({ roomJoin: true, room: roomName });
+    return at.toJwt();
   }
 
   async createRoom(roomName) {
-    // Mock implementation for testing
-    console.log('Creating mock room:', roomName);
+    if (!this.apiKey || !this.apiSecret) {
+      throw new Error('LiveKit credentials not configured');
+    }
     return { roomName };
   }
 
   async listParticipants(roomName) {
-    // Mock implementation for testing
-    console.log('Listing mock participants for room:', roomName);
+    if (!this.apiKey || !this.apiSecret) {
+      throw new Error('LiveKit credentials not configured');
+    }
     return [];
   }
 }

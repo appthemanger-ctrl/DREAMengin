@@ -69,7 +69,6 @@ function main() {
   const components = [
     ['components/NavBar-enhanced.tsx', 'Enhanced Navigation Bar'],
     ['components/FeedCard-enhanced.tsx', 'Enhanced Feed Card'],
-    ['components/FloatingActionBubble.tsx', 'Floating Action Bubble'],
     ['components/SkeletonLoaders.tsx', 'Skeleton Loading System'],
     ['components/ToastSystem.tsx', 'Toast Notification System'],
     ['components/CommandPalette.tsx', 'Command Palette'],

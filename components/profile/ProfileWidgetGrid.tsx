@@ -121,7 +121,6 @@ function getDefaultSize(type: WidgetType): WidgetSize {
 const MIN_SMALL_WIDGET_HEIGHT = 120;
 const BIO_SMALL_TRUNCATE      = 35;   // chars shown in compact bio
 const BIO_LARGE_TRUNCATE      = 55;
-const PLACEHOLDER_FOLLOWING   = 524;  // mock — replace with real data prop when available
 
 function getCardBg(style: WidgetBgStyle, accent: string): React.CSSProperties {
   switch (style) {
@@ -502,19 +501,13 @@ interface WidgetContentProps {
   bio?: string | null;
   coverUrl?: string | null;
   followers: number;
+  following?: number;
   posts: number;
   likes: number;
 }
 
-const PLACEHOLDER_PHOTO_SRCS = [
-  'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=200&q=75',
-  'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&q=75',
-  'https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&q=75',
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=75',
-];
-
 function WidgetContent(p: WidgetContentProps) {
-  const { type, size, config, displayName, avatarUrl, bio, coverUrl, followers, posts, likes } = p;
+  const { type, size, config, displayName, avatarUrl, bio, coverUrl, followers, following = 0, posts, likes } = p;
   const accent    = config.accentColor;
   const textColor = getTextColor(config.bgStyle);
   const dimColor  = getDimColor(config.bgStyle);
@@ -662,7 +655,7 @@ function WidgetContent(p: WidgetContentProps) {
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, color: textColor, lineHeight: 1 }}>{fmt(followers)}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, fontSize: 10, color: dimColor }}>
-              <span style={{ fontSize: 12 }}>🪙</span> Following {PLACEHOLDER_FOLLOWING}
+              <span style={{ fontSize: 12 }}>🪙</span> Following {fmt(following)}
             </div>
           </div>
         );
@@ -682,7 +675,7 @@ function WidgetContent(p: WidgetContentProps) {
               <div style={{ fontSize: 10, color: dimColor, marginTop: 3 }}>Followers</div>
             </div>
             <div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: textColor, lineHeight: 1 }}>{PLACEHOLDER_FOLLOWING}</div>
+              <div style={{ fontSize: 32, fontWeight: 800, color: textColor, lineHeight: 1 }}>{fmt(following)}</div>
               <div style={{ fontSize: 10, color: dimColor, marginTop: 3 }}>Following</div>
             </div>
           </div>
@@ -702,10 +695,10 @@ function WidgetContent(p: WidgetContentProps) {
             Recent Photos
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 5 }}>
-            {PLACEHOLDER_PHOTO_SRCS.slice(0, count).map((src, i) => (
-              <div key={i} style={{ aspectRatio: '1', borderRadius: 10, overflow: 'hidden', background: '#eee' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {Array.from({ length: count }).map((_, i) => (
+              <div key={i} style={{ aspectRatio: '1', borderRadius: 10, background: `${accent}14`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 18, opacity: 0.4 }}>📷</span>
               </div>
             ))}
           </div>
@@ -915,6 +908,7 @@ interface ProfileWidgetGridProps {
   bio?: string | null;
   coverUrl?: string | null;
   followers?: number;
+  following?: number;
   posts?: number;
   likes?: number;
   isEditing?: boolean;
@@ -924,7 +918,7 @@ interface ProfileWidgetGridProps {
 
 export default function ProfileWidgetGrid({
   displayName, handle: _handle, avatarUrl, bio, coverUrl,
-  followers = 0, posts = 12, likes = 46,
+  followers = 0, following = 0, posts = 12, likes = 46,
   isEditing = false,
   initialWidgets, onSave,
 }: ProfileWidgetGridProps) {
@@ -1013,7 +1007,7 @@ export default function ProfileWidgetGrid({
 
   const contentProps = (w: Widget): WidgetContentProps => ({
     type: w.type, size: getSize(w), config: getConfig(w),
-    displayName, avatarUrl, bio, coverUrl, followers, posts, likes,
+    displayName, avatarUrl, bio, coverUrl, followers, following, posts, likes,
   });
 
   // Profile strength

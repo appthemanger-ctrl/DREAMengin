@@ -11,9 +11,7 @@ import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Policy & Safety – Dreamengin Settings' };
 
-// Placeholder log entries — in production these come from the enforcement log DB.
-// Shape matches the audit_event schema from lib/ai/schemas.ts.
-const PLACEHOLDER_LOG: {
+interface PolicyEvent {
   event_id: string;
   timestamp: string;
   action: string;
@@ -21,21 +19,23 @@ const PLACEHOLDER_LOG: {
   category: string;
   expiry: string | null;
   policy_version: string;
-}[] = [];
+}
 
 export default async function SafetySettingsPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // In production: fetch last 20 enforcement events for this user.
-  // const { data: log } = await supabase
-  //   .from('policy_events')
-  //   .select('*')
-  //   .eq('user_id', user.id)
-  //   .order('timestamp', { ascending: false })
-  //   .limit(20);
-  const log = PLACEHOLDER_LOG;
+  // policy_events is not yet in the generated Supabase schema types;
+  // cast to any until the table is added to the type generation pipeline.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: logData } = await (supabase as any)
+    .from('policy_events')
+    .select('event_id, timestamp, action, rule_code, category, expiry, policy_version')
+    .eq('user_id', user.id)
+    .order('timestamp', { ascending: false })
+    .limit(20) as { data: PolicyEvent[] | null };
+  const log: PolicyEvent[] = logData ?? [];
 
   return (
     <div className="de-sky-bg min-h-screen">

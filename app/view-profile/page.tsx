@@ -182,6 +182,7 @@ export default async function ViewProfilePage() {
             bio={profile.bio ?? null}
             coverUrl={profile.cover_url ?? null}
             followers={profile.followers_count ?? 0}
+            following={profile.following_count ?? 0}
             posts={profile.posts_count ?? 0}
             likes={0}
             isEditing={false}
