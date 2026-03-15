@@ -36,7 +36,7 @@ export async function DELETE(
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ ok: false, error: 'Unauthorised' }, { status: 401 });
+    return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
