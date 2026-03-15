@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -169,7 +170,7 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
   const widgetType = selectedWidget ? getWidgetType(selectedWidget) : undefined;
 
   return (
-    <div className="home-dream-surface min-h-screen bg-sky-gradient">
+    <div className="home-dream-surface page-enter min-h-screen bg-sky-gradient">
 
       {/* Feed onboarding banner — slides in from top after "Start Feed" */}
       {bannerVisible && (
@@ -191,7 +192,14 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
       )}
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 bg-de-sheet/80 backdrop-blur-xl border-b border-de-border px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-30 border-b border-de-border px-6 py-4 flex items-center justify-between"
+        style={{
+          background: 'rgba(8, 18, 36, 0.80)',
+          backdropFilter: 'blur(40px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          boxShadow: '0 1px 0 rgba(125,211,252,0.1), 0 4px 24px rgba(0,0,0,0.3)',
+        }}
+      >
         <h1 className="text-2xl font-light tracking-widest text-de-gold select-none">
           dreamengin
         </h1>
@@ -238,7 +246,7 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
                 <ChevronLeft className="w-4 h-4" />
                 Back
               </button>
-              <div className="bg-de-card/60 backdrop-blur-sm border border-de-border rounded-2xl p-6">
+              <div className="premium-card p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-de-sky/15 to-de-gold/10 flex items-center justify-center text-de-sky">
                     {getIconForType(widgetType)}
@@ -276,13 +284,16 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
               </p>
 
               {!feedStarted ? (
-                <button
+                <motion.button
                   type="button"
                   onClick={handleStartFeed}
-                  className="px-10 py-3 rounded-full bg-de-gold text-de-navy font-medium text-sm shadow-gold-glow hover:bg-de-gold-light active:scale-95 transition-all mb-8"
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                  className="premium-btn premium-btn-primary px-10 py-3 text-sm font-medium mb-8"
                 >
                   Start Feed
-                </button>
+                </motion.button>
               ) : (
                 <div className="flex items-center gap-2 text-de-gold/70 text-sm mb-8">
                   <Sparkles className="w-4 h-4" />

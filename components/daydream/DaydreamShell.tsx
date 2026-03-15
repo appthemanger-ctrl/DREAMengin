@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
@@ -62,8 +63,8 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
   }, [flip]);
 
   const contentStyle: React.CSSProperties =
-    phase === 'out' ? { animation: 'de-flip-out 0.25s cubic-bezier(0.55,0,1,0.45) forwards' }
-    : phase === 'in' ? { animation: 'de-flip-in 0.34s cubic-bezier(0,0.55,0.45,1) forwards' }
+    phase === 'out' ? { animation: 'de-flip-out 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' }
+    : phase === 'in' ? { animation: 'de-flip-in 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' }
     : {};
 
   return (
@@ -86,11 +87,14 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
       {/* ── Side A only: corner fold tab → opens Side B (Engin) ── */}
       {side === 'A' && (
         <>
-          <button
+          <motion.button
             type="button"
             onClick={flip}
             aria-label={`Open ${enginName}`}
             title={`${enginName} (Alt+F)`}
+            whileHover={{ width: 80, height: 80 }}
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
             style={{
               position: 'fixed',
               bottom: 0,
@@ -101,20 +105,17 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
               clipPath: 'polygon(100% 0, 100% 100%, 0 100%)',
               cursor: 'pointer',
               border: 'none',
-              background: `linear-gradient(135deg, ${accentColor}aa, rgba(200,152,26,0.75))`,
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              boxShadow: '-3px -3px 18px rgba(0,0,0,0.22)',
+              background: `linear-gradient(135deg, ${accentColor}cc, rgba(200,152,26,0.85))`,
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: `-3px -3px 24px rgba(0,0,0,0.3), -1px -1px 0 rgba(255,255,255,0.1) inset, 0 0 20px ${accentColor}40`,
               padding: 0,
-              transition: 'width 0.2s, height 0.2s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.width = '80px'; e.currentTarget.style.height = '80px'; }}
-            onMouseLeave={e => { e.currentTarget.style.width = '64px'; e.currentTarget.style.height = '64px'; }}
           />
           <div style={{
             position: 'fixed', bottom: 18, right: 72, zIndex: 48,
             fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
-            color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 4px rgba(0,0,0,0.3)',
+            color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 6px rgba(0,0,0,0.5)',
             pointerEvents: 'none',
           }}>
             ENGIN →
@@ -140,15 +141,17 @@ function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
         style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
       >
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <button
+          <motion.button
             type="button"
             onClick={onBack}
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
             className="p-2 -ml-2 rounded-full"
             style={{ background: 'rgba(160,195,240,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             aria-label={`Back to ${title}`}
           >
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </button>
+          </motion.button>
           <div
             style={{
               width: 20, height: 20, borderRadius: 6, flexShrink: 0,
@@ -198,18 +201,20 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
       alignItems: 'center',
       gap: 0,
       background: 'rgba(255,255,255,0.75)',
-      backdropFilter: 'blur(18px)',
-      WebkitBackdropFilter: 'blur(18px)',
+      backdropFilter: 'blur(24px) saturate(200%)',
+      WebkitBackdropFilter: 'blur(24px) saturate(200%)',
       borderRadius: 999,
       border: `1.5px solid ${accentColor}30`,
-      boxShadow: `0 2px 12px ${accentColor}18`,
+      boxShadow: `0 4px 20px ${accentColor}25, inset 0 1px 0 rgba(255,255,255,0.6)`,
       overflow: 'hidden',
       fontSize: 12,
       fontWeight: 700,
     }}>
-      <button
+      <motion.button
         type="button"
         onClick={onBack}
+        whileTap={{ scale: 0.92 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 35 }}
         style={{
           padding: '8px 18px',
           background: 'none',
@@ -225,9 +230,11 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
         aria-label="Return to Side A"
       >
         ← Side A
-      </button>
-      <button
+      </motion.button>
+      <motion.button
         type="button"
+        whileTap={{ scale: 0.92 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 35 }}
         style={{
           padding: '8px 18px',
           background: 'none',
@@ -242,7 +249,7 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
         aria-label={`${enginName} engine controls`}
       >
         {enginName} ⚙
-      </button>
+      </motion.button>
     </div>
   );
 }
@@ -251,14 +258,15 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
 function MarbleWidget({ w }: { w: DaydreamWidget }) {
   const tile = (
     <div
+      className="premium-shimmer"
       style={{
-        /* The marble look: radial gradient — white core → color mid → fade to edge */
-        background: `radial-gradient(ellipse at 30% 22%, rgba(255,255,255,0.88) 0%, ${w.color}1a 48%, ${w.color}08 100%)`,
-        backdropFilter: 'blur(22px) saturate(210%)',
-        WebkitBackdropFilter: 'blur(22px) saturate(210%)',
+        /* Deeper marble: brighter white core, richer color saturation */
+        background: `radial-gradient(ellipse at 28% 20%, rgba(255,255,255,0.92) 0%, ${w.color}22 45%, ${w.color}0c 100%)`,
+        backdropFilter: 'blur(28px) saturate(240%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(240%)',
         borderRadius: 22,
-        border: '1.5px solid rgba(255,255,255,0.72)',
-        boxShadow: `0 6px 28px ${w.color}25, inset 0 1.5px 0 rgba(255,255,255,0.9), inset 0 -1.5px 0 ${w.color}18`,
+        border: '1.5px solid rgba(255,255,255,0.78)',
+        boxShadow: `0 8px 32px ${w.color}30, inset 0 2px 0 rgba(255,255,255,0.95), inset 0 -2px 0 ${w.color}20, 0 0 0 0.5px rgba(255,255,255,0.2)`,
         padding: '20px 14px 16px',
         display: 'flex',
         flexDirection: 'column' as const,
@@ -269,20 +277,27 @@ function MarbleWidget({ w }: { w: DaydreamWidget }) {
         WebkitUserSelect: 'none' as const,
         minHeight: 118,
         justifyContent: 'center',
-        transition: 'transform 0.15s, box-shadow 0.15s',
+        transition: 'box-shadow 0.2s cubic-bezier(0.34,1.56,0.64,1)',
         textDecoration: 'none',
       }}
-      onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.96)'; }}
-      onPointerUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-      onPointerLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+      onPointerDown={e => {
+        (e.currentTarget as HTMLElement).style.transform = 'scale(0.94)';
+        (e.currentTarget as HTMLElement).style.transition = 'transform 0.12s cubic-bezier(0.34,1.56,0.64,1)';
+      }}
+      onPointerUp={e => {
+        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+      }}
+      onPointerLeave={e => {
+        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+      }}
     >
-      {/* Shimmer highlight overlay */}
+      {/* Specular highlight overlay */}
       <div style={{
         position: 'absolute',
         top: 0, left: 0, right: 0,
-        height: '45%',
-        borderRadius: '20px 20px 60% 60% / 20px 20px 40% 40%',
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.28) 0%, transparent 100%)',
+        height: '48%',
+        borderRadius: '20px 20px 60% 60% / 20px 20px 42% 42%',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.32) 0%, transparent 100%)',
         pointerEvents: 'none',
       }} />
 

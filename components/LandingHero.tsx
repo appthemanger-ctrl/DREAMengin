@@ -1,230 +1,225 @@
 'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import DrEamsBabylonHero from './landing/DrEamsBabylonHero';
-import PlatformBadge from './ui/PlatformBadge';
+import { useState, useEffect } from 'react';
+import HeroSprite from '@/components/HeroSprite';
 
 /**
- * LandingHero — root landing page hero component.
+ * LandingHero — Premium phone-grade landing hero.
  *
- * Action-first design: headline → CTAs → character → platform context.
- * The page exists to get users to act (sign up or sign in).
- * Teaser surface — flexible, not over-structured.
+ * Design: deep navy bg, spring-physics motion, glassmorphism surfaces,
+ * animated action cycling headline, pill CTAs.
  *
- * Design system: de-sky-bg (sky-blue → warm gold), de-widget frosted glass,
- * de-btn-primary (blue → gold CTA), Space Grotesk font, design token CSS vars.
+ * Architecture justification: docs/ARCHITECTURE.md §8 — "Minimal clutter,
+ * intentional motion, mobile-first polish." Gold + sky-blue palette.
+ * Performance impact: Framer Motion spring animations are GPU-composited;
+ * all ambient layers are CSS-only (no JS animation loops on the background).
  */
 
-/** Platform icons shown in the connection strip */
-const STRIP_ICONS: Array<{ name: string; label: string }> = [
-  { name: 'file',   label: 'Documents' },
-  { name: 'globe',  label: 'Web' },
-  { name: 'window', label: 'Apps' },
-];
-
-/** CSS font-family shorthand honouring the Space Grotesk design token */
-const FONT_SG = 'var(--font-space-grotesk, "Space Grotesk", system-ui, sans-serif)';
-
-/** Dr. Eams sprite sizes — responsive breakpoints */
-const SPRITE_SIZE_DESKTOP = 400;
-const SPRITE_SIZE_MOBILE  = 300;
-
-/** Short capability prompts — what users can DO with DREAMengin */
-const ACTION_PROMPTS = [
+const ACTIONS = [
   'make music',
-  'build projects',
-  'grow your brand',
-  'play games',
+  'build dreams',
   'write code',
+  'design brands',
   'create content',
+  'play games',
   'own your feed',
   'share your work',
 ];
 
+const springFast = { type: 'spring', stiffness: 400, damping: 35 } as const;
+const springMed  = { type: 'spring', stiffness: 260, damping: 28 } as const;
+
 export default function LandingHero() {
-  const isValentine = useMemo(() => {
-    const d = new Date();
-    return d.getMonth() === 1 && d.getDate() === 14;
-  }, []);
-
-  const [promptIndex, setPromptIndex] = useState(0);
-  const [spriteSize, setSpriteSize] = useState(SPRITE_SIZE_DESKTOP);
+  const [actionIdx, setActionIdx] = useState(0);
 
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 639px)');
-    const update = (e: MediaQueryListEvent | MediaQueryList) =>
-      setSpriteSize(e.matches ? SPRITE_SIZE_MOBILE : SPRITE_SIZE_DESKTOP);
-    update(mq);
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-
-  useEffect(() => {
-    if (isValentine) return;
     const timer = setInterval(() => {
-      setPromptIndex((prev) => (prev + 1) % ACTION_PROMPTS.length);
-    }, 2400);
+      setActionIdx((i) => (i + 1) % ACTIONS.length);
+    }, 2200);
     return () => clearInterval(timer);
-  }, [isValentine]);
+  }, []);
 
   return (
     // Root is a <div>, not <main> — layout.tsx already wraps pages in <main>.
-    <div className="de-sky-bg relative min-h-screen overflow-hidden">
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8">
+    <div className="relative min-h-dvh flex flex-col bg-[#020818] overflow-hidden">
 
-        {/* ── Header ── */}
-        <header className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-lg font-bold tracking-widest uppercase"
-            style={{
-              fontFamily: FONT_SG,
-              color: 'var(--de-heading)',
-              letterSpacing: '0.22em',
-              textDecoration: 'none',
-            }}
-            aria-label="DREAMengin — go to home"
-          >
-            DREAMengin
-          </Link>
-          <nav className="flex items-center gap-3" aria-label="Site navigation">
-            <Link href="/about" className="de-btn de-btn-ghost" style={{ padding: '8px 18px', fontSize: 13 }}>
-              About
-            </Link>
-            <Link href="/login" className="de-btn de-btn-primary" style={{ padding: '8px 18px', fontSize: 13 }}>
-              Sign In
-            </Link>
-          </nav>
-        </header>
+      {/* ── Ambient background layers (CSS-only, zero JS cost) ── */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        {/* Base deep gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#020818] via-[#071428] to-[#020818]" />
+        {/* Sky-blue aurora — top-left */}
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(14,165,233,0.15)_0%,transparent_70%)] blur-3xl" />
+        {/* Gold warmth — bottom-right */}
+        <div className="absolute -bottom-40 -right-20 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(245,158,11,0.1)_0%,transparent_70%)] blur-3xl" />
+        {/* Subtle grid overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(125,211,252,1) 1px, transparent 1px), linear-gradient(90deg, rgba(125,211,252,1) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+          }}
+        />
+      </div>
 
-        {/* ── Hero section — action-first layout ── */}
-        <section
-          className="flex flex-1 flex-col items-center justify-center gap-8 text-center"
-          aria-labelledby="hero-heading"
+      {/* ── Nav bar ── */}
+      <motion.nav
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...springFast, delay: 0.1 }}
+        className="relative z-10 flex items-center justify-between px-5 py-4 md:px-8 md:py-5"
+        style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
+        aria-label="Site navigation"
+      >
+        <Link
+          href="/"
+          className="text-white text-xl tracking-tight font-semibold"
+          aria-label="DREAMengin — home"
         >
+          DREAMengin
+        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/about">
+            <motion.span
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="premium-btn premium-btn-ghost text-sm px-4 py-2"
+              style={{ cursor: 'pointer' }}
+            >
+              About
+            </motion.span>
+          </Link>
+          <Link href="/login">
+            <motion.span
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="premium-btn premium-btn-primary text-sm px-4 py-2"
+              style={{ cursor: 'pointer' }}
+            >
+              Sign In
+            </motion.span>
+          </Link>
+        </div>
+      </motion.nav>
 
-          {/* ── Headline ── */}
-          <h1
-            id="hero-heading"
-            className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl"
-            style={{
-              fontFamily: FONT_SG,
-              background: 'linear-gradient(135deg, var(--de-blue) 0%, var(--de-heading) 42%, var(--de-gold) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            Your creative operating surface.
-          </h1>
+      {/* ── Hero Content ── */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-5 pt-8 pb-24 text-center md:pt-0">
 
-          {/* ── Action cycling prompt ── */}
-          <div
-            className="flex items-center gap-2 text-base sm:text-lg"
-            style={{ fontFamily: FONT_SG, color: 'var(--de-text)' }}
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            <span style={{ color: 'var(--de-text-dim)' }}>A place to</span>
+        {/* Badge */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ ...springMed, delay: 0.2 }}
+          className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[rgba(14,165,233,0.12)] border border-[rgba(14,165,233,0.25)] text-[#7DD3FC] text-xs font-medium tracking-widest uppercase"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-[#0EA5E9] animate-pulse" aria-hidden="true" />
+          Your Creative OS
+        </motion.div>
+
+        {/* Headline */}
+        <motion.h1
+          id="hero-heading"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springMed, delay: 0.3 }}
+          className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white leading-[1.05] mb-4"
+        >
+          Space to
+          <br />
+          <span className="relative inline-block">
             <AnimatePresence mode="wait">
               <motion.span
-                key={isValentine ? 'valentine' : ACTION_PROMPTS[promptIndex]}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.18, ease: 'easeInOut' }}
-                style={{ color: 'var(--de-gold)', fontWeight: 700, minWidth: 140, textAlign: 'left', display: 'inline-block' }}
+                key={actionIdx}
+                initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0,  filter: 'blur(0px)' }}
+                exit={{ opacity: 0,   y: -20, filter: 'blur(8px)' }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="inline-block bg-gradient-to-r from-[#7DD3FC] via-[#0EA5E9] to-[#F59E0B] bg-clip-text text-transparent"
+                aria-live="polite"
+                aria-atomic="true"
               >
-                {isValentine ? '💜 dream together' : ACTION_PROMPTS[promptIndex]}
+                {ACTIONS[actionIdx]}
               </motion.span>
             </AnimatePresence>
-          </div>
+          </span>
+        </motion.h1>
 
-          {/* ── Primary CTAs — action-first, above the fold ── */}
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/join"
-              className="de-btn de-btn-primary"
-              style={{ padding: '14px 36px', fontSize: 16, fontWeight: 700 }}
+        {/* Sub-headline */}
+        <motion.p
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springMed, delay: 0.45 }}
+          className="text-base md:text-lg text-[rgba(255,255,255,0.55)] max-w-sm md:max-w-md leading-relaxed mb-10"
+        >
+          A spatial, privacy-first creative operating surface. Navigate your digital world as layered dreams.
+        </motion.p>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springMed, delay: 0.55 }}
+          className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-xs sm:max-w-none sm:justify-center"
+        >
+          <Link href="/join" className="w-full sm:w-auto">
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.96 }}
+              className="w-full premium-btn premium-btn-primary text-base px-8 py-3.5 font-semibold"
             >
-              Get Started
-            </Link>
-            <Link
-              href="/login"
-              className="de-btn de-btn-ghost"
-              style={{ padding: '14px 36px', fontSize: 16 }}
+              Get Started — Free
+            </motion.button>
+          </Link>
+          <Link href="/login" className="w-full sm:w-auto">
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+              className="w-full premium-btn premium-btn-ghost text-base px-8 py-3.5"
             >
               Sign In
-            </Link>
-          </div>
+            </motion.button>
+          </Link>
+        </motion.div>
 
-          {/* ── Dr. Eams character — secondary visual ── */}
-          <div className="relative flex flex-col items-center">
-            <div
-              style={{ width: spriteSize, height: spriteSize, position: 'relative', flexShrink: 0 }}
-              aria-label="Dr. Eams — interactive 3-D character. Tap or drag to interact."
-              role="img"
-            >
-              <DrEamsBabylonHero width={spriteSize} height={spriteSize} />
-            </div>
-            <p
-              className="mt-1 text-xs font-medium select-none tracking-widest uppercase"
-              style={{ fontFamily: FONT_SG, color: 'var(--de-blue)', opacity: 0.65 }}
-            >
-              tap · drag · interact ✦
-            </p>
-          </div>
-
-          {/* ── Platform context strip ── */}
-          <div className="flex flex-wrap justify-center gap-3" aria-label="Platform capabilities">
-            {[
-              { value: '6',   label: 'Dream Spaces', icon: '✦' },
-              { value: '20+', label: 'Games',         icon: '🎮' },
-              { value: '25+', label: 'Integrations',  icon: '🔗' },
-              { value: 'v2',  label: 'Engine',        icon: '⚡' },
-            ].map(({ value, label, icon }) => (
-              <div
-                key={label}
-                className="de-widget flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
-                style={{ fontFamily: FONT_SG }}
-              >
-                <span aria-hidden="true">{icon}</span>
-                <span style={{ color: 'var(--de-blue)', fontWeight: 800 }}>{value}</span>
-                <span style={{ color: 'var(--de-text-dim)' }}>{label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Connection strip ── */}
-        <section
-          className="w-full max-w-3xl mx-auto px-4 pb-10 text-center"
-          aria-label="Supported integrations"
+        {/* Stats strip */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="mt-12 flex items-center gap-6 md:gap-10 text-center"
+          aria-label="Platform statistics"
         >
-          <p
-            className="text-xs font-semibold tracking-[0.22em] uppercase mb-4"
-            style={{ color: 'var(--de-text-dim)', fontFamily: FONT_SG }}
-          >
-            Connect everything
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12 }}>
-            {STRIP_ICONS.map(({ name, label }) => (
-              <div
-                key={name}
-                aria-label={label}
-                style={{ display: 'inline-block', opacity: 0.65 }}
-                className="hover:opacity-100 transition-opacity duration-150"
-              >
-                <PlatformBadge name={name} size={44} label={label} />
-              </div>
-            ))}
-          </div>
-        </section>
-
+          {[
+            { val: '6',   label: 'Dream Spaces' },
+            { val: '20+', label: 'Games'         },
+            { val: '25+', label: 'Integrations'  },
+          ].map((s) => (
+            <div key={s.val} className="flex flex-col items-center gap-0.5">
+              <span className="text-2xl font-bold text-white">{s.val}</span>
+              <span className="text-xs text-[rgba(255,255,255,0.4)] tracking-wide">{s.label}</span>
+            </div>
+          ))}
+        </motion.div>
       </div>
+
+      {/* ── Dr. Eams sprite — animated, interactive ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...springMed, delay: 0.65 }}
+        className="relative z-10 flex justify-center pb-8 md:absolute md:bottom-0 md:right-0 md:pb-0 md:pr-8"
+        aria-label="Dr. Eams — interactive character. Tap or drag to interact."
+        role="img"
+      >
+        <div className="w-[220px] h-[220px] md:w-[320px] md:h-[320px]">
+          <HeroSprite width={320} height={320} />
+        </div>
+      </motion.div>
+
     </div>
   );
 }
-
