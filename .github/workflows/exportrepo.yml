@@ -3,6 +3,9 @@ name: Export repo zip (artifact)
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   export:
     runs-on: ubuntu-latest

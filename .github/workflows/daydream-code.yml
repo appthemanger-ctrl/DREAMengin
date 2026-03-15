@@ -54,10 +54,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+        uses: ./.github/actions/setup-node
 
       # ── Install ───────────────────────────────────────────────────────────────
       - name: Install dependencies

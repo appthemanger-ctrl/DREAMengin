@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  contents: write
+
 env:
   NODE_VERSION: '24.x'
   REGISTRY: ghcr.io
@@ -27,10 +30,7 @@ jobs:
           version: 10.30.0
       
       - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+        uses: ./.github/actions/setup-node
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -59,10 +59,7 @@ jobs:
           version: 10.30.0
       
       - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+        uses: ./.github/actions/setup-node
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -131,7 +128,7 @@ jobs:
     needs: [build, security]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - uses: actions/checkout@v5
@@ -256,3 +253,4 @@ jobs:
         run: |
           echo "Deployment failed! Check logs."
           # Add Slack/Discord webhook here
+

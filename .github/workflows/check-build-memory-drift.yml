@@ -20,7 +20,7 @@ jobs:
   drift-check:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -29,9 +29,7 @@ jobs:
           fetch-depth: 1
 
       - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
+        uses: ./.github/actions/setup-node
 
       - name: Check build-memory for drift
         run: |

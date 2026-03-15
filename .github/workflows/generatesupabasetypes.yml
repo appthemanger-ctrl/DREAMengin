@@ -30,3 +30,5 @@ jobs:
           git add types/supabase.ts
           git commit -m "chore: regenerate supabase types" || echo "No changes"
           git push || true
+
+

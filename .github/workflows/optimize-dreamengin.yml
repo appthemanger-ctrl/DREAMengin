@@ -24,6 +24,9 @@ on:
     # Run daily at 3 AM UTC
     - cron: '0 3 * * *'
 
+permissions:
+  contents: write
+
 jobs:
   optimize:
     runs-on: ubuntu-latest
@@ -37,10 +40,7 @@ jobs:
           version: 10.30.0
 
       - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: pnpm
+        uses: ./.github/actions/setup-node
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -135,3 +135,4 @@ jobs:
               repo: context.repo.repo,
               body: comment
             });
+

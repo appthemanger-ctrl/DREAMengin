@@ -9,6 +9,9 @@ on:
       - completedream
       - develop
 
+permissions:
+  contents: write
+
 jobs:
   preflight:
     runs-on: ubuntu-latest
@@ -48,10 +51,7 @@ jobs:
           version: 10.30.0
 
       - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: pnpm
+        uses: ./.github/actions/setup-node
 
       - name: Install dependencies
         shell: bash
@@ -106,10 +106,18 @@ jobs:
           pnpm run build
 
       - name: Print summary
+        if: always()
         shell: bash
         run: |
-          echo "APP ROOT: ${{ steps.root.outputs.app_root }}"
-          echo "CHANGED FILES: ${{ steps.score.outputs.changed_files }}"
-          echo "CHI: ${{ steps.score.outputs.chi }}"
-          echo "MODE: ${{ steps.score.outputs.mode }}"
-          echo "ALLOWED: ${{ steps.score.outputs.allowed }}"
+          {
+            echo "## DREAMengin Preflight"
+            echo ""
+            echo "| Item | Value |"
+            echo "|------|-------|"
+            echo "| App root | ${{ steps.root.outputs.app_root }} |"
+            echo "| Changed files | ${{ steps.score.outputs.changed_files }} |"
+            echo "| Chi score | ${{ steps.score.outputs.chi }} |"
+            echo "| Mode | ${{ steps.score.outputs.mode }} |"
+            echo "| Allowed | ${{ steps.score.outputs.allowed }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
