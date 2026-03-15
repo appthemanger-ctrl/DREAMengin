@@ -338,3 +338,7 @@ pre code {
 }
 
 html, body { touch-action: none; overscroll-behavior: none; }
+
+/* Premium Phone UI tokens live in styles/globals.css (the actually-imported file).
+   See: app/layout.tsx → import '@/styles/globals.css' */
+
