@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-14T20:40:52.182Z",
+  "generated_at": "2026-03-15T14:37:46.456Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 39,
+  "count": 45,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -111,6 +111,13 @@
       ]
     },
     {
+      "path": "/api/connectors/[provider]/disconnect",
+      "file": "app/api/connectors/[provider]/disconnect/route.ts",
+      "methods": [
+        "DELETE"
+      ]
+    },
+    {
       "path": "/api/connectors/[provider]/items",
       "file": "app/api/connectors/[provider]/items/route.ts",
       "methods": [
@@ -143,6 +150,22 @@
       "file": "app/api/dr-eams/run/route.ts",
       "methods": [
         "POST"
+      ]
+    },
+    {
+      "path": "/api/drafts",
+      "file": "app/api/drafts/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/drafts/[id]",
+      "file": "app/api/drafts/[id]/route.ts",
+      "methods": [
+        "PATCH",
+        "DELETE"
       ]
     },
     {
@@ -242,6 +265,13 @@
       ]
     },
     {
+      "path": "/api/posts/[id]",
+      "file": "app/api/posts/[id]/route.ts",
+      "methods": [
+        "DELETE"
+      ]
+    },
+    {
       "path": "/api/profile",
       "file": "app/api/profile/route.ts",
       "methods": [
@@ -262,6 +292,13 @@
     {
       "path": "/api/setup/check",
       "file": "app/api/setup/check/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/setup/google-oauth",
+      "file": "app/api/setup/google-oauth/route.ts",
       "methods": [
         "GET"
       ]
@@ -294,6 +331,13 @@
     {
       "path": "/api/widgets/instances",
       "file": "app/api/widgets/instances/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/youtube/discovery",
+      "file": "app/api/youtube/discovery/route.ts",
       "methods": [
         "GET"
       ]
