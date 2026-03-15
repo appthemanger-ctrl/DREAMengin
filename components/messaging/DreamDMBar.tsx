@@ -32,13 +32,16 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import {
   Bot,
+  Code2,
   FileText,
   Loader2,
   MessageCircle,
   Music,
   Paperclip,
+  PenLine,
   Search,
   Send,
+  Sparkles,
   X,
 } from 'lucide-react';
 
@@ -52,6 +55,7 @@ import { useDreamDMConversations,
 } from '@/lib/dreamdm/useDreamDMConversations';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
+import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
 /** Thick bar height when locked at the bottom */
@@ -112,6 +116,23 @@ function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | nul
       {(name || 'U')[0].toUpperCase()}
     </div>
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ContextIcon — maps DreamBarContext iconHint to a Lucide icon
+// ─────────────────────────────────────────────────────────────────────────────
+function ContextIcon({ ctx, size }: { ctx: DreamBarContext; size: number }) {
+  const props = { size, 'aria-hidden': true as const, style: { color: 'var(--de-blue)' } as React.CSSProperties };
+  switch (ctx.iconHint) {
+    case 'send':      return <Send     {...props} />;
+    case 'pen-line':  return <PenLine  {...props} />;
+    case 'code':      return <Code2    {...props} />;
+    case 'bot':       return <Bot      {...props} />;
+    case 'music':     return <Music    {...props} />;
+    case 'search':    return <Search   {...props} />;
+    case 'sparkles':
+    default:          return <Sparkles {...props} />;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -241,6 +262,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
     }
   };
 
+  // ── Dream bar context (route-aware) ────────────────────────────────────────
+  const barCtx = useDreamBarContext();
+
   // ── Messaging state ────────────────────────────────────────────────────────
   const [mounted,        setMounted]        = useState(false);
   const [composeFocused, setComposeFocused] = useState(false);
@@ -298,15 +322,82 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
 
   // ── Send handlers ──────────────────────────────────────────────────────────
   const handleQuickSend = useCallback(async () => {
-    if (!quickDraft.trim()) return;
-    if (selectedConv) {
-      await sendMessage({ conversationId: selectedConv.id, recipientId: selectedConv.otherUser.id, content: quickDraft.trim(), userId });
-      clearDraft(selectedConv.id);
+    const text = quickDraft.trim();
+    if (!text) return;
+
+    // Messages surface: send as DM (existing behaviour)
+    if (barCtx.surface === 'messages') {
+      if (selectedConv) {
+        await sendMessage({ conversationId: selectedConv.id, recipientId: selectedConv.otherUser.id, content: text, userId });
+        clearDraft(selectedConv.id);
+      } else {
+        window.location.href = `/messages?compose=${encodeURIComponent(text)}`;
+      }
       setQuickDraft('');
-    } else {
-      window.location.href = `/messages?compose=${encodeURIComponent(quickDraft.trim())}`;
+      return;
     }
-  }, [quickDraft, selectedConv, sendMessage, clearDraft, userId]);
+
+    // Feed / home surface: create a post via POST /api/posts
+    if (barCtx.surface === 'feed') {
+      try {
+        const res = await fetch('/api/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: text, visibility: 'public' }),
+        });
+        if (res.ok) {
+          setQuickDraft('');
+        } else {
+          const { error } = await res.json().catch(() => ({})) as { error?: string };
+          console.error('[DreamBar] Post creation failed:', error ?? 'Unknown error', '— opening full composer');
+          window.location.href = `/daydream/create?content=${encodeURIComponent(text)}`;
+        }
+      } catch (err) {
+        console.error('[DreamBar] Network error creating post:', err, '— opening full composer');
+        window.location.href = `/daydream/create?content=${encodeURIComponent(text)}`;
+      }
+      return;
+    }
+
+    // Code surface: open codespace with the snippet pre-filled
+    if (barCtx.surface === 'code') {
+      window.location.href = `/codespace?snippet=${encodeURIComponent(text)}`;
+      setQuickDraft('');
+      return;
+    }
+
+    // Dreams / Dr. Eams surface: route as Dr. Eams chat
+    if (barCtx.surface === 'dreams') {
+      window.location.href = `/dreamengin?q=${encodeURIComponent(text)}`;
+      setQuickDraft('');
+      return;
+    }
+
+    // Music surface: open music composer
+    if (barCtx.surface === 'music') {
+      window.location.href = `/music?prompt=${encodeURIComponent(text)}`;
+      setQuickDraft('');
+      return;
+    }
+
+    // Create surface: open content composer
+    if (barCtx.surface === 'create') {
+      window.location.href = `/daydream/create?content=${encodeURIComponent(text)}`;
+      setQuickDraft('');
+      return;
+    }
+
+    // Discover / search surface
+    if (barCtx.surface === 'discover') {
+      window.location.href = `/discover?q=${encodeURIComponent(text)}`;
+      setQuickDraft('');
+      return;
+    }
+
+    // General / fallback: compose a message
+    window.location.href = `/messages?compose=${encodeURIComponent(text)}`;
+    setQuickDraft('');
+  }, [quickDraft, selectedConv, sendMessage, clearDraft, userId, barCtx.surface]);
 
   const handlePanelSend = useCallback(async () => {
     if (!selectedConv) return;
@@ -573,9 +664,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
               flex: 1, display: 'flex', alignItems: 'center',
               gap: 10, padding: '0 16px 0 14px',
             }}>
-              {/* DreamDM icon + unread badge */}
+              {/* Context icon + unread badge */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <MessageCircle size={18} aria-hidden style={{ color: 'var(--de-blue)' }} />
+                <ContextIcon ctx={barCtx} size={18} />
                 {unreadCount > 0 && (
                   <span
                     aria-label={`${unreadCount} unread`}
@@ -598,13 +689,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
                 onFocus={() => setComposeFocused(true)}
                 onBlur={() => setComposeFocused(false)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleQuickSend(); }
+                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleQuickSend(); }
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
-                placeholder={selectedConv
-                  ? `Message ${selectedConv.otherUser.display_name || selectedConv.otherUser.handle}…`
-                  : 'DreamDM…'}
-                aria-label="Quick compose"
+                placeholder={
+                  barCtx.surface === 'messages' && selectedConv
+                    ? `Message ${selectedConv.otherUser.display_name || selectedConv.otherUser.handle}…`
+                    : barCtx.placeholder
+                }
+                aria-label={barCtx.actionAriaLabel}
                 style={{
                   flex: 1, minWidth: 0,
                   background: composeFocused ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.40)',
@@ -617,12 +710,27 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
                 }}
               />
 
-              {/* Send */}
+              {/* Context action label (shown when focused or has text) */}
+              {(composeFocused || quickDraft.trim()) && (
+                <span
+                  aria-hidden
+                  style={{
+                    fontSize: 10, fontWeight: 700, color: 'var(--de-gold)',
+                    flexShrink: 0, whiteSpace: 'nowrap', letterSpacing: '0.04em',
+                    textTransform: 'uppercase', opacity: 0.85,
+                    transition: 'opacity 0.18s',
+                  }}
+                >
+                  {barCtx.actionLabel}
+                </span>
+              )}
+
+              {/* Send / action button */}
               {quickDraft.trim() && (
                 <button
-                  type="button" onClick={handleQuickSend}
+                  type="button" onClick={() => { void handleQuickSend(); }}
                   onPointerDown={(e) => e.stopPropagation()}
-                  disabled={isSending} aria-label="Send DreamDM"
+                  disabled={isSending} aria-label={barCtx.actionAriaLabel}
                   style={{
                     background: 'linear-gradient(135deg, var(--de-gold), var(--de-blue))',
                     border: 'none', borderRadius: '50%', width: 34, height: 34,
@@ -633,7 +741,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
                 >
                   {isSending
                     ? <Loader2 size={14} aria-hidden style={{ animation: 'spin 1s linear infinite' }} />
-                    : <Send size={14} aria-hidden />}
+                    : <ContextIcon ctx={barCtx} size={14} />}
                 </button>
               )}
 
