@@ -99,7 +99,10 @@ export async function POST(
         break;
       }
       case 'youtube':
-        items = await youtubeSync({ access_token: String(creds.access_token ?? '') });
+        items = await youtubeSync({
+          access_token: String(creds.access_token ?? ''),
+          api_key: creds.api_key ? String(creds.api_key) : undefined,
+        });
         break;
       default:
         return NextResponse.json(

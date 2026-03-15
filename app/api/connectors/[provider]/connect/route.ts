@@ -80,7 +80,10 @@ export async function POST(
         break;
       }
       case 'youtube':
-        await youtubeVerify({ access_token: credentials.access_token ?? '' });
+        await youtubeVerify({
+          access_token: credentials.access_token ?? '',
+          api_key: credentials.api_key,
+        });
         break;
       default:
         return NextResponse.json(
