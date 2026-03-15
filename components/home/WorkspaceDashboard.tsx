@@ -209,20 +209,20 @@ function ActionBtn({ icon: Icon, label, onClick, primary }: {
 function WindowChrome({ title }: { title: string }) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      display: 'flex', alignItems: 'center', gap: 10,
       padding: '12px 16px 10px',
       borderBottom: '1px solid rgba(160,195,240,0.15)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-        {['#ff5f57', '#febc2e', '#28c840'].map((c, i) => (
-          <div key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: c }} />
-        ))}
-      </div>
+      {/* Gold accent pill — iOS-style section indicator */}
+      <div style={{
+        width: 4, height: 18, borderRadius: 9999,
+        background: 'linear-gradient(180deg, #e8b830, #c8981a)',
+        flexShrink: 0,
+      }} />
       <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)',
         letterSpacing: '0.07em', textTransform: 'uppercase' }}>
         {title}
       </span>
-      <div style={{ width: 60 }} />
     </div>
   );
 }

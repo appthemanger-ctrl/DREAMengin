@@ -163,7 +163,7 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 68,
+        zIndex: 200,
         background: 'rgba(10,20,50,0.28)',
         backdropFilter: 'blur(6px)',
         WebkitBackdropFilter: 'blur(6px)',
