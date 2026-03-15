@@ -6,14 +6,19 @@
  * Responsibilities (README spec §13.2 / ARCHITECTURE.md §1 Daydream pairs):
  *   - Recent Drafts: fetch latest 5 rows from the `notes` table.
  *   - Content Calendar: 7-day scheduler with inline add forms.
- *   - Publishing Queue: manage and publish/remove scheduled items.
- *   - Smart Draft Generator: pure string-template based draft generation.
+ *   - Publishing Queue: manage and publish/remove scheduled items via POST /api/posts.
+ *   - Smart Draft Generator: template-based draft text + save to POST /api/drafts.
  *   - Cross-Platform Targets: toggle + broadcast via dualRuntimeBridge.
  *
  * Follows AXIOM 3 (every element enables real action) and LAW.md §3 (no fake buttons).
+ *
+ * ACTION_AUDIT.md alignment:
+ *   - publishItem now calls POST /api/posts (was fake-wired: local state only).
+ *   - saveDraft now calls POST /api/drafts (was fake-wired: no /api/drafts route).
+ *   - scheduled_at is passed to /api/drafts so schedule posts persist server-side.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
@@ -31,7 +36,17 @@ interface CalendarItem {
   id: string;
   type: 'Post' | 'Video' | 'Story' | 'Thread';
   title: string;
+  /** ISO datetime string — set when the item is scheduled for future publish */
+  scheduled_at?: string;
 }
+
+/** Maps CalendarItem.type to the content_type enum used by /api/posts and /api/drafts */
+const TYPE_TO_CONTENT_TYPE: Record<CalendarItem['type'], string> = {
+  Post: 'post',
+  Video: 'video',
+  Story: 'story',
+  Thread: 'thread',
+};
 
 const ACCENT = '#f59e0b';
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -91,12 +106,20 @@ export default function ContentEngin({ onBack }: Props) {
   const [openDay, setOpenDay] = useState<string | null>(null);
   const [formType, setFormType] = useState<CalendarItem['type']>('Post');
   const [formTitle, setFormTitle] = useState('');
+  /** ISO datetime for scheduled publish — empty string means "publish immediately" */
+  const [formScheduledAt, setFormScheduledAt] = useState('');
 
   function addCalendarItem(day: string) {
     if (!formTitle.trim()) return;
-    const item: CalendarItem = { id: `${Date.now()}-${Math.random()}`, type: formType, title: formTitle.trim() };
+    const item: CalendarItem = {
+      id: `${Date.now()}-${Math.random()}`,
+      type: formType,
+      title: formTitle.trim(),
+      scheduled_at: formScheduledAt || undefined,
+    };
     setCalendarItems(prev => ({ ...prev, [day]: [...prev[day], item] }));
     setFormTitle('');
+    setFormScheduledAt('');
     setOpenDay(null);
   }
 
@@ -106,14 +129,72 @@ export default function ContentEngin({ onBack }: Props) {
 
   // ── Publishing Queue ──
   const [publishedCount, setPublishedCount] = useState(0);
+  const [publishMsg, setPublishMsg] = useState('');
+  const publishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const allQueued: Array<CalendarItem & { day: string }> = DAYS.flatMap(day =>
     calendarItems[day].map(item => ({ ...item, day }))
   );
 
-  function publishItem(day: string, id: string) {
-    removeCalendarItem(day, id);
-    setPublishedCount(c => c + 1);
+  /**
+   * publishItem — POST the queued item to /api/posts (real effect, not local state only).
+   *
+   * If the item has a scheduled_at value, it is first saved as a draft via POST /api/drafts
+   * so the schedule persists server-side; it is then removed from the local queue.
+   *
+   * If no scheduled_at, it publishes immediately to /api/posts.
+   *
+   * LAW.md §3 — every visible action must do something real.
+   */
+  async function publishItem(day: string, id: string) {
+    const item = calendarItems[day]?.find(i => i.id === id);
+    if (!item) return;
+
+    try {
+      if (item.scheduled_at) {
+        // Save as a scheduled draft — persists server-side
+        const res = await fetch('/api/drafts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: item.title,
+            content_type: TYPE_TO_CONTENT_TYPE[item.type],
+            title: `${item.type}: ${item.title}`,
+            scheduled_at: item.scheduled_at,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({})) as { error?: string };
+          throw new Error((err as { error?: string }).error ?? 'Failed to schedule draft');
+        }
+      } else {
+        // Publish immediately to the feed
+        const res = await fetch('/api/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: item.title,
+            visibility: 'public',
+            media_urls: [],
+            content_type: TYPE_TO_CONTENT_TYPE[item.type],
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({})) as { error?: string };
+          throw new Error((err as { error?: string }).error ?? 'Failed to publish');
+        }
+      }
+
+      removeCalendarItem(day, id);
+      setPublishedCount(c => c + 1);
+      const action = item.scheduled_at ? 'Scheduled' : 'Published';
+      setPublishMsg(`✅ ${action}: ${item.title}`);
+    } catch (err) {
+      setPublishMsg(`⚠️ ${err instanceof Error ? err.message : 'Publish failed'}`);
+    }
+
+    if (publishTimerRef.current) clearTimeout(publishTimerRef.current);
+    publishTimerRef.current = setTimeout(() => setPublishMsg(''), 4000);
   }
 
   // ── Smart Draft Generator ──
@@ -121,6 +202,10 @@ export default function ContentEngin({ onBack }: Props) {
   const [draftTopic, setDraftTopic] = useState('');
   const [draft, setDraft] = useState('');
   const [copied, setCopied] = useState(false);
+  /** Schedule datetime for the draft — empty = no schedule */
+  const [draftScheduledAt, setDraftScheduledAt] = useState('');
+  const [draftSaveMsg, setDraftSaveMsg] = useState('');
+  const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function copyDraft() {
     try {
@@ -128,6 +213,46 @@ export default function ContentEngin({ onBack }: Props) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch { /* silently ignore */ }
+  }
+
+  /**
+   * saveDraft — POST the generated draft text to /api/drafts (real effect).
+   * Maps DraftType → content_type used by /api/drafts.
+   * Includes scheduled_at when the user has set a schedule datetime.
+   *
+   * LAW.md §3 — every visible action must do something real.
+   * ACTION_AUDIT.md — was labelled 🟡 fake-wired (no backend scheduler confirmed).
+   */
+  const DRAFT_TYPE_TO_CONTENT_TYPE: Record<DraftType, string> = {
+    'Caption': 'caption',
+    'Tweet Thread': 'tweet_thread',
+    'Short Bio': 'bio',
+    'Video Script': 'script',
+  };
+
+  async function saveDraft() {
+    if (!draft.trim()) return;
+    try {
+      const res = await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: draft.trim(),
+          content_type: DRAFT_TYPE_TO_CONTENT_TYPE[draftType],
+          title: draftTopic ? `${draftType}: ${draftTopic}` : draftType,
+          scheduled_at: draftScheduledAt || null,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error((err as { error?: string }).error ?? 'Failed to save draft');
+      }
+      setDraftSaveMsg(draftScheduledAt ? '✅ Draft scheduled!' : '✅ Draft saved!');
+    } catch (err) {
+      setDraftSaveMsg(`⚠️ ${err instanceof Error ? err.message : 'Save failed'}`);
+    }
+    if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
+    draftSaveTimerRef.current = setTimeout(() => setDraftSaveMsg(''), 4000);
   }
 
   // ── Cross-Platform Targets ──
@@ -302,9 +427,18 @@ export default function ContentEngin({ onBack }: Props) {
                         onChange={e => setFormTitle(e.target.value)}
                         placeholder="Title…"
                         style={{ fontSize: 12, borderRadius: 6, padding: '4px 8px', border: `1px solid rgba(160,195,240,0.4)`, background: 'white' }}
-                        onKeyDown={e => { if (e.key === 'Enter') addCalendarItem(day); }}
+                       onKeyDown={e => { if (e.key === 'Enter') addCalendarItem(day); }}
                       />
-                      <div style={{ display: 'flex', gap: 6 }}>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Schedule (optional)</label>
+                        <input
+                          type="datetime-local"
+                          value={formScheduledAt}
+                          onChange={e => setFormScheduledAt(e.target.value)}
+                          style={{ fontSize: 12, borderRadius: 6, padding: '4px 8px', border: `1px solid rgba(160,195,240,0.4)`, background: 'white', width: '100%' }}
+                        />
+                      </div>
+                       <div style={{ display: 'flex', gap: 6 }}>
                         <button type="button" onClick={() => addCalendarItem(day)} style={{ ...btnBase, background: ACCENT, color: 'white', flex: 1 }}>Add</button>
                         <button type="button" onClick={() => setOpenDay(null)} style={{ ...btnBase, background: 'rgba(160,195,240,0.2)', color: 'var(--de-text-dim)', flex: 1 }}>Cancel</button>
                       </div>
@@ -329,6 +463,9 @@ export default function ContentEngin({ onBack }: Props) {
             )}
           </div>
           <div className="de-widget-body">
+            {publishMsg && (
+              <div style={{ fontSize: 12, fontWeight: 600, color: publishMsg.startsWith('⚠️') ? '#ef4444' : '#16a34a', marginBottom: 8 }}>{publishMsg}</div>
+            )}
             {allQueued.length === 0 ? (
               <p style={{ fontSize: 12, color: 'var(--de-text-dim)', padding: '8px 0' }}>
                 No items queued. Use the Content Calendar above to schedule content.
@@ -344,8 +481,11 @@ export default function ContentEngin({ onBack }: Props) {
                   }}>
                     <span style={{ fontSize: 16 }}>{TYPE_EMOJI[item.type]}</span>
                     <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</span>
+                    {item.scheduled_at && (
+                      <span style={{ fontSize: 10, color: '#6366f1', background: 'rgba(99,102,241,0.1)', borderRadius: 4, padding: '1px 5px', flexShrink: 0 }}>🗓</span>
+                    )}
                     <span style={{ fontSize: 10, color: 'var(--de-text-dim)', flexShrink: 0, marginRight: 6 }}>{item.day}</span>
-                    <button type="button" onClick={() => publishItem(item.day, item.id)} style={{ ...btnBase, background: ACCENT, color: 'white' }}>Publish Now</button>
+                    <button type="button" onClick={() => publishItem(item.day, item.id)} style={{ ...btnBase, background: ACCENT, color: 'white' }}>{item.scheduled_at ? 'Schedule' : 'Publish Now'}</button>
                     <button type="button" onClick={() => removeCalendarItem(item.day, item.id)} style={{ ...btnBase, background: 'rgba(239,68,68,0.12)', color: '#ef4444' }}>Remove</button>
                   </div>
                 ))}
@@ -381,7 +521,7 @@ export default function ContentEngin({ onBack }: Props) {
                 />
               </div>
             </div>
-            <div className="de-widget-actions" style={{ display: 'flex', gap: 8 }}>
+            <div className="de-widget-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={() => setDraft(generateDraft(draftType, draftTopic))}
@@ -394,19 +534,40 @@ export default function ContentEngin({ onBack }: Props) {
                   style={{ ...btnBase, background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(160,195,240,0.2)', color: copied ? '#16a34a' : 'var(--de-heading)', padding: '7px 18px', fontSize: 13 }}
                 >{copied ? '✅ Copied!' : 'Copy to Clipboard'}</button>
               )}
+              {draft && (
+                <button
+                  type="button"
+                  onClick={saveDraft}
+                  style={{ ...btnBase, background: 'rgba(99,102,241,0.12)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.25)', padding: '7px 18px', fontSize: 13 }}
+                >💾 Save Draft</button>
+              )}
             </div>
             {draft && (
-              <textarea
-                value={draft}
-                onChange={e => setDraft(e.target.value)}
-                rows={6}
-                style={{
-                  width: '100%', borderRadius: 10, padding: '10px 12px', fontSize: 13,
-                  border: `1px solid rgba(160,195,240,0.35)`,
-                  background: 'rgba(255,255,255,0.65)',
-                  color: 'var(--de-heading)', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.55,
-                }}
-              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Schedule publish (optional)</label>
+                  <input
+                    type="datetime-local"
+                    value={draftScheduledAt}
+                    onChange={e => setDraftScheduledAt(e.target.value)}
+                    style={{ fontSize: 12, borderRadius: 8, padding: '5px 10px', border: `1px solid rgba(160,195,240,0.35)`, background: 'rgba(255,255,255,0.7)', width: '100%' }}
+                  />
+                </div>
+                {draftSaveMsg && (
+                  <span style={{ fontSize: 12, fontWeight: 600, color: draftSaveMsg.startsWith('⚠️') ? '#ef4444' : '#16a34a' }}>{draftSaveMsg}</span>
+                )}
+                <textarea
+                  value={draft}
+                  onChange={e => setDraft(e.target.value)}
+                  rows={6}
+                  style={{
+                    width: '100%', borderRadius: 10, padding: '10px 12px', fontSize: 13,
+                    border: `1px solid rgba(160,195,240,0.35)`,
+                    background: 'rgba(255,255,255,0.65)',
+                    color: 'var(--de-heading)', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.55,
+                  }}
+                />
+              </div>
             )}
           </div>
         </div>
