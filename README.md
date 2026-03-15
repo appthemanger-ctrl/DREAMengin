@@ -19,23 +19,196 @@ Date: March 6, 2026
 
 **Canonical routes:**
 
-| Surface | Canonical Route | Support/Legacy Route |
-|---------|----------------|----------------------|
-| HomeDream | `/homedream` | `/home` → redirects to `/homedream` |
-| EditProfileDream | `/edit-profiledream` | `/edit-profile` |
-| ViewProfile | `/view-profile` | `/profile/[handle]`, `/u/[handle]` |
-| DreamDM | `/messages` | — |
-| DreamShop | `/shop` | `/shop/sell` |
-| DreamMarketplace | `/marketplace` | — |
-| DreamAds | `/ads` | `/ads/create` |
-| Daydream pairs | `/daydream/{music,games,lab,code,brand,create}` | — |
+# DREAMengin Surface Map
 
-**Key component locations:**
-- DreamDMBar (Pass 3 Window Model): `components/messaging/DreamDMBar.tsx` — single canonical component
-- HomeDream canonical: `app/homedream/page.tsx` → `components/home/HomeSystem.tsx`
-- AI Triad: `/api/ai/eams` (Dr. Eams), `/api/ai/idari` (IDARi), `/api/ai/boogieman` (TheBoogieMan.Ai)
+This document defines the **canonical surfaces and routes** that make up the DREAMengin platform.
 
-*This section is maintained by IDARi. For the full feature matrix see `docs/FEATURE_STATUS.md`.*
+A **Surface** is a user-facing environment or functional system reachable through a canonical route.  
+Support routes exist only for legacy compatibility and must redirect to the canonical surface.
+
+---
+
+# Core Surfaces
+
+| Surface | Canonical Route | Support / Legacy Route |
+|---|---|---|
+| **HomeDream** | `/homedream` | `/home` → redirects to `/homedream` |
+| **EditProfileDream** | `/edit-profiledream` | `/edit-profile` |
+| **ViewProfile** | `/view-profile` | `/profile/[handle]`, `/u/[handle]` |
+| **DreamDM** | `/messages` | — |
+| **DreamShop** | `/shop` | `/shop/sell` |
+| **DreamMarketplace** | `/marketplace` | — |
+| **DreamAds** | `/ads` | `/ads/create` |
+
+---
+
+# Daydream Surfaces
+
+# Daydream Surfaces
+
+Daydreams are six interconnected creative spaces inside DREAMengin.
+
+They are not isolated modules and they are not strictly paired to a single Engin.  
+Instead, the Daydream system forms a **fully interconnected network** with the Engin layer.
+
+There are:
+
+- **6 Daydream surfaces**
+- **6 Engin runtimes**
+- **Up to 11 possible connection paths** between systems depending on resolution, scope, or workflow.
+
+This means any Daydream can interact with multiple Engins, and Engins can power multiple Daydream contexts.
+
+| Daydream | Canonical Route |
+|---|---|
+| **Music Daydream** | `/daydream/music` |
+| **Games Daydream** | `/daydream/games` |
+| **Lab Daydream** | `/daydream/lab` |
+| **Code Daydream** | `/daydream/code` |
+| **Brand Daydream** | `/daydream/brand` |
+| **Create Daydream** | `/daydream/create` |
+
+---
+
+# Daydream ↔ Engin Network
+
+The DREAMengin creative system is a **multi-connection network**, not a one-to-one pairing.
+
+Each Daydream can connect to multiple Engins depending on the context of the task.
+
+Examples:
+
+- **Music Daydream**
+  - StarMakerEngin
+  - LabEngin
+  - CodeEngin
+
+- **Games Daydream**
+  - GameEngin
+  - LabEngin
+  - CodeEngin
+
+- **Brand Daydream**
+  - BrandingEngin
+  - ContentEngin
+  - LabEngin
+
+These connections allow different **resolutions of work**:
+
+- creation
+- experimentation
+- execution
+- deployment
+- publishing
+
+Daydreams represent the **user-facing creative spaces**.
+
+Engins represent the **runtime / emulator layers** that execute, simulate, or power those spaces.
+
+The system therefore behaves like a **connected creative operating environment**, not a set of separate tools.
+
+---
+
+# Runtime Model
+
+DREAMengin operates as a **dual-runtime spatial system**.
+
+- The **top runtime** is the currently active surface (HomeDream, profile views, DreamDM, etc.)
+- The **lower runtime** is **DreamSpace**
+- DreamSpace contains:
+  - Dreams (blank or connected widgets)
+  - Daydream environments
+  - Engin systems
+  - route-connected lower-layer experiences
+
+The **DreamDMBar** is the canonical divider and lift control between these two runtimes.
+
+---
+
+# Key System Components
+
+## DreamDMBar (Runtime Divider)
+
+**Location**
+
+```ts
+components/messaging/DreamDMBar.tsx
+```
+
+**Role**
+
+The DreamDMBar is the canonical runtime divider and interaction rail in DREAMengin.
+
+It is designed to **look like a separate piece** sitting between the main active surface and the lower DreamSpace runtime.
+
+Visually, it should feel like its own distinct object.  
+Functionally, it is the **seam between two live runtimes**.
+
+The DreamDMBar is responsible for:
+
+- quick communication and drafting
+- acting as the boundary between the upper runtime and DreamSpace
+- dragging the second runtime upward into view
+- revealing DreamSpace as an operating layer
+- preserving the OS-like feel of the platform
+
+Dragging the DreamDMBar upward reveals **DreamSpace**, which contains:
+
+- blank Dreams (widgets) that can be connected
+- connected Dreams
+- Daydream surfaces
+- Engin surfaces
+- route-connected lower-layer experiences
+
+Dreams begin as blank tappable surfaces that users can connect and configure.
+
+This interaction model is designed to make DREAMengin feel like a **spatial operating environment**, not traditional page navigation.
+
+---
+
+## HomeDream System
+
+Canonical entry point
+
+```ts
+app/homedream/page.tsx
+```
+
+Core implementation
+
+```ts
+components/home/HomeSystem.tsx
+```
+
+---
+
+# AI Triad
+
+Three AI systems operate inside DREAMengin.
+
+| AI System | Route |
+|---|---|
+| **Dr. Eams** | `/api/ai/eams` |
+| **IDARi** | `/api/ai/idari` |
+| **TheBoogieMan.Ai** | `/api/ai/boogieman` |
+
+Roles:
+
+- **Dr. Eams** — discovery, routing, and idea generation  
+- **IDARi** — system maintenance and governance  
+- **TheBoogieMan.Ai** — adversarial testing and stress simulation  
+
+---
+
+# Governance
+
+This surface map is **maintained by IDARi**.
+
+For the full feature implementation matrix see:
+
+```
+docs/FEATURE_STATUS.md
+```
 
 ⸻
 
