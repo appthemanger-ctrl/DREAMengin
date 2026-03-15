@@ -1,0 +1,63 @@
+name: Sync Build Memory
+
+# Keeps /build-memory/*.json up to date by scanning the repo.
+# Runs automatically on pushes to main/completedream/develop,
+# and can be triggered manually at any time.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - completedream
+      - develop
+    paths:
+      - 'app/api/**'
+      - 'types/supabase.ts'
+      - 'supabase/migrations/**'
+      - 'lib/**'
+      - 'components/**'
+      - 'scripts/sync-build-memory.mjs'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Regenerate build-memory
+        run: node scripts/sync-build-memory.mjs
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet build-memory/; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit updated build-memory
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add build-memory/
+          git commit -m "chore: sync build-memory [skip ci]"
+          git push
+
+      - name: No changes
+        if: steps.diff.outputs.changed == 'false'
+        run: echo "build-memory is already current — nothing to commit."

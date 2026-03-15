@@ -1,0 +1,58 @@
+name: Check Build Memory Drift
+
+# Fails the PR if code drifts from the committed build-memory/*.json files.
+# This ensures:
+#   - New API routes are recorded in build-memory/routes.json
+#   - New server actions appear in build-memory/actions.json
+#   - Schema changes in types/supabase.ts are captured in build-memory/schema.json
+#   - New CustomEvent names appear in build-memory/events.json
+#   - Code querying undocumented tables is flagged
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - completedream
+      - develop
+
+jobs:
+  drift-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Check build-memory for drift
+        run: |
+          node scripts/check-build-memory-drift.mjs
+
+      - name: Instructions on failure
+        if: failure()
+        run: |
+          echo ""
+          echo "────────────────────────────────────────────────────────"
+          echo "  Build Memory Drift Detected"
+          echo "────────────────────────────────────────────────────────"
+          echo ""
+          echo "  Your changes introduced drift between the code and"
+          echo "  the committed build-memory/*.json snapshot."
+          echo ""
+          echo "  Fix it by running:"
+          echo ""
+          echo "    node scripts/sync-build-memory.mjs"
+          echo "    git add build-memory/"
+          echo "    git commit -m 'chore: sync build-memory'"
+          echo ""
+          echo "  Then push your branch again."
+          echo "────────────────────────────────────────────────────────"

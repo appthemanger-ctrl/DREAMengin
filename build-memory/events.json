@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-03-14T20:40:52.182Z",
+  "generator": "scripts/sync-build-memory.mjs",
+  "count": 5,
+  "events": [
+    {
+      "event": "de-game-input",
+      "payload_type": null,
+      "files": [
+        "components/dreamengin/DrEamsGameCanvas.tsx"
+      ]
+    },
+    {
+      "event": "de-theme-changed",
+      "payload_type": null,
+      "files": [
+        "components/ThemeApplicator.tsx"
+      ]
+    },
+    {
+      "event": "dreamengin:boogieman",
+      "payload_type": "PolicyResult",
+      "files": [
+        "lib/policy/boogiePolicy.ts"
+      ]
+    },
+    {
+      "event": "dreamengin:innerdreams",
+      "payload_type": null,
+      "files": [
+        "lib/agents/agentBus.ts"
+      ]
+    },
+    {
+      "event": "orientationchange",
+      "payload_type": null,
+      "files": [
+        "components/AnchorWidget.tsx"
+      ]
+    }
+  ]
+}
