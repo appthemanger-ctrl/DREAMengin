@@ -48,7 +48,7 @@ export default function StarfieldCanvas() {
       for (const p of particles) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200,220,255,${p.opacity})`;
+        ctx.fillStyle = `rgba(215,210,205,${p.opacity})`;
         ctx.fill();
 
         // ultra-slow drift
