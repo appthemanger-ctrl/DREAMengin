@@ -1,34 +1,17 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Home, User, MessageCircle, Compass, Settings,
+  Home, User, MessageCircle, Compass,
   Bell, BarChart3, TrendingUp, Users, Zap,
   Music, ShoppingBag, Plus, Star, ChevronRight,
-  Search, Sparkles, X,
+  Sparkles,
 } from 'lucide-react';
-
-// ── Navigation search suggestions ─────────────────────────────────────────────
-
-const NAV_SUGGESTIONS = [
-  { label: 'HomeDream',        href: '/homedream',              icon: '🏠' },
-  { label: 'Shop',        href: '/shop',              icon: '🛍️' },
-  { label: 'Marketplace', href: '/marketplace',       icon: '🏪' },
-  { label: 'Settings',    href: '/settings',          icon: '⚙️' },
-  { label: 'Music',       href: '/daydream/music',    icon: '🎵' },
-  { label: 'Games',       href: '/daydream/games',    icon: '🎮' },
-  { label: 'Lab',         href: '/daydream/lab',      icon: '🧪' },
-  { label: 'Code',        href: '/daydream/code',     icon: '💻' },
-  { label: 'Brand',       href: '/daydream/brand',    icon: '🎨' },
-  { label: 'Create',      href: '/daydream/create',   icon: '✏️' },
-  { label: 'Messages',    href: '/messages',          icon: '💬' },
-  { label: 'Edit ProfileDream',     href: '/edit-profiledream',      icon: '👤' },
-  { label: 'Analytics',   href: '/analytics',         icon: '📊' },
-  { label: 'Discover',    href: '/discover',          icon: '🔭' },
-  { label: 'Dr. Eams',    href: null,                 icon: '🤖' },
-] as const;
+import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
+import NotificationCenter from '@/components/NotificationCenter';
+import { useNotifications } from '@/lib/notifications/useNotifications';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -462,9 +445,6 @@ function BottomTabBar({ active = 'home' }: { active?: string }) {
 
 export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
-  const [searchVal, setSearchVal] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const initials = name[0]?.toUpperCase() || 'D';
   const avatarUrl = profile?.avatar_url;
@@ -474,6 +454,10 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  // ── Live notification state ────────────────────────────────────────────────
+  const [notifOpen, setNotifOpen] = useState(false);
+  const { unreadCount } = useNotifications();
 
   const feedPosts = posts.length > 0 ? posts.slice(0, 5) : Array.from({ length: 5 }).map((_, i) => ({
     id: `mock-${i}`,
@@ -486,21 +470,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
     },
   }));
 
-  // Filter nav suggestions by search query
-  const filteredSuggestions = searchVal.trim().length > 0
-    ? NAV_SUGGESTIONS.filter(s => s.label.toLowerCase().includes(searchVal.toLowerCase()))
-    : [];
-
-  // Close search dropdown on outside click
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setSearchOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -531,84 +501,66 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             dreamengin
           </span>
 
-          {/* Search pill — expands to fill remaining space */}
-          <div ref={searchRef} style={{ flex: 1, position: 'relative' }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: 'rgba(255,255,255,0.75)',
-              borderRadius: searchOpen && filteredSuggestions.length > 0 ? '16px 16px 0 0' : 100,
-              padding: '9px 14px',
-              border: '1px solid rgba(160,195,240,0.30)',
-              boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
-            }}>
-              <Search size={13} style={{ color: 'var(--de-text-dim)', flexShrink: 0 }} />
-              <input
-                value={searchVal}
-                onChange={e => { setSearchVal(e.target.value); setSearchOpen(true); }}
-                onFocus={() => setSearchOpen(true)}
-                placeholder="Search everything…"
-                style={{ background: 'none', border: 'none', outline: 'none',
-                  fontSize: 13, color: 'var(--de-heading)', width: '100%' }}
-              />
-              {searchVal.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => { setSearchVal(''); setSearchOpen(false); }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}
-                >
-                  <X size={12} style={{ color: 'var(--de-text-dim)' }} />
-                </button>
-              )}
-            </div>
-            {/* Search suggestions dropdown */}
-            {searchOpen && filteredSuggestions.length > 0 && (
-              <div style={{
-                position: 'absolute', left: 0, right: 0, top: '100%',
-                background: 'rgba(255,255,255,0.97)',
-                border: '1px solid rgba(160,195,240,0.30)',
-                borderTop: 'none',
-                borderRadius: '0 0 16px 16px',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                zIndex: 100,
-                overflow: 'hidden',
-              }}>
-                {filteredSuggestions.map((s) => (
-                  <button
-                    key={s.label}
-                    type="button"
-                    onClick={() => {
-                      setSearchOpen(false);
-                      setSearchVal('');
-                      if (s.href) {
-                        router.push(s.href);
-                      } else if (s.label === 'Dr. Eams') {
-                        onOpenDrEams();
-                      }
-                    }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      width: '100%', padding: '10px 14px',
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      borderBottom: '1px solid rgba(160,195,240,0.12)',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <span style={{ fontSize: 16 }}>{s.icon}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{s.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Dr. Eams search bar — AI-powered, replaces the old static search pill */}
+          {/* Phase 6 item #4: Dr. Eams as HomeDream search bar with DreamDM routing */}
+          <DrEamsSearchBar onOpenDrEams={onOpenDrEams} />
 
-          {/* Notification bell */}
+          {/* Notification bell — wired to real /api/notifications */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <Bell size={20} style={{ color: 'var(--de-text-dim)' }} />
-            <div style={{
-              position: 'absolute', top: -1, right: -1,
-              width: 8, height: 8, borderRadius: '50%',
-              background: '#c8981a', border: '1.5px solid rgba(220,232,248,0.9)',
-            }} />
+            <button
+              type="button"
+              aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
+              onClick={() => setNotifOpen((v) => !v)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 4,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 8,
+                color: 'var(--de-text-dim)',
+                position: 'relative',
+              }}
+            >
+              <Bell size={20} />
+              {unreadCount > 0 && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute', top: 0, right: 0,
+                    background: '#c8981a',
+                    color: '#fff',
+                    fontSize: 8, fontWeight: 800,
+                    borderRadius: '50%',
+                    minWidth: 14, height: 14,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: '1.5px solid rgba(220,232,248,0.9)',
+                    lineHeight: 1,
+                    padding: '0 2px',
+                  }}
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification panel */}
+            {notifOpen && (
+              <NotificationCenter
+                isOpen={notifOpen}
+                onClose={() => setNotifOpen(false)}
+              />
+            )}
+            {/* Backdrop to close panel on outside click */}
+            {notifOpen && (
+              <div
+                aria-hidden="true"
+                style={{ position: 'fixed', inset: 0, zIndex: 49 }}
+                onClick={() => setNotifOpen(false)}
+              />
+            )}
           </div>
 
           {/* Avatar */}

@@ -4,13 +4,22 @@ import MessagesClient from '@/components/MessagesClient';
 
 export const dynamic = 'force-dynamic';
 
-export default async function MessagesPage() {
+interface MessagesPageProps {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function MessagesPage({ searchParams }: MessagesPageProps) {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/');
   }
+
+  // Read URL params — supports from=dr-eams&q=<query> routing from DrEamsSearchBar
+  const params = searchParams ? await searchParams : {};
+  const fromDrEams = params.from === 'dr-eams';
+  const initialQuery = typeof params.q === 'string' ? params.q : '';
 
   // Fetch conversations
   const { data: conversations } = await supabase
@@ -57,6 +66,8 @@ export default async function MessagesPage() {
     <MessagesClient 
       userId={user.id}
       initialConversations={displayConversations}
+      fromDrEams={fromDrEams}
+      initialDrEamsQuery={initialQuery}
     />
   );
 }

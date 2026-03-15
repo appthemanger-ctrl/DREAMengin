@@ -27,6 +27,16 @@ interface Conversation {
 interface MessagesClientProps {
   userId: string;
   initialConversations: Conversation[];
+  /**
+   * True when the user arrived via the DrEamsSearchBar "Send to DreamDM" action.
+   * Activates Dr. Eams mode and shows a context banner.
+   */
+  fromDrEams?: boolean;
+  /**
+   * Original query from the Dr. Eams exchange — pre-filled into the search
+   * input and shown in the context banner.
+   */
+  initialDrEamsQuery?: string;
 }
 
 /** Parse a subject line from message content formatted as "**Subject:** [subject]\n\n[body]" */
@@ -67,17 +77,20 @@ function getConversationPreview(lastMessage: string): string {
  *  Must be long enough for a mousedown on a suggestion to fire before blur hides the list. */
 const SUGGESTIONS_CLOSE_DELAY_MS = 200;
 
-export default function MessagesClient({ userId, initialConversations }: MessagesClientProps) {
+export default function MessagesClient({ userId, initialConversations, fromDrEams = false, initialDrEamsQuery = '' }: MessagesClientProps) {
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(initialConversations[0] || null);
   const [newMessage, setNewMessage] = useState('');
   const [newSubject, setNewSubject] = useState('');
   const [showSubjectField, setShowSubjectField] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [searchQuery,   setSearchQuery]   = useState('');
+  // Pre-populate search query from Dr. Eams routing if present
+  const [searchQuery,   setSearchQuery]   = useState(initialDrEamsQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+  // Dr. Eams context banner — shown when arriving from the HomeDream search bar
+  const [showDrEamsBanner, setShowDrEamsBanner] = useState(fromDrEams && !!initialDrEamsQuery);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
@@ -340,6 +353,55 @@ export default function MessagesClient({ userId, initialConversations }: Message
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-0 rounded-2xl overflow-hidden min-h-[70vh]" style={{ background: 'rgba(255,255,255,0.93)', border: '1px solid rgba(160,195,240,0.3)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          {/* ── Dr. Eams context banner ── shown when arriving via "Send to DreamDM" */}
+          {showDrEamsBanner && initialDrEamsQuery && (
+            <div
+              className="md:col-span-12"
+              role="status"
+              aria-label="Dr. Eams context"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '10px 16px',
+                background: 'linear-gradient(135deg, rgba(74,144,217,0.09), rgba(74,144,217,0.04))',
+                borderBottom: '1px solid rgba(74,144,217,0.18)',
+              }}
+            >
+              {/* Dr. Eams badge */}
+              <div style={{
+                width: 26, height: 26, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #4A90D9 0%, #2a8ab8 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 11, color: '#fff', fontWeight: 700, flexShrink: 0,
+              }}>◈</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#4A90D9' }}>
+                  Dr. Eams shared context:{' '}
+                </span>
+                <span style={{
+                  fontSize: 12, color: 'var(--de-heading)',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  display: 'inline',
+                }}>
+                  &ldquo;{initialDrEamsQuery.length > 60 ? initialDrEamsQuery.slice(0, 60) + '…' : initialDrEamsQuery}&rdquo;
+                </span>
+              </div>
+              <button
+                type="button"
+                aria-label="Dismiss Dr. Eams context banner"
+                onClick={() => setShowDrEamsBanner(false)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  padding: 4, color: 'var(--de-text-dim)',
+                  display: 'flex', alignItems: 'center', flexShrink: 0,
+                }}
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
           {/* Conversations List */}
           <div className="md:col-span-4" style={{ borderBottom: '1px solid rgba(160,195,240,0.2)' }}>
             <div className="p-4" style={{ borderBottom: '1px solid rgba(160,195,240,0.2)' }}>

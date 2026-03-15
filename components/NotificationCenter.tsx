@@ -1,240 +1,403 @@
 'use client';
 
-import { Bell, X, Check, Heart, MessageSquare, UserPlus, TrendingUp, DollarSign } from 'lucide-react';
-import { useState } from 'react';
+/**
+ * NotificationCenter — wired to the real /api/notifications backend.
+ *
+ * Architecture justification:
+ *   - docs/AXIOMS.md: every visible action must do something real.
+ *     This component previously showed five hardcoded demo notifications.
+ *     It now renders live data from lib/notifications/useNotifications.ts.
+ *   - docs/ARCHITECTURE.md §8: Gold / light-blue design system; badge uses
+ *     the canonical gold accent to signal an actionable live state.
+ *   - docs/LAW.md §3: every visible action must do something real.
+ *
+ * Can be used standalone (renders its own trigger bell) or in controlled
+ * mode when `isOpen` + `onClose` are provided by a parent (e.g.
+ * WorkspaceDashboard, which controls its own Bell button and badge).
+ *
+ * Performance: render-on-demand; no render loops. The hook polls every 30 s.
+ */
 
-interface Notification {
-  id: string;
-  type: 'like' | 'comment' | 'follow' | 'trending' | 'revenue' | 'mention';
-  title: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-  actionUrl?: string;
+import {
+  Bell,
+  Check,
+  DollarSign,
+  Heart,
+  Loader2,
+  MessageCircle,
+  MessageSquare,
+  TrendingUp,
+  UserPlus,
+  X,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useRef, useState } from 'react';
+import { useNotifications } from '@/lib/notifications/useNotifications';
+import type { UiNotification, UiNotificationType } from '@/lib/notifications/notificationHelpers';
+
+// ---------------------------------------------------------------------------
+// Icon map
+// ---------------------------------------------------------------------------
+
+function NotifIcon({ type }: { type: UiNotificationType }) {
+  switch (type) {
+    case 'like':     return <Heart    size={14} style={{ color: '#ef4444', flexShrink: 0 }} />;
+    case 'comment':  return <MessageSquare size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />;
+    case 'follow':   return <UserPlus size={14} style={{ color: '#22c55e', flexShrink: 0 }} />;
+    case 'trending': return <TrendingUp size={14} style={{ color: '#f97316', flexShrink: 0 }} />;
+    case 'revenue':  return <DollarSign size={14} style={{ color: '#10b981', flexShrink: 0 }} />;
+    case 'message':  return <MessageCircle size={14} style={{ color: '#4A90D9', flexShrink: 0 }} />;
+    default:         return <Bell size={14} style={{ color: 'var(--de-text-dim)', flexShrink: 0 }} />;
+  }
 }
 
-interface NotificationCenterProps {
-  initialNotifications?: Notification[];
-  onMarkAsRead?: (id: string) => void;
-  onMarkAllAsRead?: () => void;
+// ---------------------------------------------------------------------------
+// Timestamp formatter
+// ---------------------------------------------------------------------------
+
+function formatTs(ts: Date): string {
+  const diff = Date.now() - ts.getTime();
+  const m = Math.floor(diff / 60_000);
+  const h = Math.floor(diff / 3_600_000);
+  const d = Math.floor(diff / 86_400_000);
+  if (m < 1)  return 'Just now';
+  if (m < 60) return `${m}m ago`;
+  if (h < 24) return `${h}h ago`;
+  return `${d}d ago`;
 }
 
-export default function NotificationCenter({
-  initialNotifications = [],
-  onMarkAsRead,
-  onMarkAllAsRead
-}: NotificationCenterProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(
-    initialNotifications.length > 0 ? initialNotifications : [
-      {
-        id: '1',
-        type: 'like',
-        title: 'New Like',
-        message: 'Sarah liked your post "The Future of AI"',
-        timestamp: new Date(Date.now() - 5 * 60000),
-        read: false,
-        actionUrl: '/post/123'
-      },
-      {
-        id: '2',
-        type: 'comment',
-        title: 'New Comment',
-        message: 'Alex commented on your lab project',
-        timestamp: new Date(Date.now() - 15 * 60000),
-        read: false,
-        actionUrl: '/lab/456'
-      },
-      {
-        id: '3',
-        type: 'follow',
-        title: 'New Follower',
-        message: 'Jordan started following you',
-        timestamp: new Date(Date.now() - 2 * 3600000),
-        read: false,
-        actionUrl: '/profile/jordan'
-      },
-      {
-        id: '4',
-        type: 'trending',
-        title: 'Your Post is Trending',
-        message: 'Your post about quantum computing is gaining traction!',
-        timestamp: new Date(Date.now() - 4 * 3600000),
-        read: true,
-        actionUrl: '/post/789'
-      },
-      {
-        id: '5',
-        type: 'revenue',
-        title: 'Revenue Update',
-        message: 'You earned $45 from ad placements this week',
-        timestamp: new Date(Date.now() - 24 * 3600000),
-        read: true,
-        actionUrl: '/ads'
-      }
-    ]
-  );
+// ---------------------------------------------------------------------------
+// Single notification row
+// ---------------------------------------------------------------------------
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+interface NotifRowProps {
+  n: UiNotification;
+  onRead:   (id: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}
 
-  const getIcon = (type: Notification['type']) => {
-    switch (type) {
-      case 'like':
-        return <Heart className="w-4 h-4 text-red-500" />;
-      case 'comment':
-        return <MessageSquare className="w-4 h-4 text-blue-500" />;
-      case 'follow':
-        return <UserPlus className="w-4 h-4 text-green-500" />;
-      case 'trending':
-        return <TrendingUp className="w-4 h-4 text-orange-500" />;
-      case 'revenue':
-        return <DollarSign className="w-4 h-4 text-emerald-500" />;
-      default:
-        return <Bell className="w-4 h-4 text-slate-500" />;
-    }
-  };
+function NotifRow({ n, onRead, onDelete }: NotifRowProps) {
+  const router = useRouter();
 
-  const formatTimestamp = (timestamp: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - timestamp.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    return `${days}d ago`;
-  };
-
-  const handleMarkAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(n => (n.id === id ? { ...n, read: true } : n))
-    );
-    onMarkAsRead?.(id);
-  };
-
-  const handleMarkAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    onMarkAllAsRead?.();
+  const handleClick = async () => {
+    if (!n.read) await onRead(n.id);
+    if (n.actionUrl) router.push(n.actionUrl);
   };
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-        aria-label="Notifications"
-      >
-        <Bell className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-        {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-            {unreadCount > 9 ? '9+' : unreadCount}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => void handleClick()}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') void handleClick(); }}
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 10,
+        padding: '12px 14px',
+        cursor: 'pointer',
+        background: n.read ? 'transparent' : 'rgba(74,144,217,0.05)',
+        borderBottom: '1px solid rgba(160,195,240,0.15)',
+        transition: 'background 0.12s',
+        position: 'relative',
+      }}
+    >
+      {/* Type icon */}
+      <div style={{ marginTop: 2, flexShrink: 0 }}>
+        <NotifIcon type={n.type} />
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 6,
+          marginBottom: 2,
+        }}>
+          <span style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: 'var(--de-heading)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {n.title}
           </span>
-        )}
+          {/* Unread dot */}
+          {!n.read && (
+            <div style={{
+              width: 7, height: 7, borderRadius: '50%',
+              background: '#4A90D9', flexShrink: 0,
+            }} />
+          )}
+        </div>
+        <p style={{
+          fontSize: 12,
+          color: 'var(--de-text-dim)',
+          margin: 0,
+          lineHeight: 1.45,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}>
+          {n.message}
+        </p>
+        <span style={{ fontSize: 10, color: 'var(--de-text-dim)', opacity: 0.7, marginTop: 3, display: 'block' }}>
+          {formatTs(n.timestamp)}
+        </span>
+      </div>
+
+      {/* Dismiss button */}
+      <button
+        type="button"
+        aria-label="Dismiss notification"
+        onClick={(e) => { e.stopPropagation(); void onDelete(n.id); }}
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          opacity: 0.45,
+          color: 'var(--de-text-dim)',
+        }}
+      >
+        <X size={11} />
       </button>
-
-      {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute right-0 top-12 w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 max-h-[600px] flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-                <h3 className="font-semibold text-slate-900 dark:text-white">Notifications</h3>
-                {unreadCount > 0 && (
-                  <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full">
-                    {unreadCount} new
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
-
-            {/* Actions */}
-            {unreadCount > 0 && (
-              <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">
-                <button
-                  onClick={handleMarkAllAsRead}
-                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1"
-                >
-                  <Check className="w-3 h-3" />
-                  Mark all as read
-                </button>
-              </div>
-            )}
-
-            {/* Notifications List */}
-            <div className="flex-1 overflow-y-auto">
-              {notifications.length === 0 ? (
-                <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                  <Bell className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">No notifications yet</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer ${
-                        !notification.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
-                      }`}
-                      onClick={() => {
-                        if (!notification.read) {
-                          handleMarkAsRead(notification.id);
-                        }
-                        if (notification.actionUrl) {
-                          window.location.href = notification.actionUrl;
-                        }
-                      }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1">{getIcon(notification.type)}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-sm font-medium text-slate-900 dark:text-white">
-                              {notification.title}
-                            </p>
-                            {!notification.read && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" />
-                            )}
-                          </div>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-                            {formatTimestamp(notification.timestamp)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="p-3 border-t border-slate-200 dark:border-slate-700 text-center">
-              <a
-                href="/notifications"
-                className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-              >
-                View all notifications
-              </a>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
+
+interface NotificationCenterProps {
+  /**
+   * Controlled mode: when provided, the component renders only the panel
+   * (no trigger bell). The parent is responsible for showing/hiding.
+   */
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
+export default function NotificationCenter({ isOpen: controlledOpen, onClose }: NotificationCenterProps) {
+  // Self-contained open/close when not controlled externally
+  const [selfOpen, setSelfOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open         = isControlled ? controlledOpen : selfOpen;
+  const close        = isControlled ? (onClose ?? (() => {})) : () => setSelfOpen(false);
+
+  const {
+    notifications,
+    unreadCount,
+    isLoading,
+    error,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications();
+
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+
+  const panel = open && (
+    <>
+      {/* Backdrop (only in uncontrolled / standalone mode) */}
+      {!isControlled && (
+        <div
+          aria-hidden="true"
+          style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+          onClick={close}
+        />
+      )}
+
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-label="Notifications"
+        aria-modal="true"
+        style={{
+          position: isControlled ? 'fixed' : 'absolute',
+          ...(isControlled
+            ? { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }
+            : { top: '100%', right: 0, marginTop: 8 }),
+          width: 'min(22rem, 96vw)',
+          maxHeight: '70vh',
+          background: 'rgba(255,255,255,0.97)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid rgba(160,195,240,0.35)',
+          borderRadius: 20,
+          boxShadow: '0 12px 48px rgba(0,0,0,0.14)',
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          animation: 'de-notif-in 0.22s cubic-bezier(0.34,1.22,0.64,1)',
+        }}
+      >
+        <style>{`
+          @keyframes de-notif-in {
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0)    scale(1);    }
+          }
+        `}</style>
+
+        {/* ── Header ── */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '14px 16px 10px',
+          borderBottom: '1px solid rgba(160,195,240,0.20)',
+          flexShrink: 0,
+        }}>
+          <Bell size={16} style={{ color: 'var(--de-heading)' }} />
+          <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--de-heading)', flex: 1 }}>
+            Notifications
+          </span>
+          {unreadCount > 0 && (
+            <span style={{
+              fontSize: 10, fontWeight: 700,
+              background: 'rgba(74,144,217,0.12)',
+              color: '#4A90D9',
+              padding: '2px 8px', borderRadius: 99,
+            }}>
+              {unreadCount} new
+            </span>
+          )}
+          <button
+            type="button"
+            aria-label="Close notifications"
+            onClick={close}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: 4, color: 'var(--de-text-dim)', display: 'flex',
+            }}
+          >
+            <X size={14} />
+          </button>
+        </div>
+
+        {/* ── Mark all as read ── */}
+        {unreadCount > 0 && (
+          <button
+            type="button"
+            onClick={() => void markAllAsRead()}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              padding: '7px 16px',
+              background: 'none',
+              border: 'none',
+              borderBottom: '1px solid rgba(160,195,240,0.15)',
+              cursor: 'pointer',
+              fontSize: 11,
+              fontWeight: 700,
+              color: '#4A90D9',
+              flexShrink: 0,
+            }}
+          >
+            <Check size={11} />
+            Mark all as read
+          </button>
+        )}
+
+        {/* ── List ── */}
+        <div style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'none' }}>
+          {isLoading && (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: 24 }}>
+              <Loader2 size={20} style={{ color: '#4A90D9', animation: 'de-spin 0.8s linear infinite' }} />
+              <style>{`@keyframes de-spin{to{transform:rotate(360deg)}}`}</style>
+            </div>
+          )}
+
+          {!isLoading && error && (
+            <div style={{ padding: 16, fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
+
+          {!isLoading && !error && notifications.length === 0 && (
+            <div style={{
+              padding: '32px 16px',
+              textAlign: 'center',
+              color: 'var(--de-text-dim)',
+            }}>
+              <Bell size={28} style={{ margin: '0 auto 10px', opacity: 0.35 }} />
+              <p style={{ fontSize: 13, margin: 0 }}>You're all caught up 🎉</p>
+              <p style={{ fontSize: 11, margin: '4px 0 0', opacity: 0.6 }}>No new notifications</p>
+            </div>
+          )}
+
+          {!isLoading && !error && notifications.map((n) => (
+            <NotifRow
+              key={n.id}
+              n={n}
+              onRead={markAsRead}
+              onDelete={deleteNotification}
+            />
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  // Standalone mode: render trigger bell + panel
+  if (!isControlled) {
+    return (
+      <div style={{ position: 'relative' }}>
+        <button
+          type="button"
+          aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
+          onClick={() => setSelfOpen((v) => !v)}
+          style={{
+            position: 'relative',
+            padding: 8,
+            borderRadius: 10,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            color: 'var(--de-text-dim)',
+          }}
+        >
+          <Bell size={20} />
+          {unreadCount > 0 && (
+            <span style={{
+              position: 'absolute', top: 2, right: 2,
+              background: '#c8981a',
+              color: '#fff',
+              fontSize: 9, fontWeight: 800,
+              borderRadius: '50%',
+              width: 14, height: 14,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '1.5px solid rgba(220,232,248,0.9)',
+            }}>
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
+        {panel}
+      </div>
+    );
+  }
+
+  // Controlled mode: parent renders the trigger; we just render the panel
+  return <>{panel}</>;
 }
