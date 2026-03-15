@@ -64,7 +64,7 @@ const config: Config = {
         'gold-shine': 'goldShine 3s ease-in-out infinite',
         'fade-up':    'fadeUp 0.6s ease-out forwards',
         'pulse-ring': 'pulseRing 2s ease-out infinite',
-        'entrance':   'pageEnter 0.4s cubic-bezier(0.16,1,0.3,1) forwards',
+        'page-enter': 'pageEnter 0.4s cubic-bezier(0.16,1,0.3,1) forwards',
       },
       keyframes: {
         float: {

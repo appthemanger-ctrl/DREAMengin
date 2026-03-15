@@ -192,13 +192,7 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
       )}
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-de-border px-6 py-4 flex items-center justify-between"
-        style={{
-          background: 'rgba(8, 18, 36, 0.80)',
-          backdropFilter: 'blur(40px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-          boxShadow: '0 1px 0 rgba(125,211,252,0.1), 0 4px 24px rgba(0,0,0,0.3)',
-        }}
+      <header className="sticky top-0 z-30 border-b border-de-border px-6 py-4 flex items-center justify-between premium-header"
       >
         <h1 className="text-2xl font-light tracking-widest text-de-gold select-none">
           dreamengin

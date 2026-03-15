@@ -215,7 +215,9 @@ export default function LandingHero() {
         aria-label="Dr. Eams — interactive character. Tap or drag to interact."
         role="img"
       >
-        <div className="w-[220px] h-[220px] md:w-[320px] md:h-[320px]">
+        <div className="w-[220px] h-[220px] md:w-[320px] md:h-[320px] overflow-hidden">
+          {/* HeroSprite renders at a fixed canvas size; overflow-hidden clips it
+              cleanly on mobile while the full-res render is used on desktop. */}
           <HeroSprite width={320} height={320} />
         </div>
       </motion.div>
