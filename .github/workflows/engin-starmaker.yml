@@ -163,6 +163,7 @@ jobs:
 
       # ── Commit fixes ──────────────────────────────────────────────────────────
       - name: Commit auto-fixes (if any)
+        if: always()
         run: |
           git config user.name  "engin-starmaker-bot"
           git config user.email "engin-starmaker-bot@users.noreply.github.com"
@@ -172,6 +173,9 @@ jobs:
             git add -A
             git commit -m "fix(engin/starmaker): ESLint auto-fix — StarMakerEngin standalone [skip ci]"
             git push || true
+          fi
+
+      - name: Upload scan artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
