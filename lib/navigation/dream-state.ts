@@ -75,6 +75,14 @@ function computeState(nextNode: DreamNode): DreamState {
   };
 }
 
+/**
+ * Build the DreamState for any node without requiring a prior state.
+ * Used by StructureLedger to precompute the conserved state table.
+ */
+export function getStateForNode(node: DreamNode): DreamState {
+  return computeState(node);
+}
+
 export function createInitialDreamState(): DreamState {
   return computeState('0');
 }

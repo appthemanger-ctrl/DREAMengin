@@ -20,6 +20,9 @@ export type { EngineConfig, EngineEventType, EngineEventCallback } from './Spati
 export type { UseNavigationOptions, NavigationState } from './useNavigation';
 export type { HomeSlotMapping, PriorityWidget, AnchorWidgetState } from './AnchorWidgetStorage';
 
+// StructureLedger — precomputed conserved navigation structure
+export { matchState, resolveTransition, ledgerStats } from './StructureLedger';
+
 // Quaternion Math (Section 3)
 export * from './quaternion';
 
