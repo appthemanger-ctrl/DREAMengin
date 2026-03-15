@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -10,6 +10,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
+import NotificationCenter from '@/components/NotificationCenter';
+import { useNotifications } from '@/lib/notifications/useNotifications';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -453,6 +455,10 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
+  // ── Live notification state ────────────────────────────────────────────────
+  const [notifOpen, setNotifOpen] = useState(false);
+  const { unreadCount } = useNotifications();
+
   const feedPosts = posts.length > 0 ? posts.slice(0, 5) : Array.from({ length: 5 }).map((_, i) => ({
     id: `mock-${i}`,
     content: ['Dropped a new beat 🎵', 'Launched a new project ✨', 'Hit a milestone 🏆', 'Going live tonight 🔴', 'New collab dropping soon 🤝'][i],
@@ -499,14 +505,62 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
           {/* Phase 6 item #4: Dr. Eams as HomeDream search bar with DreamDM routing */}
           <DrEamsSearchBar onOpenDrEams={onOpenDrEams} />
 
-          {/* Notification bell */}
+          {/* Notification bell — wired to real /api/notifications */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <Bell size={20} style={{ color: 'var(--de-text-dim)' }} />
-            <div style={{
-              position: 'absolute', top: -1, right: -1,
-              width: 8, height: 8, borderRadius: '50%',
-              background: '#c8981a', border: '1.5px solid rgba(220,232,248,0.9)',
-            }} />
+            <button
+              type="button"
+              aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
+              onClick={() => setNotifOpen((v) => !v)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 4,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 8,
+                color: 'var(--de-text-dim)',
+                position: 'relative',
+              }}
+            >
+              <Bell size={20} />
+              {unreadCount > 0 && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute', top: 0, right: 0,
+                    background: '#c8981a',
+                    color: '#fff',
+                    fontSize: 8, fontWeight: 800,
+                    borderRadius: '50%',
+                    minWidth: 14, height: 14,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: '1.5px solid rgba(220,232,248,0.9)',
+                    lineHeight: 1,
+                    padding: '0 2px',
+                  }}
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification panel */}
+            {notifOpen && (
+              <NotificationCenter
+                isOpen={notifOpen}
+                onClose={() => setNotifOpen(false)}
+              />
+            )}
+            {/* Backdrop to close panel on outside click */}
+            {notifOpen && (
+              <div
+                aria-hidden="true"
+                style={{ position: 'fixed', inset: 0, zIndex: 49 }}
+                onClick={() => setNotifOpen(false)}
+              />
+            )}
           </div>
 
           {/* Avatar */}
