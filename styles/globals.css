@@ -104,13 +104,58 @@ html, body {
 [data-scroll], .scroll-ios {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  scroll-behavior: smooth;
 }
 
-/* ── Button active press states — mobile-first ── */
-button, [role="button"] {
+/* ── All overflow scroll containers get momentum scrolling ── */
+[data-scroll],
+.scroll-ios,
+[style*="overflow-y: auto"],
+[style*="overflow-y:auto"],
+[style*="overflowY"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Button / Link active press states — mobile-first ── */
+button, [role="button"], a {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   user-select: none;
+}
+
+/* Active scale feedback — applies to all pressable elements on touch */
+button:active,
+[role="button"]:active,
+a:active {
+  opacity: 0.88;
+}
+
+/* ── Pressable utility — add to any tappable div/card ── */
+.de-pressable {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.12s cubic-bezier(0.34, 1.4, 0.64, 1),
+              opacity 0.10s ease;
+}
+.de-pressable:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* ── Card press feedback ── */
+.de-card-pressable {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.14s cubic-bezier(0.34, 1.4, 0.64, 1),
+              box-shadow 0.14s ease;
+}
+.de-card-pressable:active {
+  transform: scale(0.975);
+  will-change: transform;
 }
 /* ── dreamengin wordmark utility ── */
 .de-wordmark {

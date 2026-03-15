@@ -572,7 +572,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
           display: 'flex',
           // Drag handle at TOP when growing from bottom; at BOTTOM when at top
           flexDirection: isTop ? 'column-reverse' : 'column',
-          background: 'linear-gradient(180deg, rgba(220,232,248,0.97) 0%, rgba(200,218,242,0.99) 100%)',
+          background: 'linear-gradient(180deg, rgba(242,243,247,0.97) 0%, rgba(238,240,245,0.99) 100%)',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderTop: isTop ? 'none' : '1.5px solid rgba(200,152,26,0.45)',
           borderBottom: isTop ? '1.5px solid rgba(200,152,26,0.45)' : 'none',
@@ -722,7 +722,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
                   background: composeFocused ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.40)',
                   border: composeFocused
                     ? '1.5px solid rgba(200,152,26,0.55)'
-                    : '1px solid rgba(160,195,240,0.45)',
+                    : '1px solid rgba(180,185,200,0.40)',
                   borderRadius: 9999, padding: '7px 14px', fontSize: 13,
                   color: 'var(--de-text)', outline: 'none', cursor: 'text',
                   transition: 'background 0.18s, border 0.18s',
@@ -772,7 +772,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
                 aria-label={drEamsMode ? 'Dr. Eams mode ON' : 'Dr. Eams mode OFF'}
                 style={{
                   flexShrink: 0,
-                  background: drEamsMode ? 'var(--de-gold)' : 'rgba(160,195,240,0.18)',
+                  background: drEamsMode ? 'var(--de-gold)' : 'rgba(180,185,200,0.18)',
                   border: 'none', borderRadius: '50%', width: 30, height: 30,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer', color: drEamsMode ? 'white' : 'var(--de-text-dim)',
@@ -837,10 +837,10 @@ function DreamSpaceMessaging({
     <div style={{ display: 'flex', height: '100%', minHeight: 0 }}>
 
       {/* ── Compact conversation list ──────────────────────────────────────── */}
-      <div style={{ width: 200, flexShrink: 0, borderRight: '1px solid rgba(160,195,240,0.22)', overflowY: 'auto', overscrollBehavior: 'contain', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: 200, flexShrink: 0, borderRight: '1px solid rgba(180,185,200,0.20)', overflowY: 'auto', overscrollBehavior: 'contain', display: 'flex', flexDirection: 'column' }}>
 
         {/* Search + Dr. Eams toggle */}
-        <div style={{ padding: '10px 10px 6px', borderBottom: '1px solid rgba(160,195,240,0.15)' }}>
+        <div style={{ padding: '10px 10px 6px', borderBottom: '1px solid rgba(180,185,200,0.15)' }}>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Search size={12} aria-hidden style={{ color: 'var(--de-text-dim)', position: 'absolute', left: 8, pointerEvents: 'none', zIndex: 1 }} />
             <input
@@ -852,7 +852,7 @@ function DreamSpaceMessaging({
               style={{
                 flex: 1, paddingLeft: 26, paddingRight: 8, paddingTop: 5, paddingBottom: 5,
                 borderRadius: 9999,
-                border: drEamsMode ? '1.5px solid rgba(200,152,26,0.65)' : '1px solid rgba(160,195,240,0.45)',
+                border: drEamsMode ? '1.5px solid rgba(200,152,26,0.65)' : '1px solid rgba(180,185,200,0.40)',
                 background: drEamsMode ? 'rgba(255,245,215,0.75)' : 'rgba(255,255,255,0.45)',
                 fontSize: 11, color: 'var(--de-text)', outline: 'none',
               }}
@@ -863,7 +863,7 @@ function DreamSpaceMessaging({
               aria-label={drEamsMode ? 'Dr. Eams mode active — click to switch to standard search' : 'Switch to Dr. Eams mode'}
               title={drEamsMode ? 'Dr. Eams ON' : 'Dr. Eams OFF'}
               style={{
-                flexShrink: 0, background: drEamsMode ? 'var(--de-gold)' : 'rgba(160,195,240,0.18)',
+                flexShrink: 0, background: drEamsMode ? 'var(--de-gold)' : 'rgba(180,185,200,0.18)',
                 border: 'none', borderRadius: '50%', width: 24, height: 24,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', color: drEamsMode ? 'white' : 'var(--de-text-dim)',
@@ -882,7 +882,7 @@ function DreamSpaceMessaging({
 
         {/* Search suggestions */}
         {showSearch && (searchQuery.trim() || isSearching) && (
-          <div role="listbox" aria-label="Search suggestions" style={{ background: 'rgba(255,255,255,0.96)', borderBottom: '1px solid rgba(160,195,240,0.2)', maxHeight: 180, overflowY: 'auto', overscrollBehavior: 'contain' }}>
+          <div role="listbox" aria-label="Search suggestions" style={{ background: 'rgba(255,255,255,0.96)', borderBottom: '1px solid rgba(180,185,200,0.18)', maxHeight: 180, overflowY: 'auto', overscrollBehavior: 'contain' }}>
             {isSearching && (
               <div style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Loader2 size={11} aria-hidden style={{ color: 'var(--de-text-dim)' }} />
@@ -900,7 +900,7 @@ function DreamSpaceMessaging({
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', gap: 8,
                   padding: '7px 12px', background: 'transparent', border: 'none',
-                  cursor: 'pointer', textAlign: 'left', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                  cursor: 'pointer', textAlign: 'left', borderBottom: '1px solid rgba(180,185,200,0.10)',
                 }}
               >
                 <AvatarChip name={result.label} url={result.avatarUrl} size={22} />
@@ -925,7 +925,7 @@ function DreamSpaceMessaging({
                 width: '100%', display: 'flex', alignItems: 'center', gap: 8,
                 padding: '9px 10px',
                 background: selectedConv?.id === conv.id ? 'rgba(42,138,184,0.10)' : 'transparent',
-                border: 'none', borderBottom: '1px solid rgba(160,195,240,0.10)',
+                border: 'none', borderBottom: '1px solid rgba(180,185,200,0.10)',
                 cursor: 'pointer', textAlign: 'left',
               }}
             >
@@ -949,7 +949,7 @@ function DreamSpaceMessaging({
         {selectedConv ? (
           <>
             {/* Header */}
-            <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.18)', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(180,185,200,0.18)', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
               <AvatarChip name={selectedConv.otherUser.display_name || selectedConv.otherUser.handle || 'U'} url={selectedConv.otherUser.avatar_url} size={26} />
               <div>
                 <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', margin: 0 }}>{selectedConv.otherUser.display_name || selectedConv.otherUser.handle}</p>
@@ -974,7 +974,7 @@ function DreamSpaceMessaging({
                         maxWidth: '80%', borderRadius: 12, padding: '6px 10px', fontSize: 11,
                         ...(isMe
                           ? { background: 'var(--de-heading)', color: 'white', borderBottomRightRadius: 3 }
-                          : { background: 'rgba(42,138,184,0.10)', color: 'var(--de-text)', borderBottomLeftRadius: 3, border: '1px solid rgba(160,195,240,0.25)' }),
+                          : { background: 'rgba(42,138,184,0.10)', color: 'var(--de-text)', borderBottomLeftRadius: 3, border: '1px solid rgba(180,185,200,0.25)' }),
                       }}>
                         {msg.media_url && msg.media_type === 'image' && (
                           <Image src={msg.media_url} alt="Shared image" width={160} height={100} style={{ borderRadius: 8, marginBottom: 4 }} />
@@ -990,7 +990,7 @@ function DreamSpaceMessaging({
             </div>
 
             {/* Compose */}
-            <form onSubmit={(e) => { e.preventDefault(); onPanelSend(); }} style={{ padding: '8px 10px', borderTop: '1px solid rgba(160,195,240,0.18)', flexShrink: 0 }}>
+            <form onSubmit={(e) => { e.preventDefault(); onPanelSend(); }} style={{ padding: '8px 10px', borderTop: '1px solid rgba(180,185,200,0.18)', flexShrink: 0 }}>
               {sendError && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <p style={{ fontSize: 10, color: '#dc4444', flex: 1, margin: 0 }}>{sendError}</p>
@@ -1002,7 +1002,7 @@ function DreamSpaceMessaging({
               )}
               {selectedFile && filePreviewUrl && (
                 <div style={{ marginBottom: 8, position: 'relative', display: 'inline-block' }}>
-                  <div style={{ background: 'rgba(160,195,240,0.15)', borderRadius: 8, padding: 6 }}>
+                  <div style={{ background: 'rgba(180,185,200,0.15)', borderRadius: 8, padding: 6 }}>
                     {getFileType(selectedFile) === 'image' && (
                       <Image src={filePreviewUrl} alt="Preview" width={80} height={60} style={{ borderRadius: 6 }} />
                     )}
@@ -1023,7 +1023,7 @@ function DreamSpaceMessaging({
                 <button
                   type="button" onClick={() => fileInputRef.current?.click()} disabled={isSending}
                   aria-label="Attach file"
-                  style={{ background: 'rgba(160,195,240,0.15)', border: 'none', borderRadius: 8, padding: '5px 7px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: isSending ? 'not-allowed' : 'pointer', color: 'var(--de-text-dim)', flexShrink: 0, opacity: isSending ? 0.5 : 1 }}
+                  style={{ background: 'rgba(180,185,200,0.15)', border: 'none', borderRadius: 8, padding: '5px 7px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: isSending ? 'not-allowed' : 'pointer', color: 'var(--de-text-dim)', flexShrink: 0, opacity: isSending ? 0.5 : 1 }}
                 >
                   <Paperclip size={12} aria-hidden />
                 </button>
@@ -1031,7 +1031,7 @@ function DreamSpaceMessaging({
                   type="text" value={messageBody} onChange={(e) => onMessageBodyChange(e.target.value)}
                   placeholder="Type a message…" aria-label="Message body"
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onPanelSend(); } }}
-                  style={{ flex: 1, padding: '5px 10px', borderRadius: 9999, border: '1px solid rgba(160,195,240,0.35)', background: 'rgba(255,255,255,0.55)', fontSize: 11, color: 'var(--de-text)', outline: 'none' }}
+                  style={{ flex: 1, padding: '5px 10px', borderRadius: 9999, border: '1px solid rgba(180,185,200,0.32)', background: 'rgba(255,255,255,0.55)', fontSize: 11, color: 'var(--de-text)', outline: 'none' }}
                 />
                 <button
                   type="submit" aria-label="Send message"

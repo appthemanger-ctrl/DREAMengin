@@ -78,7 +78,7 @@ function ActivityCard({ post, index }: { post: Post; index: number }) {
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12,
       padding: '12px 0',
-      borderBottom: '1px solid rgba(160,195,240,0.12)',
+      borderBottom: '1px solid rgba(180,185,200,0.14)',
     }}>
       {/* Avatar */}
       <div style={{
@@ -125,7 +125,7 @@ function MetricWidget({
   trend?: number[];
 }) {
   return (
-    <div style={{
+    <div className="de-card-pressable" style={{
       background: 'rgba(255,255,255,0.80)',
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
@@ -159,7 +159,7 @@ function MetricBandCell({ value, label, color = 'var(--de-gold)', last = false }
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '12px 6px',
-      borderRight: last ? 'none' : '1px solid rgba(160,195,240,0.18)',
+      borderRight: last ? 'none' : '1px solid rgba(180,185,200,0.18)',
     }}>
       <div style={{ fontSize: 18, fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
       <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 3, fontWeight: 700,
@@ -177,24 +177,24 @@ function ActionBtn({ icon: Icon, label, onClick, primary }: {
   primary?: boolean;
 }) {
   return (
-    <button onClick={onClick} style={{
-      flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
-      padding: '12px 4px',
-      borderRadius: 16,
-      background: primary
-        ? 'linear-gradient(135deg, #c8981a, #e0b830)'
-        : 'rgba(255,255,255,0.75)',
-      border: primary ? 'none' : '1px solid rgba(160,195,240,0.25)',
-      cursor: 'pointer',
-      boxShadow: primary ? '0 6px 18px rgba(200,152,26,0.35)' : '0 2px 8px rgba(0,0,0,0.06)',
-      transition: 'transform 0.12s',
-    }}
-      onPointerDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.94)'; }}
-      onPointerUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+    <button
+      onClick={onClick}
+      className="de-pressable"
+      style={{
+        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
+        padding: '14px 4px',
+        borderRadius: 18,
+        background: primary
+          ? 'linear-gradient(135deg, #c8981a, #e0b830)'
+          : 'rgba(255,255,255,0.75)',
+        border: primary ? 'none' : '1px solid rgba(180,185,200,0.22)',
+        boxShadow: primary ? '0 6px 18px rgba(200,152,26,0.35)' : '0 2px 8px rgba(0,0,0,0.06)',
+        minHeight: 64,
+      }}
     >
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {React.createElement(Icon as any, { size: 18, style: { color: primary ? '#fff' : 'var(--de-accent)' } })}
-      <span style={{ fontSize: 10, fontWeight: 700,
+      {React.createElement(Icon as any, { size: 20, style: { color: primary ? '#fff' : 'var(--de-accent)' } })}
+      <span style={{ fontSize: 11, fontWeight: 700,
         color: primary ? '#fff' : 'var(--de-heading)', lineHeight: 1 }}>
         {label}
       </span>
@@ -235,13 +235,14 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
     <button
       type="button"
       onClick={handleClick}
+      className={handleClick ? 'de-pressable' : undefined}
       style={{
-        minWidth: 148, flexShrink: 0,
+        minWidth: 152, flexShrink: 0,
         padding: '14px 16px',
         background: 'rgba(255,255,255,0.92)',
-        borderRadius: 16,
+        borderRadius: 18,
         boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-        border: `1px solid ${isDrEams ? 'rgba(74,144,217,0.25)' : 'rgba(160,195,240,0.18)'}`,
+        border: `1px solid ${isDrEams ? 'rgba(200,152,26,0.20)' : 'rgba(180,185,200,0.18)'}`,
         cursor: handleClick ? 'pointer' : 'default',
         textAlign: 'left',
         WebkitTapHighlightColor: 'transparent',
@@ -299,28 +300,30 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
   return (
     <>
       {/* ── Full-screen scrollable workspace ── */}
-      <div style={{
-        minHeight: '100svh',
-        width: '100%',
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        paddingBottom: 100,
-      }}>
-        {/* ── Sticky top header — full width glass ── */}
+      <div
+        data-scroll
+        style={{
+          minHeight: '100svh',
+          width: '100%',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          paddingBottom: 140,
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {/* ── Floating header — no background bar, just text over gradient ── */}
         <div style={{
           position: 'sticky', top: 0, zIndex: 50,
-          background: 'rgba(240,242,246,0.92)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(180,185,200,0.22)',
-          padding: '14px 20px 13px',
+          padding: '18px 20px 14px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          pointerEvents: 'auto',
         }}>
           {/* dreamengin wordmark */}
           <span style={{
             fontFamily: 'Georgia, serif', fontStyle: 'italic',
-            fontSize: 24, fontWeight: 400, color: '#c8981a',
+            fontSize: 26, fontWeight: 400, color: '#c8981a',
             letterSpacing: '-0.01em', flexShrink: 0,
+            textShadow: '0 1px 12px rgba(255,255,255,0.7)',
           }}>
             dreamengin
           </span>
@@ -337,13 +340,17 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  padding: 4,
+                  padding: 8,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  borderRadius: 8,
+                  borderRadius: 10,
                   color: 'var(--de-text-dim)',
                   position: 'relative',
+                  minWidth: 40, minHeight: 40,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
+                  transition: 'opacity 0.1s ease',
                 }}
               >
                 <Bell size={20} />
@@ -351,14 +358,13 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                   <span
                     aria-hidden="true"
                     style={{
-                      position: 'absolute', top: 0, right: 0,
+                      position: 'absolute', top: 4, right: 4,
                       background: '#c8981a',
                       color: '#fff',
                       fontSize: 8, fontWeight: 800,
                       borderRadius: '50%',
                       minWidth: 14, height: 14,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      border: '1.5px solid rgba(240,242,246,0.9)',
                       lineHeight: 1,
                       padding: '0 2px',
                     }}
@@ -390,6 +396,8 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               fontSize: 14, color: 'var(--de-text-dim)',
               textDecoration: 'none', fontWeight: 500,
               letterSpacing: '-0.01em', whiteSpace: 'nowrap',
+              padding: '8px 0 8px 4px', minHeight: 40,
+              display: 'flex', alignItems: 'center',
             }}>
               Flip to Profile &rsaquo;
             </Link>
@@ -397,7 +405,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
         </div>
 
         {/* ── Page body ── */}
-        <div style={{ padding: '20px 16px 0' }}>
+        <div style={{ padding: '4px 16px 0' }}>
 
           {/* Greeting */}
           <div style={{ marginBottom: 20 }}>
@@ -413,6 +421,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 <Link
                   key={item.label}
                   href={item.href}
+                  className="de-pressable"
                   style={{
                     borderRadius: 999,
                     border: '1px solid rgba(180,185,200,0.30)',
@@ -422,6 +431,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                     fontSize: 12,
                     fontWeight: 600,
                     textDecoration: 'none',
+                    display: 'inline-block',
                   }}
                 >
                   {item.label}
@@ -430,6 +440,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               <button
                 type="button"
                 onClick={() => onOpenDreamSpace?.()}
+                className="de-pressable"
                 style={{
                   borderRadius: 999,
                   border: '1px solid rgba(180,185,200,0.30)',
@@ -438,7 +449,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                   padding: '7px 14px',
                   fontSize: 12,
                   fontWeight: 600,
-                  cursor: 'pointer',
                 }}
               >
                 Your Dreams
@@ -483,14 +493,20 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               </div>
 
               {/* AI Triad agent cards — horizontal scroll */}
-              <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', marginBottom: 4 }}>
+              <div
+                data-scroll
+                style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', marginBottom: 4, WebkitOverflowScrolling: 'touch' }}
+              >
                 {AI_AGENTS.map(agent => (
                   <AgentActivityCard key={agent.id} agent={agent} onOpenDrEams={onOpenDrEams} />
                 ))}
               </div>
 
               {/* Feed area remains independently scrollable */}
-              <div style={{ maxHeight: 300, overflowY: 'auto', paddingRight: 4 }}>
+              <div
+                data-scroll
+                style={{ maxHeight: 300, overflowY: 'auto', paddingRight: 4, WebkitOverflowScrolling: 'touch' }}
+              >
                 {feedPosts.slice(0, 8).map((post, i) => (
                   <ActivityCard key={post.id || i} post={post} index={i} />
                 ))}
@@ -585,6 +601,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 <Link
                   key={`widget-slot-${i}`}
                   href="/connectors"
+                  className="de-card-pressable"
                   style={{
                     minHeight: 92,
                     borderRadius: 18,
