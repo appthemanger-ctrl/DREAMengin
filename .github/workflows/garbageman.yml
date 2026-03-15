@@ -33,24 +33,14 @@ jobs:
 
       - name: Commit cleanup (if needed)
         run: |
-          git config user.name "cleanup-bot"
-          git config user.email "cleanup@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
 
-          git diff --cached --quiet || git commit -m "chore: auto cleanup"
-          git push || true
-
-      - name: Commit auto-fixes (if any)
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          if git diff --quiet; then
-            echo "No fixes to commit."
-            exit 0
+          if git diff --cached --quiet; then
+            echo "Nothing to clean up."
+          else
+            git commit -m "chore: auto cleanup [skip ci]"
+            git push || true
           fi
-
-          git add -A
-          git commit -m "chore: auto-fix lint"
-          git push || true

@@ -109,13 +109,20 @@ jobs:
           pnpm run build
 
       - name: Print summary
+        if: always()
         shell: bash
         run: |
-          echo "APP ROOT: ${{ steps.root.outputs.app_root }}"
-          echo "CHANGED FILES: ${{ steps.score.outputs.changed_files }}"
-          echo "CHI: ${{ steps.score.outputs.chi }}"
-          echo "MODE: ${{ steps.score.outputs.mode }}"
-          echo "ALLOWED: ${{ steps.score.outputs.allowed }}"
+          {
+            echo "## DREAMengin Preflight"
+            echo ""
+            echo "| Item | Value |"
+            echo "|------|-------|"
+            echo "| App root | ${{ steps.root.outputs.app_root }} |"
+            echo "| Changed files | ${{ steps.score.outputs.changed_files }} |"
+            echo "| Chi score | ${{ steps.score.outputs.chi }} |"
+            echo "| Mode | ${{ steps.score.outputs.mode }} |"
+            echo "| Allowed | ${{ steps.score.outputs.allowed }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit auto-fixes (if any)
         run: |

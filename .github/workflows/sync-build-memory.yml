@@ -61,17 +61,3 @@ jobs:
       - name: No changes
         if: steps.diff.outputs.changed == 'false'
         run: echo "build-memory is already current — nothing to commit."
-
-      - name: Commit auto-fixes (if any)
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          if git diff --quiet; then
-            echo "No fixes to commit."
-            exit 0
-          fi
-
-          git add -A
-          git commit -m "chore: auto-fix lint"
-          git push || true

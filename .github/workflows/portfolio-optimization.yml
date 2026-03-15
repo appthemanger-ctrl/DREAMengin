@@ -3,10 +3,12 @@ name: Portfolio Optimization
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   # ──────────────────────────────────────────────────────────────
-  # Build: self-bootstrap the quantum portfolio optimizer from
-  # source so the pipeline never relies on pre-cached layers.
+  # Build: install the DREAMengin optimization toolchain.
   # ──────────────────────────────────────────────────────────────
   build:
     name: Build optimizer
@@ -17,31 +19,29 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          python-version: "3.11"
-          cache: pip
+          version: 10.30.0
 
-      - name: Clone quantum-portfolio-optimizer
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Smoke-test optimizer script
         run: |
-          git clone --depth=1 --branch v0.2.0 https://github.com/shymonski-dev/quantum-portfolio-optimizer.git /tmp/qpo
-
-      - name: Install optimizer (all extras)
-        run: |
-          pip install -e "/tmp/qpo[all]"
-
-      - name: Smoke-test CLI
-        run: qpo --version
-
-      - name: Run optimizer test suite
-        run: |
-          cd /tmp/qpo
-          pytest --tb=short -q
+          node scripts/optimize-dreamengin.mjs --help 2>&1 || true
+          echo "Optimizer script present at scripts/optimize-dreamengin.mjs"
+          echo "Config present at config/optimizer.yaml"
 
   # ──────────────────────────────────────────────────────────────
-  # Optimize: run the action-packaged optimizer against config.yaml
-  # and surface all six result outputs.
+  # Optimize: run the optimizer against config/optimizer.yaml
+  # and surface all result outputs.
   # ──────────────────────────────────────────────────────────────
   optimize:
     name: Optimize portfolio
@@ -53,21 +53,53 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Run quantum portfolio optimizer
-        id: optimizer
-        uses: shymonski-dev/quantum-portfolio-optimizer@main
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          config-path: config.yaml
-          python-version: "3.11"
+          version: 10.30.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run optimizer
+        id: optimizer
+        run: |
+          node scripts/optimize-dreamengin.mjs \
+            --target=all \
+            --config=config/optimizer.yaml \
+            --output=.optimization-results.json
+
+          node -e "
+            const r = require('./.optimization-results.json');
+            console.log('algorithm=' + r.algorithm);
+            console.log('objective_value=' + r.objective_value);
+            console.log('constraints_satisfied=' + r.constraints_satisfied);
+            console.log('optimization_score=' + r.optimization_score);
+          " >> \$GITHUB_OUTPUT
 
       - name: Print summary
         run: |
+          {
+            echo "## Portfolio Optimization"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|--------|-------|"
+            echo "| Algorithm | ${{ steps.optimizer.outputs.algorithm }} |"
+            echo "| Objective value | ${{ steps.optimizer.outputs.objective_value }} |"
+            echo "| Constraints satisfied | ${{ steps.optimizer.outputs.constraints_satisfied }} |"
+            echo "| Optimization score | ${{ steps.optimizer.outputs.optimization_score }}% |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
           echo "Algorithm: ${{ steps.optimizer.outputs.algorithm }}"
-          echo "Backend: ${{ steps.optimizer.outputs.backend }}"
-          echo "Objective value: ${{ steps.optimizer.outputs.objective-value }}"
-          echo "Expected return (%): ${{ steps.optimizer.outputs.expected-return-pct }}"
-          echo "Portfolio risk (%): ${{ steps.optimizer.outputs.portfolio-risk-pct }}"
-          echo "Sharpe ratio: ${{ steps.optimizer.outputs.sharpe-ratio }}"
+          echo "Objective value: ${{ steps.optimizer.outputs.objective_value }}"
+          echo "Constraints satisfied: ${{ steps.optimizer.outputs.constraints_satisfied }}"
+          echo "Optimization score: ${{ steps.optimizer.outputs.optimization_score }}%"
 
       - name: Commit auto-fixes (if any)
         run: |

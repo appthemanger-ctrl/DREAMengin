@@ -56,17 +56,3 @@ jobs:
           echo ""
           echo "  Then push your branch again."
           echo "────────────────────────────────────────────────────────"
-
-      - name: Commit auto-fixes (if any)
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          if git diff --quiet; then
-            echo "No fixes to commit."
-            exit 0
-          fi
-
-          git add -A
-          git commit -m "chore: auto-fix lint"
-          git push || true
