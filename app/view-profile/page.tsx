@@ -4,6 +4,7 @@ import { Pencil, Eye } from 'lucide-react';
 import { createServerClient } from '@/lib/supabase/server';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
 import ProfileShareButton from '@/components/ProfileShareButton';
+import DreamWord from '@/components/ui/DreamWord';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,16 +97,10 @@ export default async function ViewProfilePage() {
       {/* ── dreamengin brand header ── */}
       <div style={{ paddingTop: 18, paddingBottom: 2, textAlign: 'center' }}>
         <span
-          style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontStyle: 'italic',
-            fontSize: 28,
-            fontWeight: 400,
-            color: '#c8981a',
-            letterSpacing: '-0.01em',
-          }}
+          className="de-wordmark"
+          style={{ fontSize: 28 }}
         >
-          dreamengin
+          <DreamWord />engin
         </span>
       </div>
 

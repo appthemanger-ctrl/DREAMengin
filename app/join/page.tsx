@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/client";
 import PasswordField from "@/components/auth/PasswordField";
+import DreamWord from "@/components/ui/DreamWord";
 
 // Shared input style — matches the de-widget design system
 const INPUT_STYLE: React.CSSProperties = {
@@ -117,7 +118,7 @@ export default function JoinPage() {
 
       {/* Header wordmark */}
       <div style={{ marginBottom: 28, textAlign: "center" }}>
-        <span className="de-wordmark" style={{ fontSize: 36 }}>dreamengin</span>
+        <span className="de-wordmark" style={{ fontSize: 36 }}><DreamWord />engin</span>
         <div style={{ fontSize: 13, color: "var(--de-text-dim)", marginTop: 6, letterSpacing: "0.04em" }}>Create your account — it&apos;s free</div>
       </div>
 

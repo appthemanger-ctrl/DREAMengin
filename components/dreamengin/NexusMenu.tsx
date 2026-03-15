@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import DreamWord from '@/components/ui/DreamWord';
 
 interface NexusMenuProps {
   onClose: () => void;
@@ -27,7 +28,7 @@ export default function NexusMenu({ onClose, onOpenDrEams, onViewAllDreams }: Ne
         className="w-[min(22rem,92vw)] rounded-3xl border border-white/20 bg-slate-950/90 p-4 text-white shadow-sm"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="px-2 text-sm uppercase tracking-[0.2em] text-white/60">DreamMenu</h2>
+        <h2 className="px-2 text-sm uppercase tracking-[0.2em] text-white/60"><DreamWord />Menu</h2>
         <ul className="mt-2 space-y-1">
           {items.map((item) => (
             <li key={item.label}>

@@ -4,8 +4,8 @@
 
 :root {
   /* ── DREAMengin Dream Ice Token Set (default) ── */
-  --de-navy:        #dce8f8;
-  --de-deep:        #e8f0fa;
+  --de-navy:        #e0e8f0;
+  --de-deep:        #eaf0f7;
   --de-blue:        #2a8ab8;
   --de-midblue:     #3b9ac8;
   --de-accent:      #2a8ab8;
@@ -13,26 +13,26 @@
   --de-gold:        #c8981a;
   --de-gold-bright: #e8b830;
   --de-gold-dim:    #a08020;
-  --de-white:       #0f2a5c;
-  --de-mist:        rgba(180,210,250,0.22);
-  --de-glass:       rgba(255,255,255,0.52);
-  --de-glass2:      rgba(235,245,255,0.68);
-  --de-border:      rgba(160,195,240,0.45);
-  --de-border-gold: rgba(190,210,245,0.55);
-  --de-text:        #1a3a6a;
-  --de-text-dim:    rgba(60,100,160,0.55);
-  --de-heading:     #0f2a5c;
+  --de-white:       #1a2436;
+  --de-mist:        rgba(200,205,215,0.18);
+  --de-glass:       rgba(255,255,255,0.60);
+  --de-glass2:      rgba(248,249,252,0.75);
+  --de-border:      rgba(180,185,200,0.35);
+  --de-border-gold: rgba(200,170,100,0.30);
+  --de-text:        #1a2840;
+  --de-text-dim:    rgba(60,75,100,0.52);
+  --de-heading:     #0f1e34;
   --de-red:         #dc4444;
-  --de-bg-start:    #dce8f8;
-  --de-bg-mid:      #c5d8f0;
-  --de-bg-end:      #b8ceec;
+  --de-bg-start:    #dde3ec;
+  --de-bg-mid:      #c8d2de;
+  --de-bg-end:      #bac5d4;
   --de-widget-bg:   rgba(255,255,255,0.55);
   --de-widget-border: rgba(160,195,240,0.40);
 
   /* ── User-editable gradient theme (overridable via ThemeApplicator) ── */
-  --de-theme-from:  #c8dff5;   /* sky blue */
-  --de-theme-mid:   #d8eaf8;   /* light sky */
-  --de-theme-to:    #f5e8c4;   /* warm gold cream */
+  --de-theme-from:  #e9ecf1;   /* gradient start — light neutral */
+  --de-theme-mid:   #f0f2f6;   /* gradient midpoint — near white */
+  --de-theme-to:    #f7f3ec;   /* gradient end — warm white cream */
   --de-theme-angle: 148deg;
   --de-theme-btn-from: #2a8ab8;
   --de-theme-btn-to:   #c8981a;
@@ -44,12 +44,12 @@
   --starfield-style: light;
 
   /* ── Tailwind HSL tokens (required by shadcn) ── */
-  --background:            215 45% 95%;
-  --foreground:            215 55% 20%;
-  --card:                  210 40% 98%;
-  --card-foreground:       215 55% 20%;
-  --popover:               210 40% 98%;
-  --popover-foreground:    215 55% 20%;
+  --background:            220 15% 95%;
+  --foreground:            220 30% 15%;
+  --card:                  220 20% 98%;
+  --card-foreground:       220 30% 15%;
+  --popover:               220 20% 98%;
+  --popover-foreground:    220 30% 15%;
   --primary:               210 80% 52%;
   --primary-foreground:    0 0% 100%;
   --secondary:             215 30% 88%;
@@ -104,13 +104,59 @@ html, body {
 [data-scroll], .scroll-ios {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  scroll-behavior: smooth;
 }
 
-/* ── Button active press states — mobile-first ── */
-button, [role="button"] {
+/* ── All overflow scroll containers get momentum scrolling + smooth scroll ── */
+[data-scroll],
+.scroll-ios,
+[style*="overflow-y: auto"],
+[style*="overflow-y:auto"],
+[style*="overflowY"] {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ── Button / Link active press states — mobile-first ── */
+button, [role="button"], a {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   user-select: none;
+}
+
+/* Active scale feedback — applies to all pressable elements on touch */
+button:active,
+[role="button"]:active,
+a:active {
+  opacity: 0.88;
+}
+
+/* ── Pressable utility — add to any tappable div/card ── */
+.de-pressable {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.12s cubic-bezier(0.34, 1.4, 0.64, 1),
+              opacity 0.10s ease;
+}
+.de-pressable:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* ── Card press feedback ── */
+.de-card-pressable {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.14s cubic-bezier(0.34, 1.4, 0.64, 1),
+              box-shadow 0.14s ease;
+}
+.de-card-pressable:active {
+  transform: scale(0.975);
+  will-change: transform;
 }
 /* ── dreamengin wordmark utility ── */
 .de-wordmark {
@@ -121,6 +167,45 @@ button, [role="button"] {
   letter-spacing: -0.01em;
   line-height: 1;
   user-select: none;
+}
+
+/* ── "Dream" metallic gold word — used in all Dream-surface headers ──────────
+   Apply to any <span> wrapping the word "Dream" in platform headings.
+   The Cormorant italic gives it expressive weight; the gold gradient
+   creates the metallic sheen. Prefix/suffix text keeps its own font.
+── */
+.de-dream-word {
+  font-family: var(--font-cormorant, Georgia, 'Times New Roman', serif);
+  font-style: italic;
+  font-weight: 700;
+  /* Fallback for high-contrast / no-CSS-gradient environments */
+  color: #c8981a;
+  /* 5-stop metallic gold gradient */
+  background: linear-gradient(
+    145deg,
+    #8a6010 0%,
+    #c8981a 18%,
+    #f0d060 38%,
+    #ffd700 50%,
+    #f0d060 62%,
+    #c8981a 82%,
+    #8a6010 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+  line-height: inherit;
+  display: inline;
+  user-select: none;
+}
+/* Graceful degradation: show plain gold if background-clip unsupported */
+@supports not (-webkit-background-clip: text) {
+  .de-dream-word {
+    background: none;
+    -webkit-text-fill-color: unset;
+    color: #c8981a;
+  }
 }
 
 /* ── Dream background (theme-aware) ── */

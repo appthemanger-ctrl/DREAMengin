@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import DreamWord from '@/components/ui/DreamWord';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Welcome – Dreamengin' };
@@ -70,7 +71,7 @@ export default async function OnboardingPage() {
 
         {/* Wordmark hero */}
         <div style={{ textAlign: 'center', paddingBottom: 8 }}>
-          <span className="de-wordmark" style={{ fontSize: 32 }}>dreamengin</span>
+          <span className="de-wordmark" style={{ fontSize: 32 }}><DreamWord />engin</span>
           <p style={{ fontSize: 13, color: 'var(--de-text-dim)', marginTop: 6 }}>
             Here&apos;s a quick tour of your new space
           </p>
