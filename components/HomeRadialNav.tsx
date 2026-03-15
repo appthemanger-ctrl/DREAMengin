@@ -133,8 +133,8 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
         { id: 'home', label: 'HomeDream', icon: Home, path: '/homedream', action: () => router.push('/homedream') },
         { id: 'discover', label: 'Discover', icon: Search, path: '/discover', action: () => router.push('/discover') },
         { id: 'create', label: 'Create', icon: PlusCircle, path: '/homedream?modal=create', action: () => router.push('/homedream?modal=create') },
-        { id: 'music', label: 'Music', icon: Music, path: '/music', action: () => router.push('/music') },
-        { id: 'lab', label: 'Lab', icon: FlaskConical, path: '/lab', action: () => router.push('/lab') },
+        { id: 'music', label: 'Music', icon: Music, path: '/daydream/music', action: () => router.push('/daydream/music') },
+        { id: 'lab', label: 'Lab', icon: FlaskConical, path: '/daydream/lab', action: () => router.push('/daydream/lab') },
         { id: 'shop', label: 'Shop', icon: Store, path: '/shop', action: () => router.push('/shop') },
         { id: 'messages', label: 'Messages', icon: MessageSquare, path: '/messages', action: () => router.push('/messages') },
         { id: 'settings', label: 'Settings', icon: Settings, path: '/settings', action: () => router.push('/settings') },
@@ -615,12 +615,16 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const NAV_MAP: Array<{ key: string; match: RegExp; path: string; label: string }> = [
     { key: 'home', match: /\b(home|profile|widgets|widget|layout|configure)\b/i, path: '/homedream', label: 'HomeDream & Dreams' },
     { key: 'discover', match: /\b(discover|explore|find|browse)\b/i, path: '/discover', label: 'Discover' },
-    { key: 'music', match: /\b(music|audio|track|playlist|upload music|songs?)\b/i, path: '/music', label: 'Music' },
-    { key: 'lab', match: /\b(lab|physics|experiment|science|quantum)\b/i, path: '/lab', label: 'Lab' },
+    { key: 'music', match: /\b(music|audio|track|playlist|upload music|songs?|starmaker)\b/i, path: '/daydream/music', label: 'Music Daydream' },
+    { key: 'games', match: /\b(games?|gaming|play|gameengin)\b/i, path: '/daydream/games', label: 'Games Daydream' },
+    { key: 'lab', match: /\b(lab|physics|experiment|science|quantum|labengin)\b/i, path: '/daydream/lab', label: 'Lab Daydream' },
+    { key: 'code', match: /\b(code|coding|dev|develop|codeengin|programming)\b/i, path: '/daydream/code', label: 'Code Daydream' },
+    { key: 'brand', match: /\b(brand|branding|identity|logo|brandingengin)\b/i, path: '/daydream/brand', label: 'Brand Daydream' },
     { key: 'shop', match: /\b(shop|store|merch|sell|buy)\b/i, path: '/shop', label: 'Shop' },
     { key: 'messages', match: /\b(message|dm|chat|inbox)\b/i, path: '/messages', label: 'Messages' },
     { key: 'settings', match: /\b(settings?|preferences?|privacy|security|account)\b/i, path: '/settings', label: 'Settings' },
-    { key: 'create', match: /\b(create|new post|post|upload|publish)\b/i, path: '/homedream?modal=create', label: 'Create' },
+    { key: 'create', match: /\b(create daydream|content engin|contentengin)\b/i, path: '/daydream/create', label: 'Create Daydream' },
+    { key: 'create-post', match: /\b(create|new post|post|upload|publish)\b/i, path: '/homedream?modal=create', label: 'Create' },
     { key: 'analytics', match: /\b(analytics|stats|metrics|performance)\b/i, path: '/analytics', label: 'Analytics' },
   ];
 
@@ -746,7 +750,8 @@ export default function HomeRadialNav({ user }: HomeRadialNavProps) {
   const getDetailedCapabilities = (): string => {
     return `I can take you anywhere in Dreamengin:
 
-**Navigate**: Home • Discover • Music • Lab • Shop • Messages • Settings
+**Daydreams**: Music • Games • Lab • Code • Brand • Create
+**Navigate**: Home • Discover • Shop • Messages • Settings
 **Create**: Posts • Experiments • Content
 **Manage**: Profile • Widgets • Analytics • Revenue
 
@@ -943,8 +948,12 @@ Check your earnings dashboard for real-time tracking.`;
                 {[
                   { label: 'HomeDream', q: 'go home' },
                   { label: 'Discover', q: 'open discover' },
-                  { label: 'Music', q: 'open music' },
-                  { label: 'Lab', q: 'open lab' },
+                  { label: '🎵 Music', q: 'open music daydream' },
+                  { label: '🎮 Games', q: 'open games daydream' },
+                  { label: '🔬 Lab', q: 'open lab daydream' },
+                  { label: '💻 Code', q: 'open code daydream' },
+                  { label: '🎨 Brand', q: 'open brand daydream' },
+                  { label: '✏️ Create', q: 'open create daydream' },
                   { label: 'Shop', q: 'open shop' },
                   { label: 'Messages', q: 'open messages' },
                   { label: 'Settings', q: 'open settings' },

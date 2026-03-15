@@ -44,7 +44,7 @@ export default async function HelpPage() {
             </p>
           </div>
           <div className="de-widget-actions">
-            <button type="button" className="de-btn de-btn-primary text-xs">Launch Setup Wizard</button>
+            <Link href="/onboarding" className="de-btn de-btn-primary text-xs">Launch Setup Wizard</Link>
           </div>
         </div>
 

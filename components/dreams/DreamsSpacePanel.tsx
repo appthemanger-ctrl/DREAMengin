@@ -12,14 +12,31 @@
  * - opening content here does not navigate the home view
  * - the dreams space maintains its own navigation state
  * - uses UniversalWidget to render live provider content
+ *
+ * Daydreams are the priority content of the Dreams Space.
+ * The 6 Daydream surfaces are surfaced first as live routes from
+ * this second runtime, as described in the README runtime model.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
 
 type ServiceType = 'youtube' | 'github' | 'spotify' | null;
+/** Top-level view for the Dreams Space panel: Daydreams (priority) or connector Feeds. */
+type DreamsSpaceView = 'daydreams' | 'feeds';
+
+/** The 6 canonical Daydream surfaces — priority routes from DreamSpace. */
+const DAYDREAMS = [
+  { id: 'music',  label: 'Music',  icon: '🎵', route: '/daydream/music',  engin: 'StarMakerEngin' },
+  { id: 'games',  label: 'Games',  icon: '🎮', route: '/daydream/games',  engin: 'GameEngin'      },
+  { id: 'lab',    label: 'Lab',    icon: '🔬', route: '/daydream/lab',    engin: 'LabEngin'        },
+  { id: 'code',   label: 'Code',   icon: '💻', route: '/daydream/code',   engin: 'CodeEngin'       },
+  { id: 'brand',  label: 'Brand',  icon: '🎨', route: '/daydream/brand',  engin: 'BrandingEngin'   },
+  { id: 'create', label: 'Create', icon: '✏️', route: '/daydream/create', engin: 'ContentEngin'    },
+] as const;
 
 const SERVICE_TABS: { id: ServiceType; label: string; icon: string }[] = [
   { id: null,      label: 'All',     icon: '✨' },
@@ -29,8 +46,12 @@ const SERVICE_TABS: { id: ServiceType; label: string; icon: string }[] = [
 ];
 
 export default function DreamsSpacePanel() {
+  const router = useRouter();
   const runtime = useDreamsRuntime();
   const { state, goToFeed, setService } = runtime;
+
+  // Daydreams are the priority tab — shown by default per the README runtime model.
+  const [view, setView] = useState<DreamsSpaceView>('daydreams');
 
   // Detail view — open an item in its own context inside the Dreams Space
   if (state.view === 'detail' && state.detailUrl) {
@@ -96,74 +117,161 @@ export default function DreamsSpacePanel() {
           Dreams Space
         </span>
         <span style={{ fontSize: 10, color: 'var(--de-text-dim)', marginLeft: 'auto', fontStyle: 'italic' }}>
-          separate from home
+          second runtime
         </span>
       </div>
 
-      {/* Service tabs */}
+      {/* Primary tab bar — Daydreams first (priority), Feeds second */}
       <div style={{
-        display: 'flex', gap: 4, padding: '0 10px 8px',
-        overflowX: 'auto', flexShrink: 0,
+        display: 'flex', gap: 0, padding: '0 10px 6px',
+        flexShrink: 0,
+        borderBottom: '1px solid rgba(200,152,26,0.12)',
       }}>
-        {SERVICE_TABS.map((tab) => {
-          const isActive = state.activeService === tab.id;
+        {(['daydreams', 'feeds'] as DreamsSpaceView[]).map((v) => {
+          const isActive = view === v;
           return (
             <button
-              key={tab.id ?? 'all'}
+              key={v}
               type="button"
-              onClick={() => setService(tab.id)}
+              onClick={() => setView(v)}
               style={{
-                padding: '4px 10px',
-                borderRadius: 9999,
-                border: isActive
-                  ? '1px solid rgba(200,152,26,0.6)'
-                  : '1px solid rgba(160,195,240,0.2)',
-                background: isActive
-                  ? 'rgba(200,152,26,0.15)'
-                  : 'rgba(160,195,240,0.06)',
+                flex: 1,
+                padding: '6px 0',
+                background: 'none',
+                border: 'none',
+                borderBottom: isActive ? '2px solid #d4a843' : '2px solid transparent',
                 color: isActive ? '#d4a843' : 'var(--de-text-dim)',
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: isActive ? 700 : 500,
                 cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                display: 'flex', alignItems: 'center', gap: 4,
+                letterSpacing: '0.03em',
+                textTransform: 'uppercase',
               }}
             >
-              <span>{tab.icon}</span>
-              <span>{tab.label}</span>
+              {v === 'daydreams' ? '✦ Daydreams' : '✨ Feeds'}
             </button>
           );
         })}
       </div>
 
-      {/* Widget content */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '0 10px 10px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
-      }}>
-        {state.activeService === null ? (
-          // All services
-          <>
-            <UniversalWidget service="youtube" sliceName="Subscriptions" />
-            <UniversalWidget service="github" sliceName="Activity" />
-          </>
-        ) : (
-          // Single service
-          <UniversalWidget
-            service={state.activeService as ServiceType}
-            sliceName={
-              state.activeService === 'youtube' ? 'Subscriptions' :
-              state.activeService === 'github'  ? 'Activity' :
-              state.activeService === 'spotify' ? 'Now Playing' :
-              undefined
-            }
-          />
-        )}
-      </div>
+      {view === 'daydreams' ? (
+        /* ── Daydreams — priority routes from the second runtime ── */
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '8px 10px 10px',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 8,
+          alignContent: 'start',
+        }}>
+          {DAYDREAMS.map((dd) => (
+            <button
+              key={dd.id}
+              type="button"
+              onClick={() => router.push(dd.route)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+                padding: '14px 8px',
+                borderRadius: 12,
+                border: '1px solid rgba(200,152,26,0.22)',
+                background: 'rgba(200,152,26,0.07)',
+                cursor: 'pointer',
+                transition: 'background 0.15s, border-color 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(200,152,26,0.15)';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(200,152,26,0.5)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(200,152,26,0.07)';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(200,152,26,0.22)';
+              }}
+              aria-label={`Open ${dd.label} Daydream`}
+            >
+              <span style={{ fontSize: 22 }}>{dd.icon}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                {dd.label}
+              </span>
+              <span style={{ fontSize: 9, color: 'var(--de-text-dim)', letterSpacing: '0.04em' }}>
+                {dd.engin}
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        /* ── Feeds — connector content ── */
+        <>
+          {/* Service tabs */}
+          <div style={{
+            display: 'flex', gap: 4, padding: '6px 10px 8px',
+            overflowX: 'auto', flexShrink: 0,
+          }}>
+            {SERVICE_TABS.map((tab) => {
+              const isActive = state.activeService === tab.id;
+              return (
+                <button
+                  key={tab.id ?? 'all'}
+                  type="button"
+                  onClick={() => setService(tab.id)}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: 9999,
+                    border: isActive
+                      ? '1px solid rgba(200,152,26,0.6)'
+                      : '1px solid rgba(160,195,240,0.2)',
+                    background: isActive
+                      ? 'rgba(200,152,26,0.15)'
+                      : 'rgba(160,195,240,0.06)',
+                    color: isActive ? '#d4a843' : 'var(--de-text-dim)',
+                    fontSize: 11,
+                    fontWeight: isActive ? 700 : 500,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}
+                >
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Widget content */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '0 10px 10px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+          }}>
+            {state.activeService === null ? (
+              // All services
+              <>
+                <UniversalWidget service="youtube" sliceName="Subscriptions" />
+                <UniversalWidget service="github" sliceName="Activity" />
+              </>
+            ) : (
+              // Single service
+              <UniversalWidget
+                service={state.activeService as ServiceType}
+                sliceName={
+                  state.activeService === 'youtube' ? 'Subscriptions' :
+                  state.activeService === 'github'  ? 'Activity' :
+                  state.activeService === 'spotify' ? 'Now Playing' :
+                  undefined
+                }
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

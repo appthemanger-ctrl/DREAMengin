@@ -10,6 +10,7 @@
 import React from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
+import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
 
 interface RuntimeViewProps {
   world: RuntimeWorld;
@@ -59,7 +60,7 @@ export default function RuntimeView({
     );
   }
 
-  // DreamSpace runtime
+  // DreamSpace runtime — renders the live DreamsSpacePanel (Daydreams + connector feeds)
   if (world === 'dreamspace') {
     return (
       <div
@@ -69,36 +70,11 @@ export default function RuntimeView({
           opacity: isActive ? 1 : 0.3,
           pointerEvents: isActive ? 'auto' : 'none',
           transition: 'opacity 0.3s ease',
+          background: 'linear-gradient(180deg, var(--de-bg-start,#020818) 0%, var(--de-bg-mid,#081428) 42%, var(--de-bg-end,#0a1a30) 100%)',
+          overflow: 'hidden',
         }}
       >
-        <div className="fixed inset-0 z-10 grid place-items-center overflow-auto"
-          style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)' }}>
-          <div style={{
-            width: 'min(96vw, 1080px)',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            padding: '24px',
-          }}>
-            <div className="de-glass" style={{ borderRadius: '28px', padding: '24px', color: 'var(--de-white)' }}>
-              <div className="de-tag" style={{ marginBottom: '4px' }}>DreamSpace</div>
-              <div className="de-label" style={{ fontSize: '20px', marginBottom: '8px' }}>Dream Navigator</div>
-              <div style={{ fontSize: '13px', color: 'var(--de-text-dim)', marginBottom: '20px' }}>
-                Browse and interact with Dreams in this space.
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px' }}>
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="de-widget-tile" style={{ minHeight: '100px', padding: '12px' }}>
-                    <div className="de-tag">Dream</div>
-                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--de-text)', marginTop: '6px' }}>
-                      Dream {i + 1}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+        <DreamsSpacePanel />
       </div>
     );
   }
@@ -126,7 +102,7 @@ export default function RuntimeView({
     );
   }
 
-  // Dream runtime
+  // Dream runtime — routes to the Daydream surface for this dream
   if (typeof world === 'object' && world.type === 'dream') {
     return (
       <div
@@ -140,11 +116,11 @@ export default function RuntimeView({
       >
         <div className="fixed inset-0 z-10 grid place-items-center"
           style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)' }}>
-          <div className="de-glass" style={{ borderRadius: '28px', padding: '32px', maxWidth: '600px' }}>
+          <div className="de-glass" style={{ borderRadius: '28px', padding: '32px', maxWidth: '600px', textAlign: 'center' }}>
             <div className="de-tag">Dream</div>
             <div className="de-label" style={{ fontSize: '24px', marginTop: '8px' }}>Dream {world.id}</div>
-            <p style={{ color: 'var(--de-text-dim)', marginTop: '12px' }}>
-              This is a placeholder for Dream content.
+            <p style={{ color: 'var(--de-text-dim)', marginTop: '12px', fontSize: '13px' }}>
+              Open this Dream to view its full content.
             </p>
           </div>
         </div>
@@ -152,8 +128,17 @@ export default function RuntimeView({
     );
   }
 
-  // Engin runtime
+  // Engin runtime — routes to the Daydream Engin surface
   if (typeof world === 'object' && world.type === 'engin') {
+    const ENGIN_ROUTES: Record<string, string> = {
+      StarMakerEngin: '/daydream/music',
+      GameEngin: '/daydream/games',
+      LabEngin: '/daydream/lab',
+      CodeEngin: '/daydream/code',
+      BrandingEngin: '/daydream/brand',
+      ContentEngin: '/daydream/create',
+    };
+    const route = ENGIN_ROUTES[world.name] ?? '/homedream';
     return (
       <div
         style={{
@@ -166,19 +151,32 @@ export default function RuntimeView({
       >
         <div className="fixed inset-0 z-10 grid place-items-center"
           style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)' }}>
-          <div className="de-glass" style={{ borderRadius: '28px', padding: '32px', maxWidth: '600px' }}>
+          <div className="de-glass" style={{ borderRadius: '28px', padding: '32px', maxWidth: '600px', textAlign: 'center' }}>
             <div className="de-tag">Engin</div>
             <div className="de-label" style={{ fontSize: '24px', marginTop: '8px' }}>{world.name}</div>
-            <p style={{ color: 'var(--de-text-dim)', marginTop: '12px' }}>
-              This is a placeholder for {world.name} Engin content.
-            </p>
+            <a
+              href={route}
+              style={{
+                display: 'inline-block',
+                marginTop: '16px',
+                padding: '10px 24px',
+                background: 'linear-gradient(135deg,#c8981a,#e0b830)',
+                color: '#fff',
+                borderRadius: '10px',
+                fontWeight: 700,
+                fontSize: '13px',
+                textDecoration: 'none',
+              }}
+            >
+              Open {world.name} →
+            </a>
           </div>
         </div>
       </div>
     );
   }
 
-  // Custom runtime
+  // Custom runtime — navigate to the specified path
   if (typeof world === 'object' && world.type === 'custom') {
     return (
       <div
@@ -192,12 +190,25 @@ export default function RuntimeView({
       >
         <div className="fixed inset-0 z-10 grid place-items-center"
           style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)' }}>
-          <div className="de-glass" style={{ borderRadius: '28px', padding: '32px', maxWidth: '600px' }}>
+          <div className="de-glass" style={{ borderRadius: '28px', padding: '32px', maxWidth: '600px', textAlign: 'center' }}>
             <div className="de-tag">Custom</div>
             <div className="de-label" style={{ fontSize: '24px', marginTop: '8px' }}>{world.path}</div>
-            <p style={{ color: 'var(--de-text-dim)', marginTop: '12px' }}>
-              This is a placeholder for custom world content.
-            </p>
+            <a
+              href={world.path}
+              style={{
+                display: 'inline-block',
+                marginTop: '16px',
+                padding: '10px 24px',
+                background: 'linear-gradient(135deg,#c8981a,#e0b830)',
+                color: '#fff',
+                borderRadius: '10px',
+                fontWeight: 700,
+                fontSize: '13px',
+                textDecoration: 'none',
+              }}
+            >
+              Navigate →
+            </a>
           </div>
         </div>
       </div>

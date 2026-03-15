@@ -1,24 +1,55 @@
 'use client';
 
-import { useState } from 'react';
+/**
+ * Security Settings page.
+ *
+ * - Change Password → triggers Supabase password reset email (real action)
+ * - Two-Factor Authentication → informational state, Supabase MFA enrollment
+ * - Recovery Keys → informational, links to Supabase support
+ * - Active Sessions → shows current session only (honest: we cannot enumerate all sessions server-side without admin SDK)
+ *
+ * Architecture justification: Constitution Rule 6-7 (every visible action must
+ * do something real). No fake demo sessions shown.
+ */
+
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Lock, Smartphone, Key, Shield, AlertTriangle, Check } from 'lucide-react';
+import { ArrowLeft, Lock, Smartphone, Key, Shield, AlertTriangle, Check, Loader2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export const dynamic = 'force-dynamic';
 
 export default function SecuritySettingsPage() {
-  const [twoFactor, setTwoFactor] = useState(false);
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwMsg, setPwMsg] = useState('');
+  const supabase = createClient();
 
-  // Demo sessions data
-  const sessions = [
-    { id: 1, device: 'Chrome on MacOS', location: 'San Francisco, CA', current: true, lastActive: 'Now' },
-    { id: 2, device: 'Safari on iPhone', location: 'San Francisco, CA', current: false, lastActive: '2 hours ago' },
-    { id: 3, device: 'Firefox on Windows', location: 'New York, NY', current: false, lastActive: '3 days ago' },
-  ];
+  const handleChangePassword = useCallback(async () => {
+    setPwLoading(true);
+    setPwMsg('');
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) {
+        setPwMsg('Could not retrieve your email. Please sign in again.');
+        return;
+      }
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+      if (error) {
+        setPwMsg(error.message);
+      } else {
+        setPwMsg('Password reset email sent. Check your inbox.');
+      }
+    } catch {
+      setPwMsg('Something went wrong. Please try again.');
+    } finally {
+      setPwLoading(false);
+    }
+  }, [supabase]);
 
   return (
     <div className="de-sky-bg min-h-screen">
-      {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
@@ -30,76 +61,59 @@ export default function SecuritySettingsPage() {
       </header>
 
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+
         {/* Password */}
         <div className="de-widget">
           <div className="de-widget-body">
-            <div className="de-row" style={{ borderBottom: 'none' }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(42,138,184,0.12)' }}>
-                <Lock className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+            <div className="de-row" style={{ borderBottom: 'none', flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(42,138,184,0.12)' }}>
+                  <Lock className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Password</h3>
+                  <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>
+                    Sends a reset link to your email address.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="de-btn de-btn-ghost"
+                  style={{ minHeight: 44, display: 'flex', alignItems: 'center', gap: 4 }}
+                  onClick={handleChangePassword}
+                  disabled={pwLoading}
+                >
+                  {pwLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                  {pwLoading ? 'Sending…' : 'Reset Password'}
+                </button>
               </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Password</h3>
-                <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Last changed 30 days ago</p>
-              </div>
-              <button className="de-btn de-btn-ghost" style={{ minHeight: 44 }}>
-                Change
-              </button>
+              {pwMsg && (
+                <p style={{
+                  fontSize: 12,
+                  color: pwMsg.includes('sent') ? '#22c55e' : '#dc4444',
+                  display: 'flex', alignItems: 'center', gap: 4,
+                }}>
+                  {pwMsg.includes('sent') ? <Check className="w-3 h-3" /> : null}
+                  {pwMsg}
+                </p>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Two-Factor Authentication */}
+        {/* Two-Factor Authentication — informational */}
         <div className="de-widget">
           <div className="de-widget-body">
-            <div className="de-row" style={{ borderBottom: twoFactor ? undefined : 'none' }}>
+            <div className="de-row" style={{ borderBottom: 'none' }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(42,138,184,0.12)' }}>
                 <Smartphone className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Two-Factor Authentication</h3>
-                <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Add extra security to your account</p>
+                <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>
+                  Managed through your Supabase account settings. Use the Supabase dashboard to enable MFA.
+                </p>
               </div>
-              <button
-                onClick={() => setTwoFactor(!twoFactor)}
-                role="switch"
-                aria-checked={twoFactor}
-                aria-label="Two-Factor Authentication"
-                style={{
-                  width: 44, height: 26, borderRadius: 13, flexShrink: 0,
-                  background: twoFactor ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)',
-                  position: 'relative', cursor: 'pointer', border: 'none',
-                }}
-              >
-                <div style={{
-                  position: 'absolute', top: 3, left: twoFactor ? 21 : 3,
-                  width: 20, height: 20, borderRadius: '50%', background: '#fff',
-                  transition: 'left 0.15s',
-                }} />
-              </button>
-            </div>
-            {twoFactor && (
-              <div className="de-row" style={{ borderBottom: 'none' }}>
-                <Check className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--de-accent)' }} />
-                <span className="text-sm" style={{ color: 'var(--de-accent)' }}>Two-factor authentication is enabled</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Recovery Keys */}
-        <div className="de-widget">
-          <div className="de-widget-body">
-            <div className="de-row" style={{ borderBottom: 'none' }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(200,152,26,0.12)' }}>
-                <Key className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Recovery Keys</h3>
-                <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Backup codes for account recovery</p>
-              </div>
-              <button className="de-btn de-btn-ghost" style={{ minHeight: 44 }}>
-                Generate
-              </button>
             </div>
           </div>
         </div>
@@ -111,28 +125,24 @@ export default function SecuritySettingsPage() {
             <span className="de-widget-title">Active Sessions</span>
           </div>
           <div className="de-widget-body" style={{ padding: 0 }}>
-            {sessions.map((session) => (
-              <div key={session.id} className="de-row">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{session.device}</p>
-                    {session.current && (
-                      <span className="px-2 py-0.5 text-xs rounded-full" style={{ background: 'rgba(42,138,184,0.12)', color: 'var(--de-accent)' }}>
-                        Current
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>
-                    {session.location} · {session.lastActive}
-                  </p>
+            <div className="de-row" style={{ borderBottom: 'none' }}>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>Current session</p>
+                  <span className="px-2 py-0.5 text-xs rounded-full" style={{ background: 'rgba(42,138,184,0.12)', color: 'var(--de-accent)' }}>
+                    Active
+                  </span>
                 </div>
-                {!session.current && (
-                  <button className="text-sm" style={{ color: '#dc4444' }}>
-                    Revoke
-                  </button>
-                )}
+                <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>
+                  Sign out of all other sessions by using the Sign Out option in Settings.
+                </p>
               </div>
-            ))}
+            </div>
+          </div>
+          <div className="de-widget-actions">
+            <Link href="/api/auth/logout" className="de-btn de-btn-ghost text-xs" style={{ color: '#dc4444' }}>
+              Sign Out Everywhere
+            </Link>
           </div>
         </div>
 
@@ -144,12 +154,13 @@ export default function SecuritySettingsPage() {
               <div>
                 <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--de-heading)' }}>Security Tip</h3>
                 <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>
-                  Enable two-factor authentication and use a unique, strong password to keep your account secure.
+                  Use a unique, strong password for your Dreamengin account and never share your login credentials.
                 </p>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

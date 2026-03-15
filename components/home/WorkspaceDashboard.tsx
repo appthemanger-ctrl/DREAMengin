@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Bell, BarChart3, TrendingUp, Users, Zap,
+  Bell, BarChart3, TrendingUp, Users,
   Music, ShoppingBag, Star, ChevronRight,
-  Sparkles,
+  Sparkles, Gamepad2, FlaskConical, Code2, Palette, Pen,
 } from 'lucide-react';
 import NotificationCenter from '@/components/NotificationCenter';
 import { useNotifications } from '@/lib/notifications/useNotifications';
@@ -49,6 +49,7 @@ interface WorkspaceDashboardProps {
 // ── Mini sparkline ─────────────────────────────────────────────────────────────
 
 function MiniLine({ data, color = '#c8981a' }: { data: number[]; color?: string }) {
+  if (!data || data.length < 2) return null;
   const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
   const W = 52, H = 20;
   const pts = data.map((v, i) => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 3) - 1}`).join(' ');
@@ -285,16 +286,33 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
   const [notifOpen, setNotifOpen] = useState(false);
   const { unreadCount } = useNotifications();
 
-  const feedPosts = posts.length > 0 ? posts.slice(0, 5) : Array.from({ length: 5 }).map((_, i) => ({
-    id: `mock-${i}`,
-    content: ['Dropped a new beat 🎵', 'Launched a new project ✨', 'Hit a milestone 🏆', 'Going live tonight 🔴', 'New collab dropping soon 🤝'][i],
-    created_at: new Date(Date.now() - i * 3600000).toISOString(),
-    profiles: {
-      handle: ['dreamer', 'creator', 'builder', 'artist', 'maker'][i],
-      display_name: ['Dreamer', 'Creator', 'Builder', 'Artist', 'Maker'][i],
-      avatar_url: null,
-    },
-  }));
+  // ── Real profile stats — fetched from API on mount ────────────────────────
+  const [stats, setStats] = useState<{ followers: number | null; following: number | null }>({
+    followers: null,
+    following: null,
+  });
+
+  useEffect(() => {
+    if (!profile?.id) return;
+    fetch(`/api/profile?user_id=${encodeURIComponent(profile.id)}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.followers_count !== undefined) {
+          setStats({ followers: data.followers_count ?? 0, following: data.following_count ?? 0 });
+        }
+      })
+      .catch(() => { /* non-critical — leave as null */ });
+  }, [profile?.id]);
+
+  const formatCount = (n: number | null) => {
+    if (n === null) return '—';
+    if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+    return String(n);
+  };
+
+  const realPostCount = posts.length;
+
+  const feedPosts = posts.length > 0 ? posts.slice(0, 5) : [];
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -509,9 +527,18 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 data-scroll
                 style={{ maxHeight: 300, overflowY: 'auto', paddingRight: 4, WebkitOverflowScrolling: 'touch' }}
               >
-                {feedPosts.slice(0, 8).map((post, i) => (
-                  <ActivityCard key={post.id || i} post={post} index={i} />
-                ))}
+                {feedPosts.length > 0 ? (
+                  feedPosts.slice(0, 8).map((post, i) => (
+                    <ActivityCard key={post.id || i} post={post} index={i} />
+                  ))
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--de-text-dim)', fontSize: 12 }}>
+                    No activity yet.{' '}
+                    <Link href="/discover" style={{ color: 'var(--de-accent)' }}>Discover creators</Link>
+                    {' '}or{' '}
+                    <Link href="/daydream/create" style={{ color: 'var(--de-accent)' }}>create your first post</Link>.
+                  </div>
+                )}
               </div>
 
               <Link href="/discover" style={{
@@ -540,17 +567,21 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <MetricWidget
-                  icon={Users} label="Followers" value="1.6K" sub="+12 this week"
-                  color="#c8981a" trend={[100, 110, 105, 120, 130, 128, 140]} />
+                  icon={Users} label="Followers" value={formatCount(stats.followers)}
+                  sub={stats.followers !== null ? 'real-time' : 'loading…'}
+                  color="#c8981a" trend={[]} />
                 <MetricWidget
-                  icon={TrendingUp} label="Reach" value="8.4K" sub="+5% today"
-                  color="#4A9ED6" trend={[60, 70, 65, 80, 90, 88, 100]} />
+                  icon={TrendingUp} label="Following" value={formatCount(stats.following)}
+                  sub={stats.following !== null ? 'real-time' : 'loading…'}
+                  color="#4A9ED6" trend={[]} />
                 <MetricWidget
-                  icon={Star} label="Engagement" value="4.2%" sub="Above avg"
-                  color="#6366f1" trend={[3, 4, 3.5, 4.5, 4, 4.2, 4.8]} />
+                  icon={Star} label="Posts" value={String(realPostCount)}
+                  sub="public feed"
+                  color="#6366f1" trend={[]} />
                 <MetricWidget
-                  icon={BarChart3} label="Posts" value="47" sub="12 this week"
-                  color="#22c55e" trend={[30, 32, 35, 38, 40, 44, 47]} />
+                  icon={BarChart3} label="Activity" value={posts.length > 0 ? 'Active' : '—'}
+                  sub={posts.length > 0 ? `${posts.length} recent` : 'No posts yet'}
+                  color="#22c55e" trend={[]} />
               </div>
             </div>
 
@@ -561,21 +592,31 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               borderBottom: '1px solid rgba(180,185,200,0.12)',
               background: 'rgba(255,255,255,0.38)',
             }}>
-              <MetricBandCell value="47"   label="Posts"     color="var(--de-gold)" />
-              <MetricBandCell value="1.6K" label="Followers" color="#4A9ED6" />
-              <MetricBandCell value="524"  label="Following" color="#6366f1" />
-              <MetricBandCell value="98%"  label="Health"    color="#22c55e" last />
+              <MetricBandCell value={String(realPostCount)} label="Posts"     color="var(--de-gold)" />
+              <MetricBandCell value={formatCount(stats.followers)} label="Followers" color="#4A9ED6" />
+              <MetricBandCell value={formatCount(stats.following)} label="Following" color="#6366f1" />
+              <MetricBandCell value="—"    label="Reach"    color="#22c55e" last />
             </div>
 
-            {/* ── Action controls — full width row, observe→understand→act ── */}
-            <div style={{
-              display: 'flex', gap: 10, padding: '14px 16px 16px',
-              background: 'rgba(255,255,255,0.28)',
-            }}>
-              <ActionBtn icon={Sparkles}    label="Dr. Eams"  onClick={onOpenDrEams} primary />
-              <ActionBtn icon={Music}       label="Music"     onClick={() => router.push('/daydream/music')} />
-              <ActionBtn icon={ShoppingBag} label="Shop"      onClick={() => router.push('/shop')} />
-              <ActionBtn icon={Zap}         label="Create"    onClick={() => router.push('/create')} />
+            {/* ── Action controls ── */}
+            <div style={{ padding: '14px 16px 16px', background: 'rgba(255,255,255,0.28)' }}>
+              {/* Primary row — Dr. Eams + Shop */}
+              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                <ActionBtn icon={Sparkles}    label="Dr. Eams" onClick={onOpenDrEams} primary />
+                <ActionBtn icon={ShoppingBag} label="Shop"     onClick={() => router.push('/shop')} />
+              </div>
+              {/* Daydreams row 1 — Music · Games · Lab */}
+              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                <ActionBtn icon={Music}        label="Music"  onClick={() => router.push('/daydream/music')} />
+                <ActionBtn icon={Gamepad2}     label="Games"  onClick={() => router.push('/daydream/games')} />
+                <ActionBtn icon={FlaskConical} label="Lab"    onClick={() => router.push('/daydream/lab')} />
+              </div>
+              {/* Daydreams row 2 — Code · Brand · Create */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <ActionBtn icon={Code2}   label="Code"   onClick={() => router.push('/daydream/code')} />
+                <ActionBtn icon={Palette} label="Brand"  onClick={() => router.push('/daydream/brand')} />
+                <ActionBtn icon={Pen}     label="Create" onClick={() => router.push('/daydream/create')} />
+              </div>
             </div>
           </div>
 
