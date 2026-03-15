@@ -96,7 +96,10 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
       const res = await fetch('/api/ai/eams', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({
+          message: text,
+          ui: { route: typeof window !== 'undefined' ? window.location.pathname : '/homedream' },
+        }),
       });
 
       const data = await res.json().catch(() => ({}));

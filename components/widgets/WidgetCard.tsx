@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { MoreHorizontal } from 'lucide-react';
 import { useEditMode } from './EditModeProvider';
 
 interface WidgetCardProps {
@@ -62,14 +63,13 @@ export default function WidgetCard({
               border: '1px solid var(--de-border)',
               background: 'var(--de-mist)',
               cursor: 'pointer',
-              fontSize: 14,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'var(--de-text-dim)',
             }}
           >
-            ···
+            <MoreHorizontal size={14} aria-hidden />
           </button>
         </div>
       </div>

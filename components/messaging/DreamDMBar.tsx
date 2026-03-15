@@ -177,6 +177,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
     fromTop: false,
   });
 
+  // ── Gold button press state (iOS-like feedback) ────────────────────────────
+  const [goldPressed, setGoldPressed] = useState(false);
+
   // ── Gold button double-tap ─────────────────────────────────────────────────
   const goldRef = useRef({ lastAt: 0, timer: 0 as ReturnType<typeof setTimeout> | 0 });
   const handleGoldTap = useCallback(() => {
@@ -184,11 +187,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
     clearTimeout(goldRef.current.timer);
     if (now - goldRef.current.lastAt < DOUBLE_TAP) {
       goldRef.current.lastAt = 0;
+      // Haptic: double-tap = strong feedback
+      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 40, 6]);
       onHome();
       if (isTop) { setIsTop(false); setDragH(BAR_H); setSlideDown(0); }
     } else {
       goldRef.current.lastAt = now;
       goldRef.current.timer = setTimeout(() => {
+        // Haptic: single tap = light feedback
+        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
         // Single tap → open dual menus
         onBothMenus();
       }, DOUBLE_TAP + 10);
@@ -199,8 +206,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
   const goldDragRef = useRef({ active: false, startY: 0 });
   const handleGoldPointerDown = (e: React.PointerEvent) => {
     goldDragRef.current = { active: true, startY: e.clientY };
+    setGoldPressed(true);
   };
   const handleGoldPointerUp = (e: React.PointerEvent) => {
+    setGoldPressed(false);
     if (!goldDragRef.current.active) return;
     goldDragRef.current.active = false;
     const dy = e.clientY - goldDragRef.current.startY;
@@ -479,18 +488,18 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
     : (screenH - dragH);                 // grows from bottom
   const showFull: boolean = isTop || dragH > 180;
 
-  // Gold button geometry - CORRECTED PER SPEC
-  // The Gold button is attached to the TOP of the bar by default.
-  // It detaches ONLY when the attached position would go off the top of the screen.
-  // When detached, it locks to the screen (viewport fixed, not moving with scroll).
-  const attachedGoldTop: number = barTop - GOLD_R; // Normal attached position (center on bar top edge)
-  const isGoldOffScreen: boolean = attachedGoldTop < 0; // Would the attached position be off-screen?
-  const goldTopPx: number = isTop
-    ? (screenH - GOLD_SZ - 18)
-    : (isGoldOffScreen ? 10 : attachedGoldTop);
+  // Gold button geometry — CORRECTED:
+  // When bar is at BOTTOM: gold sits on the bar's top edge (center = barTop)
+  // When bar is at TOP:    gold sits on the bar's bottom edge (center = slideDown + TOP_H)
+  // Exception: if "attached to top" position goes off-screen, lock at top (10px)
+  const attachedGoldTop: number = isTop
+    ? (slideDown + TOP_H - GOLD_R)   // attached to bottom edge of top panel
+    : (barTop - GOLD_R);             // attached to top edge of bottom bar
+  const isGoldOffScreen: boolean = !isTop && (barTop - GOLD_R < 0);
+  const goldTopPx: number = isGoldOffScreen ? 10 : attachedGoldTop;
 
   // Track if button is in screen-locked mode (for styling/behavior)
-  const isScreenLocked: boolean = isTop || isGoldOffScreen;
+  const isScreenLocked: boolean = isGoldOffScreen;
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -501,12 +510,12 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
         aria-label="Gold button — tap for menus, double-tap to go home"
         onPointerDown={handleGoldPointerDown}
         onPointerUp={handleGoldPointerUp}
-        onPointerCancel={() => { goldDragRef.current.active = false; }}
+        onPointerCancel={() => { goldDragRef.current.active = false; setGoldPressed(false); }}
         style={{
           position: 'fixed', // Always fixed to ensure no scroll movement when screen-locked
           top: goldTopPx,
-          left: isTop ? '62%' : '50%',
-          transform: 'translateX(-50%)',
+          left: '50%',
+          transform: `translateX(-50%) scale(${goldPressed ? 0.90 : 1})`,
           width: GOLD_SZ, height: GOLD_SZ,
           borderRadius: '50%',
           border: 'none',
@@ -516,15 +525,24 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
           touchAction: 'manipulation',
           WebkitTapHighlightColor: 'transparent',
           outline: 'none',
-          transition,
+          transition: goldPressed
+            ? 'transform 0.08s ease'
+            : isDragging
+              ? 'none'
+              : `top ${SPRING}, transform 0.22s cubic-bezier(0.34,1.6,0.64,1)`,
+          willChange: 'transform',
           background: `radial-gradient(circle at 36% 32%,
             #fffde0 0%, #f7e07a 12%, #d4a843 38%, #a16207 68%, #6b3c03 100%)`,
-          boxShadow: `
-            inset 0 2px 4px rgba(255,255,220,0.85),
-            inset -3px -3px 10px rgba(80,40,0,0.40),
-            0 6px 24px rgba(100,58,4,0.55),
-            0 2px 8px rgba(212,168,67,0.50),
-            0 0 0 1.5px rgba(180,120,20,0.45)${isScreenLocked ? ', 0 0 20px rgba(200,152,26,0.6)' : ''}`,
+          boxShadow: goldPressed
+            ? `inset 0 3px 6px rgba(80,40,0,0.50),
+               inset -2px -2px 8px rgba(80,40,0,0.30),
+               0 2px 8px rgba(100,58,4,0.35),
+               0 0 0 1.5px rgba(180,120,20,0.45)`
+            : `inset 0 2px 4px rgba(255,255,220,0.85),
+               inset -3px -3px 10px rgba(80,40,0,0.40),
+               0 6px 24px rgba(100,58,4,0.55),
+               0 2px 8px rgba(212,168,67,0.50),
+               0 0 0 1.5px rgba(180,120,20,0.45)${isScreenLocked ? ', 0 0 20px rgba(200,152,26,0.6)' : ''}`,
         }}
       >
         <span aria-hidden style={{
@@ -662,7 +680,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
             /* Compact bar — quick compose + unread badge */
             <div style={{
               flex: 1, display: 'flex', alignItems: 'center',
-              gap: 10, padding: '0 16px 0 14px',
+              gap: 10, paddingTop: 0, paddingRight: 16, paddingLeft: 14,
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}>
               {/* Context icon + unread badge */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -818,7 +837,7 @@ function DreamSpaceMessaging({
     <div style={{ display: 'flex', height: '100%', minHeight: 0 }}>
 
       {/* ── Compact conversation list ──────────────────────────────────────── */}
-      <div style={{ width: 200, flexShrink: 0, borderRight: '1px solid rgba(160,195,240,0.22)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: 200, flexShrink: 0, borderRight: '1px solid rgba(160,195,240,0.22)', overflowY: 'auto', overscrollBehavior: 'contain', display: 'flex', flexDirection: 'column' }}>
 
         {/* Search + Dr. Eams toggle */}
         <div style={{ padding: '10px 10px 6px', borderBottom: '1px solid rgba(160,195,240,0.15)' }}>
@@ -863,7 +882,7 @@ function DreamSpaceMessaging({
 
         {/* Search suggestions */}
         {showSearch && (searchQuery.trim() || isSearching) && (
-          <div role="listbox" aria-label="Search suggestions" style={{ background: 'rgba(255,255,255,0.96)', borderBottom: '1px solid rgba(160,195,240,0.2)', maxHeight: 180, overflowY: 'auto' }}>
+          <div role="listbox" aria-label="Search suggestions" style={{ background: 'rgba(255,255,255,0.96)', borderBottom: '1px solid rgba(160,195,240,0.2)', maxHeight: 180, overflowY: 'auto', overscrollBehavior: 'contain' }}>
             {isSearching && (
               <div style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Loader2 size={11} aria-hidden style={{ color: 'var(--de-text-dim)' }} />
@@ -898,7 +917,7 @@ function DreamSpaceMessaging({
         )}
 
         {/* Conversation list */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div style={{ flex: 1, overflowY: 'auto', overscrollBehavior: 'contain' }}>
           {conversations.map((conv) => (
             <button
               key={conv.id} type="button" onClick={() => onSelectConv(conv)}
@@ -939,7 +958,7 @@ function DreamSpaceMessaging({
             </div>
 
             {/* Messages */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '12px 12px 0' }}>
+            <div style={{ flex: 1, overflowY: 'auto', overscrollBehavior: 'contain', padding: '12px 12px 0' }}>
               {msgsLoading ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 60 }}>
                   <Loader2 size={16} aria-hidden style={{ color: 'var(--de-text-dim)' }} />

@@ -3,8 +3,7 @@
 import React, { useCallback, useState } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
-import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
-import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
+import DualBottomMenu, { type SystemMenuAction } from '@/components/menus/DualBottomMenu';
 import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
 import DreamDMBar from '@/components/messaging/DreamDMBar';
@@ -50,8 +49,11 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     if (action === 'dr-eams')       { setDrEamsOpen(true); return; }
     if (action === 'settings')      { window.location.href = '/settings'; return; }
     if (action === 'account')       { window.location.href = '/edit-profiledream'; return; }
+    if (action === 'profiles')      { window.location.href = '/edit-profiledream'; return; }
     if (action === 'feed-settings') { window.location.href = '/feed-settings'; return; }
     if (action === 'connectors')    { window.location.href = '/connectors'; return; }
+    if (action === 'marketplace')   { window.location.href = '/marketplace'; return; }
+    if (action === 'appearance')    { window.location.href = '/settings'; return; }
     if (action === 'go-home')       { returnHome(); return; }
   }, [closeAllMenus, returnHome]);
 
@@ -132,19 +134,11 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         onRuntimeBlendChange={setBarBlend}
       />
 
-      {/* Daydreams menu — left side when paired, center when solo */}
-      <DreamRadialMenu
+      {/* Dual bottom menu — Daydreams (left) + DreamMenu (right), mobile-first bottom sheet */}
+      <DualBottomMenu
         open={bothMenusOpen}
         onClose={closeAllMenus}
-        side="left"
-      />
-
-      {/* System menu — right side when paired, center when solo */}
-      <SystemRadialMenu
-        open={bothMenusOpen}
-        onClose={closeAllMenus}
-        side="right"
-        onAction={onSystemAction}
+        onSystemAction={onSystemAction}
       />
 
       {drEamsOpen ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
@@ -168,3 +162,4 @@ export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: {
     </DualRuntimeContainer>
   );
 }
+
