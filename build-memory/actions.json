@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-14T20:40:52.182Z",
+  "generated_at": "2026-03-15T14:37:46.456Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 39,
+  "count": 45,
   "actions": [
     {
       "file": "app/api/account/delete-data/route.ts",
@@ -146,6 +146,16 @@
       "exports": []
     },
     {
+      "file": "app/api/connectors/[provider]/disconnect/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "DELETE"
+      ],
+      "exports": [
+        "dynamic"
+      ]
+    },
+    {
       "file": "app/api/connectors/[provider]/items/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -184,6 +194,28 @@
         "POST"
       ],
       "exports": []
+    },
+    {
+      "file": "app/api/drafts/[id]/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "DELETE",
+        "PATCH"
+      ],
+      "exports": [
+        "dynamic"
+      ]
+    },
+    {
+      "file": "app/api/drafts/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET",
+        "POST"
+      ],
+      "exports": [
+        "dynamic"
+      ]
     },
     {
       "file": "app/api/follow/route.ts",
@@ -287,6 +319,16 @@
       "exports": []
     },
     {
+      "file": "app/api/posts/[id]/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "DELETE"
+      ],
+      "exports": [
+        "dynamic"
+      ]
+    },
+    {
       "file": "app/api/posts/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -317,6 +359,14 @@
     },
     {
       "file": "app/api/setup/check/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/setup/google-oauth/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
         "GET"
@@ -360,6 +410,14 @@
       "exports": [
         "dynamic"
       ]
+    },
+    {
+      "file": "app/api/youtube/discovery/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
     }
   ]
 }

@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-03-14T20:40:52.182Z",
+  "generated_at": "2026-03-15T14:37:46.456Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 99,
+  "count": 100,
   "tables": [
     {
       "table": "ad_campaigns",
@@ -1022,6 +1022,44 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "content_drafts",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid        PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid        NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "content",
+          "type": "text        NOT NULL"
+        },
+        {
+          "name": "content_type",
+          "type": "text        NOT NULL DEFAULT"
+        },
+        {
+          "name": "title",
+          "type": "text"
+        },
+        {
+          "name": "scheduled_at",
+          "type": "timestamptz"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260315000000_content_drafts.sql"
     },
     {
       "table": "content_embed",
