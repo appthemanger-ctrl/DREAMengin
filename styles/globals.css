@@ -1118,3 +1118,53 @@ body, .dreamnav-surface, .controls {
   -webkit-backdrop-filter: blur(40px) saturate(180%);
   box-shadow: 0 1px 0 rgba(125,211,252,0.1), 0 4px 24px rgba(0,0,0,0.3);
 }
+
+/* =============================================================================
+   Light-surface variants — light blue + gold + white palette
+   Used on light bg pages (LandingHero, public profiles, etc.)
+   =========================================================================== */
+
+/* Ghost button for light backgrounds — white surface, navy text */
+.premium-btn-ghost-light {
+  background: rgba(255,255,255,0.85);
+  color: #0f2a5c !important;
+  border: 1px solid rgba(14,100,180,0.18);
+  box-shadow: 0 1px 4px rgba(14,60,120,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.premium-btn-ghost-light:hover {
+  background: rgba(255,255,255,0.98);
+  border-color: rgba(14,100,180,0.3);
+  box-shadow: 0 2px 12px rgba(14,60,120,0.12), inset 0 1px 0 rgba(255,255,255,1);
+}
+
+/* White card for light surfaces — frosted white, sky-blue edge glow */
+.premium-card-light {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(14,100,180,0.12);
+  border-radius: 20px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 4px 24px rgba(14,60,120,0.08),
+    0 0 40px rgba(125,211,252,0.06);
+}
+
+/* Micro-motion easing — precision, not bounce */
+:root {
+  --ease-precise:      cubic-bezier(0.4, 0, 0.2, 1);   /* Standard ease-in-out */
+  --ease-decel:        cubic-bezier(0, 0, 0.2, 1);      /* Enter / appear */
+  --ease-accel:        cubic-bezier(0.4, 0, 1, 1);      /* Leave / disappear */
+  --duration-fast:     120ms;
+  --duration-normal:   200ms;
+  --duration-slow:     300ms;
+}
+
+/* Light-surface sticky header */
+.premium-header-light {
+  background: rgba(240,247,255,0.88);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-bottom: 1px solid rgba(14,100,180,0.1);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 2px 16px rgba(14,60,120,0.06);
+}

@@ -6,15 +6,14 @@ import { useState, useEffect } from 'react';
 import DrEamsBabylonHero from '@/components/landing/DrEamsBabylonHero';
 
 /**
- * LandingHero — Premium phone-grade landing hero.
+ * LandingHero — Light blue · gold · white premium landing page.
  *
- * Design: deep navy bg, spring-physics motion, glassmorphism surfaces,
- * animated action cycling headline, pill CTAs.
+ * Design philosophy:
+ *   3D environment  → platform identity  (DrEamsBabylonHero robot)
+ *   2D interface    → precision interaction (flat, clean, exact)
+ *   micro-motion    → polish (subtle easing, small transforms, short durations)
  *
- * Architecture justification: docs/ARCHITECTURE.md §8 — "Minimal clutter,
- * intentional motion, mobile-first polish." Gold + sky-blue palette.
- * Performance impact: Framer Motion spring animations are GPU-composited;
- * all ambient layers are CSS-only (no JS animation loops on the background).
+ * Palette: light-blue bg · gold CTAs · white card surfaces · navy text
  */
 
 const ACTIONS = [
@@ -28,18 +27,19 @@ const ACTIONS = [
   'share your work',
 ];
 
-const springFast = { type: 'spring', stiffness: 400, damping: 35 } as const;
-const springMed  = { type: 'spring', stiffness: 260, damping: 28 } as const;
+// Precision easing — smooth deceleration, no bounce
+// CSS equivalents: --ease-decel / --ease-precise (see styles/globals.css)
+const easeDecel   = { ease: [0, 0, 0.2, 1]    as const, duration: 0.3 };
+const easePrecise = { ease: [0.4, 0, 0.2, 1]  as const, duration: 0.2 };
 
 export default function LandingHero() {
   const [actionIdx, setActionIdx] = useState(0);
-  // Single Babylon.js instance — size derived once on mount to avoid two engines running.
   const [heroSize, setHeroSize] = useState(480);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setActionIdx((i) => (i + 1) % ACTIONS.length);
-    }, 2200);
+    }, 2400);
     return () => clearInterval(timer);
   }, []);
 
@@ -51,50 +51,51 @@ export default function LandingHero() {
   }, []);
 
   return (
-    // Root is a <div>, not <main> — layout.tsx already wraps pages in <main>.
-    <div className="relative min-h-dvh flex flex-col bg-[#020818] overflow-hidden">
+    <div className="relative min-h-dvh flex flex-col overflow-hidden"
+      style={{ background: 'linear-gradient(160deg, #f0f7ff 0%, #e4eff9 55%, #dce9f5 100%)' }}
+    >
 
-      {/* ── Ambient background layers (CSS-only, zero JS cost) ── */}
+      {/* ── Ambient depth layers ── */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        {/* Base deep gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#020818] via-[#071428] to-[#020818]" />
-        {/* Sky-blue aurora — top-left */}
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(14,165,233,0.15)_0%,transparent_70%)] blur-3xl" />
-        {/* Gold warmth — bottom-right */}
-        <div className="absolute -bottom-40 -right-20 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(245,158,11,0.1)_0%,transparent_70%)] blur-3xl" />
-        {/* Subtle grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(125,211,252,1) 1px, transparent 1px), linear-gradient(90deg, rgba(125,211,252,1) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
+        {/* Soft sky-blue radial — top-left, platform warmth */}
+        <div className="absolute -top-32 -left-32 w-[520px] h-[520px]"
+          style={{ background: 'radial-gradient(circle, rgba(125,211,252,0.22) 0%, transparent 68%)', filter: 'blur(40px)' }}
+        />
+        {/* Warm gold — bottom-right, aspirational */}
+        <div className="absolute -bottom-24 -right-16 w-[440px] h-[440px]"
+          style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 68%)', filter: 'blur(48px)' }}
+        />
+        {/* White highlight — top-center, premium glass feel */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[180px]"
+          style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 70%)' }}
         />
       </div>
 
       {/* ── Nav bar ── */}
       <motion.nav
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ ...springFast, delay: 0.1 }}
+        transition={{ ...easeDecel, duration: 0.25 }}
         className="relative z-10 flex items-center justify-between px-5 py-4 md:px-8 md:py-5"
         style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
         aria-label="Site navigation"
       >
+        {/* Wordmark — deep navy on light bg */}
         <Link
           href="/"
-          className="text-white text-xl tracking-tight font-semibold"
+          className="de-wordmark text-[#0f2a5c] text-xl tracking-tight select-none"
           aria-label="DREAMengin — home"
         >
           DREAMengin
         </Link>
+
         <div className="flex items-center gap-2">
           <Link href="/about">
             <motion.span
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              className="premium-btn premium-btn-ghost text-sm px-4 py-2"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              transition={easePrecise}
+              className="premium-btn premium-btn-ghost-light text-sm px-4 py-2"
               style={{ cursor: 'pointer' }}
             >
               About
@@ -102,9 +103,10 @@ export default function LandingHero() {
           </Link>
           <Link href="/login">
             <motion.span
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              className="premium-btn premium-btn-primary text-sm px-4 py-2"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              transition={easePrecise}
+              className="premium-btn premium-btn-gold text-sm px-4 py-2"
               style={{ cursor: 'pointer' }}
             >
               Sign In
@@ -116,24 +118,31 @@ export default function LandingHero() {
       {/* ── Hero Content ── */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-5 pt-8 pb-24 text-center md:pt-0">
 
-        {/* Badge */}
+        {/* Platform badge */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ ...springMed, delay: 0.2 }}
-          className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[rgba(14,165,233,0.12)] border border-[rgba(14,165,233,0.25)] text-[#7DD3FC] text-xs font-medium tracking-widest uppercase"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...easeDecel, delay: 0.1 }}
+          className="mb-5 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase"
+          style={{
+            background: 'rgba(255,255,255,0.85)',
+            border: '1px solid rgba(200,152,26,0.35)',
+            color: '#9a6f0a',
+            boxShadow: '0 1px 4px rgba(200,152,26,0.12)',
+          }}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#0EA5E9] animate-pulse" aria-hidden="true" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#D97706] animate-pulse" aria-hidden="true" />
           Your Creative OS
         </motion.div>
 
         {/* Headline */}
         <motion.h1
           id="hero-heading"
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springMed, delay: 0.3 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white leading-[1.05] mb-4"
+          transition={{ ...easeDecel, delay: 0.18 }}
+          className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-4"
+          style={{ color: '#0a1e3c' }}
         >
           Space to
           <br />
@@ -141,11 +150,11 @@ export default function LandingHero() {
             <AnimatePresence mode="wait">
               <motion.span
                 key={actionIdx}
-                initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+                initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
                 animate={{ opacity: 1, y: 0,  filter: 'blur(0px)' }}
-                exit={{ opacity: 0,   y: -20, filter: 'blur(8px)' }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-block bg-gradient-to-r from-[#7DD3FC] via-[#0EA5E9] to-[#F59E0B] bg-clip-text text-transparent"
+                exit={{    opacity: 0, y: -14, filter: 'blur(6px)' }}
+                transition={{ duration: 0.28, ease: [0, 0, 0.2, 1] }}
+                className="inline-block bg-gradient-to-r from-[#0EA5E9] via-[#0369A1] to-[#B45309] bg-clip-text text-transparent"
                 aria-live="polite"
                 aria-atomic="true"
               >
@@ -157,27 +166,29 @@ export default function LandingHero() {
 
         {/* Sub-headline */}
         <motion.p
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springMed, delay: 0.45 }}
-          className="text-base md:text-lg text-[rgba(255,255,255,0.55)] max-w-sm md:max-w-md leading-relaxed mb-10"
+          transition={{ ...easeDecel, delay: 0.26 }}
+          className="text-base md:text-lg max-w-sm md:max-w-md leading-relaxed mb-10"
+          style={{ color: 'rgba(15,42,92,0.58)' }}
         >
           A spatial, privacy-first creative operating surface. Navigate your digital world as layered dreams.
         </motion.p>
 
         {/* CTA Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springMed, delay: 0.55 }}
+          transition={{ ...easeDecel, delay: 0.32 }}
           className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-xs sm:max-w-none sm:justify-center"
         >
           <Link href="/join" className="w-full sm:w-auto">
             <motion.button
               type="button"
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              className="w-full premium-btn premium-btn-primary text-base px-8 py-3.5 font-semibold"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              transition={easePrecise}
+              className="w-full premium-btn premium-btn-gold text-base px-8 py-3.5 font-semibold"
             >
               Get Started — Free
             </motion.button>
@@ -185,9 +196,10 @@ export default function LandingHero() {
           <Link href="/login" className="w-full sm:w-auto">
             <motion.button
               type="button"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
-              className="w-full premium-btn premium-btn-ghost text-base px-8 py-3.5"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              transition={easePrecise}
+              className="w-full premium-btn premium-btn-ghost-light text-base px-8 py-3.5"
             >
               Sign In
             </motion.button>
@@ -198,7 +210,7 @@ export default function LandingHero() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
+          transition={{ delay: 0.55, duration: 0.4 }}
           className="mt-12 flex items-center gap-6 md:gap-10 text-center"
           aria-label="Platform statistics"
         >
@@ -206,37 +218,34 @@ export default function LandingHero() {
             { val: '6',   label: 'Dream Spaces' },
             { val: '20+', label: 'Games'         },
             { val: '25+', label: 'Integrations'  },
-          ].map((s) => (
+          ].map((s, i) => (
             <div key={s.val} className="flex flex-col items-center gap-0.5">
-              <span className="text-2xl font-bold text-white">{s.val}</span>
-              <span className="text-xs text-[rgba(255,255,255,0.4)] tracking-wide">{s.label}</span>
+              <span className="text-2xl font-bold" style={{ color: '#0a1e3c' }}>{s.val}</span>
+              <span className="text-xs tracking-wide" style={{ color: 'rgba(15,42,92,0.45)' }}>{s.label}</span>
             </div>
           ))}
         </motion.div>
       </div>
 
-      {/* ── Dr. Eams 3D Babylon.js robot — interactive, PBR materials, glow ── */}
+      {/* ── Dr. Eams 3D Babylon.js robot ── */}
       <motion.div
-        initial={{ opacity: 0, y: 60 }}
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ ...springMed, delay: 0.65 }}
+        transition={{ ...easeDecel, delay: 0.4, duration: 0.45 }}
         className="relative z-10 flex flex-col items-center justify-center pb-8 md:absolute md:bottom-0 md:right-0 md:pb-0 md:pr-4"
       >
-        {/* Ambient glow ring behind the robot */}
+        {/* Subtle glow behind the robot — gold + sky mix */}
         <div
           className="absolute inset-0 pointer-events-none"
           aria-hidden="true"
           style={{
-            background: 'radial-gradient(ellipse 80% 60% at 50% 70%, rgba(14,165,233,0.18) 0%, transparent 70%)',
-            filter: 'blur(20px)',
+            background: 'radial-gradient(ellipse 75% 55% at 50% 75%, rgba(125,211,252,0.2) 0%, rgba(245,158,11,0.06) 60%, transparent 80%)',
           }}
         />
-        {/* Single Babylon.js instance — size is computed from window width to avoid
-            running two WebGL engines simultaneously (one was being hidden by CSS). */}
         <DrEamsBabylonHero width={heroSize} height={heroSize} />
         <p
-          className="mt-1 text-xs font-medium select-none tracking-widest uppercase"
-          style={{ color: 'rgba(125,211,252,0.6)' }}
+          className="mt-1 text-xs font-semibold select-none tracking-widest uppercase"
+          style={{ color: 'rgba(200,152,26,0.75)', letterSpacing: '0.12em' }}
         >
           tap · drag · interact ✦
         </p>
