@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Bell, MessageSquare, Heart, Users, DollarSign, Sparkles } from 'lucide-react';
+import { ArrowLeft, Bell, MessageSquare, Heart, Users, DollarSign, Sparkles, Check, Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+
+const STORAGE_KEY = 'de-notification-settings';
 
 export default function NotificationSettingsPage() {
   const [settings, setSettings] = useState({
@@ -16,10 +18,32 @@ export default function NotificationSettingsPage() {
     updates: false,
     emailDigest: 'weekly',
   });
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setSettings((p) => ({ ...p, ...JSON.parse(raw) }));
+    } catch { /* ignore */ }
+  }, []);
 
   const toggleSetting = (key: string) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
   };
+
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    try {
+      // Persist preferences to localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } finally {
+      setSaving(false);
+    }
+  }, [settings]);
 
   const notifications = [
     { key: 'messages', label: 'Direct Messages', description: 'When someone sends you a message', icon: MessageSquare, color: 'blue' },
@@ -111,8 +135,15 @@ export default function NotificationSettingsPage() {
             </div>
           </div>
           <div className="de-widget-actions">
-            <button className="de-btn de-btn-primary" style={{ width: '100%' }}>
-              Save Changes
+            <button
+              type="button"
+              className="de-btn de-btn-primary"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : saved ? <Check className="w-3 h-3" /> : null}
+              {saved ? 'Saved!' : saving ? 'Saving…' : 'Save Changes'}
             </button>
           </div>
         </div>
