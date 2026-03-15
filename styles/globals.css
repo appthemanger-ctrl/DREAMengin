@@ -96,8 +96,22 @@ html, body {
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  /* iOS text size adjustment */
+  -webkit-text-size-adjust: 100%;
 }
 
+/* ── iOS smooth scroll containers ── */
+[data-scroll], .scroll-ios {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ── Button active press states — mobile-first ── */
+button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
 /* ── dreamengin wordmark utility ── */
 .de-wordmark {
   font-family: var(--font-cormorant, Georgia, 'Times New Roman', serif);
