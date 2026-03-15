@@ -12,7 +12,6 @@ import { AnchorStateBuffer, MODE_HOME, MODE_PROFILE, MODE_SHRUNK } from '@/lib/n
 import { AnchorWidgetStorage, type AnchorWidgetState } from '@/lib/navigation/AnchorWidgetStorage';
 import { widgetEventBus, type WidgetMsg } from '@/lib/widgets/WidgetEventBus';
 import { WidgetLinkGraph } from '@/lib/widgets/WidgetLinkGraph';
-import { generateMockWidgetInstances } from '@/lib/navigation/mockWidgetData';
 
 /**
  * AnchorWidgetOrchestrator - Main controller for anchor widget system
@@ -54,7 +53,7 @@ export function AnchorWidgetOrchestrator() {
       }
       
       // Initialize widget memory with mock data
-      widgetMemoryRef.current.initialize(generateMockWidgetInstances());
+      widgetMemoryRef.current.initialize([]);
     };
     
     init();

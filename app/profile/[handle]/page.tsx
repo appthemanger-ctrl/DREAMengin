@@ -136,6 +136,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           bio={profile.bio}
           coverUrl={profile.cover_url}
           followers={profile.followers_count ?? 0}
+          following={profile.following_count ?? 0}
           posts={profile.posts_count ?? 12}
           likes={46}
           isEditing={false}

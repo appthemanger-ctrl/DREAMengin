@@ -2,19 +2,17 @@ import { create } from 'ipfs-http-client';
 
 export default class IpfsService {
   constructor() {
-    // Simplified configuration for testing
     this.client = create({
-      host: 'ipfs.infura.io',
-      port: 5001,
-      protocol: 'https'
+      host: process.env.IPFS_HOST ?? 'ipfs.infura.io',
+      port: Number(process.env.IPFS_PORT) || 5001,
+      protocol: process.env.IPFS_PROTOCOL ?? 'https',
     });
   }
 
   async uploadContent(content) {
     try {
-      // Mock implementation for testing
-      console.log('Mock IPFS upload:', content);
-      return 'mock-cid-' + Date.now();
+      const result = await this.client.add(content);
+      return result.cid.toString();
     } catch (error) {
       console.error('IPFS upload error:', error);
       throw new Error('Failed to upload to IPFS');
@@ -23,8 +21,11 @@ export default class IpfsService {
 
   async getContent(cid) {
     try {
-      // Mock implementation for testing
-      return 'Mock content for CID: ' + cid;
+      const chunks = [];
+      for await (const chunk of this.client.cat(cid)) {
+        chunks.push(chunk);
+      }
+      return Buffer.concat(chunks).toString();
     } catch (error) {
       console.error('IPFS retrieval error:', error);
       throw new Error('Failed to retrieve content from IPFS');
@@ -33,8 +34,7 @@ export default class IpfsService {
 
   async pinContent(cid) {
     try {
-      // Mock implementation for testing
-      console.log('Mock pinning CID:', cid);
+      await this.client.pin.add(cid);
       return true;
     } catch (error) {
       console.error('IPFS pinning error:', error);
