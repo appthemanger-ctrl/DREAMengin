@@ -96,6 +96,19 @@ export function dispatch(action: ConnectionAction): ConnectionResult {
 }
 
 // ---------------------------------------------------------------------------
+// Action factory helper
+// ---------------------------------------------------------------------------
+
+function buildAction(
+  verb: ConnectionVerb,
+  sourceId: string,
+  targetId: string,
+  context?: string,
+): ConnectionAction {
+  return { verb, sourceId, targetId, ...(context !== undefined ? { context } : {}) };
+}
+
+// ---------------------------------------------------------------------------
 // Action factories — one per canonical verb
 // ---------------------------------------------------------------------------
 
@@ -113,7 +126,7 @@ export function createBindAction(
   targetId: string,
   context?: string,
 ): ConnectionAction {
-  return { verb: 'bind', sourceId, targetId, ...(context !== undefined ? { context } : {}) };
+  return buildAction('bind', sourceId, targetId, context);
 }
 
 /**
@@ -129,7 +142,7 @@ export function createMountAction(
   targetId: string,
   context?: string,
 ): ConnectionAction {
-  return { verb: 'mount', sourceId, targetId, ...(context !== undefined ? { context } : {}) };
+  return buildAction('mount', sourceId, targetId, context);
 }
 
 /**
@@ -146,7 +159,7 @@ export function createActivateAction(
   targetId: string,
   context?: string,
 ): ConnectionAction {
-  return { verb: 'activate', sourceId, targetId, ...(context !== undefined ? { context } : {}) };
+  return buildAction('activate', sourceId, targetId, context);
 }
 
 /**
@@ -163,7 +176,7 @@ export function createAttachAction(
   targetId: string,
   context?: string,
 ): ConnectionAction {
-  return { verb: 'attach', sourceId, targetId, ...(context !== undefined ? { context } : {}) };
+  return buildAction('attach', sourceId, targetId, context);
 }
 
 /**
@@ -180,7 +193,7 @@ export function createRouteIntoAction(
   targetId: string,
   context?: string,
 ): ConnectionAction {
-  return { verb: 'route into', sourceId, targetId, ...(context !== undefined ? { context } : {}) };
+  return buildAction('route into', sourceId, targetId, context);
 }
 
 /**
@@ -197,7 +210,7 @@ export function createOpenIntoAction(
   targetId: string,
   context?: string,
 ): ConnectionAction {
-  return { verb: 'open into', sourceId, targetId, ...(context !== undefined ? { context } : {}) };
+  return buildAction('open into', sourceId, targetId, context);
 }
 
 /**
@@ -214,12 +227,7 @@ export function createConnectAcrossAction(
   targetId: string,
   context?: string,
 ): ConnectionAction {
-  return {
-    verb: 'connect across',
-    sourceId,
-    targetId,
-    ...(context !== undefined ? { context } : {}),
-  };
+  return buildAction('connect across', sourceId, targetId, context);
 }
 
 // Re-export canonical constants for consumers who import only from this module.

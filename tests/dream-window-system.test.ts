@@ -755,7 +755,7 @@ describe('enginConnectionNetwork', () => {
       expect(paths[0].verb).toBe('bind');
     });
 
-    it('Code has 0 direct outbound paths (it is a target, not a source here)', () => {
+    it('Code Daydream Surface has 0 direct outbound paths (it is a target, not a source here)', () => {
       expect(getPathsForDomain(DAYDREAM_DOMAINS.CODE)).toHaveLength(0);
     });
   });
