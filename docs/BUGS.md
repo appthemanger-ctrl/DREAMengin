@@ -4,49 +4,62 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-16 02:15 UTC  
-**Triggered by commit:** `96fbc39` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #218 from appthemanger-ctrl/copilot/update-system-logic
+**Last updated:** 2026-03-16 03:20 UTC  
+**Triggered by commit:** `e2e8e10` on `copilot/fix-home-button-dual-menus` by appthemanger-ctrl  
+**Commit message:** Merge branch 'completedream' into copilot/fix-home-button-dual-menus
 
 ---
 
 ## 🏆 Final Vision — What DREAMengin Is Supposed to Be
 
-DREAMengin is a **spatial, gesture-driven creative OS** built on Next.js (App Router) + Supabase.
-It is not a website. It is not a social media feed. It is a **personal operating surface** where
-every element is a live, interactive widget that the user owns, arranges, and publishes.
+DREAMengin is a **dual-runtime, spatial creative operating environment** built on Next.js (App Router) + Supabase.
+
+It is not defined as a conventional page-based website. It is a **personal operating surface** where users move through connected live surfaces, modular runtime containers, and powered Engin layers while preserving context.
 
 ### Core product axioms (non-negotiable)
 
 | # | Axiom | One-line rule |
 |---|-------|---------------|
 | 1 | Instant Understanding | No tutorial required. Every interaction self-reveals. |
-| 2 | User-Shaped Space | Control through movement (drag, place). Not settings panels. |
-| 3 | Real Capability | Every widget does real work — not just display. |
+| 2 | User-Shaped Space | Control through movement, placement, and direct interaction. |
+| 3 | Real Capability | Every visible action does real work. |
 | 4 | Security by Default | Least privilege, RLS everywhere, no secrets to client. |
 | 5 | Privacy by Design | Users own their data. Private by default. Deletable. |
 
-### Navigation model
+### Runtime model
 
-- The user is always conceptually inside **Home (node 0)**.
-- All navigation is **τ-only** — deterministic state transitions, not browser routing.
-- The **Golden Button** (Blue + Gold floating pair) is the only travel system.
-- Traditional nav bars and back-stacks are **not part of the product**.
+- DREAMengin operates as a **dual-runtime spatial system**.
+- **Surface Space** is the upper active runtime region.
+- **DreamSpace** is the lower modular runtime region.
+- The **DreamDM Bar** is the persistent interaction rail, runtime seam, and draggable divider between the two active spaces.
+- The **Gold Button** is the primary travel control for returning home and opening system navigation.
+- Navigation must feel like depth, continuity, and state-preserving movement — not page loss or world reset.
+
+### Core system structure
+
+- **HomeDream** is the root private operating surface.
+- **EditProfileDream** is the private profile builder surface.
+- **ViewProfile** is the public/shared output surface.
+- **6 Daydream surfaces** form the lived creative domains.
+- **6 Engin runtimes** form the powered execution / emulator layer.
+- The Daydream / Engin system is a **multi-connection network**, not a strict one-to-one pairing.
+- The system supports **11 connection paths** across different scopes and work resolutions.
 
 ### UI design system
 
-- **Sky-blue + gold gradient** throughout — no dark gamer colors, no indigo.
+- **Gold / light blue / white** premium palette throughout.
 - **Frosted glass** surfaces (`.de-surface`, `.de-widget`).
-- **Space Grotesk** font. Consistent radius family (6 / 10 / 14 / 18 / 24 / 32 / 9999 px).
-- Every page uses `de-sky-bg` + `de-widget` glass cards.
+- **Space Grotesk** font.
+- Consistent radius family (6 / 10 / 14 / 18 / 24 / 32 / 9999 px).
+- Surfaces should feel calm, premium, spatial, and uncluttered.
 
 ### AI Triad
 
 | Agent | Role | Audience |
 |-------|------|----------|
-| **Dr. Eams** | User assistant / OS voice | All authenticated users |
+| **Dr. Eams** | User assistant / routing / discovery | All authenticated users |
 | **IDARi** | Admin bug-fixer + optimizer | Admins only |
-| **TheBoogieMan** | Policy enforcer + overwatch | System / Admins only |
+| **TheBoogieMan.Ai** | Policy enforcer + system overwatch | System / Admins only |
 
 All three must approve (consensus gating) before any major system update is shipped.
 
@@ -54,14 +67,15 @@ All three must approve (consensus gating) before any major system update is ship
 
 When DREAMengin is complete:
 
-- A new user opens the app, sees the animated logo, and can explore without any tutorial.
-- They never feel lost — the Golden Button always takes them home.
-- Every Daydream (7 total) is a fully functional mini-app.
-- Their profile is a live, curated public page they can share.
-- The feed shows real content from real connectors.
-- All games are playable on mobile with two thumbs, on keyboard, and on PS5.
-- Settings, appearance, privacy, data export/delete all work end-to-end.
-- TheBoogieMan silently enforces the 100-rule policy with full audit logs and appeals.
+- A new user opens the runtime and can explore without a tutorial.
+- They remain oriented because HomeDream, DreamSpace, the DreamDM Bar, and the Gold Button preserve continuity.
+- Every Daydream (**6 total**) is a fully functional lived creative surface.
+- Every Engin runtime powers real work and connects truthfully into the wider system.
+- Their profile is a live, curated public output they can explicitly control.
+- The feed shows real content from real connectors and real system activity.
+- Games are playable across supported input modes and devices.
+- Settings, appearance, privacy, data export, and deletion all work end-to-end.
+- TheBoogieMan.Ai silently enforces policy with auditability and appeals.
 
 ---
 
