@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-15 20:49 UTC  
-**Triggered by commit:** `d0802cc` on `completedream` by appthemanger-ctrl  
-**Commit message:** Move game page to daydream directory
+**Last updated:** 2026-03-16 01:33 UTC  
+**Triggered by commit:** `5385f2e` on `copilot/canonical-os-layer-naming-migration` by Copilot  
+**Commit message:** feat: implement canonical OS-layer naming migration - phase 1 (identity layer + docs)
 
 ---
 
