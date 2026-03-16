@@ -4,6 +4,7 @@
  * Category: arcade / classic
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useGamePhase } from '@/lib/games/hooks';
 
 const CW = 480; const CH = 520;
 const PAD_W = 80; const PAD_H = 12; const PAD_Y = CH - 40;
@@ -26,11 +27,10 @@ function makeBricks(): Brick[] {
 }
 
 export default function BreakoutGame() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phaseRef = useRef<Phase>('menu');
   const padRef = useRef(CW / 2 - PAD_W / 2);
   const ballRef = useRef<Ball>({ x: CW / 2, y: PAD_Y - BALL_R - 2, vx: 3, vy: -5 });
   const bricksRef = useRef<Brick[]>(makeBricks());
@@ -44,8 +44,8 @@ export default function BreakoutGame() {
     padRef.current = CW / 2 - PAD_W / 2;
     ballRef.current = { x: CW / 2, y: PAD_Y - BALL_R - 2, vx: 3, vy: -5 };
     bricksRef.current = makeBricks(); scoreRef.current = 0; livesRef.current = 3; launchedRef.current = false;
-    setScore(0); setLives(3); phaseRef.current = 'playing'; setPhase('playing');
-  }, []);
+    setScore(0); setLives(3); setPhase('playing');
+  }, [setPhase]);
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -97,12 +97,12 @@ export default function BreakoutGame() {
         // Bottom — lose life
         if (ball.y > CH + 10) {
           livesRef.current--;
-          if (livesRef.current <= 0) { phaseRef.current = 'gameover'; setPhase('gameover'); return; }
+          if (livesRef.current <= 0) { setPhase('gameover'); return; }
           ball.x = padRef.current + PAD_W / 2; ball.y = PAD_Y - BALL_R - 2; ball.vx = 3; ball.vy = -5; launchedRef.current = false;
           setLives(livesRef.current);
         }
         // Win
-        if (bricksRef.current.length === 0) { phaseRef.current = 'win'; setPhase('win'); return; }
+        if (bricksRef.current.length === 0) { setPhase('win'); return; }
       }
 
       // Draw bricks
@@ -134,7 +134,7 @@ export default function BreakoutGame() {
       canvas.removeEventListener('touchmove', onTouch);
       canvas.removeEventListener('click', onClick);
     };
-  }, [phase]);
+  }, [phase, phaseRef]);
 
   if (phase === 'menu') return (
     <div style={{ background: '#0a0a1a', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>

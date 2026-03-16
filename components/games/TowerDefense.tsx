@@ -4,6 +4,7 @@
  * Categories: strategy / tower defense
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGamePhase } from '@/lib/games/hooks';
 
 const CW = 700; const CH = 480;
 const CELL = 40; const COLS = Math.floor(CW / CELL); const ROWS = Math.floor(CH / CELL);
@@ -33,7 +34,7 @@ function spawnEnemy(wave: number): Enemy {
 }
 
 export default function TowerDefense() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [gold, setGold] = useState(200);
   const [lives, setLives] = useState(20);
   const [wave, setWave] = useState(1);
@@ -48,7 +49,6 @@ export default function TowerDefense() {
   const spawnTimerRef = useRef(0);
   const spawnsLeftRef = useRef(10);
   const rafRef = useRef(0);
-  const phaseRef = useRef<Phase>('menu');
   const selectedRef = useRef<TowerType>('arrow');
 
   useEffect(() => { selectedRef.current = selectedTower; }, [selectedTower]);
@@ -61,9 +61,8 @@ export default function TowerDefense() {
     goldRef.current = 200; livesRef.current = 20; waveRef.current = 1;
     spawnTimerRef.current = 0; spawnsLeftRef.current = 10;
     setGold(200); setLives(20); setWave(1);
-    phaseRef.current = 'playing';
     setPhase('playing');
-  }, []);
+  }, [setPhase]);
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -131,7 +130,7 @@ export default function TowerDefense() {
       }
       if (spawnsLeftRef.current === 0 && enemiesRef.current.length === 0) {
         waveRef.current++;
-        if (waveRef.current > 10) { phaseRef.current = 'win'; setPhase('win'); return; }
+        if (waveRef.current > 10) { setPhase('win'); return; }
         spawnsLeftRef.current = 5 + waveRef.current * 2;
         spawnTimerRef.current = 0;
         setWave(waveRef.current);
@@ -142,7 +141,7 @@ export default function TowerDefense() {
         if (e.pathIdx >= PATH.length - 1) {
           livesRef.current = Math.max(0, livesRef.current - 1);
           e.hp = 0;
-          if (livesRef.current <= 0) { phaseRef.current = 'gameover'; setPhase('gameover'); return; }
+          if (livesRef.current <= 0) { setPhase('gameover'); return; }
           continue;
         }
         const target = PATH[e.pathIdx + 1];
@@ -181,7 +180,7 @@ export default function TowerDefense() {
     };
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [phase]);
+  }, [phase, phaseRef]);
 
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const r = canvasRef.current!.getBoundingClientRect();
