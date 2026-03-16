@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
       event_type: event.event_type,
       content_id: event.content_id,
       content_type: event.content_type,
-      from_visibility: event.from_visibility ?? 'unknown',
+      from_visibility: event.from_visibility ?? null,
       to_visibility: event.to_visibility,
       mapping_updated: mappingUpdated,
     },

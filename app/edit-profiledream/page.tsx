@@ -160,7 +160,7 @@ export default function EditProfileDreamPage() {
       // Step 2: Log the PROFILE_PUBLISH event through TheBoogieMan privacy-event endpoint.
       // This updates visibility_mappings for all publicly-visible Dream Windows.
       const publicWidgets = widgets.filter(
-        (w) => w.visibility === 'public' || w.visibility === 'followers'
+        (w) => w.visibility != null && (w.visibility === 'public' || w.visibility === 'followers')
       );
 
       // Log a single PROFILE_PUBLISH event for the profile itself.
