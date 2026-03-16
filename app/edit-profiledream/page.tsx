@@ -157,9 +157,8 @@ export default function EditProfileDreamPage() {
       background: 'linear-gradient(160deg, #dce8f8 0%, #c8d8f0 40%, #f5e8c4 100%)',
       paddingBottom: 100,
     }}>
-      {/* ── Sticky header ── */}
+      {/* ── Inline header (not sticky — DreamDMBar is the persistent navigation) ── */}
       <header style={{
-        position: 'sticky', top: 0, zIndex: 50,
         background: 'rgba(220,232,248,0.92)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
@@ -189,7 +188,6 @@ export default function EditProfileDreamPage() {
           {profile.handle && (
             <Link
               href="/view-profile"
-              
               style={{
                 padding: '7px 14px', borderRadius: 10,
                 background: 'rgba(255,255,255,0.70)',
@@ -221,7 +219,7 @@ export default function EditProfileDreamPage() {
           </button>
         </div>
 
-        {/* Tab bar */}
+        {/* Tab bar — inline, scrolls with page */}
         <div style={{ display: 'flex', gap: 0, paddingBottom: 2 }}>
           {(['widgets', 'info'] as const).map(tab => (
             <button

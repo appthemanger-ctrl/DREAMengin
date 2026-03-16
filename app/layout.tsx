@@ -5,6 +5,8 @@ import { Space_Grotesk, Cormorant_Garamond } from 'next/font/google';
 import ThemeProvider from '@/components/providers/ThemeProvider';
 import ThemeApplicator from '@/components/ThemeApplicator';
 import Link from 'next/link';
+import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
+import GlobalDreamBar from '@/components/home/GlobalDreamBar';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -57,7 +59,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <ThemeProvider>
           <ThemeApplicator />
-          <main role="main" aria-label="Main content">{children}</main>
+          <DreamSystemProvider>
+            <main role="main" aria-label="Main content">{children}</main>
+            <GlobalDreamBar />
+          </DreamSystemProvider>
           {/* Permanent policy footer (req 10) — always accessible, no login required */}
           <footer
             style={{
