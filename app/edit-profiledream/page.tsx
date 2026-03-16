@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Eye, Loader2 } from 'lucide-react';
+import { ArrowLeft, Eye, Loader2, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
 import DreamWord from '@/components/ui/DreamWord';
@@ -30,7 +30,10 @@ export default function EditProfileDreamPage() {
   const [initialWidgets, setInitialWidgets] = useState<ProfileDream[]>(DEFAULT_DREAMS);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  // isPublishing tracks the explicit share/publish action (distinct from private save)
+  const [isPublishing, setIsPublishing] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [publishSuccess, setPublishSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<'widgets' | 'info'>('widgets');
   const supabase = createClient();
   const router = useRouter();
@@ -77,8 +80,14 @@ export default function EditProfileDreamPage() {
     JSON.stringify(widgets) !== JSON.stringify(initialWidgets)
   );
 
+  /**
+   * Private save — persists profile and Dream Window config to the database
+   * WITHOUT changing any visibility records. This is a draft save only.
+   * Per Phase 6 spec points 14–15: draft state must never appear on ViewProfile
+   * before the user saves AND explicitly chooses to share.
+   */
   const handleSave = useCallback(async () => {
-    setIsSaving(true); setSaveError('');
+    setIsSaving(true); setSaveError(''); setPublishSuccess(false);
     try {
       const res = await fetch('/api/profile', {
         method: 'PUT',
@@ -108,11 +117,92 @@ export default function EditProfileDreamPage() {
       localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
       setInitialProfile(profile);
       setInitialWidgets(widgets);
-      router.push('/view-profile');
+      // Private save — stay on EditProfileDream, not navigate to ViewProfile.
+      // The user must explicitly publish to update their public profile.
     } catch {
       setSaveError('Network error. Please try again.');
     } finally {
       setIsSaving(false);
+    }
+  }, [profile, widgets]);
+
+  /**
+   * Explicit publish — saves the profile AND logs a BoogieMan privacy event
+   * to update the visibility_mappings for publicly visible Dream Windows.
+   * Per Phase 6 spec points 15, 17: only an explicit share action updates
+   * the public projection. This is the "Publish to Profile" action.
+   */
+  const handlePublish = useCallback(async () => {
+    setIsPublishing(true); setSaveError(''); setPublishSuccess(false);
+    try {
+      // Step 1: Save the draft first (private save).
+      const saveRes = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          display_name: profile.display_name,
+          handle: profile.handle,
+          bio: profile.bio,
+          avatar_url: profile.avatar_url,
+          banner_url: profile.banner_url,
+          website: profile.website,
+          location: profile.location,
+          widget_order: widgets,
+          widget_config: widgets,
+        }),
+      });
+      if (!saveRes.ok) {
+        const data = await saveRes.json().catch(() => ({}));
+        setSaveError((data as { error?: string }).error || 'Failed to save before publishing.');
+        return;
+      }
+
+      // Step 2: Log the PROFILE_PUBLISH event through TheBoogieMan privacy-event endpoint.
+      // This updates visibility_mappings for all publicly-visible Dream Windows.
+      const publicWidgets = widgets.filter(
+        (w) => w.visibility != null && (w.visibility === 'public' || w.visibility === 'followers')
+      );
+
+      // Log a single PROFILE_PUBLISH event for the profile itself.
+      await fetch('/api/ai/boogieman/privacy-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: 'PROFILE_PUBLISH',
+          content_id: 'profile_info',
+          content_type: 'profile_info',
+          to_visibility: 'public',
+          update_mapping: true,
+        }),
+      });
+
+      // Log EXPLICIT_SHARE events for each publicly visible Dream Window.
+      await Promise.allSettled(
+        publicWidgets.map((w) =>
+          fetch('/api/ai/boogieman/privacy-event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event_type: 'EXPLICIT_SHARE',
+              content_id: w.id,
+              content_type: 'dream_window',
+              to_visibility: w.visibility ?? 'public',
+              update_mapping: true,
+            }),
+          })
+        )
+      );
+
+      localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
+      setInitialProfile(profile);
+      setInitialWidgets(widgets);
+      setPublishSuccess(true);
+      // Navigate to ViewProfile to confirm the published output.
+      router.push('/view-profile');
+    } catch {
+      setSaveError('Network error during publish. Please try again.');
+    } finally {
+      setIsPublishing(false);
     }
   }, [profile, widgets, router]);
 
@@ -198,24 +288,48 @@ export default function EditProfileDreamPage() {
               }}
             >
               <Eye size={13} />
-              View Profile
+              Preview
             </Link>
           )}
+
+          {/* Save Draft — private save only, no visibility change (Phase 6 §15) */}
           <button
             onClick={handleSave}
-            disabled={isSaving || !isDirty}
+            disabled={isSaving || isPublishing || !isDirty}
+            title="Save changes privately — does not update your public profile"
             style={{
-              padding: '9px 22px', borderRadius: 12,
-              background: 'linear-gradient(135deg, #c8981a, #e0b830)',
-              border: 'none', color: '#fff',
-              fontWeight: 700, fontSize: 14, cursor: isSaving || !isDirty ? 'default' : 'pointer',
-              boxShadow: '0 4px 14px rgba(200,152,26,0.35)',
-              display: 'flex', alignItems: 'center', gap: 6,
-              opacity: isSaving ? 0.7 : isDirty ? 1 : 0.55,
+              padding: '8px 14px', borderRadius: 10,
+              background: 'rgba(255,255,255,0.75)',
+              border: '1px solid rgba(160,195,240,0.45)',
+              color: 'var(--de-heading)',
+              fontWeight: 600, fontSize: 12, cursor: isSaving || isPublishing || !isDirty ? 'default' : 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0,
+              opacity: isSaving ? 0.7 : isDirty ? 1 : 0.50,
             }}
           >
-            {isSaving && <Loader2 size={13} className="animate-spin" />}
-            {isDirty ? 'Save' : 'Saved'}
+            {isSaving && <Loader2 size={12} className="animate-spin" />}
+            {isDirty ? 'Save Draft' : 'Saved'}
+          </button>
+
+          {/* Publish to Profile — explicit share action, updates visibility_mappings (Phase 6 §15,17) */}
+          <button
+            onClick={handlePublish}
+            disabled={isSaving || isPublishing}
+            title="Publish your profile — makes public Dream Windows visible on your View Profile surface"
+            style={{
+              padding: '9px 16px', borderRadius: 12,
+              background: 'linear-gradient(135deg, #c8981a, #e0b830)',
+              border: 'none', color: '#fff',
+              fontWeight: 700, fontSize: 13, cursor: isSaving || isPublishing ? 'default' : 'pointer',
+              boxShadow: '0 4px 14px rgba(200,152,26,0.35)',
+              display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
+              opacity: isPublishing ? 0.7 : 1,
+            }}
+          >
+            {isPublishing
+              ? <Loader2 size={13} className="animate-spin" />
+              : <Share2 size={13} />}
+            {isPublishing ? 'Publishing…' : 'Publish'}
           </button>
         </div>
 
@@ -227,7 +341,7 @@ export default function EditProfileDreamPage() {
               onClick={() => setActiveTab(tab)}
               style={{
                 flex: 1, padding: '8px 0',
-                background: 'none', border: 'none', cursor: isSaving || !isDirty ? 'default' : 'pointer',
+                background: 'none', border: 'none', cursor: isSaving || isPublishing ? 'default' : 'pointer',
                 fontSize: 13, fontWeight: activeTab === tab ? 700 : 500,
                 color: activeTab === tab ? '#c8981a' : 'var(--de-text-dim)',
                 borderBottom: activeTab === tab ? '2.5px solid #c8981a' : '2.5px solid transparent',
@@ -246,6 +360,17 @@ export default function EditProfileDreamPage() {
           background: 'rgba(220,60,60,0.08)', border: '1px solid rgba(220,60,60,0.2)',
           color: '#dc4444', fontSize: 13 }}>
           {saveError}
+        </div>
+      )}
+
+      {/* Publish success banner — shown briefly after explicit publish */}
+      {publishSuccess && (
+        <div style={{ margin: '12px 16px 0', padding: '10px 14px', borderRadius: 12,
+          background: 'rgba(200,152,26,0.10)', border: '1px solid rgba(200,152,26,0.30)',
+          color: '#a07828', fontSize: 13, fontWeight: 600,
+          display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Share2 size={14} />
+          Published! Your public Dream Windows are now visible on ViewProfile.
         </div>
       )}
 

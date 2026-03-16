@@ -12,6 +12,7 @@ import NotificationCenter from '@/components/NotificationCenter';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import DreamWord from '@/components/ui/DreamWord';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
+import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -434,6 +435,11 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             <div style={{ fontSize: 13, color: 'var(--de-text-dim)', fontWeight: 500, marginBottom: 4 }}>{greeting},</div>
             <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
               {name}
+            </div>
+
+            {/* ── Dr. Eams search bar — Phase 6: HomeDream search with send-to-DreamDM routing ── */}
+            <div style={{ marginTop: 16, marginBottom: 4 }}>
+              <DrEamsSearchBar onOpenDrEams={onOpenDrEams} />
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
               {[

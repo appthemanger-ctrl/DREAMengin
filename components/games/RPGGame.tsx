@@ -72,7 +72,7 @@ export default function RPGGame() {
 
   const attack = useCallback(() => {
     if (!enemy) return;
-    let s = { ...stats }; let e = { ...enemy };
+    let s = { ...stats }; const e = { ...enemy };
     // Player attacks
     const dmg = Math.max(1, s.attack - e.defense + Math.floor(Math.random() * 5));
     e.hp = Math.max(0, e.hp - dmg);

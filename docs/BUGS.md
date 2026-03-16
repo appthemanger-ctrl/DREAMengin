@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-16 06:57 UTC  
-**Triggered by commit:** `6c5f04f` on `copilot/audit-db-extensions` by Copilot  
-**Commit message:** feat: add DB Extension Audit and DB Extension Check workflows
+**Last updated:** 2026-03-16 16:56 UTC  
+**Triggered by commit:** `ef40d31` on `copilot/fix-code-issues` by Copilot  
+**Commit message:** fix: address code review — null guard on from_visibility and widget visibility filter
 
 ---
 
