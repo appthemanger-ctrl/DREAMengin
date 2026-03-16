@@ -85,7 +85,7 @@ export async function resolveFeedHost(
         .select('engagement_type')
         .eq('content_id', item.id);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const engagementCounts = (engagementData || []).reduce((acc: { likes: number; comments: number; shares: number }, eng: { engagement_type: string }) => {
         if (eng.engagement_type === 'like') acc.likes++;
         else if (eng.engagement_type === 'comment') acc.comments++;

@@ -1,9 +1,16 @@
 // app/api/ai/idari/route.ts
-// IDARi — universal AI for Dreamengin.
-// Available to ALL authenticated users. Capabilities scale with role:
-//   user  → platform guidance, personalization help, creative coaching
-//   admin → + diagnostics, feed config, system status
-//   owner → + schema access, RLS inspection, infrastructure checks
+// IDARi — admin-tier AI operator for DREAMengin.
+// Access: admin and owner only. Regular users are rejected with 403.
+//
+// Per docs/IDARI_CONTRACT.md: "admin-only, server-side only."
+// Per docs/dreamengin_phase6.md points 5–6:
+//   "No IDARi endpoint may be surfaced through any standard user-accessible UI path."
+//   "IDARi must be protected by an admin-guard check even when
+//    NEXT_PUBLIC_DEV_BYPASS_AUTH is active."
+//
+// Role capabilities:
+//   admin → diagnostics, feed config, system status, DIAG_SCHEMA_SNAPSHOT
+//   owner → all admin + RLS inspection, infrastructure checks, DIAG_RLS_SNAPSHOT
 
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonApiError } from '@/lib/api/route';
@@ -18,12 +25,11 @@ import { groqChat, type GroqMessage } from '@/lib/ai/groq';
 
 export const dynamic = 'force-dynamic';
 
-type ActorRole = 'user' | 'admin' | 'owner';
+type ActorRole = 'admin' | 'owner';
 
 
 // Rate limits per role (requests per 60 seconds)
 const RATE_LIMITS: Record<ActorRole, number> = {
-  user:  20,
   admin: 40,
   owner: 60,
 };
@@ -50,21 +56,12 @@ function buildSystemPrompt(actorRole: ActorRole): string {
       `Be direct, technical, and precise. Include rollback steps for risky suggestions.`;
   }
 
-  if (actorRole === 'admin') {
-    return base +
-      `Actor role: ADMIN — platform management access.\n` +
-      `Allowed intents: DIAG_SCHEMA_SNAPSHOT, SEARCH.\n` +
-      `Help with feed configuration, widget management, user reports, and platform settings.\n` +
-      `Be direct and technical. Flag anything that requires owner review.`;
-  }
-
-  // user
+  // admin (default)
   return base +
-    `Actor role: USER — full creative platform access.\n` +
-    `Allowed intents: SEARCH.\n` +
-    `Help the user get the most from Dreamengin: themes, widgets, Daydreams, connections, AI tools, and all 20 games.\n` +
-    `Encourage creativity. Suggest features they might not know about. Be warm and motivating.\n` +
-    `Never discuss internal database schemas, RLS policies, or server infrastructure with users.`;
+    `Actor role: ADMIN — platform management access.\n` +
+    `Allowed intents: DIAG_SCHEMA_SNAPSHOT, SEARCH.\n` +
+    `Help with feed configuration, Dream Window management, user reports, and platform settings.\n` +
+    `Be direct and technical. Flag anything that requires owner review.`;
 }
 
 async function idariPlanner(
@@ -82,7 +79,7 @@ async function idariPlanner(
     const raw = await groqChat({
       model: AI_MODELS.IDARI_PRIMARY,
       messages: [system, userMsg],
-      temperature: actorRole === 'user' ? 0.4 : 0.1,
+      temperature: actorRole === 'owner' ? 0.05 : 0.1,
       max_tokens: 700,
     });
 
@@ -137,14 +134,14 @@ export async function POST(req: NextRequest) {
 
   const request = parseResult.data;
 
-  // Authenticate — ALL users welcome
+  // Authenticate — server-side only, no dev-bypass exemption (Phase 6 spec point 6).
   const supabase = await createServerClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) {
-    return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in to talk to IDARi.');
+    return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in to access IDARi.');
   }
 
-  // Determine role (no blocking — role only affects capabilities)
+  // Determine role — admin/owner only gate (IDARI_CONTRACT.md, Phase 6 point 5).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: roleData } = await (supabase as any)
     .from('user_roles')
@@ -154,7 +151,22 @@ export async function POST(req: NextRequest) {
 
   const isOwner = isOwnerEmail(user.email);
   const dbRole = (roleData as { role?: string } | null)?.role;
-  const actorRole: ActorRole = isOwner ? 'owner' : dbRole === 'admin' ? 'admin' : 'user';
+  const isAdmin = isOwner || dbRole === 'admin';
+
+  // Hard admin gate — IDARi is never accessible to regular users.
+  if (!isAdmin) {
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent: 'idari',
+      ok: false,
+      error_code: 'FORBIDDEN',
+      latency_ms: Date.now() - requestStart,
+    });
+    return jsonApiError(403, 'FORBIDDEN', 'IDARi is an admin-only AI. Access denied.');
+  }
+
+  const actorRole: ActorRole = isOwner ? 'owner' : 'admin';
 
   // Rate limit (per-role)
   const rateOk = await checkRateLimit(user.id, '/api/ai/idari', RATE_LIMITS[actorRole], 60);
@@ -190,11 +202,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const idariResult = validateWithIdari(intents, actorRole === 'user' ? 'user' : 'admin');
+  const idariResult = validateWithIdari(intents, 'admin');
   const validatedIntents = idariResult.intents;
 
   const boogieResult = boogieEvaluate({
-    actorRole: actorRole === 'user' ? 'user' : 'admin',
+    actorRole: 'admin',
     rateRpm,
     intents: validatedIntents,
   });

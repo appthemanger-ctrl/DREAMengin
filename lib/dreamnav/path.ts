@@ -57,7 +57,7 @@ export async function dispatchTauPath(
   const stepMs = opts?.stepMs ?? 140;
   for (const a of actions) {
     dispatch(a);
-    // eslint-disable-next-line no-await-in-loop
+     
     await new Promise((r) => setTimeout(r, stepMs));
   }
 }
