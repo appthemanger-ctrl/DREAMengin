@@ -5,12 +5,11 @@
  * Auto-generates docs/BUGS.md on every push.
  *
  * What it writes:
- *  1. Final vision  — what DREAMengin is supposed to be when complete
- *                     (sourced from SPEC.md + ARCHITECTURE.md + AXIOMS.md).
+ *  1. Final vision  — canonical runtime identity and completion state.
  *  2. Open issues   — every 🔶 Partly done / 🔲 Needs work item parsed from
  *                     docs/FEATURE_STATUS.md.
  *  3. Known bugs    — TODO / FIXME / HACK annotations found in .ts/.tsx source files.
- *  4. Upgrade queue — ordered list of priorities from docs/LAW.md §10.2.
+ *  4. Upgrade queue — ordered list of priorities from docs/FEATURE_STATUS.md.
  *  5. Change header — commit that triggered this regeneration.
  *
  * Called by .github/workflows/update-bugs.yml after every push.
@@ -18,14 +17,13 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { readdirSync, statSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { resolve, dirname, join, extname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT      = resolve(__dirname, '..');
-const BUGS_OUT  = resolve(ROOT, 'docs/BUGS.md');
+const ROOT = resolve(__dirname, '..');
+const BUGS_OUT = resolve(ROOT, 'docs/BUGS.md');
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -44,31 +42,30 @@ function readDoc(relPath) {
 
 // ── git metadata ─────────────────────────────────────────────────────────────
 
-const sha     = (process.env.GITHUB_SHA      || git('git rev-parse HEAD')).slice(0, 7);
-const branch  = (process.env.GITHUB_REF_NAME || git('git rev-parse --abbrev-ref HEAD'));
-const actor   = (process.env.GITHUB_ACTOR    || git('git log -1 --format=%an'));
+const sha = (process.env.GITHUB_SHA || git('git rev-parse HEAD')).slice(0, 7);
+const branch = process.env.GITHUB_REF_NAME || git('git rev-parse --abbrev-ref HEAD');
+const actor = process.env.GITHUB_ACTOR || git('git log -1 --format=%an');
 const rawDate = git('git log -1 --format=%aI');
 const message = git('git log -1 --format=%s');
 const utcDate = rawDate
   ? new Date(rawDate).toISOString().replace('T', ' ').replace(/:\d{2}\.\d{3}Z$/, ' UTC')
   : new Date().toISOString().replace('T', ' ').replace(/:\d{2}\.\d{3}Z$/, ' UTC');
 
-// ── parse FEATURE_STATUS.md for incomplete items ──────────────────────────────
+// ── parse FEATURE_STATUS.md for incomplete items ─────────────────────────────
 
 function parseFeatureStatus() {
   const raw = readDoc('docs/FEATURE_STATUS.md');
   if (!raw) return { partlyDone: [], needsWork: [], upgradeQueue: [] };
 
   const partlyDone = [];
-  const needsWork  = [];
+  const needsWork = [];
 
-  // Match table rows that contain 🔶 or 🔲
   const rowRe = /^\|([^|]+)\|([^|]+)\|([^|]*)\|/gm;
   let m;
   while ((m = rowRe.exec(raw)) !== null) {
     const feature = m[1].trim();
-    const status  = m[2].trim();
-    const notes   = m[3] ? m[3].trim() : '';
+    const status = m[2].trim();
+    const notes = m[3] ? m[3].trim() : '';
     if (status.includes('🔶')) {
       partlyDone.push({ feature, notes });
     } else if (status.includes('🔲')) {
@@ -76,7 +73,6 @@ function parseFeatureStatus() {
     }
   }
 
-  // Pull upgrade priorities list (numbered lines after "## Upgrade Priorities")
   const upgradeSection = raw.match(/## Upgrade Priorities[\s\S]*?(?=\n---|\n## |$)/);
   const upgradeQueue = [];
   if (upgradeSection) {
@@ -93,8 +89,8 @@ function parseFeatureStatus() {
 // ── scan source files for TODO / FIXME / HACK ────────────────────────────────
 
 const ANNOTATION_RE = /\/\/\s*(TODO|FIXME|HACK|BUG)\b[:\s]*(.*)/i;
-const SOURCE_DIRS   = ['app', 'components', 'lib', 'hooks', 'src'];
-const MAX_ANNOTS    = 60; // cap to keep doc readable
+const SOURCE_DIRS = ['app', 'components', 'lib', 'hooks', 'src'];
+const MAX_ANNOTS = 60;
 
 function* walkFiles(dir) {
   if (!existsSync(dir)) return;
@@ -118,7 +114,7 @@ function scanAnnotations() {
   const found = [];
   for (const dir of SOURCE_DIRS) {
     for (const file of walkFiles(resolve(ROOT, dir))) {
-      const rel   = file.replace(ROOT + '/', '');
+      const rel = file.replace(ROOT + '/', '');
       const lines = readFileSync(file, 'utf8').split('\n');
       lines.forEach((line, i) => {
         const m = ANNOTATION_RE.exec(line);
@@ -134,7 +130,7 @@ function scanAnnotations() {
   return found;
 }
 
-// ── section builders ──────────────────────────────────────────────────────────
+// ── section builders ─────────────────────────────────────────────────────────
 
 function buildHeader() {
   return `# DREAMengin — BUGS & Open Issues
@@ -153,41 +149,54 @@ function buildFinalVision() {
 
 ## 🏆 Final Vision — What DREAMengin Is Supposed to Be
 
-DREAMengin is a **spatial, gesture-driven creative OS** built on Next.js (App Router) + Supabase.
-It is not a website. It is not a social media feed. It is a **personal operating surface** where
-every element is a live, interactive widget that the user owns, arranges, and publishes.
+DREAMengin is a **dual-runtime, spatial creative operating environment** built on Next.js (App Router) + Supabase.
+
+It is not defined as a conventional page-based website. It is a **personal operating surface** where users move through connected live surfaces, modular runtime containers, and powered Engin layers while preserving context.
 
 ### Core product axioms (non-negotiable)
 
 | # | Axiom | One-line rule |
 |---|-------|---------------|
 | 1 | Instant Understanding | No tutorial required. Every interaction self-reveals. |
-| 2 | User-Shaped Space | Control through movement (drag, place). Not settings panels. |
-| 3 | Real Capability | Every widget does real work — not just display. |
+| 2 | User-Shaped Space | Control through movement, placement, and direct interaction. |
+| 3 | Real Capability | Every visible action does real work. |
 | 4 | Security by Default | Least privilege, RLS everywhere, no secrets to client. |
 | 5 | Privacy by Design | Users own their data. Private by default. Deletable. |
 
-### Navigation model
+### Runtime model
 
-- The user is always conceptually inside **Home (node 0)**.
-- All navigation is **τ-only** — deterministic state transitions, not browser routing.
-- The **Golden Button** (Blue + Gold floating pair) is the only travel system.
-- Traditional nav bars and back-stacks are **not part of the product**.
+- DREAMengin operates as a **dual-runtime spatial system**.
+- **Surface Space** is the upper active runtime region.
+- **DreamSpace** is the lower modular runtime region.
+- The **DreamDM Bar** is the persistent interaction rail, runtime seam, and draggable divider between the two active spaces.
+- The **Gold Button** is the primary travel control for returning home and opening system navigation.
+- Navigation must feel like depth, continuity, and state-preserving movement — not page loss or world reset.
+
+### Core system structure
+
+- **HomeDream** is the root private operating surface.
+- **EditProfileDream** is the private profile builder surface.
+- **ViewProfile** is the public/shared output surface.
+- **6 Daydream surfaces** form the lived creative domains.
+- **6 Engin runtimes** form the powered execution / emulator layer.
+- The Daydream / Engin system is a **multi-connection network**, not a strict one-to-one pairing.
+- The system supports **11 connection paths** across different scopes and work resolutions.
 
 ### UI design system
 
-- **Sky-blue + gold gradient** throughout — no dark gamer colors, no indigo.
+- **Gold / light blue / white** premium palette throughout.
 - **Frosted glass** surfaces (\`.de-surface\`, \`.de-widget\`).
-- **Space Grotesk** font. Consistent radius family (6 / 10 / 14 / 18 / 24 / 32 / 9999 px).
-- Every page uses \`de-sky-bg\` + \`de-widget\` glass cards.
+- **Space Grotesk** font.
+- Consistent radius family (6 / 10 / 14 / 18 / 24 / 32 / 9999 px).
+- Surfaces should feel calm, premium, spatial, and uncluttered.
 
 ### AI Triad
 
 | Agent | Role | Audience |
 |-------|------|----------|
-| **Dr. Eams** | User assistant / OS voice | All authenticated users |
+| **Dr. Eams** | User assistant / routing / discovery | All authenticated users |
 | **IDARi** | Admin bug-fixer + optimizer | Admins only |
-| **TheBoogieMan** | Policy enforcer + overwatch | System / Admins only |
+| **TheBoogieMan.Ai** | Policy enforcer + system overwatch | System / Admins only |
 
 All three must approve (consensus gating) before any major system update is shipped.
 
@@ -195,14 +204,15 @@ All three must approve (consensus gating) before any major system update is ship
 
 When DREAMengin is complete:
 
-- A new user opens the app, sees the animated logo, and can explore without any tutorial.
-- They never feel lost — the Golden Button always takes them home.
-- Every Daydream (7 total) is a fully functional mini-app.
-- Their profile is a live, curated public page they can share.
-- The feed shows real content from real connectors.
-- All games are playable on mobile with two thumbs, on keyboard, and on PS5.
-- Settings, appearance, privacy, data export/delete all work end-to-end.
-- TheBoogieMan silently enforces the 100-rule policy with full audit logs and appeals.`;
+- A new user opens the runtime and can explore without a tutorial.
+- They remain oriented because HomeDream, DreamSpace, the DreamDM Bar, and the Gold Button preserve continuity.
+- Every Daydream (**6 total**) is a fully functional lived creative surface.
+- Every Engin runtime powers real work and connects truthfully into the wider system.
+- Their profile is a live, curated public output they can explicitly control.
+- The feed shows real content from real connectors and real system activity.
+- Games are playable across supported input modes and devices.
+- Settings, appearance, privacy, data export, and deletion all work end-to-end.
+- TheBoogieMan.Ai silently enforces policy with auditability and appeals.`;
 }
 
 function buildOpenIssues(partlyDone, needsWork) {
@@ -262,10 +272,15 @@ No TODO / FIXME / HACK annotations found in source files.`;
   }
 
   const sections = Object.entries(grouped).map(([kind, items]) => {
-    const emoji = kind === 'TODO' ? '📝' : kind === 'FIXME' ? '🔧' : kind === 'BUG' ? '🐛' : '⚠️';
+    const emoji =
+      kind === 'TODO' ? '📝' :
+      kind === 'FIXME' ? '🔧' :
+      kind === 'BUG' ? '🐛' : '⚠️';
+
     const rows = items
       .map(({ file, line, text }) => `| \`${file}:${line}\` | ${text || '(no description)'} |`)
       .join('\n');
+
     return `### ${emoji} ${kind} (${items.length})\n\n| Location | Description |\n|----------|-------------|\n${rows}`;
   });
 
