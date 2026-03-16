@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { Camera, Upload, X, Check, User, Image as ImageIcon, Link as LinkIcon, Palette, Save } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
 interface ProfileData {
   id: string;
@@ -19,6 +20,7 @@ interface ProfileData {
 
 export default function ProfileEditor({ profile }: { profile: ProfileData }) {
   const supabase = createClient();
+  const { enterCustomizeMode } = useCustomizeMode();
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -387,20 +389,31 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
             </div>
           </div>
 
-          {/* Theme (Coming Soon) */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-6 opacity-60">
+          {/* Customize Profile Skin */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-6">
             <div className="flex items-center gap-3 mb-4">
               <Palette className="w-5 h-5 text-pink-600" />
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                Theme Customization
+                Customize Profile
               </h3>
-              <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-1 rounded">
-                Coming Soon
-              </span>
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              Customize your profile colors, fonts, and layout. Feature rolling out to Pro tier creators first.
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+              Change your profile background, fonts, widget style, and visual effects.
             </p>
+            <button
+              type="button"
+              onClick={() => enterCustomizeMode('profile')}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-white transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #3a6fd8, #6a4ed8)',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 14,
+              }}
+            >
+              <Palette className="w-4 h-4" />
+              Open Customize Mode
+            </button>
           </div>
         </div>
       </div>

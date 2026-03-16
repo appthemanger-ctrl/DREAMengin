@@ -11,6 +11,7 @@ import {
 import NotificationCenter from '@/components/NotificationCenter';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import DreamWord from '@/components/ui/DreamWord';
+import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -275,6 +276,7 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
 export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
   const name = profile?.display_name || profile?.handle || 'Dreamer';
+  const { enterCustomizeMode } = useCustomizeMode();
 
   // Use admin or user agent list based on role
   const AI_AGENTS = isAdmin ? AI_AGENTS_ADMIN : AI_AGENTS_USER;
@@ -472,6 +474,26 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 }}
               >
                 Your Dreams
+              </button>
+              <button
+                type="button"
+                onClick={() => enterCustomizeMode('home')}
+                className="de-pressable"
+                style={{
+                  borderRadius: 999,
+                  border: '1px solid rgba(58,111,216,0.35)',
+                  background: 'rgba(58,111,216,0.09)',
+                  color: '#3a6fd8',
+                  padding: '7px 14px',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                }}
+              >
+                <Palette size={12} />
+                Customize
               </button>
             </div>
           </div>

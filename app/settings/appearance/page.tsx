@@ -6,6 +6,7 @@ import { ArrowLeft, RotateCcw, Check } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
 import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, type DeTheme } from '@/components/ThemeApplicator';
+import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
 /* ── Gradient Preset Picker ── */
 function GradientThemePicker() {
@@ -296,6 +297,7 @@ const BG_STYLES = [
 
 export default function AppearanceSettingsPage() {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
+  const { enterCustomizeMode } = useCustomizeMode();
 
   const handleBrightness = useCallback((v: number) => setOverrides({ brightness: v }), [setOverrides]);
   const handleSaturation = useCallback((v: number) => setOverrides({ saturation: v }), [setOverrides]);
@@ -325,6 +327,44 @@ export default function AppearanceSettingsPage() {
       </header>
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '20px 16px' }}>
+
+        {/* ── Customize Mode entry points ── */}
+        <section style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>
+            Customize Your Space
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 12 }}>
+            Personalize each page with your own colors, fonts, layouts, and effects.
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+            {([
+              { page: 'home'       as const, label: 'Home',       emoji: '🏠' },
+              { page: 'profile'    as const, label: 'Profile',    emoji: '👤' },
+              { page: 'dreamspace' as const, label: 'DreamSpace', emoji: '✦' },
+              { page: 'feed'       as const, label: 'Feed',       emoji: '📡' },
+            ]).map(({ page, label, emoji }) => (
+              <button
+                key={page}
+                type="button"
+                onClick={() => enterCustomizeMode(page)}
+                style={{
+                  padding: '14px 12px',
+                  borderRadius: 16,
+                  border: '1.5px solid rgba(58,111,216,0.22)',
+                  background: 'rgba(58,111,216,0.06)',
+                  cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center',
+                  color: 'var(--de-heading)',
+                  transition: 'all 0.15s',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                <span style={{ fontSize: 24 }}>{emoji}</span>
+                <span style={{ fontSize: 13, fontWeight: 700 }}>{label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
 
         {/* ── Gradient Theme — user-editable sky+gold ── */}
         <GradientThemePicker />

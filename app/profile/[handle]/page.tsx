@@ -6,6 +6,7 @@ import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/componen
 import FollowButton from '@/components/feed/FollowButton';
 import DreamWord from '@/components/ui/DreamWord';
 import ProfileShareButton from '@/components/ProfileShareButton';
+import ProfileCustomizeButton from '@/components/profile/ProfileCustomizeButton';
 
 // Extended profile type
 type Profile = {
@@ -107,20 +108,23 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <ProfileShareButton />
           {isOwner ? (
-            <Link
-              href="/edit-profiledream"
-              style={{
-                width: 34, height: 34, borderRadius: '50%',
-                background: 'rgba(255,255,255,0.75)',
-                border: '1.5px solid rgba(0,0,0,0.1)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 14, textDecoration: 'none', color: '#666',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              }}
-              title="Edit profile"
-            >
-              <Pencil size={14} />
-            </Link>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <ProfileCustomizeButton />
+              <Link
+                href="/edit-profiledream"
+                style={{
+                  width: 34, height: 34, borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.75)',
+                  border: '1.5px solid rgba(0,0,0,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 14, textDecoration: 'none', color: '#666',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                }}
+                title="Edit profile"
+              >
+                <Pencil size={14} />
+              </Link>
+            </div>
           ) : (
             <FollowButton handle={profile.handle} displayName={displayName} />
           )}

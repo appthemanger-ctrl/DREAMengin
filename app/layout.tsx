@@ -7,6 +7,8 @@ import ThemeApplicator from '@/components/ThemeApplicator';
 import Link from 'next/link';
 import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
 import GlobalDreamBar from '@/components/home/GlobalDreamBar';
+import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
+import GlobalCustomizeUI from '@/components/customize/GlobalCustomizeUI';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -59,10 +61,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <ThemeProvider>
           <ThemeApplicator />
-          <DreamSystemProvider>
-            <main role="main" aria-label="Main content">{children}</main>
-            <GlobalDreamBar />
-          </DreamSystemProvider>
+          <CustomizeModeProvider>
+            <DreamSystemProvider>
+              <main role="main" aria-label="Main content">{children}</main>
+              <GlobalDreamBar />
+              <GlobalCustomizeUI />
+            </DreamSystemProvider>
+          </CustomizeModeProvider>
           {/* Permanent policy footer (req 10) — always accessible, no login required */}
           <footer
             style={{
