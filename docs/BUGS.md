@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-16 03:20 UTC  
-**Triggered by commit:** `e2e8e10` on `copilot/fix-home-button-dual-menus` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/fix-home-button-dual-menus
+**Last updated:** 2026-03-16 03:21 UTC  
+**Triggered by commit:** `0d038f1` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #220 from appthemanger-ctrl/copilot/fix-home-button-dual-menus
 
 ---
 
