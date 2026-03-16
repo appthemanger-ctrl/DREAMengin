@@ -55,10 +55,7 @@ export function useKeySet(
 ): React.MutableRefObject<Set<string>> {
   const keysRef = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (!active) {
-      keysRef.current.clear();
-      return;
-    }
+    if (!active) return;
     const down = (e: KeyboardEvent) => {
       keysRef.current.add(e.key);
       if (preventDefault) e.preventDefault();
@@ -72,6 +69,7 @@ export function useKeySet(
     return () => {
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
+      keysRef.current.clear();
     };
   }, [active, preventDefault]);
   return keysRef;
