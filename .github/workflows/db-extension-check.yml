@@ -1,0 +1,92 @@
+name: DB Extension Check
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/db-extension-check.yml"
+
+jobs:
+  check-db-extensions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      REQUIRED_EXTENSIONS: "pgcrypto uuid-ossp vector"
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v5
+
+      - name: Validate DATABASE_URL
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "ERROR: DATABASE_URL secret is not set."
+            exit 1
+          fi
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Print available vs installed extensions
+        run: |
+          psql "$DATABASE_URL" <<'SQL'
+          SET statement_timeout='58s';
+          SET idle_session_timeout='58s';
+
+          \echo ''
+          \echo '=== INSTALLED EXTENSIONS ==='
+          SELECT
+            e.name,
+            COALESCE(n.nspname, '-') AS schema,
+            e.default_version,
+            x.extversion AS installed_version,
+            e.comment
+          FROM
+            pg_available_extensions() e(name, default_version, comment)
+            LEFT JOIN pg_extension x ON e.name = x.extname
+            LEFT JOIN pg_namespace n ON x.extnamespace = n.oid
+          WHERE
+            x.extname IS NOT NULL
+          ORDER BY e.name;
+
+          \echo ''
+          \echo '=== AVAILABLE BUT NOT INSTALLED ==='
+          SELECT
+            e.name,
+            e.default_version,
+            e.comment
+          FROM
+            pg_available_extensions() e(name, default_version, comment)
+            LEFT JOIN pg_extension x ON e.name = x.extname
+          WHERE
+            x.extname IS NULL
+          ORDER BY e.name;
+          SQL
+
+      - name: Check required extensions
+        run: |
+          INSTALLED="$(psql "$DATABASE_URL" -Atc "SELECT extname FROM pg_extension ORDER BY extname;")"
+
+          echo ""
+          echo "=== REQUIRED EXTENSIONS CHECK ==="
+
+          missing=0
+          for ext in $REQUIRED_EXTENSIONS; do
+            if echo "$INSTALLED" | grep -qx "$ext"; then
+              echo "OK: $ext is installed"
+            else
+              echo "MISSING: $ext is not installed"
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            echo ""
+            echo "One or more required extensions are missing."
+            exit 1
+          fi
