@@ -61,13 +61,17 @@ import DreamWord from '@/components/ui/DreamWord';
 // ── Layout constants ─────────────────────────────────────────────────────────
 /** Thick bar height when locked at the bottom */
 const BAR_H        = 80;
-/** Panel height when locked at the top */
+/** Panel height when locked at the top (expanded) */
 const TOP_H        = 340;
+/** Compact nav-bar height when locked at the top (collapsed/nav-bar mode) */
+const NAV_H        = 52;
 /** Gold button diameter */
 const GOLD_SZ      = 64;
 const GOLD_R       = GOLD_SZ / 2;
 /** Snap to bottom when dragged down this many px from top */
 const SNAP_DOWN_PX = 88;
+/** Drag distance to expand compact nav bar into full panel */
+const EXPAND_THRESHOLD = 80;
 /** Spring animation string */
 const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
 /** Double-tap window (ms) for gold button */
@@ -136,14 +140,15 @@ function ContextIcon({ ctx, size }: { ctx: DreamBarContext; size: number }) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Props
+// ── Props
 // ─────────────────────────────────────────────────────────────────────────────
 interface DreamDMBarProps {
   /** Single-tap the gold button → open radial menus */
   onBothMenus: () => void;
-  /** Double-tap the gold button → go home */
+  /** Double-tap the gold button (bar at bottom) → go home in Surface Space */
   onHome: () => void;
+  /** Double-tap the gold button (bar at top) → open HomeDream in DreamSpace (dual-home) */
+  onHomeDreamSpace?: () => void;
   /** Bridge bar state to the dual-runtime host */
   onRuntimeModeChange?: (mode: 'home' | 'blend' | 'dreamspace') => void;
   /** 0..1 blend for dragging second runtime from off-screen */
@@ -153,7 +158,7 @@ interface DreamDMBarProps {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, onRuntimeBlendChange }: DreamDMBarProps) {
+export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange }: DreamDMBarProps) {
   // ── Screen geometry ────────────────────────────────────────────────────────
   const [screenH, setScreenH] = useState(900);
   useEffect(() => {
@@ -164,11 +169,16 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
   }, []);
 
   // ── Window position state ──────────────────────────────────────────────────
-  /** Whether bar is snapped to top (panel mode) */
-  const [isTop,    setIsTop]    = useState(false);
+  /** Whether bar is snapped to top (nav-bar or panel mode) */
+  const [isTop,         setIsTop]         = useState(false);
+  /**
+   * Whether the top-locked bar is in full-panel mode.
+   * false = compact nav-bar (NAV_H); true = expanded panel (TOP_H).
+   */
+  const [isTopExpanded, setIsTopExpanded] = useState(false);
   /** Current bar height while dragging from bottom (px). Rests at BAR_H. */
   const [dragH,    setDragH]    = useState(BAR_H);
-  /** How far bar has slid down from the top during a top→bottom drag (px) */
+  /** How far bar has slid down from the top during a top-expanded→bottom drag (px) */
   const [slideDown, setSlideDown] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -176,6 +186,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
     active: false, startY: 0,
     startH: BAR_H, startSlide: 0,
     fromTop: false,
+    fromTopExpanded: false,
   });
 
   // ── Gold button press state (iOS-like feedback) ────────────────────────────
@@ -190,8 +201,14 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
       goldRef.current.lastAt = 0;
       // Haptic: double-tap = strong feedback
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 40, 6]);
-      onHome();
-      if (isTop) { setIsTop(false); setDragH(BAR_H); setSlideDown(0); }
+      if (isTop) {
+        // Bar is locked at top → open HomeDream in DreamSpace region (dual-home).
+        // Keep the bar at the top so both HomeDream views are active simultaneously.
+        onHomeDreamSpace?.();
+      } else {
+        // Bar is at the bottom → return home in Surface Space (standard).
+        onHome();
+      }
     } else {
       goldRef.current.lastAt = now;
       goldRef.current.timer = setTimeout(() => {
@@ -201,9 +218,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
         onBothMenus();
       }, DOUBLE_TAP + 10);
     }
-  }, [isTop, onHome, onBothMenus]);
+  }, [isTop, onHome, onHomeDreamSpace, onBothMenus]);
 
-  // Also collapse bar on swipe-down on gold (pointer drag down > 30px)
+  // Also handle gold swipe-down (pointer drag down > 30px)
   const goldDragRef = useRef({ active: false, startY: 0 });
   const handleGoldPointerDown = (e: React.PointerEvent) => {
     goldDragRef.current = { active: true, startY: e.clientY };
@@ -215,7 +232,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
     goldDragRef.current.active = false;
     const dy = e.clientY - goldDragRef.current.startY;
     if (dy > 30 && isTop) {
-      setIsTop(false); setDragH(BAR_H); setSlideDown(0);
+      // Swiping down on gold while bar is at the top → collapse bar to bottom.
+      setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
     } else {
       handleGoldTap();
     }
@@ -229,6 +247,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
       active: true, startY: e.clientY,
       startH: dragH, startSlide: slideDown,
       fromTop: isTop,
+      fromTopExpanded: isTop && isTopExpanded,
     };
     setIsDragging(true);
   };
@@ -241,8 +260,12 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
       // Expanding from bottom: dragging UP increases bar height
       const newH = Math.max(BAR_H, Math.min(screenH * 0.85, dragRef.current.startH - dy));
       setDragH(newH);
+    } else if (!dragRef.current.fromTopExpanded) {
+      // Top-compact → dragging DOWN expands the panel downward (grow height)
+      const newH = Math.max(NAV_H, Math.min(TOP_H, dragRef.current.startH + dy));
+      setDragH(newH);
     } else {
-      // Collapsing from top: dragging DOWN slides bar away from top
+      // Top-expanded → dragging DOWN slides the bar away from the top edge
       const newSlide = Math.max(0, Math.min(screenH * 0.5, dragRef.current.startSlide + dy));
       setSlideDown(newSlide);
     }
@@ -254,20 +277,28 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
     setIsDragging(false);
 
     if (!dragRef.current.fromTop) {
-      // Free settle where released; lock only if user reaches the top.
+      // Expanding from bottom: snap to top-compact if reached near the top.
       const barTopFromScreenTop = screenH - dragH;
       if (barTopFromScreenTop <= 8 || dragH >= screenH * 0.84) {
-        setIsTop(true); setDragH(BAR_H); setSlideDown(0);
+        setIsTop(true); setIsTopExpanded(false); setDragH(NAV_H); setSlideDown(0);
       } else {
         setDragH(Math.max(BAR_H, Math.min(screenH * 0.85, dragH)));
       }
+    } else if (!dragRef.current.fromTopExpanded) {
+      // Top-compact: decide whether to expand to full panel or snap back to compact
+      const dy = e.clientY - dragRef.current.startY;
+      if (dy > EXPAND_THRESHOLD || dragH > NAV_H + EXPAND_THRESHOLD) {
+        setIsTopExpanded(true); setDragH(BAR_H); setSlideDown(0);
+      } else {
+        setDragH(NAV_H); // snap back to compact nav-bar
+      }
     } else {
-      // Decide: collapse to bottom or spring back to top
+      // Top-expanded: decide whether to collapse to bottom or spring back to panel
       const dy = e.clientY - dragRef.current.startY;
       if (dy > SNAP_DOWN_PX || slideDown > SNAP_DOWN_PX) {
-        setIsTop(false); setDragH(BAR_H); setSlideDown(0);
+        setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
       } else {
-        setSlideDown(0); // spring back
+        setSlideDown(0); // spring back to expanded panel
       }
     }
   };
@@ -467,15 +498,23 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
 
   useEffect(() => {
     if (!onRuntimeBlendChange) return;
-    if (isTop) {
+    if (isTop && isTopExpanded) {
       onRuntimeBlendChange(1);
+      return;
+    }
+    if (isTop && !isTopExpanded) {
+      // Compact nav-bar at top: blend proportional to how far the user is dragging it open
+      const maxExpand = TOP_H - NAV_H;
+      const expand = Math.max(0, dragH - NAV_H);
+      const blend = maxExpand > 0 ? Math.max(0, Math.min(1, expand / maxExpand)) : 0;
+      onRuntimeBlendChange(blend);
       return;
     }
     const maxDrag = (screenH * 0.85) - BAR_H;
     const raw = maxDrag > 0 ? (dragH - BAR_H) / maxDrag : 0;
     const blend = Math.max(0, Math.min(1, raw));
     onRuntimeBlendChange(blend);
-  }, [dragH, isTop, onRuntimeBlendChange, screenH]);
+  }, [dragH, isTop, isTopExpanded, onRuntimeBlendChange, screenH]);
 
   if (!mounted) return null;
 
@@ -483,19 +522,25 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
   const transition = isDragging ? 'none' : SPRING;
 
   // Bar geometry
-  const barH: number    = isTop ? TOP_H : dragH;
+  // - Bottom mode:       grows upward from the screen bottom (dragH)
+  // - Top-compact mode:  thin nav bar at top (NAV_H), drag handle below
+  // - Top-expanded mode: full panel at top (TOP_H), can slide away from top
+  const barH: number    = isTop
+    ? (isTopExpanded ? TOP_H : dragH) // compact uses dragH (starts at NAV_H); expanded = fixed TOP_H
+    : dragH;
   const barTop: number  = isTop
-    ? slideDown                          // slides away from top on collapse drag
-    : (screenH - dragH);                 // grows from bottom
-  const showFull: boolean = isTop || dragH > 180;
+    ? (isTopExpanded ? slideDown : 0) // expanded can slide; compact is always pinned to top
+    : (screenH - dragH);              // grows from bottom
 
-  // Gold button geometry — CORRECTED:
-  // When bar is at BOTTOM: gold sits on the bar's top edge (center = barTop)
-  // When bar is at TOP:    gold sits on the bar's bottom edge (center = slideDown + TOP_H)
-  // Exception: if "attached to top" position goes off-screen, lock at top (10px)
+  // showFull: whether to render the expanded tab panel instead of the compact bar
+  const showFull: boolean = isTopExpanded || dragH > 180;
+
+  // Gold button geometry:
+  // - Bottom mode: gold sits on the BAR's top edge  (center = barTop)
+  // - Top modes:   gold hangs from the BAR's bottom edge (center = barTop + barH)
   const attachedGoldTop: number = isTop
-    ? (slideDown + TOP_H - GOLD_R)   // attached to bottom edge of top panel
-    : (barTop - GOLD_R);             // attached to top edge of bottom bar
+    ? (barTop + barH - GOLD_R)  // bottom edge of the top bar / panel
+    : (barTop - GOLD_R);        // top edge of the bottom bar
   const isGoldOffScreen: boolean = !isTop && (barTop - GOLD_R < 0);
   const goldTopPx: number = isGoldOffScreen ? 10 : attachedGoldTop;
 
@@ -508,7 +553,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
       {/* ── Gold sphere button ──────────────────────────────────────────────── */}
       <button
         type="button"
-        aria-label="Gold button — tap for menus, double-tap to go home"
+        aria-label="Gold button — tap for menus, double-tap to open HomeDream"
         onPointerDown={handleGoldPointerDown}
         onPointerUp={handleGoldPointerUp}
         onPointerCancel={() => { goldDragRef.current.active = false; setGoldPressed(false); }}
@@ -571,7 +616,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onRuntimeModeChange, o
           overflow: 'hidden',
           transition,
           display: 'flex',
-          // Drag handle at TOP when growing from bottom; at BOTTOM when at top
+          // Drag handle at BOTTOM when at top (drag down to expand/collapse);
+          // drag handle at TOP when growing from bottom (drag up to expand).
           flexDirection: isTop ? 'column-reverse' : 'column',
           background: 'linear-gradient(180deg, rgba(242,243,247,0.97) 0%, rgba(238,240,245,0.99) 100%)',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',

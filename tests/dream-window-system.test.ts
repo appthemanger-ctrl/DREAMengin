@@ -66,6 +66,7 @@ import {
   setRuntimeWorld,
   swapDominantRuntime,
   makeHomeActiveTop,
+  makeHomeDreamSpaceActive,
   isHomeActiveTop,
   worldsEqual,
   SURFACE_NAMES,
@@ -973,6 +974,43 @@ describe('dualRuntime', () => {
       const once = swapDominantRuntime(DEFAULT_DUAL_RUNTIME);
       const twice = swapDominantRuntime(once);
       expect(twice.dominantRegion).toBe(DEFAULT_DUAL_RUNTIME.dominantRegion);
+    });
+  });
+
+  // ── makeHomeDreamSpaceActive ───────────────────────────────────────────────
+
+  describe('makeHomeDreamSpaceActive', () => {
+    it('sets dreamSpaceWorld to HomeDream Surface', () => {
+      const next = makeHomeDreamSpaceActive(DEFAULT_DUAL_RUNTIME);
+      expect(next.dreamSpaceWorld).toBe('HomeDream Surface');
+    });
+
+    it('sets dominantRegion to DreamSpace', () => {
+      const next = makeHomeDreamSpaceActive(DEFAULT_DUAL_RUNTIME);
+      expect(next.dominantRegion).toBe('DreamSpace');
+    });
+
+    it('preserves surfaceSpaceWorld unchanged', () => {
+      const modified = setRuntimeWorld(DEFAULT_DUAL_RUNTIME, 'top', 'DreamSpace');
+      const next = makeHomeDreamSpaceActive(modified);
+      expect(next.surfaceSpaceWorld).toBe('DreamSpace');
+    });
+
+    it('uses canonical surface name (HomeDream Surface)', () => {
+      const next = makeHomeDreamSpaceActive(DEFAULT_DUAL_RUNTIME);
+      expect(next.dreamSpaceWorld).toBe(SURFACE_NAMES.HOME_DREAM_SURFACE);
+    });
+
+    it('enables dual-home state: both regions show HomeDream Surface', () => {
+      // Start with default (Surface Space shows HomeDream Surface)
+      const dualHome = makeHomeDreamSpaceActive(DEFAULT_DUAL_RUNTIME);
+      expect(dualHome.surfaceSpaceWorld).toBe('HomeDream Surface');
+      expect(dualHome.dreamSpaceWorld).toBe('HomeDream Surface');
+    });
+
+    it('returns a new state object', () => {
+      const next = makeHomeDreamSpaceActive(DEFAULT_DUAL_RUNTIME);
+      expect(next).not.toBe(DEFAULT_DUAL_RUNTIME);
     });
   });
 

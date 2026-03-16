@@ -23,9 +23,14 @@ type RuntimeBlendFn = (v: number) => void;
 type ReturnHomeFn   = () => void;
 
 export interface RuntimeCallbacks {
-  returnHome:  ReturnHomeFn;
-  modeChange:  RuntimeModeFn;
-  blendChange: RuntimeBlendFn;
+  returnHome:       ReturnHomeFn;
+  modeChange:       RuntimeModeFn;
+  blendChange:      RuntimeBlendFn;
+  /**
+   * Load HomeDream Surface into the DreamSpace region (bar at top, dual-home).
+   * Called when the user double-taps Gold while the bar is locked at the top.
+   */
+  homeDreamSpace?: () => void;
 }
 
 // ── Context shape ─────────────────────────────────────────────────────────────

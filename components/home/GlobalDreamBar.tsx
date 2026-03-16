@@ -43,6 +43,20 @@ export default function GlobalDreamBar() {
     }
   }, [closeBothMenus, closeDrEams, runtimeCallbacks, router]);
 
+  // ── Gold button (bar at top): double-tap → HomeDream in DreamSpace ────────
+
+  const handleHomeDreamSpace = useCallback(() => {
+    closeBothMenus();
+    closeDrEams();
+    if (runtimeCallbacks?.homeDreamSpace) {
+      // HomeSystem is active — load HomeDream into DreamSpace region (dual-home)
+      runtimeCallbacks.homeDreamSpace();
+    } else {
+      // Any other surface — navigate to home
+      router.push('/');
+    }
+  }, [closeBothMenus, closeDrEams, runtimeCallbacks, router]);
+
   // ── System menu actions ───────────────────────────────────────────────────
 
   const handleSystemAction = useCallback((action: SystemMenuAction) => {
@@ -68,6 +82,7 @@ export default function GlobalDreamBar() {
       <DreamDMBar
         onHome={handleHome}
         onBothMenus={openBothMenus}
+        onHomeDreamSpace={handleHomeDreamSpace}
         onRuntimeModeChange={onRuntimeModeChange}
         onRuntimeBlendChange={onRuntimeBlendChange}
       />

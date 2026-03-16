@@ -56,16 +56,24 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     setBarBlend(1);
   }, [dualRuntime]);
 
+  const openHomeDreamSpace = useCallback(() => {
+    // Load HomeDream Surface into the DreamSpace region (bar at top, dual-home).
+    // Keeps the bar at the top so the user sees two HomeDream views at once.
+    dualRuntime.goToHomeDreamSpace();
+    setBarBlend(1);
+  }, [dualRuntime]);
+
   // Register runtime callbacks with the global context so GlobalDreamBar
   // can bridge bar drag/tap events to this dual-runtime view.
   useEffect(() => {
     registerRuntimeCallbacks({
       returnHome,
-      modeChange:  handleBarRuntimeMode,
-      blendChange: setBarBlend,
+      modeChange:    handleBarRuntimeMode,
+      blendChange:   setBarBlend,
+      homeDreamSpace: openHomeDreamSpace,
     });
     return unregisterRuntimeCallbacks;
-  }, [returnHome, handleBarRuntimeMode, registerRuntimeCallbacks, unregisterRuntimeCallbacks]);
+  }, [returnHome, handleBarRuntimeMode, openHomeDreamSpace, registerRuntimeCallbacks, unregisterRuntimeCallbacks]);
 
   return (
     <>
