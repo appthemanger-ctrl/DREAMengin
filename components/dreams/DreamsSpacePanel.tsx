@@ -23,6 +23,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
+import { FEATURE_MANIFESTS, computeBuildCycleState } from '@/lib/feature-build';
 
 type ServiceType = 'youtube' | 'github' | 'spotify' | null;
 /** Top-level view for the Dreams Space panel: Daydreams (priority) or connector Feeds. */
@@ -37,6 +38,11 @@ const DAYDREAMS = [
   { id: 'brand',  label: 'Brand',  icon: '🎨', route: '/daydream/brand',  engin: 'BrandingEngin'   },
   { id: 'create', label: 'Create', icon: '✏️', route: '/daydream/create', engin: 'ContentEngin'    },
 ] as const;
+
+/** Pre-compute build cycle state for every pair so tiles can display progress. */
+const BUILD_CYCLE_MAP = Object.fromEntries(
+  FEATURE_MANIFESTS.map((m) => [m.domain.toLowerCase(), computeBuildCycleState(m)]),
+) as Record<string, ReturnType<typeof computeBuildCycleState>>;
 
 const SERVICE_TABS: { id: ServiceType; label: string; icon: string }[] = [
   { id: null,      label: 'All',     icon: '✨' },
@@ -165,7 +171,13 @@ export default function DreamsSpacePanel() {
           gap: 8,
           alignContent: 'start',
         }}>
-          {DAYDREAMS.map((dd) => (
+          {DAYDREAMS.map((dd) => {
+            const cycle = BUILD_CYCLE_MAP[dd.id];
+            const isRefine = cycle?.phase === 'REFINE';
+            const pct = cycle?.progressPct ?? 0;
+            const accentColor = isRefine ? '#d4a843' : 'rgba(200,152,26,0.7)';
+
+            return (
             <button
               key={dd.id}
               type="button"
@@ -176,12 +188,14 @@ export default function DreamsSpacePanel() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 4,
-                padding: '14px 8px',
+                padding: '12px 8px 10px',
                 borderRadius: 12,
                 border: '1px solid rgba(200,152,26,0.22)',
                 background: 'rgba(200,152,26,0.07)',
                 cursor: 'pointer',
                 transition: 'background 0.15s, border-color 0.15s',
+                position: 'relative',
+                overflow: 'hidden',
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.background = 'rgba(200,152,26,0.15)';
@@ -193,6 +207,22 @@ export default function DreamsSpacePanel() {
               }}
               aria-label={`Open ${dd.label} Daydream`}
             >
+              {/* Phase badge — top-right corner */}
+              {cycle && (
+                <span style={{
+                  position: 'absolute',
+                  top: 5,
+                  right: 6,
+                  fontSize: 8,
+                  fontWeight: 800,
+                  letterSpacing: '0.06em',
+                  color: isRefine ? '#d4a843' : 'rgba(180,140,30,0.7)',
+                  textTransform: 'uppercase',
+                }}>
+                  {isRefine ? '✦ REFINE' : 'BUILD'}
+                </span>
+              )}
+
               <span style={{ fontSize: 22 }}>{dd.icon}</span>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
                 {dd.label}
@@ -200,8 +230,36 @@ export default function DreamsSpacePanel() {
               <span style={{ fontSize: 9, color: 'var(--de-text-dim)', letterSpacing: '0.04em' }}>
                 {dd.engin}
               </span>
+
+              {/* Build progress bar */}
+              {cycle && (
+                <div style={{
+                  width: '100%',
+                  marginTop: 4,
+                  height: 3,
+                  borderRadius: 9999,
+                  background: 'rgba(200,152,26,0.12)',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${pct}%`,
+                    background: accentColor,
+                    borderRadius: 9999,
+                    transition: 'width 0.4s ease',
+                  }} />
+                </div>
+              )}
+
+              {/* Progress label */}
+              {cycle && (
+                <span style={{ fontSize: 8, color: 'var(--de-text-dim)', letterSpacing: '0.04em' }}>
+                  {cycle.featuresImplemented}/{cycle.maxFeatures}
+                </span>
+              )}
             </button>
-          ))}
+            );
+          })}
         </div>
       ) : (
         /* ── Feeds — connector content ── */

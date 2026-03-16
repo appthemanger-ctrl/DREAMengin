@@ -1,0 +1,251 @@
+name: Daydream + Engin SICC UI Refinement
+
+# Runs the full Stylized · Intuitive · Cohesive · Coherent quality pass
+# against a specific Daydream+Engin pair surface.
+#
+# Triggered:
+#   - Automatically by the build-cycle workflow when a pair reaches REFINE phase
+#   - On push to Engin component files (for pairs already in REFINE)
+#   - Manually via workflow_dispatch for targeted polish sprints
+#
+# Covers:
+#   ✦ Stylized  — design tokens, DreamWord treatment, premium gradients
+#   ◈ Intuitive — ARIA labels, hover/focus states, press feedback
+#   ◎ Cohesive  — accent tokens, border-radius, transition timing
+#   ◇ Coherent  — canonical naming, bridge emits, back-navigation
+
+on:
+  workflow_call:
+    inputs:
+      daydream:
+        required: true
+        type: string
+      engin:
+        required: true
+        type: string
+      engin_file:
+        required: true
+        type: string
+      daydream_path:
+        required: true
+        type: string
+  push:
+    paths:
+      - 'components/daydream/StarMakerEngin.tsx'
+      - 'components/daydream/GameEngin.tsx'
+      - 'components/daydream/LabEngin.tsx'
+      - 'components/daydream/CodeEngin.tsx'
+      - 'components/daydream/BrandingEngin.tsx'
+      - 'components/daydream/ContentEngin.tsx'
+  workflow_dispatch:
+    inputs:
+      daydream:
+        description: 'Daydream domain (Music|Games|Lab|Code|Brand|Create)'
+        required: true
+        default: 'Music'
+      engin:
+        description: 'Engin surface name'
+        required: true
+        default: 'StarMakerEngin'
+      engin_file:
+        description: 'Path to Engin component file'
+        required: true
+        default: 'components/daydream/StarMakerEngin.tsx'
+      daydream_path:
+        description: 'Path to Daydream app directory'
+        required: true
+        default: 'app/daydream/music'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sicc-refinement-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10.30.0'
+
+jobs:
+
+  sicc-audit:
+    name: 'SICC Audit — ${{ inputs.daydream || ''All Engins'' }} / ${{ inputs.engin || ''Push'' }}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engin_file: components/daydream/StarMakerEngin.tsx
+            daydream: Music
+            engin: StarMakerEngin
+          - engin_file: components/daydream/GameEngin.tsx
+            daydream: Games
+            engin: GameEngin
+          - engin_file: components/daydream/LabEngin.tsx
+            daydream: Lab
+            engin: LabEngin
+          - engin_file: components/daydream/CodeEngin.tsx
+            daydream: Code
+            engin: CodeEngin
+          - engin_file: components/daydream/BrandingEngin.tsx
+            daydream: Brand
+            engin: BrandingEngin
+          - engin_file: components/daydream/ContentEngin.tsx
+            daydream: Create
+            engin: ContentEngin
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── ✦ Stylized ────────────────────────────────────────────────────────
+      - name: '✦ Stylized — design token scan'
+        id: stylized-tokens
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          COUNT=$(grep -c 'var(--de-' "$FILE" 2>/dev/null || echo 0)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          if [ "$COUNT" -gt 0 ]; then
+            echo "✦ PASS design tokens ($COUNT usages)"
+          else
+            echo "⚠ WARN no --de-* tokens in $FILE"
+          fi
+
+      - name: '✦ Stylized — DreamWord treatment scan'
+        id: stylized-dreamword
+        run: |
+          HITS=$(grep -rc 'de-dream-word\|DreamWord' components/ 2>/dev/null | awk -F: '{sum+=$2} END{print sum+0}')
+          echo "count=$HITS" >> "$GITHUB_OUTPUT"
+          echo "DreamWord usages across components/: $HITS"
+
+      - name: '✦ Stylized — accent constant defined'
+        id: stylized-accent
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          ACCENT=$(grep -c "const ACCENT = '" "$FILE" 2>/dev/null || echo 0)
+          echo "defined=$ACCENT" >> "$GITHUB_OUTPUT"
+          [ "$ACCENT" -gt 0 ] && echo "✦ PASS accent constant present" || echo "⚠ WARN no ACCENT constant"
+
+      # ── ◈ Intuitive ───────────────────────────────────────────────────────
+      - name: '◈ Intuitive — ARIA label coverage'
+        id: intuitive-aria
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          ARIA=$(grep -c 'aria-label' "$FILE" 2>/dev/null || echo 0)
+          echo "count=$ARIA" >> "$GITHUB_OUTPUT"
+          echo "ARIA labels: $ARIA"
+          [ "$ARIA" -gt 0 ] && echo "◈ PASS ARIA labels present" || echo "⚠ WARN missing ARIA labels"
+
+      - name: '◈ Intuitive — hover/focus states'
+        id: intuitive-hover
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          HOVER=$(grep -cE 'onMouseEnter|:hover|:focus' "$FILE" 2>/dev/null || echo 0)
+          echo "count=$HOVER" >> "$GITHUB_OUTPUT"
+          echo "Hover/focus patterns: $HOVER"
+
+      - name: '◈ Intuitive — press feedback (de-pressable)'
+        id: intuitive-press
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          PRESS=$(grep -c 'de-pressable\|de-card-pressable' "$FILE" 2>/dev/null || echo 0)
+          echo "count=$PRESS" >> "$GITHUB_OUTPUT"
+          echo "Press feedback usages: $PRESS"
+
+      # ── ◎ Cohesive ────────────────────────────────────────────────────────
+      - name: '◎ Cohesive — border-radius consistency'
+        id: cohesive-radius
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          CONSISTENT=$(grep -cE 'borderRadius: (8|10|12)' "$FILE" 2>/dev/null || echo 0)
+          ARBITRARY=$(grep -cE 'borderRadius: [0-9]+' "$FILE" 2>/dev/null || echo 0)
+          echo "consistent=$CONSISTENT" >> "$GITHUB_OUTPUT"
+          echo "arbitrary=$ARBITRARY"   >> "$GITHUB_OUTPUT"
+          echo "Border-radius — consistent: $CONSISTENT, total numeric: $ARBITRARY"
+
+      - name: '◎ Cohesive — transition timing'
+        id: cohesive-transition
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          GOOD=$(grep -cE 'transition:.*0\.(15|2)s' "$FILE" 2>/dev/null || echo 0)
+          echo "count=$GOOD" >> "$GITHUB_OUTPUT"
+          echo "Standard transition timings (0.15s/0.2s): $GOOD"
+
+      - name: '◎ Cohesive — bridge emits for key actions'
+        id: cohesive-bridge
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          EMITS=$(grep -c "bridge\.emit(" "$FILE" 2>/dev/null || echo 0)
+          echo "count=$EMITS" >> "$GITHUB_OUTPUT"
+          [ "$EMITS" -gt 0 ] && echo "◎ PASS bridge emits: $EMITS" || echo "⚠ WARN no bridge emits"
+
+      # ── ◇ Coherent ────────────────────────────────────────────────────────
+      - name: '◇ Coherent — canonical naming (no rejected OS terms)'
+        id: coherent-naming
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          VIOLATIONS=$(grep -ciE '\b(widget|engine|dashboard)\b' "$FILE" 2>/dev/null || echo 0)
+          echo "violations=$VIOLATIONS" >> "$GITHUB_OUTPUT"
+          [ "$VIOLATIONS" -eq 0 ] && echo "◇ PASS no rejected OS terms" || echo "⚠ WARN $VIOLATIONS violations"
+
+      - name: '◇ Coherent — back navigation present'
+        id: coherent-backnav
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          BACKNAV=$(grep -c 'onBack' "$FILE" 2>/dev/null || echo 0)
+          echo "count=$BACKNAV" >> "$GITHUB_OUTPUT"
+          [ "$BACKNAV" -gt 0 ] && echo "◇ PASS onBack prop present" || echo "⚠ WARN onBack missing"
+
+      # ── ESLint refinement pass ─────────────────────────────────────────────
+      - name: 'ESLint auto-fix (SICC refinement pass)'
+        run: |
+          pnpm exec eslint --fix ${{ matrix.engin_file }} || true
+
+      - name: Commit SICC refinement fixes
+        run: |
+          git config user.name  "sicc-refine-bot[${{ matrix.daydream }}]"
+          git config user.email "sicc-refine-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No SICC fixes to commit."
+          else
+            git add -A
+            git commit -m "refine(${{ matrix.daydream }}): SICC polish pass [skip ci]"
+            git push || true
+          fi
+
+      # ── Step summary ───────────────────────────────────────────────────────
+      - name: SICC report
+        if: always()
+        run: |
+          echo "## ✦◈◎◇ SICC Report — ${{ matrix.daydream }} / ${{ matrix.engin }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Dimension  | Check                      | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------------|----------------------------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ✦ Stylized  | Design tokens              | ${{ steps.stylized-tokens.outputs.count }} usages |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ✦ Stylized  | Accent constant            | ${{ steps.stylized-accent.outputs.defined == '1' && 'defined ✓' || '⚠ missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ◈ Intuitive | ARIA labels                | ${{ steps.intuitive-aria.outputs.count }} labels |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ◈ Intuitive | Hover states               | ${{ steps.intuitive-hover.outputs.count }} patterns |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ◈ Intuitive | Press feedback             | ${{ steps.intuitive-press.outputs.count }} usages |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ◎ Cohesive  | Border-radius consistency  | ${{ steps.cohesive-radius.outputs.consistent }} consistent |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ◎ Cohesive  | Transition timing          | ${{ steps.cohesive-transition.outputs.count }} standard |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ◎ Cohesive  | Bridge emits               | ${{ steps.cohesive-bridge.outputs.count }} emits |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ◇ Coherent  | Rejected OS terms          | ${{ steps.coherent-naming.outputs.violations }} violations |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ◇ Coherent  | Back navigation            | ${{ steps.coherent-backnav.outputs.count > '0' && 'present ✓' || '⚠ missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Branch: \`${{ github.ref_name }}\` · Triggered by: ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
