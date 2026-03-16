@@ -1,12 +1,10 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
-import DualBottomMenu, { type SystemMenuAction } from '@/components/menus/DualBottomMenu';
-import DrEamsPanel from '@/components/dreamengin/DrEamsPanel';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
-import DreamDMBar from '@/components/messaging/DreamDMBar';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
 type ProfileLike = {
   id?: string;
@@ -18,14 +16,9 @@ type ProfileLike = {
 // Inner component that uses the dual runtime context
 function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
   const dualRuntime = useDualRuntime();
+  const { registerRuntimeCallbacks, unregisterRuntimeCallbacks, closeBothMenus, closeDrEams } = useDreamSystem();
 
-  const [bothMenusOpen, setBothMenusOpen] = useState(false);
-  const [drEamsOpen, setDrEamsOpen]       = useState(false);
-  const [barBlend, setBarBlend]           = useState(0);
-
-  const closeAllMenus = useCallback(() => {
-    setBothMenusOpen(false);
-  }, []);
+  const [barBlend, setBarBlend] = useState(0);
 
   const returnHome = useCallback(() => {
     // Check if Home is already the active top runtime
@@ -34,28 +27,15 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     // Make Home the active top runtime (or refresh if already active)
     dualRuntime.goToHome();
 
-    closeAllMenus();
-    setDrEamsOpen(false);
+    closeBothMenus();
+    closeDrEams();
     setBarBlend(0);
 
     // If Home was already active, this acts as a "refresh"
     if (wasHomeActive) {
       console.log('[HomeSystem] Refreshing Home (already active)');
     }
-  }, [closeAllMenus, dualRuntime]);
-
-  const onSystemAction = useCallback((action: SystemMenuAction) => {
-    closeAllMenus();
-    if (action === 'dr-eams')       { setDrEamsOpen(true); return; }
-    if (action === 'settings')      { window.location.href = '/settings'; return; }
-    if (action === 'account')       { window.location.href = '/edit-profiledream'; return; }
-    if (action === 'profiles')      { window.location.href = '/edit-profiledream'; return; }
-    if (action === 'feed-settings') { window.location.href = '/feed-settings'; return; }
-    if (action === 'connectors')    { window.location.href = '/connectors'; return; }
-    if (action === 'marketplace')   { window.location.href = '/marketplace'; return; }
-    if (action === 'appearance')    { window.location.href = '/settings'; return; }
-    if (action === 'go-home')       { returnHome(); return; }
-  }, [closeAllMenus, returnHome]);
+  }, [dualRuntime, closeBothMenus, closeDrEams]);
 
   const handleBarRuntimeMode = useCallback((mode: 'home' | 'blend' | 'dreamspace') => {
     if (mode === 'dreamspace') {
@@ -75,6 +55,17 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     dualRuntime.setDominantRuntime('DreamSpace');
     setBarBlend(1);
   }, [dualRuntime]);
+
+  // Register runtime callbacks with the global context so GlobalDreamBar
+  // can bridge bar drag/tap events to this dual-runtime view.
+  useEffect(() => {
+    registerRuntimeCallbacks({
+      returnHome,
+      modeChange:  handleBarRuntimeMode,
+      blendChange: setBarBlend,
+    });
+    return unregisterRuntimeCallbacks;
+  }, [returnHome, handleBarRuntimeMode, registerRuntimeCallbacks, unregisterRuntimeCallbacks]);
 
   return (
     <>
@@ -98,7 +89,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
-            onOpenDrEams={() => setDrEamsOpen(true)}
+            onOpenDrEams={() => {/* DrEams panel is now managed globally via DreamSystemContext */}}
             onOpenDreamSpace={openDreamSpace}
           />
         </div>
@@ -120,28 +111,11 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
-            onOpenDrEams={() => setDrEamsOpen(true)}
+            onOpenDrEams={() => {/* DrEams panel is now managed globally via DreamSystemContext */}}
             onOpenDreamSpace={openDreamSpace}
           />
         </div>
       </div>
-
-      {/* DreamDM Bar — gold button embedded; single-tap opens menus, double-tap goes home */}
-      <DreamDMBar
-        onHome={returnHome}
-        onBothMenus={() => setBothMenusOpen(true)}
-        onRuntimeModeChange={handleBarRuntimeMode}
-        onRuntimeBlendChange={setBarBlend}
-      />
-
-      {/* Dual bottom menu — Daydreams (left) + DreamMenu (right), mobile-first bottom sheet */}
-      <DualBottomMenu
-        open={bothMenusOpen}
-        onClose={closeAllMenus}
-        onSystemAction={onSystemAction}
-      />
-
-      {drEamsOpen ? <DrEamsPanel onClose={() => setDrEamsOpen(false)} /> : null}
     </>
   );
 }
