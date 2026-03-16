@@ -3,17 +3,20 @@
 /**
  * DualRuntimeContainer
  *
- * Manages two independent runtime views (top and bottom).
- * The DreamDM Bar controls which runtime is dominant (visible).
+ * Manages two independent runtime regions (Surface Space and DreamSpace).
+ * The DreamDM Bar controls which region is dominant (visible).
  *
- * Each runtime is an independent view that can display:
- * - Home
+ * Each region is an independent view that can display:
+ * - HomeDream Surface
  * - DreamSpace
- * - Dreams
+ * - Dream Windows
  * - Engins
  * - Any system world
  *
- * Both runtimes can display the same content simultaneously.
+ * Both regions can display the same world simultaneously.
+ *
+ * Naming: uses canonical region names from lib/identity/canonical-names.ts.
+ * Architecture: docs/ARCHITECTURE.md §1 (Runtime regions)
  */
 
 import React, { createContext, useCallback, useContext, useState } from 'react';
@@ -29,11 +32,17 @@ import {
 
 interface DualRuntimeContextValue {
   state: DualRuntimeState;
+  /** Set the world shown in the Surface Space region */
   setTopRuntime: (world: RuntimeWorld) => void;
+  /** Set the world shown in the DreamSpace region */
   setBottomRuntime: (world: RuntimeWorld) => void;
-  setDominantRuntime: (runtime: 'top' | 'bottom') => void;
+  /** Set which region is dominant — 'Surface Space' or 'DreamSpace' */
+  setDominantRuntime: (region: 'Surface Space' | 'DreamSpace') => void;
+  /** Toggle dominant region */
   swapDominance: () => void;
+  /** Navigate to HomeDream Surface in Surface Space and make it dominant */
   goToHome: () => void;
+  /** Returns true if HomeDream Surface is active and Surface Space is dominant */
   isHomeActive: () => boolean;
 }
 
@@ -47,9 +56,9 @@ export function useDualRuntime(): DualRuntimeContextValue {
 
 interface DualRuntimeContainerProps {
   children: (props: {
-    topRuntime: RuntimeWorld;
-    bottomRuntime: RuntimeWorld;
-    dominantRuntime: 'top' | 'bottom';
+    surfaceSpaceWorld: RuntimeWorld;
+    dreamSpaceWorld: RuntimeWorld;
+    dominantRegion: 'Surface Space' | 'DreamSpace';
   }) => React.ReactNode;
 }
 
@@ -68,16 +77,12 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
     setState((prev) => swapDominantRuntime(prev));
   }, []);
 
-  const setDominantRuntime = useCallback((runtime: 'top' | 'bottom') => {
-    setState((prev) => ({ ...prev, dominantRuntime: runtime }));
+  const setDominantRuntime = useCallback((region: 'Surface Space' | 'DreamSpace') => {
+    setState((prev) => ({ ...prev, dominantRegion: region }));
   }, []);
 
   const goToHome = useCallback(() => {
-    setState((prev) => {
-      // If Home is already the active top runtime, this will be a "refresh"
-      // Otherwise, make Home the active top runtime
-      return makeHomeActiveTop(prev);
-    });
+    setState((prev) => makeHomeActiveTop(prev));
   }, []);
 
   const isHomeActive = useCallback(() => {
@@ -97,9 +102,9 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
   return (
     <DualRuntimeContext.Provider value={value}>
       {children({
-        topRuntime: state.topRuntime,
-        bottomRuntime: state.bottomRuntime,
-        dominantRuntime: state.dominantRuntime,
+        surfaceSpaceWorld: state.surfaceSpaceWorld,
+        dreamSpaceWorld:   state.dreamSpaceWorld,
+        dominantRegion:    state.dominantRegion,
       })}
     </DualRuntimeContext.Provider>
   );

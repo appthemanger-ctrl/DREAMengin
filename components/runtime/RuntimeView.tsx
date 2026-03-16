@@ -38,7 +38,7 @@ export default function RuntimeView({
   onOpenDreamSpace,
 }: RuntimeViewProps) {
   // Home runtime
-  if (world === 'home') {
+  if (world === 'HomeDream Surface') {
     return (
       <div
         style={{
@@ -61,7 +61,7 @@ export default function RuntimeView({
   }
 
   // DreamSpace runtime — renders the live DreamsSpacePanel (Daydreams + connector feeds)
-  if (world === 'dreamspace') {
+  if (world === 'DreamSpace') {
     return (
       <div
         style={{
@@ -79,8 +79,8 @@ export default function RuntimeView({
     );
   }
 
-  // Profile runtime
-  if (world === 'profile') {
+  // View Profile Surface runtime
+  if (world === 'View Profile Surface') {
     return (
       <div
         style={{

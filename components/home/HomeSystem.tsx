@@ -59,20 +59,20 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
 
   const handleBarRuntimeMode = useCallback((mode: 'home' | 'blend' | 'dreamspace') => {
     if (mode === 'dreamspace') {
-      dualRuntime.setBottomRuntime('dreamspace');
-      dualRuntime.setDominantRuntime('bottom');
+      dualRuntime.setBottomRuntime('DreamSpace');
+      dualRuntime.setDominantRuntime('DreamSpace');
       return;
     }
 
     if (mode === 'home') {
-      dualRuntime.setTopRuntime('home');
-      dualRuntime.setDominantRuntime('top');
+      dualRuntime.setTopRuntime('HomeDream Surface');
+      dualRuntime.setDominantRuntime('Surface Space');
     }
   }, [dualRuntime]);
 
   const openDreamSpace = useCallback(() => {
-    dualRuntime.setBottomRuntime('dreamspace');
-    dualRuntime.setDominantRuntime('bottom');
+    dualRuntime.setBottomRuntime('DreamSpace');
+    dualRuntime.setDominantRuntime('DreamSpace');
     setBarBlend(1);
   }, [dualRuntime]);
 
@@ -88,13 +88,13 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             inset: 0,
             transform: 'translate3d(0,0,0)',
             opacity: 1 - (barBlend * 0.18),
-            pointerEvents: dualRuntime.state.dominantRuntime === 'top' ? 'auto' : 'none',
+            pointerEvents: dualRuntime.state.dominantRegion === 'Surface Space' ? 'auto' : 'none',
             transition: 'opacity 180ms ease',
           }}
         >
           <RuntimeView
-            world={dualRuntime.state.topRuntime}
-            isActive={dualRuntime.state.dominantRuntime === 'top'}
+            world={dualRuntime.state.surfaceSpaceWorld}
+            isActive={dualRuntime.state.dominantRegion === 'Surface Space'}
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
@@ -109,14 +109,14 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             inset: 0,
             transform: `translate3d(0, ${(1 - barBlend) * 100}%, 0)`,
             opacity: 0.45 + (barBlend * 0.55),
-            pointerEvents: dualRuntime.state.dominantRuntime === 'bottom' ? 'auto' : 'none',
+            pointerEvents: dualRuntime.state.dominantRegion === 'DreamSpace' ? 'auto' : 'none',
             transition: 'transform 180ms ease, opacity 180ms ease',
             willChange: 'transform, opacity',
           }}
         >
           <RuntimeView
-            world={dualRuntime.state.bottomRuntime}
-            isActive={dualRuntime.state.dominantRuntime === 'bottom'}
+            world={dualRuntime.state.dreamSpaceWorld}
+            isActive={dualRuntime.state.dominantRegion === 'DreamSpace'}
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
