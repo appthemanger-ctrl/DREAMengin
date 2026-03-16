@@ -70,6 +70,7 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-16 02:25 UTC | `8c3c494` | completedream | appthemanger-ctrl | ~1 modified<br>Update update-bugs.mjs<br>✏️: `scripts/update-bugs.mjs` |
 | **auto** | 2026-03-16 02:12 UTC | `fa93571` | copilot/update-system-logic | Copilot | ~2 modified<br>feat: Phase 7 system logic — Dream Window lifecycle, connection network, canonical runtime regions — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/dream-window/connectionVerbs.ts`, `tests/dream-window-system.test.ts` |
 | **auto** | 2026-03-16 01:42 UTC | `af47b8d` | copilot/canonical-os-layer-naming-migration | Copilot | ~13 modified<br>fix: remove duplicate content from all updated docs — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json`, `docs/ARCHITECTURE.md`, `docs/AXIOMS.md`, `docs/BOOGIEMAN_POLICY.md`, `docs/DR_EAMS.md`, `docs/IDARI_CONTRACT.md`, `docs/LAW.md`, `docs/NAMING_AUTHORITY.md` … +1 more |
 | **auto** | 2026-03-15 23:02 UTC | `c513b3f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #216 from appthemanger-ctrl/copilot/clean-up-unused-resources — chore: strip all mock/demo/placeholder code — wire every surface to real data<br> |
