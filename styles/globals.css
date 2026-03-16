@@ -43,6 +43,13 @@
   --user-blur: 24px;
   --starfield-style: light;
 
+  /* ── Skin engine defaults (overridden by CustomizeModeContext) ── */
+  --skin-widget-opacity: 0.72;
+  --skin-widget-radius:  18px;
+  --skin-widget-shadow:  0 4px 16px rgba(0,0,0,0.07);
+  --skin-font:           var(--font-space-grotesk, "Space Grotesk", system-ui, sans-serif);
+  --skin-accent-color:   #c8981a;
+
   /* ── Tailwind HSL tokens (required by shadcn) ── */
   --background:            220 15% 95%;
   --foreground:            220 30% 15%;
