@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-15T14:37:46.456Z",
+  "generated_at": "2026-03-16T01:41:53.139Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 78,
+  "count": 76,
   "surfaces": [
     {
       "type": "page",
@@ -50,7 +50,12 @@
       "path": "/ads",
       "file": "app/ads/page.tsx",
       "component": "AdsPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
+        }
+      ]
     },
     {
       "type": "page",
@@ -72,18 +77,6 @@
       "file": "app/analytics/page.tsx",
       "component": "AnalyticsLegacyPage",
       "imports": []
-    },
-    {
-      "type": "page",
-      "path": "/anchor-demo",
-      "file": "app/anchor-demo/page.tsx",
-      "component": "AnchorWidgetDemo",
-      "imports": [
-        {
-          "name": "AnchorWidgetOrchestrator",
-          "from": "@/components/AnchorWidgetOrchestrator"
-        }
-      ]
     },
     {
       "type": "page",
@@ -115,13 +108,6 @@
           "from": "./ConnectorsClient"
         }
       ]
-    },
-    {
-      "type": "page",
-      "path": "/create",
-      "file": "app/create/page.tsx",
-      "component": "CreateLegacyPage",
-      "imports": []
     },
     {
       "type": "page",
@@ -163,6 +149,18 @@
         {
           "name": "ContentEngin",
           "from": "@/components/daydream/ContentEngin"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/daydream/game",
+      "file": "app/daydream/game/page.tsx",
+      "component": "GamePage",
+      "imports": [
+        {
+          "name": "GamePageClient",
+          "from": "./GamePageClient"
         }
       ]
     },
@@ -290,24 +288,22 @@
       "path": "/edit-profiledream",
       "file": "app/edit-profiledream/page.tsx",
       "component": "EditProfileDreamPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
+        }
+      ]
     },
     {
       "type": "page",
       "path": "/feed-settings",
       "file": "app/feed-settings/page.tsx",
       "component": "FeedSettingsPage",
-      "imports": []
-    },
-    {
-      "type": "page",
-      "path": "/game",
-      "file": "app/game/page.tsx",
-      "component": "GamePage",
       "imports": [
         {
-          "name": "GamePageClient",
-          "from": "./GamePageClient"
+          "name": "FeedSettingsClient",
+          "from": "./FeedSettingsClient"
         }
       ]
     },
@@ -339,6 +335,10 @@
         {
           "name": "PasswordField",
           "from": "@/components/auth/PasswordField"
+        },
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
         }
       ]
     },
@@ -377,6 +377,10 @@
       "component": "LoginPage",
       "imports": [
         {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
+        },
+        {
           "name": "PasswordField",
           "from": "@/components/auth/PasswordField"
         }
@@ -391,6 +395,10 @@
         {
           "name": "MarketplaceListingCard",
           "from": "@/components/marketplace/MarketplaceListingCard"
+        },
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
         }
       ]
     },
@@ -457,7 +465,7 @@
       "type": "page",
       "path": "/notes",
       "file": "app/notes/page.tsx",
-      "component": "Notes",
+      "component": "NotesPage",
       "imports": []
     },
     {
@@ -465,7 +473,12 @@
       "path": "/onboarding",
       "file": "app/onboarding/page.tsx",
       "component": "OnboardingPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
+        }
+      ]
     },
     {
       "type": "page",
@@ -502,6 +515,10 @@
         {
           "name": "FollowButton",
           "from": "@/components/feed/FollowButton"
+        },
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
         },
         {
           "name": "ProfileShareButton",
@@ -563,8 +580,8 @@
       "component": "ControlsSettingsPage",
       "imports": [
         {
-          "name": "PositionIndicatorToggle",
-          "from": "./PositionIndicatorToggle"
+          "name": "ControlsClient",
+          "from": "./ControlsClient"
         }
       ]
     },
@@ -573,7 +590,12 @@
       "path": "/settings/data",
       "file": "app/settings/data/page.tsx",
       "component": "DataSettingsPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "DataClient",
+          "from": "./DataClient"
+        }
+      ]
     },
     {
       "type": "page",
@@ -601,7 +623,12 @@
       "path": "/settings/privacy",
       "file": "app/settings/privacy/page.tsx",
       "component": "PrivacySettingsPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "PrivacyClient",
+          "from": "./PrivacyClient"
+        }
+      ]
     },
     {
       "type": "page",
@@ -622,14 +649,24 @@
       "path": "/settings/widgets",
       "file": "app/settings/widgets/page.tsx",
       "component": "WidgetsSettingsPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
+        }
+      ]
     },
     {
       "type": "page",
       "path": "/shop",
       "file": "app/shop/page.tsx",
       "component": "ShopPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
+        }
+      ]
     },
     {
       "type": "page",
@@ -654,6 +691,10 @@
         {
           "name": "ProfileShareButton",
           "from": "@/components/ProfileShareButton"
+        },
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
         }
       ]
     },

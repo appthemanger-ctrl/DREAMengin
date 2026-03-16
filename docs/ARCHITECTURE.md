@@ -1,34 +1,41 @@
 # DREAMengin Architecture
 
 Status: active implementation architecture  
-Last updated: 2026-03-06
+Last updated: 2026-03-16
 
 `README.md` is the authoritative full product specification. This file explains how the current repo maps to that spec and where the implementation is already strong versus where it is still being aligned.
 
 ## 1. Product model
 
-DREAMengin is a privacy-first modular platform built around three core surfaces, six Daydream/Engin pairs, modular Dreams, and the AI triad.
+DREAMengin is a **privacy-first, dual-runtime spatial operating environment** built around three core surfaces, a six-surface Daydream network connected to six Engin runtimes via 11 named connection paths, Dream Windows, and the AI triad.
+
+### Runtime regions
+- **Surface Space** — upper active runtime region (hosts active surfaces)
+- **DreamSpace** — lower modular runtime region (hosts Dream Windows, launcher)
+- **DreamDM Bar** — Runtime Seam / Persistent Interaction Rail between the two regions
 
 ### Core surfaces
-- **HomeDream** — the main private operating surface
-- **EditProfileDream** — the private builder for profile output
-- **ViewProfile** — the shared/public output surface
+- **HomeDream Surface** — the main private operating surface (`/homedream`)
+- **Edit ProfileDream Surface** — the private builder for profile output (`/edit-profiledream`)
+- **View Profile Surface** — the shared/public output surface (`/view-profile`)
 
-### Daydream pair system
-- Music / StarMakerEngin
-- Games / GameEngin
-- Lab / LabEngin
-- Code / CodeEngin
-- Brand / BrandingEngin
-- Create / ContentEngin
+### Daydream Surface Network (multi-connection, not 1-to-1)
+- Music Daydream Surface / StarMakerEngin
+- Games Daydream Surface / GameEngin
+- Lab Daydream Surface / LabEngin
+- Code Daydream Surface / CodeEngin
+- Brand Daydream Surface / BrandingEngin
+- Create Daydream Surface / ContentEngin
+
+Any Daydream Surface may connect to multiple Engin runtimes. The system is a multi-surface, multi-engin connection network with 11 named connection paths.
 
 ### Platform modules
-- Dreams
-- DreamShop
-- DreamMarketplace
+- Dream Windows (modular runtime containers)
+- DreamShop Surface
+- DreamMarketplace Surface
 - DreamMenu
-- DreamDM
-- DreamAds
+- DreamDM Surface
+- DreamAds Surface
 
 ### AI triad
 - Dr. Eams
@@ -39,19 +46,19 @@ DREAMengin is a privacy-first modular platform built around three core surfaces,
 
 | Product surface | Canonical route | Current support routes |
 |---|---|---|
-| HomeDream | `/homedream` | `/home` |
-| EditProfileDream | `/edit-profiledream` | `/edit-profile` |
-| ViewProfile | `/view-profile` | `/profile/[handle]`, `/profile`, `/u/[handle]` |
-| DreamShop | `/shop` | `/shop/sell` |
-| DreamMarketplace | `/marketplace` | none |
-| DreamDM | `/messages` | none |
-| DreamAds | `/ads` | `/ads/create` |
+| HomeDream Surface | `/homedream` | `/home` |
+| Edit ProfileDream Surface | `/edit-profiledream` | `/edit-profile` |
+| View Profile Surface | `/view-profile` | `/profile/[handle]`, `/profile`, `/u/[handle]` |
+| DreamShop Surface | `/shop` | `/shop/sell` |
+| DreamMarketplace Surface | `/marketplace` | none |
+| DreamDM Surface | `/messages` | none |
+| DreamAds Surface | `/ads` | `/ads/create` |
 
 The canonical product names should be used in docs, labels, and architecture conversations even when support routes still exist.
 
 ## 3. Current implementation zones
 
-### HomeDream
+### HomeDream Surface
 Primary code lives in:
 - `app/homedream/page.tsx`
 - `app/home/page.tsx`
@@ -60,7 +67,7 @@ Primary code lives in:
 - `components/menus/*`
 - `components/HomeRadialNav.tsx`
 
-### EditProfileDream and ViewProfile
+### Edit ProfileDream Surface and View Profile Surface
 Primary code lives in:
 - `app/edit-profiledream/page.tsx`
 - `app/edit-profile/page.tsx`
@@ -69,8 +76,8 @@ Primary code lives in:
 - `components/profile/*`
 - `components/ProfileEditor.tsx`
 
-### Dreams
-Canonical Dream-layer files already exist in:
+### Dream Windows
+Canonical Dream Window layer files already exist in:
 - `components/dreams/DreamShell.tsx`
 - `components/dreams/DreamConnectorLayer.tsx`
 - `components/dreams/DreamFeatureLayer.tsx`
@@ -81,9 +88,9 @@ Legacy widget implementation material still exists in:
 - `components/widgets/*`
 - `types/widget-system-v2.ts`
 
-## 4. Universal Dreams model
+## 4. Universal Dream Window model
 
-The repo is being aligned to one universal Dream model.
+The repo is being aligned to one universal Dream Window model.
 
 ### Layer 1 — DreamShell
 Visual shell, naming, size, placement, style, menus, and shell-level controls.
@@ -92,29 +99,29 @@ Visual shell, naming, size, placement, style, menus, and shell-level controls.
 Authentication state, provider identity, capability discovery, and connector metadata.
 
 ### Layer 3 — Feature
-Active modules that only appear when the connector or Dream actually supports them.
+Active modules that only appear when the connector or Dream Window actually supports them.
 
 ### Layer 4 — Output / Projection
-Saved profile-safe output. This is what should be shared into ViewProfile and other public contexts.
+Saved profile-safe output. This is what should be shared into View Profile Surface and other public contexts.
 
 ## 5. Privacy and projection boundaries
 
 The architecture follows the README rule that nothing is public by default.
 
-- **HomeDream** is the private source surface.
-- **EditProfileDream** is the private builder and staging layer.
-- **ViewProfile** and public profile routes must render only saved/shared output.
-- Profile output must not read unrestricted private HomeDream state.
+- **HomeDream Surface** is the private source surface.
+- **Edit ProfileDream Surface** is the private builder and staging layer.
+- **View Profile Surface** and public profile routes must render only saved/shared output.
+- Profile output must not read unrestricted private HomeDream data.
 - Any visibility change with public effect must require explicit user intent.
 
 ## 6. Combined profile output
 
-Compatible Dreams may combine into automatic profile Super Widgets.
+Compatible Dream Windows may combine into automatic profile output blocks.
 
 Implementation rule:
 - the user chooses what to expose
 - the system decides the default composition template
-- the public/shared surface receives a projection, not the source Dream internals
+- the public/shared surface receives a projection, not the source Dream Window internals
 
 ## 7. DreamAds separation
 
@@ -138,9 +145,9 @@ Minimal clutter, intentional motion, mobile-first polish.
 
 These remain open and should be documented honestly:
 - legacy route names still exist beside canonical spec routes
-- legacy widget naming still appears in code and docs
+- legacy widget naming still appears in code and docs (use Dream Window canonically)
 - extra daydream routes still exist outside the six canonical pairs
-- some profile editing behavior still uses owner-facing profile workspace patterns rather than fully isolated EditProfileDream language
+- some profile editing behavior still uses owner-facing profile workspace patterns rather than fully isolated Edit ProfileDream Surface language
 
 ## 10. Build/runtime assumptions
 
@@ -181,3 +188,4 @@ The TypeScript entry-point is `lib/ai/rateLimit.ts`:
 The `lib/ai/rate-limiter.ts` file is a separate higher-level service that also
 uses `check_ai_rate_limit` + `ai_rate_limits` and is not a replacement for
 `rateLimit.ts` — both must stay consistent with the canonical table/RPC above.
+

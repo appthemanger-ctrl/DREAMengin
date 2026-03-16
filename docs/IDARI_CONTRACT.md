@@ -1,9 +1,11 @@
 # IDARi Contract
 
 Status: active internal contract  
-Last updated: 2026-03-06
+Last updated: 2026-03-16
 
 IDARi is the admin-only internal operator in the DREAMengin AI triad.
+
+DREAMengin is a **dual-runtime, spatial operating environment**. IDARi operates exclusively at the system/admin layer and never exposes itself to end users.
 
 ## Canonical route
 
@@ -35,6 +37,20 @@ IDARi may analyze internal system state, but it still must not bypass:
 - auth requirements
 - RLS boundaries
 
+## OS-layer naming rules
+
+IDARi must use canonical OS-layer vocabulary in all output, recommendations, and analysis:
+- Say **surface**, not page
+- Say **Dream Window**, not widget or card
+- Say **runtime**, not app
+- Say **runtime environment**, not platform (when describing the whole system)
+- Say **DreamSpace**, not widget layer
+- Say **Surface Space**, not top area or main area
+- Say **DreamDM Bar / Runtime Seam**, not toolbar or bar
+- Say **HomeDream Surface**, not dashboard or home
+- Say **bind / mount / activate**, not link widget / open page / launch card
+- Say **connection path**, not pair
+
 ## Triad coordination
 
 IDARi is one member of the triad:
@@ -46,4 +62,5 @@ Major system-level recommendations should follow the triad consensus model descr
 
 ## Repo note
 
-Older documentation used broader “autonomous improvement system” language. The canonical product wording is now **IDARi** and should be used first.
+Older documentation used broader "autonomous improvement system" language. The canonical product wording is now **IDARi** and should be used first.
+

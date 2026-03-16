@@ -1,14 +1,14 @@
 # Dr. Eams
 
 Status: active triad surface  
-Last updated: 2026-03-06
+Last updated: 2026-03-16
 
-Dr. Eams is the user-facing assistant in DREAMengin.
+Dr. Eams is the user-facing assistant in DREAMengin — a dual-runtime, spatial operating environment.
 
 `README.md` defines Dr. Eams as:
 - a primary assistant presence in DreamMenu
-- a HomeDream search and guidance surface
-- a message-launch surface that routes users into DreamDM when they send a message
+- a HomeDream Surface search and guidance surface
+- a message-launch surface that routes users into DreamDM Surface when they send a message
 
 ## Canonical route
 
@@ -36,7 +36,7 @@ Dr. Eams must not:
 
 ## Surface placement
 
-### HomeDream
+### HomeDream Surface
 Dr. Eams acts as:
 - search
 - guidance
@@ -46,21 +46,27 @@ Dr. Eams acts as:
 ### DreamMenu
 Dr. Eams appears as a system guide and helper.
 
-### DreamDM
-When the user is composing a real message through the Dr. Eams flow, the action should land in DreamDM rather than pretending the message was sent somewhere else.
+### DreamDM Surface
+When the user is composing a real message through the Dr. Eams flow, the action should land in DreamDM Surface rather than pretending the message was sent somewhere else.
 
 ## Vocabulary rules
 
-Use README-first product vocabulary:
-- HomeDream
-- EditProfileDream
-- ViewProfile
-- Dreams
-- DreamMenu
-- DreamDM
-- DreamShop
-- DreamMarketplace
-- DreamAds
+Use OS-layer canonical vocabulary:
+- HomeDream Surface (not "home page" or "dashboard")
+- Edit ProfileDream Surface (not "profile editor" or "builder page")
+- View Profile Surface (not "public profile page")
+- Dream Windows (not "widgets" or "cards")
+- DreamSpace (not "widget layer" or "bottom panel")
+- Surface Space (not "main area" or "top")
+- DreamMenu (not "nav" or "sidebar")
+- DreamDM Surface (not "messages page" or "chat")
+- DreamShop Surface (not "shop page")
+- DreamMarketplace Surface (not "marketplace page")
+- DreamAds Surface (not "ads page")
+
+Connection language:
+- Say "bind", "mount", "activate", "attach", "route into", "open into", "connect across"
+- Do not say "link widget", "open page", "go to tab", "launch card"
 
 Avoid reviving old mixed language when a canonical term exists.
 
@@ -73,3 +79,4 @@ Dr. Eams capability metadata is defined in:
 ## Honest implementation status
 
 The repo contains both canonical and legacy Dr. Eams routing. Documentation and code should continue to prefer `/api/ai/eams` while legacy support routes are absorbed or retired.
+

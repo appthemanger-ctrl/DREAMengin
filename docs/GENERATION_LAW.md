@@ -1,7 +1,7 @@
 # Generation Law
 
 Status: binding AI build constraint  
-Last updated: 2026-03-08
+Last updated: 2026-03-16
 
 This document is the authoritative expansion of README.md §27.  
 Every AI agent (Dr. Eams, IDARi, TheBoogieMan.Ai, or any external Copilot) must read and apply it before each generation pass.
@@ -97,27 +97,35 @@ Residuals are not numbers first — they are structured mismatches. Seven classe
 
 ### 3.2 Naming Residual
 
-**Question:** Does the code use the canonical vocabulary defined in README.md and LAW.md?
+**Question:** Does the code use the canonical vocabulary defined in README.md, LAW.md, and the OS-Layer Naming Model?
 
 **Authoritative names:**
 
 | Canonical | Do not use |
 |-----------|-----------|
-| `HomeDream` | `home`, `dashboard`, `feed` |
-| `EditProfileDream` | `profile-editor`, `edit-profile`, `builder` |
-| `ViewProfile` | `public-profile`, `profile-page` |
-| `DreamShop` | `shop`, `store` |
-| `DreamMarketplace` | `marketplace` |
+| `HomeDream Surface` | `home`, `dashboard`, `feed`, `home page` |
+| `EditProfileDream Surface` | `profile-editor`, `edit-profile`, `builder` |
+| `ViewProfile Surface` | `public-profile`, `profile-page` |
+| `DreamShop Surface` | `shop`, `store`, `shop page` |
+| `DreamMarketplace Surface` | `marketplace`, `marketplace page` |
 | `DreamMenu` | `nav`, `sidebar`, `hamburger` |
-| `DreamDM` | `messages`, `chat`, `inbox` |
-| `DreamAds` | `promotions`, `ads` |
-| `Daydream` | `mini-app`, `domain`, `section` |
-| `DayDreamengin` | `engin`, `engine`, `control` |
-| `Dreams` (widgets) | `widgets`, `cards`, `modules` |
+| `DreamDM Surface` | `messages`, `chat`, `inbox`, `messages page` |
+| `DreamAds Surface` | `promotions`, `ads`, `ads page` |
+| `Daydream Surface` | `mini-app`, `domain`, `section`, `page` |
+| `Engin` (suffix) | `engine`, `control` |
+| `Dream Window` | `widget`, `card`, `module` (for runtime containers) |
+| `DreamSpace` | `widget layer`, `bottom panel` |
+| `Surface Space` | `top area`, `main area` |
+| `surface` | `page` (when referring to a DREAMengin surface) |
+| `runtime` | `app` (when referring to the live system) |
+| `surface switching` | `tab navigation` |
+| `bind / mount / activate` | `link widget`, `open page`, `launch card` |
+| `connection path` | `pair` (when describing the Daydream↔Engin network) |
 
 **Residual is present when:**
 - Legacy names appear in new route files, component names, or variable names without a redirect or explicit alias comment
 - A UI string shown to the user uses a non-canonical name
+- OS-layer rejected terms (widget, page, dashboard, card, app, tab) appear in user-facing copy
 
 ---
 

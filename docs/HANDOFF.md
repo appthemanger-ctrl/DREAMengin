@@ -1,6 +1,78 @@
 # DREAMengin Handoff
 
-Last updated: 2026-03-06
+Last updated: 2026-03-16
+
+## What changed in this alignment pass
+
+This handoff reflects the canonical OS-Layer Naming Migration — upgrading the product description from a page-based app model to the dual-runtime, spatial operating environment model.
+
+### Primary outcome
+
+All docs, canonical name registry, and tests now use the OS-layer naming model:
+- DREAMengin is a **dual-runtime, spatial operating environment**
+- Surfaces (not pages), Dream Windows (not widgets), DreamSpace (not widget layer)
+- Connection language: bind / mount / activate (not link widget / open page)
+- Multi-surface, multi-engin connection network (not 1-to-1 pairs)
+
+### Canonical names now documented first
+
+**Product type:**
+- DREAMengin Runtime Environment (dual-runtime, spatial operating environment)
+
+**Runtime regions:**
+- Surface Space (upper active runtime region)
+- DreamSpace (lower modular runtime region)
+- DreamDM Bar / Runtime Seam (Persistent Interaction Rail)
+
+**Core surfaces:**
+- HomeDream Surface
+- Edit ProfileDream Surface
+- View Profile Surface
+
+**Daydream Surface Network:**
+- Music Daydream Surface / StarMakerEngin
+- Games Daydream Surface / GameEngin
+- Lab Daydream Surface / LabEngin
+- Code Daydream Surface / CodeEngin
+- Brand Daydream Surface / BrandingEngin
+- Create Daydream Surface / ContentEngin
+
+**Platform modules:**
+- DreamShop Surface
+- DreamMarketplace Surface
+- DreamMenu
+- DreamDM Surface
+- DreamAds Surface
+- Dream Windows (modular runtime containers)
+
+**AI triad:**
+- Dr. Eams
+- IDARi
+- TheBoogieMan.Ai
+
+## Current repo reality
+
+- Canonical routes exist for `/homedream`, `/edit-profiledream`, and `/view-profile`.
+- Legacy support routes still exist for `/home`, `/edit-profile`, `/profile`, and `/u/[handle]`.
+- The public/shared profile destination in the current repo is still `/profile/[handle]`.
+- The Dream Window layer already exists in `components/dreams/*` while legacy widget material still exists in `components/widgets/*`.
+- Code-level naming (variable names, component names) may still use legacy "widget" terminology internally — these are residuals to be resolved progressively.
+
+## Next repo steps
+
+1. Continue renaming UI labels and internal docs toward OS-layer canonical names.
+2. Progressively rename internal code references from "widget" to "Dream Window" where it adds clarity.
+3. Tighten HomeDream Surface → Edit ProfileDream Surface → View Profile Surface projection boundaries in code.
+4. Keep additions minimal and prefer moving or re-wiring what already exists.
+5. Ensure all new Dream Window data structures carry the 10 required fields.
+
+## Change Timeline
+
+| # | Date / Time (UTC) | Revision | Branch | Author | Summary |
+|---|---|---|---|---|---|
+| **auto** | 2026-03-16 01:42 UTC | `af47b8d` | copilot/canonical-os-layer-naming-migration | Copilot | ~13 modified<br>fix: remove duplicate content from all updated docs — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json`, `docs/ARCHITECTURE.md`, `docs/AXIOMS.md`, `docs/BOOGIEMAN_POLICY.md`, `docs/DR_EAMS.md`, `docs/IDARI_CONTRACT.md`, `docs/LAW.md`, `docs/NAMING_AUTHORITY.md` … +1 more |
+| **auto** | 2026-03-15 23:02 UTC | `c513b3f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #216 from appthemanger-ctrl/copilot/clean-up-unused-resources — chore: strip all mock/demo/placeholder code — wire every surface to real data<br> |
+| **auto** | 2026-03-15 22:00 UTC | `5017632` | copilot/clean-up-unused-resources | Copilot | +1 added  −6 deleted  ~9 modified<br>chore: remove all mock/demo/placeholder code - complete housekeeping — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `app/daydream/game/GamePageClient.tsx`<br>✏️: `app/profile/[handle]/page.tsx`, `app/settings/safety/page.tsx`, `app/view-profile/page.tsx`, `backend/src/services/ipfsService.js`, `backend/src/services/livekitService.js`, `components/AnchorWidgetOrchestrator.tsx`, `components/dreamengin/NexusMenu.tsx`, `components/profile/ProfileWidgetGrid.tsx`, `validate-deployment.js`<br>🗑️: `components/AdvancedSearch.tsx`, `components/FloatingActionBubble.tsx`, `components/GestureNavigationDemo.tsx`, `components/MobileFloatingActionButton.tsx`, `lib/connectors/demo.ts`, `lib/navigation/mockWidgetData.ts` |
 
 ## What changed in this alignment pass
 

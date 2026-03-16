@@ -1,7 +1,7 @@
 # DREAMengin — Product Constitution
 
-**Status: LOCKED — Phase 7 Final Authority**
-Last updated: 2026-03-10
+**Status: LOCKED — Phase 7 Final Authority + OS-Layer Naming Model**
+Last updated: 2026-03-16
 
 This document is the binding product constitution for DREAMengin.
 
@@ -15,11 +15,11 @@ Reviewers must use this document as an acceptance checklist against any new feat
 
 ### Rule 1: Nothing is public by default.
 
-The default visibility state of every piece of content, every profile, every widget, and every data object in DREAMengin is **private**. This default is enforced at the data layer, not just in the UI. A system that only shows private state visually while leaving data accessible is non-compliant.
+The default visibility state of every piece of content, every profile, every Dream Window, and every data object in DREAMengin is **private**. This default is enforced at the data layer, not just in the UI. A system that only shows private state visually while leaving data accessible is non-compliant.
 
 ### Rule 2: All creation starts private unless the user performs a real explicit public or shared action.
 
-Creating a widget, a post, a profile section, a project, or any other content object does not make that object visible to others. The system must not add the content to any public or shared visibility state until the user performs a real, explicit action that triggers a real state change.
+Creating a Dream Window, a post, a profile section, a project, or any other content object does not make that object visible to others. The system must not add the content to any public or shared visibility state until the user performs a real, explicit action that triggers a real state change.
 
 "Implicit" sharing — caused by a default state, an automatic sync, a connected system assumption, or a convenience feature — is forbidden.
 
@@ -33,10 +33,10 @@ This rule applies without exception to:
 - AI systems (Dr. Eams, IDARi, TheBoogieMan.Ai, or any future AI component)
 - Commerce modules (DreamShop, DreamMarketplace)
 - Messaging modules (DreamDM)
-- Widget modules (Dreams)
+- Dream Window modules (Dream Windows)
 - Advertising modules (DreamAds)
-- Domain systems (all Daydream / Engin pair surfaces)
-- Any future module, integration, or platform extension
+- Domain systems (all Daydream Surface / Engin runtime surfaces)
+- Any future module, integration, or runtime extension
 
 If a proposed feature requires bypassing privacy rules to function, that feature's design is non-compliant. The feature must be redesigned, not the privacy rules.
 
@@ -97,7 +97,7 @@ The platform does not decide for the user. The user decides.
 
 ### Rule 12: Navigation must preserve context rather than making the user feel like they left the product world.
 
-When a user navigates between surfaces inside DREAMengin — from HomeDream to a Daydream, from a Daydream to its Engin, from any surface to Edit ProfileDream — the experience must feel like movement within a single connected environment, not like leaving and returning to a separate product.
+When a user navigates between surfaces inside DREAMengin — from HomeDream Surface to a Daydream Surface, from a Daydream Surface to its Engin runtime, from any surface to Edit ProfileDream Surface — the experience must feel like movement within a single connected environment, not like leaving and returning to a separate product.
 
 Navigation must not:
 - Clear the user's active context without reason
@@ -106,7 +106,7 @@ Navigation must not:
 
 ### Rule 13: Returning from a surface must restore valid prior state where technically feasible.
 
-When a user returns from a surface they navigated away from (e.g., closing a Daydream, returning from View Profile to Edit ProfileDream), the system must restore the prior surface to a valid, coherent state — not a blank or reset state — where the technical cost of doing so is reasonable.
+When a user returns from a surface they navigated away from (e.g., closing a Daydream Surface, returning from View Profile Surface to Edit ProfileDream Surface), the system must restore the prior surface to a valid, coherent state — not a blank or reset state — where the technical cost of doing so is reasonable.
 
 This rule applies to Daydream navigation, profile builder navigation, and modal or overlay surfaces.
 
@@ -122,7 +122,7 @@ Implementing UI that appears complete (all elements visible, all actions implied
 
 ### AP-2: Naming Drift
 
-Using non-canonical names in any code, UI string, documentation, route file, or component name. This includes all rejected names listed in `docs/NAMING_AUTHORITY.md`. Naming drift is a residual class violation and must be corrected before the change is merged.
+Using non-canonical names in any code, UI string, documentation, route file, or component name. This includes all rejected names listed in `docs/NAMING_AUTHORITY.md`, including OS-layer rejected terms (widget, page, dashboard, card, app, tab navigation). Naming drift is a residual class violation and must be corrected before the change is merged.
 
 ### AP-3: Public-by-Default Behavior
 
@@ -155,24 +155,24 @@ A proposed new platform module is valid if and only if:
 A proposed new surface is valid if and only if:
 
 1. **Surface classification fit:** The surface clearly fits as one of:
-   - A Core Dream surface (HomeDream, Edit ProfileDream, View Profile type)
-   - A Daydream Side A (user-facing domain experience)
-   - A Daydream Side B Engin (control layer for a domain pair)
+   - A Core Surface (HomeDream Surface, Edit ProfileDream Surface, View Profile Surface type)
+   - A Daydream Surface (user-facing lived creative space)
+   - An Engin runtime (powered execution layer for a domain)
    - A platform module surface (accessible through DreamMenu or a module route)
-2. **Not a detached app:** The surface shares platform privacy rules, uses canonical names, and connects to the platform's navigation model.
+2. **Not a detached runtime:** The surface shares platform privacy rules, uses canonical names, and connects to the platform's navigation model.
 3. **Privacy fit:** The surface has a meaningful private-by-default context for user-generated content.
-4. **Dream system integration:** Content on the surface can be represented as Dreams (modular units) where structurally appropriate.
+4. **Dream Window integration:** Content on the surface can be represented as Dream Windows (modular runtime containers) where structurally appropriate.
 5. **Constitutional compliance:** The surface complies with every article of this constitution.
 
-### VI.3 Valid New Widget (Dream) Type Proposal
+### VI.3 Valid New Dream Window Type Proposal
 
-A proposed new Dream type is valid if and only if:
+A proposed new Dream Window type is valid if and only if:
 
-1. **Real data:** The Dream represents real data stored in the platform's data layer — not purely decorative or placeholder content.
-2. **Real actions:** Any interactive element within the Dream triggers a real system action with a real, persisted outcome.
-3. **Real visibility logic:** The Dream has a defined visibility state (private, shared, public) that is enforced at the data layer.
-4. **Real ownership:** The Dream has a defined owner, and ownership determines what the owner can see and do that others cannot.
-5. **Constitutional compliance:** The Dream type complies with every article of this constitution.
+1. **Real data:** The Dream Window represents real data stored in the platform's data layer — not purely decorative or placeholder content.
+2. **Real actions:** Any interactive element within the Dream Window triggers a real system action with a real, persisted outcome.
+3. **Real visibility logic:** The Dream Window has a defined visibility state (private, shared, public) that is enforced at the data layer.
+4. **Real ownership:** The Dream Window has a defined owner, and ownership determines what the owner can see and do that others cannot.
+5. **Constitutional compliance:** The Dream Window type complies with every article of this constitution.
 
 ---
 
@@ -240,17 +240,17 @@ USER INTENT AND OWNERSHIP
 [ ] Product convenience does not override user control
 
 NAVIGATION
-[ ] Navigation preserves context within the platform
+[ ] Navigation preserves context within the runtime
 [ ] Returning from a surface restores valid prior state
 
 ANTI-PATTERNS (none present)
 [ ] No fake UI completion
-[ ] No naming drift
+[ ] No naming drift (including OS-layer rejected terms: widget, page, dashboard, card, app)
 [ ] No public-by-default behavior
-[ ] No detached mini-app behavior
+[ ] No detached mini-runtime behavior
 [ ] No privacy-bypassing shortcuts
 
-PROPOSAL VALIDITY (for new modules, surfaces, or Dreams)
+PROPOSAL VALIDITY (for new modules, surfaces, or Dream Windows)
 [ ] Naming fit confirmed
 [ ] Privacy fit confirmed
 [ ] Action honesty confirmed
