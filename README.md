@@ -1,16 +1,16 @@
 DREAMengin — Full System Specification
 
-Next.js 16+ / Supabase / Dual Rumtime Privacy-First Modular Platform
+Next.js 16+ / Supabase / Dual Runtime Privacy-First Spatial Operating Environment
 Author: José Mancilla
-Date: March 6, 2026
+Date: March 16, 2026
 
 ⸻
 
 ## Current Implementation Status
 
-**Phase:** Phase 6 — Platform Completion (AI Triad, Privacy Enforcement, Module Consolidation)
+**Phase:** Phase 7 — OS-Layer Naming Authority (Canonical Names, Dream Window, Dual-Runtime Spatial Model)
 
-**Build status:** 98 routes · Tests 495/495 passing
+**Build status:** 48 routes · Tests 832 passing
 
 **Tech stack:**
 - Next.js 16.1.6 (App Router) · React 19 · TypeScript · Tailwind CSS
@@ -113,8 +113,8 @@ The system therefore behaves like a **connected creative operating environment**
 
 DREAMengin operates as a **dual-runtime spatial system**.
 
-- The **top runtime** is the currently active surface (HomeDream, profile views, DreamDM, etc.)
-- The **lower runtime** is **DreamSpace**
+- The **Surface Space** runtime is the currently active surface (HomeDream, profile views, DreamDM, etc.)
+- The **DreamSpace** runtime is the lower modular runtime region
 - DreamSpace contains:
   - Dreams (blank or connected widgets)
   - Daydream environments
