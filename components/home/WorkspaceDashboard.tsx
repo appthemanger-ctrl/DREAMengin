@@ -476,6 +476,51 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </div>
           </div>
 
+          {/* ── DreamSpace Portal — permanent swap link ── */}
+          {onOpenDreamSpace && (
+            <button
+              type="button"
+              onClick={onOpenDreamSpace}
+              className="de-pressable"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '13px 16px',
+                marginBottom: 16,
+                background: 'linear-gradient(135deg, rgba(200,152,26,0.13) 0%, rgba(74,158,214,0.09) 100%)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: 18,
+                border: '1.5px solid rgba(200,152,26,0.32)',
+                boxShadow: '0 4px 16px rgba(200,152,26,0.13)',
+                cursor: 'pointer',
+                textAlign: 'left',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #c8981a, #d4a843)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: '0 3px 10px rgba(200,152,26,0.32)',
+              }}>
+                <span style={{ fontSize: 15, color: '#fff' }}>✦</span>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.2, marginBottom: 2 }}>
+                  Open <DreamWord />Space
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--de-text-dim)', fontWeight: 500 }}>
+                  Daydreams, feeds & dream windows
+                </div>
+              </div>
+              <ChevronRight size={16} style={{ color: '#c8981a', flexShrink: 0 }} />
+            </button>
+          )}
+
           {/* ── WORKSPACE WINDOW PANEL — full width, elevated ── */}
           <div style={{
             background: 'rgba(255,255,255,0.72)',

@@ -119,6 +119,21 @@ export function makeHomeActiveTop(state: DualRuntimeState): DualRuntimeState {
 }
 
 /**
+ * Load HomeDream Surface into the DreamSpace region and make it dominant.
+ *
+ * Used when the user double-taps the Gold button while the DreamDM Bar is
+ * locked at the top — gives the user two independent HomeDream views
+ * simultaneously (one in Surface Space, one in DreamSpace).
+ */
+export function makeHomeDreamSpaceActive(state: DualRuntimeState): DualRuntimeState {
+  return {
+    ...state,
+    dreamSpaceWorld: SURFACE_NAMES.HOME_DREAM_SURFACE,
+    dominantRegion:  RUNTIME_REGIONS.DREAM_SPACE,
+  };
+}
+
+/**
  * Check if HomeDream Surface is currently the active world in Surface Space
  * and Surface Space is the dominant region.
  */
