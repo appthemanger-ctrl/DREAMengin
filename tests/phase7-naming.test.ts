@@ -3,11 +3,12 @@
 //
 // These tests verify that the canonical-names library correctly identifies
 // valid names, rejects invalid names, and enforces the rules defined in
-// docs/NAMING_AUTHORITY.md.
+// docs/NAMING_AUTHORITY.md (including the OS-Layer Naming Model extension).
 
 import { describe, it, expect } from 'vitest';
 import {
   PLATFORM_NAME,
+  PRODUCT_DESCRIPTION,
   REJECTED_PLATFORM_VARIANTS,
   CORE_SURFACES,
   CORE_SURFACE_ROUTES,
@@ -20,6 +21,16 @@ import {
   MODULE_ROUTES,
   AI_AGENTS,
   AI_ROUTES,
+  RUNTIME_REGIONS,
+  RUNTIME_SEAM_NAMES,
+  SURFACE_NAMES,
+  DREAM_WINDOW,
+  DREAM_WINDOW_STATES,
+  DREAM_WINDOW_REQUIRED_FIELDS,
+  CONNECTION_VERBS,
+  REJECTED_CONNECTION_VERBS,
+  REJECTED_OS_TERMS,
+  NETWORK_COUNTS,
   isCanonicalPlatformName,
   isRejectedPlatformVariant,
   isValidEnginName,
@@ -32,6 +43,12 @@ import {
   getEnginForDomain,
   validateName,
   ALL_CANONICAL_NAMES,
+  isRejectedOsTerm,
+  isValidDreamWindowState,
+  isValidConnectionVerb,
+  isRejectedConnectionVerb,
+  isValidRuntimeRegion,
+  isValidSurfaceName,
 } from '@/lib/identity/canonical-names';
 
 // ---------------------------------------------------------------------------
@@ -373,5 +390,283 @@ describe('ALL_CANONICAL_NAMES registry', () => {
 
   it('registry includes 3 AI agent names', () => {
     expect(ALL_CANONICAL_NAMES.aiAgents).toHaveLength(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OS-Layer: product description
+// ---------------------------------------------------------------------------
+
+describe('OS-layer product description', () => {
+  it('canonical product description contains "dual-runtime"', () => {
+    expect(PRODUCT_DESCRIPTION).toContain('dual-runtime');
+  });
+
+  it('canonical product description contains "spatial operating environment"', () => {
+    expect(PRODUCT_DESCRIPTION).toContain('spatial operating environment');
+  });
+
+  it('registry exposes the product description', () => {
+    expect(ALL_CANONICAL_NAMES.productDescription).toBe(PRODUCT_DESCRIPTION);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OS-Layer: runtime regions
+// ---------------------------------------------------------------------------
+
+describe('Runtime regions', () => {
+  it('Surface Space is the upper active runtime region', () => {
+    expect(RUNTIME_REGIONS.SURFACE_SPACE).toBe('Surface Space');
+  });
+
+  it('DreamSpace is the lower modular runtime region', () => {
+    expect(RUNTIME_REGIONS.DREAM_SPACE).toBe('DreamSpace');
+  });
+
+  it('isValidRuntimeRegion returns true for canonical regions', () => {
+    expect(isValidRuntimeRegion('Surface Space')).toBe(true);
+    expect(isValidRuntimeRegion('DreamSpace')).toBe(true);
+  });
+
+  it('isValidRuntimeRegion returns false for non-canonical names', () => {
+    expect(isValidRuntimeRegion('dreamspace')).toBe(false);
+    expect(isValidRuntimeRegion('widget layer')).toBe(false);
+    expect(isValidRuntimeRegion('bottom panel')).toBe(false);
+  });
+
+  it('DreamDM Bar is a canonical Runtime Seam name', () => {
+    expect(RUNTIME_SEAM_NAMES).toContain('DreamDM Bar');
+  });
+
+  it('Runtime Seam names include all four canonical forms', () => {
+    expect(RUNTIME_SEAM_NAMES).toContain('Persistent Interaction Rail');
+    expect(RUNTIME_SEAM_NAMES).toContain('Persistent Spatial Divider');
+    expect(RUNTIME_SEAM_NAMES).toContain('Runtime Seam');
+  });
+
+  it('registry includes 2 runtime regions', () => {
+    expect(ALL_CANONICAL_NAMES.runtimeRegions).toHaveLength(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OS-Layer: Surface names (with "Surface" suffix)
+// ---------------------------------------------------------------------------
+
+describe('Canonical Surface names', () => {
+  it('HomeDream Surface is the canonical main surface name', () => {
+    expect(SURFACE_NAMES.HOME_DREAM_SURFACE).toBe('HomeDream Surface');
+  });
+
+  it('all six Daydream Surface names are present', () => {
+    expect(SURFACE_NAMES.MUSIC_DAYDREAM_SURFACE).toBe('Music Daydream Surface');
+    expect(SURFACE_NAMES.GAMES_DAYDREAM_SURFACE).toBe('Games Daydream Surface');
+    expect(SURFACE_NAMES.LAB_DAYDREAM_SURFACE).toBe('Lab Daydream Surface');
+    expect(SURFACE_NAMES.CODE_DAYDREAM_SURFACE).toBe('Code Daydream Surface');
+    expect(SURFACE_NAMES.BRAND_DAYDREAM_SURFACE).toBe('Brand Daydream Surface');
+    expect(SURFACE_NAMES.CREATE_DAYDREAM_SURFACE).toBe('Create Daydream Surface');
+  });
+
+  it('platform module surfaces are present', () => {
+    expect(SURFACE_NAMES.DREAM_DM_SURFACE).toBe('DreamDM Surface');
+    expect(SURFACE_NAMES.DREAM_SHOP_SURFACE).toBe('DreamShop Surface');
+    expect(SURFACE_NAMES.DREAM_MARKETPLACE_SURFACE).toBe('DreamMarketplace Surface');
+    expect(SURFACE_NAMES.DREAM_ADS_SURFACE).toBe('DreamAds Surface');
+  });
+
+  it('isValidSurfaceName returns true for canonical surface names', () => {
+    for (const name of Object.values(SURFACE_NAMES)) {
+      expect(isValidSurfaceName(name)).toBe(true);
+    }
+  });
+
+  it('isValidSurfaceName returns false for non-canonical names', () => {
+    expect(isValidSurfaceName('HomeDream')).toBe(false);
+    expect(isValidSurfaceName('dashboard')).toBe(false);
+    expect(isValidSurfaceName('Music page')).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OS-Layer: Dream Windows
+// ---------------------------------------------------------------------------
+
+describe('Dream Windows (modular runtime containers)', () => {
+  it('canonical term for modular runtime containers is Dream Window', () => {
+    expect(DREAM_WINDOW).toBe('Dream Window');
+  });
+
+  it('four Dream Window states exist', () => {
+    expect(Object.keys(DREAM_WINDOW_STATES)).toHaveLength(4);
+  });
+
+  it('all Dream Window states are correct', () => {
+    expect(DREAM_WINDOW_STATES.UNBOUND).toBe('Unbound Dream Window');
+    expect(DREAM_WINDOW_STATES.BOUND).toBe('Bound Dream Window');
+    expect(DREAM_WINDOW_STATES.MOUNTED).toBe('Mounted Dream Window');
+    expect(DREAM_WINDOW_STATES.COLLAPSED).toBe('Collapsed Dream Window');
+  });
+
+  it('isValidDreamWindowState returns true for all canonical states', () => {
+    for (const state of Object.values(DREAM_WINDOW_STATES)) {
+      expect(isValidDreamWindowState(state)).toBe(true);
+    }
+  });
+
+  it('isValidDreamWindowState returns false for non-canonical names', () => {
+    expect(isValidDreamWindowState('widget')).toBe(false);
+    expect(isValidDreamWindowState('card')).toBe(false);
+    expect(isValidDreamWindowState('Dream Window')).toBe(false);
+  });
+
+  it('Dream Window has 10 required fields', () => {
+    expect(DREAM_WINDOW_REQUIRED_FIELDS).toHaveLength(10);
+  });
+
+  it('Dream Window required fields include id, type, owner, and activeState', () => {
+    expect(DREAM_WINDOW_REQUIRED_FIELDS).toContain('id');
+    expect(DREAM_WINDOW_REQUIRED_FIELDS).toContain('type');
+    expect(DREAM_WINDOW_REQUIRED_FIELDS).toContain('owner');
+    expect(DREAM_WINDOW_REQUIRED_FIELDS).toContain('activeState');
+  });
+
+  it('registry includes 4 Dream Window states', () => {
+    expect(ALL_CANONICAL_NAMES.dreamWindowStates).toHaveLength(4);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OS-Layer: connection language
+// ---------------------------------------------------------------------------
+
+describe('Connection language', () => {
+  it('seven canonical connection verbs exist', () => {
+    expect(CONNECTION_VERBS).toHaveLength(7);
+  });
+
+  it('bind, mount, and activate are canonical connection verbs', () => {
+    expect(CONNECTION_VERBS).toContain('bind');
+    expect(CONNECTION_VERBS).toContain('mount');
+    expect(CONNECTION_VERBS).toContain('activate');
+  });
+
+  it('attach, route into, open into, connect across are canonical verbs', () => {
+    expect(CONNECTION_VERBS).toContain('attach');
+    expect(CONNECTION_VERBS).toContain('route into');
+    expect(CONNECTION_VERBS).toContain('open into');
+    expect(CONNECTION_VERBS).toContain('connect across');
+  });
+
+  it('isValidConnectionVerb returns true for canonical verbs', () => {
+    for (const verb of CONNECTION_VERBS) {
+      expect(isValidConnectionVerb(verb)).toBe(true);
+    }
+  });
+
+  it('four rejected connection verbs exist', () => {
+    expect(REJECTED_CONNECTION_VERBS).toHaveLength(4);
+  });
+
+  it('link widget, open page, go to tab, launch card are rejected', () => {
+    expect(REJECTED_CONNECTION_VERBS).toContain('link widget');
+    expect(REJECTED_CONNECTION_VERBS).toContain('open page');
+    expect(REJECTED_CONNECTION_VERBS).toContain('go to tab');
+    expect(REJECTED_CONNECTION_VERBS).toContain('launch card');
+  });
+
+  it('isRejectedConnectionVerb identifies all rejected verbs', () => {
+    for (const verb of REJECTED_CONNECTION_VERBS) {
+      expect(isRejectedConnectionVerb(verb)).toBe(true);
+    }
+  });
+
+  it('canonical verbs are not rejected', () => {
+    for (const verb of CONNECTION_VERBS) {
+      expect(isRejectedConnectionVerb(verb)).toBe(false);
+    }
+  });
+
+  it('registry includes 7 connection verbs', () => {
+    expect(ALL_CANONICAL_NAMES.connectionVerbs).toHaveLength(7);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OS-Layer: rejected UI terms
+// ---------------------------------------------------------------------------
+
+describe('Rejected OS-layer UI terms', () => {
+  it('isRejectedOsTerm returns true for all rejected OS terms', () => {
+    for (const term of REJECTED_OS_TERMS) {
+      expect(isRejectedOsTerm(term)).toBe(true);
+    }
+  });
+
+  it('"app" is a rejected OS term', () => {
+    expect(isRejectedOsTerm('app')).toBe(true);
+  });
+
+  it('"page" is a rejected OS term', () => {
+    expect(isRejectedOsTerm('page')).toBe(true);
+  });
+
+  it('"widget" is a rejected OS term', () => {
+    expect(isRejectedOsTerm('widget')).toBe(true);
+  });
+
+  it('"dashboard" is a rejected OS term', () => {
+    expect(isRejectedOsTerm('dashboard')).toBe(true);
+  });
+
+  it('"card" is a rejected OS term', () => {
+    expect(isRejectedOsTerm('card')).toBe(true);
+  });
+
+  it('"tab navigation" is a rejected OS term', () => {
+    expect(isRejectedOsTerm('tab navigation')).toBe(true);
+  });
+
+  it('validateName reports a violation for rejected OS terms', () => {
+    const violations = validateName('dashboard');
+    expect(violations.length).toBeGreaterThan(0);
+  });
+
+  it('validateName reports a violation for "widget"', () => {
+    const violations = validateName('widget');
+    expect(violations.length).toBeGreaterThan(0);
+  });
+
+  it('canonical names are not rejected OS terms', () => {
+    expect(isRejectedOsTerm('Dream Window')).toBe(false);
+    expect(isRejectedOsTerm('Surface Space')).toBe(false);
+    expect(isRejectedOsTerm('DreamSpace')).toBe(false);
+    expect(isRejectedOsTerm('HomeDream Surface')).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OS-Layer: multi-surface connection network counts
+// ---------------------------------------------------------------------------
+
+describe('Multi-surface connection network', () => {
+  it('there are 6 Daydream Surfaces in the network', () => {
+    expect(NETWORK_COUNTS.DAYDREAM_SURFACES).toBe(6);
+  });
+
+  it('there are 6 Engin runtimes in the network', () => {
+    expect(NETWORK_COUNTS.ENGIN_RUNTIMES).toBe(6);
+  });
+
+  it('there are 11 named connection paths', () => {
+    expect(NETWORK_COUNTS.CONNECTION_PATHS).toBe(11);
+  });
+
+  it('Daydream surface count matches number of DAYDREAM_DOMAINS', () => {
+    expect(Object.keys(DAYDREAM_DOMAINS)).toHaveLength(NETWORK_COUNTS.DAYDREAM_SURFACES);
+  });
+
+  it('Engin runtime count matches number of ENGIN_SURFACES', () => {
+    expect(Object.keys(ENGIN_SURFACES)).toHaveLength(NETWORK_COUNTS.ENGIN_RUNTIMES);
   });
 });
