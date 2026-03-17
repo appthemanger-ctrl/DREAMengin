@@ -19,7 +19,8 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign } from 'lucide-react';
+import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
 interface Props {
   onBack: () => void;
@@ -128,6 +129,100 @@ export default function BrandingEngin({ onBack }: Props) {
   const cpm  = impressionsN > 0 ? ((budgetN / impressionsN) * 1000).toFixed(2) : '—';
   const cpc  = conversionsN > 0 ? (budgetN / conversionsN).toFixed(2) : '—';
   const roi  = budgetN > 0      ? (((conversionsN * 10 - budgetN) / budgetN) * 100).toFixed(1) : '—';
+
+  // ── Audience Segments state ──────────────────────────────────────────────────
+  const [segments, setSegments] = useState<Array<{ id: string; name: string; size: number; tags: string[] }>>([
+    { id: 'seg-1', name: 'Power Creators',  size: 4200, tags: ['video', 'daily-poster'] },
+    { id: 'seg-2', name: 'Music Fans',      size: 1850, tags: ['music', 'stream'] },
+    { id: 'seg-3', name: 'Game Community',  size: 3100, tags: ['gaming', 'competitive'] },
+  ]);
+  const [newSegName, setNewSegName] = useState('');
+
+  // ── Brand Voice AI state ─────────────────────────────────────────────────────
+  const [voicePrompt, setVoicePrompt]         = useState('');
+  const [voiceSuggestion, setVoiceSuggestion] = useState('');
+  const [voiceLoading, setVoiceLoading]       = useState(false);
+
+  // ── Competitor Watch state ───────────────────────────────────────────────────
+  const [competitors, setCompetitors] = useState<Array<{ handle: string; followers: string; lastPost: string }>>([
+    { handle: '@creativebrand',  followers: '84.2K', lastPost: '2h ago' },
+    { handle: '@designmaster',   followers: '210K',  lastPost: '5h ago' },
+    { handle: '@contentpro99',   followers: '41.5K', lastPost: '1d ago' },
+  ]);
+  const [watchHandle, setWatchHandle] = useState('');
+
+  // ── Asset Library state ──────────────────────────────────────────────────────
+  const [assets, setAssets] = useState<Array<{ id: string; name: string; type: 'logo' | 'color' | 'font'; value: string }>>([
+    { id: 'as-1', name: 'Primary Logo',    type: 'logo',  value: 'DREAMengin.svg' },
+    { id: 'as-2', name: 'Brand Pink',      type: 'color', value: '#ec4899' },
+    { id: 'as-3', name: 'Brand Blue',      type: 'color', value: '#2a8ab8' },
+    { id: 'as-4', name: 'Heading Font',    type: 'font',  value: 'Inter 800' },
+  ]);
+  const [newAssetName, setNewAssetName]   = useState('');
+  const [newAssetValue, setNewAssetValue] = useState('');
+
+  // ── Segment handler ───────────────────────────────────────────────────────────
+  function handleCreateSegment() {
+    if (!newSegName.trim()) return;
+    const seg = {
+      id: `seg-${Date.now()}`,
+      name: newSegName.trim(),
+      size: Math.floor(Math.random() * 5000) + 100,
+      tags: [],
+    };
+    setSegments(prev => [seg, ...prev]);
+    setNewSegName('');
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'brand', 'brand:segment-create', { name: newSegName.trim() },
+    );
+  }
+
+  // ── Voice AI handler ─────────────────────────────────────────────────────────
+  function handleVoiceGenerate() {
+    if (!voicePrompt.trim()) return;
+    setVoiceLoading(true);
+    setVoiceSuggestion('');
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'brand', 'brand:voice-generate', { topic: voicePrompt },
+    );
+    setTimeout(() => {
+      setVoiceSuggestion(
+        `🎯 On-brand copy for "${voicePrompt}":\n\n` +
+        `"Dream bigger. Create louder. ${voicePrompt} is how we do it — ` +
+        `authentic, bold, and unapologetically creative. ` +
+        `Join the DREAMengin community and make it real. ✨"`
+      );
+      setVoiceLoading(false);
+    }, 1200);
+  }
+
+  // ── Competitor handler ────────────────────────────────────────────────────────
+  function handleAddCompetitor() {
+    const handle = watchHandle.trim().startsWith('@') ? watchHandle.trim() : `@${watchHandle.trim()}`;
+    if (!watchHandle.trim()) return;
+    setCompetitors(prev => [{ handle, followers: '—', lastPost: 'just now' }, ...prev]);
+    setWatchHandle('');
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'brand', 'brand:competitor-add', { handle },
+    );
+  }
+
+  // ── Asset handler ─────────────────────────────────────────────────────────────
+  function handleSaveAsset() {
+    if (!newAssetName.trim() || !newAssetValue.trim()) return;
+    const asset = {
+      id: `as-${Date.now()}`,
+      name: newAssetName.trim(),
+      type: 'logo' as const,
+      value: newAssetValue.trim(),
+    };
+    setAssets(prev => [asset, ...prev]);
+    setNewAssetName('');
+    setNewAssetValue('');
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'brand', 'brand:asset-save', { name: newAssetName.trim(), type: 'logo', value: newAssetValue.trim() },
+    );
+  }
 
   const publicProfileHref = profile?.handle ? `/u/${profile.handle}` : '/view-profile';
 
@@ -365,6 +460,280 @@ export default function BrandingEngin({ onBack }: Props) {
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 2 }}>Followers</div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Content Calendar Link ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Megaphone className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Content Calendar</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>
+              Plan and schedule your content with ContentEngin — keep your brand consistent across all platforms.
+            </p>
+          </div>
+          <div className="de-widget-actions">
+            <a
+              href="/daydream/create"
+              className="de-btn de-btn-primary text-xs"
+              aria-label="Jump to Content Calendar in ContentEngin"
+            >
+              Jump to Content Calendar →
+            </a>
+          </div>
+        </div>
+
+        {/* ── Audience Segments ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Users className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Audience Segments</span>
+            <span
+              className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+              style={{ background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30` }}
+            >
+              {segments.length} segments
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+              {segments.map(seg => (
+                <div
+                  key={seg.id}
+                  style={{
+                    padding: '10px 12px', borderRadius: 10,
+                    background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15`,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                    <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{seg.name}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: ACCENT }}>{seg.size.toLocaleString()}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                    {seg.tags.map(tag => (
+                      <span
+                        key={tag}
+                        style={{
+                          fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 999,
+                          background: `${ACCENT}10`, color: ACCENT, border: `1px solid ${ACCENT}20`,
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                placeholder="New segment name…"
+                value={newSegName}
+                onChange={e => setNewSegName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleCreateSegment()}
+                aria-label="New audience segment name"
+                style={{
+                  flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleCreateSegment}
+                disabled={!newSegName.trim()}
+                className="de-btn de-btn-primary"
+                aria-label="Create new audience segment"
+                style={{ opacity: !newSegName.trim() ? 0.5 : 1, transition: 'all 0.15s' }}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Brand Voice AI ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Layers className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Brand Voice AI</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                placeholder="Enter topic for on-brand copy…"
+                value={voicePrompt}
+                onChange={e => setVoicePrompt(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleVoiceGenerate()}
+                aria-label="Topic for brand voice generation"
+                style={{
+                  flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleVoiceGenerate}
+                disabled={voiceLoading || !voicePrompt.trim()}
+                className="de-btn de-btn-primary"
+                aria-label="Generate on-brand copy with Dr. Eams"
+                style={{ opacity: voiceLoading || !voicePrompt.trim() ? 0.6 : 1, transition: 'all 0.15s' }}
+              >
+                {voiceLoading ? '…' : 'Ask Dr. Eams'}
+              </button>
+            </div>
+            {voiceSuggestion && (
+              <div
+                style={{
+                  padding: '12px 14px', borderRadius: 11,
+                  background: `${ACCENT}06`, border: `1px solid ${ACCENT}20`,
+                  fontSize: 12, color: 'var(--de-heading)', lineHeight: 1.6,
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {voiceSuggestion}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Competitor Watch ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Eye className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Competitor Watch</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+              {competitors.map((c, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '9px 12px', borderRadius: 10,
+                    background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15`,
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{c.handle}</div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1 }}>
+                      {c.followers} followers · Active {c.lastPost}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                placeholder="@handle to watch…"
+                value={watchHandle}
+                onChange={e => setWatchHandle(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAddCompetitor()}
+                aria-label="Competitor handle to watch"
+                style={{
+                  flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleAddCompetitor}
+                disabled={!watchHandle.trim()}
+                className="de-btn de-btn-primary"
+                aria-label="Add competitor to watch list"
+                style={{ opacity: !watchHandle.trim() ? 0.5 : 1, transition: 'all 0.15s' }}
+              >
+                Watch
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Asset Library ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <BookOpen className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Asset Library</span>
+            <span
+              className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+              style={{ background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30` }}
+            >
+              {assets.length} assets
+            </span>
+          </div>
+          <div className="de-widget-body">
+            {(['logo', 'color', 'font'] as const).map(type => {
+              const group = assets.filter(a => a.type === type);
+              if (group.length === 0) return null;
+              return (
+                <div key={type} style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+                    {type}s
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {group.map(a => (
+                      <div
+                        key={a.id}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          padding: '7px 12px', borderRadius: 9,
+                          background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15`,
+                        }}
+                      >
+                        {a.type === 'color' && (
+                          <div style={{ width: 16, height: 16, borderRadius: 4, background: a.value, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
+                        )}
+                        <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: 'var(--de-heading)' }}>{a.name}</span>
+                        <span style={{ fontSize: 11, color: 'var(--de-text-dim)', fontFamily: a.type === 'color' ? 'monospace' : 'inherit' }}>{a.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <input
+                type="text"
+                placeholder="Asset name…"
+                value={newAssetName}
+                onChange={e => setNewAssetName(e.target.value)}
+                aria-label="New asset name"
+                style={{
+                  flex: 1, padding: '7px 10px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Value…"
+                value={newAssetValue}
+                onChange={e => setNewAssetValue(e.target.value)}
+                aria-label="New asset value"
+                style={{
+                  flex: 1, padding: '7px 10px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleSaveAsset}
+                disabled={!newAssetName.trim() || !newAssetValue.trim()}
+                className="de-btn de-btn-primary"
+                aria-label="Save new brand asset"
+                style={{ opacity: !newAssetName.trim() || !newAssetValue.trim() ? 0.5 : 1, transition: 'all 0.15s' }}
+              >
+                Add
+              </button>
             </div>
           </div>
         </div>

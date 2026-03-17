@@ -146,6 +146,108 @@ export default function LabEngin({ onBack }: Props) {
 
   const active = experiments.filter(e => e.status === 'running' || e.status === 'draft');
 
+  // ── Collab Lab state ────────────────────────────────────────────────────────
+  const [collabLabActive, setCollabLabActive] = useState(false);
+  const [collabLabCode, setCollabLabCode] = useState('');
+
+  // ── AI Hypothesis state ──────────────────────────────────────────────────────
+  const [hypothesisLoading, setHypothesisLoading] = useState(false);
+  const [hypotheses, setHypotheses] = useState<string[]>([]);
+
+  // ── Molecule Viewer state ────────────────────────────────────────────────────
+  const [selectedMolecule, setSelectedMolecule] = useState('H2O');
+  const [moleculeDisplay, setMoleculeDisplay] = useState('O\n H   H');
+
+  // ── Dataset Browser state ────────────────────────────────────────────────────
+  const [datasets] = useState<Array<{ name: string; rows: string; domain: string }>>([
+    { name: 'NASA Climate Data',    rows: '2.4M', domain: 'Climate Science' },
+    { name: 'CERN Particle Events', rows: '890K', domain: 'Particle Physics' },
+    { name: 'WHO Health Metrics',   rows: '1.1M', domain: 'Public Health' },
+    { name: 'MIT OpenCourseware',   rows: '340K', domain: 'Education' },
+  ]);
+  const [selectedDataset, setSelectedDataset] = useState<string | null>(null);
+
+  // ── Published Results state ──────────────────────────────────────────────────
+  const [publishedResults, setPublishedResults] = useState<Array<{ id: string; title: string; date: string }>>([
+    { id: 'res-1', title: 'Fluid Viscosity under Oscillatory Shear', date: '2025-01-08' },
+    { id: 'res-2', title: 'Neural Synchronization Latency Study',    date: '2025-01-05' },
+  ]);
+  const [publishingResult, setPublishingResult] = useState(false);
+  const [newResultTitle, setNewResultTitle] = useState('');
+
+  // ── Molecule data ────────────────────────────────────────────────────────────
+  const MOLECULE_DATA: Record<string, string> = {
+    'H2O':     'O\n H   H',
+    'CO2':     'O=C=O',
+    'C6H12O6': 'CH2OH-CHOH-CHOH-CHOH-CHOH-CHO\n(Glucose)',
+  };
+
+  // ── Collab lab handler ───────────────────────────────────────────────────────
+  function handleStartCollabLab() {
+    const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+    setCollabLabCode(code);
+    setCollabLabActive(true);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'lab', 'lab:collab-start', { code },
+    );
+  }
+
+  // ── Hypothesis handler ───────────────────────────────────────────────────────
+  function handleGenerateHypotheses() {
+    setHypothesisLoading(true);
+    setHypotheses([]);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'lab', 'lab:hypothesis-request', { domain: 'general' },
+    );
+    setTimeout(() => {
+      setHypotheses([
+        'Quantum decoherence increases proportionally with temperature gradient',
+        'Fluid viscosity exhibits non-linear response under oscillatory shear',
+        'Neural pattern synchronization precedes decision emergence by 80–120 ms',
+      ]);
+      setHypothesisLoading(false);
+    }, 1200);
+  }
+
+  // ── Molecule handler ─────────────────────────────────────────────────────────
+  function handleSelectMolecule(mol: string) {
+    setSelectedMolecule(mol);
+    setMoleculeDisplay(MOLECULE_DATA[mol] ?? '');
+  }
+
+  function handleAnalyzeMolecule() {
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'lab', 'lab:molecule-analyze', { molecule: selectedMolecule },
+    );
+  }
+
+  // ── Dataset handler ──────────────────────────────────────────────────────────
+  function handleImportDataset(name: string) {
+    setSelectedDataset(name);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'lab', 'lab:dataset-import', { name },
+    );
+  }
+
+  // ── Publish result handler ───────────────────────────────────────────────────
+  function handlePublishResult(title: string) {
+    if (!title.trim()) return;
+    setPublishingResult(true);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'lab', 'lab:result-publish', { title },
+    );
+    setTimeout(() => {
+      const newResult = {
+        id: `res-${Date.now()}`,
+        title: title.trim(),
+        date: new Date().toISOString().split('T')[0],
+      };
+      setPublishedResults(prev => [newResult, ...prev]);
+      setNewResultTitle('');
+      setPublishingResult(false);
+    }, 800);
+  }
+
   return (
     <div className="de-sky-bg min-h-screen">
 
@@ -571,6 +673,262 @@ export default function LabEngin({ onBack }: Props) {
                 <div style={{ width: 7, height: 7, borderRadius: 999, background: '#2a8ab8', flexShrink: 0 }} />
               </div>
 
+            </div>
+          </div>
+        </div>
+
+        {/* ── Collab Lab ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <FlaskConical className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Collab Lab</span>
+            {collabLabActive && (
+              <span
+                className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+                style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}
+              >
+                Live
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            {collabLabActive ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ padding: '10px 14px', borderRadius: 10, background: `${ACCENT}08`, border: `1px solid ${ACCENT}25`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 4 }}>SESSION CODE</div>
+                  <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: '0.15em', color: ACCENT, fontFamily: 'monospace' }}>{collabLabCode}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { void navigator.clipboard.writeText(collabLabCode); }}
+                  className="de-btn de-btn-ghost"
+                  aria-label="Copy invite code"
+                  style={{ transition: 'all 0.15s' }}
+                >
+                  📋 Copy Invite Code
+                </button>
+              </div>
+            ) : (
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>
+                Start a shared lab session to collaborate on experiments in real time.
+              </p>
+            )}
+          </div>
+          {!collabLabActive && (
+            <div className="de-widget-actions">
+              <button
+                type="button"
+                onClick={handleStartCollabLab}
+                className="de-btn de-btn-primary"
+                aria-label="Start shared lab session"
+                style={{ transition: 'all 0.15s' }}
+              >
+                Start Shared Lab
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ── AI Hypothesis Generator ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Activity className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">AI Hypothesis Generator</span>
+          </div>
+          <div className="de-widget-body">
+            {hypotheses.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+                {hypotheses.map((h, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      padding: '9px 12px', borderRadius: 10,
+                      background: `${ACCENT}08`, border: `1px solid ${ACCENT}25`,
+                      fontSize: 12, fontWeight: 500, color: 'var(--de-heading)', fontStyle: 'italic',
+                    }}
+                  >
+                    "{h}"
+                  </div>
+                ))}
+              </div>
+            )}
+            {hypotheses.length === 0 && !hypothesisLoading && (
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 0 }}>
+                Dr. Eams will generate 3 testable hypotheses for your domain.
+              </p>
+            )}
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleGenerateHypotheses}
+              disabled={hypothesisLoading}
+              className="de-btn de-btn-primary"
+              aria-label="Generate AI hypotheses"
+              style={{ opacity: hypothesisLoading ? 0.6 : 1, transition: 'all 0.15s' }}
+            >
+              {hypothesisLoading ? '🔬 Generating…' : '🔬 Generate Hypotheses'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Molecule Viewer ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Code2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Molecule Viewer</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+              {['H2O', 'CO2', 'C6H12O6'].map(mol => (
+                <button
+                  key={mol}
+                  type="button"
+                  onClick={() => handleSelectMolecule(mol)}
+                  aria-label={`Select molecule ${mol}`}
+                  style={{
+                    padding: '5px 12px', borderRadius: 7, fontSize: 12, fontWeight: 700,
+                    border: `1.5px solid ${selectedMolecule === mol ? ACCENT : 'rgba(160,195,240,0.25)'}`,
+                    background: selectedMolecule === mol ? `${ACCENT}15` : 'rgba(255,255,255,0.5)',
+                    color: selectedMolecule === mol ? ACCENT : 'var(--de-text)',
+                    cursor: 'pointer', transition: 'all 0.15s',
+                  }}
+                >
+                  {mol}
+                </button>
+              ))}
+            </div>
+            <div
+              style={{
+                padding: '14px 16px', borderRadius: 10,
+                background: 'rgba(0,0,0,0.06)', border: `1px solid ${ACCENT}20`,
+                fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
+                color: ACCENT, whiteSpace: 'pre', lineHeight: 1.6, minHeight: 52,
+              }}
+            >
+              {moleculeDisplay}
+            </div>
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleAnalyzeMolecule}
+              className="de-btn de-btn-primary"
+              aria-label={`Analyze molecule ${selectedMolecule}`}
+              style={{ transition: 'all 0.15s' }}
+            >
+              Analyze {selectedMolecule}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Dataset Browser ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Dataset Browser</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {datasets.map(ds => (
+                <div
+                  key={ds.name}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '10px 12px', borderRadius: 10,
+                    background: selectedDataset === ds.name ? `${ACCENT}08` : 'rgba(255,255,255,0.5)',
+                    border: selectedDataset === ds.name ? `1px solid ${ACCENT}30` : '1px solid rgba(160,195,240,0.18)',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {ds.name}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1 }}>
+                      {ds.rows} rows · {ds.domain}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleImportDataset(ds.name)}
+                    aria-label={`Import dataset ${ds.name}`}
+                    style={{
+                      padding: '4px 10px', borderRadius: 7, fontSize: 10, fontWeight: 700,
+                      border: `1px solid ${ACCENT}35`, background: selectedDataset === ds.name ? ACCENT : `${ACCENT}12`,
+                      color: selectedDataset === ds.name ? '#fff' : ACCENT,
+                      cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+                    }}
+                  >
+                    {selectedDataset === ds.name ? '✓ Imported' : 'Import'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Published Results ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Download className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Published Results</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+              {publishedResults.map(r => (
+                <div
+                  key={r.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '9px 12px', borderRadius: 10,
+                    background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(160,195,240,0.18)',
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {r.title}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1 }}>{r.date}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handlePublishResult(r.title)}
+                    aria-label={`Share ${r.title} to profile`}
+                    style={{
+                      padding: '4px 9px', borderRadius: 7, fontSize: 10, fontWeight: 700,
+                      border: `1px solid ${ACCENT}35`, background: `${ACCENT}12`, color: ACCENT,
+                      cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+                    }}
+                  >
+                    Share
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                placeholder="New result title…"
+                value={newResultTitle}
+                onChange={e => setNewResultTitle(e.target.value)}
+                aria-label="New result title"
+                style={{
+                  flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => handlePublishResult(newResultTitle)}
+                disabled={publishingResult || !newResultTitle.trim()}
+                className="de-btn de-btn-primary"
+                aria-label="Publish new result"
+                style={{ opacity: publishingResult || !newResultTitle.trim() ? 0.5 : 1, transition: 'all 0.15s' }}
+              >
+                {publishingResult ? '…' : 'Publish'}
+              </button>
             </div>
           </div>
         </div>
