@@ -278,6 +278,96 @@ export default function StarMakerEngin({ onBack }: Props) {
     }, 800);
   }, [stemReady]);
 
+  // ── Waveform Visualizer state ──
+  const [waveformBars, setWaveformBars] = useState<number[]>(() =>
+    Array.from({ length: 32 }, () => 0.2 + Math.random() * 0.8)
+  );
+  const [waveformRecording, setWaveformRecording] = useState(false);
+
+  // ── Chord Builder state ──
+  const [chordProgression, setChordProgression] = useState<string[]>(['Cmaj', 'Amin', 'Fmaj', 'Gmaj']);
+  const [chordPlaying, setChordPlaying] = useState<number | null>(null);
+
+  // ── AI Melody Suggestions state ──
+  const [melodyLoading, setMelodyLoading] = useState(false);
+  const [melodySuggestions, setMelodySuggestions] = useState<string[]>([]);
+
+  // ── Collab Studio state ──
+  const [collabActive, setCollabActive] = useState(false);
+  const [collabCode, setCollabCode] = useState('');
+
+  // ── Playlist Manager state ──
+  const [playlist, setPlaylist] = useState<Array<{ id: string; title: string; duration: string }>>([
+    { id: 'pl-1', title: 'Summer Vibes', duration: '3:24' },
+    { id: 'pl-2', title: 'Night Drive', duration: '4:01' },
+    { id: 'pl-3', title: 'Morning Coffee', duration: '2:47' },
+  ]);
+
+  // ── Waveform toggle handler ──
+  function handleWaveformToggle() {
+    const next = !waveformRecording;
+    setWaveformRecording(next);
+    if (next) setWaveformBars(Array.from({ length: 32 }, () => 0.2 + Math.random() * 0.8));
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'music', 'music:waveform-record', { recording: next },
+    );
+  }
+
+  // ── Chord play handler ──
+  function handleChordPlay(index: number) {
+    setChordPlaying(index);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'music', 'music:chord-play', { chord: chordProgression[index], index },
+    );
+    setTimeout(() => setChordPlaying(prev => prev === index ? null : prev), 1000);
+  }
+
+  // ── Melody ask handler ──
+  function handleMelodyAsk() {
+    setMelodyLoading(true);
+    setMelodySuggestions([]);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'music', 'music:melody-request', { key: musicalKey, mode: keyMode },
+    );
+    setTimeout(() => {
+      setMelodySuggestions([
+        'C D E G A — Pentatonic ascent',
+        'A G F E D — Minor descent',
+        'G A B D E — Major pentatonic',
+      ]);
+      setMelodyLoading(false);
+    }, 1200);
+  }
+
+  // ── Collab toggle handler ──
+  function handleCollabToggle() {
+    if (!collabActive) {
+      const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+      setCollabCode(code);
+      (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+        'music', 'music:collab-start', { code },
+      );
+    }
+    setCollabActive(prev => !prev);
+  }
+
+  // ── Playlist reorder handler ──
+  function movePlaylistItem(index: number, direction: 'up' | 'down') {
+    setPlaylist(prev => {
+      const next = [...prev];
+      const target = direction === 'up' ? index - 1 : index + 1;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  }
+
+  function handleSavePlaylist() {
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'music', 'music:playlist-save', { order: playlist.map(p => p.id) },
+    );
+  }
+
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
@@ -492,6 +582,42 @@ export default function StarMakerEngin({ onBack }: Props) {
               )}
             </div>
           </div>
+
+          {/* ── Waveform Visualizer ── */}
+          <WaveformVisualizerWidget
+            bars={waveformBars}
+            recording={waveformRecording}
+            onToggle={handleWaveformToggle}
+          />
+
+          {/* ── Chord Builder ── */}
+          <ChordBuilderWidget
+            progression={chordProgression}
+            playing={chordPlaying}
+            onChangeChord={(i, v) => setChordProgression(prev => prev.map((c, idx) => idx === i ? v : c))}
+            onPlay={handleChordPlay}
+          />
+
+          {/* ── AI Melody Suggestions ── */}
+          <AiMelodySuggestionsWidget
+            loading={melodyLoading}
+            suggestions={melodySuggestions}
+            onAsk={handleMelodyAsk}
+          />
+
+          {/* ── Collab Studio ── */}
+          <CollabStudioWidget
+            active={collabActive}
+            code={collabCode}
+            onToggle={handleCollabToggle}
+          />
+
+          {/* ── Playlist Manager ── */}
+          <PlaylistManagerWidget
+            playlist={playlist}
+            onMove={movePlaylistItem}
+            onSave={handleSavePlaylist}
+          />
 
         </div>
       </div>
@@ -1080,5 +1206,364 @@ function StatusBadge({ published }: { published: boolean }) {
     >
       {published ? 'Published' : 'Draft'}
     </span>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-widget: WaveformVisualizer
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface WaveformVisualizerWidgetProps {
+  bars: number[];
+  recording: boolean;
+  onToggle: () => void;
+}
+
+function WaveformVisualizerWidget({ bars, recording, onToggle }: WaveformVisualizerWidgetProps) {
+  return (
+    <div className="de-widget">
+      <div className="de-widget-header">
+        <Mic2 className="w-4 h-4" style={{ color: ACCENT }} />
+        <span className="de-widget-title ml-2">Waveform Visualizer</span>
+        {recording && (
+          <span
+            className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+            style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }}
+          >
+            ● REC
+          </span>
+        )}
+      </div>
+      <div className="de-widget-body">
+        <div
+          style={{
+            display: 'flex', alignItems: 'flex-end', gap: 2,
+            height: 52, padding: '0 4px',
+          }}
+        >
+          {bars.map((h, i) => (
+            <div
+              key={i}
+              style={{
+                flex: 1, borderRadius: 2,
+                background: recording
+                  ? `rgba(239,68,68,${0.4 + h * 0.6})`
+                  : `${ACCENT}${Math.round(40 + h * 80).toString(16).padStart(2, '0')}`,
+                height: `${Math.round(h * 100)}%`,
+                transition: recording ? 'height 0.1s ease' : 'all 0.15s',
+                minHeight: 3,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="de-widget-actions">
+        <button
+          type="button"
+          onClick={onToggle}
+          className={recording ? 'de-btn de-btn-ghost' : 'de-btn de-btn-primary'}
+          aria-label={recording ? 'Stop recording waveform' : 'Start recording waveform'}
+          style={{ transition: 'all 0.15s' }}
+        >
+          {recording ? '■ Stop' : '● Record'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-widget: ChordBuilder
+// ─────────────────────────────────────────────────────────────────────────────
+
+const COMMON_CHORDS = [
+  'Cmaj','Cmin','Dmaj','Dmin','Emaj','Emin',
+  'Fmaj','Fmin','Gmaj','Gmin','Amaj','Amin','Bmaj','Bmin',
+];
+
+interface ChordBuilderWidgetProps {
+  progression: string[];
+  playing: number | null;
+  onChangeChord: (index: number, value: string) => void;
+  onPlay: (index: number) => void;
+}
+
+function ChordBuilderWidget({ progression, playing, onChangeChord, onPlay }: ChordBuilderWidgetProps) {
+  return (
+    <div className="de-widget">
+      <div className="de-widget-header">
+        <Music className="w-4 h-4" style={{ color: ACCENT }} />
+        <span className="de-widget-title ml-2">Chord Builder</span>
+      </div>
+      <div className="de-widget-body">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {progression.map((chord, i) => (
+            <div
+              key={i}
+              style={{
+                padding: '10px 12px', borderRadius: 10,
+                background: playing === i ? `${ACCENT}15` : 'rgba(255,255,255,0.5)',
+                border: playing === i ? `1px solid ${ACCENT}40` : '1px solid rgba(160,195,240,0.18)',
+                display: 'flex', flexDirection: 'column', gap: 6,
+                transition: 'all 0.15s',
+              }}
+            >
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)' }}>
+                Slot {i + 1}
+              </span>
+              <select
+                value={chord}
+                onChange={e => onChangeChord(i, e.target.value)}
+                aria-label={`Chord slot ${i + 1}`}
+                style={{
+                  padding: '4px 8px', borderRadius: 7, fontSize: 13, fontWeight: 700,
+                  border: `1px solid ${ACCENT}30`, background: 'rgba(255,255,255,0.8)',
+                  color: 'var(--de-heading)', cursor: 'pointer',
+                }}
+              >
+                {COMMON_CHORDS.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => onPlay(i)}
+                className="de-btn de-btn-ghost"
+                aria-label={`Play ${chord}`}
+                style={{
+                  fontSize: 11, padding: '4px 0', textAlign: 'center',
+                  background: playing === i ? `${ACCENT}18` : undefined,
+                  transition: 'all 0.15s',
+                }}
+              >
+                {playing === i ? '▶ Playing…' : '▶ Play'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-widget: AiMelodySuggestions
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface AiMelodySuggestionsWidgetProps {
+  loading: boolean;
+  suggestions: string[];
+  onAsk: () => void;
+}
+
+function AiMelodySuggestionsWidget({ loading, suggestions, onAsk }: AiMelodySuggestionsWidgetProps) {
+  return (
+    <div className="de-widget">
+      <div className="de-widget-header">
+        <Wand2 className="w-4 h-4" style={{ color: ACCENT }} />
+        <span className="de-widget-title ml-2">AI Melody Suggestions</span>
+      </div>
+      <div className="de-widget-body">
+        {suggestions.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+            {suggestions.map((s, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: '9px 12px', borderRadius: 10,
+                  background: `${ACCENT}08`,
+                  border: `1px solid ${ACCENT}25`,
+                  fontSize: 12, fontWeight: 600, color: 'var(--de-heading)',
+                  fontFamily: 'monospace',
+                }}
+              >
+                {s}
+              </div>
+            ))}
+          </div>
+        )}
+        {suggestions.length === 0 && !loading && (
+          <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 12 }}>
+            Ask Dr. Eams for melody pattern ideas based on your current key and mode.
+          </p>
+        )}
+      </div>
+      <div className="de-widget-actions">
+        <button
+          type="button"
+          onClick={onAsk}
+          disabled={loading}
+          className="de-btn de-btn-primary"
+          aria-label="Ask Dr. Eams for melody suggestions"
+          style={{ opacity: loading ? 0.6 : 1, transition: 'all 0.15s' }}
+        >
+          {loading ? '✨ Thinking…' : '✨ Ask Dr. Eams'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-widget: CollabStudio
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface CollabStudioWidgetProps {
+  active: boolean;
+  code: string;
+  onToggle: () => void;
+}
+
+function CollabStudioWidget({ active, code, onToggle }: CollabStudioWidgetProps) {
+  return (
+    <div className="de-widget">
+      <div className="de-widget-header">
+        <Radio className="w-4 h-4" style={{ color: ACCENT }} />
+        <span className="de-widget-title ml-2">Collab Studio</span>
+        {active && (
+          <span
+            className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+            style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}
+          >
+            Live
+          </span>
+        )}
+      </div>
+      <div className="de-widget-body">
+        {active ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div
+              style={{
+                padding: '12px 16px', borderRadius: 10, textAlign: 'center',
+                background: `${ACCENT}08`, border: `1px solid ${ACCENT}30`,
+              }}
+            >
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 4 }}>
+                ROOM CODE
+              </div>
+              <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: '0.15em', color: ACCENT, fontFamily: 'monospace' }}>
+                {code}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {['Dr. Eams', 'Guest'].map(name => (
+                <div
+                  key={name}
+                  style={{
+                    flex: 1, padding: '8px 10px', borderRadius: 10, textAlign: 'center',
+                    background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(160,195,240,0.2)',
+                  }}
+                >
+                  <div style={{ fontSize: 18, marginBottom: 2 }}>👤</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-heading)' }}>{name}</div>
+                  <div style={{ width: 8, height: 8, borderRadius: 999, background: '#22c55e', margin: '4px auto 0' }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>
+            Start a shared session to co-produce music in real time.
+          </p>
+        )}
+      </div>
+      <div className="de-widget-actions">
+        <button
+          type="button"
+          onClick={onToggle}
+          className={active ? 'de-btn de-btn-ghost' : 'de-btn de-btn-primary'}
+          aria-label={active ? 'End collab session' : 'Start collab session'}
+          style={{ transition: 'all 0.15s' }}
+        >
+          {active ? 'End Session' : 'Start Session'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-widget: PlaylistManager
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface PlaylistManagerWidgetProps {
+  playlist: Array<{ id: string; title: string; duration: string }>;
+  onMove: (index: number, direction: 'up' | 'down') => void;
+  onSave: () => void;
+}
+
+function PlaylistManagerWidget({ playlist, onMove, onSave }: PlaylistManagerWidgetProps) {
+  return (
+    <div className="de-widget">
+      <div className="de-widget-header">
+        <Sliders className="w-4 h-4" style={{ color: ACCENT }} />
+        <span className="de-widget-title ml-2">Playlist Manager</span>
+        <span
+          className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+          style={{ background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30` }}
+        >
+          {playlist.length} tracks
+        </span>
+      </div>
+      <div className="de-widget-body">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {playlist.map((track, i) => (
+            <div
+              key={track.id}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '9px 12px', borderRadius: 10,
+                background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(160,195,240,0.18)',
+              }}
+            >
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', minWidth: 16, textAlign: 'center' }}>
+                {i + 1}
+              </span>
+              <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {track.title}
+              </span>
+              <span style={{ fontSize: 11, color: 'var(--de-text-dim)', flexShrink: 0 }}>{track.duration}</span>
+              <div style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
+                <button
+                  type="button"
+                  onClick={() => onMove(i, 'up')}
+                  disabled={i === 0}
+                  aria-label={`Move ${track.title} up`}
+                  style={{
+                    width: 22, height: 22, borderRadius: 6, border: `1px solid ${ACCENT}30`,
+                    background: `${ACCENT}10`, color: ACCENT, fontSize: 10, cursor: i === 0 ? 'not-allowed' : 'pointer',
+                    opacity: i === 0 ? 0.35 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.15s',
+                  }}
+                >▲</button>
+                <button
+                  type="button"
+                  onClick={() => onMove(i, 'down')}
+                  disabled={i === playlist.length - 1}
+                  aria-label={`Move ${track.title} down`}
+                  style={{
+                    width: 22, height: 22, borderRadius: 6, border: `1px solid ${ACCENT}30`,
+                    background: `${ACCENT}10`, color: ACCENT, fontSize: 10, cursor: i === playlist.length - 1 ? 'not-allowed' : 'pointer',
+                    opacity: i === playlist.length - 1 ? 0.35 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.15s',
+                  }}
+                >▼</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="de-widget-actions">
+        <button
+          type="button"
+          onClick={onSave}
+          className="de-btn de-btn-primary"
+          aria-label="Save playlist order"
+          style={{ transition: 'all 0.15s' }}
+        >
+          Save Order
+        </button>
+      </div>
+    </div>
   );
 }
