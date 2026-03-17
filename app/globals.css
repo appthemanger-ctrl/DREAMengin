@@ -1,12 +1,31 @@
+/*
+ * app/globals.css — LEGACY / NOT IMPORTED
+ *
+ * This file is NOT imported by app/layout.tsx and must NOT be imported.
+ * The canonical design-system CSS lives in:
+ *   styles/globals.css  ← imported by app/layout.tsx
+ *
+ * This file previously defined conflicting CSS custom properties
+ * (e.g. --background: 215 45% 95% vs the canonical 220 15% 95%)
+ * and duplicate @tailwind directives that would have double-loaded Tailwind.
+ *
+ * All tokens, layers, and utilities below have been neutralised.
+ * Do NOT add active CSS rules here. Use styles/globals.css instead.
+ *
+ * Architecture: docs/ARCHITECTURE.md §8 (Design system direction)
+ * Law:          docs/LAW.md §Product law
+ */
+
+/* ── NEUTRALISED — original content preserved for reference only ────────────
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* DREAMengin Design System - Dream Ice Default */
+DREAMengin Design System - Dream Ice Default
 @layer base {
   :root {
-    /* Core Background - Icy light */
-    --background: 215 45% 95%;
+    Core Background - Icy light
+    --background: 215 45% 95%;   ← CONFLICTS with styles/globals.css (220 15% 95%)
     --foreground: 215 55% 20%;
     
     /* Cards - White glass surfaces */
@@ -339,6 +358,5 @@ pre code {
 
 html, body { touch-action: none; overscroll-behavior: none; }
 
-/* Premium Phone UI tokens live in styles/globals.css (the actually-imported file).
-   See: app/layout.tsx → import '@/styles/globals.css' */
+── end of neutralised content ──────────────────────────────────────────── */
 

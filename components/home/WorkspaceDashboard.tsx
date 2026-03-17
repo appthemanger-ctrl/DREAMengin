@@ -560,8 +560,8 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             overflow: 'hidden',
             marginBottom: 16,
           }}>
-            {/* Window chrome */}
-            <WindowChrome title="Home" />
+            {/* Window chrome — canonical surface name per docs/LAW.md §Route law */}
+            <WindowChrome title="HomeDream" />
 
             {/* ── Activity feed — full width, temporal scanning ── */}
             <div style={{ padding: '14px 18px 0' }}>
