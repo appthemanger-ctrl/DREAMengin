@@ -15,6 +15,7 @@ import React, {
   useState,
   type ReactNode,
 } from 'react';
+import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
 // ── Callback types ────────────────────────────────────────────────────────────
 
@@ -54,6 +55,16 @@ interface DreamSystemContextValue {
   runtimeCallbacks: RuntimeCallbacks | null;
   registerRuntimeCallbacks:   (cbs: RuntimeCallbacks) => void;
   unregisterRuntimeCallbacks: () => void;
+
+  /**
+   * SPA Panel System — no routing, no iframes.
+   * All features open as inline React panels within the single page.
+   * panelStack is a navigation stack; the last entry is the visible panel.
+   */
+  panelStack:      SystemPanelId[];
+  openPanel:       (id: SystemPanelId) => void;
+  closeTopPanel:   () => void;
+  closeAllPanels:  () => void;
 }
 
 // ── Context + provider ────────────────────────────────────────────────────────
@@ -68,12 +79,17 @@ const DreamSystemContext = createContext<DreamSystemContextValue>({
   runtimeCallbacks:            null,
   registerRuntimeCallbacks:    () => {},
   unregisterRuntimeCallbacks:  () => {},
+  panelStack:     [],
+  openPanel:      () => {},
+  closeTopPanel:  () => {},
+  closeAllPanels: () => {},
 });
 
 export function DreamSystemProvider({ children }: { children: ReactNode }) {
   const [bothMenusOpen, setBothMenusOpen]       = useState(false);
   const [drEamsOpen,    setDrEamsOpen]           = useState(false);
   const [runtimeCallbacks, setRuntimeCallbacks] = useState<RuntimeCallbacks | null>(null);
+  const [panelStack, setPanelStack]             = useState<SystemPanelId[]>([]);
 
   const openBothMenus  = useCallback(() => setBothMenusOpen(true),  []);
   const closeBothMenus = useCallback(() => setBothMenusOpen(false), []);
@@ -88,6 +104,18 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
     setRuntimeCallbacks(null);
   }, []);
 
+  const openPanel = useCallback((id: SystemPanelId) => {
+    setPanelStack((prev) => [...prev, id]);
+  }, []);
+
+  const closeTopPanel = useCallback(() => {
+    setPanelStack((prev) => prev.slice(0, -1));
+  }, []);
+
+  const closeAllPanels = useCallback(() => {
+    setPanelStack([]);
+  }, []);
+
   return (
     <DreamSystemContext.Provider value={{
       bothMenusOpen,
@@ -99,6 +127,10 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
       runtimeCallbacks,
       registerRuntimeCallbacks,
       unregisterRuntimeCallbacks,
+      panelStack,
+      openPanel,
+      closeTopPanel,
+      closeAllPanels,
     }}>
       {children}
     </DreamSystemContext.Provider>
