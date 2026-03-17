@@ -11,12 +11,12 @@ import {
 // Single gold button on right rail — no locked/nav mode.
 
 describe('resolveHomeTap', () => {
-  it('single tap → go-home', () => {
-    expect(resolveHomeTap('single')).toEqual({ type: 'go-home' });
+  it('single tap → open-both-menus', () => {
+    expect(resolveHomeTap('single')).toEqual({ type: 'open-both-menus' });
   });
 
-  it('double tap → open-both-menus', () => {
-    expect(resolveHomeTap('double')).toEqual({ type: 'open-both-menus' });
+  it('double tap → go-home', () => {
+    expect(resolveHomeTap('double')).toEqual({ type: 'go-home' });
   });
 });
 
@@ -31,17 +31,17 @@ describe('menu helpers', () => {
 });
 
 describe('integration: tap sequence', () => {
-  it('double tap opens both menus, single tap goes home', () => {
+  it('single tap opens both menus, double tap goes home', () => {
     let menus: MenuState = { dreamsOpen: false, systemOpen: false };
 
-    // Double tap → open both menus
-    const a1 = resolveHomeTap('double');
+    // Single tap → open both menus
+    const a1 = resolveHomeTap('single');
     expect(a1).toEqual({ type: 'open-both-menus' });
     menus = openBothMenus();
     expect(menus).toEqual({ dreamsOpen: true, systemOpen: true });
 
-    // Single tap → go home (close all menus)
-    const a2 = resolveHomeTap('single');
+    // Double tap → go home (close all menus)
+    const a2 = resolveHomeTap('double');
     expect(a2).toEqual({ type: 'go-home' });
     menus = closeAllMenus();
     expect(menus).toEqual({ dreamsOpen: false, systemOpen: false });

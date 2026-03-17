@@ -116,6 +116,13 @@ export default function DreamenginApp() {
     setOverlayLock(false);
   }, [setOverlayLock]);
 
+  const openBothMenus = useCallback(() => {
+    setShowDrEams(false);
+    setShowNexus(true);
+    setShowOutdream(true);
+    setOverlayLock(true);
+  }, [setOverlayLock]);
+
   // ReturnHome (collision of home controls).
   const goHome = useCallback(() => {
     const s = engineRef.current;
@@ -176,9 +183,8 @@ export default function DreamenginApp() {
       <BabylonWorkspace engineRef={engineRef} onZoom={zoomBy} />
 
       <HomeControls
-        onDoubleTapBlue={toggleOutdream}
-        onDoubleTapRed={toggleNexus}
-        onGoHome={goHome}
+        onBothMenus={openBothMenus}
+        onHome={goHome}
       />
 
       {showNexus && (
