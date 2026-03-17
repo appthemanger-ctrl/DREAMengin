@@ -93,9 +93,9 @@ html, body {
   padding: 0;
   background: linear-gradient(
     var(--de-theme-angle, 148deg),
-    var(--de-theme-from, #c8dff5) 0%,
-    var(--de-theme-mid,  #d8eaf8) 55%,
-    var(--de-theme-to,   #f5e8c4) 100%
+    var(--de-theme-from, #e9ecf1) 0%,
+    var(--de-theme-mid,  #f0f2f6) 55%,
+    var(--de-theme-to,   #f7f3ec) 100%
   );
   background-attachment: fixed;
   color: var(--de-text);
