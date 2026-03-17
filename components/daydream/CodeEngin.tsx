@@ -336,6 +336,105 @@ export default function CodeEngin({ onBack }: Props) {
     transition: 'all 0.15s',
   }), [activeTab]);
 
+  // ── AI Code Assist state ────────────────────────────────────────────────────
+  const [assistPrompt, setAssistPrompt]       = useState('');
+  const [assistResponse, setAssistResponse]   = useState('');
+  const [assistLoading, setAssistLoading]     = useState(false);
+
+  // ── Pair Programming state ───────────────────────────────────────────────────
+  const [pairActive, setPairActive]   = useState(false);
+  const [pairCode, setPairCode]       = useState('');
+  const [pairCursor, setPairCursor]   = useState('Line 42, Col 8');
+
+  // ── Deployment Console state ─────────────────────────────────────────────────
+  const [deployTarget, setDeployTarget]   = useState<'vercel' | 'supabase'>('vercel');
+  const [deployStatus, setDeployStatus]   = useState<'idle' | 'deploying' | 'success' | 'error'>('idle');
+  const [deployLog, setDeployLog]         = useState<string[]>([]);
+
+  // ── API Inspector state ──────────────────────────────────────────────────────
+  const [apiMethod, setApiMethod]     = useState<'GET' | 'POST' | 'PUT' | 'DELETE'>('GET');
+  const [apiUrl, setApiUrl]           = useState('/api/posts');
+  const [apiBody, setApiBody]         = useState('');
+  const [apiResponse, setApiResponse] = useState('');
+
+  // ── Snippet Library state ────────────────────────────────────────────────────
+  const [snippets, setSnippets] = useState<Array<{ id: string; name: string; language: string; code: string }>>([
+    { id: 'sn-1', name: 'Fetch Posts',     language: 'TypeScript', code: "const res = await fetch('/api/posts');\nconst data = await res.json();" },
+    { id: 'sn-2', name: 'Supabase Query',  language: 'TypeScript', code: "const { data } = await supabase.from('posts').select('*').limit(10);" },
+    { id: 'sn-3', name: 'Bridge Emit',     language: 'TypeScript', code: "bridge.emit('code', 'code:cell-executed', { cellId, language, outputType: 'text' });" },
+  ]);
+  const [newSnippetName, setNewSnippetName] = useState('');
+  const [newSnippetCode, setNewSnippetCode] = useState('');
+
+  // ── AI Assist handler ────────────────────────────────────────────────────────
+  function handleAiAssist() {
+    if (!assistPrompt.trim()) return;
+    setAssistLoading(true);
+    setAssistResponse('');
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:cell-executed', { cellId: 'ai-assist', language: 'typescript', outputType: 'text' });
+    setTimeout(() => {
+      setAssistResponse(
+        `// Dr. Eams suggests:\n// For "${assistPrompt.slice(0, 40)}…"\n\n` +
+        `function solution() {\n  // 1. Break the problem into smaller steps\n` +
+        `  // 2. Use TypeScript generics for type safety\n` +
+        `  // 3. Handle errors with try/catch\n  return result;\n}`
+      );
+      setAssistLoading(false);
+    }, 1500);
+  }
+
+  // ── Pair Programming handler ─────────────────────────────────────────────────
+  function handlePairToggle() {
+    if (!pairActive) {
+      const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+      setPairCode(code);
+      (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:build-success', { projectId: 'pair-' + code, buildId: `pair-${Date.now()}`, durationMs: 0 });
+    }
+    setPairActive(prev => !prev);
+  }
+
+  // ── Deployment handler ───────────────────────────────────────────────────────
+  function handleDeploy() {
+    if (deployStatus === 'deploying') return;
+    setDeployStatus('deploying');
+    setDeployLog([]);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:build-success', { projectId: deployTarget, buildId: `deploy-${Date.now()}`, durationMs: 0 });
+    const steps = deployTarget === 'vercel'
+      ? ['Preparing build…', 'Running pnpm build…', 'Uploading assets…', 'Deploying to edge…', '✅ Deployed to vercel.app']
+      : ['Connecting to Supabase…', 'Running migrations…', 'Updating edge functions…', 'Refreshing schema cache…', '✅ Deployed to Supabase'];
+    steps.forEach((step, i) => {
+      setTimeout(() => {
+        setDeployLog(prev => [...prev, step]);
+        if (i === steps.length - 1) setDeployStatus('success');
+      }, (i + 1) * 700);
+    });
+  }
+
+  // ── API Inspector handler ────────────────────────────────────────────────────
+  function handleApiSend() {
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:cell-executed', { cellId: 'api-inspector', language: 'typescript', outputType: 'text' });
+    setTimeout(() => {
+      setApiResponse(
+        JSON.stringify(
+          apiMethod === 'GET'
+            ? { ok: true, data: [{ id: 1, title: 'Sample post', created_at: new Date().toISOString() }] }
+            : { ok: true, id: crypto.randomUUID(), created_at: new Date().toISOString() },
+          null, 2
+        )
+      );
+    }, 600);
+  }
+
+  // ── Snippet Library handler ──────────────────────────────────────────────────
+  function handleSaveSnippet() {
+    if (!newSnippetName.trim() || !newSnippetCode.trim()) return;
+    const snippet = { id: `sn-${Date.now()}`, name: newSnippetName.trim(), language: 'TypeScript', code: newSnippetCode.trim() };
+    setSnippets(prev => [snippet, ...prev]);
+    setNewSnippetName('');
+    setNewSnippetCode('');
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:build-success', { projectId: 'snippet-' + snippet.id, buildId: `snip-${Date.now()}`, durationMs: 0 });
+  }
+
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
@@ -1103,6 +1202,350 @@ export default function CodeEngin({ onBack }: Props) {
             </div>
           </>
         )}
+
+        {/* ── AI Code Assist ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Code2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">AI Code Assist</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                placeholder="Ask Dr. Eams a code question…"
+                value={assistPrompt}
+                onChange={e => setAssistPrompt(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAiAssist()}
+                aria-label="Code question for AI"
+                style={{
+                  flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}30`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleAiAssist}
+                disabled={assistLoading || !assistPrompt.trim()}
+                className="de-btn de-btn-primary"
+                aria-label="Ask Dr. Eams for code help"
+                style={{ opacity: assistLoading || !assistPrompt.trim() ? 0.6 : 1, transition: 'all 0.15s' }}
+              >
+                {assistLoading ? '…' : 'Ask'}
+              </button>
+            </div>
+            {assistResponse && (
+              <pre
+                style={{
+                  padding: '10px 12px', borderRadius: 10, margin: 0,
+                  background: CELL_BG, color: OUT_OK,
+                  fontSize: 11, fontFamily: 'monospace', overflowX: 'auto',
+                  border: `1px solid ${ACCENT}20`,
+                  whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                }}
+              >
+                {assistResponse}
+              </pre>
+            )}
+          </div>
+        </div>
+
+        {/* ── Pair Programming ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <FolderOpen className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Pair Programming</span>
+            {pairActive && (
+              <span
+                className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+                style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}
+              >
+                Live
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            {pairActive ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ padding: '10px 14px', borderRadius: 10, background: `${ACCENT}08`, border: `1px solid ${ACCENT}25`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 4 }}>SESSION CODE</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: '0.15em', color: ACCENT, fontFamily: 'monospace' }}>{pairCode}</div>
+                </div>
+                <div style={{ padding: '8px 12px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(160,195,240,0.18)', fontSize: 11, color: 'var(--de-text-dim)' }}>
+                  Partner cursor: <span style={{ color: ACCENT, fontWeight: 700, fontFamily: 'monospace' }}>{pairCursor}</span>
+                </div>
+              </div>
+            ) : (
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>
+                Start a pair programming session and share the code with your partner.
+              </p>
+            )}
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handlePairToggle}
+              className={pairActive ? 'de-btn de-btn-ghost' : 'de-btn de-btn-primary'}
+              aria-label={pairActive ? 'End pair programming session' : 'Start pair programming session'}
+              style={{ transition: 'all 0.15s' }}
+            >
+              {pairActive ? 'End Session' : 'Start Session'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Deployment Console ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <CheckCircle className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Deployment Console</span>
+            {deployStatus !== 'idle' && (
+              <span
+                className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+                style={{
+                  background: deployStatus === 'success' ? 'rgba(34,197,94,0.12)' : deployStatus === 'error' ? 'rgba(239,68,68,0.12)' : `${ACCENT}12`,
+                  color: deployStatus === 'success' ? '#22c55e' : deployStatus === 'error' ? '#ef4444' : ACCENT,
+                  border: `1px solid ${deployStatus === 'success' ? 'rgba(34,197,94,0.25)' : deployStatus === 'error' ? 'rgba(239,68,68,0.25)' : ACCENT + '30'}`,
+                }}
+              >
+                {deployStatus === 'deploying' ? 'Deploying…' : deployStatus === 'success' ? '✓ Deployed' : 'Error'}
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+              {(['vercel', 'supabase'] as const).map(t => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => { setDeployTarget(t); setDeployStatus('idle'); setDeployLog([]); }}
+                  aria-label={`Deploy to ${t}`}
+                  style={{
+                    padding: '5px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700,
+                    border: `1.5px solid ${deployTarget === t ? ACCENT : 'rgba(160,195,240,0.25)'}`,
+                    background: deployTarget === t ? `${ACCENT}15` : 'rgba(255,255,255,0.5)',
+                    color: deployTarget === t ? ACCENT : 'var(--de-text)',
+                    cursor: 'pointer', transition: 'all 0.15s',
+                  }}
+                >
+                  {t === 'vercel' ? '▲ Vercel' : '⚡ Supabase'}
+                </button>
+              ))}
+            </div>
+            {deployLog.length > 0 && (
+              <div
+                style={{
+                  padding: '10px 12px', borderRadius: 9,
+                  background: CELL_BG, border: `1px solid ${ACCENT}20`,
+                  maxHeight: 120, overflowY: 'auto',
+                  display: 'flex', flexDirection: 'column', gap: 3,
+                }}
+              >
+                {deployLog.map((line, i) => (
+                  <div key={i} style={{ fontSize: 11, fontFamily: 'monospace', color: line.startsWith('✅') ? OUT_OK : CODE_FG }}>
+                    {line}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleDeploy}
+              disabled={deployStatus === 'deploying'}
+              className="de-btn de-btn-primary"
+              aria-label={`Deploy to ${deployTarget}`}
+              style={{ opacity: deployStatus === 'deploying' ? 0.6 : 1, transition: 'all 0.15s' }}
+            >
+              {deployStatus === 'deploying' ? 'Deploying…' : `Deploy to ${deployTarget}`}
+            </button>
+          </div>
+        </div>
+
+        {/* ── API Inspector ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">API Inspector</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+              {(['GET', 'POST', 'PUT', 'DELETE'] as const).map(m => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setApiMethod(m)}
+                  aria-label={`Set method to ${m}`}
+                  style={{
+                    padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                    border: `1.5px solid ${apiMethod === m ? ACCENT : 'rgba(160,195,240,0.25)'}`,
+                    background: apiMethod === m ? `${ACCENT}15` : 'rgba(255,255,255,0.5)',
+                    color: apiMethod === m ? ACCENT : 'var(--de-text)',
+                    cursor: 'pointer', transition: 'all 0.15s',
+                  }}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+            <input
+              type="text"
+              placeholder="URL e.g. /api/posts"
+              value={apiUrl}
+              onChange={e => setApiUrl(e.target.value)}
+              aria-label="API URL"
+              style={{
+                width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, marginBottom: 8,
+                border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box',
+              }}
+            />
+            {(apiMethod === 'POST' || apiMethod === 'PUT') && (
+              <textarea
+                placeholder='{"content":"hello"}'
+                value={apiBody}
+                onChange={e => setApiBody(e.target.value)}
+                aria-label="Request body"
+                rows={3}
+                style={{
+                  width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 11, fontFamily: 'monospace',
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none', resize: 'vertical', marginBottom: 8,
+                  boxSizing: 'border-box',
+                }}
+              />
+            )}
+            {apiResponse && (
+              <pre
+                style={{
+                  padding: '10px 12px', borderRadius: 9, margin: '0 0 8px',
+                  background: CELL_BG, color: OUT_OK,
+                  fontSize: 11, fontFamily: 'monospace', overflowX: 'auto',
+                  border: `1px solid ${ACCENT}20`, maxHeight: 130,
+                  whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                }}
+              >
+                {apiResponse}
+              </pre>
+            )}
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleApiSend}
+              disabled={!apiUrl.trim()}
+              className="de-btn de-btn-primary"
+              aria-label="Send API request"
+              style={{ opacity: !apiUrl.trim() ? 0.5 : 1, transition: 'all 0.15s' }}
+            >
+              Send {apiMethod}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Snippet Library ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Plus className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Snippet Library</span>
+            <span
+              className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+              style={{ background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30` }}
+            >
+              {snippets.length} snippets
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+              {snippets.map(sn => (
+                <div
+                  key={sn.id}
+                  style={{
+                    padding: '10px 12px', borderRadius: 10,
+                    background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(160,195,240,0.18)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{sn.name}</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: ACCENT, background: `${ACCENT}12`, padding: '2px 6px', borderRadius: 4 }}>{sn.language}</span>
+                    <button
+                      type="button"
+                      onClick={() => void navigator.clipboard.writeText(sn.code)}
+                      aria-label={`Copy snippet ${sn.name}`}
+                      style={{
+                        padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700,
+                        border: `1px solid ${ACCENT}30`, background: `${ACCENT}10`, color: ACCENT,
+                        cursor: 'pointer', transition: 'all 0.15s',
+                      }}
+                    >
+                      Copy
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSnippets(prev => prev.filter(s => s.id !== sn.id))}
+                      aria-label={`Delete snippet ${sn.name}`}
+                      style={{
+                        padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700,
+                        border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)', color: '#ef4444',
+                        cursor: 'pointer', transition: 'all 0.15s',
+                      }}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <pre
+                    style={{
+                      margin: 0, padding: '6px 8px', borderRadius: 7,
+                      background: CELL_BG, color: CODE_FG,
+                      fontSize: 10, fontFamily: 'monospace',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {sn.code.split('\n')[0]}
+                  </pre>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              <input
+                type="text"
+                placeholder="Snippet name…"
+                value={newSnippetName}
+                onChange={e => setNewSnippetName(e.target.value)}
+                aria-label="New snippet name"
+                style={{
+                  padding: '7px 12px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <textarea
+                placeholder="Snippet code…"
+                value={newSnippetCode}
+                onChange={e => setNewSnippetCode(e.target.value)}
+                aria-label="New snippet code"
+                rows={3}
+                style={{
+                  padding: '7px 12px', borderRadius: 9, fontSize: 11, fontFamily: 'monospace',
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none', resize: 'vertical',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleSaveSnippet}
+                disabled={!newSnippetName.trim() || !newSnippetCode.trim()}
+                className="de-btn de-btn-primary"
+                aria-label="Save new snippet"
+                style={{ opacity: !newSnippetName.trim() || !newSnippetCode.trim() ? 0.5 : 1, transition: 'all 0.15s' }}
+              >
+                Save Snippet
+              </button>
+            </div>
+          </div>
+        </div>
 
       </div>
     </div>
