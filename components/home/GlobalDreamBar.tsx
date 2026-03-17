@@ -3,10 +3,9 @@
 /**
  * GlobalDreamBar — root-level shell for DreamDMBar + DualBottomMenu + DrEamsPanel.
  *
- * Rendered once in app/layout.tsx so the bar and menus persist across every
- * surface (route) without remounting.  HomeSystem registers its runtime
- * callbacks (blend, mode, returnHome) via DreamSystemContext so the bar can
- * still drive the dual-runtime view when the home surface is active.
+ * System menu actions call openInSurface(panelId) — loads the feature as a
+ * RuntimeWorld in Surface Space. Zero router.push(). Zero overlays. Zero routing.
+ * The seam stays. The bar stays. Only the world in the region changes.
  *
  * Hidden on public/pre-login routes so unauthenticated users never see
  * the gold ball, DreamDM bar, or system menus.
@@ -34,6 +33,7 @@ export default function GlobalDreamBar() {
     openDrEams,
     closeDrEams,
     runtimeCallbacks,
+    openInSurface,
   } = useDreamSystem();
 
   // ── Gold button: single-tap → menus, double-tap → home ───────────────────
@@ -42,11 +42,9 @@ export default function GlobalDreamBar() {
     closeBothMenus();
     closeDrEams();
     if (runtimeCallbacks) {
-      // HomeSystem is active — use its returnHome (resets dual-runtime)
       runtimeCallbacks.returnHome();
     } else {
-      // Any other surface — navigate to home
-      router.push('/');
+      router.push('/homedream');
     }
   }, [closeBothMenus, closeDrEams, runtimeCallbacks, router]);
 
@@ -56,28 +54,27 @@ export default function GlobalDreamBar() {
     closeBothMenus();
     closeDrEams();
     if (runtimeCallbacks?.homeDreamSpace) {
-      // HomeSystem is active — load HomeDream into DreamSpace region (dual-home)
       runtimeCallbacks.homeDreamSpace();
     } else {
-      // Any other surface — navigate to home
-      router.push('/');
+      router.push('/homedream');
     }
   }, [closeBothMenus, closeDrEams, runtimeCallbacks, router]);
 
-  // ── System menu actions ───────────────────────────────────────────────────
+  // ── System menu actions — all open in Surface Space via world dispatch ────
+  // No router.push(). The panel loads INTO the region as a RuntimeWorld.
 
   const handleSystemAction = useCallback((action: SystemMenuAction) => {
     closeBothMenus();
     if (action === 'dr-eams')       { openDrEams(); return; }
-    if (action === 'settings')      { router.push('/settings'); return; }
-    if (action === 'account')       { router.push('/edit-profiledream'); return; }
-    if (action === 'profiles')      { router.push('/edit-profiledream'); return; }
-    if (action === 'feed-settings') { router.push('/feed-settings'); return; }
-    if (action === 'connectors')    { router.push('/connectors'); return; }
-    if (action === 'marketplace')   { router.push('/marketplace'); return; }
-    if (action === 'appearance')    { router.push('/settings'); return; }
     if (action === 'go-home')       { handleHome(); return; }
-  }, [closeBothMenus, openDrEams, handleHome, router]);
+    if (action === 'settings')      { openInSurface('settings');             return; }
+    if (action === 'account')       { openInSurface('profile');              return; }
+    if (action === 'profiles')      { openInSurface('profile');              return; }
+    if (action === 'feed-settings') { openInSurface('feed-settings');        return; }
+    if (action === 'connectors')    { openInSurface('connectors');           return; }
+    if (action === 'marketplace')   { openInSurface('marketplace');          return; }
+    if (action === 'appearance')    { openInSurface('settings/appearance');  return; }
+  }, [closeBothMenus, openDrEams, handleHome, openInSurface]);
 
   // ── Runtime bridge (only active when HomeSystem is mounted) ───────────────
 

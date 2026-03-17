@@ -5,6 +5,7 @@ import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualR
 import RuntimeView from '@/components/runtime/RuntimeView';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
 type ProfileLike = {
   id?: string;
@@ -63,17 +64,28 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     setBarBlend(1);
   }, [dualRuntime]);
 
+  /**
+   * Load a system feature panel into Surface Space as a RuntimeWorld.
+   * This is in-region opening — no routing, no overlays.
+   * RuntimeView dispatches { type: 'panel', name } to the panel component.
+   */
+  const openInSurface = useCallback((id: SystemPanelId) => {
+    dualRuntime.setTopRuntime({ type: 'panel', name: id });
+    dualRuntime.setDominantRuntime('Surface Space');
+  }, [dualRuntime]);
+
   // Register runtime callbacks with the global context so GlobalDreamBar
   // can bridge bar drag/tap events to this dual-runtime view.
   useEffect(() => {
     registerRuntimeCallbacks({
       returnHome,
-      modeChange:    handleBarRuntimeMode,
-      blendChange:   setBarBlend,
+      modeChange:     handleBarRuntimeMode,
+      blendChange:    setBarBlend,
       homeDreamSpace: openHomeDreamSpace,
+      openInSurface,
     });
     return unregisterRuntimeCallbacks;
-  }, [returnHome, handleBarRuntimeMode, openHomeDreamSpace, registerRuntimeCallbacks, unregisterRuntimeCallbacks]);
+  }, [returnHome, handleBarRuntimeMode, openHomeDreamSpace, openInSurface, registerRuntimeCallbacks, unregisterRuntimeCallbacks]);
 
   return (
     <>

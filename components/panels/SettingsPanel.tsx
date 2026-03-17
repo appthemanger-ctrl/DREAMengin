@@ -10,9 +10,7 @@ import { ChevronRight, Crown, User, Rss, LayoutGrid, Palette, Plug, Sliders,
          Shield, Database, HelpCircle, LogOut, Bot, Cpu }  from 'lucide-react';
 import { createClient }          from '@/lib/supabase/client';
 import { useDreamSystem }        from '@/lib/dreamdm/DreamSystemContext';
-import type { SystemPanelId }    from '@/lib/panels/panelTypes';
-
-const NAV_GROUPS: Array<{
+import type { SystemPanelId }    from '@/lib/panels/panelTypes';: Array<{
   heading: string;
   items: Array<{ panel: SystemPanelId; icon: React.ElementType; label: string; desc: string; iconBg: string }>;
 }> = [
@@ -50,7 +48,7 @@ const NAV_GROUPS: Array<{
 ];
 
 export default function SettingsPanel() {
-  const { openPanel } = useDreamSystem();
+  const { openInSurface } = useDreamSystem();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -121,7 +119,7 @@ export default function SettingsPanel() {
               <button
                 key={panel}
                 type="button"
-                onClick={() => openPanel(panel)}
+                onClick={() => openInSurface(panel)}
                 className="de-row"
                 style={{
                   borderRadius: 12,
