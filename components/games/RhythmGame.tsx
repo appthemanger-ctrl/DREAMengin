@@ -4,6 +4,7 @@
  * Category: music / rhythm
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGamePhase } from '@/lib/games/hooks';
 
 const CW = 420; const CH = 520;
 const LANES = 4;
@@ -30,12 +31,11 @@ const PATTERN: [number, number][] = [
 let noteId = 0;
 
 export default function RhythmGame() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [best, setBest] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phaseRef = useRef<Phase>('menu');
   const notesRef = useRef<Note[]>([]);
   const effectsRef = useRef<Effect[]>([]);
   const scoreRef = useRef(0);
@@ -50,8 +50,8 @@ export default function RhythmGame() {
     noteId = 0; notesRef.current = []; effectsRef.current = [];
     scoreRef.current = 0; comboRef.current = 0; beatsRef.current = 0;
     patternIdxRef.current = 0; beatTimerRef.current = 0; pressedRef.current = new Set();
-    setScore(0); setCombo(0); phaseRef.current = 'playing'; setPhase('playing');
-  }, []);
+    setScore(0); setCombo(0); setPhase('playing');
+  }, [setPhase]);
 
   const hitLane = useCallback((lane: number) => {
     if (phaseRef.current !== 'playing') return;
@@ -126,7 +126,6 @@ export default function RhythmGame() {
           patternIdxRef.current++;
         }
         if (beatsRef.current >= 100) {
-          phaseRef.current = 'done';
           setBest(b => Math.max(b, Math.floor(scoreRef.current)));
           setScore(Math.floor(scoreRef.current));
           setPhase('done'); return;
@@ -172,7 +171,7 @@ export default function RhythmGame() {
     };
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [phase]);
+  }, [phase, phaseRef]);
 
   if (phase === 'menu') return (
     <div style={{ background: '#0a0a0f', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>

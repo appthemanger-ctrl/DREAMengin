@@ -4,6 +4,7 @@
  * Category: puzzle / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGamePhase } from '@/lib/games/hooks';
 
 const COLS = 10; const ROWS = 20; const CELL = 26;
 const CW = COLS * CELL; const CH = ROWS * CELL;
@@ -58,13 +59,12 @@ const SCORE_TABLE = [0, 100, 300, 500, 800];
 const SPEEDS = [800, 700, 600, 500, 400, 350, 300, 250, 200, 150];
 
 export default function TetrisGame() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [lines, setLines] = useState(0);
   const [level, setLevel] = useState(1);
   const [best, setBest] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phaseRef = useRef<Phase>('menu');
   const boardRef = useRef<(string|0)[][]>(Array.from({ length: ROWS }, () => Array(COLS).fill(0)));
   const pieceRef = useRef<Piece>(randomPiece());
   const nextPieceRef = useRef<Piece>(randomPiece());
@@ -81,8 +81,8 @@ export default function TetrisGame() {
     pieceRef.current = randomPiece(); nextPieceRef.current = randomPiece();
     scoreRef.current = 0; linesRef.current = 0; levelRef.current = 1;
     setScore(0); setLines(0); setLevel(1);
-    phaseRef.current = 'playing'; setPhase('playing');
-  }, []);
+    setPhase('playing');
+  }, [setPhase]);
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -169,7 +169,7 @@ export default function TetrisGame() {
           pieceRef.current = { ...nextPieceRef.current };
           nextPieceRef.current = randomPiece();
           if (collision(boardRef.current, pieceRef.current, 0, 0)) {
-            phaseRef.current = 'gameover'; setBest(b => Math.max(b, scoreRef.current)); setScore(scoreRef.current); setPhase('gameover'); return;
+            setBest(b => Math.max(b, scoreRef.current)); setScore(scoreRef.current); setPhase('gameover'); return;
           }
           setScore(scoreRef.current); setLines(linesRef.current); setLevel(levelRef.current);
         }
@@ -180,11 +180,10 @@ export default function TetrisGame() {
     };
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [phase]);
+  }, [phase, phaseRef]);
 
   if (phase === 'menu') return (
     <div style={{ background: '#111827', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
-      <div style={{ fontSize: 26, fontWeight: 900, color: '#06b6d4' }}>🟦 TETRIS</div>
       <div style={{ fontSize: 12, color: '#9ca3af' }}>← → Arrow keys to move · ↑ / Z to rotate · Space to drop</div>
       {best > 0 && <div style={{ color: '#facc15', fontSize: 13 }}>Best: {best}</div>}
       <button onClick={startGame} style={{ background: '#0e7490', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>▶ Play</button>

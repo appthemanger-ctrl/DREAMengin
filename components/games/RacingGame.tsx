@@ -4,6 +4,7 @@
  * Category: racing / sports
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGamePhase, useKeySet } from '@/lib/games/hooks';
 
 const CW = 500; const CH = 500;
 type Phase = 'menu' | 'playing' | 'done';
@@ -33,15 +34,14 @@ function makeCar(startAngle: number, offset: number): Car {
 }
 
 export default function RacingGame() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [lap, setLap] = useState(0);
   const [best, setBest] = useState<number | null>(null);
   const [pos, setPos] = useState(1);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phaseRef = useRef<Phase>('menu');
   const playerRef = useRef<Car>(makeCar(-Math.PI / 2, 20));
   const aiCarsRef = useRef<Car[]>([makeCar(-Math.PI / 2, -20), makeCar(-Math.PI / 2, 0)]);
-  const keysRef = useRef<Set<string>>(new Set());
+  const keysRef = useKeySet(phase === 'playing');
   const rafRef = useRef(0);
   const startTimeRef = useRef(0);
   const totalTimeRef = useRef(0);
@@ -52,16 +52,8 @@ export default function RacingGame() {
     aiCarsRef.current = [makeCar(-Math.PI / 2, -20), makeCar(-Math.PI / 2, 0)];
     startTimeRef.current = Date.now();
     setLap(0); setPos(1);
-    phaseRef.current = 'playing'; setPhase('playing');
-  }, []);
-
-  useEffect(() => {
-    if (phase !== 'playing') return;
-    const onKey = (e: KeyboardEvent, d: boolean) => { if (d) keysRef.current.add(e.key); else keysRef.current.delete(e.key); };
-    window.addEventListener('keydown', e => onKey(e, true));
-    window.addEventListener('keyup', e => onKey(e, false));
-    return () => { window.removeEventListener('keydown', e => onKey(e, true)); window.removeEventListener('keyup', e => onKey(e, false)); };
-  }, [phase]);
+    setPhase('playing');
+  }, [setPhase]);
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -162,7 +154,7 @@ export default function RacingGame() {
       setLap(playerRef.current.lap); setPos(position);
       if (playerRef.current.lap >= LAPS) {
         totalTimeRef.current = (Date.now() - startTimeRef.current) / 1000;
-        phaseRef.current = 'done'; setPhase('done');
+        setPhase('done');
         setBest(prev => prev === null || totalTimeRef.current < prev ? totalTimeRef.current : prev);
         return;
       }
@@ -178,7 +170,7 @@ export default function RacingGame() {
     };
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [phase]);
+  }, [phase, phaseRef]);
 
   if (phase === 'menu') return (
     <div style={{ background: '#1a1a2e', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>

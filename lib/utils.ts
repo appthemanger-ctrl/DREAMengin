@@ -13,7 +13,7 @@ export function formatDate(date: string | Date) {
   })
 }
 
-export function formatRelativeTime(date: string | Date) {
+export function formatRelativeTime(date: string | Date, options?: { compact?: boolean }) {
   const now = new Date()
   const target = new Date(date)
   const diffMs = now.getTime() - target.getTime()
@@ -21,6 +21,13 @@ export function formatRelativeTime(date: string | Date) {
   const diffMins = Math.floor(diffSecs / 60)
   const diffHours = Math.floor(diffMins / 60)
   const diffDays = Math.floor(diffHours / 24)
+
+  if (options?.compact) {
+    if (diffMs < 60_000) return 'just now'
+    if (diffMs < 3_600_000) return `${Math.floor(diffMs / 60_000)}m`
+    if (diffMs < 86_400_000) return `${Math.floor(diffMs / 3_600_000)}h`
+    return `${Math.floor(diffMs / 86_400_000)}d`
+  }
 
   if (diffSecs < 60) return 'just now'
   if (diffMins < 60) return `${diffMins}m ago`

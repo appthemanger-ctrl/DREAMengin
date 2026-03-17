@@ -4,6 +4,7 @@
  * Category: arcade / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGamePhase } from '@/lib/games/hooks';
 
 const CELL = 18; const COLS = 24; const ROWS = 22;
 const CW = COLS * CELL; const CH = ROWS * CELL;
@@ -13,11 +14,10 @@ type Phase = 'menu' | 'playing' | 'gameover';
 interface Pt { x: number; y: number; }
 
 export default function SnakeGame() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phaseRef = useRef<Phase>('menu');
   const snakeRef = useRef<Pt[]>([{ x: 12, y: 11 }, { x: 11, y: 11 }, { x: 10, y: 11 }]);
   const dirRef = useRef<Dir>('right');
   const nextDirRef = useRef<Dir>('right');
@@ -39,8 +39,8 @@ export default function SnakeGame() {
     dirRef.current = 'right'; nextDirRef.current = 'right';
     foodRef.current = { x: 18, y: 11 };
     scoreRef.current = 0; speedRef.current = 150;
-    setScore(0); phaseRef.current = 'playing'; setPhase('playing');
-  }, []);
+    setScore(0); setPhase('playing');
+  }, [setPhase]);
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -98,7 +98,6 @@ export default function SnakeGame() {
         const next = { x: head.x + delta[dirRef.current].x, y: head.y + delta[dirRef.current].y };
         // Wall collision
         if (next.x < 0 || next.x >= COLS || next.y < 0 || next.y >= ROWS || snakeRef.current.some(s => s.x === next.x && s.y === next.y)) {
-          phaseRef.current = 'gameover';
           setBest(b => Math.max(b, scoreRef.current));
           setScore(scoreRef.current);
           setPhase('gameover');

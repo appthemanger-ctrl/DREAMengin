@@ -4,6 +4,7 @@
  * Category: endless runner / casual
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGamePhase } from '@/lib/games/hooks';
 
 const CW = 360; const CH = 540;
 const BIRD_X = 80; const BIRD_R = 14;
@@ -13,11 +14,10 @@ type Phase = 'menu' | 'playing' | 'dead';
 interface Pipe { x: number; top: number; scored: boolean; }
 
 export default function FlappyGame() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phaseRef = useRef<Phase>('menu');
   const birdYRef = useRef(CH / 2);
   const birdVRef = useRef(0);
   const pipesRef = useRef<Pipe[]>([]);
@@ -31,13 +31,13 @@ export default function FlappyGame() {
       birdYRef.current = CH / 2; birdVRef.current = 0;
       pipesRef.current = [{ x: CW + 80, top: 80 + Math.random() * (CH - GAP - 160), scored: false }];
       scoreRef.current = 0; frameRef.current = 0;
-      phaseRef.current = 'playing'; setPhase('playing'); setScore(0);
+      setPhase('playing'); setScore(0);
     } else if (phaseRef.current === 'playing') {
       birdVRef.current = -7.5;
     } else if (phaseRef.current === 'dead') {
-      phaseRef.current = 'menu'; setPhase('menu');
+      setPhase('menu');
     }
-  }, []);
+  }, [phaseRef, setPhase]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.code === 'Space' || e.key === 'ArrowUp') { e.preventDefault(); flap(); } };
@@ -79,7 +79,6 @@ export default function FlappyGame() {
         (birdYRef.current - BIRD_R < p.top || birdYRef.current + BIRD_R > p.top + GAP)
       );
       if (byTop || byBot || hitPipe) {
-        phaseRef.current = 'dead';
         setBest(b => Math.max(b, scoreRef.current));
         setScore(scoreRef.current);
         setPhase('dead');

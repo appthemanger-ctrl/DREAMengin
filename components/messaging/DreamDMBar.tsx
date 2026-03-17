@@ -45,6 +45,7 @@ import {
   X,
 } from 'lucide-react';
 
+import { formatRelativeTime }                    from '@/lib/utils';
 import { useDreamDMMessages }                    from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamDMDraft }                        from '@/lib/dreamdm/useDreamDMDraft';
 import { useDreamSearch, type SearchResult }      from '@/lib/dreamdm/useDreamSearch';
@@ -88,14 +89,6 @@ const DEMO_CONVERSATIONS: DMConversation[] = [
 const DEMO_MESSAGES: DMMessage[] = [
   { id: '1', sender_id: 'demo-user-1', content: 'Hey! How can I help you today?', created_at: new Date(Date.now() - 60_000).toISOString() },
 ];
-
-function relTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 60_000)    return 'just now';
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`;
-  return `${Math.floor(diff / 86_400_000)}d`;
-}
 
 function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
   if (url) {
@@ -985,7 +978,7 @@ function DreamSpaceMessaging({
                   <p style={{ fontSize: 10, color: 'var(--de-text-dim)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>{conv.lastMessage}</p>
                 )}
               </div>
-              <span style={{ fontSize: 9, color: 'var(--de-text-dim)', flexShrink: 0 }}>{relTime(conv.updatedAt)}</span>
+              <span style={{ fontSize: 9, color: 'var(--de-text-dim)', flexShrink: 0 }}>{formatRelativeTime(conv.updatedAt, { compact: true })}</span>
             </button>
           ))}
         </div>
@@ -1027,7 +1020,7 @@ function DreamSpaceMessaging({
                           <Image src={msg.media_url} alt="Shared image" width={160} height={100} style={{ borderRadius: 8, marginBottom: 4 }} />
                         )}
                         {msg.content && <p style={{ margin: 0 }}>{msg.content}</p>}
-                        <p style={{ margin: 0, fontSize: 9, opacity: 0.55, marginTop: 2 }}>{relTime(msg.created_at)}</p>
+                        <p style={{ margin: 0, fontSize: 9, opacity: 0.55, marginTop: 2 }}>{formatRelativeTime(msg.created_at, { compact: true })}</p>
                       </div>
                     </div>
                   );
