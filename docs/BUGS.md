@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-16 17:30 UTC  
-**Triggered by commit:** `b9a51a5` on `completedream` by appthemanger-ctrl  
-**Commit message:** Delete components/dreamnav directory
+**Last updated:** 2026-03-17 05:39 UTC  
+**Triggered by commit:** `5838f5f` on `copilot/create-windows-for-dreamspace` by Copilot  
+**Commit message:** feat: open DreamSpace app icons as in-panel mini-app windows (openDetail) not router.push
 
 ---
 
