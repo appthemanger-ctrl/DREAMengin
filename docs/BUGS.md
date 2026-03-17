@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-17 07:08 UTC  
-**Triggered by commit:** `c6f8f65` on `copilot/improve-ui-daydreams-engins` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/improve-ui-daydreams-engins
+**Last updated:** 2026-03-17 07:51 UTC  
+**Triggered by commit:** `e07c932` on `copilot/fix-module-not-found-error` by Copilot  
+**Commit message:** Replace two-button HomeControls with ONE gold button; fix resolveHomeTap single/double direction
 
 ---
 
