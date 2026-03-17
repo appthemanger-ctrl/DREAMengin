@@ -314,6 +314,98 @@ export default function GameEngin({ onBack }: Props) {
   // ── Early return: GameRemote overlay ─────────────────────────────────────────
   if (showRemote) return <GameRemote onBack={() => setShowRemote(false)} />;
 
+  // ── Multiplayer Lobby state ──────────────────────────────────────────────────
+  const [lobbyActive, setLobbyActive] = useState(false);
+  const [lobbyCode, setLobbyCode] = useState('');
+  const [lobbyPlayers, setLobbyPlayers] = useState<string[]>([]);
+
+  // ── Tournament Mode state ────────────────────────────────────────────────────
+  const [bracket, setBracket] = useState<Array<{ player1: string; player2: string; winner: string | null }>>([
+    { player1: 'Dr. Eams', player2: 'Player 2', winner: null },
+    { player1: 'Player 3', player2: 'Player 4', winner: null },
+    { player1: 'Player 5', player2: 'Player 6', winner: null },
+    { player1: 'Player 7', player2: 'Player 8', winner: null },
+  ]);
+
+  // ── Game Analytics state ─────────────────────────────────────────────────────
+  const [analyticsData] = useState<Array<{ label: string; value: string; trend: 'up' | 'down' | 'flat' }>>([
+    { label: 'Avg Session', value: '12m 30s', trend: 'up' },
+    { label: 'Win Rate',    value: '64%',     trend: 'up' },
+    { label: 'Top Score',   value: '48,200',  trend: 'flat' },
+    { label: 'Games Today', value: '7',       trend: 'down' },
+  ]);
+
+  // ── Replay System state ──────────────────────────────────────────────────────
+  const [replayRecording, setReplayRecording] = useState(false);
+  const [replays, setReplays] = useState<Array<{ id: string; game: string; duration: string; date: string }>>([
+    { id: 'rp-1', game: 'Dr. Eams Platformer', duration: '4:12', date: '2025-01-10' },
+    { id: 'rp-2', game: 'Chess',               duration: '18:44', date: '2025-01-09' },
+    { id: 'rp-3', game: 'Tetris',              duration: '2:58', date: '2025-01-08' },
+  ]);
+
+  // ── Social Challenge state ───────────────────────────────────────────────────
+  const [challengeSent, setChallengeSent] = useState(false);
+  const [activeChallenges, setActiveChallenges] = useState<Array<{ id: string; from: string; game: string; score: number }>>([
+    { id: 'ch-1', from: 'StarPlayer99',  game: 'Speed Tap',  score: 24800 },
+    { id: 'ch-2', from: 'CodeWizard42', game: 'Word Sprint', score: 11200 },
+  ]);
+
+  // ── Lobby handlers ───────────────────────────────────────────────────────────
+  function handleCreateRoom() {
+    const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+    setLobbyCode(code);
+    setLobbyPlayers(['You']);
+    setLobbyActive(true);
+  }
+
+  function handleStartLobbyGame() {
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'games', 'game:lobby-start', { code: lobbyCode, players: lobbyPlayers },
+    );
+  }
+
+  // ── Tournament handlers ──────────────────────────────────────────────────────
+  function handlePickWinner(matchIndex: number, winner: string) {
+    setBracket(prev => prev.map((m, i) => i === matchIndex ? { ...m, winner } : m));
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'games', 'game:tournament-match', { matchIndex, winner },
+    );
+  }
+
+  // ── Replay handlers ──────────────────────────────────────────────────────────
+  function handleReplayToggle() {
+    const next = !replayRecording;
+    setReplayRecording(next);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'games', 'game:replay-record', { recording: next },
+    );
+    if (!next) {
+      const newReplay = {
+        id: `rp-${Date.now()}`,
+        game: 'Current Game',
+        duration: '0:30',
+        date: new Date().toISOString().split('T')[0],
+      };
+      setReplays(prev => [newReplay, ...prev]);
+    }
+  }
+
+  // ── Social Challenge handlers ────────────────────────────────────────────────
+  function handleSendChallenge() {
+    setChallengeSent(true);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'games', 'game:challenge-send', {},
+    );
+    setTimeout(() => setChallengeSent(false), 3000);
+  }
+
+  function handleAcceptChallenge(id: string) {
+    setActiveChallenges(prev => prev.filter(c => c.id !== id));
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'games', 'game:challenge-accept', { id },
+    );
+  }
+
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="de-sky-bg min-h-screen">
@@ -1029,6 +1121,300 @@ export default function GameEngin({ onBack }: Props) {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* ── Multiplayer Lobby ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Multiplayer Lobby</span>
+            {lobbyActive && (
+              <span
+                className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+                style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}
+              >
+                Open
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            {lobbyActive ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ padding: '10px 14px', borderRadius: 10, background: `${ACCENT}08`, border: `1px solid ${ACCENT}25`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 4 }}>ROOM CODE</div>
+                  <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: '0.15em', color: ACCENT, fontFamily: 'monospace' }}>{lobbyCode}</div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        padding: '8px 12px', borderRadius: 10,
+                        background: lobbyPlayers[i] ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.2)',
+                        border: `1px solid ${lobbyPlayers[i] ? 'rgba(34,197,94,0.2)' : 'rgba(160,195,240,0.12)'}`,
+                        display: 'flex', alignItems: 'center', gap: 8,
+                      }}
+                    >
+                      <span style={{ fontSize: 14 }}>{lobbyPlayers[i] ? '🟢' : '⭕'}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: lobbyPlayers[i] ? 'var(--de-heading)' : 'var(--de-text-dim)' }}>
+                        {lobbyPlayers[i] ?? `Waiting for player ${i + 1}…`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>
+                Create a room to invite up to 4 players for a multiplayer session.
+              </p>
+            )}
+          </div>
+          <div className="de-widget-actions">
+            {!lobbyActive ? (
+              <button
+                type="button"
+                onClick={handleCreateRoom}
+                className="de-btn de-btn-primary"
+                aria-label="Create multiplayer room"
+                style={{ transition: 'all 0.15s' }}
+              >
+                Create Room
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleStartLobbyGame}
+                className="de-btn de-btn-primary"
+                aria-label="Start lobby game"
+                style={{ transition: 'all 0.15s' }}
+              >
+                <Play className="w-3 h-3 mr-1" />
+                Start Game
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── Tournament Mode ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Trophy className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Tournament Mode</span>
+            <span
+              className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+              style={{ background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30` }}
+            >
+              {bracket.filter(m => m.winner).length}/{bracket.length} Complete
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {bracket.map((match, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: '10px 12px', borderRadius: 10,
+                    background: match.winner ? `${ACCENT}08` : 'rgba(255,255,255,0.5)',
+                    border: match.winner ? `1px solid ${ACCENT}25` : '1px solid rgba(160,195,240,0.18)',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                      {match.player1} vs {match.player2}
+                    </div>
+                    {match.winner && (
+                      <div style={{ fontSize: 10, color: '#22c55e', fontWeight: 600, marginTop: 2 }}>
+                        ✓ Winner: {match.winner}
+                      </div>
+                    )}
+                  </div>
+                  {!match.winner && (
+                    <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
+                      {[match.player1, match.player2].map(p => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => handlePickWinner(i, p)}
+                          aria-label={`Pick ${p} as winner of match ${i + 1}`}
+                          style={{
+                            padding: '4px 9px', borderRadius: 7, fontSize: 10, fontWeight: 600,
+                            border: `1px solid ${ACCENT}35`, background: `${ACCENT}12`, color: ACCENT,
+                            cursor: 'pointer', transition: 'all 0.15s',
+                          }}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Game Analytics ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Award className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Game Analytics</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {analyticsData.map((m, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: '12px 14px', borderRadius: 11,
+                    background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}15`,
+                  }}
+                >
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+                    {m.label}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1 }}>
+                      {m.value}
+                    </span>
+                    <span style={{ fontSize: 12 }}>
+                      {m.trend === 'up' ? '↑' : m.trend === 'down' ? '↓' : '→'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Replay System ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Play className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Replay System</span>
+            {replayRecording && (
+              <span
+                className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+                style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }}
+              >
+                ● REC
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {replays.map(r => (
+                <div
+                  key={r.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '9px 12px', borderRadius: 10,
+                    background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(160,195,240,0.18)',
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {r.game}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1 }}>
+                      {r.duration} · {r.date}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label={`Watch replay of ${r.game}`}
+                    style={{
+                      padding: '4px 10px', borderRadius: 7, fontSize: 10, fontWeight: 700,
+                      border: `1px solid ${ACCENT}35`, background: `${ACCENT}12`, color: ACCENT,
+                      cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+                    }}
+                  >
+                    ▶ Watch
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleReplayToggle}
+              className={replayRecording ? 'de-btn de-btn-ghost' : 'de-btn de-btn-primary'}
+              aria-label={replayRecording ? 'Stop recording replay' : 'Start recording replay'}
+              style={{ transition: 'all 0.15s' }}
+            >
+              {replayRecording ? '■ Stop' : '● Record'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Social Challenge ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Share2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Social Challenge</span>
+            {activeChallenges.length > 0 && (
+              <span
+                className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+                style={{ background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30` }}
+              >
+                {activeChallenges.length} pending
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            {activeChallenges.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+                {activeChallenges.map(c => (
+                  <div
+                    key={c.id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '9px 12px', borderRadius: 10,
+                      background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(160,195,240,0.18)',
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                        {c.from}
+                      </div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1 }}>
+                        {c.game} · Score: {c.score.toLocaleString()}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleAcceptChallenge(c.id)}
+                      aria-label={`Accept challenge from ${c.from}`}
+                      style={{
+                        padding: '5px 12px', borderRadius: 7, fontSize: 11, fontWeight: 700,
+                        border: 'none', background: ACCENT, color: '#fff',
+                        cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+                      }}
+                    >
+                      Accept
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 12 }}>
+                No active challenges. Send one to a friend!
+              </p>
+            )}
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleSendChallenge}
+              disabled={challengeSent}
+              className="de-btn de-btn-primary"
+              aria-label="Challenge a friend"
+              style={{ opacity: challengeSent ? 0.6 : 1, transition: 'all 0.15s' }}
+            >
+              {challengeSent ? '✓ Challenge Sent!' : '🏆 Challenge a Friend'}
+            </button>
           </div>
         </div>
 
