@@ -18,19 +18,20 @@ export default function DreamNavControls({ onHome, onBothMenus }: DreamNavContro
     const last = lastTapRef.current;
     lastTapRef.current = now;
 
+    // Single tap → open both menus. Double tap → go home.
     if (now - last <= DOUBLE_TAP_MS) {
       if (singleTapTimerRef.current) {
         clearTimeout(singleTapTimerRef.current);
         singleTapTimerRef.current = null;
       }
-      onBothMenus();
+      onHome();
       return;
     }
 
     if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
     singleTapTimerRef.current = setTimeout(() => {
       singleTapTimerRef.current = null;
-      onHome();
+      onBothMenus();
     }, DOUBLE_TAP_MS + 10);
   };
 

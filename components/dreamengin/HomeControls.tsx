@@ -1,9 +1,9 @@
 // components/dreamengin/HomeControls.tsx
 // v2.0.0 behavior (per spec + Feb17 update):
 // - Controls are FIXED (no drag) for now.
-// - Single tap (either): Return Home
-// - Double tap Blue: Dreams (Outdream) menu
-// - Double tap Red:  System (Nexus) menu
+// - Single tap Blue: Dreams (Outdream) menu
+// - Single tap Red:  System (Nexus) menu
+// - Double tap (either): Return Home
 //
 // Notes:
 // - We intentionally removed hold/drag depth navigation to avoid iOS Safari conflicts (pull-to-refresh / back swipe).
@@ -76,23 +76,23 @@ export default function HomeControls({
     const last = lastTapRef.current[id];
     lastTapRef.current[id] = now;
 
-    // If second tap occurs fast enough, treat as double tap.
+    // If second tap occurs fast enough, treat as double tap → go home.
     if (now - last <= DOUBLE_TAP_MS) {
-      // Cancel pending single-tap action
+      // Cancel pending single-tap menu action
       if (singleTapTimerRef.current[id]) {
         clearTimeout(singleTapTimerRef.current[id]);
         singleTapTimerRef.current[id] = null;
       }
-      if (id === 'blue') onDoubleTapBlue();
-      else onDoubleTapRed();
+      onGoHome();
       return;
     }
 
-    // Otherwise schedule single tap (home) after the double-tap window.
+    // Otherwise schedule single tap (open menu) after the double-tap window.
     if (singleTapTimerRef.current[id]) clearTimeout(singleTapTimerRef.current[id]);
     singleTapTimerRef.current[id] = setTimeout(() => {
       singleTapTimerRef.current[id] = null;
-      onGoHome();
+      if (id === 'blue') onDoubleTapBlue();
+      else onDoubleTapRed();
     }, DOUBLE_TAP_MS + 10);
   };
 
