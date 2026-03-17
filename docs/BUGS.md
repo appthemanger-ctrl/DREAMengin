@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-16 17:30 UTC  
-**Triggered by commit:** `b9a51a5` on `completedream` by appthemanger-ctrl  
-**Commit message:** Delete components/dreamnav directory
+**Last updated:** 2026-03-16 18:04 UTC  
+**Triggered by commit:** `8e03a03` on `copilot/refactor-duplicated-code-again` by Copilot  
+**Commit message:** fix: move keysRef.clear() into useKeySet cleanup for consistent ordering
 
 ---
 
