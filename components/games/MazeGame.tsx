@@ -4,6 +4,7 @@
  * Category: maze / adventure
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGamePhase, useKeySet } from '@/lib/games/hooks';
 
 const CELL = 36; const MAZE_W = 15; const MAZE_H = 12;
 const CW = MAZE_W * CELL; const CH = MAZE_H * CELL;
@@ -38,14 +39,13 @@ function generateMaze(w: number, h: number): Cell[][] {
 }
 
 export default function MazeGame() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [time, setTime] = useState(0);
   const [best, setBest] = useState<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phaseRef = useRef<Phase>('menu');
   const mazeRef = useRef<Cell[][]>(generateMaze(MAZE_W, MAZE_H));
   const playerRef = useRef({ x: 0, y: 0 });
-  const keysRef = useRef<Set<string>>(new Set());
+  const keysRef = useKeySet(phase === 'playing', true);
   const rafRef = useRef(0);
   const startTimeRef = useRef(0);
   const lastMoveRef = useRef(0);
@@ -55,16 +55,8 @@ export default function MazeGame() {
     mazeRef.current = generateMaze(MAZE_W, MAZE_H);
     playerRef.current = { x: 0, y: 0 };
     startTimeRef.current = Date.now(); lastMoveRef.current = 0; tickRef.current = 0;
-    setTime(0); phaseRef.current = 'playing'; setPhase('playing');
-  }, []);
-
-  useEffect(() => {
-    if (phase !== 'playing') return;
-    const onKey = (e: KeyboardEvent, d: boolean) => { if (d) keysRef.current.add(e.key); else keysRef.current.delete(e.key); e.preventDefault(); };
-    window.addEventListener('keydown', e => onKey(e, true));
-    window.addEventListener('keyup', e => onKey(e, false));
-    return () => { window.removeEventListener('keydown', e => onKey(e, true)); window.removeEventListener('keyup', e => onKey(e, false)); };
-  }, [phase]);
+    setTime(0); setPhase('playing');
+  }, [setPhase]);
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -88,7 +80,7 @@ export default function MazeGame() {
         if (p.x === MAZE_W - 1 && p.y === MAZE_H - 1) {
           const t = Math.round((Date.now() - startTimeRef.current) / 1000);
           setBest(b => b === null || t < b ? t : b);
-          phaseRef.current = 'win'; setTime(t); setPhase('win'); return;
+          setTime(t); setPhase('win'); return;
         }
       }
 
@@ -126,7 +118,7 @@ export default function MazeGame() {
     };
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [phase]);
+  }, [phase, phaseRef]);
 
   if (phase === 'menu') return (
     <div style={{ background: '#0f0f1a', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>

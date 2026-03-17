@@ -4,6 +4,7 @@
  * Category: shoot 'em up / arcade
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGamePhase, useKeySet } from '@/lib/games/hooks';
 
 const CW = 400; const CH = 560;
 type Phase = 'menu' | 'playing' | 'gameover';
@@ -17,11 +18,10 @@ interface Star { x: number; y: number; vy: number; r: number; }
 let gId = 1;
 
 export default function SpaceShooter() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phaseRef = useRef<Phase>('menu');
   const shipRef = useRef<Ship>({ x: CW / 2, y: CH - 60 });
   const bulletsRef = useRef<Bullet[]>([]);
   const enemiesRef = useRef<Enemy[]>([]);
@@ -32,7 +32,7 @@ export default function SpaceShooter() {
   const shootTimerRef = useRef(0);
   const enemySpawnRef = useRef(0);
   const waveRef = useRef(1);
-  const keysRef = useRef<Set<string>>(new Set());
+  const keysRef = useKeySet(phase === 'playing');
   const rafRef = useRef(0);
   const touchRef = useRef<{ x: number } | null>(null);
 
@@ -50,18 +50,13 @@ export default function SpaceShooter() {
     scoreRef.current = 0; livesRef.current = 3; waveRef.current = 1;
     shootTimerRef.current = 0; enemySpawnRef.current = 0;
     setScore(0); setLives(3);
-    phaseRef.current = 'playing'; setPhase('playing');
-  }, []);
+    setPhase('playing');
+  }, [setPhase]);
 
   useEffect(() => {
     if (phase !== 'playing') return;
     const canvas = canvasRef.current; if (!canvas) return;
     const ctx = canvas.getContext('2d'); if (!ctx) return;
-    const onKey = (e: KeyboardEvent, down: boolean) => {
-      if (down) keysRef.current.add(e.key); else keysRef.current.delete(e.key);
-    };
-    window.addEventListener('keydown', e => onKey(e, true));
-    window.addEventListener('keyup', e => onKey(e, false));
 
     const loop = () => {
       if (phaseRef.current !== 'playing') return;
@@ -133,7 +128,7 @@ export default function SpaceShooter() {
           b.damage = 0;
           explode(ship.x, ship.y, '#3b82f6');
           livesRef.current--;
-          if (livesRef.current <= 0) { phaseRef.current = 'gameover'; setPhase('gameover'); return; }
+          if (livesRef.current <= 0) { setPhase('gameover'); return; }
         }
       }
       bulletsRef.current = bulletsRef.current.filter(b => b.damage > 0);
@@ -185,10 +180,8 @@ export default function SpaceShooter() {
     rafRef.current = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(rafRef.current);
-      window.removeEventListener('keydown', e => onKey(e, true));
-      window.removeEventListener('keyup', e => onKey(e, false));
     };
-  }, [phase]);
+  }, [phase, phaseRef]);
 
   if (phase === 'menu') return (
     <div style={{ background: '#050815', borderRadius: 12, padding: 32, textAlign: 'center', color: '#fff', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>

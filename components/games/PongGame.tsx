@@ -4,6 +4,7 @@
  * Category: sports / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGamePhase, useKeySet } from '@/lib/games/hooks';
 
 const CW = 600; const CH = 400;
 const PAD_W = 10; const PAD_H = 70; const PAD_SPEED = 5;
@@ -12,16 +13,15 @@ type Phase = 'menu' | 'playing' | 'done';
 type Mode = 'ai' | '2p';
 
 export default function PongGame() {
-  const [phase, setPhase] = useState<Phase>('menu');
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [mode, setMode] = useState<Mode>('ai');
   const [scores, setScores] = useState([0, 0]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phaseRef = useRef<Phase>('menu');
   const pad1Ref = useRef(CH / 2 - PAD_H / 2);
   const pad2Ref = useRef(CH / 2 - PAD_H / 2);
   const ballRef = useRef({ x: CW / 2, y: CH / 2, vx: 4, vy: 3 });
   const scoresRef = useRef([0, 0]);
-  const keysRef = useRef<Set<string>>(new Set());
+  const keysRef = useKeySet(phase === 'playing');
   const rafRef = useRef(0);
   const modeRef = useRef<Mode>('ai');
 
@@ -30,16 +30,8 @@ export default function PongGame() {
     pad1Ref.current = CH / 2 - PAD_H / 2; pad2Ref.current = CH / 2 - PAD_H / 2;
     ballRef.current = { x: CW / 2, y: CH / 2, vx: 4 * (Math.random() < 0.5 ? 1 : -1), vy: 3 * (Math.random() < 0.5 ? 1 : -1) };
     scoresRef.current = [0, 0]; setScores([0, 0]);
-    phaseRef.current = 'playing'; setPhase('playing');
-  }, []);
-
-  useEffect(() => {
-    if (phase !== 'playing') return;
-    const onKey = (e: KeyboardEvent, d: boolean) => { if (d) keysRef.current.add(e.key); else keysRef.current.delete(e.key); };
-    window.addEventListener('keydown', e => onKey(e, true));
-    window.addEventListener('keyup', e => onKey(e, false));
-    return () => { window.removeEventListener('keydown', e => onKey(e, true)); window.removeEventListener('keyup', e => onKey(e, false)); };
-  }, [phase]);
+    setPhase('playing');
+  }, [setPhase]);
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -79,7 +71,7 @@ export default function PongGame() {
       // Score
       if (b.x < 0) { scoresRef.current[1]++; setScores([...scoresRef.current]); b.x = CW/2; b.y = CH/2; b.vx = 4; b.vy = 3 * (Math.random() < 0.5 ? 1 : -1); }
       if (b.x > CW) { scoresRef.current[0]++; setScores([...scoresRef.current]); b.x = CW/2; b.y = CH/2; b.vx = -4; b.vy = 3 * (Math.random() < 0.5 ? 1 : -1); }
-      if (scoresRef.current[0] >= 11 || scoresRef.current[1] >= 11) { phaseRef.current = 'done'; setPhase('done'); return; }
+      if (scoresRef.current[0] >= 11 || scoresRef.current[1] >= 11) { setPhase('done'); return; }
 
       // Draw
       ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, CW, CH);
