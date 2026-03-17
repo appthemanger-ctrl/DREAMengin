@@ -20,7 +20,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { ArrowLeft, FileText } from 'lucide-react';
+import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
 interface Props {
@@ -275,6 +275,124 @@ export default function ContentEngin({ onBack }: Props) {
     });
     setBroadcastMsg(`Broadcast sent to ${selectedPlatforms.size} platform${selectedPlatforms.size > 1 ? 's' : ''}`);
     setTimeout(() => setBroadcastMsg(''), 3000);
+  }
+
+  // ── Media Vault Link — no state needed ─────────────────────────────────────
+
+  // ── AI Caption state ────────────────────────────────────────────────────────
+  const [captionTopic, setCaptionTopic]     = useState('');
+  const [captionResult, setCaptionResult]   = useState('');
+  const [captionLoading, setCaptionLoading] = useState(false);
+
+  // ── Collab Draft state ───────────────────────────────────────────────────────
+  const [collabDraftActive, setCollabDraftActive]   = useState(false);
+  const [collabDraftCode, setCollabDraftCode]       = useState('');
+  const [collabDraftUsers] = useState<string[]>(['You', 'Co-Author']);
+
+  // ── Content Analytics state ──────────────────────────────────────────────────
+  const [analyticsMetrics] = useState<Array<{ label: string; value: string; icon: string }>>([
+    { label: 'Reach',   value: '24.3K', icon: '📡' },
+    { label: 'Clicks',  value: '1,847', icon: '🖱️' },
+    { label: 'Saves',   value: '312',   icon: '🔖' },
+    { label: 'Shares',  value: '89',    icon: '🔁' },
+  ]);
+
+  // ── Template Gallery state ───────────────────────────────────────────────────
+  const [templates] = useState<Array<{ id: string; name: string; type: string; preview: string }>>([
+    { id: 'tpl-1', name: 'Viral Hook',         type: 'Caption',  preview: '🔥 [Hook] + [Value] + [CTA]' },
+    { id: 'tpl-2', name: 'Tutorial Thread',    type: 'Thread',   preview: '🧵 Step-by-step breakdown…' },
+    { id: 'tpl-3', name: 'Product Showcase',   type: 'Video',    preview: '🎬 Reveal + Demo + Offer' },
+    { id: 'tpl-4', name: 'Behind the Scenes',  type: 'Story',    preview: '✨ Process + Personality' },
+    { id: 'tpl-5', name: 'Community Question', type: 'Post',     preview: '❓ Ask + Engage + Reply' },
+  ]);
+  const [templateSearch, setTemplateSearch] = useState('');
+
+  // ── Short Video Editor state ─────────────────────────────────────────────────
+  const [videoTitle, setVideoTitle]           = useState('');
+  const [videoDuration, setVideoDuration]     = useState<15 | 30 | 60 | 90>(30);
+  const [videoCaptions, setVideoCaptions]     = useState('');
+  const [videoPublishReady, setVideoPublishReady] = useState(false);
+
+  // ── Hashtag Optimizer state ──────────────────────────────────────────────────
+  const [hashtagTopic, setHashtagTopic]   = useState('');
+  const [hashtags, setHashtags]           = useState<string[]>([]);
+  const [hashtagLoading, setHashtagLoading] = useState(false);
+
+  // ── AI Caption handler ───────────────────────────────────────────────────────
+  function handleGenerateCaption() {
+    if (!captionTopic.trim()) return;
+    setCaptionLoading(true);
+    setCaptionResult('');
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'create', 'content:caption-generate', { topic: captionTopic },
+    );
+    setTimeout(() => {
+      setCaptionResult(
+        `✨ ${captionTopic} — making it happen every day.\n\n` +
+        `The secret? Consistency + creativity. Drop a 🔥 if you agree!\n\n` +
+        `#${captionTopic.replace(/\s+/g, '').slice(0, 20)} #DREAMengin #ContentCreator`
+      );
+      setCaptionLoading(false);
+    }, 1200);
+  }
+
+  // ── Collab Draft handler ─────────────────────────────────────────────────────
+  function handleCollabDraftToggle() {
+    if (!collabDraftActive) {
+      const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+      setCollabDraftCode(code);
+      (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+        'create', 'content:collab-start', { code },
+      );
+    }
+    setCollabDraftActive(prev => !prev);
+  }
+
+  // ── Template apply handler ───────────────────────────────────────────────────
+  function handleTemplateApply(id: string) {
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'create', 'content:template-apply', { id },
+    );
+  }
+
+  // ── Video prepare handler ────────────────────────────────────────────────────
+  function handleVideoPrepare() {
+    if (!videoTitle.trim()) return;
+    setVideoPublishReady(true);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'create', 'content:video-prepare', { title: videoTitle, duration: videoDuration, captions: videoCaptions },
+    );
+  }
+
+  // ── Hashtag optimizer handler ────────────────────────────────────────────────
+  function handleOptimizeHashtags() {
+    if (!hashtagTopic.trim()) return;
+    setHashtagLoading(true);
+    setHashtags([]);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'create', 'content:hashtags-generate', { topic: hashtagTopic },
+    );
+    const topic = hashtagTopic.replace(/\s+/g, '').toLowerCase();
+    setTimeout(() => {
+      setHashtags([
+        `#${topic}`,
+        `#${topic}creator`,
+        `#DREAMengin`,
+        `#ContentCreator`,
+        `#CreateDaily`,
+        `#${topic}life`,
+        `#DigitalCreator`,
+        `#MakeItHappen`,
+      ]);
+      setHashtagLoading(false);
+    }, 900);
+  }
+
+  // ── Analytics refresh handler ────────────────────────────────────────────────
+  function handleAnalyticsRefresh() {
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'create', 'content:analytics-refresh', {},
+    );
   }
 
   return (
@@ -618,6 +736,348 @@ export default function ContentEngin({ onBack }: Props) {
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#16a34a' }}>{broadcastMsg}</span>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* ── Media Vault Link ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Image className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Media Vault</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>
+              Browse, organise and reuse your media assets — photos, videos, and brand materials in one place.
+            </p>
+          </div>
+          <div className="de-widget-actions">
+            <a
+              href="/daydream/media-vault"
+              className="de-btn de-btn-primary text-xs"
+              aria-label="Go to Media Vault"
+            >
+              Open Media Vault →
+            </a>
+          </div>
+        </div>
+
+        {/* ── AI Caption ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Zap className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">AI Caption</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                placeholder="Post topic…"
+                value={captionTopic}
+                onChange={e => setCaptionTopic(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleGenerateCaption()}
+                aria-label="Caption topic"
+                style={{
+                  flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}30`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleGenerateCaption}
+                disabled={captionLoading || !captionTopic.trim()}
+                className="de-btn de-btn-primary"
+                aria-label="Generate caption"
+                style={{ opacity: captionLoading || !captionTopic.trim() ? 0.6 : 1, transition: 'all 0.15s' }}
+              >
+                {captionLoading ? '…' : 'Generate'}
+              </button>
+            </div>
+            {captionResult && (
+              <div
+                style={{
+                  padding: '12px 14px', borderRadius: 10,
+                  background: `${ACCENT}08`, border: `1px solid ${ACCENT}20`,
+                  fontSize: 13, color: 'var(--de-heading)', lineHeight: 1.6,
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {captionResult}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Collab Draft ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <FileText className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Co-authoring Draft</span>
+            {collabDraftActive && (
+              <span
+                className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+                style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}
+              >
+                Live
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            {collabDraftActive ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ padding: '10px 14px', borderRadius: 10, background: `${ACCENT}08`, border: `1px solid ${ACCENT}25`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 4 }}>SESSION CODE</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: '0.15em', color: ACCENT, fontFamily: 'monospace' }}>{collabDraftCode}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {collabDraftUsers.map(u => (
+                    <div
+                      key={u}
+                      style={{
+                        flex: 1, padding: '8px 10px', borderRadius: 9, textAlign: 'center',
+                        background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(160,195,240,0.2)',
+                      }}
+                    >
+                      <div style={{ fontSize: 16, marginBottom: 2 }}>✍️</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-heading)' }}>{u}</div>
+                      <div style={{ width: 8, height: 8, borderRadius: 999, background: '#22c55e', margin: '4px auto 0' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>
+                Start a co-authoring session to write content collaboratively in real time.
+              </p>
+            )}
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleCollabDraftToggle}
+              className={collabDraftActive ? 'de-btn de-btn-ghost' : 'de-btn de-btn-primary'}
+              aria-label={collabDraftActive ? 'End co-authoring session' : 'Start co-authoring session'}
+              style={{ transition: 'all 0.15s' }}
+            >
+              {collabDraftActive ? 'End Session' : 'Start Co-authoring'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Content Analytics ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Content Analytics</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+              {analyticsMetrics.map((m, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: '12px 14px', borderRadius: 11,
+                    background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}15`,
+                    textAlign: 'center',
+                  }}
+                >
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{m.icon}</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1 }}>{m.value}</div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginTop: 3 }}>{m.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleAnalyticsRefresh}
+              className="de-btn de-btn-ghost"
+              aria-label="Refresh content analytics"
+              style={{ transition: 'all 0.15s' }}
+            >
+              Refresh Analytics
+            </button>
+          </div>
+        </div>
+
+        {/* ── Template Gallery ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Calendar className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Template Gallery</span>
+          </div>
+          <div className="de-widget-body">
+            <input
+              type="text"
+              placeholder="Search templates…"
+              value={templateSearch}
+              onChange={e => setTemplateSearch(e.target.value)}
+              aria-label="Search templates"
+              style={{
+                width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, marginBottom: 10,
+                border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box',
+              }}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {templates
+                .filter(t => t.name.toLowerCase().includes(templateSearch.toLowerCase()) || t.type.toLowerCase().includes(templateSearch.toLowerCase()))
+                .map(t => (
+                  <div
+                    key={t.id}
+                    style={{
+                      padding: '10px 12px', borderRadius: 10,
+                      background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15`,
+                      display: 'flex', alignItems: 'center', gap: 10,
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{t.name}</span>
+                        <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: `${ACCENT}12`, color: ACCENT }}>{t.type}</span>
+                      </div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.preview}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleTemplateApply(t.id)}
+                      aria-label={`Use template ${t.name}`}
+                      style={{
+                        padding: '4px 10px', borderRadius: 7, fontSize: 10, fontWeight: 700,
+                        border: `1px solid ${ACCENT}35`, background: `${ACCENT}12`, color: ACCENT,
+                        cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+                      }}
+                    >
+                      Use
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Short Video Editor ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Video className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Short Video Editor</span>
+            {videoPublishReady && (
+              <span
+                className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+                style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}
+              >
+                ✓ Ready
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            <input
+              type="text"
+              placeholder="Video title…"
+              value={videoTitle}
+              onChange={e => { setVideoTitle(e.target.value); setVideoPublishReady(false); }}
+              aria-label="Video title"
+              style={{
+                width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, marginBottom: 10,
+                border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box',
+              }}
+            />
+            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+              {([15, 30, 60, 90] as const).map(d => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => setVideoDuration(d)}
+                  aria-label={`Set video duration to ${d} seconds`}
+                  style={{
+                    flex: 1, padding: '6px 0', borderRadius: 7, fontSize: 12, fontWeight: 700,
+                    border: `1.5px solid ${videoDuration === d ? ACCENT : 'rgba(160,195,240,0.25)'}`,
+                    background: videoDuration === d ? `${ACCENT}15` : 'rgba(255,255,255,0.5)',
+                    color: videoDuration === d ? ACCENT : 'var(--de-text)',
+                    cursor: 'pointer', transition: 'all 0.15s',
+                  }}
+                >
+                  {d}s
+                </button>
+              ))}
+            </div>
+            <textarea
+              placeholder="Auto-captions or script…"
+              value={videoCaptions}
+              onChange={e => setVideoCaptions(e.target.value)}
+              aria-label="Video captions"
+              rows={3}
+              style={{
+                width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                color: 'var(--de-heading)', outline: 'none', resize: 'vertical', marginBottom: 0,
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+          <div className="de-widget-actions">
+            <button
+              type="button"
+              onClick={handleVideoPrepare}
+              disabled={!videoTitle.trim() || videoPublishReady}
+              className="de-btn de-btn-primary"
+              aria-label="Prepare video for publish"
+              style={{ opacity: !videoTitle.trim() ? 0.5 : 1, transition: 'all 0.15s' }}
+            >
+              {videoPublishReady ? '✓ Prepared' : 'Prepare for Publish'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Hashtag Optimizer ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Hash className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Hashtag Optimizer</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                placeholder="Topic for hashtags…"
+                value={hashtagTopic}
+                onChange={e => setHashtagTopic(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleOptimizeHashtags()}
+                aria-label="Topic for hashtag optimization"
+                style={{
+                  flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                  border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                  color: 'var(--de-heading)', outline: 'none',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleOptimizeHashtags}
+                disabled={hashtagLoading || !hashtagTopic.trim()}
+                className="de-btn de-btn-primary"
+                aria-label="Optimize hashtags"
+                style={{ opacity: hashtagLoading || !hashtagTopic.trim() ? 0.6 : 1, transition: 'all 0.15s' }}
+              >
+                {hashtagLoading ? '…' : 'Optimize'}
+              </button>
+            </div>
+            {hashtags.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {hashtags.map((tag, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      padding: '4px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                      background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}25`,
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
