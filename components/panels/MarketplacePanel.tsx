@@ -30,7 +30,7 @@ const FALLBACK_CATEGORIES = [
 ];
 
 export default function MarketplacePanel() {
-  const { openPanel } = useDreamSystem();
+  const { openInSurface } = useDreamSystem();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading]   = useState(true);
 

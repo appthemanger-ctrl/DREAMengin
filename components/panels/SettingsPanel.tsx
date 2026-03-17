@@ -10,9 +10,11 @@ import { ChevronRight, Crown, User, Rss, LayoutGrid, Palette, Plug, Sliders,
          Shield, Database, HelpCircle, LogOut, Bot, Cpu }  from 'lucide-react';
 import { createClient }          from '@/lib/supabase/client';
 import { useDreamSystem }        from '@/lib/dreamdm/DreamSystemContext';
-import type { SystemPanelId }    from '@/lib/panels/panelTypes';: Array<{
+import type { SystemPanelId }    from '@/lib/panels/panelTypes';
+
+const NAV_GROUPS: Array<{
   heading: string;
-  items: Array<{ panel: SystemPanelId; icon: React.ElementType; label: string; desc: string; iconBg: string }>;
+  items: Array<{ panel: SystemPanelId; icon: React.ComponentType<{ className?: string }>; label: string; desc: string; iconBg: string }>;
 }> = [
   {
     heading: 'Your Space',

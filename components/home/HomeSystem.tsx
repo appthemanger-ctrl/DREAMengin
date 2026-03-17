@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
+import DreamDMBar from '@/components/messaging/DreamDMBar';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
@@ -17,26 +18,25 @@ type ProfileLike = {
 // Inner component that uses the dual runtime context
 function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
   const dualRuntime = useDualRuntime();
-  const { registerRuntimeCallbacks, unregisterRuntimeCallbacks, closeBothMenus, closeDrEams } = useDreamSystem();
+  const { registerRuntimeCallbacks, unregisterRuntimeCallbacks, closeBothMenus, closeDrEams, openBothMenus } = useDreamSystem();
 
+  // barBlend: 0 = bar at bottom (Surface Space dominant), 1 = bar at top (DreamSpace dominant)
   const [barBlend, setBarBlend] = useState(0);
 
+  // ── Return to HomeDream Surface ──────────────────────────────────────────
+
   const returnHome = useCallback(() => {
-    // Check if Home is already the active top runtime
     const wasHomeActive = dualRuntime.isHomeActive();
-
-    // Make Home the active top runtime (or refresh if already active)
     dualRuntime.goToHome();
-
     closeBothMenus();
     closeDrEams();
     setBarBlend(0);
-
-    // If Home was already active, this acts as a "refresh"
     if (wasHomeActive) {
       console.log('[HomeSystem] Refreshing Home (already active)');
     }
   }, [dualRuntime, closeBothMenus, closeDrEams]);
+
+  // ── DreamDMBar: direct callbacks (bar lives here, no context bridge needed) ──
 
   const handleBarRuntimeMode = useCallback((mode: 'home' | 'blend' | 'dreamspace') => {
     if (mode === 'dreamspace') {
@@ -44,7 +44,6 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
       dualRuntime.setDominantRuntime('DreamSpace');
       return;
     }
-
     if (mode === 'home') {
       dualRuntime.setTopRuntime('HomeDream Surface');
       dualRuntime.setDominantRuntime('Surface Space');
@@ -57,85 +56,101 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     setBarBlend(1);
   }, [dualRuntime]);
 
+  // Bar double-tap when at top → load HomeDream into DreamSpace (dual-home)
   const openHomeDreamSpace = useCallback(() => {
-    // Load HomeDream Surface into the DreamSpace region (bar at top, dual-home).
-    // Keeps the bar at the top so the user sees two HomeDream views at once.
     dualRuntime.goToHomeDreamSpace();
     setBarBlend(1);
   }, [dualRuntime]);
 
-  /**
-   * Load a system feature panel into Surface Space as a RuntimeWorld.
-   * This is in-region opening — no routing, no overlays.
-   * RuntimeView dispatches { type: 'panel', name } to the panel component.
-   */
+  // ── Open a system panel in Surface Space (called from global menus) ───────
+
   const openInSurface = useCallback((id: SystemPanelId) => {
     dualRuntime.setTopRuntime({ type: 'panel', name: id });
     dualRuntime.setDominantRuntime('Surface Space');
   }, [dualRuntime]);
 
-  // Register runtime callbacks with the global context so GlobalDreamBar
-  // can bridge bar drag/tap events to this dual-runtime view.
+  // Register only the callbacks that GlobalDreamBar's overlay menus still need
   useEffect(() => {
     registerRuntimeCallbacks({
       returnHome,
-      modeChange:     handleBarRuntimeMode,
-      blendChange:    setBarBlend,
-      homeDreamSpace: openHomeDreamSpace,
       openInSurface,
     });
     return unregisterRuntimeCallbacks;
-  }, [returnHome, handleBarRuntimeMode, openHomeDreamSpace, openInSurface, registerRuntimeCallbacks, unregisterRuntimeCallbacks]);
+  }, [returnHome, openInSurface, registerRuntimeCallbacks, unregisterRuntimeCallbacks]);
+
+  const isSurfaceDominant = dualRuntime.state.dominantRegion === 'Surface Space';
 
   return (
     <>
       <StarfieldCanvas />
 
-      {/* Dual Runtime Views */}
+      {/*
+       * Dual runtime container.
+       * Both surfaces are ALWAYS mounted (pre-active) — no translateY hide.
+       * The DreamDMBar seam sits on top (z-index 102 via its own fixed style).
+       * Dominant region gets z-index 2 and full opacity; non-dominant gets
+       * z-index 1 and reduced opacity so it is visible but clearly behind.
+       */}
       <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
+
+        {/* ── Surface Space (top runtime) ──────────────────────────────── */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            transform: 'translate3d(0,0,0)',
-            opacity: 1 - (barBlend * 0.18),
-            pointerEvents: dualRuntime.state.dominantRegion === 'Surface Space' ? 'auto' : 'none',
-            transition: 'opacity 180ms ease',
+            zIndex: isSurfaceDominant ? 2 : 1,
+            opacity: isSurfaceDominant ? 1 - (barBlend * 0.18) : 0.4 + (barBlend * 0.3),
+            pointerEvents: isSurfaceDominant ? 'auto' : 'none',
+            transition: 'opacity 180ms ease, z-index 0ms',
           }}
         >
           <RuntimeView
             world={dualRuntime.state.surfaceSpaceWorld}
-            isActive={dualRuntime.state.dominantRegion === 'Surface Space'}
+            isActive={isSurfaceDominant}
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
-            onOpenDrEams={() => {/* DrEams panel is now managed globally via DreamSystemContext */}}
+            onOpenDrEams={() => {}}
             onOpenDreamSpace={openDreamSpace}
           />
         </div>
 
+        {/* ── DreamSpace (bottom runtime) — always mounted, pre-active ── */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            transform: `translate3d(0, ${(1 - barBlend) * 100}%, 0)`,
-            opacity: 0.45 + (barBlend * 0.55),
-            pointerEvents: dualRuntime.state.dominantRegion === 'DreamSpace' ? 'auto' : 'none',
-            transition: 'transform 180ms ease, opacity 180ms ease',
-            willChange: 'transform, opacity',
+            zIndex: isSurfaceDominant ? 1 : 2,
+            opacity: isSurfaceDominant ? 0.3 + (barBlend * 0.7) : 1,
+            pointerEvents: isSurfaceDominant ? 'none' : 'auto',
+            transition: 'opacity 180ms ease, z-index 0ms',
           }}
         >
           <RuntimeView
             world={dualRuntime.state.dreamSpaceWorld}
-            isActive={dualRuntime.state.dominantRegion === 'DreamSpace'}
+            isActive={!isSurfaceDominant}
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
-            onOpenDrEams={() => {/* DrEams panel is now managed globally via DreamSystemContext */}}
+            onOpenDrEams={() => {}}
             onOpenDreamSpace={openDreamSpace}
           />
         </div>
       </div>
+
+      {/*
+       * DreamDMBar — the seam between Surface Space and DreamSpace.
+       * Lives here (inside HomeSystem) so it only renders when the home
+       * surface is mounted. It is NOT in layout.tsx.
+       * position:fixed internally — visually overlays both regions.
+       */}
+      <DreamDMBar
+        onHome={returnHome}
+        onBothMenus={openBothMenus}
+        onHomeDreamSpace={openHomeDreamSpace}
+        onRuntimeModeChange={handleBarRuntimeMode}
+        onRuntimeBlendChange={setBarBlend}
+      />
     </>
   );
 }
@@ -156,4 +171,3 @@ export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: {
     </DualRuntimeContainer>
   );
 }
-
