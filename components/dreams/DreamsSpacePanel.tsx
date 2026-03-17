@@ -20,7 +20,6 @@
  */
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
@@ -135,9 +134,8 @@ function AppIcon({ icon, label, color, onClick }: {
 }
 
 export default function DreamsSpacePanel() {
-  const router = useRouter();
   const runtime = useDreamsRuntime();
-  const { state, goToFeed, setService } = runtime;
+  const { state, openDetail, goToFeed, setService } = runtime;
 
   // Apps home screen is the priority tab — permanent windows shown by default.
   const [view, setView] = useState<DreamsSpaceView>('apps');
@@ -157,7 +155,7 @@ export default function DreamsSpacePanel() {
           <button
             type="button"
             onClick={goToFeed}
-            aria-label="Back to Dreams Feed"
+            aria-label="Back to Dreams Space"
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: 'var(--de-text-dim)', display: 'flex', alignItems: 'center', padding: 4,
@@ -271,7 +269,7 @@ export default function DreamsSpacePanel() {
                   icon={dd.icon}
                   label={dd.label}
                   color={dd.color}
-                  onClick={() => router.push(dd.route)}
+                  onClick={() => openDetail(dd.route, dd.label)}
                 />
               ))}
             </div>
@@ -301,7 +299,7 @@ export default function DreamsSpacePanel() {
                   icon={app.icon}
                   label={app.label}
                   color={app.color}
-                  onClick={() => router.push(app.route)}
+                  onClick={() => openDetail(app.route, app.label)}
                 />
               ))}
             </div>
