@@ -13,29 +13,40 @@
  * - the dreams space maintains its own navigation state
  * - uses UniversalWidget to render live provider content
  *
- * Daydreams are the priority content of the Dreams Space.
- * The 6 Daydream surfaces are surfaced first as live routes from
- * this second runtime, as described in the README runtime model.
+ * Permanent iOS-style app windows are the priority content of the Dreams Space.
+ * The 6 Daydream surfaces plus Engin apps (Shop, Marketplace, Ads, Links) are
+ * pinned as permanent windows, organized like an iOS home screen, and remain
+ * in place until the user changes them.
  */
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
 
 type ServiceType = 'youtube' | 'github' | 'spotify' | null;
-/** Top-level view for the Dreams Space panel: Daydreams (priority) or connector Feeds. */
-type DreamsSpaceView = 'daydreams' | 'feeds';
+/** Top-level view for the Dreams Space panel: Apps home screen (priority) or connector Feeds. */
+type DreamsSpaceView = 'apps' | 'feeds';
 
-/** The 6 canonical Daydream surfaces — priority routes from DreamSpace. */
+/** The 6 canonical Daydream surfaces — permanent windows from DreamSpace. */
 const DAYDREAMS = [
-  { id: 'music',  label: 'Music',  icon: '🎵', route: '/daydream/music',  engin: 'StarMakerEngin' },
-  { id: 'games',  label: 'Games',  icon: '🎮', route: '/daydream/games',  engin: 'GameEngin'      },
-  { id: 'lab',    label: 'Lab',    icon: '🔬', route: '/daydream/lab',    engin: 'LabEngin'        },
-  { id: 'code',   label: 'Code',   icon: '💻', route: '/daydream/code',   engin: 'CodeEngin'       },
-  { id: 'brand',  label: 'Brand',  icon: '🎨', route: '/daydream/brand',  engin: 'BrandingEngin'   },
-  { id: 'create', label: 'Create', icon: '✏️', route: '/daydream/create', engin: 'ContentEngin'    },
+  { id: 'music',  label: 'Music',  icon: '🎵', route: '/daydream/music',  color: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
+  { id: 'games',  label: 'Games',  icon: '🎮', route: '/daydream/games',  color: 'linear-gradient(135deg,#059669,#10b981)' },
+  { id: 'lab',    label: 'Lab',    icon: '🔬', route: '/daydream/lab',    color: 'linear-gradient(135deg,#0284c7,#38bdf8)' },
+  { id: 'code',   label: 'Code',   icon: '💻', route: '/daydream/code',   color: 'linear-gradient(135deg,#1d4ed8,#3b82f6)' },
+  { id: 'brand',  label: 'Brand',  icon: '🎨', route: '/daydream/brand',  color: 'linear-gradient(135deg,#b45309,#f59e0b)' },
+  { id: 'create', label: 'Create', icon: '✏️', route: '/daydream/create', color: 'linear-gradient(135deg,#be185d,#ec4899)' },
+] as const;
+
+/**
+ * Permanent Engin app windows — Shop, Marketplace, Ads, and Links (Connectors).
+ * These are always pinned in the DreamSpace alongside the Daydream windows.
+ */
+const ENGIN_APPS = [
+  { id: 'shop',        label: 'Shop',    icon: '🛍️', route: '/shop',        color: 'linear-gradient(135deg,#065f46,#059669)' },
+  { id: 'marketplace', label: 'Market',  icon: '🏪', route: '/marketplace', color: 'linear-gradient(135deg,#581c87,#9333ea)' },
+  { id: 'ads',         label: 'Ads',     icon: '📢', route: '/ads',         color: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
+  { id: 'connectors',  label: 'Links',   icon: '🔗', route: '/connectors',  color: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
 ] as const;
 
 const SERVICE_TABS: { id: ServiceType; label: string; icon: string }[] = [
@@ -45,13 +56,89 @@ const SERVICE_TABS: { id: ServiceType; label: string; icon: string }[] = [
   { id: 'spotify', label: 'Spotify', icon: '🎵' },
 ];
 
-export default function DreamsSpacePanel() {
-  const router = useRouter();
-  const runtime = useDreamsRuntime();
-  const { state, goToFeed, setService } = runtime;
+// iOS-style app icon layout constants
+const ICON_SIZE = 54;
+const ICON_RADIUS = 14;
+const ICON_FONT = 26;
+const LABEL_FONT = 11;
 
-  // Daydreams are the priority tab — shown by default per the README runtime model.
-  const [view, setView] = useState<DreamsSpaceView>('daydreams');
+/** iOS-style squircle app icon — permanent window shortcut in DreamSpace. */
+function AppIcon({ icon, label, color, onClick }: {
+  icon: string;
+  label: string;
+  color: string;
+  onClick: () => void;
+}) {
+  const [pressed, setPressed] = useState(false);
+  const press   = () => setPressed(true);
+  const release = () => setPressed(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseDown={press}
+      onMouseUp={release}
+      onMouseLeave={release}
+      onTouchStart={press}
+      onTouchEnd={release}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && press()}
+      onKeyUp={(e)   => (e.key === 'Enter' || e.key === ' ') && release()}
+      aria-label={`Open ${label}`}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 5,
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '4px 2px',
+        transform: pressed ? 'scale(0.92)' : 'scale(1)',
+        transition: 'transform 0.12s ease',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      {/* Squircle icon — iOS-style rounded square with gradient background */}
+      <div style={{
+        width: ICON_SIZE,
+        height: ICON_SIZE,
+        borderRadius: ICON_RADIUS,
+        background: color,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.22)',
+        fontSize: ICON_FONT,
+        lineHeight: 1,
+        flexShrink: 0,
+      }}>
+        {icon}
+      </div>
+      {/* App label */}
+      <span style={{
+        fontSize: LABEL_FONT,
+        fontWeight: 600,
+        color: 'var(--de-heading)',
+        letterSpacing: '0.01em',
+        textAlign: 'center',
+        lineHeight: 1.2,
+        maxWidth: 62,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      }}>
+        {label}
+      </span>
+    </button>
+  );
+}
+
+export default function DreamsSpacePanel() {
+  const runtime = useDreamsRuntime();
+  const { state, openDetail, goToFeed, setService } = runtime;
+
+  // Apps home screen is the priority tab — permanent windows shown by default.
+  const [view, setView] = useState<DreamsSpaceView>('apps');
 
   // Detail view — open an item in its own context inside the Dreams Space
   if (state.view === 'detail' && state.detailUrl) {
@@ -68,7 +155,7 @@ export default function DreamsSpacePanel() {
           <button
             type="button"
             onClick={goToFeed}
-            aria-label="Back to Dreams Feed"
+            aria-label="Back to Dreams Space"
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: 'var(--de-text-dim)', display: 'flex', alignItems: 'center', padding: 4,
@@ -121,13 +208,13 @@ export default function DreamsSpacePanel() {
         </span>
       </div>
 
-      {/* Primary tab bar — Daydreams first (priority), Feeds second */}
+      {/* Primary tab bar — Apps home screen first (priority), Feeds second */}
       <div style={{
         display: 'flex', gap: 0, padding: '0 10px 6px',
         flexShrink: 0,
         borderBottom: '1px solid rgba(200,152,26,0.12)',
       }}>
-        {(['daydreams', 'feeds'] as DreamsSpaceView[]).map((v) => {
+        {(['apps', 'feeds'] as DreamsSpaceView[]).map((v) => {
           const isActive = view === v;
           return (
             <button
@@ -148,60 +235,76 @@ export default function DreamsSpacePanel() {
                 textTransform: 'uppercase',
               }}
             >
-              {v === 'daydreams' ? '✦ Daydreams' : '✨ Feeds'}
+              {v === 'apps' ? '⊞ Apps' : '✨ Feeds'}
             </button>
           );
         })}
       </div>
 
-      {view === 'daydreams' ? (
-        /* ── Daydreams — priority routes from the second runtime ── */
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '8px 10px 10px',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 8,
-          alignContent: 'start',
-        }}>
-          {DAYDREAMS.map((dd) => (
-            <button
-              key={dd.id}
-              type="button"
-              onClick={() => router.push(dd.route)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 4,
-                padding: '14px 8px',
-                borderRadius: 12,
-                border: '1px solid rgba(200,152,26,0.22)',
-                background: 'rgba(200,152,26,0.07)',
-                cursor: 'pointer',
-                transition: 'background 0.15s, border-color 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(200,152,26,0.15)';
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(200,152,26,0.5)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(200,152,26,0.07)';
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(200,152,26,0.22)';
-              }}
-              aria-label={`Open ${dd.label} Daydream`}
-            >
-              <span style={{ fontSize: 22 }}>{dd.icon}</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
-                {dd.label}
-              </span>
-              <span style={{ fontSize: 9, color: 'var(--de-text-dim)', letterSpacing: '0.04em' }}>
-                {dd.engin}
-              </span>
-            </button>
-          ))}
+      {view === 'apps' ? (
+        /* ── Permanent iOS-style app home screen ─────────────────────────────── */
+        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 10px 16px' }}>
+
+          {/* Section: Daydreams */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{
+              fontSize: 10,
+              fontWeight: 700,
+              color: 'var(--de-text-dim)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              padding: '0 4px 8px',
+            }}>
+              Daydreams
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '12px 4px',
+              justifyItems: 'center',
+            }}>
+              {DAYDREAMS.map((dd) => (
+                <AppIcon
+                  key={dd.id}
+                  icon={dd.icon}
+                  label={dd.label}
+                  color={dd.color}
+                  onClick={() => openDetail(dd.route, dd.label)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Section: Engin — Shop, Marketplace, Ads, Links */}
+          <div>
+            <div style={{
+              fontSize: 10,
+              fontWeight: 700,
+              color: 'var(--de-text-dim)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              padding: '0 4px 8px',
+            }}>
+              Engin
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '12px 4px',
+              justifyItems: 'center',
+            }}>
+              {ENGIN_APPS.map((app) => (
+                <AppIcon
+                  key={app.id}
+                  icon={app.icon}
+                  label={app.label}
+                  color={app.color}
+                  onClick={() => openDetail(app.route, app.label)}
+                />
+              ))}
+            </div>
+          </div>
+
         </div>
       ) : (
         /* ── Feeds — connector content ── */
