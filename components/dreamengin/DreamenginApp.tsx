@@ -11,6 +11,7 @@ import OutdreamMenu from './OutdreamMenu';
 import DrEamsPanel from './DrEamsPanel';
 import { unitComplexFromAngle, clamp } from './engine/math';
 import type { EngineState, FlightMode } from './engine/types';
+import { DreamNavProvider } from '@/components/dreamnav/DreamNavSurface6';
 
 function createEngineState(): EngineState {
   const yawQ = new Float32Array(2);
@@ -170,6 +171,7 @@ export default function DreamenginApp() {
   }, []);
 
   return (
+    <DreamNavProvider>
     <div className="w-full h-full overflow-hidden relative touch-none">
       <BabylonWorkspace engineRef={engineRef} onZoom={zoomBy} />
 
@@ -199,5 +201,6 @@ export default function DreamenginApp() {
       )}
       {showDrEams && <DrEamsPanel onClose={closeDrEams} />}
     </div>
+    </DreamNavProvider>
   );
 }
