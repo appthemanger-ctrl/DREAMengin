@@ -5,8 +5,8 @@
  *
  *  ONE gold button on the right rail. No locked/nav mode distinction.
  *
- *    • single tap  → go-home         (reset anchor, close all overlays)
- *    • double tap  → open-both-menus (Daydreams on left + System on right, simultaneously)
+ *    • single tap  → open-both-menus (Daydreams on left + System on right, simultaneously)
+ *    • double tap  → go-home         (reset anchor, close all overlays)
  *    • drag        → reposition vertically along right rail
  *    • position    → persists in localStorage key `dreamengin:controls:v4`
  *
@@ -21,8 +21,8 @@ export type HomeButtonAction =
 
 /** Resolve what action a tap produces. Mode-free — button behavior is constant. */
 export function resolveHomeTap(tap: TapKind): HomeButtonAction {
-  if (tap === 'single') return { type: 'go-home' };
-  return { type: 'open-both-menus' };
+  if (tap === 'single') return { type: 'open-both-menus' };
+  return { type: 'go-home' };
 }
 
 /**

@@ -1,58 +1,67 @@
 'use client';
 
+// ONE gold button. Always has been. Always will be.
+//   • Single tap → open both menus (Dreams on left, System on right)
+//   • Double tap → go home
+
 import React, { useRef } from 'react';
 
 type Props = {
-  onReturnHome: () => void;
-  onOpenDreamMenu: (anchor: DOMRect) => void;
-  onOpenSystemMenu: (anchor: DOMRect) => void;
+  onOpenBothMenus: () => void;
+  onGoHome: () => void;
 };
 
 const DOUBLE_TAP_MS = 280;
 
-export default function HomeControls({ onReturnHome, onOpenDreamMenu, onOpenSystemMenu }: Props) {
-  const blueRef = useRef<HTMLButtonElement | null>(null);
-  const redRef = useRef<HTMLButtonElement | null>(null);
-  const lastTapRef = useRef<{ id: 'blue' | 'red' | null; ts: number }>({ id: null, ts: 0 });
+export default function HomeControls({ onOpenBothMenus, onGoHome }: Props) {
+  const lastTapRef = useRef(0);
+  const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleTap = (id: 'blue' | 'red') => (event: React.PointerEvent<HTMLButtonElement>) => {
+  const handlePointerUp = (event: React.PointerEvent<HTMLButtonElement>) => {
     event.preventDefault();
     const now = performance.now();
-    const previous = lastTapRef.current;
-    const isDouble = previous.id === id && now - previous.ts < DOUBLE_TAP_MS;
-    lastTapRef.current = { id, ts: now };
+    const last = lastTapRef.current;
+    lastTapRef.current = now;
 
-    if (isDouble) {
-      const anchor = (id === 'blue' ? blueRef.current : redRef.current)?.getBoundingClientRect();
-      if (!anchor) return;
-      if (id === 'blue') onOpenDreamMenu(anchor);
-      else onOpenSystemMenu(anchor);
+    // Double tap → go home
+    if (now - last < DOUBLE_TAP_MS) {
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+        singleTapTimerRef.current = null;
+      }
+      onGoHome();
       return;
     }
 
-    onReturnHome();
+    // Single tap → open both menus
+    if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+    singleTapTimerRef.current = setTimeout(() => {
+      singleTapTimerRef.current = null;
+      onOpenBothMenus();
+    }, DOUBLE_TAP_MS + 10);
   };
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-5 z-40 flex justify-center">
-      <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/15 bg-slate-950/45 px-3 py-2 backdrop-blur">
+      <div className="pointer-events-auto">
         <button
-          ref={blueRef}
           type="button"
-          aria-label="Return home or open dreams"
-          className="h-11 w-11 rounded-full border border-white/20 bg-blue-500/90 text-[10px] font-semibold tracking-[0.22em] text-white"
-          onPointerUp={handleTap('blue')}
+          aria-label="Dream Navigation"
+          className="flex h-14 w-14 items-center justify-center rounded-full border border-white/20 select-none"
+          style={{
+            backgroundColor: 'rgba(200,152,26,0.88)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'none',
+          }}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            (e.currentTarget as HTMLButtonElement).setPointerCapture(e.pointerId);
+          }}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={(e) => e.preventDefault()}
         >
-          BLUE
-        </button>
-        <button
-          ref={redRef}
-          type="button"
-          aria-label="Return home or open system"
-          className="h-11 w-11 rounded-full border border-white/20 bg-red-500/90 text-[10px] font-semibold tracking-[0.22em] text-white"
-          onPointerUp={handleTap('red')}
-        >
-          RED
+          <span style={{ fontSize: 22, lineHeight: 1, userSelect: 'none' }}>✦</span>
         </button>
       </div>
     </div>

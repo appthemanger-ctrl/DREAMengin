@@ -11,6 +11,7 @@ import OutdreamMenu from './OutdreamMenu';
 import DrEamsPanel from './DrEamsPanel';
 import { unitComplexFromAngle, clamp } from './engine/math';
 import type { EngineState, FlightMode } from './engine/types';
+import { DreamNavProvider } from '@/components/dreamnav/DreamNavSurface6';
 
 function createEngineState(): EngineState {
   const yawQ = new Float32Array(2);
@@ -115,6 +116,13 @@ export default function DreamenginApp() {
     setOverlayLock(false);
   }, [setOverlayLock]);
 
+  const openBothMenus = useCallback(() => {
+    setShowDrEams(false);
+    setShowNexus(true);
+    setShowOutdream(true);
+    setOverlayLock(true);
+  }, [setOverlayLock]);
+
   // ReturnHome (collision of home controls).
   const goHome = useCallback(() => {
     const s = engineRef.current;
@@ -170,13 +178,13 @@ export default function DreamenginApp() {
   }, []);
 
   return (
+    <DreamNavProvider>
     <div className="w-full h-full overflow-hidden relative touch-none">
       <BabylonWorkspace engineRef={engineRef} onZoom={zoomBy} />
 
       <HomeControls
-        onDoubleTapBlue={toggleOutdream}
-        onDoubleTapRed={toggleNexus}
-        onGoHome={goHome}
+        onBothMenus={openBothMenus}
+        onHome={goHome}
       />
 
       {showNexus && (
@@ -199,5 +207,6 @@ export default function DreamenginApp() {
       )}
       {showDrEams && <DrEamsPanel onClose={closeDrEams} />}
     </div>
+    </DreamNavProvider>
   );
 }
