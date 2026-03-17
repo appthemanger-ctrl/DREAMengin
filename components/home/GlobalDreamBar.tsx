@@ -7,17 +7,24 @@
  * surface (route) without remounting.  HomeSystem registers its runtime
  * callbacks (blend, mode, returnHome) via DreamSystemContext so the bar can
  * still drive the dual-runtime view when the home surface is active.
+ *
+ * Hidden on public/pre-login routes so unauthenticated users never see
+ * the gold ball, DreamDM bar, or system menus.
  */
 
 import { useCallback }                              from 'react';
-import { useRouter }                                from 'next/navigation';
+import { useRouter, usePathname }                   from 'next/navigation';
 import DreamDMBar                                   from '@/components/messaging/DreamDMBar';
 import DualBottomMenu, { type SystemMenuAction }    from '@/components/menus/DualBottomMenu';
 import DrEamsPanel                                  from '@/components/dreamengin/DrEamsPanel';
 import { useDreamSystem }                           from '@/lib/dreamdm/DreamSystemContext';
 
+/** Routes where GlobalDreamBar must NOT appear (pre-login / public surfaces). */
+const PUBLIC_ROUTES = ['/login', '/join', '/policy', '/about'];
+
 export default function GlobalDreamBar() {
-  const router = useRouter();
+  const router   = useRouter();
+  const pathname = usePathname();
 
   const {
     bothMenusOpen,
@@ -76,6 +83,9 @@ export default function GlobalDreamBar() {
 
   const onRuntimeModeChange  = runtimeCallbacks?.modeChange  ?? undefined;
   const onRuntimeBlendChange = runtimeCallbacks?.blendChange ?? undefined;
+
+  // ── Hide on public / pre-login routes ────────────────────────────────────
+  if (PUBLIC_ROUTES.includes(pathname)) return null;
 
   return (
     <>
