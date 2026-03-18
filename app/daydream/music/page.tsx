@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Music, DiscAlbum, TrendingUp, Upload, ListMusic } from 'lucide-react';
+import { ArrowLeft, Music, DiscAlbum, TrendingUp, Upload, ListMusic, Sparkles, Gauge } from 'lucide-react';
 import SoundRecorder from '@/components/music/SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import StarMakerEngin from '@/components/daydream/StarMakerEngin';
@@ -57,6 +57,28 @@ export default async function MusicDaydreamPage() {
           </div>
 
           <div className="de-widget">
+            <div className="de-widget-header"><span className="de-widget-title">Pro Launch Stack</span></div>
+            <div className="de-widget-body">
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { icon: Sparkles, label: 'HQ Playback', detail: 'custom synth preview' },
+                  { icon: Gauge, label: 'Release Score', detail: 'distribution readiness' },
+                  { icon: Music, label: 'AI Toplines', detail: 'key-aware melody ideas' },
+                ].map(({ icon: Icon, label, detail }) => (
+                  <div key={label} className="de-surface flex flex-col gap-2 p-3">
+                    <Icon className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
+                    <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{label}</div>
+                    <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>{detail}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs mt-3" style={{ color: 'var(--de-text-dim)' }}>
+                Open StarMakerEngin on Side B for mastering-grade playback preview, smarter melody generation, and launch planning.
+              </p>
+            </div>
+          </div>
+
+          <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">Label &amp; Releases</span>
               <Link href="/music" className="text-xs font-semibold" style={{ color: 'var(--de-accent)' }}>View All →</Link>
@@ -102,4 +124,3 @@ export default async function MusicDaydreamPage() {
     </DaydreamShell>
   );
 }
-
