@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-17 07:51 UTC  
-**Triggered by commit:** `e07c932` on `copilot/fix-module-not-found-error` by Copilot  
-**Commit message:** Replace two-button HomeControls with ONE gold button; fix resolveHomeTap single/double direction
+**Last updated:** 2026-03-17 11:39 UTC  
+**Triggered by commit:** `228d69c` on `copilot/fix-available-feature-before-login` by Copilot  
+**Commit message:** feat: DreamDMBar moved into HomeSystem as the runtime seam; both surfaces pre-active
 
 ---
 
