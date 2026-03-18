@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { 
@@ -9,6 +9,7 @@ import {
   Globe, BarChart3, Gamepad2
 } from 'lucide-react';
 import PlatformBadge from '@/components/ui/PlatformBadge';
+import { PROFILE_SHARE_PLATFORMS } from '@/lib/social/platforms';
 
 type Profile = {
   id: string;
@@ -305,8 +306,20 @@ export default function ProfileCanvas({ initialProfile }: { initialProfile: Prof
             </button>
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(160,195,240,0.18)', flexWrap: 'wrap' }}>
-            {['twitter','instagram','facebook','linkedin','whatsapp'].map(name => (
-              <PlatformBadge key={name} name={name} size={36} label={name[0].toUpperCase() + name.slice(1)} />
+            {PROFILE_SHARE_PLATFORMS.map(platform => (
+              <PlatformBadge
+                key={platform.id}
+                name={platform.id}
+                size={36}
+                label={platform.label}
+                onClick={() => {
+                  const shareUrl = platform.buildShareUrl(
+                    `https://dreamengin.app/u/${handle}`,
+                    `Check out ${displayName}'s profile on DREAMengin`
+                  );
+                  window.open(shareUrl, '_blank', 'noopener,noreferrer,width=600,height=480');
+                }}
+              />
             ))}
           </div>
         </div>

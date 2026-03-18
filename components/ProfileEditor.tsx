@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Camera, Upload, X, Check, User, Image as ImageIcon, Link as LinkIcon, Palette, Save } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
+import { SOCIAL_PLATFORMS, detectPlatform } from '@/lib/social/platforms';
 
 interface ProfileData {
   id: string;
@@ -192,6 +193,20 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
     setLinks(links.filter((_, i) => i !== index));
   };
 
+  /** Auto-detect platform from a pasted URL; always updates when a known platform is detected. */
+  const handleUrlChange = useCallback((index: number, value: string) => {
+    const newLinks = [...links];
+    newLinks[index].url = value;
+    if (value) {
+      const detected = detectPlatform(value);
+      // Update if: no platform set, or the detected platform differs from the current one
+      if (detected && detected.id !== newLinks[index].platform) {
+        newLinks[index].platform = detected.id;
+      }
+    }
+    setLinks(newLinks);
+  }, [links]);
+
   const getInitials = (name: string) => {
     if (!name) return 'U';
     return name
@@ -363,17 +378,16 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
                       className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
                     >
                       <option value="">Platform</option>
-                      <option value="twitter">Twitter</option>
-                      <option value="instagram">Instagram</option>
-                      <option value="youtube">YouTube</option>
-                      <option value="tiktok">TikTok</option>
-                      <option value="website">Website</option>
-                      <option value="other">Other</option>
+                      {SOCIAL_PLATFORMS.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.emoji} {p.label}
+                        </option>
+                      ))}
                     </select>
                     <input
                       type="url"
                       value={link.url}
-                      onChange={(e) => updateLink(index, 'url', e.target.value)}
+                      onChange={(e) => handleUrlChange(index, e.target.value)}
                       placeholder="https://..."
                       className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
