@@ -25,16 +25,27 @@
  * Bridge: lib/runtime/dualRuntimeBridge — 'music' channel, 'music:stem-ready' event.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import {
+  buildReleaseStrategy,
+  createMelodySuggestions,
+  summarizePlaybackProfile,
+  type MelodySuggestion,
+  type PlaybackQualityMode,
+} from '@/lib/music/starmaker';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import Link from 'next/link';
 import {
   ArrowLeft,
+  Gauge,
   Mic2,
   Music,
+  Pause,
+  Play,
   Radio,
   Sliders,
+  Sparkles,
   Upload,
   Wand2,
 } from 'lucide-react';
@@ -95,6 +106,21 @@ const EFFECT_LIST: EffectName[] = [
   'Low-Pass', 'High-Pass', 'Compressor', 'Limiter',
 ];
 
+const NOTE_FREQUENCIES: Record<string, number> = {
+  C: 261.63,
+  'C#': 277.18,
+  D: 293.66,
+  'D#': 311.13,
+  E: 329.63,
+  F: 349.23,
+  'F#': 369.99,
+  G: 392,
+  'G#': 415.3,
+  A: 440,
+  'A#': 466.16,
+  B: 493.88,
+};
+
 const MUSICAL_KEYS = [
   'C', 'C#', 'D', 'D#', 'E', 'F',
   'F#', 'G', 'G#', 'A', 'A#', 'B',
@@ -154,6 +180,7 @@ export default function StarMakerEngin({ onBack }: Props) {
   // ── Beat Maker state ──
   const [beatGrid, setBeatGrid] = useState<BeatGrid>(createEmptyBeatGrid);
   const [bpm,      setBpm]      = useState(120);
+  const [qualityMode, setQualityMode] = useState<PlaybackQualityMode>('studio');
 
   // ── Mixing Board state ──
   const [mixer, setMixer] = useState<MixerState>({
@@ -278,6 +305,33 @@ export default function StarMakerEngin({ onBack }: Props) {
     }, 800);
   }, [stemReady]);
 
+  useEffect(() => {
+    if (playbackActive) return;
+    setWaveformBars(buildPlaybackBars(playbackStep));
+  }, [buildPlaybackBars, playbackActive, playbackStep]);
+
+  useEffect(() => {
+    if (!playbackActive) return;
+
+    const stepMs = Math.max(100, (60 / bpm) * 500);
+    const timer = setInterval(() => {
+      setPlaybackStep(prev => {
+        const next = (prev + 1) % BEAT_STEPS;
+        playPreviewStep(next);
+        return next;
+      });
+    }, stepMs);
+
+    return () => clearInterval(timer);
+  }, [bpm, playbackActive, playPreviewStep]);
+
+  useEffect(() => () => {
+    if (audioContextRef.current) {
+      void audioContextRef.current.close().catch(() => undefined);
+      audioContextRef.current = null;
+    }
+  }, []);
+
   // ── Waveform Visualizer state ──
   const [waveformBars, setWaveformBars] = useState<number[]>(() =>
     Array.from({ length: 32 }, () => 0.2 + Math.random() * 0.8)
@@ -290,7 +344,7 @@ export default function StarMakerEngin({ onBack }: Props) {
 
   // ── AI Melody Suggestions state ──
   const [melodyLoading, setMelodyLoading] = useState(false);
-  const [melodySuggestions, setMelodySuggestions] = useState<string[]>([]);
+  const [melodySuggestions, setMelodySuggestions] = useState<MelodySuggestion[]>([]);
 
   // ── Collab Studio state ──
   const [collabActive, setCollabActive] = useState(false);
@@ -302,14 +356,186 @@ export default function StarMakerEngin({ onBack }: Props) {
     { id: 'pl-2', title: 'Night Drive', duration: '4:01' },
     { id: 'pl-3', title: 'Morning Coffee', duration: '2:47' },
   ]);
+  const [playbackActive, setPlaybackActive] = useState(false);
+  const [playbackStep, setPlaybackStep] = useState(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const effectList = useMemo(() => Array.from(activeEffects), [activeEffects]);
+
+  const playbackProfile = useMemo(() => summarizePlaybackProfile({
+    beatGrid,
+    bpm,
+    mixer,
+    activeEffects: effectList,
+    qualityMode,
+  }), [beatGrid, bpm, effectList, mixer, qualityMode]);
+
+  const releaseStrategy = useMemo(() => buildReleaseStrategy({
+    stemReady,
+    releasesCount: releases.length,
+    playlistCount: playlist.length,
+    activeEffects: effectList,
+    qualityMode,
+    collabActive,
+  }), [stemReady, releases.length, playlist.length, effectList, qualityMode, collabActive]);
+
+  const buildPlaybackBars = useCallback((stepSeed: number) => (
+    Array.from({ length: 32 }, (_, index) => {
+      const channelIndex = index % BEAT_CHANNELS.length;
+      const stepIndex = (stepSeed + Math.floor(index / 4)) % BEAT_STEPS;
+      const channelLevel = [
+        mixer.vocals,
+        mixer.instruments,
+        mixer.bass,
+        mixer.fx,
+      ][channelIndex] / 100;
+      const beatActive = beatGrid[channelIndex][stepIndex];
+      const qualityBoost = qualityMode === 'studio' ? 0.12 : qualityMode === 'streaming' ? 0.06 : 0.02;
+      const fxBoost = activeEffects.has('Reverb') || activeEffects.has('Delay') ? 0.05 : 0;
+      const base = beatActive ? 0.5 + channelLevel * 0.35 : 0.12 + channelLevel * 0.08;
+      return clamp(base + qualityBoost + fxBoost, 0.08, 1);
+    })
+  ), [activeEffects, beatGrid, mixer, qualityMode]);
+
+  const ensureAudioContext = useCallback(() => {
+    if (typeof window === 'undefined') return null;
+    if (!audioContextRef.current) {
+      const audioWindow = window as Window & typeof globalThis & {
+        webkitAudioContext?: typeof AudioContext;
+      };
+      const AudioContextCtor = window.AudioContext ?? audioWindow.webkitAudioContext;
+      if (!AudioContextCtor) return null;
+      audioContextRef.current = new AudioContextCtor();
+    }
+
+    if (audioContextRef.current.state === 'suspended') {
+      void audioContextRef.current.resume().catch(() => undefined);
+    }
+    return audioContextRef.current;
+  }, []);
+
+  const triggerPreviewVoice = useCallback((channelIndex: number, stepIndex: number) => {
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const rootChord = chordProgression[Math.floor(stepIndex / 2) % chordProgression.length] ?? `${musicalKey}${keyMode === 'minor' ? 'min' : 'maj'}`;
+    const rootNote = rootChord.match(/^[A-G]#?/)?.[0] ?? musicalKey;
+    const synthBase = (NOTE_FREQUENCIES[rootNote] ?? NOTE_FREQUENCIES[musicalKey] ?? 261.63) * Math.pow(2, pitch / 12);
+    const mixLevels = [mixer.vocals, mixer.instruments, mixer.bass, mixer.fx];
+    const oscillator = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const gainNode = ctx.createGain();
+    const compressor = ctx.createDynamicsCompressor();
+    const stereoPanner = typeof ctx.createStereoPanner === 'function' ? ctx.createStereoPanner() : null;
+    const channelGain = Math.max(0.025, mixLevels[channelIndex] / 100 * (qualityMode === 'studio' ? 0.12 : qualityMode === 'streaming' ? 0.095 : 0.08));
+
+    oscillator.type = channelIndex === 0 ? 'sine' : channelIndex === 1 ? 'triangle' : channelIndex === 2 ? 'square' : 'sawtooth';
+    oscillator.frequency.setValueAtTime(
+      channelIndex === 0 ? 55 :
+      channelIndex === 1 ? 185 :
+      channelIndex === 2 ? 3200 :
+      synthBase,
+      now,
+    );
+
+    filter.type = activeEffects.has('Low-Pass') ? 'lowpass' : activeEffects.has('High-Pass') ? 'highpass' : 'peaking';
+    filter.frequency.setValueAtTime(
+      filter.type === 'lowpass' ? 1800 :
+      filter.type === 'highpass' ? 120 :
+      Math.max(440, synthBase * 2),
+      now,
+    );
+    filter.gain.setValueAtTime(activeEffects.has('Chorus') ? 2.8 : 0, now);
+
+    compressor.threshold.setValueAtTime(qualityMode === 'studio' ? -18 : qualityMode === 'streaming' ? -14 : -10, now);
+    compressor.ratio.setValueAtTime(activeEffects.has('Limiter') ? 9 : 4, now);
+    compressor.knee.setValueAtTime(qualityMode === 'studio' ? 16 : 8, now);
+
+    const attack = channelIndex === 2 ? 0.002 : qualityMode === 'studio' ? 0.01 : 0.005;
+    const release =
+      (channelIndex === 2 ? 0.05 : channelIndex === 0 ? 0.18 : 0.24) +
+      (activeEffects.has('Delay') ? 0.08 : 0) +
+      (activeEffects.has('Reverb') ? 0.12 : 0);
+
+    gainNode.gain.setValueAtTime(0.0001, now);
+    gainNode.gain.linearRampToValueAtTime(channelGain, now + attack);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + release);
+
+    if (stereoPanner) {
+      const width = playbackProfile.stereoWidthPct / 100;
+      stereoPanner.pan.setValueAtTime((-0.8 + channelIndex * 0.45) * width, now);
+    }
+
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(compressor);
+    if (stereoPanner) {
+      compressor.connect(stereoPanner);
+      stereoPanner.connect(ctx.destination);
+    } else {
+      compressor.connect(ctx.destination);
+    }
+
+    oscillator.start(now);
+    oscillator.stop(now + release);
+
+    if (qualityMode === 'studio' && channelIndex === 3) {
+      const shimmer = ctx.createOscillator();
+      const shimmerGain = ctx.createGain();
+      shimmer.type = 'triangle';
+      shimmer.frequency.setValueAtTime(synthBase * 2, now);
+      shimmer.detune.setValueAtTime(activeEffects.has('Chorus') ? 12 : 5, now);
+      shimmerGain.gain.setValueAtTime(channelGain * 0.35, now);
+      shimmerGain.gain.exponentialRampToValueAtTime(0.0001, now + release + 0.08);
+      shimmer.connect(shimmerGain);
+      if (stereoPanner) {
+        shimmerGain.connect(stereoPanner);
+      } else {
+        shimmerGain.connect(ctx.destination);
+      }
+      shimmer.start(now);
+      shimmer.stop(now + release + 0.08);
+    }
+  }, [activeEffects, chordProgression, ensureAudioContext, keyMode, mixer, musicalKey, pitch, playbackProfile.stereoWidthPct, qualityMode]);
+
+  const playPreviewStep = useCallback((stepIndex: number) => {
+    beatGrid.forEach((row, channelIndex) => {
+      if (row[stepIndex]) triggerPreviewVoice(channelIndex, stepIndex);
+    });
+    setWaveformBars(buildPlaybackBars(stepIndex));
+  }, [beatGrid, buildPlaybackBars, triggerPreviewVoice]);
 
   // ── Waveform toggle handler ──
   function handleWaveformToggle() {
     const next = !waveformRecording;
     setWaveformRecording(next);
-    if (next) setWaveformBars(Array.from({ length: 32 }, () => 0.2 + Math.random() * 0.8));
+    if (next) setWaveformBars(buildPlaybackBars(playbackStep));
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'music', 'music:waveform-record', { recording: next },
+    );
+  }
+
+  function handleTransportToggle() {
+    if (playbackActive) {
+      setPlaybackActive(false);
+      setPlaybackStep(0);
+      setWaveformBars(buildPlaybackBars(0));
+      (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+        'music', 'music:preview-stop', { qualityMode },
+      );
+      return;
+    }
+
+    setPlaybackStep(0);
+    playPreviewStep(0);
+    setPlaybackActive(true);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'music', 'music:preview-start', {
+        qualityMode,
+        bpm,
+        activeSteps: playbackProfile.activeSteps,
+      },
     );
   }
 
@@ -330,11 +556,14 @@ export default function StarMakerEngin({ onBack }: Props) {
       'music', 'music:melody-request', { key: musicalKey, mode: keyMode },
     );
     setTimeout(() => {
-      setMelodySuggestions([
-        'C D E G A — Pentatonic ascent',
-        'A G F E D — Minor descent',
-        'G A B D E — Major pentatonic',
-      ]);
+      setMelodySuggestions(createMelodySuggestions({
+        musicalKey,
+        keyMode,
+        bpm,
+        pitch,
+        chordProgression,
+        activeEffects: effectList,
+      }));
       setMelodyLoading(false);
     }, 1200);
   }
@@ -426,6 +655,15 @@ export default function StarMakerEngin({ onBack }: Props) {
             onToggleBeat={toggleBeat}
             onChangeBpm={changeBpm}
             onBpmInput={handleBpmInput}
+          />
+
+          <PlaybackStudioWidget
+            playing={playbackActive}
+            playbackStep={playbackStep}
+            qualityMode={qualityMode}
+            profile={playbackProfile}
+            onTogglePlayback={handleTransportToggle}
+            onQualityModeChange={setQualityMode}
           />
 
           {/* 2 ── Mixing Board */}
@@ -583,6 +821,8 @@ export default function StarMakerEngin({ onBack }: Props) {
             </div>
           </div>
 
+          <ReleaseCommandWidget strategy={releaseStrategy} />
+
           {/* ── Waveform Visualizer ── */}
           <WaveformVisualizerWidget
             bars={waveformBars}
@@ -738,6 +978,170 @@ function BeatMakerWidget({ beatGrid, bpm, onToggleBeat, onChangeBpm, onBpmInput 
             ))}
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+interface PlaybackStudioWidgetProps {
+  playing: boolean;
+  playbackStep: number;
+  qualityMode: PlaybackQualityMode;
+  profile: ReturnType<typeof summarizePlaybackProfile>;
+  onTogglePlayback: () => void;
+  onQualityModeChange: (mode: PlaybackQualityMode) => void;
+}
+
+function PlaybackStudioWidget({
+  playing,
+  playbackStep,
+  qualityMode,
+  profile,
+  onTogglePlayback,
+  onQualityModeChange,
+}: PlaybackStudioWidgetProps) {
+  return (
+    <div className="de-widget">
+      <div className="de-widget-header">
+        <span className="de-widget-title">
+          <Sparkles className="w-3.5 h-3.5 inline mr-1" style={{ color: ACCENT }} />
+          Playback Deck
+        </span>
+        <span
+          className="text-[10px] font-semibold px-2 py-1 rounded-full"
+          style={{ background: `${ACCENT}14`, color: ACCENT, border: `1px solid ${ACCENT}28` }}
+        >
+          custom HQ preview
+        </span>
+      </div>
+
+      <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {([
+            ['idea', 'Idea'],
+            ['streaming', 'Streaming'],
+            ['studio', 'Studio'],
+          ] as const).map(([mode, label]) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => onQualityModeChange(mode)}
+              aria-pressed={qualityMode === mode}
+              style={{
+                padding: '6px 10px',
+                borderRadius: 999,
+                border: `1px solid ${qualityMode === mode ? ACCENT : `${ACCENT}22`}`,
+                background: qualityMode === mode ? `${ACCENT}16` : 'rgba(255,255,255,0.5)',
+                color: qualityMode === mode ? ACCENT : 'var(--de-text)',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr',
+            gap: 12,
+            alignItems: 'center',
+            padding: '12px 14px',
+            borderRadius: 14,
+            background: 'linear-gradient(135deg, rgba(42,138,184,0.14), rgba(139,92,246,0.12))',
+            border: '1px solid rgba(160,195,240,0.2)',
+          }}
+        >
+          <button
+            type="button"
+            onClick={onTogglePlayback}
+            className={playing ? 'de-btn de-btn-ghost' : 'de-btn de-btn-primary'}
+            aria-label={playing ? 'Pause playback preview' : 'Play custom high quality preview'}
+            style={{
+              width: 54,
+              height: 54,
+              borderRadius: '50%',
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {playing ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" style={{ marginLeft: 2 }} />}
+          </button>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>
+                {profile.masteringLabel}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+                {profile.punchLabel} · {profile.loopSeconds}s loop · {profile.activeSteps} programmed hits
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${BEAT_STEPS}, 1fr)`, gap: 5 }}>
+              {Array.from({ length: BEAT_STEPS }, (_, index) => (
+                <div
+                  key={index}
+                  style={{
+                    height: 16,
+                    borderRadius: 999,
+                    background: playbackStep === index ? ACCENT : 'rgba(160,195,240,0.24)',
+                    opacity: playing ? 1 : index <= playbackStep ? 0.8 : 0.45,
+                    boxShadow: playbackStep === index ? `0 0 0 3px ${ACCENT}20` : 'none',
+                    transition: 'all 120ms ease',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
+          {[
+            { label: 'Stereo', value: `${profile.stereoWidthPct}%` },
+            { label: 'Headroom', value: `${profile.headroomDb} dB` },
+            { label: 'Density', value: `${profile.densityPct}%` },
+          ].map(metric => (
+            <div
+              key={metric.label}
+              style={{
+                padding: '10px 12px',
+                borderRadius: 12,
+                background: 'rgba(255,255,255,0.52)',
+                border: '1px solid rgba(160,195,240,0.18)',
+              }}
+            >
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                {metric.label}
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--de-heading)' }}>{metric.value}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {profile.marketEdge.map(edge => (
+            <span
+              key={edge}
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                padding: '5px 8px',
+                borderRadius: 999,
+                background: 'rgba(255,255,255,0.58)',
+                border: '1px solid rgba(160,195,240,0.18)',
+                color: 'var(--de-text)',
+              }}
+            >
+              {edge}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -1209,6 +1613,125 @@ function StatusBadge({ published }: { published: boolean }) {
   );
 }
 
+interface ReleaseCommandWidgetProps {
+  strategy: ReturnType<typeof buildReleaseStrategy>;
+}
+
+function ReleaseCommandWidget({ strategy }: ReleaseCommandWidgetProps) {
+  return (
+    <div className="de-widget">
+      <div className="de-widget-header">
+        <span className="de-widget-title">
+          <Gauge className="w-3.5 h-3.5 inline mr-1" style={{ color: ACCENT }} />
+          Release Command
+        </span>
+        <span
+          className="text-xs font-semibold px-2 py-1 rounded-full"
+          style={{
+            background: strategy.score >= 75 ? 'rgba(34,197,94,0.12)' : `${ACCENT}14`,
+            color: strategy.score >= 75 ? '#16a34a' : ACCENT,
+            border: `1px solid ${strategy.score >= 75 ? 'rgba(34,197,94,0.22)' : `${ACCENT}28`}`,
+          }}
+        >
+          {strategy.score}/100
+        </span>
+      </div>
+
+      <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div
+          style={{
+            padding: '12px 14px',
+            borderRadius: 12,
+            background: 'rgba(255,255,255,0.52)',
+            border: '1px solid rgba(160,195,240,0.18)',
+          }}
+        >
+          <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)' }}>
+            {strategy.headline}
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 4 }}>
+            Build a release package that can move from prototype to launch without leaving the Daydream.
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div
+            style={{
+              padding: '10px 12px',
+              borderRadius: 12,
+              background: 'rgba(34,197,94,0.08)',
+              border: '1px solid rgba(34,197,94,0.18)',
+            }}
+          >
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Strengths
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+              {(strategy.strengths.length > 0 ? strategy.strengths : ['Build momentum with stems, mastering, and playlists.']).map(item => (
+                <div key={item} style={{ fontSize: 11, color: 'var(--de-heading)' }}>• {item}</div>
+              ))}
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: '10px 12px',
+              borderRadius: 12,
+              background: 'rgba(245,158,11,0.08)',
+              border: '1px solid rgba(245,158,11,0.18)',
+            }}
+          >
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Next fixes
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+              {(strategy.blockers.length > 0 ? strategy.blockers : ['No blockers — move into launch mode.']).map(item => (
+                <div key={item} style={{ fontSize: 11, color: 'var(--de-heading)' }}>• {item}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {strategy.targets.map(target => (
+            <div
+              key={target.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '9px 12px',
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.5)',
+                border: '1px solid rgba(160,195,240,0.18)',
+              }}
+            >
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', minWidth: 96 }}>
+                {target.label}
+              </span>
+              <span style={{ flex: 1, fontSize: 11, color: 'var(--de-text-dim)' }}>{target.focus}</span>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: '4px 8px',
+                  borderRadius: 999,
+                  flexShrink: 0,
+                  background: target.readiness === 'ready' ? 'rgba(34,197,94,0.12)' : 'rgba(245,158,11,0.12)',
+                  color: target.readiness === 'ready' ? '#16a34a' : '#d97706',
+                  border: `1px solid ${target.readiness === 'ready' ? 'rgba(34,197,94,0.18)' : 'rgba(245,158,11,0.2)'}`,
+                }}
+              >
+                {target.readiness === 'ready' ? 'Ready' : 'Needs work'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Sub-widget: WaveformVisualizer
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1352,7 +1875,7 @@ function ChordBuilderWidget({ progression, playing, onChangeChord, onPlay }: Cho
 
 interface AiMelodySuggestionsWidgetProps {
   loading: boolean;
-  suggestions: string[];
+  suggestions: MelodySuggestion[];
   onAsk: () => void;
 }
 
@@ -1366,18 +1889,41 @@ function AiMelodySuggestionsWidget({ loading, suggestions, onAsk }: AiMelodySugg
       <div className="de-widget-body">
         {suggestions.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
-            {suggestions.map((s, i) => (
+            {suggestions.map((suggestion) => (
               <div
-                key={i}
+                key={suggestion.title}
                 style={{
                   padding: '9px 12px', borderRadius: 10,
                   background: `${ACCENT}08`,
                   border: `1px solid ${ACCENT}25`,
-                  fontSize: 12, fontWeight: 600, color: 'var(--de-heading)',
-                  fontFamily: 'monospace',
                 }}
               >
-                {s}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)' }}>
+                    {suggestion.title}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      padding: '3px 7px',
+                      borderRadius: 999,
+                      background: `${ACCENT}14`,
+                      color: ACCENT,
+                    }}
+                  >
+                    {suggestion.complexity}
+                  </span>
+                  <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: ACCENT }}>
+                    {suggestion.compatibilityScore}% fit
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', fontFamily: 'monospace' }}>
+                  {suggestion.pattern}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 4 }}>
+                  {suggestion.reason}
+                </div>
               </div>
             ))}
           </div>
