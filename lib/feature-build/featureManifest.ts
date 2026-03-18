@@ -155,7 +155,7 @@ const CODE_MANIFEST: DaydreamEnginManifest = {
   domain: 'Code',
   engin: 'CodeEngin',
   accentColor: '#3b82f6',
-  maxFeatures: 11,
+  maxFeatures: 12,
   features: [
     { id: 'live-notebook',       label: 'Live Notebook',        description: 'Python-rival per-cell execution notebook',   status: 'implemented', detectPattern: 'CellLanguage',          detectPaths: ['components/daydream/CodeEngin.tsx'] },
     { id: 'ci-dashboard',        label: 'CI Dashboard',         description: 'Five-stage pipeline simulation display',     status: 'implemented', detectPattern: 'CI.*Dashboard',         detectPaths: ['components/daydream/CodeEngin.tsx'] },
@@ -163,6 +163,7 @@ const CODE_MANIFEST: DaydreamEnginManifest = {
     { id: 'dual-runtime-conns',  label: 'Dual-Runtime Connections', description: 'Cross-Engin connectivity badges',        status: 'implemented', detectPattern: 'Gamepad2.*Music2.*FlaskConical', detectPaths: ['components/daydream/CodeEngin.tsx'] },
     { id: 'github-entry',        label: 'GitHub Entry Point',       description: 'Link to GitHub profile and repos',       status: 'implemented', detectPattern: 'Github',                detectPaths: ['components/daydream/CodeEngin.tsx'] },
     { id: 'diff-viewer',         label: 'Diff Viewer',              description: 'Full-file diff with hunk navigation and scroll-margin minimap', status: 'implemented', detectPattern: 'DiffViewer', detectPaths: ['components/daydream/CodeEngin.tsx'] },
+    { id: 'ai-trust-layer',      label: 'AI Trust Layer',           description: 'Scope-picker → preview → apply/reject flow for safe AI-assisted edits on mobile', status: 'implemented', detectPattern: 'ShieldCheck', detectPaths: ['components/daydream/CodeEngin.tsx'] },
     { id: 'ai-code-assist',      label: 'AI Code Assist',           description: 'Dr. Eams in-line code suggestion',       status: 'planned',     detectPattern: 'AiCodeAssist',          detectPaths: ['components/daydream/CodeEngin.tsx'] },
     { id: 'live-pair-programming', label: 'Live Pair Programming',  description: 'Real-time shared cursor code session',   status: 'planned',     detectPattern: 'PairProgramming',       detectPaths: ['components/daydream/CodeEngin.tsx'] },
     { id: 'deployment-console',  label: 'Deployment Console',       description: 'One-click deploy to Vercel/Supabase',    status: 'planned',     detectPattern: 'DeploymentConsole',     detectPaths: ['components/daydream/CodeEngin.tsx'] },

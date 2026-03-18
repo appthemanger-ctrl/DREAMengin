@@ -26,9 +26,26 @@ import {
   Plus, X, CheckCircle, XCircle, Loader2,
   Gamepad2, Music2, FlaskConical,
   ZoomIn, ZoomOut, MousePointer2, Scissors, Copy, Clipboard, Trash2, Bot,
+  ShieldCheck, Undo2, AlertTriangle,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
+import {
+  parseAiInstruction,
+  buildEditPreview,
+  applyEdit,
+  undoEdit,
+  SCOPE_ORDER,
+  SCOPE_LABEL,
+  SCOPE_DESCRIPTION,
+  SCOPE_RISK,
+  CONFIRMATION_REQUIRED,
+  type EditScope,
+  type AiSuggestion,
+  type EditPreview,
+  type UndoSnapshot,
+  type EditableCell,
+} from '@/lib/diff/aiEditEngine';
 
 // ─── Prop types ───────────────────────────────────────────────────────────────
 
@@ -212,7 +229,7 @@ export default function CodeEngin({ onBack }: Props) {
   // When select mode becomes active, listen for mouseup to capture selections
   useEffect(() => {
     if (!selectMode) {
-      setSelectionBar((prev: { visible: boolean; x: number; y: number; text: string }) => ({ ...prev, visible: false }));
+      setSelectionBar(prev => ({ ...prev, visible: false }));
       setDrEamsCheckResult('');
       return;
     }
@@ -220,7 +237,7 @@ export default function CodeEngin({ onBack }: Props) {
       const sel = window.getSelection();
       const text = sel?.toString().trim() ?? '';
       if (!text) {
-        setSelectionBar((prev: { visible: boolean; x: number; y: number; text: string }) => ({ ...prev, visible: false }));
+        setSelectionBar(prev => ({ ...prev, visible: false }));
         return;
       }
       // Position bar above the cursor
@@ -231,16 +248,13 @@ export default function CodeEngin({ onBack }: Props) {
   }, [selectMode]);
 
   const closeSelectionBar = useCallback(() => {
-    setSelectionBar((prev: { visible: boolean; x: number; y: number; text: string }) => ({ ...prev, visible: false }));
+    setSelectionBar(prev => ({ ...prev, visible: false }));
     window.getSelection()?.removeAllRanges();
   }, []);
 
   const toggleSelectMode = useCallback(() => {
     setSelectMode((prev: boolean) => {
-      if (prev) {
-        // Turning off — clear selection state
-        window.getSelection()?.removeAllRanges();
-      }
+      if (prev) window.getSelection()?.removeAllRanges();
       return !prev;
     });
   }, []);
@@ -578,6 +592,78 @@ export default function CodeEngin({ onBack }: Props) {
   const [assistResponse, setAssistResponse]   = useState('');
   const [assistLoading, setAssistLoading]     = useState(false);
 
+  // ── Trust Layer state ─────────────────────────────────────────────────────────
+  // Step 1 — AI suggestion (parsed instruction)
+  const [trustSuggestion, setTrustSuggestion] = useState<AiSuggestion | null>(null);
+  // Step 2 — Scope the user has chosen (may differ from suggested)
+  const [trustScope, setTrustScope]           = useState<EditScope>('word');
+  // Step 2.5 — live replace-with text
+  const [trustReplacement, setTrustReplacement] = useState('');
+  // Step 3 — Preview (computed on demand)
+  const [trustPreview, setTrustPreview]       = useState<EditPreview | null>(null);
+  // Step 4 — Confirmation dialog visible?
+  const [trustConfirming, setTrustConfirming] = useState(false);
+  // Undo stack (most recent first)
+  const [undoStack, setUndoStack]             = useState<UndoSnapshot[]>([]);
+
+  // When a suggestion arrives, set the scope to Dr. Eams' recommendation
+  useEffect(() => {
+    if (trustSuggestion) {
+      setTrustScope(trustSuggestion.suggestedScope);
+      setTrustReplacement(trustSuggestion.replacement);
+      setTrustPreview(null);
+      setTrustConfirming(false);
+    }
+  }, [trustSuggestion]);
+
+  /** Compute or refresh the preview for the current scope/replacement. */
+  const handleTrustPreview = useCallback(() => {
+    if (!trustSuggestion) return;
+    const activeCellId = lastFocusedRef.current?.getAttribute('data-cell-id')
+      ?? cells[0]?.id ?? '';
+    const cursorOffset = lastFocusedRef.current?.selectionStart ?? 0;
+    const preview = buildEditPreview({
+      cells: cells as EditableCell[],
+      activeCellId,
+      cursorOffset,
+      scope: trustScope,
+      target: trustSuggestion.target || selectionBar.text,
+      replacement: trustReplacement,
+    });
+    setTrustPreview(preview);
+    if (preview.requiresConfirmation) setTrustConfirming(true);
+  }, [trustSuggestion, cells, trustScope, trustReplacement, selectionBar.text]);
+
+  /** Apply the previewed edit to cells + push to undo stack. */
+  const handleTrustApply = useCallback(() => {
+    if (!trustPreview) return;
+    const { cells: updated, undo } = applyEdit(cells as EditableCell[], trustPreview);
+    setCells(updated as NotebookCell[]);
+    setUndoStack(prev => [undo, ...prev].slice(0, 20));
+    setTrustPreview(null);
+    setTrustSuggestion(null);
+    setTrustConfirming(false);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'code', 'code:cell-executed',
+      { cellId: 'trust-apply', language: 'typescript', outputType: 'text' }
+    );
+  }, [cells, trustPreview]);
+
+  /** Undo the last applied edit. */
+  const handleTrustUndo = useCallback(() => {
+    const [snapshot, ...rest] = undoStack;
+    if (!snapshot) return;
+    setCells(undoEdit(cells as EditableCell[], snapshot) as NotebookCell[]);
+    setUndoStack(rest);
+  }, [cells, undoStack]);
+
+  /** Reject / dismiss the current suggestion. */
+  const handleTrustReject = useCallback(() => {
+    setTrustPreview(null);
+    setTrustSuggestion(null);
+    setTrustConfirming(false);
+  }, []);
+
   // ── Pair Programming state ───────────────────────────────────────────────────
   const [pairActive, setPairActive]   = useState(false);
   const [pairCode, setPairCode]       = useState('');
@@ -603,21 +689,27 @@ export default function CodeEngin({ onBack }: Props) {
   const [newSnippetName, setNewSnippetName] = useState('');
   const [newSnippetCode, setNewSnippetCode] = useState('');
 
-  // ── AI Assist handler ────────────────────────────────────────────────────────
+  // ── AI Assist handler (now produces a trust-layer suggestion) ────────────────
   function handleAiAssist() {
     if (!assistPrompt.trim()) return;
     setAssistLoading(true);
     setAssistResponse('');
+    setTrustSuggestion(null);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:cell-executed', { cellId: 'ai-assist', language: 'typescript', outputType: 'text' });
     setTimeout(() => {
-      setAssistResponse(
-        `// Dr. Eams suggests:\n// For "${assistPrompt.slice(0, 40)}…"\n\n` +
-        `function solution() {\n  // 1. Break the problem into smaller steps\n` +
-        `  // 2. Use TypeScript generics for type safety\n` +
-        `  // 3. Handle errors with try/catch\n  return result;\n}`
-      );
+      const suggestion = parseAiInstruction(assistPrompt);
+      setTrustSuggestion(suggestion);
       setAssistLoading(false);
-    }, 1500);
+      // Legacy response text for non-scoped queries
+      if (!suggestion.target) {
+        setAssistResponse(
+          `// Dr. Eams suggests:\n// For "${assistPrompt.slice(0, 40)}…"\n\n` +
+          `function solution() {\n  // 1. Break the problem into smaller steps\n` +
+          `  // 2. Use TypeScript generics for type safety\n` +
+          `  // 3. Handle errors with try/catch\n  return result;\n}`
+        );
+      }
+    }, 800);
   }
 
   // ── Pair Programming handler ─────────────────────────────────────────────────
@@ -1853,51 +1945,445 @@ export default function CodeEngin({ onBack }: Props) {
           </>
         )}
 
-        {/* ── AI Code Assist ── */}
+        {/* ══════════════════════════════════════════════════════════════
+            AI Code Assist — Trust Layer
+            Problem: AI says "rename X" but mobile users can't reliably
+            select the right code.  Solution: scope picker → preview → apply.
+            ══════════════════════════════════════════════════════════════ */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
-            <Code2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <ShieldCheck className="w-4 h-4" style={{ color: ACCENT }} />
             <span className="de-widget-title ml-2">AI Code Assist</span>
-          </div>
-          <div className="de-widget-body">
-            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-              <input
-                type="text"
-                placeholder="Ask Dr. Eams a code question…"
-                value={assistPrompt}
-                onChange={e => setAssistPrompt(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleAiAssist()}
-                aria-label="Code question for AI"
-                style={{
-                  flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
-                  border: `1px solid ${ACCENT}30`, background: 'rgba(255,255,255,0.7)',
-                  color: 'var(--de-heading)', outline: 'none',
-                }}
-              />
+            {/* Undo button — always visible when history exists */}
+            {undoStack.length > 0 && (
               <button
                 type="button"
-                onClick={handleAiAssist}
-                disabled={assistLoading || !assistPrompt.trim()}
-                className="de-btn de-btn-primary"
-                aria-label="Ask Dr. Eams for code help"
-                style={{ opacity: assistLoading || !assistPrompt.trim() ? 0.6 : 1, transition: 'all 0.15s' }}
+                onClick={handleTrustUndo}
+                title={undoStack[0]?.description ?? 'Undo last edit'}
+                aria-label="Undo last AI edit"
+                style={{
+                  marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '3px 10px', borderRadius: 7, fontSize: 11, fontWeight: 700,
+                  background: 'rgba(245,158,11,0.1)', color: '#f59e0b',
+                  border: '1px solid rgba(245,158,11,0.3)', cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
               >
-                {assistLoading ? '…' : 'Ask'}
+                <Undo2 size={12} />
+                Undo
               </button>
+            )}
+          </div>
+
+          <div className="de-widget-body" style={{ padding: '12px 14px' }}>
+
+            {/* ── STEP 1: Instruction input ── */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5, letterSpacing: '0.06em' }}>
+                STEP 1 — Tell Dr. Eams what to change
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  placeholder='e.g. "rename score to userScore everywhere"'
+                  value={assistPrompt}
+                  onChange={e => setAssistPrompt(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAiAssist()}
+                  aria-label="AI instruction"
+                  style={{
+                    flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                    border: `1px solid ${ACCENT}30`, background: 'rgba(255,255,255,0.7)',
+                    color: 'var(--de-heading)', outline: 'none',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleAiAssist}
+                  disabled={assistLoading || !assistPrompt.trim()}
+                  className="de-btn de-btn-primary"
+                  aria-label="Ask Dr. Eams"
+                  style={{ opacity: assistLoading || !assistPrompt.trim() ? 0.6 : 1, transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                >
+                  {assistLoading ? <Loader2 size={14} className="animate-spin" /> : 'Ask'}
+                </button>
+              </div>
             </div>
-            {assistResponse && (
+
+            {/* ── Trust Layer: steps 2–5 (shown when suggestion exists) ── */}
+            {trustSuggestion && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+                {/* Suggestion card */}
+                <div
+                  style={{
+                    padding: '10px 12px', borderRadius: 10,
+                    background: `${ACCENT}08`, border: `1px solid ${ACCENT}22`,
+                  }}
+                >
+                  <div style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginBottom: 4, letterSpacing: '0.06em' }}>
+                    DR. EAMS SUGGESTS
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--de-heading)', lineHeight: 1.5 }}>
+                    {trustSuggestion.instruction}
+                  </div>
+                  {trustSuggestion.target && (
+                    <div style={{ marginTop: 6, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Target:</span>
+                      <code style={{ fontSize: 11, background: 'rgba(0,0,0,0.08)', padding: '1px 6px', borderRadius: 4, color: '#f87171', fontFamily: 'monospace' }}>
+                        {trustSuggestion.target}
+                      </code>
+                      <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>→</span>
+                      <code style={{ fontSize: 11, background: 'rgba(0,0,0,0.08)', padding: '1px 6px', borderRadius: 4, color: OUT_OK, fontFamily: 'monospace' }}>
+                        {trustReplacement || '(empty)'}
+                      </code>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── STEP 2: Scope picker ── */}
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 6, letterSpacing: '0.06em' }}>
+                    STEP 2 — Choose what to target
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {SCOPE_ORDER.map(scope => {
+                      const risk  = SCOPE_RISK[scope];
+                      const active = scope === trustScope;
+                      const riskColor = risk === 'low' ? '#22c55e'
+                        : risk === 'medium' ? '#f59e0b'
+                        : risk === 'high'   ? '#f87171'
+                        : '#c084fc'; // critical — purple
+                      return (
+                        <button
+                          key={scope}
+                          type="button"
+                          onClick={() => { setTrustScope(scope); setTrustPreview(null); }}
+                          aria-label={`Select scope: ${SCOPE_LABEL[scope]}`}
+                          aria-pressed={active}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '8px 12px', borderRadius: 9, cursor: 'pointer',
+                            background: active ? `${ACCENT}12` : 'rgba(255,255,255,0.5)',
+                            border: active ? `1.5px solid ${ACCENT}` : '1px solid rgba(160,195,240,0.22)',
+                            textAlign: 'left', transition: 'all 0.12s',
+                          }}
+                        >
+                          {/* Risk indicator dot */}
+                          <span
+                            style={{
+                              width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                              background: riskColor,
+                              opacity: active ? 1 : 0.45,
+                            }}
+                          />
+                          <span style={{ flex: 1 }}>
+                            <span style={{ fontSize: 12, fontWeight: active ? 700 : 500, color: active ? ACCENT : 'var(--de-heading)' }}>
+                              {SCOPE_LABEL[scope]}
+                            </span>
+                            <span style={{ display: 'block', fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1, lineHeight: 1.4 }}>
+                              {SCOPE_DESCRIPTION[scope]}
+                            </span>
+                          </span>
+                          {/* Suggested badge */}
+                          {scope === trustSuggestion.suggestedScope && (
+                            <span
+                              style={{
+                                fontSize: 9, fontWeight: 700, padding: '1px 6px',
+                                borderRadius: 999, flexShrink: 0,
+                                background: `${ACCENT}15`, color: ACCENT,
+                                border: `1px solid ${ACCENT}30`,
+                              }}
+                            >
+                              suggested
+                            </span>
+                          )}
+                          {/* Risk label */}
+                          {CONFIRMATION_REQUIRED.has(risk) && (
+                            <AlertTriangle
+                              size={12}
+                              style={{ color: riskColor, flexShrink: 0, opacity: active ? 1 : 0.5 }}
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Replace-with field (shown for word-based scopes) ── */}
+                {(trustScope === 'word' || trustScope === 'word-in-file' || trustScope === 'word-in-codebase') && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5, letterSpacing: '0.06em' }}>
+                      REPLACE WITH
+                    </div>
+                    <input
+                      type="text"
+                      value={trustReplacement}
+                      onChange={e => { setTrustReplacement(e.target.value); setTrustPreview(null); }}
+                      placeholder="New name or value…"
+                      aria-label="Replace with"
+                      style={{
+                        width: '100%', padding: '7px 12px', borderRadius: 9, fontSize: 12,
+                        border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                        color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box',
+                        fontFamily: '"Fira Code","JetBrains Mono",monospace',
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* ── STEP 3: Preview button ── */}
+                <button
+                  type="button"
+                  onClick={handleTrustPreview}
+                  aria-label="Preview what will be changed"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    padding: '9px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    background: `${ACCENT}12`, color: ACCENT,
+                    border: `1px solid ${ACCENT}35`, transition: 'all 0.15s',
+                  }}
+                >
+                  👁 Preview Change
+                </button>
+
+                {/* ── Preview panel (STEP 3 result) ── */}
+                {trustPreview && (
+                  <div
+                    style={{
+                      borderRadius: 12, overflow: 'hidden',
+                      border: trustPreview.noMatches
+                        ? '1px solid rgba(248,113,113,0.3)'
+                        : `1px solid ${ACCENT}25`,
+                    }}
+                  >
+                    {/* Preview header — match count + scope + risk */}
+                    <div
+                      style={{
+                        padding: '8px 14px', display: 'flex', alignItems: 'center',
+                        gap: 8, flexWrap: 'wrap',
+                        background: trustPreview.noMatches
+                          ? 'rgba(248,113,113,0.07)'
+                          : `${ACCENT}07`,
+                      }}
+                    >
+                      <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT }}>
+                        STEP 3 — What will change
+                      </span>
+                      {!trustPreview.noMatches && (
+                        <>
+                          <span
+                            style={{
+                              fontSize: 10, padding: '2px 8px', borderRadius: 999, fontWeight: 700,
+                              background: `${ACCENT}15`, color: ACCENT, border: `1px solid ${ACCENT}30`,
+                            }}
+                          >
+                            {trustPreview.matchCount} match{trustPreview.matchCount !== 1 ? 'es' : ''}
+                          </span>
+                          {trustPreview.affectedCellCount > 1 && (
+                            <span
+                              style={{
+                                fontSize: 10, padding: '2px 8px', borderRadius: 999, fontWeight: 700,
+                                background: 'rgba(167,139,250,0.12)', color: '#a78bfa',
+                                border: '1px solid rgba(167,139,250,0.3)',
+                              }}
+                            >
+                              {trustPreview.affectedCellCount} cells affected
+                            </span>
+                          )}
+                          {/* Risk badge */}
+                          {(() => {
+                            const c = trustPreview.risk === 'low'    ? '#22c55e'
+                              : trustPreview.risk === 'medium' ? '#f59e0b'
+                              : trustPreview.risk === 'high'   ? '#f87171'
+                              : '#c084fc';
+                            return (
+                              <span
+                                style={{
+                                  fontSize: 10, padding: '2px 8px', borderRadius: 999, fontWeight: 700, marginLeft: 'auto',
+                                  background: `${c}14`, color: c, border: `1px solid ${c}35`,
+                                  display: 'flex', alignItems: 'center', gap: 4,
+                                }}
+                              >
+                                {CONFIRMATION_REQUIRED.has(trustPreview.risk) && <AlertTriangle size={10} />}
+                                {trustPreview.risk.toUpperCase()} RISK
+                              </span>
+                            );
+                          })()}
+                        </>
+                      )}
+                    </div>
+
+                    {/* No-match state */}
+                    {trustPreview.noMatches ? (
+                      <div style={{ padding: '10px 14px', fontSize: 11, color: '#f87171' }}>
+                        ⚠ No matches found for &ldquo;{trustPreview.target}&rdquo; with scope &ldquo;{trustPreview.scopeLabel}&rdquo;.
+                        Try a different scope or check the word is in the active cell.
+                      </div>
+                    ) : (
+                      <>
+                        {/* Diff preview */}
+                        {trustPreview.diffLines.length > 0 && (
+                          <div
+                            style={{
+                              overflowX: 'auto', background: CELL_BG,
+                              fontFamily: '"Fira Code","JetBrains Mono",monospace',
+                              fontSize: 11, lineHeight: 1.6,
+                              maxHeight: 220, overflowY: 'auto',
+                            }}
+                          >
+                            {trustPreview.diffLines.map((line, i) => (
+                              <div
+                                key={i}
+                                style={{
+                                  padding: '0 10px',
+                                  background: line.type === 'removed'
+                                    ? 'rgba(248,113,113,0.12)'
+                                    : line.type === 'added'
+                                    ? 'rgba(74,222,128,0.10)'
+                                    : 'transparent',
+                                  color: line.type === 'removed' ? '#f87171'
+                                    : line.type === 'added'   ? OUT_OK
+                                    : 'rgba(226,232,240,0.5)',
+                                  whiteSpace: 'pre',
+                                }}
+                              >
+                                {line.type === 'removed' ? '−' : line.type === 'added' ? '+' : ' '}
+                                {' '}{line.content}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Match list (up to 5) */}
+                        {trustPreview.matches.slice(0, 5).map((m, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              padding: '5px 14px', fontSize: 10, borderTop: '1px solid rgba(160,195,240,0.1)',
+                              display: 'flex', gap: 6, alignItems: 'center', color: 'var(--de-text-dim)',
+                            }}
+                          >
+                            <span style={{ color: ACCENT, fontWeight: 700, fontFamily: 'monospace' }}>
+                              Line {m.lineNo}
+                            </span>
+                            <span style={{ fontFamily: 'monospace', color: '#f87171', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {m.matched.slice(0, 60)}
+                            </span>
+                          </div>
+                        ))}
+                        {trustPreview.matchCount > 5 && (
+                          <div style={{ padding: '4px 14px', fontSize: 10, color: 'var(--de-text-dim)', borderTop: '1px solid rgba(160,195,240,0.1)' }}>
+                            … and {trustPreview.matchCount - 5} more
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* ── Confirmation dialog (for high/critical risk) ── */}
+                {trustConfirming && trustPreview && !trustPreview.noMatches && (
+                  <div
+                    style={{
+                      padding: '12px 14px', borderRadius: 12,
+                      background: 'rgba(248,113,113,0.07)',
+                      border: '1.5px solid rgba(248,113,113,0.35)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                      <AlertTriangle size={14} style={{ color: '#f87171', flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#f87171' }}>
+                        {trustPreview.risk === 'critical' ? 'This will change across your entire codebase.' : 'This will change the entire file.'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--de-text)', marginBottom: 10, lineHeight: 1.5 }}>
+                      {trustPreview.matchCount} occurrence{trustPreview.matchCount !== 1 ? 's' : ''} across{' '}
+                      {trustPreview.affectedCellCount} cell{trustPreview.affectedCellCount !== 1 ? 's' : ''} will be modified.
+                      Undo is available immediately after.
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        type="button"
+                        onClick={handleTrustApply}
+                        aria-label="Confirm and apply the edit"
+                        style={{
+                          flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                          background: 'rgba(248,113,113,0.15)', color: '#f87171',
+                          border: '1px solid rgba(248,113,113,0.35)', cursor: 'pointer',
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        Yes, Apply
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleTrustReject}
+                        aria-label="Cancel the edit"
+                        style={{
+                          flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                          background: 'rgba(160,195,240,0.1)', color: 'var(--de-text)',
+                          border: '1px solid rgba(160,195,240,0.22)', cursor: 'pointer',
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── STEP 4 / 5: Apply + Reject buttons (low/medium risk) ── */}
+                {trustPreview && !trustPreview.noMatches && !trustConfirming && (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={handleTrustApply}
+                      aria-label="Apply the change"
+                      style={{
+                        flex: 2, padding: '9px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+                        background: `${ACCENT}18`, color: ACCENT,
+                        border: `1px solid ${ACCENT}35`, cursor: 'pointer',
+                        transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      }}
+                    >
+                      <CheckCircle size={14} />
+                      Apply Change
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleTrustReject}
+                      aria-label="Reject the change"
+                      style={{
+                        flex: 1, padding: '9px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+                        background: 'rgba(248,113,113,0.08)', color: '#f87171',
+                        border: '1px solid rgba(248,113,113,0.25)', cursor: 'pointer',
+                        transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      }}
+                    >
+                      <X size={14} />
+                      Reject
+                    </button>
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            {/* Fallback text response (for non-scoped queries) */}
+            {assistResponse && !trustSuggestion && (
               <pre
                 style={{
                   padding: '10px 12px', borderRadius: 10, margin: 0,
                   background: CELL_BG, color: OUT_OK,
                   fontSize: 11, fontFamily: 'monospace', overflowX: 'auto',
-                  border: `1px solid ${ACCENT}20`,
-                  whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                  border: `1px solid ${ACCENT}20`, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                 }}
               >
                 {assistResponse}
               </pre>
             )}
+
           </div>
         </div>
 
