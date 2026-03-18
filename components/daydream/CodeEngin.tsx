@@ -27,6 +27,7 @@ import {
   Gamepad2, Music2, FlaskConical,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import DiffViewer from '@/components/daydream/DiffViewer';
 
 // ─── Prop types ───────────────────────────────────────────────────────────────
 
@@ -63,7 +64,7 @@ interface Project {
   visibility: string;
 }
 
-type ActiveTab = 'notebook' | 'ci' | 'projects' | 'connections';
+type ActiveTab = 'notebook' | 'ci' | 'projects' | 'connections' | 'diff';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -505,6 +506,7 @@ export default function CodeEngin({ onBack }: Props) {
               { id: 'ci',          label: '🔧 CI Pipeline'  },
               { id: 'projects',    label: '📁 Projects'     },
               { id: 'connections', label: '🔗 Connections'  },
+              { id: 'diff',        label: '⟦⟧ Diff Viewer'  },
             ] as { id: ActiveTab; label: string }[]
           ).map(tab => (
             <button
@@ -1546,6 +1548,28 @@ export default function CodeEngin({ onBack }: Props) {
             </div>
           </div>
         </div>
+
+        {/* ════════════════════════════════════════
+            TAB: Diff Viewer
+            ════════════════════════════════════════ */}
+        {activeTab === 'diff' && (
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <span className="de-widget-title">Diff Viewer</span>
+              <span
+                style={{
+                  fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999,
+                  background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30`,
+                }}
+              >
+                full-file mode
+              </span>
+            </div>
+            <div className="de-widget-body" style={{ padding: '12px 14px' }}>
+              <DiffViewer defaultFullFile />
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
