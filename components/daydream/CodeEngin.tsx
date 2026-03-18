@@ -18,15 +18,34 @@
  * Bridge emits follow the typed CodeChannelEvents interface — no phantom event keys.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import {
   ArrowLeft, Code2, FolderOpen, Github,
   Plus, X, CheckCircle, XCircle, Loader2,
   Gamepad2, Music2, FlaskConical,
+  ZoomIn, ZoomOut, MousePointer2, Scissors, Copy, Clipboard, Trash2, Bot,
+  ShieldCheck, Undo2, AlertTriangle,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import DiffViewer from '@/components/daydream/DiffViewer';
+import {
+  parseAiInstruction,
+  buildEditPreview,
+  applyEdit,
+  undoEdit,
+  SCOPE_ORDER,
+  SCOPE_LABEL,
+  SCOPE_DESCRIPTION,
+  SCOPE_RISK,
+  CONFIRMATION_REQUIRED,
+  type EditScope,
+  type AiSuggestion,
+  type EditPreview,
+  type UndoSnapshot,
+  type EditableCell,
+} from '@/lib/diff/aiEditEngine';
 
 // ─── Prop types ───────────────────────────────────────────────────────────────
 
@@ -63,7 +82,7 @@ interface Project {
   visibility: string;
 }
 
-type ActiveTab = 'notebook' | 'ci' | 'projects' | 'connections';
+type ActiveTab = 'notebook' | 'ci' | 'projects' | 'connections' | 'diff';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -72,6 +91,11 @@ const CELL_BG  = '#1a1a2e';
 const CODE_FG  = '#e2e8f0';
 const OUT_OK   = '#4ade80';
 const OUT_ERR  = '#f87171';
+
+const ZOOM_MIN  = 0.6;
+const ZOOM_MAX  = 2.0;
+const ZOOM_STEP = 0.1;
+const ZOOM_BASE_FONT = 13;  // px — baseline cell font-size
 
 const LANGUAGE_OPTIONS: CellLanguage[] = ['python', 'javascript', 'typescript', 'bash'];
 const LANGUAGE_LABEL: Record<CellLanguage, string> = {
@@ -187,6 +211,233 @@ export default function CodeEngin({ onBack }: Props) {
 
   // ── Navigation state ────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<ActiveTab>('notebook');
+
+  // ── Code zoom state ──────────────────────────────────────────────────────────
+  const [codeZoom, setCodeZoom] = useState(1.0);
+  const zoomIn  = useCallback(() => setCodeZoom((z: number) => Math.min(ZOOM_MAX, parseFloat((z + ZOOM_STEP).toFixed(1)))), []);
+  const zoomOut = useCallback(() => setCodeZoom((z: number) => Math.max(ZOOM_MIN, parseFloat((z - ZOOM_STEP).toFixed(1)))), []);
+  const zoomReset = useCallback(() => setCodeZoom(1.0), []);
+
+  // ── Selection mode state ─────────────────────────────────────────────────────
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectionBar, setSelectionBar] = useState<{
+    visible: boolean; x: number; y: number; text: string;
+  }>({ visible: false, x: 0, y: 0, text: '' });
+  const [drEamsCheckResult, setDrEamsCheckResult] = useState('');
+  const codeAreaRef = useRef<HTMLDivElement>(null);
+
+  // When select mode becomes active, listen for mouseup to capture selections
+  useEffect(() => {
+    if (!selectMode) {
+      setSelectionBar(prev => ({ ...prev, visible: false }));
+      setDrEamsCheckResult('');
+      return;
+    }
+    function handleMouseUp(e: MouseEvent) {
+      const sel = window.getSelection();
+      const text = sel?.toString().trim() ?? '';
+      if (!text) {
+        setSelectionBar(prev => ({ ...prev, visible: false }));
+        return;
+      }
+      // Position bar above the cursor
+      setSelectionBar({ visible: true, x: e.clientX, y: e.clientY - 60, text });
+    }
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => document.removeEventListener('mouseup', handleMouseUp);
+  }, [selectMode]);
+
+  const closeSelectionBar = useCallback(() => {
+    setSelectionBar(prev => ({ ...prev, visible: false }));
+    window.getSelection()?.removeAllRanges();
+  }, []);
+
+  const toggleSelectMode = useCallback(() => {
+    setSelectMode((prev: boolean) => {
+      if (prev) window.getSelection()?.removeAllRanges();
+      return !prev;
+    });
+  }, []);
+
+  // ── Smart Select state ───────────────────────────────────────────────────────
+  const lastFocusedRef = useRef<HTMLTextAreaElement | null>(null);
+  const [findTarget,   setFindTarget]   = useState('');
+  const [replaceWith,  setReplaceWith]  = useState('');
+  const [findResults,  setFindResults]  = useState<{
+    scope: 'cell' | 'codebase'; total: number;
+  } | null>(null);
+
+  /** Escape a string for safe use inside a RegExp. */
+  function escapeRx(s: string) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  const handleSelectAll = useCallback(() => {
+    const ta = lastFocusedRef.current;
+    if (!ta) return;
+    ta.focus();
+    ta.setSelectionRange(0, ta.value.length);
+    setSelectionBar({ visible: false, x: 0, y: 0, text: ta.value });
+  }, []);
+
+  const handleSelectLine = useCallback(() => {
+    const ta = lastFocusedRef.current;
+    if (!ta) return;
+    ta.focus();
+    const val = ta.value;
+    const cursor = ta.selectionStart;
+    let lineStart = cursor;
+    while (lineStart > 0 && val[lineStart - 1] !== '\n') lineStart--;
+    let lineEnd = cursor;
+    while (lineEnd < val.length && val[lineEnd] !== '\n') lineEnd++;
+    ta.setSelectionRange(lineStart, lineEnd);
+    setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(lineStart, lineEnd) });
+  }, []);
+
+  const handleSelectBlock = useCallback(() => {
+    const ta = lastFocusedRef.current;
+    if (!ta) return;
+    ta.focus();
+    const val = ta.value;
+    const cursor = ta.selectionStart;
+    let blockStart = -1;
+    let blockEnd   = -1;
+    let depth = 0;
+    for (let i = cursor; i >= 0; i--) {
+      if (val[i] === '}') depth++;
+      else if (val[i] === '{') {
+        if (depth === 0) { blockStart = i; break; }
+        depth--;
+      }
+    }
+    depth = 0;
+    for (let i = cursor; i < val.length; i++) {
+      if (val[i] === '{') depth++;
+      else if (val[i] === '}') {
+        if (depth === 0) { blockEnd = i + 1; break; }
+        depth--;
+      }
+    }
+    if (blockStart !== -1 && blockEnd !== -1) {
+      ta.setSelectionRange(blockStart, blockEnd);
+      setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(blockStart, blockEnd) });
+    }
+  }, []);
+
+  const handleSelectVariable = useCallback((scope: 'cell' | 'codebase') => {
+    const ta = lastFocusedRef.current;
+    const rawTarget = selectionBar.text
+      || (() => {
+        if (!ta) return '';
+        const val = ta.value;
+        const c = ta.selectionStart;
+        let s = c; while (s > 0 && /\w/.test(val[s - 1])) s--;
+        let e = c; while (e < val.length && /\w/.test(val[e])) e++;
+        return val.slice(s, e);
+      })();
+    if (!rawTarget.trim()) return;
+    setFindTarget(rawTarget.trim());
+    setReplaceWith('');
+    if (scope === 'cell') {
+      if (!ta) return;
+      const rx = new RegExp(`\\b${escapeRx(rawTarget.trim())}\\b`, 'g');
+      const total = (ta.value.match(rx) ?? []).length;
+      setFindResults({ scope: 'cell', total });
+    } else {
+      const rx = new RegExp(`\\b${escapeRx(rawTarget.trim())}\\b`, 'g');
+      const total = cells.reduce((acc: number, cell: NotebookCell) =>
+        acc + (cell.code.match(rx) ?? []).length, 0);
+      setFindResults({ scope: 'codebase', total });
+    }
+    closeSelectionBar();
+  }, [selectionBar.text, cells, closeSelectionBar]);
+
+  const handleReplaceAll = useCallback((scope: 'cell' | 'codebase') => {
+    if (!findTarget || replaceWith === undefined) return;
+    const rx = new RegExp(`\\b${escapeRx(findTarget)}\\b`, 'g');
+    if (scope === 'cell') {
+      const ta = lastFocusedRef.current;
+      const targetId = ta?.getAttribute('data-cell-id') ?? '';
+      setCells((prev: NotebookCell[]) => prev.map((c: NotebookCell) =>
+        c.id === targetId ? { ...c, code: c.code.replace(rx, replaceWith) } : c));
+    } else {
+      setCells((prev: NotebookCell[]) => prev.map((c: NotebookCell) =>
+        ({ ...c, code: c.code.replace(rx, replaceWith) })));
+    }
+    setFindResults(null);
+    setFindTarget('');
+    setReplaceWith('');
+  }, [findTarget, replaceWith]);
+
+  // Selection actions
+  const handleSelCopy = useCallback(() => {
+    if (selectionBar.text) navigator.clipboard?.writeText(selectionBar.text);
+    closeSelectionBar();
+  }, [selectionBar.text, closeSelectionBar]);
+
+  const handleSelCut = useCallback(() => {
+    if (selectionBar.text) {
+      navigator.clipboard?.writeText(selectionBar.text);
+      // Remove selected text via direct textarea manipulation (execCommand is deprecated)
+      const ta = lastFocusedRef.current;
+      if (ta) {
+        const { selectionStart: s, selectionEnd: e, value } = ta;
+        const newVal = value.slice(0, s) + value.slice(e);
+        // Synthetic React onChange by updating value + dispatching event
+        Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+          ?.set?.call(ta, newVal);
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        ta.setSelectionRange(s, s);
+      }
+    }
+    closeSelectionBar();
+  }, [selectionBar.text, closeSelectionBar]);
+
+  const handleSelPaste = useCallback(async () => {
+    const text = await navigator.clipboard?.readText().catch(() => '');
+    if (text) {
+      const ta = lastFocusedRef.current;
+      if (ta) {
+        const { selectionStart: s, selectionEnd: e, value } = ta;
+        const newVal = value.slice(0, s) + text + value.slice(e);
+        Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+          ?.set?.call(ta, newVal);
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        ta.setSelectionRange(s + text.length, s + text.length);
+      }
+    }
+    closeSelectionBar();
+  }, [closeSelectionBar]);
+
+  const handleSelDelete = useCallback(() => {
+    const ta = lastFocusedRef.current;
+    if (ta) {
+      const { selectionStart: s, selectionEnd: e, value } = ta;
+      const newVal = value.slice(0, s) + value.slice(e);
+      Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+        ?.set?.call(ta, newVal);
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      ta.setSelectionRange(s, s);
+    }
+    closeSelectionBar();
+  }, [closeSelectionBar]);
+
+  const handleSelDrEams = useCallback(() => {
+    const code = selectionBar.text;
+    setDrEamsCheckResult('');
+    closeSelectionBar();
+    // Simulate Dr. Eams correctness check (no eval, simulation only)
+    setTimeout(() => {
+      const issues = [];
+      if (/console\.log/.test(code)) issues.push('Consider removing debug console.log statements before committing.');
+      if (/var /.test(code)) issues.push('Prefer `const` or `let` over `var`.');
+      if (/==(?!=)/.test(code)) issues.push('Use strict equality `===` instead of `==`.');
+      setDrEamsCheckResult(
+        issues.length === 0
+          ? '✅ Dr. Eams: Looks good! No obvious issues found.'
+          : `⚠️ Dr. Eams found ${issues.length} suggestion${issues.length > 1 ? 's' : ''}:\n${issues.map(i => `• ${i}`).join('\n')}`,
+      );
+    }, 400);
+  }, [selectionBar.text, closeSelectionBar]);
+
 
   // ── Load user + projects ────────────────────────────────────────────────────
   useEffect(() => {
@@ -320,7 +571,7 @@ export default function CodeEngin({ onBack }: Props) {
 
   // ── Shared style helpers ────────────────────────────────────────────────────
 
-  const tabStyle = useCallback((id: ActiveTab): React.CSSProperties => ({
+  const tabStyle = useCallback((id: ActiveTab): CSSProperties => ({
     padding: '6px 14px',
     borderRadius: 999,
     border: activeTab === id
@@ -340,6 +591,78 @@ export default function CodeEngin({ onBack }: Props) {
   const [assistPrompt, setAssistPrompt]       = useState('');
   const [assistResponse, setAssistResponse]   = useState('');
   const [assistLoading, setAssistLoading]     = useState(false);
+
+  // ── Trust Layer state ─────────────────────────────────────────────────────────
+  // Step 1 — AI suggestion (parsed instruction)
+  const [trustSuggestion, setTrustSuggestion] = useState<AiSuggestion | null>(null);
+  // Step 2 — Scope the user has chosen (may differ from suggested)
+  const [trustScope, setTrustScope]           = useState<EditScope>('word');
+  // Step 2.5 — live replace-with text
+  const [trustReplacement, setTrustReplacement] = useState('');
+  // Step 3 — Preview (computed on demand)
+  const [trustPreview, setTrustPreview]       = useState<EditPreview | null>(null);
+  // Step 4 — Confirmation dialog visible?
+  const [trustConfirming, setTrustConfirming] = useState(false);
+  // Undo stack (most recent first)
+  const [undoStack, setUndoStack]             = useState<UndoSnapshot[]>([]);
+
+  // When a suggestion arrives, set the scope to Dr. Eams' recommendation
+  useEffect(() => {
+    if (trustSuggestion) {
+      setTrustScope(trustSuggestion.suggestedScope);
+      setTrustReplacement(trustSuggestion.replacement);
+      setTrustPreview(null);
+      setTrustConfirming(false);
+    }
+  }, [trustSuggestion]);
+
+  /** Compute or refresh the preview for the current scope/replacement. */
+  const handleTrustPreview = useCallback(() => {
+    if (!trustSuggestion) return;
+    const activeCellId = lastFocusedRef.current?.getAttribute('data-cell-id')
+      ?? cells[0]?.id ?? '';
+    const cursorOffset = lastFocusedRef.current?.selectionStart ?? 0;
+    const preview = buildEditPreview({
+      cells: cells as EditableCell[],
+      activeCellId,
+      cursorOffset,
+      scope: trustScope,
+      target: trustSuggestion.target || selectionBar.text,
+      replacement: trustReplacement,
+    });
+    setTrustPreview(preview);
+    if (preview.requiresConfirmation) setTrustConfirming(true);
+  }, [trustSuggestion, cells, trustScope, trustReplacement, selectionBar.text]);
+
+  /** Apply the previewed edit to cells + push to undo stack. */
+  const handleTrustApply = useCallback(() => {
+    if (!trustPreview) return;
+    const { cells: updated, undo } = applyEdit(cells as EditableCell[], trustPreview);
+    setCells(updated as NotebookCell[]);
+    setUndoStack(prev => [undo, ...prev].slice(0, 20));
+    setTrustPreview(null);
+    setTrustSuggestion(null);
+    setTrustConfirming(false);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'code', 'code:cell-executed',
+      { cellId: 'trust-apply', language: 'typescript', outputType: 'text' }
+    );
+  }, [cells, trustPreview]);
+
+  /** Undo the last applied edit. */
+  const handleTrustUndo = useCallback(() => {
+    const [snapshot, ...rest] = undoStack;
+    if (!snapshot) return;
+    setCells(undoEdit(cells as EditableCell[], snapshot) as NotebookCell[]);
+    setUndoStack(rest);
+  }, [cells, undoStack]);
+
+  /** Reject / dismiss the current suggestion. */
+  const handleTrustReject = useCallback(() => {
+    setTrustPreview(null);
+    setTrustSuggestion(null);
+    setTrustConfirming(false);
+  }, []);
 
   // ── Pair Programming state ───────────────────────────────────────────────────
   const [pairActive, setPairActive]   = useState(false);
@@ -366,21 +689,27 @@ export default function CodeEngin({ onBack }: Props) {
   const [newSnippetName, setNewSnippetName] = useState('');
   const [newSnippetCode, setNewSnippetCode] = useState('');
 
-  // ── AI Assist handler ────────────────────────────────────────────────────────
+  // ── AI Assist handler (now produces a trust-layer suggestion) ────────────────
   function handleAiAssist() {
     if (!assistPrompt.trim()) return;
     setAssistLoading(true);
     setAssistResponse('');
+    setTrustSuggestion(null);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:cell-executed', { cellId: 'ai-assist', language: 'typescript', outputType: 'text' });
     setTimeout(() => {
-      setAssistResponse(
-        `// Dr. Eams suggests:\n// For "${assistPrompt.slice(0, 40)}…"\n\n` +
-        `function solution() {\n  // 1. Break the problem into smaller steps\n` +
-        `  // 2. Use TypeScript generics for type safety\n` +
-        `  // 3. Handle errors with try/catch\n  return result;\n}`
-      );
+      const suggestion = parseAiInstruction(assistPrompt);
+      setTrustSuggestion(suggestion);
       setAssistLoading(false);
-    }, 1500);
+      // Legacy response text for non-scoped queries
+      if (!suggestion.target) {
+        setAssistResponse(
+          `// Dr. Eams suggests:\n// For "${assistPrompt.slice(0, 40)}…"\n\n` +
+          `function solution() {\n  // 1. Break the problem into smaller steps\n` +
+          `  // 2. Use TypeScript generics for type safety\n` +
+          `  // 3. Handle errors with try/catch\n  return result;\n}`
+        );
+      }
+    }, 800);
   }
 
   // ── Pair Programming handler ─────────────────────────────────────────────────
@@ -439,6 +768,107 @@ export default function CodeEngin({ onBack }: Props) {
 
   return (
     <div className="de-sky-bg min-h-screen">
+
+      {/* ── Floating selection action bar ── */}
+      {selectMode && selectionBar.visible && (
+        <div
+          role="toolbar"
+          aria-label="Selection actions"
+          style={{
+            position: 'fixed',
+            left: Math.min(selectionBar.x, typeof window !== 'undefined' ? window.innerWidth - 320 : selectionBar.x),
+            top: Math.max(8, selectionBar.y),
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '6px 8px',
+            borderRadius: 12,
+            background: 'rgba(15,15,30,0.96)',
+            border: '1px solid rgba(59,125,216,0.4)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+            backdropFilter: 'blur(12px)',
+            flexWrap: 'nowrap',
+          }}
+        >
+          {/* Copy */}
+          <button
+            type="button"
+            onClick={handleSelCopy}
+            title="Copy selection"
+            style={selBtnStyle}
+            aria-label="Copy selected text"
+          >
+            <Copy size={13} />
+            <span>Copy</span>
+          </button>
+
+          {/* Cut */}
+          <button
+            type="button"
+            onClick={handleSelCut}
+            title="Cut selection"
+            style={selBtnStyle}
+            aria-label="Cut selected text"
+          >
+            <Scissors size={13} />
+            <span>Cut</span>
+          </button>
+
+          {/* Paste */}
+          <button
+            type="button"
+            onClick={handleSelPaste}
+            title="Paste from clipboard"
+            style={selBtnStyle}
+            aria-label="Paste from clipboard"
+          >
+            <Clipboard size={13} />
+            <span>Paste</span>
+          </button>
+
+          {/* Delete */}
+          <button
+            type="button"
+            onClick={handleSelDelete}
+            title="Delete selection"
+            style={{ ...selBtnStyle, color: '#f87171' }}
+            aria-label="Delete selected text"
+          >
+            <Trash2 size={13} />
+            <span>Delete</span>
+          </button>
+
+          {/* Divider */}
+          <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.12)', margin: '0 2px' }} />
+
+          {/* Dr. Eams correctness check */}
+          <button
+            type="button"
+            onClick={handleSelDrEams}
+            title="Ask Dr. Eams to check correctness of the selected code"
+            style={{ ...selBtnStyle, color: '#a78bfa', paddingRight: 10 }}
+            aria-label="Dr. Eams checks correctness"
+          >
+            <Bot size={13} />
+            <span>Dr. Eams checks</span>
+          </button>
+
+          {/* Close */}
+          <button
+            type="button"
+            onClick={closeSelectionBar}
+            style={{
+              ...selBtnStyle, marginLeft: 4,
+              color: 'rgba(255,255,255,0.35)',
+              padding: '4px 6px',
+            }}
+            aria-label="Dismiss action bar"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      )}
 
       {/* ── Header ── */}
       <header
@@ -505,6 +935,7 @@ export default function CodeEngin({ onBack }: Props) {
               { id: 'ci',          label: '🔧 CI Pipeline'  },
               { id: 'projects',    label: '📁 Projects'     },
               { id: 'connections', label: '🔗 Connections'  },
+              { id: 'diff',        label: '⟦⟧ Diff Viewer'  },
             ] as { id: ActiveTab; label: string }[]
           ).map(tab => (
             <button
@@ -517,6 +948,311 @@ export default function CodeEngin({ onBack }: Props) {
             </button>
           ))}
         </div>
+
+        {/* ── Code toolbar: zoom + select-mode ── */}
+        <div
+          ref={codeAreaRef}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            marginBottom: 14, flexWrap: 'wrap',
+            padding: '6px 10px',
+            borderRadius: 10,
+            background: 'rgba(255,255,255,0.55)',
+            border: '1px solid rgba(160,195,240,0.22)',
+          }}
+        >
+          {/* Zoom controls */}
+          <button
+            type="button"
+            onClick={zoomOut}
+            disabled={codeZoom <= ZOOM_MIN}
+            aria-label="Zoom out code"
+            title="Zoom out (code)"
+            style={codeToolBtnStyle(codeZoom <= ZOOM_MIN)}
+          >
+            <ZoomOut size={13} />
+          </button>
+
+          <button
+            type="button"
+            onClick={zoomReset}
+            aria-label="Reset zoom"
+            title="Reset zoom to 100%"
+            style={{
+              ...codeToolBtnStyle(false),
+              minWidth: 42, justifyContent: 'center',
+              fontFamily: 'monospace', fontSize: 10, fontWeight: 700,
+              color: codeZoom !== 1.0 ? ACCENT : 'var(--de-text-dim)',
+            }}
+          >
+            {Math.round(codeZoom * 100)}%
+          </button>
+
+          <button
+            type="button"
+            onClick={zoomIn}
+            disabled={codeZoom >= ZOOM_MAX}
+            aria-label="Zoom in code"
+            title="Zoom in (code)"
+            style={codeToolBtnStyle(codeZoom >= ZOOM_MAX)}
+          >
+            <ZoomIn size={13} />
+          </button>
+
+          {/* Divider */}
+          <span style={{ width: 1, height: 18, background: 'rgba(160,195,240,0.3)', margin: '0 4px' }} />
+
+          {/* Select mode toggle */}
+          <button
+            type="button"
+            onClick={toggleSelectMode}
+            aria-label={selectMode ? 'Exit selection mode' : 'Enter selection mode'}
+            title={selectMode ? 'Exit selection mode (click again to dismiss)' : 'Select text mode — highlight code then act on it'}
+            style={{
+              ...codeToolBtnStyle(false),
+              gap: 6,
+              background: selectMode ? `${ACCENT}18` : 'rgba(0,0,0,0.03)',
+              borderColor: selectMode ? ACCENT : 'rgba(160,195,240,0.35)',
+              color: selectMode ? ACCENT : 'var(--de-text)',
+              fontWeight: selectMode ? 700 : 500,
+              paddingRight: 10,
+            }}
+          >
+            <MousePointer2 size={13} />
+            <span style={{ fontSize: 11 }}>
+              {selectMode ? 'Selecting…' : 'Select'}
+            </span>
+            {selectMode && (
+              <span
+                style={{
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: ACCENT, flexShrink: 0,
+                  animation: 'de-pulse 1.2s ease-in-out infinite',
+                }}
+              />
+            )}
+          </button>
+
+          {/* Dr. Eams correctness result — inline hint */}
+          {drEamsCheckResult && (
+            <div
+              style={{
+                flex: 1, minWidth: 0,
+                padding: '4px 10px', borderRadius: 8,
+                background: drEamsCheckResult.startsWith('✅')
+                  ? 'rgba(34,197,94,0.08)'
+                  : 'rgba(245,158,11,0.08)',
+                border: drEamsCheckResult.startsWith('✅')
+                  ? '1px solid rgba(34,197,94,0.25)'
+                  : '1px solid rgba(245,158,11,0.25)',
+                fontSize: 11, color: 'var(--de-text)',
+                whiteSpace: 'pre-wrap', lineHeight: 1.5,
+                display: 'flex', alignItems: 'flex-start', gap: 6,
+              }}
+            >
+              <span style={{ flex: 1 }}>{drEamsCheckResult}</span>
+              <button
+                type="button"
+                onClick={() => setDrEamsCheckResult('')}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--de-text-dim)', padding: 0, fontSize: 12, lineHeight: 1,
+                  flexShrink: 0,
+                }}
+                aria-label="Dismiss Dr. Eams result"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ── Smart Select bar (shown when select mode is ON) ── */}
+        {selectMode && (
+          <div
+            style={{
+              display: 'flex', flexWrap: 'wrap', gap: 5,
+              marginBottom: 8, padding: '7px 10px',
+              borderRadius: 10,
+              background: `${ACCENT}0a`,
+              border: `1px dashed ${ACCENT}40`,
+              alignItems: 'center',
+            }}
+          >
+            <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginRight: 2, whiteSpace: 'nowrap' }}>
+              Smart Select:
+            </span>
+
+            {/* Select All */}
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              title="Select all text in the active code cell"
+              aria-label="Select all"
+              style={smartSelBtnStyle}
+            >
+              ⬛ All
+            </button>
+
+            {/* Select Line */}
+            <button
+              type="button"
+              onClick={handleSelectLine}
+              title="Select the full line at the current cursor"
+              aria-label="Select line"
+              style={smartSelBtnStyle}
+            >
+              ☰ Line
+            </button>
+
+            {/* Select Block */}
+            <button
+              type="button"
+              onClick={handleSelectBlock}
+              title="Select the nearest enclosing { } block"
+              aria-label="Select block"
+              style={smartSelBtnStyle}
+            >
+              {'{ }'} Block
+            </button>
+
+            {/* Divider */}
+            <span style={{ width: 1, height: 16, background: `${ACCENT}30`, margin: '0 2px' }} />
+
+            {/* Select Variable in Cell */}
+            <button
+              type="button"
+              onClick={() => handleSelectVariable('cell')}
+              title="Find all occurrences of the selected word in this cell"
+              aria-label="Select variable in cell"
+              style={{ ...smartSelBtnStyle, color: ACCENT, borderColor: `${ACCENT}45` }}
+            >
+              $var in cell
+            </button>
+
+            {/* Select Variable in Codebase */}
+            <button
+              type="button"
+              onClick={() => handleSelectVariable('codebase')}
+              title="Find all occurrences of the selected word across all cells"
+              aria-label="Select variable across codebase"
+              style={{ ...smartSelBtnStyle, color: '#a78bfa', borderColor: 'rgba(167,139,250,0.4)' }}
+            >
+              $var in codebase
+            </button>
+
+            {/* Hint when no cell focused */}
+            {!lastFocusedRef.current && (
+              <span style={{ fontSize: 10, color: 'var(--de-text-dim)', marginLeft: 4 }}>
+                click inside a cell first
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* ── Find & Replace panel (appears after Select Variable) ── */}
+        {findResults && findTarget && (
+          <div
+            style={{
+              marginBottom: 10, padding: '10px 14px',
+              borderRadius: 12,
+              background: 'rgba(59,125,216,0.06)',
+              border: `1px solid ${ACCENT}30`,
+              display: 'flex', flexDirection: 'column', gap: 8,
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT }}>
+                Find &amp; Replace
+              </span>
+              <span
+                style={{
+                  fontSize: 10, padding: '1px 7px', borderRadius: 999,
+                  background: findResults.total > 0 ? `${ACCENT}15` : 'rgba(248,113,113,0.12)',
+                  color: findResults.total > 0 ? ACCENT : '#f87171',
+                  border: `1px solid ${findResults.total > 0 ? `${ACCENT}30` : 'rgba(248,113,113,0.3)'}`,
+                  fontWeight: 700,
+                }}
+              >
+                {findResults.total} occurrence{findResults.total !== 1 ? 's' : ''} of &ldquo;{findTarget}&rdquo;
+                {' '}{findResults.scope === 'codebase' ? 'across all cells' : 'in this cell'}
+              </span>
+              <button
+                type="button"
+                onClick={() => { setFindResults(null); setFindTarget(''); setReplaceWith(''); }}
+                aria-label="Close Find & Replace"
+                style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--de-text-dim)', fontSize: 13, lineHeight: 1 }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Replace input row */}
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 0,
+                  borderRadius: 8, border: `1px solid ${ACCENT}25`,
+                  background: 'rgba(255,255,255,0.7)', overflow: 'hidden', flex: 1, minWidth: 180,
+                }}
+              >
+                <span style={{ padding: '0 8px', fontSize: 11, color: 'var(--de-text-dim)', whiteSpace: 'nowrap', borderRight: `1px solid ${ACCENT}20` }}>
+                  Replace with
+                </span>
+                <input
+                  type="text"
+                  value={replaceWith}
+                  onChange={e => setReplaceWith(e.target.value)}
+                  placeholder="new name…"
+                  aria-label="Replace with"
+                  style={{
+                    flex: 1, padding: '6px 10px', border: 'none', outline: 'none',
+                    background: 'transparent', fontSize: 12,
+                    fontFamily: '"Fira Code","JetBrains Mono",monospace',
+                    color: 'var(--de-heading)',
+                  }}
+                />
+              </div>
+
+              {findResults.scope === 'cell' && (
+                <button
+                  type="button"
+                  onClick={() => handleReplaceAll('cell')}
+                  disabled={!replaceWith}
+                  aria-label="Replace in this cell"
+                  style={{
+                    padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                    background: replaceWith ? `${ACCENT}18` : 'rgba(160,195,240,0.1)',
+                    color: replaceWith ? ACCENT : 'var(--de-text-dim)',
+                    border: `1px solid ${replaceWith ? `${ACCENT}35` : 'rgba(160,195,240,0.2)'}`,
+                    cursor: replaceWith ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.15s', whiteSpace: 'nowrap',
+                  }}
+                >
+                  Replace in cell
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => handleReplaceAll('codebase')}
+                disabled={!replaceWith}
+                aria-label="Replace in all cells"
+                style={{
+                  padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                  background: replaceWith ? 'rgba(167,139,250,0.15)' : 'rgba(160,195,240,0.1)',
+                  color: replaceWith ? '#a78bfa' : 'var(--de-text-dim)',
+                  border: `1px solid ${replaceWith ? 'rgba(167,139,250,0.35)' : 'rgba(160,195,240,0.2)'}`,
+                  cursor: replaceWith ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.15s', whiteSpace: 'nowrap',
+                }}
+              >
+                Replace in codebase
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ════════════════════════════════════════
             TAB: Live Notebook
@@ -648,6 +1384,8 @@ export default function CodeEngin({ onBack }: Props) {
                     <textarea
                       value={cell.code}
                       onChange={e => updateCellCode(cell.id, e.target.value)}
+                      onFocus={e => { lastFocusedRef.current = e.currentTarget; }}
+                      data-cell-id={cell.id}
                       rows={Math.max(3, cell.code.split('\n').length + 1)}
                       spellCheck={false}
                       aria-label={`Cell ${cellIndex + 1} code`}
@@ -656,7 +1394,7 @@ export default function CodeEngin({ onBack }: Props) {
                         background: CELL_BG,
                         color: CODE_FG,
                         fontFamily: '"Fira Code", "Cascadia Code", "JetBrains Mono", ui-monospace, monospace',
-                        fontSize: 13,
+                        fontSize: ZOOM_BASE_FONT * codeZoom,
                         lineHeight: 1.6,
                         padding: '10px 12px',
                         borderRadius: 8,
@@ -667,6 +1405,9 @@ export default function CodeEngin({ onBack }: Props) {
                         whiteSpace: 'pre',
                         overflowWrap: 'normal',
                         overflowX: 'auto',
+                        userSelect: selectMode ? 'text' : undefined,
+                        cursor: selectMode ? 'text' : undefined,
+                        transition: 'font-size 0.12s',
                       }}
                     />
 
@@ -697,10 +1438,11 @@ export default function CodeEngin({ onBack }: Props) {
                           style={{
                             margin: 0,
                             fontFamily: '"Fira Code", "Cascadia Code", ui-monospace, monospace',
-                            fontSize: 12,
+                            fontSize: Math.round(12 * codeZoom),
                             color: cell.status === 'error' ? OUT_ERR : OUT_OK,
                             whiteSpace: 'pre-wrap',
                             wordBreak: 'break-word',
+                            transition: 'font-size 0.12s',
                           }}
                         >
                           {cell.output}
@@ -1203,51 +1945,476 @@ export default function CodeEngin({ onBack }: Props) {
           </>
         )}
 
-        {/* ── AI Code Assist ── */}
+        {/* ══════════════════════════════════════════════════════════════
+            AI Code Assist — Trust Layer
+            Problem: AI says "rename X" but mobile users can't reliably
+            select the right code.  Solution: scope picker → preview → apply.
+            ══════════════════════════════════════════════════════════════ */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
-            <Code2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <ShieldCheck className="w-4 h-4" style={{ color: ACCENT }} />
             <span className="de-widget-title ml-2">AI Code Assist</span>
-          </div>
-          <div className="de-widget-body">
-            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-              <input
-                type="text"
-                placeholder="Ask Dr. Eams a code question…"
-                value={assistPrompt}
-                onChange={e => setAssistPrompt(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleAiAssist()}
-                aria-label="Code question for AI"
-                style={{
-                  flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
-                  border: `1px solid ${ACCENT}30`, background: 'rgba(255,255,255,0.7)',
-                  color: 'var(--de-heading)', outline: 'none',
-                }}
-              />
+            {/* Undo button — always visible when history exists */}
+            {undoStack.length > 0 && (
               <button
                 type="button"
-                onClick={handleAiAssist}
-                disabled={assistLoading || !assistPrompt.trim()}
-                className="de-btn de-btn-primary"
-                aria-label="Ask Dr. Eams for code help"
-                style={{ opacity: assistLoading || !assistPrompt.trim() ? 0.6 : 1, transition: 'all 0.15s' }}
+                onClick={handleTrustUndo}
+                title={undoStack[0]?.description ?? 'Undo last edit'}
+                aria-label="Undo last AI edit"
+                style={{
+                  marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '3px 10px', borderRadius: 7, fontSize: 11, fontWeight: 700,
+                  background: 'rgba(245,158,11,0.1)', color: '#f59e0b',
+                  border: '1px solid rgba(245,158,11,0.3)', cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
               >
-                {assistLoading ? '…' : 'Ask'}
+                <Undo2 size={12} />
+                Undo
               </button>
+            )}
+          </div>
+
+          <div className="de-widget-body" style={{ padding: '12px 14px' }}>
+
+            {/* ── STEP 1: Instruction input ── */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5, letterSpacing: '0.06em' }}>
+                STEP 1 — Tell Dr. Eams what to change
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  placeholder='e.g. "rename score to userScore everywhere"'
+                  value={assistPrompt}
+                  onChange={e => setAssistPrompt(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAiAssist()}
+                  aria-label="AI instruction"
+                  style={{
+                    flex: 1, padding: '8px 12px', borderRadius: 9, fontSize: 12,
+                    border: `1px solid ${ACCENT}30`, background: 'rgba(255,255,255,0.7)',
+                    color: 'var(--de-heading)', outline: 'none',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleAiAssist}
+                  disabled={assistLoading || !assistPrompt.trim()}
+                  className="de-btn de-btn-primary"
+                  aria-label="Ask Dr. Eams"
+                  style={{ opacity: assistLoading || !assistPrompt.trim() ? 0.6 : 1, transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                >
+                  {assistLoading ? <Loader2 size={14} className="animate-spin" /> : 'Ask'}
+                </button>
+              </div>
             </div>
-            {assistResponse && (
+
+            {/* ── Trust Layer: steps 2–5 (shown when suggestion exists) ── */}
+            {trustSuggestion && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+                {/* Suggestion card */}
+                <div
+                  style={{
+                    padding: '10px 12px', borderRadius: 10,
+                    background: `${ACCENT}08`, border: `1px solid ${ACCENT}22`,
+                  }}
+                >
+                  <div style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginBottom: 4, letterSpacing: '0.06em' }}>
+                    DR. EAMS SUGGESTS
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--de-heading)', lineHeight: 1.5 }}>
+                    {trustSuggestion.instruction}
+                  </div>
+                  {trustSuggestion.target && (
+                    <div style={{ marginTop: 6, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Target:</span>
+                      <code style={{ fontSize: 11, background: 'rgba(0,0,0,0.08)', padding: '1px 6px', borderRadius: 4, color: '#f87171', fontFamily: 'monospace' }}>
+                        {trustSuggestion.target}
+                      </code>
+                      <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>→</span>
+                      <code style={{ fontSize: 11, background: 'rgba(0,0,0,0.08)', padding: '1px 6px', borderRadius: 4, color: OUT_OK, fontFamily: 'monospace' }}>
+                        {trustReplacement || '(empty)'}
+                      </code>
+                    </div>
+                  )}
+                  {/* Low-confidence warning — shown when Dr. Eams couldn't reliably parse the instruction */}
+                  {trustSuggestion.confidence === 'low' && (
+                    <div
+                      style={{
+                        marginTop: 8, padding: '6px 10px', borderRadius: 8, fontSize: 10,
+                        background: 'rgba(245,158,11,0.08)', color: '#d97706',
+                        border: '1px solid rgba(245,158,11,0.25)',
+                        display: 'flex', alignItems: 'flex-start', gap: 6, lineHeight: 1.45,
+                      }}
+                    >
+                      <AlertTriangle size={11} style={{ flexShrink: 0, marginTop: 1 }} />
+                      <span>
+                        Dr. Eams couldn&apos;t fully parse this instruction.
+                        Set the target and scope manually below before applying.
+                      </span>
+                    </div>
+                  )}
+                  {/* Medium-confidence notice */}
+                  {trustSuggestion.confidence === 'medium' && (
+                    <div
+                      style={{
+                        marginTop: 8, padding: '5px 10px', borderRadius: 8, fontSize: 10,
+                        background: 'rgba(245,158,11,0.05)', color: '#b45309',
+                        border: '1px solid rgba(245,158,11,0.18)',
+                        display: 'flex', alignItems: 'flex-start', gap: 6, lineHeight: 1.45,
+                      }}
+                    >
+                      <AlertTriangle size={11} style={{ flexShrink: 0, marginTop: 1 }} />
+                      <span>Verify the target word and scope are correct before applying.</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── STEP 2: Scope picker ── */}
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 6, letterSpacing: '0.06em' }}>
+                    STEP 2 — Choose what to target
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {SCOPE_ORDER.map(scope => {
+                      const risk  = SCOPE_RISK[scope];
+                      const active = scope === trustScope;
+                      const riskColor = risk === 'low' ? '#22c55e'
+                        : risk === 'medium' ? '#f59e0b'
+                        : risk === 'high'   ? '#f87171'
+                        : '#c084fc'; // critical — purple
+                      return (
+                        <button
+                          key={scope}
+                          type="button"
+                          onClick={() => { setTrustScope(scope); setTrustPreview(null); }}
+                          aria-label={`Select scope: ${SCOPE_LABEL[scope]}`}
+                          aria-pressed={active}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '8px 12px', borderRadius: 9, cursor: 'pointer',
+                            background: active ? `${ACCENT}12` : 'rgba(255,255,255,0.5)',
+                            border: active ? `1.5px solid ${ACCENT}` : '1px solid rgba(160,195,240,0.22)',
+                            textAlign: 'left', transition: 'all 0.12s',
+                          }}
+                        >
+                          {/* Risk indicator dot */}
+                          <span
+                            style={{
+                              width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                              background: riskColor,
+                              opacity: active ? 1 : 0.45,
+                            }}
+                          />
+                          <span style={{ flex: 1 }}>
+                            <span style={{ fontSize: 12, fontWeight: active ? 700 : 500, color: active ? ACCENT : 'var(--de-heading)' }}>
+                              {SCOPE_LABEL[scope]}
+                            </span>
+                            <span style={{ display: 'block', fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1, lineHeight: 1.4 }}>
+                              {SCOPE_DESCRIPTION[scope]}
+                            </span>
+                          </span>
+                          {/* Suggested badge */}
+                          {scope === trustSuggestion.suggestedScope && (
+                            <span
+                              style={{
+                                fontSize: 9, fontWeight: 700, padding: '1px 6px',
+                                borderRadius: 999, flexShrink: 0,
+                                background: `${ACCENT}15`, color: ACCENT,
+                                border: `1px solid ${ACCENT}30`,
+                              }}
+                            >
+                              suggested
+                            </span>
+                          )}
+                          {/* Risk label */}
+                          {CONFIRMATION_REQUIRED.has(risk) && (
+                            <AlertTriangle
+                              size={12}
+                              style={{ color: riskColor, flexShrink: 0, opacity: active ? 1 : 0.5 }}
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Replace-with field (shown for word-based scopes) ── */}
+                {(trustScope === 'word' || trustScope === 'word-in-file' || trustScope === 'word-in-codebase') && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5, letterSpacing: '0.06em' }}>
+                      REPLACE WITH
+                    </div>
+                    <input
+                      type="text"
+                      value={trustReplacement}
+                      onChange={e => { setTrustReplacement(e.target.value); setTrustPreview(null); }}
+                      placeholder="New name or value…"
+                      aria-label="Replace with"
+                      style={{
+                        width: '100%', padding: '7px 12px', borderRadius: 9, fontSize: 12,
+                        border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)',
+                        color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box',
+                        fontFamily: '"Fira Code","JetBrains Mono",monospace',
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* ── STEP 3: Preview button ── */}
+                <button
+                  type="button"
+                  onClick={handleTrustPreview}
+                  aria-label="Preview what will be changed"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    padding: '9px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    background: `${ACCENT}12`, color: ACCENT,
+                    border: `1px solid ${ACCENT}35`, transition: 'all 0.15s',
+                  }}
+                >
+                  👁 Preview Change
+                </button>
+
+                {/* ── Preview panel (STEP 3 result) ── */}
+                {trustPreview && (
+                  <div
+                    style={{
+                      borderRadius: 12, overflow: 'hidden',
+                      border: trustPreview.noMatches
+                        ? '1px solid rgba(248,113,113,0.3)'
+                        : `1px solid ${ACCENT}25`,
+                    }}
+                  >
+                    {/* Preview header — match count + scope + risk */}
+                    <div
+                      style={{
+                        padding: '8px 14px', display: 'flex', alignItems: 'center',
+                        gap: 8, flexWrap: 'wrap',
+                        background: trustPreview.noMatches
+                          ? 'rgba(248,113,113,0.07)'
+                          : `${ACCENT}07`,
+                      }}
+                    >
+                      <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT }}>
+                        STEP 3 — What will change
+                      </span>
+                      {!trustPreview.noMatches && (
+                        <>
+                          <span
+                            style={{
+                              fontSize: 10, padding: '2px 8px', borderRadius: 999, fontWeight: 700,
+                              background: `${ACCENT}15`, color: ACCENT, border: `1px solid ${ACCENT}30`,
+                            }}
+                          >
+                            {trustPreview.matchCount} match{trustPreview.matchCount !== 1 ? 'es' : ''}
+                          </span>
+                          {trustPreview.affectedCellCount > 1 && (
+                            <span
+                              style={{
+                                fontSize: 10, padding: '2px 8px', borderRadius: 999, fontWeight: 700,
+                                background: 'rgba(167,139,250,0.12)', color: '#a78bfa',
+                                border: '1px solid rgba(167,139,250,0.3)',
+                              }}
+                            >
+                              {trustPreview.affectedCellCount} cells affected
+                            </span>
+                          )}
+                          {/* Risk badge */}
+                          {(() => {
+                            const c = trustPreview.risk === 'low'    ? '#22c55e'
+                              : trustPreview.risk === 'medium' ? '#f59e0b'
+                              : trustPreview.risk === 'high'   ? '#f87171'
+                              : '#c084fc';
+                            return (
+                              <span
+                                style={{
+                                  fontSize: 10, padding: '2px 8px', borderRadius: 999, fontWeight: 700, marginLeft: 'auto',
+                                  background: `${c}14`, color: c, border: `1px solid ${c}35`,
+                                  display: 'flex', alignItems: 'center', gap: 4,
+                                }}
+                              >
+                                {CONFIRMATION_REQUIRED.has(trustPreview.risk) && <AlertTriangle size={10} />}
+                                {trustPreview.risk.toUpperCase()} RISK
+                              </span>
+                            );
+                          })()}
+                        </>
+                      )}
+                    </div>
+
+                    {/* No-match state */}
+                    {trustPreview.noMatches ? (
+                      <div style={{ padding: '10px 14px', fontSize: 11, color: '#f87171' }}>
+                        ⚠ No matches found for &ldquo;{trustPreview.target}&rdquo; with scope &ldquo;{trustPreview.scopeLabel}&rdquo;.
+                        Try a different scope or check the word is in the active cell.
+                      </div>
+                    ) : (
+                      <>
+                        {/* Diff preview */}
+                        {trustPreview.diffLines.length > 0 && (
+                          <div
+                            style={{
+                              overflowX: 'auto', background: CELL_BG,
+                              fontFamily: '"Fira Code","JetBrains Mono",monospace',
+                              fontSize: 11, lineHeight: 1.6,
+                              maxHeight: 220, overflowY: 'auto',
+                            }}
+                          >
+                            {trustPreview.diffLines.map((line, i) => (
+                              <div
+                                key={i}
+                                style={{
+                                  padding: '0 10px',
+                                  background: line.type === 'removed'
+                                    ? 'rgba(248,113,113,0.12)'
+                                    : line.type === 'added'
+                                    ? 'rgba(74,222,128,0.10)'
+                                    : 'transparent',
+                                  color: line.type === 'removed' ? '#f87171'
+                                    : line.type === 'added'   ? OUT_OK
+                                    : 'rgba(226,232,240,0.5)',
+                                  whiteSpace: 'pre',
+                                }}
+                              >
+                                {line.type === 'removed' ? '−' : line.type === 'added' ? '+' : ' '}
+                                {' '}{line.content}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Match list (up to 5) */}
+                        {trustPreview.matches.slice(0, 5).map((m, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              padding: '5px 14px', fontSize: 10, borderTop: '1px solid rgba(160,195,240,0.1)',
+                              display: 'flex', gap: 6, alignItems: 'center', color: 'var(--de-text-dim)',
+                            }}
+                          >
+                            <span style={{ color: ACCENT, fontWeight: 700, fontFamily: 'monospace' }}>
+                              Line {m.lineNo}
+                            </span>
+                            <span style={{ fontFamily: 'monospace', color: '#f87171', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {m.matched.slice(0, 60)}
+                            </span>
+                          </div>
+                        ))}
+                        {trustPreview.matchCount > 5 && (
+                          <div style={{ padding: '4px 14px', fontSize: 10, color: 'var(--de-text-dim)', borderTop: '1px solid rgba(160,195,240,0.1)' }}>
+                            … and {trustPreview.matchCount - 5} more
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* ── Confirmation dialog (for high/critical risk) ── */}
+                {trustConfirming && trustPreview && !trustPreview.noMatches && (
+                  <div
+                    style={{
+                      padding: '12px 14px', borderRadius: 12,
+                      background: 'rgba(248,113,113,0.07)',
+                      border: '1.5px solid rgba(248,113,113,0.35)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                      <AlertTriangle size={14} style={{ color: '#f87171', flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#f87171' }}>
+                        {trustPreview.risk === 'critical' ? 'This will change every occurrence across all open notebook cells.' : 'This will change the entire file.'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--de-text)', marginBottom: 10, lineHeight: 1.5 }}>
+                      {trustPreview.matchCount} occurrence{trustPreview.matchCount !== 1 ? 's' : ''} across{' '}
+                      {trustPreview.affectedCellCount} cell{trustPreview.affectedCellCount !== 1 ? 's' : ''} will be modified.
+                      Undo is available immediately after.
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        type="button"
+                        onClick={handleTrustApply}
+                        aria-label="Confirm and apply the edit"
+                        style={{
+                          flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                          background: 'rgba(248,113,113,0.15)', color: '#f87171',
+                          border: '1px solid rgba(248,113,113,0.35)', cursor: 'pointer',
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        Yes, Apply
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleTrustReject}
+                        aria-label="Cancel the edit"
+                        style={{
+                          flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                          background: 'rgba(160,195,240,0.1)', color: 'var(--de-text)',
+                          border: '1px solid rgba(160,195,240,0.22)', cursor: 'pointer',
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── STEP 4 / 5: Apply + Reject buttons (low/medium risk) ── */}
+                {trustPreview && !trustPreview.noMatches && !trustConfirming && (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={handleTrustApply}
+                      aria-label="Apply the change"
+                      style={{
+                        flex: 2, padding: '9px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+                        background: `${ACCENT}18`, color: ACCENT,
+                        border: `1px solid ${ACCENT}35`, cursor: 'pointer',
+                        transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      }}
+                    >
+                      <CheckCircle size={14} />
+                      Apply Change
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleTrustReject}
+                      aria-label="Reject the change"
+                      style={{
+                        flex: 1, padding: '9px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+                        background: 'rgba(248,113,113,0.08)', color: '#f87171',
+                        border: '1px solid rgba(248,113,113,0.25)', cursor: 'pointer',
+                        transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      }}
+                    >
+                      <X size={14} />
+                      Reject
+                    </button>
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            {/* Fallback text response (for non-scoped queries) */}
+            {assistResponse && !trustSuggestion && (
               <pre
                 style={{
                   padding: '10px 12px', borderRadius: 10, margin: 0,
                   background: CELL_BG, color: OUT_OK,
                   fontSize: 11, fontFamily: 'monospace', overflowX: 'auto',
-                  border: `1px solid ${ACCENT}20`,
-                  whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                  border: `1px solid ${ACCENT}20`, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                 }}
               >
                 {assistResponse}
               </pre>
             )}
+
           </div>
         </div>
 
@@ -1547,7 +2714,68 @@ export default function CodeEngin({ onBack }: Props) {
           </div>
         </div>
 
+        {/* ════════════════════════════════════════
+            TAB: Diff Viewer
+            ════════════════════════════════════════ */}
+        {activeTab === 'diff' && (
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <span className="de-widget-title">Diff Viewer</span>
+              <span
+                style={{
+                  fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999,
+                  background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30`,
+                }}
+              >
+                full-file mode
+              </span>
+            </div>
+            <div className="de-widget-body" style={{ padding: '12px 14px' }}>
+              <DiffViewer defaultFullFile />
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
+
+// ─── Module-level style helpers ───────────────────────────────────────────────
+
+function codeToolBtnStyle(disabled: boolean): CSSProperties {
+  return {
+    display: 'flex', alignItems: 'center', gap: 4,
+    padding: '4px 8px', borderRadius: 7,
+    border: '1px solid rgba(160,195,240,0.35)',
+    background: 'rgba(0,0,0,0.03)',
+    color: disabled ? 'rgba(100,116,139,0.35)' : 'var(--de-text)',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    fontSize: 12, lineHeight: 1,
+    transition: 'background 0.12s',
+    flexShrink: 0,
+  };
+}
+
+const selBtnStyle: CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: 5,
+  padding: '5px 9px', borderRadius: 8,
+  background: 'rgba(255,255,255,0.06)',
+  border: '1px solid rgba(255,255,255,0.10)',
+  color: '#e2e8f0',
+  cursor: 'pointer', fontSize: 11, fontWeight: 600,
+  transition: 'background 0.12s',
+  whiteSpace: 'nowrap',
+};
+
+const smartSelBtnStyle: CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 4,
+  padding: '4px 10px', borderRadius: 7,
+  border: '1px solid rgba(160,195,240,0.30)',
+  background: 'rgba(255,255,255,0.55)',
+  color: 'var(--de-text)',
+  cursor: 'pointer', fontSize: 11, fontWeight: 600,
+  transition: 'background 0.12s',
+  whiteSpace: 'nowrap',
+};
+
