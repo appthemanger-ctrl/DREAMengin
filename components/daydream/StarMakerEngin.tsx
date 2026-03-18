@@ -121,6 +121,14 @@ const NOTE_FREQUENCIES: Record<string, number> = {
   B: 493.88,
 };
 
+const PREVIEW_VOICE_FREQUENCIES = {
+  kick: 55,      // low fundamental thump
+  snare: 185,    // mid-range body
+  hiHat: 3200,   // bright tick / harmonic sheen
+} as const;
+
+const STEP_DIVISION_PER_BEAT = 2; // 8 steps across 4 beats = eighth-note transport
+
 const MUSICAL_KEYS = [
   'C', 'C#', 'D', 'D#', 'E', 'F',
   'F#', 'G', 'G#', 'A', 'A#', 'B',
@@ -151,6 +159,30 @@ function createEmptyBeatGrid(): BeatGrid {
 
 function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
+}
+
+function getDefaultChord(musicalKey: MusicalKey, keyMode: 'major' | 'minor'): string {
+  return `${musicalKey}${keyMode === 'minor' ? 'min' : 'maj'}`;
+}
+
+function getQualityModeGainMultiplier(qualityMode: PlaybackQualityMode): number {
+  return qualityMode === 'studio' ? 0.12 : qualityMode === 'streaming' ? 0.095 : 0.08;
+}
+
+function getQualityModeVisualBoost(qualityMode: PlaybackQualityMode): number {
+  return qualityMode === 'studio' ? 0.12 : qualityMode === 'streaming' ? 0.06 : 0.02;
+}
+
+function getChordRootFrequency(
+  chordProgression: string[],
+  stepIndex: number,
+  musicalKey: MusicalKey,
+  keyMode: 'major' | 'minor',
+  pitch: number,
+): number {
+  const rootChord = chordProgression[Math.floor(stepIndex / 2) % chordProgression.length] ?? getDefaultChord(musicalKey, keyMode);
+  const rootNote = rootChord.match(/^[A-G]#?/)?.[0] ?? musicalKey;
+  return (NOTE_FREQUENCIES[rootNote] ?? NOTE_FREQUENCIES[musicalKey] ?? 261.63) * Math.pow(2, pitch / 12);
 }
 
 // ─── Shared style object (BPM stepper buttons) ─────────────────────────────────
@@ -305,33 +337,6 @@ export default function StarMakerEngin({ onBack }: Props) {
     }, 800);
   }, [stemReady]);
 
-  useEffect(() => {
-    if (playbackActive) return;
-    setWaveformBars(buildPlaybackBars(playbackStep));
-  }, [buildPlaybackBars, playbackActive, playbackStep]);
-
-  useEffect(() => {
-    if (!playbackActive) return;
-
-    const stepMs = Math.max(100, (60 / bpm) * 500);
-    const timer = setInterval(() => {
-      setPlaybackStep(prev => {
-        const next = (prev + 1) % BEAT_STEPS;
-        playPreviewStep(next);
-        return next;
-      });
-    }, stepMs);
-
-    return () => clearInterval(timer);
-  }, [bpm, playbackActive, playPreviewStep]);
-
-  useEffect(() => () => {
-    if (audioContextRef.current) {
-      void audioContextRef.current.close().catch(() => undefined);
-      audioContextRef.current = null;
-    }
-  }, []);
-
   // ── Waveform Visualizer state ──
   const [waveformBars, setWaveformBars] = useState<number[]>(() =>
     Array.from({ length: 32 }, () => 0.2 + Math.random() * 0.8)
@@ -390,7 +395,7 @@ export default function StarMakerEngin({ onBack }: Props) {
         mixer.fx,
       ][channelIndex] / 100;
       const beatActive = beatGrid[channelIndex][stepIndex];
-      const qualityBoost = qualityMode === 'studio' ? 0.12 : qualityMode === 'streaming' ? 0.06 : 0.02;
+      const qualityBoost = getQualityModeVisualBoost(qualityMode);
       const fxBoost = activeEffects.has('Reverb') || activeEffects.has('Delay') ? 0.05 : 0;
       const base = beatActive ? 0.5 + channelLevel * 0.35 : 0.12 + channelLevel * 0.08;
       return clamp(base + qualityBoost + fxBoost, 0.08, 1);
@@ -419,22 +424,20 @@ export default function StarMakerEngin({ onBack }: Props) {
     if (!ctx) return;
 
     const now = ctx.currentTime;
-    const rootChord = chordProgression[Math.floor(stepIndex / 2) % chordProgression.length] ?? `${musicalKey}${keyMode === 'minor' ? 'min' : 'maj'}`;
-    const rootNote = rootChord.match(/^[A-G]#?/)?.[0] ?? musicalKey;
-    const synthBase = (NOTE_FREQUENCIES[rootNote] ?? NOTE_FREQUENCIES[musicalKey] ?? 261.63) * Math.pow(2, pitch / 12);
+    const synthBase = getChordRootFrequency(chordProgression, stepIndex, musicalKey, keyMode, pitch);
     const mixLevels = [mixer.vocals, mixer.instruments, mixer.bass, mixer.fx];
     const oscillator = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
     const gainNode = ctx.createGain();
     const compressor = ctx.createDynamicsCompressor();
     const stereoPanner = typeof ctx.createStereoPanner === 'function' ? ctx.createStereoPanner() : null;
-    const channelGain = Math.max(0.025, mixLevels[channelIndex] / 100 * (qualityMode === 'studio' ? 0.12 : qualityMode === 'streaming' ? 0.095 : 0.08));
+    const channelGain = Math.max(0.025, mixLevels[channelIndex] / 100 * getQualityModeGainMultiplier(qualityMode));
 
     oscillator.type = channelIndex === 0 ? 'sine' : channelIndex === 1 ? 'triangle' : channelIndex === 2 ? 'square' : 'sawtooth';
     oscillator.frequency.setValueAtTime(
-      channelIndex === 0 ? 55 :
-      channelIndex === 1 ? 185 :
-      channelIndex === 2 ? 3200 :
+      channelIndex === 0 ? PREVIEW_VOICE_FREQUENCIES.kick :
+      channelIndex === 1 ? PREVIEW_VOICE_FREQUENCIES.snare :
+      channelIndex === 2 ? PREVIEW_VOICE_FREQUENCIES.hiHat :
       synthBase,
       now,
     );
@@ -505,6 +508,34 @@ export default function StarMakerEngin({ onBack }: Props) {
     });
     setWaveformBars(buildPlaybackBars(stepIndex));
   }, [beatGrid, buildPlaybackBars, triggerPreviewVoice]);
+
+  const visibleWaveformBars = useMemo(() => (
+    playbackActive || waveformRecording
+      ? waveformBars
+      : buildPlaybackBars(playbackStep)
+  ), [buildPlaybackBars, playbackActive, playbackStep, waveformBars, waveformRecording]);
+
+  useEffect(() => {
+    if (!playbackActive) return;
+
+    const stepMs = Math.max(100, (60 / bpm) * (1000 / STEP_DIVISION_PER_BEAT));
+    const timer = setInterval(() => {
+      setPlaybackStep(prev => {
+        const next = (prev + 1) % BEAT_STEPS;
+        playPreviewStep(next);
+        return next;
+      });
+    }, stepMs);
+
+    return () => clearInterval(timer);
+  }, [bpm, playbackActive, playPreviewStep]);
+
+  useEffect(() => () => {
+    if (audioContextRef.current) {
+      void audioContextRef.current.close().catch(() => undefined);
+      audioContextRef.current = null;
+    }
+  }, []);
 
   // ── Waveform toggle handler ──
   function handleWaveformToggle() {
@@ -825,7 +856,7 @@ export default function StarMakerEngin({ onBack }: Props) {
 
           {/* ── Waveform Visualizer ── */}
           <WaveformVisualizerWidget
-            bars={waveformBars}
+            bars={visibleWaveformBars}
             recording={waveformRecording}
             onToggle={handleWaveformToggle}
           />
@@ -1617,6 +1648,9 @@ interface ReleaseCommandWidgetProps {
   strategy: ReturnType<typeof buildReleaseStrategy>;
 }
 
+const DEFAULT_STRENGTH_MESSAGE = 'Build momentum with stems, mastering, and playlists.';
+const DEFAULT_BLOCKER_MESSAGE = 'No blockers — move into launch mode.';
+
 function ReleaseCommandWidget({ strategy }: ReleaseCommandWidgetProps) {
   return (
     <div className="de-widget">
@@ -1667,7 +1701,7 @@ function ReleaseCommandWidget({ strategy }: ReleaseCommandWidgetProps) {
               Strengths
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
-              {(strategy.strengths.length > 0 ? strategy.strengths : ['Build momentum with stems, mastering, and playlists.']).map(item => (
+              {(strategy.strengths.length > 0 ? strategy.strengths : [DEFAULT_STRENGTH_MESSAGE]).map(item => (
                 <div key={item} style={{ fontSize: 11, color: 'var(--de-heading)' }}>• {item}</div>
               ))}
             </div>
@@ -1685,7 +1719,7 @@ function ReleaseCommandWidget({ strategy }: ReleaseCommandWidgetProps) {
               Next fixes
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
-              {(strategy.blockers.length > 0 ? strategy.blockers : ['No blockers — move into launch mode.']).map(item => (
+              {(strategy.blockers.length > 0 ? strategy.blockers : [DEFAULT_BLOCKER_MESSAGE]).map(item => (
                 <div key={item} style={{ fontSize: 11, color: 'var(--de-heading)' }}>• {item}</div>
               ))}
             </div>

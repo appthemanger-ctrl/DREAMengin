@@ -78,9 +78,14 @@ export interface MelodySuggestionInput {
 const NOTE_ORDER = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
 const MAJOR_INTERVALS = [0, 2, 4, 5, 7, 9, 11] as const;
 const MINOR_INTERVALS = [0, 2, 3, 5, 7, 8, 10] as const;
+const STEM_EXPORT_COUNT = 4;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
+}
+
+function pluralize(count: number, singular: string): string {
+  return count === 1 ? singular : `${singular}s`;
 }
 
 function toDb(value: number): number {
@@ -159,10 +164,11 @@ export function summarizePlaybackProfile(input: PlaybackProfileInput): PlaybackP
 
 export function buildReleaseStrategy(input: ReleaseStrategyInput): ReleaseStrategy {
   const readyStemCount = Object.values(input.stemReady).filter(Boolean).length;
+  const missingStemCount = STEM_EXPORT_COUNT - readyStemCount;
   const blockers: string[] = [];
   const strengths: string[] = [];
 
-  if (readyStemCount < 4) blockers.push(`Finish ${4 - readyStemCount} more stem${readyStemCount === 3 ? '' : 's'} for full export coverage.`);
+  if (readyStemCount < STEM_EXPORT_COUNT) blockers.push(`Finish ${missingStemCount} more ${pluralize(missingStemCount, 'stem')} for full export coverage.`);
   else strengths.push('All four stems are export-ready.');
 
   if (!input.activeEffects.includes('Limiter') || !input.activeEffects.includes('Compressor')) {
