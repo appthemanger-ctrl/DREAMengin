@@ -28,6 +28,7 @@ import {
   swapDominantRuntime,
   makeHomeActiveTop,
   makeHomeDreamSpaceActive,
+  makeDreamSpaceActiveSurface,
   isHomeActiveTop,
 } from '@/lib/runtime/dualRuntime';
 
@@ -48,6 +49,12 @@ interface DualRuntimeContextValue {
    * Used for the dual-home state: two independent HomeDream views open simultaneously.
    */
   goToHomeDreamSpace: () => void;
+  /**
+   * Load DreamSpace world into the Surface Space region and make it dominant.
+   * Allows Surface Space to show the DreamSpace panel, enabling two independent
+   * DreamSpace sessions simultaneously (e.g. two Daydreams or Engins at once).
+   */
+  goToDreamSpace: () => void;
   /** Returns true if HomeDream Surface is active and Surface Space is dominant */
   isHomeActive: () => boolean;
 }
@@ -95,6 +102,10 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
     setState((prev) => makeHomeDreamSpaceActive(prev));
   }, []);
 
+  const goToDreamSpace = useCallback(() => {
+    setState((prev) => makeDreamSpaceActiveSurface(prev));
+  }, []);
+
   const isHomeActive = useCallback(() => {
     return isHomeActiveTop(state);
   }, [state]);
@@ -107,6 +118,7 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
     swapDominance,
     goToHome,
     goToHomeDreamSpace,
+    goToDreamSpace,
     isHomeActive,
   };
 

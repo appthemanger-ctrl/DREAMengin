@@ -139,6 +139,23 @@ export function makeHomeDreamSpaceActive(state: DualRuntimeState): DualRuntimeSt
 }
 
 /**
+ * Load the DreamSpace world into the Surface Space region and make it dominant.
+ *
+ * This unifies access to DreamSpace — either region can show the DreamSpace
+ * world (DreamsSpacePanel). With this function, Surface Space shows the
+ * DreamSpace world while DreamSpace region continues to show its own world,
+ * allowing two independent DreamSpace sessions simultaneously (e.g. two
+ * Daydreams or Engins open at the same time).
+ */
+export function makeDreamSpaceActiveSurface(state: DualRuntimeState): DualRuntimeState {
+  return {
+    ...state,
+    surfaceSpaceWorld: RUNTIME_REGIONS.DREAM_SPACE,
+    dominantRegion:    RUNTIME_REGIONS.SURFACE_SPACE,
+  };
+}
+
+/**
  * Check if HomeDream Surface is currently the active world in Surface Space
  * and Surface Space is the dominant region.
  */

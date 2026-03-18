@@ -3,15 +3,16 @@
 /**
  * components/dreams/DreamsSpacePanel.tsx
  *
- * Dreams Space — a separate runtime panel attached to the DreamDM bar.
+ * Dreams Space — the DreamSpace world panel.
  *
- * Revealed when the DreamDM bar is dragged upward.
- * Hidden when the bar is dragged back down.
+ * Rendered whenever a runtime region's world is set to 'DreamSpace'.
+ * Either the Surface Space or the DreamSpace region can load this world,
+ * allowing two independent DreamSpace sessions simultaneously (e.g. two
+ * Daydreams or Engins open at the same time in separate runtime regions).
  *
- * This space is entirely separate from the main home runtime:
- * - opening content here does not navigate the home view
- * - the dreams space maintains its own navigation state
- * - uses UniversalWidget to render live provider content
+ * Each mounted instance maintains its own independent navigation state
+ * (active service, detail URL, etc.) — opening content in one region does
+ * not affect the other.
  *
  * Permanent iOS-style app windows are the priority content of the Dreams Space.
  * The 6 Daydream surfaces plus Engin apps (Shop, Marketplace, Ads, Links) are
@@ -204,7 +205,7 @@ export default function DreamsSpacePanel() {
           Dreams Space
         </span>
         <span style={{ fontSize: 10, color: 'var(--de-text-dim)', marginLeft: 'auto', fontStyle: 'italic' }}>
-          second runtime
+          dual runtime
         </span>
       </div>
 
