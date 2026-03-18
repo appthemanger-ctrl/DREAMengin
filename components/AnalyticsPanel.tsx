@@ -1,104 +1,119 @@
 'use client';
 
-import { TrendingUp, Users, Eye, Heart, MessageSquare, DollarSign } from 'lucide-react';
-import { useState } from 'react';
+/**
+ * AnalyticsPanel — wired to the real /api/analytics backend.
+ *
+ * Architecture justification:
+ *   docs/AXIOMS.md §3 — every visible action must do something real.
+ *   The previous version used hardcoded mock data with a comment
+ *   "// Mock data - in production, this would come from your database".
+ *   This component now fetches live counts from the database.
+ *
+ *   docs/ARCHITECTURE.md §8: Gold = save/confirm/action; Light Blue = live
+ *   state/connected state. Real analytics are exactly "live state".
+ *
+ * Performance: single fetch per time-range change; no render loops.
+ * Graceful degradation: shows zero values when fetch fails.
+ */
+
+import { TrendingUp, Users, Eye, Heart, MessageSquare, DollarSign, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface AnalyticsData {
-  totalViews: number;
-  totalLikes: number;
-  totalComments: number;
-  totalFollowers: number;
-  totalRevenue: number;
-  viewsChange: number;
-  likesChange: number;
-  commentsChange: number;
-  followersChange: number;
-  revenueChange: number;
+  total_views:      number;
+  total_likes:      number;
+  total_comments:   number;
+  total_followers:  number;
+  total_revenue:    number;
+  views_change:     number;
+  likes_change:     number;
+  comments_change:  number;
+  followers_change: number;
+  revenue_change:   number;
+  period_days?:     number;
 }
 
-interface AnalyticsPanelProps {
-  data?: AnalyticsData;
-}
+type TimeRange = '7d' | '30d' | '90d';
 
-export default function AnalyticsPanel({ data }: AnalyticsPanelProps) {
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
-  // Mock data - in production, this would come from your database
-  const defaultData: AnalyticsData = {
-    totalViews: 12543,
-    totalLikes: 3421,
-    totalComments: 892,
-    totalFollowers: 1567,
-    totalRevenue: 2450,
-    viewsChange: 12.5,
-    likesChange: 8.3,
-    commentsChange: -2.1,
-    followersChange: 15.7,
-    revenueChange: 23.4
+export default function AnalyticsPanel() {
+  const [timeRange, setTimeRange] = useState<TimeRange>('30d');
+  const [data, setData]           = useState<AnalyticsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  // ── Fetch analytics ───────────────────────────────────────────────────────
+
+  useEffect(() => {
+    setIsLoading(true);
+    setFetchError(null);
+
+    fetch(`/api/analytics?range=${timeRange}`)
+      .then((r) => {
+        if (r.status === 401) return null;   // not logged in — show zeros
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json() as Promise<AnalyticsData>;
+      })
+      .then((d) => { if (d) setData(d); })
+      .catch((err) => {
+        setFetchError(err instanceof Error ? err.message : 'Failed to load analytics.');
+      })
+      .finally(() => setIsLoading(false));
+  }, [timeRange]);
+
+  // ── Derived display data ──────────────────────────────────────────────────
+
+  const d = data ?? {
+    total_views: 0, total_likes: 0, total_comments: 0,
+    total_followers: 0, total_revenue: 0,
+    views_change: 0, likes_change: 0, comments_change: 0,
+    followers_change: 0, revenue_change: 0,
   };
-
-  const analyticsData = data || defaultData;
 
   const metrics = [
-    {
-      label: 'Total Views',
-      value: analyticsData.totalViews.toLocaleString(),
-      change: analyticsData.viewsChange,
-      icon: Eye,
-      color: 'blue'
-    },
-    {
-      label: 'Total Likes',
-      value: analyticsData.totalLikes.toLocaleString(),
-      change: analyticsData.likesChange,
-      icon: Heart,
-      color: 'red'
-    },
-    {
-      label: 'Total Comments',
-      value: analyticsData.totalComments.toLocaleString(),
-      change: analyticsData.commentsChange,
-      icon: MessageSquare,
-      color: 'green'
-    },
-    {
-      label: 'Followers',
-      value: analyticsData.totalFollowers.toLocaleString(),
-      change: analyticsData.followersChange,
-      icon: Users,
-      color: 'purple'
-    },
-    {
-      label: 'Revenue',
-      value: `$${analyticsData.totalRevenue.toLocaleString()}`,
-      change: analyticsData.revenueChange,
-      icon: DollarSign,
-      color: 'emerald'
-    }
+    { label: 'Total Views',    value: d.total_views.toLocaleString(),   change: d.views_change,     icon: Eye,          color: 'blue' },
+    { label: 'Total Likes',    value: d.total_likes.toLocaleString(),   change: d.likes_change,     icon: Heart,        color: 'red' },
+    { label: 'Total Comments', value: d.total_comments.toLocaleString(), change: d.comments_change, icon: MessageSquare, color: 'green' },
+    { label: 'Followers',      value: d.total_followers.toLocaleString(), change: d.followers_change, icon: Users,       color: 'purple' },
+    { label: 'Revenue',        value: `$${d.total_revenue.toLocaleString()}`, change: d.revenue_change, icon: DollarSign, color: 'emerald' },
   ];
 
-  const getColorClasses = (color: string) => {
-    const colors: Record<string, { bg: string; text: string; icon: string }> = {
-      blue: { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500' },
-      red: { bg: 'bg-red-50 dark:bg-red-900/20', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500' },
-      green: { bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-600 dark:text-green-400', icon: 'text-green-500' },
-      purple: { bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400', icon: 'text-purple-500' },
-      emerald: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' }
-    };
-    return colors[color] || colors.blue;
+  // ── Color helpers ─────────────────────────────────────────────────────────
+
+  const colorClasses: Record<string, { bg: string; text: string; icon: string }> = {
+    blue:    { bg: 'bg-blue-50 dark:bg-blue-900/20',    text: 'text-blue-600 dark:text-blue-400',    icon: 'text-blue-500' },
+    red:     { bg: 'bg-red-50 dark:bg-red-900/20',      text: 'text-red-600 dark:text-red-400',      icon: 'text-red-500' },
+    green:   { bg: 'bg-green-50 dark:bg-green-900/20',  text: 'text-green-600 dark:text-green-400',  icon: 'text-green-500' },
+    purple:  { bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400', icon: 'text-purple-500' },
+    emerald: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500' },
   };
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-6 h-6 text-slate-700 dark:text-slate-300" />
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Analytics Overview</h2>
+          {isLoading && <Loader2 className="w-4 h-4 animate-spin text-slate-400 ml-1" />}
         </div>
+
+        {/* Time range selector */}
         <div className="flex gap-2">
-          {(['7d', '30d', '90d'] as const).map((range) => (
+          {(['7d', '30d', '90d'] as TimeRange[]).map((range) => (
             <button
               key={range}
+              type="button"
               onClick={() => setTimeRange(range)}
               className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                 timeRange === range
@@ -106,18 +121,24 @@ export default function AnalyticsPanel({ data }: AnalyticsPanelProps) {
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              {range === '7d' && 'Last 7 Days'}
-              {range === '30d' && 'Last 30 Days'}
-              {range === '90d' && 'Last 90 Days'}
+              {range === '7d' ? 'Last 7 Days' : range === '30d' ? 'Last 30 Days' : 'Last 90 Days'}
             </button>
           ))}
         </div>
       </div>
 
+      {/* Error banner */}
+      {fetchError && (
+        <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-sm text-red-600 dark:text-red-400">
+          Could not load analytics: {fetchError}
+        </div>
+      )}
+
+      {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {metrics.map((metric) => {
-          const colors = getColorClasses(metric.color);
-          const Icon = metric.icon;
+          const colors    = colorClasses[metric.color] ?? colorClasses.blue;
+          const Icon      = metric.icon;
           const isPositive = metric.change >= 0;
 
           return (
@@ -132,7 +153,7 @@ export default function AnalyticsPanel({ data }: AnalyticsPanelProps) {
                 </span>
               </div>
               <div className={`text-2xl font-bold ${colors.text} mb-1`}>
-                {metric.value}
+                {isLoading ? '—' : metric.value}
               </div>
               <div className="text-xs text-slate-600 dark:text-slate-400">
                 {metric.label}
@@ -144,9 +165,12 @@ export default function AnalyticsPanel({ data }: AnalyticsPanelProps) {
 
       <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
         <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
-          Analytics are updated in real-time and reflect activity across all your content on Dreamengin.
+          {fetchError
+            ? 'Analytics could not be loaded. Check your connection and try again.'
+            : 'Analytics reflect your activity across all DREAMengin surfaces for the selected period.'}
         </p>
       </div>
     </div>
   );
 }
+

@@ -142,12 +142,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Create notification
-  await supabase.from('notifications').insert({
+  // Create notification — content JSONB must match notificationHelpers.ts schema
+  // so that NotificationCenter can derive actor name and action URL.
+  // Cast to `any` because the generated TS types may lag behind the actual schema.
+  const { data: followerProfile } = await supabase
+    .from('profiles')
+    .select('handle, display_name')
+    .eq('id', user.id)
+    .single();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase as any).from('notifications').insert({
     user_id: target_id,
     type: 'follow',
-    message: 'Someone started following you',
-    data: { follower_id: user.id },
+    content: {
+      actor_handle:       followerProfile?.handle       ?? user.id,
+      actor_display_name: followerProfile?.display_name ?? followerProfile?.handle ?? 'Someone',
+      follower_id:        user.id,
+    },
   });
 
   return NextResponse.json({ success: true }, { status: 201 });
