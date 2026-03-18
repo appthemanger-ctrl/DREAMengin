@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-18 21:25 UTC | `3e3ac9e` | copilot/improve-game-quality-controls | Copilot | +2 added  ~2 modified<br>feat: add console-class game quality plan surfaces — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `lib/games/quality-plan.ts`, `tests/game-quality-plan.test.ts`<br>✏️: `app/daydream/games/page.tsx`, `components/daydream/GameEngin.tsx` |
 | **auto** | 2026-03-18 07:30 UTC | `d2ed89d` | copilot/full-systems-upgrade | Copilot | ~1 modified<br>fix: correct upgrade target sort order — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/admin/upgrade-readiness.ts` |
 | **auto** | 2026-03-18 07:11 UTC | `2822652` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #232 from appthemanger-ctrl/copilot/enhance-social-media-capabilities — Enhance social media capabilities: platform registry, share sheet, auto-detect, wired share buttons<br> |
 | **auto** | 2026-03-18 06:30 UTC | `f92f72e` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #231 from appthemanger-ctrl/copilot/fix-dreamspace-interpretations — Fix dual DreamSpace interpretations, home transparency, and enable both runtimes to access DreamSpace<br> |
 | **auto** | 2026-03-18 04:53 UTC | `2c1407a` | copilot/fix-dreamspace-interpretations | Copilot | ~5 modified<br>fix: unify DreamSpace interpretation, fix home transparency, enable both runtimes to access DreamSpace — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/dreams/DreamsSpacePanel.tsx`, `components/home/HomeSystem.tsx`, `components/runtime/DualRuntimeContainer.tsx`, `lib/dreams/useDreamsRuntime.ts`, `lib/runtime/dualRuntime.ts` |
-| **auto** | 2026-03-18 04:22 UTC | `f8c68b0` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #230 from appthemanger-ctrl/copilot/fix-available-feature-before-login — Move DreamDMBar into HomeSystem as the dual-runtime seam; pre-active both surfaces<br> |
 
 ## What changed in this alignment pass
 
