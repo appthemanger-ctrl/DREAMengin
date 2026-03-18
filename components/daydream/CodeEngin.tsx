@@ -18,13 +18,14 @@
  * Bridge emits follow the typed CodeChannelEvents interface — no phantom event keys.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import {
   ArrowLeft, Code2, FolderOpen, Github,
   Plus, X, CheckCircle, XCircle, Loader2,
   Gamepad2, Music2, FlaskConical,
+  ZoomIn, ZoomOut, MousePointer2, Scissors, Copy, Clipboard, Trash2, Bot,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
@@ -73,6 +74,11 @@ const CELL_BG  = '#1a1a2e';
 const CODE_FG  = '#e2e8f0';
 const OUT_OK   = '#4ade80';
 const OUT_ERR  = '#f87171';
+
+const ZOOM_MIN  = 0.6;
+const ZOOM_MAX  = 2.0;
+const ZOOM_STEP = 0.1;
+const ZOOM_BASE_FONT = 13;  // px — baseline cell font-size
 
 const LANGUAGE_OPTIONS: CellLanguage[] = ['python', 'javascript', 'typescript', 'bash'];
 const LANGUAGE_LABEL: Record<CellLanguage, string> = {
@@ -188,6 +194,101 @@ export default function CodeEngin({ onBack }: Props) {
 
   // ── Navigation state ────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<ActiveTab>('notebook');
+
+  // ── Code zoom state ──────────────────────────────────────────────────────────
+  const [codeZoom, setCodeZoom] = useState(1.0);
+  const zoomIn  = useCallback(() => setCodeZoom((z: number) => Math.min(ZOOM_MAX, parseFloat((z + ZOOM_STEP).toFixed(1)))), []);
+  const zoomOut = useCallback(() => setCodeZoom((z: number) => Math.max(ZOOM_MIN, parseFloat((z - ZOOM_STEP).toFixed(1)))), []);
+  const zoomReset = useCallback(() => setCodeZoom(1.0), []);
+
+  // ── Selection mode state ─────────────────────────────────────────────────────
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectionBar, setSelectionBar] = useState<{
+    visible: boolean; x: number; y: number; text: string;
+  }>({ visible: false, x: 0, y: 0, text: '' });
+  const [drEamsCheckResult, setDrEamsCheckResult] = useState('');
+  const codeAreaRef = useRef<HTMLDivElement>(null);
+
+  // When select mode becomes active, listen for mouseup to capture selections
+  useEffect(() => {
+    if (!selectMode) {
+      setSelectionBar((prev: { visible: boolean; x: number; y: number; text: string }) => ({ ...prev, visible: false }));
+      setDrEamsCheckResult('');
+      return;
+    }
+    function handleMouseUp(e: MouseEvent) {
+      const sel = window.getSelection();
+      const text = sel?.toString().trim() ?? '';
+      if (!text) {
+        setSelectionBar((prev: { visible: boolean; x: number; y: number; text: string }) => ({ ...prev, visible: false }));
+        return;
+      }
+      // Position bar above the cursor
+      setSelectionBar({ visible: true, x: e.clientX, y: e.clientY - 60, text });
+    }
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => document.removeEventListener('mouseup', handleMouseUp);
+  }, [selectMode]);
+
+  const closeSelectionBar = useCallback(() => {
+    setSelectionBar((prev: { visible: boolean; x: number; y: number; text: string }) => ({ ...prev, visible: false }));
+    window.getSelection()?.removeAllRanges();
+  }, []);
+
+  const toggleSelectMode = useCallback(() => {
+    setSelectMode((prev: boolean) => {
+      if (prev) {
+        // Turning off — clear selection state
+        window.getSelection()?.removeAllRanges();
+      }
+      return !prev;
+    });
+  }, []);
+
+  // Selection actions
+  const handleSelCopy = useCallback(() => {
+    if (selectionBar.text) navigator.clipboard?.writeText(selectionBar.text);
+    closeSelectionBar();
+  }, [selectionBar.text, closeSelectionBar]);
+
+  const handleSelCut = useCallback(() => {
+    if (selectionBar.text) {
+      navigator.clipboard?.writeText(selectionBar.text);
+      // Delete selected text from the focused element
+      document.execCommand('delete');
+    }
+    closeSelectionBar();
+  }, [selectionBar.text, closeSelectionBar]);
+
+  const handleSelPaste = useCallback(async () => {
+    const text = await navigator.clipboard?.readText().catch(() => '');
+    if (text) document.execCommand('insertText', false, text);
+    closeSelectionBar();
+  }, [closeSelectionBar]);
+
+  const handleSelDelete = useCallback(() => {
+    document.execCommand('delete');
+    closeSelectionBar();
+  }, [closeSelectionBar]);
+
+  const handleSelDrEams = useCallback(() => {
+    const code = selectionBar.text;
+    setDrEamsCheckResult('');
+    closeSelectionBar();
+    // Simulate Dr. Eams correctness check (no eval, simulation only)
+    setTimeout(() => {
+      const issues = [];
+      if (/console\.log/.test(code)) issues.push('Consider removing debug console.log statements before committing.');
+      if (/var /.test(code)) issues.push('Prefer `const` or `let` over `var`.');
+      if (/==(?!=)/.test(code)) issues.push('Use strict equality `===` instead of `==`.');
+      setDrEamsCheckResult(
+        issues.length === 0
+          ? '✅ Dr. Eams: Looks good! No obvious issues found.'
+          : `⚠️ Dr. Eams found ${issues.length} suggestion${issues.length > 1 ? 's' : ''}:\n${issues.map(i => `• ${i}`).join('\n')}`,
+      );
+    }, 400);
+  }, [selectionBar.text, closeSelectionBar]);
+
 
   // ── Load user + projects ────────────────────────────────────────────────────
   useEffect(() => {
@@ -441,6 +542,107 @@ export default function CodeEngin({ onBack }: Props) {
   return (
     <div className="de-sky-bg min-h-screen">
 
+      {/* ── Floating selection action bar ── */}
+      {selectMode && selectionBar.visible && (
+        <div
+          role="toolbar"
+          aria-label="Selection actions"
+          style={{
+            position: 'fixed',
+            left: Math.min(selectionBar.x, typeof window !== 'undefined' ? window.innerWidth - 320 : selectionBar.x),
+            top: Math.max(8, selectionBar.y),
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '6px 8px',
+            borderRadius: 12,
+            background: 'rgba(15,15,30,0.96)',
+            border: '1px solid rgba(59,125,216,0.4)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+            backdropFilter: 'blur(12px)',
+            flexWrap: 'nowrap',
+          }}
+        >
+          {/* Copy */}
+          <button
+            type="button"
+            onClick={handleSelCopy}
+            title="Copy selection"
+            style={selBtnStyle}
+            aria-label="Copy selected text"
+          >
+            <Copy size={13} />
+            <span>Copy</span>
+          </button>
+
+          {/* Cut */}
+          <button
+            type="button"
+            onClick={handleSelCut}
+            title="Cut selection"
+            style={selBtnStyle}
+            aria-label="Cut selected text"
+          >
+            <Scissors size={13} />
+            <span>Cut</span>
+          </button>
+
+          {/* Paste */}
+          <button
+            type="button"
+            onClick={handleSelPaste}
+            title="Paste from clipboard"
+            style={selBtnStyle}
+            aria-label="Paste from clipboard"
+          >
+            <Clipboard size={13} />
+            <span>Paste</span>
+          </button>
+
+          {/* Delete */}
+          <button
+            type="button"
+            onClick={handleSelDelete}
+            title="Delete selection"
+            style={{ ...selBtnStyle, color: '#f87171' }}
+            aria-label="Delete selected text"
+          >
+            <Trash2 size={13} />
+            <span>Delete</span>
+          </button>
+
+          {/* Divider */}
+          <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.12)', margin: '0 2px' }} />
+
+          {/* Dr. Eams correctness check */}
+          <button
+            type="button"
+            onClick={handleSelDrEams}
+            title="Ask Dr. Eams to check correctness of the selected code"
+            style={{ ...selBtnStyle, color: '#a78bfa', paddingRight: 10 }}
+            aria-label="Dr. Eams checks correctness"
+          >
+            <Bot size={13} />
+            <span>Dr. Eams checks</span>
+          </button>
+
+          {/* Close */}
+          <button
+            type="button"
+            onClick={closeSelectionBar}
+            style={{
+              ...selBtnStyle, marginLeft: 4,
+              color: 'rgba(255,255,255,0.35)',
+              padding: '4px 6px',
+            }}
+            aria-label="Dismiss action bar"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      )}
+
       {/* ── Header ── */}
       <header
         className="sticky top-0 z-30 backdrop-blur-xl"
@@ -518,6 +720,124 @@ export default function CodeEngin({ onBack }: Props) {
               {tab.label}
             </button>
           ))}
+        </div>
+
+        {/* ── Code toolbar: zoom + select-mode ── */}
+        <div
+          ref={codeAreaRef}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            marginBottom: 14, flexWrap: 'wrap',
+            padding: '6px 10px',
+            borderRadius: 10,
+            background: 'rgba(255,255,255,0.55)',
+            border: '1px solid rgba(160,195,240,0.22)',
+          }}
+        >
+          {/* Zoom controls */}
+          <button
+            type="button"
+            onClick={zoomOut}
+            disabled={codeZoom <= ZOOM_MIN}
+            aria-label="Zoom out code"
+            title="Zoom out (code)"
+            style={codeToolBtnStyle(codeZoom <= ZOOM_MIN)}
+          >
+            <ZoomOut size={13} />
+          </button>
+
+          <button
+            type="button"
+            onClick={zoomReset}
+            aria-label="Reset zoom"
+            title="Reset zoom to 100%"
+            style={{
+              ...codeToolBtnStyle(false),
+              minWidth: 42, justifyContent: 'center',
+              fontFamily: 'monospace', fontSize: 10, fontWeight: 700,
+              color: codeZoom !== 1.0 ? ACCENT : 'var(--de-text-dim)',
+            }}
+          >
+            {Math.round(codeZoom * 100)}%
+          </button>
+
+          <button
+            type="button"
+            onClick={zoomIn}
+            disabled={codeZoom >= ZOOM_MAX}
+            aria-label="Zoom in code"
+            title="Zoom in (code)"
+            style={codeToolBtnStyle(codeZoom >= ZOOM_MAX)}
+          >
+            <ZoomIn size={13} />
+          </button>
+
+          {/* Divider */}
+          <span style={{ width: 1, height: 18, background: 'rgba(160,195,240,0.3)', margin: '0 4px' }} />
+
+          {/* Select mode toggle */}
+          <button
+            type="button"
+            onClick={toggleSelectMode}
+            aria-label={selectMode ? 'Exit selection mode' : 'Enter selection mode'}
+            title={selectMode ? 'Exit selection mode (click again to dismiss)' : 'Select text mode — highlight code then act on it'}
+            style={{
+              ...codeToolBtnStyle(false),
+              gap: 6,
+              background: selectMode ? `${ACCENT}18` : 'rgba(0,0,0,0.03)',
+              borderColor: selectMode ? ACCENT : 'rgba(160,195,240,0.35)',
+              color: selectMode ? ACCENT : 'var(--de-text)',
+              fontWeight: selectMode ? 700 : 500,
+              paddingRight: 10,
+            }}
+          >
+            <MousePointer2 size={13} />
+            <span style={{ fontSize: 11 }}>
+              {selectMode ? 'Selecting…' : 'Select'}
+            </span>
+            {selectMode && (
+              <span
+                style={{
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: ACCENT, flexShrink: 0,
+                  animation: 'de-pulse 1.2s ease-in-out infinite',
+                }}
+              />
+            )}
+          </button>
+
+          {/* Dr. Eams correctness result — inline hint */}
+          {drEamsCheckResult && (
+            <div
+              style={{
+                flex: 1, minWidth: 0,
+                padding: '4px 10px', borderRadius: 8,
+                background: drEamsCheckResult.startsWith('✅')
+                  ? 'rgba(34,197,94,0.08)'
+                  : 'rgba(245,158,11,0.08)',
+                border: drEamsCheckResult.startsWith('✅')
+                  ? '1px solid rgba(34,197,94,0.25)'
+                  : '1px solid rgba(245,158,11,0.25)',
+                fontSize: 11, color: 'var(--de-text)',
+                whiteSpace: 'pre-wrap', lineHeight: 1.5,
+                display: 'flex', alignItems: 'flex-start', gap: 6,
+              }}
+            >
+              <span style={{ flex: 1 }}>{drEamsCheckResult}</span>
+              <button
+                type="button"
+                onClick={() => setDrEamsCheckResult('')}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--de-text-dim)', padding: 0, fontSize: 12, lineHeight: 1,
+                  flexShrink: 0,
+                }}
+                aria-label="Dismiss Dr. Eams result"
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
 
         {/* ════════════════════════════════════════
@@ -658,7 +978,7 @@ export default function CodeEngin({ onBack }: Props) {
                         background: CELL_BG,
                         color: CODE_FG,
                         fontFamily: '"Fira Code", "Cascadia Code", "JetBrains Mono", ui-monospace, monospace',
-                        fontSize: 13,
+                        fontSize: ZOOM_BASE_FONT * codeZoom,
                         lineHeight: 1.6,
                         padding: '10px 12px',
                         borderRadius: 8,
@@ -669,6 +989,9 @@ export default function CodeEngin({ onBack }: Props) {
                         whiteSpace: 'pre',
                         overflowWrap: 'normal',
                         overflowX: 'auto',
+                        userSelect: selectMode ? 'text' : undefined,
+                        cursor: selectMode ? 'text' : undefined,
+                        transition: 'font-size 0.12s',
                       }}
                     />
 
@@ -699,10 +1022,11 @@ export default function CodeEngin({ onBack }: Props) {
                           style={{
                             margin: 0,
                             fontFamily: '"Fira Code", "Cascadia Code", ui-monospace, monospace',
-                            fontSize: 12,
+                            fontSize: Math.round(12 * codeZoom),
                             color: cell.status === 'error' ? OUT_ERR : OUT_OK,
                             whiteSpace: 'pre-wrap',
                             wordBreak: 'break-word',
+                            transition: 'font-size 0.12s',
                           }}
                         >
                           {cell.output}
@@ -1575,3 +1899,31 @@ export default function CodeEngin({ onBack }: Props) {
     </div>
   );
 }
+
+// ─── Module-level style helpers ───────────────────────────────────────────────
+
+function codeToolBtnStyle(disabled: boolean): React.CSSProperties {
+  return {
+    display: 'flex', alignItems: 'center', gap: 4,
+    padding: '4px 8px', borderRadius: 7,
+    border: '1px solid rgba(160,195,240,0.35)',
+    background: 'rgba(0,0,0,0.03)',
+    color: disabled ? 'rgba(100,116,139,0.35)' : 'var(--de-text)',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    fontSize: 12, lineHeight: 1,
+    transition: 'background 0.12s',
+    flexShrink: 0,
+  };
+}
+
+const selBtnStyle: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: 5,
+  padding: '5px 9px', borderRadius: 8,
+  background: 'rgba(255,255,255,0.06)',
+  border: '1px solid rgba(255,255,255,0.10)',
+  color: '#e2e8f0',
+  cursor: 'pointer', fontSize: 11, fontWeight: 600,
+  transition: 'background 0.12s',
+  whiteSpace: 'nowrap',
+};
+
