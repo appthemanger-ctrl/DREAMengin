@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-18 06:30 UTC | `f92f72e` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #231 from appthemanger-ctrl/copilot/fix-dreamspace-interpretations — Fix dual DreamSpace interpretations, home transparency, and enable both runtimes to access DreamSpace<br> |
 | **auto** | 2026-03-18 04:53 UTC | `2c1407a` | copilot/fix-dreamspace-interpretations | Copilot | ~5 modified<br>fix: unify DreamSpace interpretation, fix home transparency, enable both runtimes to access DreamSpace — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/dreams/DreamsSpacePanel.tsx`, `components/home/HomeSystem.tsx`, `components/runtime/DualRuntimeContainer.tsx`, `lib/dreams/useDreamsRuntime.ts`, `lib/runtime/dualRuntime.ts` |
 | **auto** | 2026-03-18 04:22 UTC | `f8c68b0` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #230 from appthemanger-ctrl/copilot/fix-available-feature-before-login — Move DreamDMBar into HomeSystem as the dual-runtime seam; pre-active both surfaces<br> |
 | **auto** | 2026-03-17 09:53 UTC | `82c68c3` | copilot/fix-available-feature-before-login | Copilot | ~1 modified<br>Plan: SPA panel system — zero routing, everything renders inline — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/home/GlobalDreamBar.tsx` |
 | **auto** | 2026-03-17 08:03 UTC | `1e54677` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #229 from appthemanger-ctrl/copilot/fix-module-not-found-error — ONE gold button: fix two-button regression, correct single/double tap direction everywhere<br> |
-| **auto** | 2026-03-17 07:09 UTC | `debe9c7` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #226 from appthemanger-ctrl/copilot/improve-ui-daydreams-engins — BUILD phase writes real feature code — 32 planned Engin features implemented + CI generator<br> |
 
 ## What changed in this alignment pass
 
