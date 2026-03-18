@@ -34,6 +34,7 @@ import {
   SCOPE_RISK,
   SCOPE_ORDER,
   SCOPE_LABEL,
+  SCOPE_DESCRIPTION,
   CONFIRMATION_REQUIRED,
   type EditableCell,
   type EditPreview,
@@ -130,6 +131,100 @@ describe('parseAiInstruction', () => {
     const s = parseAiInstruction('rename foo to bar');
     expect(s.scopeRationale.length).toBeGreaterThan(0);
   });
+
+  // ── Fix 2: new patterns ───────────────────────────────────────────────────────
+
+  it('detects swap X with Y → word-in-file scope, high confidence', () => {
+    const s = parseAiInstruction('swap oldName with newName');
+    expect(s.target).toBe('oldName');
+    expect(s.replacement).toBe('newName');
+    expect(s.suggestedScope).toBe('word-in-file');
+    expect(s.confidence).toBe('high');
+  });
+
+  it('detects swap X for Y → word-in-file scope', () => {
+    const s = parseAiInstruction('swap foo for bar');
+    expect(s.target).toBe('foo');
+    expect(s.replacement).toBe('bar');
+    expect(s.suggestedScope).toBe('word-in-file');
+  });
+
+  it('detects change X to Y → word-in-file scope, medium confidence', () => {
+    const s = parseAiInstruction('change count to total');
+    expect(s.target).toBe('count');
+    expect(s.replacement).toBe('total');
+    expect(s.suggestedScope).toBe('word-in-file');
+    expect(s.confidence).toBe('medium');
+  });
+
+  it('detects update X to Y → word-in-file scope, medium confidence', () => {
+    const s = parseAiInstruction('update userId to userID');
+    expect(s.target).toBe('userId');
+    expect(s.replacement).toBe('userID');
+    expect(s.suggestedScope).toBe('word-in-file');
+    expect(s.confidence).toBe('medium');
+  });
+
+  // ── Fix 2: confidence field ───────────────────────────────────────────────────
+
+  it('rename/replace/swap/delete give high confidence', () => {
+    expect(parseAiInstruction('rename foo to bar').confidence).toBe('high');
+    expect(parseAiInstruction('replace foo with bar').confidence).toBe('high');
+    expect(parseAiInstruction('swap foo with bar').confidence).toBe('high');
+    expect(parseAiInstruction('delete this function').confidence).toBe('high');
+    expect(parseAiInstruction('remove this line').confidence).toBe('high');
+  });
+
+  it('change/update give medium confidence', () => {
+    expect(parseAiInstruction('change foo to bar').confidence).toBe('medium');
+    expect(parseAiInstruction('update foo to bar').confidence).toBe('medium');
+  });
+
+  it('fallback instruction gives low confidence', () => {
+    const s = parseAiInstruction('make it more efficient');
+    expect(s.confidence).toBe('low');
+  });
+
+  it('every result has a confidence field', () => {
+    const instructions = [
+      'rename x to y',
+      'replace a with b',
+      'swap old for new',
+      'change p to q',
+      'delete this line',
+      'refactor the whole thing',
+    ];
+    for (const inst of instructions) {
+      const s = parseAiInstruction(inst);
+      expect(['high', 'medium', 'low']).toContain(s.confidence);
+    }
+  });
+
+  // ── Fix 2: backtick-quoted targets ───────────────────────────────────────────
+
+  it('handles backtick-quoted target in rename', () => {
+    const s = parseAiInstruction('rename `oldFn` to `newFn`');
+    expect(s.target).toBe('oldFn');
+    expect(s.replacement).toBe('newFn');
+  });
+
+  it('handles single-quoted target in replace', () => {
+    const s = parseAiInstruction("replace 'count' with 'total'");
+    expect(s.target).toBe('count');
+    expect(s.replacement).toBe('total');
+  });
+
+  // ── Fix 1: "all cells" keyword triggers all-cells scope ──────────────────────
+
+  it('"all cells" keyword triggers word-in-codebase scope', () => {
+    const s = parseAiInstruction('rename foo to bar in all cells');
+    expect(s.suggestedScope).toBe('word-in-codebase');
+  });
+
+  it('"all occurrences" keyword triggers word-in-codebase scope', () => {
+    const s = parseAiInstruction('replace foo with bar for all occurrences');
+    expect(s.suggestedScope).toBe('word-in-codebase');
+  });
 });
 
 // ─── wordBoundsAt ─────────────────────────────────────────────────────────────
@@ -196,6 +291,46 @@ describe('blockBoundsAt', () => {
   it('returns null when no enclosing block', () => {
     const noBlock = 'const x = 1;';
     expect(blockBoundsAt(noBlock, 5)).toBeNull();
+  });
+
+  // ── Fix 3: string/comment masking ────────────────────────────────────────────
+
+  it('ignores { } inside a string literal', () => {
+    // The real block is the if-body; the string "{ fake }" must not confuse it
+    const code2 = 'if (x) { const s = "{ fake }"; doSomething(); }';
+    const cursor2 = code2.indexOf('doSomething') + 3;
+    const b = blockBoundsAt(code2, cursor2);
+    expect(b).not.toBeNull();
+    // Should find the outer { } — NOT the fake braces inside the string
+    expect(b!.start).toBe(code2.indexOf('{'));
+    expect(b!.end).toBe(code2.length); // closing } at end
+  });
+
+  it('ignores { } after a // comment on the same line', () => {
+    const code3 = 'function f() { // open { brace\n  return 1;\n}';
+    const cursor3 = code3.indexOf('return') + 3;
+    const b = blockBoundsAt(code3, cursor3);
+    expect(b).not.toBeNull();
+    expect(b!.start).toBe(code3.indexOf('{'));
+    expect(b!.end).toBe(code3.length);
+  });
+
+  // ── Fix 3: fallback to [ ] and ( ) ───────────────────────────────────────────
+
+  it('falls back to [ ] when no { } enclosing block', () => {
+    const arr = 'const items = [1, 2, 3];';
+    const cursor = arr.indexOf('2');
+    const b = blockBoundsAt(arr, cursor);
+    expect(b).not.toBeNull();
+    expect(arr.slice(b!.start, b!.end)).toBe('[1, 2, 3]');
+  });
+
+  it('falls back to ( ) when no { } or [ ] enclosing block', () => {
+    const call = 'doSomething(a, b, c)';
+    const cursor = call.indexOf('b');
+    const b = blockBoundsAt(call, cursor);
+    expect(b).not.toBeNull();
+    expect(call.slice(b!.start, b!.end)).toBe('(a, b, c)');
   });
 });
 
@@ -502,6 +637,17 @@ describe('SCOPE_LABEL', () => {
     for (const s of SCOPE_ORDER) {
       expect(SCOPE_LABEL[s]).toBeTruthy();
     }
+  });
+
+  // Fix 1: label must NOT say "codebase" (misleads users into thinking filesystem search)
+  it('word-in-codebase label does not contain the word "codebase"', () => {
+    expect(SCOPE_LABEL['word-in-codebase'].toLowerCase()).not.toContain('codebase');
+  });
+
+  // Fix 1: description must mention "cells" or "notebook" to set accurate expectations
+  it('word-in-codebase description clarifies in-memory cells only', () => {
+    const desc = SCOPE_DESCRIPTION['word-in-codebase'].toLowerCase();
+    expect(desc.includes('cell') || desc.includes('notebook') || desc.includes('memory')).toBe(true);
   });
 });
 

@@ -51,17 +51,17 @@ export const SCOPE_LABEL: Record<EditScope, string> = {
   'function':         'Function',
   'file':             'Whole File',
   'word-in-file':     'Same word in file',
-  'word-in-codebase': 'Same word in codebase',
+  'word-in-codebase': 'Same word in all cells',
 };
 
 export const SCOPE_DESCRIPTION: Record<EditScope, string> = {
   'word':             'Change only the selected/cursor word — nothing else',
   'line':             'Change the entire line the cursor is on',
-  'block':            'Change everything inside the nearest { … } block',
+  'block':            'Change everything inside the nearest { … } block (brace-matched)',
   'function':         'Change the full function/def the cursor is inside',
   'file':             'Replace the entire content of this code cell',
   'word-in-file':     'Change every occurrence of this word in the active cell',
-  'word-in-codebase': 'Change every occurrence of this word across all cells',
+  'word-in-codebase': 'Change every occurrence in all open notebook cells (in memory only — not the filesystem)',
 };
 
 export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
@@ -97,6 +97,13 @@ export interface AiSuggestion {
   suggestedScope: EditScope;
   /** Human-readable explanation of why this scope was suggested. */
   scopeRationale: string;
+  /**
+   * How confident the parser is in its interpretation.
+   *   high   — a named pattern (rename/replace/swap/delete) was matched exactly.
+   *   medium — a looser pattern was matched; user should verify target and scope.
+   *   low    — no pattern matched; fallback heuristic only. User must confirm intent.
+   */
+  confidence: 'high' | 'medium' | 'low';
 }
 
 // ─── Match ────────────────────────────────────────────────────────────────────
@@ -206,13 +213,77 @@ export function lineBoundsAt(text: string, offset: number): { start: number; end
   return { start, end };
 }
 
-/** Find the nearest enclosing { … } block. Returns null if not found. */
-export function blockBoundsAt(text: string, cursor: number): { start: number; end: number } | null {
+/**
+ * Build a set of character indices that are inside a string literal or
+ * single-line comment.  Brace scanners skip these positions so that a
+ * `{` or `}` inside a string literal (e.g. `"Hello {name}"`) or a
+ * comment (`// end }`) does not confuse the block-boundary finder.
+ *
+ * Handles:  `"..."`, `'...'`, backtick literals, and `//` line comments.
+ * Does NOT handle multi-line block comments — acceptable limitation for
+ * notebook cell snippets.
+ */
+function buildStringCommentMask(text: string): Set<number> {
+  const mask = new Set<number>();
+  let i = 0;
+  while (i < text.length) {
+    // Single-line comment: // ...
+    if (text[i] === '/' && text[i + 1] === '/') {
+      while (i < text.length && text[i] !== '\n') { mask.add(i); i++; }
+      continue;
+    }
+    // Double-quoted string
+    if (text[i] === '"') {
+      mask.add(i); i++;
+      while (i < text.length && text[i] !== '"') {
+        if (text[i] === '\\') { mask.add(i); i++; } // skip escape
+        if (i < text.length) { mask.add(i); i++; }
+      }
+      if (i < text.length) { mask.add(i); i++; } // closing "
+      continue;
+    }
+    // Single-quoted string
+    if (text[i] === "'") {
+      mask.add(i); i++;
+      while (i < text.length && text[i] !== "'") {
+        if (text[i] === '\\') { mask.add(i); i++; }
+        if (i < text.length) { mask.add(i); i++; }
+      }
+      if (i < text.length) { mask.add(i); i++; }
+      continue;
+    }
+    // Template literal — simplified (no ${ } nesting detection)
+    if (text[i] === '`') {
+      mask.add(i); i++;
+      while (i < text.length && text[i] !== '`') {
+        if (text[i] === '\\') { mask.add(i); i++; }
+        if (i < text.length) { mask.add(i); i++; }
+      }
+      if (i < text.length) { mask.add(i); i++; }
+      continue;
+    }
+    i++;
+  }
+  return mask;
+}
+
+/**
+ * Find the nearest enclosing pair of `open`/`close` characters,
+ * ignoring positions that are inside strings or comments (as given by `masked`).
+ */
+function findEnclosingPair(
+  text: string,
+  cursor: number,
+  masked: Set<number>,
+  open: string,
+  close: string,
+): { start: number; end: number } | null {
   let depth = 0;
   let blockStart = -1;
   for (let i = cursor; i >= 0; i--) {
-    if (text[i] === '}') depth++;
-    else if (text[i] === '{') {
+    if (masked.has(i)) continue;
+    if (text[i] === close) depth++;
+    else if (text[i] === open) {
       if (depth === 0) { blockStart = i; break; }
       depth--;
     }
@@ -222,14 +293,37 @@ export function blockBoundsAt(text: string, cursor: number): { start: number; en
   depth = 0;
   let blockEnd = -1;
   for (let i = cursor; i < text.length; i++) {
-    if (text[i] === '{') depth++;
-    else if (text[i] === '}') {
+    if (masked.has(i)) continue;
+    if (text[i] === open) depth++;
+    else if (text[i] === close) {
       if (depth === 0) { blockEnd = i + 1; break; }
       depth--;
     }
   }
   if (blockEnd === -1) return null;
   return { start: blockStart, end: blockEnd };
+}
+
+/**
+ * Find the nearest enclosing block containing `cursor`.
+ *
+ * Priority: `{ }` braces (functions, if-bodies, objects) first.
+ * Fallback:  `[ ]` array/index brackets, then `( )` parentheses.
+ *
+ * Brace characters inside string literals (`"..."`, `'...'`, `` `...` ``)
+ * and single-line comments (`// ...`) are ignored so that they cannot
+ * falsely anchor the search.
+ *
+ * Returns null when the cursor is not enclosed by any bracket pair.
+ */
+export function blockBoundsAt(text: string, cursor: number): { start: number; end: number } | null {
+  const masked = buildStringCommentMask(text);
+  return (
+    findEnclosingPair(text, cursor, masked, '{', '}') ??
+    findEnclosingPair(text, cursor, masked, '[', ']') ??
+    findEnclosingPair(text, cursor, masked, '(', ')') ??
+    null
+  );
 }
 
 /**
@@ -330,43 +424,94 @@ function trimContextLines(lines: EditDiffLine[], keep: number): EditDiffLine[] {
 
 /**
  * Parse a free-text AI instruction into a structured AiSuggestion.
- * Uses simple heuristics — no ML/eval involved.
+ * Uses layered heuristics — no ML/eval involved.
  * Called by the Dr. Eams simulate handler in CodeEngin.
+ *
+ * Confidence values:
+ *   high   — an exact named-pattern matched (rename/replace/swap/delete).
+ *   medium — a looser pattern (change/update) matched; user should verify.
+ *   low    — no pattern matched; fallback scope only. User must confirm intent.
+ *
+ * Parsing limitations (document honestly so the UI can surface warnings):
+ *   - Only matches single-word (`\w+`) targets — multi-word phrases are not parsed.
+ *   - `change` and `update` are intentionally medium-confidence because they can
+ *     mean structural refactors, not just renames.
+ *   - "everywhere" / "all" / "codebase" trigger the all-cells scope regardless of
+ *     which root pattern matched.
  */
 export function parseAiInstruction(instruction: string): AiSuggestion {
   const lower = instruction.toLowerCase().trim();
+  const isAllCells = /everywhere|all\s+cells|all\s+occurrences|codebase/.test(lower);
 
-  // Rename / rename all
-  const renameMatch = instruction.match(/rename\s+[`'"]?(\w+)[`'"]?\s+to\s+[`'"]?(\w+)[`'"]?/i);
+  // ── Word in backtick/quote extractor ────────────────────────────────────────
+  // Matches a word that may be wrapped in backticks, single-, or double-quotes.
+  const Q = "[`'\"]?";  // optional opening quote
+  const W = "([`'\"]?(\\w+)[`'\"]?)"; // word possibly wrapped in quotes (capture inner \w+)
+
+  // ── High-confidence: rename ──────────────────────────────────────────────────
+  const renameRx = new RegExp(`rename\\s+${Q}(\\w+)${Q}\\s+to\\s+${Q}(\\w+)${Q}`, 'i');
+  const renameMatch = instruction.match(renameRx);
   if (renameMatch) {
     const [, target, replacement] = renameMatch;
-    const isAll = /everywhere|all|codebase/.test(lower);
     return {
       instruction,
       target,
       replacement,
-      suggestedScope: isAll ? 'word-in-codebase' : 'word-in-file',
-      scopeRationale: isAll
-        ? 'Renaming everywhere to keep all references consistent'
-        : 'Renaming all occurrences in this file',
+      suggestedScope: isAllCells ? 'word-in-codebase' : 'word-in-file',
+      scopeRationale: isAllCells
+        ? 'Renaming in all cells to keep every reference consistent'
+        : 'Renaming all occurrences in the active cell',
+      confidence: 'high',
     };
   }
 
-  // Replace X with Y
-  const replaceMatch = instruction.match(/replace\s+[`'"]?(\w+)[`'"]?\s+with\s+[`'"]?(\w+)[`'"]?/i);
+  // ── High-confidence: replace X with Y ────────────────────────────────────────
+  const replaceRx = new RegExp(`replace\\s+${Q}(\\w+)${Q}\\s+with\\s+${Q}(\\w+)${Q}`, 'i');
+  const replaceMatch = instruction.match(replaceRx);
   if (replaceMatch) {
     const [, target, replacement] = replaceMatch;
-    const isAll = /everywhere|all|codebase/.test(lower);
     return {
       instruction,
       target,
       replacement,
-      suggestedScope: isAll ? 'word-in-codebase' : 'word-in-file',
+      suggestedScope: isAllCells ? 'word-in-codebase' : 'word-in-file',
       scopeRationale: 'Replacing matching occurrences with the new name',
+      confidence: 'high',
     };
   }
 
-  // Delete / remove this function / block
+  // ── High-confidence: swap X with/for Y ───────────────────────────────────────
+  const swapRx = new RegExp(`swap\\s+${Q}(\\w+)${Q}\\s+(?:with|for)\\s+${Q}(\\w+)${Q}`, 'i');
+  const swapMatch = instruction.match(swapRx);
+  if (swapMatch) {
+    const [, target, replacement] = swapMatch;
+    return {
+      instruction,
+      target,
+      replacement,
+      suggestedScope: isAllCells ? 'word-in-codebase' : 'word-in-file',
+      scopeRationale: 'Swapping all occurrences of the old name for the new one',
+      confidence: 'high',
+    };
+  }
+
+  // ── Medium-confidence: change/update X to Y ───────────────────────────────────
+  // Medium because "change the error handling to async" is NOT a word rename.
+  const changeRx = new RegExp(`(?:change|update)\\s+${Q}(\\w+)${Q}\\s+to\\s+${Q}(\\w+)${Q}`, 'i');
+  const changeMatch = instruction.match(changeRx);
+  if (changeMatch) {
+    const [, target, replacement] = changeMatch;
+    return {
+      instruction,
+      target,
+      replacement,
+      suggestedScope: isAllCells ? 'word-in-codebase' : 'word-in-file',
+      scopeRationale: 'Updating occurrences — verify target and scope before applying',
+      confidence: 'medium',
+    };
+  }
+
+  // ── High-confidence: delete/remove function ───────────────────────────────────
   if (/delete\s+(?:this\s+)?function|remove\s+(?:this\s+)?function/.test(lower)) {
     return {
       instruction,
@@ -374,10 +519,11 @@ export function parseAiInstruction(instruction: string): AiSuggestion {
       replacement: '',
       suggestedScope: 'function',
       scopeRationale: 'Removing the whole function is safer than ad-hoc selection',
+      confidence: 'high',
     };
   }
 
-  // Delete / remove this block
+  // ── High-confidence: delete/remove block ─────────────────────────────────────
   if (/delete\s+(?:this\s+)?block|remove\s+(?:this\s+)?block/.test(lower)) {
     return {
       instruction,
@@ -385,10 +531,11 @@ export function parseAiInstruction(instruction: string): AiSuggestion {
       replacement: '',
       suggestedScope: 'block',
       scopeRationale: 'Removing the enclosing block keeps surrounding code intact',
+      confidence: 'high',
     };
   }
 
-  // Delete / remove this line
+  // ── High-confidence: delete/remove line ──────────────────────────────────────
   if (/delete\s+(?:this\s+)?line|remove\s+(?:this\s+)?line/.test(lower)) {
     return {
       instruction,
@@ -396,16 +543,20 @@ export function parseAiInstruction(instruction: string): AiSuggestion {
       replacement: '',
       suggestedScope: 'line',
       scopeRationale: 'Removing only the targeted line',
+      confidence: 'high',
     };
   }
 
-  // Generic "change/update/refactor" → suggest word scope
+  // ── Low-confidence fallback ───────────────────────────────────────────────────
+  // No recognised pattern — show a warning in the UI so the user knows to
+  // manually verify target and scope before applying.
   return {
     instruction,
     target: '',
     replacement: '',
     suggestedScope: 'word',
     scopeRationale: 'Start with the smallest scope — you can expand it if needed',
+    confidence: 'low',
   };
 }
 

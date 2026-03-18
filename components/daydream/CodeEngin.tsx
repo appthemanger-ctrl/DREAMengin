@@ -2038,6 +2038,37 @@ export default function CodeEngin({ onBack }: Props) {
                       </code>
                     </div>
                   )}
+                  {/* Low-confidence warning — shown when Dr. Eams couldn't reliably parse the instruction */}
+                  {trustSuggestion.confidence === 'low' && (
+                    <div
+                      style={{
+                        marginTop: 8, padding: '6px 10px', borderRadius: 8, fontSize: 10,
+                        background: 'rgba(245,158,11,0.08)', color: '#d97706',
+                        border: '1px solid rgba(245,158,11,0.25)',
+                        display: 'flex', alignItems: 'flex-start', gap: 6, lineHeight: 1.45,
+                      }}
+                    >
+                      <AlertTriangle size={11} style={{ flexShrink: 0, marginTop: 1 }} />
+                      <span>
+                        Dr. Eams couldn&apos;t fully parse this instruction.
+                        Set the target and scope manually below before applying.
+                      </span>
+                    </div>
+                  )}
+                  {/* Medium-confidence notice */}
+                  {trustSuggestion.confidence === 'medium' && (
+                    <div
+                      style={{
+                        marginTop: 8, padding: '5px 10px', borderRadius: 8, fontSize: 10,
+                        background: 'rgba(245,158,11,0.05)', color: '#b45309',
+                        border: '1px solid rgba(245,158,11,0.18)',
+                        display: 'flex', alignItems: 'flex-start', gap: 6, lineHeight: 1.45,
+                      }}
+                    >
+                      <AlertTriangle size={11} style={{ flexShrink: 0, marginTop: 1 }} />
+                      <span>Verify the target word and scope are correct before applying.</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* ── STEP 2: Scope picker ── */}
@@ -2294,7 +2325,7 @@ export default function CodeEngin({ onBack }: Props) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                       <AlertTriangle size={14} style={{ color: '#f87171', flexShrink: 0 }} />
                       <span style={{ fontSize: 12, fontWeight: 700, color: '#f87171' }}>
-                        {trustPreview.risk === 'critical' ? 'This will change across your entire codebase.' : 'This will change the entire file.'}
+                        {trustPreview.risk === 'critical' ? 'This will change every occurrence across all open notebook cells.' : 'This will change the entire file.'}
                       </span>
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--de-text)', marginBottom: 10, lineHeight: 1.5 }}>
