@@ -9,6 +9,7 @@ import Leaderboard from '@/components/games/Leaderboard';
 import GamesHub from '@/components/games/GamesHub';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
+import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
@@ -87,6 +88,42 @@ export default async function GamesDaydreamPage() {
             <div className="de-widget-actions">
               <Link href="/game" className="de-btn de-btn-primary" style={{ gap: 8 }}><Play className="w-4 h-4 fill-current" /> Play Now</Link>
               <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 'auto' }}><Zap className="w-3 h-3 inline mr-1" style={{ color: 'var(--de-gold)' }} />3 levels · dual joystick</span>
+            </div>
+          </div>
+
+          <div className="de-widget" style={{ borderColor: 'rgba(42,138,184,0.24)' }}>
+            <div className="de-widget-header">
+              <Zap className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
+              <span className="de-widget-title ml-2">Console-Class Game Plan</span>
+              <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>
+                Quality + Controls
+              </span>
+            </div>
+            <div className="de-widget-body">
+              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
+                The target is simple: games that feel premium on mobile at home, with better control confidence, faster restarts, and deeper reasons to come back.
+              </div>
+              <div style={{ display: 'grid', gap: 8 }}>
+                {GAME_QUALITY_PILLARS.map((pillar) => (
+                  <div
+                    key={pillar.id}
+                    style={{
+                      padding: '10px 12px',
+                      borderRadius: 12,
+                      background: 'rgba(255,255,255,0.5)',
+                      border: '1px solid rgba(160,195,240,0.2)',
+                    }}
+                  >
+                    <div className="flex items-center gap-2" style={{ marginBottom: 4 }}>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--de-accent)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{pillar.emphasis}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{pillar.title}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                      {pillar.detail}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 

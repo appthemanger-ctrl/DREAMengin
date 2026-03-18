@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -208,6 +209,7 @@ export default function GameEngin({ onBack }: Props) {
   const [loading,    setLoading]    = useState(true);
   const [sharing,    setSharing]    = useState<string | null>(null);
   const [showRemote, setShowRemote] = useState(false);
+  const [controlProfile, setControlProfile] = useState(GAME_CONTROL_PROFILES[0].id);
 
   // ── World Builder state ──────────────────────────────────────────────────────
   const [worldName,     setWorldName]     = useState('');
@@ -264,6 +266,15 @@ export default function GameEngin({ onBack }: Props) {
     setSharing(null);
   }
 
+  function handleControlProfileSelect(profileId: string) {
+    setControlProfile(profileId);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'games',
+      'game:control-profile',
+      { profileId },
+    );
+  }
+
   // ── World Builder ─────────────────────────────────────────────────────────────
   const handleTileClick = useCallback((row: number, col: number) => {
     setWorldGrid(prev => {
@@ -303,17 +314,6 @@ export default function GameEngin({ onBack }: Props) {
     );
   }
 
-  // ── Achievement computation ───────────────────────────────────────────────────
-  const achievements = ACHIEVEMENT_DEFS.map(def => {
-    let unlocked = def.unlockFn(scores);
-    if (def.id === 'world-builder' && savedWorld)  unlocked = true;
-    if (def.id === 'code-runner'   && savedScript) unlocked = true;
-    return { ...def, unlocked };
-  });
-
-  // ── Early return: GameRemote overlay ─────────────────────────────────────────
-  if (showRemote) return <GameRemote onBack={() => setShowRemote(false)} />;
-
   // ── Multiplayer Lobby state ──────────────────────────────────────────────────
   const [lobbyActive, setLobbyActive] = useState(false);
   const [lobbyCode, setLobbyCode] = useState('');
@@ -349,6 +349,17 @@ export default function GameEngin({ onBack }: Props) {
     { id: 'ch-1', from: 'StarPlayer99',  game: 'Speed Tap',  score: 24800 },
     { id: 'ch-2', from: 'CodeWizard42', game: 'Word Sprint', score: 11200 },
   ]);
+
+  // ── Achievement computation ───────────────────────────────────────────────────
+  const achievements = ACHIEVEMENT_DEFS.map(def => {
+    let unlocked = def.unlockFn(scores);
+    if (def.id === 'world-builder' && savedWorld)  unlocked = true;
+    if (def.id === 'code-runner'   && savedScript) unlocked = true;
+    return { ...def, unlocked };
+  });
+
+  // ── Early return: GameRemote overlay ─────────────────────────────────────────
+  if (showRemote) return <GameRemote onBack={() => setShowRemote(false)} />;
 
   // ── Lobby handlers ───────────────────────────────────────────────────────────
   function handleCreateRoom() {
@@ -407,6 +418,8 @@ export default function GameEngin({ onBack }: Props) {
   }
 
   // ── Render ────────────────────────────────────────────────────────────────────
+  const activeControlProfile = GAME_CONTROL_PROFILES.find((profile) => profile.id === controlProfile) ?? GAME_CONTROL_PROFILES[0];
+
   return (
     <div className="de-sky-bg min-h-screen">
 
@@ -451,6 +464,93 @@ export default function GameEngin({ onBack }: Props) {
 
       {/* ══════════════════════════════════════════ Body */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
+
+        {/* ────────────────────── 1. Quality Command */}
+        <div className="de-widget" style={{ marginBottom: 14, borderColor: `${ACCENT}30` }}>
+          <div className="de-widget-header">
+            <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Quality Command</span>
+            <span
+              className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+              style={{ background: `${ACCENT}18`, color: ACCENT, border: `1px solid ${ACCENT}35` }}
+            >
+              Console-Class Goal
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
+              GameEngin is steering toward premium game feel first: stronger controls, cleaner home-session flow, and deeper competitive loops before feature bloat.
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+              {GAME_QUALITY_PILLARS.map((pillar) => (
+                <span
+                  key={pillar.id}
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: '4px 10px',
+                    borderRadius: 999,
+                    background: `${ACCENT}12`,
+                    color: ACCENT,
+                    border: `1px solid ${ACCENT}25`,
+                  }}
+                >
+                  {pillar.title}
+                </span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {GAME_CONTROL_PROFILES.map((profile) => {
+                const selected = profile.id === activeControlProfile.id;
+                return (
+                  <button
+                    key={profile.id}
+                    type="button"
+                    onClick={() => handleControlProfileSelect(profile.id)}
+                    aria-pressed={selected}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: '10px 12px',
+                      borderRadius: 12,
+                      cursor: 'pointer',
+                      border: selected ? `2px solid ${ACCENT}` : '1px solid rgba(160,195,240,0.18)',
+                      background: selected ? `${ACCENT}14` : 'rgba(255,255,255,0.45)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: selected ? ACCENT : 'var(--de-heading)' }}>{profile.label}</span>
+                      {selected && (
+                        <span style={{ fontSize: 10, fontWeight: 800, color: ACCENT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                          Active
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                      {profile.summary}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <div
+              style={{
+                marginTop: 12,
+                padding: '10px 12px',
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.55)',
+                border: '1px solid rgba(160,195,240,0.18)',
+              }}
+            >
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>
+                {activeControlProfile.label} focus
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                {activeControlProfile.bullets[0]} · {activeControlProfile.bullets[1]}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* ────────────────────── 1. Quick Launch */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
