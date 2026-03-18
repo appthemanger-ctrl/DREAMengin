@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-18 21:59 UTC  
-**Triggered by commit:** `7a9b762` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #236 from appthemanger-ctrl/copilot/improve-game-quality-controls
+**Last updated:** 2026-03-18 22:00 UTC  
+**Triggered by commit:** `f4bf6cc` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #234 from appthemanger-ctrl/copilot/add-full-file-diff-jumping
 
 ---
 
