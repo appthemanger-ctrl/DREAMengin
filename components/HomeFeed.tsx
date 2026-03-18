@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
-  Send, Loader2, Globe, Lock, X
+  Send, Loader2, Globe, Lock,
 } from 'lucide-react';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
 
@@ -46,6 +46,7 @@ export default function HomeFeed({
   embedded = false,
 }: HomeFeedProps) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [tabLoading, setTabLoading] = useState(false);
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostVisibility, setNewPostVisibility] = useState<'public' | 'private'>('public');
   const [isPosting, setIsPosting] = useState(false);
@@ -55,6 +56,26 @@ export default function HomeFeed({
   const [activeTab, setActiveTab] = useState<'feed' | 'trending' | 'following'>('feed');
   const [postError, setPostError] = useState<string | null>(null);
   const [sharePost, setSharePost] = useState<Post | null>(null);
+
+  // ── Re-fetch when the active tab changes ─────────────────────────────────
+  useEffect(() => {
+    // 'feed' tab uses the server-rendered initialPosts on first load
+    if (activeTab === 'feed') {
+      setPosts(initialPosts);
+      return;
+    }
+    setTabLoading(true);
+    const params = new URLSearchParams({ limit: '20' });
+    if (activeTab === 'trending')  params.set('sort', 'trending');
+    if (activeTab === 'following') params.set('feed', 'following');
+
+    fetch(`/api/posts?${params.toString()}`)
+      .then((r) => r.json())
+      .then((data: { posts?: Post[] }) => { if (data.posts) setPosts(data.posts); })
+      .catch(() => { /* keep current posts on error */ })
+      .finally(() => setTabLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const handleSharePost = useCallback((post: Post) => {
     const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://dreamengin.app'}/posts/${post.id}`;
@@ -117,38 +138,76 @@ export default function HomeFeed({
     }
   };
 
+  // ── Like toggle — fixed to send correct payload to /api/likes ─────────────
   const toggleLike = async (postId: string) => {
+    const alreadyLiked = likedPosts.has(postId);
+    // Optimistic UI update
     setLikedPosts(prev => {
       const next = new Set(prev);
-      if (next.has(postId)) {
-        next.delete(postId);
+      if (alreadyLiked) next.delete(postId); else next.add(postId);
+      return next;
+    });
+    // Update displayed count optimistically
+    setPosts(prev => prev.map(p =>
+      p.id === postId
+        ? { ...p, likes_count: Math.max(0, (p.likes_count ?? 0) + (alreadyLiked ? -1 : 1)) }
+        : p,
+    ));
+
+    try {
+      if (alreadyLiked) {
+        await fetch(
+          `/api/likes?content_type=post&content_id=${encodeURIComponent(postId)}`,
+          { method: 'DELETE' },
+        );
       } else {
-        next.add(postId);
+        await fetch('/api/likes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content_type: 'post', content_id: postId }),
+        });
       }
+    } catch {
+      // Revert optimistic update on failure
+      setLikedPosts(prev => {
+        const next = new Set(prev);
+        if (alreadyLiked) next.add(postId); else next.delete(postId);
+        return next;
+      });
+    }
+  };
+
+  // ── Save toggle — persisted to /api/favorites ─────────────────────────────
+  const toggleSave = async (postId: string) => {
+    const alreadySaved = savedPosts.has(postId);
+    // Optimistic UI update
+    setSavedPosts(prev => {
+      const next = new Set(prev);
+      if (alreadySaved) next.delete(postId); else next.add(postId);
       return next;
     });
 
     try {
-      await fetch('/api/likes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId }),
-      });
-    } catch {
-      // Silently fail, optimistic UI
-    }
-  };
-
-  const toggleSave = (postId: string) => {
-    setSavedPosts(prev => {
-      const next = new Set(prev);
-      if (next.has(postId)) {
-        next.delete(postId);
+      if (alreadySaved) {
+        await fetch(
+          `/api/favorites?target_type=post&target_id=${encodeURIComponent(postId)}`,
+          { method: 'DELETE' },
+        );
       } else {
-        next.add(postId);
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target_type: 'post', target_id: postId }),
+        });
       }
-      return next;
-    });
+    } catch {
+      // Revert optimistic update on failure
+      setSavedPosts(prev => {
+        const next = new Set(prev);
+        if (alreadySaved) next.add(postId); else next.delete(postId);
+        return next;
+      });
+    }
   };
 
   const timeAgo = (date: string) => {
@@ -179,7 +238,10 @@ export default function HomeFeed({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <tab.icon className="w-4 h-4" />
+              {tabLoading && activeTab === tab.id
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <tab.icon className="w-4 h-4" />
+              }
               <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}
@@ -357,15 +419,16 @@ export default function HomeFeed({
                 {/* Post Actions */}
                 <div className="flex items-center justify-between pt-2 border-t border-border/50">
                   <button
-                    onClick={() => toggleLike(post.id)}
+                    onClick={() => void toggleLike(post.id)}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${
                       likedPosts.has(post.id)
                         ? 'text-red-500 bg-red-500/10'
                         : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/10'
                     }`}
+                    aria-label={likedPosts.has(post.id) ? 'Unlike post' : 'Like post'}
                   >
                     <Heart className={`w-4 h-4 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
-                    <span>{(post.likes_count || 0) + (likedPosts.has(post.id) ? 1 : 0)}</span>
+                    <span>{post.likes_count ?? 0}</span>
                   </button>
 
                   <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors min-h-[40px]">
@@ -382,12 +445,13 @@ export default function HomeFeed({
                   </button>
 
                   <button
-                    onClick={() => toggleSave(post.id)}
+                    onClick={() => void toggleSave(post.id)}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${
                       savedPosts.has(post.id)
                         ? 'text-primary bg-primary/10'
                         : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
                     }`}
+                    aria-label={savedPosts.has(post.id) ? 'Unsave post' : 'Save post'}
                   >
                     <Bookmark className={`w-4 h-4 ${savedPosts.has(post.id) ? 'fill-current' : ''}`} />
                   </button>

@@ -18,10 +18,14 @@
  * The 6 Daydream surfaces plus Engin apps (Shop, Marketplace, Ads, Links) are
  * pinned as permanent windows, organized like an iOS home screen, and remain
  * in place until the user changes them.
+ *
+ * Architecture note (docs/AXIOMS.md §3 — every visible action must do
+ * something real): app icons now navigate to the real canonical routes via
+ * router.push() instead of embedding them in dead-end iframes.
  */
 
 import React, { useState } from 'react';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
 
@@ -63,7 +67,10 @@ const ICON_RADIUS = 14;
 const ICON_FONT = 26;
 const LABEL_FONT = 11;
 
-/** iOS-style squircle app icon — permanent window shortcut in DreamSpace. */
+/**
+ * iOS-style squircle app icon.
+ * Clicking navigates to the canonical surface route — no iframe dead-ends.
+ */
 function AppIcon({ icon, label, color, onClick }: {
   icon: string;
   label: string;
@@ -136,60 +143,11 @@ function AppIcon({ icon, label, color, onClick }: {
 
 export default function DreamsSpacePanel() {
   const runtime = useDreamsRuntime();
-  const { state, openDetail, goToFeed, setService } = runtime;
+  const { state, setService } = runtime;
+  const router = useRouter();
 
   // Apps home screen is the priority tab — permanent windows shown by default.
   const [view, setView] = useState<DreamsSpaceView>('apps');
-
-  // Detail view — open an item in its own context inside the Dreams Space
-  if (state.view === 'detail' && state.detailUrl) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '10px 14px',
-          borderBottom: '1px solid rgba(200,152,26,0.2)',
-          background: 'rgba(20,10,40,0.6)',
-          flexShrink: 0,
-        }}>
-          <button
-            type="button"
-            onClick={goToFeed}
-            aria-label="Back to Dreams Space"
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--de-text-dim)', display: 'flex', alignItems: 'center', padding: 4,
-            }}
-          >
-            <ArrowLeft size={16} />
-          </button>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {state.detailTitle ?? 'Dreams Space'}
-          </span>
-          <a
-            href={state.detailUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Open in new tab"
-            style={{ color: 'var(--de-text-dim)', display: 'flex', alignItems: 'center', padding: 4 }}
-          >
-            <ExternalLink size={14} />
-          </a>
-        </div>
-
-        {/* Iframe view — content opens inside Dreams Space, not home */}
-        <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-          <iframe
-            src={state.detailUrl}
-            title={state.detailTitle ?? 'Dreams Space content'}
-            style={{ width: '100%', height: '100%', border: 'none', background: '#000' }}
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          />
-        </div>
-      </div>
-    );
-  }
 
   // Feed view — main dreams space content
   return (
@@ -270,7 +228,7 @@ export default function DreamsSpacePanel() {
                   icon={dd.icon}
                   label={dd.label}
                   color={dd.color}
-                  onClick={() => openDetail(dd.route, dd.label)}
+                  onClick={() => router.push(dd.route)}
                 />
               ))}
             </div>
@@ -300,7 +258,7 @@ export default function DreamsSpacePanel() {
                   icon={app.icon}
                   label={app.label}
                   color={app.color}
-                  onClick={() => openDetail(app.route, app.label)}
+                  onClick={() => router.push(app.route)}
                 />
               ))}
             </div>
@@ -379,3 +337,4 @@ export default function DreamsSpacePanel() {
     </div>
   );
 }
+
