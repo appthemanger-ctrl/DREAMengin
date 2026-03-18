@@ -18,7 +18,7 @@
  * Bridge emits follow the typed CodeChannelEvents interface — no phantom event keys.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import {
@@ -245,6 +245,114 @@ export default function CodeEngin({ onBack }: Props) {
     });
   }, []);
 
+  // ── Smart Select state ───────────────────────────────────────────────────────
+  const lastFocusedRef = useRef<HTMLTextAreaElement | null>(null);
+  const [findTarget,   setFindTarget]   = useState('');
+  const [replaceWith,  setReplaceWith]  = useState('');
+  const [findResults,  setFindResults]  = useState<{
+    scope: 'cell' | 'codebase'; total: number;
+  } | null>(null);
+
+  /** Escape a string for safe use inside a RegExp. */
+  function escapeRx(s: string) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  const handleSelectAll = useCallback(() => {
+    const ta = lastFocusedRef.current;
+    if (!ta) return;
+    ta.focus();
+    ta.setSelectionRange(0, ta.value.length);
+    setSelectionBar({ visible: false, x: 0, y: 0, text: ta.value });
+  }, []);
+
+  const handleSelectLine = useCallback(() => {
+    const ta = lastFocusedRef.current;
+    if (!ta) return;
+    ta.focus();
+    const val = ta.value;
+    const cursor = ta.selectionStart;
+    let lineStart = cursor;
+    while (lineStart > 0 && val[lineStart - 1] !== '\n') lineStart--;
+    let lineEnd = cursor;
+    while (lineEnd < val.length && val[lineEnd] !== '\n') lineEnd++;
+    ta.setSelectionRange(lineStart, lineEnd);
+    setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(lineStart, lineEnd) });
+  }, []);
+
+  const handleSelectBlock = useCallback(() => {
+    const ta = lastFocusedRef.current;
+    if (!ta) return;
+    ta.focus();
+    const val = ta.value;
+    const cursor = ta.selectionStart;
+    let blockStart = -1;
+    let blockEnd   = -1;
+    let depth = 0;
+    for (let i = cursor; i >= 0; i--) {
+      if (val[i] === '}') depth++;
+      else if (val[i] === '{') {
+        if (depth === 0) { blockStart = i; break; }
+        depth--;
+      }
+    }
+    depth = 0;
+    for (let i = cursor; i < val.length; i++) {
+      if (val[i] === '{') depth++;
+      else if (val[i] === '}') {
+        if (depth === 0) { blockEnd = i + 1; break; }
+        depth--;
+      }
+    }
+    if (blockStart !== -1 && blockEnd !== -1) {
+      ta.setSelectionRange(blockStart, blockEnd);
+      setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(blockStart, blockEnd) });
+    }
+  }, []);
+
+  const handleSelectVariable = useCallback((scope: 'cell' | 'codebase') => {
+    const ta = lastFocusedRef.current;
+    const rawTarget = selectionBar.text
+      || (() => {
+        if (!ta) return '';
+        const val = ta.value;
+        const c = ta.selectionStart;
+        let s = c; while (s > 0 && /\w/.test(val[s - 1])) s--;
+        let e = c; while (e < val.length && /\w/.test(val[e])) e++;
+        return val.slice(s, e);
+      })();
+    if (!rawTarget.trim()) return;
+    setFindTarget(rawTarget.trim());
+    setReplaceWith('');
+    if (scope === 'cell') {
+      if (!ta) return;
+      const rx = new RegExp(`\\b${escapeRx(rawTarget.trim())}\\b`, 'g');
+      const total = (ta.value.match(rx) ?? []).length;
+      setFindResults({ scope: 'cell', total });
+    } else {
+      const rx = new RegExp(`\\b${escapeRx(rawTarget.trim())}\\b`, 'g');
+      const total = cells.reduce((acc: number, cell: NotebookCell) =>
+        acc + (cell.code.match(rx) ?? []).length, 0);
+      setFindResults({ scope: 'codebase', total });
+    }
+    closeSelectionBar();
+  }, [selectionBar.text, cells, closeSelectionBar]);
+
+  const handleReplaceAll = useCallback((scope: 'cell' | 'codebase') => {
+    if (!findTarget || replaceWith === undefined) return;
+    const rx = new RegExp(`\\b${escapeRx(findTarget)}\\b`, 'g');
+    if (scope === 'cell') {
+      const ta = lastFocusedRef.current;
+      const targetId = ta?.getAttribute('data-cell-id') ?? '';
+      setCells((prev: NotebookCell[]) => prev.map((c: NotebookCell) =>
+        c.id === targetId ? { ...c, code: c.code.replace(rx, replaceWith) } : c));
+    } else {
+      setCells((prev: NotebookCell[]) => prev.map((c: NotebookCell) =>
+        ({ ...c, code: c.code.replace(rx, replaceWith) })));
+    }
+    setFindResults(null);
+    setFindTarget('');
+    setReplaceWith('');
+  }, [findTarget, replaceWith]);
+
   // Selection actions
   const handleSelCopy = useCallback(() => {
     if (selectionBar.text) navigator.clipboard?.writeText(selectionBar.text);
@@ -254,20 +362,47 @@ export default function CodeEngin({ onBack }: Props) {
   const handleSelCut = useCallback(() => {
     if (selectionBar.text) {
       navigator.clipboard?.writeText(selectionBar.text);
-      // Delete selected text from the focused element
-      document.execCommand('delete');
+      // Remove selected text via direct textarea manipulation (execCommand is deprecated)
+      const ta = lastFocusedRef.current;
+      if (ta) {
+        const { selectionStart: s, selectionEnd: e, value } = ta;
+        const newVal = value.slice(0, s) + value.slice(e);
+        // Synthetic React onChange by updating value + dispatching event
+        Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+          ?.set?.call(ta, newVal);
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        ta.setSelectionRange(s, s);
+      }
     }
     closeSelectionBar();
   }, [selectionBar.text, closeSelectionBar]);
 
   const handleSelPaste = useCallback(async () => {
     const text = await navigator.clipboard?.readText().catch(() => '');
-    if (text) document.execCommand('insertText', false, text);
+    if (text) {
+      const ta = lastFocusedRef.current;
+      if (ta) {
+        const { selectionStart: s, selectionEnd: e, value } = ta;
+        const newVal = value.slice(0, s) + text + value.slice(e);
+        Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+          ?.set?.call(ta, newVal);
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        ta.setSelectionRange(s + text.length, s + text.length);
+      }
+    }
     closeSelectionBar();
   }, [closeSelectionBar]);
 
   const handleSelDelete = useCallback(() => {
-    document.execCommand('delete');
+    const ta = lastFocusedRef.current;
+    if (ta) {
+      const { selectionStart: s, selectionEnd: e, value } = ta;
+      const newVal = value.slice(0, s) + value.slice(e);
+      Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+        ?.set?.call(ta, newVal);
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      ta.setSelectionRange(s, s);
+    }
     closeSelectionBar();
   }, [closeSelectionBar]);
 
@@ -422,7 +557,7 @@ export default function CodeEngin({ onBack }: Props) {
 
   // ── Shared style helpers ────────────────────────────────────────────────────
 
-  const tabStyle = useCallback((id: ActiveTab): React.CSSProperties => ({
+  const tabStyle = useCallback((id: ActiveTab): CSSProperties => ({
     padding: '6px 14px',
     borderRadius: 999,
     border: activeTab === id
@@ -840,6 +975,193 @@ export default function CodeEngin({ onBack }: Props) {
           )}
         </div>
 
+        {/* ── Smart Select bar (shown when select mode is ON) ── */}
+        {selectMode && (
+          <div
+            style={{
+              display: 'flex', flexWrap: 'wrap', gap: 5,
+              marginBottom: 8, padding: '7px 10px',
+              borderRadius: 10,
+              background: `${ACCENT}0a`,
+              border: `1px dashed ${ACCENT}40`,
+              alignItems: 'center',
+            }}
+          >
+            <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginRight: 2, whiteSpace: 'nowrap' }}>
+              Smart Select:
+            </span>
+
+            {/* Select All */}
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              title="Select all text in the active code cell"
+              aria-label="Select all"
+              style={smartSelBtnStyle}
+            >
+              ⬛ All
+            </button>
+
+            {/* Select Line */}
+            <button
+              type="button"
+              onClick={handleSelectLine}
+              title="Select the full line at the current cursor"
+              aria-label="Select line"
+              style={smartSelBtnStyle}
+            >
+              ☰ Line
+            </button>
+
+            {/* Select Block */}
+            <button
+              type="button"
+              onClick={handleSelectBlock}
+              title="Select the nearest enclosing { } block"
+              aria-label="Select block"
+              style={smartSelBtnStyle}
+            >
+              {'{ }'} Block
+            </button>
+
+            {/* Divider */}
+            <span style={{ width: 1, height: 16, background: `${ACCENT}30`, margin: '0 2px' }} />
+
+            {/* Select Variable in Cell */}
+            <button
+              type="button"
+              onClick={() => handleSelectVariable('cell')}
+              title="Find all occurrences of the selected word in this cell"
+              aria-label="Select variable in cell"
+              style={{ ...smartSelBtnStyle, color: ACCENT, borderColor: `${ACCENT}45` }}
+            >
+              $var in cell
+            </button>
+
+            {/* Select Variable in Codebase */}
+            <button
+              type="button"
+              onClick={() => handleSelectVariable('codebase')}
+              title="Find all occurrences of the selected word across all cells"
+              aria-label="Select variable across codebase"
+              style={{ ...smartSelBtnStyle, color: '#a78bfa', borderColor: 'rgba(167,139,250,0.4)' }}
+            >
+              $var in codebase
+            </button>
+
+            {/* Hint when no cell focused */}
+            {!lastFocusedRef.current && (
+              <span style={{ fontSize: 10, color: 'var(--de-text-dim)', marginLeft: 4 }}>
+                click inside a cell first
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* ── Find & Replace panel (appears after Select Variable) ── */}
+        {findResults && findTarget && (
+          <div
+            style={{
+              marginBottom: 10, padding: '10px 14px',
+              borderRadius: 12,
+              background: 'rgba(59,125,216,0.06)',
+              border: `1px solid ${ACCENT}30`,
+              display: 'flex', flexDirection: 'column', gap: 8,
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT }}>
+                Find &amp; Replace
+              </span>
+              <span
+                style={{
+                  fontSize: 10, padding: '1px 7px', borderRadius: 999,
+                  background: findResults.total > 0 ? `${ACCENT}15` : 'rgba(248,113,113,0.12)',
+                  color: findResults.total > 0 ? ACCENT : '#f87171',
+                  border: `1px solid ${findResults.total > 0 ? `${ACCENT}30` : 'rgba(248,113,113,0.3)'}`,
+                  fontWeight: 700,
+                }}
+              >
+                {findResults.total} occurrence{findResults.total !== 1 ? 's' : ''} of &ldquo;{findTarget}&rdquo;
+                {' '}{findResults.scope === 'codebase' ? 'across all cells' : 'in this cell'}
+              </span>
+              <button
+                type="button"
+                onClick={() => { setFindResults(null); setFindTarget(''); setReplaceWith(''); }}
+                aria-label="Close Find & Replace"
+                style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--de-text-dim)', fontSize: 13, lineHeight: 1 }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Replace input row */}
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 0,
+                  borderRadius: 8, border: `1px solid ${ACCENT}25`,
+                  background: 'rgba(255,255,255,0.7)', overflow: 'hidden', flex: 1, minWidth: 180,
+                }}
+              >
+                <span style={{ padding: '0 8px', fontSize: 11, color: 'var(--de-text-dim)', whiteSpace: 'nowrap', borderRight: `1px solid ${ACCENT}20` }}>
+                  Replace with
+                </span>
+                <input
+                  type="text"
+                  value={replaceWith}
+                  onChange={e => setReplaceWith(e.target.value)}
+                  placeholder="new name…"
+                  aria-label="Replace with"
+                  style={{
+                    flex: 1, padding: '6px 10px', border: 'none', outline: 'none',
+                    background: 'transparent', fontSize: 12,
+                    fontFamily: '"Fira Code","JetBrains Mono",monospace',
+                    color: 'var(--de-heading)',
+                  }}
+                />
+              </div>
+
+              {findResults.scope === 'cell' && (
+                <button
+                  type="button"
+                  onClick={() => handleReplaceAll('cell')}
+                  disabled={!replaceWith}
+                  aria-label="Replace in this cell"
+                  style={{
+                    padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                    background: replaceWith ? `${ACCENT}18` : 'rgba(160,195,240,0.1)',
+                    color: replaceWith ? ACCENT : 'var(--de-text-dim)',
+                    border: `1px solid ${replaceWith ? `${ACCENT}35` : 'rgba(160,195,240,0.2)'}`,
+                    cursor: replaceWith ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.15s', whiteSpace: 'nowrap',
+                  }}
+                >
+                  Replace in cell
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => handleReplaceAll('codebase')}
+                disabled={!replaceWith}
+                aria-label="Replace in all cells"
+                style={{
+                  padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                  background: replaceWith ? 'rgba(167,139,250,0.15)' : 'rgba(160,195,240,0.1)',
+                  color: replaceWith ? '#a78bfa' : 'var(--de-text-dim)',
+                  border: `1px solid ${replaceWith ? 'rgba(167,139,250,0.35)' : 'rgba(160,195,240,0.2)'}`,
+                  cursor: replaceWith ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.15s', whiteSpace: 'nowrap',
+                }}
+              >
+                Replace in codebase
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* ════════════════════════════════════════
             TAB: Live Notebook
             ════════════════════════════════════════ */}
@@ -970,6 +1292,8 @@ export default function CodeEngin({ onBack }: Props) {
                     <textarea
                       value={cell.code}
                       onChange={e => updateCellCode(cell.id, e.target.value)}
+                      onFocus={e => { lastFocusedRef.current = e.currentTarget; }}
+                      data-cell-id={cell.id}
                       rows={Math.max(3, cell.code.split('\n').length + 1)}
                       spellCheck={false}
                       aria-label={`Cell ${cellIndex + 1} code`}
@@ -1902,7 +2226,7 @@ export default function CodeEngin({ onBack }: Props) {
 
 // ─── Module-level style helpers ───────────────────────────────────────────────
 
-function codeToolBtnStyle(disabled: boolean): React.CSSProperties {
+function codeToolBtnStyle(disabled: boolean): CSSProperties {
   return {
     display: 'flex', alignItems: 'center', gap: 4,
     padding: '4px 8px', borderRadius: 7,
@@ -1916,12 +2240,23 @@ function codeToolBtnStyle(disabled: boolean): React.CSSProperties {
   };
 }
 
-const selBtnStyle: React.CSSProperties = {
+const selBtnStyle: CSSProperties = {
   display: 'flex', alignItems: 'center', gap: 5,
   padding: '5px 9px', borderRadius: 8,
   background: 'rgba(255,255,255,0.06)',
   border: '1px solid rgba(255,255,255,0.10)',
   color: '#e2e8f0',
+  cursor: 'pointer', fontSize: 11, fontWeight: 600,
+  transition: 'background 0.12s',
+  whiteSpace: 'nowrap',
+};
+
+const smartSelBtnStyle: CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 4,
+  padding: '4px 10px', borderRadius: 7,
+  border: '1px solid rgba(160,195,240,0.30)',
+  background: 'rgba(255,255,255,0.55)',
+  color: 'var(--de-text)',
   cursor: 'pointer', fontSize: 11, fontWeight: 600,
   transition: 'background 0.12s',
   whiteSpace: 'nowrap',
