@@ -93,9 +93,9 @@ export function selectNextUpgradeTarget(
     })
     .filter((candidate): candidate is UpgradeTarget => candidate !== null)
     .sort((left, right) =>
-      right.state.progressPct - left.state.progressPct ||
-      right.state.featuresImplemented - left.state.featuresImplemented ||
-      left.state.featurePlanned - right.state.featurePlanned ||
+      (right.state.progressPct - left.state.progressPct) ||
+      (right.state.featuresImplemented - left.state.featuresImplemented) ||
+      (left.state.featurePlanned - right.state.featurePlanned) ||
       left.manifest.domain.localeCompare(right.manifest.domain),
     );
 
