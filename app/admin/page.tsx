@@ -6,8 +6,10 @@ import {
   ArrowLeft, Bot, Shield, Activity, Users, Database,
   CheckCircle, XCircle, Clock, AlertTriangle, Zap
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { isDevAdminBypassActive } from '@/lib/dev-bypass';
 import { isOwnerEmail } from '@/lib/ai/triad';
+import { createUpgradeReadinessSnapshot } from '@/lib/admin/upgrade-readiness';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Admin – Dreamengin' };
@@ -58,31 +60,20 @@ export default async function AdminPage() {
     if (!isAdmin) redirect('/');
   }
 
-  // Example proposals (in production, fetch from DB)
-  const proposals = [
-    {
-      id: 'prop-001',
-      title: 'Enable aggressive feed caching',
-      impact: 'High — reduces DB load by ~40%',
-      idari:     { status: 'approved' as const, note: 'Measured 38% reduction in staging.' },
-      boogieman: { status: 'approved' as const, note: 'No policy risk. Rate limits unchanged.' },
-      dreams:    { status: 'pending'  as const, note: 'Awaiting user-impact assessment.' },
-    },
-    {
-      id: 'prop-002',
-      title: 'Add trending topics to discover feed',
-      impact: 'Medium — increases engagement surface',
-      idari:     { status: 'approved' as const, note: 'Engagement uplift estimated +22%.' },
-      boogieman: { status: 'rejected' as const, note: 'Requires content moderation pass first.' },
-      dreams:    { status: 'pending'  as const, note: 'Pending BoogieMan approval.' },
-    },
-  ];
+  const readiness = createUpgradeReadinessSnapshot();
+  const signedInLabel = devAdmin
+    ? 'Dev admin bypass active'
+    : profile?.handle
+      ? `Signed in as @${profile.handle}`
+      : user?.email
+        ? `Signed in as ${user.email}`
+        : 'Admin session active';
 
   type ApprovalStatus = 'approved' | 'rejected' | 'pending';
-  const statusIcon: Record<ApprovalStatus, { icon: React.ReactNode; color: string }> = {
-    approved: { icon: <CheckCircle size={14} />, color: '#22c55e' },
-    rejected: { icon: <XCircle size={14} />,    color: '#dc4444' },
-    pending:  { icon: <Clock size={14} />,       color: '#f59e0b' },
+  const statusIcon: Record<ApprovalStatus, { icon: LucideIcon; color: string }> = {
+    approved: { icon: CheckCircle, color: '#22c55e' },
+    rejected: { icon: XCircle,     color: '#dc4444' },
+    pending:  { icon: Clock,       color: '#f59e0b' },
   };
 
   return (
@@ -93,7 +84,10 @@ export default async function AdminPage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <Bot className="w-5 h-5" style={{ color: '#8b5cf6' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Admin Dashboard</h1>
+          <div>
+            <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Admin Dashboard</h1>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{signedInLabel}</p>
+          </div>
           <span className="ml-auto text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.2)' }}>Admin Only</span>
         </div>
       </header>
@@ -104,15 +98,15 @@ export default async function AdminPage() {
         <div className="de-widget">
           <div className="de-widget-header">
             <Activity className="w-4 h-4 mr-2" style={{ color: '#22c55e' }} />
-            <span className="de-widget-title">System Health</span>
+            <span className="de-widget-title">Upgrade Readiness</span>
           </div>
           <div className="de-widget-body">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: 'Active Users',   value: '—', icon: Users,         color: '#0ea5e9' },
-                { label: 'DB Queries/min', value: '—', icon: Database,      color: '#6366f1' },
-                { label: 'Errors (24h)',   value: '0', icon: AlertTriangle, color: '#22c55e' },
-                { label: 'Connectors OK',  value: '—', icon: Zap,           color: '#f59e0b' },
+                { label: 'Required Setup', value: `${readiness.setup.requiredPassed}/${readiness.setup.requiredTotal}`, icon: Database, color: readiness.setup.ok ? '#22c55e' : '#dc4444' },
+                { label: 'Optional Integrations', value: `${readiness.setup.optionalPassed}/${readiness.setup.optionalTotal}`, icon: Zap, color: '#6366f1' },
+                { label: 'Pairs in BUILD', value: `${readiness.build.buildPairs}`, icon: Users, color: '#0ea5e9' },
+                { label: 'Overall Progress', value: `${readiness.build.overallProgressPct}%`, icon: CheckCircle, color: '#f59e0b' },
               ].map(({ label, value, icon: Icon, color }) => (
                 <div key={label} className="de-surface">
                   <div className="de-metric">
@@ -135,10 +129,10 @@ export default async function AdminPage() {
           <div className="de-widget-body">
             {/* Triad status */}
             <div className="grid grid-cols-3 gap-3 mb-4">
-              {[
-                { name: 'Dr. Eams',  role: 'User Impact',        color: '#0ea5e9', icon: '🧠', desc: 'Evaluates user experience impact' },
-                { name: 'IDARi',     role: 'Optimization',       color: '#6366f1', icon: '⚡', desc: 'Analyzes performance & efficiency' },
-                { name: 'BoogieMan', role: 'Policy / Overwatch', color: '#f59e0b', icon: '🛡', desc: 'Assesses policy risk & moderation' },
+                {[
+                  { name: 'Dr. Eams',  role: 'User Impact',        color: '#0ea5e9', icon: '🧠', desc: 'Evaluates user experience impact' },
+                  { name: 'IDARi',     role: 'Optimization',       color: '#6366f1', icon: '⚡', desc: 'Analyzes performance & efficiency' },
+                  { name: 'BoogieMan', role: 'Policy / Overwatch', color: '#f59e0b', icon: '🛡', desc: 'Assesses policy risk & moderation' },
               ].map(({ name, role, color, icon, desc }) => (
                 <div key={name} className="de-surface p-3">
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
@@ -150,7 +144,7 @@ export default async function AdminPage() {
             </div>
 
             {/* Proposals */}
-            {proposals.map((p) => {
+            {readiness.proposals.map((p) => {
               const allApproved = [p.idari, p.boogieman, p.dreams].every((s) => s.status === 'approved');
               const anyRejected = [p.idari, p.boogieman, p.dreams].some((s) => s.status === 'rejected');
               return (
@@ -172,44 +166,70 @@ export default async function AdminPage() {
                     </span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    {[
-                      { label: 'IDARi',     data: p.idari     },
-                      { label: 'BoogieMan', data: p.boogieman },
-                      { label: 'Dr. Eams',  data: p.dreams    },
-                    ].map(({ label, data }) => {
-                      const { icon, color } = statusIcon[data.status];
-                      return (
-                        <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: 11 }}>
-                          <span style={{ color, marginTop: 1, flexShrink: 0 }}>{icon}</span>
-                          <span style={{ color: 'var(--de-text-dim)', minWidth: 70 }}>{label}:</span>
-                          <span style={{ color: 'var(--de-text)', lineHeight: 1.4 }}>{data.note}</span>
-                        </div>
-                      );
-                    })}
+                      {[
+                        { label: 'IDARi',     data: p.idari     },
+                        { label: 'BoogieMan', data: p.boogieman },
+                        { label: 'Dr. Eams',  data: p.dreams    },
+                      ].map(({ label, data }) => {
+                        const { icon: Icon, color } = statusIcon[data.status];
+                        return (
+                          <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: 11 }}>
+                            <span style={{ color, marginTop: 1, flexShrink: 0 }}><Icon size={14} /></span>
+                            <span style={{ color: 'var(--de-text-dim)', minWidth: 70 }}>{label}:</span>
+                            <span style={{ color: 'var(--de-text)', lineHeight: 1.4 }}>{data.note}</span>
+                          </div>
+                        );
+                      })}
                   </div>
                   {allApproved && (
-                    <div className="de-widget-actions" style={{ marginTop: 8, padding: '8px 0 0' }}>
-                      <button type="button" className="de-btn de-btn-primary text-xs">Generate PR Checklist</button>
-                    </div>
+                    <details style={{ marginTop: 10 }}>
+                      <summary className="de-btn de-btn-primary text-xs" style={{ cursor: 'pointer', display: 'inline-flex' }}>
+                        Generate PR Checklist
+                      </summary>
+                      <div className="de-surface" style={{ marginTop: 10, padding: 12 }}>
+                        <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>
+                          {p.plan.title}
+                        </div>
+                        <ul style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11, color: 'var(--de-text)', paddingLeft: 18 }}>
+                          {p.checklist.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </details>
                   )}
                 </div>
               );
             })}
+            {readiness.proposals.length === 0 && (
+              <div className="de-surface" style={{ padding: 14, fontSize: 12, color: 'var(--de-text-dim)' }}>
+                All tracked Daydream / Engin pairs are already feature-complete. The next cycle can stay in REFINE mode.
+              </div>
+            )}
           </div>
         </div>
 
-        {/* BoogieMan enforcement log */}
+        {/* Upgrade blockers */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Shield className="w-4 h-4 mr-2" style={{ color: '#f59e0b' }} />
-            <span className="de-widget-title">BoogieMan Policy Log</span>
+            <span className="de-widget-title">Upgrade Blockers</span>
           </div>
           <div className="de-widget-body">
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 0' }}>
-              <Shield className="w-8 h-8 opacity-20" style={{ color: '#f59e0b' }} />
-              <p style={{ fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center' }}>
-                No enforcement actions in the last 24 hours. All policies nominal.
-              </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 0' }}>
+              {readiness.blockers.map((blocker) => (
+                <div key={blocker} className="de-surface" style={{ padding: 12, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                  <AlertTriangle className="w-4 h-4 mt-0.5" style={{ color: blocker.startsWith('No upgrade blockers') ? '#22c55e' : '#f59e0b', flexShrink: 0 }} />
+                  <p style={{ fontSize: 12, color: 'var(--de-text)', lineHeight: 1.5 }}>
+                    {blocker}
+                  </p>
+                </div>
+              ))}
+              {readiness.nextTarget && (
+                <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+                  Next target: {readiness.nextTarget.manifest.domain} / {readiness.nextTarget.manifest.engin} → {readiness.nextTarget.nextFeature.label}
+                </div>
+              )}
             </div>
           </div>
         </div>
