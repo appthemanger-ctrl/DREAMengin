@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-17 09:53 UTC | `82c68c3` | copilot/fix-available-feature-before-login | Copilot | ~1 modified<br>Plan: SPA panel system — zero routing, everything renders inline — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/home/GlobalDreamBar.tsx` |
 | **auto** | 2026-03-17 08:03 UTC | `1e54677` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #229 from appthemanger-ctrl/copilot/fix-module-not-found-error — ONE gold button: fix two-button regression, correct single/double tap direction everywhere<br> |
 | **auto** | 2026-03-17 07:09 UTC | `debe9c7` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #226 from appthemanger-ctrl/copilot/improve-ui-daydreams-engins — BUILD phase writes real feature code — 32 planned Engin features implemented + CI generator<br> |
 | **auto** | 2026-03-17 05:44 UTC | `6b2b249` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #227 from appthemanger-ctrl/copilot/create-windows-for-dreamspace — DreamSpace app icons open as in-panel mini-app windows (not full-page navigation)<br> |
 | **auto** | 2026-03-16 14:25 UTC | `2f6cc6f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #223 from appthemanger-ctrl/copilot/audit-db-extensions — Add DB Extension Audit and DB Extension Check GitHub Actions workflows<br> |
-| **auto** | 2026-03-16 03:42 UTC | `0468ab0` | copilot/add-dual-surface-support | Copilot | ~8 modified<br>feat: dual-surface dual-runtime support with compact nav-bar mode and dual-home — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/home/GlobalDreamBar.tsx`, `components/home/HomeSystem.tsx`, `components/home/WorkspaceDashboard.tsx`, `components/messaging/DreamDMBar.tsx`, `components/runtime/DualRuntimeContainer.tsx`, `lib/dreamdm/DreamSystemContext.tsx`, `lib/runtime/dualRuntime.ts`, `tests/dream-window-system.test.ts` |
 
 ## What changed in this alignment pass
 

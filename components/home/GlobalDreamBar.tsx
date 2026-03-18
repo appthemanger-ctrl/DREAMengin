@@ -1,92 +1,68 @@
 'use client';
 
 /**
- * GlobalDreamBar — root-level shell for DreamDMBar + DualBottomMenu + DrEamsPanel.
+ * GlobalDreamBar — global overlay menus only.
  *
- * Rendered once in app/layout.tsx so the bar and menus persist across every
- * surface (route) without remounting.  HomeSystem registers its runtime
- * callbacks (blend, mode, returnHome) via DreamSystemContext so the bar can
- * still drive the dual-runtime view when the home surface is active.
+ * DreamDMBar (the seam) now lives inside HomeSystem, co-located with the
+ * dual-runtime it controls. It only renders when the home surface is active.
+ *
+ * This component handles only the true global overlays that need to appear
+ * above any surface: DualBottomMenu and DrEamsPanel.
+ *
+ * Hidden on public/pre-login routes so unauthenticated users never see
+ * system menus.
  */
 
 import { useCallback }                              from 'react';
-import { useRouter }                                from 'next/navigation';
-import DreamDMBar                                   from '@/components/messaging/DreamDMBar';
+import { usePathname }                              from 'next/navigation';
 import DualBottomMenu, { type SystemMenuAction }    from '@/components/menus/DualBottomMenu';
 import DrEamsPanel                                  from '@/components/dreamengin/DrEamsPanel';
 import { useDreamSystem }                           from '@/lib/dreamdm/DreamSystemContext';
 
+/** Routes where system menus must NOT appear (pre-login / public surfaces). */
+const PUBLIC_ROUTES = ['/login', '/join', '/policy', '/about'];
+
 export default function GlobalDreamBar() {
-  const router = useRouter();
+  const pathname = usePathname();
 
   const {
     bothMenusOpen,
-    openBothMenus,
     closeBothMenus,
     drEamsOpen,
     openDrEams,
     closeDrEams,
     runtimeCallbacks,
+    openInSurface,
   } = useDreamSystem();
 
-  // ── Gold button: single-tap → menus, double-tap → home ───────────────────
+  // ── Go home (from "go-home" menu action) ─────────────────────────────────
 
   const handleHome = useCallback(() => {
     closeBothMenus();
     closeDrEams();
-    if (runtimeCallbacks) {
-      // HomeSystem is active — use its returnHome (resets dual-runtime)
-      runtimeCallbacks.returnHome();
-    } else {
-      // Any other surface — navigate to home
-      router.push('/');
-    }
-  }, [closeBothMenus, closeDrEams, runtimeCallbacks, router]);
+    runtimeCallbacks?.returnHome?.();
+  }, [closeBothMenus, closeDrEams, runtimeCallbacks]);
 
-  // ── Gold button (bar at top): double-tap → HomeDream in DreamSpace ────────
-
-  const handleHomeDreamSpace = useCallback(() => {
-    closeBothMenus();
-    closeDrEams();
-    if (runtimeCallbacks?.homeDreamSpace) {
-      // HomeSystem is active — load HomeDream into DreamSpace region (dual-home)
-      runtimeCallbacks.homeDreamSpace();
-    } else {
-      // Any other surface — navigate to home
-      router.push('/');
-    }
-  }, [closeBothMenus, closeDrEams, runtimeCallbacks, router]);
-
-  // ── System menu actions ───────────────────────────────────────────────────
+  // ── System menu actions — all open in Surface Space via world dispatch ────
 
   const handleSystemAction = useCallback((action: SystemMenuAction) => {
     closeBothMenus();
     if (action === 'dr-eams')       { openDrEams(); return; }
-    if (action === 'settings')      { router.push('/settings'); return; }
-    if (action === 'account')       { router.push('/edit-profiledream'); return; }
-    if (action === 'profiles')      { router.push('/edit-profiledream'); return; }
-    if (action === 'feed-settings') { router.push('/feed-settings'); return; }
-    if (action === 'connectors')    { router.push('/connectors'); return; }
-    if (action === 'marketplace')   { router.push('/marketplace'); return; }
-    if (action === 'appearance')    { router.push('/settings'); return; }
     if (action === 'go-home')       { handleHome(); return; }
-  }, [closeBothMenus, openDrEams, handleHome, router]);
+    if (action === 'settings')      { openInSurface('settings');            return; }
+    if (action === 'account')       { openInSurface('profile');             return; }
+    if (action === 'profiles')      { openInSurface('profile');             return; }
+    if (action === 'feed-settings') { openInSurface('feed-settings');       return; }
+    if (action === 'connectors')    { openInSurface('connectors');          return; }
+    if (action === 'marketplace')   { openInSurface('marketplace');         return; }
+    if (action === 'appearance')    { openInSurface('settings/appearance'); return; }
+  }, [closeBothMenus, openDrEams, handleHome, openInSurface]);
 
-  // ── Runtime bridge (only active when HomeSystem is mounted) ───────────────
-
-  const onRuntimeModeChange  = runtimeCallbacks?.modeChange  ?? undefined;
-  const onRuntimeBlendChange = runtimeCallbacks?.blendChange ?? undefined;
+  // ── Hide on public / pre-login routes ────────────────────────────────────
+  if (PUBLIC_ROUTES.includes(pathname)) return null;
 
   return (
     <>
-      <DreamDMBar
-        onHome={handleHome}
-        onBothMenus={openBothMenus}
-        onHomeDreamSpace={handleHomeDreamSpace}
-        onRuntimeModeChange={onRuntimeModeChange}
-        onRuntimeBlendChange={onRuntimeBlendChange}
-      />
-
       <DualBottomMenu
         open={bothMenusOpen}
         onClose={closeBothMenus}

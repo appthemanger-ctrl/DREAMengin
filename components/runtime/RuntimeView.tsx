@@ -4,13 +4,33 @@
  * RuntimeView
  *
  * Renders the content for a single runtime view based on the RuntimeWorld.
- * This component is used by both the top and bottom runtimes.
+ * Used by both Surface Space (top) and DreamSpace (bottom) regions.
+ *
+ * Panel worlds — { type: 'panel'; name: SystemPanelId } — render the system
+ * feature component directly inside the region. No routing. No overlays.
+ * The seam and bar remain persistent. Only this region's content changes.
  */
 
 import React from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
 import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
+
+// ── Panel components (loaded in-region, never as overlays) ───────────────────
+import SettingsPanel     from '@/components/panels/SettingsPanel';
+import ConnectorsPanel   from '@/components/panels/ConnectorsPanel';
+import MarketplacePanel  from '@/components/panels/MarketplacePanel';
+import ProfilePanel      from '@/components/panels/ProfilePanel';
+import FeedSettingsPanel from '@/components/panels/FeedSettingsPanel';
+import AppearancePanel   from '@/components/panels/AppearancePanel';
+import PrivacyPanel      from '@/components/panels/PrivacyPanel';
+import ControlsPanel     from '@/components/panels/ControlsPanel';
+import DataPanel         from '@/components/panels/DataPanel';
+import AlgorithmPanel    from '@/components/panels/AlgorithmPanel';
+import WidgetsPanel      from '@/components/panels/WidgetsPanel';
+import HelpPanel         from '@/components/panels/HelpPanel';
+import SafetyPanel       from '@/components/panels/SafetyPanel';
+import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
 interface RuntimeViewProps {
   world: RuntimeWorld;
@@ -211,6 +231,44 @@ export default function RuntimeView({
             </a>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Panel world — a system feature loaded in-region via world dispatch.
+  // No routing. No overlays. The panel fills the region like any other world.
+  if (typeof world === 'object' && world.type === 'panel') {
+    const PANEL_MAP: Record<SystemPanelId, React.ReactNode> = {
+      'settings':             <SettingsPanel />,
+      'connectors':           <ConnectorsPanel />,
+      'marketplace':          <MarketplacePanel />,
+      'profile':              <ProfilePanel />,
+      'feed-settings':        <FeedSettingsPanel />,
+      'settings/appearance':  <AppearancePanel />,
+      'settings/privacy':     <PrivacyPanel />,
+      'settings/controls':    <ControlsPanel />,
+      'settings/data':        <DataPanel />,
+      'settings/algorithm':   <AlgorithmPanel />,
+      'settings/widgets':     <WidgetsPanel />,
+      'settings/help':        <HelpPanel />,
+      'settings/safety':      <SafetyPanel />,
+      'settings/feed':        <FeedSettingsPanel />,
+    };
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: isActive ? 1 : 0.3,
+          pointerEvents: isActive ? 'auto' : 'none',
+          transition: 'opacity 0.3s ease',
+          background: 'var(--de-surface, #f4f8fd)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {PANEL_MAP[world.name] ?? null}
       </div>
     );
   }

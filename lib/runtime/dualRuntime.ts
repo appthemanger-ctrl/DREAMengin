@@ -26,6 +26,7 @@ import {
   SURFACE_NAMES,
   RUNTIME_REGIONS,
 } from '@/lib/identity/canonical-names';
+import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
 // ---------------------------------------------------------------------------
 // RuntimeWorld — canonical string literals + object variants
@@ -35,7 +36,10 @@ import {
  * A RuntimeWorld value identifies what a runtime region is currently showing.
  *
  * String literals use canonical surface names from SURFACE_NAMES / RUNTIME_REGIONS.
- * Object variants carry typed payloads for Dream, Engin, and custom worlds.
+ * Object variants carry typed payloads for Dream, Engin, panel, and custom worlds.
+ *
+ * panel worlds load a system feature (Settings, Connectors, etc.) directly
+ * into the region — no routing, no overlays, no navigation.
  */
 export type RuntimeWorld =
   | typeof SURFACE_NAMES.HOME_DREAM_SURFACE      // 'HomeDream Surface'
@@ -43,6 +47,7 @@ export type RuntimeWorld =
   | typeof RUNTIME_REGIONS.DREAM_SPACE           // 'DreamSpace'
   | { type: 'dream'; id: string }
   | { type: 'engin'; name: string }
+  | { type: 'panel'; name: SystemPanelId }       // in-region feature panel
   | { type: 'custom'; path: string };
 
 // ---------------------------------------------------------------------------
