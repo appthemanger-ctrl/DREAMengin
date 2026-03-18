@@ -23,6 +23,7 @@
 import { Calendar, Clock, Send, Trash2, Plus, Loader2, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import CreatePostModal from '@/components/CreatePostModal';
+import { createClient } from '@/lib/supabase/client';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -89,10 +90,8 @@ export default function ContentScheduler() {
   const [showPostModal, setShowPostModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError]       = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // Mock userId for CreatePostModal (resolved from session in a real flow)
-  // We use a data attribute approach: after the modal closes we check if
-  // a new draft post was created and attach it to the schedule
   const [pendingContent, setPendingContent] = useState('');
 
   const [form, setForm] = useState<NewPostForm>({
@@ -106,6 +105,10 @@ export default function ContentScheduler() {
 
   useEffect(() => {
     fetchPosts();
+    // Resolve the real user ID so CreatePostModal can use it
+    createClient().auth.getUser().then((result: { data: { user: { id: string } | null } }) => {
+      setCurrentUserId(result.data.user?.id ?? null);
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -244,7 +247,8 @@ export default function ContentScheduler() {
             <button
               type="button"
               onClick={() => setShowPostModal(true)}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+              disabled={!currentUserId}
+              className="text-xs text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ✏️ Open full post composer (media, formatting)
             </button>
@@ -395,13 +399,10 @@ export default function ContentScheduler() {
 
       {/* Full CreatePostModal — user composes rich content; on close the
           content is pre-filled into the schedule form */}
-      {showPostModal && (
+      {showPostModal && currentUserId && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 60 }}>
-          {/* We pass a placeholder userId here; the modal uses its own
-              supabase session internally for the actual post creation.
-              When the user closes, we pull back any drafted content. */}
           <CreatePostModal
-            userId="__schedule_draft__"
+            userId={currentUserId}
             onClose={() => setShowPostModal(false)}
           />
         </div>

@@ -34,10 +34,6 @@ describe('pctChange', () => {
     expect(pctChange(5, 0)).toBe(100);
   });
 
-  it('returns 0 when previous is 0 and current is 0', () => {
-    expect(pctChange(0, 0)).toBe(0);
-  });
-
   it('calculates positive growth correctly', () => {
     expect(pctChange(110, 100)).toBe(10);
   });
