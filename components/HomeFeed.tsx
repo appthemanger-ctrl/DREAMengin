@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -8,6 +8,7 @@ import {
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
   Send, Loader2, Globe, Lock, X
 } from 'lucide-react';
+import SocialShareSheet from '@/components/ui/SocialShareSheet';
 
 interface Post {
   id: string;
@@ -53,6 +54,20 @@ export default function HomeFeed({
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'feed' | 'trending' | 'following'>('feed');
   const [postError, setPostError] = useState<string | null>(null);
+  const [sharePost, setSharePost] = useState<Post | null>(null);
+
+  const handleSharePost = useCallback((post: Post) => {
+    const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://dreamengin.app'}/posts/${post.id}`;
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({
+        title: `Post by @${post.profiles.handle}`,
+        text: post.content.slice(0, 120),
+        url,
+      }).catch(() => setSharePost(post));
+    } else {
+      setSharePost(post);
+    }
+  }, []);
 
   const handleCreatePost = async () => {
     const trimmed = newPostContent.trim();
@@ -145,6 +160,7 @@ export default function HomeFeed({
   };
 
   return (
+    <>
     <div className={embedded ? 'h-full' : 'min-h-screen de-sky-bg'}>
       <div className={embedded ? 'h-full px-4 pt-4 pb-4' : 'max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8'}>
         {/* Feed Tabs */}
@@ -357,7 +373,11 @@ export default function HomeFeed({
                     <span>{post.comments_count || 0}</span>
                   </button>
 
-                  <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-green-500 hover:bg-green-500/10 transition-colors min-h-[40px]">
+                  <button
+                    onClick={() => handleSharePost(post)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-green-500 hover:bg-green-500/10 transition-colors min-h-[40px]"
+                    aria-label="Share post"
+                  >
                     <Share2 className="w-4 h-4" />
                   </button>
 
@@ -378,5 +398,16 @@ export default function HomeFeed({
         </div>
       </div>
     </div>
+
+    {/* Share sheet */}
+    {sharePost && (
+      <SocialShareSheet
+        open={!!sharePost}
+        onClose={() => setSharePost(null)}
+        url={`${typeof window !== 'undefined' ? window.location.origin : 'https://dreamengin.app'}/posts/${sharePost.id}`}
+        text={sharePost.content.slice(0, 120)}
+      />
+    )}
+    </>
   );
 }
