@@ -56,6 +56,13 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     setBarBlend(1);
   }, [dualRuntime]);
 
+  // Open DreamSpace world in Surface Space — allows both regions to show
+  // DreamsSpacePanel simultaneously (two independent Daydream/Engin sessions).
+  const openDreamSpaceInSurface = useCallback(() => {
+    dualRuntime.goToDreamSpace();
+    setBarBlend(0);
+  }, [dualRuntime]);
+
   // Bar double-tap when at top → load HomeDream into DreamSpace (dual-home)
   const openHomeDreamSpace = useCallback(() => {
     dualRuntime.goToHomeDreamSpace();
@@ -111,7 +118,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             posts={initialPosts}
             isAdmin={isAdmin}
             onOpenDrEams={() => {}}
-            onOpenDreamSpace={openDreamSpace}
+            onOpenDreamSpace={openDreamSpaceInSurface}
           />
         </div>
 
@@ -121,7 +128,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             position: 'absolute',
             inset: 0,
             zIndex: isSurfaceDominant ? 1 : 2,
-            opacity: isSurfaceDominant ? 0.3 + (barBlend * 0.7) : 1,
+            opacity: isSurfaceDominant ? barBlend : 1,
             pointerEvents: isSurfaceDominant ? 'none' : 'auto',
             transition: 'opacity 180ms ease, z-index 0ms',
           }}

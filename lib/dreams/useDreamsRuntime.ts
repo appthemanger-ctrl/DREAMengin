@@ -1,10 +1,11 @@
 /**
  * lib/dreams/useDreamsRuntime.ts
  *
- * Dreams Space runtime — independent state for the Dreams panel.
+ * Dreams Space runtime — independent per-instance state for the DreamsSpacePanel.
  *
- * The Dreams Space is separate from the main home runtime.
- * Opening content here does not affect the home view.
+ * Each DreamsSpacePanel instance (Surface Space or DreamSpace region) gets its
+ * own independent runtime state. Opening content in one region does not affect
+ * the other, enabling two simultaneous Daydream or Engin sessions.
  * Runtime persists while the component is mounted; resets on unmount.
  */
 
