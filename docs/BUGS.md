@@ -4,12 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-19 14:06 UTC  
-**Triggered by commit:** `0778e85` on `copilot/update-privacy-defaults` by Copilot  
-**Commit message:** Fix all broken runtime features: real DB data for connectors, DMs, privacy, notifications, feed settings
-**Last updated:** 2026-03-19 14:42 UTC  
-**Triggered by commit:** `2b7baa0` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #247 from appthemanger-ctrl/copilot/add-user-sim-ai-agent
+**Last updated:** 2026-03-19 14:54 UTC  
+**Triggered by commit:** `d2dd0f2` on `copilot/update-privacy-defaults` by appthemanger-ctrl  
+**Commit message:** Merge branch 'completedream' into copilot/update-privacy-defaults
 
 ---
 
