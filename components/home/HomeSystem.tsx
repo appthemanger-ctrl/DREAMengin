@@ -87,6 +87,12 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
 
   const isSurfaceDominant = dualRuntime.state.dominantRegion === 'Surface Space';
 
+  // Wire Dr. Eams panel open — used by WorkspaceDashboard search bar and agent cards.
+  // Per Phase 6 item 5: onOpenDrEams must call a real action (Constitution Art. II Rule 6).
+  // openDrEams is provided by DreamSystemContext which lives in the layout wrapper,
+  // so the state is shared with GlobalDreamBar (which renders the DrEamsPanel overlay).
+  const { openDrEams } = useDreamSystem();
+
   return (
     <>
       <StarfieldCanvas />
@@ -117,7 +123,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
-            onOpenDrEams={() => {}}
+            onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpaceInSurface}
           />
         </div>
@@ -139,7 +145,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
-            onOpenDrEams={() => {}}
+            onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpace}
           />
         </div>

@@ -9,6 +9,71 @@
 
 export type ConstraintPriority = 'critical' | 'high' | 'medium' | 'low';
 
+// ---------------------------------------------------------------------------
+// RuntimeContext — optional caller-provided signal set.
+//
+// Pass this to the DreamOptimizer constructor so that all ranking methods can
+// use real device/user/layout data instead of fixed neutral fallbacks.
+// Every field is optional; missing fields fall back to their documented
+// neutral defaults so existing callers need zero changes.
+// ---------------------------------------------------------------------------
+
+/**
+ * Device form-factor hint supplied by the caller (e.g. via a User-Agent check
+ * or a CSS media-query result forwarded from the client).
+ */
+export type DeviceType = 'mobile' | 'tablet' | 'desktop';
+
+/**
+ * Caller-supplied runtime signals injected into the DreamOptimizer at
+ * construction time.  All fields are optional — omitting a field causes the
+ * optimizer to fall back to its documented neutral default value.
+ */
+export interface RuntimeContext {
+  /**
+   * Per-source preference weights sourced from user settings.
+   * Keys are source identifiers (e.g. connector id, service name).
+   * Values are 0–1, where 1 means "strongly preferred".
+   * Default fallback: 0.7 per source.
+   */
+  sourcePreferences?: Record<string, number>;
+
+  /**
+   * Logical viewport width in CSS pixels (device pixel ratio NOT applied).
+   * Used to derive a screen-size score for Dream Window priority.
+   * Default fallback: 0.7 (treated as a mid-range viewport).
+   */
+  viewportWidth?: number;
+
+  /**
+   * Logical viewport height in CSS pixels.
+   * Reserved for future vertical layout calculations.
+   */
+  viewportHeight?: number;
+
+  /**
+   * Device form-factor hint.
+   * Default fallback: 0.8 score (treated as tablet/mid range).
+   */
+  deviceType?: DeviceType;
+
+  /**
+   * Number of Dream Windows currently visible in the active layout.
+   * Used to calculate layout density: more Dream Windows → lower per-window
+   * prominence score.
+   * Default fallback: 0.6 (treated as a moderately dense layout).
+   */
+  dreamWindowCount?: number;
+
+  /**
+   * Per-sender relationship priority map.
+   * Keys are sender user ids. Values are 0–1, where 1 means "top priority".
+   * Used when ordering notifications in the DreamDM Bar.
+   * Default fallback: 0.7 per unknown sender.
+   */
+  senderPriorities?: Record<string, number>;
+}
+
 export interface Constraint {
   name: string;
   weight: number;

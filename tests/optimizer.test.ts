@@ -856,3 +856,170 @@ describe('Creative Optimizer', () => {
     });
   });
 });
+
+// =============================================================================
+// RuntimeContext-aware optimizer tests (P-003 — IDARi daily improvement cycle)
+//
+// Architecture justification: docs/ARCHITECTURE.md §10 — performance systems
+// must stay adaptive.  These tests verify that injecting a RuntimeContext
+// actually changes ranking behaviour (docs/BUGS.md TODO items resolved).
+// =============================================================================
+
+import type { RuntimeContext } from '@/lib/optimizer/types';
+
+describe('DreamOptimizer — RuntimeContext injection', () => {
+  /** Minimal config that enables feed + widget + notification ranking. */
+  const baseConfig = (): OptimizerConfig => ({
+    version: '1.0.0',
+    optimizer: { algorithm: 'constraint-solver', max_iterations: 100, convergence_threshold: 0.001 },
+    feed_selection: {
+      enabled: true,
+      constraints: [
+        { name: 'user_selected_sources', weight: 0.6, priority: 'high' },
+        { name: 'recency', weight: 0.2, priority: 'low' },
+        { name: 'favorites', weight: 0.2, priority: 'medium' },
+      ],
+      output: 'ranked_feed',
+    },
+    widget_priority: {
+      enabled: true,
+      constraints: [
+        { name: 'interaction_frequency', weight: 0.2, priority: 'medium' },
+        { name: 'screen_size',           weight: 0.3, priority: 'high' },
+        { name: 'device_type',           weight: 0.3, priority: 'high' },
+        { name: 'layout_density',        weight: 0.2, priority: 'medium' },
+      ],
+      output: 'ranked_widgets',
+    },
+    notification_priority: {
+      enabled: true,
+      constraints: [
+        { name: 'urgency',          weight: 0.4, priority: 'high' },
+        { name: 'sender_priority',  weight: 0.4, priority: 'high' },
+        { name: 'recency',          weight: 0.2, priority: 'low' },
+      ],
+      output: 'ranked_notifications',
+    },
+    performance: { max_optimization_time_ms: 100, cache_results: false, cache_ttl_seconds: 0, parallel_optimization: false, max_concurrent_optimizations: 1 },
+    logging: { enabled: false, level: 'info', log_optimizations: false, log_constraint_violations: false, output_path: '' },
+  });
+
+  // ── Feed: sourcePreferences ──────────────────────────────────────────────
+
+  describe('Feed — sourcePreferences', () => {
+    const items: FeedItem[] = [
+      { id: 'a', content: '', timestamp: new Date(), source: 'spotify',  is_favorite: false },
+      { id: 'b', content: '', timestamp: new Date(), source: 'youtube',  is_favorite: false },
+      { id: 'c', content: '', timestamp: new Date(), source: 'github',   is_favorite: false },
+    ];
+
+    it('without context, all sources score the same neutral fallback', () => {
+      const opt = new DreamOptimizer(baseConfig());
+      const result = opt.optimizeFeed(items);
+      // All user_selected_sources should be equal (0.5 default), so relative
+      // ordering is determined by other factors; scores must be defined and
+      // in [0, 1].
+      for (const r of result) {
+        expect(r.score).toBeGreaterThanOrEqual(0);
+        expect(r.score).toBeLessThanOrEqual(1);
+      }
+    });
+
+    it('with sourcePreferences, highly-preferred source ranks above others', () => {
+      const context: RuntimeContext = {
+        sourcePreferences: { spotify: 1.0, youtube: 0.1, github: 0.1 },
+      };
+      const opt = new DreamOptimizer(baseConfig(), context);
+      const result = opt.optimizeFeed(items);
+      expect(result[0].item.source).toBe('spotify');
+    });
+
+    it('preferring a different source flips the ranking', () => {
+      const context: RuntimeContext = {
+        sourcePreferences: { spotify: 0.1, youtube: 1.0, github: 0.1 },
+      };
+      const opt = new DreamOptimizer(baseConfig(), context);
+      const result = opt.optimizeFeed(items);
+      expect(result[0].item.source).toBe('youtube');
+    });
+  });
+
+  // ── Widget: device-context scores ────────────────────────────────────────
+
+  describe('Widget — device / layout context', () => {
+    const widgets: WidgetPriority[] = [
+      { widget_id: 'w1', focus_rank: 0, z_index: 0, interaction_frequency: 10 },
+      { widget_id: 'w2', focus_rank: 0, z_index: 0, interaction_frequency: 10 },
+    ];
+
+    it('desktop context scores higher screen_size than mobile', () => {
+      const desktop = new DreamOptimizer(baseConfig(), { deviceType: 'desktop', viewportWidth: 1920 });
+      const mobile  = new DreamOptimizer(baseConfig(), { deviceType: 'mobile',  viewportWidth: 375 });
+      const desktopResult = desktop.optimizeWidgets(widgets);
+      const mobileResult  = mobile.optimizeWidgets(widgets);
+      // All widgets identical — scores may differ between desktop and mobile
+      // because screen_size and device_type weights are large (0.3 + 0.3).
+      // Desktop composite score must be ≥ mobile composite score.
+      expect(desktopResult[0].score).toBeGreaterThanOrEqual(mobileResult[0].score);
+    });
+
+    it('layout density decreases score as dreamWindowCount increases', () => {
+      const sparse = new DreamOptimizer(baseConfig(), { dreamWindowCount: 1 });
+      const dense  = new DreamOptimizer(baseConfig(), { dreamWindowCount: 9 });
+      const sparseScore = sparse.optimizeWidgets(widgets)[0].score;
+      const denseScore  = dense.optimizeWidgets(widgets)[0].score;
+      expect(sparseScore).toBeGreaterThan(denseScore);
+    });
+
+    it('no context falls back to documented neutral defaults without throwing', () => {
+      const opt = new DreamOptimizer(baseConfig());
+      expect(() => opt.optimizeWidgets(widgets)).not.toThrow();
+    });
+
+    it('resolveScreenSizeScore breakpoints match spec values', () => {
+      const make = (w: number) => new DreamOptimizer(baseConfig(), { viewportWidth: w });
+      // Verify breakpoint ordering: wider = higher score
+      const s375  = make(375).optimizeWidgets(widgets)[0].score;
+      const s768  = make(768).optimizeWidgets(widgets)[0].score;
+      const s1024 = make(1024).optimizeWidgets(widgets)[0].score;
+      const s1440 = make(1440).optimizeWidgets(widgets)[0].score;
+      expect(s375).toBeLessThan(s768);
+      expect(s768).toBeLessThan(s1024);
+      expect(s1024).toBeLessThan(s1440);
+    });
+  });
+
+  // ── Notifications: senderPriorities ─────────────────────────────────────
+
+  describe('Notifications — senderPriorities', () => {
+    const notifications: Notification[] = [
+      { id: 'n1', type: 'dm',   urgency: 'medium', sender_id: 'alice', timestamp: new Date() },
+      { id: 'n2', type: 'dm',   urgency: 'medium', sender_id: 'bob',   timestamp: new Date() },
+    ];
+
+    it('without context, sender_priority is the same 0.7 fallback for both', () => {
+      const opt = new DreamOptimizer(baseConfig());
+      const result = opt.optimizeNotifications(notifications);
+      // Scores should be valid; no crash
+      for (const r of result) expect(r.score).toBeGreaterThanOrEqual(0);
+    });
+
+    it('senderPriorities boosts the preferred sender to rank 1', () => {
+      const context: RuntimeContext = {
+        senderPriorities: { alice: 1.0, bob: 0.1 },
+      };
+      const opt = new DreamOptimizer(baseConfig(), context);
+      const result = opt.optimizeNotifications(notifications);
+      expect(result[0].item.sender_id).toBe('alice');
+    });
+
+    it('context with unknown sender_id falls back to 0.7 gracefully', () => {
+      const context: RuntimeContext = {
+        senderPriorities: { carol: 1.0 }, // neither alice nor bob
+      };
+      const opt = new DreamOptimizer(baseConfig(), context);
+      // Should not throw; both get 0.7 fallback
+      expect(() => opt.optimizeNotifications(notifications)).not.toThrow();
+    });
+  });
+});

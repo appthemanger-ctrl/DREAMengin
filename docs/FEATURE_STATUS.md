@@ -1,6 +1,6 @@
 # DREAMengin Feature Status
 
-Last updated: 2026-03-15  
+Last updated: 2026-03-21  
 Source of truth for product naming: `README.md`
 
 Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly aligned
@@ -55,28 +55,28 @@ See `docs/dreamengin_phase6.md` for the full 50-point specification.
 
 | Module | Status | Repo truth |
 |---|---|---|
-| DreamMenu | 🟡 | Menu systems exist in `components/menus/*`, `components/dreamnav/*`, and `components/HomeRadialNav.tsx`; naming is still mixed. |
+| DreamMenu | ✅ | Canonical: `components/menus/DreamRadialMenu.tsx`. `HomeRadialNav.tsx` (legacy, was unused) replaced with redirect stub re-exporting from canonical. `DualBottomMenu.tsx` wraps DreamRadialMenu + SystemRadialMenu for the seam. Phase 6 item 10 complete. |
 | DreamDM | ✅ | `app/messages/page.tsx` and `app/api/messages/route.ts` exist. |
 | DreamShop | ✅ | `app/shop/page.tsx` and `app/api/shop/route.ts` exist. |
 | DreamMarketplace | ✅ | `app/marketplace/page.tsx` exists. |
-| DreamAds | 🟡 | `app/ads/page.tsx` exists; user-owned DreamAds vs platform promotions still need clearer separation in code and UI language. |
+| DreamAds | ✅ | `app/ads/page.tsx` now renders "My DreamAds — Available" and "Platform Promotions" as distinct sections. Migration `20260321000000_ads_platform_promotions.sql` adds `is_platform_promotion` column. Phase 6 item 11 complete. |
 
 ## 5. AI triad
 
 | AI | Status | Repo truth |
 |---|---|---|
-| Dr. Eams | 🟡 | Canonical route exists at `/api/ai/eams`; legacy support routes still exist under `/api/dr-eams/*`. HomeDream integration (search bar, send-to-DreamDM) is a Phase 6 item. |
-| IDARi | 🟡 | `/api/ai/idari` exists; admin-guard under dev bypass needs verification (Phase 6 item). |
-| TheBoogieMan.Ai | 🟡 | `/api/ai/boogieman` exists; privacy-adjacent event logging is a Phase 6 item. |
+| Dr. Eams | ✅ | Canonical route at `/api/ai/eams`. `DrEamsSearchBar` wired in HomeDream (`WorkspaceDashboard`); `onOpenDrEams` calls real `openDrEams` from `DreamSystemContext`. Send-to-DreamDM routing live. Phase 6 item 5 complete. |
+| IDARi | ✅ | `/api/ai/idari` exists; admin-guard enforced even under dev bypass; `IDARI_PASSWORD` env check returns 503 when absent. 15 guard tests in `tests/idari-admin-guard.test.ts`. Phase 6 item 6 complete. |
+| TheBoogieMan.Ai | ✅ | `/api/ai/boogieman` and `/api/ai/boogieman/privacy-event` exist. Visibility-change events logged on `handleSave`; publish events logged on `handlePublish` in EditProfileDream. Phase 6 item 7 complete. |
 | AI Triad coordination bus | 🟡 | `lib/agents/agentBus.ts` exists; triad consensus gate is a Phase 6 item. |
 
 ## 6. Privacy and profile integrity
 
 | Rule | Status | Repo truth |
 |---|---|---|
-| Nothing public by default | 🟡 | This is the intended rule and is documented throughout the repo, but `visibility_mappings` table consultation in ViewProfile is a Phase 6 item. |
-| Save before public/shared update | 🟡 | Edit/view split exists, but the private-save vs explicit-share distinction in EditProfileDream is a Phase 6 item. |
-| No fake actions | 🟡 | Repo direction and docs reject fake buttons, but a real capability audit across all pages is a Phase 6 item. |
+| Nothing public by default | ✅ | Enforced at data layer. `visibility_mappings` table consulted on ViewProfile before rendering any Dream Window. Default is `private`. |
+| Save before public/shared update | ✅ | EditProfileDream has separate "Save Draft" (`handleSave`) and "Publish" (`handlePublish`) buttons with separate API calls. Visibility-change events logged by TheBoogieMan on save. |
+| No fake actions | ✅ | `onOpenDrEams` empty handlers replaced with real `openDrEams`; marketplace "Request" buttons replaced with real navigation links. Phase 6 item 13 complete. |
 | RLS on all user tables | 🟡 | RLS is documented as required; full audit of all Supabase tables is a Phase 6 item. |
 
 ## 7. Design language
@@ -95,15 +95,15 @@ The following items are the Phase 6 focus. See `docs/dreamengin_phase6.md` for t
 2. ✅ Create `lib/daydream/useDaydreamState.ts` (shared Daydream/Engin state hook) — done.
 3. ✅ Wire `sideBComponent` prop into `DaydreamShell`; wire `GameEngin` into Games page — done.
 4. ✅ Surface Daydreams as priority in Dreams Space with live routes from second runtime — done.
-5. ⏳ Integrate Dr. Eams as HomeDream search bar with send-to-DreamDM routing.
-6. ⏳ Enforce IDARi admin-guard even under dev auth bypass.
-7. ⏳ Wire TheBoogieMan privacy-event logging for visibility changes.
-8. ⏳ Consult `visibility_mappings` before rendering any content on ViewProfile.
-9. ⏳ Separate private-save and explicit-share flows in EditProfileDream.
-10. ⏳ Unify DreamMenu under a single canonical implementation.
-11. ⏳ Separate user DreamAds from platform promotions in code and UI language.
+5. ✅ Integrate Dr. Eams as HomeDream search bar with send-to-DreamDM routing — done. `DrEamsSearchBar` wired in `WorkspaceDashboard`; `onOpenDrEams` now calls real `openDrEams` from `DreamSystemContext` (was `() => {}` — Phase 6 Item 13 fix applied simultaneously).
+6. ✅ Enforce IDARi admin-guard even under dev auth bypass — done. IDARI_PASSWORD env check added to `app/api/ai/idari/route.ts`; returns 503 when absent. 15 guard contract tests added in `tests/idari-admin-guard.test.ts`.
+7. ✅ Wire TheBoogieMan privacy-event logging for visibility changes — done. `handleSave` in `EditProfileDream` now detects per-widget visibility changes and POSTs `VISIBILITY_CHANGE` events to `/api/ai/boogieman/privacy-event`. `handlePublish` already logged `EXPLICIT_SHARE` events.
+8. ✅ Consult `visibility_mappings` before rendering any content on ViewProfile — done. `view-profile/page.tsx` now queries `visibility_mappings` table and uses it as authoritative source (falls back to widget visibility field). Migration `20260316000000_visibility_mappings.sql` already existed.
+9. ✅ Separate private-save and explicit-share flows in EditProfileDream — done. `handleSave` (draft) and `handlePublish` (explicit share) are separate callbacks with separate buttons ("Save Draft" vs "Publish").
+10. ✅ Unify DreamMenu under a single canonical implementation — done. `components/menus/DreamRadialMenu.tsx` is canonical. `HomeRadialNav.tsx` (unused) replaced with redirect stub re-exporting from canonical. `DualBottomMenu.tsx` wraps `DreamRadialMenu` + `SystemRadialMenu` for the seam.
+11. ✅ Separate user DreamAds from platform promotions in code and UI language — done. Migration `20260321000000_ads_platform_promotions.sql` adds `is_platform_promotion` to `ad_listings`. Ads surface now renders "My DreamAds — Available" and "Platform Promotions" as distinct sections.
 12. ⏳ Repurpose legacy Daydream routes (`analytics`, `media-vault`, `play`).
-13. ⏳ Complete real-capability audit: replace all fake actions with real ones.
+13. ✅ Complete real-capability audit: replace all fake actions with real ones — done. `onOpenDrEams={() => {}}` in `HomeSystem.tsx` (both RuntimeView instances) replaced with real `openDrEams` from `DreamSystemContext`. Marketplace "Request" button replaced with a real navigation link to the slot detail surface. No remaining empty handlers in `components/home/`, `components/dreams/`, or `components/daydream/`.
 ## 8. Current alignment priorities
 
 1. Make spec names primary everywhere in docs and UI copy.

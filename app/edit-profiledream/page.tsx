@@ -115,6 +115,37 @@ export default function EditProfileDreamPage() {
         body: JSON.stringify({ widget_config: widgets }),
       });
       localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
+
+      // ── Phase 6 item 7: Log visibility-change events to TheBoogieMan ────────
+      // On a private save, detect Dream Windows whose visibility changed and log
+      // VISIBILITY_CHANGE events (no update_mapping — draft not yet published).
+      // Per dreamengin_phase6.md point 7: log ALL privacy-adjacent decisions.
+      if (initialWidgets.length > 0) {
+        const changedWidgets = widgets.filter((w) => {
+          const prev = initialWidgets.find((iw) => iw.id === w.id);
+          return prev && prev.visibility !== w.visibility;
+        });
+        if (changedWidgets.length > 0) {
+          await Promise.allSettled(
+            changedWidgets.map((w) => {
+              const prev = initialWidgets.find((iw) => iw.id === w.id);
+              return fetch('/api/ai/boogieman/privacy-event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  event_type: 'VISIBILITY_CHANGE',
+                  content_id: w.id,
+                  content_type: 'dream_window',
+                  from_visibility: prev?.visibility ?? 'private',
+                  to_visibility: w.visibility ?? 'private',
+                  update_mapping: false, // draft save — not yet published
+                }),
+              });
+            })
+          );
+        }
+      }
+
       setInitialProfile(profile);
       setInitialWidgets(widgets);
       // Private save — stay on EditProfileDream, not navigate to ViewProfile.
@@ -124,7 +155,9 @@ export default function EditProfileDreamPage() {
     } finally {
       setIsSaving(false);
     }
-  }, [profile, widgets]);
+  // Note: initialWidgets is reset to `widgets` after each save (line ~150),
+  // so the next diff always computes changes relative to the last saved snapshot.
+  }, [profile, widgets, initialWidgets]);
 
   /**
    * Explicit publish — saves the profile AND logs a BoogieMan privacy event

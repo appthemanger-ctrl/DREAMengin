@@ -52,6 +52,24 @@ export default async function ViewProfilePage() {
 
   const profile = rawProfile as unknown as Profile;
 
+  // ── Phase 6 item 8: Consult visibility_mappings as authoritative source ──
+  // Per dreamengin_phase6.md point 13: the visibility_mappings table must be
+  // consulted before any content is rendered on ViewProfile.
+  // If the table has records for this user, they override the widget's own
+  // visibility field. If no mapping exists for a widget, fall back to the
+  // widget's own visibility (private by default — LAW.md §2).
+  type VisibilityMappingRow = { content_id: string; visibility: string };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: mappingsData } = await (supabase as any)
+    .from('visibility_mappings')
+    .select('content_id, visibility')
+    .eq('user_id', user.id) as { data: VisibilityMappingRow[] | null };
+
+  // Build a lookup: content_id → visibility
+  const mappingLookup = new Map<string, string>(
+    (mappingsData ?? []).map((m) => [m.content_id, m.visibility])
+  );
+
   // Use server-persisted widget projection (falls back to defaults if not set)
   const allSavedDreams: ProfileDream[] =
     Array.isArray(profile.profile_dream_widgets) && profile.profile_dream_widgets.length > 0
@@ -60,10 +78,14 @@ export default async function ViewProfilePage() {
 
   // Filter to only publicly visible widgets — owner preview mirrors what visitors see.
   // Per ARCHITECTURE.md §5: ViewProfile renders only saved/shared output.
+  // Consult visibility_mappings first (authoritative); fall back to widget.visibility.
   // Widgets with no visibility set default to 'private' (nothing public by default).
-  const savedDreams = allSavedDreams.filter(
-    (w) => w.visibility === 'public' || w.visibility === 'followers'
-  );
+  const savedDreams = allSavedDreams.filter((w) => {
+    // Use visibility_mappings record if one exists for this widget
+    const mappedVisibility = mappingLookup.get(w.id);
+    const effectiveVisibility = mappedVisibility ?? w.visibility ?? 'private';
+    return effectiveVisibility === 'public' || effectiveVisibility === 'followers';
+  });
 
   const displayName = profile.display_name || profile.handle;
   const handle = profile.handle ?? '';
