@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
+import { logJourneyDot, hasJourneyDot } from '@/lib/journey/journeyDots';
+import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
 
 export type DaydreamWidget = {
   id: string;
@@ -61,6 +63,25 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
   }, [flip]);
+
+  // ── Journey Trail — surface_first_entry instrumentation ──────────────────
+  // Fires once the first time this surface is ever visited by the user.
+  // Deduplicated by kind + surface together so each surface produces exactly one dot.
+  useEffect(() => {
+    const surface = `${title} Daydream Surface`;
+    void (async () => {
+      if (await hasJourneyDot('surface_first_entry', surface)) return;
+      logJourneyDot({
+        kind:         'surface_first_entry',
+        label:        `You entered the ${title} Daydream Surface for the first time.`,
+        surface,
+        significance: 1.0,
+        domain_color: JOURNEY_DOMAIN_COLORS[surface] ?? accentColor,
+        metadata:     { engin: enginName },
+      });
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, enginName, accentColor]);
 
   const contentStyle: React.CSSProperties =
     phase === 'out' ? { animation: 'de-flip-out 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' }

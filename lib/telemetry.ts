@@ -15,7 +15,17 @@ export type TelemetryEvent =
   | 'placement_mode_exit'
   | 'placement_undo'
   | 'suggest_dismissed'
-  | 'auto_lock';
+  | 'auto_lock'
+  // ── Journey Trail events (logged via logJourneyDot() in lib/journey/journeyDots.ts) ──
+  | 'journey_dot'
+  | 'surface_first_entry'
+  | 'engin_first_activated'
+  | 'connector_linked'
+  | 'content_first_created'
+  | 'profile_first_projected'
+  | 'first_follower'
+  | 'follower_milestone'
+  | 'runtime_first_entry';
 
 // Fields that are never allowed in telemetry payloads (req 96)
 const FORBIDDEN_KEYS = new Set([

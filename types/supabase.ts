@@ -1424,6 +1424,42 @@ export type Database = {
         }
         Relationships: []
       }
+      journey_dots: {
+        Row: {
+          id: string
+          user_id: string
+          kind: string
+          surface: string
+          label: string
+          significance: number
+          domain_color: string
+          metadata: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          kind: string
+          surface?: string
+          label: string
+          significance?: number
+          domain_color?: string
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          kind?: string
+          surface?: string
+          label?: string
+          significance?: number
+          domain_color?: string
+          metadata?: Json
+          created_at?: string
+        }
+        Relationships: []
+      }
       likes: {
         Row: {
           content_id: string

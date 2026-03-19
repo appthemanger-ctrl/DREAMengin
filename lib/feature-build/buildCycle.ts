@@ -4,10 +4,13 @@
  * Build Cycle phase logic for Daydream+Engin pairs.
  *
  * Phases:
- *   BUILD  — features are being integrated toward maxFeatures.
- *   REFINE — all maxFeatures are implemented; focus is UI quality (SICC).
+ *   BUILD   — usable feature fraction is below refineThreshold; core work underway.
+ *   UPGRADE — usable fraction meets threshold but not all features implemented;
+ *             concurrent build + SICC refinement. "UPGRADE! REFINE! we continue forward."
+ *   REFINE  — all maxFeatures fully implemented; pure SICC polish.
  *
- * The phase is computed from the count of 'implemented' features in the manifest.
+ * The phase is computed from the counts of 'implemented' and 'active' features
+ * relative to maxFeatures and the manifest's refineThreshold.
  * CI workflows run code scans to verify the manifest is accurate and report progress.
  */
 
@@ -16,10 +19,11 @@ import type { DaydreamEnginManifest, FeatureStatus } from './featureManifest';
 // ─── Phase ────────────────────────────────────────────────────────────────────
 
 /**
- * BUILD  → active feature integration, adding capabilities per cycle.
- * REFINE → feature-complete; improving Stylized · Intuitive · Cohesive · Coherent UI.
+ * BUILD   → core feature integration; usable fraction below refineThreshold.
+ * UPGRADE → enough is live for users to act on; concurrent build + SICC refinement.
+ * REFINE  → feature-complete; improving Stylized · Intuitive · Cohesive · Coherent UI.
  */
-export type BuildPhase = 'BUILD' | 'REFINE';
+export type BuildPhase = 'BUILD' | 'UPGRADE' | 'REFINE';
 
 // ─── Progress snapshot ────────────────────────────────────────────────────────
 
@@ -28,20 +32,36 @@ export interface BuildCycleState {
   engin: string;
   phase: BuildPhase;
   featuresImplemented: number;
+  /** Count of features with status 'active' — user-facing but not yet perfect. */
+  featuresActive: number;
   featurePlanned: number;
   maxFeatures: number;
-  /** 0–100 integer representing percentage of max reached */
+  /** 0–100 integer: implemented / maxFeatures × 100 */
   progressPct: number;
+  /** 0–100 integer: (implemented + active) / maxFeatures × 100.
+   *  Answers "what can the user do with what we have?" */
+  usablePct: number;
 }
 
 // ─── Core functions ───────────────────────────────────────────────────────────
 
 /**
- * Determine whether a Daydream+Engin pair is in BUILD or REFINE phase.
- * Switches to REFINE once featuresImplemented >= maxFeatures.
+ * Determine the phase for a Daydream+Engin pair.
+ *
+ * @param featuresUsable      Count of implemented + active features.
+ * @param featuresImplemented Count of fully-implemented features.
+ * @param maxFeatures         Total feature count from the manifest.
+ * @param refineThreshold     Fraction (0–1) of maxFeatures required for UPGRADE.
  */
-export function getBuildPhase(featuresImplemented: number, maxFeatures: number): BuildPhase {
-  return featuresImplemented >= maxFeatures ? 'REFINE' : 'BUILD';
+export function getBuildPhase(
+  featuresUsable: number,
+  featuresImplemented: number,
+  maxFeatures: number,
+  refineThreshold: number,
+): BuildPhase {
+  if (featuresImplemented >= maxFeatures) return 'REFINE';
+  if (maxFeatures > 0 && featuresUsable / maxFeatures >= refineThreshold) return 'UPGRADE';
+  return 'BUILD';
 }
 
 /**
@@ -64,21 +84,35 @@ export function countFeaturesByStatus(
 }
 
 /**
+ * Count features that are user-available right now (implemented + active).
+ * This is the forward-motion count — what the user can do with what we have.
+ */
+export function countUsableFeatures(manifest: DaydreamEnginManifest): number {
+  return manifest.features.filter(
+    (f) => f.status === 'implemented' || f.status === 'active',
+  ).length;
+}
+
+/**
  * Compute the full BuildCycleState for a given manifest.
  */
 export function computeBuildCycleState(manifest: DaydreamEnginManifest): BuildCycleState {
   const featuresImplemented = countFeaturesByStatus(manifest, 'implemented');
+  const featuresActive      = countFeaturesByStatus(manifest, 'active');
   const featurePlanned      = countFeaturesByStatus(manifest, 'planned');
-  const { maxFeatures, domain, engin } = manifest;
+  const featuresUsable      = featuresImplemented + featuresActive;
+  const { maxFeatures, domain, engin, refineThreshold } = manifest;
 
   return {
     domain,
     engin,
-    phase:               getBuildPhase(featuresImplemented, maxFeatures),
+    phase:               getBuildPhase(featuresUsable, featuresImplemented, maxFeatures, refineThreshold),
     featuresImplemented,
+    featuresActive,
     featurePlanned,
     maxFeatures,
     progressPct:         calculateProgress(featuresImplemented, maxFeatures),
+    usablePct:           calculateProgress(featuresUsable, maxFeatures),
   };
 }
 
@@ -97,4 +131,15 @@ export function computeAllBuildCycleStates(
  */
 export function allPairsInRefinePhase(states: BuildCycleState[]): boolean {
   return states.length > 0 && states.every((s) => s.phase === 'REFINE');
+}
+
+/**
+ * Returns true if all manifests have reached UPGRADE or REFINE phase.
+ * Used by CI to confirm that the forward-motion threshold has been crossed for all pairs.
+ * "SUCCESS CALLS FOR A SIMPLIFICATION TOWARD MOVING FORWARD."
+ */
+export function allPairsMovingForward(states: BuildCycleState[]): boolean {
+  return states.length > 0 && states.every(
+    (s) => s.phase === 'UPGRADE' || s.phase === 'REFINE',
+  );
 }
