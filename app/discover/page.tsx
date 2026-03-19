@@ -4,7 +4,69 @@ import Link from 'next/link';
 import { ArrowLeft, Search, Users } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Discover – Dreamengin', description: 'Find people on Dreamengin.' };
+export const metadata = {
+  title: 'Discover – DREAMengin',
+  description: 'Explore Daydream surfaces, find people, and discover what DREAMengin has to offer.',
+};
+
+/**
+ * The 6 canonical Daydream surfaces — surfaced here so Discover is a true
+ * gateway into the platform, not just a people-search box.
+ *
+ * Architecture: docs/ARCHITECTURE.md §3 (Daydream Surface Network) — every
+ * Daydream surface has a canonical route and real capability; linking to them
+ * here satisfies AXIOMS.md §3 ("every visible action must do something real").
+ */
+const DAYDREAMS = [
+  {
+    id: 'music',
+    label: 'Music',
+    emoji: '🎵',
+    desc: 'Record, release, and share your sound',
+    route: '/daydream/music',
+    color: 'linear-gradient(135deg,#7c3aed 0%,#a855f7 100%)',
+  },
+  {
+    id: 'games',
+    label: 'Games',
+    emoji: '🎮',
+    desc: 'Play and build in the GameEngin runtime',
+    route: '/daydream/games',
+    color: 'linear-gradient(135deg,#059669 0%,#10b981 100%)',
+  },
+  {
+    id: 'lab',
+    label: 'Lab',
+    emoji: '🔬',
+    desc: 'Experiment, simulate, and prototype',
+    route: '/daydream/lab',
+    color: 'linear-gradient(135deg,#0284c7 0%,#38bdf8 100%)',
+  },
+  {
+    id: 'code',
+    label: 'Code',
+    emoji: '💻',
+    desc: 'Write, review, and ship with CodeEngin',
+    route: '/daydream/code',
+    color: 'linear-gradient(135deg,#1d4ed8 0%,#3b82f6 100%)',
+  },
+  {
+    id: 'brand',
+    label: 'Brand',
+    emoji: '🎨',
+    desc: 'Define your identity with BrandingEngin',
+    route: '/daydream/brand',
+    color: 'linear-gradient(135deg,#b45309 0%,#f59e0b 100%)',
+  },
+  {
+    id: 'create',
+    label: 'Create',
+    emoji: '✏️',
+    desc: 'Produce and publish with ContentEngin',
+    route: '/daydream/create',
+    color: 'linear-gradient(135deg,#be185d 0%,#ec4899 100%)',
+  },
+] as const;
 
 type Profile = { id: string; handle: string; display_name: string | null; bio: string | null; avatar_url: string | null };
 
@@ -49,9 +111,102 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-6">
 
-        {/* Search form */}
+        {/* ── Brand tagline ────────────────────────────────────────────────── */}
+        {/* Only shown when there is no active search query */}
+        {(!q || q.trim().length === 0) && (
+          <div style={{ textAlign: 'center', paddingBottom: 4 }}>
+            <p
+              className="text-xs font-bold tracking-[0.2em] uppercase"
+              style={{ color: 'rgba(200,152,26,0.8)', letterSpacing: '0.2em' }}
+              aria-label="DREAMengin brand promise"
+            >
+              Explore&nbsp;·&nbsp;Discover&nbsp;·&nbsp;Dream
+            </p>
+          </div>
+        )}
+
+        {/* ── Daydream Explorer ────────────────────────────────────────────── */}
+        {/* Shown when there is no active search query so users can explore the
+            6 canonical Daydream surfaces directly from this surface.
+            Architecture: docs/ARCHITECTURE.md §3 — Daydream Surface Network.
+            Every tile links to a real canonical route (AXIOMS.md §3). */}
+        {(!q || q.trim().length === 0) && (
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <span className="de-widget-title">Explore Daydreams</span>
+              <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>6 creative surfaces</span>
+            </div>
+            <div
+              className="de-widget-body"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 10,
+                padding: '10px 10px 14px',
+              }}
+            >
+              {DAYDREAMS.map((d) => (
+                <Link
+                  key={d.id}
+                  href={d.route}
+                  aria-label={`Open ${d.label} Daydream surface`}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '12px 8px',
+                    borderRadius: 14,
+                    background: 'rgba(255,255,255,0.6)',
+                    border: '1px solid rgba(160,195,240,0.25)',
+                    textDecoration: 'none',
+                    transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                  }}
+                >
+                  {/* Daydream icon tile */}
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 14,
+                      background: d.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 22,
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.12)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {d.emoji}
+                  </div>
+                  <span
+                    className="text-xs font-semibold"
+                    style={{ color: 'var(--de-heading)', textAlign: 'center', lineHeight: 1.2 }}
+                  >
+                    {d.label}
+                  </span>
+                  <span
+                    className="text-xs"
+                    style={{
+                      color: 'var(--de-text-dim)',
+                      textAlign: 'center',
+                      lineHeight: 1.3,
+                      fontSize: 10,
+                    }}
+                  >
+                    {d.desc}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Search form ──────────────────────────────────────────────────── */}
         <form method="GET" action="/discover">
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{ position: 'relative', flex: 1 }}>
@@ -113,17 +268,9 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
           </div>
         )}
 
-        {/* Default state */}
+        {/* Default state — Suggested Dreamers */}
         {(!q || q.trim().length === 0) && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div className="de-widget">
-              <div className="de-widget-body flex flex-col items-center py-4 gap-2">
-                <Search className="w-8 h-8 opacity-15" style={{ color: 'var(--de-accent)' }} />
-                <p className="text-sm font-medium" style={{ color: 'var(--de-heading)' }}>Search for people</p>
-                <p className="text-xs text-center" style={{ color: 'var(--de-text-dim)' }}>Find friends and creators by name or @handle</p>
-              </div>
-            </div>
-
             <div className="de-widget">
               <div className="de-widget-header">
                 <span className="de-widget-title">Suggested Dreamers</span>

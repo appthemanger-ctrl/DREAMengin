@@ -118,21 +118,26 @@ export default function LandingHero() {
       {/* ── Hero Content ── */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-5 pt-8 pb-24 text-center md:pt-0">
 
-        {/* Platform badge */}
+        {/* Brand tagline — EXPLORE · DISCOVER · DREAM */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...easeDecel, delay: 0.1 }}
-          className="mb-5 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase"
+          className="mb-5 inline-flex items-center gap-3 px-5 py-2 rounded-full text-xs font-bold tracking-[0.18em] uppercase select-none"
           style={{
-            background: 'rgba(255,255,255,0.85)',
+            background: 'rgba(255,255,255,0.88)',
             border: '1px solid rgba(200,152,26,0.35)',
             color: '#9a6f0a',
-            boxShadow: '0 1px 4px rgba(200,152,26,0.12)',
+            boxShadow: '0 1px 6px rgba(200,152,26,0.14)',
           }}
+          aria-label="DREAMengin brand promise: Explore, Discover, Dream"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-[#D97706] animate-pulse" aria-hidden="true" />
-          Your Creative OS
+          <span>Explore</span>
+          <span style={{ color: 'rgba(200,152,26,0.4)', fontWeight: 300 }} aria-hidden="true">·</span>
+          <span>Discover</span>
+          <span style={{ color: 'rgba(200,152,26,0.4)', fontWeight: 300 }} aria-hidden="true">·</span>
+          <span>Dream</span>
         </motion.div>
 
         {/* Headline */}
