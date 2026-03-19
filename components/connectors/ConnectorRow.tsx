@@ -22,7 +22,7 @@
 import React, { useState } from 'react';
 import type { ConnectorDef } from '@/lib/connectors/connectorRegistry';
 import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
-import { CheckCircle, AlertCircle, Clock, RefreshCw, Lock, XCircle, Settings } from 'lucide-react';
+import { CheckCircle, AlertCircle, Clock, RefreshCw, Lock, XCircle, Settings, Unplug } from 'lucide-react';
 import { track } from '@/lib/telemetry';
 
 // ── Status badge ───────────────────────────────────────────────────────────
@@ -46,6 +46,72 @@ function StatusBadge({ status }: { status: ConnectorStatus }) {
     }}>
       {entry.icon} {entry.label}
     </span>
+  );
+}
+
+// ── Manage modal (shown when already connected) ────────────────────────────
+
+function ManageModal({
+  connector,
+  onDisconnect,
+  onClose,
+  disconnecting,
+  errorMsg,
+}: {
+  connector: ConnectorDef;
+  onDisconnect: () => void;
+  onClose: () => void;
+  disconnecting: boolean;
+  errorMsg: string | null;
+}) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 80,
+      background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+    }}>
+      <div className="de-widget" style={{ width: '100%', maxWidth: 400, margin: 0 }}>
+        <div className="de-widget-header">
+          <span className="de-widget-title">Manage {connector.name}</span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--de-text-dim)', fontSize: 18 }}
+          >✕</button>
+        </div>
+        <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {errorMsg && (
+            <div style={{ padding: '8px 12px', background: 'rgba(220,68,68,0.1)', borderRadius: 8, color: '#dc4444', fontSize: 12 }}>
+              {errorMsg}
+            </div>
+          )}
+          <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+            <strong style={{ color: 'var(--de-heading)' }}>{connector.name}</strong> is currently connected.
+            {connector.whatYouGet && (
+              <span> {connector.whatYouGet}</span>
+            )}
+          </div>
+          <button
+            type="button"
+            disabled={disconnecting}
+            onClick={onDisconnect}
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              padding: '9px 16px', borderRadius: 8,
+              background: 'rgba(220,68,68,0.12)',
+              border: '1px solid rgba(220,68,68,0.3)',
+              color: '#dc4444', fontSize: 13, fontWeight: 600,
+              cursor: disconnecting ? 'not-allowed' : 'pointer',
+              opacity: disconnecting ? 0.7 : 1,
+            }}
+          >
+            <Unplug size={14} />
+            {disconnecting ? 'Disconnecting…' : 'Disconnect'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -186,16 +252,21 @@ export interface ConnectorRowProps {
   status: ConnectorStatus;
   /** Called after a real successful connection — triggers toast + prompt */
   onConnectSuccess: (connectorId: string, connectorName: string) => void;
+  /** Called after a successful disconnect — lets parent remove from connected set */
+  onDisconnect?: (connectorId: string) => void;
 }
 
-export default function ConnectorRow({ connector, status, onConnectSuccess }: ConnectorRowProps) {
+export default function ConnectorRow({ connector, status, onConnectSuccess, onDisconnect }: ConnectorRowProps) {
   const initialStatus: ConnectorStatus =
     connector.tier === 'tier3' ? 'unsupported' : status;
 
   const [localStatus, setLocalStatus] = useState<ConnectorStatus>(initialStatus);
   const [showModal, setShowModal] = useState(false);
+  const [showManageModal, setShowManageModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [manageErrorMsg, setManageErrorMsg] = useState<string | null>(null);
 
   const fields = getCredentialFields(connector.id);
 
@@ -227,11 +298,33 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
     }
   }
 
+  async function handleDisconnect() {
+    setDisconnecting(true);
+    setManageErrorMsg(null);
+    try {
+      const res = await fetch(`/api/connectors/${connector.id}/disconnect`, { method: 'DELETE' });
+      if (res.ok) {
+        setLocalStatus('not_connected');
+        setShowManageModal(false);
+        onDisconnect?.(connector.id);
+        track('disconnect_success', { connectorId: connector.id });
+      } else {
+        const data = await res.json().catch(() => ({ error: 'Unknown error' })) as { error?: string };
+        setManageErrorMsg(data.error ?? 'Disconnect failed. Please try again.');
+        track('disconnect_failure', { connectorId: connector.id });
+      }
+    } catch {
+      setManageErrorMsg('Network error — please try again.');
+      track('disconnect_failure', { connectorId: connector.id });
+    } finally {
+      setDisconnecting(false);
+    }
+  }
+
   const btnDisabled =
     localStatus === 'unsupported' ||
     localStatus === 'needs_admin_setup' ||
-    localStatus === 'requires_approval' ||
-    localStatus === 'connected';
+    localStatus === 'requires_approval';
 
   const btnLabel =
     localStatus === 'connected'         ? 'Manage'        :
@@ -275,7 +368,15 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
         <button
           type="button"
           disabled={btnDisabled}
-          onClick={() => !btnDisabled && setShowModal(true)}
+          onClick={() => {
+            if (btnDisabled) return;
+            if (localStatus === 'connected') {
+              setManageErrorMsg(null);
+              setShowManageModal(true);
+            } else {
+              setShowModal(true);
+            }
+          }}
           className="de-btn de-btn-primary"
           style={{
             fontSize: 11, padding: '6px 12px', flexShrink: 0,
@@ -295,6 +396,16 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
           onClose={() => { setShowModal(false); setErrorMsg(null); }}
           submitting={submitting}
           errorMsg={errorMsg}
+        />
+      )}
+
+      {showManageModal && (
+        <ManageModal
+          connector={connector}
+          onDisconnect={handleDisconnect}
+          onClose={() => { setShowManageModal(false); setManageErrorMsg(null); }}
+          disconnecting={disconnecting}
+          errorMsg={manageErrorMsg}
         />
       )}
     </>
