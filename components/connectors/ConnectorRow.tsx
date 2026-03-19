@@ -7,7 +7,7 @@
  * Calls /api/connectors/{provider}/connect and reflects real server response.
  *
  * Status types (all handled):
- *   connected          → green badge, Manage button
+ *   connected          → green badge, Manage button (opens edit modal with disconnect)
  *   not_connected      → grey badge, Connect button
  *   needs_reauth       → amber badge, Reconnect button
  *   requires_approval  → purple badge, disabled with explanation
@@ -59,26 +59,34 @@ interface CredentialField {
   hint?: string;
 }
 
-// ── Credential modal ───────────────────────────────────────────────────────
+// ── Integration modal (connect + edit + disconnect) ────────────────────────
 
-function CredentialModal({
+function IntegrationModal({
   connector,
   fields,
+  isEditing,
   onSubmit,
+  onDisconnect,
   onClose,
   submitting,
+  disconnecting,
   errorMsg,
 }: {
   connector: ConnectorDef;
   fields: CredentialField[];
+  /** true when already connected — shows Edit header + Disconnect option */
+  isEditing: boolean;
   onSubmit: (creds: Record<string, string>) => void;
+  onDisconnect: () => void;
   onClose: () => void;
   submitting: boolean;
+  disconnecting: boolean;
   errorMsg: string | null;
 }) {
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(fields.map((f) => [f.key, ''])),
   );
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
 
   return (
     <div style={{
@@ -88,7 +96,9 @@ function CredentialModal({
     }}>
       <div className="de-widget" style={{ width: '100%', maxWidth: 400, margin: 0 }}>
         <div className="de-widget-header">
-          <span className="de-widget-title">Connect {connector.name}</span>
+          <span className="de-widget-title">
+            {isEditing ? `Edit ${connector.name} Integration` : `Connect ${connector.name}`}
+          </span>
           <button
             type="button"
             onClick={onClose}
@@ -100,6 +110,11 @@ function CredentialModal({
           {errorMsg && (
             <div style={{ padding: '8px 12px', background: 'rgba(220,68,68,0.1)', borderRadius: 8, color: '#dc4444', fontSize: 12 }}>
               {errorMsg}
+            </div>
+          )}
+          {isEditing && (
+            <div style={{ padding: '6px 10px', background: 'rgba(34,197,94,0.08)', borderRadius: 8, fontSize: 11, color: '#22c55e', fontWeight: 600 }}>
+              ✅ Currently connected. Enter new credentials below to update this integration.
             </div>
           )}
           {fields.map((field) => (
@@ -131,8 +146,59 @@ function CredentialModal({
             className="de-btn de-btn-primary"
             style={{ marginTop: 4, opacity: submitting ? 0.7 : 1 }}
           >
-            {submitting ? 'Connecting…' : `Connect ${connector.name}`}
+            {submitting ? (isEditing ? 'Saving…' : 'Connecting…') : (isEditing ? `Save ${connector.name} Integration` : `Connect ${connector.name}`)}
           </button>
+
+          {/* Disconnect section — only shown for already-connected integrations */}
+          {isEditing && (
+            <div style={{ marginTop: 4, paddingTop: 10, borderTop: '1px solid rgba(160,195,240,0.18)' }}>
+              {!confirmDisconnect ? (
+                <button
+                  type="button"
+                  onClick={() => setConfirmDisconnect(true)}
+                  style={{
+                    width: '100%', padding: '8px 12px', borderRadius: 8,
+                    background: 'rgba(220,68,68,0.08)', border: '1px solid rgba(220,68,68,0.2)',
+                    color: '#dc4444', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  Disconnect {connector.name}
+                </button>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <p style={{ fontSize: 12, color: 'var(--de-text-dim)', margin: 0, textAlign: 'center' }}>
+                    Are you sure? This removes all saved credentials and synced data.
+                  </p>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDisconnect(false)}
+                      style={{
+                        flex: 1, padding: '8px 12px', borderRadius: 8,
+                        background: 'rgba(160,195,240,0.1)', border: '1px solid rgba(160,195,240,0.25)',
+                        color: 'var(--de-text)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={disconnecting}
+                      onClick={onDisconnect}
+                      style={{
+                        flex: 1, padding: '8px 12px', borderRadius: 8,
+                        background: 'rgba(220,68,68,0.15)', border: '1px solid rgba(220,68,68,0.3)',
+                        color: '#dc4444', fontSize: 12, fontWeight: 700, cursor: disconnecting ? 'not-allowed' : 'pointer',
+                        opacity: disconnecting ? 0.7 : 1,
+                      }}
+                    >
+                      {disconnecting ? 'Disconnecting…' : 'Yes, Disconnect'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -195,9 +261,11 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
   const [localStatus, setLocalStatus] = useState<ConnectorStatus>(initialStatus);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const fields = getCredentialFields(connector.id);
+  const isEditing = localStatus === 'connected';
 
   async function handleConnect(creds: Record<string, string>) {
     setSubmitting(true);
@@ -227,11 +295,34 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
     }
   }
 
+  async function handleDisconnect() {
+    setDisconnecting(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`/api/connectors/${connector.id}/connect`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setLocalStatus('not_connected');
+        setShowModal(false);
+        track('disconnect_success', { connectorId: connector.id });
+      } else {
+        const data = await res.json() as { message?: string };
+        setErrorMsg(data.message ?? 'Disconnect failed. Please try again.');
+      }
+    } catch {
+      setErrorMsg('Network error — please try again.');
+    } finally {
+      setDisconnecting(false);
+    }
+  }
+
   const btnDisabled =
     localStatus === 'unsupported' ||
     localStatus === 'needs_admin_setup' ||
     localStatus === 'requires_approval' ||
-    localStatus === 'connected';
+    submitting ||
+    disconnecting;
 
   const btnLabel =
     localStatus === 'connected'         ? 'Manage'        :
@@ -288,15 +379,19 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
       </div>
 
       {showModal && (
-        <CredentialModal
+        <IntegrationModal
           connector={connector}
           fields={fields}
+          isEditing={isEditing}
           onSubmit={handleConnect}
+          onDisconnect={handleDisconnect}
           onClose={() => { setShowModal(false); setErrorMsg(null); }}
           submitting={submitting}
+          disconnecting={disconnecting}
           errorMsg={errorMsg}
         />
       )}
     </>
   );
 }
+
