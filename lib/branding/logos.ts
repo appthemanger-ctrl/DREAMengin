@@ -11,9 +11,9 @@
  */
 
 export const LOGO_PATHS = [
-  '/branding/logo1.png',
-  '/branding/logo2.png',
-  '/branding/logo3.png',
+  '/images/logo1.PNG',
+  '/images/logo2.PNG',
+  '/images/logo3.PNG',
 ] as const;
 
 export type LogoPath = (typeof LOGO_PATHS)[number];
