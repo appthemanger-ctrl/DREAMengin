@@ -10,8 +10,8 @@
 // Usage:
 //   import { logJourneyDot, hasJourneyDot } from '@/lib/journey/journeyDots';
 //
-//   // Log a first-ever surface entry (deduplicated)
-//   if (!(await hasJourneyDot('surface_first_entry_music'))) {
+//   // Log a first-ever surface entry (deduplicated per surface)
+//   if (!(await hasJourneyDot('surface_first_entry', 'Music Daydream Surface'))) {
 //     logJourneyDot({ kind: 'surface_first_entry', surface: 'Music Daydream Surface',
 //                     label: 'You entered the Music Daydream Surface for the first time.',
 //                     significance: 1.0, domain_color: '#8b5cf6', metadata: {} });
@@ -38,20 +38,23 @@ export function logJourneyDot(dot: LogJourneyDotInput): void {
 }
 
 /**
- * Check whether the current user already has a dot of a specific kind.
- * Used to enforce "first-ever" deduplication before writing milestone dots.
+ * Check whether the current user already has a dot of a specific kind,
+ * optionally scoped to a surface.
+ *
+ * @param kind    The JourneyDotKind to check for existence.
+ * @param surface Optional surface name — when provided, checks kind+surface together,
+ *                allowing per-surface deduplication of the same kind (e.g. surface_first_entry).
  *
  * Returns true  → dot already exists (skip writing).
  * Returns false → dot is new (safe to write).
  *
  * Fail-open: returns false on error so the dot is still logged rather than silently lost.
  */
-export async function hasJourneyDot(kind: string): Promise<boolean> {
+export async function hasJourneyDot(kind: string, surface?: string): Promise<boolean> {
   try {
-    const res = await fetch(
-      `/api/journey?kind=${encodeURIComponent(kind)}&check=1`,
-      { method: 'GET' },
-    );
+    let url = `/api/journey?kind=${encodeURIComponent(kind)}&check=1`;
+    if (surface) url += `&surface=${encodeURIComponent(surface)}`;
+    const res = await fetch(url, { method: 'GET' });
     if (!res.ok) return false;
     const data = await res.json() as { exists?: boolean };
     return Boolean(data.exists);

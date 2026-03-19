@@ -11,6 +11,7 @@
  *   - Time-grouped: Today / This Week / This Month / Earlier.
  *   - Dot size maps to significance (0.0–1.0).
  *   - Domain-color-coded by surface.
+ *   - Insight badges: ✦ First time · 🔁 N times this week · ↩ Return after N days.
  *   - Tap/click a dot to expand the timestamp and surface context.
  *   - Empty state explains honestly what the feature does.
  *   - Privacy: all data fetched from /api/journey (owner-only, RLS-enforced).
@@ -22,6 +23,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import type { JourneyDot, JourneyTimeGroup } from '@/types/journey';
+import {
+  annotateDotsWithInsights,
+  computeCurrentStreak,
+  type AnnotatedDot,
+} from '@/lib/journey/journeyInsights';
 
 interface Props {
   limit?: number;
@@ -62,9 +68,11 @@ function dotRadius(significance: number): number {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function JourneyTrail({ limit = 50, compact = false }: Props) {
-  const [dots,     setDots]     = useState<JourneyDot[]>([]);
-  const [loading,  setLoading]  = useState(true);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [dots,          setDots]          = useState<JourneyDot[]>([]);
+  const [annotated,     setAnnotated]     = useState<AnnotatedDot[]>([]);
+  const [streak,        setStreak]        = useState(0);
+  const [loading,       setLoading]       = useState(true);
+  const [expanded,      setExpanded]      = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -72,7 +80,10 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
       const res = await fetch(`/api/journey?limit=${limit}`);
       if (res.ok) {
         const json = await res.json() as { dots?: JourneyDot[] };
-        setDots(json.dots ?? []);
+        const raw  = json.dots ?? [];
+        setDots(raw);
+        setAnnotated(annotateDotsWithInsights(raw));
+        setStreak(computeCurrentStreak(raw));
       }
     } catch {
       // Best-effort — if offline or unauthenticated, show empty state gracefully.
@@ -106,7 +117,8 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
     );
   }
 
-  const groups = groupDotsByTime(dots);
+  const groups = groupDotsByTime(annotated);
+  const annotatedById = new Map(annotated.map(d => [d.id, d]));
   const threadLeft = compact ? 10 : 14;
   const paddingLeft = compact ? 24 : 32;
 
@@ -124,6 +136,26 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
         pointerEvents: 'none',
       }} />
 
+      {/* ── Streak banner (shown when streak ≥ 2) ── */}
+      {streak >= 2 && (
+        <div style={{
+          marginBottom: 16,
+          padding:      '8px 12px',
+          borderRadius: 8,
+          background:   'rgba(200, 152, 26, 0.08)',
+          border:       '1px solid rgba(200, 152, 26, 0.2)',
+          display:      'flex',
+          alignItems:   'center',
+          gap:          8,
+          fontSize:     12,
+          color:        '#c8981a',
+          fontWeight:   600,
+        }}>
+          <span>🔥</span>
+          <span>{streak}-day streak — you've been creating every day.</span>
+        </div>
+      )}
+
       {groups.map(group => (
         <div key={group.label} style={{ marginBottom: 20 }}>
           {/* Time group label */}
@@ -140,9 +172,11 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
           </div>
 
           {group.dots.map(dot => {
-            const r          = dotRadius(dot.significance);
-            const isExpanded = expanded === dot.id;
-            const dotLeft    = -(compact ? 14 : 18);
+            const annotatedDot = annotatedById.get(dot.id);
+            const insight      = annotatedDot?.insight ?? {};
+            const r            = dotRadius(dot.significance);
+            const isExpanded   = expanded === dot.id;
+            const dotLeft      = -(compact ? 14 : 18);
 
             return (
               <button
@@ -182,8 +216,8 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
                   transition:   'transform 0.15s ease',
                 }} />
 
-                {/* Label and expanded detail */}
-                <div style={{ paddingLeft: 4 }}>
+                {/* Label + insights + expanded detail */}
+                <div style={{ paddingLeft: 4, flex: 1 }}>
                   <div style={{
                     fontSize:   compact ? 12 : 13,
                     color:      'var(--de-text)',
@@ -192,6 +226,58 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
                   }}>
                     {dot.label}
                   </div>
+
+                  {/* ── Insight badges ── */}
+                  {(insight.isFirst || insight.weeklyFrequency || insight.returnAfterDays) && (
+                    <div style={{
+                      display:   'flex',
+                      flexWrap:  'wrap',
+                      gap:       4,
+                      marginTop: 3,
+                    }}>
+                      {insight.isFirst && (
+                        <span style={{
+                          fontSize:     10,
+                          fontWeight:   700,
+                          padding:      '1px 6px',
+                          borderRadius: 4,
+                          background:   `${dot.domain_color}22`,
+                          color:        dot.domain_color,
+                          border:       `1px solid ${dot.domain_color}44`,
+                          letterSpacing: '0.03em',
+                        }}>
+                          ✦ First time
+                        </span>
+                      )}
+                      {insight.weeklyFrequency && (
+                        <span style={{
+                          fontSize:     10,
+                          fontWeight:   600,
+                          padding:      '1px 6px',
+                          borderRadius: 4,
+                          background:   'rgba(100,116,139,0.1)',
+                          color:        'var(--de-text-dim)',
+                          border:       '1px solid rgba(100,116,139,0.2)',
+                        }}>
+                          🔁 {insight.weeklyFrequency}× this week
+                        </span>
+                      )}
+                      {insight.returnAfterDays && (
+                        <span style={{
+                          fontSize:     10,
+                          fontWeight:   600,
+                          padding:      '1px 6px',
+                          borderRadius: 4,
+                          background:   'rgba(200,152,26,0.08)',
+                          color:        '#c8981a',
+                          border:       '1px solid rgba(200,152,26,0.2)',
+                        }}>
+                          ↩ Return after {insight.returnAfterDays}d
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   {isExpanded && (
                     <div style={{
                       fontSize:  11,
@@ -218,3 +304,4 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
     </div>
   );
 }
+

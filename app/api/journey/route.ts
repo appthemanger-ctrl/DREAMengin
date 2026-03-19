@@ -32,11 +32,18 @@ export async function GET(req: NextRequest) {
 
   // Existence check — used by hasJourneyDot() to avoid duplicate first-ever dots
   if (check && kind) {
-    const { count } = await supabase
+    let countQuery = supabase
       .from('journey_dots')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .eq('kind', kind);
+
+    // When a surface is specified, scope the check to kind+surface together.
+    // This enables per-surface deduplication of the same kind (e.g. surface_first_entry).
+    const surface = searchParams.get('surface');
+    if (surface) countQuery = countQuery.eq('surface', surface);
+
+    const { count } = await countQuery;
     return NextResponse.json({ exists: (count ?? 0) > 0 });
   }
 
