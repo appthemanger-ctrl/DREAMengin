@@ -54,6 +54,13 @@ import { useNotifications }                       from '@/lib/dreamdm/useNotific
 import { useDreamDMConversations,
   type DMConversation,
 } from '@/lib/dreamdm/useDreamDMConversations';
+import {
+  resolveGoldTapAction,
+  shouldCollapseGoldSwipe,
+  shouldCollapseTopExpandedDrag,
+  shouldSnapBottomDragToTop,
+  shouldTreatGoldReleaseAsTap,
+} from '@/lib/dreamdm/barInteractions';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
@@ -75,8 +82,6 @@ const SNAP_DOWN_PX = 88;
 const EXPAND_THRESHOLD = 80;
 /** Spring animation string */
 const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
-/** Double-tap window (ms) for gold button */
-const DOUBLE_TAP   = 280;
 
 const DEMO_CONVERSATIONS: DMConversation[] = [
   {
@@ -180,21 +185,27 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     startH: BAR_H, startSlide: 0,
     fromTop: false,
     fromTopExpanded: false,
+    lastY: 0,
+    lastAt: 0,
+    velocity: 0,
   });
 
   // ── Gold button press state (iOS-like feedback) ────────────────────────────
   const [goldPressed, setGoldPressed] = useState(false);
 
   // ── Gold button double-tap ─────────────────────────────────────────────────
-  const goldRef = useRef({ lastAt: 0, timer: 0 as ReturnType<typeof setTimeout> | 0 });
+  const goldRef = useRef({ lastAt: 0 });
   const handleGoldTap = useCallback(() => {
-    const now = Date.now();
-    clearTimeout(goldRef.current.timer);
-    if (now - goldRef.current.lastAt < DOUBLE_TAP) {
-      goldRef.current.lastAt = 0;
+    const { action, nextLastTapAt } = resolveGoldTapAction({
+      now: Date.now(),
+      lastTapAt: goldRef.current.lastAt,
+      isTop,
+    });
+    goldRef.current.lastAt = nextLastTapAt;
+    if (action === 'home' || action === 'home-dreamspace') {
       // Haptic: double-tap = strong feedback
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 40, 6]);
-      if (isTop) {
+      if (action === 'home-dreamspace') {
         // Bar is locked at top → open HomeDream in DreamSpace region (dual-home).
         // Keep the bar at the top so both HomeDream views are active simultaneously.
         onHomeDreamSpace?.();
@@ -202,51 +213,64 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         // Bar is at the bottom → return home in Surface Space (standard).
         onHome();
       }
-    } else {
-      goldRef.current.lastAt = now;
-      goldRef.current.timer = setTimeout(() => {
-        // Haptic: single tap = light feedback
-        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
-        // Single tap → open dual menus
-        onBothMenus();
-      }, DOUBLE_TAP + 10);
+      return;
     }
+
+    // Haptic: single tap = light feedback
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
+    // Single tap → open dual menus immediately
+    onBothMenus();
   }, [isTop, onHome, onHomeDreamSpace, onBothMenus]);
 
-  // Also handle gold swipe-down (pointer drag down > 30px)
+  // Also handle gold swipe-down (pointer drag down > tap slop)
   const goldDragRef = useRef({ active: false, startY: 0 });
-  const handleGoldPointerDown = (e: React.PointerEvent) => {
+  const handleGoldPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
     goldDragRef.current = { active: true, startY: e.clientY };
     setGoldPressed(true);
-  };
-  const handleGoldPointerUp = (e: React.PointerEvent) => {
+  }, []);
+  const handleGoldPointerUp = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     setGoldPressed(false);
     if (!goldDragRef.current.active) return;
     goldDragRef.current.active = false;
     const dy = e.clientY - goldDragRef.current.startY;
-    if (dy > 30 && isTop) {
+    if (shouldCollapseGoldSwipe({ dy, isTop })) {
       // Swiping down on gold while bar is at the top → collapse bar to bottom.
       setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
-    } else {
+    } else if (shouldTreatGoldReleaseAsTap(dy)) {
       handleGoldTap();
     }
-  };
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  }, [handleGoldTap, isTop]);
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
-  const handleDragStart = (e: React.PointerEvent) => {
+  const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault(); e.stopPropagation();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const now = performance.now();
     dragRef.current = {
       active: true, startY: e.clientY,
       startH: dragH, startSlide: slideDown,
       fromTop: isTop,
       fromTopExpanded: isTop && isTopExpanded,
+      lastY: e.clientY,
+      lastAt: now,
+      velocity: 0,
     };
     setIsDragging(true);
   };
 
-  const handleDragMove = (e: React.PointerEvent) => {
+  const handleDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.active) return;
+    const now = performance.now();
+    const dt = Math.max(now - dragRef.current.lastAt, 1);
+    dragRef.current.velocity = (e.clientY - dragRef.current.lastY) / dt;
+    dragRef.current.lastY = e.clientY;
+    dragRef.current.lastAt = now;
     const dy = e.clientY - dragRef.current.startY; // positive = dragging DOWN
 
     if (!dragRef.current.fromTop) {
@@ -264,15 +288,20 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     }
   };
 
-  const handleDragEnd = (e: React.PointerEvent) => {
+  const handleDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.active) return;
+    const now = performance.now();
+    const dt = Math.max(now - dragRef.current.lastAt, 1);
+    const releaseVelocity = (e.clientY - dragRef.current.lastY) / dt;
+    const velocity = Number.isFinite(releaseVelocity) && releaseVelocity !== 0
+      ? releaseVelocity
+      : dragRef.current.velocity;
     dragRef.current.active = false;
     setIsDragging(false);
 
     if (!dragRef.current.fromTop) {
       // Expanding from bottom: snap to top-compact if reached near the top.
-      const barTopFromScreenTop = screenH - dragH;
-      if (barTopFromScreenTop <= 8 || dragH >= screenH * 0.84) {
+      if (shouldSnapBottomDragToTop({ screenH, dragH, barH: BAR_H, velocityPxPerMs: velocity })) {
         setIsTop(true); setIsTopExpanded(false); setDragH(NAV_H); setSlideDown(0);
       } else {
         setDragH(Math.max(BAR_H, Math.min(screenH * 0.85, dragH)));
@@ -288,11 +317,19 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     } else {
       // Top-expanded: decide whether to collapse to bottom or spring back to panel
       const dy = e.clientY - dragRef.current.startY;
-      if (dy > SNAP_DOWN_PX || slideDown > SNAP_DOWN_PX) {
+      if (shouldCollapseTopExpandedDrag({
+        dy,
+        slideDown,
+        snapDownPx: SNAP_DOWN_PX,
+        velocityPxPerMs: velocity,
+      })) {
         setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
       } else {
         setSlideDown(0); // spring back to expanded panel
       }
+    }
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
     }
   };
 
@@ -549,7 +586,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         aria-label="Gold button — tap for menus, double-tap to open HomeDream"
         onPointerDown={handleGoldPointerDown}
         onPointerUp={handleGoldPointerUp}
-        onPointerCancel={() => { goldDragRef.current.active = false; setGoldPressed(false); }}
+        onPointerCancel={(e) => {
+          goldDragRef.current.active = false;
+          setGoldPressed(false);
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId);
+          }
+        }}
         style={{
           position: 'fixed', // Always fixed to ensure no scroll movement when screen-locked
           top: goldTopPx,
@@ -608,6 +651,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           pointerEvents: 'auto',
           overflow: 'hidden',
           transition,
+          willChange: isDragging ? 'top, height' : undefined,
           display: 'flex',
           // Drag handle at BOTTOM when at top (drag down to expand/collapse);
           // drag handle at TOP when growing from bottom (drag up to expand).
