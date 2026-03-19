@@ -119,7 +119,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
           <div style={{ textAlign: 'center', paddingBottom: 4 }}>
             <p
               className="text-xs font-bold tracking-[0.2em] uppercase"
-              style={{ color: 'rgba(200,152,26,0.8)', letterSpacing: '0.2em' }}
+              style={{ color: 'rgba(200,152,26,0.8)' }}
               aria-label="DREAMengin brand promise"
             >
               Explore&nbsp;·&nbsp;Discover&nbsp;·&nbsp;Dream
