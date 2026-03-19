@@ -687,7 +687,7 @@ export class DreamOptimizer {
    */
   private resolveLayoutDensityScore(): number {
     const count = this.context.dreamWindowCount;
-    if (!count || count <= 0) return 0.6;
+    if (count == null || count <= 0) return 0.6;
     return Math.max(0.2, 1 - (count - 1) * 0.1);
   }
 
