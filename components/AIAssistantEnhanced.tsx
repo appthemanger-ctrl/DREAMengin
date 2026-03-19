@@ -7,7 +7,7 @@ import {
   Brain, Lightbulb, TrendingUp, Zap 
 } from 'lucide-react';
 
-import { onInnerDreamsEvent } from '@/lib/agents/agentBus';
+import { onIdariEvent } from '@/lib/agents/agentBus';
 import { getDrEamsMode, onDrEamsModeChange } from '@/lib/agents/drEamsMode';
 import { hasTaught, markTaught, onTeach } from '@/lib/agents/teachBus';
 import { executeUiAction, getUiCapabilities } from '@/lib/agents/uiActions';
@@ -78,11 +78,11 @@ export default function AIAssistantEnhanced() {
   }, [fullExperience]);
 
   useEffect(() => {
-    const unsubscribe = onInnerDreamsEvent((evt) => {
+    const unsubscribe = onIdariEvent((evt) => {
       const shouldSurface =
-        evt.type === 'innerdreams:status' ||
+        evt.type === 'idari:status' ||
         evt.status === 'error' ||
-        (evt.type === 'innerdreams:log' &&
+        (evt.type === 'idari:log' &&
           /completed|failed|queued|initiated|activated|paused|bug/i.test(evt.message));
 
       if (!shouldSurface) return;
@@ -142,35 +142,26 @@ export default function AIAssistantEnhanced() {
     return topics;
   };
 
-  const callInnerDreams = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
+  const callIdari = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
     try {
-      const endpoint = mode === 'bug-check' ? '/api/innerdreams/check-bugs' : '/api/innerdreams/update';
-      const payload: Record<string, unknown> =
-        mode === 'bug-check'
-          ? { userId: 'self' }
-          : { prompt: prompt || 'General maintenance update', autoRefresh: false, bugCheck: true };
+      const message = mode === 'bug-check'
+        ? 'Run a diagnostic check on the DREAMengin platform. Identify any bugs, errors, or system health issues and report your findings.'
+        : (prompt ?? 'Perform a safe maintenance update.');
 
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/ai/idari', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ message, ui: { route: '/admin' } }),
       });
 
-      if (res.status === 401) return '🔐 iDari requires admin authentication. Please sign in with an admin account first, then we can proceed.';
-      if (res.status === 403) return '⚠️ iDari is restricted to administrator accounts. Your current account doesn\'t have the necessary permissions.';
-      if (!res.ok) return `❌ iDari encountered an issue (Status ${res.status}). Let me know if you'd like me to try a different approach.`;
+      if (res.status === 401) return '🔐 IDARi requires admin authentication. Please sign in with an admin account first, then we can proceed.';
+      if (res.status === 403) return '⚠️ IDARi is restricted to administrator accounts. Your current account doesn\'t have the necessary permissions.';
+      if (!res.ok) return `❌ IDARi encountered an issue (Status ${res.status}). Let me know if you'd like me to try a different approach.`;
 
-      const json = await res.json();
-      if (mode === 'bug-check') {
-        const bugs = json?.bugsFound ?? 0;
-        return bugs > 0
-          ? `🔍 iDari scan detected ${bugs} potential ${bugs === 1 ? 'issue' : 'issues'}. I've logged the details in the admin audit system. Would you like me to help prioritize the fixes?`
-          : '✅ iDari reports all systems nominal. Everything is running smoothly!';
-      }
-
-      return json?.message ? `✨ iDari: ${json.message}` : '✅ iDari has accepted the update request and is working on it.';
+      const json = await res.json() as { response_text?: string };
+      return json?.response_text ?? '✅ IDARi processed the request.';
     } catch (e: unknown) {
-      return `⚠️ I encountered an error communicating with iDari: ${e instanceof Error ? e.message : 'Unknown error'}. This might be a temporary network issue—would you like me to try again?`;
+      return `⚠️ I encountered an error communicating with IDARi: ${e instanceof Error ? e.message : 'Unknown error'}. This might be a temporary network issue—would you like me to try again?`;
     }
   };
 
@@ -245,13 +236,13 @@ export default function AIAssistantEnhanced() {
 
     // iDari bridge
     if (
-      lower.includes('innerdreams') ||
+      lower.includes('idari') ||
       lower.includes('inner dreams') ||
       (/(fix|patch|update|repair)\b/.test(lower) && /(bug|error|issue|problem|build|deploy|vercel|site)/.test(lower))
     ) {
       const mode = lower.includes('bug') || lower.includes('check') || lower.includes('scan') ? 'bug-check' : 'update';
       const cleaned = query.replace(/inner\s*dreams\s*[:\-]?/i, '').trim();
-      const reply = await callInnerDreams(mode, cleaned || query);
+      const reply = await callIdari(mode, cleaned || query);
       return {
         content: reply,
         emotion: 'helpful',

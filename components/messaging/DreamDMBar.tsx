@@ -75,7 +75,7 @@ const TOP_H        = 340;
 /** Compact nav-bar height when locked at the top (collapsed/nav-bar mode) */
 const NAV_H        = 52;
 /** Gold button diameter */
-const GOLD_SZ      = 64;
+const GOLD_SZ      = 48;
 const GOLD_R       = GOLD_SZ / 2;
 /** Snap to bottom when dragged down this many px from top */
 const SNAP_DOWN_PX = 88;
@@ -83,18 +83,6 @@ const SNAP_DOWN_PX = 88;
 const EXPAND_THRESHOLD = 80;
 /** Spring animation string */
 const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
-
-const DEMO_CONVERSATIONS: DMConversation[] = [
-  {
-    id:        'demo-1',
-    otherUser: { id: 'demo-user-1', display_name: 'Dr. Eams', handle: 'dreams', avatar_url: '/dr-eams.jpeg' },
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-const DEMO_MESSAGES: DMMessage[] = [
-  { id: '1', sender_id: 'demo-user-1', content: 'Hey! How can I help you today?', created_at: new Date(Date.now() - 60_000).toISOString() },
-];
 
 function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
   if (url) {
@@ -341,12 +329,11 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   /** Active tab when panel is expanded: 'messages' or 'dreams' */
   const [activeTab, setActiveTab] = useState<'messages' | 'dreams'>('dreams');
-  const { conversations, reload: reloadConvs } = useDreamDMConversations(userId, DEMO_CONVERSATIONS);
+  const { conversations, reload: reloadConvs } = useDreamDMConversations(userId);
   const { unreadCount, markAllRead }            = useNotifications();
 
-  const isDemoConv = selectedConv?.id.startsWith('demo-') ?? false;
   const { messages, isLoading: msgsLoading, addOptimistic, replaceOptimistic, removeOptimistic } =
-    useDreamDMMessages(selectedConv?.id ?? null, isDemoConv, DEMO_MESSAGES);
+    useDreamDMMessages(selectedConv?.id ?? null, false, []);
 
   const { draft, saveDraft, clearDraft, draftRestored } =
     useDreamDMDraft(selectedConv?.id ?? null);
@@ -625,7 +612,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           width: '36%', height: '22%', borderRadius: '50%',
           background: 'rgba(255,255,245,0.55)', filter: 'blur(3px)', pointerEvents: 'none',
         }} />
-        <svg width="28" height="14" viewBox="0 0 80 36"
+        <svg width="22" height="11" viewBox="0 0 80 36"
           style={{ opacity: 0.82, flexShrink: 0, position: 'relative' }} aria-hidden>
           <path d="M10 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
           <path d="M10 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />

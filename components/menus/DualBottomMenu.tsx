@@ -48,6 +48,7 @@ const DAYDREAM_ITEMS: Array<{ icon: string; label: string; route: string }> = [
 /** Right panel: standard app menu functions + Dr. Eams (spec §17.3) */
 const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; icon: string; label: string }> = [
   { id: 'dr-eams',       icon: '∞',  label: 'Dr. Eams'     },
+  { id: 'go-home',       icon: '⌂',  label: 'Home'         },
   { id: 'profiles',      icon: '👤', label: 'Profiles'      },
   { id: 'settings',      icon: '⚙️', label: 'Settings'      },
   { id: 'marketplace',   icon: '🏪', label: 'Marketplace'   },

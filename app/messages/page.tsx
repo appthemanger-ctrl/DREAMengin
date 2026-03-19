@@ -44,23 +44,7 @@ export default async function MessagesPage({ searchParams }: MessagesPageProps) 
     };
   });
 
-  // Demo conversations if none exist
-  const demoConversations = [
-    { 
-      id: 'demo-1', 
-      otherUser: { id: 'demo-user-1', display_name: 'Dr. Eams', handle: 'dreams', avatar_url: '/dr-eams.jpeg' },
-      lastMessage: 'Your project looks amazing! Let me know if you need help.',
-      updatedAt: new Date().toISOString(),
-    },
-    { 
-      id: 'demo-2', 
-      otherUser: { id: 'demo-user-2', display_name: 'Night Producer', handle: 'nightbeats', avatar_url: null },
-      lastMessage: 'Just sent you the new beat. Check it out!',
-      updatedAt: new Date(Date.now() - 3600000).toISOString(),
-    },
-  ];
-
-  const displayConversations = formattedConversations.length > 0 ? formattedConversations : demoConversations;
+  const displayConversations = formattedConversations;
 
   return (
     <MessagesClient 

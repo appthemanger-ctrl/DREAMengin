@@ -186,14 +186,26 @@ function CIOverallBadge({ status }: { status: CIOverallStatus }) {
   );
 }
 
+/** Notebook cells localStorage key — unique per surface so different daydreams are isolated */
+const NOTEBOOK_STORAGE_KEY = 'de-codegen-cells';
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function CodeEngin({ onBack }: Props) {
 
   // ── Notebook state ──────────────────────────────────────────────────────────
-  const [cells, setCells] = useState<NotebookCell[]>(() =>
-    DEMO_CELLS.map(c => ({ ...c }))
-  );
+  // Load from localStorage on first render; fall back to DEMO_CELLS only when
+  // there are no previously saved cells (i.e. first visit).
+  const [cells, setCells] = useState<NotebookCell[]>(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem(NOTEBOOK_STORAGE_KEY) : null;
+      if (raw) {
+        const parsed = JSON.parse(raw) as NotebookCell[];
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch { /* ignore parse errors — use defaults */ }
+    return DEMO_CELLS.map(c => ({ ...c }));
+  });
 
   // ── CI state ────────────────────────────────────────────────────────────────
   const [ciStages,        setCiStages]        = useState<CIPipelineStage[]>(() =>
@@ -226,6 +238,15 @@ export default function CodeEngin({ onBack }: Props) {
   }>({ visible: false, x: 0, y: 0, text: '' });
   const [drEamsCheckResult, setDrEamsCheckResult] = useState('');
   const codeAreaRef = useRef<HTMLDivElement>(null);
+
+  // Persist cells to localStorage whenever they change so the notebook survives
+  // navigation and browser refresh. DEMO_CELLS are written on first visit so
+  // subsequent visits start from the user's last edit, not the demo content.
+  useEffect(() => {
+    try {
+      localStorage.setItem(NOTEBOOK_STORAGE_KEY, JSON.stringify(cells));
+    } catch { /* ignore — storage may be unavailable (private mode, full) */ }
+  }, [cells]);
 
   // When select mode becomes active, listen for mouseup to capture selections
   useEffect(() => {

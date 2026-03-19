@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Bot, Send, X, Minimize2, Maximize2, Mic, MicOff, Volume2, VolumeX, Radio, Sparkles } from 'lucide-react';
-import { onInnerDreamsEvent } from '@/lib/agents/agentBus';
+import { onIdariEvent } from '@/lib/agents/agentBus';
 
 interface Message {
   id: string;
@@ -52,12 +52,12 @@ export default function DrEamsVoiceAssistant() {
 
   // Listen for iDari activity and surface it inside Dr. Eams chat
   useEffect(() => {
-    const unsubscribe = onInnerDreamsEvent((evt) => {
+    const unsubscribe = onIdariEvent((evt) => {
       // Avoid spamming: only surface status + errors, and occasional key logs
       const shouldSurface =
-        evt.type === 'innerdreams:status' ||
+        evt.type === 'idari:status' ||
         evt.status === 'error' ||
-        (evt.type === 'innerdreams:log' && /completed|failed|queued|initiated|activated|paused|bug/i.test(evt.message));
+        (evt.type === 'idari:log' && /completed|failed|queued|initiated|activated|paused|bug/i.test(evt.message));
 
       if (!shouldSurface) return;
 
@@ -260,43 +260,33 @@ export default function DrEamsVoiceAssistant() {
     }, 2000);
   };
 
-  const callInnerDreams = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
+  const callIdari = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
     try {
-      const endpoint = mode === 'bug-check' ? '/api/innerdreams/check-bugs' : '/api/innerdreams/update';
-      const payload: Record<string, unknown> = mode === 'bug-check'
-        ? { userId: 'self' }
-        : { prompt: prompt || 'General maintenance update', autoRefresh: false, bugCheck: true };
+      const message = mode === 'bug-check'
+        ? 'Run a diagnostic check on the DREAMengin platform. Identify any bugs, errors, or system health issues and report your findings.'
+        : (prompt ?? 'Perform a safe maintenance update.');
 
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/ai/idari', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ message, ui: { route: '/admin' } }),
       });
 
       if (res.status === 401) {
-        return 'iDari needs an admin session. Please sign in as admin, then try again.';
+        return 'IDARi needs an admin session. Please sign in as admin, then try again.';
       }
       if (res.status === 403) {
-        return 'iDari is admin-only. Your account is not marked as admin.';
+        return 'IDARi is admin-only. Your account is not marked as admin.';
       }
       if (!res.ok) {
         const text = await res.text();
-        return `iDari request failed (${res.status}). ${text?.slice(0, 140) || ''}`;
+        return `IDARi request failed (${res.status}). ${text?.slice(0, 140) || ''}`;
       }
 
-      const json = await res.json();
-      if (mode === 'bug-check') {
-        const bugs = json?.bugsFound ?? 0;
-        return bugs > 0
-          ? `iDari bug check found ${bugs} potential issue(s). Check the admin audit log for details.`
-          : 'iDari reports: all systems operational. No issues detected.';
-      }
-
-      return json?.message
-        ? `iDari: ${json.message}`
-        : 'iDari accepted the update request.';
+      const json = await res.json() as { response_text?: string };
+      return json?.response_text ?? 'IDARi processed the request.';
     } catch (e: unknown) {
-      return `iDari request error: ${e instanceof Error ? e.message : 'Unknown error'}`;
+      return `IDARi request error: ${e instanceof Error ? e.message : 'Unknown error'}`;
     }
   };
 
@@ -304,21 +294,21 @@ export default function DrEamsVoiceAssistant() {
     const lower = command.toLowerCase();
 
     // iDari command bridge (admin auto-updater / bug monitor)
-    if (lower.includes('innerdreams') || lower.includes('inner dreams')) {
+    if (lower.includes('idari') || lower.includes('inner dreams')) {
       if (lower.includes('bug') || lower.includes('check')) {
-        return await callInnerDreams('bug-check');
+        return await callIdari('bug-check');
       }
       // Everything else treated as an update request
       const cleaned = command
         .replace(/inner\s*dreams\s*[:\-]?/i, '')
         .replace(/please\s+/i, '')
         .trim();
-      return await callInnerDreams('update', cleaned || 'Run a safe maintenance update.');
+      return await callIdari('update', cleaned || 'Run a safe maintenance update.');
     }
 
     // Natural-language handoff: "fix the site", "fix a bug", "update the homepage"
     if (/(fix|patch|repair|hotfix|update)\b/.test(lower) && /(bug|error|crash|build|deploy|vercel|site|homepage)/.test(lower)) {
-      return await callInnerDreams('update', command);
+      return await callIdari('update', command);
     }
 
     // Navigation commands

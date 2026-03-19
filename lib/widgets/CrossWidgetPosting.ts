@@ -100,27 +100,41 @@ export class CrossWidgetPostingEngine {
       return;
     }
     
-    // In a real implementation, this would:
-    // 1. Call server-validated publish API
-    // 2. Server checks auth session, platform connection, rate limits
-    // 3. Server enforces payload constraints and audit logging
-    // 4. Server returns result
-    
-    // For now, simulate a successful post
-    console.log('POST_REQUEST validated:', {
-      source: sourceWidgetId,
-      target: targetWidgetId,
-      payload
-    });
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Send success result
-    this.sendPostResult(targetWidgetId, sourceWidgetId, {
-      success: true,
-      postId: `post_${Date.now()}`
-    });
+    // Call server-validated publish API — auth session, rate limits, and audit
+    // logging are all enforced server-side in POST /api/posts.
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: payload.text ?? '',
+          media_ids: payload.mediaIds ?? [],
+          target_platform: payload.targetPlatform,
+          source_widget: sourceWidgetId,
+          target_widget: targetWidgetId,
+          options: payload.options ?? {},
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json() as { id?: string; post_id?: string };
+        this.sendPostResult(targetWidgetId, sourceWidgetId, {
+          success: true,
+          postId: data.id ?? data.post_id,
+        });
+      } else {
+        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` })) as { error?: string };
+        this.sendPostResult(targetWidgetId, sourceWidgetId, {
+          success: false,
+          error: err.error ?? `Post failed (HTTP ${res.status})`,
+        });
+      }
+    } catch (networkErr) {
+      this.sendPostResult(targetWidgetId, sourceWidgetId, {
+        success: false,
+        error: networkErr instanceof Error ? networkErr.message : 'Network error',
+      });
+    }
   }
   
   /**
