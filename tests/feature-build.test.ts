@@ -5,7 +5,8 @@
  *
  * Coverage:
  *   1. featureManifest   — all 6 manifests load, domains/engins are canonical, maxFeatures consistent
- *   2. buildCycle        — getBuildPhase, calculateProgress, computeBuildCycleState, allPairsInRefinePhase
+ *   2. buildCycle        — getBuildPhase, calculateProgress, computeBuildCycleState, countUsableFeatures,
+ *                          allPairsInRefinePhase, allPairsMovingForward
  *   3. uiQualityCriteria — SICC_GLOBAL_CRITERIA structure, dimension filtering, SICC_DIMENSIONS
  */
 
@@ -21,9 +22,11 @@ import {
   getBuildPhase,
   calculateProgress,
   countFeaturesByStatus,
+  countUsableFeatures,
   computeBuildCycleState,
   computeAllBuildCycleStates,
   allPairsInRefinePhase,
+  allPairsMovingForward,
 } from '@/lib/feature-build/buildCycle';
 
 import {
@@ -91,10 +94,10 @@ describe('FEATURE_MANIFESTS', () => {
     }
   });
 
-  it('every feature status is either implemented or planned', () => {
+  it('every feature status is implemented, active, or planned', () => {
     for (const m of FEATURE_MANIFESTS) {
       for (const f of m.features) {
-        expect(['implemented', 'planned']).toContain(f.status);
+        expect(['implemented', 'active', 'planned']).toContain(f.status);
       }
     }
   });
@@ -121,6 +124,23 @@ describe('FEATURE_MANIFESTS', () => {
       }
     }
   });
+
+  it('refineThreshold is a number between 0 and 1 for every manifest', () => {
+    for (const m of FEATURE_MANIFESTS) {
+      expect(typeof m.refineThreshold).toBe('number');
+      expect(m.refineThreshold).toBeGreaterThan(0);
+      expect(m.refineThreshold).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it('implemented + active + planned equals maxFeatures for every manifest', () => {
+    for (const m of FEATURE_MANIFESTS) {
+      const impl   = countFeaturesByStatus(m, 'implemented');
+      const active = countFeaturesByStatus(m, 'active');
+      const plan   = countFeaturesByStatus(m, 'planned');
+      expect(impl + active + plan).toBe(m.maxFeatures);
+    }
+  });
 });
 
 describe('getManifest()', () => {
@@ -139,22 +159,43 @@ describe('getManifest()', () => {
 // ─── 2. buildCycle ────────────────────────────────────────────────────────────
 
 describe('getBuildPhase()', () => {
-  it('returns BUILD when featuresImplemented < maxFeatures', () => {
-    expect(getBuildPhase(5, 10)).toBe('BUILD');
-    expect(getBuildPhase(0, 10)).toBe('BUILD');
-    expect(getBuildPhase(9, 10)).toBe('BUILD');
+  // getBuildPhase(featuresUsable, featuresImplemented, maxFeatures, refineThreshold)
+
+  it('returns BUILD when usable fraction is below refineThreshold', () => {
+    // 4 usable / 10 max = 40% < 60% threshold
+    expect(getBuildPhase(4, 4, 10, 0.6)).toBe('BUILD');
+    expect(getBuildPhase(0, 0, 10, 0.6)).toBe('BUILD');
   });
 
-  it('returns REFINE when featuresImplemented === maxFeatures', () => {
-    expect(getBuildPhase(10, 10)).toBe('REFINE');
+  it('returns UPGRADE when usable fraction meets threshold but not all implemented', () => {
+    // 6 usable (4 implemented + 2 active) / 10 max = 60% ≥ 60% threshold, not fully implemented
+    expect(getBuildPhase(6, 4, 10, 0.6)).toBe('UPGRADE');
+    // 8 usable / 10 = 80% ≥ 60%, 8 implemented < 10 max
+    expect(getBuildPhase(8, 8, 10, 0.6)).toBe('UPGRADE');
+  });
+
+  it('returns UPGRADE at exactly the refineThreshold', () => {
+    // 6 / 10 = 0.6 exactly
+    expect(getBuildPhase(6, 5, 10, 0.6)).toBe('UPGRADE');
+  });
+
+  it('returns REFINE when all features are implemented regardless of threshold', () => {
+    expect(getBuildPhase(10, 10, 10, 0.6)).toBe('REFINE');
+    expect(getBuildPhase(10, 10, 10, 0.3)).toBe('REFINE');
   });
 
   it('returns REFINE when featuresImplemented > maxFeatures', () => {
-    expect(getBuildPhase(11, 10)).toBe('REFINE');
+    expect(getBuildPhase(11, 11, 10, 0.6)).toBe('REFINE');
   });
 
-  it('returns REFINE when both are 0', () => {
-    expect(getBuildPhase(0, 0)).toBe('REFINE');
+  it('returns REFINE when both are 0 (empty manifest edge case)', () => {
+    expect(getBuildPhase(0, 0, 0, 0.6)).toBe('REFINE');
+  });
+
+  it('a higher threshold keeps pair in BUILD longer', () => {
+    // 7 usable / 10 = 70% — passes 60% but not 80%
+    expect(getBuildPhase(7, 5, 10, 0.6)).toBe('UPGRADE');
+    expect(getBuildPhase(7, 5, 10, 0.8)).toBe('BUILD');
   });
 });
 
@@ -198,11 +239,41 @@ describe('countFeaturesByStatus()', () => {
     expect(countFeaturesByStatus(manifest, 'planned')).toBe(planned);
   });
 
-  it('implemented + planned equals maxFeatures', () => {
+  it('counts active features correctly', () => {
+    const manifest = getManifest('Music');
+    const active = manifest.features.filter((f) => f.status === 'active').length;
+    expect(countFeaturesByStatus(manifest, 'active')).toBe(active);
+  });
+
+  it('implemented + active + planned equals maxFeatures', () => {
+    for (const m of FEATURE_MANIFESTS) {
+      const impl   = countFeaturesByStatus(m, 'implemented');
+      const active = countFeaturesByStatus(m, 'active');
+      const plan   = countFeaturesByStatus(m, 'planned');
+      expect(impl + active + plan).toBe(m.maxFeatures);
+    }
+  });
+});
+
+describe('countUsableFeatures()', () => {
+  it('returns implemented + active for every manifest', () => {
+    for (const m of FEATURE_MANIFESTS) {
+      const impl   = countFeaturesByStatus(m, 'implemented');
+      const active = countFeaturesByStatus(m, 'active');
+      expect(countUsableFeatures(m)).toBe(impl + active);
+    }
+  });
+
+  it('usable count is always >= implemented count', () => {
     for (const m of FEATURE_MANIFESTS) {
       const impl = countFeaturesByStatus(m, 'implemented');
-      const plan = countFeaturesByStatus(m, 'planned');
-      expect(impl + plan).toBe(m.maxFeatures);
+      expect(countUsableFeatures(m)).toBeGreaterThanOrEqual(impl);
+    }
+  });
+
+  it('usable count is always <= maxFeatures', () => {
+    for (const m of FEATURE_MANIFESTS) {
+      expect(countUsableFeatures(m)).toBeLessThanOrEqual(m.maxFeatures);
     }
   });
 });
@@ -213,21 +284,38 @@ describe('computeBuildCycleState()', () => {
       const state = computeBuildCycleState(m);
       expect(state.domain).toBe(m.domain);
       expect(state.engin).toBe(m.engin);
-      expect(['BUILD', 'REFINE']).toContain(state.phase);
-      expect(state.featuresImplemented + state.featurePlanned).toBe(m.maxFeatures);
+      expect(['BUILD', 'UPGRADE', 'REFINE']).toContain(state.phase);
+      expect(state.featuresImplemented + state.featuresActive + state.featurePlanned).toBe(m.maxFeatures);
       expect(state.progressPct).toBeGreaterThanOrEqual(0);
       expect(state.progressPct).toBeLessThanOrEqual(100);
+      expect(state.usablePct).toBeGreaterThanOrEqual(0);
+      expect(state.usablePct).toBeLessThanOrEqual(100);
     }
   });
 
-  it('phase is BUILD when planned features remain', () => {
-    // All current manifests have at least one planned feature → should all be BUILD
+  it('usablePct is always >= progressPct (active features add forward motion)', () => {
     for (const m of FEATURE_MANIFESTS) {
-      const hasPlanned = m.features.some((f) => f.status === 'planned');
       const state = computeBuildCycleState(m);
-      if (hasPlanned) {
-        expect(state.phase).toBe('BUILD');
+      expect(state.usablePct).toBeGreaterThanOrEqual(state.progressPct);
+    }
+  });
+
+  it('phase is UPGRADE or REFINE for manifests that meet their refineThreshold', () => {
+    for (const m of FEATURE_MANIFESTS) {
+      const usable = countUsableFeatures(m);
+      const meetsThreshold = usable / m.maxFeatures >= m.refineThreshold;
+      const state = computeBuildCycleState(m);
+      if (meetsThreshold) {
+        expect(['UPGRADE', 'REFINE']).toContain(state.phase);
       }
+    }
+  });
+
+  it('featuresActive reflects the active feature count from the manifest', () => {
+    for (const m of FEATURE_MANIFESTS) {
+      const state  = computeBuildCycleState(m);
+      const active = m.features.filter((f) => f.status === 'active').length;
+      expect(state.featuresActive).toBe(active);
     }
   });
 });
@@ -247,30 +335,75 @@ describe('computeAllBuildCycleStates()', () => {
 });
 
 describe('allPairsInRefinePhase()', () => {
-  it('returns false when any pair is in BUILD phase', () => {
+  it('returns false when any pair is not in REFINE phase', () => {
     const states = computeAllBuildCycleStates(FEATURE_MANIFESTS);
-    // All manifests currently have planned features → all BUILD
-    const anyBuild = states.some((s) => s.phase === 'BUILD');
-    if (anyBuild) {
+    const anyNonRefine = states.some((s) => s.phase !== 'REFINE');
+    if (anyNonRefine) {
       expect(allPairsInRefinePhase(states)).toBe(false);
     }
   });
 
   it('returns true when all states are REFINE', () => {
     const allRefine = FEATURE_MANIFESTS.map((m) => ({
-      domain: m.domain,
-      engin: m.engin,
-      phase: 'REFINE' as const,
-      featuresImplemented: m.maxFeatures,
-      featurePlanned: 0,
-      maxFeatures: m.maxFeatures,
-      progressPct: 100,
+      domain:               m.domain,
+      engin:                m.engin,
+      phase:                'REFINE' as const,
+      featuresImplemented:  m.maxFeatures,
+      featuresActive:       0,
+      featurePlanned:       0,
+      maxFeatures:          m.maxFeatures,
+      progressPct:          100,
+      usablePct:            100,
     }));
     expect(allPairsInRefinePhase(allRefine)).toBe(true);
   });
 
   it('returns false for an empty array', () => {
     expect(allPairsInRefinePhase([])).toBe(false);
+  });
+});
+
+describe('allPairsMovingForward()', () => {
+  it('returns true when all pairs are in UPGRADE or REFINE phase', () => {
+    const forwardStates = FEATURE_MANIFESTS.map((m) => ({
+      domain:               m.domain,
+      engin:                m.engin,
+      phase:                'UPGRADE' as const,
+      featuresImplemented:  Math.ceil(m.maxFeatures * 0.6),
+      featuresActive:       0,
+      featurePlanned:       Math.floor(m.maxFeatures * 0.4),
+      maxFeatures:          m.maxFeatures,
+      progressPct:          60,
+      usablePct:            60,
+    }));
+    expect(allPairsMovingForward(forwardStates)).toBe(true);
+  });
+
+  it('returns true when all pairs are in REFINE phase', () => {
+    const allRefine = FEATURE_MANIFESTS.map((m) => ({
+      domain:               m.domain,
+      engin:                m.engin,
+      phase:                'REFINE' as const,
+      featuresImplemented:  m.maxFeatures,
+      featuresActive:       0,
+      featurePlanned:       0,
+      maxFeatures:          m.maxFeatures,
+      progressPct:          100,
+      usablePct:            100,
+    }));
+    expect(allPairsMovingForward(allRefine)).toBe(true);
+  });
+
+  it('returns false when any pair is still in BUILD phase', () => {
+    const states = computeAllBuildCycleStates(FEATURE_MANIFESTS);
+    const anyBuild = states.some((s) => s.phase === 'BUILD');
+    if (anyBuild) {
+      expect(allPairsMovingForward(states)).toBe(false);
+    }
+  });
+
+  it('returns false for an empty array', () => {
+    expect(allPairsMovingForward([])).toBe(false);
   });
 });
 

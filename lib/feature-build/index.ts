@@ -15,9 +15,11 @@ export {
   getBuildPhase,
   calculateProgress,
   countFeaturesByStatus,
+  countUsableFeatures,
   computeBuildCycleState,
   computeAllBuildCycleStates,
   allPairsInRefinePhase,
+  allPairsMovingForward,
 } from './buildCycle';
 
 export type { SICCDimension, UIQualityCheck } from './uiQualityCriteria';

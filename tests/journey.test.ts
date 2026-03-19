@@ -229,10 +229,13 @@ describe('JOURNEY_DOMAIN_COLORS', () => {
       'Create Daydream Surface',
       'DreamDM Surface',
       'DreamShop Surface',
+      'DreamMarketplace Surface',
     ];
     for (const name of expected) {
       expect(JOURNEY_DOMAIN_COLORS).toHaveProperty(name);
     }
+    // All defined colors are accounted for — no undocumented entries
+    expect(Object.keys(JOURNEY_DOMAIN_COLORS)).toHaveLength(expected.length);
   });
 
   it('all color values are valid hex strings', () => {
