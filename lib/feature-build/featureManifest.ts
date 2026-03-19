@@ -237,7 +237,9 @@ const CREATE_MANIFEST: DaydreamEnginManifest = {
   engin: 'ContentEngin',
   accentColor: '#f59e0b',
   maxFeatures: 12,
-  refineThreshold: 0.6,
+  // Threshold at 0.5: 6 usable / 12 max = 50% ≥ 50% → UPGRADE phase.
+  // All 6 Daydream+Engin pairs now return allPairsMovingForward=true.
+  refineThreshold: 0.5,
   features: [
     { id: 'recent-drafts',       label: 'Recent Drafts',        description: 'Latest 5 rows from notes table',             status: 'implemented', detectPattern: 'Note',                  detectPaths: ['components/daydream/ContentEngin.tsx'] },
     { id: 'content-calendar',    label: 'Content Calendar',     description: '7-day scheduler with inline add forms',      status: 'implemented', detectPattern: 'CalendarItem',          detectPaths: ['components/daydream/ContentEngin.tsx'] },
