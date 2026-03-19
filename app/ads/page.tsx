@@ -47,8 +47,9 @@ export default async function AdsPage() {
   const myOrders: AdOrder[] = (myOrdersData as unknown as AdOrder[] | null) ?? [];
 
   // Separate user DreamAds from platform promotions (Phase 6 item 11)
-  const userAdListings = allListings.filter((l) => !l.is_platform_promotion);
-  const platformPromotions = allListings.filter((l) => l.is_platform_promotion);
+  // Use strict equality so null/undefined listings land in userAdListings (owner's own ads).
+  const userAdListings = allListings.filter((l) => l.is_platform_promotion !== true);
+  const platformPromotions = allListings.filter((l) => l.is_platform_promotion === true);
 
   return (
     <div className="de-sky-bg min-h-screen">

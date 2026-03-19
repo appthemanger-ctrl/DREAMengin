@@ -155,6 +155,8 @@ export default function EditProfileDreamPage() {
     } finally {
       setIsSaving(false);
     }
+  // Note: initialWidgets is reset to `widgets` after each save (line ~150),
+  // so the next diff always computes changes relative to the last saved snapshot.
   }, [profile, widgets, initialWidgets]);
 
   /**

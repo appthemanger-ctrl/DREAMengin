@@ -58,18 +58,16 @@ export default async function ViewProfilePage() {
   // If the table has records for this user, they override the widget's own
   // visibility field. If no mapping exists for a widget, fall back to the
   // widget's own visibility (private by default — LAW.md §2).
+  type VisibilityMappingRow = { content_id: string; visibility: string };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: mappingsData } = await (supabase as any)
     .from('visibility_mappings')
     .select('content_id, visibility')
-    .eq('user_id', user.id);
+    .eq('user_id', user.id) as { data: VisibilityMappingRow[] | null };
 
   // Build a lookup: content_id → visibility
   const mappingLookup = new Map<string, string>(
-    (mappingsData ?? []).map((m: { content_id: string; visibility: string }) => [
-      m.content_id,
-      m.visibility,
-    ])
+    (mappingsData ?? []).map((m) => [m.content_id, m.visibility])
   );
 
   // Use server-persisted widget projection (falls back to defaults if not set)
