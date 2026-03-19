@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-19 07:03 UTC | `9ee0e1c` | copilot/use-icobs-assets | Copilot | +1 added  ~5 modified<br>feat: use glass/gold sheet icons in PlatformBadge + add InfinityIcon brand mark — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `components/ui/InfinityIcon.tsx`<br>✏️: `app/profile/[handle]/page.tsx`, `components/dreamengin/HomeControls.tsx`, `components/ui/PlatformBadge.tsx`, `lib/branding/logos.ts`, `tests/branding-logos.test.ts` |
 | **auto** | 2026-03-19 06:20 UTC | `bcddf5f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #242 from appthemanger-ctrl/copilot/upgrade-game-engine-and-feed — feat: four-system production upgrade — universal premium access, HiDPI game engine, CodeEngin LIVE, home feed always active<br> |
 | **auto** | 2026-03-19 04:07 UTC | `72df614` | copilot/connect-data-points | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/connect-data-points<br> |
 | **auto** | 2026-03-19 03:34 UTC | `c179452` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #240 from appthemanger-ctrl/copilot/explore-discover-dream — feat: surface EXPLORE · DISCOVER · DREAM brand promise across landing and Discover<br> |
 | **auto** | 2026-03-19 00:27 UTC | `16ce479` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #238 from appthemanger-ctrl/copilot/fix-sliding-bar-and-tap-responsiveness — Make DreamDM bar taps immediate and add fling-based drag snapping<br> |
-| **auto** | 2026-03-18 23:55 UTC | `4c324e2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #237 from appthemanger-ctrl/copilot/review-feedback-for-clarity — DREAMengin: wire all stubbed features, fix silent failures, make every action real<br> |
 
 ## What changed in this alignment pass
 
