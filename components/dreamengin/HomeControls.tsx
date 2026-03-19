@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useRef } from 'react';
+import InfinityIcon from '@/components/ui/InfinityIcon';
 
 interface HomeControlsProps {
   onBothMenus: () => void;
@@ -80,7 +81,7 @@ export default function HomeControls({ onBothMenus, onHome }: HomeControlsProps)
             e.preventDefault();
           }}
         >
-          <span style={{ fontSize: 22, lineHeight: 1, userSelect: 'none' }}>✦</span>
+          <InfinityIcon size={18} variant="flat" colorScheme="dark" />
         </button>
       </div>
     </div>

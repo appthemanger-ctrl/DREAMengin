@@ -6,11 +6,15 @@
  * Renders a platform icon badge.
  * Supports the legacy SVG icons (file, globe, window) as well as
  * all social media platforms defined in lib/social/platforms.ts.
+ * Platforms that have an entry in the icon sprite sheet (iconslist.png)
+ * are rendered via SheetIcon (glass/gold circular style).
  * When an onClick handler is provided the badge renders as a button.
  */
 
 import Image from 'next/image';
 import { PLATFORM_MAP } from '@/lib/social/platforms';
+import SheetIcon from '@/components/ui/SheetIcon';
+import { hasIcon } from '@/lib/icons/sheet';
 
 // ─── Legacy SVG icons (file / globe / window) ─────────────────────────────────
 const SVG_BRAND: Record<string, string> = {
@@ -87,8 +91,37 @@ export default function PlatformBadge({ name, size = 44, label, className = '', 
     );
   }
 
-  // ── Social media platform — emoji icon ─────────────────────────────────────
+  // ── Social media platform ──────────────────────────────────────────────────
   if (socialPlatform) {
+    // Prefer the glass/gold sheet icon when available
+    if (hasIcon(name)) {
+      return (
+        <Tag
+          type={onClick ? 'button' : undefined}
+          aria-label={label ?? socialPlatform.label}
+          title={label ?? socialPlatform.label}
+          className={className}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: size,
+            height: size,
+            flexShrink: 0,
+            background: 'transparent',
+            border: 'none',
+            padding: 0,
+            cursor: onClick ? 'pointer' : undefined,
+            transition: onClick ? 'opacity 0.15s ease, transform 0.15s ease' : undefined,
+          }}
+          onClick={onClick}
+        >
+          <SheetIcon name={name} size={size} ariaLabel={label ?? socialPlatform.label} />
+        </Tag>
+      );
+    }
+
+    // Fallback: emoji for platforms not yet in the sprite sheet
     return (
       <Tag
         type={onClick ? 'button' : undefined}

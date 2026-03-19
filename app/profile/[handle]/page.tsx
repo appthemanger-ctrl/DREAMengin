@@ -7,6 +7,7 @@ import FollowButton from '@/components/feed/FollowButton';
 import DreamWord from '@/components/ui/DreamWord';
 import ProfileShareButton from '@/components/ProfileShareButton';
 import ProfileCustomizeButton from '@/components/profile/ProfileCustomizeButton';
+import InfinityIcon from '@/components/ui/InfinityIcon';
 
 // Extended profile type
 type Profile = {
@@ -155,10 +156,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           width: 56, height: 56, borderRadius: '50%',
           background: 'linear-gradient(135deg, #c8981a, #e0b830)',
           boxShadow: '0 4px 20px rgba(200,152,26,0.45)',
-          fontSize: 24, color: '#fff', fontWeight: 800,
           cursor: 'pointer',
         }}>
-          ∞
+          <InfinityIcon size={20} variant="flat" colorScheme="dark" />
         </div>
       </div>
     </div>
