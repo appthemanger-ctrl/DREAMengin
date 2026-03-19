@@ -20,6 +20,8 @@ const INPUT_STYLE: React.CSSProperties = {
   outline: "none",
 };
 
+const DISABLED_BUTTON_OPACITY = 0.45;
+
 export default function JoinPage() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -33,8 +35,16 @@ export default function JoinPage() {
   const [busy, setBusy]               = useState(false);
   const [error, setError]             = useState<string | null>(null);
   const [notice, setNotice]           = useState<string | null>(null);
+  const [oauthProviders, setOauthProviders] = useState<{ google: boolean; github: boolean } | null>(null);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
+
+  useEffect(() => {
+    fetch("/api/auth/providers")
+      .then((r) => r.json())
+      .then((data) => setOauthProviders(data))
+      .catch(() => setOauthProviders({ google: false, github: false }));
+  }, []);
 
   useEffect(() => {
     const storedRemember = window.localStorage.getItem("rememberMe");
@@ -99,6 +109,16 @@ export default function JoinPage() {
 
   async function oauth(provider: "google" | "github") {
     setError(null);
+
+    // Guard: if we know this provider is not configured, show a friendly message
+    // instead of sending the user to an OAuth page that will reject them.
+    if (oauthProviders && !oauthProviders[provider]) {
+      setError(
+        `${provider === "google" ? "Google" : "GitHub"} sign-in is not configured on this server. Please use email/password or contact support.`,
+      );
+      return;
+    }
+
     setBusy(true);
     try {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -197,10 +217,24 @@ export default function JoinPage() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <button type="button" disabled={busy} onClick={() => oauth("google")} className="de-btn de-btn-ghost" style={{ width: "100%" }}>
+            <button
+              type="button"
+              disabled={busy || oauthProviders?.google === false}
+              onClick={() => oauth("google")}
+              className="de-btn de-btn-ghost"
+              style={{ width: "100%", opacity: oauthProviders?.google === false ? DISABLED_BUTTON_OPACITY : undefined }}
+              title={oauthProviders?.google === false ? "Google sign-in is not configured" : undefined}
+            >
               Continue with Google
             </button>
-            <button type="button" disabled={busy} onClick={() => oauth("github")} className="de-btn de-btn-ghost" style={{ width: "100%" }}>
+            <button
+              type="button"
+              disabled={busy || oauthProviders?.github === false}
+              onClick={() => oauth("github")}
+              className="de-btn de-btn-ghost"
+              style={{ width: "100%", opacity: oauthProviders?.github === false ? DISABLED_BUTTON_OPACITY : undefined }}
+              title={oauthProviders?.github === false ? "GitHub sign-in is not configured" : undefined}
+            >
               Continue with GitHub
             </button>
           </div>
