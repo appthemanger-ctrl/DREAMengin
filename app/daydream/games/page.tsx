@@ -76,9 +76,9 @@ export default async function GamesDaydreamPage() {
                 <div style={{ width: 72, height: 72, borderRadius: 18, flexShrink: 0, background: 'linear-gradient(135deg, rgba(42,138,184,0.2), rgba(200,152,26,0.18))', border: '1.5px solid rgba(42,138,184,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>∞</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>Run. Jump. Dream.</div>
-                  <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>3 levels, enemies, coins, and a star. Touch, keyboard, or PS5 — works right now.</div>
+                  <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>Babylon.js 3-D side-scroller. 3 levels, enemies, coins, and a star. Move + jump always work together.</div>
                   <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                    {['3 Levels', 'Touch', 'PS5 Ready', 'Double Jump'].map(t => (
+                    {['3 Levels', 'Babylon.js 3D', 'PS5 Ready', 'Double Jump'].map(t => (
                       <span key={t} style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 999, background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>{t}</span>
                     ))}
                   </div>
@@ -86,8 +86,8 @@ export default async function GamesDaydreamPage() {
               </div>
             </div>
             <div className="de-widget-actions">
-              <Link href="/game" className="de-btn de-btn-primary" style={{ gap: 8 }}><Play className="w-4 h-4 fill-current" /> Play Now</Link>
-              <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 'auto' }}><Zap className="w-3 h-3 inline mr-1" style={{ color: 'var(--de-gold)' }} />3 levels · dual joystick</span>
+              <Link href="/daydream/game" className="de-btn de-btn-primary" style={{ gap: 8 }}><Play className="w-4 h-4 fill-current" /> Play Now</Link>
+              <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 'auto' }}><Zap className="w-3 h-3 inline mr-1" style={{ color: 'var(--de-gold)' }} />3 levels · Babylon.js 3D</span>
             </div>
           </div>
 
