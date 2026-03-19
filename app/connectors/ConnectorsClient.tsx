@@ -172,7 +172,7 @@ export default function ConnectorsClient() {
       {/* ── Tier 1: Fully supported ──────────────────────────────────── */}
       <div className="de-widget">
         <div className="de-widget-header">
-          <span className="de-widget-title">✅ Supported Connections</span>
+          <span className="de-widget-title">✅ Active System Integrations</span>
         </div>
         <div className="de-widget-body" style={{ padding: '4px 6px' }}>
           {tier1.map((conn) => (
@@ -193,7 +193,7 @@ export default function ConnectorsClient() {
       {/* ── Tier 2: Gated (requires approval or admin setup) ─────────── */}
       <div className="de-widget">
         <div className="de-widget-header">
-          <span className="de-widget-title">⚙️ Requires Approval or Setup</span>
+          <span className="de-widget-title">⚙️ Requires Approval or Admin Setup</span>
         </div>
         <div className="de-widget-body" style={{ padding: '4px 6px' }}>
           {tier2.map((conn) => (
