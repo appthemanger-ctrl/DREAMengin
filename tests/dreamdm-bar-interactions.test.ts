@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  BAR_FLING_TO_TOP_VELOCITY_PX_PER_MS,
-  GOLD_DOUBLE_TAP_MS,
+  BAR_FLING_TO_TOP_MIN_DRAG_PX,
+  BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS,
+  GOLD_SECOND_TAP_WINDOW_MS,
   GOLD_TAP_SLOP_PX,
   resolveGoldTapAction,
   shouldCollapseGoldSwipe,
@@ -20,14 +21,14 @@ describe('resolveGoldTapAction', () => {
   });
 
   it('uses the second tap within the window to go home from the bottom state', () => {
-    expect(resolveGoldTapAction({ now: 1_000 + GOLD_DOUBLE_TAP_MS - 1, lastTapAt: 1_000, isTop: false })).toEqual({
+    expect(resolveGoldTapAction({ now: 1_000 + GOLD_SECOND_TAP_WINDOW_MS - 1, lastTapAt: 1_000, isTop: false })).toEqual({
       action: 'home',
       nextLastTapAt: 0,
     });
   });
 
   it('uses the second tap within the window to open HomeDream in DreamSpace when pinned at the top', () => {
-    expect(resolveGoldTapAction({ now: 1_000 + GOLD_DOUBLE_TAP_MS - 1, lastTapAt: 1_000, isTop: true })).toEqual({
+    expect(resolveGoldTapAction({ now: 1_000 + GOLD_SECOND_TAP_WINDOW_MS - 1, lastTapAt: 1_000, isTop: true })).toEqual({
       action: 'home-dreamspace',
       nextLastTapAt: 0,
     });
@@ -44,6 +45,7 @@ describe('gold release gesture helpers', () => {
     expect(shouldCollapseGoldSwipe({ dy: GOLD_TAP_SLOP_PX + 1, isTop: true })).toBe(true);
     expect(shouldCollapseGoldSwipe({ dy: GOLD_TAP_SLOP_PX + 1, isTop: false })).toBe(false);
     expect(shouldCollapseGoldSwipe({ dy: GOLD_TAP_SLOP_PX, isTop: true })).toBe(false);
+    expect(shouldCollapseGoldSwipe({ dy: -(GOLD_TAP_SLOP_PX + 1), isTop: true })).toBe(false);
   });
 });
 
@@ -62,7 +64,7 @@ describe('bar snap helpers', () => {
       screenH: 900,
       dragH: 200,
       barH: 80,
-      velocityPxPerMs: BAR_FLING_TO_TOP_VELOCITY_PX_PER_MS - 0.1,
+      velocityPxPerMs: BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS - 0.1,
     })).toBe(true);
   });
 
@@ -72,6 +74,15 @@ describe('bar snap helpers', () => {
       dragH: 110,
       barH: 80,
       velocityPxPerMs: -0.2,
+    })).toBe(false);
+  });
+
+  it('does not snap to the top on velocity alone before the minimum upward throw distance is reached', () => {
+    expect(shouldSnapBottomDragToTop({
+      screenH: 900,
+      dragH: 80 + BAR_FLING_TO_TOP_MIN_DRAG_PX - 1,
+      barH: 80,
+      velocityPxPerMs: BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS - 0.1,
     })).toBe(false);
   });
 

@@ -55,6 +55,7 @@ import { useDreamDMConversations,
   type DMConversation,
 } from '@/lib/dreamdm/useDreamDMConversations';
 import {
+  calculatePointerVelocity,
   resolveGoldTapAction,
   shouldCollapseGoldSwipe,
   shouldCollapseTopExpandedDrag,
@@ -226,7 +227,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const goldDragRef = useRef({ active: false, startY: 0 });
   const handleGoldPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    e.currentTarget.setPointerCapture(e.pointerId);
     goldDragRef.current = { active: true, startY: e.clientY };
     setGoldPressed(true);
   }, []);
@@ -242,13 +242,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     } else if (shouldTreatGoldReleaseAsTap(dy)) {
       handleGoldTap();
     }
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    }
   }, [handleGoldTap, isTop]);
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
-  const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handleDragStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault(); e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
     const now = performance.now();
@@ -262,13 +259,12 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
       velocity: 0,
     };
     setIsDragging(true);
-  };
+  }, [dragH, isTop, isTopExpanded, slideDown]);
 
-  const handleDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handleDragMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.active) return;
     const now = performance.now();
-    const dt = Math.max(now - dragRef.current.lastAt, 1);
-    dragRef.current.velocity = (e.clientY - dragRef.current.lastY) / dt;
+    dragRef.current.velocity = calculatePointerVelocity(dragRef.current.lastY, e.clientY, dragRef.current.lastAt, now);
     dragRef.current.lastY = e.clientY;
     dragRef.current.lastAt = now;
     const dy = e.clientY - dragRef.current.startY; // positive = dragging DOWN
@@ -286,14 +282,14 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
       const newSlide = Math.max(0, Math.min(screenH * 0.5, dragRef.current.startSlide + dy));
       setSlideDown(newSlide);
     }
-  };
+  }, [screenH]);
 
-  const handleDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handleDragEnd = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.active) return;
     const now = performance.now();
-    const dt = Math.max(now - dragRef.current.lastAt, 1);
-    const releaseVelocity = (e.clientY - dragRef.current.lastY) / dt;
-    const velocity = Number.isFinite(releaseVelocity) && releaseVelocity !== 0
+    const releaseVelocity = calculatePointerVelocity(dragRef.current.lastY, e.clientY, dragRef.current.lastAt, now);
+    // If the release lands without a usable fresh sample, keep the last measured move velocity.
+    const velocity = Number.isFinite(releaseVelocity)
       ? releaseVelocity
       : dragRef.current.velocity;
     dragRef.current.active = false;
@@ -331,7 +327,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
-  };
+  }, [dragH, screenH, slideDown]);
 
   // ── Dream bar context (route-aware) ────────────────────────────────────────
   const barCtx = useDreamBarContext();
@@ -586,12 +582,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         aria-label="Gold button — tap for menus, double-tap to open HomeDream"
         onPointerDown={handleGoldPointerDown}
         onPointerUp={handleGoldPointerUp}
-        onPointerCancel={(e) => {
+        onPointerCancel={() => {
           goldDragRef.current.active = false;
           setGoldPressed(false);
-          if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-            e.currentTarget.releasePointerCapture(e.pointerId);
-          }
         }}
         style={{
           position: 'fixed', // Always fixed to ensure no scroll movement when screen-locked
