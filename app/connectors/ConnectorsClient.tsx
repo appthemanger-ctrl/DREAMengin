@@ -3,7 +3,8 @@
  * app/connectors/ConnectorsClient.tsx
  *
  * Phase 5 — Client-side connector manager.
- * Uses defaultStatus from registry (no fake 'not_connected' override for tier2/tier3).
+ * Loads real connector statuses from /api/connectors/status on mount so
+ * previously connected services show their actual state from connector_accounts.
  * Shows Sync Now button for connected tier-1 providers.
  *
  * Groups: Tier 1 (Supported), Tier 2 (Requires Approval / Setup), Tier 3 (Unsupported).
@@ -12,7 +13,7 @@
  * AXIOMS.md §3 — Every visible action does something real.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CONNECTOR_REGISTRY } from '@/lib/connectors/connectorRegistry';
 import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
 import ConnectorRow from '@/components/connectors/ConnectorRow';
@@ -32,8 +33,8 @@ import { RefreshCw } from 'lucide-react';
 // Demo initial grid: 6 slots, all empty
 const DEMO_GRID: SlotGrid = { totalSlots: 6, filledSlots: new Set() };
 
-// Use defaultStatus from registry — tier2/tier3 never start as 'not_connected'
-const INITIAL_STATUSES: Record<string, ConnectorStatus> = Object.fromEntries(
+// Registry defaults — used as the initial value before real DB statuses load
+const DEFAULT_STATUSES: Record<string, ConnectorStatus> = Object.fromEntries(
   CONNECTOR_REGISTRY.map((c) => [c.id, c.defaultStatus]),
 );
 
@@ -105,8 +106,34 @@ export default function ConnectorsClient() {
     widgetId: string; dataState: WidgetDataState;
   }>>([]);
   const [grid, setGrid] = useState<SlotGrid>(DEMO_GRID);
-  // Track which connectors are connected (for showing Sync Now)
+  // Live statuses from connector_accounts — seeded with registry defaults until the fetch resolves
+  const [statuses, setStatuses] = useState<Record<string, ConnectorStatus>>(DEFAULT_STATUSES);
+  // Track which tier-1 connectors are connected (for showing Sync Now)
   const [connectedIds, setConnectedIds] = useState<Set<string>>(new Set());
+
+  // Load real connector statuses from the DB on mount
+  useEffect(() => {
+    fetch('/api/connectors/status')
+      .then((r) => r.json())
+      .then((data: { ok: boolean; statuses: Record<string, { status: string }> }) => {
+        if (!data.ok) return;
+        setStatuses((prev) => {
+          const next = { ...prev };
+          for (const [provider, entry] of Object.entries(data.statuses)) {
+            next[provider] = entry.status as ConnectorStatus;
+          }
+          return next;
+        });
+        // Seed connectedIds from real DB state
+        const tier1Connected = new Set(
+          Object.entries(data.statuses)
+            .filter(([id, entry]) => entry.status === 'connected' && TIER1_IDS.has(id))
+            .map(([id]) => id),
+        );
+        setConnectedIds(tier1Connected);
+      })
+      .catch(() => { /* keep registry defaults on network error */ });
+  }, []);
 
   function handleAutoLock() {
     // Caller is responsible for locking to LOCKED / safe mode
@@ -150,6 +177,15 @@ export default function ConnectorsClient() {
     flow.onConnectSuccess(connectorId, connectorName);
   }
 
+  function handleDisconnect(connectorId: string) {
+    // Remove from connected set so Sync Now button disappears
+    setConnectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(connectorId);
+      return next;
+    });
+  }
+
   React.useEffect(() => {
     if (flow.placementRequest && !flow.placementRequest.noSlotAvailable) {
       const slots = grid.filledSlots;
@@ -179,8 +215,9 @@ export default function ConnectorsClient() {
             <div key={conn.id}>
               <ConnectorRow
                 connector={conn}
-                status={INITIAL_STATUSES[conn.id]}
+                status={statuses[conn.id]}
                 onConnectSuccess={handleConnectSuccess}
+                onDisconnect={handleDisconnect}
               />
               {connectedIds.has(conn.id) && (
                 <SyncButton connectorId={conn.id} connectorName={conn.name} />
@@ -200,8 +237,9 @@ export default function ConnectorsClient() {
             <ConnectorRow
               key={conn.id}
               connector={conn}
-              status={INITIAL_STATUSES[conn.id]}
+              status={statuses[conn.id]}
               onConnectSuccess={handleConnectSuccess}
+              onDisconnect={handleDisconnect}
             />
           ))}
         </div>
@@ -217,8 +255,9 @@ export default function ConnectorsClient() {
             <ConnectorRow
               key={conn.id}
               connector={conn}
-              status={INITIAL_STATUSES[conn.id]}
+              status={statuses[conn.id]}
               onConnectSuccess={handleConnectSuccess}
+              onDisconnect={handleDisconnect}
             />
           ))}
         </div>

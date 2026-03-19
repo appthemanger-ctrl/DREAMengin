@@ -70,6 +70,7 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-19 13:18 UTC | `d3f1f08` | copilot/update-privacy-defaults | Copilot | ~3 modified<br>Wire Manage button on connected connector rows to real disconnect flow — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/connectors/ConnectorsClient.tsx`, `components/connectors/ConnectorRow.tsx`, `lib/telemetry.ts` |
 | **auto** | 2026-03-19 13:34 UTC | `583950d` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #245 from appthemanger-ctrl/copilot/update-system-integrations-definition — feat: rename Connectors → System Integrations, make them editable, fix schema cache error<br> |
 | **auto** | 2026-03-19 09:03 UTC | `99c7efb` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #243 from appthemanger-ctrl/copilot/use-icobs-assets — feat: replace Unicode glyphs with real brand icons — InfinityIcon SVG + SheetIcon in PlatformBadge<br> |
 | **auto** | 2026-03-19 06:20 UTC | `bcddf5f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #242 from appthemanger-ctrl/copilot/upgrade-game-engine-and-feed — feat: four-system production upgrade — universal premium access, HiDPI game engine, CodeEngin LIVE, home feed always active<br> |

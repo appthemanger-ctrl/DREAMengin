@@ -14,7 +14,7 @@
  */
 
 import { useCallback }                              from 'react';
-import { usePathname }                              from 'next/navigation';
+import { usePathname, useRouter }                   from 'next/navigation';
 import DualBottomMenu, { type SystemMenuAction }    from '@/components/menus/DualBottomMenu';
 import DrEamsPanel                                  from '@/components/dreamengin/DrEamsPanel';
 import { useDreamSystem }                           from '@/lib/dreamdm/DreamSystemContext';
@@ -24,6 +24,7 @@ const PUBLIC_ROUTES = ['/login', '/join', '/policy', '/about'];
 
 export default function GlobalDreamBar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   const {
     bothMenusOpen,
@@ -40,23 +41,34 @@ export default function GlobalDreamBar() {
   const handleHome = useCallback(() => {
     closeBothMenus();
     closeDrEams();
-    runtimeCallbacks?.returnHome?.();
-  }, [closeBothMenus, closeDrEams, runtimeCallbacks]);
+    // If HomeSystem is mounted use its returnHome; otherwise navigate to /homedream
+    if (runtimeCallbacks?.returnHome) {
+      runtimeCallbacks.returnHome();
+    } else {
+      router.push('/homedream');
+    }
+  }, [closeBothMenus, closeDrEams, runtimeCallbacks, router]);
 
-  // ── System menu actions — all open in Surface Space via world dispatch ────
+  // ── System menu actions — prefer SPA panel when HomeSystem is active,
+  //    fall back to route navigation otherwise so links always work.   ──────
 
   const handleSystemAction = useCallback((action: SystemMenuAction) => {
     closeBothMenus();
     if (action === 'dr-eams')       { openDrEams(); return; }
     if (action === 'go-home')       { handleHome(); return; }
-    if (action === 'settings')      { openInSurface('settings');            return; }
-    if (action === 'account')       { openInSurface('profile');             return; }
-    if (action === 'profiles')      { openInSurface('profile');             return; }
-    if (action === 'feed-settings') { openInSurface('feed-settings');       return; }
-    if (action === 'connectors')    { openInSurface('connectors');          return; }
-    if (action === 'marketplace')   { openInSurface('marketplace');         return; }
-    if (action === 'appearance')    { openInSurface('settings/appearance'); return; }
-  }, [closeBothMenus, openDrEams, handleHome, openInSurface]);
+
+    // When HomeSystem's runtimeCallbacks are registered (user is on /homedream),
+    // open the feature inline in Surface Space — no routing, no page reload.
+    // When they're not (user is on any other page), fall back to direct navigation.
+    const hasSpaCallbacks = Boolean(runtimeCallbacks?.openInSurface);
+    if (action === 'settings')      { hasSpaCallbacks ? openInSurface('settings')            : router.push('/settings');              return; }
+    if (action === 'account')       { hasSpaCallbacks ? openInSurface('profile')             : router.push('/edit-profiledream');     return; }
+    if (action === 'profiles')      { hasSpaCallbacks ? openInSurface('profile')             : router.push('/edit-profiledream');     return; }
+    if (action === 'feed-settings') { hasSpaCallbacks ? openInSurface('feed-settings')       : router.push('/feed-settings');         return; }
+    if (action === 'connectors')    { hasSpaCallbacks ? openInSurface('connectors')          : router.push('/connectors');            return; }
+    if (action === 'marketplace')   { hasSpaCallbacks ? openInSurface('marketplace')         : router.push('/marketplace');           return; }
+    if (action === 'appearance')    { hasSpaCallbacks ? openInSurface('settings/appearance') : router.push('/settings/appearance');   return; }
+  }, [closeBothMenus, openDrEams, handleHome, openInSurface, runtimeCallbacks, router]);
 
   // ── Hide on public / pre-login routes ────────────────────────────────────
   if (PUBLIC_ROUTES.includes(pathname)) return null;

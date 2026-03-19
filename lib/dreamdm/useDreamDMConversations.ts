@@ -76,6 +76,9 @@ export function useDreamDMConversations(userId: string, initial: DMConversation[
   useEffect(() => {
     if (!userId) return;
 
+    // Load conversations immediately on mount (and whenever userId changes)
+    load();
+
     // Subscribe to conversations updates for this user
     const supabase = createClient();
     const channel = supabase

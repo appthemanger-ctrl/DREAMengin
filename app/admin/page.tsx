@@ -1,6 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import IDariPanel from '@/components/InnerDreams';
+import IDariPanel from '@/components/IDariPanel';
 import Link from 'next/link';
 import {
   ArrowLeft, Bot, Shield, Activity, Users, Database,

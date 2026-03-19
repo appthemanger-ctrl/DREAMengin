@@ -63,8 +63,8 @@ export function getSetupChecks(env: NodeJS.ProcessEnv = process.env): SetupCheck
       required: false,
     },
     {
-      key: 'INNERDREAMS_PASSWORD',
-      ok: Boolean(env.INNERDREAMS_PASSWORD),
+      key: 'IDARI_PASSWORD',
+      ok: Boolean(env.IDARI_PASSWORD),
       hint: 'Required for /api/admin/* endpoints.',
       required: false,
     },

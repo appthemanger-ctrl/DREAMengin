@@ -1,15 +1,13 @@
 // app/api/ai/execute/route.ts
 // Execute validated intents after confirmation
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
-import { ExecuteBodySchema, type ExecuteResponse } from '@/lib/ai/schemas';
+import { ExecuteBodySchema } from '@/lib/ai/schemas';
 import { verifyConfirmToken } from '@/lib/ai/confirm';
 import { writeAuditLog } from '@/lib/ai/audit';
 import { checkRateLimit } from '@/lib/ai/rateLimit';
-import { checkIdempotency } from '@/lib/ai/idempotency';
-import { boogieEvaluate } from '@/lib/ai/boogieman';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,39 +77,20 @@ export async function POST(req: NextRequest) {
     return jsonApiError(403, 'INVALID_TOKEN', 'Confirmation token is invalid or expired.');
   }
 
-  // For demo purposes, we'll just log and return success
-  // In production, this would execute the actual intents
-  const results = request.intent_ids.map(intent_id => {
-    // Check idempotency for each intent
-    // This is a simplified version - in production, you'd check against stored intents
-    return {
-      intent_id,
-      executed: true,
-      error: undefined,
-    };
-  });
-
-  // Audit success
+  // Intent execution is not yet implemented.
+  // The intents were validated and the confirm token verified above, but
+  // no actual side-effects are dispatched. Returning NOT_IMPLEMENTED rather
+  // than lying with executed: true.
   await writeAuditLog({
     request_id: request.request_id,
     user_id: user.id,
     agent: 'execute',
-    ok: true,
+    ok: false,
+    error_code: 'NOT_IMPLEMENTED',
     latency_ms: Date.now() - requestStart,
-    payload: {
-      intent_ids: request.intent_ids,
-    },
+    payload: { intent_ids: request.intent_ids },
   });
 
-  const response: ExecuteResponse = {
-    ok: true,
-    results,
-    boogie: {
-      allowed: true,
-    },
-  };
-
-  return NextResponse.json(response, {
-    headers: { 'Cache-Control': 'no-store' },
-  });
+  return jsonApiError(501, 'NOT_IMPLEMENTED',
+    'Intent execution is not yet available. Your intents were validated but not executed.');
 }
