@@ -160,7 +160,6 @@ export default function ColorPanel() {
                   outline: isActive ? '2px solid #3a6fd8' : '1.5px solid rgba(180,185,200,0.28)',
                   display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'stretch',
                   transition: 'all 0.15s',
-                  opacity: 1,
                 }}
               >
                 <div style={{

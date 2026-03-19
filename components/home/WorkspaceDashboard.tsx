@@ -609,7 +609,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                     Your feed is live.{' '}
                     <Link href="/daydream/create" style={{ color: 'var(--de-accent)', fontWeight: 600 }}>Post something</Link>
                     {' '}or{' '}
-                    <Link href="/discover" style={{ color: 'var(--de-accent)', fontWeight: 600 }}>discover creators</Link>{' '}
+                    <Link href="/discover" style={{ color: 'var(--de-accent)', fontWeight: 600 }}>Discover creators</Link>{' '}
                     to fill it.
                   </div>
                 )}
