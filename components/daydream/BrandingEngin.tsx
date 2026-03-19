@@ -21,6 +21,7 @@ import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import JourneyTrail from '@/components/daydream/JourneyTrail';
 
 interface Props {
   onBack: () => void;
@@ -735,6 +736,20 @@ export default function BrandingEngin({ onBack }: Props) {
                 Add
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* ── Journey Trail ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ color: '#c8981a', fontSize: 16 }}>✦</span>
+            <span className="de-widget-title ml-2">Your Journey</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--de-text-dim)', fontStyle: 'italic' }}>
+              The dots only connect looking backwards
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <JourneyTrail limit={50} />
           </div>
         </div>
 
