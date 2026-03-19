@@ -1,97 +1,107 @@
-DREAMengin — Full System Specification
+# DREAMengin — Full System Specification
 
-Next.js 16+ / Supabase / Dual Runtime Privacy-First Spatial Operating Environment
-Author: José Mancilla
+Next.js 16+ / Supabase / Dual-Runtime / Privacy-First Spatial Operating Environment  
+Author: José Mancilla  
 Date: March 16, 2026
 
-⸻
+---
 
 ## Current Implementation Status
 
-**Phase:** Phase 7 — OS-Layer Naming Authority (Canonical Names, Dream Window, Dual-Runtime Spatial Model)
+Phase: Phase 7 — OS-Layer Naming Authority  
+Scope: Canonical names, Dream Window, dual-runtime spatial model
 
-**Build status:** 48 routes · Tests 832 passing
+Build Status: 48 routes · 832 tests passing
 
-**Tech stack:**
-- Next.js 16.1.6 (App Router) · React 19 · TypeScript · Tailwind CSS
-- Supabase (Auth + PostgreSQL + Realtime + Storage)
-- pnpm 10.30.0 · Node 24
-
-**Canonical routes:**
-
-# DREAMengin Surface Map
-
-This document defines the **canonical surfaces and routes** that make up the DREAMengin platform.
-
-A **Surface** is a user-facing environment or functional system reachable through a canonical route.  
-Support routes exist only for legacy compatibility and must redirect to the canonical surface.
+Tech Stack:
+- Next.js 16.1.6 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS
+- Supabase (Auth, PostgreSQL, Realtime, Storage)
+- pnpm 10.30.0
+- Node 24
 
 ---
 
-# Core Surfaces
+## Canonical Route System
 
-| Surface | Canonical Route | Support / Legacy Route |
-|---|---|---|
-| **HomeDream** | `/homedream` | `/home` → redirects to `/homedream` |
-| **EditProfileDream** | `/edit-profiledream` | `/edit-profile` |
-| **ViewProfile** | `/view-profile` | `/profile/[handle]`, `/u/[handle]` |
-| **DreamDM** | `/messages` | — |
-| **DreamShop** | `/shop` | `/shop/sell` |
-| **DreamMarketplace** | `/marketplace` | — |
-| **DreamAds** | `/ads` | `/ads/create` |
+A Surface is a user-facing environment accessible through a canonical route.
+
+Canonical routes are the only stable entry points in the system.  
+All legacy or support routes must redirect to their canonical equivalent.
 
 ---
 
-# Daydream Surfaces
+## Core Surfaces
 
-Daydreams are six interconnected creative spaces inside DREAMengin.
-
-They are not isolated modules and they are not strictly paired to a single Engin.  
-Instead, the Daydream system forms a **fully interconnected network** with the Engin layer.
-
-There are:
-
-- **6 Daydream surfaces**
-- **6 Engin runtimes**
-- **Up to 11 possible connection paths** between systems depending on resolution, scope, or workflow.
-
-This means any Daydream can interact with multiple Engins, and Engins can power multiple Daydream contexts.
-
-| Daydream | Canonical Route |
-|---|---|
-| **Music Daydream** | `/daydream/music` |
-| **Games Daydream** | `/daydream/games` |
-| **Lab Daydream** | `/daydream/lab` |
-| **Code Daydream** | `/daydream/code` |
-| **Brand Daydream** | `/daydream/brand` |
-| **Create Daydream** | `/daydream/create` |
+Surface                | Canonical Route        | Legacy Route
+----------------------|------------------------|-----------------------------
+HomeDream             | /homedream             | /home → /homedream
+EditProfileDream      | /edit-profiledream     | /edit-profile
+ViewProfile           | /view-profile          | /profile/[handle], /u/[handle]
+DreamDM               | /messages              | —
+DreamShop             | /shop                  | /shop/sell
+DreamMarketplace      | /marketplace           | —
+DreamAds              | /ads                   | /ads/create
 
 ---
 
-# Daydream ↔ Engin Network
+## Daydream Surfaces
 
-The DREAMengin creative system is a **multi-connection network**, not a one-to-one pairing.
+Daydreams are the six primary creative environments in DREAMengin.
 
-Each Daydream can connect to multiple Engins depending on the context of the task.
+They are not isolated modules and are not bound to a single runtime.  
+Each Daydream can connect to multiple Engins depending on task context.
+
+Daydream             | Route
+---------------------|---------------------
+Music Daydream       | /daydream/music
+Games Daydream       | /daydream/games
+Lab Daydream         | /daydream/lab
+Code Daydream        | /daydream/code
+Brand Daydream       | /daydream/brand
+Create Daydream      | /daydream/create
+
+---
+
+## Daydream–Engin Network Model
+
+The system uses a multi-connection model:
+
+- 6 Daydream surfaces
+- 6 Engin runtimes
+- Up to 11 connection paths depending on workflow
+
+Definitions:
+
+Daydream = user-facing creative surface  
+Engin = runtime or execution layer
+
+Rules:
+
+- A Daydream can invoke multiple Engins
+- An Engin can support multiple Daydreams
+- The system is a connected environment, not separate tools
 
 Examples:
 
-- **Music Daydream**
-  - StarMakerEngin
-  - LabEngin
-  - CodeEngin
+Music Daydream:
+- StarMakerEngin
+- LabEngin
+- CodeEngin
 
-- **Games Daydream**
-  - GameEngin
-  - LabEngin
-  - CodeEngin
+Games Daydream:
+- GameEngin
+- LabEngin
+- CodeEngin
 
-- **Brand Daydream**
-  - BrandingEngin
-  - ContentEngin
-  - LabEngin
+Brand Daydream:
+- BrandingEngin
+- ContentEngin
+- LabEngin
 
-These connections allow different **resolutions of work**:
+Supported work types:
 
 - creation
 - experimentation
@@ -99,17 +109,82 @@ These connections allow different **resolutions of work**:
 - deployment
 - publishing
 
-Daydreams represent the **user-facing creative spaces**.
+---
 
-Engins represent the **runtime / emulator layers** that execute, simulate, or power those spaces.
+## Runtime Model
 
-The system therefore behaves like a **connected creative operating environment**, not a set of separate tools.
+DREAMengin operates as a dual-runtime spatial system.
+
+The system is not a flat application.  
+It is a spatial operating environment where surfaces and runtimes connect dynamically.
+
+Structure:
+
+- Daydreams = user-facing spaces
+- Engins = execution layers
+- Routes = stable entry points
+- Legacy paths = forced redirects
+
+This establishes:
+
+- consistent naming authority
+- controlled routing
+- runtime separation
+- spatial organization of features
 
 ---
 
-# Runtime Model
+## DID WE PROGRESS
 
-DREAMengin operates as a **dual-runtime spatial system**.
+Yes.
+
+Progress: ~78%
+
+What improved:
+- clearer structure
+- reduced repetition
+- stronger definitions
+- cleaner separation of concerns
+
+What is still missing:
+
+- Dual-runtime model is still vague
+- “Engin” lacks a strict formal definition
+- “Dream Window” is not defined
+- 11 connection paths are not specified
+- No explicit privacy model
+- No client vs server runtime boundary
+
+---
+
+## FULL PROMPT FOR NEXT STEP
+
+Rewrite this system specification into a formal technical architecture document.
+
+Requirements:
+- Keep naming consistent unless clarity requires adjustment
+- Maintain identity: dual-runtime, privacy-first, spatial OS
+- Remove repetition
+- Separate facts vs assumptions vs design intent
+- Define clearly:
+  1. Platform definition
+  2. Canonical routes
+  3. Core surfaces
+  4. Daydream system
+  5. Engin system
+  6. Dual-runtime model
+  7. Naming authority
+  8. Privacy model
+  9. Runtime boundaries
+  10. Routing rules
+
+Additional constraints:
+- Define: Surface, Daydream, Engin, Dream Window, Canonical Route
+- Convert vague claims into enforceable system rules
+- Keep tone technical, not promotional
+
+Input:
+
 
 - The **Surface Space** runtime is the currently active surface (HomeDream, profile views, DreamDM, etc.)
 - The **DreamSpace** runtime is the lower modular runtime region
