@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-19 04:07 UTC | `72df614` | copilot/connect-data-points | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/connect-data-points<br> |
 | **auto** | 2026-03-19 03:34 UTC | `c179452` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #240 from appthemanger-ctrl/copilot/explore-discover-dream — feat: surface EXPLORE · DISCOVER · DREAM brand promise across landing and Discover<br> |
 | **auto** | 2026-03-19 00:27 UTC | `16ce479` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #238 from appthemanger-ctrl/copilot/fix-sliding-bar-and-tap-responsiveness — Make DreamDM bar taps immediate and add fling-based drag snapping<br> |
 | **auto** | 2026-03-18 23:55 UTC | `4c324e2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #237 from appthemanger-ctrl/copilot/review-feedback-for-clarity — DREAMengin: wire all stubbed features, fix silent failures, make every action real<br> |
 | **auto** | 2026-03-18 21:25 UTC | `3e3ac9e` | copilot/improve-game-quality-controls | Copilot | +2 added  ~2 modified<br>feat: add console-class game quality plan surfaces — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `lib/games/quality-plan.ts`, `tests/game-quality-plan.test.ts`<br>✏️: `app/daydream/games/page.tsx`, `components/daydream/GameEngin.tsx` |
-| **auto** | 2026-03-18 07:30 UTC | `d2ed89d` | copilot/full-systems-upgrade | Copilot | ~1 modified<br>fix: correct upgrade target sort order — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/admin/upgrade-readiness.ts` |
 
 ## What changed in this alignment pass
 
