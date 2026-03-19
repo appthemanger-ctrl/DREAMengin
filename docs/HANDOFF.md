@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-19 01:05 UTC | `7405f66` | copilot/connect-data-points | Copilot | ~5 modified<br>feat: UPGRADE phase — forward-motion feature progression (remove perfection gate) — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/feature-build/buildCycle.ts`, `lib/feature-build/featureManifest.ts`, `lib/feature-build/index.ts`, `tests/feature-build.test.ts`, `tests/journey.test.ts` |
 | **auto** | 2026-03-19 00:48 UTC | `7b4ebbe` | copilot/connect-data-points | Copilot | +7 added  ~3 modified<br>feat: Journey Trail — connecting the dots private creative course visualization — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `app/api/journey/route.ts`, `components/daydream/JourneyTrail.tsx`, `components/dreams/JourneyDreamWindow.tsx`, `lib/journey/journeyDots.ts`, `supabase/migrations/20260319000000_journey_dots.sql`, `tests/journey.test.ts`, `types/journey.ts`<br>✏️: `components/daydream/BrandingEngin.tsx`, `lib/telemetry.ts`, `types/supabase.ts` |
 | **auto** | 2026-03-19 00:27 UTC | `16ce479` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #238 from appthemanger-ctrl/copilot/fix-sliding-bar-and-tap-responsiveness — Make DreamDM bar taps immediate and add fling-based drag snapping<br> |
 | **auto** | 2026-03-18 23:55 UTC | `4c324e2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #237 from appthemanger-ctrl/copilot/review-feedback-for-clarity — DREAMengin: wire all stubbed features, fix silent failures, make every action real<br> |
 | **auto** | 2026-03-18 21:25 UTC | `3e3ac9e` | copilot/improve-game-quality-controls | Copilot | +2 added  ~2 modified<br>feat: add console-class game quality plan surfaces — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `lib/games/quality-plan.ts`, `tests/game-quality-plan.test.ts`<br>✏️: `app/daydream/games/page.tsx`, `components/daydream/GameEngin.tsx` |
-| **auto** | 2026-03-18 07:30 UTC | `d2ed89d` | copilot/full-systems-upgrade | Copilot | ~1 modified<br>fix: correct upgrade target sort order — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/admin/upgrade-readiness.ts` |
 
 ## What changed in this alignment pass
 
