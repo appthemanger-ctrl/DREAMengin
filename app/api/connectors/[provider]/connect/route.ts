@@ -2,10 +2,14 @@
  * app/api/connectors/[provider]/connect/route.ts
  *
  * Phase 5 — POST /api/connectors/{provider}/connect
+ *            DELETE /api/connectors/{provider}/connect
  *
- * Stores credentials for a connector and runs an immediate verify call.
- * Only sets status = 'connected' if verify succeeds.
- * Never returns token_blob to the client.
+ * POST  — Stores credentials and runs an immediate verify call.
+ *          Only sets status = 'connected' if verify succeeds.
+ *          Never returns token_blob to the client.
+ *
+ * DELETE — Removes the connector_accounts row for the given provider,
+ *           wiping all stored credentials and synced state.
  *
  * AXIOM 4 — Security by Default: secrets stay server-side only.
  * AXIOM 5 — Privacy by Design: owner-only via RLS.
@@ -136,4 +140,37 @@ export async function POST(
       ? `Connected to ${provider} successfully.`
       : lastError ?? 'Connection failed.',
   });
+}
+
+// ── DELETE /api/connectors/{provider}/connect ────────────────────────────
+// Removes all stored credentials and synced data for this integration.
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ provider: string }> },
+): Promise<NextResponse<{ ok: boolean; message: string }>> {
+  const { provider } = await params;
+  const supabase = await createServerClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ ok: false, message: 'Unauthorised' }, { status: 401 });
+  }
+
+  const { error: dbError } = await db
+    .from('connector_accounts')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('provider', provider);
+
+  if (dbError) {
+    return NextResponse.json(
+      { ok: false, message: `Failed to disconnect: ${dbError.message}` },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json({ ok: true, message: `Disconnected from ${provider}.` });
 }
