@@ -23,6 +23,8 @@ export type ProfileLite = {
 export type AdListing = {
   id: string;
   status?: string;
+  /** When true, this is platform promotional inventory (not a user DreamAd). */
+  is_platform_promotion?: boolean;
   ad_slots: AdSlot & { profiles?: ProfileLite };
 };
 
