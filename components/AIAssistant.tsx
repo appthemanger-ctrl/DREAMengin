@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bot, Maximize2, Minimize2, Send, X } from 'lucide-react';
 
-import { onInnerDreamsEvent } from '@/lib/agents/agentBus';
+import { onIdariEvent } from '@/lib/agents/agentBus';
 import { getDrEamsMode, onDrEamsModeChange } from '@/lib/agents/drEamsMode';
 import { hasTaught, markTaught, onTeach } from '@/lib/agents/teachBus';
 import { executeUiAction, getUiCapabilities } from '@/lib/agents/uiActions';
@@ -70,11 +70,11 @@ export default function AIAssistant() {
 
   // Surface iDari activity inside this assistant as well
   useEffect(() => {
-    const unsubscribe = onInnerDreamsEvent((evt) => {
+    const unsubscribe = onIdariEvent((evt) => {
       const shouldSurface =
-        evt.type === 'innerdreams:status' ||
+        evt.type === 'idari:status' ||
         evt.status === 'error' ||
-        (evt.type === 'innerdreams:log' &&
+        (evt.type === 'idari:log' &&
           /completed|failed|queued|initiated|activated|paused|bug/i.test(evt.message));
 
       if (!shouldSurface) return;
@@ -104,35 +104,26 @@ export default function AIAssistant() {
     ]);
   };
 
-  const callInnerDreams = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
+  const callIdari = async (mode: 'bug-check' | 'update', prompt?: string): Promise<string> => {
     try {
-      const endpoint = mode === 'bug-check' ? '/api/innerdreams/check-bugs' : '/api/innerdreams/update';
-      const payload: Record<string, unknown> =
-        mode === 'bug-check'
-          ? { userId: 'self' }
-          : { prompt: prompt || 'General maintenance update', autoRefresh: false, bugCheck: true };
+      const message = mode === 'bug-check'
+        ? 'Run a diagnostic check on the DREAMengin platform. Identify any bugs, errors, or system health issues and report your findings.'
+        : (prompt ?? 'Perform a safe maintenance update.');
 
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/ai/idari', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ message, ui: { route: '/admin' } }),
       });
 
-      if (res.status === 401) return 'iDari needs an admin session. Please sign in as admin, then try again.';
-      if (res.status === 403) return 'iDari is admin-only. Your account is not marked as admin.';
-      if (!res.ok) return `iDari request failed (${res.status}).`;
+      if (res.status === 401) return 'IDARi needs an admin session. Please sign in as admin, then try again.';
+      if (res.status === 403) return 'IDARi is admin-only. Your account is not marked as admin.';
+      if (!res.ok) return `IDARi request failed (${res.status}).`;
 
-      const json = await res.json();
-      if (mode === 'bug-check') {
-        const bugs = json?.bugsFound ?? 0;
-        return bugs > 0
-          ? `iDari bug check found ${bugs} potential issue(s). Check the admin audit log for details.`
-          : 'iDari reports: all systems operational. No issues detected.';
-      }
-
-      return json?.message ? `iDari: ${json.message}` : 'iDari accepted the update request.';
+      const json = await res.json() as { response_text?: string };
+      return json?.response_text ?? 'IDARi processed the request.';
     } catch (e: unknown) {
-      return `iDari request error: ${e instanceof Error ? e.message : 'Unknown error'}`;
+      return `IDARi request error: ${e instanceof Error ? e.message : 'Unknown error'}`;
     }
   };
 
@@ -174,13 +165,13 @@ export default function AIAssistant() {
 
     // iDari bridge: let Dr. Eams hand tasks to the admin auto-updater
     if (
-      lower.includes('innerdreams') ||
+      lower.includes('idari') ||
       lower.includes('inner dreams') ||
       (/(fix|patch|update)\b/.test(lower) && /(bug|error|build|deploy|vercel|site)/.test(lower))
     ) {
       const mode = lower.includes('bug') || lower.includes('check') ? 'bug-check' : 'update';
       const cleaned = userText.replace(/inner\s*dreams\s*[:\-]?/i, '').trim();
-      const reply = await callInnerDreams(mode, cleaned || userText);
+      const reply = await callIdari(mode, cleaned || userText);
       addAssistantMessage(reply);
       setIsLoading(false);
       return;

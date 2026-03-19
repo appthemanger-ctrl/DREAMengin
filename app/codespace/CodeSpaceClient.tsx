@@ -693,7 +693,7 @@ export default function CodeSpaceClient({ isAdminUser }: { isAdminUser: boolean 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 360, margin: '0 auto', paddingTop: 8 }}>
                   <p style={{ fontSize: 13, color: '#8080b0', margin: 0, lineHeight: 1.5 }}>
                     Enter the admin password to browse and copy app source files.
-                    Set <code style={{ background: '#1e1e38', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>INNERDREAMS_PASSWORD</code> in your environment.
+                    Set <code style={{ background: '#1e1e38', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>IDARI_PASSWORD</code> in your environment.
                   </p>
                   <input
                     type="password"
