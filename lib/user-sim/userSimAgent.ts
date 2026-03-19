@@ -7,8 +7,9 @@
 //   3. Behaviour Policy — picks the next AgentAction from signals + persona
 //   4. Audit Judge     — writes AuditFinding entries after each step / journey
 //
-// Everything here is deterministic and pure (no network, no DB).
-// Integration with actual browser automation is the caller's responsibility.
+// Persona-driven behaviour includes intentional randomness (e.g. distracted multitasker
+// pausing unpredictably) — mock Math.random in tests when you need reproducibility.
+// No network calls, no DB access.
 
 import { v4 as uuidv4 } from 'uuid';
 import type {
@@ -283,8 +284,8 @@ export function decideAction(
     };
   }
 
-  // 6. Distracted persona pauses every third step (deterministic: use step count as proxy)
-  if (persona.distracted && frame.recent_actions.length % 3 === 0 && frame.recent_actions.length > 0) {
+  // 6. Distracted persona randomly pauses (30 % chance) — realistic multi-tasker behaviour
+  if (persona.distracted && Math.random() < 0.3) {
     return {
       type: 'wait',
       rationale: `Distracted persona "${persona.label}" pauses before continuing.`,
