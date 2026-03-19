@@ -1,6 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { ESTIMATED_COMPLETION, isSupabaseConfigured } from '../config';
+import { isSupabaseConfigured } from '../config';
 import { isOwnerEmail } from '@/lib/ai/triad';
 
 type UpdatePayload = {
@@ -39,19 +39,10 @@ export async function POST(request: NextRequest) {
     const payload = toUpdatePayload(body);
 
     if (!isSupabaseConfigured()) {
-      const { prompt, autoRefresh, bugCheck } = payload;
-      const result = {
-        success: true,
-        message: 'InnerDreams update queued (demo mode - Supabase not configured)',
-        details: {
-          promptReceived: prompt,
-          bugCheckEnabled: bugCheck,
-          autoRefreshEnabled: autoRefresh,
-          estimatedCompletionTime: `${ESTIMATED_COMPLETION.minMinutes}-${ESTIMATED_COMPLETION.maxMinutes} minutes`,
-          status: 'queued'
-        }
-      };
-      return NextResponse.json(result);
+      return NextResponse.json(
+        { success: false, error: 'InnerDreams AI update pipeline is not yet implemented.' },
+        { status: 501 },
+      );
     }
 
     const supabase = await createServerClient();
@@ -62,12 +53,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
     const isAdmin = isOwnerEmail(user.email) || user.user_metadata?.role === 'admin';
 
     if (!isAdmin) {
@@ -95,28 +80,17 @@ export async function POST(request: NextRequest) {
     // 3. Run tests if bugCheck is enabled
     // 4. Apply changes if tests pass
     // 5. Deploy to staging/production
-
-    // For now, we'll simulate the process
-    const result = {
-      success: true,
-      message: 'InnerDreams update queued successfully',
-        details: {
-          promptReceived: prompt,
-          bugCheckEnabled: bugCheck,
-          autoRefreshEnabled: autoRefresh,
-          estimatedCompletionTime: `${ESTIMATED_COMPLETION.minMinutes}-${ESTIMATED_COMPLETION.maxMinutes} minutes`,
-          status: 'queued'
-        }
-    };
-
-    // Update audit log with result
+    // This is not yet implemented — return an honest error.
     await supabase.from('admin_audit_log').insert({
       admin_id: user.id,
-      action: 'innerdreams_update_complete',
-      details: result
+      action: 'innerdreams_update_not_implemented',
+      details: { prompt, bugCheck, autoRefresh, timestamp: new Date().toISOString() }
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json(
+      { success: false, error: 'InnerDreams AI update pipeline is not yet implemented.' },
+      { status: 501 },
+    );
 
   } catch (error) {
     console.error('InnerDreams update error:', error);

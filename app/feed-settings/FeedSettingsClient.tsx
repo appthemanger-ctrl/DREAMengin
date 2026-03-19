@@ -52,12 +52,25 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
 export default function FeedSettingsClient() {
   const [prefs, setPrefs] = useState<FeedPreferences>(DEFAULT_PREFS);
   const [saved, setSaved] = useState(false);
+  const [connectedNames, setConnectedNames] = useState<string[]>([]);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setPrefs((p) => ({ ...p, ...JSON.parse(raw) }));
     } catch { /* ignore */ }
+
+    // Load real connected connectors to show in Active Slices section
+    fetch('/api/connectors/status')
+      .then((r) => r.json())
+      .then((data: { ok: boolean; statuses: Record<string, { status: string }> }) => {
+        if (!data.ok) return;
+        const names = Object.entries(data.statuses)
+          .filter(([, entry]) => entry.status === 'connected')
+          .map(([provider]) => provider.charAt(0).toUpperCase() + provider.slice(1));
+        setConnectedNames(names);
+      })
+      .catch(() => { /* keep empty */ });
   }, []);
 
   const toggle = useCallback((key: keyof FeedPreferences) => {
@@ -106,15 +119,27 @@ export default function FeedSettingsClient() {
               <Plus className="w-3 h-3" /> Add
             </Link>
           </div>
-          <div className="de-widget-body flex flex-col items-center py-6 gap-2">
-            <Rss className="w-8 h-8 opacity-20" style={{ color: 'var(--de-accent)' }} />
-            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>No feed slices yet</p>
-            <p style={{ fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center', lineHeight: 1.5 }}>
-              Connect a service in{' '}
-              <Link href="/connectors" style={{ color: 'var(--de-accent)' }}>Connectors</Link>{' '}
-              then choose which parts to add to your feed.
-            </p>
-          </div>
+          {connectedNames.length > 0 ? (
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {connectedNames.map((name) => (
+                <div key={name} className="de-row">
+                  <Rss className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--de-accent)' }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', flex: 1 }}>{name}</span>
+                  <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 700 }}>Active</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="de-widget-body flex flex-col items-center py-6 gap-2">
+              <Rss className="w-8 h-8 opacity-20" style={{ color: 'var(--de-accent)' }} />
+              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>No feed slices yet</p>
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center', lineHeight: 1.5 }}>
+                Connect a service in{' '}
+                <Link href="/connectors" style={{ color: 'var(--de-accent)' }}>Connectors</Link>{' '}
+                then choose which parts to add to your feed.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="de-widget">

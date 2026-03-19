@@ -84,18 +84,6 @@ const EXPAND_THRESHOLD = 80;
 /** Spring animation string */
 const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
 
-const DEMO_CONVERSATIONS: DMConversation[] = [
-  {
-    id:        'demo-1',
-    otherUser: { id: 'demo-user-1', display_name: 'Dr. Eams', handle: 'dreams', avatar_url: '/dr-eams.jpeg' },
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-const DEMO_MESSAGES: DMMessage[] = [
-  { id: '1', sender_id: 'demo-user-1', content: 'Hey! How can I help you today?', created_at: new Date(Date.now() - 60_000).toISOString() },
-];
-
 function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
   if (url) {
     return (
@@ -341,12 +329,11 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   /** Active tab when panel is expanded: 'messages' or 'dreams' */
   const [activeTab, setActiveTab] = useState<'messages' | 'dreams'>('dreams');
-  const { conversations, reload: reloadConvs } = useDreamDMConversations(userId, DEMO_CONVERSATIONS);
+  const { conversations, reload: reloadConvs } = useDreamDMConversations(userId);
   const { unreadCount, markAllRead }            = useNotifications();
 
-  const isDemoConv = selectedConv?.id.startsWith('demo-') ?? false;
   const { messages, isLoading: msgsLoading, addOptimistic, replaceOptimistic, removeOptimistic } =
-    useDreamDMMessages(selectedConv?.id ?? null, isDemoConv, DEMO_MESSAGES);
+    useDreamDMMessages(selectedConv?.id ?? null, false, []);
 
   const { draft, saveDraft, clearDraft, draftRestored } =
     useDreamDMDraft(selectedConv?.id ?? null);

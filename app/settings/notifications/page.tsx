@@ -8,25 +8,49 @@ export const dynamic = 'force-dynamic';
 
 const STORAGE_KEY = 'de-notification-settings';
 
+interface NotificationSettings {
+  messages: boolean;
+  likes: boolean;
+  follows: boolean;
+  comments: boolean;
+  sales: boolean;
+  updates: boolean;
+  emailDigest: string;
+}
+
+const DEFAULT_SETTINGS: NotificationSettings = {
+  messages: true,
+  likes: true,
+  follows: true,
+  comments: true,
+  sales: true,
+  updates: false,
+  emailDigest: 'weekly',
+};
+
 export default function NotificationSettingsPage() {
-  const [settings, setSettings] = useState({
-    messages: true,
-    likes: true,
-    follows: true,
-    comments: true,
-    sales: true,
-    updates: false,
-    emailDigest: 'weekly',
-  });
+  const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Load from localStorage on mount
+  // Load settings on mount — try DB first, fall back to localStorage cache
   useEffect(() => {
+    // Immediately apply localStorage cache for fast paint
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setSettings((p) => ({ ...p, ...JSON.parse(raw) }));
+      if (raw) setSettings((p) => ({ ...p, ...(JSON.parse(raw) as Partial<NotificationSettings>) }));
     } catch { /* ignore */ }
+
+    // Then fetch real stored settings from Supabase
+    fetch('/api/settings/notifications')
+      .then((r) => r.json())
+      .then((data: { ok: boolean; notifications: Partial<NotificationSettings> | null }) => {
+        if (data.ok && data.notifications) {
+          setSettings((p) => ({ ...p, ...data.notifications }));
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...DEFAULT_SETTINGS, ...data.notifications })); } catch { /* ignore */ }
+        }
+      })
+      .catch(() => { /* keep localStorage values */ });
   }, []);
 
   const toggleSetting = (key: string) => {
@@ -36,8 +60,19 @@ export default function NotificationSettingsPage() {
   const handleSave = useCallback(async () => {
     setSaving(true);
     try {
-      // Persist preferences to localStorage
+      // Persist to Supabase
+      await fetch('/api/settings/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+      // Update localStorage cache
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      // Fallback to localStorage if network fails
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch { /* ignore */ }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } finally {

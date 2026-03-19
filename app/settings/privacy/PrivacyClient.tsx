@@ -1,11 +1,12 @@
 'use client';
 
 /**
- * PrivacyClient — interactive privacy settings with localStorage persistence.
+ * PrivacyClient — interactive privacy settings persisted to Supabase.
  *
- * Toggles are real interactive buttons (role="switch") that persist across
- * sessions via localStorage. This satisfies Constitution Rule 6-7: every
- * visible action must do something real and produce a persisted outcome.
+ * Settings are read from and written to /api/settings/privacy (which
+ * upserts into the `settings` table under the `privacy` JSONB key).
+ * localStorage is used as a fast-load cache only; the source of truth
+ * is always the database.
  *
  * Architecture justification: ARCHITECTURE.md §10 (client-side preference
  * state), CONSTITUTION.md Rule 6 (every visible action does something real).
@@ -88,8 +89,9 @@ export default function PrivacyClient() {
   const [appealMsg, setAppealMsg] = useState('');
   const [showAppealForm, setShowAppealForm] = useState(false);
 
-  // Load persisted settings on mount
+  // Load settings on mount — try DB first, fall back to localStorage cache
   useEffect(() => {
+    // Immediately apply localStorage cache for fast paint
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
@@ -97,14 +99,31 @@ export default function PrivacyClient() {
         setSettings((prev) => ({ ...prev, ...parsed }));
       }
     } catch { /* ignore */ }
+
+    // Then fetch the real stored settings from Supabase
+    fetch('/api/settings/privacy')
+      .then((r) => r.json())
+      .then((data: { ok: boolean; privacy: Partial<PrivacySettings> | null }) => {
+        if (data.ok && data.privacy) {
+          setSettings((prev) => ({ ...prev, ...data.privacy }));
+          // Update cache
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...DEFAULT_SETTINGS, ...data.privacy })); } catch { /* ignore */ }
+        }
+      })
+      .catch(() => { /* keep localStorage values */ });
   }, []);
 
   const toggle = useCallback((key: keyof PrivacySettings) => {
     setSettings((prev) => {
       const next = { ...prev, [key]: !prev[key] };
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch { /* ignore */ }
+      // Update localStorage cache immediately for fast re-render
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      // Persist to Supabase
+      fetch('/api/settings/privacy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(next),
+      }).catch(() => { /* ignore network error — localStorage cache remains */ });
       return next;
     });
     setSaved(true);
@@ -210,7 +229,7 @@ export default function PrivacyClient() {
           </div>
           <div className="de-widget-body flex flex-col items-center py-4 gap-2">
             <UserX className="w-8 h-8 opacity-15" style={{ color: '#dc4444' }} />
-            <p style={{ fontSize: 13, color: 'var(--de-text-dim)' }}>No blocked users</p>
+            <p style={{ fontSize: 13, color: 'var(--de-text-dim)' }}>Block list coming soon</p>
           </div>
         </div>
 
