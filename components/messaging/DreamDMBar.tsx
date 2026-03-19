@@ -75,7 +75,7 @@ const TOP_H        = 340;
 /** Compact nav-bar height when locked at the top (collapsed/nav-bar mode) */
 const NAV_H        = 52;
 /** Gold button diameter */
-const GOLD_SZ      = 64;
+const GOLD_SZ      = 48;
 const GOLD_R       = GOLD_SZ / 2;
 /** Snap to bottom when dragged down this many px from top */
 const SNAP_DOWN_PX = 88;
@@ -612,7 +612,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           width: '36%', height: '22%', borderRadius: '50%',
           background: 'rgba(255,255,245,0.55)', filter: 'blur(3px)', pointerEvents: 'none',
         }} />
-        <svg width="28" height="14" viewBox="0 0 80 36"
+        <svg width="22" height="11" viewBox="0 0 80 36"
           style={{ opacity: 0.82, flexShrink: 0, position: 'relative' }} aria-hidden>
           <path d="M10 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
           <path d="M10 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
