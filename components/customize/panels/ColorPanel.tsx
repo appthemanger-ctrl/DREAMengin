@@ -160,7 +160,7 @@ export default function ColorPanel() {
                   outline: isActive ? '2px solid #3a6fd8' : '1.5px solid rgba(180,185,200,0.28)',
                   display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'stretch',
                   transition: 'all 0.15s',
-                  opacity: preset.tier === 'premium' ? 0.7 : 1,
+                  opacity: 1,
                 }}
               >
                 <div style={{
@@ -171,13 +171,6 @@ export default function ColorPanel() {
                   <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)' }}>
                     {preset.emoji} {preset.label}
                   </span>
-                  {preset.tier === 'premium' && (
-                    <span style={{
-                      fontSize: 8, fontWeight: 800, color: '#c8981a',
-                      background: 'rgba(200,152,26,0.12)',
-                      padding: '2px 5px', borderRadius: 4,
-                    }}>PRO</span>
-                  )}
                 </div>
               </button>
             );

@@ -4,8 +4,8 @@
  * typography, and effects. Applied on top of the base theme engine.
  *
  * Skins are per-page (profile | home | dreamspace | feed) with a
- * global fallback. Free presets ship by default; premium presets are
- * stubs that can be unlocked via the shop.
+ * global fallback. All presets are included and available to every user
+ * — no tier gating, no locks, no "coming soon" placeholders.
  */
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -73,6 +73,7 @@ export interface SkinPreset {
   id:       string;
   label:    string;
   emoji:    string;
+  /** All skins are 'free' — no tier gating in production. Field retained for type compat. */
   tier:     'free' | 'premium';
   skin:     SkinData;
 }
@@ -160,12 +161,12 @@ export const SKIN_PRESETS: SkinPreset[] = [
       accentColor: '#0aa880',
     },
   },
-  // ── Premium (unlockable via Shop) ─────────────────────────────────────────
+  // ── All skins available — no tier gating in production ───────────────────
   {
     id: 'neon-grid',
     label: 'Neon Grid',
     emoji: '⚡',
-    tier: 'premium',
+    tier: 'free',
     skin: {
       ...DEFAULT_SKIN,
       bgFrom:       '#0d0d2b', bgMid: '#0a0a20', bgTo: '#050515', bgAngle: 160,
@@ -180,7 +181,7 @@ export const SKIN_PRESETS: SkinPreset[] = [
     id: 'marble',
     label: 'Marble',
     emoji: '🪨',
-    tier: 'premium',
+    tier: 'free',
     skin: {
       ...DEFAULT_SKIN,
       bgFrom:       '#f5f5f5', bgMid: '#eeeeee', bgTo: '#e0e0e0', bgAngle: 135,
@@ -195,7 +196,7 @@ export const SKIN_PRESETS: SkinPreset[] = [
     id: 'forest',
     label: 'Forest',
     emoji: '🌲',
-    tier: 'premium',
+    tier: 'free',
     skin: {
       ...DEFAULT_SKIN,
       bgFrom:      '#1a3a1a', bgMid: '#243824', bgTo: '#1a2e1a', bgAngle: 150,

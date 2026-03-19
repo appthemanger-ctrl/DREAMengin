@@ -606,10 +606,11 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                   ))
                 ) : (
                   <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--de-text-dim)', fontSize: 12 }}>
-                    No activity yet.{' '}
-                    <Link href="/discover" style={{ color: 'var(--de-accent)' }}>Discover creators</Link>
+                    Your feed is live.{' '}
+                    <Link href="/daydream/create" style={{ color: 'var(--de-accent)', fontWeight: 600 }}>Post something</Link>
                     {' '}or{' '}
-                    <Link href="/daydream/create" style={{ color: 'var(--de-accent)' }}>create your first post</Link>.
+                    <Link href="/discover" style={{ color: 'var(--de-accent)', fontWeight: 600 }}>discover creators</Link>{' '}
+                    to fill it.
                   </div>
                 )}
               </div>

@@ -40,6 +40,7 @@ import {
   SCOPE_DESCRIPTION,
   SCOPE_RISK,
   CONFIRMATION_REQUIRED,
+  CODEENGIN_PRODUCTION_MODE,
   type EditScope,
   type AiSuggestion,
   type EditPreview,
@@ -1946,14 +1947,16 @@ export default function CodeEngin({ onBack }: Props) {
         )}
 
         {/* ══════════════════════════════════════════════════════════════
-            AI Code Assist — Trust Layer
+            AI Code Assist — Trust Layer (PRODUCTION MODE — all 7 scopes active)
             Problem: AI says "rename X" but mobile users can't reliably
             select the right code.  Solution: scope picker → preview → apply.
             ══════════════════════════════════════════════════════════════ */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <ShieldCheck className="w-4 h-4" style={{ color: ACCENT }} />
-            <span className="de-widget-title ml-2">AI Code Assist</span>
+            <span className="de-widget-title ml-2">
+              AI Code Assist{CODEENGIN_PRODUCTION_MODE && <span style={{ fontSize: 9, fontWeight: 800, color: '#22c55e', marginLeft: 6, background: 'rgba(34,197,94,0.1)', padding: '1px 5px', borderRadius: 4 }}>LIVE</span>}
+            </span>
             {/* Undo button — always visible when history exists */}
             {undoStack.length > 0 && (
               <button

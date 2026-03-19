@@ -724,6 +724,19 @@ export default function DrEamsGameCanvas() {
     };
   }, [started, resetGame]);
 
+  // ── HiDPI / Retina quality setup ─────────────────────────────────────────────
+  // Scale the canvas buffer by devicePixelRatio so pixels are crisp on
+  // retina and high-DPI displays. The logical game area (CANVAS_W × CANVAS_H)
+  // remains unchanged; CSS keeps the visual size stable.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || typeof window === 'undefined') return;
+    const dpr = window.devicePixelRatio || 1;
+    if (dpr <= 1) return; // standard display — no scaling needed
+    canvas.width  = CANVAS_W * dpr;
+    canvas.height = CANVAS_H * dpr;
+  }, []);
+
   // Title screen loop (before game starts)
   useEffect(() => {
     if (started) return;
@@ -731,7 +744,9 @@ export default function DrEamsGameCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+    // Apply HiDPI transform so all logical coordinates work at full resolution
+    const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     let id: number;
     const loop = () => {
@@ -750,7 +765,9 @@ export default function DrEamsGameCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+    // Apply HiDPI transform so all logical coordinates work at full resolution
+    const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const tick = () => {
       const inp = inputRef.current;
@@ -788,7 +805,7 @@ export default function DrEamsGameCanvas() {
         width={CANVAS_W}
         height={CANVAS_H}
         className="rounded-2xl shadow-2xl cursor-pointer focus:outline-none"
-        style={{ maxWidth: '100%', touchAction: 'none' }}
+        style={{ width: CANVAS_W, height: CANVAS_H, maxWidth: '100%', touchAction: 'none' }}
         onClick={() => { if (!started) resetGame(); }}
         tabIndex={0}
         aria-label="Dr. Eams Dream Platformer Game"

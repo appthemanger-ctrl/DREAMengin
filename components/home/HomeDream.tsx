@@ -120,7 +120,7 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
   const router = useRouter();
 
   const [selectedWidget, setSelectedWidget] = useState<WidgetInstance | null>(null);
-  const [feedStarted, setFeedStarted] = useState(false);
+  const [feedStarted, setFeedStarted] = useState(true); // feed is active by default — no gate
   const [bannerVisible, setBannerVisible] = useState(false);
   const [bothMenusOpen, setBothMenusOpen] = useState(false);
 

@@ -2,6 +2,7 @@
  * lib/diff/aiEditEngine.ts
  *
  * CodeEngin Trust Layer — core engine for AI-assisted scoped code editing.
+ * STATUS: PRODUCTION — all 7 EditScope types active, no capability restrictions.
  *
  * Problem this solves:
  *   AI tells mobile / beginner users to "rename X everywhere" or "remove this block"
@@ -18,6 +19,9 @@
  *
  * No eval, no execution. All operations are pure string transforms.
  */
+
+/** Production mode flag — always true in this runtime. All scopes are enabled. */
+export const CODEENGIN_PRODUCTION_MODE = true as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
