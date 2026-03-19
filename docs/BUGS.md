@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-19 11:10 UTC  
-**Triggered by commit:** `387f3ce` on `completedream` by appthemanger-ctrl  
-**Commit message:** Clean up README by removing progress and prompt sections
+**Last updated:** 2026-03-19 14:06 UTC  
+**Triggered by commit:** `0778e85` on `copilot/update-privacy-defaults` by Copilot  
+**Commit message:** Fix all broken runtime features: real DB data for connectors, DMs, privacy, notifications, feed settings
 
 ---
 
