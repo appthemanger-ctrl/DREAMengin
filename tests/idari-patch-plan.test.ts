@@ -5,6 +5,8 @@
  *   - createPatchPlan (req #11, #12, #13)
  *   - createKnownIssue (req #23)
  *   - updateKnownIssueStatus (req #23)
+ *   - evaluateSpecRequirements (spec-check before any build/upgrade cycle)
+ *   - createVercelBuildResult (Vercel-compatible build verification)
  */
 
 import { describe, it, expect } from 'vitest';
@@ -12,8 +14,12 @@ import {
   createPatchPlan,
   createKnownIssue,
   updateKnownIssueStatus,
+  evaluateSpecRequirements,
+  createVercelBuildResult,
+  VERCEL_2026_RUNTIME,
   type PatchPlan,
   type KnownIssue,
+  type SpecRequirement,
 } from '@/lib/agents/idari';
 
 // ── createPatchPlan ───────────────────────────────────────────────────────────
@@ -148,5 +154,153 @@ describe('updateKnownIssueStatus', () => {
   it('does not mutate the original issue', () => {
     updateKnownIssueStatus(open, 'resolved');
     expect(open.status).toBe('open');
+  });
+});
+
+// ── evaluateSpecRequirements ─────────────────────────────────────────────────
+
+describe('evaluateSpecRequirements', () => {
+  const makeReq = (
+    id: string,
+    status: SpecRequirement['status'],
+  ): SpecRequirement => ({
+    id,
+    area: 'test',
+    description: `Requirement ${id}`,
+    status,
+  });
+
+  it('returns "pass" when all requirements are met', () => {
+    const result = evaluateSpecRequirements('test-spec', [
+      makeReq('r1', 'met'),
+      makeReq('r2', 'met'),
+    ]);
+    expect(result.overall).toBe('pass');
+    expect(result.unmet_count).toBe(0);
+    expect(result.partial_count).toBe(0);
+  });
+
+  it('returns "warn" when some requirements are partial but none are missing', () => {
+    const result = evaluateSpecRequirements('test-spec', [
+      makeReq('r1', 'met'),
+      makeReq('r2', 'partial'),
+    ]);
+    expect(result.overall).toBe('warn');
+    expect(result.unmet_count).toBe(0);
+    expect(result.partial_count).toBe(1);
+  });
+
+  it('returns "fail" when any requirement is missing', () => {
+    const result = evaluateSpecRequirements('test-spec', [
+      makeReq('r1', 'met'),
+      makeReq('r2', 'partial'),
+      makeReq('r3', 'missing'),
+    ]);
+    expect(result.overall).toBe('fail');
+    expect(result.unmet_count).toBe(1);
+  });
+
+  it('counts multiple missing and partial requirements correctly', () => {
+    const result = evaluateSpecRequirements('dreamengin_phase6', [
+      makeReq('r1', 'missing'),
+      makeReq('r2', 'missing'),
+      makeReq('r3', 'partial'),
+      makeReq('r4', 'met'),
+    ]);
+    expect(result.unmet_count).toBe(2);
+    expect(result.partial_count).toBe(1);
+  });
+
+  it('stamps timestamp as an ISO string', () => {
+    const result = evaluateSpecRequirements('test-spec', [makeReq('r1', 'met')]);
+    expect(result.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it('passes through spec_version unchanged', () => {
+    const result = evaluateSpecRequirements('dreamengin_phase6', [makeReq('r1', 'met')]);
+    expect(result.spec_version).toBe('dreamengin_phase6');
+  });
+
+  it('preserves all requirement objects in the result', () => {
+    const reqs: SpecRequirement[] = [makeReq('r1', 'met'), makeReq('r2', 'partial')];
+    const result = evaluateSpecRequirements('test-spec', reqs);
+    expect(result.requirements).toHaveLength(2);
+    expect(result.requirements[0].id).toBe('r1');
+    expect(result.requirements[1].id).toBe('r2');
+  });
+
+  it('handles an empty requirements array (pass with zero counts)', () => {
+    const result = evaluateSpecRequirements('test-spec', []);
+    expect(result.overall).toBe('pass');
+    expect(result.unmet_count).toBe(0);
+    expect(result.partial_count).toBe(0);
+  });
+});
+
+// ── createVercelBuildResult ───────────────────────────────────────────────────
+
+describe('createVercelBuildResult', () => {
+  it('accepts a passing build meeting the 2026 runtime targets', () => {
+    const result = createVercelBuildResult({
+      node_version: VERCEL_2026_RUNTIME.node,
+      pnpm_version: VERCEL_2026_RUNTIME.pnpm,
+      nextjs_version: VERCEL_2026_RUNTIME.nextjs_minimum,
+      build_passed: true,
+      route_count: 42,
+    });
+    expect(result.build_passed).toBe(true);
+    expect(result.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(result.route_count).toBe(42);
+  });
+
+  it('records a failed build without throwing', () => {
+    const result = createVercelBuildResult({
+      node_version: '24',
+      pnpm_version: '10.30.0',
+      nextjs_version: '16',
+      build_passed: false,
+      error_summary: 'Type error in components/Foo.tsx',
+    });
+    expect(result.build_passed).toBe(false);
+    expect(result.error_summary).toContain('Type error');
+  });
+
+  it('throws when node version is below the 2026 minimum (Node 24)', () => {
+    expect(() =>
+      createVercelBuildResult({
+        node_version: '20',   // below Node 24 minimum
+        pnpm_version: '10.30.0',
+        nextjs_version: '16',
+        build_passed: true,
+      })
+    ).toThrow(`Node 20 is below the 2026 minimum`);
+  });
+
+  it('accepts Node 24 exactly (boundary value)', () => {
+    expect(() =>
+      createVercelBuildResult({
+        node_version: '24',
+        pnpm_version: '10.30.0',
+        nextjs_version: '16',
+        build_passed: true,
+      })
+    ).not.toThrow();
+  });
+
+  it('accepts Node 25+ (above minimum)', () => {
+    expect(() =>
+      createVercelBuildResult({
+        node_version: '25.1.0',
+        pnpm_version: '10.30.0',
+        nextjs_version: '16',
+        build_passed: true,
+      })
+    ).not.toThrow();
+  });
+
+  it('VERCEL_2026_RUNTIME exports the correct canonical targets', () => {
+    expect(VERCEL_2026_RUNTIME.node).toBe('24');
+    expect(VERCEL_2026_RUNTIME.pnpm).toBe('10.30.0');
+    expect(VERCEL_2026_RUNTIME.nextjs_minimum).toBe('16');
   });
 });

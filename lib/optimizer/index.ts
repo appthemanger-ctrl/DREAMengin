@@ -21,14 +21,18 @@ import type {
   RankedCreativeOption,
   CreativeOptimizerResult,
   CreativeContext,
+  RuntimeContext,
 } from './types';
 
 export class DreamOptimizer {
   private solver: ConstraintSolver;
   private config: OptimizerConfig;
+  /** Optional caller-provided runtime signals (device, user prefs, social graph). */
+  private context: RuntimeContext;
 
-  constructor(config: OptimizerConfig) {
+  constructor(config: OptimizerConfig, context: RuntimeContext = {}) {
     this.config = config;
+    this.context = context;
     this.solver = new ConstraintSolver({
       maxIterations: config.optimizer.max_iterations,
       convergenceThreshold: config.optimizer.convergence_threshold,
@@ -57,7 +61,7 @@ export class DreamOptimizer {
         recency: this.calculateRecency(item.timestamp),
         privacy: this.calculatePrivacyScore(item.privacy_level),
         engagement: this.calculateEngagementScore(item.engagement),
-        user_selected_sources: 0.5, // TODO: Get from user preferences
+        user_selected_sources: this.context.sourcePreferences?.[item.source] ?? 0.5,
       },
     }));
 
@@ -134,9 +138,9 @@ export class DreamOptimizer {
       score: 0,
       metadata: {
         interaction_frequency: Math.min(1, widget.interaction_frequency / 100),
-        screen_size: 0.7, // TODO: Get from device context
-        device_type: 0.8, // TODO: Get from device context
-        layout_density: 0.6, // TODO: Calculate from current layout
+        screen_size: this.resolveScreenSizeScore(),
+        device_type: this.resolveDeviceTypeScore(),
+        layout_density: this.resolveLayoutDensityScore(),
       },
     }));
 
@@ -209,7 +213,7 @@ export class DreamOptimizer {
       metadata: {
         urgency: this.calculateUrgencyScore(notif.urgency),
         interaction_history: notif.interaction_history ?? 0.5,
-        sender_priority: 0.7, // TODO: Get from user relationships
+        sender_priority: this.context.senderPriorities?.[notif.sender_id ?? ''] ?? 0.7,
         recency: this.calculateRecency(notif.timestamp),
       },
     }));
@@ -627,8 +631,64 @@ export class DreamOptimizer {
   // Helper methods for score calculation
 
   private calculateSourcePreference(source: string): number {
-    // TODO: Get from user preferences
-    return 0.7;
+    // Use caller-supplied preference weight when available; neutral 0.7 otherwise.
+    return this.context.sourcePreferences?.[source] ?? 0.7;
+  }
+
+  // ---------------------------------------------------------------------------
+  // RuntimeContext helpers — derive normalised 0–1 scores from the injected
+  // signals.  Each method documents its fallback so callers know what value
+  // to expect when the corresponding RuntimeContext field is absent.
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Screen-size score derived from `viewportWidth`.
+   * Larger viewports can surface more Dream Windows, so they score higher.
+   *
+   * Breakpoints (CSS px):
+   *   ≥ 1440 → 1.0  (wide desktop)
+   *   ≥ 1024 → 0.85 (standard desktop / landscape tablet)
+   *   ≥ 768  → 0.7  (portrait tablet) ← fallback when width unknown
+   *    < 768  → 0.5  (mobile)
+   */
+  private resolveScreenSizeScore(): number {
+    if (this.context.viewportWidth === undefined) return 0.7;
+    if (this.context.viewportWidth >= 1440) return 1.0;
+    if (this.context.viewportWidth >= 1024) return 0.85;
+    if (this.context.viewportWidth >= 768) return 0.7;
+    return 0.5;
+  }
+
+  /**
+   * Device-type score derived from `deviceType`.
+   * Desktop sessions can render the most Dream Windows concurrently.
+   *
+   *   'desktop' → 1.0
+   *   'tablet'  → 0.8  ← fallback when deviceType unknown
+   *   'mobile'  → 0.5
+   */
+  private resolveDeviceTypeScore(): number {
+    switch (this.context.deviceType) {
+      case 'desktop': return 1.0;
+      case 'tablet':  return 0.8;
+      case 'mobile':  return 0.5;
+      default:        return 0.8;
+    }
+  }
+
+  /**
+   * Layout-density score derived from `dreamWindowCount`.
+   * More Dream Windows in the layout means less room per window → lower score.
+   *
+   * Formula: max(0.2, 1 - (count - 1) × 0.1)
+   *   count 1 → 1.0, count 4 → 0.7, count 9 → 0.2
+   *
+   * Fallback when dreamWindowCount is absent or 0: 0.6.
+   */
+  private resolveLayoutDensityScore(): number {
+    const count = this.context.dreamWindowCount;
+    if (!count || count <= 0) return 0.6;
+    return Math.max(0.2, 1 - (count - 1) * 0.1);
   }
 
   private calculateRecency(timestamp: Date): number {
