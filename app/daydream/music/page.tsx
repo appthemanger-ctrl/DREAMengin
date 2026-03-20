@@ -30,6 +30,7 @@ export default async function MusicDaydreamPage() {
       title="Music Studio"
       enginName="StarMakerEngin"
       accentColor="#2a8ab8"
+      daydreamType="music"
       widgets={WIDGETS}
       sideBComponent={StarMakerEngin}
     >

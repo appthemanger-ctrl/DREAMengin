@@ -37,6 +37,7 @@ export default async function CreateDaydreamPage() {
       title="Create"
       enginName="ContentEngin"
       accentColor="#f59e0b"
+      daydreamType="create"
       widgets={WIDGETS}
       sideBComponent={ContentEngin}
     >

@@ -100,22 +100,11 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
   const { results: searchSuggestions, isSearching: isSuggesting, drEamsMode, toggleDrEams, clearResults: clearSuggestions } =
     useDreamSearch(searchQuery);
 
-  const isDemoConv = selectedConv?.id.startsWith('demo-') ?? false;
-
-  // Demo messages for demo conversations
-  const demoMessages: DMMessage[] = [
-    { id: '1', sender_id: 'demo-user-1', content: 'Hey! I saw your latest project in the Labs.', created_at: new Date(Date.now() - 300000).toISOString() },
-    { id: '2', sender_id: 'demo-user-1', content: 'Your project looks amazing! Let me know if you need help with the AI integration.', created_at: new Date(Date.now() - 240000).toISOString() },
-    { id: '3', sender_id: userId, content: 'Thanks! I have been working on it for weeks.', created_at: new Date(Date.now() - 180000).toISOString() },
-    { id: '4', sender_id: 'demo-user-1', content: 'What framework are you using?', created_at: new Date(Date.now() - 120000).toISOString() },
-    { id: '5', sender_id: userId, content: 'Using TensorFlow with a custom model. Want to check it out?', created_at: new Date(Date.now() - 60000).toISOString() },
-  ];
-
   // Realtime messages via hook
   const { messages, isLoading, addOptimistic, replaceOptimistic, removeOptimistic } = useDreamDMMessages(
     selectedConv?.id ?? null,
-    isDemoConv,
-    demoMessages,
+    false,
+    [],
   );
 
   // Draft persistence via hook
@@ -249,11 +238,6 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
 
       // Clear draft optimistically on send
       clearDraft(selectedConv.id);
-
-      if (selectedConv.id.startsWith('demo-')) {
-        setIsSending(false);
-        return;
-      }
 
       const res = await fetch('/api/messages', {
         method: 'POST',

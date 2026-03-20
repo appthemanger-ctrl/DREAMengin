@@ -47,6 +47,8 @@ interface WorkspaceDashboardProps {
   onOpenDreamSpace?: () => void;
   /** Open a path contained inside this runtime region (iframe) */
   onOpenInRegion?: (path: string) => void;
+  /** Open a URL inside the current runtime region (no full-page navigation). */
+  onOpenUrl?: (url: string, title?: string) => void;
   isAdmin?: boolean;
 }
 
@@ -100,9 +102,19 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
 export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenInRegion, isAdmin = false }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const { enterCustomizeMode } = useCustomizeMode();
+
+  /** Navigate inside the runtime region when possible, else use router. */
+  const openPage = (url: string, title?: string) => {
+    if (onOpenUrl) {
+      onOpenUrl(url, title);
+    } else {
+      router.push(url);
+    }
+  };
 
   // Use admin or user agent list based on role
   const AI_AGENTS = isAdmin ? AI_AGENTS_ADMIN : AI_AGENTS_USER;
@@ -158,12 +170,9 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
       <div
         data-scroll
         style={{
-          minHeight: '100svh',
+          minHeight: '100%',
           width: '100%',
-          overflowY: 'auto',
-          overflowX: 'hidden',
           paddingBottom: 140,
-          WebkitOverflowScrolling: 'touch',
         }}
       >
         {/* ── Floating header ── */}
@@ -239,6 +248,22 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               }}
             >
               Profile &rsaquo;
+            {/* Flip to Profile — clean text navigation */}
+            <button
+              type="button"
+              onClick={() => openPage('/edit-profiledream', 'DreamProfile')}
+              style={{
+                fontSize: 14, color: 'var(--de-text-dim)',
+                background: 'none', border: 'none',
+                fontWeight: 500,
+                letterSpacing: '-0.01em', whiteSpace: 'nowrap',
+                padding: '8px 0 8px 4px', minHeight: 40,
+                display: 'flex', alignItems: 'center',
+                cursor: 'pointer',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              Flip to Profile &rsaquo;
             </button>
           </div>
         </div>
@@ -273,6 +298,35 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               >
                 DreamProfile
               </button>
+            {/* ── Dr. Eams search bar — Phase 6: HomeDream search with send-to-DreamDM routing ── */}
+            <div style={{ marginTop: 16, marginBottom: 4 }}>
+              <DrEamsSearchBar onOpenDrEams={onOpenDrEams} />
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+              {[
+                { href: '/edit-profiledream', label: 'DreamProfile' },
+                { href: '/discover', label: 'Feed' },
+              ].map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => openPage(item.href, item.label)}
+                  className="de-pressable"
+                  style={{
+                    borderRadius: 999,
+                    border: '1px solid rgba(180,185,200,0.30)',
+                    background: 'rgba(255,255,255,0.65)',
+                    color: 'var(--de-heading)',
+                    padding: '7px 14px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
               <button
                 type="button"
                 onClick={() => onOpenDreamSpace?.()}
@@ -451,6 +505,216 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
           <div style={{ marginBottom: 10 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>
               Feed
+          {/* ── WORKSPACE WINDOW PANEL — full width, elevated ── */}
+          <div style={{
+            background: 'rgba(255,255,255,0.72)',
+            backdropFilter: 'blur(28px)',
+            WebkitBackdropFilter: 'blur(28px)',
+            borderRadius: 24,
+            border: '1px solid rgba(255,255,255,0.90)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.10), 0 2px 12px rgba(0,0,0,0.05)',
+            overflow: 'hidden',
+            marginBottom: 16,
+          }}>
+            {/* Window chrome — canonical surface name per docs/LAW.md §Route law */}
+            <WindowChrome title="HomeDream" />
+
+            {/* ── Activity feed — full width, temporal scanning ── */}
+            <div style={{ padding: '14px 18px 0' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 10,
+              }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
+                  Recent Activity
+                </span>
+                {feedPosts.length > 0 && (
+                  <span
+                    aria-label={`${feedPosts.length} new activities`}
+                    style={{
+                      background: 'rgba(200,152,26,0.12)', color: '#c8981a',
+                      borderRadius: 100, fontSize: 11, fontWeight: 600, padding: '3px 10px',
+                    }}
+                  >
+                    {feedPosts.length} new
+                  </span>
+                )}
+              </div>
+
+              {/* AI Triad agent cards — horizontal scroll */}
+              <div
+                data-scroll
+                style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', marginBottom: 4, WebkitOverflowScrolling: 'touch' }}
+              >
+                {AI_AGENTS.map(agent => (
+                  <AgentActivityCard key={agent.id} agent={agent} onOpenDrEams={onOpenDrEams} />
+                ))}
+              </div>
+
+              {/* Feed area remains independently scrollable */}
+              <div
+                data-scroll
+                style={{ maxHeight: 300, overflowY: 'auto', paddingRight: 4, WebkitOverflowScrolling: 'touch' }}
+              >
+                {feedPosts.length > 0 ? (
+                  feedPosts.slice(0, 8).map((post, i) => (
+                    <ActivityCard key={post.id || i} post={post} index={i} />
+                  ))
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--de-text-dim)', fontSize: 12 }}>
+                    Your feed is live.{' '}
+                    <button type="button" onClick={() => openPage('/daydream/create', 'Create')} style={{ color: 'var(--de-accent)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>Post something</button>
+                    {' '}or{' '}
+                    <button type="button" onClick={() => openPage('/discover', 'Discover')} style={{ color: 'var(--de-accent)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>Discover creators</button>{' '}
+                    to fill it.
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openPage('/discover', 'Discover')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '10px 0',
+                  fontSize: 12, color: 'var(--de-accent)', fontWeight: 600,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                View all activity <ChevronRight size={13} />
+              </button>
+            </div>
+
+            {/* ── Metric widgets — 2×2 grid, full width ── */}
+            <div style={{ padding: '0 16px', marginBottom: 14 }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 10,
+              }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
+                  Telemetry
+                </span>
+                <button
+                  type="button"
+                  onClick={() => openPage('/analytics', 'Analytics')}
+                  style={{ fontSize: 12, color: 'var(--de-accent)',
+                    fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 3, WebkitTapHighlightColor: 'transparent' }}
+                >
+                  Full stats <ChevronRight size={12} />
+                </button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <MetricWidget
+                  icon={Users} label="Followers" value={formatCount(stats.followers)}
+                  sub={stats.followers !== null ? 'real-time' : 'loading…'}
+                  color="#c8981a" trend={[]} />
+                <MetricWidget
+                  icon={TrendingUp} label="Following" value={formatCount(stats.following)}
+                  sub={stats.following !== null ? 'real-time' : 'loading…'}
+                  color="#4A9ED6" trend={[]} />
+                <MetricWidget
+                  icon={Star} label="Posts" value={String(realPostCount)}
+                  sub="public feed"
+                  color="#6366f1" trend={[]} />
+                <MetricWidget
+                  icon={BarChart3} label="Activity" value={posts.length > 0 ? 'Active' : '—'}
+                  sub={posts.length > 0 ? `${posts.length} recent` : 'No posts yet'}
+                  color="#22c55e" trend={[]} />
+              </div>
+            </div>
+
+            {/* ── Metrics status band — full width ── */}
+            <div style={{
+              display: 'flex',
+              borderTop: '1px solid rgba(180,185,200,0.12)',
+              borderBottom: '1px solid rgba(180,185,200,0.12)',
+              background: 'rgba(255,255,255,0.38)',
+            }}>
+              <MetricBandCell value={String(realPostCount)} label="Posts"     color="var(--de-gold)" />
+              <MetricBandCell value={formatCount(stats.followers)} label="Followers" color="#4A9ED6" />
+              <MetricBandCell value={formatCount(stats.following)} label="Following" color="#6366f1" />
+              <MetricBandCell value="—"    label="Reach"    color="#22c55e" last />
+            </div>
+
+            {/* ── Action controls ── */}
+            <div style={{ padding: '14px 16px 16px', background: 'rgba(255,255,255,0.28)' }}>
+              {/* Primary row — Dr. Eams + Shop */}
+              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                <ActionBtn icon={Sparkles}    label="Dr. Eams" onClick={onOpenDrEams} primary />
+                <ActionBtn icon={ShoppingBag} label="Shop"     onClick={() => router.push('/shop')} />
+              </div>
+              {/* Daydreams row 1 — Music · Games · Lab */}
+              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                <ActionBtn icon={Music}        label="Music"  onClick={() => router.push('/daydream/music')} />
+                <ActionBtn icon={Gamepad2}     label="Games"  onClick={() => router.push('/daydream/games')} />
+                <ActionBtn icon={FlaskConical} label="Lab"    onClick={() => router.push('/daydream/lab')} />
+              </div>
+              {/* Daydreams row 2 — Code · Brand · Create */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <ActionBtn icon={Code2}   label="Code"   onClick={() => router.push('/daydream/code')} />
+                <ActionBtn icon={Palette} label="Brand"  onClick={() => router.push('/daydream/brand')} />
+                <ActionBtn icon={Pen}     label="Create" onClick={() => router.push('/daydream/create')} />
+              </div>
+            </div>
+          </div>
+
+          {/* ── Widget glass zone — Feed section ── */}
+          <div style={{
+            background: 'rgba(255,255,255,0.72)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: 24,
+            border: '1px solid rgba(255,255,255,0.90)',
+            boxShadow: '0 6px 28px rgba(0,0,0,0.08)',
+            overflow: 'hidden',
+            marginBottom: 16,
+          }}>
+            <div style={{ padding: '14px 18px 10px', borderBottom: '1px solid rgba(180,185,200,0.12)' }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
+                Feed
+              </span>
+            </div>
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: 12, padding: '12px 16px 16px',
+            }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <button
+                  key={`widget-slot-${i}`}
+                  type="button"
+                  onClick={() => openPage('/connectors', 'Connectors')}
+                  className="de-card-pressable"
+                  style={{
+                    minHeight: 92,
+                    borderRadius: 18,
+                    border: '1px solid rgba(180,185,200,0.20)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.15))',
+                    boxShadow: 'inset 0 1px 8px rgba(255,255,255,0.30), 0 2px 10px rgba(0,0,0,0.04)',
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column' as const,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  <div style={{
+                    width: 28, height: 28, borderRadius: 8,
+                    border: '1.5px dashed rgba(180,185,200,0.40)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <span style={{ fontSize: 14, color: 'var(--de-text-dim)' }}>+</span>
+                  </div>
+                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)', fontWeight: 500 }}>
+                    Add widget
+                  </span>
+                </button>
+              ))}
             </div>
             <HomeFeed
               userId={profile?.id ?? ''}

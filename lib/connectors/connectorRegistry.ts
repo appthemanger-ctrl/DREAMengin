@@ -142,6 +142,22 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     ],
   },
   {
+    id: 'shellhub',
+    name: 'ShellHub',
+    icon: '🖥️',
+    description: 'Remote Linux device management and SSH access via ShellHub gateway.',
+    category: 'Utilities',
+    tier: 'tier1',
+    whatYouGet: 'Device list + online/offline status + web terminal launch',
+    requirements: 'A ShellHub account (cloud or self-hosted) and a personal API key.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'shellhub',
+    sliceTypes: [
+      { id: 'sh-devices', label: 'Device List', description: 'Your registered ShellHub devices with status.' },
+      { id: 'sh-online', label: 'Online Devices', description: 'Devices currently connected to the gateway.' },
+    ],
+  },
+  {
     id: 'reddit',
     name: 'Reddit',
     icon: '🤖',

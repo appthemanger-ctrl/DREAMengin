@@ -8,6 +8,7 @@
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
 import { useState } from 'react';
+import Leaderboard from '@/components/games/Leaderboard';
 
 const Loading = () => (
   <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 13 }}>
@@ -109,7 +110,7 @@ const GAMES: GameDef[] = [
     desc: 'Procedurally generated maze — navigate from start to the ★ exit' },
   // ── Dream Runner — Babylon.js 3-D side-scroller ───────────────────────────
   { id: 'platformer',    emoji: '∞',  label: 'Dream Runner',     category: 'Platformer',  color: '#2a8ab8', component: BabylonSideScroller,
-    desc: 'Babylon.js 3-D side-scroller — run, jump (move+jump together), collect dream coins, defeat enemies' },
+    desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js 3-D side-scroller' },
 ];
 
 export default function GamesHub() {
@@ -149,6 +150,20 @@ export default function GamesHub() {
 
         {/* Game renders here */}
         <GameComponent />
+
+        {/* Per-game leaderboard — cross-device top 10 via Supabase */}
+        <div style={{
+          marginTop: 16, padding: '12px 14px',
+          background: 'rgba(255,255,255,0.35)',
+          border: '1px solid rgba(160,195,240,0.2)',
+          borderRadius: 12,
+        }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8,
+                        display: 'flex', alignItems: 'center', gap: 6 }}>
+            🏆 Leaderboard — {active.label}
+          </div>
+          <Leaderboard game={active.id} />
+        </div>
       </div>
     );
   }

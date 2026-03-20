@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
-import DreamDMBar from '@/components/messaging/DreamDMBar';
+import DreamDMBar, { BAR_H } from '@/components/messaging/DreamDMBar';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
@@ -22,6 +22,15 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
 
   // barBlend: 0 = bar at bottom (Surface Space dominant), 1 = bar at top (DreamSpace dominant)
   const [barBlend, setBarBlend] = useState(0);
+
+  // barInsets: safe-area pixels the bar occupies at top / bottom of the viewport.
+  // Passed to RuntimeShell so content never hides behind the bar.
+  // Default: bar is at the bottom at BAR_H (80 px) rest height.
+  const [barInsets, setBarInsets] = useState<{ top: number; bottom: number }>({ top: 0, bottom: BAR_H });
+
+  const handleBarInsets = useCallback((top: number, bottom: number) => {
+    setBarInsets((prev) => (prev.top === top && prev.bottom === bottom ? prev : { top, bottom }));
+  }, []);
 
   // ── Return to HomeDream Surface ──────────────────────────────────────────
 
@@ -125,6 +134,11 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
        * The DreamDMBar seam sits on top (z-index 102 via its own fixed style).
        * Dominant region gets z-index 2 and full opacity; non-dominant gets
        * z-index 1 and reduced opacity so it is visible but clearly behind.
+       *
+       * TRUE LAYOUT REFLOW — the region containers themselves are sized to
+       * exclude the bar area via top/bottom driven by barInsets. RuntimeShell
+       * therefore always receives a box that is exactly the safe area and
+       * requires no internal clipping at all.
        */}
       <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
 
@@ -132,11 +146,14 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         <div
           style={{
             position: 'absolute',
-            inset: 0,
+            top: barInsets.top,
+            left: 0,
+            right: 0,
+            bottom: barInsets.bottom,
             zIndex: isSurfaceDominant ? 2 : 1,
             opacity: isSurfaceDominant ? 1 - (barBlend * 0.18) : 0.4 + (barBlend * 0.3),
             pointerEvents: isSurfaceDominant ? 'auto' : 'none',
-            transition: 'opacity 180ms ease, z-index 0ms',
+            transition: 'opacity 180ms ease',
           }}
         >
           <RuntimeView
@@ -156,11 +173,14 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         <div
           style={{
             position: 'absolute',
-            inset: 0,
+            top: barInsets.top,
+            left: 0,
+            right: 0,
+            bottom: barInsets.bottom,
             zIndex: isSurfaceDominant ? 1 : 2,
             opacity: isSurfaceDominant ? barBlend : 1,
             pointerEvents: isSurfaceDominant ? 'none' : 'auto',
-            transition: 'opacity 180ms ease, z-index 0ms',
+            transition: 'opacity 180ms ease',
           }}
         >
           <RuntimeView
@@ -189,6 +209,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         onHomeDreamSpace={openHomeDreamSpace}
         onRuntimeModeChange={handleBarRuntimeMode}
         onRuntimeBlendChange={setBarBlend}
+        onBarInsets={handleBarInsets}
       />
     </>
   );

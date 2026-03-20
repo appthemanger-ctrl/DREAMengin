@@ -107,6 +107,8 @@ export type DrEamsRunResponse = z.infer<typeof DrEamsRunResponseSchema>;
 export const ExecuteBodySchema = z.object({
   request_id: z.string().uuid(),
   intent_ids: z.array(z.string().uuid()).min(1).max(3),
+  /** Full intent objects the client received from /api/ai/eams — required for dispatch */
+  intents: z.array(IntentSchema).max(3).optional(),
   confirm_token: z.string().optional(),
   ui: UIContextSchema,
 });
@@ -117,6 +119,9 @@ export const ExecuteResponseSchema = z.object({
   results: z.array(z.object({
     intent_id: z.string().uuid(),
     executed: z.boolean(),
+    /** Client-side action to carry out after execution */
+    action_type: z.string().optional(),
+    action_payload: z.record(z.string(), z.unknown()).optional(),
     error: z.string().optional(),
   })),
   boogie: z.object({

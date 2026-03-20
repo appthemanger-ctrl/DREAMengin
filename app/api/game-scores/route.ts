@@ -2,7 +2,12 @@ import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-const VALID_GAMES = ['platformer', 'word-sprint', 'memory-grid', 'speed-tap'] as const;
+const VALID_GAMES = [
+  'platformer', 'word-sprint', 'memory-grid', 'speed-tap',
+  'rts', 'tower-defense', 'space-shooter', 'snake', 'breakout',
+  'flappy', 'match3', 'tetris', 'pong', 'minesweeper', 'chess',
+  'racing', 'trivia', 'rpg', 'rhythm', 'maze', 'solitaire',
+] as const;
 
 const PostScoreSchema = z.object({
   game: z.enum(VALID_GAMES, {

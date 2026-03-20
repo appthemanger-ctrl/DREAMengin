@@ -69,11 +69,11 @@ import DreamWord from '@/components/ui/DreamWord';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
 /** Thick bar height when locked at the bottom */
-const BAR_H        = 80;
+export const BAR_H = 80;
 /** Panel height when locked at the top (expanded) */
 const TOP_H        = 340;
 /** Compact nav-bar height when locked at the top (collapsed/nav-bar mode) */
-const NAV_H        = 52;
+export const NAV_H = 52;
 /** Gold button diameter */
 const GOLD_SZ      = 48;
 const GOLD_R       = GOLD_SZ / 2;
@@ -140,12 +140,19 @@ interface DreamDMBarProps {
   onRuntimeModeChange?: (mode: 'home' | 'blend' | 'dreamspace') => void;
   /** 0..1 blend for dragging second runtime from off-screen */
   onRuntimeBlendChange?: (value: number) => void;
+  /**
+   * Reports the safe-area insets the runtime regions should reserve so that
+   * content never hides behind the bar.
+   *   top:    pixels to inset from the top of the viewport (bar is at the top)
+   *   bottom: pixels to inset from the bottom of the viewport (bar is at the bottom)
+   */
+  onBarInsets?: (top: number, bottom: number) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange }: DreamDMBarProps) {
+export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets }: DreamDMBarProps) {
   // ── Screen geometry ────────────────────────────────────────────────────────
   const [screenH, setScreenH] = useState(900);
   useEffect(() => {
@@ -528,6 +535,22 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     const blend = Math.max(0, Math.min(1, raw));
     onRuntimeBlendChange(blend);
   }, [dragH, isTop, isTopExpanded, onRuntimeBlendChange, screenH]);
+
+  // ── Bar insets — tell the runtime regions how much space the bar occupies ──
+  // top:    runtime content must not start until this many px from the screen top
+  // bottom: runtime content must not extend past this many px from the screen bottom
+  useEffect(() => {
+    if (!onBarInsets) return;
+    if (isTop) {
+      // Bar is at the top; bottom of bar = slideDown (offset) + barH
+      const barH = isTopExpanded ? TOP_H : dragH;
+      const barTop = isTopExpanded ? slideDown : 0;
+      onBarInsets(barTop + barH, 0);
+    } else {
+      // Bar is at the bottom; inset = current bar height (dragH, rests at BAR_H)
+      onBarInsets(0, dragH);
+    }
+  }, [isTop, isTopExpanded, dragH, slideDown, onBarInsets]);
 
   if (!mounted) return null;
 

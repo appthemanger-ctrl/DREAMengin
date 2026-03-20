@@ -6,15 +6,20 @@
  * Renders the content for a single runtime view based on the RuntimeWorld.
  * Used by both Surface Space (top) and DreamSpace (bottom) regions.
  *
+ * Every world type is now wrapped in RuntimeShell, which provides:
+ *  • A constrained scrollable + zoomable viewport (never the full page).
+ *  • Zoom in / zoom out controls.
+ *  • In-region iframe loading so app/engin navigation never leaves the home surface.
+ *
  * Panel worlds — { type: 'panel'; name: SystemPanelId } — render the system
  * feature component directly inside the region. No routing. No overlays.
- * The seam and bar remain persistent. Only this region's content changes.
  */
 
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
 import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
+import RuntimeShell from '@/components/runtime/RuntimeShell';
 
 // ── Panel components (loaded in-region, never as overlays) ───────────────────
 import SettingsPanel     from '@/components/panels/SettingsPanel';
@@ -52,6 +57,16 @@ interface RuntimeViewProps {
   onBackFromRegion?: () => void;
 }
 
+/** Engin name → canonical daydream route */
+const ENGIN_ROUTES: Record<string, string> = {
+  StarMakerEngin: '/daydream/music',
+  GameEngin:      '/daydream/games',
+  LabEngin:       '/daydream/lab',
+  CodeEngin:      '/daydream/code',
+  BrandingEngin:  '/daydream/brand',
+  ContentEngin:   '/daydream/create',
+};
+
 export default function RuntimeView({
   world,
   isActive,
@@ -63,7 +78,34 @@ export default function RuntimeView({
   onOpenInRegion,
   onBackFromRegion,
 }: RuntimeViewProps) {
-  // Home runtime
+  /* ── In-region iframe state ─────────────────────────────────────────────── */
+  const [iframeUrl,   setIframeUrl]   = useState<string | null>(null);
+  const [iframeTitle, setIframeTitle] = useState<string>('');
+
+  const openUrl = useCallback((url: string, title?: string) => {
+    setIframeUrl(url);
+    setIframeTitle(title ?? url);
+  }, []);
+
+  const closeIframe = useCallback(() => {
+    setIframeUrl(null);
+    setIframeTitle('');
+  }, []);
+
+  // Reset iframe whenever the world changes so stale pages don't linger.
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: world is an external prop driving local UI state
+  useEffect(() => { setIframeUrl(null); setIframeTitle(''); }, [world]);
+
+  /* ── Shared outer wrapper style ─────────────────────────────────────────── */
+  const outerStyle: React.CSSProperties = {
+    position: 'absolute',
+    inset: 0,
+    opacity: isActive ? 1 : 0.3,
+    pointerEvents: isActive ? 'auto' : 'none',
+    transition: 'opacity 0.3s ease',
+  };
+
+  /* ── Home runtime ────────────────────────────────────────────────────────── */
   if (world === 'HomeDream Surface') {
     return (
       <div
@@ -83,30 +125,48 @@ export default function RuntimeView({
           onOpenInRegion={onOpenInRegion}
           isAdmin={isAdmin}
         />
+      <div style={outerStyle}>
+        <RuntimeShell
+          iframeUrl={iframeUrl}
+          onCloseIframe={closeIframe}
+          iframeTitle={iframeTitle}
+        >
+          <WorkspaceDashboard
+            profile={profile}
+            posts={posts ?? []}
+            onOpenDrEams={onOpenDrEams}
+            onOpenDreamSpace={onOpenDreamSpace}
+            onOpenUrl={openUrl}
+            isAdmin={isAdmin}
+          />
+        </RuntimeShell>
       </div>
     );
   }
 
-  // DreamSpace runtime — renders the live DreamsSpacePanel (Daydreams + connector feeds)
+  /* ── DreamSpace runtime ──────────────────────────────────────────────────── */
   if (world === 'DreamSpace') {
     return (
       <div
         style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: isActive ? 1 : 0.3,
-          pointerEvents: isActive ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease',
+          ...outerStyle,
           background: 'linear-gradient(180deg, var(--de-bg-start,#020818) 0%, var(--de-bg-mid,#081428) 42%, var(--de-bg-end,#0a1a30) 100%)',
           overflow: 'hidden',
         }}
       >
         <DreamsSpacePanel onOpenInRegion={onOpenInRegion} />
+        <RuntimeShell
+          iframeUrl={iframeUrl}
+          onCloseIframe={closeIframe}
+          iframeTitle={iframeTitle}
+        >
+          <DreamsSpacePanel onOpenUrl={openUrl} />
+        </RuntimeShell>
       </div>
     );
   }
 
-  // View Profile Surface runtime
+  /* ── View Profile Surface runtime ───────────────────────────────────────── */
   if (world === 'View Profile Surface') {
     return (
       <div
@@ -126,46 +186,68 @@ export default function RuntimeView({
           onOpenInRegion={onOpenInRegion}
           isAdmin={isAdmin}
         />
+      <div style={outerStyle}>
+        <RuntimeShell
+          iframeUrl={iframeUrl}
+          onCloseIframe={closeIframe}
+          iframeTitle={iframeTitle}
+        >
+          <WorkspaceDashboard
+            profile={profile}
+            posts={posts ?? []}
+            onOpenDrEams={onOpenDrEams}
+            onOpenDreamSpace={onOpenDreamSpace}
+            onOpenUrl={openUrl}
+            isAdmin={isAdmin}
+          />
+        </RuntimeShell>
       </div>
     );
   }
 
-  // Dream runtime — routes to the Daydream surface for this dream
+  /* ── Dream runtime — open the dream URL in-region ───────────────────────── */
   if (typeof world === 'object' && world.type === 'dream') {
     return (
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: isActive ? 1 : 0.3,
-          pointerEvents: isActive ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease',
-        }}
-      >
-        <div className="fixed inset-0 z-10 grid place-items-center"
-          style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)' }}>
-          <div className="de-glass" style={{ borderRadius: '28px', padding: '32px', maxWidth: '600px', textAlign: 'center' }}>
-            <div className="de-tag">Dream</div>
-            <div className="de-label" style={{ fontSize: '24px', marginTop: '8px' }}>Dream {world.id}</div>
-            <p style={{ color: 'var(--de-text-dim)', marginTop: '12px', fontSize: '13px' }}>
-              Open this Dream to view its full content.
-            </p>
+      <div style={outerStyle}>
+        <RuntimeShell
+          iframeUrl={iframeUrl}
+          onCloseIframe={closeIframe}
+          iframeTitle={iframeTitle}
+        >
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: '100%', minHeight: '100%',
+              background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)',
+            }}
+          >
+            <div className="de-glass" style={{ borderRadius: 28, padding: 32, maxWidth: 600, textAlign: 'center' }}>
+              <div className="de-tag">Dream</div>
+              <div className="de-label" style={{ fontSize: 24, marginTop: 8 }}>Dream {world.id}</div>
+              <p style={{ color: 'var(--de-text-dim)', marginTop: 12, fontSize: 13 }}>
+                Open this Dream to view its full content.
+              </p>
+              <button
+                type="button"
+                onClick={() => openUrl(`/dreams/${world.id}`, `Dream ${world.id}`)}
+                style={{
+                  display: 'inline-block', marginTop: 16, padding: '10px 24px',
+                  background: 'linear-gradient(135deg,#c8981a,#e0b830)', color: '#fff',
+                  borderRadius: 10, fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer',
+                }}
+              >
+                Open Dream →
+              </button>
+            </div>
           </div>
-        </div>
+        </RuntimeShell>
       </div>
     );
   }
 
   // Engin runtime — renders the Daydream Engin surface in an in-region iframe
+  /* ── Engin runtime — open engin route in-region iframe ──────────────────── */
   if (typeof world === 'object' && world.type === 'engin') {
-    const ENGIN_ROUTES: Record<string, string> = {
-      StarMakerEngin: '/daydream/music',
-      GameEngin: '/daydream/games',
-      LabEngin: '/daydream/lab',
-      CodeEngin: '/daydream/code',
-      BrandingEngin: '/daydream/brand',
-      ContentEngin: '/daydream/create',
-    };
     const route = ENGIN_ROUTES[world.name] ?? '/homedream';
     return (
       <div
@@ -219,6 +301,36 @@ export default function RuntimeView({
           style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
           allow="fullscreen"
         />
+      <div style={outerStyle}>
+        <RuntimeShell
+          iframeUrl={iframeUrl}
+          onCloseIframe={closeIframe}
+          iframeTitle={iframeTitle}
+        >
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: '100%', minHeight: '100%',
+              background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)',
+            }}
+          >
+            <div className="de-glass" style={{ borderRadius: 28, padding: 32, maxWidth: 600, textAlign: 'center' }}>
+              <div className="de-tag">Engin</div>
+              <div className="de-label" style={{ fontSize: 24, marginTop: 8 }}>{world.name}</div>
+              <button
+                type="button"
+                onClick={() => openUrl(route, world.name)}
+                style={{
+                  display: 'inline-block', marginTop: 16, padding: '10px 24px',
+                  background: 'linear-gradient(135deg,#c8981a,#e0b830)', color: '#fff',
+                  borderRadius: 10, fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer',
+                }}
+              >
+                Open {world.name} →
+              </button>
+            </div>
+          </div>
+        </RuntimeShell>
       </div>
     );
   }
@@ -277,12 +389,44 @@ export default function RuntimeView({
           style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
           allow="fullscreen"
         />
+  /* ── Custom runtime — open the custom path in-region iframe ─────────────── */
+  if (typeof world === 'object' && world.type === 'custom') {
+    return (
+      <div style={outerStyle}>
+        <RuntimeShell
+          iframeUrl={iframeUrl}
+          onCloseIframe={closeIframe}
+          iframeTitle={iframeTitle}
+        >
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: '100%', minHeight: '100%',
+              background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)',
+            }}
+          >
+            <div className="de-glass" style={{ borderRadius: 28, padding: 32, maxWidth: 600, textAlign: 'center' }}>
+              <div className="de-tag">Custom</div>
+              <div className="de-label" style={{ fontSize: 24, marginTop: 8 }}>{world.path}</div>
+              <button
+                type="button"
+                onClick={() => openUrl(world.path, world.path)}
+                style={{
+                  display: 'inline-block', marginTop: 16, padding: '10px 24px',
+                  background: 'linear-gradient(135deg,#c8981a,#e0b830)', color: '#fff',
+                  borderRadius: 10, fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer',
+                }}
+              >
+                Navigate →
+              </button>
+            </div>
+          </div>
+        </RuntimeShell>
       </div>
     );
   }
 
-  // Panel world — a system feature loaded in-region via world dispatch.
-  // No routing. No overlays. The panel fills the region like any other world.
+  /* ── Panel world — a system feature loaded in-region via world dispatch ─── */
   if (typeof world === 'object' && world.type === 'panel') {
     const PANEL_MAP: Record<SystemPanelId, React.ReactNode> = {
       'settings':             <SettingsPanel />,
@@ -303,18 +447,19 @@ export default function RuntimeView({
     return (
       <div
         style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: isActive ? 1 : 0.3,
-          pointerEvents: isActive ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease',
+          ...outerStyle,
           background: 'var(--de-surface, #f4f8fd)',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          WebkitOverflowScrolling: 'touch',
         }}
       >
-        {PANEL_MAP[world.name] ?? null}
+        <RuntimeShell
+          iframeUrl={iframeUrl}
+          onCloseIframe={closeIframe}
+          iframeTitle={iframeTitle}
+        >
+          <div style={{ minHeight: '100%' }}>
+            {PANEL_MAP[world.name] ?? null}
+          </div>
+        </RuntimeShell>
       </div>
     );
   }

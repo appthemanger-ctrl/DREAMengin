@@ -29,6 +29,9 @@ import { useRouter } from 'next/navigation';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
 
+/** Called to open a URL inside the runtime region (no full-page navigation). */
+type OpenUrlFn = (url: string, title?: string) => void;
+
 type ServiceType = 'youtube' | 'github' | 'spotify' | null;
 /** Top-level view for the Dreams Space panel: Apps home screen (priority) or connector Feeds. */
 type DreamsSpaceView = 'apps' | 'feeds';
@@ -142,6 +145,7 @@ function AppIcon({ icon, label, color, onClick }: {
 }
 
 export default function DreamsSpacePanel({ onOpenInRegion }: { onOpenInRegion?: (path: string) => void }) {
+export default function DreamsSpacePanel({ onOpenUrl }: { onOpenUrl?: OpenUrlFn }) {
   const runtime = useDreamsRuntime();
   const { state, setService } = runtime;
   const router = useRouter();
@@ -150,6 +154,10 @@ export default function DreamsSpacePanel({ onOpenInRegion }: { onOpenInRegion?: 
   const navigate = (route: string) => {
     if (onOpenInRegion) {
       onOpenInRegion(route);
+  /** Navigate to a route: use in-region iframe when available, else full navigation. */
+  const navigate = (route: string, title?: string) => {
+    if (onOpenUrl) {
+      onOpenUrl(route, title);
     } else {
       router.push(route);
     }
@@ -238,6 +246,7 @@ export default function DreamsSpacePanel({ onOpenInRegion }: { onOpenInRegion?: 
                   label={dd.label}
                   color={dd.color}
                   onClick={() => navigate(dd.route)}
+                  onClick={() => navigate(dd.route, dd.label)}
                 />
               ))}
             </div>
@@ -268,6 +277,7 @@ export default function DreamsSpacePanel({ onOpenInRegion }: { onOpenInRegion?: 
                   label={app.label}
                   color={app.color}
                   onClick={() => navigate(app.route)}
+                  onClick={() => navigate(app.route, app.label)}
                 />
               ))}
             </div>

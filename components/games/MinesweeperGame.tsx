@@ -3,7 +3,8 @@
  * MinesweeperGame — Classic minesweeper.
  * Category: puzzle / casual
  */
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 const ROWS = 12; const COLS = 16; const MINES = 28;
 type CellState = 'hidden' | 'revealed' | 'flagged';
@@ -53,6 +54,11 @@ export default function MinesweeperGame() {
   const [flags, setFlags] = useState(MINES);
   const [time, setTime] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const submitScore = useSubmitScore('minesweeper');
+  useEffect(() => {
+    if (phase === 'win')  submitScore(Math.max(0, 5000 - time * 10));
+    if (phase === 'dead') submitScore(0);
+  }, [phase, time, submitScore]);
 
   const startGame = useCallback(() => {
     setBoard([]); setStarted(false); setFlags(MINES); setTime(0);

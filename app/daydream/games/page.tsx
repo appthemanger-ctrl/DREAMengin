@@ -44,6 +44,7 @@ export default async function GamesDaydreamPage() {
       title="Games"
       enginName="GameEngin"
       accentColor="#2a8ab8"
+      daydreamType="games"
       widgets={WIDGETS}
       sideBComponent={GameEngin}
     >
