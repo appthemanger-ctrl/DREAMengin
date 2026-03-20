@@ -101,8 +101,7 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
 
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenInRegion, isAdmin = false }: WorkspaceDashboardProps) {
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, isAdmin = false }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, onOpenInRegion, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const { enterCustomizeMode } = useCustomizeMode();
@@ -235,19 +234,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={() => openPath('/edit-profiledream')}
-              style={{
-                fontSize: 13, color: 'var(--de-text-dim)',
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontWeight: 500, letterSpacing: '-0.01em', whiteSpace: 'nowrap',
-                padding: '8px 0 8px 4px', minHeight: 40,
-                display: 'flex', alignItems: 'center',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              Profile &rsaquo;
             {/* Flip to Profile — clean text navigation */}
             <button
               type="button"
@@ -355,6 +341,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 <Palette size={12} />
                 Customize
               </button>
+            </div>
             </div>
           </div>
 
@@ -501,10 +488,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </button>
           )}
 
-          {/* ── Featured: Social Feed ── */}
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>
-              Feed
           {/* ── WORKSPACE WINDOW PANEL — full width, elevated ── */}
           <div style={{
             background: 'rgba(255,255,255,0.72)',

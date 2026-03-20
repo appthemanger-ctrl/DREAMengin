@@ -61,4 +61,4 @@ jobs:
           SHORT="${{ github.sha }}"
           SHORT="${SHORT:0:7}"
           git commit -m "docs: auto-update BUGS.md [${SHORT}] [skip ci]"
-          git push origin HEAD:${{ github.ref_name }}
+          git push origin HEAD:${{ github.ref_name }} || true
