@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * BabylonSideScroller — Babylon.js powered 2.5-D side-scrolling platformer.
+ * BabylonSideScroller — Babylon.js powered 3D side-scrolling platformer.
  *
  * Replaces the old Canvas-2D Dr. Eams Platformer.
  * Key improvements:
@@ -958,7 +958,8 @@ class GameCore {
 
     // Camera follows player smoothly in X
     if (this.camMesh) {
-      this.camMesh.position.x = pbx * 0.0; // camera is locked; mesh positions handle scroll
+      // Camera X is fixed — mesh positions handle horizontal scrolling
+      this.camMesh.position.x = 0;
     }
   }
 
