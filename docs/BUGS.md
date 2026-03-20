@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-19 15:33 UTC  
-**Triggered by commit:** `1c10dae` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #248 from appthemanger-ctrl/copilot/fix-ai-agent-recommendations
+**Last updated:** 2026-03-20 07:53 UTC  
+**Triggered by commit:** `6e1872d` on `copilot/update-home-page-scrolling-box` by Copilot  
+**Commit message:** fix: true layout reflow — outer region containers resize with DreamDMBar
 
 ---
 
