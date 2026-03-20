@@ -9,12 +9,17 @@
  *  • Set<string>-based key tracking so movement + jump always work together.
  *  • Coyote-time (8 frames after leaving ledge) + jump buffering (6 frames).
  *  • Double-jump, particle bursts, scrolling parallax background layers.
- *  • 3 handcrafted levels — each harder than the last.
+ *  • 2 handcrafted intro levels + 148 procedurally-generated levels (3-150).
+ *  • Every 10th level is a named boss fight (15 unique bosses).
+ *  • 15 themed zones — sky, platform colours and lore text change every 10 levels.
+ *  • Session-seeded generation: every playthrough is unique, retrying a level
+ *    gives the same layout.
  *  • Virtual D-Pad for touch / mobile.
  *  • GameRemote CustomEvent bridge.
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 // ─── Game constants ──────────────────────────────────────────────────────────
 const GW = 800; // logical canvas width
@@ -28,6 +33,127 @@ const JBUF_MS    = 6;       // frames to buffer a jump before landing
 
 // Babylon render-unit scale:  1 BU ≈ 40 logical px
 const PX_PER_BU  = 40;
+const TOTAL_LEVELS = 150;
+
+const SESSION_SEED: number =
+  // 'use client' ensures this only runs in the browser (no SSR hydration mismatch).
+  typeof window !== 'undefined' ? (Math.floor(Math.random() * 2147483647) || 1) : 1;
+
+// Named constants for boss behaviour
+const BOSS_ENRAGE_THRESHOLD  = 0.5;   // fraction of max HP at which boss speeds up
+const BOSS_ENRAGE_MULTIPLIER = 1.5;   // speed multiplier when enraged
+
+// Named constants for seeding
+const LEVEL_SEED_KEY    = 31337;      // prime-ish XOR key mixed with level number
+const STAR_SEED_PRIME   = 7919;       // prime for parallax star distribution
+const STAR_SEED_OFFSET  = 13;         // offset to avoid seed=0
+
+/** Zone index 0-14; changes every 10 levels. */
+function getZoneIdx(level: number): number { return Math.min(14, Math.floor((level - 1) / 10)); }
+/** Returns true for every 10th level (boss arenas). */
+function isBossLevel(level: number): boolean { return level % 10 === 0 && level >= 10 && level <= TOTAL_LEVELS; }
+
+// ─── Zone metadata (15 zones, one per 10-level band) ─────────────────────────
+interface ZoneMeta {
+  name: string; story: string;
+  sky: [number,number,number];
+  gnd: [number,number,number]; plt: [number,number,number]; em: [number,number,number];
+}
+const ZONES: ZoneMeta[] = [
+  { name:'Lucid Meadows',    story:'The dream begins at the edge of waking.\nRun far — something stirs in the meadow.',
+    sky:[0.04,0.07,0.18], gnd:[0.12,0.20,0.14], plt:[0.22,0.40,0.28], em:[0.02,0.05,0.02] },
+  { name:'Crystal Caverns',  story:'The meadow cracks open.\nGlimmering tunnels pulse with forgotten dreams.',
+    sky:[0.02,0.03,0.14], gnd:[0.10,0.12,0.35], plt:[0.18,0.22,0.62], em:[0.02,0.03,0.12] },
+  { name:'Neon Corridor',    story:'A dead city awakens in neon.\nEchoes of a dreamer who never woke.',
+    sky:[0.04,0.00,0.10], gnd:[0.12,0.00,0.18], plt:[0.36,0.02,0.50], em:[0.06,0.00,0.10] },
+  { name:'Cloud Kingdom',    story:'Higher. The storms below look like oceans.\nA kingdom built on forgotten promises.',
+    sky:[0.12,0.16,0.30], gnd:[0.28,0.32,0.44], plt:[0.50,0.56,0.72], em:[0.06,0.07,0.12] },
+  { name:'Shadow Vale',      story:'The light runs out here.\nSomething ancient waits in the dark.',
+    sky:[0.01,0.01,0.04], gnd:[0.06,0.02,0.06], plt:[0.12,0.04,0.14], em:[0.02,0.01,0.02] },
+  { name:'Ocean Abyss',      story:'Deeper than sleep. The dreamer drowns\nin memories that belong to someone else.',
+    sky:[0.01,0.04,0.12], gnd:[0.02,0.10,0.22], plt:[0.04,0.24,0.46], em:[0.01,0.04,0.08] },
+  { name:'Time Rift',        story:'The past and future bleed together.\nRun — or be erased.',
+    sky:[0.07,0.04,0.14], gnd:[0.14,0.10,0.22], plt:[0.28,0.18,0.48], em:[0.04,0.02,0.08] },
+  { name:'Mind Maze',        story:'Every corridor is a fear.\nOnly the dreamer can choose which door opens.',
+    sky:[0.08,0.03,0.10], gnd:[0.18,0.05,0.16], plt:[0.36,0.08,0.38], em:[0.05,0.01,0.06] },
+  { name:'Storm Peaks',      story:'At the roof of dreams the wind strips\neverything away but the will to continue.',
+    sky:[0.04,0.06,0.16], gnd:[0.14,0.18,0.26], plt:[0.26,0.32,0.52], em:[0.03,0.04,0.08] },
+  { name:'The Void',         story:'Nothing. And yet — you are still here.\nThe last dream before the final truth.',
+    sky:[0.01,0.01,0.02], gnd:[0.05,0.02,0.06], plt:[0.09,0.03,0.11], em:[0.02,0.01,0.03] },
+  { name:'Reborn Highlands', story:'Surviving the void changes everything.\nThe highlands bloom where nothing should grow.',
+    sky:[0.06,0.10,0.18], gnd:[0.18,0.26,0.20], plt:[0.32,0.48,0.36], em:[0.03,0.06,0.04] },
+  { name:'Echo Halls',       story:'Every footstep echoes with a life unlived.\nThe halls replay every choice ever made.',
+    sky:[0.04,0.04,0.14], gnd:[0.10,0.10,0.26], plt:[0.20,0.20,0.52], em:[0.02,0.02,0.08] },
+  { name:'Final Frontier',   story:'Beyond the last horizon the dreamer\nfinally sees what they have been running toward.',
+    sky:[0.08,0.04,0.12], gnd:[0.18,0.08,0.20], plt:[0.36,0.14,0.42], em:[0.05,0.02,0.07] },
+  { name:'Ascendant Realm',  story:'The dreamer becomes the dream.\nEach step here reshapes the world behind you.',
+    sky:[0.10,0.08,0.18], gnd:[0.20,0.16,0.30], plt:[0.38,0.32,0.58], em:[0.06,0.05,0.10] },
+  { name:'The Dream Heart',  story:'The heart of all dreams.\nOnly one who has survived everything arrives here.',
+    sky:[0.08,0.04,0.20], gnd:[0.12,0.08,0.28], plt:[0.22,0.14,0.52], em:[0.04,0.02,0.10] },
+];
+
+// ─── Boss metadata (15 bosses, one per zone at every 10th level) ─────────────
+interface BossMeta {
+  name: string; title: string; intro: string;
+  hp: number; spd: number; size: number;
+  col: [number,number,number]; em: [number,number,number];
+}
+const BOSSES: BossMeta[] = [
+  { name:'The Meadow Troll',    title:'Guardian of the Gate',
+    intro:'A lumbering troll blocks the only exit.\nStomp it 3 times to pass.',
+    hp:3,  spd:1.8, size:1.8, col:[0.20,0.50,0.20], em:[0.04,0.12,0.04] },
+  { name:'Crystal Golem',       title:'Sentinel of the Deep',
+    intro:'An ancient golem of crystallised dreams.\nFour hits to shatter.',
+    hp:4,  spd:1.4, size:2.0, col:[0.30,0.40,0.80], em:[0.06,0.09,0.22] },
+  { name:'Neon Phantom',        title:'Ghost of the Corridor',
+    intro:'It flickers between states of existence.\nHit it 4 times — fast.',
+    hp:4,  spd:3.2, size:1.6, col:[0.70,0.00,0.80], em:[0.20,0.00,0.26] },
+  { name:'Cloud Titan',         title:'King of the Skylands',
+    intro:'Massive and slow, but one hit sends you flying.\nLand on it 5 times.',
+    hp:5,  spd:0.9, size:2.4, col:[0.70,0.75,0.90], em:[0.14,0.16,0.22] },
+  { name:'Shadow Beast',        title:'Devourer of Light',
+    intro:'Born from absolute darkness.\nFast. Relentless. Five hits.',
+    hp:5,  spd:3.6, size:1.9, col:[0.10,0.02,0.14], em:[0.06,0.01,0.08] },
+  { name:'Deep Leviathan',      title:'Ruler of the Abyss',
+    intro:'The ocean dreamed this nightmare into being.\nSix stomps to silence it.',
+    hp:6,  spd:2.0, size:2.3, col:[0.04,0.18,0.40], em:[0.01,0.05,0.12] },
+  { name:'Time Wraith',         title:'The Uncorrectable Error',
+    intro:'A mistake echoing across every timeline.\nSix hits to erase it.',
+    hp:6,  spd:3.8, size:1.7, col:[0.60,0.60,0.70], em:[0.12,0.12,0.16] },
+  { name:'Mind Demon',          title:'The Fear You Never Faced',
+    intro:'A manifestation of every avoided thought.\nSeven hits to confront it.',
+    hp:7,  spd:2.8, size:2.1, col:[0.55,0.05,0.55], em:[0.14,0.01,0.14] },
+  { name:'Storm Drake',         title:'Fury of the Peak',
+    intro:'Born from lightning at the top of the dream world.\nEight hits to ground it.',
+    hp:8,  spd:2.5, size:2.2, col:[0.30,0.35,0.60], em:[0.07,0.08,0.16] },
+  { name:'The Void Lord',       title:'Master of Nothingness',
+    intro:'It has watched you from the beginning.\nTHE HALFWAY BOSS. Ten hits.',
+    hp:10, spd:2.2, size:2.8, col:[0.05,0.00,0.10], em:[0.10,0.00,0.16] },
+  { name:'Risen Goliath',       title:'What Survived the Void',
+    intro:'Something came back from nothing — changed.\nEight hits.',
+    hp:8,  spd:2.6, size:2.3, col:[0.55,0.42,0.15], em:[0.14,0.10,0.02] },
+  { name:'Echo Specter',        title:'A Life Unlived',
+    intro:'Every echo has become a monster.\nNine hits to silence every regret.',
+    hp:9,  spd:3.4, size:1.8, col:[0.10,0.60,0.70], em:[0.02,0.14,0.18] },
+  { name:'Frontier Colossus',   title:'The Wall at the Edge',
+    intro:'A titan at the border of the last unknown.\nTen hits.',
+    hp:10, spd:2.8, size:2.5, col:[0.55,0.08,0.14], em:[0.14,0.01,0.02] },
+  { name:'Ascendant Titan',     title:"The Dreamer's Shadow",
+    intro:"A reflection of everything you could have been.\nEleven hits.",
+    hp:11, spd:3.0, size:2.6, col:[0.70,0.65,0.20], em:[0.18,0.16,0.02] },
+  { name:'The Dream King',      title:'Ruler of All Dreams',
+    intro:'From the heart of every dream ever dreamed.\nFINAL BOSS. Fifteen hits.',
+    hp:15, spd:2.4, size:3.2, col:[0.80,0.60,0.08], em:[0.28,0.18,0.00] },
+];
+
+// ─── Seeded RNG (deterministic, avoids hydration mismatches) ─────────────────
+function seededRng(seed: number) {
+  let s = (seed | 0) >>> 0;
+  return () => {
+    s = Math.imul(s, 1664525) + 1013904223 >>> 0;
+    return s / 0x100000000;
+  };
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface PlatDef {
@@ -36,22 +162,47 @@ interface PlatDef {
   moveRange?: number; moveSpd?: number;
 }
 interface CoinDef { x: number; y: number; isGoal?: boolean; }
-interface EnemyDef { x: number; y: number; vx: number; }
+interface EnemyDef {
+  x: number; y: number; vx: number;
+  /** True for boss enemies. */
+  boss?: boolean;
+  /** Hits required to defeat (bosses only); regular enemies always take 1. */
+  hitsLeft?: number;
+  /** Visual scale multiplier (bosses only). */
+  size?: number;
+  /** Boss body colour [R,G,B]. */
+  bossColor?: [number,number,number];
+  /** Boss emissive colour [R,G,B]. */
+  bossEmissive?: [number,number,number];
+}
 
 interface LevelDef {
   platforms: PlatDef[];
   coins: CoinDef[];
   enemies: EnemyDef[];
   worldW: number;
+  /** Zone name shown in HUD. */
+  zoneName?: string;
+  /** Lore text shown in the between-level overlay. */
+  zoneStory?: string;
+  /** True for boss arenas — victory requires stomping the boss, not a goal coin. */
+  isBossLevel?: boolean;
 }
 
 // ─── Level data (logical pixels, Y-down) ─────────────────────────────────────
 // Ground sits at y=400.  Platforms use their TOP-LEFT corner (x,y,w,h).
-function makeLevel(n: number): LevelDef {
+// sessionSeed gives each playthrough unique procedural layouts.
+
+/** Returns the boss entry for a given level (safe index clamping). */
+function getBossForLevel(level: number): BossMeta {
+  return BOSSES[Math.min(BOSSES.length - 1, Math.floor(level / 10) - 1)];
+}
+
+function makeLevel(n: number, sessionSeed: number): LevelDef {
   if (n === 1) return {
     worldW: 2400,
     platforms: [
-      { x: 0,    y: 400, w: 2400, h: 80, type: 'solid' },   // ground
+      { x: 0,    y: 400, w: 2400, h: 80, type: 'solid' },
       { x: 300,  y: 310, w: 120,  h: 20, type: 'solid' },
       { x: 500,  y: 250, w: 140,  h: 20, type: 'solid' },
       { x: 700,  y: 200, w: 120,  h: 20, type: 'solid' },
@@ -61,7 +212,7 @@ function makeLevel(n: number): LevelDef {
       { x: 1550, y: 300, w: 160,  h: 20, type: 'moving', moveRange: 80, moveSpd: 0.7 },
       { x: 1800, y: 200, w: 130,  h: 20, type: 'solid' },
       { x: 2050, y: 260, w: 200,  h: 20, type: 'solid' },
-      { x: 2200, y: 160, w: 140,  h: 20, type: 'goal' },    // goal
+      { x: 2200, y: 160, w: 140,  h: 20, type: 'goal' },
     ],
     coins: [
       { x: 360, y: 280 }, { x: 400, y: 280 },
@@ -79,6 +230,8 @@ function makeLevel(n: number): LevelDef {
       { x: 1300, y: 368, vx: -1.6 },
       { x: 1800, y: 368, vx: 1.2 },
     ],
+    zoneName: ZONES[0].name,
+    zoneStory: ZONES[0].story,
   };
 
   if (n === 2) return {
@@ -115,50 +268,121 @@ function makeLevel(n: number): LevelDef {
       { x: 1800,y: 368, vx: -2.0 },
       { x: 2400,y: 368, vx: 1.7 },
     ],
+    zoneName: ZONES[0].name,
   };
 
-  // Level 3 – hardest
+  if (isBossLevel(n)) return makeBossLevel(n);
+  return makeProceduralLevel(n, sessionSeed);
+}
+
+// ─── Procedural level generator (levels 3-149 excluding boss levels) ─────────
+function makeProceduralLevel(n: number, sessionSeed: number): LevelDef {
+  // XOR session seed with level key → unique per session, repeatable on retry
+  const rng = seededRng(((sessionSeed ^ (n * LEVEL_SEED_KEY + 7)) | 1) >>> 0);
+  const zoneIdx = getZoneIdx(n);
+  const zone    = ZONES[zoneIdx];
+
+  // t: difficulty 0.0 (level 3) → 1.0 (level 149)
+  const t = Math.min(1, (n - 3) / 146);
+
+  const worldW    = Math.round(3000 + t * 2800);               // 3000 → 5800 px
+  const minPlatW  = Math.max(42, Math.round(125 - t * 83));    // 125 → 42 px
+  const maxPlatW  = Math.max(minPlatW + 15, Math.round(160 - t * 80)); // 160 → 80 px
+  const minGap    = Math.round(52 + t * 18);                   // 52 → 70 px
+  const maxGap    = Math.round(82 + t * 8);                    // 82 → 90 px  (safe single-jump range)
+  const movRatio  = 0.20 + t * 0.45;                           // 20% → 65% moving
+  const movSpd    = 1.0  + t * 1.8;                            // 1.0 → 2.8
+  const platCount = Math.round(12 + t * 17);                   // 12 → 29 platforms
+  const enemyCnt  = Math.round(4  + t * 7);                    // 4 → 11 enemies
+  const enemySpd  = 1.6  + t * 2.2;                            // 1.6 → 3.8
+
+  const platforms: PlatDef[] = [{ x: 0, y: 400, w: worldW, h: 80, type: 'solid' }];
+  const coins:   CoinDef[]   = [];
+  const enemies: EnemyDef[]  = [];
+
+  let cx = 150, cy = 340;
+  let cw = Math.round(minPlatW + rng() * (maxPlatW - minPlatW));
+
+  for (let i = 0; i < platCount; i++) {
+    const gap = Math.round(minGap + rng() * (maxGap - minGap));
+    cx += cw + gap;
+    if (cx > worldW - 300) break;
+
+    // Up to 100 px higher (clamped — safely reachable with a single jump),
+    // or up to 200 px lower (gravity assists falling).
+    const rawDy  = (rng() - 0.5) * 400;
+    const clampedDy = rawDy < 0 ? Math.max(rawDy, -100) : Math.min(rawDy, 200);
+    cy = Math.max(90, Math.min(370, Math.round(cy + clampedDy)));
+    cw = Math.round(minPlatW + rng() * (maxPlatW - minPlatW));
+
+    const isMoving = rng() < movRatio;
+    const p: PlatDef = { x: cx, y: cy, w: cw, h: 20, type: isMoving ? 'moving' : 'solid' };
+    if (isMoving) {
+      p.moveRange = Math.round(40 + rng() * 60);
+      p.moveSpd   = parseFloat((movSpd * (0.7 + rng() * 0.6)).toFixed(2));
+    }
+    platforms.push(p);
+
+    if (rng() > 0.3) {
+      coins.push({ x: cx + Math.round(cw * 0.25), y: cy - 30 });
+      if (rng() > 0.55 && cw > 65) coins.push({ x: cx + Math.round(cw * 0.65), y: cy - 30 });
+    }
+  }
+
+  // Goal — 60-95 px past last platform's right edge, 20-120 px higher
+  const goalGap  = Math.round(60 + rng() * 35);
+  const goalRise = Math.round(20 + rng() * 100);
+  const goalX    = Math.min(worldW - 170, cx + cw + goalGap);
+  const goalY    = Math.max(90, cy - goalRise);
+  platforms.push({ x: goalX, y: goalY, w: 110, h: 20, type: 'goal' });
+  coins.push({ x: goalX + 35, y: goalY - 40, isGoal: true });
+
+  // Enemies spread evenly across world
+  const spacing = Math.round(worldW / (enemyCnt + 1));
+  for (let i = 0; i < enemyCnt; i++) {
+    const ex  = Math.max(150, Math.min(worldW - 150, Math.round(spacing * (i + 1) + (rng() - 0.5) * 120)));
+    const spd = parseFloat((enemySpd * (0.6 + rng() * 0.8)).toFixed(2));
+    enemies.push({ x: ex, y: 368, vx: rng() < 0.5 ? spd : -spd });
+  }
+
+  // Show zone intro story on the first level of each zone.
+  // Level 3 is the first procedural level — show zone 0 story even though 3 % 10 ≠ 1.
+  const isFirstOfZone = (n % 10 === 1) || n === 3;
+
+  return { platforms, coins, enemies, worldW, zoneName: zone.name, zoneStory: isFirstOfZone ? zone.story : undefined };
+}
+
+// ─── Boss arena generator (every 10th level) ─────────────────────────────────
+function makeBossLevel(n: number): LevelDef {
+  const bossIdx = Math.min(BOSSES.length - 1, Math.floor(n / 10) - 1);
+  const boss    = BOSSES[bossIdx];
+  const zone    = ZONES[getZoneIdx(n)];
+
+  const worldW = 1100;
+  const platforms: PlatDef[] = [
+    { x: 0,   y: 400, w: worldW, h: 80, type: 'solid' },
+    { x: 160, y: 300, w: 130,   h: 20, type: 'solid' },
+    { x: 380, y: 235, w: 140,   h: 20, type: 'solid' },
+    { x: 620, y: 280, w: 130,   h: 20, type: 'solid' },
+    { x: 860, y: 215, w: 110,   h: 20, type: 'solid' },
+  ];
+
+  // Score coins scattered around the arena (no goal coin — boss IS the goal)
+  const coins: CoinDef[] = [
+    { x: 200, y: 270 }, { x: 440, y: 205 }, { x: 660, y: 250 }, { x: 900, y: 185 },
+  ];
+
+  const enemies: EnemyDef[] = [{
+    x: 450, y: 355, vx: boss.spd,
+    boss: true, hitsLeft: boss.hp, size: boss.size,
+    bossColor: boss.col, bossEmissive: boss.em,
+  }];
+
   return {
-    worldW: 3200,
-    platforms: [
-      { x: 0,    y: 400, w: 3200, h: 80, type: 'solid' },
-      { x: 160,  y: 340, w: 80,   h: 20, type: 'solid' },
-      { x: 300,  y: 270, w: 70,   h: 20, type: 'solid' },
-      { x: 430,  y: 200, w: 80,   h: 20, type: 'solid' },
-      { x: 570,  y: 280, w: 70,   h: 20, type: 'moving', moveRange: 90, moveSpd: 1.6 },
-      { x: 700,  y: 180, w: 70,   h: 20, type: 'solid' },
-      { x: 840,  y: 270, w: 80,   h: 20, type: 'solid' },
-      { x: 980,  y: 160, w: 70,   h: 20, type: 'moving', moveRange: 70, moveSpd: 1.4 },
-      { x: 1120, y: 250, w: 80,   h: 20, type: 'solid' },
-      { x: 1260, y: 150, w: 70,   h: 20, type: 'solid' },
-      { x: 1410, y: 240, w: 80,   h: 20, type: 'moving', moveRange: 80, moveSpd: 1.8 },
-      { x: 1580, y: 150, w: 70,   h: 20, type: 'solid' },
-      { x: 1730, y: 260, w: 80,   h: 20, type: 'solid' },
-      { x: 1880, y: 160, w: 70,   h: 20, type: 'moving', moveRange: 60, moveSpd: 2.0 },
-      { x: 2050, y: 250, w: 90,   h: 20, type: 'solid' },
-      { x: 2210, y: 150, w: 70,   h: 20, type: 'solid' },
-      { x: 2380, y: 260, w: 80,   h: 20, type: 'moving', moveRange: 70, moveSpd: 1.5 },
-      { x: 2560, y: 160, w: 80,   h: 20, type: 'solid' },
-      { x: 2720, y: 240, w: 90,   h: 20, type: 'solid' },
-      { x: 2900, y: 140, w: 80,   h: 20, type: 'solid' },
-      { x: 3060, y: 120, w: 100,  h: 20, type: 'goal' },
-    ],
-    coins: [
-      { x: 190, y: 310 }, { x: 330, y: 240 }, { x: 470, y: 170 },
-      { x: 610, y: 250 }, { x: 730, y: 150 }, { x: 880, y: 240 },
-      { x: 1010,y: 130 }, { x: 1150,y: 220 }, { x: 1290,y: 120 },
-      { x: 1450,y: 210 }, { x: 1610,y: 120 }, { x: 1760,y: 230 },
-      { x: 1910,y: 130 }, { x: 2090,y: 220 }, { x: 2250,y: 120 },
-      { x: 3100, y: 90, isGoal: true },
-    ],
-    enemies: [
-      { x: 300,  y: 368, vx: 1.8 },
-      { x: 700,  y: 368, vx: -2.0 },
-      { x: 1200, y: 368, vx: 2.1 },
-      { x: 1700, y: 368, vx: -2.3 },
-      { x: 2200, y: 368, vx: 2.0 },
-      { x: 2700, y: 368, vx: -2.2 },
-    ],
+    platforms, coins, enemies, worldW,
+    zoneName: zone.name,
+    zoneStory: `⚔ BOSS: ${boss.name}\n${boss.title}\n\n${boss.intro}`,
+    isBossLevel: true,
   };
 }
 
@@ -172,18 +396,90 @@ export default function BabylonSideScroller() {
   const [lives,  setLives]    = useState(3);
   const [vpad,   setVpad]     = useState({ left: false, right: false, jump: false });
   const vpadRef  = useRef({ left: false, right: false, jump: false });
+  const [bestScore, setBestScore] = useState(() => {
+    try { return parseInt(localStorage.getItem('dreamrunner_best') ?? '0', 10); }
+    catch { return 0; }
+  });
+  // Ref mirrors bestScore so callbacks can read the latest value without stale closures
+  const bestScoreRef = useRef((() => {
+    try { return parseInt(localStorage.getItem('dreamrunner_best') ?? '0', 10); }
+    catch { return 0; }
+  })());
+  const [progress, setProgress] = useState(0);
+  const [isNewBest, setIsNewBest] = useState(false);
+
+  // Session seed — module-level so it's set once per page load (not per render).
+  // Every playthrough gets a unique seed; retrying a level uses the same one.
+  const sessionSeedRef = useRef(SESSION_SEED);
+
+  // Boss state
+  const [bossHp,    setBossHp]    = useState(0);
+  const [bossMaxHp, setBossMaxHp] = useState(0);
+  const [bossName,  setBossName]  = useState('');
+
+  // Zone / story
+  const [zoneName,   setZoneName]   = useState('');
+  const [zoneStory,  setZoneStory]  = useState('');
+  const [wasABoss,   setWasABoss]   = useState(false); // was the level we just finished a boss?
+
+  // Submit final score when game truly ends (win = all 150 levels, or dead with 0 lives)
+  const submitScore = useSubmitScore('platformer');
+  useEffect(() => {
+    if (status === 'win') submitScore(score, level - 1);
+    if (status === 'dead' && lives === 0) submitScore(score, level);
+  }, [status, lives, score, level, submitScore]);
 
   // ── Start / restart ────────────────────────────────────────────────────────
   const startGame = useCallback((lv: number, sc: number, li: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     gameRef.current?.destroy();
+
+    // Derive zone/boss info for this level
+    const zIdx    = getZoneIdx(lv);
+    const isBoss  = isBossLevel(lv);
+    const bossEntry = isBoss ? getBossForLevel(lv) : null;
+    setZoneName(ZONES[zIdx].name);
+    setBossHp(bossEntry ? bossEntry.hp : 0);
+    setBossMaxHp(bossEntry ? bossEntry.hp : 0);
+    setBossName(bossEntry ? bossEntry.name : '');
+    setWasABoss(false);
+
     const core = new GameCore(canvas, lv, sc, li, {
-      onScore:    (s)  => setScore(s),
+      onScore:    (s)  => {
+        setScore(s);
+        if (s > bestScoreRef.current) {
+          bestScoreRef.current = s;
+          setBestScore(s);
+          setIsNewBest(true);
+          if (typeof window !== 'undefined') {
+            try { localStorage.setItem('dreamrunner_best', String(s)); } catch { /* quota/private */ }
+          }
+        }
+      },
       onDie:      (li) => { setLives(li); setStatus('dead'); },
-      onComplete: (lv) => { setLevel(lv); setStatus(lv > 3 ? 'win' : 'complete'); },
-    });
+      onComplete: (lv) => {
+        const nextZone = getZoneIdx(lv);
+        const isNewZone = lv > 1 && getZoneIdx(lv - 1) !== nextZone;
+        const nextIsBoss = isBossLevel(lv);
+        // Build story text for the "level complete" overlay
+        let story = '';
+        if (isNewZone) story += ZONES[nextZone].story;
+        if (nextIsBoss) {
+          const nb = getBossForLevel(lv);
+          story += (story ? '\n\n' : '') + `⚔ BOSS NEXT: ${nb.name}\n${nb.intro}`;
+        }
+        setZoneStory(story);
+        setWasABoss(isBossLevel(lv - 1));
+        setLevel(lv);
+        setStatus(lv > TOTAL_LEVELS ? 'win' : 'complete');
+      },
+      onProgress: (pct) => setProgress(pct),
+      onBossHp:   (hp) => setBossHp(hp),
+    }, sessionSeedRef.current);
     gameRef.current = core;
+    setProgress(0);
+    setIsNewBest(false);
     setStatus('playing');
   }, []);
 
@@ -281,7 +577,7 @@ export default function BabylonSideScroller() {
               DREAM RUNNER
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 28, textAlign: 'center' }}>
-              3 worlds · 3-D rendering · double jump · dream coins
+              150 levels · 15 zones · boss every 10 · unique each run
             </div>
             <button
               style={{ ...btnBase, background: 'linear-gradient(135deg,#2a8ab8,#4a6cf7)',
@@ -331,19 +627,38 @@ export default function BabylonSideScroller() {
         {status === 'complete' && (
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(5,20,10,0.88)', borderRadius: 12,
+            alignItems: 'center', justifyContent: 'center', padding: '0 24px',
+            background: wasABoss ? 'rgba(20,10,5,0.92)' : 'rgba(5,20,10,0.92)', borderRadius: 12,
           }}>
-            <div style={{ fontSize: 32, fontWeight: 900, color: '#4f8',
-                          textShadow: '0 0 16px #4f8', marginBottom: 8 }}>Dream Complete!</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>
+            {wasABoss ? (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#fa0', letterSpacing: '0.15em',
+                              textTransform: 'uppercase', marginBottom: 6 }}>Boss Defeated!</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#fa0',
+                              textShadow: '0 0 16px #fa0', marginBottom: 6 }}>⚔ {bossName}</div>
+              </>
+            ) : (
+              <div style={{ fontSize: 28, fontWeight: 900, color: '#4f8',
+                            textShadow: '0 0 16px #4f8', marginBottom: 6 }}>Dream Complete!</div>
+            )}
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 10 }}>
               Level {level - 1} · Score {score}
             </div>
+            {zoneStory ? (
+              <div style={{ fontSize: 11, color: 'rgba(200,220,255,0.7)', textAlign: 'center',
+                            lineHeight: 1.6, marginBottom: 18, maxWidth: 380,
+                            whiteSpace: 'pre-line', borderTop: '1px solid rgba(255,255,255,0.1)',
+                            paddingTop: 10 }}>
+                {zoneStory}
+              </div>
+            ) : <div style={{ marginBottom: 18 }} />}
             <button
-              style={{ ...btnBase, background: 'linear-gradient(135deg,#1a8a3a,#4af74a)',
-                       color: '#fff', padding: '10px 30px' }}
+              style={{ ...btnBase, background: isBossLevel(level)
+                ? 'linear-gradient(135deg,#8a2a2a,#f74a1a)'
+                : 'linear-gradient(135deg,#1a8a3a,#4af74a)',
+                color: '#fff', padding: '10px 30px' }}
               onClick={() => startGame(level, score, lives)}
-            >Level {level} →</button>
+            >{isBossLevel(level) ? `⚔ Fight ${getBossForLevel(level).name}` : `Level ${level} →`}</button>
           </div>
         )}
 
@@ -357,18 +672,28 @@ export default function BabylonSideScroller() {
           }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#fa0',
                           letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 8 }}>
-              All Dreams Conquered
+              All 150 Dreams Conquered
             </div>
             <div style={{ fontSize: 38, fontWeight: 900, color: '#fff',
                           textShadow: '0 0 28px #fa0,0 0 8px #fa0', lineHeight: 1.1, marginBottom: 8 }}>
               YOU WIN!
             </div>
-            <div style={{ fontSize: 22, color: '#fa0', fontWeight: 800, marginBottom: 24 }}>
+            <div style={{ fontSize: 22, color: '#fa0', fontWeight: 800, marginBottom: 4 }}>
               Final Score: {score}
             </div>
+            {isNewBest && (
+              <div style={{ fontSize: 13, color: '#4af', fontWeight: 700, marginBottom: 4 }}>
+                ✦ New Best Score!
+              </div>
+            )}
+            {bestScore > 0 && (
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 20 }}>
+                Best: {bestScore}
+              </div>
+            )}
             <button
               style={{ ...btnBase, background: 'linear-gradient(135deg,#c8981a,#f7c44a)',
-                       color: '#000', padding: '12px 36px', fontSize: 16 }}
+                       color: '#000', padding: '12px 36px', fontSize: 16, marginTop: 4 }}
               onClick={() => startGame(1, 0, 3)}
             >Play Again</button>
           </div>
@@ -376,24 +701,70 @@ export default function BabylonSideScroller() {
 
         {/* ── HUD ── */}
         {status === 'playing' && (
-          <div style={{ position: 'absolute', top: 10, left: 12, right: 12,
-                        display: 'flex', justifyContent: 'space-between', pointerEvents: 'none' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
-                          textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
-                          borderRadius: 6, padding: '3px 10px' }}>
-              ⭐ {score}
+          <>
+            <div style={{ position: 'absolute', top: 10, left: 12, right: 12,
+                          display: 'flex', justifyContent: 'space-between', pointerEvents: 'none' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
+                            textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
+                            borderRadius: 6, padding: '3px 10px' }}>
+                ⭐ {score}
+              </div>
+              {bestScore > 0 && (
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#fa0',
+                              textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
+                              borderRadius: 6, padding: '3px 8px' }}>
+                  🏆 {bestScore}
+                </div>
+              )}
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#4af',
+                            textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
+                            borderRadius: 6, padding: '3px 8px', maxWidth: 110,
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {zoneName || ZONES[getZoneIdx(level)].name}
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
+                            textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
+                            borderRadius: 6, padding: '3px 10px' }}>
+                LVL {level}
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
+                            textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
+                            borderRadius: 6, padding: '3px 10px' }}>
+                {'❤️'.repeat(Math.max(0, lives))}
+              </div>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
-                          textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
-                          borderRadius: 6, padding: '3px 10px' }}>
-              LVL {level}
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
-                          textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
-                          borderRadius: 6, padding: '3px 10px' }}>
-              {'❤️'.repeat(Math.max(0, lives))}
-            </div>
-          </div>
+
+            {/* Boss health bar */}
+            {bossMaxHp > 0 && (
+              <div style={{ position: 'absolute', top: 42, left: 12, right: 12, pointerEvents: 'none' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#fa0', textAlign: 'center',
+                              marginBottom: 3, textShadow: '0 1px 4px #000' }}>
+                  ⚔ {bossName} — {bossHp} / {bossMaxHp}
+                </div>
+                <div style={{ background: 'rgba(0,0,0,0.5)', borderRadius: 4, height: 7 }}>
+                  <div style={{
+                    height: '100%', borderRadius: 4,
+                    width: `${Math.max(0, (bossHp / bossMaxHp) * 100)}%`,
+                    background: bossHp / bossMaxHp > 0.5
+                      ? 'linear-gradient(90deg,#f80,#fa0)'
+                      : 'linear-gradient(90deg,#f22,#f55)',
+                    transition: 'width 0.2s',
+                  }} />
+                </div>
+              </div>
+            )}
+
+            {/* Progress bar (hidden during boss fights — no scrolling world) */}
+            {bossMaxHp === 0 && (
+              <div style={{ position: 'absolute', bottom: 8, left: 12, right: 12,
+                            background: 'rgba(0,0,0,0.35)', borderRadius: 4, height: 5,
+                            pointerEvents: 'none' }}>
+                <div style={{ height: '100%', borderRadius: 4, width: `${progress}%`,
+                              background: 'linear-gradient(90deg,#4af,#4af7a0)',
+                              transition: 'width 0.25s' }} />
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -442,9 +813,11 @@ export default function BabylonSideScroller() {
 
 // ─── GameCore — owns the Babylon.js engine lifecycle ─────────────────────────
 interface GameCallbacks {
-  onScore:    (s: number) => void;
-  onDie:      (livesLeft: number) => void;
-  onComplete: (nextLevel: number) => void;
+  onScore:     (s: number) => void;
+  onDie:       (livesLeft: number) => void;
+  onComplete:  (nextLevel: number) => void;
+  onProgress?: (pct: number) => void;
+  onBossHp?:   (current: number) => void;
 }
 
 type VPad = { left: boolean; right: boolean; jump: boolean };
@@ -474,10 +847,13 @@ class GameCore {
 
   private platforms: (PlatDef & { curX: number; moveDir: number })[] = [];
   private coins: (CoinDef & { collected: boolean })[] = [];
-  private enemies: (EnemyDef & { alive: boolean; curX: number; curY: number })[] = [];
+  private enemies: (EnemyDef & { alive: boolean; curX: number; curY: number; hitsLeft: number })[] = [];
 
   private camX   = 0;
   private worldW = 2400;
+  private isBossLevel = false;
+  private bossHitsMax = 0;
+  private sessionSeed: number;
 
   // Babylon
   private engine: import('@babylonjs/core').Engine | null = null;
@@ -491,6 +867,14 @@ class GameCore {
   private enemyMeshes: (import('@babylonjs/core').Mesh | null)[] = [];
   private bgPlane:     import('@babylonjs/core').Mesh | null = null;
 
+  // Goal star meshes
+  private goalMesh:    import('@babylonjs/core').Mesh | null = null;
+  private goalRing:    import('@babylonjs/core').Mesh | null = null;
+  private goalIdx:     number = -1;
+
+  // Parallax background stars
+  private bgStars: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number }[] = [];
+
   // camera ref
   private camMesh: import('@babylonjs/core').FreeCamera | null = null;
 
@@ -500,27 +884,39 @@ class GameCore {
   // anim
   private animTick = 0;
 
+  // guard: prevent multiple onDie calls before React re-renders
+  private dying = false;
+
   constructor(
     canvas: HTMLCanvasElement,
     level: number,
     score: number,
     lives: number,
     cbs: GameCallbacks,
+    sessionSeed = 1,
   ) {
     this.level = level;
     this.score = score;
     this.lives = lives;
     this.cbs   = cbs;
+    this.sessionSeed = sessionSeed;
     this.initLevel(level);
     this.initBabylon(canvas);
   }
 
   private initLevel(n: number) {
-    const def = makeLevel(n);
-    this.worldW  = def.worldW;
-    this.platforms = def.platforms.map(p => ({ ...p, curX: p.x, moveDir: 1 }));
-    this.coins     = def.coins.map(c => ({ ...c, collected: false }));
-    this.enemies   = def.enemies.map(e => ({ ...e, alive: true, curX: e.x, curY: e.y }));
+    const def = makeLevel(n, this.sessionSeed);
+    this.worldW      = def.worldW;
+    this.isBossLevel = def.isBossLevel ?? false;
+    this.platforms   = def.platforms.map(p => ({ ...p, curX: p.x, moveDir: 1 }));
+    this.coins       = def.coins.map(c => ({ ...c, collected: false }));
+    this.enemies     = def.enemies.map(e => ({
+      ...e, alive: true, curX: e.x, curY: e.y,
+      hitsLeft: e.hitsLeft ?? 1,
+    }));
+    // Track max boss HP for health-bar percentage calculations
+    const bossEnemy = def.enemies.find(e => e.boss);
+    this.bossHitsMax = bossEnemy?.hitsLeft ?? 0;
     this.px    = 60;
     this.py    = 350;
     this.pvx   = 0;
@@ -532,6 +928,8 @@ class GameCore {
     this.jBufFr    = 0;
     this.prevJump  = false;
     this.invincible = 0;
+    this.dying  = false;
+    this.goalIdx = -1;
   }
 
   private async initBabylon(canvas: HTMLCanvasElement) {
@@ -543,8 +941,9 @@ class GameCore {
     this.engine  = engine;
     this.scene   = scene;
 
-    // Sky gradient via clear color
-    scene.clearColor = new BJS.Color4(0.05, 0.07, 0.18, 1);
+    // Sky gradient — zone-themed
+    const zone = ZONES[getZoneIdx(this.level)];
+    scene.clearColor = new BJS.Color4(zone.sky[0], zone.sky[1], zone.sky[2], 1);
 
     // ── Camera (FreeCamera, side-view looking in +Z direction) ──────────────
     const cam = new BJS.FreeCamera('cam', new BJS.Vector3(0, 6, -22), scene);
@@ -575,6 +974,29 @@ class GameCore {
     bg.material = bgMat;
     this.bgPlane = bg;
 
+    // ── Parallax star layers (3 depths, scrolling at different rates) ────────
+    const rng = seededRng(this.level * STAR_SEED_PRIME + STAR_SEED_OFFSET);
+    // layer config: [parallaxFactor, z-depth, count, size-range]
+    const starLayers: [number, number, number, number][] = [
+      [0.04, 14, 26, 0.07],   // distant — slowest parallax, deep z
+      [0.09,  9, 18, 0.09],   // mid
+      [0.16,  5, 12, 0.11],   // near — fastest parallax, shallow z
+    ];
+    for (const [parallax, depth, count, size] of starLayers) {
+      for (let s = 0; s < count; s++) {
+        const star = BJS.MeshBuilder.CreateSphere(`bgs_l${depth}_${s}`,
+          { diameter: size + rng() * size, segments: 3 }, scene);
+        const mat = new BJS.StandardMaterial(`bgsm_${depth}_${s}`, scene);
+        const b = 0.55 + rng() * 0.45;
+        mat.emissiveColor = new BJS.Color3(b * 0.90, b * 0.93, b);
+        mat.disableLighting = true;
+        star.material = mat;
+        const baseX = (rng() - 0.5) * 54;
+        star.position.set(baseX, rng() * 13 + 0.5, depth);
+        this.bgStars.push({ mesh: star, baseX, parallax });
+      }
+    }
+
     // ── Platform meshes ───────────────────────────────────────────────────────
     for (const p of this.platforms) {
       const bw = p.w / PX_PER_BU;
@@ -590,12 +1012,11 @@ class GameCore {
         mat.diffuseColor  = new BJS.Color3(0.2, 0.55, 0.85);
         mat.emissiveColor = new BJS.Color3(0.05, 0.15, 0.3);
       } else {
-        // Alternate subtle colors for ground vs floating
         const isGround = p.y === 400;
         mat.diffuseColor  = isGround
-          ? new BJS.Color3(0.18, 0.22, 0.36)
-          : new BJS.Color3(0.28, 0.38, 0.62);
-        mat.emissiveColor = new BJS.Color3(0.04, 0.06, 0.12);
+          ? new BJS.Color3(zone.gnd[0], zone.gnd[1], zone.gnd[2])
+          : new BJS.Color3(zone.plt[0], zone.plt[1], zone.plt[2]);
+        mat.emissiveColor = new BJS.Color3(zone.em[0], zone.em[1], zone.em[2]);
       }
       mat.specularColor = new BJS.Color3(0.15, 0.2, 0.4);
       mesh.material = mat;
@@ -603,29 +1024,59 @@ class GameCore {
     }
 
     // ── Coin meshes ───────────────────────────────────────────────────────────
-    for (const c of this.coins) {
-      const mesh = BJS.MeshBuilder.CreateSphere(`coin_${c.x}_${c.y}`,
-        { diameter: c.isGoal ? 0.7 : 0.42, segments: 8 }, scene);
-      const mat  = new BJS.StandardMaterial(`cmat_${c.x}`, scene);
-      mat.diffuseColor  = c.isGoal
-        ? new BJS.Color3(1, 0.85, 0.1)
-        : new BJS.Color3(0.95, 0.75, 0.1);
-      mat.emissiveColor = c.isGoal
-        ? new BJS.Color3(0.6, 0.4, 0.0)
-        : new BJS.Color3(0.35, 0.25, 0.0);
-      mesh.material = mat;
-      glow.addIncludedOnlyMesh(mesh);
-      this.coinMeshes.push(mesh);
+    // Goal coin is special: rendered as an animated star (sphere + torus ring).
+    const goalMat = new BJS.StandardMaterial('goalMat', scene);
+    goalMat.diffuseColor  = new BJS.Color3(1.0, 0.85, 0.10);
+    goalMat.emissiveColor = new BJS.Color3(0.70, 0.42, 0.00);
+    goalMat.specularColor = new BJS.Color3(1.0, 0.9, 0.3);
+
+    for (let i = 0; i < this.coins.length; i++) {
+      const c = this.coins[i];
+      if (c.isGoal) {
+        this.goalIdx = i;
+        // Central star body
+        const star = BJS.MeshBuilder.CreateSphere(`goal_body`, { diameter: 0.88, segments: 10 }, scene);
+        star.material = goalMat;
+        glow.addIncludedOnlyMesh(star);
+        this.goalMesh = star;
+        // Orbiting torus ring
+        const ring = BJS.MeshBuilder.CreateTorus(`goal_ring`,
+          { diameter: 1.5, thickness: 0.10, tessellation: 28 }, scene);
+        ring.material = goalMat;
+        glow.addIncludedOnlyMesh(ring);
+        this.goalRing = ring;
+        this.coinMeshes.push(null); // keep index aligned with this.coins[] for collision detection
+      } else {
+        const mesh = BJS.MeshBuilder.CreateSphere(`coin_${c.x}_${c.y}`,
+          { diameter: 0.42, segments: 8 }, scene);
+        const mat  = new BJS.StandardMaterial(`cmat_${c.x}`, scene);
+        mat.diffuseColor  = new BJS.Color3(0.95, 0.75, 0.1);
+        mat.emissiveColor = new BJS.Color3(0.35, 0.25, 0.0);
+        mesh.material = mat;
+        glow.addIncludedOnlyMesh(mesh);
+        this.coinMeshes.push(mesh);
+      }
     }
 
     // ── Enemy meshes ──────────────────────────────────────────────────────────
-    for (const en of this.enemies) {
-      const mesh = BJS.MeshBuilder.CreateSphere(`enemy_${en.x}`,
-        { diameter: 0.85, segments: 10 }, scene);
-      const mat  = new BJS.StandardMaterial(`emat_${en.x}`, scene);
-      mat.diffuseColor  = new BJS.Color3(0.85, 0.18, 0.18);
-      mat.emissiveColor = new BJS.Color3(0.35, 0.03, 0.03);
-      mat.specularColor = new BJS.Color3(0.5, 0.1, 0.1);
+    for (let ei = 0; ei < this.enemies.length; ei++) {
+      const en = this.enemies[ei];
+      const isBoss  = !!en.boss;
+      const diameter = isBoss ? 0.85 * (en.size ?? 1.8) : 0.85;
+      const mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`,
+        { diameter, segments: isBoss ? 14 : 10 }, scene);
+      const mat  = new BJS.StandardMaterial(`emat_${ei}`, scene);
+      if (isBoss && en.bossColor) {
+        const [r,g,b] = en.bossColor;
+        const [er,eg,eb] = en.bossEmissive ?? [r*0.4,g*0.4,b*0.4];
+        mat.diffuseColor  = new BJS.Color3(r, g, b);
+        mat.emissiveColor = new BJS.Color3(er, eg, eb);
+        mat.specularColor = new BJS.Color3(0.8, 0.7, 0.4);
+      } else {
+        mat.diffuseColor  = new BJS.Color3(0.85, 0.18, 0.18);
+        mat.emissiveColor = new BJS.Color3(0.35, 0.03, 0.03);
+        mat.specularColor = new BJS.Color3(0.5, 0.1, 0.1);
+      }
       mesh.material = mat;
       glow.addIncludedOnlyMesh(mesh);
       this.enemyMeshes.push(mesh);
@@ -692,6 +1143,7 @@ class GameCore {
   // ── Physics & logic tick ──────────────────────────────────────────────────
   private tick() {
     if (!this.engine || !this.scene) return;
+    if (this.dying) return;
     this.animTick++;
 
     const isLeft  = this.keys.has('ArrowLeft')  || this.keys.has('KeyA')  || this.vpad.left;
@@ -800,9 +1252,15 @@ class GameCore {
 
     // Fell off screen — die
     if (this.py > GH + 60) {
+      this.dying = true;
       this.lives--;
       this.cbs.onDie(this.lives);
       return;
+    }
+
+    // Emit progress (every 15 frames to avoid excessive re-renders)
+    if (this.animTick % 15 === 0) {
+      this.cbs.onProgress?.(Math.min(100, Math.round((this.px / this.worldW) * 100)));
     }
 
     // ── Coin collection ────────────────────────────────────────────────────
@@ -813,15 +1271,23 @@ class GameCore {
       const cx = c.x + CW / 2, cy = c.y + CW / 2;
       if (Math.abs(PCX - cx) < CW + 8 && Math.abs(PCY - cy) < CW + 8) {
         c.collected = true;
-        if (this.coinMeshes[i]) {
-          this.coinMeshes[i]!.setEnabled(false);
-          this.coinMeshes[i] = null;
-        }
-        this.score += c.isGoal ? 500 : 100;
-        this.cbs.onScore(this.score);
         if (c.isGoal) {
+          // Hide the goal star meshes
+          this.goalMesh?.setEnabled(false);
+          this.goalMesh = null;
+          this.goalRing?.setEnabled(false);
+          this.goalRing = null;
+          this.score += 500;
+          this.cbs.onScore(this.score);
           this.cbs.onComplete(this.level + 1);
           return;
+        } else {
+          if (this.coinMeshes[i]) {
+            this.coinMeshes[i]!.setEnabled(false);
+            this.coinMeshes[i] = null;
+          }
+          this.score += 100;
+          this.cbs.onScore(this.score);
         }
       }
     }
@@ -833,31 +1299,58 @@ class GameCore {
       const en = this.enemies[i];
       if (!en.alive) continue;
 
+      // Boss enrages at ≤50% HP — speed multiplied by 1.5
+      const enrageMultiplier = (en.boss && this.bossHitsMax > 0 && en.hitsLeft / this.bossHitsMax <= BOSS_ENRAGE_THRESHOLD) ? BOSS_ENRAGE_MULTIPLIER : 1.0;
+
       // Move enemy
-      en.curX += en.vx;
+      en.curX += en.vx * enrageMultiplier;
       // Reverse at world edges
       const groundPlat = this.platforms.find(p => p.y === 400);
-      const gLeft = groundPlat ? groundPlat.x : 0;
+      const gLeft  = groundPlat ? groundPlat.x : 0;
       const gRight = gLeft + (groundPlat ? groundPlat.w : this.worldW);
-      if (en.curX < gLeft || en.curX > gRight - 32) en.vx *= -1;
+      // Boss uses scaled hitbox
+      const eSize = en.boss ? Math.round((en.size ?? 1.8) * 32) : 32;
+      if (en.curX < gLeft || en.curX > gRight - eSize) en.vx *= -1;
 
-      const ex2 = en.curX + 32, ey2 = en.curY + 32;
-      const px2e = this.px + PW,    py2e = this.py + PH;
+      const ex2 = en.curX + eSize, ey2 = en.curY + eSize;
+      const px2e = this.px + PW, py2e = this.py + PH;
 
       if (px2e > en.curX && this.px < ex2 && py2e > en.curY && this.py < ey2) {
+        const stompThreshold = en.boss ? (en.size ?? 1.8) * 22 : 22;
         const stompOv = py2e - en.curY;
-        if (stompOv < 22 && this.pvy > 0) {
-          // Stomp!
-          en.alive = false;
-          if (this.enemyMeshes[i]) {
-            this.enemyMeshes[i]!.setEnabled(false);
-            this.enemyMeshes[i] = null;
+        if (stompOv < stompThreshold && this.pvy > 0) {
+          // Stomp hit!
+          en.hitsLeft--;
+          this.pvy = -JUMP_VY * 0.7 * PX_PER_BU;
+          if (en.boss) {
+            // Report boss HP update before checking for death
+            this.cbs.onBossHp?.(en.hitsLeft);
+            if (en.hitsLeft <= 0) {
+              // Boss defeated — boss level victory
+              en.alive = false;
+              if (this.enemyMeshes[i]) {
+                this.enemyMeshes[i]!.setEnabled(false);
+                this.enemyMeshes[i] = null;
+              }
+              this.score += this.bossHitsMax * 300;
+              this.cbs.onScore(this.score);
+              this.cbs.onComplete(this.level + 1);
+              return;
+            }
+            // Boss still alive — bounce player higher for drama
+            this.pvy = -JUMP_VY * 0.9 * PX_PER_BU;
+          } else {
+            en.alive = false;
+            if (this.enemyMeshes[i]) {
+              this.enemyMeshes[i]!.setEnabled(false);
+              this.enemyMeshes[i] = null;
+            }
+            this.score += 200;
+            this.cbs.onScore(this.score);
           }
-          this.pvy   = -JUMP_VY * 0.7 * PX_PER_BU;
-          this.score += 200;
-          this.cbs.onScore(this.score);
         } else if (this.invincible === 0) {
           // Hit by enemy
+          this.dying = true;
           this.invincible = 90;
           this.lives--;
           this.cbs.onDie(this.lives);
@@ -898,7 +1391,7 @@ class GameCore {
       this.platMeshes[i].position.z = 0;
     }
 
-    // Coins
+    // Coins (regular only — goal coin handled separately below)
     const coinY = Math.sin(this.animTick * 0.05) * 0.1; // bob animation
     for (let i = 0; i < this.coinMeshes.length; i++) {
       const m = this.coinMeshes[i];
@@ -911,18 +1404,47 @@ class GameCore {
       m.rotation.y = this.animTick * 0.04;
     }
 
+    // Goal star (sphere + orbiting torus ring)
+    if (this.goalMesh && this.goalIdx >= 0) {
+      const gc = this.coins[this.goalIdx];
+      if (!gc.collected) {
+        const floatY = Math.sin(this.animTick * 0.055) * 0.20;
+        const pulse  = 1.0 + Math.sin(this.animTick * 0.08) * 0.12;
+        const { bx, by } = toB(gc.x, gc.y, 18, 18);
+        this.goalMesh.position.set(bx, by + floatY, 0.2);
+        this.goalMesh.scaling.setAll(pulse);
+        this.goalMesh.rotation.y = this.animTick * 0.05;
+        if (this.goalRing) {
+          this.goalRing.position.set(bx, by + floatY, 0.2);
+          this.goalRing.rotation.y  =  this.animTick * 0.04;
+          this.goalRing.rotation.x  = Math.PI / 3 + Math.sin(this.animTick * 0.025) * 0.35;
+          this.goalRing.scaling.setAll(pulse);
+        }
+      }
+    }
+
     // Enemies
     for (let i = 0; i < this.enemyMeshes.length; i++) {
       const m = this.enemyMeshes[i];
       if (!m) continue;
       const en = this.enemies[i];
-      const { bx, by } = toB(en.curX, en.curY, 32, 32);
+      const eSize = en.boss ? Math.round((en.size ?? 1.8) * 32) : 32;
+      const { bx, by } = toB(en.curX, en.curY, eSize, eSize);
       m.position.x = bx;
       m.position.y = by;
       m.position.z = 0;
-      // Pulse
-      const pulse = 1 + Math.sin(this.animTick * 0.1 + i) * 0.06;
-      m.scaling.setAll(pulse);
+      if (en.boss) {
+        // Boss visual: shrinks as it loses HP; pulses faster when enraged
+        const hpRatio     = this.bossHitsMax > 0 ? en.hitsLeft / this.bossHitsMax : 1;
+        const enraged     = hpRatio <= BOSS_ENRAGE_THRESHOLD;
+        const pulseSpeed  = enraged ? 0.18 : 0.08;
+        const pulse       = 1 + Math.sin(this.animTick * pulseSpeed) * 0.07;
+        const healthScale = 0.70 + hpRatio * 0.30; // 1.0 full HP → 0.70 at last hit
+        m.scaling.setAll(healthScale * pulse);
+      } else {
+        const pulse = 1 + Math.sin(this.animTick * 0.1 + i) * 0.06;
+        m.scaling.setAll(pulse);
+      }
     }
 
     // Player
@@ -951,9 +1473,15 @@ class GameCore {
       this.playerHead.setEnabled(this.invincible === 0 || (this.animTick & 4) !== 0);
     }
 
-    // Parallax background
+    // Parallax background plane
     if (this.bgPlane) {
       this.bgPlane.position.x = this.camX / PX_PER_BU * 0.2;
+    }
+
+    // Parallax star layers — each layer scrolls at its own rate
+    const camBX = this.camX / PX_PER_BU;
+    for (const { mesh, baseX, parallax } of this.bgStars) {
+      mesh.position.x = baseX - camBX * parallax;
     }
 
     // Camera follows player smoothly in X

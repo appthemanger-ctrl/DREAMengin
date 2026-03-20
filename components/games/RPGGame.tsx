@@ -3,7 +3,8 @@
  * RPGGame — Simple turn-based RPG adventure.
  * Category: RPG / adventure
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 type Phase = 'menu' | 'explore' | 'battle' | 'shop' | 'gameover' | 'win';
 
@@ -42,6 +43,11 @@ export default function RPGGame() {
   const [log, setLog] = useState<BattleLog[]>([]);
   const [area, setArea] = useState(0);
   const [victories, setVictories] = useState(0);
+  const submitScore = useSubmitScore('rpg');
+  useEffect(() => {
+    if (phase === 'win' || phase === 'gameover')
+      submitScore(victories * 1000 + stats.level * 100, stats.level);
+  }, [phase, victories, stats.level, submitScore]);
 
   const addLog = (text: string, color = '#e5e7eb') => setLog(l => [...l.slice(-5), { text, color }]);
 

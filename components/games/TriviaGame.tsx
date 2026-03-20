@@ -3,7 +3,8 @@
  * TriviaGame — Quiz game with multiple categories.
  * Category: trivia / educational
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 type Phase = 'menu' | 'playing' | 'done';
 
@@ -33,6 +34,8 @@ export default function TriviaGame() {
   const [shuffled, setShuffled] = useState<typeof QUESTIONS>([]);
   const [streak, setStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
+  const submitScore = useSubmitScore('trivia');
+  useEffect(() => { if (phase === 'done') submitScore(score); }, [phase, score, submitScore]);
 
   const startGame = useCallback(() => {
     const s = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 10);
