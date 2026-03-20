@@ -164,7 +164,6 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             isAdmin={isAdmin}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpaceInSurface}
-            onOpenInRegion={openInSurfaceRegion}
             onBackFromRegion={backFromSurfaceRegion}
           />
         </div>
@@ -191,7 +190,6 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             isAdmin={isAdmin}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpace}
-            onOpenInRegion={openInDreamRegion}
             onBackFromRegion={backFromDreamRegion}
           />
         </div>

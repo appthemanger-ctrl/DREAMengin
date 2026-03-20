@@ -144,16 +144,11 @@ function AppIcon({ icon, label, color, onClick }: {
   );
 }
 
-export default function DreamsSpacePanel({ onOpenInRegion }: { onOpenInRegion?: (path: string) => void }) {
 export default function DreamsSpacePanel({ onOpenUrl }: { onOpenUrl?: OpenUrlFn }) {
   const runtime = useDreamsRuntime();
   const { state, setService } = runtime;
   const router = useRouter();
 
-  // If a contained-navigation callback is provided use it; otherwise fall back to full navigation.
-  const navigate = (route: string) => {
-    if (onOpenInRegion) {
-      onOpenInRegion(route);
   /** Navigate to a route: use in-region iframe when available, else full navigation. */
   const navigate = (route: string, title?: string) => {
     if (onOpenUrl) {
