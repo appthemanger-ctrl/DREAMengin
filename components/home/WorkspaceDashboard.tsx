@@ -12,6 +12,7 @@ import { useNotifications } from '@/lib/notifications/useNotifications';
 import DreamWord from '@/components/ui/DreamWord';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
+import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -518,6 +519,11 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               </button>
             </div>
           </div>
+
+          {/* ── DaydreamPulseStrip — live Dream Surfaces panel ── */}
+          {/* Architecture: docs/ARCHITECTURE.md §8 (premium palette + intentional motion)  */}
+          {/* Axiom 4 (Stylized), Law §3 (every action is real — real surface navigation) */}
+          <DaydreamPulseStrip />
 
           {/* ── DreamSpace Portal — permanent swap link ── */}
           {onOpenDreamSpace && (
