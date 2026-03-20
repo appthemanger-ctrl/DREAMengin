@@ -141,10 +141,19 @@ function AppIcon({ icon, label, color, onClick }: {
   );
 }
 
-export default function DreamsSpacePanel() {
+export default function DreamsSpacePanel({ onOpenInRegion }: { onOpenInRegion?: (path: string) => void }) {
   const runtime = useDreamsRuntime();
   const { state, setService } = runtime;
   const router = useRouter();
+
+  // If a contained-navigation callback is provided use it; otherwise fall back to full navigation.
+  const navigate = (route: string) => {
+    if (onOpenInRegion) {
+      onOpenInRegion(route);
+    } else {
+      router.push(route);
+    }
+  };
 
   // Apps home screen is the priority tab — permanent windows shown by default.
   const [view, setView] = useState<DreamsSpaceView>('apps');
@@ -228,7 +237,7 @@ export default function DreamsSpacePanel() {
                   icon={dd.icon}
                   label={dd.label}
                   color={dd.color}
-                  onClick={() => router.push(dd.route)}
+                  onClick={() => navigate(dd.route)}
                 />
               ))}
             </div>
@@ -258,7 +267,7 @@ export default function DreamsSpacePanel() {
                   icon={app.icon}
                   label={app.label}
                   color={app.color}
-                  onClick={() => router.push(app.route)}
+                  onClick={() => navigate(app.route)}
                 />
               ))}
             </div>

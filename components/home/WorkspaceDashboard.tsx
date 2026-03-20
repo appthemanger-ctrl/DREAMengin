@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Bell, BarChart3, TrendingUp, Users,
-  Music, ShoppingBag, Star, ChevronRight,
+  Bell, ChevronRight,
+  Music, ShoppingBag,
   Sparkles, Gamepad2, FlaskConical, Code2, Palette, Pen,
 } from 'lucide-react';
 import NotificationCenter from '@/components/NotificationCenter';
@@ -13,6 +12,7 @@ import { useNotifications } from '@/lib/notifications/useNotifications';
 import DreamWord from '@/components/ui/DreamWord';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
+import HomeFeed from '@/components/HomeFeed';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -45,184 +45,9 @@ interface WorkspaceDashboardProps {
   posts: Post[];
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
+  /** Open a path contained inside this runtime region (iframe) */
+  onOpenInRegion?: (path: string) => void;
   isAdmin?: boolean;
-}
-
-// ── Mini sparkline ─────────────────────────────────────────────────────────────
-
-function MiniLine({ data, color = '#c8981a' }: { data: number[]; color?: string }) {
-  if (!data || data.length < 2) return null;
-  const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
-  const W = 52, H = 20;
-  const pts = data.map((v, i) => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 3) - 1}`).join(' ');
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: W, height: H }} preserveAspectRatio="none">
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="2"
-        strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-// ── Activity feed card — full width ────────────────────────────────────────────
-
-function ActivityCard({ post, index }: { post: Post; index: number }) {
-  const name = post?.profiles?.display_name || post?.profiles?.handle || `User ${index + 1}`;
-  const handle = post?.profiles?.handle || 'user';
-  const initials = name[0]?.toUpperCase() || 'U';
-  const avatarUrl = post?.profiles?.avatar_url;
-  const content = post?.content || post?.body || 'Shared a new dream';
-  const time = post?.created_at
-    ? new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    : `${index + 1}h ago`;
-
-  const COLORS = ['#4A9ED6', '#c8981a', '#6366f1', '#22c55e', '#ec4899'];
-  const color = COLORS[index % COLORS.length];
-
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 12,
-      padding: '12px 0',
-      borderBottom: '1px solid rgba(180,185,200,0.14)',
-    }}>
-      {/* Avatar */}
-      <div style={{
-        width: 42, height: 42, borderRadius: '50%', flexShrink: 0,
-        overflow: 'hidden',
-        background: avatarUrl ? undefined : color,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 16, fontWeight: 700, color: '#fff',
-        boxShadow: `0 3px 10px ${color}44`,
-      }}>
-        {avatarUrl
-          // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={avatarUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          : initials}
-      </div>
-
-      {/* Content */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>{name}</div>
-        <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.4 }}>
-          @{handle} · {content.slice(0, 52)}{content.length > 52 ? '…' : ''}
-        </div>
-      </div>
-
-      {/* Time + dot */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-        <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{time}</span>
-        <div style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
-      </div>
-    </div>
-  );
-}
-
-// ── Metric instrument widget — fills its grid cell ────────────────────────────
-
-function MetricWidget({
-  icon: Icon, label, value, sub, color, trend,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  sub?: string;
-  color: string;
-  trend?: number[];
-}) {
-  return (
-    <div className="de-card-pressable" style={{
-      background: 'rgba(255,255,255,0.80)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      borderRadius: 18,
-      padding: '14px 14px 12px',
-      border: '1px solid rgba(255,255,255,0.9)',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: 9,
-          background: `${color}18`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          {React.createElement(Icon as any, { size: 15, style: { color } })}
-        </div>
-        {trend && <MiniLine data={trend} color={color} />}
-      </div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 3, fontWeight: 600 }}>{label}</div>
-      {sub && <div style={{ fontSize: 10, color, marginTop: 2, fontWeight: 700 }}>{sub}</div>}
-    </div>
-  );
-}
-
-// ── Metrics status band ────────────────────────────────────────────────────────
-
-function MetricBandCell({ value, label, color = 'var(--de-gold)', last = false }:
-  { value: string; label: string; color?: string; last?: boolean }) {
-  return (
-    <div style={{
-      flex: 1, textAlign: 'center', padding: '12px 6px',
-      borderRight: last ? 'none' : '1px solid rgba(180,185,200,0.18)',
-    }}>
-      <div style={{ fontSize: 18, fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 3, fontWeight: 700,
-        textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
-    </div>
-  );
-}
-
-// ── Action button — full width row ─────────────────────────────────────────────
-
-function ActionBtn({ icon: Icon, label, onClick, primary }: {
-  icon: React.ElementType;
-  label: string;
-  onClick?: () => void;
-  primary?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="de-pressable"
-      style={{
-        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
-        padding: '14px 4px',
-        borderRadius: 18,
-        background: primary
-          ? 'linear-gradient(135deg, #c8981a, #e0b830)'
-          : 'rgba(255,255,255,0.75)',
-        border: primary ? 'none' : '1px solid rgba(180,185,200,0.22)',
-        boxShadow: primary ? '0 6px 18px rgba(200,152,26,0.35)' : '0 2px 8px rgba(0,0,0,0.06)',
-        minHeight: 64,
-      }}
-    >
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {React.createElement(Icon as any, { size: 20, style: { color: primary ? '#fff' : 'var(--de-accent)' } })}
-      <span style={{ fontSize: 11, fontWeight: 700,
-        color: primary ? '#fff' : 'var(--de-heading)', lineHeight: 1 }}>
-        {label}
-      </span>
-    </button>
-  );
-}
-
-// ── Window chrome ──────────────────────────────────────────────────────────────
-
-function WindowChrome({ title }: { title: string }) {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 8,
-      padding: '14px 18px 12px',
-      borderBottom: '1px solid rgba(180,185,200,0.14)',
-    }}>
-      <span style={{
-        fontSize: 13, fontWeight: 700, color: 'var(--de-heading)',
-        letterSpacing: '-0.01em',
-      }}>
-        {title}
-      </span>
-    </div>
-  );
 }
 
 // ── AI Agent activity card ─────────────────────────────────────────────────────
@@ -274,7 +99,7 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
 
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, isAdmin = false }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenInRegion, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const { enterCustomizeMode } = useCustomizeMode();
@@ -315,7 +140,15 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
 
   const realPostCount = posts.length;
 
-  const feedPosts = posts.length > 0 ? posts.slice(0, 5) : [];
+  // Contained navigation helper — opens path in the runtime region, never full-page.
+  // Falls back to router.push when used outside a runtime region.
+  const openPath = (path: string) => {
+    if (onOpenInRegion) {
+      onOpenInRegion(path);
+    } else {
+      router.push(path);
+    }
+  };
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -333,17 +166,21 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {/* ── Floating header — no background bar, just text over gradient ── */}
+        {/* ── Floating header ── */}
         <div style={{
           position: 'sticky', top: 0, zIndex: 50,
-          padding: '18px 20px 14px',
+          padding: '16px 20px 12px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'rgba(var(--de-bg-start-rgb, 2,8,24),0.72)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
           pointerEvents: 'auto',
         }}>
-          {/* dreamengin wordmark — "dream" gets metallic gold, "engin" keeps cormorant italic */}
+          {/* dreamengin wordmark */}
           <span style={{
             fontFamily: 'var(--font-cormorant, Georgia, serif)', fontStyle: 'italic',
-            fontSize: 26, fontWeight: 400,
+            fontSize: 24, fontWeight: 400,
             letterSpacing: '-0.01em', flexShrink: 0,
             display: 'flex', alignItems: 'baseline',
           }}>
@@ -351,151 +188,114 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             <span style={{ color: '#a07828' }}>engin</span>
           </span>
 
-          {/* Right side: notification bell + flip to profile */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            {/* Notification bell — wired to real /api/notifications */}
+          {/* Right side: notification bell + profile link */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <button
                 type="button"
                 aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
                 onClick={() => setNotifOpen((v) => !v)}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 10,
-                  color: 'var(--de-text-dim)',
-                  position: 'relative',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: 10, color: 'var(--de-text-dim)', position: 'relative',
                   minWidth: 40, minHeight: 40,
-                  touchAction: 'manipulation',
-                  WebkitTapHighlightColor: 'transparent',
-                  transition: 'opacity 0.1s ease',
+                  touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
                 }}
               >
-                <Bell size={20} />
+                <Bell size={19} />
                 {unreadCount > 0 && (
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: 'absolute', top: 4, right: 4,
-                      background: '#c8981a',
-                      color: '#fff',
-                      fontSize: 8, fontWeight: 800,
-                      borderRadius: '50%',
-                      minWidth: 14, height: 14,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      lineHeight: 1,
-                      padding: '0 2px',
-                    }}
-                  >
+                  <span aria-hidden="true" style={{
+                    position: 'absolute', top: 4, right: 4,
+                    background: '#c8981a', color: '#fff',
+                    fontSize: 8, fontWeight: 800, borderRadius: '50%',
+                    minWidth: 14, height: 14,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    lineHeight: 1, padding: '0 2px',
+                  }}>
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
-
-              {/* Notification panel */}
               {notifOpen && (
-                <NotificationCenter
-                  isOpen={notifOpen}
-                  onClose={() => setNotifOpen(false)}
-                />
+                <NotificationCenter isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
               )}
-              {/* Backdrop to close panel on outside click */}
               {notifOpen && (
-                <div
-                  aria-hidden="true"
-                  style={{ position: 'fixed', inset: 0, zIndex: 49 }}
-                  onClick={() => setNotifOpen(false)}
-                />
+                <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 49 }}
+                  onClick={() => setNotifOpen(false)} />
               )}
             </div>
 
-            {/* Flip to Profile — clean text navigation */}
-            <Link href="/edit-profiledream" style={{
-              fontSize: 14, color: 'var(--de-text-dim)',
-              textDecoration: 'none', fontWeight: 500,
-              letterSpacing: '-0.01em', whiteSpace: 'nowrap',
-              padding: '8px 0 8px 4px', minHeight: 40,
-              display: 'flex', alignItems: 'center',
-            }}>
-              Flip to Profile &rsaquo;
-            </Link>
+            <button
+              type="button"
+              onClick={() => openPath('/edit-profiledream')}
+              style={{
+                fontSize: 13, color: 'var(--de-text-dim)',
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontWeight: 500, letterSpacing: '-0.01em', whiteSpace: 'nowrap',
+                padding: '8px 0 8px 4px', minHeight: 40,
+                display: 'flex', alignItems: 'center',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              Profile &rsaquo;
+            </button>
           </div>
         </div>
 
         {/* ── Page body ── */}
-        <div style={{ padding: '4px 16px 0' }}>
+        <div style={{ padding: '20px 16px 0' }}>
 
-          {/* Greeting */}
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 13, color: 'var(--de-text-dim)', fontWeight: 500, marginBottom: 4 }}>{greeting},</div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
+          {/* ── Hero greeting ── */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 12, color: 'var(--de-text-dim)', fontWeight: 500, marginBottom: 2, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              {greeting}
+            </div>
+            <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 16 }}>
               {name}
             </div>
 
-            {/* ── Dr. Eams search bar — Phase 6: HomeDream search with send-to-DreamDM routing ── */}
-            <div style={{ marginTop: 16, marginBottom: 4 }}>
-              <DrEamsSearchBar onOpenDrEams={onOpenDrEams} />
-            </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-              {[
-                { href: '/edit-profiledream', label: 'DreamProfile' },
-                { href: '/discover', label: 'Feed' },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="de-pressable"
-                  style={{
-                    borderRadius: 999,
-                    border: '1px solid rgba(180,185,200,0.30)',
-                    background: 'rgba(255,255,255,0.65)',
-                    color: 'var(--de-heading)',
-                    padding: '7px 14px',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    display: 'inline-block',
-                  }}
-                >
-                  {item.label}
-                </Link>
-              ))}
+            {/* Dr. Eams search */}
+            <DrEamsSearchBar onOpenDrEams={onOpenDrEams} />
+
+            {/* Quick actions strip */}
+            <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => openPath('/edit-profiledream')}
+                className="de-pressable"
+                style={{
+                  borderRadius: 999, border: '1px solid rgba(200,152,26,0.30)',
+                  background: 'rgba(200,152,26,0.08)', color: '#c8981a',
+                  padding: '7px 14px', fontSize: 12, fontWeight: 700,
+                  cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                DreamProfile
+              </button>
               <button
                 type="button"
                 onClick={() => onOpenDreamSpace?.()}
                 className="de-pressable"
                 style={{
-                  borderRadius: 999,
-                  border: '1px solid rgba(180,185,200,0.30)',
-                  background: 'rgba(255,255,255,0.65)',
-                  color: 'var(--de-heading)',
-                  padding: '7px 14px',
-                  fontSize: 12,
-                  fontWeight: 600,
+                  borderRadius: 999, border: '1px solid rgba(180,185,200,0.26)',
+                  background: 'rgba(255,255,255,0.06)', color: 'var(--de-heading)',
+                  padding: '7px 14px', fontSize: 12, fontWeight: 600,
+                  cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
                 }}
               >
-                Your Dreams
+                Dream Space
               </button>
               <button
                 type="button"
                 onClick={() => enterCustomizeMode('home')}
                 className="de-pressable"
                 style={{
-                  borderRadius: 999,
-                  border: '1px solid rgba(58,111,216,0.35)',
-                  background: 'rgba(58,111,216,0.09)',
-                  color: '#3a6fd8',
-                  padding: '7px 14px',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 5,
+                  borderRadius: 999, border: '1px solid rgba(58,111,216,0.30)',
+                  background: 'rgba(58,111,216,0.07)', color: '#3a6fd8',
+                  padding: '7px 14px', fontSize: 12, fontWeight: 700,
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
                 }}
               >
                 <Palette size={12} />
@@ -504,36 +304,134 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </div>
           </div>
 
-          {/* ── DreamSpace Portal — permanent swap link ── */}
+          {/* ── Stats band ── */}
+          <div style={{
+            display: 'flex', borderRadius: 18,
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            marginBottom: 24,
+            overflow: 'hidden',
+          }}>
+            {[
+              { value: String(realPostCount), label: 'Posts', color: 'var(--de-gold)' },
+              { value: formatCount(stats.followers), label: 'Followers', color: '#4A9ED6' },
+              { value: formatCount(stats.following), label: 'Following', color: '#6366f1' },
+              { value: '—', label: 'Reach', color: '#22c55e' },
+            ].map((cell, i, arr) => (
+              <div key={cell.label} style={{
+                flex: 1, textAlign: 'center', padding: '13px 4px',
+                borderRight: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none',
+              }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: cell.color, lineHeight: 1 }}>{cell.value}</div>
+                <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 4, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{cell.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── AI Agent strip ── */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>
+              AI Assistants
+            </div>
+            <div data-scroll style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+              {AI_AGENTS.map(agent => (
+                <AgentActivityCard key={agent.id} agent={agent} onOpenDrEams={onOpenDrEams} />
+              ))}
+            </div>
+          </div>
+
+          {/* ── Quick Launch — Daydream apps ── */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
+              Quick Launch
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 10 }}>
+              {[
+                { Icon: Music,        label: 'Music',  path: '/daydream/music' },
+                { Icon: Gamepad2,     label: 'Games',  path: '/daydream/games' },
+                { Icon: FlaskConical, label: 'Lab',    path: '/daydream/lab' },
+                { Icon: Code2,        label: 'Code',   path: '/daydream/code' },
+              ].map(({ Icon, label, path }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => openPath(path)}
+                  className="de-pressable"
+                  style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                    padding: '14px 4px',
+                    borderRadius: 18,
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.09)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+                    cursor: 'pointer', minHeight: 72,
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {React.createElement(Icon as any, { size: 20, style: { color: '#c8981a' } })}
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-heading)', lineHeight: 1 }}>{label}</span>
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+              {[
+                { Icon: Palette,     label: 'Brand',    gold: false, action: () => openPath('/daydream/brand') },
+                { Icon: Pen,         label: 'Create',   gold: false, action: () => openPath('/daydream/create') },
+                { Icon: ShoppingBag, label: 'Shop',     gold: false, action: () => openPath('/shop') },
+                { Icon: Sparkles,    label: 'Dr. Eams', gold: true,  action: () => onOpenDrEams() },
+              ].map(({ Icon, label, gold, action }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={action}
+                  className="de-pressable"
+                  style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                    padding: '14px 4px',
+                    borderRadius: 18,
+                    background: gold
+                      ? 'linear-gradient(135deg, rgba(200,152,26,0.22), rgba(224,184,48,0.14))'
+                      : 'rgba(255,255,255,0.06)',
+                    border: gold
+                      ? '1px solid rgba(200,152,26,0.35)'
+                      : '1px solid rgba(255,255,255,0.09)',
+                    boxShadow: gold
+                      ? '0 4px 16px rgba(200,152,26,0.20)'
+                      : '0 2px 12px rgba(0,0,0,0.18)',
+                    cursor: 'pointer', minHeight: 72,
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {React.createElement(Icon as any, { size: 20, style: { color: gold ? '#e0b830' : '#c8981a' } })}
+                  <span style={{ fontSize: 11, fontWeight: 600, color: gold ? '#e0b830' : 'var(--de-heading)', lineHeight: 1 }}>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── DreamSpace Portal ── */}
           {onOpenDreamSpace && (
             <button
               type="button"
               onClick={onOpenDreamSpace}
               className="de-pressable"
               style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '13px 16px',
-                marginBottom: 16,
-                background: 'linear-gradient(135deg, rgba(200,152,26,0.13) 0%, rgba(74,158,214,0.09) 100%)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                borderRadius: 18,
-                border: '1.5px solid rgba(200,152,26,0.32)',
-                boxShadow: '0 4px 16px rgba(200,152,26,0.13)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                WebkitTapHighlightColor: 'transparent',
+                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                padding: '14px 18px', marginBottom: 28,
+                background: 'linear-gradient(135deg, rgba(200,152,26,0.10) 0%, rgba(74,158,214,0.07) 100%)',
+                backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: 20, border: '1px solid rgba(200,152,26,0.24)',
+                boxShadow: '0 4px 20px rgba(200,152,26,0.10)',
+                cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent',
               }}
             >
               <div style={{
                 width: 36, height: 36, borderRadius: '50%',
                 background: 'linear-gradient(135deg, #c8981a, #d4a843)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-                boxShadow: '0 3px 10px rgba(200,152,26,0.32)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                boxShadow: '0 3px 10px rgba(200,152,26,0.28)',
               }}>
                 <span style={{ fontSize: 15, color: '#fff' }}>✦</span>
               </div>
@@ -545,209 +443,23 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                   Daydreams, feeds & dream windows
                 </div>
               </div>
-              <ChevronRight size={16} style={{ color: '#c8981a', flexShrink: 0 }} />
+              <ChevronRight size={15} style={{ color: '#c8981a', flexShrink: 0 }} />
             </button>
           )}
 
-          {/* ── WORKSPACE WINDOW PANEL — full width, elevated ── */}
-          <div style={{
-            background: 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(28px)',
-            WebkitBackdropFilter: 'blur(28px)',
-            borderRadius: 24,
-            border: '1px solid rgba(255,255,255,0.90)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.10), 0 2px 12px rgba(0,0,0,0.05)',
-            overflow: 'hidden',
-            marginBottom: 16,
-          }}>
-            {/* Window chrome — canonical surface name per docs/LAW.md §Route law */}
-            <WindowChrome title="HomeDream" />
-
-            {/* ── Activity feed — full width, temporal scanning ── */}
-            <div style={{ padding: '14px 18px 0' }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: 10,
-              }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
-                  Recent Activity
-                </span>
-                {feedPosts.length > 0 && (
-                  <span
-                    aria-label={`${feedPosts.length} new activities`}
-                    style={{
-                      background: 'rgba(200,152,26,0.12)', color: '#c8981a',
-                      borderRadius: 100, fontSize: 11, fontWeight: 600, padding: '3px 10px',
-                    }}
-                  >
-                    {feedPosts.length} new
-                  </span>
-                )}
-              </div>
-
-              {/* AI Triad agent cards — horizontal scroll */}
-              <div
-                data-scroll
-                style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', marginBottom: 4, WebkitOverflowScrolling: 'touch' }}
-              >
-                {AI_AGENTS.map(agent => (
-                  <AgentActivityCard key={agent.id} agent={agent} onOpenDrEams={onOpenDrEams} />
-                ))}
-              </div>
-
-              {/* Feed area remains independently scrollable */}
-              <div
-                data-scroll
-                style={{ maxHeight: 300, overflowY: 'auto', paddingRight: 4, WebkitOverflowScrolling: 'touch' }}
-              >
-                {feedPosts.length > 0 ? (
-                  feedPosts.slice(0, 8).map((post, i) => (
-                    <ActivityCard key={post.id || i} post={post} index={i} />
-                  ))
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--de-text-dim)', fontSize: 12 }}>
-                    Your feed is live.{' '}
-                    <Link href="/daydream/create" style={{ color: 'var(--de-accent)', fontWeight: 600 }}>Post something</Link>
-                    {' '}or{' '}
-                    <Link href="/discover" style={{ color: 'var(--de-accent)', fontWeight: 600 }}>Discover creators</Link>{' '}
-                    to fill it.
-                  </div>
-                )}
-              </div>
-
-              <Link href="/discover" style={{
-                display: 'flex', alignItems: 'center', gap: 4,
-                padding: '10px 0',
-                fontSize: 12, color: 'var(--de-accent)', fontWeight: 600,
-                textDecoration: 'none',
-              }}>
-                View all activity <ChevronRight size={13} />
-              </Link>
+          {/* ── Featured: Social Feed ── */}
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>
+              Feed
             </div>
-
-            {/* ── Metric widgets — 2×2 grid, full width ── */}
-            <div style={{ padding: '0 16px', marginBottom: 14 }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: 10,
-              }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
-                  Telemetry
-                </span>
-                <Link href="/analytics" style={{ fontSize: 12, color: 'var(--de-accent)',
-                  fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}>
-                  Full stats <ChevronRight size={12} />
-                </Link>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <MetricWidget
-                  icon={Users} label="Followers" value={formatCount(stats.followers)}
-                  sub={stats.followers !== null ? 'real-time' : 'loading…'}
-                  color="#c8981a" trend={[]} />
-                <MetricWidget
-                  icon={TrendingUp} label="Following" value={formatCount(stats.following)}
-                  sub={stats.following !== null ? 'real-time' : 'loading…'}
-                  color="#4A9ED6" trend={[]} />
-                <MetricWidget
-                  icon={Star} label="Posts" value={String(realPostCount)}
-                  sub="public feed"
-                  color="#6366f1" trend={[]} />
-                <MetricWidget
-                  icon={BarChart3} label="Activity" value={posts.length > 0 ? 'Active' : '—'}
-                  sub={posts.length > 0 ? `${posts.length} recent` : 'No posts yet'}
-                  color="#22c55e" trend={[]} />
-              </div>
-            </div>
-
-            {/* ── Metrics status band — full width ── */}
-            <div style={{
-              display: 'flex',
-              borderTop: '1px solid rgba(180,185,200,0.12)',
-              borderBottom: '1px solid rgba(180,185,200,0.12)',
-              background: 'rgba(255,255,255,0.38)',
-            }}>
-              <MetricBandCell value={String(realPostCount)} label="Posts"     color="var(--de-gold)" />
-              <MetricBandCell value={formatCount(stats.followers)} label="Followers" color="#4A9ED6" />
-              <MetricBandCell value={formatCount(stats.following)} label="Following" color="#6366f1" />
-              <MetricBandCell value="—"    label="Reach"    color="#22c55e" last />
-            </div>
-
-            {/* ── Action controls ── */}
-            <div style={{ padding: '14px 16px 16px', background: 'rgba(255,255,255,0.28)' }}>
-              {/* Primary row — Dr. Eams + Shop */}
-              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-                <ActionBtn icon={Sparkles}    label="Dr. Eams" onClick={onOpenDrEams} primary />
-                <ActionBtn icon={ShoppingBag} label="Shop"     onClick={() => router.push('/shop')} />
-              </div>
-              {/* Daydreams row 1 — Music · Games · Lab */}
-              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-                <ActionBtn icon={Music}        label="Music"  onClick={() => router.push('/daydream/music')} />
-                <ActionBtn icon={Gamepad2}     label="Games"  onClick={() => router.push('/daydream/games')} />
-                <ActionBtn icon={FlaskConical} label="Lab"    onClick={() => router.push('/daydream/lab')} />
-              </div>
-              {/* Daydreams row 2 — Code · Brand · Create */}
-              <div style={{ display: 'flex', gap: 10 }}>
-                <ActionBtn icon={Code2}   label="Code"   onClick={() => router.push('/daydream/code')} />
-                <ActionBtn icon={Palette} label="Brand"  onClick={() => router.push('/daydream/brand')} />
-                <ActionBtn icon={Pen}     label="Create" onClick={() => router.push('/daydream/create')} />
-              </div>
-            </div>
-          </div>
-
-          {/* ── Widget glass zone — Feed section ── */}
-          <div style={{
-            background: 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderRadius: 24,
-            border: '1px solid rgba(255,255,255,0.90)',
-            boxShadow: '0 6px 28px rgba(0,0,0,0.08)',
-            overflow: 'hidden',
-            marginBottom: 16,
-          }}>
-            <div style={{ padding: '14px 18px 10px', borderBottom: '1px solid rgba(180,185,200,0.12)' }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
-                Feed
-              </span>
-            </div>
-            <div style={{
-              display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: 12, padding: '12px 16px 16px',
-            }}>
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Link
-                  key={`widget-slot-${i}`}
-                  href="/connectors"
-                  className="de-card-pressable"
-                  style={{
-                    minHeight: 92,
-                    borderRadius: 18,
-                    border: '1px solid rgba(180,185,200,0.20)',
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.15))',
-                    boxShadow: 'inset 0 1px 8px rgba(255,255,255,0.30), 0 2px 10px rgba(0,0,0,0.04)',
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
-                    textDecoration: 'none',
-                    display: 'flex',
-                    flexDirection: 'column' as const,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                  }}
-                >
-                  <div style={{
-                    width: 28, height: 28, borderRadius: 8,
-                    border: '1.5px dashed rgba(180,185,200,0.40)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <span style={{ fontSize: 14, color: 'var(--de-text-dim)' }}>+</span>
-                  </div>
-                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)', fontWeight: 500 }}>
-                    Add widget
-                  </span>
-                </Link>
-              ))}
-            </div>
+            <HomeFeed
+              userId={profile?.id ?? ''}
+              userHandle={profile?.handle ?? 'user'}
+              userAvatar={profile?.avatar_url ?? null}
+              userDisplayName={profile?.display_name || profile?.handle || 'Dreamer'}
+              initialPosts={posts as Parameters<typeof HomeFeed>[0]['initialPosts']}
+              embedded
+            />
           </div>
 
         </div>

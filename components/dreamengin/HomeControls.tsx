@@ -13,7 +13,7 @@ interface HomeControlsProps {
   onHome: () => void;
 }
 
-const BTN = 52;
+const BTN = 48;
 const DOUBLE_TAP_MS = 260;
 
 export default function HomeControls({ onBothMenus, onHome }: HomeControlsProps) {

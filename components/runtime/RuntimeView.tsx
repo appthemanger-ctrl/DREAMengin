@@ -46,6 +46,10 @@ interface RuntimeViewProps {
   isAdmin?: boolean;
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
+  /** Open a path contained inside this region (iframe), instead of full-page navigation */
+  onOpenInRegion?: (path: string) => void;
+  /** Return to the default world for this region (close iframe) */
+  onBackFromRegion?: () => void;
 }
 
 export default function RuntimeView({
@@ -56,6 +60,8 @@ export default function RuntimeView({
   isAdmin,
   onOpenDrEams,
   onOpenDreamSpace,
+  onOpenInRegion,
+  onBackFromRegion,
 }: RuntimeViewProps) {
   // Home runtime
   if (world === 'HomeDream Surface') {
@@ -74,6 +80,7 @@ export default function RuntimeView({
           posts={posts ?? []}
           onOpenDrEams={onOpenDrEams}
           onOpenDreamSpace={onOpenDreamSpace}
+          onOpenInRegion={onOpenInRegion}
           isAdmin={isAdmin}
         />
       </div>
@@ -94,7 +101,7 @@ export default function RuntimeView({
           overflow: 'hidden',
         }}
       >
-        <DreamsSpacePanel />
+        <DreamsSpacePanel onOpenInRegion={onOpenInRegion} />
       </div>
     );
   }
@@ -116,6 +123,7 @@ export default function RuntimeView({
           posts={posts ?? []}
           onOpenDrEams={onOpenDrEams}
           onOpenDreamSpace={onOpenDreamSpace}
+          onOpenInRegion={onOpenInRegion}
           isAdmin={isAdmin}
         />
       </div>
@@ -148,7 +156,7 @@ export default function RuntimeView({
     );
   }
 
-  // Engin runtime — routes to the Daydream Engin surface
+  // Engin runtime — renders the Daydream Engin surface in an in-region iframe
   if (typeof world === 'object' && world.type === 'engin') {
     const ENGIN_ROUTES: Record<string, string> = {
       StarMakerEngin: '/daydream/music',
@@ -167,36 +175,55 @@ export default function RuntimeView({
           opacity: isActive ? 1 : 0.3,
           pointerEvents: isActive ? 'auto' : 'none',
           transition: 'opacity 0.3s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
         }}
       >
-        <div className="fixed inset-0 z-10 grid place-items-center"
-          style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)' }}>
-          <div className="de-glass" style={{ borderRadius: '28px', padding: '32px', maxWidth: '600px', textAlign: 'center' }}>
-            <div className="de-tag">Engin</div>
-            <div className="de-label" style={{ fontSize: '24px', marginTop: '8px' }}>{world.name}</div>
-            <a
-              href={route}
-              style={{
-                display: 'inline-block',
-                marginTop: '16px',
-                padding: '10px 24px',
-                background: 'linear-gradient(135deg,#c8981a,#e0b830)',
-                color: '#fff',
-                borderRadius: '10px',
-                fontWeight: 700,
-                fontSize: '13px',
-                textDecoration: 'none',
-              }}
-            >
-              Open {world.name} →
-            </a>
-          </div>
+        {/* Thin in-region header with back navigation */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '10px 14px',
+          background: 'rgba(10,20,40,0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(200,152,26,0.18)',
+          flexShrink: 0,
+          zIndex: 2,
+        }}>
+          <button
+            type="button"
+            onClick={onBackFromRegion ?? undefined}
+            disabled={!onBackFromRegion}
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.14)',
+              borderRadius: 8,
+              color: '#c8981a',
+              fontSize: 13,
+              fontWeight: 700,
+              padding: '5px 12px',
+              cursor: onBackFromRegion ? 'pointer' : 'default',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            ← Back
+          </button>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {world.name}
+          </span>
         </div>
+        <iframe
+          src={route}
+          title={world.name}
+          style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
+          allow="fullscreen"
+        />
       </div>
     );
   }
 
-  // Custom runtime — navigate to the specified path
+  // Custom runtime — loads the path in an in-region iframe
   if (typeof world === 'object' && world.type === 'custom') {
     return (
       <div
@@ -206,31 +233,50 @@ export default function RuntimeView({
           opacity: isActive ? 1 : 0.3,
           pointerEvents: isActive ? 'auto' : 'none',
           transition: 'opacity 0.3s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
         }}
       >
-        <div className="fixed inset-0 z-10 grid place-items-center"
-          style={{ background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)' }}>
-          <div className="de-glass" style={{ borderRadius: '28px', padding: '32px', maxWidth: '600px', textAlign: 'center' }}>
-            <div className="de-tag">Custom</div>
-            <div className="de-label" style={{ fontSize: '24px', marginTop: '8px' }}>{world.path}</div>
-            <a
-              href={world.path}
-              style={{
-                display: 'inline-block',
-                marginTop: '16px',
-                padding: '10px 24px',
-                background: 'linear-gradient(135deg,#c8981a,#e0b830)',
-                color: '#fff',
-                borderRadius: '10px',
-                fontWeight: 700,
-                fontSize: '13px',
-                textDecoration: 'none',
-              }}
-            >
-              Navigate →
-            </a>
-          </div>
+        {/* Thin in-region header with back navigation */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '10px 14px',
+          background: 'rgba(10,20,40,0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(200,152,26,0.18)',
+          flexShrink: 0,
+          zIndex: 2,
+        }}>
+          <button
+            type="button"
+            onClick={onBackFromRegion ?? undefined}
+            disabled={!onBackFromRegion}
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.14)',
+              borderRadius: 8,
+              color: '#c8981a',
+              fontSize: 13,
+              fontWeight: 700,
+              padding: '5px 12px',
+              cursor: onBackFromRegion ? 'pointer' : 'default',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            ← Back
+          </button>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {world.path}
+          </span>
         </div>
+        <iframe
+          src={world.path}
+          title={world.path}
+          style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
+          allow="fullscreen"
+        />
       </div>
     );
   }
