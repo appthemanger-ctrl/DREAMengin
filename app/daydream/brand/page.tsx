@@ -30,6 +30,7 @@ export default async function BrandDaydreamPage() {
       title="Brand"
       enginName="BrandingEngin"
       accentColor="#ec4899"
+      daydreamType="brand"
       widgets={WIDGETS}
       sideBComponent={BrandingEngin}
     >

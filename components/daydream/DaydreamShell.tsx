@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
 import { logJourneyDot, hasJourneyDot } from '@/lib/journey/journeyDots';
 import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 
 export type DaydreamWidget = {
   id: string;
@@ -26,6 +27,12 @@ type Props = {
   widgets: DaydreamWidget[];
   children: React.ReactNode;
   /**
+   * Canonical daydream type identifier for Supabase state persistence.
+   * One of: 'music' | 'games' | 'lab' | 'code' | 'brand' | 'create'.
+   * When provided, visit timestamps are recorded via useDaydreamState.
+   */
+  daydreamType?: string;
+  /**
    * Optional custom Side B component. When provided, renders instead of
    * the built-in sideBVariant logic. Receives an `onBack` callback prop.
    * Use this to inject a domain-specific Engin (e.g. GameEngin, StarMakerEngin).
@@ -41,10 +48,16 @@ type Props = {
   sideBVariant?: 'widgets' | 'game-remote';
 };
 
-export default function DaydreamShell({ title, enginName, accentColor, widgets, children, sideBComponent, sideBVariant = 'widgets' }: Props) {
+export default function DaydreamShell({ title, enginName, accentColor, widgets, children, daydreamType, sideBComponent, sideBVariant = 'widgets' }: Props) {
   const [side, setSide]   = useState<'A' | 'B'>('A');
   const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
   const [busy, setBusy]   = useState(false);
+
+  // Persist visit state to Supabase (Phase 6 pt 42 — no creative work silently discarded)
+  useDaydreamState({
+    daydreamType: daydreamType ?? title.split(' ')[0].toLowerCase(),
+    side,
+  });
 
   const flip = useCallback(() => {
     if (busy) return;
