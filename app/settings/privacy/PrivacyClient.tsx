@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shield, EyeOff, UserX, Flag, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, Shield, EyeOff, UserX, Flag, Check, Loader2, X } from 'lucide-react';
 
 const STORAGE_KEY = 'de-privacy-settings';
 
@@ -88,6 +88,44 @@ export default function PrivacyClient() {
   const [appealing, setAppealing] = useState(false);
   const [appealMsg, setAppealMsg] = useState('');
   const [showAppealForm, setShowAppealForm] = useState(false);
+
+  // Block list state
+  interface BlockEntry { id: string; blocked_id: string; created_at: string; }
+  const [blocks, setBlocks] = useState<BlockEntry[]>([]);
+  const [blockInput, setBlockInput] = useState('');
+  const [blockLoading, setBlockLoading] = useState(false);
+  const [blockError, setBlockError] = useState('');
+
+  // Load block list
+  useEffect(() => {
+    fetch('/api/blocks')
+      .then(r => r.json())
+      .then((d: { blocks?: BlockEntry[] }) => { if (d.blocks) setBlocks(d.blocks); })
+      .catch(() => {});
+  }, []);
+
+  const handleBlock = async () => {
+    const id = blockInput.trim();
+    if (!id) return;
+    setBlockLoading(true);
+    setBlockError('');
+    try {
+      const res = await fetch('/api/blocks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocked_id: id }),
+      });
+      const data = await res.json() as { ok?: boolean; message?: string; block?: BlockEntry };
+      if (!res.ok) { setBlockError(data.message ?? 'Failed to block user.'); }
+      else if (data.block) { setBlocks(prev => [data.block!, ...prev]); setBlockInput(''); }
+    } catch { setBlockError('Network error — please try again.'); }
+    finally { setBlockLoading(false); }
+  };
+
+  const handleUnblock = async (blocked_id: string) => {
+    setBlocks(prev => prev.filter(b => b.blocked_id !== blocked_id));
+    await fetch(`/api/blocks?blocked_id=${blocked_id}`, { method: 'DELETE' }).catch(() => {});
+  };
 
   // Load settings on mount — try DB first, fall back to localStorage cache
   useEffect(() => {
@@ -227,9 +265,56 @@ export default function PrivacyClient() {
             <UserX className="w-4 h-4 mr-2" style={{ color: '#dc4444' }} />
             <span className="de-widget-title">Blocked Users</span>
           </div>
-          <div className="de-widget-body flex flex-col items-center py-4 gap-2">
-            <UserX className="w-8 h-8 opacity-15" style={{ color: '#dc4444' }} />
-            <p style={{ fontSize: 13, color: 'var(--de-text-dim)' }}>Block list coming soon</p>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Block input */}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <input
+                type="text"
+                value={blockInput}
+                onChange={e => { setBlockInput(e.target.value); setBlockError(''); }}
+                onKeyDown={e => { if (e.key === 'Enter') void handleBlock(); }}
+                placeholder="User ID to block…"
+                style={{
+                  flex: 1, fontSize: 12, padding: '6px 10px', borderRadius: 8,
+                  border: '1px solid rgba(160,195,240,0.3)',
+                  background: 'rgba(255,255,255,0.6)',
+                  color: 'var(--de-text)',
+                  outline: 'none',
+                }}
+              />
+              <button
+                onClick={() => void handleBlock()}
+                disabled={blockLoading || !blockInput.trim()}
+                className="de-btn de-btn-primary text-xs"
+                style={{ padding: '6px 12px', opacity: blockLoading || !blockInput.trim() ? 0.5 : 1 }}
+              >
+                {blockLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Block'}
+              </button>
+            </div>
+            {blockError && <p style={{ fontSize: 11, color: '#dc4444' }}>{blockError}</p>}
+
+            {/* Block list */}
+            {blocks.length === 0 ? (
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center', padding: '8px 0' }}>
+                No blocked users.
+              </p>
+            ) : (
+              blocks.map(b => (
+                <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', borderBottom: '1px solid rgba(160,195,240,0.1)' }}>
+                  <UserX className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#dc4444', opacity: 0.6 }} />
+                  <span style={{ flex: 1, fontSize: 11, color: 'var(--de-text-dim)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {b.blocked_id}
+                  </span>
+                  <button
+                    onClick={() => void handleUnblock(b.blocked_id)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: 'var(--de-text-dim)', display: 'flex', alignItems: 'center' }}
+                    aria-label="Unblock"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

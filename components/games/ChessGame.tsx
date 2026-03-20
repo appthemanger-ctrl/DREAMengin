@@ -3,7 +3,8 @@
  * ChessGame — Classic chess (2-player local).
  * Category: board game / strategy
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 type Color = 'w' | 'b';
 type PieceType = 'K'|'Q'|'R'|'B'|'N'|'P';
@@ -62,6 +63,9 @@ export default function ChessGame() {
   const [moves, setMoves] = useState<[number,number][]>([]);
   const [status, setStatus] = useState('');
   const [captured, setCaptured] = useState<{w: Piece[], b: Piece[]}>({w:[], b:[]});
+  const submitScore = useSubmitScore('chess');
+  // Submit 1000 when a game completes (2-player — completion itself is the achievement)
+  useEffect(() => { if (phase === 'done') submitScore(1000); }, [phase, submitScore]);
 
   const startGame = useCallback(() => {
     setBoard(cloneBoard(INIT)); setTurn('w'); setSelected(null); setMoves([]);

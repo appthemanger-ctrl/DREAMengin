@@ -67,8 +67,9 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
   const [logs, setLogs] = useState<IdariLog[]>([]);
   const [prompt, setPrompt] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(true);
-  const [refreshInterval, setRefreshInterval] = useState(7000);
+  // autoRefresh defaults to false — only fires when the tab is visible (ARCH §10)
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState(30000);
   const [bugCheckEnabled, setBugCheckEnabled] = useState(true);
 
   // ── Observability loop state ─────────────────────────────────────────────────
@@ -144,8 +145,8 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
           bugCheckEnabled?: boolean;
         };
         setIsRunning(state.isRunning !== false);
-        setAutoRefresh(state.autoRefresh !== false);
-        setRefreshInterval(typeof state.refreshInterval === 'number' ? state.refreshInterval : 7000);
+        setAutoRefresh(state.autoRefresh === true); // default off
+        setRefreshInterval(typeof state.refreshInterval === 'number' ? Math.max(state.refreshInterval, 30000) : 30000);
         setBugCheckEnabled(state.bugCheckEnabled !== false);
       } catch (e) {
         console.error('Failed to load IDARi state:', e);
@@ -162,11 +163,37 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
     }));
   }, [isRunning, autoRefresh, refreshInterval, bugCheckEnabled]);
 
+  // Visibility-gated polling — only runs when the page is in the foreground
+  // and autoRefresh is on. Never fires in background tabs (ARCH §10).
   useEffect(() => {
-    if (autoRefresh && isRunning) {
-      const timer = setInterval(() => { void performAutoUpdate(); }, refreshInterval);
-      return () => clearInterval(timer);
-    }
+    if (!autoRefresh || !isRunning) return;
+
+    let timer: ReturnType<typeof setInterval> | null = null;
+
+    const startPolling = () => {
+      if (timer) return;
+      timer = setInterval(() => {
+        if (document.visibilityState === 'visible') void performAutoUpdate();
+      }, refreshInterval);
+    };
+
+    const stopPolling = () => {
+      if (timer) { clearInterval(timer); timer = null; }
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') startPolling();
+      else stopPolling();
+    };
+
+    if (document.visibilityState === 'visible') startPolling();
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRefresh, isRunning, refreshInterval]);
 
   const addLog = (action: string, status: IdariLog['status'], details?: string) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 const WORDS = [
   'dream','blue','gold','sky','run','jump','play','make','create','build',
@@ -23,6 +24,8 @@ export default function WordSprint() {
   const [shuffled, setShuffled] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const submitScore = useSubmitScore('word-sprint');
+  useEffect(() => { if (phase === 'done') submitScore(score); }, [phase, score, submitScore]);
 
   const start = useCallback(() => {
     const sh = [...WORDS].sort(() => Math.random() - 0.5);

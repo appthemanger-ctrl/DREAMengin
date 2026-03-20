@@ -4,7 +4,7 @@
  * Category: endless runner / casual
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase } from '@/lib/games/hooks';
+import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 360; const CH = 540;
 const BIRD_X = 80; const BIRD_R = 14;
@@ -25,6 +25,8 @@ export default function FlappyGame() {
   const frameRef = useRef(0);
   const rafRef = useRef(0);
   const bgXRef = useRef(0);
+  const submitScore = useSubmitScore('flappy');
+  useEffect(() => { if (phase === 'dead') submitScore(scoreRef.current); }, [phase, submitScore]);
 
   const flap = useCallback(() => {
     if (phaseRef.current === 'menu') {

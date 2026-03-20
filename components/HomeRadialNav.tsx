@@ -29,6 +29,8 @@
 // named-only exports, update this line to match (e.g. export { DreamRadialMenu as default }).
 // NOTE: The full component below is retained for backward-compat; the re-export
 // above takes precedence for new imports.
+// Re-export notice: the canonical DreamMenu is DreamRadialMenu.
+// This file retains its own HomeRadialNav component for legacy surfaces.
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';

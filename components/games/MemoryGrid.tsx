@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 const EMOJIS = ['🌊','🔥','⚡','🎵','💎','🌙','🎯','🚀'];
 
@@ -23,6 +24,10 @@ export default function MemoryGrid() {
   const [locked, setLocked] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useState<ReturnType<typeof setInterval> | null>(null);
+  const submitScore = useSubmitScore('memory-grid');
+  useEffect(() => {
+    if (phase === 'won') submitScore(Math.max(0, 5000 - moves * 100 - elapsed * 5));
+  }, [phase, moves, elapsed, submitScore]);
 
   const start = useCallback(() => {
     setCards(makeCards());
