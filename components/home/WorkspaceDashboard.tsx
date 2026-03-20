@@ -12,7 +12,7 @@ import { useNotifications } from '@/lib/notifications/useNotifications';
 import DreamWord from '@/components/ui/DreamWord';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
-import HomeFeed from '@/components/HomeFeed';
+import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -358,114 +358,12 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </div>
           </div>
 
-          {/* ── Stats band ── */}
-          <div style={{
-            display: 'flex', borderRadius: 18,
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            marginBottom: 24,
-            overflow: 'hidden',
-          }}>
-            {[
-              { value: String(realPostCount), label: 'Posts', color: 'var(--de-gold)' },
-              { value: formatCount(stats.followers), label: 'Followers', color: '#4A9ED6' },
-              { value: formatCount(stats.following), label: 'Following', color: '#6366f1' },
-              { value: '—', label: 'Reach', color: '#22c55e' },
-            ].map((cell, i, arr) => (
-              <div key={cell.label} style={{
-                flex: 1, textAlign: 'center', padding: '13px 4px',
-                borderRight: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none',
-              }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: cell.color, lineHeight: 1 }}>{cell.value}</div>
-                <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 4, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{cell.label}</div>
-              </div>
-            ))}
-          </div>
+          {/* ── DaydreamPulseStrip — live Dream Surfaces panel ── */}
+          {/* Architecture: docs/ARCHITECTURE.md §8 (premium palette + intentional motion)  */}
+          {/* Axiom 4 (Stylized), Law §3 (every action is real — real surface navigation) */}
+          <DaydreamPulseStrip />
 
-          {/* ── AI Agent strip ── */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>
-              AI Assistants
-            </div>
-            <div data-scroll style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
-              {AI_AGENTS.map(agent => (
-                <AgentActivityCard key={agent.id} agent={agent} onOpenDrEams={onOpenDrEams} />
-              ))}
-            </div>
-          </div>
-
-          {/* ── Quick Launch — Daydream apps ── */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
-              Quick Launch
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 10 }}>
-              {[
-                { Icon: Music,        label: 'Music',  path: '/daydream/music' },
-                { Icon: Gamepad2,     label: 'Games',  path: '/daydream/games' },
-                { Icon: FlaskConical, label: 'Lab',    path: '/daydream/lab' },
-                { Icon: Code2,        label: 'Code',   path: '/daydream/code' },
-              ].map(({ Icon, label, path }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => openPath(path)}
-                  className="de-pressable"
-                  style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                    padding: '14px 4px',
-                    borderRadius: 18,
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.09)',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
-                    cursor: 'pointer', minHeight: 72,
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {React.createElement(Icon as any, { size: 20, style: { color: '#c8981a' } })}
-                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-heading)', lineHeight: 1 }}>{label}</span>
-                </button>
-              ))}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-              {[
-                { Icon: Palette,     label: 'Brand',    gold: false, action: () => openPath('/daydream/brand') },
-                { Icon: Pen,         label: 'Create',   gold: false, action: () => openPath('/daydream/create') },
-                { Icon: ShoppingBag, label: 'Shop',     gold: false, action: () => openPath('/shop') },
-                { Icon: Sparkles,    label: 'Dr. Eams', gold: true,  action: () => onOpenDrEams() },
-              ].map(({ Icon, label, gold, action }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={action}
-                  className="de-pressable"
-                  style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                    padding: '14px 4px',
-                    borderRadius: 18,
-                    background: gold
-                      ? 'linear-gradient(135deg, rgba(200,152,26,0.22), rgba(224,184,48,0.14))'
-                      : 'rgba(255,255,255,0.06)',
-                    border: gold
-                      ? '1px solid rgba(200,152,26,0.35)'
-                      : '1px solid rgba(255,255,255,0.09)',
-                    boxShadow: gold
-                      ? '0 4px 16px rgba(200,152,26,0.20)'
-                      : '0 2px 12px rgba(0,0,0,0.18)',
-                    cursor: 'pointer', minHeight: 72,
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {React.createElement(Icon as any, { size: 20, style: { color: gold ? '#e0b830' : '#c8981a' } })}
-                  <span style={{ fontSize: 11, fontWeight: 600, color: gold ? '#e0b830' : 'var(--de-heading)', lineHeight: 1 }}>{label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* ── DreamSpace Portal ── */}
+          {/* ── DreamSpace Portal — permanent swap link ── */}
           {onOpenDreamSpace && (
             <button
               type="button"
