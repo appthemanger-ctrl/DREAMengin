@@ -51,6 +51,8 @@ interface RuntimeViewProps {
   isAdmin?: boolean;
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
+  /** Safe-area insets so RuntimeShell content never hides behind the DreamDMBar */
+  barInsets?: { top: number; bottom: number };
 }
 
 /** Engin name → canonical daydream route */
@@ -71,6 +73,7 @@ export default function RuntimeView({
   isAdmin,
   onOpenDrEams,
   onOpenDreamSpace,
+  barInsets,
 }: RuntimeViewProps) {
   /* ── In-region iframe state ─────────────────────────────────────────────── */
   const [iframeUrl,   setIframeUrl]   = useState<string | null>(null);
@@ -104,6 +107,7 @@ export default function RuntimeView({
     return (
       <div style={outerStyle}>
         <RuntimeShell
+          barInsets={barInsets}
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
@@ -132,6 +136,7 @@ export default function RuntimeView({
         }}
       >
         <RuntimeShell
+          barInsets={barInsets}
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
@@ -147,6 +152,7 @@ export default function RuntimeView({
     return (
       <div style={outerStyle}>
         <RuntimeShell
+          barInsets={barInsets}
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
@@ -169,6 +175,7 @@ export default function RuntimeView({
     return (
       <div style={outerStyle}>
         <RuntimeShell
+          barInsets={barInsets}
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
@@ -210,6 +217,7 @@ export default function RuntimeView({
     return (
       <div style={outerStyle}>
         <RuntimeShell
+          barInsets={barInsets}
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
@@ -247,6 +255,7 @@ export default function RuntimeView({
     return (
       <div style={outerStyle}>
         <RuntimeShell
+          barInsets={barInsets}
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
@@ -305,6 +314,7 @@ export default function RuntimeView({
         }}
       >
         <RuntimeShell
+          barInsets={barInsets}
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
