@@ -29,6 +29,15 @@ const JBUF_MS    = 6;       // frames to buffer a jump before landing
 // Babylon render-unit scale:  1 BU ≈ 40 logical px
 const PX_PER_BU  = 40;
 
+// ─── Seeded RNG (deterministic, avoids hydration mismatches) ─────────────────
+function seededRng(seed: number) {
+  let s = (seed | 0) >>> 0;
+  return () => {
+    s = Math.imul(s, 1664525) + 1013904223 >>> 0;
+    return s / 0x100000000;
+  };
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface PlatDef {
   x: number; y: number; w: number; h: number;
@@ -172,6 +181,16 @@ export default function BabylonSideScroller() {
   const [lives,  setLives]    = useState(3);
   const [vpad,   setVpad]     = useState({ left: false, right: false, jump: false });
   const vpadRef  = useRef({ left: false, right: false, jump: false });
+  const [bestScore, setBestScore] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    return parseInt(localStorage.getItem('dreamrunner_best') ?? '0', 10);
+  });
+  // Ref mirrors bestScore so callbacks can read the latest value without stale closures
+  const bestScoreRef = useRef(typeof window !== 'undefined'
+    ? parseInt(localStorage.getItem('dreamrunner_best') ?? '0', 10)
+    : 0);
+  const [progress, setProgress] = useState(0);
+  const [isNewBest, setIsNewBest] = useState(false);
 
   // ── Start / restart ────────────────────────────────────────────────────────
   const startGame = useCallback((lv: number, sc: number, li: number) => {
@@ -179,11 +198,22 @@ export default function BabylonSideScroller() {
     if (!canvas) return;
     gameRef.current?.destroy();
     const core = new GameCore(canvas, lv, sc, li, {
-      onScore:    (s)  => setScore(s),
+      onScore:    (s)  => {
+        setScore(s);
+        if (s > bestScoreRef.current) {
+          bestScoreRef.current = s;
+          setBestScore(s);
+          setIsNewBest(true);
+          if (typeof window !== 'undefined') localStorage.setItem('dreamrunner_best', String(s));
+        }
+      },
       onDie:      (li) => { setLives(li); setStatus('dead'); },
       onComplete: (lv) => { setLevel(lv); setStatus(lv > 3 ? 'win' : 'complete'); },
+      onProgress: (pct) => setProgress(pct),
     });
     gameRef.current = core;
+    setProgress(0);
+    setIsNewBest(false);
     setStatus('playing');
   }, []);
 
@@ -363,12 +393,22 @@ export default function BabylonSideScroller() {
                           textShadow: '0 0 28px #fa0,0 0 8px #fa0', lineHeight: 1.1, marginBottom: 8 }}>
               YOU WIN!
             </div>
-            <div style={{ fontSize: 22, color: '#fa0', fontWeight: 800, marginBottom: 24 }}>
+            <div style={{ fontSize: 22, color: '#fa0', fontWeight: 800, marginBottom: 4 }}>
               Final Score: {score}
             </div>
+            {isNewBest && (
+              <div style={{ fontSize: 13, color: '#4af', fontWeight: 700, marginBottom: 4 }}>
+                ✦ New Best Score!
+              </div>
+            )}
+            {bestScore > 0 && (
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 20 }}>
+                Best: {bestScore}
+              </div>
+            )}
             <button
               style={{ ...btnBase, background: 'linear-gradient(135deg,#c8981a,#f7c44a)',
-                       color: '#000', padding: '12px 36px', fontSize: 16 }}
+                       color: '#000', padding: '12px 36px', fontSize: 16, marginTop: 4 }}
               onClick={() => startGame(1, 0, 3)}
             >Play Again</button>
           </div>
@@ -376,24 +416,41 @@ export default function BabylonSideScroller() {
 
         {/* ── HUD ── */}
         {status === 'playing' && (
-          <div style={{ position: 'absolute', top: 10, left: 12, right: 12,
-                        display: 'flex', justifyContent: 'space-between', pointerEvents: 'none' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
-                          textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
-                          borderRadius: 6, padding: '3px 10px' }}>
-              ⭐ {score}
+          <>
+            <div style={{ position: 'absolute', top: 10, left: 12, right: 12,
+                          display: 'flex', justifyContent: 'space-between', pointerEvents: 'none' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
+                            textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
+                            borderRadius: 6, padding: '3px 10px' }}>
+                ⭐ {score}
+              </div>
+              {bestScore > 0 && (
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#fa0',
+                              textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
+                              borderRadius: 6, padding: '3px 8px' }}>
+                  🏆 {bestScore}
+                </div>
+              )}
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
+                            textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
+                            borderRadius: 6, padding: '3px 10px' }}>
+                LVL {level}
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
+                            textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
+                            borderRadius: 6, padding: '3px 10px' }}>
+                {'❤️'.repeat(Math.max(0, lives))}
+              </div>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
-                          textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
-                          borderRadius: 6, padding: '3px 10px' }}>
-              LVL {level}
+            {/* Progress bar */}
+            <div style={{ position: 'absolute', bottom: 8, left: 12, right: 12,
+                          background: 'rgba(0,0,0,0.35)', borderRadius: 4, height: 5,
+                          pointerEvents: 'none' }}>
+              <div style={{ height: '100%', borderRadius: 4, width: `${progress}%`,
+                            background: 'linear-gradient(90deg,#4af,#4af7a0)',
+                            transition: 'width 0.25s' }} />
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
-                          textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
-                          borderRadius: 6, padding: '3px 10px' }}>
-              {'❤️'.repeat(Math.max(0, lives))}
-            </div>
-          </div>
+          </>
         )}
       </div>
 
@@ -442,9 +499,10 @@ export default function BabylonSideScroller() {
 
 // ─── GameCore — owns the Babylon.js engine lifecycle ─────────────────────────
 interface GameCallbacks {
-  onScore:    (s: number) => void;
-  onDie:      (livesLeft: number) => void;
-  onComplete: (nextLevel: number) => void;
+  onScore:     (s: number) => void;
+  onDie:       (livesLeft: number) => void;
+  onComplete:  (nextLevel: number) => void;
+  onProgress?: (pct: number) => void;
 }
 
 type VPad = { left: boolean; right: boolean; jump: boolean };
@@ -491,6 +549,14 @@ class GameCore {
   private enemyMeshes: (import('@babylonjs/core').Mesh | null)[] = [];
   private bgPlane:     import('@babylonjs/core').Mesh | null = null;
 
+  // Goal star meshes
+  private goalMesh:    import('@babylonjs/core').Mesh | null = null;
+  private goalRing:    import('@babylonjs/core').Mesh | null = null;
+  private goalIdx:     number = -1;
+
+  // Parallax background stars
+  private bgStars: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number }[] = [];
+
   // camera ref
   private camMesh: import('@babylonjs/core').FreeCamera | null = null;
 
@@ -499,6 +565,9 @@ class GameCore {
 
   // anim
   private animTick = 0;
+
+  // guard: prevent multiple onDie calls before React re-renders
+  private dying = false;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -532,6 +601,8 @@ class GameCore {
     this.jBufFr    = 0;
     this.prevJump  = false;
     this.invincible = 0;
+    this.dying  = false;
+    this.goalIdx = -1;
   }
 
   private async initBabylon(canvas: HTMLCanvasElement) {
@@ -575,6 +646,29 @@ class GameCore {
     bg.material = bgMat;
     this.bgPlane = bg;
 
+    // ── Parallax star layers (3 depths, scrolling at different rates) ────────
+    const rng = seededRng(this.level * 7919 + 13);
+    // layer config: [parallaxFactor, z-depth, count, size-range]
+    const starLayers: [number, number, number, number][] = [
+      [0.04, 14, 26, 0.07],   // distant — slowest parallax, deep z
+      [0.09,  9, 18, 0.09],   // mid
+      [0.16,  5, 12, 0.11],   // near — fastest parallax, shallow z
+    ];
+    for (const [parallax, depth, count, size] of starLayers) {
+      for (let s = 0; s < count; s++) {
+        const star = BJS.MeshBuilder.CreateSphere(`bgs_l${depth}_${s}`,
+          { diameter: size + rng() * size, segments: 3 }, scene);
+        const mat = new BJS.StandardMaterial(`bgsm_${depth}_${s}`, scene);
+        const b = 0.55 + rng() * 0.45;
+        mat.emissiveColor = new BJS.Color3(b * 0.90, b * 0.93, b);
+        mat.disableLighting = true;
+        star.material = mat;
+        const baseX = (rng() - 0.5) * 54;
+        star.position.set(baseX, rng() * 13 + 0.5, depth);
+        this.bgStars.push({ mesh: star, baseX, parallax });
+      }
+    }
+
     // ── Platform meshes ───────────────────────────────────────────────────────
     for (const p of this.platforms) {
       const bw = p.w / PX_PER_BU;
@@ -603,19 +697,38 @@ class GameCore {
     }
 
     // ── Coin meshes ───────────────────────────────────────────────────────────
-    for (const c of this.coins) {
-      const mesh = BJS.MeshBuilder.CreateSphere(`coin_${c.x}_${c.y}`,
-        { diameter: c.isGoal ? 0.7 : 0.42, segments: 8 }, scene);
-      const mat  = new BJS.StandardMaterial(`cmat_${c.x}`, scene);
-      mat.diffuseColor  = c.isGoal
-        ? new BJS.Color3(1, 0.85, 0.1)
-        : new BJS.Color3(0.95, 0.75, 0.1);
-      mat.emissiveColor = c.isGoal
-        ? new BJS.Color3(0.6, 0.4, 0.0)
-        : new BJS.Color3(0.35, 0.25, 0.0);
-      mesh.material = mat;
-      glow.addIncludedOnlyMesh(mesh);
-      this.coinMeshes.push(mesh);
+    // Goal coin is special: rendered as an animated star (sphere + torus ring).
+    const goalMat = new BJS.StandardMaterial('goalMat', scene);
+    goalMat.diffuseColor  = new BJS.Color3(1.0, 0.85, 0.10);
+    goalMat.emissiveColor = new BJS.Color3(0.70, 0.42, 0.00);
+    goalMat.specularColor = new BJS.Color3(1.0, 0.9, 0.3);
+
+    for (let i = 0; i < this.coins.length; i++) {
+      const c = this.coins[i];
+      if (c.isGoal) {
+        this.goalIdx = i;
+        // Central star body
+        const star = BJS.MeshBuilder.CreateSphere(`goal_body`, { diameter: 0.88, segments: 10 }, scene);
+        star.material = goalMat;
+        glow.addIncludedOnlyMesh(star);
+        this.goalMesh = star;
+        // Orbiting torus ring
+        const ring = BJS.MeshBuilder.CreateTorus(`goal_ring`,
+          { diameter: 1.5, thickness: 0.10, tessellation: 28 }, scene);
+        ring.material = goalMat;
+        glow.addIncludedOnlyMesh(ring);
+        this.goalRing = ring;
+        this.coinMeshes.push(null); // keep index aligned with this.coins[] for collision detection
+      } else {
+        const mesh = BJS.MeshBuilder.CreateSphere(`coin_${c.x}_${c.y}`,
+          { diameter: 0.42, segments: 8 }, scene);
+        const mat  = new BJS.StandardMaterial(`cmat_${c.x}`, scene);
+        mat.diffuseColor  = new BJS.Color3(0.95, 0.75, 0.1);
+        mat.emissiveColor = new BJS.Color3(0.35, 0.25, 0.0);
+        mesh.material = mat;
+        glow.addIncludedOnlyMesh(mesh);
+        this.coinMeshes.push(mesh);
+      }
     }
 
     // ── Enemy meshes ──────────────────────────────────────────────────────────
@@ -692,6 +805,7 @@ class GameCore {
   // ── Physics & logic tick ──────────────────────────────────────────────────
   private tick() {
     if (!this.engine || !this.scene) return;
+    if (this.dying) return;
     this.animTick++;
 
     const isLeft  = this.keys.has('ArrowLeft')  || this.keys.has('KeyA')  || this.vpad.left;
@@ -800,9 +914,15 @@ class GameCore {
 
     // Fell off screen — die
     if (this.py > GH + 60) {
+      this.dying = true;
       this.lives--;
       this.cbs.onDie(this.lives);
       return;
+    }
+
+    // Emit progress (every 15 frames to avoid excessive re-renders)
+    if (this.animTick % 15 === 0) {
+      this.cbs.onProgress?.(Math.min(100, Math.round((this.px / this.worldW) * 100)));
     }
 
     // ── Coin collection ────────────────────────────────────────────────────
@@ -813,15 +933,23 @@ class GameCore {
       const cx = c.x + CW / 2, cy = c.y + CW / 2;
       if (Math.abs(PCX - cx) < CW + 8 && Math.abs(PCY - cy) < CW + 8) {
         c.collected = true;
-        if (this.coinMeshes[i]) {
-          this.coinMeshes[i]!.setEnabled(false);
-          this.coinMeshes[i] = null;
-        }
-        this.score += c.isGoal ? 500 : 100;
-        this.cbs.onScore(this.score);
         if (c.isGoal) {
+          // Hide the goal star meshes
+          this.goalMesh?.setEnabled(false);
+          this.goalMesh = null;
+          this.goalRing?.setEnabled(false);
+          this.goalRing = null;
+          this.score += 500;
+          this.cbs.onScore(this.score);
           this.cbs.onComplete(this.level + 1);
           return;
+        } else {
+          if (this.coinMeshes[i]) {
+            this.coinMeshes[i]!.setEnabled(false);
+            this.coinMeshes[i] = null;
+          }
+          this.score += 100;
+          this.cbs.onScore(this.score);
         }
       }
     }
@@ -858,6 +986,7 @@ class GameCore {
           this.cbs.onScore(this.score);
         } else if (this.invincible === 0) {
           // Hit by enemy
+          this.dying = true;
           this.invincible = 90;
           this.lives--;
           this.cbs.onDie(this.lives);
@@ -898,7 +1027,7 @@ class GameCore {
       this.platMeshes[i].position.z = 0;
     }
 
-    // Coins
+    // Coins (regular only — goal coin handled separately below)
     const coinY = Math.sin(this.animTick * 0.05) * 0.1; // bob animation
     for (let i = 0; i < this.coinMeshes.length; i++) {
       const m = this.coinMeshes[i];
@@ -909,6 +1038,25 @@ class GameCore {
       m.position.y = by + coinY;
       m.position.z = 0.2;
       m.rotation.y = this.animTick * 0.04;
+    }
+
+    // Goal star (sphere + orbiting torus ring)
+    if (this.goalMesh && this.goalIdx >= 0) {
+      const gc = this.coins[this.goalIdx];
+      if (!gc.collected) {
+        const floatY = Math.sin(this.animTick * 0.055) * 0.20;
+        const pulse  = 1.0 + Math.sin(this.animTick * 0.08) * 0.12;
+        const { bx, by } = toB(gc.x, gc.y, 18, 18);
+        this.goalMesh.position.set(bx, by + floatY, 0.2);
+        this.goalMesh.scaling.setAll(pulse);
+        this.goalMesh.rotation.y = this.animTick * 0.05;
+        if (this.goalRing) {
+          this.goalRing.position.set(bx, by + floatY, 0.2);
+          this.goalRing.rotation.y  =  this.animTick * 0.04;
+          this.goalRing.rotation.x  = Math.PI / 3 + Math.sin(this.animTick * 0.025) * 0.35;
+          this.goalRing.scaling.setAll(pulse);
+        }
+      }
     }
 
     // Enemies
@@ -951,9 +1099,15 @@ class GameCore {
       this.playerHead.setEnabled(this.invincible === 0 || (this.animTick & 4) !== 0);
     }
 
-    // Parallax background
+    // Parallax background plane
     if (this.bgPlane) {
       this.bgPlane.position.x = this.camX / PX_PER_BU * 0.2;
+    }
+
+    // Parallax star layers — each layer scrolls at its own rate
+    const camBX = this.camX / PX_PER_BU;
+    for (const { mesh, baseX, parallax } of this.bgStars) {
+      mesh.position.x = baseX - camBX * parallax;
     }
 
     // Camera follows player smoothly in X
