@@ -26,7 +26,7 @@ import {
   Plus, X, CheckCircle, XCircle, Loader2,
   Gamepad2, Music2, FlaskConical,
   ZoomIn, ZoomOut, MousePointer2, Scissors, Copy, Clipboard, Trash2, Bot,
-  ShieldCheck, Undo2, AlertTriangle,
+  ShieldCheck, Undo2, AlertTriangle, Terminal, ExternalLink,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
@@ -189,6 +189,11 @@ function CIOverallBadge({ status }: { status: CIOverallStatus }) {
 /** Notebook cells localStorage key — unique per surface so different daydreams are isolated */
 const NOTEBOOK_STORAGE_KEY = 'de-codegen-cells';
 
+/** ShellHub server URL localStorage key */
+const SHELLHUB_URL_KEY = 'de-shellhub-url';
+const SHELLHUB_DEFAULT_URL = 'https://cloud.shellhub.io';
+const SHELLHUB_EMBED_HEIGHT = 420;
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function CodeEngin({ onBack }: Props) {
@@ -221,6 +226,15 @@ export default function CodeEngin({ onBack }: Props) {
   const [newProjectLang,  setNewProjectLang]  = useState<CellLanguage>('python');
   const [creating,        setCreating]        = useState(false);
   const [user,            setUser]            = useState<{ id: string } | null>(null);
+
+  // ── ShellHub connector state ─────────────────────────────────────────────────
+  const [shellhubUrl, setShellhubUrl] = useState<string>(() => {
+    try {
+      return (typeof window !== 'undefined' && localStorage.getItem(SHELLHUB_URL_KEY)) || SHELLHUB_DEFAULT_URL;
+    } catch { return SHELLHUB_DEFAULT_URL; }
+  });
+  const [shellhubUrlDraft, setShellhubUrlDraft] = useState<string>(shellhubUrl);
+  const [shellhubEmbedOpen, setShellhubEmbedOpen] = useState(false);
 
   // ── Navigation state ────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<ActiveTab>('notebook');
@@ -1962,6 +1976,113 @@ export default function CodeEngin({ onBack }: Props) {
                 <Link href="/connectors" className="de-btn de-btn-ghost text-xs">
                   Connect GitHub →
                 </Link>
+              </div>
+            </div>
+
+            {/* ShellHub Connector */}
+            <div className="de-widget" style={{ marginTop: 14 }}>
+              <div className="de-widget-header">
+                <Terminal className="w-4 h-4" style={{ color: '#10b981' }} />
+                <span className="de-widget-title ml-2">ShellHub</span>
+                <span
+                  style={{
+                    marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                    borderRadius: 999, background: 'rgba(16,185,129,0.12)',
+                    color: '#10b981', border: '1px solid rgba(16,185,129,0.3)',
+                  }}
+                >
+                  SSH Gateway
+                </span>
+              </div>
+
+              <div className="de-widget-body">
+                <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 12, lineHeight: 1.5 }}>
+                  Connect to remote Linux devices over SSH directly from CodeEngin via{' '}
+                  <strong style={{ color: 'var(--de-text)' }}>ShellHub</strong> — an open-source
+                  SSH gateway with a web-based terminal.
+                </p>
+
+                {/* Server URL input */}
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>
+                  ShellHub Server URL
+                </label>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                  <input
+                    type="url"
+                    value={shellhubUrlDraft}
+                    onChange={e => setShellhubUrlDraft(e.target.value)}
+                    placeholder={SHELLHUB_DEFAULT_URL}
+                    aria-label="ShellHub server URL"
+                    style={{
+                      flex: 1, fontSize: 12, padding: '6px 10px', borderRadius: 8,
+                      border: '1px solid rgba(160,195,240,0.35)',
+                      background: 'rgba(255,255,255,0.7)', color: 'var(--de-text)',
+                      outline: 'none',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const trimmed = shellhubUrlDraft.trim() || SHELLHUB_DEFAULT_URL;
+                      setShellhubUrl(trimmed);
+                      setShellhubUrlDraft(trimmed);
+                      try { localStorage.setItem(SHELLHUB_URL_KEY, trimmed); } catch { /* ignore */ }
+                    }}
+                    className="de-btn de-btn-ghost text-xs"
+                    aria-label="Save ShellHub server URL"
+                    style={{ flexShrink: 0 }}
+                  >
+                    Save
+                  </button>
+                </div>
+
+                {/* Embed toggle */}
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShellhubEmbedOpen(prev => !prev)}
+                    className="de-btn de-btn-ghost text-xs"
+                    aria-label={shellhubEmbedOpen ? 'Collapse ShellHub embed' : 'Embed ShellHub dashboard'}
+                    style={{
+                      border: `1.5px solid ${shellhubEmbedOpen ? '#10b981' : 'rgba(160,195,240,0.35)'}`,
+                      color: shellhubEmbedOpen ? '#10b981' : 'var(--de-text)',
+                    }}
+                  >
+                    {shellhubEmbedOpen ? 'Hide Embed' : 'Embed Dashboard'}
+                  </button>
+                  <a
+                    href={shellhubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Open ShellHub dashboard in new tab"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 5,
+                      fontSize: 12, fontWeight: 600, color: '#10b981',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <ExternalLink size={12} />
+                    Open Dashboard
+                  </a>
+                </div>
+
+                {/* Inline iframe embed */}
+                {shellhubEmbedOpen && (
+                  <div
+                    style={{
+                      marginTop: 12, borderRadius: 10, overflow: 'hidden',
+                      border: '1px solid rgba(16,185,129,0.25)',
+                      background: '#000',
+                    }}
+                  >
+                    <iframe
+                      src={shellhubUrl}
+                      title="ShellHub Dashboard"
+                      style={{ width: '100%', height: SHELLHUB_EMBED_HEIGHT, border: 'none', display: 'block' }}
+                      sandbox="allow-scripts allow-forms allow-popups"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </>
