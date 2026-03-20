@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Bell, BarChart3, TrendingUp, Users,
@@ -45,6 +44,8 @@ interface WorkspaceDashboardProps {
   posts: Post[];
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
+  /** Open a URL inside the current runtime region (no full-page navigation). */
+  onOpenUrl?: (url: string, title?: string) => void;
   isAdmin?: boolean;
 }
 
@@ -274,10 +275,19 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
 
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, isAdmin = false }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const { enterCustomizeMode } = useCustomizeMode();
+
+  /** Navigate inside the runtime region when possible, else use router. */
+  const openPage = (url: string, title?: string) => {
+    if (onOpenUrl) {
+      onOpenUrl(url, title);
+    } else {
+      router.push(url);
+    }
+  };
 
   // Use admin or user agent list based on role
   const AI_AGENTS = isAdmin ? AI_AGENTS_ADMIN : AI_AGENTS_USER;
@@ -325,12 +335,9 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
       <div
         data-scroll
         style={{
-          minHeight: '100svh',
+          minHeight: '100%',
           width: '100%',
-          overflowY: 'auto',
-          overflowX: 'hidden',
           paddingBottom: 140,
-          WebkitOverflowScrolling: 'touch',
         }}
       >
         {/* ── Floating header — no background bar, just text over gradient ── */}
@@ -415,15 +422,22 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </div>
 
             {/* Flip to Profile — clean text navigation */}
-            <Link href="/edit-profiledream" style={{
-              fontSize: 14, color: 'var(--de-text-dim)',
-              textDecoration: 'none', fontWeight: 500,
-              letterSpacing: '-0.01em', whiteSpace: 'nowrap',
-              padding: '8px 0 8px 4px', minHeight: 40,
-              display: 'flex', alignItems: 'center',
-            }}>
+            <button
+              type="button"
+              onClick={() => openPage('/edit-profiledream', 'DreamProfile')}
+              style={{
+                fontSize: 14, color: 'var(--de-text-dim)',
+                background: 'none', border: 'none',
+                fontWeight: 500,
+                letterSpacing: '-0.01em', whiteSpace: 'nowrap',
+                padding: '8px 0 8px 4px', minHeight: 40,
+                display: 'flex', alignItems: 'center',
+                cursor: 'pointer',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
               Flip to Profile &rsaquo;
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -446,9 +460,10 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 { href: '/edit-profiledream', label: 'DreamProfile' },
                 { href: '/discover', label: 'Feed' },
               ].map((item) => (
-                <Link
+                <button
                   key={item.label}
-                  href={item.href}
+                  type="button"
+                  onClick={() => openPage(item.href, item.label)}
                   className="de-pressable"
                   style={{
                     borderRadius: 999,
@@ -458,12 +473,12 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                     padding: '7px 14px',
                     fontSize: 12,
                     fontWeight: 600,
-                    textDecoration: 'none',
-                    display: 'inline-block',
+                    cursor: 'pointer',
+                    WebkitTapHighlightColor: 'transparent',
                   }}
                 >
                   {item.label}
-                </Link>
+                </button>
               ))}
               <button
                 type="button"
@@ -607,22 +622,27 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 ) : (
                   <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--de-text-dim)', fontSize: 12 }}>
                     Your feed is live.{' '}
-                    <Link href="/daydream/create" style={{ color: 'var(--de-accent)', fontWeight: 600 }}>Post something</Link>
+                    <button type="button" onClick={() => openPage('/daydream/create', 'Create')} style={{ color: 'var(--de-accent)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>Post something</button>
                     {' '}or{' '}
-                    <Link href="/discover" style={{ color: 'var(--de-accent)', fontWeight: 600 }}>Discover creators</Link>{' '}
+                    <button type="button" onClick={() => openPage('/discover', 'Discover')} style={{ color: 'var(--de-accent)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>Discover creators</button>{' '}
                     to fill it.
                   </div>
                 )}
               </div>
 
-              <Link href="/discover" style={{
-                display: 'flex', alignItems: 'center', gap: 4,
-                padding: '10px 0',
-                fontSize: 12, color: 'var(--de-accent)', fontWeight: 600,
-                textDecoration: 'none',
-              }}>
+              <button
+                type="button"
+                onClick={() => openPage('/discover', 'Discover')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '10px 0',
+                  fontSize: 12, color: 'var(--de-accent)', fontWeight: 600,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
                 View all activity <ChevronRight size={13} />
-              </Link>
+              </button>
             </div>
 
             {/* ── Metric widgets — 2×2 grid, full width ── */}
@@ -634,10 +654,15 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
                   Telemetry
                 </span>
-                <Link href="/analytics" style={{ fontSize: 12, color: 'var(--de-accent)',
-                  fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <button
+                  type="button"
+                  onClick={() => openPage('/analytics', 'Analytics')}
+                  style={{ fontSize: 12, color: 'var(--de-accent)',
+                    fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 3, WebkitTapHighlightColor: 'transparent' }}
+                >
                   Full stats <ChevronRight size={12} />
-                </Link>
+                </button>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <MetricWidget
@@ -715,9 +740,10 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               gap: 12, padding: '12px 16px 16px',
             }}>
               {Array.from({ length: 4 }).map((_, i) => (
-                <Link
+                <button
                   key={`widget-slot-${i}`}
-                  href="/connectors"
+                  type="button"
+                  onClick={() => openPage('/connectors', 'Connectors')}
                   className="de-card-pressable"
                   style={{
                     minHeight: 92,
@@ -727,12 +753,13 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                     boxShadow: 'inset 0 1px 8px rgba(255,255,255,0.30), 0 2px 10px rgba(0,0,0,0.04)',
                     backdropFilter: 'blur(10px)',
                     WebkitBackdropFilter: 'blur(10px)',
-                    textDecoration: 'none',
+                    cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column' as const,
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6,
+                    WebkitTapHighlightColor: 'transparent',
                   }}
                 >
                   <div style={{
@@ -745,7 +772,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                   <span style={{ fontSize: 10, color: 'var(--de-text-dim)', fontWeight: 500 }}>
                     Add widget
                   </span>
-                </Link>
+                </button>
               ))}
             </div>
           </div>
