@@ -2,7 +2,6 @@
 
 import React, { useCallback, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Music,
@@ -22,9 +21,6 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import { WidgetInstance, getWidgetType } from '@/types/widgets';
-import DreamNavControls from '@/components/dreamnav/DreamNavControls';
-import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
-import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DreamWidgetGrid from './DreamWidgetGrid';
 
 import '@/components/v1-ui/widget-feed-screen.css';
@@ -117,12 +113,9 @@ function getIconForType(type: string | undefined): React.ReactNode {
 }
 
 export default function HomeDream({ userId: _userId, userWidgets, followingWidgets }: HomeDreamProps) {
-  const router = useRouter();
-
   const [selectedWidget, setSelectedWidget] = useState<WidgetInstance | null>(null);
   const [feedStarted, setFeedStarted] = useState(true); // feed is active by default — no gate
   const [bannerVisible, setBannerVisible] = useState(false);
-  const [bothMenusOpen, setBothMenusOpen] = useState(false);
 
   const centerRef = useRef<HTMLElement>(null);
   const hasWidgets = userWidgets.length > 0;
@@ -133,27 +126,6 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
     setFeedStarted(true);
     setBannerVisible(true);
   }, []);
-
-  const handleGoHome = useCallback(() => {
-    setSelectedWidget(null);
-    setBothMenusOpen(false);
-    centerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-
-  const handleSystemAction = useCallback(
-    (action: SystemMenuAction) => {
-      setBothMenusOpen(false);
-      switch (action) {
-        case 'settings':      router.push('/settings');          break;
-        case 'account':       router.push('/edit-profiledream'); break;
-        case 'feed-settings': router.push('/feed-settings');     break;
-        case 'connectors':    router.push('/connectors');        break;
-        case 'go-home':       handleGoHome();                    break;
-        case 'dr-eams':       /* Dr. Eams panel — wired in full impl */ break;
-      }
-    },
-    [router, handleGoHome]
-  );
 
   const handleWidgetTapFromRail = useCallback((widget: WidgetInstance) => {
     /* Tap on left rail = dispatch createPost event (spec §rail model) */
@@ -319,27 +291,6 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
         </aside>
 
       </div>
-
-      {/* ── Persistent Gold Button ─────────────────────────────────────────── */}
-      <div className={`relative ${bothMenusOpen ? '' : 'gold-button-pulse'}`}>
-        <DreamNavControls
-          onHome={handleGoHome}
-          onBothMenus={() => setBothMenusOpen(true)}
-        />
-      </div>
-
-      {/* ── Dual menus (Daydreams left · System right) ────────────────────── */}
-      <DreamRadialMenu
-        open={bothMenusOpen}
-        onClose={() => setBothMenusOpen(false)}
-        side="left"
-      />
-      <SystemRadialMenu
-        open={bothMenusOpen}
-        onClose={() => setBothMenusOpen(false)}
-        side="right"
-        onAction={handleSystemAction}
-      />
 
     </div>
   );
