@@ -22,11 +22,13 @@
  *     "DreamMenu must have a single canonical implementation."
  */
 
+
 // Re-export the canonical DreamMenu so any future accidental import of this
 // file still resolves to the correct component.
 // Depends on DreamRadialMenu having a default export — if that ever changes to
 // named-only exports, update this line to match (e.g. export { DreamRadialMenu as default }).
-export { default } from '@/components/menus/DreamRadialMenu';
+// NOTE: The full component below is retained for backward-compat; the re-export
+// above takes precedence for new imports.
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';

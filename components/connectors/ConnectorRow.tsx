@@ -383,21 +383,6 @@ export default function ConnectorRow({ connector, status, onConnectSuccess, onDi
     } catch {
       setManageErrorMsg('Network error — please try again.');
       track('disconnect_failure', { connectorId: connector.id });
-    setErrorMsg(null);
-    try {
-      const res = await fetch(`/api/connectors/${connector.id}/connect`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        setLocalStatus('not_connected');
-        setShowModal(false);
-        track('disconnect_success', { connectorId: connector.id });
-      } else {
-        const data = await res.json() as { message?: string };
-        setErrorMsg(data.message ?? 'Disconnect failed. Please try again.');
-      }
-    } catch {
-      setErrorMsg('Network error — please try again.');
     } finally {
       setDisconnecting(false);
     }
@@ -406,7 +391,6 @@ export default function ConnectorRow({ connector, status, onConnectSuccess, onDi
   const btnDisabled =
     localStatus === 'unsupported' ||
     localStatus === 'needs_admin_setup' ||
-    localStatus === 'requires_approval';
     localStatus === 'requires_approval' ||
     submitting ||
     disconnecting;
