@@ -34,9 +34,11 @@ const RhythmGame      = dynamicImport(() => import('@/components/games/RhythmGam
 const MazeGame        = dynamicImport(() => import('@/components/games/MazeGame'),        { ssr: false, loading: Loading });
 const SolitaireGame   = dynamicImport(() => import('@/components/games/SolitaireGame'),   { ssr: false, loading: Loading });
 // Pre-existing inline games — wired here so every finished game is accessible
-const WordSprint      = dynamicImport(() => import('@/components/games/WordSprint'),      { ssr: false, loading: Loading });
-const MemoryGrid      = dynamicImport(() => import('@/components/games/MemoryGrid'),      { ssr: false, loading: Loading });
-const SpeedTap        = dynamicImport(() => import('@/components/games/SpeedTap'),        { ssr: false, loading: Loading });
+const WordSprint         = dynamicImport(() => import('@/components/games/WordSprint'),         { ssr: false, loading: Loading });
+const MemoryGrid         = dynamicImport(() => import('@/components/games/MemoryGrid'),         { ssr: false, loading: Loading });
+const SpeedTap           = dynamicImport(() => import('@/components/games/SpeedTap'),           { ssr: false, loading: Loading });
+// Babylon.js side-scroller — replaces old Dr. Eams Canvas 2D platformer
+const BabylonSideScroller = dynamicImport(() => import('@/components/games/BabylonSideScroller'), { ssr: false, loading: Loading });
 
 interface GameDef {
   id: string;
@@ -105,9 +107,9 @@ const GAMES: GameDef[] = [
   // ── Adventure / Platformer ────────────────────────────────────────────────
   { id: 'maze',          emoji: '🌀', label: 'Maze Runner',      category: 'Adventure',   color: '#38bdf8', component: MazeGame,
     desc: 'Procedurally generated maze — navigate from start to the ★ exit' },
-  // ── Dr. Eams Platformer — full-page game, link-out ────────────────────────
-  { id: 'platformer',    emoji: '∞',  label: 'Dr. Eams Platformer', category: 'Platformer', color: '#2a8ab8', href: '/game',
-    desc: '3-level side-scroller — run, jump, collect coins, defeat Boogie enemies' },
+  // ── Dream Runner — Babylon.js 3-D side-scroller ───────────────────────────
+  { id: 'platformer',    emoji: '∞',  label: 'Dream Runner',     category: 'Platformer',  color: '#2a8ab8', component: BabylonSideScroller,
+    desc: 'Babylon.js 3-D side-scroller — run, jump (move+jump together), collect dream coins, defeat enemies' },
 ];
 
 export default function GamesHub() {

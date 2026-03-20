@@ -1,5 +1,5 @@
-// app/game/page.tsx
-// Dr. Eams Platformer — 3-level platformer game
+// app/daydream/game/page.tsx
+// Dream Runner — Babylon.js 3-D side-scrolling platformer.
 // Auth-gated: requires sign-in.
 
 import { createServerClient } from '@/lib/supabase/server';
@@ -10,8 +10,8 @@ import GamePageClient from './GamePageClient';
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
-  title: 'Dr. Eams Platformer – Dreamengin',
-  description: 'Guide Dr. Eams through 3 dreamlike worlds.',
+  title: 'Dream Runner – Dreamengin',
+  description: 'Babylon.js 3-D side-scrolling platformer. Run, jump, collect dream coins.',
 };
 
 export default async function GamePage() {
@@ -40,7 +40,7 @@ export default async function GamePage() {
               Games Daydream
             </div>
             <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)', lineHeight: 1 }}>
-              Dr. Eams Platformer
+              Dream Runner
             </h1>
           </div>
           <span
@@ -66,14 +66,14 @@ export default async function GamePage() {
             <Gamepad2 size={12} /> DREAMengin Arcade
           </div>
           <h2 style={{ fontSize: 28, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 8, lineHeight: 1.1 }}>
-            Guide{' '}
+            Dream{' '}
             <span style={{ background: 'linear-gradient(135deg, #4A90D9, #c8981a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Dr. Eams
+              Runner
             </span>
           </h2>
           <p style={{ fontSize: 14, color: 'var(--de-text-dim)', lineHeight: 1.6, maxWidth: 480, margin: '0 auto' }}>
-            Navigate 3 dreamlike worlds. Collect Dream Coins, stomp enemies,
-            and reach the golden ✦ star to advance.
+            Babylon.js 3-D side-scroller. Collect Dream Coins, stomp enemies,
+            and reach the golden ✦ star to advance. Move and jump work together!
           </p>
         </div>
 
@@ -92,8 +92,8 @@ export default async function GamePage() {
             {[
               { key: '← / A',         action: 'Move left' },
               { key: '→ / D',         action: 'Move right' },
-              { key: '↑ / W / Space', action: 'Jump (×2 in air)' },
-              { key: 'Jump on enemy', action: 'Stomp to defeat' },
+              { key: '↑ / W / Space', action: 'Jump (double-jump)' },
+              { key: 'Move + Jump',   action: 'Always work together' },
             ].map(({ key, action }) => (
               <div
                 key={key}

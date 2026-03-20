@@ -1,3 +1,3 @@
 'use client';
 
-export { default } from '@/components/dreamengin/DrEamsGameCanvas';
+export { default } from '@/components/games/BabylonSideScroller';
