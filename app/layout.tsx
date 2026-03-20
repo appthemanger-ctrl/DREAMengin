@@ -9,6 +9,7 @@ import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
 import GlobalDreamBar from '@/components/home/GlobalDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
 import GlobalCustomizeUI from '@/components/customize/GlobalCustomizeUI';
+import WarpCanvas from '@/components/warp/WarpCanvas';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <ThemeProvider>
           <ThemeApplicator />
+          <WarpCanvas effect="flow" maxParticles={200} spawnRate={25} opacity={0.35} />
           <CustomizeModeProvider>
             <DreamSystemProvider>
               <main role="main" aria-label="Main content">{children}</main>
