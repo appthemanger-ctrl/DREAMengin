@@ -19,6 +19,7 @@
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 // ─── Game constants ──────────────────────────────────────────────────────────
 const GW = 800; // logical canvas width
@@ -420,6 +421,13 @@ export default function BabylonSideScroller() {
   const [zoneName,   setZoneName]   = useState('');
   const [zoneStory,  setZoneStory]  = useState('');
   const [wasABoss,   setWasABoss]   = useState(false); // was the level we just finished a boss?
+
+  // Submit final score when game truly ends (win = all 150 levels, or dead with 0 lives)
+  const submitScore = useSubmitScore('platformer');
+  useEffect(() => {
+    if (status === 'win') submitScore(score, level - 1);
+    if (status === 'dead' && lives === 0) submitScore(score, level);
+  }, [status, lives, score, level, submitScore]);
 
   // ── Start / restart ────────────────────────────────────────────────────────
   const startGame = useCallback((lv: number, sc: number, li: number) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 type Phase = 'idle' | 'countdown' | 'playing' | 'done';
 
@@ -11,6 +12,8 @@ export default function SpeedTap() {
   const [timeLeft, setTimeLeft] = useState(10);
   const [best, setBest]       = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const submitScore = useSubmitScore('speed-tap');
+  useEffect(() => { if (phase === 'done') submitScore(count); }, [phase, count, submitScore]);
 
   const start = useCallback(() => {
     setCount(0); setCd(3); setTimeLeft(10); setPhase('countdown');

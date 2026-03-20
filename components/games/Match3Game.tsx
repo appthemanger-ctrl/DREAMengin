@@ -3,7 +3,8 @@
  * Match3Game — Jewel-matching puzzle (Match-3 / Candy Crush style).
  * Category: puzzle / casual
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 const COLS = 8; const ROWS = 8;
 const GEMS = ['💎','🔴','💛','💚','💜','🔵'];
@@ -58,6 +59,8 @@ export default function Match3Game() {
   const [moves, setMoves] = useState(30);
   const [matches, setMatches] = useState<Set<string>>(new Set());
   const [animating, setAnimating] = useState(false);
+  const submitScore = useSubmitScore('match3');
+  useEffect(() => { if (phase === 'gameover') submitScore(score); }, [phase, score, submitScore]);
 
   const startGame = useCallback(() => {
     setBoard(makeBoard()); setScore(0); setMoves(30); setSelected(null); setMatches(new Set());

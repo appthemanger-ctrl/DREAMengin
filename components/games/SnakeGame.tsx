@@ -4,7 +4,7 @@
  * Category: arcade / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase } from '@/lib/games/hooks';
+import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const CELL = 18; const COLS = 24; const ROWS = 22;
 const CW = COLS * CELL; const CH = ROWS * CELL;
@@ -26,6 +26,8 @@ export default function SnakeGame() {
   const rafRef = useRef(0);
   const lastTickRef = useRef(0);
   const speedRef = useRef(150);
+  const submitScore = useSubmitScore('snake');
+  useEffect(() => { if (phase === 'gameover') submitScore(scoreRef.current); }, [phase, submitScore]);
 
   function randomFood(snake: Pt[]): Pt {
     let p: Pt;

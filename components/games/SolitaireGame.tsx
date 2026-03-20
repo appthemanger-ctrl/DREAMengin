@@ -3,7 +3,8 @@
  * SolitaireGame — Classic Klondike Solitaire card game.
  * Category: card game / casual
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 type Suit = '♠'|'♥'|'♦'|'♣';
 type Rank = 'A'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|'10'|'J'|'Q'|'K';
@@ -38,6 +39,8 @@ export default function SolitaireGame() {
   const [state, setState] = useState(() => makeGame());
   const [selected, setSelected] = useState<{ from: 'tableau'|'waste'; col?: number; cardIdx?: number } | null>(null);
   const [moves, setMoves] = useState(0);
+  const submitScore = useSubmitScore('solitaire');
+  useEffect(() => { if (phase === 'win') submitScore(Math.max(0, 5000 - moves * 10)); }, [phase, moves, submitScore]);
 
   const startGame = useCallback(() => {
     setState(makeGame()); setSelected(null); setMoves(0); setPhase('playing');
