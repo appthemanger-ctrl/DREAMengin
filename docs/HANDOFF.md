@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-20 07:57 UTC | `410c95d` | copilot/add-option-in-coding-engine | Copilot | +2 added  ~4 modified<br>feat: deep ShellHub integration — API token, device list, terminal launch, server-side proxy — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `app/api/shellhub/devices/route.ts`, `lib/connectors/providers/shellhub.ts`<br>✏️: `app/api/connectors/[provider]/connect/route.ts`, `components/daydream/CodeEngin.tsx`, `lib/connectors/connectorRegistry.ts`, `tests/connectors.test.ts` |
 | **auto** | 2026-03-20 02:05 UTC | `3fbc9bd` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #249 from appthemanger-ctrl/copilot/create-new-sidescroll-game — Replace Canvas 2D Dr. Eams platformer with Babylon.js 3D side-scroller (Dream Runner)<br> |
 | **auto** | 2026-03-19 15:32 UTC | `b2c0be5` | copilot/fix-ai-agent-recommendations | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-ai-agent-recommendations<br> |
 | **auto** | 2026-03-19 14:42 UTC | `9a5075a` | copilot/fix-ai-agent-recommendations | Copilot | ~1 modified<br>fix(optimizer): explicit null check in resolveLayoutDensityScore (code review fix) — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/optimizer/index.ts` |
 | **auto** | 2026-03-19 13:34 UTC | `583950d` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #245 from appthemanger-ctrl/copilot/update-system-integrations-definition — feat: rename Connectors → System Integrations, make them editable, fix schema cache error<br> |
-| **auto** | 2026-03-19 09:03 UTC | `99c7efb` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #243 from appthemanger-ctrl/copilot/use-icobs-assets — feat: replace Unicode glyphs with real brand icons — InfinityIcon SVG + SheetIcon in PlatformBadge<br> |
 
 ## What changed in this alignment pass
 
