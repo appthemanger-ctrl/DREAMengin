@@ -24,6 +24,7 @@ import { githubVerify } from '@/lib/connectors/providers/github';
 import { redditVerify } from '@/lib/connectors/providers/reddit';
 import { nostrVerify } from '@/lib/connectors/providers/nostr';
 import { youtubeVerify } from '@/lib/connectors/providers/youtube';
+import { shellhubVerify, SHELLHUB_DEFAULT_SERVER } from '@/lib/connectors/providers/shellhub';
 import type { ConnectorConnectResponse } from '@/types/connector';
 
 export async function POST(
@@ -87,6 +88,12 @@ export async function POST(
         await youtubeVerify({
           access_token: credentials.access_token ?? '',
           api_key: credentials.api_key,
+        });
+        break;
+      case 'shellhub':
+        await shellhubVerify({
+          server_url: credentials.server_url || SHELLHUB_DEFAULT_SERVER,
+          api_key: credentials.api_key ?? '',
         });
         break;
       default:
