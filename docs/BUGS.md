@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-20 08:11 UTC  
-**Triggered by commit:** `0dc1418` on `copilot/update-home-page-scrolling-box` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/update-home-page-scrolling-box
+**Last updated:** 2026-03-20 08:53 UTC  
+**Triggered by commit:** `f505339` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #250 from appthemanger-ctrl/copilot/finish-game-from-last-session
 
 ---
 
