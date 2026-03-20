@@ -4,7 +4,7 @@
  * Categories: strategy / tower defense
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase } from '@/lib/games/hooks';
+import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 700; const CH = 480;
 const CELL = 40; const COLS = Math.floor(CW / CELL); const ROWS = Math.floor(CH / CELL);
@@ -50,6 +50,11 @@ export default function TowerDefense() {
   const spawnsLeftRef = useRef(10);
   const rafRef = useRef(0);
   const selectedRef = useRef<TowerType>('arrow');
+  const submitScore = useSubmitScore('tower-defense');
+  useEffect(() => {
+    if (phase === 'win') submitScore(1000, waveRef.current);
+    if (phase === 'gameover') submitScore(waveRef.current * 100, waveRef.current);
+  }, [phase, submitScore]);
 
   useEffect(() => { selectedRef.current = selectedTower; }, [selectedTower]);
 

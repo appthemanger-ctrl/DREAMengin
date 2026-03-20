@@ -4,7 +4,7 @@
  * Category: arcade / classic
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useGamePhase } from '@/lib/games/hooks';
+import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 480; const CH = 520;
 const PAD_W = 80; const PAD_H = 12; const PAD_Y = CH - 40;
@@ -39,6 +39,8 @@ export default function BreakoutGame() {
   const launchedRef = useRef(false);
   const rafRef = useRef(0);
   const mouseRef = useRef(CW / 2);
+  const submitScore = useSubmitScore('breakout');
+  useEffect(() => { if (phase === 'win' || phase === 'gameover') submitScore(scoreRef.current); }, [phase, submitScore]);
 
   const startGame = useCallback(() => {
     padRef.current = CW / 2 - PAD_W / 2;

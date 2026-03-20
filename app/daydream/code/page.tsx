@@ -29,6 +29,7 @@ export default async function CodeDaydreamPage() {
       title="Code"
       enginName="CodeEngin"
       accentColor="#6366f1"
+      daydreamType="code"
       widgets={WIDGETS}
       sideBComponent={CodeEngin}
     >

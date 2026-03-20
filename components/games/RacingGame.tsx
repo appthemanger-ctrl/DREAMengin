@@ -4,7 +4,7 @@
  * Category: racing / sports
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useKeySet } from '@/lib/games/hooks';
+import { useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 500; const CH = 500;
 type Phase = 'menu' | 'playing' | 'done';
@@ -46,6 +46,8 @@ export default function RacingGame() {
   const startTimeRef = useRef(0);
   const totalTimeRef = useRef(0);
   const LAPS = 3;
+  const submitScore = useSubmitScore('racing');
+  useEffect(() => { if (phase === 'done') submitScore(Math.max(0, Math.round(10000 - totalTimeRef.current * 10))); }, [phase, submitScore]);
 
   const startGame = useCallback(() => {
     playerRef.current = makeCar(-Math.PI / 2, 20);

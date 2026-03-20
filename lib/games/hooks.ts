@@ -74,3 +74,24 @@ export function useKeySet(
   }, [active, preventDefault]);
   return keysRef;
 }
+
+/**
+ * Returns a stable `submit(score, level?)` function that POSTs a score to
+ * `/api/game-scores`.  The call is fire-and-forget — failures are silently
+ * swallowed so a network hiccup never interrupts gameplay.
+ *
+ * The returned callback is intentionally stable (empty `useCallback` deps when
+ * `game` is a string literal) so it is safe to include in `useEffect` dep arrays.
+ */
+export function useSubmitScore(game: string) {
+  return useCallback(
+    (score: number, level?: number) => {
+      fetch('/api/game-scores', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ game, score, ...(level !== undefined ? { level } : {}) }),
+      }).catch(() => {}); // best-effort — 401 for unauthenticated users is expected
+    },
+    [game],
+  );
+}

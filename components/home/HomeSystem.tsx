@@ -78,6 +78,28 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     setBarBlend(1);
   }, [dualRuntime]);
 
+  // ── Open a path in the Surface Space region (iframe) ─────────────────────
+
+  const openInSurfaceRegion = useCallback((path: string) => {
+    dualRuntime.setTopRuntime({ type: 'custom', path });
+    dualRuntime.setDominantRuntime('Surface Space');
+  }, [dualRuntime]);
+
+  const backFromSurfaceRegion = useCallback(() => {
+    dualRuntime.setTopRuntime('HomeDream Surface');
+    dualRuntime.setDominantRuntime('Surface Space');
+  }, [dualRuntime]);
+
+  const openInDreamRegion = useCallback((path: string) => {
+    dualRuntime.setBottomRuntime({ type: 'custom', path });
+    dualRuntime.setDominantRuntime('DreamSpace');
+  }, [dualRuntime]);
+
+  const backFromDreamRegion = useCallback(() => {
+    dualRuntime.setBottomRuntime('DreamSpace');
+    dualRuntime.setDominantRuntime('DreamSpace');
+  }, [dualRuntime]);
+
   // ── Open a system panel in Surface Space (called from global menus) ───────
 
   const openInSurface = useCallback((id: SystemPanelId) => {
@@ -142,6 +164,8 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             isAdmin={isAdmin}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpaceInSurface}
+            onOpenInRegion={openInSurfaceRegion}
+            onBackFromRegion={backFromSurfaceRegion}
           />
         </div>
 
@@ -167,6 +191,8 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             isAdmin={isAdmin}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpace}
+            onOpenInRegion={openInDreamRegion}
+            onBackFromRegion={backFromDreamRegion}
           />
         </div>
       </div>

@@ -29,6 +29,7 @@ export default async function LabDaydreamPage() {
       title="Lab"
       enginName="LabEngin"
       accentColor="#22c55e"
+      daydreamType="lab"
       widgets={WIDGETS}
       sideBComponent={LabEngin}
     >

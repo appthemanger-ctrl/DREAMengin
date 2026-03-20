@@ -7,6 +7,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSubmitScore } from '@/lib/games/hooks';
 
 const CANVAS_W = 900;
 const CANVAS_H = 600;
@@ -445,6 +446,11 @@ export default function RTSGame() {
   const [credits, setCredits] = useState(1500);
   const [buildMode, setBuildMode] = useState<BuildingType | UnitType | null>(null);
   const [tick, setTick] = useState(0);
+  const submitScore = useSubmitScore('rts');
+  useEffect(() => {
+    if (phase === 'victory') submitScore(1000);
+    if (phase === 'defeat')  submitScore(100);
+  }, [phase, submitScore]);
 
   const queueUnit = useCallback((type: UnitType) => {
     const state = stateRef.current;

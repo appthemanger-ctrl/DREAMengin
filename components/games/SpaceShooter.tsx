@@ -4,7 +4,7 @@
  * Category: shoot 'em up / arcade
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useKeySet } from '@/lib/games/hooks';
+import { useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 400; const CH = 560;
 type Phase = 'menu' | 'playing' | 'gameover';
@@ -34,6 +34,8 @@ export default function SpaceShooter() {
   const waveRef = useRef(1);
   const keysRef = useKeySet(phase === 'playing');
   const rafRef = useRef(0);
+  const submitScore = useSubmitScore('space-shooter');
+  useEffect(() => { if (phase === 'gameover') submitScore(scoreRef.current); }, [phase, submitScore]);
   const touchRef = useRef<{ x: number } | null>(null);
 
   const explode = (x: number, y: number, color: string) => {

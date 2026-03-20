@@ -101,6 +101,13 @@ export default async function ShopPage() {
                     </div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.3 }}>{item.name}</div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-gold)' }}>${Number(item.price).toFixed(2)}</div>
+                    <Link
+                      href={`/messages?to=${item.user_id}`}
+                      className="de-btn de-btn-ghost text-xs"
+                      style={{ padding: '4px 10px', marginTop: 2, display: 'inline-flex', width: '100%', justifyContent: 'center' }}
+                    >
+                      Contact Seller
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -109,7 +116,7 @@ export default async function ShopPage() {
         )}
 
         <div className="de-notice">
-          Products sold here go through Dreamengin secure checkout. Payouts processed weekly.
+          Sellers set their own prices and manage checkout directly. Use &ldquo;Contact Seller&rdquo; to arrange purchase via DreamDM.
         </div>
 
       </div>

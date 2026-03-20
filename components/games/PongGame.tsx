@@ -4,7 +4,7 @@
  * Category: sports / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useKeySet } from '@/lib/games/hooks';
+import { useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 600; const CH = 400;
 const PAD_W = 10; const PAD_H = 70; const PAD_SPEED = 5;
@@ -23,6 +23,8 @@ export default function PongGame() {
   const scoresRef = useRef([0, 0]);
   const keysRef = useKeySet(phase === 'playing');
   const rafRef = useRef(0);
+  const submitScore = useSubmitScore('pong');
+  useEffect(() => { if (phase === 'done') submitScore(scoresRef.current[0] * 100); }, [phase, submitScore]);
   const modeRef = useRef<Mode>('ai');
 
   const startGame = useCallback((m: Mode) => {

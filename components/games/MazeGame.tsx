@@ -4,7 +4,7 @@
  * Category: maze / adventure
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useKeySet } from '@/lib/games/hooks';
+import { useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
 
 const CELL = 36; const MAZE_W = 15; const MAZE_H = 12;
 const CW = MAZE_W * CELL; const CH = MAZE_H * CELL;
@@ -48,6 +48,8 @@ export default function MazeGame() {
   const keysRef = useKeySet(phase === 'playing', true);
   const rafRef = useRef(0);
   const startTimeRef = useRef(0);
+  const submitScore = useSubmitScore('maze');
+  useEffect(() => { if (phase === 'win') submitScore(Math.max(0, Math.round(5000 - time * 10))); }, [phase, time, submitScore]);
   const lastMoveRef = useRef(0);
   const tickRef = useRef(0);
 

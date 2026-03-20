@@ -51,6 +51,10 @@ interface RuntimeViewProps {
   isAdmin?: boolean;
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
+  /** Open a path contained inside this region (iframe), instead of full-page navigation */
+  onOpenInRegion?: (path: string) => void;
+  /** Return to the default world for this region (close iframe) */
+  onBackFromRegion?: () => void;
 }
 
 /** Engin name → canonical daydream route */
@@ -71,6 +75,8 @@ export default function RuntimeView({
   isAdmin,
   onOpenDrEams,
   onOpenDreamSpace,
+  onOpenInRegion,
+  onBackFromRegion,
 }: RuntimeViewProps) {
   /* ── In-region iframe state ─────────────────────────────────────────────── */
   const [iframeUrl,   setIframeUrl]   = useState<string | null>(null);
@@ -102,6 +108,23 @@ export default function RuntimeView({
   /* ── Home runtime ────────────────────────────────────────────────────────── */
   if (world === 'HomeDream Surface') {
     return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: isActive ? 1 : 0.3,
+          pointerEvents: isActive ? 'auto' : 'none',
+          transition: 'opacity 0.3s ease',
+        }}
+      >
+        <WorkspaceDashboard
+          profile={profile}
+          posts={posts ?? []}
+          onOpenDrEams={onOpenDrEams}
+          onOpenDreamSpace={onOpenDreamSpace}
+          onOpenInRegion={onOpenInRegion}
+          isAdmin={isAdmin}
+        />
       <div style={outerStyle}>
         <RuntimeShell
           iframeUrl={iframeUrl}
@@ -131,6 +154,7 @@ export default function RuntimeView({
           overflow: 'hidden',
         }}
       >
+        <DreamsSpacePanel onOpenInRegion={onOpenInRegion} />
         <RuntimeShell
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
@@ -145,6 +169,23 @@ export default function RuntimeView({
   /* ── View Profile Surface runtime ───────────────────────────────────────── */
   if (world === 'View Profile Surface') {
     return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: isActive ? 1 : 0.3,
+          pointerEvents: isActive ? 'auto' : 'none',
+          transition: 'opacity 0.3s ease',
+        }}
+      >
+        <WorkspaceDashboard
+          profile={profile}
+          posts={posts ?? []}
+          onOpenDrEams={onOpenDrEams}
+          onOpenDreamSpace={onOpenDreamSpace}
+          onOpenInRegion={onOpenInRegion}
+          isAdmin={isAdmin}
+        />
       <div style={outerStyle}>
         <RuntimeShell
           iframeUrl={iframeUrl}
@@ -204,10 +245,62 @@ export default function RuntimeView({
     );
   }
 
+  // Engin runtime — renders the Daydream Engin surface in an in-region iframe
   /* ── Engin runtime — open engin route in-region iframe ──────────────────── */
   if (typeof world === 'object' && world.type === 'engin') {
     const route = ENGIN_ROUTES[world.name] ?? '/homedream';
     return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: isActive ? 1 : 0.3,
+          pointerEvents: isActive ? 'auto' : 'none',
+          transition: 'opacity 0.3s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Thin in-region header with back navigation */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '10px 14px',
+          background: 'rgba(10,20,40,0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(200,152,26,0.18)',
+          flexShrink: 0,
+          zIndex: 2,
+        }}>
+          <button
+            type="button"
+            onClick={onBackFromRegion ?? undefined}
+            disabled={!onBackFromRegion}
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.14)',
+              borderRadius: 8,
+              color: '#c8981a',
+              fontSize: 13,
+              fontWeight: 700,
+              padding: '5px 12px',
+              cursor: onBackFromRegion ? 'pointer' : 'default',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            ← Back
+          </button>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {world.name}
+          </span>
+        </div>
+        <iframe
+          src={route}
+          title={world.name}
+          style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
+          allow="fullscreen"
+        />
       <div style={outerStyle}>
         <RuntimeShell
           iframeUrl={iframeUrl}
@@ -242,6 +335,60 @@ export default function RuntimeView({
     );
   }
 
+  // Custom runtime — loads the path in an in-region iframe
+  if (typeof world === 'object' && world.type === 'custom') {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: isActive ? 1 : 0.3,
+          pointerEvents: isActive ? 'auto' : 'none',
+          transition: 'opacity 0.3s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Thin in-region header with back navigation */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '10px 14px',
+          background: 'rgba(10,20,40,0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(200,152,26,0.18)',
+          flexShrink: 0,
+          zIndex: 2,
+        }}>
+          <button
+            type="button"
+            onClick={onBackFromRegion ?? undefined}
+            disabled={!onBackFromRegion}
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.14)',
+              borderRadius: 8,
+              color: '#c8981a',
+              fontSize: 13,
+              fontWeight: 700,
+              padding: '5px 12px',
+              cursor: onBackFromRegion ? 'pointer' : 'default',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            ← Back
+          </button>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {world.path}
+          </span>
+        </div>
+        <iframe
+          src={world.path}
+          title={world.path}
+          style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
+          allow="fullscreen"
+        />
   /* ── Custom runtime — open the custom path in-region iframe ─────────────── */
   if (typeof world === 'object' && world.type === 'custom') {
     return (

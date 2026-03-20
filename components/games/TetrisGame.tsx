@@ -4,7 +4,7 @@
  * Category: puzzle / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase } from '@/lib/games/hooks';
+import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const COLS = 10; const ROWS = 20; const CELL = 26;
 const CW = COLS * CELL; const CH = ROWS * CELL;
@@ -75,6 +75,8 @@ export default function TetrisGame() {
   const rafRef = useRef(0);
   const keysRef = useRef<Set<string>>(new Set());
   const keyRepeatRef = useRef<Record<string, number>>({});
+  const submitScore = useSubmitScore('tetris');
+  useEffect(() => { if (phase === 'gameover') submitScore(scoreRef.current, levelRef.current); }, [phase, submitScore]);
 
   const startGame = useCallback(() => {
     boardRef.current = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
