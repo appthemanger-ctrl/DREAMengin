@@ -144,20 +144,17 @@ function AppIcon({ icon, label, color, onClick }: {
   );
 }
 
-export default function DreamsSpacePanel({ onOpenInRegion }: { onOpenInRegion?: (path: string) => void }) {
-export default function DreamsSpacePanel({ onOpenUrl }: { onOpenUrl?: OpenUrlFn }) {
+export default function DreamsSpacePanel({ onOpenUrl, onOpenInRegion }: { onOpenUrl?: OpenUrlFn; onOpenInRegion?: (path: string) => void }) {
   const runtime = useDreamsRuntime();
   const { state, setService } = runtime;
   const router = useRouter();
 
-  // If a contained-navigation callback is provided use it; otherwise fall back to full navigation.
-  const navigate = (route: string) => {
-    if (onOpenInRegion) {
-      onOpenInRegion(route);
-  /** Navigate to a route: use in-region iframe when available, else full navigation. */
+  /** Navigate to a route: use RuntimeShell iframe when available, then region navigation, then full navigation. */
   const navigate = (route: string, title?: string) => {
     if (onOpenUrl) {
       onOpenUrl(route, title);
+    } else if (onOpenInRegion) {
+      onOpenInRegion(route);
     } else {
       router.push(route);
     }
@@ -245,7 +242,6 @@ export default function DreamsSpacePanel({ onOpenUrl }: { onOpenUrl?: OpenUrlFn 
                   icon={dd.icon}
                   label={dd.label}
                   color={dd.color}
-                  onClick={() => navigate(dd.route)}
                   onClick={() => navigate(dd.route, dd.label)}
                 />
               ))}
@@ -276,7 +272,6 @@ export default function DreamsSpacePanel({ onOpenUrl }: { onOpenUrl?: OpenUrlFn 
                   icon={app.icon}
                   label={app.label}
                   color={app.color}
-                  onClick={() => navigate(app.route)}
                   onClick={() => navigate(app.route, app.label)}
                 />
               ))}

@@ -108,23 +108,6 @@ export default function RuntimeView({
   /* ── Home runtime ────────────────────────────────────────────────────────── */
   if (world === 'HomeDream Surface') {
     return (
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: isActive ? 1 : 0.3,
-          pointerEvents: isActive ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease',
-        }}
-      >
-        <WorkspaceDashboard
-          profile={profile}
-          posts={posts ?? []}
-          onOpenDrEams={onOpenDrEams}
-          onOpenDreamSpace={onOpenDreamSpace}
-          onOpenInRegion={onOpenInRegion}
-          isAdmin={isAdmin}
-        />
       <div style={outerStyle}>
         <RuntimeShell
           iframeUrl={iframeUrl}
@@ -136,6 +119,7 @@ export default function RuntimeView({
             posts={posts ?? []}
             onOpenDrEams={onOpenDrEams}
             onOpenDreamSpace={onOpenDreamSpace}
+            onOpenInRegion={onOpenInRegion}
             onOpenUrl={openUrl}
             isAdmin={isAdmin}
           />
@@ -154,13 +138,12 @@ export default function RuntimeView({
           overflow: 'hidden',
         }}
       >
-        <DreamsSpacePanel onOpenInRegion={onOpenInRegion} />
         <RuntimeShell
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
         >
-          <DreamsSpacePanel onOpenUrl={openUrl} />
+          <DreamsSpacePanel onOpenUrl={openUrl} onOpenInRegion={onOpenInRegion} />
         </RuntimeShell>
       </div>
     );
@@ -169,23 +152,6 @@ export default function RuntimeView({
   /* ── View Profile Surface runtime ───────────────────────────────────────── */
   if (world === 'View Profile Surface') {
     return (
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: isActive ? 1 : 0.3,
-          pointerEvents: isActive ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease',
-        }}
-      >
-        <WorkspaceDashboard
-          profile={profile}
-          posts={posts ?? []}
-          onOpenDrEams={onOpenDrEams}
-          onOpenDreamSpace={onOpenDreamSpace}
-          onOpenInRegion={onOpenInRegion}
-          isAdmin={isAdmin}
-        />
       <div style={outerStyle}>
         <RuntimeShell
           iframeUrl={iframeUrl}
@@ -197,6 +163,7 @@ export default function RuntimeView({
             posts={posts ?? []}
             onOpenDrEams={onOpenDrEams}
             onOpenDreamSpace={onOpenDreamSpace}
+            onOpenInRegion={onOpenInRegion}
             onOpenUrl={openUrl}
             isAdmin={isAdmin}
           />
@@ -245,18 +212,13 @@ export default function RuntimeView({
     );
   }
 
-  // Engin runtime — renders the Daydream Engin surface in an in-region iframe
   /* ── Engin runtime — open engin route in-region iframe ──────────────────── */
   if (typeof world === 'object' && world.type === 'engin') {
     const route = ENGIN_ROUTES[world.name] ?? '/homedream';
     return (
       <div
         style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: isActive ? 1 : 0.3,
-          pointerEvents: isActive ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease',
+          ...outerStyle,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -301,50 +263,16 @@ export default function RuntimeView({
           style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
           allow="fullscreen"
         />
-      <div style={outerStyle}>
-        <RuntimeShell
-          iframeUrl={iframeUrl}
-          onCloseIframe={closeIframe}
-          iframeTitle={iframeTitle}
-        >
-          <div
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: '100%', minHeight: '100%',
-              background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)',
-            }}
-          >
-            <div className="de-glass" style={{ borderRadius: 28, padding: 32, maxWidth: 600, textAlign: 'center' }}>
-              <div className="de-tag">Engin</div>
-              <div className="de-label" style={{ fontSize: 24, marginTop: 8 }}>{world.name}</div>
-              <button
-                type="button"
-                onClick={() => openUrl(route, world.name)}
-                style={{
-                  display: 'inline-block', marginTop: 16, padding: '10px 24px',
-                  background: 'linear-gradient(135deg,#c8981a,#e0b830)', color: '#fff',
-                  borderRadius: 10, fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer',
-                }}
-              >
-                Open {world.name} →
-              </button>
-            </div>
-          </div>
-        </RuntimeShell>
       </div>
     );
   }
 
-  // Custom runtime — loads the path in an in-region iframe
+  /* ── Custom runtime — open the custom path in-region iframe ─────────────── */
   if (typeof world === 'object' && world.type === 'custom') {
     return (
       <div
         style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: isActive ? 1 : 0.3,
-          pointerEvents: isActive ? 'auto' : 'none',
-          transition: 'opacity 0.3s ease',
+          ...outerStyle,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -389,39 +317,6 @@ export default function RuntimeView({
           style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
           allow="fullscreen"
         />
-  /* ── Custom runtime — open the custom path in-region iframe ─────────────── */
-  if (typeof world === 'object' && world.type === 'custom') {
-    return (
-      <div style={outerStyle}>
-        <RuntimeShell
-          iframeUrl={iframeUrl}
-          onCloseIframe={closeIframe}
-          iframeTitle={iframeTitle}
-        >
-          <div
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: '100%', minHeight: '100%',
-              background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)',
-            }}
-          >
-            <div className="de-glass" style={{ borderRadius: 28, padding: 32, maxWidth: 600, textAlign: 'center' }}>
-              <div className="de-tag">Custom</div>
-              <div className="de-label" style={{ fontSize: 24, marginTop: 8 }}>{world.path}</div>
-              <button
-                type="button"
-                onClick={() => openUrl(world.path, world.path)}
-                style={{
-                  display: 'inline-block', marginTop: 16, padding: '10px 24px',
-                  background: 'linear-gradient(135deg,#c8981a,#e0b830)', color: '#fff',
-                  borderRadius: 10, fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer',
-                }}
-              >
-                Navigate →
-              </button>
-            </div>
-          </div>
-        </RuntimeShell>
       </div>
     );
   }
