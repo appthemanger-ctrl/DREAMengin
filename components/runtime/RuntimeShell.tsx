@@ -12,6 +12,10 @@
  *  • Inner scrollable + zoomable content via CSS transform-based viewport trick.
  *  • Iframe mode: when `iframeUrl` is set a chrome bar + `<iframe>` replace the
  *    children so the user never leaves the home surface.
+ *
+ * Safe-area sizing is handled by the PARENT (HomeSystem region containers) which
+ * already exclude the DreamDMBar area via top/bottom CSS. RuntimeShell therefore
+ * always receives a correctly-sized box and needs no internal inset clipping.
  */
 
 import React, { useState, useCallback } from 'react';
@@ -31,12 +35,6 @@ interface RuntimeShellProps {
   onCloseIframe?: () => void;
   /** Optional label shown in the iframe chrome bar */
   iframeTitle?: string;
-  /**
-   * Safe-area insets (px) from DreamDMBar so content never hides behind the bar.
-   *   top:    bar is at the screen top — reserve this many px before content
-   *   bottom: bar is at the screen bottom — reserve this many px after content
-   */
-  barInsets?: { top: number; bottom: number };
 }
 
 export default function RuntimeShell({
@@ -44,11 +42,8 @@ export default function RuntimeShell({
   iframeUrl,
   onCloseIframe,
   iframeTitle,
-  barInsets,
 }: RuntimeShellProps) {
   const [zoom, setZoom] = useState(1.0);
-  const insetTop    = barInsets?.top    ?? 0;
-  const insetBottom = barInsets?.bottom ?? 0;
 
   const zoomIn  = useCallback(() => setZoom((z) => Math.min(Math.round((z + ZOOM_STEP) * 100) / 100, MAX_ZOOM)), []);
   const zoomOut = useCallback(() => setZoom((z) => Math.max(Math.round((z - ZOOM_STEP) * 100) / 100, MIN_ZOOM)), []);
@@ -75,11 +70,11 @@ export default function RuntimeShell({
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
 
-      {/* ── Zoom controls — positioned below any top inset, never zoomed ──── */}
+      {/* ── Zoom controls — top-right of the region, never zoomed ───────── */}
       <div
         style={{
           position: 'absolute',
-          top: insetTop + 8,
+          top: 8,
           right: 52, // leave room for other controls
           zIndex: 200,
           display: 'flex',
@@ -142,11 +137,11 @@ export default function RuntimeShell({
       {iframeUrl ? (
         /* ── Iframe mode — a sub-page is open inside this region ── */
         <>
-          {/* Chrome bar with back button — sits below any top inset */}
+          {/* Chrome bar with back button */}
           <div
             style={{
               position: 'absolute',
-              top: insetTop,
+              top: 0,
               left: 0,
               right: 0,
               height: CHROME_BAR_H,
@@ -197,18 +192,18 @@ export default function RuntimeShell({
             )}
           </div>
 
-          {/* Iframe — fills region below chrome bar, above bottom inset */}
+          {/* Iframe — fills the region below the chrome bar */}
           <iframe
             src={iframeUrl}
             title={iframeTitle ?? 'Page'}
             style={{
               position: 'absolute',
-              top: insetTop + CHROME_BAR_H,
+              top: CHROME_BAR_H,
               left: 0,
               right: 0,
-              bottom: insetBottom,
+              bottom: 0,
               width: '100%',
-              height: `calc(100% - ${insetTop + CHROME_BAR_H + insetBottom}px)`,
+              height: `calc(100% - ${CHROME_BAR_H}px)`,
               border: 'none',
             }}
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
@@ -218,40 +213,30 @@ export default function RuntimeShell({
         /*
          * ── Normal content mode — scrollable + zoomable ──
          *
-         * Structure:
-         *   1. Inset container (absolute, respects barInsets) — clips the safe area
-         *   2. Scale div (fills inset container via 100/zoom × scale trick)
-         *   3. Children — scroll inside the zoomed viewport
+         * The parent container (HomeSystem region div) is already sized to
+         * exclude the DreamDMBar, so this div fills exactly the safe area.
          *
-         * Inset container ensures content never hides behind the DreamDMBar.
-         * Scale div fills the inset area (not the full viewport):
-         *   zoom=1.0 → 100%×100% → scale(1.0)  → fills inset container exactly
-         *   zoom=1.5 → 66.7%×66.7% → scale(1.5) → fills inset container exactly
-         *   zoom=0.75 → 133%×133% → scale(0.75) → fills inset container exactly
+         * Technique: size the inner div to `100/zoom %` of its parent so that
+         * after `transform: scale(zoom)` with `transformOrigin: top left` it
+         * exactly fills the parent. The inner div carries `overflow: auto` so
+         * content scrolls within the zoomed viewport.
+         *
+         *   zoom=1.0 → 100% × 100% → scale(1.0)  → fills parent exactly
+         *   zoom=1.5 → 66.7% × 66.7% → scale(1.5) → fills parent exactly
+         *   zoom=0.75 → 133% × 133% → scale(0.75) → fills parent exactly
          */
         <div
           style={{
-            position: 'absolute',
-            top: insetTop,
-            left: 0,
-            right: 0,
-            bottom: insetBottom,
-            overflow: 'hidden',
+            width: `${(100 / zoom).toFixed(4)}%`,
+            height: `${(100 / zoom).toFixed(4)}%`,
+            transform: `scale(${zoom})`,
+            transformOrigin: 'top left',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            WebkitOverflowScrolling: 'touch',
           }}
         >
-          <div
-            style={{
-              width: `${(100 / zoom).toFixed(4)}%`,
-              height: `${(100 / zoom).toFixed(4)}%`,
-              transform: `scale(${zoom})`,
-              transformOrigin: 'top left',
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              WebkitOverflowScrolling: 'touch',
-            }}
-          >
-            {children}
-          </div>
+          {children}
         </div>
       )}
     </div>

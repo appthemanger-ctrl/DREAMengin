@@ -112,7 +112,11 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
        * The DreamDMBar seam sits on top (z-index 102 via its own fixed style).
        * Dominant region gets z-index 2 and full opacity; non-dominant gets
        * z-index 1 and reduced opacity so it is visible but clearly behind.
-       * barInsets from DreamDMBar ensure content never hides behind the bar.
+       *
+       * TRUE LAYOUT REFLOW — the region containers themselves are sized to
+       * exclude the bar area via top/bottom driven by barInsets. RuntimeShell
+       * therefore always receives a box that is exactly the safe area and
+       * requires no internal clipping at all.
        */}
       <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
 
@@ -120,11 +124,14 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         <div
           style={{
             position: 'absolute',
-            inset: 0,
+            top: barInsets.top,
+            left: 0,
+            right: 0,
+            bottom: barInsets.bottom,
             zIndex: isSurfaceDominant ? 2 : 1,
             opacity: isSurfaceDominant ? 1 - (barBlend * 0.18) : 0.4 + (barBlend * 0.3),
             pointerEvents: isSurfaceDominant ? 'auto' : 'none',
-            transition: 'opacity 180ms ease, z-index 0ms',
+            transition: 'opacity 180ms ease',
           }}
         >
           <RuntimeView
@@ -135,7 +142,6 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             isAdmin={isAdmin}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpaceInSurface}
-            barInsets={barInsets}
           />
         </div>
 
@@ -143,11 +149,14 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         <div
           style={{
             position: 'absolute',
-            inset: 0,
+            top: barInsets.top,
+            left: 0,
+            right: 0,
+            bottom: barInsets.bottom,
             zIndex: isSurfaceDominant ? 1 : 2,
             opacity: isSurfaceDominant ? barBlend : 1,
             pointerEvents: isSurfaceDominant ? 'none' : 'auto',
-            transition: 'opacity 180ms ease, z-index 0ms',
+            transition: 'opacity 180ms ease',
           }}
         >
           <RuntimeView
@@ -158,7 +167,6 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             isAdmin={isAdmin}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpace}
-            barInsets={barInsets}
           />
         </div>
       </div>
