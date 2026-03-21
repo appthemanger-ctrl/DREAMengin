@@ -102,7 +102,7 @@ The following items are the Phase 6 focus. See `docs/dreamengin_phase6.md` for t
 9. ✅ Separate private-save and explicit-share flows in EditProfileDream — done. `handleSave` (draft) and `handlePublish` (explicit share) are separate callbacks with separate buttons ("Save Draft" vs "Publish").
 10. ✅ Unify DreamMenu under a single canonical implementation — done. `components/menus/DreamRadialMenu.tsx` is canonical. `HomeRadialNav.tsx` (unused) replaced with redirect stub re-exporting from canonical. `DualBottomMenu.tsx` wraps `DreamRadialMenu` + `SystemRadialMenu` for the seam.
 11. ✅ Separate user DreamAds from platform promotions in code and UI language — done. Migration `20260321000000_ads_platform_promotions.sql` adds `is_platform_promotion` to `ad_listings`. Ads surface now renders "My DreamAds — Available" and "Platform Promotions" as distinct sections.
-12. ⏳ Repurpose legacy Daydream routes (`analytics`, `media-vault`, `play`).
+12. ✅ Repurpose legacy Daydream routes (`analytics`, `media-vault`, `play`) — done. Each redirects to its canonical Daydream Surface: analytics → /daydream/lab, media-vault → /daydream/create, play → /daydream/games.
 13. ✅ Complete real-capability audit: replace all fake actions with real ones — done. `onOpenDrEams={() => {}}` in `HomeSystem.tsx` (both RuntimeView instances) replaced with real `openDrEams` from `DreamSystemContext`. Marketplace "Request" button replaced with a real navigation link to the slot detail surface. No remaining empty handlers in `components/home/`, `components/dreams/`, or `components/daydream/`.
 ## 8. Current alignment priorities
 
