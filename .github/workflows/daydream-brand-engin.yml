@@ -105,6 +105,7 @@ jobs:
             git add -A
             git commit -m "fix(brand-daydream): ESLint auto-fix in Brand Daydream + BrandingEngin [skip ci]"
             git push || true
+          fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
