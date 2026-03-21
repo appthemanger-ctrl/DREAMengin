@@ -373,6 +373,7 @@ export default function ConnectorRow({ connector, status, onConnectSuccess, onDi
       if (res.ok) {
         setLocalStatus('not_connected');
         setShowManageModal(false);
+        setShowModal(false);
         onDisconnect?.(connector.id);
         track('disconnect_success', { connectorId: connector.id });
       } else {

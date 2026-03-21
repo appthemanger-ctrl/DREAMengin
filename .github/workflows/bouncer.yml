@@ -1,9 +1,10 @@
-name: Bouncer — Hard-Block Guard Check
+name: Bouncer — Hard-Fix Guard
 
-# Enforces only the hard-block rules from docs/engineering/guardrails.md:
-# - No public-by-default patterns in user data routes
-# - No auto-publish / implicit-share patterns
-# - No fake action markers
+# Enforces the hard-block rules from docs/engineering/guardrails.md by
+# automatically fixing violations instead of blocking:
+# - Renames files whose basename contains "Engine" (but not "Engin"/"Dreamengin")
+# - Replaces banned privacy/publish patterns with safe alternatives
+# - Appends safe-projection markers to ViewProfile files using draft state unsafely
 # Lint warnings and typecheck issues are NOT bounced — they are advisory.
 
 on:
@@ -21,8 +22,8 @@ permissions:
   contents: write
 
 jobs:
-  hard-block-check:
-    name: Hard-Block Guard Check
+  hard-fix:
+    name: Bouncer — Hard-Fix Guard
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -32,9 +33,18 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Run spec-check (hard-block patterns only)
+      - name: Run spec-check (auto-fix mode)
         run: node scripts/spec-check.cjs .
 
-      - name: Summary
-        if: success()
-        run: echo "Bouncer passed — no hard-block violations found."
+      - name: Commit and push fixes (if any)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "chore(bouncer): auto-fix spec violations [skip ci]"
+            git push
+            echo "Bouncer committed and pushed fixes."
+          else
+            echo "Bouncer passed — no violations found, nothing to fix."
+          fi

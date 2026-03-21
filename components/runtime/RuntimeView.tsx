@@ -216,53 +216,36 @@ export default function RuntimeView({
   if (typeof world === 'object' && world.type === 'engin') {
     const route = ENGIN_ROUTES[world.name] ?? '/homedream';
     return (
-      <div
-        style={{
-          ...outerStyle,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Thin in-region header with back navigation */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '10px 14px',
-          background: 'rgba(10,20,40,0.92)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(200,152,26,0.18)',
-          flexShrink: 0,
-          zIndex: 2,
-        }}>
-          <button
-            type="button"
-            onClick={onBackFromRegion ?? undefined}
-            disabled={!onBackFromRegion}
+      <div style={outerStyle}>
+        <RuntimeShell
+          iframeUrl={iframeUrl}
+          onCloseIframe={closeIframe}
+          iframeTitle={iframeTitle}
+        >
+          <div
             style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.14)',
-              borderRadius: 8,
-              color: '#c8981a',
-              fontSize: 13,
-              fontWeight: 700,
-              padding: '5px 12px',
-              cursor: onBackFromRegion ? 'pointer' : 'default',
-              WebkitTapHighlightColor: 'transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: '100%', minHeight: '100%',
+              background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)',
             }}
           >
-            ← Back
-          </button>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {world.name}
-          </span>
-        </div>
-        <iframe
-          src={route}
-          title={world.name}
-          style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
-          allow="fullscreen"
-        />
+            <div className="de-glass" style={{ borderRadius: 28, padding: 32, maxWidth: 600, textAlign: 'center' }}>
+              <div className="de-tag">Engin</div>
+              <div className="de-label" style={{ fontSize: 24, marginTop: 8 }}>{world.name}</div>
+              <button
+                type="button"
+                onClick={() => openUrl(route, world.name)}
+                style={{
+                  display: 'inline-block', marginTop: 16, padding: '10px 24px',
+                  background: 'linear-gradient(135deg,#c8981a,#e0b830)', color: '#fff',
+                  borderRadius: 10, fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer',
+                }}
+              >
+                Open {world.name} →
+              </button>
+            </div>
+          </div>
+        </RuntimeShell>
       </div>
     );
   }
@@ -270,53 +253,36 @@ export default function RuntimeView({
   /* ── Custom runtime — open the custom path in-region iframe ─────────────── */
   if (typeof world === 'object' && world.type === 'custom') {
     return (
-      <div
-        style={{
-          ...outerStyle,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Thin in-region header with back navigation */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '10px 14px',
-          background: 'rgba(10,20,40,0.92)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(200,152,26,0.18)',
-          flexShrink: 0,
-          zIndex: 2,
-        }}>
-          <button
-            type="button"
-            onClick={onBackFromRegion ?? undefined}
-            disabled={!onBackFromRegion}
+      <div style={outerStyle}>
+        <RuntimeShell
+          iframeUrl={iframeUrl}
+          onCloseIframe={closeIframe}
+          iframeTitle={iframeTitle}
+        >
+          <div
             style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.14)',
-              borderRadius: 8,
-              color: '#c8981a',
-              fontSize: 13,
-              fontWeight: 700,
-              padding: '5px 12px',
-              cursor: onBackFromRegion ? 'pointer' : 'default',
-              WebkitTapHighlightColor: 'transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: '100%', minHeight: '100%',
+              background: 'linear-gradient(180deg, var(--de-bg-start) 0%, var(--de-bg-mid) 42%, var(--de-bg-end) 100%)',
             }}
           >
-            ← Back
-          </button>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {world.path}
-          </span>
-        </div>
-        <iframe
-          src={world.path}
-          title={world.path}
-          style={{ flex: 1, border: 'none', width: '100%', background: 'var(--de-bg-start, #020818)' }}
-          allow="fullscreen"
-        />
+            <div className="de-glass" style={{ borderRadius: 28, padding: 32, maxWidth: 600, textAlign: 'center' }}>
+              <div className="de-tag">Custom</div>
+              <div className="de-label" style={{ fontSize: 24, marginTop: 8 }}>{world.path}</div>
+              <button
+                type="button"
+                onClick={() => openUrl(world.path, world.path)}
+                style={{
+                  display: 'inline-block', marginTop: 16, padding: '10px 24px',
+                  background: 'linear-gradient(135deg,#c8981a,#e0b830)', color: '#fff',
+                  borderRadius: 10, fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer',
+                }}
+              >
+                Navigate →
+              </button>
+            </div>
+          </div>
+        </RuntimeShell>
       </div>
     );
   }

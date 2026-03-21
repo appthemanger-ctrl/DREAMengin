@@ -12,7 +12,7 @@ import { useNotifications } from '@/lib/notifications/useNotifications';
 import DreamWord from '@/components/ui/DreamWord';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
-import HomeFeed from '@/components/HomeFeed';
+import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -101,7 +101,7 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
 
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenInRegion, onOpenUrl, isAdmin = false }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const { enterCustomizeMode } = useCustomizeMode();
@@ -150,16 +150,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
   };
 
   const realPostCount = posts.length;
-
-  // Contained navigation helper — opens path in the runtime region, never full-page.
-  // Falls back to router.push when used outside a runtime region.
-  const openPath = (path: string) => {
-    if (onOpenInRegion) {
-      onOpenInRegion(path);
-    } else {
-      router.push(path);
-    }
-  };
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -326,114 +316,12 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </div>
           </div>
 
-          {/* ── Stats band ── */}
-          <div style={{
-            display: 'flex', borderRadius: 18,
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            marginBottom: 24,
-            overflow: 'hidden',
-          }}>
-            {[
-              { value: String(realPostCount), label: 'Posts', color: 'var(--de-gold)' },
-              { value: formatCount(stats.followers), label: 'Followers', color: '#4A9ED6' },
-              { value: formatCount(stats.following), label: 'Following', color: '#6366f1' },
-              { value: '—', label: 'Reach', color: '#22c55e' },
-            ].map((cell, i, arr) => (
-              <div key={cell.label} style={{
-                flex: 1, textAlign: 'center', padding: '13px 4px',
-                borderRight: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none',
-              }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: cell.color, lineHeight: 1 }}>{cell.value}</div>
-                <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 4, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{cell.label}</div>
-              </div>
-            ))}
-          </div>
+          {/* ── DaydreamPulseStrip — live Dream Surfaces panel ── */}
+          {/* Architecture: docs/ARCHITECTURE.md §8 (premium palette + intentional motion)  */}
+          {/* Axiom 4 (Stylized), Law §3 (every action is real — real surface navigation) */}
+          <DaydreamPulseStrip />
 
-          {/* ── AI Agent strip ── */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>
-              AI Assistants
-            </div>
-            <div data-scroll style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
-              {AI_AGENTS.map(agent => (
-                <AgentActivityCard key={agent.id} agent={agent} onOpenDrEams={onOpenDrEams} />
-              ))}
-            </div>
-          </div>
-
-          {/* ── Quick Launch — Daydream apps ── */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
-              Quick Launch
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 10 }}>
-              {[
-                { Icon: Music,        label: 'Music',  path: '/daydream/music' },
-                { Icon: Gamepad2,     label: 'Games',  path: '/daydream/games' },
-                { Icon: FlaskConical, label: 'Lab',    path: '/daydream/lab' },
-                { Icon: Code2,        label: 'Code',   path: '/daydream/code' },
-              ].map(({ Icon, label, path }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => openPath(path)}
-                  className="de-pressable"
-                  style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                    padding: '14px 4px',
-                    borderRadius: 18,
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.09)',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
-                    cursor: 'pointer', minHeight: 72,
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {React.createElement(Icon as any, { size: 20, style: { color: '#c8981a' } })}
-                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-heading)', lineHeight: 1 }}>{label}</span>
-                </button>
-              ))}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-              {[
-                { Icon: Palette,     label: 'Brand',    gold: false, action: () => openPath('/daydream/brand') },
-                { Icon: Pen,         label: 'Create',   gold: false, action: () => openPath('/daydream/create') },
-                { Icon: ShoppingBag, label: 'Shop',     gold: false, action: () => openPath('/shop') },
-                { Icon: Sparkles,    label: 'Dr. Eams', gold: true,  action: () => onOpenDrEams() },
-              ].map(({ Icon, label, gold, action }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={action}
-                  className="de-pressable"
-                  style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                    padding: '14px 4px',
-                    borderRadius: 18,
-                    background: gold
-                      ? 'linear-gradient(135deg, rgba(200,152,26,0.22), rgba(224,184,48,0.14))'
-                      : 'rgba(255,255,255,0.06)',
-                    border: gold
-                      ? '1px solid rgba(200,152,26,0.35)'
-                      : '1px solid rgba(255,255,255,0.09)',
-                    boxShadow: gold
-                      ? '0 4px 16px rgba(200,152,26,0.20)'
-                      : '0 2px 12px rgba(0,0,0,0.18)',
-                    cursor: 'pointer', minHeight: 72,
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {React.createElement(Icon as any, { size: 20, style: { color: gold ? '#e0b830' : '#c8981a' } })}
-                  <span style={{ fontSize: 11, fontWeight: 600, color: gold ? '#e0b830' : 'var(--de-heading)', lineHeight: 1 }}>{label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* ── DreamSpace Portal ── */}
+          {/* ── DreamSpace Portal — permanent swap link ── */}
           {onOpenDreamSpace && (
             <button
               type="button"
@@ -469,7 +357,162 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </button>
           )}
 
-          {/* ── Feed section ── */}
+          {/* ── WORKSPACE WINDOW PANEL — full width, elevated ── */}
+          <div style={{
+            background: 'rgba(255,255,255,0.72)',
+            backdropFilter: 'blur(28px)',
+            WebkitBackdropFilter: 'blur(28px)',
+            borderRadius: 24,
+            border: '1px solid rgba(255,255,255,0.90)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.10), 0 2px 12px rgba(0,0,0,0.05)',
+            overflow: 'hidden',
+            marginBottom: 16,
+          }}>
+            {/* Window chrome — canonical surface name per docs/LAW.md §Route law */}
+            <WindowChrome title="HomeDream" />
+
+            {/* ── Activity feed — full width, temporal scanning ── */}
+            <div style={{ padding: '14px 18px 0' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 10,
+              }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
+                  Recent Activity
+                </span>
+                {feedPosts.length > 0 && (
+                  <span
+                    aria-label={`${feedPosts.length} new activities`}
+                    style={{
+                      background: 'rgba(200,152,26,0.12)', color: '#c8981a',
+                      borderRadius: 100, fontSize: 11, fontWeight: 600, padding: '3px 10px',
+                    }}
+                  >
+                    {feedPosts.length} new
+                  </span>
+                )}
+              </div>
+
+              {/* AI Triad agent cards — horizontal scroll */}
+              <div
+                data-scroll
+                style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', marginBottom: 4, WebkitOverflowScrolling: 'touch' }}
+              >
+                {AI_AGENTS.map(agent => (
+                  <AgentActivityCard key={agent.id} agent={agent} onOpenDrEams={onOpenDrEams} />
+                ))}
+              </div>
+
+              {/* Feed area remains independently scrollable */}
+              <div
+                data-scroll
+                style={{ maxHeight: 300, overflowY: 'auto', paddingRight: 4, WebkitOverflowScrolling: 'touch' }}
+              >
+                {feedPosts.length > 0 ? (
+                  feedPosts.slice(0, 8).map((post, i) => (
+                    <ActivityCard key={post.id || i} post={post} index={i} />
+                  ))
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--de-text-dim)', fontSize: 12 }}>
+                    Your feed is live.{' '}
+                    <button type="button" onClick={() => openPage('/daydream/create', 'Create')} style={{ color: 'var(--de-accent)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>Post something</button>
+                    {' '}or{' '}
+                    <button type="button" onClick={() => openPage('/discover', 'Discover')} style={{ color: 'var(--de-accent)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>Discover creators</button>{' '}
+                    to fill it.
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openPage('/discover', 'Discover')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '10px 0',
+                  fontSize: 12, color: 'var(--de-accent)', fontWeight: 600,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                View all activity <ChevronRight size={13} />
+              </button>
+            </div>
+
+            {/* ── Metric widgets — 2×2 grid, full width ── */}
+            <div style={{ padding: '0 16px', marginBottom: 14 }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 10,
+              }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
+                  Telemetry
+                </span>
+                <button
+                  type="button"
+                  onClick={() => openPage('/analytics', 'Analytics')}
+                  style={{ fontSize: 12, color: 'var(--de-accent)',
+                    fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 3, WebkitTapHighlightColor: 'transparent' }}
+                >
+                  Full stats <ChevronRight size={12} />
+                </button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <MetricWidget
+                  icon={Users} label="Followers" value={formatCount(stats.followers)}
+                  sub={stats.followers !== null ? 'real-time' : 'loading…'}
+                  color="#c8981a" trend={[]} />
+                <MetricWidget
+                  icon={TrendingUp} label="Following" value={formatCount(stats.following)}
+                  sub={stats.following !== null ? 'real-time' : 'loading…'}
+                  color="#4A9ED6" trend={[]} />
+                <MetricWidget
+                  icon={Star} label="Posts" value={String(realPostCount)}
+                  sub="public feed"
+                  color="#6366f1" trend={[]} />
+                <MetricWidget
+                  icon={BarChart3} label="Activity" value={posts.length > 0 ? 'Active' : '—'}
+                  sub={posts.length > 0 ? `${posts.length} recent` : 'No posts yet'}
+                  color="#22c55e" trend={[]} />
+              </div>
+            </div>
+
+            {/* ── Metrics status band — full width ── */}
+            <div style={{
+              display: 'flex',
+              borderTop: '1px solid rgba(180,185,200,0.12)',
+              borderBottom: '1px solid rgba(180,185,200,0.12)',
+              background: 'rgba(255,255,255,0.38)',
+            }}>
+              <MetricBandCell value={String(realPostCount)} label="Posts"     color="var(--de-gold)" />
+              <MetricBandCell value={formatCount(stats.followers)} label="Followers" color="#4A9ED6" />
+              <MetricBandCell value={formatCount(stats.following)} label="Following" color="#6366f1" />
+              <MetricBandCell value="—"    label="Reach"    color="#22c55e" last />
+            </div>
+
+            {/* ── Action controls ── */}
+            <div style={{ padding: '14px 16px 16px', background: 'rgba(255,255,255,0.28)' }}>
+              {/* Primary row — Dr. Eams + Shop */}
+              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                <ActionBtn icon={Sparkles}    label="Dr. Eams" onClick={onOpenDrEams} primary />
+                <ActionBtn icon={ShoppingBag} label="Shop"     onClick={() => router.push('/shop')} />
+              </div>
+              {/* Daydreams row 1 — Music · Games · Lab */}
+              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                <ActionBtn icon={Music}        label="Music"  onClick={() => router.push('/daydream/music')} />
+                <ActionBtn icon={Gamepad2}     label="Games"  onClick={() => router.push('/daydream/games')} />
+                <ActionBtn icon={FlaskConical} label="Lab"    onClick={() => router.push('/daydream/lab')} />
+              </div>
+              {/* Daydreams row 2 — Code · Brand · Create */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <ActionBtn icon={Code2}   label="Code"   onClick={() => router.push('/daydream/code')} />
+                <ActionBtn icon={Palette} label="Brand"  onClick={() => router.push('/daydream/brand')} />
+                <ActionBtn icon={Pen}     label="Create" onClick={() => router.push('/daydream/create')} />
+              </div>
+            </div>
+          </div>
+
+          {/* ── Widget glass zone — Feed section ── */}
           <div style={{
             background: 'rgba(255,255,255,0.72)',
             backdropFilter: 'blur(20px)',
