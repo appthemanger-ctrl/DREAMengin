@@ -144,7 +144,13 @@ function AppIcon({ icon, label, color, onClick }: {
   );
 }
 
-export default function DreamsSpacePanel({ onOpenUrl }: { onOpenUrl?: OpenUrlFn }) {
+export default function DreamsSpacePanel({
+  onOpenUrl,
+  onOpenInRegion,
+}: {
+  onOpenUrl?: OpenUrlFn;
+  onOpenInRegion?: (path: string) => void;
+}) {
   const runtime = useDreamsRuntime();
   const { state, setService } = runtime;
   const router = useRouter();

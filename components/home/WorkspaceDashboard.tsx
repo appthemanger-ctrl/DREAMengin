@@ -6,6 +6,8 @@ import {
   Bell, ChevronRight,
   Music, ShoppingBag,
   Sparkles, Gamepad2, FlaskConical, Code2, Palette, Pen,
+  Users, TrendingUp, Star, BarChart3,
+  LucideIcon,
 } from 'lucide-react';
 import NotificationCenter from '@/components/NotificationCenter';
 import { useNotifications } from '@/lib/notifications/useNotifications';
@@ -13,6 +15,7 @@ import DreamWord from '@/components/ui/DreamWord';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
 import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
+import HomeFeed from '@/components/HomeFeed';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
 
@@ -99,6 +102,129 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
   );
 }
 
+// ── Activity card ───────────────────────────────────────────────────────────────
+
+function ActivityCard({ post, index }: { post: Post; index: number }) {
+  const colors = ['#c8981a','#4A9ED6','#6366f1','#22c55e','#ec4899','#f97316','#14b8a6','#8b5cf6'];
+  const color = colors[index % colors.length];
+  const title = post.content?.slice(0, 60) || post.title || 'Activity';
+  const time = post.created_at
+    ? new Date(post.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    : '';
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: 10,
+      padding: '10px 0', borderBottom: '1px solid rgba(180,185,200,0.10)',
+    }}>
+      <div style={{
+        width: 8, height: 8, borderRadius: '50%', background: color,
+        marginTop: 5, flexShrink: 0,
+      }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12, color: 'var(--de-heading)', fontWeight: 500,
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {title}
+        </div>
+        {time && (
+          <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 2 }}>{time}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Metric widget ────────────────────────────────────────────────────────────────
+
+function MetricWidget({
+  icon: Icon, label, value, sub, color,
+}: {
+  icon: LucideIcon; label: string; value: string; sub: string; color: string; trend: number[];
+}) {
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.70)', borderRadius: 14,
+      border: '1px solid rgba(180,185,200,0.15)',
+      padding: '12px 14px',
+      display: 'flex', flexDirection: 'column', gap: 4,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Icon size={13} style={{ color }} />
+        <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          {label}
+        </span>
+      </div>
+      <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>{value}</div>
+      <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{sub}</div>
+    </div>
+  );
+}
+
+// ── Metric band cell ─────────────────────────────────────────────────────────────
+
+function MetricBandCell({ value, label, color, last }: { value: string; label: string; color: string; last?: boolean }) {
+  return (
+    <div style={{
+      flex: 1, padding: '10px 12px', textAlign: 'center',
+      borderRight: last ? 'none' : '1px solid rgba(180,185,200,0.12)',
+    }}>
+      <div style={{ fontSize: 16, fontWeight: 800, color }}>{value}</div>
+      <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 }}>{label}</div>
+    </div>
+  );
+}
+
+// ── Action button ────────────────────────────────────────────────────────────────
+
+function ActionBtn({
+  icon: Icon, label, onClick, primary = false,
+}: {
+  icon: LucideIcon; label: string; onClick?: () => void; primary?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="de-pressable"
+      style={{
+        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', gap: 5, padding: '10px 6px',
+        borderRadius: 14, border: 'none', cursor: 'pointer',
+        background: primary
+          ? 'linear-gradient(135deg,#c8981a22,#c8981a10)'
+          : 'rgba(255,255,255,0.60)',
+        boxShadow: primary ? 'inset 0 0 0 1px rgba(200,152,26,0.30)' : 'inset 0 0 0 1px rgba(180,185,200,0.20)',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      <Icon size={18} style={{ color: primary ? '#c8981a' : 'var(--de-heading)' }} />
+      <span style={{ fontSize: 10, fontWeight: 600, color: primary ? '#c8981a' : 'var(--de-heading)' }}>
+        {label}
+      </span>
+    </button>
+  );
+}
+
+// ── Window chrome title bar ─────────────────────────────────────────────────────
+
+function WindowChrome({ title }: { title: string }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      padding: '10px 16px',
+      borderBottom: '1px solid rgba(0,0,0,0.06)',
+    }}>
+      <div style={{ display: 'flex', gap: 5 }}>
+        {['#ff5f56','#ffbd2e','#27c93f'].map((c, i) => (
+          <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />
+        ))}
+      </div>
+      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)', flex: 1, textAlign: 'center' }}>
+        {title}
+      </span>
+    </div>
+  );
+}
+
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
 export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, isAdmin = false }: WorkspaceDashboardProps) {
@@ -150,6 +276,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
   };
 
   const realPostCount = posts.length;
+  const feedPosts = posts;
 
   // ── Render ────────────────────────────────────────────────────────────────
 
