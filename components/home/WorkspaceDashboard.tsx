@@ -101,7 +101,6 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
 
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenInRegion, isAdmin = false }: WorkspaceDashboardProps) {
 export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, isAdmin = false }: WorkspaceDashboardProps) {
   const router = useRouter();
   const name = profile?.display_name || profile?.handle || 'Dreamer';
@@ -151,16 +150,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
   };
 
   const realPostCount = posts.length;
-
-  // Contained navigation helper — opens path in the runtime region, never full-page.
-  // Falls back to router.push when used outside a runtime region.
-  const openPath = (path: string) => {
-    if (onOpenInRegion) {
-      onOpenInRegion(path);
-    } else {
-      router.push(path);
-    }
-  };
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -235,19 +224,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={() => openPath('/edit-profiledream')}
-              style={{
-                fontSize: 13, color: 'var(--de-text-dim)',
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontWeight: 500, letterSpacing: '-0.01em', whiteSpace: 'nowrap',
-                padding: '8px 0 8px 4px', minHeight: 40,
-                display: 'flex', alignItems: 'center',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              Profile &rsaquo;
             {/* Flip to Profile — clean text navigation */}
             <button
               type="button"
@@ -280,24 +256,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               {name}
             </div>
 
-            {/* Dr. Eams search */}
-            <DrEamsSearchBar onOpenDrEams={onOpenDrEams} />
-
-            {/* Quick actions strip */}
-            <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => openPath('/edit-profiledream')}
-                className="de-pressable"
-                style={{
-                  borderRadius: 999, border: '1px solid rgba(200,152,26,0.30)',
-                  background: 'rgba(200,152,26,0.08)', color: '#c8981a',
-                  padding: '7px 14px', fontSize: 12, fontWeight: 700,
-                  cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
-                }}
-              >
-                DreamProfile
-              </button>
             {/* ── Dr. Eams search bar — Phase 6: HomeDream search with send-to-DreamDM routing ── */}
             <div style={{ marginTop: 16, marginBottom: 4 }}>
               <DrEamsSearchBar onOpenDrEams={onOpenDrEams} />
@@ -399,10 +357,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </button>
           )}
 
-          {/* ── Featured: Social Feed ── */}
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>
-              Feed
           {/* ── WORKSPACE WINDOW PANEL — full width, elevated ── */}
           <div style={{
             background: 'rgba(255,255,255,0.72)',
