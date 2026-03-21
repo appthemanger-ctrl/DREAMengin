@@ -1,15 +1,15 @@
 import { redirect } from 'next/navigation';
 
 /**
- * Legacy analytics daydream route — repurposed to the Lab Daydream.
+ * Legacy analytics daydream route — repurposed to the Brand Daydream.
  *
- * Data analysis is a capability of LabEngin (Lab Daydream), not a standalone
- * Daydream surface. Per docs/ARCHITECTURE.md §9 and COPILOT_TOOLKIT.md:
+ * Analytics (reach, revenue, growth) is a capability of BrandingEngin
+ * (Brand Daydream). Per docs/ARCHITECTURE.md §9 and COPILOT_TOOLKIT.md:
  * "Rename and repurpose before rebuilding." This route now forwards traffic
- * to the canonical Lab Daydream at /daydream/lab.
+ * to the canonical Brand Daydream at /daydream/brand.
  */
 export const dynamic = 'force-dynamic';
 
 export default function AnalyticsDaydreamLegacyPage() {
-  redirect('/daydream/lab');
+  redirect('/daydream/brand');
 }
