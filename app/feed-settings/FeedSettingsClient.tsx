@@ -1,15 +1,19 @@
 'use client';
 
 /**
- * FeedSettingsClient — interactive feed preference toggles with localStorage persistence.
+ * FeedSettingsClient — interactive feed preference toggles with database persistence.
+ *
+ * Phase 8 §A Point 3: Feed algorithm and source selection controls save their
+ * settings to the database and restore on session load.
  *
  * Constitution Rule 6-7: every visible toggle must do something real.
- * Settings are persisted to localStorage so they survive page reloads.
+ * Settings are persisted to /api/settings/feed (profiles.feed_preferences column).
+ * localStorage is used only as a write-through cache for instant UI responsiveness.
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Rss, Sliders, Plus, Check } from 'lucide-react';
+import { ArrowLeft, Rss, Sliders, Plus, Check, Loader2 } from 'lucide-react';
 
 const STORAGE_KEY = 'de-feed-settings';
 
@@ -52,13 +56,29 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
 export default function FeedSettingsClient() {
   const [prefs, setPrefs] = useState<FeedPreferences>(DEFAULT_PREFS);
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [connectedNames, setConnectedNames] = useState<string[]>([]);
 
   useEffect(() => {
+    // Restore from localStorage immediately for instant UI — will be overwritten by DB
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setPrefs((p) => ({ ...p, ...JSON.parse(raw) }));
     } catch { /* ignore */ }
+
+    // Phase 8 §A Point 3: load preferences from DB (canonical source of truth)
+    fetch('/api/settings/feed')
+      .then((r) => r.json())
+      .then((data: { ok: boolean; preferences?: Partial<FeedPreferences> }) => {
+        if (data.ok && data.preferences && Object.keys(data.preferences).length > 0) {
+          const merged = { ...DEFAULT_PREFS, ...data.preferences };
+          setPrefs(merged);
+          // Keep localStorage in sync as write-through cache
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch { /* ignore */ }
+        }
+      })
+      .catch(() => { /* fall back to localStorage values already applied */ })
+      .finally(() => setLoading(false));
 
     // Load real connected connectors to show in Active Slices section
     fetch('/api/connectors/status')
@@ -76,7 +96,14 @@ export default function FeedSettingsClient() {
   const toggle = useCallback((key: keyof FeedPreferences) => {
     setPrefs((prev) => {
       const next = { ...prev, [key]: !prev[key] };
+      // Write-through to localStorage for instant feedback
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      // Phase 8 §A Point 3: persist to DB
+      fetch('/api/settings/feed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(next),
+      }).catch(() => { /* non-critical — localStorage already updated */ });
       return next;
     });
     setSaved(true);
@@ -98,11 +125,15 @@ export default function FeedSettingsClient() {
           </Link>
           <Rss className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
           <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Feed</h1>
-          {saved && (
-            <span className="ml-auto flex items-center gap-1 text-xs" style={{ color: '#22c55e' }}>
-              <Check className="w-3 h-3" /> Saved
+          {loading ? (
+            <span className="ml-auto flex items-center gap-1 text-xs" style={{ color: 'var(--de-text-dim)' }}>
+              <Loader2 className="w-3 h-3 animate-spin" /> Loading
             </span>
-          )}
+          ) : saved ? (
+            <span className="ml-auto flex items-center gap-1 text-xs" style={{ color: '#22c55e' }}>
+              <Check className="w-3 h-3" /> Saved to database
+            </span>
+          ) : null}
         </div>
       </header>
 

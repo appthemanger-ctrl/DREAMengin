@@ -122,6 +122,7 @@ export default function RuntimeView({
             onOpenInRegion={onOpenInRegion}
             onOpenUrl={openUrl}
             isAdmin={isAdmin}
+            userId={profile?.id}
           />
         </RuntimeShell>
       </div>
@@ -166,6 +167,7 @@ export default function RuntimeView({
             onOpenInRegion={onOpenInRegion}
             onOpenUrl={openUrl}
             isAdmin={isAdmin}
+            userId={profile?.id}
           />
         </RuntimeShell>
       </div>

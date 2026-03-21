@@ -15,6 +15,7 @@ import DreamWord from '@/components/ui/DreamWord';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
 import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
+import DreamWindowRail from '@/components/home/DreamWindowRail';
 import HomeFeed from '@/components/HomeFeed';
 
 // ── AI Triad agent definitions ─────────────────────────────────────────────────
@@ -53,6 +54,8 @@ interface WorkspaceDashboardProps {
   /** Open a URL inside the current runtime region (no full-page navigation). */
   onOpenUrl?: (url: string, title?: string) => void;
   isAdmin?: boolean;
+  /** Authenticated user ID — passed to DreamWindowRail for layout restore */
+  userId?: string;
 }
 
 // ── AI Agent activity card ─────────────────────────────────────────────────────
@@ -227,7 +230,7 @@ function WindowChrome({ title }: { title: string }) {
 
 // ── Main WorkspaceDashboard ────────────────────────────────────────────────────
 
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, isAdmin = false }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, isAdmin = false, userId }: WorkspaceDashboardProps) {
   const router = useRouter();
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const { enterCustomizeMode } = useCustomizeMode();
@@ -639,6 +642,13 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </div>
           </div>
 
+          {/* ── Dream Window Rail — Phase 8 §A Point 5 ── */}
+          {/* Compact swipeable strip between feed and DreamDM Bar; real DB data */}
+          <DreamWindowRail
+            onOpenDreamSpace={onOpenDreamSpace}
+            userId={userId ?? profile?.id}
+          />
+
           {/* ── Widget glass zone — Feed section ── */}
           <div style={{
             background: 'rgba(255,255,255,0.72)',
@@ -654,46 +664,6 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
                 Feed
               </span>
-            </div>
-            <div style={{
-              display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: 12, padding: '12px 16px 16px',
-            }}>
-              {Array.from({ length: 4 }).map((_, i) => (
-                <button
-                  key={`widget-slot-${i}`}
-                  type="button"
-                  onClick={() => openPage('/connectors', 'Connectors')}
-                  className="de-card-pressable"
-                  style={{
-                    minHeight: 92,
-                    borderRadius: 18,
-                    border: '1px solid rgba(180,185,200,0.20)',
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.15))',
-                    boxShadow: 'inset 0 1px 8px rgba(255,255,255,0.30), 0 2px 10px rgba(0,0,0,0.04)',
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column' as const,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  <div style={{
-                    width: 28, height: 28, borderRadius: 8,
-                    border: '1.5px dashed rgba(180,185,200,0.40)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <span style={{ fontSize: 14, color: 'var(--de-text-dim)' }}>+</span>
-                  </div>
-                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)', fontWeight: 500 }}>
-                    Add widget
-                  </span>
-                </button>
-              ))}
             </div>
             <HomeFeed
               userId={profile?.id ?? ''}

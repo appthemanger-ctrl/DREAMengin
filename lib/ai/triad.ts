@@ -52,6 +52,45 @@ function safeJsonParse(text: string): Record<string, unknown> | null {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 8 §A — Canonical routes for Dr. Eams navigation resolution (Point 9).
+// These are the only valid NAV_DELTA route values Dr. Eams may propose.
+// Any route not in this list is rejected at the intent-validation layer.
+// ---------------------------------------------------------------------------
+
+export const CANONICAL_NAV_ROUTES: ReadonlySet<string> = new Set([
+  // Core surfaces
+  '/homedream',
+  '/home',
+  '/edit-profiledream',
+  '/edit-profile',
+  '/view-profile',
+  // Daydream surfaces
+  '/daydream/music',
+  '/daydream/games',
+  '/daydream/lab',
+  '/daydream/code',
+  '/daydream/brand',
+  '/daydream/create',
+  '/daydream/analytics',
+  // Platform modules
+  '/messages',
+  '/shop',
+  '/marketplace',
+  '/ads',
+  '/connectors',
+  '/settings',
+  '/settings/feed',
+  '/settings/appearance',
+  '/settings/privacy',
+  '/settings/widgets',
+  '/settings/data',
+  '/settings/help',
+  '/feed-settings',
+  '/discover',
+  '/onboarding',
+]);
+
+// ---------------------------------------------------------------------------
 // Dr. Eams: create a concise reply + up to 3 JSON intents.
 // ---------------------------------------------------------------------------
 
@@ -60,7 +99,11 @@ export async function planWithEams(input: {
   actorEmail?: string | null;
   actorRole: 'user' | 'admin' | 'owner';
   uiRoute?: string;
+  /** Optional: real content context fetched from Supabase (Phase 8 §A Point 10) */
+  contentContext?: string;
 }): Promise<EamsPlan> {
+  const canonicalRouteList = Array.from(CANONICAL_NAV_ROUTES).join(', ');
+
   const system: GroqMessage = {
     role: 'system',
     content:
@@ -72,13 +115,18 @@ export async function planWithEams(input: {
       `- GameEngin uses the Babylon.js v8 rendering engine for immersive 3D experiences.\n` +
       `- 25+ social/service integrations supported.\n` +
       `- 331 automated tests pass on every deploy.\n\n` +
+      `CANONICAL NAVIGATION ROUTES (Phase 8 §A Point 9 — only these are valid):\n` +
+      `${canonicalRouteList}\n\n` +
       `RULES (strict):\n` +
       `1) Respond with ONLY JSON. No markdown.\n` +
       `2) Output shape: { response_text: string, interpreted_intent?: string, intents: Intent[] }.\n` +
       `3) Intents must match the app schema exactly. Max 3 intents.\n` +
       `4) Only propose SAFE UI intents: NAV_DELTA, HOME_MENU_OPEN, SEARCH, POST_CREATE.\n` +
-      `5) If you are unsure, return intents: [] and give a helpful response_text.\n\n` +
+      `5) For NAV_DELTA intents, the payload.route MUST be one of the canonical routes listed above.\n` +
+      `6) If you are unsure, return intents: [] and give a helpful response_text.\n` +
+      `7) If real content context is provided below, use it to answer content questions accurately.\n\n` +
       `The user's role is ${input.actorRole}. Current route: ${input.uiRoute || 'unknown'}.\n` +
+      (input.contentContext ? `\nREAL CONTENT CONTEXT (from database):\n${input.contentContext}\n` : '') +
       `Be concise, confident, and action-oriented.`,
   };
 
@@ -114,7 +162,19 @@ export async function planWithEams(input: {
           };
           return base;
         })
-        .filter((intent) => IntentSchema.safeParse(intent).success);
+        // Phase 8 §A Point 9: validate NAV_DELTA payloads contain real canonical routes
+        .filter((intent) => {
+          if (!IntentSchema.safeParse(intent).success) return false;
+          if (intent.type === 'NAV_DELTA') {
+            const route = (intent.payload as Record<string, unknown>)?.route;
+            if (typeof route === 'string' && route.length > 0) {
+              // Accept canonical routes exactly; also accept /profile/[handle] patterns
+              return CANONICAL_NAV_ROUTES.has(route) || /^\/profile\/[^/]+$/.test(route);
+            }
+            return false;
+          }
+          return true;
+        });
 
       return {
         response_text: response_text || `Got it.`,
