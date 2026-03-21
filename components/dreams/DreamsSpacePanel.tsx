@@ -153,6 +153,8 @@ export default function DreamsSpacePanel({ onOpenUrl }: { onOpenUrl?: OpenUrlFn 
   const navigate = (route: string, title?: string) => {
     if (onOpenUrl) {
       onOpenUrl(route, title);
+    } else if (onOpenInRegion) {
+      onOpenInRegion(route);
     } else {
       router.push(route);
     }

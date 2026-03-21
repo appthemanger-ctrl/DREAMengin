@@ -119,6 +119,7 @@ export default function RuntimeView({
             posts={posts ?? []}
             onOpenDrEams={onOpenDrEams}
             onOpenDreamSpace={onOpenDreamSpace}
+            onOpenInRegion={onOpenInRegion}
             onOpenUrl={openUrl}
             isAdmin={isAdmin}
           />
@@ -142,7 +143,7 @@ export default function RuntimeView({
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
         >
-          <DreamsSpacePanel onOpenUrl={openUrl} />
+          <DreamsSpacePanel onOpenUrl={openUrl} onOpenInRegion={onOpenInRegion} />
         </RuntimeShell>
       </div>
     );
@@ -162,6 +163,7 @@ export default function RuntimeView({
             posts={posts ?? []}
             onOpenDrEams={onOpenDrEams}
             onOpenDreamSpace={onOpenDreamSpace}
+            onOpenInRegion={onOpenInRegion}
             onOpenUrl={openUrl}
             isAdmin={isAdmin}
           />
