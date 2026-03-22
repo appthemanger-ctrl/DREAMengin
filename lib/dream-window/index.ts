@@ -29,6 +29,7 @@ export type {
 
 export {
   DREAM_WINDOW_STATES,
+  DREAM_WINDOW_REQUIRED_LAYERS,
   bindDreamWindow,
   mountDreamWindow,
   collapseDreamWindow,
@@ -36,9 +37,14 @@ export {
   unmountDreamWindow,
   unbindDreamWindow,
   createDreamWindowInstance,
+  validateDreamWindowLayers,
 } from './DreamWindowLifecycle';
 
-export type { DreamWindowState } from './DreamWindowLifecycle';
+export type {
+  DreamWindowState,
+  DreamWindowLayer,
+  DreamWindowLayerValidationResult,
+} from './DreamWindowLifecycle';
 
 // ── Connection verbs ──────────────────────────────────────────────────────────
 export type { ConnectionAction, ConnectionResult } from './connectionVerbs';

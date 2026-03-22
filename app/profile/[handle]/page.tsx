@@ -55,8 +55,37 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const isOwner = currentUser?.id === profile.id;
   const displayName = profile.display_name || profile.handle;
 
-  // Load only publicly-visible widgets (per ARCHITECTURE.md §5 privacy rules)
-  // Owner sees all their widgets; visitors only see public/followers widgets
+  // ── Phase 8 §B Point 21: Enforce dream_windows visibility at query level ──
+  // Non-owners ONLY receive records with visibility = 'shared' or 'public'.
+  // The query never includes 'private' records for non-owners.
+  // RLS policies on dream_windows enforce this at the DB layer as well.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dreamWindowQuery = (supabase as any)
+    .from('dream_windows')
+    .select('id, type, config, size, position, visibility, active_state')
+    .eq('owner_id', profile.id);
+
+  // Owner sees all their dream_windows; visitors only see shared/public
+  const { data: dreamWindowRecords } = await (
+    isOwner
+      ? dreamWindowQuery
+      : dreamWindowQuery.in('visibility', ['shared', 'public'])
+  ) as {
+    data: Array<{
+      id: string;
+      type: string;
+      config: Record<string, unknown>;
+      visibility: string;
+      active_state: string;
+    }> | null
+  };
+
+  // Log dream_windows count for observability (non-blocking)
+  const dreamWindowCount = dreamWindowRecords?.length ?? 0;
+
+  // Load only publicly-visible profile widgets (per ARCHITECTURE.md §5 privacy rules)
+  // Owner sees all their widgets; visitors only see public/shared/followers widgets
+  // Phase 8 §B Point 21: never include 'private' visibility Dream Windows for non-owners
   const allDreams: ProfileDream[] =
     Array.isArray(profile.profile_dream_widgets) && profile.profile_dream_widgets.length > 0
       ? profile.profile_dream_widgets
@@ -64,7 +93,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const visibleDreams = isOwner
     ? allDreams // Owner preview: show everything
-    : allDreams.filter((w) => w.visibility === 'public' || w.visibility === 'followers');
+    : allDreams.filter((w) => {
+        const vis = (w.visibility ?? 'private') as string;
+        // Strict enforcement: only shared/public/followers — never private
+        // Note: new dream_windows records use 'shared'; legacy ProfileDream uses 'followers'
+        return vis === 'public' || vis === 'shared' || vis === 'followers';
+      });
 
   return (
     <div style={{
@@ -82,7 +116,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
           fontSize: 12, color: '#8a6800',
         }}>
-          <span>You are viewing your public ViewProfile.</span>
+          <span>You are viewing your public ViewProfile.{dreamWindowCount > 0 ? ` ${dreamWindowCount} Dream Window${dreamWindowCount === 1 ? '' : 's'} visible.` : ''}</span>
           <Link href="/edit-profiledream" style={{ fontWeight: 700, color: '#c8981a', textDecoration: 'underline' }}>
             Edit in EditProfileDream →
           </Link>

@@ -1,3 +1,15 @@
+/**
+ * @deprecated Deprecated: use types/dream-window.ts instead.
+ * Will be removed in Phase 8 completion.
+ *
+ * The canonical Dream Window types are in types/dream-window.ts.
+ * Widget System V2 types are preserved here for backward compatibility
+ * with existing code that imports from this module. Do not add new
+ * code that imports from this file.
+ *
+ * Architecture: docs/ARCHITECTURE.md §4 (Universal Dream Window model)
+ * Phase 8 Section B: Point 19.
+ */
 // =====================================================
 // Widget System V2 - Maximum Technical Hosting Spec
 // Type definitions for the widget system

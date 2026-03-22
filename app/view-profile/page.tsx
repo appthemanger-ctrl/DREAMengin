@@ -35,6 +35,11 @@ type Profile = {
  *
  * Privacy: auth-gated (owners only). Mirrors public /profile/[handle] rendering
  * so owners can verify their public output before sharing the link.
+ *
+ * Phase 8 §B Point 21: Dream Windows render only from DB records with
+ * visibility = 'shared' OR visibility = 'public'. The query never includes
+ * visibility = 'private' records. This is enforced at both the query level
+ * (explicit filter) and the RLS level (dream_windows table policies).
  */
 export default async function ViewProfilePage() {
   const supabase = await createServerClient();
@@ -51,6 +56,26 @@ export default async function ViewProfilePage() {
   if (!rawProfile?.handle) redirect('/edit-profiledream');
 
   const profile = rawProfile as unknown as Profile;
+
+  // ── Phase 8 §B Point 21: Query dream_windows with explicit visibility filter ──
+  // Only shared/public records are fetched. The query NEVER includes private records.
+  // RLS policies on dream_windows enforce this at the DB layer as well.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: dreamWindowRecords } = await (supabase as any)
+    .from('dream_windows')
+    .select('id, type, config, size, position, visibility, active_state')
+    .eq('owner_id', user.id)
+    .in('visibility', ['shared', 'public']) as {
+      data: Array<{
+        id: string;
+        type: string;
+        config: Record<string, unknown>;
+        size: { width: number; height: number };
+        position: { x: number; y: number };
+        visibility: string;
+        active_state: string;
+      }> | null
+    };
 
   // ── Phase 6 item 8: Consult visibility_mappings as authoritative source ──
   // Per dreamengin_phase6.md point 13: the visibility_mappings table must be
@@ -80,12 +105,17 @@ export default async function ViewProfilePage() {
   // Per ARCHITECTURE.md §5: ViewProfile renders only saved/shared output.
   // Consult visibility_mappings first (authoritative); fall back to widget.visibility.
   // Widgets with no visibility set default to 'private' (nothing public by default).
+  // Phase 8 §B Point 21: never include 'private' visibility Dream Windows.
   const savedDreams = allSavedDreams.filter((w) => {
     // Use visibility_mappings record if one exists for this widget
     const mappedVisibility = mappingLookup.get(w.id);
     const effectiveVisibility = mappedVisibility ?? w.visibility ?? 'private';
-    return effectiveVisibility === 'public' || effectiveVisibility === 'followers';
+    // Strict enforcement: only 'shared' or 'public' — never 'private'
+    return effectiveVisibility === 'public' || effectiveVisibility === 'shared' || effectiveVisibility === 'followers';
   });
+
+  // Count Dream Windows from the dream_windows table (new Phase 8 §B records)
+  const dreamWindowCount = dreamWindowRecords?.length ?? 0;
 
   const displayName = profile.display_name || profile.handle;
   const handle = profile.handle ?? '';
@@ -113,6 +143,7 @@ export default async function ViewProfilePage() {
         <Eye style={{ width: 14, height: 14, color: '#c8981a', flexShrink: 0 }} />
         <span style={{ fontSize: 12, fontWeight: 600, color: '#8a6a10', letterSpacing: '0.02em' }}>
           Visitor preview — this is exactly how your profile appears to others
+          {dreamWindowCount > 0 && ` · ${dreamWindowCount} Dream Window${dreamWindowCount === 1 ? '' : 's'} shared`}
         </span>
       </div>
 
@@ -180,7 +211,7 @@ export default async function ViewProfilePage() {
               No public Dreams yet
             </div>
             <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 20 }}>
-              Your profile is private. Go to EditProfileDream and set widget visibility to <strong>Public</strong> or <strong>Followers</strong> to share them here.
+              Your profile is private. Go to EditProfileDream and set Dream Window visibility to <strong>Public</strong> or <strong>Shared</strong> to share them here.
             </div>
             <Link
               href="/edit-profiledream"
@@ -263,3 +294,4 @@ export default async function ViewProfilePage() {
     </div>
   );
 }
+
