@@ -1,39 +1,36 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+/**
+ * HomeFeed — Live feed component for the HomeDream Surface.
+ *
+ * Phase 8 §A: Upgraded from static on-mount fetch to full Supabase Realtime
+ * push-based live feed via useLiveFeed (lib/feed/useLiveFeed.ts).
+ *
+ * New behaviour:
+ *   - Realtime channel subscribes to app_posts INSERT/UPDATE + feed_items INSERT
+ *   - A green live dot in the tab bar shows the channel is connected
+ *   - When other users post, a "N new posts" banner appears; tap to flush
+ *   - Own posts prepend immediately (seamless with optimistic insert)
+ *   - Like/comment counts sync via UPDATE events (no re-fetch)
+ */
+
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
-  Send, Loader2, Globe, Lock,
+  Send, Loader2, Globe, Lock, ArrowUp, Wifi,
 } from 'lucide-react';
+import { useLiveFeed, type FeedPost } from '@/lib/feed/useLiveFeed';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
-
-interface Post {
-  id: string;
-  content: string;
-  visibility: string;
-  media_url?: string | null;
-  created_at: string;
-  profiles: {
-    handle: string;
-    display_name: string | null;
-    avatar_url: string | null;
-  };
-  likes_count?: number;
-  comments_count?: number;
-}
 
 interface HomeFeedProps {
   userId: string;
   userHandle: string;
   userAvatar: string | null;
   userDisplayName: string;
-  initialPosts: Post[];
-  /**
-   * When true, renders inside the Core Dream surface (no full-page chrome).
-   */
+  initialPosts: FeedPost[];
   embedded?: boolean;
 }
 
@@ -45,7 +42,9 @@ export default function HomeFeed({
   initialPosts,
   embedded = false,
 }: HomeFeedProps) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const { posts, newCount, flushNew, isLive, replacePosts, prependPost, updatePost } =
+    useLiveFeed(userId, initialPosts);
+
   const [tabLoading, setTabLoading] = useState(false);
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostVisibility, setNewPostVisibility] = useState<'public' | 'private'>('public');
@@ -55,36 +54,38 @@ export default function HomeFeed({
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'feed' | 'trending' | 'following'>('feed');
   const [postError, setPostError] = useState<string | null>(null);
-  const [sharePost, setSharePost] = useState<Post | null>(null);
+  const [sharePost, setSharePost] = useState<FeedPost | null>(null);
 
-  // ── Re-fetch when the active tab changes ─────────────────────────────────
+  const prevInitialRef = useRef(initialPosts);
   useEffect(() => {
-    // 'feed' tab uses the server-rendered initialPosts on first load
+    if (prevInitialRef.current !== initialPosts) {
+      prevInitialRef.current = initialPosts;
+      replacePosts(initialPosts);
+    }
+  }, [initialPosts, replacePosts]);
+
+  useEffect(() => {
     if (activeTab === 'feed') {
-      setPosts(initialPosts);
+      replacePosts(initialPosts);
       return;
     }
     setTabLoading(true);
     const params = new URLSearchParams({ limit: '20' });
     if (activeTab === 'trending')  params.set('sort', 'trending');
     if (activeTab === 'following') params.set('feed', 'following');
-
     fetch(`/api/posts?${params.toString()}`)
       .then((r) => r.json())
-      .then((data: { posts?: Post[] }) => { if (data.posts) setPosts(data.posts); })
-      .catch(() => { /* keep current posts on error */ })
+      .then((data: { posts?: FeedPost[] }) => { if (data.posts) replacePosts(data.posts); })
+      .catch(() => {})
       .finally(() => setTabLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  const handleSharePost = useCallback((post: Post) => {
+  const handleSharePost = useCallback((post: FeedPost) => {
     const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://dreamengin.app'}/posts/${post.id}`;
     if (typeof navigator !== 'undefined' && navigator.share) {
-      navigator.share({
-        title: `Post by @${post.profiles.handle}`,
-        text: post.content.slice(0, 120),
-        url,
-      }).catch(() => setSharePost(post));
+      navigator.share({ title: `Post by @${post.profiles.handle}`, text: post.content.slice(0, 120), url })
+        .catch(() => setSharePost(post));
     } else {
       setSharePost(post);
     }
@@ -95,24 +96,15 @@ export default function HomeFeed({
     if (!trimmed || isPosting) return;
     setIsPosting(true);
     setPostError(null);
-
     try {
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: trimmed,
-          visibility: newPostVisibility,
-        }),
+        body: JSON.stringify({ content: trimmed, visibility: newPostVisibility }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error || 'Unable to create your post right now.');
-      }
-
-      const createdPost: Post = {
+      if (!res.ok) throw new Error(data?.error || 'Unable to create your post right now.');
+      const createdPost: FeedPost = {
         id: data?.post?.id || `${Date.now()}`,
         content: data?.post?.content || trimmed,
         visibility: data?.post?.visibility || newPostVisibility,
@@ -125,214 +117,147 @@ export default function HomeFeed({
         },
         likes_count: 0,
         comments_count: 0,
+        source: 'post',
       };
-
-      setPosts((prev) => [createdPost, ...prev]);
+      prependPost(createdPost);
       setNewPostContent('');
       setShowComposer(false);
     } catch (err) {
-      console.error('Failed to create post:', err);
       setPostError(err instanceof Error ? err.message : 'Unable to create your post right now.');
     } finally {
       setIsPosting(false);
     }
   };
 
-  // ── Like toggle — fixed to send correct payload to /api/likes ─────────────
   const toggleLike = async (postId: string) => {
     const alreadyLiked = likedPosts.has(postId);
-    // Optimistic UI update
-    setLikedPosts(prev => {
-      const next = new Set(prev);
-      if (alreadyLiked) next.delete(postId); else next.add(postId);
-      return next;
-    });
-    // Update displayed count optimistically
-    setPosts(prev => prev.map(p =>
-      p.id === postId
-        ? { ...p, likes_count: Math.max(0, (p.likes_count ?? 0) + (alreadyLiked ? -1 : 1)) }
-        : p,
-    ));
-
+    setLikedPosts(prev => { const n = new Set(prev); if (alreadyLiked) n.delete(postId); else n.add(postId); return n; });
+    const cur = posts.find((p) => p.id === postId)?.likes_count ?? 0;
+    updatePost(postId, { likes_count: Math.max(0, cur + (alreadyLiked ? -1 : 1)) });
     try {
       if (alreadyLiked) {
-        await fetch(
-          `/api/likes?content_type=post&content_id=${encodeURIComponent(postId)}`,
-          { method: 'DELETE' },
-        );
+        await fetch(`/api/likes?content_type=post&content_id=${encodeURIComponent(postId)}`, { method: 'DELETE' });
       } else {
-        await fetch('/api/likes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content_type: 'post', content_id: postId }),
-        });
+        await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content_type: 'post', content_id: postId }) });
       }
     } catch {
-      // Revert optimistic update on failure
-      setLikedPosts(prev => {
-        const next = new Set(prev);
-        if (alreadyLiked) next.add(postId); else next.delete(postId);
-        return next;
-      });
+      setLikedPosts(prev => { const n = new Set(prev); if (alreadyLiked) n.add(postId); else n.delete(postId); return n; });
+      updatePost(postId, { likes_count: cur });
     }
   };
 
-  // ── Save toggle — persisted to /api/favorites ─────────────────────────────
   const toggleSave = async (postId: string) => {
     const alreadySaved = savedPosts.has(postId);
-    // Optimistic UI update
-    setSavedPosts(prev => {
-      const next = new Set(prev);
-      if (alreadySaved) next.delete(postId); else next.add(postId);
-      return next;
-    });
-
+    setSavedPosts(prev => { const n = new Set(prev); if (alreadySaved) n.delete(postId); else n.add(postId); return n; });
     try {
       if (alreadySaved) {
-        await fetch(
-          `/api/favorites?target_type=post&target_id=${encodeURIComponent(postId)}`,
-          { method: 'DELETE' },
-        );
+        await fetch(`/api/favorites?target_type=post&target_id=${encodeURIComponent(postId)}`, { method: 'DELETE' });
       } else {
-        await fetch('/api/favorites', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ target_type: 'post', target_id: postId }),
-        });
+        await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target_type: 'post', target_id: postId }) });
       }
     } catch {
-      // Revert optimistic update on failure
-      setSavedPosts(prev => {
-        const next = new Set(prev);
-        if (alreadySaved) next.add(postId); else next.delete(postId);
-        return next;
-      });
+      setSavedPosts(prev => { const n = new Set(prev); if (alreadySaved) n.add(postId); else n.delete(postId); return n; });
     }
   };
 
   const timeAgo = (date: string) => {
-    const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-    if (seconds < 60) return 'just now';
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
-    return `${Math.floor(seconds / 86400)}d`;
+    const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+    if (s < 60) return 'just now';
+    if (s < 3600) return `${Math.floor(s / 60)}m`;
+    if (s < 86400) return `${Math.floor(s / 3600)}h`;
+    return `${Math.floor(s / 86400)}d`;
   };
 
   return (
     <>
     <div className={embedded ? 'h-full' : 'min-h-screen de-sky-bg'}>
       <div className={embedded ? 'h-full px-4 pt-4 pb-4' : 'max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8'}>
-        {/* Feed Tabs */}
+
+        {/* Tabs + live indicator */}
         <div className="flex items-center gap-1 mb-6 bg-card rounded-2xl border border-border p-1">
           {[
-            { id: 'feed' as const, label: 'For You', icon: Sparkles },
-            { id: 'trending' as const, label: 'Trending', icon: TrendingUp },
+            { id: 'feed'      as const, label: 'For You',   icon: Sparkles },
+            { id: 'trending'  as const, label: 'Trending',  icon: TrendingUp },
             { id: 'following' as const, label: 'Following', icon: Users },
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all min-h-[44px] ${
-                activeTab === tab.id
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                activeTab === tab.id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {tabLoading && activeTab === tab.id
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : <tab.icon className="w-4 h-4" />
-              }
+              {tabLoading && activeTab === tab.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <tab.icon className="w-4 h-4" />}
               <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}
+          <div
+            title={isLive ? 'Live — posts stream in real time' : 'Connecting…'}
+            aria-label={isLive ? 'Live feed active' : 'Connecting to live feed'}
+            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '0 10px', flexShrink: 0, fontSize: 10, fontWeight: 700, color: isLive ? '#16a34a' : 'var(--de-text-dim)', transition: 'color 0.3s' }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
+                background: isLive ? '#22c55e' : 'rgba(160,195,240,0.45)',
+                boxShadow: isLive ? '0 0 6px rgba(34,197,94,0.7)' : 'none',
+                animation: isLive ? 'de-live-blink 2s ease-in-out infinite' : 'none',
+                transition: 'background 0.3s, box-shadow 0.3s',
+              }}
+            />
+            <Wifi size={11} />
+          </div>
         </div>
+
+        {/* New-posts banner */}
+        {newCount > 0 && (
+          <button
+            type="button"
+            onClick={flushNew}
+            aria-live="polite"
+            aria-label={`${newCount} new post${newCount === 1 ? '' : 's'} — tap to show`}
+            className="w-full mb-4 flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-semibold"
+            style={{ background: 'linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.07))', border: '1px solid rgba(34,197,94,0.30)', color: '#16a34a', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', WebkitTapHighlightColor: 'transparent', cursor: 'pointer' }}
+          >
+            <ArrowUp size={14} />
+            {newCount} new post{newCount === 1 ? '' : 's'} — tap to show
+          </button>
+        )}
 
         {/* Composer */}
         <div className="bg-card rounded-2xl border border-border p-4 mb-6">
           {!showComposer ? (
-            <button
-              onClick={() => setShowComposer(true)}
-              className="w-full flex items-center gap-3 text-left"
-            >
+            <button onClick={() => setShowComposer(true)} className="w-full flex items-center gap-3 text-left">
               <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-                {userAvatar ? (
-                  <Image src={userAvatar} alt={userHandle} width={40} height={40} className="rounded-full object-cover" />
-                ) : (
-                  <span className="text-sm font-bold text-muted-foreground">
-                    {(userDisplayName || '?')[0].toUpperCase()}
-                  </span>
-                )}
+                {userAvatar ? <Image src={userAvatar} alt={userHandle} width={40} height={40} className="rounded-full object-cover" /> : <span className="text-sm font-bold text-muted-foreground">{(userDisplayName || '?')[0].toUpperCase()}</span>}
               </div>
               <span className="text-muted-foreground flex-1">What&apos;s on your mind?</span>
-              <div className="flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-primary" />
-                <Plus className="w-5 h-5 text-primary" />
-              </div>
+              <div className="flex items-center gap-2"><ImageIcon className="w-5 h-5 text-primary" /><Plus className="w-5 h-5 text-primary" /></div>
             </button>
           ) : (
             <div className="space-y-3">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-                  {userAvatar ? (
-                    <Image src={userAvatar} alt={userHandle} width={40} height={40} className="rounded-full object-cover" />
-                  ) : (
-                    <span className="text-sm font-bold text-muted-foreground">
-                      {(userDisplayName || '?')[0].toUpperCase()}
-                    </span>
-                  )}
+                  {userAvatar ? <Image src={userAvatar} alt={userHandle} width={40} height={40} className="rounded-full object-cover" /> : <span className="text-sm font-bold text-muted-foreground">{(userDisplayName || '?')[0].toUpperCase()}</span>}
                 </div>
                 <div className="flex-1">
-                  <textarea
-                    value={newPostContent}
-                    onChange={(e) => setNewPostContent(e.target.value)}
-                    placeholder="Share something with the community..."
-                    className="w-full bg-transparent text-foreground placeholder:text-muted-foreground resize-none focus:outline-none text-base min-h-[80px]"
-                    autoFocus
-                  />
+                  <textarea value={newPostContent} onChange={(e) => setNewPostContent(e.target.value)} placeholder="Share something with the community..." className="w-full bg-transparent text-foreground placeholder:text-muted-foreground resize-none focus:outline-none text-base min-h-[80px]" autoFocus />
                 </div>
               </div>
-
-              {postError ? (
-                <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-                  {postError}
-                </div>
-              ) : null}
-
+              {postError && <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{postError}</div>}
               <div className="flex items-center justify-between pt-3 border-t border-border">
                 <div className="flex items-center gap-2">
-                  <button className="p-2 rounded-lg hover:bg-muted transition-colors" title="Add image">
-                    <ImageIcon className="w-5 h-5 text-primary" />
-                  </button>
-                  <button
-                    onClick={() => setNewPostVisibility(newPostVisibility === 'public' ? 'private' : 'public')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-sm text-muted-foreground"
-                    title={`Visibility: ${newPostVisibility}`}
-                  >
+                  <button className="p-2 rounded-lg hover:bg-muted transition-colors" title="Add image"><ImageIcon className="w-5 h-5 text-primary" /></button>
+                  <button onClick={() => setNewPostVisibility(v => v === 'public' ? 'private' : 'public')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-sm text-muted-foreground">
                     {newPostVisibility === 'public' ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                     {newPostVisibility === 'public' ? 'Public' : 'Private'}
                   </button>
                 </div>
-
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => { setShowComposer(false); setNewPostContent(''); }}
-                    className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[40px]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCreatePost}
-                    disabled={!newPostContent.trim() || isPosting}
-                    className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-[40px]"
-                  >
-                    {isPosting ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Post
-                      </>
-                    )}
+                  <button onClick={() => { setShowComposer(false); setNewPostContent(''); }} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[40px]">Cancel</button>
+                  <button onClick={handleCreatePost} disabled={!newPostContent.trim() || isPosting} className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-[40px]">
+                    {isPosting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" />Post</>}
                   </button>
                 </div>
               </div>
@@ -340,134 +265,78 @@ export default function HomeFeed({
           )}
         </div>
 
-        {/* Posts Feed */}
+        {/* Posts */}
         <div className="space-y-4">
           {posts.length === 0 ? (
             <div className="bg-card rounded-2xl border border-border p-12 text-center">
               <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
               <p className="text-muted-foreground mb-6">Be the first to share something with the community!</p>
-              <button
-                onClick={() => setShowComposer(true)}
-                className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors min-h-[48px]"
-              >
-                Create a Post
-              </button>
+              <button onClick={() => setShowComposer(true)} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors min-h-[48px]">Create a Post</button>
             </div>
           ) : (
             posts.map(post => (
-              <article
-                key={post.id}
-                className="bg-card rounded-2xl border border-border p-4 hover:border-primary/20 transition-colors"
-              >
-                {/* Post Header */}
+              <article key={post.id} className="bg-card rounded-2xl border border-border p-4 hover:border-primary/20 transition-colors">
+                {post.source === 'connector' && post.provider && (
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 8, padding: '2px 8px', borderRadius: 100, background: 'rgba(74,158,214,0.10)', border: '1px solid rgba(74,158,214,0.25)', fontSize: 10, fontWeight: 700, color: '#4A9ED6', letterSpacing: '0.04em', textTransform: 'capitalize' as const }}>
+                    {`\u2197 ${post.provider}`}
+                  </div>
+                )}
                 <div className="flex items-start gap-3 mb-3">
                   <Link href={`/profile/${post.profiles?.handle}`} className="flex-shrink-0">
                     {post.profiles?.avatar_url ? (
-                      <Image
-                        src={post.profiles.avatar_url}
-                        alt={post.profiles.display_name || post.profiles.handle}
-                        width={44}
-                        height={44}
-                        className="rounded-full object-cover ring-2 ring-border"
-                      />
+                      <Image src={post.profiles.avatar_url} alt={post.profiles.display_name || post.profiles.handle} width={44} height={44} className="rounded-full object-cover ring-2 ring-border" />
                     ) : (
                       <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border">
-                        <span className="text-sm font-bold text-muted-foreground">
-                          {(post.profiles?.display_name || post.profiles?.handle)?.[0]?.toUpperCase()}
-                        </span>
+                        <span className="text-sm font-bold text-muted-foreground">{(post.profiles?.display_name || post.profiles?.handle)?.[0]?.toUpperCase()}</span>
                       </div>
                     )}
                   </Link>
-
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Link
-                        href={`/profile/${post.profiles?.handle}`}
-                        className="font-semibold text-foreground hover:text-primary transition-colors text-sm"
-                      >
-                        {post.profiles?.display_name || post.profiles?.handle}
-                      </Link>
+                      <Link href={`/profile/${post.profiles?.handle}`} className="font-semibold text-foreground hover:text-primary transition-colors text-sm">{post.profiles?.display_name || post.profiles?.handle}</Link>
                       <span className="text-sm text-muted-foreground">@{post.profiles?.handle}</span>
                       <span className="text-xs text-muted-foreground">· {timeAgo(post.created_at)}</span>
                     </div>
                   </div>
-
-                  <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
+                  <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
                 </div>
-
-                {/* Post Content */}
-                <p className="text-foreground leading-relaxed mb-4 whitespace-pre-wrap">
-                  {post.content}
-                </p>
-
-                {/* Post Media */}
+                <p className="text-foreground leading-relaxed mb-4 whitespace-pre-wrap">{post.content}</p>
                 {post.media_url && (
                   <div className="rounded-xl overflow-hidden mb-4 border border-border">
-                    <Image
-                      src={post.media_url}
-                      alt="Post media"
-                      width={600}
-                      height={400}
-                      className="w-full h-auto object-cover"
-                    />
+                    <Image src={post.media_url} alt="Post media" width={600} height={400} className="w-full h-auto object-cover" />
                   </div>
                 )}
-
-                {/* Post Actions */}
-                <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                  <button
-                    onClick={() => void toggleLike(post.id)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${
-                      likedPosts.has(post.id)
-                        ? 'text-red-500 bg-red-500/10'
-                        : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/10'
-                    }`}
-                    aria-label={likedPosts.has(post.id) ? 'Unlike post' : 'Like post'}
-                  >
-                    <Heart className={`w-4 h-4 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
-                    <span>{post.likes_count ?? 0}</span>
-                  </button>
-
-                  <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors min-h-[40px]">
-                    <MessageCircle className="w-4 h-4" />
-                    <span>{post.comments_count || 0}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleSharePost(post)}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-green-500 hover:bg-green-500/10 transition-colors min-h-[40px]"
-                    aria-label="Share post"
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </button>
-
-                  <button
-                    onClick={() => void toggleSave(post.id)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${
-                      savedPosts.has(post.id)
-                        ? 'text-primary bg-primary/10'
-                        : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
-                    }`}
-                    aria-label={savedPosts.has(post.id) ? 'Unsave post' : 'Save post'}
-                  >
-                    <Bookmark className={`w-4 h-4 ${savedPosts.has(post.id) ? 'fill-current' : ''}`} />
-                  </button>
-                </div>
+                {post.source !== 'connector' && (
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                    <button onClick={() => void toggleLike(post.id)} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${likedPosts.has(post.id) ? 'text-red-500 bg-red-500/10' : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/10'}`} aria-label={likedPosts.has(post.id) ? 'Unlike post' : 'Like post'}>
+                      <Heart className={`w-4 h-4 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
+                      <span>{post.likes_count ?? 0}</span>
+                    </button>
+                    <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors min-h-[40px]">
+                      <MessageCircle className="w-4 h-4" /><span>{post.comments_count || 0}</span>
+                    </button>
+                    <button onClick={() => handleSharePost(post)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-green-500 hover:bg-green-500/10 transition-colors min-h-[40px]" aria-label="Share post">
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => void toggleSave(post.id)} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${savedPosts.has(post.id) ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-primary/10'}`} aria-label={savedPosts.has(post.id) ? 'Unsave post' : 'Save post'}>
+                      <Bookmark className={`w-4 h-4 ${savedPosts.has(post.id) ? 'fill-current' : ''}`} />
+                    </button>
+                  </div>
+                )}
+                {post.source === 'connector' && (post as FeedPost & { permalink?: string }).permalink && (
+                  <div style={{ paddingTop: 8, borderTop: '1px solid rgba(180,185,200,0.12)' }}>
+                    <a href={(post as FeedPost & { permalink?: string }).permalink} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#4A9ED6', fontWeight: 600 }}>View original ↗</a>
+                  </div>
+                )}
               </article>
             ))
           )}
         </div>
       </div>
     </div>
-
-    {/* Share sheet */}
     {sharePost && (
-      <SocialShareSheet
-        open={!!sharePost}
-        onClose={() => setSharePost(null)}
+      <SocialShareSheet open={!!sharePost} onClose={() => setSharePost(null)}
         url={`${typeof window !== 'undefined' ? window.location.origin : 'https://dreamengin.app'}/posts/${sharePost.id}`}
         text={sharePost.content.slice(0, 120)}
       />
