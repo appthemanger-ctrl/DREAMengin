@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-23 08:52 UTC  
-**Triggered by commit:** `9f804bb` on `copilot/add-social-feed-parser` by Copilot  
-**Commit message:** feat: wire RSS providers into existing Dreams connector/feed infrastructure
+**Last updated:** 2026-03-23 09:07 UTC  
+**Triggered by commit:** `5996a6f` on `copilot/add-social-feed-parser` by Copilot  
+**Commit message:** feat: upgrade twitter/facebook/tiktok to tier1 RSS + add pinterest/tumblr — any public profile works
 
 ---
 
