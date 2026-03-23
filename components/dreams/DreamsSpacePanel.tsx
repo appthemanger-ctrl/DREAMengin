@@ -36,14 +36,15 @@ type ServiceType = 'youtube' | 'github' | 'spotify' | null;
 /** Top-level view for the Dreams Space panel: Apps home screen (priority) or connector Feeds. */
 type DreamsSpaceView = 'apps' | 'feeds';
 
-/** The 6 canonical Daydream surfaces — permanent windows from DreamSpace. */
+/** The 6 canonical Daydream surfaces + Analytics — permanent windows from DreamSpace. */
 const DAYDREAMS = [
-  { id: 'music',  label: 'Music',  icon: '🎵', route: '/daydream/music',  color: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
-  { id: 'games',  label: 'Games',  icon: '🎮', route: '/daydream/games',  color: 'linear-gradient(135deg,#059669,#10b981)' },
-  { id: 'lab',    label: 'Lab',    icon: '🔬', route: '/daydream/lab',    color: 'linear-gradient(135deg,#0284c7,#38bdf8)' },
-  { id: 'code',   label: 'Code',   icon: '💻', route: '/daydream/code',   color: 'linear-gradient(135deg,#1d4ed8,#3b82f6)' },
-  { id: 'brand',  label: 'Brand',  icon: '🎨', route: '/daydream/brand',  color: 'linear-gradient(135deg,#b45309,#f59e0b)' },
-  { id: 'create', label: 'Create', icon: '✏️', route: '/daydream/create', color: 'linear-gradient(135deg,#be185d,#ec4899)' },
+  { id: 'music',     label: 'Music',     icon: '🎵', route: '/daydream/music',      color: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
+  { id: 'games',     label: 'Games',     icon: '🎮', route: '/daydream/games',      color: 'linear-gradient(135deg,#059669,#10b981)' },
+  { id: 'lab',       label: 'Lab',       icon: '🔬', route: '/daydream/lab',        color: 'linear-gradient(135deg,#0284c7,#38bdf8)' },
+  { id: 'code',      label: 'Code',      icon: '💻', route: '/daydream/code',       color: 'linear-gradient(135deg,#1d4ed8,#3b82f6)' },
+  { id: 'brand',     label: 'Brand',     icon: '🎨', route: '/daydream/brand',      color: 'linear-gradient(135deg,#b45309,#f59e0b)' },
+  { id: 'create',    label: 'Create',    icon: '✏️', route: '/daydream/create',     color: 'linear-gradient(135deg,#be185d,#ec4899)' },
+  { id: 'analytics', label: 'Analytics', icon: '📊', route: '/daydream/analytics',  color: 'linear-gradient(135deg,#4338ca,#6366f1)' },
 ] as const;
 
 /**
@@ -51,10 +52,12 @@ const DAYDREAMS = [
  * These are always pinned in the DreamSpace alongside the Daydream windows.
  */
 const ENGIN_APPS = [
-  { id: 'shop',        label: 'Shop',    icon: '🛍️', route: '/shop',        color: 'linear-gradient(135deg,#065f46,#059669)' },
-  { id: 'marketplace', label: 'Market',  icon: '🏪', route: '/marketplace', color: 'linear-gradient(135deg,#581c87,#9333ea)' },
-  { id: 'ads',         label: 'Ads',     icon: '📢', route: '/ads',         color: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
-  { id: 'connectors',  label: 'Links',   icon: '🔗', route: '/connectors',  color: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
+  { id: 'shop',        label: 'Shop',      icon: '🛍️', route: '/shop',        color: 'linear-gradient(135deg,#065f46,#059669)' },
+  { id: 'marketplace', label: 'Market',    icon: '🏪', route: '/marketplace', color: 'linear-gradient(135deg,#581c87,#9333ea)' },
+  { id: 'messages',    label: 'DreamDM',   icon: '💬', route: '/messages',    color: 'linear-gradient(135deg,#0c4a6e,#0ea5e9)' },
+  { id: 'discover',    label: 'Discover',  icon: '🔭', route: '/discover',    color: 'linear-gradient(135deg,#1c1917,#44403c)' },
+  { id: 'ads',         label: 'Ads',       icon: '📢', route: '/ads',         color: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
+  { id: 'connectors',  label: 'Links',     icon: '🔗', route: '/connectors',  color: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
 ] as const;
 
 const SERVICE_TABS: { id: ServiceType; label: string; icon: string }[] = [

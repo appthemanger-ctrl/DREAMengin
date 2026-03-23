@@ -80,6 +80,15 @@ const DAYDREAMS = [
     glow: 'rgba(236,72,153,0.45)',
     delay: '1.75s',
   },
+  {
+    id: 'analytics',
+    emoji: '📊',
+    label: 'Analytics',
+    href: '/daydream/analytics',
+    color: '#6366f1',
+    glow: 'rgba(99,102,241,0.45)',
+    delay: '2.10s',
+  },
 ] as const;
 
 // ── Framer-motion entrance variants ───────────────────────────────────────────
@@ -250,7 +259,7 @@ export default function DaydreamPulseStrip() {
                 marginTop: 1,
               }}
             >
-              6 live creative surfaces
+              7 live creative surfaces
             </div>
           </div>
 
@@ -408,11 +417,12 @@ export default function DaydreamPulseStrip() {
             height: 3,
             background: `linear-gradient(90deg,
               #8b5cf6 0%,
-              #22c55e 17%,
-              #06b6d4 33%,
-              #3b82f6 50%,
-              #f97316 67%,
-              #ec4899 83%,
+              #22c55e 14%,
+              #06b6d4 29%,
+              #3b82f6 43%,
+              #f97316 57%,
+              #ec4899 71%,
+              #6366f1 86%,
               #c8981a 100%
             )`,
             opacity: 0.55,
