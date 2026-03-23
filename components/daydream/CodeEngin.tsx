@@ -20,6 +20,7 @@
 
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import Link from 'next/link';
 import {
   ArrowLeft, Code2, FolderOpen, Github,
@@ -873,6 +874,37 @@ export default function CodeEngin({ onBack }: Props) {
   ]);
   const [newSnippetName, setNewSnippetName] = useState('');
   const [newSnippetCode, setNewSnippetCode] = useState('');
+
+  // ── Daydream Persistence (Phase 8 §F, pts 49-54) ─────────────────────────────
+  // Saves and restores the CodeEngin notebook / snippet workspace state across sessions.
+  type CodeSavedState = {
+    cells?: NotebookCell[];
+    snippets?: Array<{ id: string; name: string; language: string; code: string }>;
+  };
+  const {
+    savedState: savedCodeState,
+    isRestoring: codeRestoring,
+    persistState: persistCodeState,
+  } = useDaydreamPersistence<CodeSavedState>({ daydreamType: 'code' });
+
+  const codeRestoredRef = useRef(false);
+
+  // Restore workspace state from DB once on mount (takes precedence over localStorage)
+  useEffect(() => {
+    if (codeRestoring || codeRestoredRef.current || !savedCodeState) return;
+    codeRestoredRef.current = true;
+    if (Array.isArray(savedCodeState.cells) && savedCodeState.cells.length > 0) {
+      setCells(savedCodeState.cells as NotebookCell[]);
+    }
+  }, [codeRestoring, savedCodeState]);
+
+  // Persist notebook cells to DB whenever they change
+  useEffect(() => {
+    if (codeRestoring) return;
+    persistCodeState({ cells, snippets });
+  // persistCodeState is stable (useCallback); eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cells, snippets, codeRestoring]);
 
   // ── AI Assist handler (now produces a trust-layer suggestion) ────────────────
   function handleAiAssist() {

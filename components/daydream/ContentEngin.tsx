@@ -20,6 +20,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
@@ -227,6 +228,7 @@ export default function ContentEngin({ onBack }: Props) {
   /**
    * saveDraft — POST the generated draft text to /api/drafts (real effect).
    * Maps DraftType → content_type used by /api/drafts.
+   * The API route persists to the `content_drafts` table in Supabase (Phase 8 §F, pt 56).
    * Includes scheduled_at when the user has set a schedule datetime.
    *
    * LAW.md §3 — every visible action must do something real.
@@ -326,6 +328,45 @@ export default function ContentEngin({ onBack }: Props) {
   const [hashtagTopic, setHashtagTopic]   = useState('');
   const [hashtags, setHashtags]           = useState<string[]>([]);
   const [hashtagLoading, setHashtagLoading] = useState(false);
+
+  // ── Daydream Persistence (Phase 8 §F, pts 49-56) ─────────────────────────────
+  // Saves and restores the ContentEngin workspace state across sessions.
+  type ContentSavedState = {
+    calendarItems?: Record<string, Array<{ id: string; type: string; title: string; scheduled_at?: string }>>;
+    draftTopic?: string;
+    draftType?: string;
+    selectedPlatforms?: string[];
+  };
+  const {
+    savedState: savedContentState,
+    isRestoring: contentRestoring,
+    persistState: persistContentState,
+  } = useDaydreamPersistence<ContentSavedState>({ daydreamType: 'create' });
+
+  const contentRestoredRef = useRef(false);
+
+  // Restore workspace state from DB once on mount
+  useEffect(() => {
+    if (contentRestoring || contentRestoredRef.current || !savedContentState) return;
+    contentRestoredRef.current = true;
+    if (savedContentState.calendarItems)   setCalendarItems(savedContentState.calendarItems as Record<string, typeof calendarItems[string]>);
+    if (savedContentState.draftTopic)      setDraftTopic(savedContentState.draftTopic);
+    if (savedContentState.draftType)       setDraftType(savedContentState.draftType as typeof draftType);
+    if (savedContentState.selectedPlatforms) setSelectedPlatforms(new Set(savedContentState.selectedPlatforms));
+  }, [contentRestoring, savedContentState]);
+
+  // Persist workspace state to DB whenever it changes
+  useEffect(() => {
+    if (contentRestoring) return;
+    persistContentState({
+      calendarItems,
+      draftTopic,
+      draftType,
+      selectedPlatforms: [...selectedPlatforms],
+    });
+  // persistContentState is stable (useCallback); eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calendarItems, draftTopic, draftType, selectedPlatforms, contentRestoring]);
 
   // ── AI Caption handler ───────────────────────────────────────────────────────
   function handleGenerateCaption() {

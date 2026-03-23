@@ -21,8 +21,9 @@
  * Performance impact: all new widgets are pure local state — zero extra network calls.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import Link from 'next/link';
 import {
   ArrowLeft, Gamepad2, Trophy, Play, Share2,
@@ -356,6 +357,40 @@ export default function GameEngin({ onBack }: Props) {
     { id: 'ch-1', from: 'StarPlayer99',  game: 'Speed Tap',  score: 24800 },
     { id: 'ch-2', from: 'CodeWizard42', game: 'Word Sprint', score: 11200 },
   ]);
+
+  // ── Daydream Persistence (Phase 8 §F, pts 49-52) ─────────────────────────────
+  // Saves and restores the GameEngin workspace state across sessions.
+  type GameSavedState = {
+    worldGrid?: TileType[][];
+    worldName?: string;
+    physicsConfig?: PhysicsConfig;
+    scriptState?: ScriptState;
+  };
+  const {
+    savedState: savedGameState,
+    isRestoring: gameRestoring,
+    persistState: persistGameState,
+  } = useDaydreamPersistence<GameSavedState>({ daydreamType: 'games' });
+
+  const gameRestoredRef = useRef(false);
+
+  // Restore workspace state from DB once on mount
+  useEffect(() => {
+    if (gameRestoring || gameRestoredRef.current || !savedGameState) return;
+    gameRestoredRef.current = true;
+    if (savedGameState.worldGrid)    setWorldGrid(savedGameState.worldGrid);
+    if (savedGameState.worldName)    setWorldName(savedGameState.worldName);
+    if (savedGameState.physicsConfig) setPhysicsConfig(savedGameState.physicsConfig);
+    if (savedGameState.scriptState)  setScriptState(savedGameState.scriptState);
+  }, [gameRestoring, savedGameState]);
+
+  // Persist workspace state to DB whenever it changes
+  useEffect(() => {
+    if (gameRestoring) return;
+    persistGameState({ worldGrid, worldName, physicsConfig, scriptState });
+  // persistGameState is stable (useCallback); eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worldGrid, worldName, physicsConfig, scriptState, gameRestoring]);
 
   // ── Achievement computation ───────────────────────────────────────────────────
   const achievements = ACHIEVEMENT_DEFS.map(def => {

@@ -1,5 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { validateShopListing, normalizeShopListing } from '@/lib/shop/listings';
 
 // GET - Fetch merch items
 export async function GET(req: NextRequest) {
@@ -48,8 +49,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { title, description, price, stock, image_url, category } = body;
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 });
+  }
+
+  const { title, description, price, stock, image_url, category } = body as {
+    title?: string;
+    description?: string;
+    price?: number | string;
+    stock?: number | string;
+    image_url?: string;
+    category?: string;
+  };
 
   if (!title || title.trim().length === 0) {
     return NextResponse.json({ error: 'Title is required' }, { status: 400 });
@@ -59,15 +73,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Valid price is required' }, { status: 400 });
   }
 
+  // Validate using lib/shop/listings
+  const validation = validateShopListing({ title, price });
+  if (!validation.valid) {
+    return NextResponse.json({ error: validation.errors[0] }, { status: 400 });
+  }
+
+  // Normalize to DB record shape
+  const record = normalizeShopListing(user.id, {
+    title: title!,
+    description,
+    price: price!,
+    stock,
+    image_url,
+    category,
+  });
+
   const { data: item, error } = await supabase
     .from('merch')
-    .insert({
-      user_id: user.id,
-      name: title.trim(),
-      description: description?.trim() || null,
-      price: parseFloat(price),
-      image_url: image_url || null,
-    })
+    .insert(record)
     .select(`
       *,
       profiles!inner(id, handle, display_name, avatar_url)

@@ -15,8 +15,9 @@
  * server-side RLS. Follows AXIOM 4 (security by default).
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import Link from 'next/link';
 import {
@@ -181,6 +182,40 @@ export default function LabEngin({ onBack }: Props) {
   const [publishingResult, setPublishingResult] = useState(false);
   const [newResultTitle, setNewResultTitle] = useState('');
 
+  // ── Daydream Persistence (Phase 8 §F, pts 49-53) ─────────────────────────────
+  // Saves and restores the LabEngin workspace state across sessions.
+  type LabSavedState = {
+    chartType?: ChartType;
+    selectedMolecule?: string;
+    hypotheses?: string[];
+    publishedResults?: Array<{ id: string; title: string; date: string }>;
+  };
+  const {
+    savedState: savedLabState,
+    isRestoring: labRestoring,
+    persistState: persistLabState,
+  } = useDaydreamPersistence<LabSavedState>({ daydreamType: 'lab' });
+
+  const labRestoredRef = useRef(false);
+
+  // Restore workspace state from DB once on mount
+  useEffect(() => {
+    if (labRestoring || labRestoredRef.current || !savedLabState) return;
+    labRestoredRef.current = true;
+    if (savedLabState.chartType)        setChartType(savedLabState.chartType);
+    if (savedLabState.selectedMolecule) setSelectedMolecule(savedLabState.selectedMolecule);
+    if (savedLabState.hypotheses)       setHypotheses(savedLabState.hypotheses);
+    if (savedLabState.publishedResults) setPublishedResults(savedLabState.publishedResults);
+  }, [labRestoring, savedLabState]);
+
+  // Persist workspace state to DB whenever it changes
+  useEffect(() => {
+    if (labRestoring) return;
+    persistLabState({ chartType, selectedMolecule, hypotheses, publishedResults });
+  // persistLabState is stable (useCallback); eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chartType, selectedMolecule, hypotheses, publishedResults, labRestoring]);
+
   // ── Molecule data ────────────────────────────────────────────────────────────
   const MOLECULE_DATA: Record<string, string> = {
     'H2O':     'O\n H   H',
@@ -242,7 +277,19 @@ export default function LabEngin({ onBack }: Props) {
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'lab', 'lab:result-publish', { title },
     );
-    setTimeout(() => {
+
+    // Write a real experiment record to Supabase (Phase 8 §F, pt 53).
+    const supabase = createClient();
+    supabase.auth.getUser().then(async (res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
+      const user = res.data.user;
+      if (user) {
+        await supabase.from('physics_experiments').insert({
+          creator_id:  user.id,
+          title:       title.trim(),
+          status:      'completed',
+          visibility:  'private',
+        });
+      }
       const newResult = {
         id: `res-${Date.now()}`,
         title: title.trim(),
@@ -251,7 +298,7 @@ export default function LabEngin({ onBack }: Props) {
       setPublishedResults(prev => [newResult, ...prev]);
       setNewResultTitle('');
       setPublishingResult(false);
-    }, 800);
+    });
   }
 
   return (
