@@ -89,6 +89,13 @@ export interface ConnectorDef {
    * Min 2, max 5 (req 56).
    */
   sliceTypes: SliceTypeDef[];
+  /**
+   * Optional OAuth redirect URL for providers that use a browser-based
+   * OAuth flow instead of a credential paste form (e.g. YouTube, Instagram).
+   * When set, ConnectorRow shows a "Connect with {provider}" redirect button
+   * instead of the credential form.
+   */
+  oauthStartUrl?: string;
 }
 
 export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
@@ -214,15 +221,36 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     category: 'Video',
     tier: 'tier1',
     whatYouGet: 'Subscription feed + watch history + Watch Later + trending + world news',
-    requirements: 'Authenticate with your Google account (OAuth) or use a server-side YouTube Data API key for public trending and news content.',
+    requirements: 'Authenticate with your Google account via OAuth or use a server-side YouTube Data API key for public trending and news content.',
     defaultStatus: 'not_connected',
     widgetTypeId: 'youtube',
+    oauthStartUrl: '/api/connectors/youtube/oauth/start',
     sliceTypes: [
       { id: 'yt-subs', label: 'Subscriptions', description: 'Latest videos from your subscriptions.' },
       { id: 'yt-history', label: 'Watch History', description: 'Recently watched videos.' },
       { id: 'yt-saved', label: 'Saved / Watch Later', description: 'Your Watch Later playlist.' },
       { id: 'yt-trending', label: 'Trending', description: 'Globally trending YouTube videos.' },
       { id: 'yt-news', label: 'World News', description: 'Top world news videos from YouTube.' },
+    ],
+  },
+  {
+    id: 'instagram',
+    name: 'Instagram',
+    icon: '📸',
+    description: 'Your own Instagram posts and reels via the Basic Display API.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Your own media posts (photos, videos, reels) sorted newest first',
+    requirements:
+      'Click "Connect with Instagram" to authenticate via OAuth. ' +
+      'Requires an Instagram account and a Meta Basic Display app configured in Vercel env vars ' +
+      '(INSTAGRAM_CLIENT_ID / INSTAGRAM_CLIENT_SECRET).',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'instagram',
+    oauthStartUrl: '/api/connectors/instagram/oauth/start',
+    sliceTypes: [
+      { id: 'ig-timeline', label: 'My Posts', description: 'Your own Instagram photos and videos.' },
+      { id: 'ig-reels', label: 'Reels', description: 'Your Instagram Reels.' },
     ],
   },
 
@@ -326,24 +354,6 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
   },
 
   // ── TIER 3: Explicitly unsupported ────────────────────────────────────
-  {
-    id: 'instagram',
-    name: 'Instagram',
-    icon: '📸',
-    description: 'Profile stats only — follower list is not available via official API.',
-    category: 'Social',
-    tier: 'tier3',
-    whatYouGet: 'Follower/following counts only (no feed or follower list)',
-    unavailable: 'Instagram Graph API does not expose follower lists or home feed.',
-    requirements: 'Use Mastodon or Bluesky for full follow/feed access.',
-    defaultStatus: 'unsupported',
-    widgetTypeId: 'instagram',
-    sliceTypes: [
-      { id: 'ig-timeline', label: 'Timeline', description: 'Your Instagram photo/video timeline.' },
-      { id: 'ig-stories', label: 'Stories', description: 'Active stories from people you follow.' },
-      { id: 'ig-saved', label: 'Saved Posts', description: 'Your bookmarked Instagram posts.' },
-    ],
-  },
   {
     id: 'snapchat',
     name: 'Snapchat',
