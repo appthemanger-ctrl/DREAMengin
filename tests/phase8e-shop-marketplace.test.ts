@@ -58,7 +58,7 @@ function readMigration(filename: string): string {
   return fs.readFileSync(fullPath, 'utf-8');
 }
 
-const PHASE8E_MIGRATION = readMigration('20260324000000_phase8e_shop_marketplace.sql');
+const PHASE8E_MIGRATION = readMigration('20260324000001_phase8e_shop_marketplace.sql');
 
 // ════════════════════════════════════════════════════════════════════════════════
 // Point 39 — DreamShop real listing capability

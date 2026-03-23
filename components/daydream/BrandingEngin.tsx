@@ -104,8 +104,8 @@ export default function BrandingEngin({ onBack }: Props) {
     let cancelled = false;
     const supabase = createClient();
 
-    supabase.auth.getUser().then(async (res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
-      const user = res.data.user;
+    void (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user || cancelled) { setLoading(false); return; }
 
       const [profileRes, followsRes] = await Promise.all([
@@ -122,7 +122,7 @@ export default function BrandingEngin({ onBack }: Props) {
         });
         setLoading(false);
       }
-    });
+    })();
 
     return () => { cancelled = true; };
   }, []);
@@ -190,8 +190,8 @@ export default function BrandingEngin({ onBack }: Props) {
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
-    supabase.auth.getUser().then(async (res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
-      const user = res.data.user;
+    void (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user || cancelled) return;
       const { data } = await supabase
         .from('brand_kit_items')
@@ -202,7 +202,7 @@ export default function BrandingEngin({ onBack }: Props) {
       if (!cancelled && data && (data as unknown[]).length > 0) {
         setAssets(data as Array<{ id: string; name: string; type: 'logo' | 'color' | 'font'; value: string }>);
       }
-    });
+    })();
     return () => { cancelled = true; };
   }, []);
 
