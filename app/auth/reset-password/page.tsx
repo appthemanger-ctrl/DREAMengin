@@ -35,7 +35,12 @@ export default function ResetPasswordPage() {
       if (authError) throw authError;
       setSent(true);
     } catch (err: unknown) {
-      setError((err as { message?: string })?.message ?? "Something went wrong");
+      const msg = (err as { message?: string })?.message ?? "Something went wrong";
+      setError(
+        msg === 'Failed to fetch' || msg.toLowerCase().includes('fetch')
+          ? 'Unable to connect. Please check your internet connection and try again.'
+          : msg
+      );
     } finally {
       setBusy(false);
     }

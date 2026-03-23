@@ -30,7 +30,7 @@ export default function AboutPage() {
     {
       icon: Cpu,
       title: 'AI-Powered Tools',
-      description: 'Inner Dreams AI helps you create, organize, and explore. Get intelligent suggestions, automate tasks, and unlock your creative potential.',
+      description: 'IDARi helps you create, organise, and explore. Get intelligent suggestions, automate tasks, and unlock your creative potential.',
       color: 'from-purple-500 to-violet-600'
     },
     {
@@ -95,7 +95,7 @@ export default function AboutPage() {
     { name: 'Feed', path: '/homedream', icon: LayoutGrid, description: 'A dynamic surface for personal, social, widget, and AI-generated content.' },
     { name: 'DreamDM', path: '/messages', icon: MessageCircle, description: 'Direct conversations and system signals layered into the plane.' },
     { name: 'DreamMarketplace', path: '/marketplace', icon: ShoppingBag, description: 'Sell widgets, beats, workflows, and creator goods natively.' },
-    { name: 'Lab', path: '/lab', icon: Beaker, description: 'CCC experiments, simulations, and research tools.' },
+    { name: 'Lab', path: '/lab', icon: Beaker, description: 'Creative computing experiments, simulations, and research tools.' },
     { name: 'Music', path: '/music', icon: Music, description: 'Recording, sharing, and collaboration spaces for sound.' },
     { name: 'Social Hub', path: '/discover', icon: Users, description: 'Community clusters, discovery loops, and shared spaces.' },
     { name: 'Settings', path: '/settings', icon: Settings, description: 'System layer for privacy, security, and personalization.' },
@@ -132,10 +132,10 @@ export default function AboutPage() {
             }}>∞</div>
           </div>
           <h1 style={{ fontSize: 38, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 12, lineHeight: 1.15 }}>
-            Welcome to Dreamengin
+            Welcome to DREAMengin
           </h1>
           <p style={{ fontSize: 16, color: 'var(--de-text-dim)', maxWidth: 580, margin: '0 auto', lineHeight: 1.7 }}>
-            Dreamengin is a living interface system that turns your digital life into a navigable universe. Instead of apps, you move through connected spaces that loop, morph, and return home without friction.
+            DREAMengin is a living interface system that turns your digital life into a navigable universe. Instead of apps, you move through connected spaces that loop, morph, and return home without friction.
           </p>
         </section>
 
@@ -149,7 +149,7 @@ export default function AboutPage() {
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--de-accent)', marginBottom: 4 }}>AI Companion</div>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 8 }}>Meet Dr. Eams</h2>
                   <p style={{ fontSize: 14, color: 'var(--de-text-dim)', lineHeight: 1.7 }}>
-                    Dr. Eams is your always-present AI guide inside Dreamengin. Powered by the Inner Dreams intelligence layer, Dr. Eams helps you navigate the spatial interface, activate widgets, draft and post content, answer questions, and translate your intent into motion — all without leaving your current dream. Think of Dr. Eams as the mind that lives at the center of your universe.
+                    Dr. Eams is your always-present AI guide inside DREAMengin. Powered by IDARi, Dr. Eams helps you navigate the spatial interface, activate widgets, draft and post content, answer questions, and translate your intent into motion — all without leaving your current dream. Think of Dr. Eams as the mind that lives at the center of your universe.
                   </p>
                 </div>
               </div>
@@ -167,7 +167,7 @@ export default function AboutPage() {
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8b5cf6', marginBottom: 4 }}>Safety Guardian</div>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 8 }}>Meet Boogie</h2>
                   <p style={{ fontSize: 14, color: 'var(--de-text-dim)', lineHeight: 1.7 }}>
-                    Boogie is the silent guardian of Dreamengin. Operating as the platform's safety and moderation layer, Boogie monitors for policy violations, harmful content, and suspicious activity — stepping in before problems reach users. Boogie doesn't interfere with your creative flow; it works in the background so your dreams stay safe, fair, and protected.
+                    Boogie is the silent guardian of DREAMengin. Operating as the platform's safety and moderation layer, Boogie monitors for policy violations, harmful content, and suspicious activity — stepping in before problems reach users. Boogie doesn't interfere with your creative flow; it works in the background so your dreams stay safe, fair, and protected.
                   </p>
                 </div>
               </div>
@@ -183,9 +183,9 @@ export default function AboutPage() {
                 <div style={{ width: 80, height: 80, borderRadius: 20, flexShrink: 0, background: 'linear-gradient(135deg, rgba(16,185,129,0.14) 0%, rgba(200,152,26,0.08) 100%)', border: '1.5px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>🧠</div>
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#10b981', marginBottom: 4 }}>System Intelligence</div>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 8 }}>Meet iDari</h2>
+                  <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 8 }}>Meet IDARi</h2>
                   <p style={{ fontSize: 14, color: 'var(--de-text-dim)', lineHeight: 1.7 }}>
-                    iDari is the autonomous system intelligence that keeps Dreamengin healthy and self-healing. While you dream, iDari silently monitors performance, auto-repairs broken state, maintains widget integrity, and surfaces insights to the platform team. iDari is the reason Dreamengin feels alive — it's the nervous system behind everything that just works.
+                    IDARi is the autonomous system intelligence that keeps DREAMengin healthy and self-healing. While you dream, IDARi silently monitors performance, auto-repairs broken state, maintains widget integrity, and surfaces insights to the platform team. IDARi is the reason DREAMengin feels alive — it's the nervous system behind everything that just works.
                   </p>
                 </div>
               </div>
@@ -329,7 +329,7 @@ export default function AboutPage() {
         <footer style={{ paddingTop: 24, borderTop: '1px solid var(--de-border)', textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
             <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, rgba(42,138,184,0.2), rgba(200,152,26,0.15))', border: '1.5px solid rgba(42,138,184,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>∞</div>
-            <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--de-heading)' }}>Dreamengin</span>
+            <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--de-heading)' }}>DREAMengin</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 12 }}>
             <a href="https://x.com/dreamenginx" target="_blank" rel="noopener noreferrer"

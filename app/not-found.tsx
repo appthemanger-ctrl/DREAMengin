@@ -12,8 +12,8 @@ export default function NotFound() {
           This page doesn't exist or has been moved. Let's get you back on track.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Link href="/homedream" className="de-btn de-btn-primary" style={{ justifyContent: 'center' }}>Go to HomeDream</Link>
-          <Link href="/discover" className="de-btn de-btn-ghost" style={{ justifyContent: 'center' }}>Search Profiles</Link>
+          <Link href="/" className="de-btn de-btn-primary" style={{ justifyContent: 'center' }}>Go Home</Link>
+          <Link href="/login" className="de-btn de-btn-ghost" style={{ justifyContent: 'center' }}>Sign In</Link>
         </div>
       </div>
     </div>

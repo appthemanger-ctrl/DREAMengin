@@ -13,7 +13,7 @@ export default async function MessagesPage({ searchParams }: MessagesPageProps) 
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/');
+    redirect('/login');
   }
 
   // Read URL params — supports from=dr-eams&q=<query> routing from DrEamsSearchBar

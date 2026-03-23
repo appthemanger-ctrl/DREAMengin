@@ -30,7 +30,7 @@ function LoginPageInner() {
   const [email, setEmail]         = useState("");
   const [password, setPassword]   = useState("");
   const [busy, setBusy]           = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe]   = useState(false);
   const [error, setError]         = useState<string | null>(null);
   const [oauthProviders, setOauthProviders] = useState<{ google: boolean; github: boolean } | null>(null);
 
@@ -93,7 +93,12 @@ function LoginPageInner() {
       router.replace("/homedream");
       router.refresh();
     } catch (err: unknown) {
-      setError((err as { message?: string })?.message ?? "Login failed");
+      const msg = (err as { message?: string })?.message ?? "Login failed";
+      setError(
+        msg === 'Failed to fetch' || msg.toLowerCase().includes('fetch')
+          ? 'Unable to connect. Please check your internet connection and try again.'
+          : msg
+      );
     } finally {
       setBusy(false);
     }
