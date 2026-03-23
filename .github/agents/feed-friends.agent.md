@@ -1,4 +1,12 @@
-# .github/agents/feed-friends.agent.md
+---
+name: DREAMengin Feed & Friends Connections Agent
+description: Implements a truthful, production-grade social connections system for DREAMengin. Connects supported platforms via OAuth or user-provided tokens, fetches read-only feeds and follow/follower data, normalizes everything into a unified internal format, and never fakes Connected status.
+target: github-copilot
+tools: ["read", "search", "edit", "execute"]
+disable-model-invocation: false
+user-invocable: true
+---
+
 # DREAMengin — Feed & Friends Connections Agent (Read-only, No Messaging)
 
 ## Mission
@@ -6,32 +14,32 @@ Implement a **truthful, production-grade connections system** that can:
 - Connect supported platforms via OAuth or user-provided tokens
 - Fetch **read-only** data: feeds/posts/activity + follow/follower lists (where allowed)
 - Normalize everything into one internal format for display in DREAMengin
-- Never fake “Connected” status
+- Never fake "Connected" status
 
 This repo already has connectors + UI scaffolding; finish the loop end-to-end with minimal refactors.
 
 ## Hard Guardrails (must obey)
-- **No new required environment variables.** Optional env vars are allowed only if the UI degrades gracefully without them (shows “Unavailable / Needs Admin Setup”).
+- **No new required environment variables.** Optional env vars are allowed only if the UI degrades gracefully without them (shows "Unavailable / Needs Admin Setup").
 - Prefer **minimal, localized changes**; do not refactor architecture.
 - Do **not** re-enable spatial/nav-mode travel; Golden Button stays primary.
 - Do not replace existing videos unless explicitly requested.
-- Remove any user-visible “built by …” strings in UI/docs.
+- Remove any user-visible "built by …" strings in UI/docs.
 
 ## Reality Check (Provider Limits You Must Respect)
 You must implement based on what each platform **actually** allows:
 
-- Facebook friends list via Graph API only returns friends who also use the app.  [oai_citation:0‡Facebook Developers](https://developers.facebook.com/docs/graph-api/reference/user/friends/?utm_source=chatgpt.com)
-- LinkedIn connections API is restricted to approved developers; treat as “requires approval” until confirmed.  [oai_citation:1‡Microsoft Learn](https://learn.microsoft.com/en-us/linkedin/shared/integrations/people/connections-api?utm_source=chatgpt.com)
-- Discord friends list requires `relationships.read` which is part of the Social SDK and needs access approval.  [oai_citation:2‡Discord Documentation](https://docs.discord.com/developers/topics/oauth2?utm_source=chatgpt.com)
-- X (Twitter) reverse-chron home timeline exists, but access/pricing varies; implement as “paid/needs keys” unless configured.  [oai_citation:3‡X Developer Platform](https://docs.x.com/x-api/posts/timelines/introduction?utm_source=chatgpt.com)
-- Instagram Graph API exposes counts (followers_count/follows_count) but **no official follower list**; treat follower list as unsupported.  [oai_citation:4‡Facebook Developers](https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/ig-user/?utm_source=chatgpt.com)
-- Granary can normalize feeds across multiple sources but may require deployment/hosting; integrate as optional adapter only.  [oai_citation:5‡GitHub](https://github.com/snarfed/granary?utm_source=chatgpt.com)
+- Facebook friends list via Graph API only returns friends who also use the app.
+- LinkedIn connections API is restricted to approved developers; treat as "requires approval" until confirmed.
+- Discord friends list requires `relationships.read` which is part of the Social SDK and needs access approval.
+- X (Twitter) reverse-chron home timeline exists, but access/pricing varies; implement as "paid/needs keys" unless configured.
+- Instagram Graph API exposes counts (followers_count/follows_count) but **no official follower list**; treat follower list as unsupported.
+- Granary can normalize feeds across multiple sources but may require deployment/hosting; integrate as optional adapter only.
 
 ## Definitions
-- “Connected” means: we have valid credentials AND a successful “verify credentials” call was made recently.
-- “Not connected” means: no credentials stored or verification failed.
-- “Requires approval” means: provider blocks access unless your app is approved/partnered.
-- “Unavailable” means: not technically possible via official APIs (don’t hack/scrape).
+- "Connected" means: we have valid credentials AND a successful "verify credentials" call was made recently.
+- "Not connected" means: no credentials stored or verification failed.
+- "Requires approval" means: provider blocks access unless your app is approved/partnered.
+- "Unavailable" means: not technically possible via official APIs (don't hack/scrape).
 
 ## Deliverables (must produce)
 1) `/docs/CONNECTORS.md`
@@ -39,9 +47,9 @@ You must implement based on what each platform **actually** allows:
 2) `/docs/CONNECTOR_MATRIX.md`
    - A table: Provider × Capabilities × Requirements × Status (Ready / Requires approval / Paid / Unsupported).
 3) Code changes to:
-   - Truthful connector status (no fake “connected” like the current IG row behavior)
+   - Truthful connector status (no fake "connected" like the current IG row behavior)
    - Connect flow per provider (OAuth or token input)
-   - “Sync now” fetch for feed + follows where supported
+   - "Sync now" fetch for feed + follows where supported
    - Normalized storage + UI display
 
 ## Where to Work (existing structure to leverage)
@@ -57,14 +65,14 @@ You must implement based on what each platform **actually** allows:
 
 ## A) Stop Lying About Connection Status
 1) Find any connector UI that uses local `setStatus('connected')` timeouts or placeholder success.
-2) Remove that behavior. “Connect” may open an auth/token flow, but **must not** flip to connected until verification succeeds.
+2) Remove that behavior. "Connect" may open an auth/token flow, but **must not** flip to connected until verification succeeds.
 3) Add a single status resolver:
    - Pull stored connector state from DB (or existing storage)
    - If token exists, run provider verify endpoint
-   - Cache “last_verified_at” in DB to avoid excessive calls
+   - Cache "last_verified_at" in DB to avoid excessive calls
 
 Acceptance:
-- IG never shows “Connected” unless verified (and IG may never be “connected” for follower list; only counts/media if supported).
+- IG never shows "Connected" unless verified (and IG may never be "connected" for follower list; only counts/media if supported).
 - Refreshing the page must not change status randomly.
 
 ## B) Create a Connector State Model (minimal)
@@ -107,21 +115,21 @@ Dedup key:
 Implement providers in tiers:
 
 ### Tier 1 (do first — most feasible)
-- Mastodon: home timeline + follows/followers depending on token/scopes; use official endpoints.  [oai_citation:6‡docs.joinmastodon.org](https://docs.joinmastodon.org/methods/timelines/?utm_source=chatgpt.com)
+- Mastodon: home timeline + follows/followers depending on token/scopes; use official endpoints.
 - Bluesky: follows/followers/feed via AT Protocol (or existing library if already in repo)
 - Nostr: follows/feed via relays (user provides pubkey + relay list)
 - GitHub: activity feed + follows via OAuth
 - Reddit: subscribed feed + upvoted/saved (if allowed) via OAuth
 
 ### Tier 2 (implement but gate)
-- X: home timeline endpoint exists; mark as “needs keys/paid access” unless configured.  [oai_citation:7‡X Developer Platform](https://docs.x.com/x-api/posts/timelines/introduction?utm_source=chatgpt.com)
-- Facebook: friends only “friends using the app”; posts limited; mark accordingly.  [oai_citation:8‡Facebook Developers](https://developers.facebook.com/docs/graph-api/reference/user/friends/?utm_source=chatgpt.com)
-- LinkedIn: mark as “requires approval” unless your app is approved.  [oai_citation:9‡Microsoft Learn](https://learn.microsoft.com/en-us/linkedin/shared/integrations/people/connections-api?utm_source=chatgpt.com)
-- Discord: mark as “requires Social SDK access” unless approved.  [oai_citation:10‡Discord Documentation](https://docs.discord.com/developers/topics/oauth2?utm_source=chatgpt.com)
+- X: home timeline endpoint exists; mark as "needs keys/paid access" unless configured.
+- Facebook: friends only "friends using the app"; posts limited; mark accordingly.
+- LinkedIn: mark as "requires approval" unless your app is approved.
+- Discord: mark as "requires Social SDK access" unless approved.
 
 ### Tier 3 (explicitly unsupported)
-- Instagram follower list (show counts only; no follower list).  [oai_citation:11‡Facebook Developers](https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/ig-user/?utm_source=chatgpt.com)
-- PlayStation / Xbox / Nintendo “full friends feed” unless partner access exists (document as requires partner program).
+- Instagram follower list (show counts only; no follower list).
+- PlayStation / Xbox / Nintendo "full friends feed" unless partner access exists (document as requires partner program).
 
 ## E) UI: Connectors Page Must Communicate Truth
 In `ConnectorsClient`:
@@ -133,12 +141,12 @@ In `ConnectorsClient`:
   - Unsupported
   - Needs admin setup
 - Each provider card must show:
-  - “What you’ll get” (1 line)
+  - "What you'll get" (1 line)
   - Requirements (1 line)
   - Button state:
     - Connect / Reconnect / Manage / Learn why not
 
-Add “Sync now” button per connected provider that:
+Add "Sync now" button per connected provider that:
 - calls `app/api/connectors/{provider}/sync`
 - shows progress + last sync time
 
@@ -151,32 +159,32 @@ Create routes only as needed:
 Keep secrets out of client code.
 Use existing Supabase server client.
 
-## G) Tests (don’t go wild, but don’t ship blind)
+## G) Tests (don't go wild, but don't ship blind)
 - Unit tests:
   - status mapping
   - normalization functions
   - dedup logic
 - Integration-ish:
   - mocked provider responses => stored feed items
-- Ensure e2e doesn’t require real tokens.
+- Ensure e2e doesn't require real tokens.
 
 ## H) Documentation Updates (required)
 - `/docs/CONNECTOR_MATRIX.md` must explicitly call out:
-  - “Friends list is limited on Facebook”
-  - “Instagram follower list not supported”
-  - “LinkedIn requires approval”
-  - “Discord requires Social SDK access”
-  - “X may require paid access/keys”
+  - "Friends list is limited on Facebook"
+  - "Instagram follower list not supported"
+  - "LinkedIn requires approval"
+  - "Discord requires Social SDK access"
+  - "X may require paid access/keys"
 Include the exact scopes/permissions if known, and a plain-English explanation.
 
 ---
 
 # Acceptance Criteria (Definition of Done)
-- No connector can show “Connected” unless verified successfully.
-- Connectors page explains limitations instead of pretending they don’t exist.
+- No connector can show "Connected" unless verified successfully.
+- Connectors page explains limitations instead of pretending they don't exist.
 - At least Tier 1 providers are end-to-end: connect → verify → sync → display.
-- Tier 2 providers are visible but gated with clear next steps (“needs approval/keys”).
-- Tier 3 providers are labeled unsupported with explanation + alternative suggestions (eg. “use Mastodon/Bluesky/Nostr for full follows/feed”).
+- Tier 2 providers are visible but gated with clear next steps ("needs approval/keys").
+- Tier 3 providers are labeled unsupported with explanation + alternative suggestions (eg. "use Mastodon/Bluesky/Nostr for full follows/feed").
 - No new required env vars introduced.
 - No spatial nav mode entry points reintroduced.
 
@@ -185,6 +193,6 @@ Include the exact scopes/permissions if known, and a plain-English explanation.
 # PR Rules for This Agent
 - Small PRs preferred: one provider or one subsystem per PR.
 - Every PR must update `/docs/CONNECTOR_MATRIX.md` if it changes connector behavior.
-- Every PR must include at least one test unless it’s purely UI copy/styling.
+- Every PR must include at least one test unless it's purely UI copy/styling.
 
 End.
