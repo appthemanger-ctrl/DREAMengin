@@ -25,6 +25,7 @@ import { redditVerify } from '@/lib/connectors/providers/reddit';
 import { nostrVerify } from '@/lib/connectors/providers/nostr';
 import { youtubeVerify } from '@/lib/connectors/providers/youtube';
 import { shellhubVerify, SHELLHUB_DEFAULT_SERVER } from '@/lib/connectors/providers/shellhub';
+import { instagramVerify } from '@/lib/connectors/providers/instagram';
 import type { ConnectorConnectResponse } from '@/types/connector';
 
 export async function POST(
@@ -88,6 +89,11 @@ export async function POST(
         await youtubeVerify({
           access_token: credentials.access_token ?? '',
           api_key: credentials.api_key,
+        });
+        break;
+      case 'instagram':
+        await instagramVerify({
+          access_token: credentials.access_token ?? '',
         });
         break;
       case 'shellhub':

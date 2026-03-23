@@ -297,11 +297,25 @@ function getCredentialFields(provider: string): CredentialField[] {
     case 'youtube':
       return [
         {
-          key: 'access_token',
-          label: 'Google OAuth Access Token',
+          key:         'access_token',
+          label:       'Google OAuth Access Token',
           placeholder: 'ya29.a0AfH6S...',
-          type: 'password',
-          hint: 'Needs the youtube.readonly scope. This implementation uses a real Google token and then syncs subscriptions, watch history, and Watch Later into widgets.',
+          type:        'password' as const,
+          hint:
+            'Use "Connect with YouTube" above for the full OAuth flow. ' +
+            'Advanced: paste a Google access token with the youtube.readonly scope.',
+        },
+      ];
+    case 'instagram':
+      return [
+        {
+          key:         'access_token',
+          label:       'Long-Lived Access Token',
+          placeholder: 'IGQ...',
+          type:        'password' as const,
+          hint:
+            'Use "Connect with Instagram" above for the OAuth flow. ' +
+            'Advanced: paste a long-lived access token from the Meta developers console.',
         },
       ];
     default:
@@ -435,6 +449,20 @@ export default function ConnectorRow({ connector, status, onConnectSuccess, onDi
             {descriptionText}
           </div>
         </div>
+        {/* OAuth redirect button — shown for providers with a browser-based flow */}
+        {connector.oauthStartUrl && localStatus !== 'connected' ? (
+          <a
+            href={connector.oauthStartUrl}
+            className="de-btn de-btn-primary"
+            style={{
+              fontSize: 11, padding: '6px 12px', flexShrink: 0,
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              textDecoration: 'none',
+            }}
+          >
+            {connector.icon} Connect with {connector.name}
+          </a>
+        ) : (
         <button
           type="button"
           disabled={btnDisabled}
@@ -456,6 +484,7 @@ export default function ConnectorRow({ connector, status, onConnectSuccess, onDi
         >
           {btnLabel}
         </button>
+        )}
       </div>
 
       {showModal && (
