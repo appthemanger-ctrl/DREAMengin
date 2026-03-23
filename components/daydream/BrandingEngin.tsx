@@ -16,9 +16,10 @@
  * Follows AXIOM 4 (security by default) and AXIOM 5 (privacy by design).
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import Link from 'next/link';
 import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
@@ -64,6 +65,16 @@ const ContentCalendarLink = 'brand-feature';
 export default function BrandingEngin({ onBack }: Props) {
   // ── Daydream state persistence (Phase 8 §F Point 55) ──
   const { persistState } = useDaydreamState({ daydreamType: 'brand', side: 'B' });
+
+  // ── Daydream DB persistence with restore (Phase 8 §F pts 49, 55) ──
+  type BrandSavedState = { abTests?: ABTest[]; assets?: Array<{ id: string; name: string; type: 'logo' | 'color' | 'font'; value: string }> };
+  const {
+    savedState: savedBrandState,
+    isRestoring: brandRestoring,
+    persistState: persistBrandState,
+  } = useDaydreamPersistence<BrandSavedState>({ daydreamType: 'brand' });
+
+  const brandRestoredRef = useRef(false);
 
   // ── Existing state ─────────────────────────────────────────────────────────
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -154,6 +165,8 @@ export default function BrandingEngin({ onBack }: Props) {
   const [voicePrompt, setVoicePrompt]         = useState('');
   const [voiceSuggestion, setVoiceSuggestion] = useState('');
   const [voiceLoading, setVoiceLoading]       = useState(false);
+  // multi-connection path: Brand → ContentEngin
+  const [contentBridgeSending, setContentBridgeSending] = useState(false);
 
   // ── Competitor Watch state ───────────────────────────────────────────────────
   const [competitors, setCompetitors] = useState<Array<{ handle: string; followers: string; lastPost: string }>>([
@@ -173,11 +186,40 @@ export default function BrandingEngin({ onBack }: Props) {
   const [newAssetName, setNewAssetName]   = useState('');
   const [newAssetValue, setNewAssetValue] = useState('');
 
-  // ── Persist brand kit assets to Supabase (Phase 8 §F Point 55) ──
+  // ── Load brand_kit_items from DB on mount ─────────────────────────────────────
   useEffect(() => {
+    let cancelled = false;
+    const supabase = createClient();
+    supabase.auth.getUser().then(async (res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
+      const user = res.data.user;
+      if (!user || cancelled) return;
+      const { data } = await supabase
+        .from('brand_kit_items')
+        .select('id, name, type, value')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (!cancelled && data && (data as unknown[]).length > 0) {
+        setAssets(data as Array<{ id: string; name: string; type: 'logo' | 'color' | 'font'; value: string }>);
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  // ── Restore workspace state from DB once on mount ─────────────────────────────
+  useEffect(() => {
+    if (brandRestoring || brandRestoredRef.current || !savedBrandState) return;
+    brandRestoredRef.current = true;
+    if (savedBrandState.abTests && savedBrandState.abTests.length > 0) setAbTests(savedBrandState.abTests);
+  }, [brandRestoring, savedBrandState]);
+
+  // ── Persist brand workspace state to Supabase (Phase 8 §F Point 55) ──
+  useEffect(() => {
+    if (brandRestoring) return;
     persistState({ side: 'B', assets });
+    persistBrandState({ abTests, assets });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assets]);
+  }, [assets, abTests, brandRestoring]);
 
   // ── Segment handler ───────────────────────────────────────────────────────────
   function handleCreateSegment() {
@@ -225,21 +267,57 @@ export default function BrandingEngin({ onBack }: Props) {
     );
   }
 
-  // ── Asset handler ─────────────────────────────────────────────────────────────
-  function handleSaveAsset() {
+  // ── Asset handler — inserts to brand_kit_items with optimistic update ────────
+  async function handleSaveAsset() {
     if (!newAssetName.trim() || !newAssetValue.trim()) return;
-    const asset = {
-      id: `as-${Date.now()}`,
+    const optimisticId = `as-${Date.now()}`;
+    const optimisticAsset = {
+      id: optimisticId,
       name: newAssetName.trim(),
       type: 'logo' as const,
       value: newAssetValue.trim(),
     };
-    setAssets(prev => [asset, ...prev]);
+    // Optimistic update — show in UI immediately
+    setAssets(prev => [optimisticAsset, ...prev]);
     setNewAssetName('');
     setNewAssetValue('');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
-      'brand', 'brand:asset-save', { name: newAssetName.trim(), type: 'logo', value: newAssetValue.trim() },
+      'brand', 'brand:asset-save', { name: optimisticAsset.name, type: 'logo', value: optimisticAsset.value },
     );
+    // Real DB write — correct optimistic id with DB id
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('brand_kit_items')
+          .insert({ user_id: user.id, name: optimisticAsset.name, type: optimisticAsset.type, value: optimisticAsset.value })
+          .select('id')
+          .single();
+        if (data?.id) {
+          setAssets(prev => prev.map(a => a.id === optimisticId ? { ...a, id: data.id } : a));
+        }
+      }
+    } catch { /* non-blocking — optimistic item remains */ }
+  }
+
+  // ── Send to ContentEngin (multi-connection: Brand → ContentEngin) ─────────────
+  // multi-connection path: Brand → ContentEngin via /api/drafts + bridge event
+  async function handleSendToContentEngin() {
+    if (!voiceSuggestion.trim()) return;
+    setContentBridgeSending(true);
+    try {
+      await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: voicePrompt, body: voiceSuggestion, source: 'brand' }),
+      });
+      (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+        'brand', 'brand:push-content', { topic: voicePrompt, body: voiceSuggestion },
+      );
+    } finally {
+      setContentBridgeSending(false);
+    }
   }
 
   const publicProfileHref = profile?.handle ? `/u/${profile.handle}` : '/view-profile';
@@ -617,6 +695,18 @@ export default function BrandingEngin({ onBack }: Props) {
               >
                 {voiceSuggestion}
               </div>
+            )}
+            {voiceSuggestion && (
+              <button
+                type="button"
+                onClick={handleSendToContentEngin}
+                disabled={contentBridgeSending}
+                className="de-btn de-btn-primary"
+                style={{ marginTop: 8, opacity: contentBridgeSending ? 0.6 : 1, transition: 'all 0.15s' }}
+                aria-label="Send brand voice copy to ContentEngin"
+              >
+                {contentBridgeSending ? 'Sending…' : 'Send to ContentEngin'}
+              </button>
             )}
           </div>
         </div>

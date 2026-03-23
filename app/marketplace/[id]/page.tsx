@@ -15,8 +15,9 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ShoppingBag, MessageCircle, Tag, User, Calendar } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Tag, User, Calendar } from 'lucide-react';
 import DreamWord from '@/components/ui/DreamWord';
+import MarketplaceRequestButton from '@/components/marketplace/MarketplaceRequestButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -173,17 +174,11 @@ export default async function MarketplaceItemPage({ params }: { params: Promise<
             </div>
           </div>
 
-          {/* CTA */}
+          {/* CTA — Point 46: real request action via MarketplaceRequestButton */}
+          {/* Contact flow also routes to DreamDM (/messages) for direct seller messaging */}
           {!isOwner && (
             <div className="de-widget-actions">
-              <Link
-                href={`/messages?to=${item.seller_id}&subject=${encodeURIComponent(`Re: ${item.title}`)}`}
-                className="de-btn de-btn-gold"
-                style={{ flex: 1, justifyContent: 'center', gap: 8 }}
-              >
-                <MessageCircle className="w-4 h-4" />
-                {isFree ? 'Request Access' : 'Contact Seller'}
-              </Link>
+              <MarketplaceRequestButton itemId={item.id} itemTitle={item.title} />
             </div>
           )}
 

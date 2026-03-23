@@ -21,6 +21,7 @@
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import Link from 'next/link';
 import {
   ArrowLeft, Code2, FolderOpen, Github,
@@ -224,6 +225,16 @@ export default function CodeEngin({ onBack }: Props) {
   // ── Daydream state persistence (Phase 8 §F Point 54) ──
   const { persistState } = useDaydreamState({ daydreamType: 'code', side: 'B' });
 
+  // ── Daydream DB persistence with restore (Phase 8 §F pts 49, 54) ──
+  type CodeSavedState = { cells?: Array<{ id: string; language: string; source: string }> };
+  const {
+    savedState: savedCodeState,
+    isRestoring: codeRestoring,
+    persistState: persistCodeState,
+  } = useDaydreamPersistence<CodeSavedState>({ daydreamType: 'code' });
+
+  const codeRestoredRef = useRef(false);
+
   // ── Notebook state ──────────────────────────────────────────────────────────
   // Load from localStorage on first render; fall back to DEMO_CELLS only when
   // there are no previously saved cells (i.e. first visit).
@@ -238,11 +249,26 @@ export default function CodeEngin({ onBack }: Props) {
     return DEMO_CELLS.map(c => ({ ...c }));
   });
 
+  // ── Restore notebook cells from DB once on mount ──
+  useEffect(() => {
+    if (codeRestoring || codeRestoredRef.current || !savedCodeState) return;
+    codeRestoredRef.current = true;
+    if (savedCodeState.cells && savedCodeState.cells.length > 0) {
+      setCells(prev => savedCodeState.cells!.map(saved => {
+        const existing = prev.find(c => c.id === saved.id);
+        return existing ? { ...existing, source: saved.source, language: saved.language as CellLanguage } : { ...saved, status: 'idle' as const, output: '', language: saved.language as CellLanguage };
+      }));
+    }
+  }, [codeRestoring, savedCodeState]);
+
   // ── Persist editor cells to Supabase on change (Phase 8 §F Point 54) ──
   useEffect(() => {
-    persistState({ side: 'B', cells: cells.map(c => ({ id: c.id, language: c.language, source: c.source })) });
+    if (codeRestoring) return;
+    const snapshot = cells.map(c => ({ id: c.id, language: c.language, source: c.source }));
+    persistState({ side: 'B', cells: snapshot });
+    persistCodeState({ cells: snapshot });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cells]);
+  }, [cells, codeRestoring]);
 
   // ── CI state ────────────────────────────────────────────────────────────────
   const [ciStages,        setCiStages]        = useState<CIPipelineStage[]>(() =>
