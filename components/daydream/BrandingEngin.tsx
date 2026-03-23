@@ -18,6 +18,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import Link from 'next/link';
 import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
@@ -61,6 +62,9 @@ const AssetLibrary        = 'brand-feature';
 const ContentCalendarLink = 'brand-feature';
 
 export default function BrandingEngin({ onBack }: Props) {
+  // ── Daydream state persistence (Phase 8 §F Point 55) ──
+  const { persistState } = useDaydreamState({ daydreamType: 'brand', side: 'B' });
+
   // ── Existing state ─────────────────────────────────────────────────────────
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -168,6 +172,12 @@ export default function BrandingEngin({ onBack }: Props) {
   ]);
   const [newAssetName, setNewAssetName]   = useState('');
   const [newAssetValue, setNewAssetValue] = useState('');
+
+  // ── Persist brand kit assets to Supabase (Phase 8 §F Point 55) ──
+  useEffect(() => {
+    persistState({ side: 'B', assets });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assets]);
 
   // ── Segment handler ───────────────────────────────────────────────────────────
   function handleCreateSegment() {

@@ -20,6 +20,7 @@
 
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import Link from 'next/link';
 import {
   ArrowLeft, Code2, FolderOpen, Github,
@@ -220,6 +221,9 @@ const SHELLHUB_DEFAULT_URL = 'https://cloud.shellhub.io';
 
 export default function CodeEngin({ onBack }: Props) {
 
+  // ── Daydream state persistence (Phase 8 §F Point 54) ──
+  const { persistState } = useDaydreamState({ daydreamType: 'code', side: 'B' });
+
   // ── Notebook state ──────────────────────────────────────────────────────────
   // Load from localStorage on first render; fall back to DEMO_CELLS only when
   // there are no previously saved cells (i.e. first visit).
@@ -233,6 +237,12 @@ export default function CodeEngin({ onBack }: Props) {
     } catch { /* ignore parse errors — use defaults */ }
     return DEMO_CELLS.map(c => ({ ...c }));
   });
+
+  // ── Persist editor cells to Supabase on change (Phase 8 §F Point 54) ──
+  useEffect(() => {
+    persistState({ side: 'B', cells: cells.map(c => ({ id: c.id, language: c.language, source: c.source })) });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cells]);
 
   // ── CI state ────────────────────────────────────────────────────────────────
   const [ciStages,        setCiStages]        = useState<CIPipelineStage[]>(() =>

@@ -299,6 +299,36 @@ export default function AppearanceSettingsPage() {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
   const { enterCustomizeMode } = useCustomizeMode();
 
+  // ── DB sync: load appearance settings on mount (Phase 8 §I Point 83) ──
+  useEffect(() => {
+    fetch('/api/settings/appearance')
+      .then(r => r.json())
+      .then((data: { ok: boolean; appearance: { presetId?: string; overrides?: Record<string, number> } | null }) => {
+        if (data.ok && data.appearance) {
+          if (data.appearance.presetId) setPreset(data.appearance.presetId);
+          if (data.appearance.overrides) setOverrides(data.appearance.overrides);
+        }
+      })
+      .catch(() => { /* localStorage values remain */ });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── DB sync: save on presetId or overrides change (Phase 8 §I Point 83) ──
+  // Debounce to avoid rapid writes during slider drags
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      fetch('/api/settings/appearance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ presetId, overrides }),
+      }).catch(() => { /* localStorage cache remains */ });
+    }, 800);
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetId, overrides]);
+
   const handleBrightness = useCallback((v: number) => setOverrides({ brightness: v }), [setOverrides]);
   const handleSaturation = useCallback((v: number) => setOverrides({ saturation: v }), [setOverrides]);
   const handleBlur = useCallback((v: number) => setOverrides({ blur: v }), [setOverrides]);

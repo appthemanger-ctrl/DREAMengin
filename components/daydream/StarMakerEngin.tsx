@@ -27,6 +27,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import {
   buildReleaseStrategy,
   createMelodySuggestions,
@@ -204,6 +205,9 @@ const bpmBtnStyle: React.CSSProperties = {
 
 export default function StarMakerEngin({ onBack }: Props) {
 
+  // ── Daydream state persistence (Phase 8 §F Point 51) ──
+  const { persistState } = useDaydreamState({ daydreamType: 'music', side: 'B' });
+
   // ── Supabase releases state ──
   const [releases,   setReleases]   = useState<MusicRelease[]>([]);
   const [loading,    setLoading]    = useState(true);
@@ -233,6 +237,12 @@ export default function StarMakerEngin({ onBack }: Props) {
   const [stemReady,     setStemReady]     = useState<StemReadyState>({ vocals: false, drums: false, bass: false, other: false });
   const [exportPending, setExportPending] = useState(false);
   const [exportDone,    setExportDone]    = useState(false);
+
+  // ── Persist creative workspace state to Supabase (Phase 8 §F Point 51) ──
+  useEffect(() => {
+    persistState({ side: 'B', bpm, musicalKey, keyMode, pitch });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bpm, musicalKey, keyMode, pitch]);
 
   // ── Supabase: fetch releases (defence-in-depth owner_id filter; RLS enforced server-side) ──
   useEffect(() => {
