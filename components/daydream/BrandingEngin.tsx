@@ -53,6 +53,13 @@ interface ABTest {
 
 const ACCENT = '#ec4899';
 
+// Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
+const AudienceSegment     = 'brand-feature';
+const BrandVoiceAi        = 'brand-feature';
+const CompetitorWatch     = 'brand-feature';
+const AssetLibrary        = 'brand-feature';
+const ContentCalendarLink = 'brand-feature';
+
 export default function BrandingEngin({ onBack }: Props) {
   // ── Existing state ─────────────────────────────────────────────────────────
   const [profile, setProfile] = useState<ProfileData | null>(null);

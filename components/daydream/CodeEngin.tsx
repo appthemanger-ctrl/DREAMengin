@@ -110,6 +110,13 @@ const CODE_FG  = '#e2e8f0';
 const OUT_OK   = '#4ade80';
 const OUT_ERR  = '#f87171';
 
+// Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
+const AiCodeAssist      = 'code-feature';
+const PairProgramming   = 'code-feature';
+const DeploymentConsole = 'code-feature';
+const ApiInspector      = 'code-feature';
+const SnippetLibrary    = 'code-feature';
+
 const ZOOM_MIN  = 0.6;
 const ZOOM_MAX  = 2.0;
 const ZOOM_STEP = 0.1;

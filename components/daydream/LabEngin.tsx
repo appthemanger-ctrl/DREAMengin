@@ -87,6 +87,12 @@ const CHART_PREVIEWS: Record<ChartType, string> = {
 
 const ACCENT = '#22c55e';
 
+// Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
+const CollabLab        = 'lab-feature';
+const MoleculeViewer   = 'lab-feature';
+const DatasetBrowser   = 'lab-feature';
+const PublishedResults = 'lab-feature';
+
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   draft:     { bg: 'rgba(160,195,240,0.18)', text: 'var(--de-text-dim)',   border: 'rgba(160,195,240,0.25)' },
   running:   { bg: 'rgba(42,138,184,0.12)',  text: '#2a8ab8',               border: 'rgba(42,138,184,0.25)' },

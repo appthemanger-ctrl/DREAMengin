@@ -275,8 +275,14 @@ export default function StarMakerEngin({ onBack }: Props) {
     setPublishing(null);
   }
 
+  // ── Audio preview ref for beat-cell clicks (forward-ref pattern) ──
+  // triggerPreviewVoice is defined later in this file; we use a ref so
+  // toggleBeat (which must precede it) can still invoke it at call time.
+  const triggerVoiceRef = useRef<((ch: number, step: number) => void) | null>(null);
+
   // ── Beat grid toggle ──
   const toggleBeat = useCallback((chIdx: number, stepIdx: number) => {
+    triggerVoiceRef.current?.(chIdx, stepIdx);
     setBeatGrid(prev => {
       const next = prev.map(row => [...row]);
       next[chIdx][stepIdx] = !next[chIdx][stepIdx];
@@ -501,6 +507,10 @@ export default function StarMakerEngin({ onBack }: Props) {
       shimmer.stop(now + release + 0.08);
     }
   }, [activeEffects, chordProgression, ensureAudioContext, keyMode, mixer, musicalKey, pitch, playbackProfile.stereoWidthPct, qualityMode]);
+
+  // Keep triggerVoiceRef current so toggleBeat's BeatCell-click preview always
+  // calls the latest version of triggerPreviewVoice (latest-ref pattern).
+  triggerVoiceRef.current = triggerPreviewVoice;
 
   const playPreviewStep = useCallback((stepIndex: number) => {
     beatGrid.forEach((row, channelIndex) => {

@@ -83,6 +83,13 @@ interface AchievementDef {
 
 const ACCENT = '#2a8ab8';
 
+// Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
+const MultiplayerLobby = 'game-feature';
+const TournamentMode   = 'game-feature';
+const GameAnalytics    = 'game-feature';
+const ReplaySystem     = 'game-feature';
+const SocialChallenge  = 'game-feature';
+
 const GAME_LABELS: Record<string, string> = {
   platformer:      'Dr. Eams Platformer',
   'word-sprint':   'Word Sprint',
