@@ -20,6 +20,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSubmitScore } from '@/lib/games/hooks';
+import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import {
   DreamEngineGodTierSystem,
   applyGodTierToBabylon,
@@ -944,7 +945,7 @@ class GameCore {
   private sessionSeed: number;
 
   // Babylon
-  private engine: import('@babylonjs/core').Engine | null = null;
+  private engine: import('@babylonjs/core').AbstractEngine | null = null;
   private scene:  import('@babylonjs/core').Scene  | null = null;
 
   // Babylon mesh refs
@@ -1021,10 +1022,13 @@ class GameCore {
   }
 
   private async initBabylon(canvas: HTMLCanvasElement) {
-    const BJS = await import('@babylonjs/core');
-    if (this.disposed) return;
+    const [{ engine: engineInst }, BJS] = await Promise.all([
+      createBabylonEngine(canvas, { preserveDrawingBuffer: true, stencil: true, antialias: true }),
+      import('@babylonjs/core'),
+    ]);
+    if (this.disposed) { engineInst.dispose(); return; }
 
-    const engine = new BJS.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+    const engine = engineInst;
     const scene  = new BJS.Scene(engine);
     this.engine  = engine;
     this.scene   = scene;
@@ -1223,7 +1227,7 @@ class GameCore {
       const now = performance.now();
       if (now - lastGtMs > 750) {
         lastGtMs = now;
-        const perf = engine.performanceMonitor;
+        const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
         const avgFrame = perf ? perf.averageFrameTime : 16.6;
         const gt = this.godTier.update({
           device:  defaultDeviceSignals(),

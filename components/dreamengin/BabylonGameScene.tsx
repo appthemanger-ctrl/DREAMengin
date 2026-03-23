@@ -5,6 +5,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import {
   DreamEngineGodTierSystem,
   applyGodTierToBabylon,
@@ -20,7 +21,7 @@ interface BabylonGameSceneProps {
 
 export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef<import('@babylonjs/core').Engine | null>(null);
+  const engineRef = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
   // God Tier system instance — persists for this scene's lifetime
   const godTierRef = useRef(new DreamEngineGodTierSystem());
 
@@ -30,9 +31,11 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
 
     let disposed = false;
 
-    // Dynamic import to avoid SSR issues
-    import('@babylonjs/core').then(({
-      Engine,
+    // WebGPU-first engine creation with WebGL fallback, then dynamic import of scene helpers
+    Promise.all([
+      createBabylonEngine(canvas, { preserveDrawingBuffer: true, stencil: true, antialias: true }),
+      import('@babylonjs/core'),
+    ]).then(([{ engine }, {
       Scene,
       ArcRotateCamera,
       HemisphericLight,
@@ -41,10 +44,9 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
       StandardMaterial,
       Color3,
       Animation,
-    }) => {
-      if (disposed || !canvas) return;
+    }]) => {
+      if (disposed || !canvas) { engine.dispose(); return; }
 
-      const engine = new Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
       engineRef.current = engine;
       const scene = new Scene(engine);
       scene.clearColor = new (scene.clearColor.constructor as new (r: number, g: number, b: number, a: number) => typeof scene.clearColor)(0.05, 0.07, 0.12, 1);
@@ -169,7 +171,7 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
         const now = performance.now();
         if (now - lastGodTierMs > 500) {
           lastGodTierMs = now;
-          const perf = engine.performanceMonitor;
+          const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
           const avgFrame = perf ? perf.averageFrameTime : 16.6;
           const gtState = godTierRef.current.update({
             device:  defaultDeviceSignals(),
