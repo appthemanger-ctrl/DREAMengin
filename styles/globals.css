@@ -29,6 +29,24 @@
   --de-widget-bg:   rgba(255,255,255,0.55);
   --de-widget-border: rgba(160,195,240,0.40);
 
+  /* ── GOD-TIER ENGINE tokens (live-updated by useGodTier hook) ── */
+  --gt-primary-scale:      1.18;
+  --gt-primary-contrast:   1.18;
+  --gt-secondary-contrast: 0.88;
+  --gt-tertiary-contrast:  0.7;
+  --gt-spacing-scale:      1.03;
+  --gt-blur-strength:      0.55;
+  --gt-shadow-strength:    0.82;
+  --gt-glass-strength:     0.6;
+  --gt-saturation-boost:   1.05;
+  --gt-edge-definition:    1.08;
+  --gt-motion-micro:       95ms;
+  --gt-motion-structural:  185ms;
+  --gt-motion-hero:        280ms;
+  --gt-motion-route:       360ms;
+  --gt-motion-ambient:     1100ms;
+  --gt-global-intensity:   1.0;
+
   /* ── User-editable gradient theme (overridable via ThemeApplicator) ── */
   --de-theme-from:  #e9ecf1;   /* gradient start — light neutral */
   --de-theme-mid:   #f0f2f6;   /* gradient midpoint — near white */
@@ -1273,4 +1291,90 @@ body, .dreamnav-surface, .controls {
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   border-bottom: 1px solid rgba(14,100,180,0.1);
   box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 2px 16px rgba(14,60,120,0.06);
+}
+
+/* =============================================================================
+   GOD-TIER UI ENGINE — utility classes emitted by getGodTierUiTokens()
+   These are toggled by the useGodTier hook; applied on :root via CSS vars.
+   =========================================================================== */
+
+/* Base god-tier activation */
+.god-tier-ui * {
+  transition-duration: var(--gt-motion-micro);
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Scene dominance — every Babylon canvas at full fidelity */
+.scene-dominant canvas {
+  image-rendering: high-quality;
+  filter: contrast(calc(var(--gt-primary-contrast) * 1))
+          saturate(calc(var(--gt-saturation-boost) * 100%));
+}
+
+/* Render every frame — disable paint-holding throttle on active canvases */
+.render-every-frame canvas {
+  will-change: contents;
+}
+
+/* Parallax depth layers */
+.parallax-on [data-parallax] {
+  transition: transform var(--gt-motion-structural) cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.parallax-off [data-parallax] {
+  transition: none;
+}
+
+/* Depth motion — 3-D translate on hover for interactive cards */
+.depth-motion-on [data-depth-card] {
+  transition:
+    transform var(--gt-motion-micro) cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow var(--gt-motion-micro) ease;
+}
+.depth-motion-on [data-depth-card]:hover {
+  transform: translateY(-4px) scale(calc(var(--gt-primary-scale) * 0.988));
+  box-shadow: 0 calc(var(--gt-shadow-strength) * 24px) calc(var(--gt-shadow-strength) * 48px)
+              rgba(0, 0, 0, calc(var(--gt-shadow-strength) * 0.22));
+}
+
+/* Route takeover — full-viewport transition overlay */
+.route-takeover-on [data-route-transition] {
+  animation: gt-route-enter var(--gt-motion-route) cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes gt-route-enter {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Primary CTA dominance — scales and boosts contrast */
+.god-tier-ui [data-gt-primary] {
+  transform: scale(var(--gt-primary-scale));
+  transform-origin: center;
+  transition: transform var(--gt-motion-micro) cubic-bezier(0.22, 1, 0.36, 1);
+  filter: contrast(calc(var(--gt-primary-contrast) * 100%));
+}
+
+/* Glass surfaces respond to glass-strength token */
+.god-tier-ui [data-gt-glass] {
+  backdrop-filter: blur(calc(var(--gt-blur-strength) * 32px))
+                   saturate(calc(var(--gt-saturation-boost) * 180%));
+  -webkit-backdrop-filter: blur(calc(var(--gt-blur-strength) * 32px))
+                            saturate(calc(var(--gt-saturation-boost) * 180%));
+}
+
+/* Edge definition — sharpens outlines on interactive elements */
+.god-tier-ui [data-gt-edge] {
+  outline-width: calc(var(--gt-edge-definition) * 1px);
+  outline-style: solid;
+  outline-color: transparent;
+}
+.god-tier-ui [data-gt-edge]:focus-visible {
+  outline-color: rgba(42, 138, 184, calc(var(--gt-edge-definition) * 0.7));
+}
+
+/* Ambient motion — slow, organic background animations */
+.god-tier-ui [data-gt-ambient] {
+  animation-duration: var(--gt-motion-ambient);
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95);
 }

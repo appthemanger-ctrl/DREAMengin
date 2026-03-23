@@ -19,6 +19,15 @@ import {
   Vector3,
 } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
+import {
+  DreamEngineGodTierSystem,
+  applyGodTierToBabylon,
+  defaultDeviceSignals,
+  defaultRuntimeMetrics,
+  defaultUXSignals,
+  defaultRouteSignals,
+  type BabylonSceneLike,
+} from '@/lib/god-tier/godTierEngine';
 
 type RuntimeState = {
   idleTime: number;
@@ -256,6 +265,7 @@ async function buildDrEams(scene: Scene, canvas: HTMLCanvasElement) {
 export default function DrEamsScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const triggerReactionRef = useRef<(() => void) | null>(null);
+  const godTierRef = useRef(new DreamEngineGodTierSystem());
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -314,8 +324,35 @@ export default function DrEamsScene() {
         console.error('Failed to load Dr. Eams GLB:', error);
       });
 
+    // Apply God Tier settings once scene is ready
+    const gtInit = godTierRef.current.update({
+      device:  defaultDeviceSignals(),
+      runtime: defaultRuntimeMetrics(),
+      ux:      defaultUXSignals(),
+      route:   defaultRouteSignals('/dr-eams'),
+      meshes: [],
+      ui: [],
+    });
+    applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gtInit, window.devicePixelRatio ?? 1);
+
+    let lastGtMs = 0;
     engine.runRenderLoop(() => {
       scene.render();
+      const now = performance.now();
+      if (now - lastGtMs > 800) {
+        lastGtMs = now;
+        const perf = engine.performanceMonitor;
+        const avgFrame = perf ? perf.averageFrameTime : 16.6;
+        const gt = godTierRef.current.update({
+          device:  defaultDeviceSignals(),
+          runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
+          ux:      defaultUXSignals(),
+          route:   defaultRouteSignals('/dr-eams'),
+          meshes:  scene.meshes.map((m) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 4, transformDelta: 0, materialChanged: false, screenCoverage: 0.25, semanticWeight: 1.0, motionWeight: 0.9, detailWeight: 1.0, heroWeight: 1.0, occluded: false })),
+          ui: [],
+        });
+        applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);
+      }
     });
 
     const handleResize = () => {

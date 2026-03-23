@@ -1,11 +1,18 @@
 // components/dreamengin/BabylonGameScene.tsx
 // Babylon.js v8 real-time 3D scene for the GameEngin.
-// Uses render-on-demand pattern per ARCHITECTURE.md §10.
-// Renders a demo 3D world lobby that acts as a hub for game selection.
+// God Tier Engine integrated — hardware scaling, image processing, mesh policy.
 
 'use client';
 
 import { useEffect, useRef } from 'react';
+import {
+  DreamEngineGodTierSystem,
+  applyGodTierToBabylon,
+  defaultDeviceSignals,
+  defaultRuntimeMetrics,
+  defaultUXSignals,
+  defaultRouteSignals,
+} from '@/lib/god-tier/godTierEngine';
 
 interface BabylonGameSceneProps {
   onGameSelect?: (gameId: string) => void;
@@ -14,6 +21,8 @@ interface BabylonGameSceneProps {
 export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<import('@babylonjs/core').Engine | null>(null);
+  // God Tier system instance — persists for this scene's lifetime
+  const godTierRef = useRef(new DreamEngineGodTierSystem());
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -39,6 +48,17 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
       engineRef.current = engine;
       const scene = new Scene(engine);
       scene.clearColor = new (scene.clearColor.constructor as new (r: number, g: number, b: number, a: number) => typeof scene.clearColor)(0.05, 0.07, 0.12, 1);
+
+      // Apply God Tier hardware scaling on scene creation
+      const initialState = godTierRef.current.update({
+        device:  defaultDeviceSignals(),
+        runtime: defaultRuntimeMetrics(),
+        ux:      defaultUXSignals(),
+        route:   defaultRouteSignals('/game-hub'),
+        meshes: [],
+        ui: [],
+      });
+      applyGodTierToBabylon(engine, { meshes: [] }, initialState, window.devicePixelRatio ?? 1);
 
       // Camera — orbiting the game hub
       const camera = new ArcRotateCamera('cam', -Math.PI / 2, Math.PI / 3.5, 18, Vector3.Zero(), scene);
@@ -141,15 +161,56 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
         }
       });
 
-      // Render loop — render on demand
+      // Render loop — God Tier drives hardware scaling each frame
+      let lastGodTierMs = 0;
       engine.runRenderLoop(() => {
         scene.render();
+        // Re-evaluate God Tier state ~every 500ms to react to frame pressure
+        const now = performance.now();
+        if (now - lastGodTierMs > 500) {
+          lastGodTierMs = now;
+          const perf = engine.performanceMonitor;
+          const avgFrame = perf ? perf.averageFrameTime : 16.6;
+          const gtState = godTierRef.current.update({
+            device:  defaultDeviceSignals(),
+            runtime: {
+              frameMs: avgFrame,
+              avgFrameMs: avgFrame,
+              cpuMs: avgFrame * 0.4,
+              gpuMs: avgFrame * 0.5,
+              droppedFrameRatio: perf ? (perf.averageFrameTime > 20 ? 0.1 : 0) : 0,
+              inputLatencyMs: 20,
+              scrollVelocity: 0,
+              pointerVelocity: 0,
+              interactionBurst: 0,
+            },
+            ux:    defaultUXSignals(),
+            route: defaultRouteSignals('/game-hub'),
+            meshes: scene.meshes.map((m) => ({
+              id: m.id,
+              visible: m.isVisible,
+              interactive: m.isPickable,
+              nearPointer: false,
+              distanceToCamera: m.getDistanceToCamera ? m.getDistanceToCamera(scene.activeCamera!) : 10,
+              transformDelta: 0,
+              materialChanged: false,
+              screenCoverage: 0.1,
+              semanticWeight: m.id.startsWith('orb') ? 1 : 0.3,
+              motionWeight: m.id === 'hub' || m.id.startsWith('orb') ? 0.8 : 0.1,
+              detailWeight: 0.5,
+              heroWeight: m.id === 'hub' ? 1 : m.id.startsWith('orb') ? 0.7 : 0.2,
+              occluded: false,
+            })),
+            ui: [],
+          });
+          applyGodTierToBabylon(engine, scene as unknown as import('@/lib/god-tier/godTierEngine').BabylonSceneLike, gtState, window.devicePixelRatio ?? 1);
+        }
       });
 
       const onResize = () => engine.resize();
       window.addEventListener('resize', onResize);
 
-      // Freeze static meshes for performance
+      // Initial static mesh freeze — God Tier will manage ongoing policy
       ground.freezeWorldMatrix();
       ring.freezeWorldMatrix();
     }).catch(() => {

@@ -17,6 +17,15 @@ import {
   TransformNode,
   Vector3,
 } from '@babylonjs/core';
+import {
+  DreamEngineGodTierSystem,
+  applyGodTierToBabylon,
+  defaultDeviceSignals,
+  defaultRuntimeMetrics,
+  defaultUXSignals,
+  defaultRouteSignals,
+  type BabylonSceneLike,
+} from '@/lib/god-tier/godTierEngine';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function lerp(a: number, b: number, t: number): number {
@@ -48,6 +57,7 @@ export default function DrEamsBabylonHero({
   className = '',
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const godTierRef = useRef(new DreamEngineGodTierSystem());
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -893,7 +903,36 @@ export default function DrEamsBabylonHero({
       touchPulse *= 0.91;
     });
 
-    engine.runRenderLoop(() => scene.render());
+    // Apply God Tier engine settings at scene start
+    const gtInitial = godTierRef.current.update({
+      device:  defaultDeviceSignals(),
+      runtime: defaultRuntimeMetrics(),
+      ux:      defaultUXSignals(),
+      route:   defaultRouteSignals('/'),
+      meshes: [],
+      ui: [],
+    });
+    applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gtInitial, window.devicePixelRatio ?? 1);
+
+    let lastGtMs = 0;
+    engine.runRenderLoop(() => {
+      scene.render();
+      const now = performance.now();
+      if (now - lastGtMs > 1000) {
+        lastGtMs = now;
+        const perf = engine.performanceMonitor;
+        const avgFrame = perf ? perf.averageFrameTime : 16.6;
+        const gt = godTierRef.current.update({
+          device:  defaultDeviceSignals(),
+          runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
+          ux:      defaultUXSignals(),
+          route:   defaultRouteSignals('/'),
+          meshes:  scene.meshes.map((m) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 5, transformDelta: 0, materialChanged: false, screenCoverage: 0.1, semanticWeight: 0.8, motionWeight: 0.6, detailWeight: 0.8, heroWeight: 1.0, occluded: false })),
+          ui: [],
+        });
+        applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);
+      }
+    });
 
     const onResize = () => engine.resize();
     window.addEventListener('resize', onResize);
