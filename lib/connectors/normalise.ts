@@ -280,6 +280,406 @@ export function normaliseNostr(event: NostrEvent): UnifiedFeedItem {
   };
 }
 
+// ── Medium ────────────────────────────────────────────────────────────────
+
+export interface MediumRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  /** HTML content (content:encoded) */
+  contentEncoded?: string;
+  content?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+}
+
+export function normaliseMedium(item: MediumRssItem, authorHandle: string): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const rawHtml = item.contentEncoded ?? item.content ?? item.description ?? '';
+  const text = stripHtml(rawHtml) || stripHtml(item.title ?? '');
+
+  const imgMatch = rawHtml.match(/<img[^>]+src="([^"]+)"/i);
+  const media: FeedItemMedia[] = imgMatch?.[1]
+    ? [{ url: imgMatch[1], type: 'image' }]
+    : [];
+
+  return {
+    provider: 'medium',
+    external_id: id,
+    author_handle: authorHandle,
+    author_name: item.author ?? item.creator ?? authorHandle,
+    content_text: text,
+    content_html: rawHtml || undefined,
+    media,
+    permalink: item.link ?? `https://medium.com`,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+// ── Dev.to ────────────────────────────────────────────────────────────────
+
+export interface DevtoRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  contentEncoded?: string;
+  content?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+}
+
+export function normaliseDevto(item: DevtoRssItem, authorHandle: string): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const rawHtml = item.contentEncoded ?? item.content ?? item.description ?? '';
+  const text = stripHtml(rawHtml) || stripHtml(item.title ?? '');
+
+  const imgMatch = rawHtml.match(/<img[^>]+src="([^"]+)"/i);
+  const media: FeedItemMedia[] = imgMatch?.[1]
+    ? [{ url: imgMatch[1], type: 'image' }]
+    : [];
+
+  return {
+    provider: 'devto',
+    external_id: id,
+    author_handle: authorHandle,
+    author_name: item.author ?? item.creator ?? authorHandle,
+    content_text: text,
+    content_html: rawHtml || undefined,
+    media,
+    permalink: item.link ?? `https://dev.to`,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+// ── Substack ──────────────────────────────────────────────────────────────
+
+export interface SubstackRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  contentEncoded?: string;
+  content?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+}
+
+export function normaliseSubstack(item: SubstackRssItem, publicationSlug: string): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const rawHtml = item.contentEncoded ?? item.content ?? item.description ?? '';
+  const text = stripHtml(rawHtml) || stripHtml(item.title ?? '');
+
+  const imgMatch = rawHtml.match(/<img[^>]+src="([^"]+)"/i);
+  const media: FeedItemMedia[] = imgMatch?.[1]
+    ? [{ url: imgMatch[1], type: 'image' }]
+    : [];
+
+  return {
+    provider: 'substack',
+    external_id: id,
+    author_handle: publicationSlug,
+    author_name: item.author ?? item.creator ?? publicationSlug,
+    content_text: text,
+    content_html: rawHtml || undefined,
+    media,
+    permalink: item.link ?? `https://${publicationSlug}.substack.com`,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+// ── Hacker News ───────────────────────────────────────────────────────────
+
+export interface HackerNewsRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  content?: string;
+  contentSnippet?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+  comments?: string;
+}
+
+export function normaliseHackerNews(item: HackerNewsRssItem): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const handle = item.author ?? item.creator ?? 'hn';
+
+  return {
+    provider: 'hackernews',
+    external_id: id,
+    author_handle: handle,
+    author_name: handle,
+    content_text: item.title ?? item.contentSnippet ?? '',
+    media: [],
+    permalink: item.link ?? item.comments ?? `https://news.ycombinator.com`,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+// ── Podcast / Generic RSS ─────────────────────────────────────────────────
+
+export interface PodcastRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  contentEncoded?: string;
+  content?: string;
+  contentSnippet?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+  enclosure?: { url?: string; type?: string };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  itunes?: Record<string, any>;
+}
+
+export function normalisePodcast(item: PodcastRssItem, feedTitle: string): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const handle = item.author ?? item.creator ?? feedTitle;
+  const rawHtml = item.contentEncoded ?? item.content ?? item.description ?? '';
+  const text = stripHtml(rawHtml) || stripHtml(item.contentSnippet ?? '') || stripHtml(item.title ?? '');
+
+  const media: FeedItemMedia[] = [];
+  if (item.enclosure?.url) {
+    const isAudio = /audio/i.test(item.enclosure.type ?? '');
+    const isVideo = /video/i.test(item.enclosure.type ?? '');
+    media.push({
+      url: item.enclosure.url,
+      type: isVideo ? 'video' : isAudio ? 'audio' : 'audio',
+    });
+  }
+
+  const thumbnail: string | undefined = item.itunes?.image;
+  if (thumbnail && media.length > 0) {
+    media[0].thumbnail_url = thumbnail;
+  }
+
+  return {
+    provider: 'podcast',
+    external_id: id,
+    author_handle: handle,
+    author_name: handle,
+    content_text: text,
+    content_html: rawHtml || undefined,
+    media,
+    permalink: item.link ?? '',
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+// ── Twitter / X (public profile via Nitter RSS) ───────────────────────────
+
+export interface TwitterRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  contentEncoded?: string;
+  content?: string;
+  contentSnippet?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+}
+
+export function normaliseTwitter(item: TwitterRssItem, username: string): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const rawHtml = item.contentEncoded ?? item.content ?? item.description ?? '';
+  const text = stripHtml(rawHtml) || stripHtml(item.contentSnippet ?? '') || stripHtml(item.title ?? '');
+
+  const imgMatch = rawHtml.match(/<img[^>]+src="([^"]+)"/i);
+  const media: FeedItemMedia[] = imgMatch?.[1] ? [{ url: imgMatch[1], type: 'image' }] : [];
+
+  return {
+    provider: 'twitter',
+    external_id: id,
+    author_handle: `@${username}`,
+    author_name: item.author ?? item.creator ?? username,
+    content_text: text,
+    content_html: rawHtml || undefined,
+    media,
+    permalink: item.link ?? `https://twitter.com/${username}`,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+// ── Facebook (public page RSS) ────────────────────────────────────────────
+
+export interface FacebookRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  contentEncoded?: string;
+  content?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+}
+
+export function normaliseFacebook(item: FacebookRssItem, pageHandle: string): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const rawHtml = item.contentEncoded ?? item.content ?? item.description ?? '';
+  const text = stripHtml(rawHtml) || stripHtml(item.title ?? '');
+
+  const imgMatch = rawHtml.match(/<img[^>]+src="([^"]+)"/i);
+  const media: FeedItemMedia[] = imgMatch?.[1] ? [{ url: imgMatch[1], type: 'image' }] : [];
+
+  return {
+    provider: 'facebook',
+    external_id: id,
+    author_handle: pageHandle,
+    author_name: item.author ?? item.creator ?? pageHandle,
+    content_text: text,
+    content_html: rawHtml || undefined,
+    media,
+    permalink: item.link ?? `https://facebook.com/${pageHandle}`,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+// ── Pinterest (public board RSS) ──────────────────────────────────────────
+
+export interface PinterestRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  contentEncoded?: string;
+  content?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+}
+
+export function normalisePinterest(item: PinterestRssItem, username: string): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const rawHtml = item.contentEncoded ?? item.content ?? item.description ?? '';
+  const text = stripHtml(rawHtml) || stripHtml(item.title ?? '');
+
+  // Pinterest items typically have an image in the description
+  const imgMatch = rawHtml.match(/<img[^>]+src="([^"]+)"/i);
+  const media: FeedItemMedia[] = imgMatch?.[1] ? [{ url: imgMatch[1], type: 'image' }] : [];
+
+  return {
+    provider: 'pinterest',
+    external_id: id,
+    author_handle: username,
+    author_name: item.author ?? item.creator ?? username,
+    content_text: text,
+    content_html: rawHtml || undefined,
+    media,
+    permalink: item.link ?? `https://pinterest.com/${username}`,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+// ── Tumblr (public blog RSS) ──────────────────────────────────────────────
+
+export interface TumblrRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  contentEncoded?: string;
+  content?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+}
+
+export function normaliseTumblr(item: TumblrRssItem, username: string): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const rawHtml = item.contentEncoded ?? item.content ?? item.description ?? '';
+  const text = stripHtml(rawHtml) || stripHtml(item.title ?? '');
+
+  const imgMatch = rawHtml.match(/<img[^>]+src="([^"]+)"/i);
+  const media: FeedItemMedia[] = imgMatch?.[1] ? [{ url: imgMatch[1], type: 'image' }] : [];
+
+  return {
+    provider: 'tumblr',
+    external_id: id,
+    author_handle: username,
+    author_name: item.author ?? item.creator ?? username,
+    content_text: text,
+    content_html: rawHtml || undefined,
+    media,
+    permalink: item.link ?? `https://${username}.tumblr.com`,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+// ── TikTok (public profile via RSSHub) ───────────────────────────────────
+
+export interface TikTokRssItem {
+  guid?: string;
+  link?: string;
+  title?: string;
+  contentEncoded?: string;
+  content?: string;
+  contentSnippet?: string;
+  description?: string;
+  isoDate?: string;
+  pubDate?: string;
+  author?: string;
+  creator?: string;
+  enclosure?: { url?: string; type?: string };
+}
+
+export function normaliseTikTok(item: TikTokRssItem, username: string): UnifiedFeedItem {
+  const id = item.guid ?? item.link ?? String(Math.random());
+  const rawHtml = item.contentEncoded ?? item.content ?? item.description ?? '';
+  const text = stripHtml(rawHtml) || stripHtml(item.contentSnippet ?? '') || stripHtml(item.title ?? '');
+
+  const media: FeedItemMedia[] = [];
+  if (item.enclosure?.url) {
+    const isVideo = /video/i.test(item.enclosure.type ?? '');
+    media.push({ url: item.enclosure.url, type: isVideo ? 'video' : 'image' });
+  } else {
+    const imgMatch = rawHtml.match(/<img[^>]+src="([^"]+)"/i);
+    if (imgMatch?.[1]) media.push({ url: imgMatch[1], type: 'image' });
+  }
+
+  return {
+    provider: 'tiktok',
+    external_id: id,
+    author_handle: `@${username}`,
+    author_name: item.author ?? item.creator ?? username,
+    content_text: text,
+    content_html: rawHtml || undefined,
+    media,
+    permalink: item.link ?? `https://tiktok.com/@${username}`,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
 // ── Dedup helper ──────────────────────────────────────────────────────────
 
 /**

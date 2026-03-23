@@ -255,16 +255,19 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     id: 'twitter',
     name: 'X / Twitter',
     icon: '✖️',
-    description: 'Home timeline and bookmarks.',
+    description: 'Public profile posts via Nitter RSS — no API key needed.',
     category: 'Social',
-    tier: 'tier2',
-    whatYouGet: 'Home timeline + bookmarks (if access is approved)',
-    requirements: 'Home timeline access requires X API paid plan or partner access.',
-    defaultStatus: 'needs_admin_setup',
+    tier: 'tier1',
+    whatYouGet: 'Public tweets from any account whose profile is set to Public',
+    requirements:
+      'Your Twitter/X account must be set to Public. ' +
+      'Go to Settings → Privacy and safety → turn off "Protect your posts". ' +
+      'Uses Nitter — an open-source Twitter frontend that exposes public profile RSS.',
+    defaultStatus: 'not_connected',
     widgetTypeId: 'twitter',
     sliceTypes: [
-      { id: 'tw-home', label: 'Home Timeline', description: 'Tweets from people you follow.' },
-      { id: 'tw-bookmarks', label: 'Bookmarks', description: 'Your saved tweets.' },
+      { id: 'tw-posts', label: 'Posts', description: 'Public tweets from this profile.' },
+      { id: 'tw-media', label: 'Media', description: 'Images and videos from public tweets.' },
     ],
   },
   {
@@ -288,16 +291,19 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     id: 'facebook',
     name: 'Facebook',
     icon: '📘',
-    description: 'Friends feed — only friends who also use DREAMengin.',
+    description: 'Public Page posts via RSS — no API key needed.',
     category: 'Social',
-    tier: 'tier2',
-    whatYouGet: 'Friends posts (only friends who also use the app)',
-    requirements: 'Facebook Graph API only returns mutual-app friends.',
-    defaultStatus: 'requires_approval',
+    tier: 'tier1',
+    whatYouGet: 'Public posts from any Facebook Page that is set to Public',
+    requirements:
+      'Your Facebook Page must be set to Public. ' +
+      'Go to your Page Settings → Privacy → set visibility to Public. ' +
+      'Works best for public Pages (businesses, creators). Personal profiles are limited.',
+    defaultStatus: 'not_connected',
     widgetTypeId: 'facebook',
     sliceTypes: [
-      { id: 'fb-friends', label: 'Friends Feed', description: 'Posts from mutual-app friends.' },
-      { id: 'fb-pages', label: 'Pages', description: 'Recent posts from Pages you follow.' },
+      { id: 'fb-posts', label: 'Page Posts', description: 'Recent posts from a public Facebook Page.' },
+      { id: 'fb-updates', label: 'Updates', description: 'Latest updates and news from the Page.' },
     ],
   },
   {
@@ -320,16 +326,19 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     id: 'tiktok',
     name: 'TikTok',
     icon: '🎬',
-    description: 'Following feed and saved videos.',
+    description: 'Public profile videos via RSSHub — no API key needed.',
     category: 'Social',
-    tier: 'tier2',
-    whatYouGet: 'Following feed + saved videos',
-    requirements: 'TikTok API requires developer application approval.',
-    defaultStatus: 'needs_admin_setup',
+    tier: 'tier1',
+    whatYouGet: 'Public videos from any TikTok account set to Public',
+    requirements:
+      'Your TikTok account must be set to Public. ' +
+      'Go to Profile → Settings → Privacy → turn "Private account" OFF. ' +
+      'Uses RSSHub — an open-source RSS bridge for social platforms.',
+    defaultStatus: 'not_connected',
     widgetTypeId: 'tiktok',
     sliceTypes: [
-      { id: 'tt-following', label: 'Following Feed', description: 'Latest videos from accounts you follow.' },
-      { id: 'tt-saved', label: 'Saved Videos', description: 'Your favourited TikToks.' },
+      { id: 'tt-posts', label: 'Videos', description: 'Latest public videos from this profile.' },
+      { id: 'tt-trending', label: 'Trending', description: 'Trending videos from this account.' },
     ],
   },
   {
@@ -380,6 +389,129 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     sliceTypes: [
       { id: 'wx-current', label: 'Current Conditions', description: 'Temperature, wind, and sky right now.' },
       { id: 'wx-forecast', label: '7-Day Forecast', description: 'Week-ahead weather overview.' },
+    ],
+  },
+
+  // ── Additional RSS-based Tier 1 providers ─────────────────────────────
+  {
+    id: 'medium',
+    name: 'Medium',
+    icon: '✍️',
+    description: 'Articles and stories from your Medium profile.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Your published Medium articles via RSS',
+    requirements: 'Your Medium username. No API key required.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'medium',
+    sliceTypes: [
+      { id: 'medium-articles', label: 'Articles', description: 'Your latest published stories on Medium.' },
+      { id: 'medium-responses', label: 'Responses', description: 'Your responses to other stories.' },
+    ],
+  },
+  {
+    id: 'devto',
+    name: 'Dev.to',
+    icon: '👩‍💻',
+    description: 'Articles from your Dev.to profile.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Your published Dev.to articles via RSS',
+    requirements: 'Your Dev.to username. No API key required.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'devto',
+    sliceTypes: [
+      { id: 'devto-articles', label: 'Articles', description: 'Your latest posts on Dev.to.' },
+      { id: 'devto-series', label: 'Series', description: 'Articles grouped into series.' },
+    ],
+  },
+  {
+    id: 'substack',
+    name: 'Substack',
+    icon: '📨',
+    description: 'Newsletter posts from a Substack publication.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Newsletter posts from any public Substack via RSS',
+    requirements: 'Substack subdomain or full URL. No API key required.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'substack',
+    sliceTypes: [
+      { id: 'substack-posts', label: 'Posts', description: 'Latest newsletter posts.' },
+      { id: 'substack-archive', label: 'Archive', description: 'Full post archive.' },
+    ],
+  },
+  {
+    id: 'hackernews',
+    name: 'Hacker News',
+    icon: '🔶',
+    description: 'Top stories, newest posts, Ask HN, Show HN, or your submissions.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Hacker News stories via hnrss.org RSS bridge',
+    requirements: 'Choose a feed type (best/newest/ask/show/jobs). No API key required.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'hackernews',
+    sliceTypes: [
+      { id: 'hn-best', label: 'Best Stories', description: 'Top-ranked HN stories.' },
+      { id: 'hn-newest', label: 'Newest', description: 'Freshest HN submissions.' },
+      { id: 'hn-ask', label: 'Ask HN', description: 'Ask Hacker News threads.' },
+      { id: 'hn-show', label: 'Show HN', description: 'Show Hacker News posts.' },
+    ],
+  },
+  {
+    id: 'podcast',
+    name: 'Any RSS / Atom Feed',
+    icon: '📡',
+    description:
+      'Connect any platform that exposes a public RSS or Atom feed — podcasts, blogs, YouTube channels, Reddit, Mastodon, GitHub, Substack, newsletters, news sites, and more. Works with any platform as long as the feed URL is publicly accessible (not behind a login).',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Posts, episodes, or articles from any public RSS/Atom feed',
+    requirements:
+      'A publicly accessible RSS or Atom feed URL. The feed must NOT require login or authentication — private feeds are not supported.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'podcast',
+    sliceTypes: [
+      { id: 'podcast-episodes', label: 'Episodes / Posts', description: 'Latest entries from the feed.' },
+      { id: 'podcast-media', label: 'Media', description: 'Audio, video, or image attachments from the feed.' },
+    ],
+  },
+  {
+    id: 'pinterest',
+    name: 'Pinterest',
+    icon: '📌',
+    description: 'Public board pins via RSS — no API key needed.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Public pins from any Pinterest board set to Public',
+    requirements:
+      'Your Pinterest profile and boards must be set to Public. ' +
+      'Go to Pinterest Settings → Privacy and data → Profile privacy → Public. ' +
+      'Individual boards must also be set to Public (not Secret).',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'pinterest',
+    sliceTypes: [
+      { id: 'pinterest-pins', label: 'Pins', description: 'Latest pins from a public board.' },
+      { id: 'pinterest-boards', label: 'All Boards', description: 'All public pins across your boards.' },
+    ],
+  },
+  {
+    id: 'tumblr',
+    name: 'Tumblr',
+    icon: '🫧',
+    description: 'Public blog posts via RSS — no API key needed.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Public posts from any Tumblr blog that is not password-protected',
+    requirements:
+      'Your Tumblr blog must be Public (not password-protected). ' +
+      'Go to your blog Settings → Visibility → remove any password protection.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'tumblr',
+    sliceTypes: [
+      { id: 'tumblr-posts', label: 'Posts', description: 'Latest posts from a public Tumblr blog.' },
+      { id: 'tumblr-photos', label: 'Photos', description: 'Photo posts from the blog.' },
     ],
   },
 ] as const;

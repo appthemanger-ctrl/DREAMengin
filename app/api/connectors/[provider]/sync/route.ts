@@ -24,6 +24,16 @@ import { redditSync } from '@/lib/connectors/providers/reddit';
 import { nostrSync } from '@/lib/connectors/providers/nostr';
 import { youtubeSync } from '@/lib/connectors/providers/youtube';
 import { instagramSync } from '@/lib/connectors/providers/instagram';
+import { mediumSync } from '@/lib/connectors/providers/medium';
+import { devtoSync } from '@/lib/connectors/providers/devto';
+import { substackSync } from '@/lib/connectors/providers/substack';
+import { hackernewsSync } from '@/lib/connectors/providers/hackernews';
+import { podcastSync } from '@/lib/connectors/providers/podcast';
+import { twitterSync } from '@/lib/connectors/providers/twitter';
+import { facebookSync } from '@/lib/connectors/providers/facebook';
+import { pinterestSync } from '@/lib/connectors/providers/pinterest';
+import { tumblrSync } from '@/lib/connectors/providers/tumblr';
+import { tiktokSync } from '@/lib/connectors/providers/tiktok';
 import { deduplicateFeedItems } from '@/lib/connectors/normalise';
 import type { ConnectorSyncResponse, UnifiedFeedItem } from '@/types/connector';
 
@@ -108,6 +118,48 @@ export async function POST(
       case 'instagram':
         items = await instagramSync({
           access_token: String(creds.access_token ?? ''),
+        });
+        break;
+      case 'medium':
+        items = await mediumSync({ username: String(creds.username ?? '') });
+        break;
+      case 'devto':
+        items = await devtoSync({ username: String(creds.username ?? '') });
+        break;
+      case 'substack':
+        items = await substackSync({ publication: String(creds.publication ?? '') });
+        break;
+      case 'hackernews':
+        items = await hackernewsSync({
+          feed_type: (String(creds.feed_type ?? 'best') as 'best' | 'newest' | 'ask' | 'show' | 'jobs'),
+          username: creds.username ? String(creds.username) : undefined,
+        });
+        break;
+      case 'podcast':
+        items = await podcastSync({ feed_url: String(creds.feed_url ?? '') });
+        break;
+      case 'twitter':
+        items = await twitterSync({
+          username: String(creds.username ?? ''),
+          nitter_instance: creds.nitter_instance ? String(creds.nitter_instance) : undefined,
+        });
+        break;
+      case 'facebook':
+        items = await facebookSync({ page: String(creds.page ?? '') });
+        break;
+      case 'pinterest':
+        items = await pinterestSync({
+          username: String(creds.username ?? ''),
+          board: creds.board ? String(creds.board) : undefined,
+        });
+        break;
+      case 'tumblr':
+        items = await tumblrSync({ username: String(creds.username ?? '') });
+        break;
+      case 'tiktok':
+        items = await tiktokSync({
+          username: String(creds.username ?? ''),
+          rsshub_instance: creds.rsshub_instance ? String(creds.rsshub_instance) : undefined,
         });
         break;
       default:

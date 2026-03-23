@@ -26,6 +26,16 @@ import { nostrVerify } from '@/lib/connectors/providers/nostr';
 import { youtubeVerify } from '@/lib/connectors/providers/youtube';
 import { shellhubVerify, SHELLHUB_DEFAULT_SERVER } from '@/lib/connectors/providers/shellhub';
 import { instagramVerify } from '@/lib/connectors/providers/instagram';
+import { mediumVerify } from '@/lib/connectors/providers/medium';
+import { devtoVerify } from '@/lib/connectors/providers/devto';
+import { substackVerify } from '@/lib/connectors/providers/substack';
+import { hackernewsVerify } from '@/lib/connectors/providers/hackernews';
+import { podcastVerify } from '@/lib/connectors/providers/podcast';
+import { twitterVerify } from '@/lib/connectors/providers/twitter';
+import { facebookVerify } from '@/lib/connectors/providers/facebook';
+import { pinterestVerify } from '@/lib/connectors/providers/pinterest';
+import { tumblrVerify } from '@/lib/connectors/providers/tumblr';
+import { tiktokVerify } from '@/lib/connectors/providers/tiktok';
 import type { ConnectorConnectResponse } from '@/types/connector';
 
 export async function POST(
@@ -100,6 +110,48 @@ export async function POST(
         await shellhubVerify({
           server_url: credentials.server_url || SHELLHUB_DEFAULT_SERVER,
           api_key: credentials.api_key ?? '',
+        });
+        break;
+      case 'medium':
+        await mediumVerify({ username: credentials.username ?? '' });
+        break;
+      case 'devto':
+        await devtoVerify({ username: credentials.username ?? '' });
+        break;
+      case 'substack':
+        await substackVerify({ publication: credentials.publication ?? '' });
+        break;
+      case 'hackernews':
+        await hackernewsVerify({
+          feed_type: (credentials.feed_type as 'best' | 'newest' | 'ask' | 'show' | 'jobs') || 'best',
+          username: credentials.username || undefined,
+        });
+        break;
+      case 'podcast':
+        await podcastVerify({ feed_url: credentials.feed_url ?? '' });
+        break;
+      case 'twitter':
+        await twitterVerify({
+          username: credentials.username ?? '',
+          nitter_instance: credentials.nitter_instance || undefined,
+        });
+        break;
+      case 'facebook':
+        await facebookVerify({ page: credentials.page ?? '' });
+        break;
+      case 'pinterest':
+        await pinterestVerify({
+          username: credentials.username ?? '',
+          board: credentials.board || undefined,
+        });
+        break;
+      case 'tumblr':
+        await tumblrVerify({ username: credentials.username ?? '' });
+        break;
+      case 'tiktok':
+        await tiktokVerify({
+          username: credentials.username ?? '',
+          rsshub_instance: credentials.rsshub_instance || undefined,
         });
         break;
       default:
