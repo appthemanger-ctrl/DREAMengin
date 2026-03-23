@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import {
   ArcRotateCamera,
   Color3,
   Color4,
   DirectionalLight,
-  Engine,
   GlowLayer,
   HemisphericLight,
   Mesh,
@@ -56,37 +56,45 @@ export default function DrEamsBabylonHero({
   height = 480,
   className = '',
 }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const godTierRef = useRef(new DreamEngineGodTierSystem());
+  const canvasRef   = useRef<HTMLCanvasElement>(null);
+  const godTierRef  = useRef(new DreamEngineGodTierSystem());
+  const engineRef   = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
+  const sceneRef    = useRef<Scene | null>(null);
+  const onResizeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const engine = new Engine(canvas, true, {
+    let disposed = false;
+
+    createBabylonEngine(canvas, {
       preserveDrawingBuffer: true,
       stencil: true,
       antialias: true,
-    });
+    }).then(({ engine }) => {
+      if (disposed) { engine.dispose(); return; }
+      engineRef.current = engine;
 
-    const scene = new Scene(engine);
-    scene.clearColor = new Color4(0, 0, 0, 0);
+      const scene = new Scene(engine);
+      sceneRef.current = scene;
+      scene.clearColor = new Color4(0, 0, 0, 0);
 
-    // ── Camera ────────────────────────────────────────────────────────────────
-    const camera = new ArcRotateCamera(
-      'cam',
-      -Math.PI / 2,
-      Math.PI / 2.15,
-      6.2,
-      new Vector3(0, 1.1, 0),
-      scene,
-    );
-    camera.lowerRadiusLimit = 5.2;
-    camera.upperRadiusLimit = 7.5;
-    camera.wheelDeltaPercentage = 0.01;
-    camera.panningSensibility = 0;
-    camera.allowUpsideDown = false;
-    camera.attachControl(canvas, true);
+      // ── Camera ────────────────────────────────────────────────────────────────
+      const camera = new ArcRotateCamera(
+        'cam',
+        -Math.PI / 2,
+        Math.PI / 2.15,
+        6.2,
+        new Vector3(0, 1.1, 0),
+        scene,
+      );
+      camera.lowerRadiusLimit = 5.2;
+      camera.upperRadiusLimit = 7.5;
+      camera.wheelDeltaPercentage = 0.01;
+      camera.panningSensibility = 0;
+      camera.allowUpsideDown = false;
+      camera.attachControl(canvas, true);
 
     // ── Lights ────────────────────────────────────────────────────────────────
     const hemi = new HemisphericLight('hemi', new Vector3(0, 1, 0), scene);
@@ -920,7 +928,7 @@ export default function DrEamsBabylonHero({
       const now = performance.now();
       if (now - lastGtMs > 1000) {
         lastGtMs = now;
-        const perf = engine.performanceMonitor;
+        const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
         const avgFrame = perf ? perf.averageFrameTime : 16.6;
         const gt = godTierRef.current.update({
           device:  defaultDeviceSignals(),
@@ -934,13 +942,21 @@ export default function DrEamsBabylonHero({
       }
     });
 
-    const onResize = () => engine.resize();
-    window.addEventListener('resize', onResize);
+      const onResize = () => engine.resize();
+      onResizeRef.current = onResize;
+      window.addEventListener('resize', onResize);
+    }).catch(() => {
+      // Engine creation failed — hero stays blank; no crash.
+    });
 
     return () => {
-      window.removeEventListener('resize', onResize);
-      scene.dispose();
-      engine.dispose();
+      disposed = true;
+      if (onResizeRef.current) window.removeEventListener('resize', onResizeRef.current);
+      sceneRef.current?.dispose();
+      engineRef.current?.dispose();
+      sceneRef.current  = null;
+      engineRef.current = null;
+      onResizeRef.current = null;
     };
   }, []);
 

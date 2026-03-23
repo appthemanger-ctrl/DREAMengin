@@ -27,6 +27,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import {
   buildReleaseStrategy,
   createMelodySuggestions,
@@ -204,6 +206,19 @@ const bpmBtnStyle: React.CSSProperties = {
 
 export default function StarMakerEngin({ onBack }: Props) {
 
+  // ── Daydream state persistence (Phase 8 §F Point 51) ──
+  const { persistState } = useDaydreamState({ daydreamType: 'music', side: 'B' });
+
+  // ── Daydream DB persistence with restore (Phase 8 §F pts 49, 51) ──
+  type StarMakerState = { bpm?: number; musicalKey?: MusicalKey; keyMode?: 'major' | 'minor'; pitch?: number };
+  const {
+    savedState: savedMusicState,
+    isRestoring: musicRestoring,
+    persistState: persistMusicState,
+  } = useDaydreamPersistence<StarMakerState>({ daydreamType: 'music' });
+
+  const musicRestoredRef = useRef(false);
+
   // ── Supabase releases state ──
   const [releases,   setReleases]   = useState<MusicRelease[]>([]);
   const [loading,    setLoading]    = useState(true);
@@ -233,6 +248,24 @@ export default function StarMakerEngin({ onBack }: Props) {
   const [stemReady,     setStemReady]     = useState<StemReadyState>({ vocals: false, drums: false, bass: false, other: false });
   const [exportPending, setExportPending] = useState(false);
   const [exportDone,    setExportDone]    = useState(false);
+
+  // ── Restore workspace state from DB once on mount ──
+  useEffect(() => {
+    if (musicRestoring || musicRestoredRef.current || !savedMusicState) return;
+    musicRestoredRef.current = true;
+    if (savedMusicState.bpm !== undefined) setBpm(savedMusicState.bpm);
+    if (savedMusicState.musicalKey)        setMusicalKey(savedMusicState.musicalKey);
+    if (savedMusicState.keyMode)           setKeyMode(savedMusicState.keyMode);
+    if (savedMusicState.pitch !== undefined) setPitch(savedMusicState.pitch);
+  }, [musicRestoring, savedMusicState]);
+
+  // ── Persist creative workspace state to Supabase (Phase 8 §F Point 51) ──
+  useEffect(() => {
+    if (musicRestoring) return;
+    persistState({ side: 'B', bpm, musicalKey, keyMode, pitch });
+    persistMusicState({ bpm, musicalKey, keyMode, pitch });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bpm, musicalKey, keyMode, pitch, musicRestoring]);
 
   // ── Supabase: fetch releases (defence-in-depth owner_id filter; RLS enforced server-side) ──
   useEffect(() => {
@@ -320,8 +353,8 @@ export default function StarMakerEngin({ onBack }: Props) {
     setExportDone(false);
   }, []);
 
-  // ── Stem export — emits bridge events for each ready stem ──
-  const handlePrepareExport = useCallback(() => {
+  // ── Stem export — emits bridge events for each ready stem and writes to music_outputs ──
+  const handlePrepareExport = useCallback(async () => {
     const ready = STEM_LIST.filter(({ key }) => stemReady[key]);
     if (ready.length === 0) return;
     setExportPending(true);
@@ -336,12 +369,32 @@ export default function StarMakerEngin({ onBack }: Props) {
       });
     }
 
+    // Write to music_outputs table — Phase 8 §F Point 51 (real DB output record)
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const stems = ready.map(({ key }) => key);
+        const beat_grid = beatGrid;
+        await supabase
+          .from('music_outputs')
+          .insert({
+            user_id:     user.id,
+            bpm,
+            musical_key: `${musicalKey} ${keyMode}`,
+            stems,
+            beat_grid,
+            mixer_state: mixer,
+          });
+      }
+    } catch { /* non-blocking — export still completes */ }
+
     // Brief visual confirmation tick
     setTimeout(() => {
       setExportPending(false);
       setExportDone(true);
     }, 800);
-  }, [stemReady]);
+  }, [stemReady, beatGrid, bpm, musicalKey, keyMode, mixer]);
 
   // ── Waveform Visualizer state ──
   const [waveformBars, setWaveformBars] = useState<number[]>(() =>

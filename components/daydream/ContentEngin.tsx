@@ -20,6 +20,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
@@ -90,6 +91,19 @@ export default function ContentEngin({ onBack }: Props) {
   // ── Existing: Recent Drafts ──
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // ── Multi-connection: receive stem-ready from StarMakerEngin (Phase 8 §F Point 57) ──
+  // Music Daydream → ContentEngin connection path: when a stem is prepared in StarMakerEngin,
+  // ContentEngin surfaces a prompt to write a track description draft.
+  const [stemPrompt, setStemPrompt] = useState<{ stemType: string; url: string } | null>(null);
+
+  useEffect(() => {
+    // Subscribe to the 'music' channel — receive stem-ready events from StarMakerEngin
+    const unsub = bridge.subscribe('music', 'music:stem-ready', (payload) => {
+      setStemPrompt(payload as { stemType: string; url: string });
+    });
+    return unsub;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -227,6 +241,7 @@ export default function ContentEngin({ onBack }: Props) {
   /**
    * saveDraft — POST the generated draft text to /api/drafts (real effect).
    * Maps DraftType → content_type used by /api/drafts.
+   * The API route persists to the `content_drafts` table in Supabase (Phase 8 §F, pt 56).
    * Includes scheduled_at when the user has set a schedule datetime.
    *
    * LAW.md §3 — every visible action must do something real.
@@ -326,6 +341,45 @@ export default function ContentEngin({ onBack }: Props) {
   const [hashtagTopic, setHashtagTopic]   = useState('');
   const [hashtags, setHashtags]           = useState<string[]>([]);
   const [hashtagLoading, setHashtagLoading] = useState(false);
+
+  // ── Daydream Persistence (Phase 8 §F, pts 49-56) ─────────────────────────────
+  // Saves and restores the ContentEngin workspace state across sessions.
+  type ContentSavedState = {
+    calendarItems?: Record<string, Array<{ id: string; type: string; title: string; scheduled_at?: string }>>;
+    draftTopic?: string;
+    draftType?: string;
+    selectedPlatforms?: string[];
+  };
+  const {
+    savedState: savedContentState,
+    isRestoring: contentRestoring,
+    persistState: persistContentState,
+  } = useDaydreamPersistence<ContentSavedState>({ daydreamType: 'create' });
+
+  const contentRestoredRef = useRef(false);
+
+  // Restore workspace state from DB once on mount
+  useEffect(() => {
+    if (contentRestoring || contentRestoredRef.current || !savedContentState) return;
+    contentRestoredRef.current = true;
+    if (savedContentState.calendarItems)   setCalendarItems(savedContentState.calendarItems as Record<string, typeof calendarItems[string]>);
+    if (savedContentState.draftTopic)      setDraftTopic(savedContentState.draftTopic);
+    if (savedContentState.draftType)       setDraftType(savedContentState.draftType as typeof draftType);
+    if (savedContentState.selectedPlatforms) setSelectedPlatforms(new Set(savedContentState.selectedPlatforms));
+  }, [contentRestoring, savedContentState]);
+
+  // Persist workspace state to DB whenever it changes
+  useEffect(() => {
+    if (contentRestoring) return;
+    persistContentState({
+      calendarItems,
+      draftTopic,
+      draftType,
+      selectedPlatforms: [...selectedPlatforms],
+    });
+  // persistContentState is stable (useCallback); eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calendarItems, draftTopic, draftType, selectedPlatforms, contentRestoring]);
 
   // ── AI Caption handler ───────────────────────────────────────────────────────
   function handleGenerateCaption() {
@@ -442,6 +496,31 @@ export default function ContentEngin({ onBack }: Props) {
 
       {/* ── Body ── */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
+
+        {/* ── Music → ContentEngin connection signal (Phase 8 §F Point 57) ── */}
+        {stemPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(42,138,184,0.3)', background: 'rgba(42,138,184,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🎵→✍️</span>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    StarMakerEngin sent a stem
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+                    {stemPrompt.stemType} stem is ready — write a track description?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setStemPrompt(null)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Recent Drafts ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>

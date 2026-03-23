@@ -6,7 +6,6 @@ import {
   ArcRotateCamera,
   Color3,
   DirectionalLight,
-  Engine,
   HemisphericLight,
   Mesh,
   MeshBuilder,
@@ -18,6 +17,7 @@ import {
   TransformNode,
   Vector3,
 } from '@babylonjs/core';
+import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import '@babylonjs/loaders/glTF';
 import {
   DreamEngineGodTierSystem,
@@ -278,95 +278,102 @@ export default function DrEamsScene() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const engine = new Engine(canvas, true, {
+    let disposed = false;
+    let engineInst: import('@babylonjs/core').AbstractEngine | null = null;
+    let sceneInst: Scene | null = null;
+    let disposeActor: (() => void) | null = null;
+
+    const handleResize = () => engineInst?.resize();
+    window.addEventListener('resize', handleResize);
+
+    createBabylonEngine(canvas, {
       preserveDrawingBuffer: true,
       stencil: true,
       antialias: true,
-    });
+    }).then(({ engine }) => {
+      if (disposed) { engine.dispose(); return; }
+      engineInst = engine;
 
-    const scene = new Scene(engine);
-    scene.clearColor.set(0, 0, 0, 0);
+      const scene = new Scene(engine);
+      sceneInst = scene;
+      scene.clearColor.set(0, 0, 0, 0);
 
-    const camera = new ArcRotateCamera(
-      'camera',
-      -Math.PI / 2,
-      Math.PI / 2.2,
-      1.85,
-      new Vector3(0, 0.42, 0),
-      scene
-    );
+      const camera = new ArcRotateCamera(
+        'camera',
+        -Math.PI / 2,
+        Math.PI / 2.2,
+        1.85,
+        new Vector3(0, 0.42, 0),
+        scene
+      );
 
-    camera.lowerRadiusLimit = 1.5;
-    camera.upperRadiusLimit = 2.4;
-    camera.wheelDeltaPercentage = 0.01;
-    camera.useAutoRotationBehavior = false;
-    camera.attachControl(canvas, true);
+      camera.lowerRadiusLimit = 1.5;
+      camera.upperRadiusLimit = 2.4;
+      camera.wheelDeltaPercentage = 0.01;
+      camera.useAutoRotationBehavior = false;
+      camera.attachControl(canvas, true);
 
-    const hemi = new HemisphericLight('hemi', new Vector3(0, 1, 0), scene);
-    hemi.intensity = 1.05;
+      const hemi = new HemisphericLight('hemi', new Vector3(0, 1, 0), scene);
+      hemi.intensity = 1.05;
 
-    const key = new DirectionalLight('key', new Vector3(-0.25, -1, 0.35), scene);
-    key.position = new Vector3(2, 4, -2);
-    key.intensity = 1.7;
+      const key = new DirectionalLight('key', new Vector3(-0.25, -1, 0.35), scene);
+      key.position = new Vector3(2, 4, -2);
+      key.intensity = 1.7;
 
-    const rim = new DirectionalLight('rim', new Vector3(0.6, -0.4, -1), scene);
-    rim.position = new Vector3(-1, 2, 3);
-    rim.intensity = 0.85;
+      const rim = new DirectionalLight('rim', new Vector3(0.6, -0.4, -1), scene);
+      rim.position = new Vector3(-1, 2, 3);
+      rim.intensity = 0.85;
 
-    let disposeActor: (() => void) | null = null;
-
-    buildDrEams(scene, canvas)
-      .then(({ dispose, triggerReaction }) => {
-        disposeActor = dispose;
-        triggerReactionRef.current = triggerReaction;
-      })
-      .catch((error) => {
-        console.error('Failed to load Dr. Eams GLB:', error);
-      });
-
-    // Apply God Tier settings once scene is ready
-    const gtInit = godTierRef.current.update({
-      device:  defaultDeviceSignals(),
-      runtime: defaultRuntimeMetrics(),
-      ux:      defaultUXSignals(),
-      route:   defaultRouteSignals('/dr-eams'),
-      meshes: [],
-      ui: [],
-    });
-    applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gtInit, window.devicePixelRatio ?? 1);
-
-    let lastGtMs = 0;
-    engine.runRenderLoop(() => {
-      scene.render();
-      const now = performance.now();
-      if (now - lastGtMs > 800) {
-        lastGtMs = now;
-        const perf = engine.performanceMonitor;
-        const avgFrame = perf ? perf.averageFrameTime : 16.6;
-        const gt = godTierRef.current.update({
-          device:  defaultDeviceSignals(),
-          runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
-          ux:      defaultUXSignals(),
-          route:   defaultRouteSignals('/dr-eams'),
-          meshes:  scene.meshes.map((m) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 4, transformDelta: 0, materialChanged: false, screenCoverage: 0.25, semanticWeight: 1.0, motionWeight: 0.9, detailWeight: 1.0, heroWeight: 1.0, occluded: false })),
-          ui: [],
+      buildDrEams(scene, canvas)
+        .then(({ dispose, triggerReaction }) => {
+          disposeActor = dispose;
+          triggerReactionRef.current = triggerReaction;
+        })
+        .catch((error) => {
+          console.error('Failed to load Dr. Eams GLB:', error);
         });
-        applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);
-      }
+
+      // Apply God Tier settings once scene is ready
+      const gtInit = godTierRef.current.update({
+        device:  defaultDeviceSignals(),
+        runtime: defaultRuntimeMetrics(),
+        ux:      defaultUXSignals(),
+        route:   defaultRouteSignals('/dr-eams'),
+        meshes: [],
+        ui: [],
+      });
+      applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gtInit, window.devicePixelRatio ?? 1);
+
+      let lastGtMs = 0;
+      engine.runRenderLoop(() => {
+        scene.render();
+        const now = performance.now();
+        if (now - lastGtMs > 800) {
+          lastGtMs = now;
+          const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
+          const avgFrame = perf ? perf.averageFrameTime : 16.6;
+          const gt = godTierRef.current.update({
+            device:  defaultDeviceSignals(),
+            runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
+            ux:      defaultUXSignals(),
+            route:   defaultRouteSignals('/dr-eams'),
+            meshes:  scene.meshes.map((m) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 4, transformDelta: 0, materialChanged: false, screenCoverage: 0.25, semanticWeight: 1.0, motionWeight: 0.9, detailWeight: 1.0, heroWeight: 1.0, occluded: false })),
+            ui: [],
+          });
+          applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);
+        }
+      });
+    }).catch(() => {
+      // Engine creation failed — canvas stays blank; no crash.
     });
-
-    const handleResize = () => {
-      engine.resize();
-    };
-
-    window.addEventListener('resize', handleResize);
 
     return () => {
+      disposed = true;
       triggerReactionRef.current = null;
       window.removeEventListener('resize', handleResize);
       if (disposeActor) disposeActor();
-      scene.dispose();
-      engine.dispose();
+      sceneInst?.dispose();
+      engineInst?.dispose();
     };
   }, []);
 

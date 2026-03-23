@@ -25,24 +25,31 @@ export default function SellItemPage() {
     setIsLoading(true);
 
     try {
+      // Point 45: sell flow goes through the real API route so we get
+      // a real API response (including the new item record) confirming success.
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push('/login');
         return;
       }
 
-      const { error: insertError } = await supabase
-        .from('merch')
-        .insert({
-          user_id: user.id,
+      const res = await fetch('/api/shop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           title,
           description,
           price: parseFloat(price),
           stock: parseInt(stock),
-          image_url: imageUrl || null
-        });
+          image_url: imageUrl || null,
+        }),
+      });
 
-      if (insertError) throw insertError;
+      const body = await res.json() as { error?: string; item?: { id: string } };
+
+      if (!res.ok) {
+        throw new Error(body.error ?? 'Failed to create listing.');
+      }
 
       router.push('/shop');
     } catch (err: unknown) {
