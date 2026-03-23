@@ -20,6 +20,14 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSubmitScore } from '@/lib/games/hooks';
+import {
+  DreamEngineGodTierSystem,
+  applyGodTierToBabylon,
+  defaultDeviceSignals,
+  defaultUXSignals,
+  defaultRouteSignals,
+  type BabylonSceneLike,
+} from '@/lib/god-tier/godTierEngine';
 
 // ─── Game constants ──────────────────────────────────────────────────────────
 const GW = 800; // logical canvas width
@@ -905,6 +913,7 @@ class GameCore {
   private disposed = false;
   private keys: Set<string> = new Set();
   private vpad: VPad = { left: false, right: false, jump: false };
+  private godTier = new DreamEngineGodTierSystem();
 
   // physics state (logical pixels, Y-down)
   private px   = 60; // player x (left edge)
@@ -1204,11 +1213,37 @@ class GameCore {
     dust.start();
     this.dustPS = dust;
 
-    // ── Render loop ────────────────────────────────────────────────────────
+    // ── Render loop + God Tier ─────────────────────────────────────────────
+    let lastGtMs = 0;
     engine.runRenderLoop(() => {
       if (this.disposed) return;
       this.tick();
       scene.render();
+      // God Tier hardware scaling — check every 750ms
+      const now = performance.now();
+      if (now - lastGtMs > 750) {
+        lastGtMs = now;
+        const perf = engine.performanceMonitor;
+        const avgFrame = perf ? perf.averageFrameTime : 16.6;
+        const gt = this.godTier.update({
+          device:  defaultDeviceSignals(),
+          runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: perf ? (perf.averageFrameTime > 20 ? 0.1 : 0) : 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
+          ux:      defaultUXSignals(),
+          route:   defaultRouteSignals('/game/madmaxi'),
+          meshes:  scene.meshes.map((m) => ({
+            id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false,
+            distanceToCamera: 10, transformDelta: 0, materialChanged: false,
+            screenCoverage: m.id === 'player' ? 0.15 : 0.05,
+            semanticWeight: m.id === 'player' || m.id === 'goal' ? 1.0 : 0.3,
+            motionWeight:   m.id === 'player' ? 1.0 : 0.2,
+            detailWeight:   0.5,
+            heroWeight:     m.id === 'player' ? 1.0 : 0.2,
+            occluded: false,
+          })),
+          ui: [],
+        });
+        applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);
+      }
     });
 
     window.addEventListener('resize', this.onResize);

@@ -20,6 +20,15 @@ import {
   STABLE_WEIGHTS,
   type OptimizeroWeights,
 } from '@/lib/optimizer/creative-optimizero';
+import {
+  DreamEngineGodTierSystem,
+  applyGodTierToBabylon,
+  defaultDeviceSignals,
+  defaultRuntimeMetrics,
+  defaultUXSignals,
+  defaultRouteSignals,
+  type BabylonSceneLike,
+} from '@/lib/god-tier/godTierEngine';
 
 type WeightPreset = 'default' | 'chaos' | 'stable' | 'custom';
 
@@ -34,6 +43,7 @@ export default function BabylonOptimizeroScene({
 }: BabylonOptimizeroSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<any>(null);
+  const godTierRef = useRef(new DreamEngineGodTierSystem());
   const [weightPreset, setWeightPreset] = useState<WeightPreset>(initialPreset);
   const [customWeights, setCustomWeights] = useState<OptimizeroWeights>(DEFAULT_WEIGHTS);
   const [optimizationResult, setOptimizationResult] = useState<OptimizeroResult<BabylonUICandidate> | null>(null);
@@ -269,9 +279,36 @@ export default function BabylonOptimizeroScene({
         }
       });
 
-      // Render loop
+      // Apply God Tier at scene start
+      const gtInit = godTierRef.current.update({
+        device:  defaultDeviceSignals(),
+        runtime: defaultRuntimeMetrics(),
+        ux:      defaultUXSignals(),
+        route:   defaultRouteSignals('/optimizer'),
+        meshes: [],
+        ui: [],
+      });
+      applyGodTierToBabylon(engine, { meshes: [] }, gtInit, window.devicePixelRatio ?? 1);
+
+      // Render loop — God Tier periodic update
+      let lastGtMs = 0;
       engine.runRenderLoop(() => {
         scene.render();
+        const now = performance.now();
+        if (now - lastGtMs > 600) {
+          lastGtMs = now;
+          const perf = engine.performanceMonitor;
+          const avgFrame = perf ? perf.averageFrameTime : 16.6;
+          const gt = godTierRef.current.update({
+            device:  defaultDeviceSignals(),
+            runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
+            ux:      defaultUXSignals(),
+            route:   defaultRouteSignals('/optimizer'),
+            meshes:  scene.meshes.map((m: any) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 6, transformDelta: 0, materialChanged: false, screenCoverage: 0.08, semanticWeight: 0.5, motionWeight: 0.4, detailWeight: 0.5, heroWeight: 0.3, occluded: false })),
+            ui: [],
+          });
+          applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);
+        }
       });
 
       const onResize = () => engine.resize();
