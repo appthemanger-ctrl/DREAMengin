@@ -222,8 +222,8 @@ describe('Phase 8 §B Point 15 — owner_id enforcement', () => {
 
 describe('Phase 8 §B Point 16 — useDreamWindowActions hook contract', () => {
   it('exports useDreamWindowActions from canonical path', async () => {
-    const module = await import('@/lib/dream-window/useDreamWindowActions');
-    expect(typeof module.useDreamWindowActions).toBe('function');
+    const mod = await import('@/lib/dream-window/useDreamWindowActions');
+    expect(typeof mod.useDreamWindowActions).toBe('function');
   });
 });
 
@@ -231,8 +231,8 @@ describe('Phase 8 §B Point 16 — useDreamWindowActions hook contract', () => {
 
 describe('Phase 8 §B Point 17 — SuperDreamWidget real composition', () => {
   it('SuperDreamWidget module exports a default component', async () => {
-    const module = await import('@/components/dreams/SuperDreamWidget');
-    expect(typeof module.default).toBe('function');
+    const mod = await import('@/components/dreams/SuperDreamWidget');
+    expect(typeof mod.default).toBe('function');
   });
 });
 
@@ -248,13 +248,13 @@ describe('Phase 8 §B Point 18 — widget shims forward to Dream Window equivale
   });
 
   it('WidgetCard module exports a default function', async () => {
-    const module = await import('@/components/widgets/WidgetCard');
-    expect(typeof module.default).toBe('function');
+    const mod = await import('@/components/widgets/WidgetCard');
+    expect(typeof mod.default).toBe('function');
   });
 
   it('UniversalWidget module exports a default function', async () => {
-    const module = await import('@/components/widgets/UniversalWidget');
-    expect(typeof module.default).toBe('function');
+    const mod = await import('@/components/widgets/UniversalWidget');
+    expect(typeof mod.default).toBe('function');
   });
 
   it('WidgetLibrary re-exports from SuperDreamWidget', async () => {

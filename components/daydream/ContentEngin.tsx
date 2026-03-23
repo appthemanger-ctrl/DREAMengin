@@ -49,6 +49,15 @@ const TYPE_TO_CONTENT_TYPE: Record<CalendarItem['type'], string> = {
 };
 
 const ACCENT = '#f59e0b';
+
+// Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
+const AiCaption        = 'content-feature';
+const ContentAnalytics = 'content-feature';
+const TemplateGallery  = 'content-feature';
+const ShortVideoEditor = 'content-feature';
+const HashtagOptimizer = 'content-feature';
+const CollabDraft      = 'content-feature';
+
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const TYPE_EMOJI: Record<CalendarItem['type'], string> = {
   Post: '📝', Video: '🎬', Story: '✨', Thread: '🧵',
