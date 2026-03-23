@@ -315,17 +315,17 @@ export default function AppearanceSettingsPage() {
 
   // ── DB sync: save on presetId or overrides change (Phase 8 §I Point 83) ──
   // Debounce to avoid rapid writes during slider drags
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
+    if (debounceSaveTimerRef.current) clearTimeout(debounceSaveTimerRef.current);
+    debounceSaveTimerRef.current = setTimeout(() => {
       fetch('/api/settings/appearance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ presetId, overrides }),
       }).catch(() => { /* localStorage cache remains */ });
     }, 800);
-    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current); };
+    return () => { if (debounceSaveTimerRef.current) clearTimeout(debounceSaveTimerRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [presetId, overrides]);
 
