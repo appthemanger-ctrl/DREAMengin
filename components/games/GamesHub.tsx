@@ -7,7 +7,7 @@
 
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Leaderboard from '@/components/games/Leaderboard';
 
 const Loading = () => (
@@ -108,10 +108,113 @@ const GAMES: GameDef[] = [
   // ── Adventure / Platformer ────────────────────────────────────────────────
   { id: 'maze',          emoji: '🌀', label: 'Maze Runner',      category: 'Adventure',   color: '#38bdf8', component: MazeGame,
     desc: 'Procedurally generated maze — navigate from start to the ★ exit' },
-  // ── Dream Runner — Babylon.js 3-D side-scroller ───────────────────────────
-  { id: 'platformer',    emoji: '∞',  label: 'Dream Runner',     category: 'Platformer',  color: '#2a8ab8', component: BabylonSideScroller,
+  // ── MADMAXI — Babylon.js 3-D side-scroller ───────────────────────────────
+  { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', component: BabylonSideScroller,
     desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js 3-D side-scroller' },
 ];
+
+// ── Universal D-Pad — fires de-game-input events consumed by all game canvases ──
+function fireGameInput(action: string, active: boolean) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
+  }
+}
+
+interface DPadState { left: boolean; right: boolean; up: boolean; down: boolean; jump: boolean; }
+
+function UniversalDPad() {
+  const [pad, setPad] = useState<DPadState>({ left: false, right: false, up: false, down: false, jump: false });
+  const padRef = useCallback((key: keyof DPadState, active: boolean) => {
+    setPad(p => ({ ...p, [key]: active }));
+    fireGameInput(key === 'up' || key === 'jump' ? 'jump' : `move-${key}`, active);
+    if (!active) fireGameInput('move-stop', false);
+  }, []);
+
+  const btnStyle = (active: boolean, color: string) => ({
+    border: 'none', cursor: 'pointer', touchAction: 'none' as const, userSelect: 'none' as const,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'background 0.08s, box-shadow 0.08s',
+    background: active ? `${color}cc` : `${color}28`,
+    boxShadow: active ? `0 0 18px ${color}88` : 'none',
+    color: active ? '#fff' : `${color}cc`,
+    fontSize: 20, fontWeight: 800,
+  });
+
+  return (
+    <div style={{
+      display: 'flex', gap: 24, alignItems: 'center', justifyContent: 'center',
+      padding: '12px 0 4px', userSelect: 'none',
+    }}>
+      {/* Cross D-Pad */}
+      <div style={{ position: 'relative', width: 140, height: 140, flexShrink: 0 }}>
+        {/* Up */}
+        <button
+          style={{ ...btnStyle(pad.up || pad.jump, '#fbbf24'), position: 'absolute', left: '50%', top: 0,
+            transform: 'translateX(-50%)', width: 46, height: 46, borderRadius: '10px 10px 4px 4px' }}
+          onPointerDown={(e) => { e.preventDefault(); padRef('up', true); }}
+          onPointerUp={() => padRef('up', false)}
+          onPointerLeave={() => padRef('up', false)}
+          onPointerCancel={() => padRef('up', false)}
+          aria-label="Up"
+        >▲</button>
+        {/* Left */}
+        <button
+          style={{ ...btnStyle(pad.left, '#38bdf8'), position: 'absolute', left: 0, top: '50%',
+            transform: 'translateY(-50%)', width: 46, height: 46, borderRadius: '10px 4px 4px 10px' }}
+          onPointerDown={(e) => { e.preventDefault(); padRef('left', true); }}
+          onPointerUp={() => padRef('left', false)}
+          onPointerLeave={() => padRef('left', false)}
+          onPointerCancel={() => padRef('left', false)}
+          aria-label="Left"
+        >◀</button>
+        {/* Center hub */}
+        <div style={{
+          position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)',
+          width: 42, height: 42, borderRadius: 8,
+          background: 'rgba(160,195,240,0.07)', border: '1.5px solid rgba(160,195,240,0.14)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 10, color: 'rgba(160,195,240,0.28)', fontWeight: 800,
+        }}>✦</div>
+        {/* Right */}
+        <button
+          style={{ ...btnStyle(pad.right, '#38bdf8'), position: 'absolute', right: 0, top: '50%',
+            transform: 'translateY(-50%)', width: 46, height: 46, borderRadius: '4px 10px 10px 4px' }}
+          onPointerDown={(e) => { e.preventDefault(); padRef('right', true); }}
+          onPointerUp={() => padRef('right', false)}
+          onPointerLeave={() => padRef('right', false)}
+          onPointerCancel={() => padRef('right', false)}
+          aria-label="Right"
+        >▶</button>
+        {/* Down */}
+        <button
+          style={{ ...btnStyle(pad.down, '#a78bfa'), position: 'absolute', left: '50%', bottom: 0,
+            transform: 'translateX(-50%)', width: 46, height: 46, borderRadius: '4px 4px 10px 10px' }}
+          onPointerDown={(e) => { e.preventDefault(); padRef('down', true); }}
+          onPointerUp={() => padRef('down', false)}
+          onPointerLeave={() => padRef('down', false)}
+          onPointerCancel={() => padRef('down', false)}
+          aria-label="Down"
+        >▼</button>
+      </div>
+
+      {/* Action buttons */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+        <button
+          style={{ ...btnStyle(pad.jump, '#fbbf24'), width: 68, height: 68, borderRadius: '50%',
+            border: '2px solid rgba(251,191,36,0.35)' }}
+          onPointerDown={(e) => { e.preventDefault(); padRef('jump', true); }}
+          onPointerUp={() => padRef('jump', false)}
+          onPointerLeave={() => padRef('jump', false)}
+          onPointerCancel={() => padRef('jump', false)}
+          aria-label="Jump / Action"
+        >▲</button>
+        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(251,191,36,0.45)', letterSpacing: '0.08em' }}>
+          JUMP
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function GamesHub() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
@@ -121,48 +224,89 @@ export default function GamesHub() {
   const filtered = filter === 'All' ? GAMES : GAMES.filter(g => g.category === filter);
   const active = activeGame ? GAMES.find(g => g.id === activeGame) : null;
 
-  // ── Active game view ──────────────────────────────────────────────────────
+  // Lock body scroll when a game is open in the expanded overlay
+  useEffect(() => {
+    if (active?.component) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [active]);
+
+  // ── Active game view — expands to fill the screen ─────────────────────────
   if (active?.component) {
     const GameComponent = active.component;
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {/* Back bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'linear-gradient(160deg, #07101e 0%, #0b1a30 55%, #07101e 100%)',
+        display: 'flex', flexDirection: 'column',
+        overflow: 'hidden',
+      }}>
+        {/* Top bar */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+          padding: '10px 14px',
+          background: 'rgba(0,0,0,0.30)',
+          borderBottom: '1px solid rgba(160,195,240,0.10)',
+          flexShrink: 0,
+        }}>
           <button
             type="button"
             onClick={() => setActiveGame(null)}
             style={{
-              background: 'rgba(160,195,240,0.15)', border: 'none', borderRadius: 8,
-              padding: '6px 14px', cursor: 'pointer', color: 'var(--de-text)', fontSize: 12, fontWeight: 600,
+              background: 'rgba(160,195,240,0.12)', border: '1px solid rgba(160,195,240,0.20)',
+              borderRadius: 8, padding: '6px 14px', cursor: 'pointer',
+              color: 'rgba(220,235,255,0.85)', fontSize: 12, fontWeight: 700,
             }}
           >
             ← All Games
           </button>
-          <span style={{ fontSize: 18 }}>{active.emoji}</span>
-          <span style={{ fontWeight: 700, color: 'var(--de-heading)', fontSize: 15 }}>{active.label}</span>
+          <span style={{ fontSize: 20 }}>{active.emoji}</span>
+          <span style={{ fontWeight: 800, color: '#fff', fontSize: 15, letterSpacing: '-0.01em' }}>{active.label}</span>
           <span style={{
-            fontSize: 10, padding: '2px 8px', borderRadius: 999,
-            background: `${active.color}20`, color: active.color, border: `1px solid ${active.color}40`, fontWeight: 600,
+            fontSize: 10, padding: '2px 9px', borderRadius: 999,
+            background: `${active.color}22`, color: active.color,
+            border: `1px solid ${active.color}44`, fontWeight: 700,
           }}>
             {active.category}
           </span>
         </div>
 
-        {/* Game renders here */}
-        <GameComponent />
-
-        {/* Per-game leaderboard — cross-device top 10 via Supabase */}
-        <div style={{
-          marginTop: 16, padding: '12px 14px',
-          background: 'rgba(255,255,255,0.35)',
-          border: '1px solid rgba(160,195,240,0.2)',
-          borderRadius: 12,
-        }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8,
-                        display: 'flex', alignItems: 'center', gap: 6 }}>
-            🏆 Leaderboard — {active.label}
+        {/* Scrollable content area */}
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          {/* Game renders here — full width */}
+          <div style={{ padding: '12px 12px 0', flexShrink: 0 }}>
+            <GameComponent />
           </div>
-          <Leaderboard game={active.id} />
+
+          {/* Universal D-Pad — shown for all games */}
+          <div style={{
+            padding: '0 12px',
+            borderTop: '1px solid rgba(160,195,240,0.08)',
+            marginTop: 8,
+            background: 'rgba(0,0,0,0.20)',
+            flexShrink: 0,
+          }}>
+            <UniversalDPad />
+          </div>
+
+          {/* Per-game leaderboard */}
+          <div style={{
+            margin: '12px 12px 16px', padding: '12px 14px',
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(160,195,240,0.14)',
+            borderRadius: 12,
+            flexShrink: 0,
+          }}>
+            <div style={{
+              fontSize: 12, fontWeight: 700, color: 'rgba(220,235,255,0.75)', marginBottom: 8,
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              🏆 Leaderboard — {active.label}
+            </div>
+            <Leaderboard game={active.id} />
+          </div>
         </div>
       </div>
     );

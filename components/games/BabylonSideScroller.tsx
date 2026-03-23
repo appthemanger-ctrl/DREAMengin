@@ -397,12 +397,12 @@ export default function BabylonSideScroller() {
   const [vpad,   setVpad]     = useState({ left: false, right: false, jump: false });
   const vpadRef  = useRef({ left: false, right: false, jump: false });
   const [bestScore, setBestScore] = useState(() => {
-    try { return parseInt(localStorage.getItem('dreamrunner_best') ?? '0', 10); }
+    try { return parseInt(localStorage.getItem('madmaxi_best') ?? '0', 10); }
     catch { return 0; }
   });
   // Ref mirrors bestScore so callbacks can read the latest value without stale closures
   const bestScoreRef = useRef((() => {
-    try { return parseInt(localStorage.getItem('dreamrunner_best') ?? '0', 10); }
+    try { return parseInt(localStorage.getItem('madmaxi_best') ?? '0', 10); }
     catch { return 0; }
   })());
   const [progress, setProgress] = useState(0);
@@ -453,7 +453,7 @@ export default function BabylonSideScroller() {
           setBestScore(s);
           setIsNewBest(true);
           if (typeof window !== 'undefined') {
-            try { localStorage.setItem('dreamrunner_best', String(s)); } catch { /* quota/private */ }
+            try { localStorage.setItem('madmaxi_best', String(s)); } catch { /* quota/private */ }
           }
         }
       },
@@ -568,23 +568,28 @@ export default function BabylonSideScroller() {
             background: 'linear-gradient(180deg,rgba(10,15,40,0.85),rgba(5,5,20,0.92))',
             borderRadius: 12,
           }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#4af', letterSpacing: '0.15em',
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#fa0', letterSpacing: '0.15em',
                           textTransform: 'uppercase', marginBottom: 8 }}>
               DREAMengin × Babylon.js
             </div>
-            <div style={{ fontSize: 38, fontWeight: 900, color: '#fff',
-                          textShadow: '0 0 24px #4af,0 0 8px #4af', lineHeight: 1.1, marginBottom: 8 }}>
-              DREAM RUNNER
+            <div style={{ fontSize: 46, fontWeight: 900, color: '#fff',
+                          textShadow: '0 0 32px #fa0,0 0 12px #fa0,0 0 4px #f80', lineHeight: 1.0, marginBottom: 6,
+                          letterSpacing: '-0.02em' }}>
+              MADMAXI
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#fa0', letterSpacing: '0.1em',
+                          textTransform: 'uppercase', marginBottom: 20 }}>
+              🏎 MAX SPEED · MAX GLORY
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 28, textAlign: 'center' }}>
               150 levels · 15 zones · boss every 10 · unique each run
             </div>
             <button
-              style={{ ...btnBase, background: 'linear-gradient(135deg,#2a8ab8,#4a6cf7)',
-                       color: '#fff', padding: '12px 36px', fontSize: 16, boxShadow: '0 0 20px #4af6' }}
+              style={{ ...btnBase, background: 'linear-gradient(135deg,#c8981a,#f7c44a)',
+                       color: '#000', padding: '12px 36px', fontSize: 16, fontWeight: 800, boxShadow: '0 0 20px #fa06' }}
               onClick={() => startGame(1, 0, 3)}
             >
-              ▶ Start Dream
+              ▶ Race Now
             </button>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 14 }}>
               WASD / Arrows · Space to jump · move + jump works together
@@ -770,36 +775,110 @@ export default function BabylonSideScroller() {
 
       {/* ── Virtual D-Pad ── */}
       {(status === 'playing' || status === 'title') && (
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 4 }}>
-          {/* Left */}
-          <button
-            style={{ ...btnBase, width: 64, height: 64, fontSize: 22,
-                     background: vpad.left ? 'rgba(74,175,255,0.5)' : 'rgba(74,175,255,0.15)',
-                     color: 'rgba(180,220,255,0.9)', borderRadius: 12 }}
-            onPointerDown={(e) => { e.preventDefault(); handleVpad('left', true); }}
-            onPointerUp={() => handleVpad('left', false)}
-            onPointerLeave={() => handleVpad('left', false)}
-          >◀</button>
+        <div style={{ display: 'flex', gap: 32, alignItems: 'center', marginTop: 8, userSelect: 'none' }}>
 
-          {/* Jump */}
-          <button
-            style={{ ...btnBase, width: 72, height: 72, fontSize: 22,
-                     background: vpad.jump ? 'rgba(74,255,160,0.5)' : 'rgba(74,255,160,0.15)',
-                     color: 'rgba(180,255,220,0.9)', borderRadius: 36 }}
-            onPointerDown={(e) => { e.preventDefault(); handleVpad('jump', true); }}
-            onPointerUp={() => handleVpad('jump', false)}
-            onPointerLeave={() => handleVpad('jump', false)}
-          >▲</button>
+          {/* ── Cross D-Pad (left) ── */}
+          <div style={{ position: 'relative', width: 144, height: 144, flexShrink: 0 }}>
+            {/* Up / Jump */}
+            <button
+              style={{
+                ...btnBase, position: 'absolute', left: '50%', top: 0,
+                transform: 'translateX(-50%)',
+                width: 48, height: 48, borderRadius: '10px 10px 4px 4px', fontSize: 20,
+                background: vpad.jump ? 'rgba(250,200,26,0.75)' : 'rgba(250,200,26,0.18)',
+                color: vpad.jump ? '#000' : 'rgba(250,200,26,0.9)',
+                boxShadow: vpad.jump ? '0 0 16px rgba(250,200,26,0.6)' : 'none',
+                transition: 'background 0.08s, box-shadow 0.08s',
+              }}
+              onPointerDown={(e) => { e.preventDefault(); handleVpad('jump', true); }}
+              onPointerUp={() => handleVpad('jump', false)}
+              onPointerLeave={() => handleVpad('jump', false)}
+              onPointerCancel={() => handleVpad('jump', false)}
+              aria-label="Jump"
+            >▲</button>
 
-          {/* Right */}
-          <button
-            style={{ ...btnBase, width: 64, height: 64, fontSize: 22,
-                     background: vpad.right ? 'rgba(74,175,255,0.5)' : 'rgba(74,175,255,0.15)',
-                     color: 'rgba(180,220,255,0.9)', borderRadius: 12 }}
-            onPointerDown={(e) => { e.preventDefault(); handleVpad('right', true); }}
-            onPointerUp={() => handleVpad('right', false)}
-            onPointerLeave={() => handleVpad('right', false)}
-          >▶</button>
+            {/* Left */}
+            <button
+              style={{
+                ...btnBase, position: 'absolute', left: 0, top: '50%',
+                transform: 'translateY(-50%)',
+                width: 48, height: 48, borderRadius: '10px 4px 4px 10px', fontSize: 20,
+                background: vpad.left ? 'rgba(74,175,255,0.75)' : 'rgba(74,175,255,0.18)',
+                color: vpad.left ? '#fff' : 'rgba(180,220,255,0.9)',
+                boxShadow: vpad.left ? '0 0 16px rgba(74,175,255,0.6)' : 'none',
+                transition: 'background 0.08s, box-shadow 0.08s',
+              }}
+              onPointerDown={(e) => { e.preventDefault(); handleVpad('left', true); }}
+              onPointerUp={() => handleVpad('left', false)}
+              onPointerLeave={() => handleVpad('left', false)}
+              onPointerCancel={() => handleVpad('left', false)}
+              aria-label="Move left"
+            >◀</button>
+
+            {/* Center hub */}
+            <div style={{
+              position: 'absolute', left: '50%', top: '50%',
+              transform: 'translate(-50%,-50%)',
+              width: 44, height: 44, borderRadius: 8,
+              background: 'rgba(160,195,240,0.08)',
+              border: '1.5px solid rgba(160,195,240,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 11, fontWeight: 800, color: 'rgba(160,195,240,0.3)',
+              letterSpacing: '0.05em',
+            }}>✦</div>
+
+            {/* Right */}
+            <button
+              style={{
+                ...btnBase, position: 'absolute', right: 0, top: '50%',
+                transform: 'translateY(-50%)',
+                width: 48, height: 48, borderRadius: '4px 10px 10px 4px', fontSize: 20,
+                background: vpad.right ? 'rgba(74,175,255,0.75)' : 'rgba(74,175,255,0.18)',
+                color: vpad.right ? '#fff' : 'rgba(180,220,255,0.9)',
+                boxShadow: vpad.right ? '0 0 16px rgba(74,175,255,0.6)' : 'none',
+                transition: 'background 0.08s, box-shadow 0.08s',
+              }}
+              onPointerDown={(e) => { e.preventDefault(); handleVpad('right', true); }}
+              onPointerUp={() => handleVpad('right', false)}
+              onPointerLeave={() => handleVpad('right', false)}
+              onPointerCancel={() => handleVpad('right', false)}
+              aria-label="Move right"
+            >▶</button>
+
+            {/* Down (cosmetic — reserved for future use) */}
+            <div
+              style={{
+                position: 'absolute', left: '50%', bottom: 0,
+                transform: 'translateX(-50%)',
+                width: 48, height: 48, borderRadius: '4px 4px 10px 10px',
+                background: 'rgba(160,195,240,0.06)',
+                border: '1.5px solid rgba(160,195,240,0.10)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 20, color: 'rgba(160,195,240,0.2)',
+              }}
+            >▼</div>
+          </div>
+
+          {/* ── Action button — JUMP (right side) ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+            <button
+              style={{
+                ...btnBase, width: 72, height: 72, borderRadius: '50%', fontSize: 22, fontWeight: 800,
+                background: vpad.jump ? 'rgba(250,200,26,0.75)' : 'rgba(250,200,26,0.18)',
+                color: vpad.jump ? '#000' : 'rgba(250,200,26,0.9)',
+                boxShadow: vpad.jump ? '0 0 24px rgba(250,200,26,0.55)' : 'none',
+                border: '2px solid rgba(250,200,26,0.35)',
+                transition: 'background 0.08s, box-shadow 0.08s',
+              }}
+              onPointerDown={(e) => { e.preventDefault(); handleVpad('jump', true); }}
+              onPointerUp={() => handleVpad('jump', false)}
+              onPointerLeave={() => handleVpad('jump', false)}
+              onPointerCancel={() => handleVpad('jump', false)}
+              aria-label="Jump"
+            >▲</button>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(250,200,26,0.5)', letterSpacing: '0.08em' }}>JUMP</span>
+          </div>
+
         </div>
       )}
 
