@@ -1,57 +1,47 @@
 /**
- * app/marketplace/[id]/page.tsx
+ * DreamMarketplace slot detail surface — /marketplace/[id]
  *
- * DreamMarketplace slot detail surface.
- * Renders from a real marketplace_items database record — Point 43.
+ * Renders a real marketplace item from a database record (marketplace_items table).
+ * "Request" / contact flow routes to DreamDM compose — no placeholder handler.
  *
- * Architecture: docs/ARCHITECTURE.md §2 — DreamMarketplace Surface canonical route
- * Security:     docs/SECURITY.md — RLS governs read; auth required
- * Phase 8 §E:   Point 43 (real DB record), Point 44 (auth-required read),
- *               Point 46 (contact/request CTA linked to real API)
+ * Phase 8 §E:
+ *   Point 43 — DreamMarketplace slot detail surface renders from a real DB record.
+ *   Point 46 — "Request" contact flow routes to DreamDM (real system action).
+ *
+ * Security: authenticated users only; item must be published OR owned by the viewer.
+ * Architecture: ARCHITECTURE.md §5 (projection boundaries), LAW.md §2 (nothing public by default).
  */
 
 import { createServerClient } from '@/lib/supabase/server';
-import { redirect, notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  ShoppingBag,
-  Tag,
-  ExternalLink,
-  MessageCircle,
-} from 'lucide-react';
+import { ArrowLeft, ShoppingBag, MessageCircle, Tag, User, Calendar } from 'lucide-react';
 import DreamWord from '@/components/ui/DreamWord';
-import MarketplaceRequestButton from '@/components/marketplace/MarketplaceRequestButton';
-import { formatMarketplacePrice } from '@/lib/marketplace/listings';
 
 export const dynamic = 'force-dynamic';
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
-
 const CATEGORY_EMOJI: Record<string, string> = {
-  theme:     '🎨',
-  themes:    '🎨',
-  widget:    '🧩',
-  widgets:   '🧩',
-  connector: '🔌',
-  connectors:'🔌',
-  music:     '🎵',
-  sound:     '🎵',
+  theme: '🎨', themes: '🎨',
+  widget: '🧩', widgets: '🧩',
+  connector: '🔌', connectors: '🔌',
+  music: '🎵', sound: '🎵',
+  tool: '🔧', tools: '🔧',
+  template: '📄', templates: '📄',
 };
 
-export default async function MarketplaceDetailPage({ params }: Props) {
+type Params = { id: string };
+
+export default async function MarketplaceItemPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
 
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-
-  // Point 44: auth required for marketplace reads
   if (!user) redirect('/login');
 
-  // Point 43: render from a real database record
-  const { data: item, error } = await supabase
+  // Fetch the item — must be published OR owned by the current viewer
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+  const { data: item, error } = await db
     .from('marketplace_items')
     .select(`
       id,
@@ -60,111 +50,90 @@ export default async function MarketplaceDetailPage({ params }: Props) {
       category,
       price_cents,
       preview_url,
-      file_url,
       tags,
       is_published,
       created_at,
-      seller_id,
-      profiles:seller_id (
-        id,
-        handle,
-        display_name,
-        avatar_url
-      )
+      seller_id
     `)
     .eq('id', id)
-    // RLS enforces: published OR own item — no extra app-layer check needed
-    .single();
+    .maybeSingle();
 
   if (error || !item) {
-    // Either genuinely missing or RLS blocked — surface a 404
     notFound();
   }
 
-  const emoji   = CATEGORY_EMOJI[item.category?.toLowerCase()] ?? '📄';
-  const price   = formatMarketplacePrice(item.price_cents);
-  const isFree  = item.price_cents === 0;
+  // Enforce: only published items visible to non-owners
+  if (!item.is_published && item.seller_id !== user.id) {
+    notFound();
+  }
+
+  const emoji = CATEGORY_EMOJI[item.category?.toLowerCase()] ?? '📄';
+  const isFree = item.price_cents === 0;
+  const price = isFree ? 'Free' : `$${(item.price_cents / 100).toFixed(2)}`;
   const isOwner = item.seller_id === user.id;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const seller = item.profiles as any;
+  // Fetch seller profile
+  const { data: sellerProfile } = await supabase
+    .from('profiles')
+    .select('handle, display_name, avatar_url')
+    .eq('id', item.seller_id)
+    .maybeSingle();
+
+  const sellerName = sellerProfile?.display_name ?? sellerProfile?.handle ?? 'Unknown seller';
 
   return (
     <div className="de-sky-bg min-h-screen">
-      {/* ── Header ── */}
-      <header
-        className="sticky top-0 z-30 backdrop-blur-xl"
-        style={{ background: 'rgba(245,243,238,0.92)', borderBottom: '1px solid rgba(200,165,80,0.18)' }}
-      >
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(245,243,238,0.92)', borderBottom: '1px solid rgba(200,165,80,0.18)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link
-            href="/marketplace"
-            className="p-2 -ml-2 rounded-full"
-            style={{ background: 'rgba(200,152,26,0.10)' }}
-          >
+          <Link href="/marketplace" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(200,152,26,0.10)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <ShoppingBag className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <h1 className="text-lg font-bold truncate">
-            <DreamWord />Marketplace
-          </h1>
+          <h1 className="text-lg font-bold"><DreamWord />Marketplace</h1>
         </div>
       </header>
 
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
-        {/* ── Preview ── */}
+        {/* Preview */}
         <div className="de-widget" style={{ overflow: 'hidden' }}>
-          <div
-            style={{
-              height: 200,
-              background: item.preview_url
-                ? `url(${item.preview_url}) center/cover no-repeat`
-                : 'linear-gradient(135deg, rgba(42,138,184,0.12), rgba(200,152,26,0.1))',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 72,
-            }}
-          >
+          <div style={{
+            height: 200,
+            background: item.preview_url
+              ? `url(${item.preview_url}) center/cover`
+              : 'linear-gradient(135deg, rgba(42,138,184,0.1), rgba(200,152,26,0.08))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 72,
+          }}>
             {!item.preview_url && emoji}
           </div>
         </div>
 
-        {/* ── Main info ── */}
+        {/* Details */}
         <div className="de-widget">
-          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
             {/* Title + price */}
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-              <div>
-                <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.25, margin: 0 }}>
+              <div style={{ flex: 1 }}>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.25, marginBottom: 4 }}>
                   {item.title}
                 </h2>
-                <span
-                  style={{
-                    display: 'inline-block', marginTop: 6,
-                    fontSize: 11, fontWeight: 700, color: 'var(--de-gold)',
-                    background: 'rgba(200,152,26,0.1)', borderRadius: 6, padding: '2px 8px',
-                    textTransform: 'capitalize',
-                  }}
-                >
-                  {emoji} {item.category}
+                <span style={{
+                  fontSize: 10, fontWeight: 700, color: 'var(--de-gold)',
+                  background: 'rgba(200,152,26,0.1)', borderRadius: 6, padding: '2px 8px',
+                  textTransform: 'capitalize',
+                }}>
+                  {item.category}
                 </span>
               </div>
-              <div
-                style={{
-                  fontSize: 22, fontWeight: 800, flexShrink: 0,
-                  color: isFree ? '#22c55e' : 'var(--de-heading)',
-                }}
-              >
+              <div style={{ fontSize: 22, fontWeight: 800, color: isFree ? '#22c55e' : 'var(--de-gold)', flexShrink: 0 }}>
                 {price}
               </div>
             </div>
 
             {/* Description */}
             {item.description && (
-              <p style={{ fontSize: 14, color: 'var(--de-text)', lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 13, color: 'var(--de-text)', lineHeight: 1.6 }}>
                 {item.description}
               </p>
             )}
@@ -172,104 +141,63 @@ export default async function MarketplaceDetailPage({ params }: Props) {
             {/* Tags */}
             {item.tags && item.tags.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                <Tag className="w-3 h-3" style={{ color: 'var(--de-text-dim)', alignSelf: 'center' }} />
-                {item.tags.map((tag: string) => (
-                  <span
-                    key={tag}
-                    style={{
-                      fontSize: 11, color: 'var(--de-text-dim)',
-                      background: 'var(--de-mist)',
-                      border: '1px solid var(--de-border)',
-                      borderRadius: 6, padding: '2px 8px',
-                    }}
-                  >
-                    {tag}
+                {(item.tags as string[]).map((tag) => (
+                  <span key={tag} style={{
+                    fontSize: 10, fontWeight: 600, color: 'var(--de-accent)',
+                    background: 'rgba(42,138,184,0.1)', borderRadius: 999, padding: '2px 8px',
+                    display: 'flex', alignItems: 'center', gap: 3,
+                  }}>
+                    <Tag className="w-2.5 h-2.5" /> {tag}
                   </span>
                 ))}
               </div>
             )}
 
-            {/* Seller */}
-            {seller && (
-              <div
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '10px 12px',
-                  background: 'var(--de-mist)',
-                  borderRadius: 10,
-                  border: '1px solid var(--de-border)',
-                }}
-              >
-                <div
-                  style={{
-                    width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                    background: seller.avatar_url
-                      ? `url(${seller.avatar_url as string}) center/cover`
-                      : 'linear-gradient(135deg, rgba(42,138,184,0.2), rgba(200,152,26,0.15))',
-                    border: '1px solid rgba(160,195,240,0.3)',
-                  }}
-                />
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>
-                    {(seller.display_name as string) || (seller.handle as string)}
-                  </div>
-                  {seller.handle && (
-                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-                      @{seller.handle as string}
-                    </div>
-                  )}
-                </div>
-                {!isOwner && (
-                  <Link
-                    href={`/messages?to=${item.seller_id}`}
-                    className="ml-auto de-btn de-btn-ghost"
-                    style={{ fontSize: 11, padding: '5px 12px', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                  >
-                    <MessageCircle className="w-3 h-3" />
-                    DM
-                  </Link>
-                )}
+            {/* Seller info */}
+            <div className="de-row" style={{ borderBottom: 'none' }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                background: sellerProfile?.avatar_url ? `url(${sellerProfile.avatar_url}) center/cover` : 'rgba(42,138,184,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {!sellerProfile?.avatar_url && <User className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />}
               </div>
-            )}
-
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)' }}>{sellerName}</div>
+                <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Seller</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--de-text-dim)' }}>
+                <Calendar className="w-3 h-3" />
+                {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </div>
+            </div>
           </div>
 
-          {/* ── CTA ── */}
+          {/* CTA */}
           {!isOwner && (
-            <div className="de-widget-actions" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {/* Point 46: real contact/request action */}
-              <MarketplaceRequestButton
-                itemId={item.id}
-                itemTitle={item.title}
-              />
-              {item.file_url && (
-                <a
-                  href={item.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="de-btn de-btn-ghost"
-                  style={{ width: '100%', justifyContent: 'center', gap: 6 }}
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Preview File
-                </a>
-              )}
+            <div className="de-widget-actions">
+              <Link
+                href={`/messages?to=${item.seller_id}&subject=${encodeURIComponent(`Re: ${item.title}`)}`}
+                className="de-btn de-btn-gold"
+                style={{ flex: 1, justifyContent: 'center', gap: 8 }}
+              >
+                <MessageCircle className="w-4 h-4" />
+                {isFree ? 'Request Access' : 'Contact Seller'}
+              </Link>
             </div>
           )}
 
           {isOwner && (
             <div className="de-widget-actions">
-              <div className="de-notice" style={{ margin: 0 }}>
-                This is your listing. It will go live after review.
+              <div className="de-notice" style={{ width: '100%', textAlign: 'center' }}>
+                This is your listing. Buyers will contact you via DreamDM.
               </div>
             </div>
           )}
         </div>
 
-        {/* ── Notice ── */}
         <div className="de-notice">
-          Items on <DreamWord />Marketplace are community-created.
-          By requesting or purchasing, you confirm you have read the listing details.
+          Purchases are arranged directly between buyers and sellers via DreamDM. DREAMengin does not process payments.
         </div>
 
       </div>

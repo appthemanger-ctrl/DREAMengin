@@ -27,7 +27,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import {
   buildReleaseStrategy,
   createMelodySuggestions,
@@ -205,6 +205,9 @@ const bpmBtnStyle: React.CSSProperties = {
 
 export default function StarMakerEngin({ onBack }: Props) {
 
+  // ── Daydream state persistence (Phase 8 §F Point 51) ──
+  const { persistState } = useDaydreamState({ daydreamType: 'music', side: 'B' });
+
   // ── Supabase releases state ──
   const [releases,   setReleases]   = useState<MusicRelease[]>([]);
   const [loading,    setLoading]    = useState(true);
@@ -234,6 +237,12 @@ export default function StarMakerEngin({ onBack }: Props) {
   const [stemReady,     setStemReady]     = useState<StemReadyState>({ vocals: false, drums: false, bass: false, other: false });
   const [exportPending, setExportPending] = useState(false);
   const [exportDone,    setExportDone]    = useState(false);
+
+  // ── Persist creative workspace state to Supabase (Phase 8 §F Point 51) ──
+  useEffect(() => {
+    persistState({ side: 'B', bpm, musicalKey, keyMode, pitch });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bpm, musicalKey, keyMode, pitch]);
 
   // ── Supabase: fetch releases (defence-in-depth owner_id filter; RLS enforced server-side) ──
   useEffect(() => {
@@ -329,36 +338,20 @@ export default function StarMakerEngin({ onBack }: Props) {
 
     for (const { key } of ready) {
       // Emit music:stem-ready on the Dual Runtime Bridge (music channel).
+      // url is intentionally empty here — a real upload flow would populate it.
+      // docs/ARCHITECTURE.md §1 (Daydream pair system) + bridge.emit contract.
       bridge.emit('music', 'music:stem-ready', {
         stemType: key as 'vocals' | 'drums' | 'bass' | 'other',
         url: '',
       });
     }
 
-    // Write a real music_outputs record to Supabase (Phase 8 §F, pt 51).
-    // This produces a real, restorable database record for the user's creative output.
-    const supabase = createClient();
-    supabase.auth.getUser().then(async (res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
-      const user = res.data.user;
-      if (!user) return;
-      await supabase.from('music_outputs').insert({
-        user_id:     user.id,
-        title:       `Track – ${musicalKey} ${keyMode} @ ${bpm}bpm`,
-        bpm,
-        musical_key: musicalKey,
-        key_mode:    keyMode,
-        stems:       ready.map(s => s.key),
-        beat_grid:   beatGrid as unknown as Record<string, unknown>,
-        mixer_state: mixer   as unknown as Record<string, unknown>,
-        visibility:  'private',
-      });
-    });
-
+    // Brief visual confirmation tick
     setTimeout(() => {
       setExportPending(false);
       setExportDone(true);
     }, 800);
-  }, [stemReady, bpm, musicalKey, keyMode, beatGrid, mixer]);
+  }, [stemReady]);
 
   // ── Waveform Visualizer state ──
   const [waveformBars, setWaveformBars] = useState<number[]>(() =>
@@ -386,58 +379,6 @@ export default function StarMakerEngin({ onBack }: Props) {
   ]);
   const [playbackActive, setPlaybackActive] = useState(false);
   const [playbackStep, setPlaybackStep] = useState(0);
-
-  // ── Daydream Persistence (Phase 8 §F, pts 49-51) ─────────────────────────────
-  // Saves and restores the full StarMakerEngin workspace state across sessions.
-  type MusicSavedState = {
-    beatGrid?: boolean[][];
-    bpm?: number;
-    musicalKey?: string;
-    keyMode?: 'major' | 'minor';
-    pitch?: number;
-    mixer?: MixerState;
-    activeEffects?: string[];
-    chordProgression?: string[];
-  };
-  const {
-    savedState: savedMusicState,
-    isRestoring: musicRestoring,
-    persistState: persistMusicState,
-  } = useDaydreamPersistence<MusicSavedState>({ daydreamType: 'music' });
-
-  const musicRestoredRef = useRef(false);
-
-  // Restore workspace state from DB once on mount
-  useEffect(() => {
-    if (musicRestoring || musicRestoredRef.current || !savedMusicState) return;
-    musicRestoredRef.current = true;
-    if (savedMusicState.beatGrid) setBeatGrid(savedMusicState.beatGrid);
-    if (savedMusicState.bpm !== undefined) setBpm(savedMusicState.bpm);
-    if (savedMusicState.musicalKey) setMusicalKey(savedMusicState.musicalKey as MusicalKey);
-    if (savedMusicState.keyMode)    setKeyMode(savedMusicState.keyMode);
-    if (savedMusicState.pitch !== undefined) setPitch(savedMusicState.pitch);
-    if (savedMusicState.mixer)         setMixer(savedMusicState.mixer);
-    if (savedMusicState.activeEffects) setActiveEffects(new Set(savedMusicState.activeEffects as EffectName[]));
-    if (savedMusicState.chordProgression) setChordProgression(savedMusicState.chordProgression);
-  }, [musicRestoring, savedMusicState]);
-
-  // Persist workspace state to DB whenever it changes
-  useEffect(() => {
-    if (musicRestoring) return;
-    persistMusicState({
-      beatGrid,
-      bpm,
-      musicalKey,
-      keyMode,
-      pitch,
-      mixer,
-      activeEffects: [...activeEffects],
-      chordProgression,
-    });
-  // persistMusicState is stable (useCallback); eslint-disable-next-line
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [beatGrid, bpm, musicalKey, keyMode, pitch, mixer, activeEffects, chordProgression, musicRestoring]);
-
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const effectList = useMemo(() => Array.from(activeEffects), [activeEffects]);

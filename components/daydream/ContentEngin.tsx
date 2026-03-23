@@ -92,6 +92,19 @@ export default function ContentEngin({ onBack }: Props) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // ── Multi-connection: receive stem-ready from StarMakerEngin (Phase 8 §F Point 57) ──
+  // Music Daydream → ContentEngin connection path: when a stem is prepared in StarMakerEngin,
+  // ContentEngin surfaces a prompt to write a track description draft.
+  const [stemPrompt, setStemPrompt] = useState<{ stemType: string; url: string } | null>(null);
+
+  useEffect(() => {
+    // Subscribe to the 'music' channel — receive stem-ready events from StarMakerEngin
+    const unsub = bridge.subscribe('music', 'music:stem-ready', (payload) => {
+      setStemPrompt(payload as { stemType: string; url: string });
+    });
+    return unsub;
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
@@ -483,6 +496,31 @@ export default function ContentEngin({ onBack }: Props) {
 
       {/* ── Body ── */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
+
+        {/* ── Music → ContentEngin connection signal (Phase 8 §F Point 57) ── */}
+        {stemPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(42,138,184,0.3)', background: 'rgba(42,138,184,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🎵→✍️</span>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    StarMakerEngin sent a stem
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+                    {stemPrompt.stemType} stem is ready — write a track description?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setStemPrompt(null)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Recent Drafts ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>

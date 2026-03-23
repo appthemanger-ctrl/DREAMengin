@@ -2,6 +2,9 @@
 // "Delete My Dream" (delete account) endpoint.
 // Deletes all user data including profile, then the auth identity.
 //
+// Phase 8 §H Point 69: runTriadConsensus gates this critical system-level action.
+// All three AI agents must approve before deletion proceeds.
+//
 // NOTE: Deleting the auth user requires the Supabase service role key
 // (dreamengin_SUPABASE_SECRET_KEY). createServiceClient() uses it when configured.
 // Without it, data rows are still removed but the auth identity persists.
@@ -12,6 +15,7 @@ import { createServerClient, createServiceClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { writeAuditLog } from '@/lib/ai/audit';
+import { runTriadConsensus } from '@/lib/agents/agentBus';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +51,32 @@ export async function POST(req: NextRequest) {
 
   const deleted: string[] = [];
   const errors: string[] = [];
+
+  // ── AI Triad Consensus Gate (Phase 8 §H Point 69) ────────────────────────
+  // Account deletion is a major irreversible system action. All three agents
+  // must approve before any data is removed.
+  const consensus = await runTriadConsensus({
+    message: `User ${user.id} is requesting permanent account deletion. Reason: ${reason ?? 'none provided'}. This will remove all user data and auth identity.`,
+    actorEmail: user.email,
+    actorRole:  'user',
+    uiRoute:    '/settings/account',
+  });
+
+  if (!consensus.unanimous) {
+    const blockReason = consensus.boogie.hard_block
+      ? `Policy blocked: ${consensus.boogie.reason ?? 'policy violation'}`
+      : 'Triad consensus not reached — deletion blocked for safety.';
+    await writeAuditLog({
+      request_id,
+      user_id: user.id,
+      agent:   'account',
+      ok:      false,
+      error_code: 'TRIAD_BLOCKED',
+      latency_ms: Date.now() - requestStart,
+      payload:    { action: 'delete_dream', block_reason: blockReason },
+    });
+    return jsonApiError(403, 'TRIAD_BLOCKED', blockReason);
+  }
 
   // Run all independent table deletes in parallel (dependency-safe: none reference each other)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
