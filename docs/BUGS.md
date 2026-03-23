@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-23 22:25 UTC  
-**Triggered by commit:** `c410d16` on `copilot/upgrade-to-webgpu` by Copilot  
-**Commit message:** fix(appearance): rename saveTimerRef to debounceSaveTimerRef per code review
+**Last updated:** 2026-03-23 22:46 UTC  
+**Triggered by commit:** `ebd5b8e` on `copilot/upgrade-to-webgpu` by Copilot  
+**Commit message:** fix: resolve migration timestamp conflict, fix async anti-patterns in BrandingEngin
 
 ---
 
