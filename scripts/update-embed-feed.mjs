@@ -5,29 +5,34 @@
  * GitHub Actions embed-feed update script for DREAMengin.
  *
  * Fetches the latest YouTube videos (and optionally Instagram posts) using
- * server-side API keys, applies an algorithm filter, then writes baked
- * embed-code output to public/feeds/embed-feed.json.
+ * server-side API keys, applies an algorithm filter, then:
+ *   1. Upserts the filtered items into Supabase `embed_feed_items` table
+ *      (if SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are provided).
+ *   2. Bakes embed-code output to public/feeds/embed-feed.json as a static
+ *      fallback so the site works even if the DB is unreachable.
  *
- * The workflow (update-embed-feed.yml) commits the result back to the repo so
- * the site always serves fresh embeds without a live API call on every request.
+ * The workflow (update-embed-feed.yml) commits the JSON file back to the repo.
  *
- * Algorithm filters (configurable via env vars or CLI flags):
- *   FEED_MIN_VIEW_COUNT  — skip videos with fewer views than this (default: 0)
- *   FEED_REQUIRED_TAGS   — comma-separated tags; a video must match at least one
- *                          (default: empty — no tag filter)
- *   FEED_MAX_ITEMS       — maximum embed items to keep (default: 20)
- *   FEED_SOURCES         — comma-separated: youtube,instagram (default: youtube)
- *   YOUTUBE_API_KEY      — YouTube Data API v3 key (required for YouTube source)
- *   INSTAGRAM_ACCESS_TOKEN — Instagram Basic Display API token (optional)
+ * Algorithm filters (configurable via env vars):
+ *   FEED_MIN_VIEW_COUNT        — skip videos with fewer views (default: 0)
+ *   FEED_REQUIRED_TAGS         — comma-separated tags; item must match ≥1
+ *                                (default: empty — no tag filter)
+ *   FEED_MAX_ITEMS             — maximum embed items to keep (default: 20)
+ *   FEED_SOURCES               — comma-separated: youtube,instagram (default: youtube)
+ *   YOUTUBE_API_KEY            — YouTube Data API v3 key (public data, no OAuth)
+ *   INSTAGRAM_ACCESS_TOKEN     — Instagram Basic Display API long-lived token
+ *   SUPABASE_URL               — Project URL (e.g. https://xyz.supabase.co)
+ *   SUPABASE_SERVICE_ROLE_KEY  — Service-role secret (bypasses RLS for CI writes)
  *
  * Architecture justification: render-on-demand / static bake pattern from
  * docs/ARCHITECTURE.md §10 — heavy API work happens in CI, not on each request.
  *
  * Performance impact: reduces per-request latency; eliminates live social API
- * calls from the production runtime.
+ * calls from the production runtime. Supabase provides a durable store so the
+ * feed survives branch resets and is accessible outside the static JSON path.
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -45,6 +50,8 @@ const SOURCES          = (process.env.FEED_SOURCES ?? 'youtube')
   .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 const YOUTUBE_API_KEY  = process.env.YOUTUBE_API_KEY  ?? '';
 const IG_ACCESS_TOKEN  = process.env.INSTAGRAM_ACCESS_TOKEN ?? '';
+const SUPABASE_URL     = process.env.SUPABASE_URL ?? '';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 
 const YT_API = 'https://www.googleapis.com/youtube/v3';
 
@@ -206,6 +213,58 @@ function applyAlgorithm(items) {
   });
 }
 
+// ── Supabase persist ──────────────────────────────────────────────────────────
+
+/**
+ * Upserts embed items into the `embed_feed_items` Supabase table.
+ * Uses the REST API directly (no SDK dependency needed in a plain .mjs script).
+ * On conflict (provider, external_id) it updates the row — this keeps view
+ * counts and titles fresh on each run.
+ *
+ * Silently skips if SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY are not set.
+ */
+async function persistToSupabase(items, generatedAt) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('⚠️  SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — skipping DB persist.');
+    return { stored: 0, skipped: true };
+  }
+
+  const rows = items.map(item => ({
+    provider:      item.provider,
+    external_id:   item.id,
+    title:         item.title,
+    permalink:     item.permalink,
+    published_at:  item.published_at || null,
+    view_count:    item.view_count,
+    tags:          item.tags,
+    embed_html:    item.embed_html,
+    thumbnail_url: item.thumbnail_url,
+    channel_title: item.channel_title,
+    generated_at:  generatedAt,
+  }));
+
+  const endpoint = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/embed_feed_items`;
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'apikey':        SUPABASE_SERVICE_ROLE_KEY,
+      'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      // PostgREST upsert: on conflict update all columns
+      'Prefer':        'resolution=merge-duplicates,return=minimal',
+    },
+    body: JSON.stringify(rows),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '(no body)');
+    throw new Error(`Supabase upsert failed ${res.status}: ${text}`);
+  }
+
+  return { stored: rows.length, skipped: false };
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -255,9 +314,11 @@ async function main() {
 
   console.log(`\nAfter algorithm filter: ${filtered.length} / ${raw.length} items kept.`);
 
-  // Build output
+  const now = new Date().toISOString();
+
+  // Build output object
   const output = {
-    generated_at: new Date().toISOString(),
+    generated_at: now,
     algorithm: {
       min_view_count: MIN_VIEW_COUNT,
       required_tags:  REQUIRED_TAGS,
@@ -267,12 +328,24 @@ async function main() {
     items: filtered,
   };
 
+  // 1. Persist to Supabase embed_feed_items table
+  try {
+    const { stored, skipped } = await persistToSupabase(filtered, now);
+    if (!skipped) {
+      console.log(`\n✅ Upserted ${stored} items → Supabase embed_feed_items`);
+    }
+  } catch (err) {
+    console.error(`\n❌ Supabase persist error: ${err.message}`);
+    // Non-fatal: continue to write the JSON fallback
+  }
+
+  // 2. Write baked JSON fallback
   // Ensure output directory exists
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
 
   // Write JSON
   writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + '\n', 'utf8');
-  console.log(`\n✅ Wrote ${filtered.length} embed items → ${OUTPUT_PATH}`);
+  console.log(`✅ Wrote ${filtered.length} embed items → ${OUTPUT_PATH}`);
 
   // Print a summary of what was written
   if (filtered.length > 0) {

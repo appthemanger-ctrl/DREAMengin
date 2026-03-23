@@ -23,6 +23,7 @@ import { githubSync } from '@/lib/connectors/providers/github';
 import { redditSync } from '@/lib/connectors/providers/reddit';
 import { nostrSync } from '@/lib/connectors/providers/nostr';
 import { youtubeSync } from '@/lib/connectors/providers/youtube';
+import { instagramSync } from '@/lib/connectors/providers/instagram';
 import { deduplicateFeedItems } from '@/lib/connectors/normalise';
 import type { ConnectorSyncResponse, UnifiedFeedItem } from '@/types/connector';
 
@@ -102,6 +103,11 @@ export async function POST(
         items = await youtubeSync({
           access_token: String(creds.access_token ?? ''),
           api_key: creds.api_key ? String(creds.api_key) : undefined,
+        });
+        break;
+      case 'instagram':
+        items = await instagramSync({
+          access_token: String(creds.access_token ?? ''),
         });
         break;
       default:

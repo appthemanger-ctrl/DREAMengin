@@ -96,8 +96,10 @@ jobs:
       - name: Generate embed feed
         id: generate
         env:
-          YOUTUBE_API_KEY:         ${{ secrets.YOUTUBE_API_KEY }}
-          INSTAGRAM_ACCESS_TOKEN:  ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          YOUTUBE_API_KEY:            ${{ secrets.YOUTUBE_API_KEY }}
+          INSTAGRAM_ACCESS_TOKEN:     ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          SUPABASE_URL:               ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           FEED_MIN_VIEW_COUNT:     ${{ github.event.inputs.min_view_count  || vars.FEED_MIN_VIEW_COUNT  || '0' }}
           FEED_REQUIRED_TAGS:      ${{ github.event.inputs.required_tags   || vars.FEED_REQUIRED_TAGS   || '' }}
           FEED_MAX_ITEMS:          ${{ github.event.inputs.max_items       || vars.FEED_MAX_ITEMS       || '20' }}
