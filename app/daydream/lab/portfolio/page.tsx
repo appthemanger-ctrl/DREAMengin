@@ -17,7 +17,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'esg',       emoji: '🌱',  label: 'ESG Filters',       desc: 'Apply ESG constraint profiles',        color: '#22c55e', href: '/daydream/lab/portfolio' },
   { id: 'config',    emoji: '⚙️',  label: 'Config',            desc: 'Edit config.yaml settings',            color: '#8b5cf6', href: '/daydream/lab/portfolio' },
   { id: 'lab',       emoji: '🔬',  label: 'Back to Lab',       desc: 'Return to your experiments',           color: '#6366f1', href: '/daydream/lab'           },
-  { id: 'share',     emoji: '🔗',  label: 'Share Results',     desc: 'Post an optimization insight',         color: '#ec4899', href: '/create'                 },
+  { id: 'share',     emoji: '🔗',  label: 'Share Results',     desc: 'Post an optimization insight',         color: '#ec4899', href: '/daydream/create'                 },
 ];
 
 // ── accent colour for this Daydream ────────────────────────────

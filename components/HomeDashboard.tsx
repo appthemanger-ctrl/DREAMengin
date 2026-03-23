@@ -53,7 +53,7 @@ export default function HomeDashboard({
 
   // Quick action nodes
   const quickActions: NodeItem[] = [
-    { id: 'create', label: 'Create', href: '/create', icon: Plus, description: 'New post' },
+    { id: 'create', label: 'Create', href: '/daydream/create', icon: Plus, description: 'New post' },
     { id: 'trending', label: 'Trending', href: '/trending', icon: TrendingUp },
     { id: 'boost', label: 'Boost', href: '/boost', icon: Zap },
     { id: 'settings', label: 'Settings', href: '/settings', icon: Settings },
@@ -163,7 +163,7 @@ export default function HomeDashboard({
               <UniverseCard className="overflow-hidden">
                 <UniverseCardContent className="p-4">
                   <Link 
-                    href="/create"
+                    href="/daydream/create"
                     className="flex items-center gap-3 w-full"
                   >
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">

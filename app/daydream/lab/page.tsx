@@ -16,7 +16,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'physics',        emoji: '⚛️', label: 'Physics Lab',     desc: '3D physics environment',        color: '#f59e0b', href: '/physics-lab'   },
   { id: 'codespace',      emoji: '💻', label: 'Codespace',       desc: 'Open the code editor',          color: '#8b5cf6', href: '/codespace'     },
   { id: 'notes',          emoji: '📝', label: 'Lab Notes',       desc: 'Document your findings',        color: '#ec4899', href: '/notes'         },
-  { id: 'share',          emoji: '🔗', label: 'Share Results',   desc: 'Post an experiment update',     color: '#c8981a', href: '/create'        },
+  { id: 'share',          emoji: '🔗', label: 'Share Results',   desc: 'Post an experiment update',     color: '#c8981a', href: '/daydream/create'        },
 ];
 
 export default async function LabDaydreamPage() {
