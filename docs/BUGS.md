@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-23 08:31 UTC  
-**Triggered by commit:** `058924d` on `copilot/add-social-feed-parser` by Copilot  
-**Commit message:** feat: add RSS social feed parser (rss-parser + lib/social/rss-feed.ts)
+**Last updated:** 2026-03-23 08:52 UTC  
+**Triggered by commit:** `9f804bb` on `copilot/add-social-feed-parser` by Copilot  
+**Commit message:** feat: wire RSS providers into existing Dreams connector/feed infrastructure
 
 ---
 
