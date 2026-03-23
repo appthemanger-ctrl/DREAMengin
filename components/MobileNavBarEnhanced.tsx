@@ -31,7 +31,7 @@ export default function MobileNavBarEnhanced({ user }: MobileNavBarProps) {
   const navItems = [
     { href: '/homedream', icon: Home, label: 'HomeDream' },
     { href: '/discover', icon: Compass, label: 'Discover' },
-    { href: '/create', icon: Plus, label: 'Create', isSpecial: true },
+    { href: '/daydream/create', icon: Plus, label: 'Create', isSpecial: true },
     { href: '/music', icon: Music, label: 'Music' },
     { href: '/messages', icon: MessageSquare, label: 'Messages' },
   ];

@@ -460,7 +460,7 @@ export default function AlgorithmEngine() {
       {shareAlert && (
         <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(42,138,184,0.1)', border: '1px solid rgba(42,138,184,0.2)', fontSize: 13, fontWeight: 600, color: 'var(--de-accent)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Check className="w-4 h-4" /> {shareAlert}
-          <Link href="/create" className="de-btn de-btn-primary text-xs" style={{ marginLeft: 'auto', padding: '5px 12px' }}>Post it →</Link>
+          <Link href="/daydream/create" className="de-btn de-btn-primary text-xs" style={{ marginLeft: 'auto', padding: '5px 12px' }}>Post it →</Link>
         </div>
       )}
 

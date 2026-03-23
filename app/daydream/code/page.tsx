@@ -15,7 +15,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'lab',         emoji: '🔬', label: 'Lab',             desc: 'Experiments and prototypes',    color: '#f59e0b', href: '/daydream/lab' },
   { id: 'notes',       emoji: '📝', label: 'Code Notes',      desc: 'Document and annotate',         color: '#ec4899', href: '/notes'       },
   { id: 'physics-lab', emoji: '⚛️', label: 'Physics Lab',     desc: '3D runtime environment',        color: '#0ea5e9', href: '/physics-lab' },
-  { id: 'share',       emoji: '🔗', label: 'Share Project',   desc: 'Post a project update',         color: '#c8981a', href: '/create'      },
+  { id: 'share',       emoji: '🔗', label: 'Share Project',   desc: 'Post a project update',         color: '#c8981a', href: '/daydream/create'      },
   { id: 'connectors',  emoji: '🔌', label: 'Connectors',      desc: 'Link GitHub, GitLab, and more', color: '#8b5cf6', href: '/connectors'  },
 ];
 

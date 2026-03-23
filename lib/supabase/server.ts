@@ -53,7 +53,6 @@ function createDisabledClient(reason: string): SupabaseClient<Database> {
   return disabled as unknown as SupabaseClient<Database>
 }
 
-
 export async function createServerClient(): Promise<SupabaseClient<Database>> {
   if (!isSupabaseConfigured()) {
     return createDisabledClient(`Supabase is not configured. ${SETUP_HINT}`)

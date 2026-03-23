@@ -31,7 +31,7 @@ export default function JoinPage() {
   const [password2, setPassword2]     = useState("");
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [agreeTerms, setAgreeTerms]   = useState(false);
-  const [rememberMe, setRememberMe]   = useState(true);
+  const [rememberMe, setRememberMe]   = useState(false);
   const [busy, setBusy]               = useState(false);
   const [error, setError]             = useState<string | null>(null);
   const [notice, setNotice]           = useState<string | null>(null);
@@ -85,7 +85,12 @@ export default function JoinPage() {
       });
 
       if (signUpError) {
-        setError(signUpError.message);
+        const msg = signUpError.message;
+        setError(
+          msg === 'Failed to fetch' || msg.toLowerCase().includes('fetch')
+            ? 'Unable to connect. Please check your internet connection and try again.'
+            : msg
+        );
         return;
       }
 

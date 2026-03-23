@@ -15,12 +15,12 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: '/game' },
-  { id: 'all-games',  emoji: '🎮', label: 'All 20 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
-  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: '/daydream/games' },
-  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: '/daydream/games' },
-  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: '/daydream/games' },
-  { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
+  { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: "/daydream/game"
+  { id: 'all-games',  emoji: '🎮', label: 'All 20 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: "/daydream/game"
+  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: "/daydream/game"
+  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: "/daydream/game"
+  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: "/daydream/game"
+  { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: "/daydream/game"
 ];
 
 /**
@@ -193,7 +193,7 @@ export default async function GamesDaydreamPage() {
               </section>
             </div>
             <div className="de-widget-actions">
-              <Link href="/game" className="de-btn de-btn-ghost text-xs">
+              <Link href="/daydream/game" className="de-btn de-btn-ghost text-xs">
                 <Play className="w-3 h-3 fill-current" /> Play to rank up
               </Link>
             </div>

@@ -11,7 +11,7 @@ export const metadata = { title: 'Analytics Daydream – Dreamengin', descriptio
 const WIDGETS: DaydreamWidget[] = [
   { id: 'connect',   emoji: '🔌', label: 'Connect Platforms', desc: 'Link Instagram, TikTok, X, YouTube', color: '#6366f1', href: '/connectors' },
   { id: 'brand',     emoji: '🎨', label: 'Brand Daydream',    desc: 'Apply insights to your brand',      color: '#ec4899', href: '/daydream/brand' },
-  { id: 'post',      emoji: '📢', label: 'New Post',          desc: 'Create and share content',          color: '#0ea5e9', href: '/create' },
+  { id: 'post',      emoji: '📢', label: 'New Post',          desc: 'Create and share content',          color: '#0ea5e9', href: '/daydream/create' },
   { id: 'audience',  emoji: '👥', label: 'Audience',          desc: 'Understand who follows you',        color: '#22c55e', href: '/daydream/brand' },
   { id: 'algorithm', emoji: '⚡', label: 'Signals',           desc: 'Tune reach and visibility',         color: '#f59e0b', href: '/settings/algorithm' },
   { id: 'profile',   emoji: '🌐', label: 'View Profile',      desc: 'See what your audience sees',       color: '#8b5cf6', href: '/view-profile' },
