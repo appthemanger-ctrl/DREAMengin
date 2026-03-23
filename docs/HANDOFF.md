@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-23 03:34 UTC | `57ba5d2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #270 from appthemanger-ctrl/copilot/transform-bouncer-workflow-again — feat: PS5 DualSense / HTML5 Gamepad API support + MADMAXI rename + fullscreen game expansion<br> |
 | **auto** | 2026-03-21 19:31 UTC | `59854fe` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #267 from appthemanger-ctrl/copilot/create-phase-8-spec-document — Add docs/dreamengin_phase8.md — Phase 8 Real Runtime Completion spec (100 points)<br> |
 | **auto** | 2026-03-21 17:55 UTC | `670e244` | copilot/create-phase-8-spec-document | Copilot | +1 added<br>Add docs/dreamengin_phase8.md — Phase 8 Real Runtime Completion spec (100 points) — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com> Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/2048a9a4-5393-4353-be61-02b93a3908c6<br>➕: `docs/dreamengin_phase8.md` |
 | **auto** | 2026-03-21 15:30 UTC | `a2fa96d` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #265 from appthemanger-ctrl/copilot/fix-build-blocking-errors-ci-failures — fix: add pnpm/action-setup to CI composite action and harden git push in update-bugs workflow<br> |
 | **auto** | 2026-03-21 04:30 UTC | `54035c7` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #264 from appthemanger-ctrl/copilot/add-analog-control-and-buttons — fix: resolve all build errors — missing props, undefined components, missing imports<br> |
-| **auto** | 2026-03-21 00:41 UTC | `1925477` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #263 from appthemanger-ctrl/copilot/transform-bouncer-workflow — feat(bouncer): transform Hard-Block Guard into Hard-Fix tool<br> |
 
 ## What changed in this alignment pass
 
