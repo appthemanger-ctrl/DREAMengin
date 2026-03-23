@@ -1,0 +1,176 @@
+name: Update Embed Feed
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Fetches the latest YouTube / Instagram content on a schedule, applies the
+# DREAMengin algorithm filter, generates embed codes, and commits the baked
+# result to public/feeds/embed-feed.json so the site always serves fresh
+# embeds without a live API call on every user request.
+#
+# "Bake, don't fetch" pattern — docs/ARCHITECTURE.md §10 render-on-demand rule.
+#
+# Trigger:
+#   • Schedule: every 6 hours (keeps embeds reasonably fresh with minimal API quota)
+#   • workflow_dispatch: manual run with optional parameter overrides
+#
+# Secrets required (set in repo Settings → Secrets → Actions):
+#   YOUTUBE_API_KEY           — YouTube Data API v3 key (public data, no OAuth)
+#   INSTAGRAM_ACCESS_TOKEN    — Instagram Basic Display API token (optional)
+#
+# Optional algorithm tunables (set as repo variables or workflow_dispatch inputs):
+#   FEED_MIN_VIEW_COUNT       — minimum views to include a video (default: 0)
+#   FEED_REQUIRED_TAGS        — comma-separated tags filter (default: empty)
+#   FEED_MAX_ITEMS            — max embed items to keep (default: 20)
+#   FEED_SOURCES              — comma-separated: youtube,instagram (default: youtube)
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # every 6 hours
+
+  workflow_dispatch:
+    inputs:
+      min_view_count:
+        description: 'Minimum view count to include a video (0 = no filter)'
+        required: false
+        default: '0'
+      required_tags:
+        description: 'Comma-separated tag filter, e.g. dream,music (empty = no filter)'
+        required: false
+        default: ''
+      max_items:
+        description: 'Maximum number of embed items to keep'
+        required: false
+        default: '20'
+      sources:
+        description: 'Comma-separated sources: youtube,instagram'
+        required: false
+        default: 'youtube'
+        type: choice
+        options:
+          - youtube
+          - instagram
+          - youtube,instagram
+      dry_run:
+        description: 'Dry run — generate feed but do not commit'
+        type: boolean
+        default: false
+
+concurrency:
+  group: update-embed-feed
+  cancel-in-progress: false   # do not drop an in-flight feed update
+
+permissions:
+  contents: write   # needed to commit embed-feed.json back to the branch
+
+env:
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10.30.0'
+  OUTPUT_FILE: 'public/feeds/embed-feed.json'
+  BOT_NAME: 'embed-feed-bot'
+  BOT_EMAIL: 'embed-feed-bot@users.noreply.github.com'
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────────
+  update-feed:
+    name: 🎬 Fetch · Filter · Bake Embed Codes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      # ── Toolchain ───────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: ./.github/actions/setup-node
+
+      # ── Run embed-feed updater ───────────────────────────────────────────────
+      - name: Generate embed feed
+        id: generate
+        env:
+          YOUTUBE_API_KEY:         ${{ secrets.YOUTUBE_API_KEY }}
+          INSTAGRAM_ACCESS_TOKEN:  ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          FEED_MIN_VIEW_COUNT:     ${{ github.event.inputs.min_view_count  || vars.FEED_MIN_VIEW_COUNT  || '0' }}
+          FEED_REQUIRED_TAGS:      ${{ github.event.inputs.required_tags   || vars.FEED_REQUIRED_TAGS   || '' }}
+          FEED_MAX_ITEMS:          ${{ github.event.inputs.max_items       || vars.FEED_MAX_ITEMS       || '20' }}
+          FEED_SOURCES:            ${{ github.event.inputs.sources         || vars.FEED_SOURCES         || 'youtube' }}
+        run: |
+          node scripts/update-embed-feed.mjs
+
+          # Capture item count for the summary
+          ITEM_COUNT=$(node -e "
+            const fs = require('fs');
+            try {
+              const f = JSON.parse(fs.readFileSync('${{ env.OUTPUT_FILE }}', 'utf8'));
+              process.stdout.write(String(f.items?.length ?? 0));
+            } catch { process.stdout.write('0'); }
+          ")
+          echo "item_count=${ITEM_COUNT}" >> "$GITHUB_OUTPUT"
+
+      # ── Diff check ──────────────────────────────────────────────────────────
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet "${{ env.OUTPUT_FILE }}"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes detected in embed feed."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Embed feed updated."
+            git diff --stat "${{ env.OUTPUT_FILE }}"
+          fi
+
+      # ── Commit baked embed codes ─────────────────────────────────────────────
+      - name: Commit updated embed feed
+        if: steps.diff.outputs.changed == 'true' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name  "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add "${{ env.OUTPUT_FILE }}"
+          git commit -m "chore(feeds): bake embed codes — ${{ steps.generate.outputs.item_count }} items [skip ci]
+
+Reasoning: scheduled embed-feed update; baking avoids live API calls at runtime.
+Architecture justification: render-on-demand rule — docs/ARCHITECTURE.md §10.
+Performance impact: eliminates per-request social API calls from production runtime."
+          git push
+
+      # ── Upload artifact ──────────────────────────────────────────────────────
+      - name: Upload embed feed artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: embed-feed-${{ github.run_number }}
+          path: ${{ env.OUTPUT_FILE }}
+          retention-days: 7
+
+      # ── Job summary ──────────────────────────────────────────────────────────
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## 🎬 Embed Feed Update" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Items baked | ${{ steps.generate.outputs.item_count }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feed changed | ${{ steps.diff.outputs.changed }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Dry run | ${{ github.event.inputs.dry_run || 'false' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Output file | \`${{ env.OUTPUT_FILE }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Algorithm settings" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Setting | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Sources | \`${{ github.event.inputs.sources || vars.FEED_SOURCES || 'youtube' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Min view count | \`${{ github.event.inputs.min_view_count || vars.FEED_MIN_VIEW_COUNT || '0' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Required tags | \`${{ github.event.inputs.required_tags || vars.FEED_REQUIRED_TAGS || '(none)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Max items | \`${{ github.event.inputs.max_items || vars.FEED_MAX_ITEMS || '20' }}\` |" >> "$GITHUB_STEP_SUMMARY"
