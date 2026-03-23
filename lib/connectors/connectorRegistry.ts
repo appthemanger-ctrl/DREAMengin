@@ -237,17 +237,13 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     id: 'instagram',
     name: 'Instagram',
     icon: '📸',
-    description: 'Your own Instagram posts and reels via the Basic Display API.',
+    description: 'No official follower list or feed API available.',
     category: 'Social',
-    tier: 'tier1',
-    whatYouGet: 'Your own media posts (photos, videos, reels) sorted newest first',
-    requirements:
-      'Click "Connect with Instagram" to authenticate via OAuth. ' +
-      'Requires an Instagram account and a Meta Basic Display app configured in Vercel env vars ' +
-      '(INSTAGRAM_CLIENT_ID / INSTAGRAM_CLIENT_SECRET).',
-    defaultStatus: 'not_connected',
+    tier: 'tier3',
+    whatYouGet: 'Not available — no official follower-list or feed API',
+    unavailable: 'Instagram does not expose a public API for follower feeds or timelines.',
+    defaultStatus: 'unsupported',
     widgetTypeId: 'instagram',
-    oauthStartUrl: '/api/connectors/instagram/oauth/start',
     sliceTypes: [
       { id: 'ig-timeline', label: 'My Posts', description: 'Your own Instagram photos and videos.' },
       { id: 'ig-reels', label: 'Reels', description: 'Your Instagram Reels.' },
