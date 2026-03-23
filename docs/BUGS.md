@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-23 19:17 UTC  
-**Triggered by commit:** `ab14645` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #279 from appthemanger-ctrl/copilot/complete-system-audit
+**Last updated:** 2026-03-23 19:33 UTC  
+**Triggered by commit:** `f917e22` on `copilot/upgrade-to-webgpu` by Copilot  
+**Commit message:** feat: upgrade all Babylon.js scenes to WebGPU-first rendering
 
 ---
 
