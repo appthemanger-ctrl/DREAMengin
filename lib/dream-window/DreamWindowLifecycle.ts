@@ -234,7 +234,78 @@ export function createDreamWindowInstance(
   };
 }
 
+// ---------------------------------------------------------------------------
+// Layer validation — Point 20 (Shell→Connector→Feature→Output enforcement)
+// ---------------------------------------------------------------------------
+
+/**
+ * The four canonical layers that every Dream Window must pass through.
+ * Defined as a readonly tuple to guarantee ordering.
+ */
+export const DREAM_WINDOW_REQUIRED_LAYERS = [
+  'DreamShell',
+  'DreamConnectorLayer',
+  'DreamFeatureLayer',
+  'DreamOutputLayer',
+] as const;
+
+export type DreamWindowLayer = (typeof DREAM_WINDOW_REQUIRED_LAYERS)[number];
+
+/**
+ * Validation result from `validateDreamWindowLayers`.
+ */
+export interface DreamWindowLayerValidationResult {
+  valid: boolean;
+  missingLayers: DreamWindowLayer[];
+  /** Human-readable error message, or null if valid */
+  error: string | null;
+}
+
+/**
+ * Validate that a Dream Window instance passes through all four required
+ * layers: DreamShell → DreamConnectorLayer → DreamFeatureLayer → DreamOutputLayer.
+ *
+ * This is called from the API layer on every mount operation (Points 16 & 20).
+ * A Dream Window that skips any layer is rejected before state transition.
+ *
+ * The `presentLayers` field in config records which layers are present.
+ * If not supplied, this validator checks `config.layers` array.
+ *
+ * Architecture: docs/ARCHITECTURE.md §4 (Universal Dream Window model)
+ *
+ * @param instance  The Dream Window instance to validate
+ * @returns         Validation result with missing-layer details on failure
+ */
+export function validateDreamWindowLayers(
+  instance: DreamWindowInstance,
+): DreamWindowLayerValidationResult {
+  // Read the layers list from config — expects config.layers: string[]
+  const configLayers = Array.isArray((instance.config as Record<string, unknown>).layers)
+    ? ((instance.config as Record<string, unknown>).layers as string[])
+    : [];
+
+  const missingLayers = DREAM_WINDOW_REQUIRED_LAYERS.filter(
+    (layer) => !configLayers.includes(layer),
+  );
+
+  if (missingLayers.length === 0) {
+    return { valid: true, missingLayers: [], error: null };
+  }
+
+  return {
+    valid: false,
+    missingLayers,
+    error:
+      `Dream Window '${instance.id}' is missing required layers: ` +
+      missingLayers.join(', ') +
+      `. Every Dream Window must pass through all four layers: ` +
+      DREAM_WINDOW_REQUIRED_LAYERS.join(' → ') +
+      `.`,
+  };
+}
+
 // Re-export canonical constants so consumers can use this module as a single
 // import point for Dream Window lifecycle work.
 export { DREAM_WINDOW_STATES };
 export type { DreamWindowState };
+

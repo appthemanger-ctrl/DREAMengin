@@ -69,6 +69,56 @@ export async function POST(req: NextRequest) {
     return jsonApiError(403, 'POLICY_BLOCKED', boogiePolicy.reason ?? 'Request blocked by policy.');
   }
 
+  // Phase 8 §A Point 10: optionally enrich with real Supabase content context.
+  // Detect if the user is asking about content (posts, profiles, connectors).
+  // If so, query the DB and include a summary in the system prompt.
+  let contentContext: string | undefined;
+  try {
+    const lowerMsg = request.message.toLowerCase();
+    const isContentQuery =
+      lowerMsg.includes('post') ||
+      lowerMsg.includes('content') ||
+      lowerMsg.includes('feed') ||
+      lowerMsg.includes('profile') ||
+      lowerMsg.includes('follow');
+
+    if (isContentQuery) {
+      // Fetch the user's recent posts as context
+      const { data: recentPosts } = await supabase
+        .from('app_posts')
+        .select('id, content, visibility, created_at')
+        .eq('author_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (recentPosts && recentPosts.length > 0) {
+        const postsText = recentPosts
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((p: any) =>
+            `- "${String(p.content ?? '').slice(0, 80)}" (${p.visibility ?? 'unknown'}, ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'unknown'})`
+          )
+          .join('\n');
+        contentContext = `User's recent posts:\n${postsText}`;
+      }
+
+      // Also fetch follower/following counts
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count: followersCount } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', user.id);
+      const { count: followingCount } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', user.id);
+
+      const statsText = `User stats: ${followersCount ?? 0} followers, ${followingCount ?? 0} following.`;
+      contentContext = contentContext ? `${contentContext}\n${statsText}` : statsText;
+    }
+  } catch {
+    // Non-critical — proceed without content context
+  }
+
   // Plan with Dr. Eams
   let plan: Awaited<ReturnType<typeof planWithEams>>;
   try {
@@ -77,6 +127,7 @@ export async function POST(req: NextRequest) {
       actorEmail: user.email,
       actorRole,
       uiRoute: request.ui?.route,
+      contentContext,
     });
   } catch {
     plan = { response_text: "I'm here to help! What would you like to do?", intents: [] };
