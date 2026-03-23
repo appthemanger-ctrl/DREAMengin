@@ -347,6 +347,87 @@ function getCredentialFields(provider: string): CredentialField[] {
             '⚠️ The feed must be publicly accessible. If you get a 401/403 error, go to that platform and make the feed public first.',
         },
       ];
+    case 'twitter':
+      return [
+        {
+          key: 'username',
+          label: 'Twitter / X Username',
+          placeholder: 'yourhandle',
+          type: 'text' as const,
+          hint:
+            'Your Twitter/X username without @. ' +
+            '⚠️ Your account MUST be Public. Go to Settings → Privacy and safety → turn off "Protect your posts".',
+        },
+        {
+          key: 'nitter_instance',
+          label: 'Nitter Instance (optional)',
+          placeholder: 'https://nitter.net',
+          type: 'url' as const,
+          hint: 'Optional. Leave blank to use nitter.net. Nitter is a free open-source RSS bridge for public Twitter/X profiles.',
+        },
+      ];
+    case 'facebook':
+      return [
+        {
+          key: 'page',
+          label: 'Facebook Page URL or Name',
+          placeholder: 'https://facebook.com/yourpage',
+          type: 'text' as const,
+          hint:
+            'Paste your Facebook Page URL, username, or numeric Page ID. ' +
+            '⚠️ The Page MUST be Public. Go to Page Settings → Privacy → set to Public.',
+        },
+      ];
+    case 'pinterest':
+      return [
+        {
+          key: 'username',
+          label: 'Pinterest Username',
+          placeholder: 'yourname',
+          type: 'text' as const,
+          hint:
+            'Your Pinterest username. ' +
+            '⚠️ Your profile and boards MUST be Public. Go to Pinterest Settings → Privacy → Profile privacy → Public.',
+        },
+        {
+          key: 'board',
+          label: 'Board Name (optional)',
+          placeholder: 'dream-home',
+          type: 'text' as const,
+          hint: 'Optional. A specific public board slug. Leave blank to see all your public pins.',
+        },
+      ];
+    case 'tumblr':
+      return [
+        {
+          key: 'username',
+          label: 'Tumblr Blog Username',
+          placeholder: 'myblog',
+          type: 'text' as const,
+          hint:
+            'Your Tumblr username or blog URL. ' +
+            '⚠️ Your blog MUST be Public (not password-protected). Go to blog Settings → remove password protection.',
+        },
+      ];
+    case 'tiktok':
+      return [
+        {
+          key: 'username',
+          label: 'TikTok Username',
+          placeholder: 'yourusername',
+          type: 'text' as const,
+          hint:
+            'Your TikTok username without @. ' +
+            '⚠️ Your account MUST be Public. Go to TikTok → Profile → Settings → Privacy → turn "Private account" OFF.',
+        },
+        {
+          key: 'rsshub_instance',
+          label: 'RSSHub Instance (optional)',
+          placeholder: 'https://rsshub.app',
+          type: 'url' as const,
+          hint: 'Optional. Leave blank to use rsshub.app. RSSHub is a free open-source RSS bridge for TikTok public profiles.',
+        },
+      ];
     default:
       return [
         { key: 'access_token', label: 'Access Token', placeholder: 'Paste your access token here', type: 'password', hint: 'Generate a token from the provider\'s developer settings.' },

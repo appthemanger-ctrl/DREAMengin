@@ -56,6 +56,12 @@ import {
   hackerNewsRssUrl,
   hackerNewsUserRssUrl,
   podcastRssUrl,
+  twitterNitterRssUrl,
+  DEFAULT_NITTER_INSTANCE,
+  facebookPageRssUrl,
+  pinterestRssUrl,
+  tumblrRssUrl,
+  tiktokProfileRssUrl,
   type RssProvider,
 } from '@/lib/social/rss-feed';
 import type { UnifiedFeedItem } from '@/types/connector';
@@ -164,6 +170,34 @@ function resolveFeedUrl(
       if (!feedUrl) return { url: '', error: 'podcast requires feed_url' };
       return { url: podcastRssUrl(feedUrl) };
     }
+    case 'twitter': {
+      const username = params.get('username');
+      if (!username) return { url: '', error: 'twitter requires username' };
+      const instance = params.get('nitter_instance') ?? DEFAULT_NITTER_INSTANCE;
+      return { url: twitterNitterRssUrl(instance, username) };
+    }
+    case 'facebook': {
+      const page = params.get('page');
+      if (!page) return { url: '', error: 'facebook requires page (ID, username, or URL)' };
+      return { url: facebookPageRssUrl(page) };
+    }
+    case 'pinterest': {
+      const username = params.get('username');
+      if (!username) return { url: '', error: 'pinterest requires username' };
+      const board = params.get('board') ?? undefined;
+      return { url: pinterestRssUrl(username, board) };
+    }
+    case 'tumblr': {
+      const username = params.get('username');
+      if (!username) return { url: '', error: 'tumblr requires username' };
+      return { url: tumblrRssUrl(username) };
+    }
+    case 'tiktok': {
+      const username = params.get('username');
+      if (!username) return { url: '', error: 'tiktok requires username' };
+      const rsshubBase = params.get('rsshub_instance') ?? 'https://rsshub.app';
+      return { url: tiktokProfileRssUrl(username, rsshubBase) };
+    }
     default:
       return { url: '', error: `Unknown provider: ${provider as string}` };
   }
@@ -174,6 +208,7 @@ function resolveFeedUrl(
 const VALID_PROVIDERS: RssProvider[] = [
   'youtube', 'reddit', 'mastodon', 'github', 'nostr',
   'medium', 'devto', 'substack', 'hackernews', 'podcast',
+  'twitter', 'facebook', 'pinterest', 'tumblr', 'tiktok',
 ];
 
 export async function GET(req: NextRequest): Promise<NextResponse> {

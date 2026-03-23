@@ -255,16 +255,19 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     id: 'twitter',
     name: 'X / Twitter',
     icon: '✖️',
-    description: 'Home timeline and bookmarks.',
+    description: 'Public profile posts via Nitter RSS — no API key needed.',
     category: 'Social',
-    tier: 'tier2',
-    whatYouGet: 'Home timeline + bookmarks (if access is approved)',
-    requirements: 'Home timeline access requires X API paid plan or partner access.',
-    defaultStatus: 'needs_admin_setup',
+    tier: 'tier1',
+    whatYouGet: 'Public tweets from any account whose profile is set to Public',
+    requirements:
+      'Your Twitter/X account must be set to Public. ' +
+      'Go to Settings → Privacy and safety → turn off "Protect your posts". ' +
+      'Uses Nitter — an open-source Twitter frontend that exposes public profile RSS.',
+    defaultStatus: 'not_connected',
     widgetTypeId: 'twitter',
     sliceTypes: [
-      { id: 'tw-home', label: 'Home Timeline', description: 'Tweets from people you follow.' },
-      { id: 'tw-bookmarks', label: 'Bookmarks', description: 'Your saved tweets.' },
+      { id: 'tw-posts', label: 'Posts', description: 'Public tweets from this profile.' },
+      { id: 'tw-media', label: 'Media', description: 'Images and videos from public tweets.' },
     ],
   },
   {
@@ -288,16 +291,19 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     id: 'facebook',
     name: 'Facebook',
     icon: '📘',
-    description: 'Friends feed — only friends who also use DREAMengin.',
+    description: 'Public Page posts via RSS — no API key needed.',
     category: 'Social',
-    tier: 'tier2',
-    whatYouGet: 'Friends posts (only friends who also use the app)',
-    requirements: 'Facebook Graph API only returns mutual-app friends.',
-    defaultStatus: 'requires_approval',
+    tier: 'tier1',
+    whatYouGet: 'Public posts from any Facebook Page that is set to Public',
+    requirements:
+      'Your Facebook Page must be set to Public. ' +
+      'Go to your Page Settings → Privacy → set visibility to Public. ' +
+      'Works best for public Pages (businesses, creators). Personal profiles are limited.',
+    defaultStatus: 'not_connected',
     widgetTypeId: 'facebook',
     sliceTypes: [
-      { id: 'fb-friends', label: 'Friends Feed', description: 'Posts from mutual-app friends.' },
-      { id: 'fb-pages', label: 'Pages', description: 'Recent posts from Pages you follow.' },
+      { id: 'fb-posts', label: 'Page Posts', description: 'Recent posts from a public Facebook Page.' },
+      { id: 'fb-updates', label: 'Updates', description: 'Latest updates and news from the Page.' },
     ],
   },
   {
@@ -320,16 +326,19 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     id: 'tiktok',
     name: 'TikTok',
     icon: '🎬',
-    description: 'Following feed and saved videos.',
+    description: 'Public profile videos via RSSHub — no API key needed.',
     category: 'Social',
-    tier: 'tier2',
-    whatYouGet: 'Following feed + saved videos',
-    requirements: 'TikTok API requires developer application approval.',
-    defaultStatus: 'needs_admin_setup',
+    tier: 'tier1',
+    whatYouGet: 'Public videos from any TikTok account set to Public',
+    requirements:
+      'Your TikTok account must be set to Public. ' +
+      'Go to Profile → Settings → Privacy → turn "Private account" OFF. ' +
+      'Uses RSSHub — an open-source RSS bridge for social platforms.',
+    defaultStatus: 'not_connected',
     widgetTypeId: 'tiktok',
     sliceTypes: [
-      { id: 'tt-following', label: 'Following Feed', description: 'Latest videos from accounts you follow.' },
-      { id: 'tt-saved', label: 'Saved Videos', description: 'Your favourited TikToks.' },
+      { id: 'tt-posts', label: 'Videos', description: 'Latest public videos from this profile.' },
+      { id: 'tt-trending', label: 'Trending', description: 'Trending videos from this account.' },
     ],
   },
   {
@@ -466,6 +475,43 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     sliceTypes: [
       { id: 'podcast-episodes', label: 'Episodes / Posts', description: 'Latest entries from the feed.' },
       { id: 'podcast-media', label: 'Media', description: 'Audio, video, or image attachments from the feed.' },
+    ],
+  },
+  {
+    id: 'pinterest',
+    name: 'Pinterest',
+    icon: '📌',
+    description: 'Public board pins via RSS — no API key needed.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Public pins from any Pinterest board set to Public',
+    requirements:
+      'Your Pinterest profile and boards must be set to Public. ' +
+      'Go to Pinterest Settings → Privacy and data → Profile privacy → Public. ' +
+      'Individual boards must also be set to Public (not Secret).',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'pinterest',
+    sliceTypes: [
+      { id: 'pinterest-pins', label: 'Pins', description: 'Latest pins from a public board.' },
+      { id: 'pinterest-boards', label: 'All Boards', description: 'All public pins across your boards.' },
+    ],
+  },
+  {
+    id: 'tumblr',
+    name: 'Tumblr',
+    icon: '🫧',
+    description: 'Public blog posts via RSS — no API key needed.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Public posts from any Tumblr blog that is not password-protected',
+    requirements:
+      'Your Tumblr blog must be Public (not password-protected). ' +
+      'Go to your blog Settings → Visibility → remove any password protection.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'tumblr',
+    sliceTypes: [
+      { id: 'tumblr-posts', label: 'Posts', description: 'Latest posts from a public Tumblr blog.' },
+      { id: 'tumblr-photos', label: 'Photos', description: 'Photo posts from the blog.' },
     ],
   },
 ] as const;

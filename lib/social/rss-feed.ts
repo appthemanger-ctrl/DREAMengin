@@ -67,7 +67,11 @@ export type RssProvider =
   | 'substack'
   | 'hackernews'
   | 'podcast'
-  | 'twitter';
+  | 'twitter'
+  | 'facebook'
+  | 'pinterest'
+  | 'tumblr'
+  | 'tiktok';
 
 // ── Feed config ───────────────────────────────────────────────────────────
 
@@ -205,15 +209,99 @@ export function hackerNewsUserRssUrl(username: string): string {
 
 /**
  * Returns a Twitter / X feed via a Nitter instance RSS.
- * Requires a configured Nitter instance URL — NOT official Twitter API.
- * Marked as optional / unofficial.
+ * Nitter is an open-source Twitter frontend that exposes RSS for PUBLIC profiles.
+ * The user's account MUST be set to Public on Twitter/X.
  *
- * @param nitterInstance - e.g. "https://nitter.net"
+ * @param nitterInstance - e.g. "https://nitter.net" (defaults to nitter.net)
  * @param username       - Twitter handle without @
  */
 export function twitterNitterRssUrl(nitterInstance: string, username: string): string {
   const base = nitterInstance.replace(/\/$/, '');
   return `${base}/${encodeURIComponent(username)}/rss`;
+}
+
+/**
+ * Default public Nitter instance.
+ * Users can override this with their own or a different public instance.
+ */
+export const DEFAULT_NITTER_INSTANCE = 'https://nitter.net';
+
+/**
+ * Returns the RSS feed URL for a Facebook public Page.
+ * Works for public Pages and public Profiles — account MUST be Public.
+ *
+ * Accepts either:
+ *   - A numeric Page ID:   "123456789"
+ *   - A Page username/URL: "mypagename" or "https://facebook.com/mypagename"
+ *
+ * Note: Facebook deprecated RSS for personal profiles in 2013.
+ * Public Page RSS still works. Personal profiles should use the "Any RSS Feed"
+ * connector with a third-party bridge if needed.
+ */
+export function facebookPageRssUrl(pageIdOrUrl: string): string {
+  // Extract the page identifier from a full URL if provided
+  let id = pageIdOrUrl.trim();
+  if (id.includes('facebook.com/')) {
+    const match = id.match(/facebook\.com\/([^/?#]+)/);
+    id = match?.[1] ?? id;
+  }
+  // Remove trailing slashes
+  id = id.replace(/\/$/, '');
+  // Numeric ID → use id= param; name → use name= param
+  if (/^\d+$/.test(id)) {
+    return `https://www.facebook.com/feeds/page.php?id=${encodeURIComponent(id)}&format=rss20`;
+  }
+  return `https://www.facebook.com/feeds/page.php?name=${encodeURIComponent(id)}&format=rss20`;
+}
+
+/**
+ * Returns the RSS feed URL for a Pinterest public board or all boards.
+ * The user's account MUST be set to Public on Pinterest.
+ *
+ * @param username - Pinterest username
+ * @param board    - Optional board slug. If omitted, returns all public pins.
+ */
+export function pinterestRssUrl(username: string, board?: string): string {
+  const u = encodeURIComponent(username.replace(/^@/, ''));
+  if (board && board.trim()) {
+    return `https://www.pinterest.com/${u}/${encodeURIComponent(board.trim())}.rss`;
+  }
+  return `https://www.pinterest.com/${u}/feed.rss`;
+}
+
+/**
+ * Returns the RSS feed URL for a Tumblr blog.
+ * The blog MUST be set to Public (not password-protected).
+ *
+ * Accepts either a username ("myblog") or a full URL ("https://myblog.tumblr.com").
+ */
+export function tumblrRssUrl(usernameOrUrl: string): string {
+  let slug = usernameOrUrl.trim();
+  if (slug.includes('tumblr.com')) {
+    const match = slug.match(/([^/.]+)\.tumblr\.com/);
+    slug = match?.[1] ?? slug;
+  }
+  slug = slug.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  // If it looks like a bare username, build the subdomain form
+  if (!slug.includes('.')) {
+    return `https://${encodeURIComponent(slug)}.tumblr.com/rss`;
+  }
+  return `https://${slug}/rss`;
+}
+
+/**
+ * Returns an RSS feed URL for a public TikTok profile via RSSHub.
+ * The account MUST be set to Public on TikTok.
+ *
+ * Uses the community-run RSSHub service which bridges TikTok public profiles.
+ * Users can supply their own RSSHub instance (e.g. self-hosted).
+ *
+ * @param username    - TikTok username without @
+ * @param rsshubBase  - RSSHub instance URL (defaults to https://rsshub.app)
+ */
+export function tiktokProfileRssUrl(username: string, rsshubBase = 'https://rsshub.app'): string {
+  const base = rsshubBase.replace(/\/$/, '');
+  return `${base}/tiktok/user/@${encodeURIComponent(username.replace(/^@/, ''))}`;
 }
 
 /**

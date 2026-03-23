@@ -27,6 +27,11 @@ import { devtoVerify } from '@/lib/connectors/providers/devto';
 import { substackVerify } from '@/lib/connectors/providers/substack';
 import { hackernewsVerify } from '@/lib/connectors/providers/hackernews';
 import { podcastVerify } from '@/lib/connectors/providers/podcast';
+import { twitterVerify } from '@/lib/connectors/providers/twitter';
+import { facebookVerify } from '@/lib/connectors/providers/facebook';
+import { pinterestVerify } from '@/lib/connectors/providers/pinterest';
+import { tumblrVerify } from '@/lib/connectors/providers/tumblr';
+import { tiktokVerify } from '@/lib/connectors/providers/tiktok';
 import type { ConnectorVerifyResponse } from '@/types/connector';
 
 const VERIFY_CACHE_MS = 5 * 60 * 1000; // 5 minutes
@@ -139,6 +144,30 @@ export async function GET(
         break;
       case 'podcast':
         await podcastVerify({ feed_url: String(creds.feed_url ?? '') });
+        break;
+      case 'twitter':
+        await twitterVerify({
+          username: String(creds.username ?? ''),
+          nitter_instance: creds.nitter_instance ? String(creds.nitter_instance) : undefined,
+        });
+        break;
+      case 'facebook':
+        await facebookVerify({ page: String(creds.page ?? '') });
+        break;
+      case 'pinterest':
+        await pinterestVerify({
+          username: String(creds.username ?? ''),
+          board: creds.board ? String(creds.board) : undefined,
+        });
+        break;
+      case 'tumblr':
+        await tumblrVerify({ username: String(creds.username ?? '') });
+        break;
+      case 'tiktok':
+        await tiktokVerify({
+          username: String(creds.username ?? ''),
+          rsshub_instance: creds.rsshub_instance ? String(creds.rsshub_instance) : undefined,
+        });
         break;
       default:
         newStatus = 'unsupported';

@@ -31,6 +31,11 @@ import { devtoVerify } from '@/lib/connectors/providers/devto';
 import { substackVerify } from '@/lib/connectors/providers/substack';
 import { hackernewsVerify } from '@/lib/connectors/providers/hackernews';
 import { podcastVerify } from '@/lib/connectors/providers/podcast';
+import { twitterVerify } from '@/lib/connectors/providers/twitter';
+import { facebookVerify } from '@/lib/connectors/providers/facebook';
+import { pinterestVerify } from '@/lib/connectors/providers/pinterest';
+import { tumblrVerify } from '@/lib/connectors/providers/tumblr';
+import { tiktokVerify } from '@/lib/connectors/providers/tiktok';
 import type { ConnectorConnectResponse } from '@/types/connector';
 
 export async function POST(
@@ -124,6 +129,30 @@ export async function POST(
         break;
       case 'podcast':
         await podcastVerify({ feed_url: credentials.feed_url ?? '' });
+        break;
+      case 'twitter':
+        await twitterVerify({
+          username: credentials.username ?? '',
+          nitter_instance: credentials.nitter_instance || undefined,
+        });
+        break;
+      case 'facebook':
+        await facebookVerify({ page: credentials.page ?? '' });
+        break;
+      case 'pinterest':
+        await pinterestVerify({
+          username: credentials.username ?? '',
+          board: credentials.board || undefined,
+        });
+        break;
+      case 'tumblr':
+        await tumblrVerify({ username: credentials.username ?? '' });
+        break;
+      case 'tiktok':
+        await tiktokVerify({
+          username: credentials.username ?? '',
+          rsshub_instance: credentials.rsshub_instance || undefined,
+        });
         break;
       default:
         return NextResponse.json(
