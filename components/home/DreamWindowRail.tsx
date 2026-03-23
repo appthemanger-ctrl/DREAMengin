@@ -28,6 +28,11 @@ import {
   Grid3x3,
   Sparkles,
   Plus,
+  BarChart3,
+  ShoppingBag,
+  Store,
+  MessageCircle,
+  Compass,
 } from 'lucide-react';
 import DreamWord from '@/components/ui/DreamWord';
 
@@ -57,25 +62,45 @@ interface DreamWindowRailProps {
 function SlotIcon({ type }: { type: string }) {
   const cls = 'w-5 h-5';
   switch (type) {
-    case 'music':   return <Music className={cls} />;
-    case 'games':   return <Gamepad2 className={cls} />;
-    case 'lab':     return <FlaskConical className={cls} />;
-    case 'code':    return <Code2 className={cls} />;
-    case 'brand':   return <Palette className={cls} />;
-    case 'create':  return <Pen className={cls} />;
-    default:        return <Grid3x3 className={cls} />;
+    case 'music':     return <Music className={cls} />;
+    case 'games':     return <Gamepad2 className={cls} />;
+    case 'lab':       return <FlaskConical className={cls} />;
+    case 'code':      return <Code2 className={cls} />;
+    case 'brand':     return <Palette className={cls} />;
+    case 'create':    return <Pen className={cls} />;
+    case 'analytics': return <BarChart3 className={cls} />;
+    case 'shop':      return <ShoppingBag className={cls} />;
+    case 'marketplace': return <Store className={cls} />;
+    case 'messages':  return <MessageCircle className={cls} />;
+    case 'discover':  return <Compass className={cls} />;
+    default:          return <Grid3x3 className={cls} />;
   }
 }
 
 // Route map for typed slots
 const SLOT_ROUTES: Record<string, string> = {
-  music:  '/daydream/music',
-  games:  '/daydream/games',
-  lab:    '/daydream/lab',
-  code:   '/daydream/code',
-  brand:  '/daydream/brand',
-  create: '/daydream/create',
+  music:       '/daydream/music',
+  games:       '/daydream/games',
+  lab:         '/daydream/lab',
+  code:        '/daydream/code',
+  brand:       '/daydream/brand',
+  create:      '/daydream/create',
+  analytics:   '/daydream/analytics',
+  shop:        '/shop',
+  marketplace: '/marketplace',
+  messages:    '/messages',
+  discover:    '/discover',
 };
+
+// Default Dream Window tiles shown when no user layout is configured.
+// These surface real platform features that are otherwise hard to discover.
+const DEFAULT_SLOTS: LayoutSlot[] = [
+  { id: 'default-analytics',   type: 'analytics',   title: 'Analytics',   position: 0 },
+  { id: 'default-messages',    type: 'messages',    title: 'DreamDM',     position: 1 },
+  { id: 'default-discover',    type: 'discover',    title: 'Discover',    position: 2 },
+  { id: 'default-shop',        type: 'shop',        title: 'Shop',        position: 3 },
+  { id: 'default-marketplace', type: 'marketplace', title: 'Market',      position: 4 },
+];
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
@@ -100,7 +125,7 @@ export default function DreamWindowRail({ onOpenDreamSpace, userId }: DreamWindo
       .finally(() => setLoading(false));
   }, [userId]);
 
-  const slots = layout?.slots ?? [];
+  const slots = layout?.slots?.length ? layout.slots : DEFAULT_SLOTS;
 
   const handleSlotTap = (slot: LayoutSlot) => {
     const route = SLOT_ROUTES[slot.type] ?? `/daydream/${slot.type}`;
@@ -172,8 +197,8 @@ export default function DreamWindowRail({ onOpenDreamSpace, userId }: DreamWindo
               aria-hidden="true"
             />
           ))
-        ) : slots.length > 0 ? (
-          // Real Dream Window slots from DB
+        ) : (
+          // Dream Window slots: user layout from DB, or default platform tiles
           slots
             .sort((a, b) => a.position - b.position)
             .map((slot) => (
@@ -206,25 +231,6 @@ export default function DreamWindowRail({ onOpenDreamSpace, userId }: DreamWindo
                 </span>
               </button>
             ))
-        ) : (
-          // Empty state — prompt to add Dream Windows
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            padding: '4px 0', color: 'var(--de-text-dim)', fontSize: 12,
-          }}>
-            <span>No Dream Windows yet.</span>
-            <button
-              type="button"
-              onClick={() => router.push('/settings/widgets')}
-              style={{
-                color: 'var(--de-accent)', fontWeight: 600, background: 'none',
-                border: 'none', cursor: 'pointer', padding: 0, fontSize: 12,
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              Add one
-            </button>
-          </div>
         )}
 
         {/* DreamSpace opener — always last */}

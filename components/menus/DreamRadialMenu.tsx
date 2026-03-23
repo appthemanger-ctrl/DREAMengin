@@ -11,7 +11,7 @@ type Props = {
   side?: 'left' | 'right' | 'center';
 };
 
-// Six fixed Daydream apps (spec §7.2) + Marketplace + Shop (accessible from Gold Button nav §4.2)
+// Six fixed Daydream apps (spec §7.2) + Analytics + Marketplace + Shop (accessible from Gold Button nav §4.2)
 const DREAM_ITEMS = [
   { id: 'music',       label: 'Music',       icon: '🎵', route: '/daydream/music'       },
   { id: 'games',       label: 'Games',       icon: '🎮', route: '/daydream/games'       },
@@ -19,6 +19,7 @@ const DREAM_ITEMS = [
   { id: 'code',        label: 'Code',        icon: '💻', route: '/daydream/code'        },
   { id: 'brand',       label: 'Brand',       icon: '✦',  route: '/daydream/brand'       },
   { id: 'create',      label: 'Create',      icon: '⬡',  route: '/daydream/create'      },
+  { id: 'analytics',   label: 'Analytics',   icon: '📊', route: '/daydream/analytics'   },
   { id: 'marketplace', label: 'Marketplace', icon: '🏪', route: '/marketplace'          },
   { id: 'shop',        label: 'Shop',        icon: '🛍', route: '/shop'                 },
 ];

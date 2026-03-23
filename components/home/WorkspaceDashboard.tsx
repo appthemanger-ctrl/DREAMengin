@@ -394,6 +394,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
               {[
                 { href: '/edit-profiledream', label: 'DreamProfile' },
                 { href: '/discover', label: 'Feed' },
+                { href: '/daydream/analytics', label: 'Analytics' },
               ].map((item) => (
                 <button
                   key={item.label}
@@ -579,7 +580,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 </span>
                 <button
                   type="button"
-                  onClick={() => openPage('/analytics', 'Analytics')}
+                  onClick={() => openPage('/daydream/analytics', 'Analytics')}
                   style={{ fontSize: 12, color: 'var(--de-accent)',
                     fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 3, WebkitTapHighlightColor: 'transparent' }}
