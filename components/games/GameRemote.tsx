@@ -25,6 +25,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useGamepad } from '@/lib/games/useGamepad';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type GameInputAction =
@@ -288,6 +289,14 @@ interface GameRemoteProps {
 }
 
 export default function GameRemote({ onBack }: GameRemoteProps) {
+  const { connected: gpConnected, gamepadName } = useGamepad();
+
+  const gpNameLower = gamepadName.toLowerCase();
+  const isDualSense = gpNameLower.includes('dualsense')
+    || gpNameLower.includes('playstation')
+    || gpNameLower.includes('ps5')
+    || gpNameLower.includes('ps4');
+
   return (
     <div style={{
       position: 'relative',
@@ -322,6 +331,27 @@ export default function GameRemote({ onBack }: GameRemoteProps) {
           fontSize: 13, fontWeight: 700, letterSpacing: '0.08em',
           color: 'rgba(220,235,255,0.8)', textTransform: 'uppercase',
         }}>Game Remote</span>
+
+        {/* Physical controller status badge */}
+        <span
+          title={gpConnected ? gamepadName : 'Press any button on your controller to connect'}
+          style={{
+            fontSize: 9, fontWeight: 700, letterSpacing: '0.07em',
+            padding: '2px 8px', borderRadius: 999,
+            background: gpConnected ? 'rgba(74,222,128,0.12)' : 'rgba(160,195,240,0.06)',
+            color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.32)',
+            border: gpConnected
+              ? '1px solid rgba(74,222,128,0.30)'
+              : '1px solid rgba(160,195,240,0.10)',
+            transition: 'all 0.3s',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {gpConnected
+            ? (isDualSense ? '🎮 DualSense' : '🕹 Pad')
+            : '🎮 No pad'}
+        </span>
+
         <span style={{
           marginLeft: 'auto', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
           color: 'rgba(160,195,240,0.4)', textTransform: 'uppercase',
@@ -438,6 +468,16 @@ export default function GameRemote({ onBack }: GameRemoteProps) {
           </div>
         ))}
       </div>
+
+      {/* Physical controller hint */}
+      {!gpConnected && (
+        <p style={{
+          margin: '0 20px 18px', textAlign: 'center',
+          fontSize: 10, color: 'rgba(160,195,240,0.32)', lineHeight: 1.5,
+        }}>
+          🎮 PS5 DualSense / Xbox controller? Press any button to connect via Gamepad API
+        </p>
+      )}
     </div>
   );
 }
