@@ -9,6 +9,16 @@
  *   - Mastodon → per-user public feed
  *   - GitHub   → per-user public activity (Atom)
  *   - Nostr    → public gateway feeds (e.g. njump.me)
+ *   - Medium   → user profile feed
+ *   - Dev.to   → user article feed
+ *   - Substack → newsletter feed
+ *   - Hacker News → stories via hnrss.org
+ *   - Twitter/X   → unofficial via Nitter RSS instance
+ *   - ANY platform with a public RSS/Atom URL
+ *
+ * ⚠️  PUBLIC FEEDS ONLY — The feed URL must be publicly accessible.
+ *     Private or login-protected feeds are not supported and will fail
+ *     with a 401 or 403.  Tell users: "Make sure your feed is public."
  *
  * All parsed items are normalised into UnifiedFeedItem so they flow into the
  * same feed_items table and display logic as OAuth-sourced items.
@@ -51,7 +61,13 @@ export type RssProvider =
   | 'reddit'
   | 'mastodon'
   | 'github'
-  | 'nostr';
+  | 'nostr'
+  | 'medium'
+  | 'devto'
+  | 'substack'
+  | 'hackernews'
+  | 'podcast'
+  | 'twitter';
 
 // ── Feed config ───────────────────────────────────────────────────────────
 
@@ -134,6 +150,80 @@ export function nostrGatewayRssUrl(pubkeyOrNpub: string): string {
   return `https://njump.me/${encodeURIComponent(pubkeyOrNpub)}/rss`;
 }
 
+/**
+ * Returns the RSS feed URL for a Medium user or publication.
+ * Accepts a username (e.g. "alice") or a publication slug.
+ * For custom domains use the full URL form: https://pub.medium.com/feed
+ */
+export function mediumUserRssUrl(username: string): string {
+  const name = username.replace(/^@/, '');
+  return `https://medium.com/feed/@${encodeURIComponent(name)}`;
+}
+
+/**
+ * Returns the RSS feed URL for a Dev.to user.
+ * https://dev.to/feed/username
+ */
+export function devtoUserRssUrl(username: string): string {
+  return `https://dev.to/feed/${encodeURIComponent(username)}`;
+}
+
+/**
+ * Returns the RSS feed URL for a Substack newsletter.
+ * Accepts either a full subdomain URL (e.g. "https://mynewsletter.substack.com")
+ * or just the subdomain slug (e.g. "mynewsletter").
+ */
+export function substackRssUrl(subdomainOrUrl: string): string {
+  if (subdomainOrUrl.startsWith('http')) {
+    const base = subdomainOrUrl.replace(/\/$/, '');
+    return `${base}/feed`;
+  }
+  return `https://${encodeURIComponent(subdomainOrUrl)}.substack.com/feed`;
+}
+
+/**
+ * Returns the RSS feed URL for Hacker News stories.
+ * @param type - 'newest' | 'best' | 'ask' | 'show' | 'jobs' (default: 'best')
+ */
+export function hackerNewsRssUrl(type: 'newest' | 'best' | 'ask' | 'show' | 'jobs' = 'best'): string {
+  const map = {
+    newest: 'https://hnrss.org/newest',
+    best: 'https://hnrss.org/best',
+    ask: 'https://hnrss.org/ask',
+    show: 'https://hnrss.org/show',
+    jobs: 'https://hnrss.org/jobs',
+  };
+  return map[type];
+}
+
+/**
+ * Returns the RSS feed URL for a Hacker News user's submissions.
+ */
+export function hackerNewsUserRssUrl(username: string): string {
+  return `https://hnrss.org/submitted?id=${encodeURIComponent(username)}`;
+}
+
+/**
+ * Returns a Twitter / X feed via a Nitter instance RSS.
+ * Requires a configured Nitter instance URL — NOT official Twitter API.
+ * Marked as optional / unofficial.
+ *
+ * @param nitterInstance - e.g. "https://nitter.net"
+ * @param username       - Twitter handle without @
+ */
+export function twitterNitterRssUrl(nitterInstance: string, username: string): string {
+  const base = nitterInstance.replace(/\/$/, '');
+  return `${base}/${encodeURIComponent(username)}/rss`;
+}
+
+/**
+ * Returns the given podcast / generic RSS feed URL unchanged.
+ * This is a passthrough — the user provides the full URL.
+ */
+export function podcastRssUrl(feedUrl: string): string {
+  return feedUrl;
+}
+
 // ── Core parser ───────────────────────────────────────────────────────────
 
 // Lazily-created singleton; each call shares the same Parser instance.
@@ -156,7 +246,16 @@ function getParser(): Parser {
  * Fetches and parses an RSS/Atom feed, returning an array of normalised
  * UnifiedFeedItems ready to upsert into feed_items.
  *
- * Throws on network failure or unparseable XML — callers should catch.
+ * Works with ANY platform that exposes a public RSS or Atom feed — YouTube
+ * channels, Reddit, Mastodon, GitHub, Substack, Medium, Dev.to, Hacker News,
+ * Twitter via Nitter, podcasts, blogs, and more.
+ *
+ * ⚠️  The feed URL MUST be publicly accessible (no login required).
+ *     Private feeds will throw an error with status 401 or 403.
+ *     Tell users: go to the platform settings and make the feed public first.
+ *
+ * Throws on network failure, auth failure, or unparseable XML — callers
+ * should catch and surface the error message to the user.
  *
  * @param config  - Feed config including provider slug and URL
  * @param limit   - Maximum number of items to return (default 50)

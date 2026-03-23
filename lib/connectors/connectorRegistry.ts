@@ -382,6 +382,92 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
       { id: 'wx-forecast', label: '7-Day Forecast', description: 'Week-ahead weather overview.' },
     ],
   },
+
+  // ── Additional RSS-based Tier 1 providers ─────────────────────────────
+  {
+    id: 'medium',
+    name: 'Medium',
+    icon: '✍️',
+    description: 'Articles and stories from your Medium profile.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Your published Medium articles via RSS',
+    requirements: 'Your Medium username. No API key required.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'medium',
+    sliceTypes: [
+      { id: 'medium-articles', label: 'Articles', description: 'Your latest published stories on Medium.' },
+      { id: 'medium-responses', label: 'Responses', description: 'Your responses to other stories.' },
+    ],
+  },
+  {
+    id: 'devto',
+    name: 'Dev.to',
+    icon: '👩‍💻',
+    description: 'Articles from your Dev.to profile.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Your published Dev.to articles via RSS',
+    requirements: 'Your Dev.to username. No API key required.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'devto',
+    sliceTypes: [
+      { id: 'devto-articles', label: 'Articles', description: 'Your latest posts on Dev.to.' },
+      { id: 'devto-series', label: 'Series', description: 'Articles grouped into series.' },
+    ],
+  },
+  {
+    id: 'substack',
+    name: 'Substack',
+    icon: '📨',
+    description: 'Newsletter posts from a Substack publication.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Newsletter posts from any public Substack via RSS',
+    requirements: 'Substack subdomain or full URL. No API key required.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'substack',
+    sliceTypes: [
+      { id: 'substack-posts', label: 'Posts', description: 'Latest newsletter posts.' },
+      { id: 'substack-archive', label: 'Archive', description: 'Full post archive.' },
+    ],
+  },
+  {
+    id: 'hackernews',
+    name: 'Hacker News',
+    icon: '🔶',
+    description: 'Top stories, newest posts, Ask HN, Show HN, or your submissions.',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Hacker News stories via hnrss.org RSS bridge',
+    requirements: 'Choose a feed type (best/newest/ask/show/jobs). No API key required.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'hackernews',
+    sliceTypes: [
+      { id: 'hn-best', label: 'Best Stories', description: 'Top-ranked HN stories.' },
+      { id: 'hn-newest', label: 'Newest', description: 'Freshest HN submissions.' },
+      { id: 'hn-ask', label: 'Ask HN', description: 'Ask Hacker News threads.' },
+      { id: 'hn-show', label: 'Show HN', description: 'Show Hacker News posts.' },
+    ],
+  },
+  {
+    id: 'podcast',
+    name: 'Any RSS / Atom Feed',
+    icon: '📡',
+    description:
+      'Connect any platform that exposes a public RSS or Atom feed — podcasts, blogs, YouTube channels, Reddit, Mastodon, GitHub, Substack, newsletters, news sites, and more. Works with any platform as long as the feed URL is publicly accessible (not behind a login).',
+    category: 'Social',
+    tier: 'tier1',
+    whatYouGet: 'Posts, episodes, or articles from any public RSS/Atom feed',
+    requirements:
+      'A publicly accessible RSS or Atom feed URL. The feed must NOT require login or authentication — private feeds are not supported.',
+    defaultStatus: 'not_connected',
+    widgetTypeId: 'podcast',
+    sliceTypes: [
+      { id: 'podcast-episodes', label: 'Episodes / Posts', description: 'Latest entries from the feed.' },
+      { id: 'podcast-media', label: 'Media', description: 'Audio, video, or image attachments from the feed.' },
+    ],
+  },
 ] as const;
 
 /** Look up a connector definition by stable ID (req 43) */

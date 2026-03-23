@@ -24,6 +24,11 @@ import { redditSync } from '@/lib/connectors/providers/reddit';
 import { nostrSync } from '@/lib/connectors/providers/nostr';
 import { youtubeSync } from '@/lib/connectors/providers/youtube';
 import { instagramSync } from '@/lib/connectors/providers/instagram';
+import { mediumSync } from '@/lib/connectors/providers/medium';
+import { devtoSync } from '@/lib/connectors/providers/devto';
+import { substackSync } from '@/lib/connectors/providers/substack';
+import { hackernewsSync } from '@/lib/connectors/providers/hackernews';
+import { podcastSync } from '@/lib/connectors/providers/podcast';
 import { deduplicateFeedItems } from '@/lib/connectors/normalise';
 import type { ConnectorSyncResponse, UnifiedFeedItem } from '@/types/connector';
 
@@ -109,6 +114,24 @@ export async function POST(
         items = await instagramSync({
           access_token: String(creds.access_token ?? ''),
         });
+        break;
+      case 'medium':
+        items = await mediumSync({ username: String(creds.username ?? '') });
+        break;
+      case 'devto':
+        items = await devtoSync({ username: String(creds.username ?? '') });
+        break;
+      case 'substack':
+        items = await substackSync({ publication: String(creds.publication ?? '') });
+        break;
+      case 'hackernews':
+        items = await hackernewsSync({
+          feed_type: (String(creds.feed_type ?? 'best') as 'best' | 'newest' | 'ask' | 'show' | 'jobs'),
+          username: creds.username ? String(creds.username) : undefined,
+        });
+        break;
+      case 'podcast':
+        items = await podcastSync({ feed_url: String(creds.feed_url ?? '') });
         break;
       default:
         return NextResponse.json(

@@ -318,6 +318,35 @@ function getCredentialFields(provider: string): CredentialField[] {
             'Advanced: paste a long-lived access token from the Meta developers console.',
         },
       ];
+    case 'medium':
+      return [
+        { key: 'username', label: 'Medium Username', placeholder: 'yourname', type: 'text', hint: 'Your Medium username without @. Found in your profile URL: medium.com/@yourname' },
+      ];
+    case 'devto':
+      return [
+        { key: 'username', label: 'Dev.to Username', placeholder: 'yourname', type: 'text', hint: 'Your Dev.to username. Found in your profile URL: dev.to/yourname' },
+      ];
+    case 'substack':
+      return [
+        { key: 'publication', label: 'Substack Publication', placeholder: 'mynewsletter', type: 'text', hint: 'Your Substack subdomain (e.g. "mynewsletter") or full URL (e.g. "https://mynewsletter.substack.com").' },
+      ];
+    case 'hackernews':
+      return [
+        { key: 'feed_type', label: 'Feed Type', placeholder: 'best', type: 'text', hint: 'Choose: best, newest, ask, show, or jobs. Defaults to "best" if left blank.' },
+        { key: 'username', label: 'HN Username (optional)', placeholder: 'pg', type: 'text', hint: 'Optional — fill this to see your own HN submissions instead of a curated feed.' },
+      ];
+    case 'podcast':
+      return [
+        {
+          key: 'feed_url',
+          label: 'RSS / Atom Feed URL',
+          placeholder: 'https://example.com/feed.xml',
+          type: 'url' as const,
+          hint:
+            'Any public RSS or Atom feed — podcasts, YouTube channels, Reddit, Mastodon, Substack, blogs, news sites, and more. ' +
+            '⚠️ The feed must be publicly accessible. If you get a 401/403 error, go to that platform and make the feed public first.',
+        },
+      ];
     default:
       return [
         { key: 'access_token', label: 'Access Token', placeholder: 'Paste your access token here', type: 'password', hint: 'Generate a token from the provider\'s developer settings.' },

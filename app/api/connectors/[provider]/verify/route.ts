@@ -22,6 +22,11 @@ import { redditVerify } from '@/lib/connectors/providers/reddit';
 import { nostrVerify } from '@/lib/connectors/providers/nostr';
 import { youtubeVerify } from '@/lib/connectors/providers/youtube';
 import { instagramVerify } from '@/lib/connectors/providers/instagram';
+import { mediumVerify } from '@/lib/connectors/providers/medium';
+import { devtoVerify } from '@/lib/connectors/providers/devto';
+import { substackVerify } from '@/lib/connectors/providers/substack';
+import { hackernewsVerify } from '@/lib/connectors/providers/hackernews';
+import { podcastVerify } from '@/lib/connectors/providers/podcast';
 import type { ConnectorVerifyResponse } from '@/types/connector';
 
 const VERIFY_CACHE_MS = 5 * 60 * 1000; // 5 minutes
@@ -116,6 +121,24 @@ export async function GET(
         await instagramVerify({
           access_token: String(creds.access_token ?? ''),
         });
+        break;
+      case 'medium':
+        await mediumVerify({ username: String(creds.username ?? '') });
+        break;
+      case 'devto':
+        await devtoVerify({ username: String(creds.username ?? '') });
+        break;
+      case 'substack':
+        await substackVerify({ publication: String(creds.publication ?? '') });
+        break;
+      case 'hackernews':
+        await hackernewsVerify({
+          feed_type: (String(creds.feed_type ?? 'best') as 'best' | 'newest' | 'ask' | 'show' | 'jobs'),
+          username: creds.username ? String(creds.username) : undefined,
+        });
+        break;
+      case 'podcast':
+        await podcastVerify({ feed_url: String(creds.feed_url ?? '') });
         break;
       default:
         newStatus = 'unsupported';

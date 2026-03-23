@@ -26,6 +26,11 @@ import { nostrVerify } from '@/lib/connectors/providers/nostr';
 import { youtubeVerify } from '@/lib/connectors/providers/youtube';
 import { shellhubVerify, SHELLHUB_DEFAULT_SERVER } from '@/lib/connectors/providers/shellhub';
 import { instagramVerify } from '@/lib/connectors/providers/instagram';
+import { mediumVerify } from '@/lib/connectors/providers/medium';
+import { devtoVerify } from '@/lib/connectors/providers/devto';
+import { substackVerify } from '@/lib/connectors/providers/substack';
+import { hackernewsVerify } from '@/lib/connectors/providers/hackernews';
+import { podcastVerify } from '@/lib/connectors/providers/podcast';
 import type { ConnectorConnectResponse } from '@/types/connector';
 
 export async function POST(
@@ -101,6 +106,24 @@ export async function POST(
           server_url: credentials.server_url || SHELLHUB_DEFAULT_SERVER,
           api_key: credentials.api_key ?? '',
         });
+        break;
+      case 'medium':
+        await mediumVerify({ username: credentials.username ?? '' });
+        break;
+      case 'devto':
+        await devtoVerify({ username: credentials.username ?? '' });
+        break;
+      case 'substack':
+        await substackVerify({ publication: credentials.publication ?? '' });
+        break;
+      case 'hackernews':
+        await hackernewsVerify({
+          feed_type: (credentials.feed_type as 'best' | 'newest' | 'ask' | 'show' | 'jobs') || 'best',
+          username: credentials.username || undefined,
+        });
+        break;
+      case 'podcast':
+        await podcastVerify({ feed_url: credentials.feed_url ?? '' });
         break;
       default:
         return NextResponse.json(
