@@ -9,6 +9,7 @@ import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import Leaderboard from '@/components/games/Leaderboard';
+import { useGamepad } from '@/lib/games/useGamepad';
 
 const Loading = () => (
   <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 13 }}>
@@ -124,7 +125,7 @@ interface DPadState { left: boolean; right: boolean; up: boolean; down: boolean;
 
 function UniversalDPad() {
   const [pad, setPad] = useState<DPadState>({ left: false, right: false, up: false, down: false, jump: false });
-  const padRef = useCallback((key: keyof DPadState, active: boolean) => {
+  const handleDPadInput = useCallback((key: keyof DPadState, active: boolean) => {
     setPad(p => ({ ...p, [key]: active }));
     fireGameInput(key === 'up' || key === 'jump' ? 'jump' : `move-${key}`, active);
     if (!active) fireGameInput('move-stop', false);
@@ -151,20 +152,20 @@ function UniversalDPad() {
         <button
           style={{ ...btnStyle(pad.up || pad.jump, '#fbbf24'), position: 'absolute', left: '50%', top: 0,
             transform: 'translateX(-50%)', width: 46, height: 46, borderRadius: '10px 10px 4px 4px' }}
-          onPointerDown={(e) => { e.preventDefault(); padRef('up', true); }}
-          onPointerUp={() => padRef('up', false)}
-          onPointerLeave={() => padRef('up', false)}
-          onPointerCancel={() => padRef('up', false)}
+          onPointerDown={(e) => { e.preventDefault(); handleDPadInput('up', true); }}
+          onPointerUp={() => handleDPadInput('up', false)}
+          onPointerLeave={() => handleDPadInput('up', false)}
+          onPointerCancel={() => handleDPadInput('up', false)}
           aria-label="Up"
         >▲</button>
         {/* Left */}
         <button
           style={{ ...btnStyle(pad.left, '#38bdf8'), position: 'absolute', left: 0, top: '50%',
             transform: 'translateY(-50%)', width: 46, height: 46, borderRadius: '10px 4px 4px 10px' }}
-          onPointerDown={(e) => { e.preventDefault(); padRef('left', true); }}
-          onPointerUp={() => padRef('left', false)}
-          onPointerLeave={() => padRef('left', false)}
-          onPointerCancel={() => padRef('left', false)}
+          onPointerDown={(e) => { e.preventDefault(); handleDPadInput('left', true); }}
+          onPointerUp={() => handleDPadInput('left', false)}
+          onPointerLeave={() => handleDPadInput('left', false)}
+          onPointerCancel={() => handleDPadInput('left', false)}
           aria-label="Left"
         >◀</button>
         {/* Center hub */}
@@ -179,20 +180,20 @@ function UniversalDPad() {
         <button
           style={{ ...btnStyle(pad.right, '#38bdf8'), position: 'absolute', right: 0, top: '50%',
             transform: 'translateY(-50%)', width: 46, height: 46, borderRadius: '4px 10px 10px 4px' }}
-          onPointerDown={(e) => { e.preventDefault(); padRef('right', true); }}
-          onPointerUp={() => padRef('right', false)}
-          onPointerLeave={() => padRef('right', false)}
-          onPointerCancel={() => padRef('right', false)}
+          onPointerDown={(e) => { e.preventDefault(); handleDPadInput('right', true); }}
+          onPointerUp={() => handleDPadInput('right', false)}
+          onPointerLeave={() => handleDPadInput('right', false)}
+          onPointerCancel={() => handleDPadInput('right', false)}
           aria-label="Right"
         >▶</button>
         {/* Down */}
         <button
           style={{ ...btnStyle(pad.down, '#a78bfa'), position: 'absolute', left: '50%', bottom: 0,
             transform: 'translateX(-50%)', width: 46, height: 46, borderRadius: '4px 4px 10px 10px' }}
-          onPointerDown={(e) => { e.preventDefault(); padRef('down', true); }}
-          onPointerUp={() => padRef('down', false)}
-          onPointerLeave={() => padRef('down', false)}
-          onPointerCancel={() => padRef('down', false)}
+          onPointerDown={(e) => { e.preventDefault(); handleDPadInput('down', true); }}
+          onPointerUp={() => handleDPadInput('down', false)}
+          onPointerLeave={() => handleDPadInput('down', false)}
+          onPointerCancel={() => handleDPadInput('down', false)}
           aria-label="Down"
         >▼</button>
       </div>
@@ -202,10 +203,10 @@ function UniversalDPad() {
         <button
           style={{ ...btnStyle(pad.jump, '#fbbf24'), width: 68, height: 68, borderRadius: '50%',
             border: '2px solid rgba(251,191,36,0.35)' }}
-          onPointerDown={(e) => { e.preventDefault(); padRef('jump', true); }}
-          onPointerUp={() => padRef('jump', false)}
-          onPointerLeave={() => padRef('jump', false)}
-          onPointerCancel={() => padRef('jump', false)}
+          onPointerDown={(e) => { e.preventDefault(); handleDPadInput('jump', true); }}
+          onPointerUp={() => handleDPadInput('jump', false)}
+          onPointerLeave={() => handleDPadInput('jump', false)}
+          onPointerCancel={() => handleDPadInput('jump', false)}
           aria-label="Jump / Action"
         >▲</button>
         <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(251,191,36,0.45)', letterSpacing: '0.08em' }}>
@@ -219,6 +220,7 @@ function UniversalDPad() {
 export default function GamesHub() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('All');
+  const { connected: gpConnected, gamepadName } = useGamepad();
 
   const categories = ['All', ...Array.from(new Set(GAMES.map(g => g.category))).sort()];
   const filtered = filter === 'All' ? GAMES : GAMES.filter(g => g.category === filter);
@@ -236,6 +238,15 @@ export default function GamesHub() {
   // ── Active game view — expands to fill the screen ─────────────────────────
   if (active?.component) {
     const GameComponent = active.component;
+
+    // Detect PS5 DualSense / PlayStation pads for accurate label
+    const gpNameLower = gamepadName.toLowerCase();
+    const isDualSense = gpNameLower.includes('dualsense')
+      || gpNameLower.includes('playstation')
+      || gpNameLower.includes('ps5')
+      || gpNameLower.includes('ps4');
+    const controllerLabel = isDualSense ? '🎮 DualSense' : gpConnected ? '🕹 Controller' : null;
+
     return (
       <div style={{
         position: 'fixed', inset: 0, zIndex: 9999,
@@ -271,6 +282,24 @@ export default function GamesHub() {
           }}>
             {active.category}
           </span>
+
+          {/* Gamepad connection status badge — shown when a controller is detected */}
+          <span style={{
+            marginLeft: 'auto',
+            fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
+            padding: '3px 9px', borderRadius: 999,
+            background: gpConnected ? 'rgba(74,222,128,0.14)' : 'rgba(160,195,240,0.07)',
+            color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.35)',
+            border: gpConnected
+              ? '1px solid rgba(74,222,128,0.35)'
+              : '1px solid rgba(160,195,240,0.12)',
+            transition: 'all 0.3s',
+            whiteSpace: 'nowrap',
+          }}
+            title={gpConnected ? gamepadName : 'No controller detected — press any button on your gamepad to connect'}
+          >
+            {gpConnected ? (controllerLabel ?? '🕹 Connected') : '🎮 No Controller'}
+          </span>
         </div>
 
         {/* Scrollable content area */}
@@ -289,6 +318,23 @@ export default function GamesHub() {
             flexShrink: 0,
           }}>
             <UniversalDPad />
+            {/* Gamepad / PS5 hint */}
+            {!gpConnected && (
+              <p style={{
+                textAlign: 'center', fontSize: 10, color: 'rgba(160,195,240,0.38)',
+                margin: '0 0 10px', lineHeight: 1.5,
+              }}>
+                🎮 PS5 / Xbox controller? Press any button to auto-connect via Gamepad API
+              </p>
+            )}
+            {gpConnected && (
+              <p style={{
+                textAlign: 'center', fontSize: 10, color: 'rgba(74,222,128,0.6)',
+                margin: '0 0 10px', lineHeight: 1.5,
+              }}>
+                ✓ {gamepadName.slice(0, 40) || 'Controller'} connected — use D-Pad / sticks to play
+              </p>
+            )}
           </div>
 
           {/* Per-game leaderboard */}
