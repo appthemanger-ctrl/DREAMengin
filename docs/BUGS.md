@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-24 05:32 UTC  
-**Triggered by commit:** `8289c42` on `claude/optimize-node-js-actions` by Claude  
-**Commit message:** Fix Node.js 20 deprecation and reduce ESLint warnings from 380 to 19
+**Last updated:** 2026-03-24 05:27 UTC  
+**Triggered by commit:** `049f36f` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #285 from appthemanger-ctrl/claude/fix-babylon-animation-blur
 
 ---
 
@@ -16,7 +16,7 @@ DREAMengin is a **dual-runtime, spatial creative operating environment** built o
 
 It is not defined as a conventional page-based website. It is a **personal operating surface** where users move through connected live surfaces, modular runtime containers, and powered Engin layers while preserving context.
 
-### Core product axioms (non-negotiable)
+### Core product axioms (non-a negotiable)
 
 | # | Axiom | One-line rule |
 |---|-------|---------------|

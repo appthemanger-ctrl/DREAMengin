@@ -118,8 +118,8 @@ export default function DrEamsBabylonHero({
     rim.diffuse = new Color3(0.1, 0.5, 0.9);
 
     // ── Glow ──────────────────────────────────────────────────────────────────
-    const glow = new GlowLayer('glow', scene, { blurKernelSize: 64 });
-    glow.intensity = 0.72;
+    const glow = new GlowLayer('glow', scene, { blurKernelSize: 32 });
+    glow.intensity = 0.65;
 
     // ── Materials ─────────────────────────────────────────────────────────────
 
@@ -926,7 +926,7 @@ export default function DrEamsBabylonHero({
     engine.runRenderLoop(() => {
       scene.render();
       const now = performance.now();
-      if (now - lastGtMs > 1000) {
+      if (now - lastGtMs > 5000) {
         lastGtMs = now;
         const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
         const avgFrame = perf ? perf.averageFrameTime : 16.6;
