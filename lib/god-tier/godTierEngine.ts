@@ -391,7 +391,7 @@ export function visualDominanceEngine(route: RouteSignals, ux: UXSignals): Visua
     secondaryContrast: struggling ? 0.78 : 0.88,
     tertiaryContrast:  struggling ? 0.58 : 0.7,
     spacingScale:      struggling ? 1.1  : 1.03,
-    blurStrength:      showcase ? 0.95 : 0.55,
+    blurStrength:      showcase ? 0.45 : 0.35,
     shadowStrength:    showcase ? 1.0  : 0.82,
     glassStrength:     showcase ? 0.92 : 0.6,
     saturationBoost:   transactional ? 1.0 : 1.05,

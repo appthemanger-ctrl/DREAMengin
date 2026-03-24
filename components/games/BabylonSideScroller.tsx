@@ -1223,9 +1223,9 @@ class GameCore {
       if (this.disposed) return;
       this.tick();
       scene.render();
-      // God Tier hardware scaling — check every 750ms
+      // God Tier hardware scaling — check every 3000ms
       const now = performance.now();
-      if (now - lastGtMs > 750) {
+      if (now - lastGtMs > 3000) {
         lastGtMs = now;
         const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
         const avgFrame = perf ? perf.averageFrameTime : 16.6;
