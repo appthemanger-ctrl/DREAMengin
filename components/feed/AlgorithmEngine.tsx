@@ -234,10 +234,8 @@ export default function AlgorithmEngine() {
   const [mixOn,      setMixOn]      = useState(false);
   const [creating,   setCreating]   = useState(false);
   const [editing,    setEditing]    = useState<FeedPreset | null>(null);
-  const [follows,    setFollows]    = useState<FollowSetting[]>([]);
+  const [follows,    setFollows]    = useState<FollowSetting[]>(loadFollows);
   const [shareAlert, setShareAlert] = useState('');
-
-  useEffect(() => { setFollows(loadFollows()); }, []);
 
   const switchMode = useCallback((m: AlgoMode) => { setMode(m); saveMode(m); }, []);
 

@@ -455,7 +455,7 @@ export function extractFirstImage(item: any): string | null {
   // 4) media:group → media:thumbnail
   if (item.mediaGroup) {
     const group = item.mediaGroup;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const thumb = Array.isArray(group['media:thumbnail'])
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? group['media:thumbnail'].find((x: any) => x?.$?.url)?.$?.url

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Bot, Send, X, Minimize2, Maximize2, Mic, MicOff, Volume2, VolumeX, Radio, Sparkles } from 'lucide-react';
 
@@ -28,9 +28,7 @@ export default function DrEamsVoiceAssistant() {
   const [isListening, setIsListening] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [speechEnabled, setSpeechEnabled] = useState(true);
-  const [isWakeWordListening, setIsWakeWordListening] = useState(false);
-  const [transcriptBuffer, setTranscriptBuffer] = useState('');
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
@@ -68,7 +66,7 @@ export default function DrEamsVoiceAssistant() {
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript.trim().toLowerCase();
-          
+
           if (event.results[i].isFinal) {
             finalTranscript += transcript + ' ';
           } else {
@@ -77,17 +75,26 @@ export default function DrEamsVoiceAssistant() {
         }
 
         const fullTranscript = (finalTranscript + interimTranscript).toLowerCase();
-        setTranscriptBuffer(fullTranscript);
 
         // Check for wake word
         if (!isListening && (fullTranscript.includes('hey doc') || fullTranscript.includes('hey doctor'))) {
-          handleWakeWord();
-          setTranscriptBuffer('');
-        } 
+          // Wake word detected
+          setIsListening(true);
+          setIsOpen(true);
+          setIsMinimized(false);
+        }
         // Process command if actively listening
         else if (isListening && finalTranscript.trim()) {
-          processVoiceCommand(finalTranscript.trim());
-          setTranscriptBuffer('');
+          const command = finalTranscript.trim();
+          const userMessage: Message = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: command,
+            timestamp: new Date(),
+            isVoice: true
+          };
+          setMessages(prev => [...prev, userMessage]);
+          setIsLoading(true);
         }
       };
 
@@ -144,7 +151,6 @@ export default function DrEamsVoiceAssistant() {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
       setVoiceEnabled(true);
-      setIsWakeWordListening(true);
       if (recognitionRef.current) {
         recognitionRef.current.start();
       }
@@ -164,7 +170,6 @@ export default function DrEamsVoiceAssistant() {
     } else {
       setVoiceEnabled(false);
       setIsListening(false);
-      setIsWakeWordListening(false);
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }

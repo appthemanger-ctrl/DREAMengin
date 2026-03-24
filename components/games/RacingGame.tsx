@@ -35,9 +35,9 @@ function makeCar(startAngle: number, offset: number): Car {
 
 export default function RacingGame() {
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
-  const [lap, setLap] = useState(0);
   const [best, setBest] = useState<number | null>(null);
   const [pos, setPos] = useState(1);
+  const [totalTime, setTotalTime] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const playerRef = useRef<Car>(makeCar(-Math.PI / 2, 20));
   const aiCarsRef = useRef<Car[]>([makeCar(-Math.PI / 2, -20), makeCar(-Math.PI / 2, 0)]);
@@ -53,7 +53,8 @@ export default function RacingGame() {
     playerRef.current = makeCar(-Math.PI / 2, 20);
     aiCarsRef.current = [makeCar(-Math.PI / 2, -20), makeCar(-Math.PI / 2, 0)];
     startTimeRef.current = Date.now();
-    setLap(0); setPos(1);
+    setPos(1);
+    setTotalTime(0);
     setPhase('playing');
   }, [setPhase]);
 
@@ -153,11 +154,13 @@ export default function RacingGame() {
       allCars.sort((a, b) => b.lap - a.lap || 0);
       const position = allCars.indexOf(playerRef.current) + 1;
 
-      setLap(playerRef.current.lap); setPos(position);
+      setPos(position);
       if (playerRef.current.lap >= LAPS) {
-        totalTimeRef.current = (Date.now() - startTimeRef.current) / 1000;
+        const finishTime = (Date.now() - startTimeRef.current) / 1000;
+        totalTimeRef.current = finishTime;
+        setTotalTime(finishTime);
         setPhase('done');
-        setBest(prev => prev === null || totalTimeRef.current < prev ? totalTimeRef.current : prev);
+        setBest(prev => prev === null || finishTime < prev ? finishTime : prev);
         return;
       }
 
@@ -185,7 +188,7 @@ export default function RacingGame() {
   if (phase === 'done') return (
     <div style={{ background: '#1a1a2e', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
       <div style={{ fontSize: 26, color: pos === 1 ? '#4ade80' : '#f59e0b', fontWeight: 900 }}>{pos === 1 ? '🏆 1st Place!' : `${pos === 2 ? '2nd' : '3rd'} Place`}</div>
-      <div style={{ fontSize: 14, color: '#9ca3af' }}>Time: {totalTimeRef.current.toFixed(1)}s</div>
+      <div style={{ fontSize: 14, color: '#9ca3af' }}>Time: {totalTime.toFixed(1)}s</div>
       {best !== null && <div style={{ fontSize: 13, color: '#facc15' }}>Best: {best.toFixed(1)}s</div>}
       <button onClick={startGame} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>Race Again</button>
     </div>

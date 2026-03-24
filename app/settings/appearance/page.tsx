@@ -4,23 +4,23 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, RotateCcw, Check } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
-import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
+import { THEME_PRESETS } from '@/lib/ui/theme-engine';
 import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, type DeTheme } from '@/components/ThemeApplicator';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
 /* ── Gradient Preset Picker ── */
 function GradientThemePicker() {
-  const [active, setActive] = useState('default');
-
-  useEffect(() => {
+  const [active, setActive] = useState(() => {
+    if (typeof window === 'undefined') return 'default';
     try {
       const raw = localStorage.getItem('de-theme');
       if (raw) {
         const saved = JSON.parse(raw) as DeTheme & { id?: string };
-        if (saved.id) setActive(saved.id);
+        if (saved.id) return saved.id;
       }
     } catch { /* ignore */ }
-  }, []);
+    return 'default';
+  });
 
   const select = (id: string) => {
     const preset = GRADIENT_PRESETS[id];
@@ -184,16 +184,16 @@ function PresetCard({
 
 /* ── Background Image Section ── */
 function BgImageSection() {
-  const [bgImage, setBgImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
+  const [bgImage, setBgImage] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
     const stored = localStorage.getItem('dreamengin:bgImage');
     if (stored) {
-      setBgImage(stored);
       document.documentElement.style.setProperty('--de-bg-image', `url("${stored}")`);
+      return stored;
     }
-  }, []);
+    return null;
+  });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -326,13 +326,12 @@ export default function AppearanceSettingsPage() {
       }).catch(() => { /* localStorage cache remains */ });
     }, 800);
     return () => { if (debounceSaveTimerRef.current) clearTimeout(debounceSaveTimerRef.current); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [presetId, overrides]);
 
   const handleBrightness = useCallback((v: number) => setOverrides({ brightness: v }), [setOverrides]);
   const handleSaturation = useCallback((v: number) => setOverrides({ saturation: v }), [setOverrides]);
   const handleBlur = useCallback((v: number) => setOverrides({ blur: v }), [setOverrides]);
-  const handleOpacity = useCallback((v: number) => setOverrides({ glassOpacity: v }), [setOverrides]);
 
   return (
     <div className="min-h-screen dream-bg">

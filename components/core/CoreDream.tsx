@@ -399,15 +399,15 @@ function ProfileFace({ profile, onToggleFace }: { profile: Props['profile']; onT
 
 /* ── WallBanner (used in profile face only) ── */
 function WallBanner() {
-  const [wallImage, setWallImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
+  const [wallImage, setWallImage] = useState<string | null>(() => {
     try {
       const stored = localStorage.getItem('dreamengin:wall:image');
-      if (stored) setWallImage(stored);
-    } catch { /* noop */ }
-  }, []);
+      return stored || null;
+    } catch {
+      return null;
+    }
+  });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

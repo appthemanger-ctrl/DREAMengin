@@ -109,7 +109,7 @@ export default function ContentScheduler() {
     createClient().auth.getUser().then((result: { data: { user: { id: string } | null } }) => {
       setCurrentUserId(result.data.user?.id ?? null);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   async function fetchPosts() {

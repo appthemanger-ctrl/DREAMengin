@@ -54,18 +54,19 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
 }
 
 export default function FeedSettingsClient() {
-  const [prefs, setPrefs] = useState<FeedPreferences>(DEFAULT_PREFS);
+  // Initialize with localStorage value to avoid setState in effect
+  const [prefs, setPrefs] = useState<FeedPreferences>(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return { ...DEFAULT_PREFS, ...JSON.parse(raw) };
+    } catch { /* ignore */ }
+    return DEFAULT_PREFS;
+  });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [connectedNames, setConnectedNames] = useState<string[]>([]);
 
   useEffect(() => {
-    // Restore from localStorage immediately for instant UI — will be overwritten by DB
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setPrefs((p) => ({ ...p, ...JSON.parse(raw) }));
-    } catch { /* ignore */ }
-
     // Phase 8 §A Point 3: load preferences from DB (canonical source of truth)
     fetch('/api/settings/feed')
       .then((r) => r.json())

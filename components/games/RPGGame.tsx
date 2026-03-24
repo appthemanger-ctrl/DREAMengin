@@ -19,6 +19,12 @@ const ENEMIES: Enemy[] = [
   { name: 'Dragon', hp: 150, maxHp: 150, attack: 22, defense: 8, xp: 120, gold: 60, emoji: '🐉' },
 ];
 
+const StatBar = ({ val, max, color }: { val: number; max: number; color: string }) => (
+  <div style={{ height: 6, background: '#374151', borderRadius: 3 }}>
+    <div style={{ height: 6, width: `${(val/max)*100}%`, background: color, borderRadius: 3, transition: 'width 0.3s' }} />
+  </div>
+);
+
 const EVENTS = [
   'You find a treasure chest! (+15 gold)',
   'A wandering merchant sells you a health potion! (-10 gold, +30 HP)',
@@ -110,12 +116,6 @@ export default function RPGGame() {
   const buyAttack = useCallback(() => { if (stats.gold >= 40) setStats(s => ({ ...s, attack: s.attack + 5, gold: s.gold - 40 })); }, [stats.gold]);
 
   const HP_COLOR = (hp: number, max: number) => hp / max > 0.5 ? '#22c55e' : hp / max > 0.25 ? '#f59e0b' : '#ef4444';
-
-  const StatBar = ({ val, max, color }: { val: number; max: number; color: string }) => (
-    <div style={{ height: 6, background: '#374151', borderRadius: 3 }}>
-      <div style={{ height: 6, width: `${(val/max)*100}%`, background: color, borderRadius: 3, transition: 'width 0.3s' }} />
-    </div>
-  );
 
   if (phase === 'menu') return (
     <div style={{ background: '#1a0a2e', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>

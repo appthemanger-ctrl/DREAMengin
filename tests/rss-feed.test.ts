@@ -334,7 +334,7 @@ describe('parseRssFeed', () => {
     };
 
     // Patch the singleton parser via module-level mock
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+     
     const ParserModule = await import('rss-parser');
     const ParserClass = (ParserModule as { default: typeof import('rss-parser') }).default;
     vi.spyOn(ParserClass.prototype, 'parseURL').mockResolvedValueOnce(mockFeed as never);
@@ -364,7 +364,7 @@ describe('parseRssFeed', () => {
       })),
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+     
     const ParserModule = await import('rss-parser');
     const ParserClass = (ParserModule as { default: typeof import('rss-parser') }).default;
     vi.spyOn(ParserClass.prototype, 'parseURL').mockResolvedValueOnce(mockFeed as never);

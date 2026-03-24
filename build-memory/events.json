@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-03-16T01:41:53.139Z",
+  "generated_at": "2026-03-24T03:09:01.519Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 5,
+  "count": 8,
   "events": [
     {
       "event": "de-game-input",
       "payload_type": null,
       "files": [
-        "components/dreamengin/DrEamsGameCanvas.tsx"
+        "components/games/BabylonSideScroller.tsx"
       ]
     },
     {
@@ -25,10 +25,24 @@
       ]
     },
     {
-      "event": "dreamengin:innerdreams",
+      "event": "dreamengin:idari",
       "payload_type": null,
       "files": [
         "lib/agents/agentBus.ts"
+      ]
+    },
+    {
+      "event": "gamepadconnected",
+      "payload_type": null,
+      "files": [
+        "lib/games/useGamepad.ts"
+      ]
+    },
+    {
+      "event": "gamepaddisconnected",
+      "payload_type": null,
+      "files": [
+        "lib/games/useGamepad.ts"
       ]
     },
     {
@@ -36,6 +50,13 @@
       "payload_type": null,
       "files": [
         "components/AnchorWidget.tsx"
+      ]
+    },
+    {
+      "event": "pointermove",
+      "payload_type": null,
+      "files": [
+        "lib/god-tier/useGodTier.ts"
       ]
     }
   ]
