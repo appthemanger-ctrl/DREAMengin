@@ -19,6 +19,7 @@ type ProfileLike = {
 function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
   const dualRuntime = useDualRuntime();
   const { registerRuntimeCallbacks, unregisterRuntimeCallbacks, closeBothMenus, closeDrEams, openBothMenus } = useDreamSystem();
+  // DreamDMBar toggles bothMenusOpen -> GlobalDreamBar renders DualBottomMenu (DreamRadialMenu + SystemRadialMenu)
 
   // barBlend: 0 = bar at bottom (Surface Space dominant), 1 = bar at top (DreamSpace dominant)
   const [barBlend, setBarBlend] = useState(0);
