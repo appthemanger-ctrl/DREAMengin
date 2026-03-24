@@ -195,7 +195,7 @@ export default function ConnectorsClient() {
       }
       if (bestSlot >= 0) handlePlacementDone(bestSlot);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [flow.placementRequest?.widgetId, flow.placementRequest?.noSlotAvailable]);
 
   // Group connectors by tier for display

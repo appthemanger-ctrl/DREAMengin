@@ -213,7 +213,7 @@ export default function LabEngin({ onBack }: Props) {
     if (labRestoring) return;
     persistLabState({ chartType, selectedMolecule, hypotheses, publishedResults });
   // persistLabState is stable (useCallback); eslint-disable-next-line
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [chartType, selectedMolecule, hypotheses, publishedResults, labRestoring]);
 
   // ── Molecule data ────────────────────────────────────────────────────────────

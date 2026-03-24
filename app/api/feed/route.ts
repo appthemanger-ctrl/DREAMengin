@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
 
   // ── Stream 1: feed_items (connector-synced content) ──────────────────────
   {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const db = supabase as any;
     let q = db
       .from('feed_items')
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
   // ── Stream 2: app_posts (public posts from followed users + own posts) ─────
   {
     // Collect followed user IDs
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const db = supabase as any;
     const { data: follows } = await supabase
       .from('follows')
@@ -131,7 +131,7 @@ export async function GET(req: NextRequest) {
 
     if (posts) {
       for (const post of posts) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const p = post as any;
         const profile = p.profiles ?? {};
         entries.push({

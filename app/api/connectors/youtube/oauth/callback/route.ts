@@ -109,7 +109,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   // ── Store token in connector_accounts ────────────────────────────────────
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
   const now = new Date().toISOString();
 

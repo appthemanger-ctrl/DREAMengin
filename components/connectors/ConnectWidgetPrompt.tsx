@@ -59,13 +59,13 @@ export default function ConnectWidgetPrompt({
   useEffect(() => {
     timerRef.current = setTimeout(() => dismiss(), AUTO_DISMISS_MS);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // Dismiss when any menu opens (req 14)
   useEffect(() => {
     if (menuOpen) dismiss();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [menuOpen]);
 
   function dismiss() {

@@ -27,7 +27,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * is regenerated.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 type AnyClient = any;
 
 // ---------------------------------------------------------------------------

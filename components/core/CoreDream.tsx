@@ -19,7 +19,7 @@ type Props = {
     display_name?: string | null;
     avatar_url?: string | null;
   } | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   posts?: any[];
 };
 
@@ -254,7 +254,7 @@ function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: {
   onOpenDreamSpace?: () => void;
   profile: Props['profile'];
   isAdmin?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   posts?: any[];
 }) {
   return (

@@ -28,7 +28,7 @@ export default function SafetyPanel() {
         const sb = createClient();
         const { data: { user } } = await sb.auth.getUser();
         if (!user) { setLoading(false); return; }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const { data } = await (sb as any)
           .from('policy_events')
           .select('event_id, timestamp, action, rule_code, category, expiry, policy_version')

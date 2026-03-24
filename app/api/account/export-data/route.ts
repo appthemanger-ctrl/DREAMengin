@@ -40,7 +40,7 @@ export async function GET(_req: NextRequest) {
     return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in to export your data.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const supabaseAny = supabase as any;
 
   const exportData: Record<string, unknown[] | null> = {};

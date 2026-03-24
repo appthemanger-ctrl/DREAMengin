@@ -38,7 +38,7 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const prefs = ((data as any)?.feed_preferences as Record<string, unknown>) ?? {};
   return NextResponse.json({ ok: true, preferences: prefs });
 }
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     if (allowed.has(k)) safe[k] = v;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: updateError } = await (supabase as any)
     .from('profiles')
     .update({ feed_preferences: safe })

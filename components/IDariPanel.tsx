@@ -193,7 +193,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
       stopPolling();
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [autoRefresh, isRunning, refreshInterval]);
 
   const addLog = (action: string, status: IdariLog['status'], details?: string) => {

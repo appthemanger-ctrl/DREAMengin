@@ -8,7 +8,7 @@ import {
 import Link from 'next/link';
 
 interface FeedCardProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   item: any;
 }
 

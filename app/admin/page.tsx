@@ -43,7 +43,7 @@ export default async function AdminPage() {
       if (isOwnerEmail(user.email)) {
         isAdmin = true;
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const { data: roleData } = await (supabase as any)
           .from('user_roles')
           .select('role')

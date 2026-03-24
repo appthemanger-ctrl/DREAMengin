@@ -264,7 +264,7 @@ export default function StarMakerEngin({ onBack }: Props) {
     if (musicRestoring) return;
     persistState({ side: 'B', bpm, musicalKey, keyMode, pitch });
     persistMusicState({ bpm, musicalKey, keyMode, pitch });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [bpm, musicalKey, keyMode, pitch, musicRestoring]);
 
   // ── Supabase: fetch releases (defence-in-depth owner_id filter; RLS enforced server-side) ──

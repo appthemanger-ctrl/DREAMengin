@@ -216,7 +216,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
 }
 
 // Main export wraps with DualRuntimeContainer
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
   return (
     <DualRuntimeContainer>

@@ -147,7 +147,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
             .single();
 
           if (!data) return;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           const d = data as any;
 
           const newPost: FeedPost = {
@@ -223,7 +223,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
         },
         (payload: RealtimePostgresInsertPayload<Record<string, unknown>>) => {
           const raw = payload.new as Record<string, unknown>;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           const p = (raw.payload ?? {}) as Record<string, any>;
 
           const newEntry: FeedPost = {

@@ -58,7 +58,7 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const layout = ((data as any)?.home_layout as HomeLayout | null) ?? { slots: [] };
   return NextResponse.json({ ok: true, layout });
 }
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
 
   const layout: HomeLayout = { slots };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: updateError } = await (supabase as any)
     .from('profiles')
     .update({ home_layout: layout })

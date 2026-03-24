@@ -310,7 +310,7 @@ export default function AppearanceSettingsPage() {
         }
       })
       .catch(() => { /* localStorage values remain */ });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   // ── DB sync: save on presetId or overrides change (Phase 8 §I Point 83) ──

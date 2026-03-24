@@ -446,7 +446,7 @@ export interface PodcastRssItem {
   author?: string;
   creator?: string;
   enclosure?: { url?: string; type?: string };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   itunes?: Record<string, any>;
 }
 

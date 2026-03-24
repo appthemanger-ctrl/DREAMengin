@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Run all independent table deletes in parallel (dependency-safe: none reference each other)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const supabaseAny = supabase as any;
   const tableResults = await Promise.all([
     supabase.from('feed_rules').delete().eq('user_id', user.id),

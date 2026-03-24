@@ -371,7 +371,7 @@ export async function parseRssFeed(
  * @param channelTitle - Feed-level channel/show title (from feed.title)
  */
 export function normaliseRssItem(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   item: any,
   config: RssFeedConfig,
   channelTitle: string,
@@ -425,7 +425,7 @@ export function normaliseRssItem(
  *  4. media:group → media:thumbnail[url]
  *  5. <img src> inside content:encoded / description HTML
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export function extractFirstImage(item: any): string | null {
   // 1) enclosure
   if (item.enclosure?.url && isImageLike(item.enclosure.url)) {
@@ -435,19 +435,19 @@ export function extractFirstImage(item: any): string | null {
   // 2) media:content (array)
   if (Array.isArray(item.mediaContent)) {
     const url = item.mediaContent.find(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (x: any) => x?.$?.url && isImageLike(x.$?.url),
     )?.$?.url;
     if (url) return url;
     // Fall back to any url even if it's a video (still usable as thumbnail)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const anyUrl = item.mediaContent.find((x: any) => x?.$?.url)?.$?.url;
     if (anyUrl) return anyUrl;
   }
 
   // 3) media:thumbnail (array)
   if (Array.isArray(item.mediaThumbnail)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const url = item.mediaThumbnail.find((x: any) => x?.$?.url)?.$?.url;
     if (url) return url;
   }
@@ -457,7 +457,7 @@ export function extractFirstImage(item: any): string | null {
     const group = item.mediaGroup;
      
     const thumb = Array.isArray(group['media:thumbnail'])
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       ? group['media:thumbnail'].find((x: any) => x?.$?.url)?.$?.url
       : group['media:thumbnail']?.$?.url;
     if (thumb) return thumb;

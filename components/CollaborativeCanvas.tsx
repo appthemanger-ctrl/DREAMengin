@@ -88,7 +88,7 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const handleWebSocketMessage = (data: any) => {
     switch (data.type) {
       case 'cursor':
@@ -115,7 +115,7 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const updateCursor = (data: any) => {
     setCursors(prev => {
       const existing = prev.find(c => c.userId === data.userId);
@@ -136,7 +136,7 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     });
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const addCollaborator = (user: any) => {
     setCollaborators(prev => [...prev, {
       id: user.id,
@@ -152,7 +152,7 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     setCursors(prev => prev.filter(c => c.userId !== userId));
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const addMessage = (data: any) => {
     setMessages(prev => [...prev, {
       user: data.userName,
@@ -195,7 +195,7 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     return pc;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const handleOffer = async (data: any) => {
     const pc = createPeerConnection(data.userId);
     await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
@@ -212,7 +212,7 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const handleAnswer = async (data: any) => {
     const pc = peerConnections.current.get(data.userId);
     if (pc) {
@@ -220,7 +220,7 @@ export default function CollaborativeCanvas({ roomId }: { roomId: string }) {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const handleIceCandidate = async (data: any) => {
     const pc = peerConnections.current.get(data.userId);
     if (pc) {

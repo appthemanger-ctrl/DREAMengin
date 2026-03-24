@@ -378,7 +378,7 @@ export default function ContentEngin({ onBack }: Props) {
       selectedPlatforms: [...selectedPlatforms],
     });
   // persistContentState is stable (useCallback); eslint-disable-next-line
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [calendarItems, draftTopic, draftType, selectedPlatforms, contentRestoring]);
 
   // ── AI Caption handler ───────────────────────────────────────────────────────

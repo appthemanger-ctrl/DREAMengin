@@ -29,7 +29,7 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   const { data, error } = await db
@@ -42,7 +42,7 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const appearance = (data?.data as any)?.appearance ?? null;
   return NextResponse.json({ ok: true, appearance });
 }
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Invalid settings object' }, { status: 400 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   // Read existing settings first to merge (don't overwrite other keys like privacy)
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     .eq('user_id', user.id)
     .maybeSingle();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const existingData = (existing?.data as any) ?? {};
   const merged = { ...existingData, appearance: body };
 

@@ -59,7 +59,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   // Non-owners ONLY receive records with visibility = 'shared' or 'public'.
   // The query never includes 'private' records for non-owners.
   // RLS policies on dream_windows enforce this at the DB layer as well.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const dreamWindowQuery = (supabase as any)
     .from('dream_windows')
     .select('id, type, config, size, position, visibility, active_state')

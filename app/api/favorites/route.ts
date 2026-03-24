@@ -27,7 +27,7 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 
 // Helper to get a type-escaped handle on tables not yet in the generated schema
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 type AnyClient = any;
 
 // ---------------------------------------------------------------------------

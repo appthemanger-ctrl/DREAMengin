@@ -41,7 +41,7 @@ type ProfileLike = {
   avatar_url?: string | null;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 type Post = Record<string, any>;
 
 interface WorkspaceDashboardProps {

@@ -53,7 +53,7 @@ export async function GET(_req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   const { data: drafts, error } = await db
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const { content, content_type, title, scheduled_at } = parseResult.data;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   const now = new Date().toISOString();

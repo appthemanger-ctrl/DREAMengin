@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   const rateRpm = await getCurrentRPM(user.id, '/api/ai/eams');
 
   // Determine actor role
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: roleData } = await (supabase as any)
     .from('user_roles')
     .select('role')
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
 
       if (recentPosts && recentPosts.length > 0) {
         const postsText = recentPosts
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           .map((p: any) =>
             `- "${String(p.content ?? '').slice(0, 80)}" (${p.visibility ?? 'unknown'}, ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'unknown'})`
           )

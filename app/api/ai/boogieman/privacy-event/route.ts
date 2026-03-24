@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
   // Optionally update the visibility_mappings record.
   let mappingUpdated = false;
   if (event.update_mapping) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { error: upsertError } = await (supabase as any)
       .from('visibility_mappings')
       .upsert(

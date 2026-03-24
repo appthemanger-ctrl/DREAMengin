@@ -16,7 +16,7 @@ DREAMengin is a **dual-runtime, spatial creative operating environment** built o
 
 It is not defined as a conventional page-based website. It is a **personal operating surface** where users move through connected live surfaces, modular runtime containers, and powered Engin layers while preserving context.
 
-### Core product axioms (non-negotiable)
+### Core product axioms (non-a negotiable)
 
 | # | Axiom | One-line rule |
 |---|-------|---------------|

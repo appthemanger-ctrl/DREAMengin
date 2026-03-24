@@ -132,7 +132,7 @@ export function useDreamDMMessages(
       setMessages(demoMessages);
     }
   // demoMessages is defined outside the component (stable reference)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [conversationId, isDemoConversation]);
 
   return { messages, isLoading, addOptimistic, replaceOptimistic, removeOptimistic };
