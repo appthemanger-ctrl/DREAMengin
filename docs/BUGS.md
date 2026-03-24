@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-24 08:17 UTC  
-**Triggered by commit:** `99f1000` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #289 from appthemanger-ctrl/codex/tone-down-animation-effects
+**Last updated:** 2026-03-24 08:57 UTC  
+**Triggered by commit:** `25b8d3e` on `claude/add-pbr-textures-page` by Claude  
+**Commit message:** Add Dr. Eams PBR textures demonstration page
 
 ---
 
