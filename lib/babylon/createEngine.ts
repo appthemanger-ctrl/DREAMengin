@@ -14,6 +14,17 @@
  * scaling, performance-first. WebGPU eliminates the WebGL draw-call overhead and
  * enables compute shaders for future WarpEngine integration.
  *
+ * Quality pipeline:
+ *   After creating the engine, consult the DREAM_ENGINE_WEBGPU_DIRECTOR for all
+ *   rendering decisions (passes, LOD, shadows, TAA, resolution scale).
+ *
+ *   import { webGPUDirector, defaultCameraSignals, defaultDirectorMetrics }
+ *     from '@/lib/webgpu/director';
+ *
+ *   // inside the render loop:
+ *   const frame = webGPUDirector.update({ metrics, camera, objects });
+ *   applyDirectorFrame(engine, scene, frame, window.devicePixelRatio);
+ *
  * Usage:
  *   const engine = await createBabylonEngine(canvas, { antialias: true });
  */
