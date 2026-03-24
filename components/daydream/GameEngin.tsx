@@ -389,7 +389,7 @@ export default function GameEngin({ onBack }: Props) {
     if (gameRestoring) return;
     persistGameState({ worldGrid, worldName, physicsConfig, scriptState });
   // persistGameState is stable (useCallback); eslint-disable-next-line
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [worldGrid, worldName, physicsConfig, scriptState, gameRestoring]);
 
   // ── Achievement computation ───────────────────────────────────────────────────

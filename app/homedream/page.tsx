@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export default async function Home() {
   let user = null;
   let profile = null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let posts: any[] = [];
   let isAdmin = false;
 
@@ -33,7 +33,7 @@ export default async function Home() {
     if (isOwnerEmail(user.email)) {
       isAdmin = true;
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const { data: roleData } = await (supabase as any)
         .from('user_roles')
         .select('role')
@@ -49,7 +49,7 @@ export default async function Home() {
     // app_posts:  public posts from users the authenticated user follows + own posts.
 
     // Stream 1: connector feed items (Phase 8 §A Point 2)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: feedItems } = await (supabase as any)
       .from('feed_items')
       .select('id, provider, payload, published_at, created_at')
@@ -82,9 +82,9 @@ export default async function Home() {
     // Attach connector feed items to the posts array under a normalised shape
     // so WorkspaceDashboard / HomeFeed can render them uniformly.
     // Connector items arrive as `{ source: 'connector', ... }` alongside posts.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const connectorEntries = (feedItems ?? []).map((item: any) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const p = (item.payload ?? {}) as Record<string, any>;
       return {
         id:          item.id,
@@ -106,7 +106,7 @@ export default async function Home() {
     });
 
     // Merge and sort by created_at descending; posts first if same time
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const allEntries: any[] = [...posts, ...connectorEntries];
     allEntries.sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()

@@ -35,7 +35,7 @@ export interface ShellHubDevicesResponse {
 
 export async function GET(): Promise<NextResponse<ShellHubDevicesResponse>> {
   const supabase = await createServerClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   const { data: { user } } = await supabase.auth.getUser();

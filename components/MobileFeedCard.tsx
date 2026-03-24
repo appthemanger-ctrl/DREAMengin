@@ -9,7 +9,7 @@ import Link from 'next/link';
 import CommentSection from '@/components/feed/CommentSection';
 
 interface MobileFeedCardProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   item: any;
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;

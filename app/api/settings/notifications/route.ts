@@ -24,7 +24,7 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   const { data, error } = await db
@@ -37,7 +37,7 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const notifications = (data?.data as any)?.notifications ?? null;
   return NextResponse.json({ ok: true, notifications });
 }
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Invalid settings object' }, { status: 400 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db2 = supabase as any;
 
   // Fetch existing settings first to merge
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     .eq('user_id', user.id)
     .maybeSingle();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const currentData = (existing?.data ?? {}) as Record<string, any>;
   const merged = { ...currentData, notifications: body };
 

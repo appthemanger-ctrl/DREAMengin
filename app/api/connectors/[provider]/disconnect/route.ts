@@ -39,7 +39,7 @@ export async function DELETE(
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   // Verify the connector account exists for this user before attempting delete

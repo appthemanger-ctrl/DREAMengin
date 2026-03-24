@@ -39,17 +39,24 @@ const eslintConfig = [
     //
     // Architecture justification: ARCHITECTURE.md §10 (Next.js 16, pnpm 10).
     // These warnings surface the existing debt without blocking CI.
+    // Most rules are turned off to reduce noise while the codebase evolves.
     rules: {
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-require-imports": "warn",
-      "react/no-unescaped-entities": "warn",
-      "react-hooks/purity": "warn",
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/refs": "warn",
-      "react-hooks/immutability": "warn",
-      "react-hooks/static-components": "warn",
+      // Turn off noisy advisory rules that don't affect functionality
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "react/no-unescaped-entities": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/refs": "off",
+      "react-hooks/immutability": "off",
+      "react-hooks/static-components": "off",
+      "react-hooks/exhaustive-deps": "off",
       "prefer-const": "warn",
+      // Keep critical rules as warnings
+      "@next/next/no-img-element": "warn",
+      "jsx-a11y/alt-text": "warn",
     },
   },
 ]

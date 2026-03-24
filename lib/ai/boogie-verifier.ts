@@ -387,7 +387,7 @@ export async function verifyIntents(
   let policy: PolicyVersion = DEFAULT_POLICY;
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data } = await (supabase as any)
       .from('policy_versions')
       .select('version, rules_json, weights, thresholds')

@@ -151,7 +151,7 @@ export async function POST(req: NextRequest) {
     .eq('id', user.id)
     .single();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   await (supabase as any).from('notifications').insert({
     user_id: target_id,
     type: 'follow',

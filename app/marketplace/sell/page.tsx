@@ -36,7 +36,7 @@ export default function MarketplaceSellPage() {
     };
     void checkAuth();
   // supabase and router are stable; eslint wants them but they never change
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   // ── Form state ────────────────────────────────────────────────

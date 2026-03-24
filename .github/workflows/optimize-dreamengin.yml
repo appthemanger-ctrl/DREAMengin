@@ -96,8 +96,8 @@ jobs:
           echo "Optimization score: ${{ steps.results.outputs.optimization_score }}"
 
       - name: Upload optimization results
-        if: always()
-        uses: actions/upload-artifact@v4
+        if: always() && hashFiles('.optimization-results.json') != ''
+        uses: actions/upload-artifact@v5
         with:
           name: optimization-results-${{ github.run_number }}
           path: .optimization-results.json

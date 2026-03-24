@@ -48,7 +48,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   // Verify ownership before deleting
@@ -105,7 +105,7 @@ export async function PATCH(
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   // Verify ownership before updating

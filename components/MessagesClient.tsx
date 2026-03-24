@@ -124,7 +124,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
   // Only re-run when conversation changes. `draft` is intentionally excluded:
   // we read it once on conversation select; subsequent draft changes are driven
   // by user input via handleMessageChange/handleSubjectChange.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [selectedConv?.id]);
 
   useEffect(() => {

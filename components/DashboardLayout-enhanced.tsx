@@ -11,12 +11,12 @@ import {
 import Link from 'next/link';
 
 interface DashboardLayoutProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   feed: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   widgets: any[];
   userId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   notifications: any[];
 }
 
@@ -388,7 +388,7 @@ function DraggableWidgetEnhanced({ widget, index, moveWidget, isEditMode, onRemo
 }
 
 // Placeholder for enhanced feed card
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 function EnhancedFeedCardPlaceholder({ item }: { item: any }) {
   return (
     <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all group">

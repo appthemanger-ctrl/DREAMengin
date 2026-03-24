@@ -45,7 +45,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
   if (SUPABASE_URL && SUPABASE_ANON_KEY) {
     try {
       const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const query = (db as any)
         .from('embed_feed_items')
         .select('provider,external_id,title,permalink,published_at,view_count,tags,embed_html,thumbnail_url,channel_title,generated_at')

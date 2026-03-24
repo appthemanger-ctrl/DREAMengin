@@ -40,7 +40,7 @@ export default async function MarketplaceItemPage({ params }: { params: Promise<
   if (!user) redirect('/login');
 
   // Fetch the item — must be published OR owned by the current viewer
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
   const { data: item, error } = await db
     .from('marketplace_items')

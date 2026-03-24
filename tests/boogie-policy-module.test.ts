@@ -186,7 +186,7 @@ describe('boogieEvaluate — policy_ref link (req 94)', () => {
 
 describe('emitBoogieManEvent + onBoogieManEvent (req 99)', () => {
   let cleanup: (() => void) | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let originalWindow: any;
   const listeners: Map<string, EventListenerOrEventListenerObject[]> = new Map();
 
@@ -194,7 +194,7 @@ describe('emitBoogieManEvent + onBoogieManEvent (req 99)', () => {
     // Simulate a minimal window with EventTarget in node environment
     originalWindow = (globalThis as Record<string, unknown>).window;
     const et = new EventTarget();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     (globalThis as any).window = {
       dispatchEvent: (e: Event) => et.dispatchEvent(e),
       addEventListener: (type: string, fn: EventListenerOrEventListenerObject) => {
@@ -210,7 +210,7 @@ describe('emitBoogieManEvent + onBoogieManEvent (req 99)', () => {
 
   afterEach(() => {
     cleanup?.();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     (globalThis as any).window = originalWindow;
     listeners.clear();
   });

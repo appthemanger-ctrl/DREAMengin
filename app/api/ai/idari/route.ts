@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Determine role — admin/owner only gate (IDARI_CONTRACT.md, Phase 6 point 5).
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: roleData } = await (supabase as any)
     .from('user_roles')
     .select('role')

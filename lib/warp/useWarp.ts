@@ -41,7 +41,7 @@ export function useWarp(opts: UseWarpOptions = {}): UseWarpReturn {
   // Initialise engine once
   useEffect(() => {
     engineRef.current = new WarpEngine(engineOpts);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // Resize handler

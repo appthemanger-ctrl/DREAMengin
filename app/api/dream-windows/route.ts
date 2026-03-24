@@ -73,7 +73,7 @@ export async function GET(_req: NextRequest) {
   }
 
   // RLS enforces visibility rules — the DB will only return permitted rows.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: dreamWindows, error } = await (supabase as any)
     .from('dream_windows')
     .select('*')
@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Insert ───────────────────────────────────────────────────────────────
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: dreamWindow, error } = await (supabase as any)
     .from('dream_windows')
     .insert({

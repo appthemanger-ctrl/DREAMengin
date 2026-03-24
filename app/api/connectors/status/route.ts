@@ -35,7 +35,7 @@ export async function GET() {
     return NextResponse.json({ ok: false, statuses: {} }, { status: 401 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   const { data, error } = await db

@@ -47,7 +47,7 @@ export async function resolveFeedHost(
     }
     
     // Build query for feed items
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     let query = (supabase as any)
       .from('feed_items')
       .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
@@ -79,7 +79,7 @@ export async function resolveFeedHost(
     // Transform to FeedItemSummary format and fetch engagement counts
     const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item: Record<string, unknown>) => {
       // Fetch engagement counts for this item
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const { data: engagementData } = await (supabase as any)
         .from('content_engagement')
         .select('engagement_type')

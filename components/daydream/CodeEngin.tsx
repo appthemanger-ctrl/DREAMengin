@@ -267,7 +267,7 @@ export default function CodeEngin({ onBack }: Props) {
     const snapshot = cells.map(c => ({ id: c.id, language: c.language, source: c.code }));
     persistState({ side: 'B', cells: snapshot });
     persistCodeState({ cells: snapshot });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [cells, codeRestoring]);
 
   // ── CI state ────────────────────────────────────────────────────────────────

@@ -28,7 +28,7 @@ export default async function SafetySettingsPage() {
 
   // policy_events is not yet in the generated Supabase schema types;
   // cast to any until the table is added to the type generation pipeline.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: logData } = await (supabase as any)
     .from('policy_events')
     .select('event_id, timestamp, action, rule_code, category, expiry, policy_version')

@@ -127,7 +127,7 @@ export default function DiffViewer({
       scrollToHunk(firstHunkIndex(file));
     }
   // Run only when fullFile transitions true (expand)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [fullFile]);
 
   // ── Navigation handlers ─────────────────────────────────────────────────────

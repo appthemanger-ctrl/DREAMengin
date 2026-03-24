@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Admin/owner gate
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: roleData } = await (supabase as any)
     .from('user_roles')
     .select('role')

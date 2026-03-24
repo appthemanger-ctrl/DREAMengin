@@ -11,12 +11,12 @@ import { Plus, X, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 interface DashboardLayoutProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   feed: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   widgets: any[];
   userId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   notifications: any[];
 }
 

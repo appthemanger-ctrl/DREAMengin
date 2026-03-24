@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
 
   // Create feed item if public
   if (visibility === 'public') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await (supabase as any).from('feed_items').insert({
       user_id: user.id,
       type: 'project',

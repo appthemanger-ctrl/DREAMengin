@@ -60,7 +60,7 @@ export default async function ViewProfilePage() {
   // ── Phase 8 §B Point 21: Query dream_windows with explicit visibility filter ──
   // Only shared/public records are fetched. The query NEVER includes private records.
   // RLS policies on dream_windows enforce this at the DB layer as well.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: dreamWindowRecords } = await (supabase as any)
     .from('dream_windows')
     .select('id, type, config, size, position, visibility, active_state')
@@ -84,7 +84,7 @@ export default async function ViewProfilePage() {
   // visibility field. If no mapping exists for a widget, fall back to the
   // widget's own visibility (private by default — LAW.md §2).
   type VisibilityMappingRow = { content_id: string; visibility: string };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: mappingsData } = await (supabase as any)
     .from('visibility_mappings')
     .select('content_id, visibility')

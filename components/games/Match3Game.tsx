@@ -84,7 +84,7 @@ export default function Match3Game() {
       setTimeout(() => { processMatches(collapsed); }, 150);
     }, 300);
     return true;
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);   
 
   const handleCellClick = useCallback((r: number, c: number) => {
     if (animating || phase !== 'playing') return;

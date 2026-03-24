@@ -46,7 +46,7 @@ export async function GET(
 
   // RLS on dream_windows table enforces visibility — this query will return
   // null/empty if the record is private and the caller is not the owner.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: dreamWindow, error } = await (supabase as any)
     .from('dream_windows')
     .select('*')
@@ -95,7 +95,7 @@ export async function PATCH(
   }
 
   // ── Fetch existing record to verify ownership ────────────────────────────
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: existing, error: fetchError } = await (supabase as any)
     .from('dream_windows')
     .select('*')
@@ -218,7 +218,7 @@ export async function PATCH(
   }
 
   // ── Apply update ─────────────────────────────────────────────────────────
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: dreamWindow, error: updateError } = await (supabase as any)
     .from('dream_windows')
     .update(update)
@@ -269,7 +269,7 @@ export async function DELETE(
   }
 
   // ── Fetch to verify ownership ────────────────────────────────────────────
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: existing, error: fetchError } = await (supabase as any)
     .from('dream_windows')
     .select('id, owner_id')
@@ -290,7 +290,7 @@ export async function DELETE(
 
   // ── Step 1: Delete the dream_windows row ────────────────────────────────
   // dream_window_projections are removed via ON DELETE CASCADE (FK: source_id).
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: deleteError } = await (supabase as any)
     .from('dream_windows')
     .delete()
@@ -302,7 +302,7 @@ export async function DELETE(
 
   // ── Step 2: Delete from visibility_mappings WHERE content_id = id ────────
   // Best-effort cleanup — the main record is already gone.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: visError } = await (supabase as any)
     .from('visibility_mappings')
     .delete()

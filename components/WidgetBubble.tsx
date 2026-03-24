@@ -16,7 +16,7 @@ interface WidgetBubbleProps {
   widget: {
     id: string;
     type: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     config_json: any;
   };
 }

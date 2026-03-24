@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: roleData } = await (supabase as any)
     .from('user_roles')
     .select('role')

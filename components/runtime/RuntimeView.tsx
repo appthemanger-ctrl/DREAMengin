@@ -46,7 +46,7 @@ interface RuntimeViewProps {
     display_name?: string | null;
     avatar_url?: string | null;
   } | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   posts?: any[];
   isAdmin?: boolean;
   onOpenDrEams: () => void;
@@ -93,7 +93,7 @@ export default function RuntimeView({
   }, []);
 
   // Reset iframe whenever the world changes so stale pages don't linger.
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: world is an external prop driving local UI state
+   
   useEffect(() => { setIframeUrl(null); setIframeTitle(''); }, [world]);
 
   /* ── Shared outer wrapper style ─────────────────────────────────────────── */

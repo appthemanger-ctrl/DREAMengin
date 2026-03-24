@@ -78,7 +78,7 @@ export default function HomeFeed({
       .then((data: { posts?: FeedPost[] }) => { if (data.posts) replacePosts(data.posts); })
       .catch(() => {})
       .finally(() => setTabLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [activeTab]);
 
   const handleSharePost = useCallback((post: FeedPost) => {

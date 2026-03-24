@@ -72,7 +72,7 @@ export default function EditProfileDreamPage() {
       setInitialWidgets(loadedDreams);
       setIsLoading(false);
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const isDirty = !!initialProfile && (

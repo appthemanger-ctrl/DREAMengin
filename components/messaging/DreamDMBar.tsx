@@ -359,7 +359,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // Restore draft on conversation change
   useEffect(() => {
     setMessageBody(draft?.body ?? '');
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [selectedConv?.id]);
 
   // Scroll to bottom
@@ -375,7 +375,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         if (data.user) { setUserId(data.user.id); reloadConvs(); }
       });
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   // ── Send handlers ──────────────────────────────────────────────────────────
