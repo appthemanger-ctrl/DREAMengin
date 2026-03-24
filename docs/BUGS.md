@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-24 08:17 UTC  
-**Triggered by commit:** `99f1000` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #289 from appthemanger-ctrl/codex/tone-down-animation-effects
+**Last updated:** 2026-03-24 08:56 UTC  
+**Triggered by commit:** `716e42f` on `codex/add-ui-ux-specification` by Codex  
+**Commit message:** chore: document radial menu wiring
 
 ---
 
