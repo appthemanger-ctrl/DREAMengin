@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-16T01:41:53.139Z",
+  "generated_at": "2026-03-24T03:09:01.519Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 76,
   "surfaces": [
@@ -41,7 +41,7 @@
       "imports": [
         {
           "name": "IDariPanel",
-          "from": "@/components/InnerDreams"
+          "from": "@/components/IDariPanel"
         }
       ]
     },
@@ -113,8 +113,13 @@
       "type": "page",
       "path": "/daydream/analytics",
       "file": "app/daydream/analytics/page.tsx",
-      "component": "AnalyticsDaydreamLegacyPage",
-      "imports": []
+      "component": "AnalyticsDaydreamPage",
+      "imports": [
+        {
+          "name": "AnalyticsEngin",
+          "from": "@/components/daydream/AnalyticsEngin"
+        }
+      ]
     },
     {
       "type": "page",
@@ -309,13 +314,6 @@
     },
     {
       "type": "page",
-      "path": "/home",
-      "file": "app/home/page.tsx",
-      "component": "HomeLegacy",
-      "imports": []
-    },
-    {
-      "type": "page",
       "path": "/homedream",
       "file": "app/homedream/page.tsx",
       "component": "Home",
@@ -399,6 +397,22 @@
         {
           "name": "DreamWord",
           "from": "@/components/ui/DreamWord"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/marketplace/[id]",
+      "file": "app/marketplace/[id]/page.tsx",
+      "component": "MarketplaceItemPage",
+      "imports": [
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/DreamWord"
+        },
+        {
+          "name": "MarketplaceRequestButton",
+          "from": "@/components/marketplace/MarketplaceRequestButton"
         }
       ]
     },
@@ -523,6 +537,14 @@
         {
           "name": "ProfileShareButton",
           "from": "@/components/ProfileShareButton"
+        },
+        {
+          "name": "ProfileCustomizeButton",
+          "from": "@/components/profile/ProfileCustomizeButton"
+        },
+        {
+          "name": "InfinityIcon",
+          "from": "@/components/ui/InfinityIcon"
         }
       ]
     },

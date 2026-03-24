@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-16T01:41:53.139Z",
+  "generated_at": "2026-03-24T03:09:01.519Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 45,
+  "count": 67,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -46,8 +46,22 @@
       ]
     },
     {
+      "path": "/api/admin/observability",
+      "file": "app/api/admin/observability/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
       "path": "/api/ai/boogieman",
       "file": "app/api/ai/boogieman/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/ai/boogieman/privacy-event",
+      "file": "app/api/ai/boogieman/privacy-event/route.ts",
       "methods": [
         "POST"
       ]
@@ -81,6 +95,13 @@
       ]
     },
     {
+      "path": "/api/analytics",
+      "file": "app/api/analytics/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
       "path": "/api/appeal",
       "file": "app/api/appeal/route.ts",
       "methods": [
@@ -92,6 +113,22 @@
       "file": "app/api/auth/logout/route.ts",
       "methods": [
         "GET"
+      ]
+    },
+    {
+      "path": "/api/auth/providers",
+      "file": "app/api/auth/providers/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/blocks",
+      "file": "app/api/blocks/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
       ]
     },
     {
@@ -107,7 +144,8 @@
       "path": "/api/connectors/[provider]/connect",
       "file": "app/api/connectors/[provider]/connect/route.ts",
       "methods": [
-        "POST"
+        "POST",
+        "DELETE"
       ]
     },
     {
@@ -134,6 +172,41 @@
     {
       "path": "/api/connectors/[provider]/verify",
       "file": "app/api/connectors/[provider]/verify/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/connectors/instagram/oauth/callback",
+      "file": "app/api/connectors/instagram/oauth/callback/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/connectors/instagram/oauth/start",
+      "file": "app/api/connectors/instagram/oauth/start/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/connectors/status",
+      "file": "app/api/connectors/status/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/connectors/youtube/oauth/callback",
+      "file": "app/api/connectors/youtube/oauth/callback/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/connectors/youtube/oauth/start",
+      "file": "app/api/connectors/youtube/oauth/start/route.ts",
       "methods": [
         "GET"
       ]
@@ -169,6 +242,46 @@
       ]
     },
     {
+      "path": "/api/dream-windows",
+      "file": "app/api/dream-windows/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/dream-windows/[id]",
+      "file": "app/api/dream-windows/[id]/route.ts",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/embed-feed",
+      "file": "app/api/embed-feed/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/favorites",
+      "file": "app/api/favorites/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/feed",
+      "file": "app/api/feed/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
       "path": "/api/follow",
       "file": "app/api/follow/route.ts",
       "methods": [
@@ -186,23 +299,18 @@
       ]
     },
     {
-      "path": "/api/innerdreams/check-bugs",
-      "file": "app/api/innerdreams/check-bugs/route.ts",
+      "path": "/api/home-layout",
+      "file": "app/api/home-layout/route.ts",
       "methods": [
+        "GET",
         "POST"
       ]
     },
     {
-      "path": "/api/innerdreams/run",
-      "file": "app/api/innerdreams/run/route.ts",
+      "path": "/api/journey",
+      "file": "app/api/journey/route.ts",
       "methods": [
-        "POST"
-      ]
-    },
-    {
-      "path": "/api/innerdreams/update",
-      "file": "app/api/innerdreams/update/route.ts",
-      "methods": [
+        "GET",
         "POST"
       ]
     },
@@ -220,6 +328,13 @@
       "file": "app/api/marketplace/route.ts",
       "methods": [
         "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/marketplace/request",
+      "file": "app/api/marketplace/request/route.ts",
+      "methods": [
         "POST"
       ]
     },
@@ -290,6 +405,48 @@
       ]
     },
     {
+      "path": "/api/scheduled-posts",
+      "file": "app/api/scheduled-posts/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/settings/appearance",
+      "file": "app/api/settings/appearance/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/settings/feed",
+      "file": "app/api/settings/feed/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/settings/notifications",
+      "file": "app/api/settings/notifications/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/settings/privacy",
+      "file": "app/api/settings/privacy/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
       "path": "/api/setup/check",
       "file": "app/api/setup/check/route.ts",
       "methods": [
@@ -304,6 +461,13 @@
       ]
     },
     {
+      "path": "/api/shellhub/devices",
+      "file": "app/api/shellhub/devices/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
       "path": "/api/shop",
       "file": "app/api/shop/route.ts",
       "methods": [
@@ -311,6 +475,13 @@
         "POST",
         "PUT",
         "DELETE"
+      ]
+    },
+    {
+      "path": "/api/social/rss-feed",
+      "file": "app/api/social/rss-feed/route.ts",
+      "methods": [
+        "GET"
       ]
     },
     {
