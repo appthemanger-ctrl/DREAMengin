@@ -140,6 +140,44 @@ export type Database = {
           },
         ]
       }
+      marketplace_contact_requests: {
+        Row: {
+          id: string
+          item_id: string
+          requester_id: string
+          seller_id: string
+          message: string | null
+          status: 'pending' | 'acknowledged' | 'closed'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          requester_id: string
+          seller_id: string
+          message?: string | null
+          status?: 'pending' | 'acknowledged' | 'closed'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          requester_id?: string
+          seller_id?: string
+          message?: string | null
+          status?: 'pending' | 'acknowledged' | 'closed'
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_contact_requests_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_items: {
         Row: {
           category: string
