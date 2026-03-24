@@ -139,11 +139,11 @@ export default function DrEamsBabylonHero({
       'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_02/fabric_02_1k_albedo.jpg',
       scene,
     );
-    coatMat.metallicRoughnessTexture = new Texture(
+    coatMat.metallicTexture = new Texture(
       'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_02/fabric_02_1k_orm.jpg',
       scene,
     );
-    coatMat.normalTexture = new Texture(
+    coatMat.bumpTexture = new Texture(
       'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_02/fabric_02_1k_normal.jpg',
       scene,
     );
@@ -158,11 +158,11 @@ export default function DrEamsBabylonHero({
       'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_albedo.jpg',
       scene,
     );
-    helmetMat.metallicRoughnessTexture = new Texture(
+    helmetMat.metallicTexture = new Texture(
       'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_orm.jpg',
       scene,
     );
-    helmetMat.normalTexture = new Texture(
+    helmetMat.bumpTexture = new Texture(
       'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_normal.jpg',
       scene,
     );
@@ -178,11 +178,11 @@ export default function DrEamsBabylonHero({
       'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_albedo.jpg',
       scene,
     );
-    metalMat.metallicRoughnessTexture = new Texture(
+    metalMat.metallicTexture = new Texture(
       'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_orm.jpg',
       scene,
     );
-    metalMat.normalTexture = new Texture(
+    metalMat.bumpTexture = new Texture(
       'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_normal.jpg',
       scene,
     );
