@@ -69,7 +69,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Title is required' }, { status: 400 });
   }
 
-  if (!price || price <= 0) {
+  const numericPrice = Number(price);
+  if (!price || isNaN(numericPrice) || numericPrice <= 0) {
     return NextResponse.json({ error: 'Valid price is required' }, { status: 400 });
   }
 
