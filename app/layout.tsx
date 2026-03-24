@@ -73,17 +73,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </DreamSystemProvider>
           </CustomizeModeProvider>
           {/* Permanent policy footer (req 10) — always accessible, no login required */}
+          {/* z-index 110: sits above DreamDMBar (100/102) so the link is always tappable */}
           <footer
             style={{
               position: 'fixed',
-              bottom: 0,
+              bottom: 90,
               left: 0,
               right: 0,
-              zIndex: 9,
+              zIndex: 110,
               pointerEvents: 'none',
               display: 'flex',
               justifyContent: 'flex-end',
-              padding: '0 12px 8px',
+              padding: '0 12px 0',
             }}
           >
             <Link

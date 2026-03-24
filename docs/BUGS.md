@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-24 18:14 UTC  
-**Triggered by commit:** `9eff7fb` on `copilot/update-readme-to-match-reality` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/update-readme-to-match-reality
+**Last updated:** 2026-03-24 18:40 UTC  
+**Triggered by commit:** `15a76af` on `copilot/fix-dual-menus-links` by Copilot  
+**Commit message:** fix: combine DreamSpace into pills, fix Your Dreams pill, fix Policy z-index
 
 ---
 
