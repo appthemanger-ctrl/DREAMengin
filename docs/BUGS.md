@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-24 00:04 UTC  
-**Triggered by commit:** `d819f03` on `copilot/fix-broken-build` by Copilot  
-**Commit message:** fix: add marketplace_contact_requests to Supabase types to fix build error
+**Last updated:** 2026-03-24 03:10 UTC  
+**Triggered by commit:** `0ae59ff` on `claude/investigate-build-issues` by Claude  
+**Commit message:** chore: sync build-memory after new routes and schema
 
 ---
 
