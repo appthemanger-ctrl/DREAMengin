@@ -2,7 +2,7 @@
 
 Next.js 16+ / Supabase / Dual-Runtime / Privacy-First Spatial Operating Environment  
 Author: José Mancilla  
-Date: March 16, 2026
+Date: March 24, 2026
 
 ## Recent Changes
 
@@ -16,17 +16,19 @@ Date: March 16, 2026
 ## Current Implementation Status
 Last updated: 2026-03-24 17:55 UTC — `6e51f23` by copilot-swe-agent[bot]
 
-Phase: Phase 7 — OS-Layer Naming Authority WEBGPU 
-Scope: Canonical names, Dream Window, dual-runtime spatial model
+Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
+Scope: Full dual-runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
 
-Build Status: 48 routes · 832 tests passing
+Build Status: 134 routes · 1575+ tests passing
 
 Tech Stack:
-- Next.js 16.1.6 (App Router)
+- Next.js 16+ (App Router)
 - React 19
 - TypeScript
 - Tailwind CSS
+- Babylon.js 8+ (WebGPU-first 3D rendering)
 - Supabase (Auth, PostgreSQL, Realtime, Storage)
+- Vitest (test framework)
 - pnpm 10.30.0
 - Node 24
 
@@ -168,7 +170,7 @@ Input:
 - The **Surface Space** runtime is the currently active surface (HomeDream, profile views, DreamDM, etc.)
 - The **DreamSpace** runtime is the lower modular runtime region
 - DreamSpace contains:
-  - Dreams (blank or connected widgets)
+  - Dream Windows (blank or connected)
   - Daydream environments
   - Engin systems
   - route-connected lower-layer experiences
@@ -206,13 +208,13 @@ The DreamDMBar is responsible for:
 
 Dragging the DreamDMBar upward reveals **DreamSpace**, which contains:
 
-- blank Dreams (widgets) that can be connected
-- connected Dreams
+- blank Dream Windows that can be connected
+- connected Dream Windows
 - Daydream surfaces
 - Engin surfaces
 - route-connected lower-layer experiences
 
-Dreams begin as blank tappable surfaces that users can connect and configure.
+Dream Windows begin as blank tappable surfaces that users can connect and configure.
 
 This interaction model is designed to make DREAMengin feel like a **spatial operating environment**, not traditional page navigation.
 
@@ -248,7 +250,7 @@ Roles:
 
 - **Dr. Eams** — discovery, routing, and idea generation  
 - **IDARi** — system maintenance and governance  
-- **TheBoogieMan.Ai** — adversarial testing and stress simulation  
+- **TheBoogieMan.Ai** — policy enforcement and system overwatch  
 
 ---
 
@@ -319,7 +321,7 @@ Daydream Pair System
 	•	6 Engin surfaces (Side B control layers)
 
 Platform Modules
-	•	Dreams (widgets/modules)
+	•	Dream Windows (modular runtime containers)
 	•	DreamShop
 	•	DreamMarketplace
 	•	DreamMenu
@@ -345,7 +347,7 @@ Platform Modules
 	•	Language: TypeScript
 	•	Styling: tokenized design system with Tailwind CSS or equivalent
 	•	Animation: Framer Motion or equivalent UI motion layer
-	•	Component Model: modular, widget-driven, reusable surfaces
+	•	Component Model: modular, Dream Window–driven, reusable surfaces
 	•	Rendering Strategy: client-heavy interactive surfaces with controlled server rendering where appropriate
 
 2.2 Backend (Supabase)
@@ -385,7 +387,7 @@ Only Side B uses the Engin suffix.
 
 HomeDream is the user’s main private customizable operating surface. It is where:
 	•	content appears first
-	•	widgets live and interact and feed the feed
+	•	Dream Windows live and interact and feed the feed
 	•	feeds are personalized
 	•	routing decisions happen
 	•	signals are gathered
@@ -420,8 +422,8 @@ HomeDream is:
 	•	private by default
 	•	persistent between sessions
 	•	centered around a personalized feed
-	•	surrounded/supported by modular Dreams (widgets)
-	•	customizable in color, widget arrangement, and behavior
+	•	surrounded/supported by modular Dream Windows
+	•	customizable in color, Dream Window arrangement, and behavior
 	•	controllable by feed mode and source selection
 	•	designed as the daily primary entry point into DREAMengin
 
@@ -429,7 +431,7 @@ HomeDream is:
 
 The feed supports:
 	•	personalized content
-	•	widget broadcasts
+	•	Dream Window broadcasts
 	•	algorithm mode or manual mode
 	•	customizable source selection
 	•	favorites-prioritized or individually chosen source modes
@@ -439,16 +441,16 @@ The feed supports:
 
 The feed may contain:
 	•	user-created posts
-	•	activity from selected widgets
+	•	activity from selected Dream Windows
 	•	DreamDM content
 	•	music or media signals
 	•	shop or marketplace highlights if allowed
 	•	system announcements
 	•	utility modules like weather/news if enabled
 
-4.5 HomeDream Widget Behavior
+4.5 HomeDream Dream Window Behavior
 
-Widgets on HomeDream:
+Dream Windows on HomeDream:
 	•	represent connected modules or systems
 	•	may stay dormant until touched
 	•	may surface passive signals
@@ -459,8 +461,8 @@ Widgets on HomeDream:
 4.6 HomeDream Customization Controls
 
 Users may customize:
-	•	widget layout
-	•	widget color and visual treatment
+	•	Dream Window layout
+	•	Dream Window color and visual treatment
 	•	feed algorithm settings
 	•	active sources
 	•	favorites
@@ -480,11 +482,11 @@ It is accessed from HomeDream and acts as the editing version of the profile sur
 5.2 Functions
 
 Users may:
-	•	drag widgets
-	•	resize widgets
-	•	reshape widgets
-	•	place widgets spatially
-	•	control widget visibility
+	•	drag Dream Windows
+	•	resize Dream Windows
+	•	reshape Dream Windows
+	•	place Dream Windows spatially
+	•	control Dream Window visibility
 	•	choose which content surfaces publicly
 	•	customize visual presentation
 	•	build profile structure intentionally
@@ -496,15 +498,15 @@ Users may:
 	•	layout must persist
 	•	no private HomeDream content appears publicly without explicit user action
 	•	Edit ProfileDream may visually match the public profile layout, but it remains a private builder surface
-	•	moving widgets in Edit ProfileDream does not automatically update the public-facing profile
+	•	moving Dream Windows in Edit ProfileDream does not automatically update the public-facing profile
 	•	public-facing changes occur only when the user explicitly confirms Update Public View
 
 5.4 Profile Configuration
 
 Users may configure:
-	•	public widgets
-	•	follower-only widgets
-	•	hidden widgets
+	•	public Dream Windows
+	•	follower-only Dream Windows
+	•	hidden Dream Windows
 	•	bio and profile identity
 	•	featured modules
 	•	layout hierarchy
@@ -540,7 +542,7 @@ It is the public-facing profile surface and does not act as the live editing sur
 View Profile must:
 	•	reflect the current public profile configuration
 	•	show only explicitly allowed public/shared content
-	•	preserve widget interactions allowed in public context
+	•	preserve Dream Window interactions allowed in public context
 	•	never expose private HomeDream content
 	•	support preview mode before save
 	•	support public or permission-limited viewing based on settings
@@ -556,7 +558,7 @@ Inside Edit ProfileDream, the user must be able to:
 
 6.5 Public View Update Rule
 
-View Profile does not live-update from widget movement inside Edit ProfileDream.
+View Profile does not live-update from Dream Window movement inside Edit ProfileDream.
 
 The public-facing profile changes only after explicit user confirmation through Update Public View.
 
@@ -572,7 +574,7 @@ Each Daydream has:
 	•	a Side A experience
 	•	a Side B Engin system
 	•	specialized tools
-	•	specialized widget support
+	•	specialized Dream Window support
 	•	a small, separate dual-button control pill for the Engin side menu
 
 7.2 Domain List (As Defined)
@@ -595,7 +597,7 @@ Functions include:
 	•	upload
 	•	listening
 	•	managing projects, songs, drafts, and audio assets
-	•	arranging music-oriented widgets
+	•	arranging music-oriented Dream Windows
 	•	previewing tracks and collections
 
 8.2 StarMakerEngin (Side B)
@@ -609,13 +611,13 @@ Functions include:
 	•	launch and rollout configuration
 	•	music performance and status management
 
-8.3 Specialized Widgets (Examples)
-	•	track widget
-	•	playlist widget
-	•	release widget
-	•	lyrics widget
-	•	audio project widget
-	•	sales / launch status widget
+8.3 Specialized Dream Windows (Examples)
+	•	track Dream Window
+	•	playlist Dream Window
+	•	release Dream Window
+	•	lyrics Dream Window
+	•	audio project Dream Window
+	•	sales / launch status Dream Window
 
 ⸻
 
@@ -641,13 +643,13 @@ Functions include:
 	•	creation tools
 	•	system rules and internal powering
 
-9.3 Specialized Widgets (Examples)
-	•	game world widget
-	•	build widget
-	•	logic widget
-	•	player state widget
-	•	environment widget
-	•	inventory/system widget
+9.3 Specialized Dream Windows (Examples)
+	•	game world Dream Window
+	•	build Dream Window
+	•	logic Dream Window
+	•	player state Dream Window
+	•	environment Dream Window
+	•	inventory/system Dream Window
 
 ⸻
 
@@ -673,13 +675,13 @@ Functions include:
 	•	iteration environments
 	•	lab tool configuration
 
-10.3 Specialized Widgets (Examples)
-	•	experiment widget
-	•	state widget
-	•	model widget
-	•	results widget
-	•	parameter widget
-	•	simulation viewer widget
+10.3 Specialized Dream Windows (Examples)
+	•	experiment Dream Window
+	•	state Dream Window
+	•	model Dream Window
+	•	results Dream Window
+	•	parameter Dream Window
+	•	simulation viewer Dream Window
 
 ⸻
 
@@ -705,13 +707,13 @@ Functions include:
 	•	build and execution workflows
 	•	engineering tools
 
-11.3 Specialized Widgets (Examples)
-	•	project widget
-	•	code file widget
-	•	snippet widget
-	•	terminal widget
-	•	deployment widget
-	•	runtime widget
+11.3 Specialized Dream Windows (Examples)
+	•	project Dream Window
+	•	code file Dream Window
+	•	snippet Dream Window
+	•	terminal Dream Window
+	•	deployment Dream Window
+	•	runtime Dream Window
 
 ⸻
 
@@ -737,13 +739,13 @@ Functions include:
 	•	optimization flows
 	•	identity and strategy tools
 
-12.3 Specialized Widgets (Examples)
-	•	campaign widget
-	•	brand kit widget
-	•	performance widget
-	•	audience widget
-	•	asset widget
-	•	identity widget
+12.3 Specialized Dream Windows (Examples)
+	•	campaign Dream Window
+	•	brand kit Dream Window
+	•	performance Dream Window
+	•	audience Dream Window
+	•	asset Dream Window
+	•	identity Dream Window
 
 ⸻
 
@@ -769,13 +771,13 @@ Functions include:
 	•	output structure
 	•	reusable templates and creation mechanics
 
-13.3 Specialized Widgets (Examples)
-	•	draft widget
-	•	composition widget
-	•	media attach widget
-	•	publishing widget
-	•	template widget
-	•	output routing widget
+13.3 Specialized Dream Windows (Examples)
+	•	draft Dream Window
+	•	composition Dream Window
+	•	media attach Dream Window
+	•	publishing Dream Window
+	•	template Dream Window
+	•	output routing Dream Window
 
 ⸻
 
@@ -818,7 +820,7 @@ Dream Windows have four canonical states: Unbound, Bound, Mounted, and Collapsed
 
 15.2 Role
 
-Dreams may:
+Dream Windows may:
 	•	display content
 	•	accept content
 	•	route content
@@ -827,11 +829,11 @@ Dreams may:
 	•	represent a Daydream or system component
 	•	exist on HomeDream, Edit ProfileDream, View Profile, and Daydream surfaces where allowed
 
-15.3 Widget Menu Requirement
+15.3 Dream Window Menu Requirement
 
-Every widget must include a customization menu.
+Every Dream Window must include a customization menu.
 
-15.4 Widget Menu Functions (May Include)
+15.4 Dream Window Menu Functions (May Include)
 	•	rename
 	•	recolor
 	•	resize
@@ -845,9 +847,9 @@ Every widget must include a customization menu.
 	•	route settings
 	•	permissions
 
-15.5 Widget Data (Minimum)
+15.5 Dream Window Data (Minimum)
 
-Each Dream should minimally support:
+Each Dream Window should minimally support:
 	•	id
 	•	type
 	•	owner
@@ -874,7 +876,7 @@ Users may:
 	•	manage owned DreamShop items
 
 Supported item types (examples):
-	•	widget skins
+	•	Dream Window skins
 	•	themes
 	•	design packs
 	•	official add-ons
@@ -888,7 +890,7 @@ Purpose: user/community exchange layer.
 Users may:
 	•	discover user-made items
 	•	sell or share creations
-	•	browse widgets, modules, tools, assets, and experiences
+	•	browse Dream Windows, modules, tools, assets, and experiences
 	•	acquire community-made Dream objects
 	•	promote their own works
 
@@ -957,7 +959,7 @@ DreamDM is viewable from HomeDream and may also exist as its own focus environme
 	•	favorites
 	•	pinned posts
 	•	routing content into HomeDream
-	•	contextual discussion around creations or widgets
+	•	contextual discussion around creations or Dream Windows
 
 ⸻
 
@@ -991,16 +993,16 @@ DreamAds must:
 Users may customize:
 	•	layout
 	•	colors
-	•	widget arrangement
+	•	Dream Window arrangement
 	•	feed behavior
-	•	widget activity
+	•	Dream Window activity
 	•	algorithm settings
 	•	profile composition
 	•	DreamMenu configuration where allowed
 
 20.2 Domain-Specific Customization
 
-Each Daydream may support specialized customization tied to its own tools and widgets.
+Each Daydream may support specialized customization tied to its own tools and Dream Windows.
 
 Customization is platform-wide, not a side feature.
 
@@ -1017,9 +1019,9 @@ Users may control:
 	•	algorithm behavior
 	•	manual vs mixed vs algorithmic sorting
 
-21.2 Widget Source Control
+21.2 Dream Window Source Control
 
-Users may choose what widgets contribute to feeds or surfaces.
+Users may choose what Dream Windows contribute to feeds or surfaces.
 
 21.3 Transparency Requirement
 
@@ -1050,8 +1052,8 @@ Nothing becomes public without user intent.
 Minimum platform tables/domains should include:
 	•	users
 	•	profiles
-	•	widgets (Dreams)
-	•	widget configs
+	•	Dream Windows
+	•	Dream Window configs
 	•	daydream states
 	•	daydreamengin states
 	•	feeds
@@ -1159,7 +1161,7 @@ The launch version must:
 	•	support Edit ProfileDream as a real builder
 	•	support View Profile as a real destination
 	•	support the 6 Daydream / 6 Engin Surface structure
-	•	support Dreams as real customizable widgets
+	•	support Dream Windows as real customizable modular runtime containers
 	•	include DreamShop, DreamMarketplace, DreamMenu, DreamDM, and DreamAds in truthful form
 	•	include only working interactions, not implied ones
 
@@ -1174,7 +1176,7 @@ This section formalizes additional commitments and design requirements that emer
 ### 27.1 Data Portability and User Control
 
 **27.1.1 Export Format**  
-Users may export all their personal data—including profile information, widget configurations, created content, messages, and purchase history—in a **machine-readable, non-proprietary format** (JSON + associated media files). The export must be available through a clearly accessible interface (e.g., within Account Settings) and delivered as a downloadable archive within 48 hours of request.
+Users may export all their personal data—including profile information, Dream Window configurations, created content, messages, and purchase history—in a **machine-readable, non-proprietary format** (JSON + associated media files). The export must be available through a clearly accessible interface (e.g., within Account Settings) and delivered as a downloadable archive within 48 hours of request.
 
 **27.1.2 Backup Guarantees**  
 The platform does not guarantee automatic backups of user-generated content beyond standard database redundancy. However, users are encouraged to use the export feature as their own backup mechanism. The platform will retain data only as long as the account is active or required by law.
@@ -1188,10 +1190,10 @@ Users may permanently delete their account and all associated data at any time. 
 
 Every interaction must anticipate failure and respond in a way that preserves user trust and system integrity.
 
-**27.2.1 Widget Source Deletion**  
-If a widget’s data source (e.g., a specific feed, a connected service) is deleted or becomes unavailable:
-- The widget should display a **graceful placeholder** indicating the source is gone, along with an option to reconfigure or remove the widget.
-- The widget must not crash the surrounding surface or affect other widgets.
+**27.2.1 Dream Window Source Deletion**  
+If a Dream Window’s data source (e.g., a specific feed, a connected service) is deleted or becomes unavailable:
+- The Dream Window should display a **graceful placeholder** indicating the source is gone, along with an option to reconfigure or remove the Dream Window.
+- The Dream Window must not crash the surrounding surface or affect other Dream Windows.
 - Notifications may alert the user to the broken source, but only if the user has opted into such alerts.
 
 **27.2.2 Engin Action Failures**  
@@ -1224,7 +1226,7 @@ If Row Level Security incorrectly blocks a user’s access to their own content 
 
 **27.3.1 Offline Capability**  
 While DREAMengin is primarily an online platform, the following surfaces **must** support basic offline read access:
-- HomeDream (cached version of last-loaded feed and widget states)
+- HomeDream (cached version of last-loaded feed and Dream Window states)
 - View Profile (cached public profile data)
 - Previously accessed Daydream surfaces (if the user explicitly marks them for offline use)
 
@@ -1236,7 +1238,7 @@ Cached data must be:
 - Limited in size and age to prevent stale or excessive storage.
 
 **27.3.3 Offline Actions**  
-Any action initiated offline (e.g., composing a post, reconfiguring a widget) must be queued and executed when connectivity returns, with clear visual indication of pending actions. Conflicts (e.g., edits made both offline and online) must be resolved via user prompt or a deterministic last-write-wins rule, with an audit trail.
+Any action initiated offline (e.g., composing a post, reconfiguring a Dream Window) must be queued and executed when connectivity returns, with clear visual indication of pending actions. Conflicts (e.g., edits made both offline and online) must be resolved via user prompt or a deterministic last-write-wins rule, with an audit trail.
 
 ---
 
@@ -1284,7 +1286,7 @@ Edit ProfileDream is where the user crafts public expression.
 View Profile is where that expression is shown.
 The 6 Daydreams are the lived domains.
 The 6 Engin surfaces are the powered control layers behind them.
-Dreams are the modular units connecting everything.
+Dream Windows are the modular units connecting everything.
 DreamShop, DreamMarketplace, DreamMenu, DreamDM, and DreamAds complete the ecosystem.
 
 Everything is connected.
@@ -1378,7 +1380,7 @@ DreamDM Bar
 (persistent interaction rail / draggable divider)
 ─────────────────────
 Dream Space
-(Dreams / widget layer / modular access layer)
+(Dream Windows / DreamSpace / modular access layer)
 ─────────────────────
 
 This relationship is part of the product’s spatial model and must be visually and behaviorally explicit.
@@ -1399,10 +1401,10 @@ The primary focus area. It hosts any full-surface experience, including:
 This space may contain its own scrollable content and interactive elements.
 
 #### Dream Space
-The persistent widget environment. It contains:
+The persistent Dream Window environment. It contains:
 
 - the user’s Dreams
-- widget grid
+- Dream Window grid
 - mini-apps
 - launcher behavior
 - Daydream access
@@ -1413,7 +1415,7 @@ This space is also independently scrollable and interactive.
 Both spaces are always mounted and runtime-active.
 
 Examples:
-- a video continues playing in Surface Space while the user scrolls through widgets in Dream Space
+- a video continues playing in Surface Space while the user scrolls through Dream Windows in Dream Space
 - a game retains state while the user replies through the DreamDM Bar
 - one side may remain active while the other is explored or adjusted
 
@@ -1436,7 +1438,7 @@ Users must be able to:
 - start writing a message without leaving the current surface
 - respond to notifications inline
 - save or resume drafts
-- route content into DreamDM, feeds, or widgets
+- route content into DreamDM, feeds, or Dream Windows
 - resize the visible relationship between Surface Space and Dream Space directly
 
 ### 29.5 Physical Behavior and Drag Interaction
@@ -1519,7 +1521,7 @@ Examples include:
 - browsing feeds while responding to notifications
 - playing a game while opening a conversation
 - writing code in Surface Space while Dream Space hosts a live preview
-- exploring widgets while media continues uninterrupted above
+- exploring Dream Windows while media continues uninterrupted above
 
 The bar must never force the user to leave the current activity.
 
@@ -1603,7 +1605,7 @@ Each notification may allow:
 Notifications may originate from:
 
 - DreamDM conversations
-- widget signals
+- Dream Window signals
 - Daydream activities
 - DreamMarketplace events
 - system announcements
