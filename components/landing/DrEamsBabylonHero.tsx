@@ -118,8 +118,8 @@ export default function DrEamsBabylonHero({
     rim.diffuse = new Color3(0.1, 0.5, 0.9);
 
     // ── Glow ──────────────────────────────────────────────────────────────────
-    const glow = new GlowLayer('glow', scene, { blurKernelSize: 32 });
-    glow.intensity = 0.65;
+    const glow = new GlowLayer('glow', scene, { blurKernelSize: 16 });
+    glow.intensity = 0.55;
 
     // ── Materials ─────────────────────────────────────────────────────────────
 
@@ -198,33 +198,46 @@ export default function DrEamsBabylonHero({
     root.position = new Vector3(0, 0, 0);
 
     // ----- TORSO -----
-    const torso = MeshBuilder.CreateBox(
+    // Main torso body — rounded cylinder (more 3D than box)
+    const torso = MeshBuilder.CreateCylinder(
       'torso',
-      { width: 0.72, height: 0.90, depth: 0.44 },
+      { height: 0.90, diameterTop: 0.65, diameterBottom: 0.72, tessellation: 24 },
       scene,
     );
     torso.material = coatMat;
     torso.position.y = 1.20;
     torso.parent = root;
 
-    // Coat button strip — thin white vertical line down center
-    const buttonStrip = MeshBuilder.CreateBox(
+    // Torso front plate — adds dimension
+    const torsoPlate = MeshBuilder.CreateCylinder(
+      'torsoPlate',
+      { height: 0.82, diameterTop: 0.60, diameterBottom: 0.68, tessellation: 24 },
+      scene,
+    );
+    torsoPlate.material = coatMat;
+    torsoPlate.position = new Vector3(0, 1.20, 0.20);
+    torsoPlate.scaling.z = 0.4;
+    torsoPlate.parent = root;
+
+    // Coat button strip — thin cylindrical line down center (more 3D)
+    const buttonStrip = MeshBuilder.CreateCylinder(
       'buttonStrip',
-      { width: 0.03, height: 0.72, depth: 0.46 },
+      { height: 0.72, diameter: 0.04, tessellation: 12 },
       scene,
     );
     buttonStrip.material = coatMat;
-    buttonStrip.position = new Vector3(0, 1.22, 0);
+    buttonStrip.position = new Vector3(0, 1.22, 0.23);
     buttonStrip.parent = root;
 
-    // "Dr. Eams" name badge — small metallic plate on right chest
-    const badgePlate = MeshBuilder.CreateBox(
+    // "Dr. Eams" name badge — small metallic plate with depth (not flat box)
+    const badgePlate = MeshBuilder.CreateCylinder(
       'badgePlate',
-      { width: 0.19, height: 0.07, depth: 0.46 },
+      { height: 0.19, diameterTop: 0.08, diameterBottom: 0.06, tessellation: 16 },
       scene,
     );
     badgePlate.material = metalMat;
-    badgePlate.position = new Vector3(0.20, 1.34, 0);
+    badgePlate.rotation.z = Math.PI / 2;
+    badgePlate.position = new Vector3(0.20, 1.34, 0.23);
     badgePlate.parent = root;
 
     // Collar / neck ring
@@ -252,10 +265,10 @@ export default function DrEamsBabylonHero({
     headNode.position = new Vector3(0, 2.08, 0);
     headNode.parent = root;
 
-    // Main head — spherical dome (matches reference rounded black dome)
+    // Main head — spherical dome (high poly for smooth 3D appearance)
     const head = MeshBuilder.CreateSphere(
       'head',
-      { diameter: 0.72, segments: 20 },
+      { diameter: 0.72, segments: 32 },
       scene,
     );
     head.material = helmetMat;
@@ -266,17 +279,17 @@ export default function DrEamsBabylonHero({
     // Helmet crown band — subtle metallic ring at top of dome
     const helmetTop = MeshBuilder.CreateCylinder(
       'helmetTop',
-      { height: 0.06, diameterTop: 0.38, diameterBottom: 0.42, tessellation: 20 },
+      { height: 0.06, diameterTop: 0.38, diameterBottom: 0.42, tessellation: 32 },
       scene,
     );
     helmetTop.material = metalMat;
     helmetTop.position.y = 0.30;
     helmetTop.parent = headNode;
 
-    // Helmet chin guard — sits below sphere
-    const helmetChin = MeshBuilder.CreateBox(
+    // Helmet chin guard — rounded instead of boxy
+    const helmetChin = MeshBuilder.CreateSphere(
       'helmetChin',
-      { width: 0.34, height: 0.09, depth: 0.38 },
+      { diameterX: 0.34, diameterY: 0.18, diameterZ: 0.38, segments: 20 },
       scene,
     );
     helmetChin.material = helmetMat;
@@ -326,25 +339,29 @@ export default function DrEamsBabylonHero({
     earDotR.parent = headNode;
     glow.addIncludedOnlyMesh(earDotR as Mesh);
 
-    // Visor face screen (outer glass pane) — positioned at front of dome
-    const visor = MeshBuilder.CreateBox(
+    // Visor face screen (outer glass pane) — curved instead of flat box
+    const visor = MeshBuilder.CreateCylinder(
       'visor',
-      { width: 0.46, height: 0.28, depth: 0.06 },
+      { height: 0.46, diameterTop: 0.30, diameterBottom: 0.26, tessellation: 24 },
       scene,
     );
     visor.material = visorMat;
+    visor.rotation.z = Math.PI / 2;
     visor.position = new Vector3(0, 0.04, 0.30);
+    visor.scaling.z = 0.28;
     visor.parent = headNode;
     glow.addIncludedOnlyMesh(visor as Mesh);
 
-    // Screen inner glow surface (sits flush with visor front)
-    const screenPlane = MeshBuilder.CreateBox(
+    // Screen inner glow surface (curved to match visor)
+    const screenPlane = MeshBuilder.CreateCylinder(
       'screen',
-      { width: 0.38, height: 0.20, depth: 0.02 },
+      { height: 0.38, diameterTop: 0.22, diameterBottom: 0.20, tessellation: 24 },
       scene,
     );
     screenPlane.material = screenMat;
+    screenPlane.rotation.z = Math.PI / 2;
     screenPlane.position = new Vector3(0, 0.04, 0.33);
+    screenPlane.scaling.z = 0.15;
     screenPlane.parent = headNode;
     glow.addIncludedOnlyMesh(screenPlane as Mesh);
 
@@ -529,13 +546,15 @@ export default function DrEamsBabylonHero({
     handR.parent = elbowNodeR;
 
     // ----- HIP BAND -----
-    const hipBand = MeshBuilder.CreateBox(
+    // Rounded hip belt instead of flat box
+    const hipBand = MeshBuilder.CreateCylinder(
       'hipBand',
-      { width: 0.76, height: 0.09, depth: 0.44 },
+      { height: 0.09, diameterTop: 0.76, diameterBottom: 0.72, tessellation: 24 },
       scene,
     );
     hipBand.material = metalMat;
     hipBand.position.y = 0.77;
+    hipBand.scaling.z = 0.6;
     hipBand.parent = root;
 
     // ----- HIP PIVOT NODES -----
@@ -614,42 +633,70 @@ export default function DrEamsBabylonHero({
     lowerLegR.parent = kneeNodeR;
 
     // ----- BOOTS -----
-    const bootL = MeshBuilder.CreateBox(
+    // Rounded boot body (not a flat box)
+    const bootL = MeshBuilder.CreateCylinder(
       'bootL',
-      { width: 0.24, height: 0.20, depth: 0.40 },
+      { height: 0.24, diameterTop: 0.22, diameterBottom: 0.26, tessellation: 20 },
       scene,
     );
     bootL.material = bootMat;
+    bootL.rotation.x = Math.PI / 2;
     bootL.position = new Vector3(0, -0.48, 0.05);
+    bootL.scaling.z = 1.6;
     bootL.parent = kneeNodeL;
 
-    const bootR = MeshBuilder.CreateBox(
+    const bootR = MeshBuilder.CreateCylinder(
       'bootR',
-      { width: 0.24, height: 0.20, depth: 0.40 },
+      { height: 0.24, diameterTop: 0.22, diameterBottom: 0.26, tessellation: 20 },
       scene,
     );
     bootR.material = bootMat;
+    bootR.rotation.x = Math.PI / 2;
     bootR.position = new Vector3(0, -0.48, 0.05);
+    bootR.scaling.z = 1.6;
     bootR.parent = kneeNodeR;
 
-    // Boot accent stripe — emissive rim
-    const bootStripeL = MeshBuilder.CreateBox(
+    // Boot toe cap — adds 3D detail
+    const bootToeL = MeshBuilder.CreateSphere(
+      'bootToeL',
+      { diameterX: 0.24, diameterY: 0.20, diameterZ: 0.16, segments: 12 },
+      scene,
+    );
+    bootToeL.material = bootMat;
+    bootToeL.position = new Vector3(0, -0.48, 0.24);
+    bootToeL.parent = kneeNodeL;
+
+    const bootToeR = MeshBuilder.CreateSphere(
+      'bootToeR',
+      { diameterX: 0.24, diameterY: 0.20, diameterZ: 0.16, segments: 12 },
+      scene,
+    );
+    bootToeR.material = bootMat;
+    bootToeR.position = new Vector3(0, -0.48, 0.24);
+    bootToeR.parent = kneeNodeR;
+
+    // Boot accent stripe — emissive rim (cylindrical)
+    const bootStripeL = MeshBuilder.CreateCylinder(
       'bootStripeL',
-      { width: 0.25, height: 0.04, depth: 0.41 },
+      { height: 0.25, diameter: 0.24, tessellation: 20 },
       scene,
     );
     bootStripeL.material = accentMat;
+    bootStripeL.rotation.x = Math.PI / 2;
     bootStripeL.position = new Vector3(0, -0.40, 0.05);
+    bootStripeL.scaling.y = 0.15;
     bootStripeL.parent = kneeNodeL;
     glow.addIncludedOnlyMesh(bootStripeL as Mesh);
 
-    const bootStripeR = MeshBuilder.CreateBox(
+    const bootStripeR = MeshBuilder.CreateCylinder(
       'bootStripeR',
-      { width: 0.25, height: 0.04, depth: 0.41 },
+      { height: 0.25, diameter: 0.24, tessellation: 20 },
       scene,
     );
     bootStripeR.material = accentMat;
+    bootStripeR.rotation.x = Math.PI / 2;
     bootStripeR.position = new Vector3(0, -0.40, 0.05);
+    bootStripeR.scaling.y = 0.15;
     bootStripeR.parent = kneeNodeR;
     glow.addIncludedOnlyMesh(bootStripeR as Mesh);
 
