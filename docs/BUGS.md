@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-24 11:17 UTC  
-**Triggered by commit:** `a2cd320` on `copilot/add-webgpu-quality-pipeline` by Copilot  
-**Commit message:** feat: add DREAM_ENGINE_WEBGPU_DIRECTOR — pass-based, budget-driven, temporally-stable quality pipeline
+**Last updated:** 2026-03-24 12:59 UTC  
+**Triggered by commit:** `94cdb4b` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #293 from appthemanger-ctrl/copilot/add-webgpu-quality-pipeline
 
 ---
 
