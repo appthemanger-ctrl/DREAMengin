@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Also fetch follower/following counts
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const { count: followersCount } = await supabase
         .from('follows')
         .select('*', { count: 'exact', head: true })

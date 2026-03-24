@@ -5,7 +5,7 @@
  * Persists to localStorage. Constitution Rule 6-7.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Sliders, Check } from 'lucide-react';
 import PositionIndicatorToggle from './PositionIndicatorToggle';
@@ -51,15 +51,14 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
 }
 
 export default function ControlsClient() {
-  const [settings, setSettings] = useState<ControlsSettings>(DEFAULT);
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
+  const [settings, setSettings] = useState<ControlsSettings>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setSettings((p) => ({ ...p, ...JSON.parse(raw) }));
+      if (raw) return { ...DEFAULT, ...JSON.parse(raw) };
     } catch { /* ignore */ }
-  }, []);
+    return DEFAULT;
+  });
+  const [saved, setSaved] = useState(false);
 
   const toggle = useCallback((key: keyof ControlsSettings) => {
     setSettings((prev) => {

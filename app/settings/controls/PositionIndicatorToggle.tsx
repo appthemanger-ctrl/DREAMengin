@@ -1,18 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const STORAGE_KEY = 'dreamengin:showNavIndicator';
 
 export default function PositionIndicatorToggle() {
-  const [enabled, setEnabled] = useState(true);
-
-  useEffect(() => {
+  const [enabled, setEnabled] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved !== null) setEnabled(saved !== 'false');
+      if (saved !== null) return saved !== 'false';
     } catch { /* noop */ }
-  }, []);
+    return true;
+  });
 
   const toggle = () => {
     const next = !enabled;

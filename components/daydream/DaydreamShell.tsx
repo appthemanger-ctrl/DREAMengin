@@ -93,7 +93,7 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
         metadata:     { engin: enginName },
       });
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [title, enginName, accentColor]);
 
   const contentStyle: React.CSSProperties =

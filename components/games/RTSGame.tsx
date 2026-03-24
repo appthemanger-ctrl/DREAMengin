@@ -444,8 +444,8 @@ export default function RTSGame() {
   const lastTimeRef = useRef<number>(0);
   const [phase, setPhase] = useState<Phase>('menu');
   const [credits, setCredits] = useState(1500);
-  const [buildMode, setBuildMode] = useState<BuildingType | UnitType | null>(null);
-  const [tick, setTick] = useState(0);
+  const [unitsCount, setUnitsCount] = useState({ allies: 0, enemies: 0 });
+  const [buildQueue, setBuildQueue] = useState<{ type: BuildingType; timer: number; maxTimer: number } | null>(null);
   const submitScore = useSubmitScore('rts');
   useEffect(() => {
     if (phase === 'victory') submitScore(1000);
@@ -493,7 +493,11 @@ export default function RTSGame() {
       // Tick UI every 30 frames
       if (stateRef.current.tick % 30 === 0) {
         setCredits(stateRef.current.credits.allies);
-        setTick(t => t + 1);
+        setUnitsCount({
+          allies: stateRef.current.units.filter(u => u.faction === 'allies').length,
+          enemies: stateRef.current.units.filter(u => u.faction === 'soviet').length,
+        });
+        setBuildQueue(stateRef.current.buildQueue.allies);
 
         // Win/lose check
         const alliesBase = stateRef.current.buildings.find(b => b.faction === 'allies' && b.type === 'base');
@@ -594,8 +598,6 @@ export default function RTSGame() {
     );
   }
 
-  const alliesQ = stateRef.current.buildQueue.allies;
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {/* HUD */}
@@ -603,15 +605,15 @@ export default function RTSGame() {
         <span style={{ color: '#facc15', fontWeight: 700, fontSize: 13 }}>💰 {credits.toLocaleString()}</span>
         <span style={{ color: '#6b7280', fontSize: 11 }}>|</span>
         <span style={{ color: '#86efac', fontSize: 11 }}>
-          Units: {stateRef.current.units.filter(u => u.faction === 'allies').length}
+          Units: {unitsCount.allies}
         </span>
         <span style={{ color: '#6b7280', fontSize: 11 }}>|</span>
         <span style={{ color: '#f87171', fontSize: 11 }}>
-          Enemies: {stateRef.current.units.filter(u => u.faction === 'soviet').length}
+          Enemies: {unitsCount.enemies}
         </span>
-        {alliesQ && (
+        {buildQueue && (
           <span style={{ color: '#93c5fd', fontSize: 11, marginLeft: 'auto' }}>
-            Building: {alliesQ.type} ({Math.ceil(alliesQ.timer)}s)
+            Building: {buildQueue.type} ({Math.ceil(buildQueue.timer)}s)
           </span>
         )}
       </div>

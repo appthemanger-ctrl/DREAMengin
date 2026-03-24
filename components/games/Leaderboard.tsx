@@ -55,20 +55,32 @@ export default function Leaderboard({ game }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Reset states when game changes
+    let cancelled = false;
+
     setLoading(true);
     setError(null);
 
     fetch(`/api/game-scores?game=${encodeURIComponent(game)}&limit=10`)
       .then((res) => res.json())
       .then(({ data, error: err }) => {
+        if (cancelled) return;
         if (err) {
           setError(err);
         } else {
           setScores(data ?? []);
         }
       })
-      .catch(() => setError('Failed to load leaderboard'))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (cancelled) return;
+        setError('Failed to load leaderboard');
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setLoading(false);
+      });
+
+    return () => { cancelled = true; };
   }, [game]);
 
   if (loading) {

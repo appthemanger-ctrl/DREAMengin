@@ -29,7 +29,7 @@ export interface TumblrCredentials {
 
 /** Extract just the blog slug for display. */
 function extractSlug(username: string): string {
-  let slug = username.trim();
+  const slug = username.trim();
   if (slug.includes('tumblr.com')) {
     const match = slug.match(/([^/.]+)\.tumblr\.com/);
     return match?.[1] ?? slug;

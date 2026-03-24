@@ -112,6 +112,8 @@ export default function DreamWindowRail({ onOpenDreamSpace, userId }: DreamWindo
 
   // Phase 8 §A Point 4+5: fetch real Dream Window slots from DB
   useEffect(() => {
+    let cancelled = false;
+
     if (!userId) {
       setLoading(false);
       return;
@@ -119,10 +121,16 @@ export default function DreamWindowRail({ onOpenDreamSpace, userId }: DreamWindo
     fetch('/api/home-layout')
       .then((r) => r.json())
       .then((data: { ok: boolean; layout?: HomeLayout }) => {
+        if (cancelled) return;
         if (data.ok && data.layout) setLayout(data.layout);
       })
       .catch(() => { /* show empty rail */ })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (cancelled) return;
+        setLoading(false);
+      });
+
+    return () => { cancelled = true; };
   }, [userId]);
 
   const slots = layout?.slots?.length ? layout.slots : DEFAULT_SLOTS;

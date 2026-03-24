@@ -80,11 +80,11 @@ export default function Match3Game() {
       setScore(s => s + m.size * 10);
       setMatches(new Set());
       setAnimating(false);
-      // Check for chain
+      // Check for chain - safe to recursively call since processMatches is stable
       setTimeout(() => { processMatches(collapsed); }, 150);
     }, 300);
     return true;
-  }, []);
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCellClick = useCallback((r: number, c: number) => {
     if (animating || phase !== 'playing') return;

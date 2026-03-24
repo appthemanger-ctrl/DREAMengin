@@ -60,18 +60,13 @@ export function CustomizeModeProvider({ children }: { children: React.ReactNode 
   const [isCustomizeMode, setIsCustomizeMode] = useState(false);
   const [activePage, setActivePage] = useState<SkinPage | null>(null);
   const [activePanel, setActivePanel] = useState<'color' | 'font' | 'layout' | 'effects' | null>(null);
-  const [allSkins, setAllSkins] = useState<AllPageSkins>(() =>
-    ({ global: DEFAULT_SKIN, home: null, profile: null, dreamspace: null, feed: null })
-  );
-  const [draftSkin, setDraftSkin] = useState<SkinData>(DEFAULT_SKIN);
-
-  // Hydrate from localStorage
-  useEffect(() => {
+  const [allSkins, setAllSkins] = useState<AllPageSkins>(() => {
     const saved = loadAllSkins();
-    setAllSkins(saved);
     // Apply the global skin on mount
     applySkin(saved.global ?? DEFAULT_SKIN);
-  }, []);
+    return saved;
+  });
+  const [draftSkin, setDraftSkin] = useState<SkinData>(DEFAULT_SKIN);
 
   const enterCustomizeMode = useCallback((page: SkinPage) => {
     setActivePage(page);
