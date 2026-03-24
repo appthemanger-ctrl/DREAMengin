@@ -444,6 +444,25 @@ describe('applyGodTierToBabylon', () => {
     expect(captured).toBeGreaterThanOrEqual(0.72);
   });
 
+  it('caps hardware scaling to 1 on high-DPR inputs to avoid blur', () => {
+    let captured = -1;
+    const mockEngine: BabylonEngineLike = {
+      setHardwareScalingLevel: (level) => { captured = level; },
+    };
+    const state = new DreamEngineGodTierSystem().update({
+      device:  defaultDeviceSignals(),
+      runtime: defaultRuntimeMetrics(),
+      ux:      defaultUXSignals(),
+      route:   defaultRouteSignals('/'),
+      meshes:  [],
+      ui:      [],
+    });
+
+    applyGodTierToBabylon(mockEngine, { meshes: [] }, state, 3);
+    expect(captured).toBeLessThanOrEqual(1);
+    expect(captured).toBeGreaterThanOrEqual(0.72);
+  });
+
   it('freezes dead meshes', () => {
     let froze = false;
     const mockScene: BabylonSceneLike = {

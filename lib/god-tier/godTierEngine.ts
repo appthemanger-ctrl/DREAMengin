@@ -391,7 +391,7 @@ export function visualDominanceEngine(route: RouteSignals, ux: UXSignals): Visua
     secondaryContrast: struggling ? 0.78 : 0.88,
     tertiaryContrast:  struggling ? 0.58 : 0.7,
     spacingScale:      struggling ? 1.1  : 1.03,
-    blurStrength:      showcase ? 0.15 : 0.10,
+    blurStrength:      showcase ? 0.08 : 0.06,
     shadowStrength:    showcase ? 1.0  : 0.82,
     glassStrength:     showcase ? 0.92 : 0.6,
     saturationBoost:   transactional ? 1.0 : 1.05,
@@ -719,9 +719,9 @@ export function applyGodTierToBabylon(
   state: GodTierState,
   dpr = 1,
 ) {
-  const hardwareScalingLevel = Math.max(
-    0.72,
-    dpr / state.renderPlan.internalResolutionScale,
+  const hardwareScalingLevel = Math.min(
+    1,
+    Math.max(0.72, dpr / state.renderPlan.internalResolutionScale),
   );
   engine.setHardwareScalingLevel(hardwareScalingLevel);
 
