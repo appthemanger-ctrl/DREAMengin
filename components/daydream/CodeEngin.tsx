@@ -256,7 +256,7 @@ export default function CodeEngin({ onBack }: Props) {
     if (savedCodeState.cells && savedCodeState.cells.length > 0) {
       setCells(prev => savedCodeState.cells!.map(saved => {
         const existing = prev.find(c => c.id === saved.id);
-        return existing ? { ...existing, source: saved.source, language: saved.language as CellLanguage } : { ...saved, status: 'idle' as const, output: '', language: saved.language as CellLanguage };
+        return existing ? { ...existing, code: saved.source, language: saved.language as CellLanguage } : { ...saved, code: saved.source, status: 'idle' as const, output: '', language: saved.language as CellLanguage };
       }));
     }
   }, [codeRestoring, savedCodeState]);
@@ -264,7 +264,7 @@ export default function CodeEngin({ onBack }: Props) {
   // ── Persist editor cells to Supabase on change (Phase 8 §F Point 54) ──
   useEffect(() => {
     if (codeRestoring) return;
-    const snapshot = cells.map(c => ({ id: c.id, language: c.language, source: c.source }));
+    const snapshot = cells.map(c => ({ id: c.id, language: c.language, source: c.code }));
     persistState({ side: 'B', cells: snapshot });
     persistCodeState({ cells: snapshot });
   // eslint-disable-next-line react-hooks/exhaustive-deps

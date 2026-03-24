@@ -11,6 +11,7 @@ import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 /* ── Gradient Preset Picker ── */
 function GradientThemePicker() {
   const [active, setActive] = useState(() => {
+    if (typeof window === 'undefined') return 'default';
     try {
       const raw = localStorage.getItem('de-theme');
       if (raw) {
@@ -184,6 +185,7 @@ function PresetCard({
 /* ── Background Image Section ── */
 function BgImageSection() {
   const [bgImage, setBgImage] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
     const stored = localStorage.getItem('dreamengin:bgImage');
     if (stored) {
       document.documentElement.style.setProperty('--de-bg-image', `url("${stored}")`);

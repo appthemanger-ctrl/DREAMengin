@@ -640,17 +640,17 @@ export default function RTSGame() {
           <button
             key={b.type}
             onClick={() => queueUnit(b.type)}
-            disabled={!!alliesQ || credits < b.cost}
+            disabled={!!buildQueue || credits < b.cost}
             style={{
-              background: credits >= b.cost && !alliesQ ? '#1d4ed8' : '#374151',
+              background: credits >= b.cost && !buildQueue ? '#1d4ed8' : '#374151',
               color: '#fff',
               border: 'none',
               padding: '6px 14px',
               borderRadius: 6,
               fontSize: 11,
               fontWeight: 600,
-              cursor: credits >= b.cost && !alliesQ ? 'pointer' : 'not-allowed',
-              opacity: credits >= b.cost && !alliesQ ? 1 : 0.5,
+              cursor: credits >= b.cost && !buildQueue ? 'pointer' : 'not-allowed',
+              opacity: credits >= b.cost && !buildQueue ? 1 : 0.5,
             }}
           >
             {b.label} (${b.cost})
