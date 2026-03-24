@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-24 03:10 UTC  
-**Triggered by commit:** `0ae59ff` on `claude/investigate-build-issues` by Claude  
-**Commit message:** chore: sync build-memory after new routes and schema
+**Last updated:** 2026-03-24 03:31 UTC  
+**Triggered by commit:** `a7a8e6c` on `claude/investigate-build-issues` by Claude  
+**Commit message:** fix: resolve 29 critical ESLint warnings (React hooks, refs, setState)
 
 ---
 
