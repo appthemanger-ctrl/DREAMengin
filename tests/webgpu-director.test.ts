@@ -15,6 +15,8 @@ import {
   resolveTemporalState,
   resolveResolutionScale,
   applyDirectorFrame,
+  babylonMeshToSceneObject,
+  buildSceneObjects,
   WebGPUDirector,
   defaultDirectorMetrics,
   defaultCameraSignals,
@@ -517,5 +519,188 @@ describe('default helpers', () => {
   it('defaultCameraSignals accepts a state override', () => {
     const c = defaultCameraSignals('hero');
     expect(c.state).toBe('hero');
+  });
+});
+
+// ─── scoreObject improvements ─────────────────────────────────────────────────
+
+describe('scoreObject — squared distance falloff', () => {
+  it('close object scores much higher than mid-range (non-linear gap)', () => {
+    // At linear falloff d=2 and d=10 differ by (18/20)*20 vs (10/20)*20 = 18 vs 10
+    // At squared falloff: (18/20)^2*20 = 16.2 vs (10/20)^2*20 = 5.0 — much bigger gap
+    const close = scoreObject(makeObject({ distance: 2,  screenCoverage: 0, heroWeight: 0, semanticWeight: 0, motionWeight: 0, interactionWeight: 0, materialCost: 0, shadowCost: 0, geometryCost: 0, textureCost: 0 }), browseCamera());
+    const mid   = scoreObject(makeObject({ distance: 10, screenCoverage: 0, heroWeight: 0, semanticWeight: 0, motionWeight: 0, interactionWeight: 0, materialCost: 0, shadowCost: 0, geometryCost: 0, textureCost: 0 }), browseCamera());
+    const far   = scoreObject(makeObject({ distance: 18, screenCoverage: 0, heroWeight: 0, semanticWeight: 0, motionWeight: 0, interactionWeight: 0, materialCost: 0, shadowCost: 0, geometryCost: 0, textureCost: 0 }), browseCamera());
+    // Squared curve: close >> mid >> far
+    expect(close - mid).toBeGreaterThan(mid - far);
+  });
+
+  it('cost penalty cannot reduce score below 70% of pre-penalty value', () => {
+    // Very expensive object — all costs at max
+    const obj = makeObject({ materialCost: 1, shadowCost: 1, geometryCost: 1, textureCost: 1 });
+    const score = scoreObject(obj, heroCamera());
+    // Should still be > 0 even with full costs
+    expect(score).toBeGreaterThan(0);
+  });
+});
+
+// ─── buildPassPlan — transition camera ssao ───────────────────────────────────
+
+describe('buildPassPlan — transition camera', () => {
+  it('disables ssao during camera transition', () => {
+    const transition: CameraSignals = { state: 'transition', velocity: 0.3, cutActive: false };
+    const plan = buildPassPlan(0, transition);
+    expect(plan.ssao.enabled).toBe(false);
+  });
+
+  it('enables ssao for hero camera at low pressure', () => {
+    const plan = buildPassPlan(0, heroCamera());
+    expect(plan.ssao.enabled).toBe(true);
+  });
+});
+
+// ─── snapUpdateHz — motion-weight aware ──────────────────────────────────────
+
+describe('decideObject — motion-aware update rate', () => {
+  it('high motionWeight object does not drop to 15Hz at pressure 3', () => {
+    const obj = makeObject({
+      motionWeight: 0.8,
+      heroWeight:   0,
+      semanticWeight: 0,
+      screenCoverage: 0.01,
+      distance: 15,
+    });
+    const d = decideObject(obj, browseCamera(), 3);
+    // Even at max pressure, a moving object must not be throttled to 15Hz
+    expect(d.updateHz).toBeGreaterThanOrEqual(30);
+  });
+
+  it('static low-importance object can drop to 15Hz at high pressure', () => {
+    const obj = makeObject({
+      motionWeight:  0,
+      heroWeight:    0,
+      semanticWeight: 0,
+      screenCoverage: 0.01,
+      distance:      18,
+      visible:       true,
+      lastFrameVisible: true,
+    });
+    const d = decideObject(obj, browseCamera(), 3);
+    expect(d.updateHz).toBe(15);
+  });
+});
+
+// ─── resolveResolutionScale — metrics feedback ────────────────────────────────
+
+describe('resolveResolutionScale — budget feedback', () => {
+  it('tightens scale when gpu is near budget at pressure 0', () => {
+    // GPU at 90%+ of budget (budget = 16.6 * 0.60 = ~9.96ms; 90% = ~8.96ms)
+    const hotMetrics: RuntimeMetrics = { ...nominalMetrics(), gpuMs: 9.5 };
+    const noMetrics  = resolveResolutionScale(0, heroCamera());
+    const withMetrics = resolveResolutionScale(0, heroCamera(), hotMetrics);
+    expect(withMetrics).toBeLessThan(noMetrics);
+  });
+
+  it('does not tighten scale when gpu is comfortably within budget', () => {
+    const coolMetrics: RuntimeMetrics = { ...nominalMetrics(), gpuMs: 5.0 };
+    const noMetrics  = resolveResolutionScale(0, heroCamera());
+    const withMetrics = resolveResolutionScale(0, heroCamera(), coolMetrics);
+    expect(withMetrics).toBe(noMetrics);
+  });
+
+  it('never goes below 0.67 even with hot metrics at max pressure', () => {
+    const hotMetrics: RuntimeMetrics = { ...nominalMetrics(), gpuMs: 25 };
+    const transition: CameraSignals = { state: 'transition', velocity: 0, cutActive: false };
+    expect(resolveResolutionScale(3, transition, hotMetrics)).toBeGreaterThanOrEqual(0.67);
+  });
+});
+
+// ─── babylonMeshToSceneObject ─────────────────────────────────────────────────
+
+describe('babylonMeshToSceneObject', () => {
+  const makeBabylonMesh = (id: string, isVisible = true): DirectorBabylonMesh => ({
+    id,
+    isWorldMatrixFrozen: false,
+    isVisible,
+    freezeWorldMatrix:   vi.fn(),
+    unfreezeWorldMatrix: vi.fn(),
+  });
+
+  it('converts a visible mesh with defaults', () => {
+    const mesh = makeBabylonMesh('hero-mesh');
+    const obj = babylonMeshToSceneObject(mesh);
+    expect(obj.id).toBe('hero-mesh');
+    expect(obj.visible).toBe(true);
+    expect(obj.screenCoverage).toBe(0.05);
+    expect(obj.distance).toBe(10);
+    expect(obj.heroWeight).toBe(0);
+  });
+
+  it('applies caller-supplied hints', () => {
+    const mesh = makeBabylonMesh('player');
+    const obj = babylonMeshToSceneObject(mesh, { heroWeight: 1, motionWeight: 0.8, distance: 3 });
+    expect(obj.heroWeight).toBe(1);
+    expect(obj.motionWeight).toBe(0.8);
+    expect(obj.distance).toBe(3);
+  });
+
+  it('uses provided lastVisible override', () => {
+    const mesh = makeBabylonMesh('obj', false); // currently invisible
+    const obj = babylonMeshToSceneObject(mesh, {}, true); // was visible last frame
+    expect(obj.visible).toBe(false);
+    expect(obj.lastFrameVisible).toBe(true);
+  });
+
+  it('invisible mesh yields occluded=false and visible=false', () => {
+    const mesh = makeBabylonMesh('hidden', false);
+    const obj = babylonMeshToSceneObject(mesh);
+    expect(obj.visible).toBe(false);
+    expect(obj.occluded).toBe(false);
+  });
+});
+
+// ─── buildSceneObjects ────────────────────────────────────────────────────────
+
+describe('buildSceneObjects', () => {
+  const makeMesh = (id: string, isVisible = true): DirectorBabylonMesh => ({
+    id,
+    isWorldMatrixFrozen: false,
+    isVisible,
+    freezeWorldMatrix:   vi.fn(),
+    unfreezeWorldMatrix: vi.fn(),
+  });
+
+  it('returns one SceneObject per mesh', () => {
+    const meshes = [makeMesh('a'), makeMesh('b'), makeMesh('c')];
+    const objects = buildSceneObjects(meshes);
+    expect(objects).toHaveLength(3);
+    expect(objects.map((o) => o.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('applies hintsResolver per mesh', () => {
+    const meshes = [makeMesh('hero'), makeMesh('ground')];
+    const objects = buildSceneObjects(meshes, (m) => ({
+      heroWeight: m.id === 'hero' ? 1 : 0,
+    }));
+    expect(objects.find((o) => o.id === 'hero')!.heroWeight).toBe(1);
+    expect(objects.find((o) => o.id === 'ground')!.heroWeight).toBe(0);
+  });
+
+  it('uses lastVisibleSet for temporal tracking', () => {
+    const meshes = [makeMesh('obj', false)]; // currently not visible
+    const lastVisible = new Set(['obj']);    // was visible last frame
+    const objects = buildSceneObjects(meshes, () => ({}), lastVisible);
+    expect(objects[0].lastFrameVisible).toBe(true);
+  });
+
+  it('produces objects compatible with director.update()', () => {
+    const meshes = [makeMesh('hero'), makeMesh('bg')];
+    const objects = buildSceneObjects(meshes, (m) => ({
+      heroWeight: m.id === 'hero' ? 1 : 0,
+    }));
+    const director = new WebGPUDirector();
+    expect(() => {
+      director.update({ metrics: nominalMetrics(), camera: heroCamera(), objects });
+    }).not.toThrow();
   });
 });

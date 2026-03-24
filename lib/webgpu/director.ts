@@ -207,7 +207,9 @@ export function buildPassPlan(
       resolutionScale: FULL_RES,
     },
     ssao: {
-      enabled: (isHero || isDetail) && p1,
+      // Transitions are fast camera moves — SSAO would ghost and is wasteful.
+      // Utility cameras skip SSAO entirely (low-fi view).
+      enabled: (isHero || isDetail) && p1 && !isTransition && !isUtility,
       resolutionScale: HALF_RES,
     },
     bloom: {
@@ -239,6 +241,10 @@ export function buildPassPlan(
  * Score a single scene object on a 0–100 scale.
  *
  * Higher score = more resources allocated.
+ *
+ * Distance falloff uses a squared (quadratic) curve so that close-range objects
+ * are heavily favoured over far ones — this mirrors human visual perception and
+ * produces tighter resource budgets than a linear ramp.
  */
 export function scoreObject(obj: SceneObject, camera: CameraSignals): number {
   if (!obj.visible || obj.occluded) return 0;
@@ -247,23 +253,32 @@ export function scoreObject(obj: SceneObject, camera: CameraSignals): number {
 
   // Visibility primitives
   score += obj.screenCoverage * 30;
-  score += (1 - Math.min(obj.distance / 20, 1)) * 20;
+
+  // Squared distance falloff — perceptually accurate (near objects matter much
+  // more than linearly, far objects diminish quickly past a visibility horizon).
+  const distNorm = 1 - Math.min(obj.distance / 20, 1);
+  score += distNorm * distNorm * 20;
 
   // Semantic signals
-  score += obj.heroWeight      * 20;
-  score += obj.semanticWeight  * 12;
-  score += obj.motionWeight    * 8;
+  score += obj.heroWeight        * 20;
+  score += obj.semanticWeight    * 12;
+  score += obj.motionWeight      * 8;
   score += obj.interactionWeight * 6;
 
   // Camera affinity bonus
-  if (camera.focusTargetId === obj.id)          score += 18;
-  if (camera.state === "hero" && obj.heroWeight > 0.7) score += 10;
+  if (camera.focusTargetId === obj.id)                    score += 18;
+  if (camera.state === "hero"   && obj.heroWeight    > 0.7) score += 10;
   if (camera.state === "detail" && obj.semanticWeight > 0.5) score += 6;
 
-  // Cost penalty — expensive objects need to earn their resources
+  // Cost penalty — expensive objects need to earn their resources.
+  // The penalty is capped relative to the object's base importance so that
+  // high-value objects (hero-weighted) are not unfairly penalised.
   const totalCost =
     obj.materialCost + obj.shadowCost + obj.geometryCost + obj.textureCost;
+  const basePre = score;
   score -= totalCost * 4;
+  // Prevent cost penalty from taking more than 30 % of base importance
+  score = Math.max(score, basePre * 0.7);
 
   // Temporal stability bonus (was visible last frame → no stutter risk)
   if (obj.lastFrameVisible) score += 4;
@@ -284,9 +299,17 @@ export function classifyObject(importance: number, pressure: Pressure): QualityC
 
 // ─── 5) Per-object decision maker ────────────────────────────────────────────
 
-function snapUpdateHz(importance: number, pressure: Pressure): 15 | 30 | 60 {
-  if (pressure === 3)  return importance >= 72 ? 30 : 15;
-  if (pressure === 2)  return importance >= 60 ? 60 : importance >= 30 ? 30 : 15;
+function snapUpdateHz(
+  importance:   number,
+  pressure:     Pressure,
+  motionWeight: number,
+): 15 | 30 | 60 {
+  // Objects in significant motion must not drop below 30 Hz — doing so causes
+  // visible positional stuttering that breaks temporal stability.
+  const minHz: 15 | 30 = motionWeight >= 0.5 ? 30 : 15;
+
+  if (pressure === 3)  return importance >= 72 ? 30 : minHz;
+  if (pressure === 2)  return importance >= 60 ? 60 : importance >= 30 ? 30 : minHz;
   if (pressure === 1)  return importance >= 40 ? 60 : 30;
   return 60;
 }
@@ -325,7 +348,7 @@ export function decideObject(
     importance,
     qualityClass,
     lodLevel:              snapLod(importance, pressure),
-    updateHz:              freeze ? 15 : snapUpdateHz(importance, pressure),
+    updateHz:              freeze ? 15 : snapUpdateHz(importance, pressure, obj.motionWeight),
     castShadow:            !culled && importance >= 50 && obj.shadowCost < 0.8,
     receiveShadow:         !culled && importance >= 30,
     highQualityMaterial:   importance >= 60 && pressure <= 1,
@@ -391,10 +414,16 @@ export function resolveTemporalState(
  *
  * Starts at 1.0 and steps down conservatively under pressure.
  * Never goes below 0.67 to preserve readability.
+ *
+ * When `metrics` are provided, the actual GPU time is compared against the
+ * pressure-tier budget.  If the GPU is already over budget (or within 10 % of
+ * it), the scale is tightened immediately — this closes the feedback loop
+ * faster than waiting for the pressure classifier to ratchet up.
  */
 export function resolveResolutionScale(
-  pressure: Pressure,
-  camera: CameraSignals,
+  pressure:  Pressure,
+  camera:    CameraSignals,
+  metrics?:  RuntimeMetrics,
 ): number {
   if (camera.state === "utility") return 0.75;
 
@@ -405,8 +434,21 @@ export function resolveResolutionScale(
     1.0;
 
   // Transitions tolerate slightly lower resolution
-  if (camera.state === "transition") return Math.max(0.67, base - 0.05);
-  return base;
+  let scale = camera.state === "transition"
+    ? Math.max(0.67, base - 0.05)
+    : base;
+
+  // Budget-derived micro-adjustment: if the GPU is running hot relative to the
+  // per-pressure target, knock 5 % off the scale for immediate relief.
+  if (metrics) {
+    const targetMs = pressure === 3 ? 20 : pressure === 2 ? 18 : 16.6;
+    const gpuBudget = targetMs * 0.60;
+    if (metrics.gpuMs > gpuBudget * 0.90) {
+      scale = Math.max(0.67, scale - 0.05);
+    }
+  }
+
+  return scale;
 }
 
 // ─── 9) Director class ────────────────────────────────────────────────────────
@@ -465,7 +507,7 @@ export class WebGPUDirector {
     const objectDecisions = objects.map((o) => decideObject(o, camera, pressure));
     const frameBudget     = resolveFrameBudget(metrics, pressure);
     const temporal        = resolveTemporalState(camera, pressure);
-    const resolutionScale = resolveResolutionScale(pressure, camera);
+    const resolutionScale = resolveResolutionScale(pressure, camera, metrics);
 
     return {
       pressure,
@@ -564,4 +606,102 @@ export function defaultDirectorMetrics(): RuntimeMetrics {
 /** Safe default camera signals. */
 export function defaultCameraSignals(state: CameraState = "browse"): CameraSignals {
   return { state, velocity: 0, cutActive: false };
+}
+
+// ─── 11) Scene-object builder helpers ────────────────────────────────────────
+
+/**
+ * Per-mesh metadata hints that callers can supply to `babylonMeshToSceneObject`.
+ *
+ * All fields are optional.  If omitted, sensible conservative defaults are used
+ * so static/background meshes are treated as low-importance objects.
+ */
+export type MeshHints = {
+  /** Fraction of the viewport the mesh occupies.  0..1. Default 0.05. */
+  screenCoverage?:    number;
+  /** Camera distance in world units.  Default 10. */
+  distance?:          number;
+  /** Is this the hero / protagonist mesh?  0..1. Default 0. */
+  heroWeight?:        number;
+  /** Semantic importance (labels, key props).  0..1. Default 0.3. */
+  semanticWeight?:    number;
+  /** How much this mesh moves this frame.  0..1. Default 0. */
+  motionWeight?:      number;
+  /** Interaction affordance (button, pickable).  0..1. Default 0. */
+  interactionWeight?: number;
+  /** Does the mesh use a heavy PBR/custom material?  0..1. Default 0.3. */
+  materialCost?:      number;
+  /** Does the mesh cast expensive shadows?  0..1. Default 0.2. */
+  shadowCost?:        number;
+  /** High poly / subdivision surface?  0..1. Default 0.2. */
+  geometryCost?:      number;
+  /** High-res or many textures?  0..1. Default 0.2. */
+  textureCost?:       number;
+};
+
+/**
+ * Convert a `DirectorBabylonMesh` (the thin structural type already known to
+ * the Director) into a full `SceneObject` ready for `director.update()`.
+ *
+ * Call this inside a render loop to build the objects array without manually
+ * spelling out every field per-scene.
+ *
+ * ```ts
+ * const objects = scene.meshes.map((m) =>
+ *   babylonMeshToSceneObject(m, {
+ *     heroWeight: m.id === 'player' ? 1 : 0,
+ *     motionWeight: m.id === 'player' ? 1 : 0,
+ *   })
+ * );
+ * const frame = director.update({ metrics, camera, objects });
+ * ```
+ */
+export function babylonMeshToSceneObject(
+  mesh:         DirectorBabylonMesh,
+  hints:        MeshHints = {},
+  lastVisible?: boolean,
+): SceneObject {
+  return {
+    id:               mesh.id,
+    visible:          mesh.isVisible,
+    occluded:         false,
+    transparent:      false,
+    skinned:          false,
+    screenCoverage:   hints.screenCoverage    ?? 0.05,
+    distance:         hints.distance          ?? 10,
+    heroWeight:       hints.heroWeight        ?? 0,
+    semanticWeight:   hints.semanticWeight    ?? 0.3,
+    motionWeight:     hints.motionWeight      ?? 0,
+    interactionWeight: hints.interactionWeight ?? 0,
+    materialCost:     hints.materialCost      ?? 0.3,
+    shadowCost:       hints.shadowCost        ?? 0.2,
+    geometryCost:     hints.geometryCost      ?? 0.2,
+    textureCost:      hints.textureCost       ?? 0.2,
+    lastFrameVisible: lastVisible             ?? mesh.isVisible,
+  };
+}
+
+/**
+ * Build a `SceneObject[]` from an entire Babylon scene mesh list using a
+ * per-mesh hints resolver callback.
+ *
+ * ```ts
+ * const objects = buildSceneObjects(scene.meshes, (mesh) => ({
+ *   heroWeight: mesh.id === 'hero' ? 1 : 0,
+ *   motionWeight: activeMeshIds.has(mesh.id) ? 0.8 : 0,
+ * }));
+ * ```
+ */
+export function buildSceneObjects(
+  meshes:        DirectorBabylonMesh[],
+  hintsResolver: (mesh: DirectorBabylonMesh) => MeshHints = () => ({}),
+  lastVisibleSet?: Set<string>,
+): SceneObject[] {
+  return meshes.map((m) =>
+    babylonMeshToSceneObject(
+      m,
+      hintsResolver(m),
+      lastVisibleSet ? lastVisibleSet.has(m.id) : m.isVisible,
+    )
+  );
 }
