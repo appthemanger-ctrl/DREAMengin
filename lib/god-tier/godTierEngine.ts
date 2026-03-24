@@ -847,3 +847,40 @@ export function defaultRouteSignals(route = '/'): RouteSignals {
     nextLikelyRoutes: [],
   };
 }
+
+/* =========================================================
+   WEBGPU DIRECTOR BRIDGE
+   Re-export the pass-based WebGPU Director so any module
+   that imports from godTierEngine can also reach the
+   DREAM_ENGINE_WEBGPU_DIRECTOR without a second import path.
+   ========================================================= */
+export {
+  WebGPUDirector,
+  webGPUDirector,
+  buildPassPlan,
+  classifyPressure,
+  scoreObject,
+  classifyObject,
+  decideObject,
+  resolveFrameBudget,
+  resolveTemporalState,
+  resolveResolutionScale,
+  applyDirectorFrame,
+  defaultDirectorMetrics,
+  defaultCameraSignals,
+  type CameraState,
+  type Pressure,
+  type QualityClass,
+  type PassName,
+  type PassConfig,
+  type PassPlan,
+  type ObjectDecision,
+  type FrameBudget,
+  type TemporalState,
+  type DirectorFrame,
+  type CameraSignals,
+  type SceneObject,
+  type DirectorBabylonEngine,
+  type DirectorBabylonScene,
+  type DirectorBabylonMesh,
+} from '../webgpu/director';
