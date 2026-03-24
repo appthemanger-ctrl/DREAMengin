@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-24 05:27 UTC  
-**Triggered by commit:** `049f36f` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #285 from appthemanger-ctrl/claude/fix-babylon-animation-blur
+**Last updated:** 2026-03-24 07:58 UTC  
+**Triggered by commit:** `2c58f1c` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #287 from appthemanger-ctrl/claude/fix-blur-and-3d-robot
 
 ---
 
@@ -16,7 +16,7 @@ DREAMengin is a **dual-runtime, spatial creative operating environment** built o
 
 It is not defined as a conventional page-based website. It is a **personal operating surface** where users move through connected live surfaces, modular runtime containers, and powered Engin layers while preserving context.
 
-### Core product axioms (non-a negotiable)
+### Core product axioms (non-negotiable)
 
 | # | Axiom | One-line rule |
 |---|-------|---------------|
