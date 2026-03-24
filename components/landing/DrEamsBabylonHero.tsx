@@ -6,6 +6,7 @@ import {
   ArcRotateCamera,
   Color3,
   Color4,
+  CubeTexture,
   DirectionalLight,
   GlowLayer,
   HemisphericLight,
@@ -14,6 +15,7 @@ import {
   PBRMaterial,
   PointerEventTypes,
   Scene,
+  Texture,
   TransformNode,
   Vector3,
 } from '@babylonjs/core';
@@ -121,26 +123,69 @@ export default function DrEamsBabylonHero({
     const glow = new GlowLayer('glow', scene, { blurKernelSize: 16 });
     glow.intensity = 0.55;
 
+    // ── Environment Texture (IBL for realistic reflections) ───────────────────
+    scene.environmentTexture = CubeTexture.CreateFromPrefilteredData(
+      'https://assets.babylonjs.com/environments/Studio.env',
+      scene,
+    );
+    scene.environmentIntensity = 1.2;
+
     // ── Materials ─────────────────────────────────────────────────────────────
 
-    // Lab coat (torso, upper legs) — clean white/off-white
+    // Lab coat (torso, upper legs) — clean white/off-white with fabric PBR textures
     const coatMat = new PBRMaterial('coat', scene);
-    coatMat.albedoColor = new Color3(0.91, 0.93, 0.96);
-    coatMat.metallic = 0.0;
-    coatMat.roughness = 0.82;
+    coatMat.albedoColor = new Color3(0.98, 0.98, 0.99);
+    coatMat.albedoTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_02/fabric_02_1k_albedo.jpg',
+      scene,
+    );
+    coatMat.metallicRoughnessTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_02/fabric_02_1k_orm.jpg',
+      scene,
+    );
+    coatMat.normalTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_02/fabric_02_1k_normal.jpg',
+      scene,
+    );
+    coatMat.metallic = 0.05;
+    coatMat.roughness = 0.65;
     coatMat.environmentIntensity = 0.7;
 
-    // Helmet & head armour — near-black glossy dome (matches reference)
+    // Helmet & head armour — near-black glossy dome with metal plate PBR textures
     const helmetMat = new PBRMaterial('helmet', scene);
-    helmetMat.albedoColor = new Color3(0.05, 0.06, 0.08);
-    helmetMat.metallic = 0.88;
-    helmetMat.roughness = 0.16;
+    helmetMat.albedoColor = new Color3(0.9, 0.9, 0.95); // slight cool tint
+    helmetMat.albedoTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_albedo.jpg',
+      scene,
+    );
+    helmetMat.metallicRoughnessTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_orm.jpg',
+      scene,
+    );
+    helmetMat.normalTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_normal.jpg',
+      scene,
+    );
+    helmetMat.metallic = 1.0;
+    helmetMat.roughness = 0.2;
     helmetMat.environmentIntensity = 1.80;
     helmetMat.emissiveColor = new Color3(0.01, 0.04, 0.06);
 
-    // Robot arms / shoulders / boots — brushed silver
+    // Robot arms / shoulders / boots — brushed silver with metal plate PBR textures
     const metalMat = new PBRMaterial('metal', scene);
     metalMat.albedoColor = new Color3(0.70, 0.76, 0.82);
+    metalMat.albedoTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_albedo.jpg',
+      scene,
+    );
+    metalMat.metallicRoughnessTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_orm.jpg',
+      scene,
+    );
+    metalMat.normalTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_normal.jpg',
+      scene,
+    );
     metalMat.metallic = 0.90;
     metalMat.roughness = 0.20;
     metalMat.environmentIntensity = 1.50;
@@ -178,17 +223,25 @@ export default function DrEamsBabylonHero({
     accentMat.metallic = 0;
     accentMat.roughness = 0.85;
 
-    // Yellow dot (left eye) — emissive gold
+    // Yellow dot (left eye) — emissive gold with subtle texture
     const dotLMat = new PBRMaterial('dotL', scene);
     dotLMat.albedoColor = new Color3(1.0, 0.88, 0.08);
     dotLMat.emissiveColor = new Color3(1.0, 0.82, 0.0);
+    dotLMat.emissiveTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_albedo.jpg',
+      scene,
+    );
     dotLMat.metallic = 0;
     dotLMat.roughness = 1;
 
-    // Cyan dot (right eye) — emissive cyan
+    // Cyan dot (right eye) — emissive cyan with subtle texture
     const dotRMat = new PBRMaterial('dotR', scene);
     dotRMat.albedoColor = new Color3(0.10, 0.90, 1.0);
     dotRMat.emissiveColor = new Color3(0.0, 0.88, 1.0);
+    dotRMat.emissiveTexture = new Texture(
+      'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_01/metal_plate_01_1k_albedo.jpg',
+      scene,
+    );
     dotRMat.metallic = 0;
     dotRMat.roughness = 1;
 
