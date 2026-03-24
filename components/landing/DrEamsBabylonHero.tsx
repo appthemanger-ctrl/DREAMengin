@@ -28,6 +28,15 @@ import {
   defaultRouteSignals,
   type BabylonSceneLike,
 } from '@/lib/god-tier/godTierEngine';
+import {
+  WebGPUDirector,
+  applyDirectorFrame,
+  buildSceneObjects,
+  defaultCameraSignals,
+  type DirectorBabylonEngine,
+  type DirectorBabylonMesh,
+  type DirectorBabylonScene,
+} from '@/lib/webgpu/director';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function lerp(a: number, b: number, t: number): number {
@@ -58,10 +67,12 @@ export default function DrEamsBabylonHero({
   height = 480,
   className = '',
 }: Props) {
-  const canvasRef   = useRef<HTMLCanvasElement>(null);
-  const godTierRef  = useRef(new DreamEngineGodTierSystem());
-  const engineRef   = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
-  const sceneRef    = useRef<Scene | null>(null);
+  const canvasRef    = useRef<HTMLCanvasElement>(null);
+  const godTierRef   = useRef(new DreamEngineGodTierSystem());
+  // WebGPU Director — per-object quality decisions (LOD, shadow, freeze)
+  const directorRef  = useRef(new WebGPUDirector());
+  const engineRef    = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
+  const sceneRef     = useRef<Scene | null>(null);
   const onResizeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
@@ -1023,6 +1034,9 @@ export default function DrEamsBabylonHero({
     applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gtInitial, window.devicePixelRatio ?? 1);
 
     let lastGtMs = 0;
+    // Track last-frame mesh visibility for Director temporal stability
+    let lastVisibleIds = new Set<string>(scene.meshes.map((m) => m.id));
+
     engine.runRenderLoop(() => {
       scene.render();
       const now = performance.now();
@@ -1030,6 +1044,8 @@ export default function DrEamsBabylonHero({
         lastGtMs = now;
         const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
         const avgFrame = perf ? perf.averageFrameTime : 16.6;
+
+        // ── God Tier: hardware scaling + image processing ────────────────────
         const gt = godTierRef.current.update({
           device:  defaultDeviceSignals(),
           runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
@@ -1039,6 +1055,41 @@ export default function DrEamsBabylonHero({
           ui: [],
         });
         applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);
+
+        // ── WebGPU Director: per-object freeze / shadow / LOD ────────────────
+        const dirObjects = buildSceneObjects(
+          scene.meshes as unknown as DirectorBabylonMesh[],
+          (m) => ({
+            // Robot body parts are hero objects; environment is background
+            heroWeight:    (m as unknown as Mesh).name?.startsWith('dr-eams') ? 1 : 0,
+            semanticWeight: 0.8,
+            motionWeight:  (m as unknown as Mesh).animations?.length ? 0.7 : 0,
+            screenCoverage: 0.15,
+            distance:      5,
+            materialCost:  0.5,  // PBR materials are expensive
+          }),
+          lastVisibleIds,
+        );
+
+        const dirFrame = directorRef.current.update({
+          metrics: {
+            frameMs: avgFrame, avgFrameMs: avgFrame,
+            gpuMs: avgFrame * 0.55, cpuMs: avgFrame * 0.30,
+            droppedFrameRatio: avgFrame > 20 ? (avgFrame - 20) / 30 : 0,
+            uploadMs: avgFrame * 0.10,
+          },
+          camera:  defaultCameraSignals('hero'),
+          objects: dirObjects,
+        });
+        applyDirectorFrame(
+          engine as unknown as DirectorBabylonEngine,
+          scene  as unknown as DirectorBabylonScene,
+          dirFrame,
+          window.devicePixelRatio ?? 1,
+        );
+
+        // Update last-frame visibility set for next tick
+        lastVisibleIds = new Set(scene.meshes.filter((m) => m.isVisible).map((m) => m.id));
       }
     });
 

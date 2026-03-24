@@ -1,6 +1,7 @@
 // components/dreamengin/BabylonGameScene.tsx
 // Babylon.js v8 real-time 3D scene for the GameEngin.
 // God Tier Engine integrated — hardware scaling, image processing, mesh policy.
+// WebGPU Director integrated — per-object LOD, shadow, and freeze decisions.
 
 'use client';
 
@@ -14,16 +15,24 @@ import {
   defaultUXSignals,
   defaultRouteSignals,
 } from '@/lib/god-tier/godTierEngine';
+import {
+  WebGPUDirector,
+  applyDirectorFrame,
+  buildSceneObjects,
+  defaultCameraSignals,
+} from '@/lib/webgpu/director';
 
 interface BabylonGameSceneProps {
   onGameSelect?: (gameId: string) => void;
 }
 
 export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
+  const canvasRef   = useRef<HTMLCanvasElement>(null);
+  const engineRef   = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
   // God Tier system instance — persists for this scene's lifetime
-  const godTierRef = useRef(new DreamEngineGodTierSystem());
+  const godTierRef  = useRef(new DreamEngineGodTierSystem());
+  // WebGPU Director — per-object quality decisions (LOD, shadow, freeze)
+  const directorRef = useRef(new WebGPUDirector());
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -163,16 +172,21 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
         }
       });
 
-      // Render loop — God Tier drives hardware scaling each frame
+      // Render loop — God Tier drives hardware scaling; Director drives per-object quality
       let lastGodTierMs = 0;
+      // Track last-frame visibility for Director temporal stability
+      let lastVisibleIds = new Set<string>(scene.meshes.map((m) => m.id));
+
       engine.runRenderLoop(() => {
         scene.render();
-        // Re-evaluate God Tier state ~every 500ms to react to frame pressure
+        // Re-evaluate both systems ~every 500ms to react to frame pressure
         const now = performance.now();
         if (now - lastGodTierMs > 500) {
           lastGodTierMs = now;
           const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
           const avgFrame = perf ? perf.averageFrameTime : 16.6;
+
+          // ── God Tier: hardware scaling + image processing ──────────────────
           const gtState = godTierRef.current.update({
             device:  defaultDeviceSignals(),
             runtime: {
@@ -206,6 +220,40 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
             ui: [],
           });
           applyGodTierToBabylon(engine, scene as unknown as import('@/lib/god-tier/godTierEngine').BabylonSceneLike, gtState, window.devicePixelRatio ?? 1);
+
+          // ── WebGPU Director: per-object freeze / shadow / LOD ──────────────
+          const dirObjects = buildSceneObjects(
+            scene.meshes as unknown as import('@/lib/webgpu/director').DirectorBabylonMesh[],
+            (m) => ({
+              heroWeight:    m.id === 'hub' ? 1 : m.id.startsWith('orb') ? 0.7 : 0,
+              semanticWeight: m.id.startsWith('orb') ? 1 : 0.3,
+              motionWeight:  m.id === 'hub' || m.id.startsWith('orb') ? 0.8 : 0,
+              screenCoverage: m.id === 'hub' ? 0.2 : m.id.startsWith('orb') ? 0.12 : 0.05,
+              distance:      m.id === 'hub' ? 2 : 8,
+              shadowCost:    0.3,
+            }),
+            lastVisibleIds,
+          );
+
+          const dirFrame = directorRef.current.update({
+            metrics: {
+              frameMs: avgFrame, avgFrameMs: avgFrame,
+              gpuMs: avgFrame * 0.55, cpuMs: avgFrame * 0.30,
+              droppedFrameRatio: avgFrame > 20 ? (avgFrame - 20) / 30 : 0,
+              uploadMs: avgFrame * 0.10,
+            },
+            camera:  defaultCameraSignals('browse'),
+            objects: dirObjects,
+          });
+          applyDirectorFrame(
+            engine as unknown as import('@/lib/webgpu/director').DirectorBabylonEngine,
+            scene as unknown as import('@/lib/webgpu/director').DirectorBabylonScene,
+            dirFrame,
+            window.devicePixelRatio ?? 1,
+          );
+
+          // Update last-frame visibility set for next tick
+          lastVisibleIds = new Set(scene.meshes.filter((m) => m.isVisible).map((m) => m.id));
         }
       });
 
