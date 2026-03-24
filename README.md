@@ -4,9 +4,17 @@ Next.js 16+ / Supabase / Dual-Runtime / Privacy-First Spatial Operating Environm
 Author: José Mancilla  
 Date: March 16, 2026
 
+## Recent Changes
+
+| Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
+|---|---|---|---|---|---|
+| `6e51f23` | 2026-03-24 17:55 UTC | copilot/add-readme-update-action | copilot-swe-agent[bot] | — | Initial plan |
+
+
 ---
 
 ## Current Implementation Status
+Last updated: 2026-03-24 17:55 UTC — `6e51f23` by copilot-swe-agent[bot]
 
 Phase: Phase 7 — OS-Layer Naming Authority WEBGPU 
 Scope: Canonical names, Dream Window, dual-runtime spatial model
