@@ -2,23 +2,25 @@
 
 Next.js 16+ / Supabase / Dual-Runtime / Privacy-First Spatial Operating Environment  
 Author: José Mancilla  
-Date: March 16, 2026
+Date: March 24, 2026
 
 ---
 
 ## Current Implementation Status
 
-Phase: Phase 7 — OS-Layer Naming Authority WEBGPU 
-Scope: Canonical names, Dream Window, dual-runtime spatial model
+Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
+Scope: Full dual-runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
 
-Build Status: 48 routes · 832 tests passing
+Build Status: 134 routes · 1575+ tests passing
 
 Tech Stack:
-- Next.js 16.1.6 (App Router)
+- Next.js 16+ (App Router)
 - React 19
 - TypeScript
 - Tailwind CSS
+- Babylon.js 8+ (WebGPU-first 3D rendering)
 - Supabase (Auth, PostgreSQL, Realtime, Storage)
+- Vitest (test framework)
 - pnpm 10.30.0
 - Node 24
 
@@ -240,7 +242,7 @@ Roles:
 
 - **Dr. Eams** — discovery, routing, and idea generation  
 - **IDARi** — system maintenance and governance  
-- **TheBoogieMan.Ai** — adversarial testing and stress simulation  
+- **TheBoogieMan.Ai** — policy enforcement and system overwatch  
 
 ---
 
@@ -819,11 +821,11 @@ Dreams may:
 	•	represent a Daydream or system component
 	•	exist on HomeDream, Edit ProfileDream, View Profile, and Daydream surfaces where allowed
 
-15.3 Widget Menu Requirement
+15.3 Dream Window Menu Requirement
 
-Every widget must include a customization menu.
+Every Dream Window must include a customization menu.
 
-15.4 Widget Menu Functions (May Include)
+15.4 Dream Window Menu Functions (May Include)
 	•	rename
 	•	recolor
 	•	resize
@@ -837,9 +839,9 @@ Every widget must include a customization menu.
 	•	route settings
 	•	permissions
 
-15.5 Widget Data (Minimum)
+15.5 Dream Window Data (Minimum)
 
-Each Dream should minimally support:
+Each Dream Window should minimally support:
 	•	id
 	•	type
 	•	owner
