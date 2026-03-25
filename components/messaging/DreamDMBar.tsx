@@ -417,23 +417,23 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
       return;
     }
 
-    // Code surface: open codespace with the snippet pre-filled
+    // Code surface: open Code Daydream (v2 canonical route)
     if (barCtx.surface === 'code') {
-      window.location.href = `/codespace?snippet=${encodeURIComponent(text)}`;
+      window.location.href = `/daydream/code`;
       setQuickDraft('');
       return;
     }
 
-    // Dreams / Dr. Eams surface: route as Dr. Eams chat
+    // Dreams / Dr. Eams surface: open Dr. Eams chat panel (v2 — stays in HomeDream)
     if (barCtx.surface === 'dreams') {
-      window.location.href = `/dreamengin?q=${encodeURIComponent(text)}`;
+      toggleDrEams();
       setQuickDraft('');
       return;
     }
 
-    // Music surface: open music composer
+    // Music surface: open Music Daydream (v2 canonical route)
     if (barCtx.surface === 'music') {
-      window.location.href = `/music?prompt=${encodeURIComponent(text)}`;
+      window.location.href = `/daydream/music`;
       setQuickDraft('');
       return;
     }

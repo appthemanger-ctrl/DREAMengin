@@ -17,6 +17,9 @@
 
 export const PLATFORM_NAME = 'DREAMengin' as const;
 
+/** Canonical product version. Bump here when releasing a new major version. */
+export const PRODUCT_VERSION = '2.0.0' as const;
+
 /** All rejected platform name variants. Any generated name matching one of these is invalid. */
 export const REJECTED_PLATFORM_VARIANTS = [
   'DreamEngin',

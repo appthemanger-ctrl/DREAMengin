@@ -155,3 +155,56 @@
   border-left: 1px solid rgba(125, 211, 252, 0.08);
   border-radius: 20px 0 0 0;
 }
+
+/* ── Dream Rail (v2) — replaces legacy widget-rail from v1-ui ──────────────── */
+/* Previously: components/v1-ui/widget-feed-screen.css .widget-rail            */
+.dream-rail {
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.1)
+  );
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  scroll-behavior: smooth;
+}
+
+.dream-rail-right {
+  border-right: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ── Dream Rail Icon (v2) — replaces legacy widget-icon from v1-ui ────────── */
+.dream-rail-icon {
+  transition: all 0.2s ease-in-out;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dream-rail-icon:active {
+  transform: scale(0.95);
+}
+
+/* ── Dream Feed Transition (v2) — replaces legacy feed-area-transition ──────── */
+.dream-feed-transition {
+  animation: dreamFadeSlide 300ms ease-in-out;
+}
+
+@keyframes dreamFadeSlide {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 768px) {
+  .dream-rail {
+    width: 100px;
+    min-width: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dream-rail {
+    width: 120px;
+    min-width: 120px;
+  }
+}

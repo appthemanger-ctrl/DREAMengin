@@ -392,9 +392,9 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
               {[
-                { href: '/edit-profiledream', label: 'DreamProfile' },
-                { href: '/discover', label: 'Feed' },
-                { href: '/view-profile', label: 'Your Dreams' },
+                { href: '/edit-profiledream', label: 'Edit ProfileDream' },
+                { href: '/discover', label: 'Discover' },
+                { href: '/view-profile', label: 'View Profile' },
               ].map((item) => (
                 <button
                   key={item.label}

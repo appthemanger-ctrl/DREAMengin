@@ -106,7 +106,8 @@ export default function JoinPage() {
         window.localStorage.removeItem("rememberedEmail");
       }
 
-      router.replace("/homedream");
+      // New users go through onboarding before HomeDream
+      router.replace("/onboarding");
     } finally {
       setBusy(false);
     }
@@ -129,7 +130,8 @@ export default function JoinPage() {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: origin ? `${origin}/auth/callback` : undefined,
+          // New users coming from /join get onboarding after OAuth callback
+          redirectTo: origin ? `${origin}/auth/callback?next=/onboarding` : undefined,
         },
       });
       if (oauthError) setError(oauthError.message);
