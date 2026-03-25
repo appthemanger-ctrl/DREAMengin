@@ -55,6 +55,13 @@ export interface ScanInput {
   mediaHashes?: string[];
   /** Caller-supplied known-bad hash set (loaded from child_safety_hash_registry) */
   knownBadHashes?: Set<string>;
+  /**
+   * Pre-computed LLM image classification result for Layer 4.
+   * Callers that want image classification must run classifyImage() first
+   * (it is async) and pass the result in here so that scanContent() remains
+   * synchronous and testable without network access.
+   */
+  imageClassification?: import('./imageClassifier').ImageClassificationResult;
 }
 
 // ============================================================================
@@ -159,9 +166,14 @@ function estimateConfidence(signalCount: number): number {
 /**
  * scanContent — deterministic child safety scan.
  *
- * Runs all detection layers (text + hash) and returns a single ChildSafetyResult.
- * CSAM takes precedence over GROOMING when both are detected.
- * Side-effect-free — callers decide enforcement.
+ * Runs all detection layers (text + hash + optional LLM image) and returns
+ * a single ChildSafetyResult. CSAM takes precedence over GROOMING when both
+ * are detected. Side-effect-free — callers decide enforcement.
+ *
+ * Layer 1: Hash-based CSAM (highest priority)
+ * Layer 2: CSAM text signals
+ * Layer 3: Grooming / predator behaviour signals
+ * Layer 4: LLM image classification (pre-computed by caller, passed via imageClassification)
  */
 export function scanContent(input: ScanInput): ChildSafetyResult {
   const text = (input.text ?? '').normalize('NFKC');
@@ -211,6 +223,20 @@ export function scanContent(input: ScanInput): ChildSafetyResult {
       category: 'GROOMING',
       signal_count: groomResult.matchedLabels.length,
       _audit: { signals: groomResult.matchedLabels, hash_match: false },
+    };
+  }
+
+  // ── Layer 4: LLM image classification (pre-computed by caller) ───────────
+  const imgResult = input.imageClassification;
+  if (imgResult && !imgResult.skipped && imgResult.flagged) {
+    return {
+      flagged: true,
+      rule_code: 'C22_CSAM',
+      severity: imgResult.severity,
+      confidence: imgResult.confidence,
+      category: 'CSAM',
+      signal_count: 1,
+      _audit: { signals: [`llm_image:${imgResult.risk}`], hash_match: false },
     };
   }
 

@@ -21,6 +21,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { scanContent, isZeroTolerance } from '@/lib/child-safety/childSafetyDetector';
+import { classifyImage } from '@/lib/child-safety/imageClassifier';
 import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
 import { boogieEnforce, BOOGIE_POLICY_VERSION } from '@/lib/ai/boogieman';
 import { writeAuditLog } from '@/lib/ai/audit';
@@ -40,6 +41,14 @@ const ChildSafetyScanBodySchema = z.object({
   text: z.string().max(10_000).optional(),
   /** SHA-256 hex hashes of any attached media files */
   mediaHashes: z.array(z.string().regex(/^[0-9a-f]{64}$/i)).max(20).optional(),
+  /**
+   * Base64-encoded image data for LLM classification (Layer 4).
+   * Max 5 MB base64 (~3.75 MB decoded). MIME type defaults to image/jpeg.
+   * Omit for text-only scans.
+   */
+  imageBase64: z.string().max(5_100_000).optional(),
+  /** MIME type of the imageBase64 payload (default: image/jpeg) */
+  imageMime: z.enum(['image/jpeg', 'image/png', 'image/webp', 'image/gif']).optional(),
   /** Platform surface where the content was found */
   surface: z.enum(['post', 'message', 'comment', 'profile', 'upload']),
   /** Opaque content reference (post_id, message_id, etc.) */
@@ -126,11 +135,22 @@ export async function POST(req: NextRequest) {
   // ── Load known-bad hash set ──────────────────────────────────────────────
   const knownBadHashes = await loadKnownBadHashes(supabase);
 
+  // ── Layer 4: LLM image classification (runs before scanContent) ──────────
+  // classifyImage is async so we run it here and pass the result into scanContent.
+  let imageClassification: import('@/lib/child-safety/imageClassifier').ImageClassificationResult | undefined;
+  if (request.imageBase64) {
+    imageClassification = await classifyImage(
+      request.imageBase64,
+      request.imageMime ?? 'image/jpeg',
+    );
+  }
+
   // ── Run child safety detector ────────────────────────────────────────────
   const detection = scanContent({
     text: request.text,
     mediaHashes: request.mediaHashes,
     knownBadHashes,
+    imageClassification,
   });
 
   // ── If clean, return early ───────────────────────────────────────────────
@@ -217,6 +237,9 @@ export async function POST(req: NextRequest) {
       enforcement_action: enforcement.action,
       zero_tolerance: isZeroTolerance(detection),
       incident_id: incidentResult?.incidentId,
+      image_classification: imageClassification
+        ? { risk: imageClassification.risk, confidence: imageClassification.confidence, skipped: imageClassification.skipped }
+        : null,
     },
   });
 
@@ -229,6 +252,9 @@ export async function POST(req: NextRequest) {
       severity: detection.severity,
       confidence: detection.confidence,
       zero_tolerance: isZeroTolerance(detection),
+      image_classification: imageClassification
+        ? { risk: imageClassification.risk, confidence: imageClassification.confidence, skipped: imageClassification.skipped }
+        : null,
       enforcement: {
         action: enforcement.action,
         scopes: enforcement.audit_event.scopes_restricted,

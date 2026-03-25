@@ -294,3 +294,105 @@ describe('isZeroTolerance', () => {
     expect(isZeroTolerance({ flagged: true, rule_code: 'C31_GROOMING', severity: 0.5, confidence: 0.70, category: 'GROOMING', signal_count: 1, _audit: { signals: [], hash_match: true } })).toBe(true);
   });
 });
+
+// ============================================================================
+// LAYER 4 — LLM image classification integration in scanContent
+// ============================================================================
+
+describe('childSafetyDetector — Layer 4 LLM image classification', () => {
+  it('passes through clean result when imageClassification is absent', () => {
+    const result = scanContent({ text: 'Normal post' });
+    expect(result.flagged).toBe(false);
+  });
+
+  it('passes through clean result when imageClassification is skipped', () => {
+    const result = scanContent({
+      text: 'Normal post',
+      imageClassification: { flagged: false, risk: 'none', confidence: 0, severity: 0, skipped: true },
+    });
+    expect(result.flagged).toBe(false);
+  });
+
+  it('returns clean result when imageClassification.flagged is false', () => {
+    const result = scanContent({
+      text: 'Normal post',
+      imageClassification: { flagged: false, risk: 'low', confidence: 0.4, severity: 0.25, skipped: false },
+    });
+    expect(result.flagged).toBe(false);
+    expect(result.category).toBe('CLEAN');
+  });
+
+  it('flags CSAM when imageClassification.flagged is true', () => {
+    const result = scanContent({
+      text: 'Normal caption',
+      imageClassification: { flagged: true, risk: 'high', confidence: 0.92, severity: 0.9, skipped: false },
+    });
+    expect(result.flagged).toBe(true);
+    expect(result.rule_code).toBe('C22_CSAM');
+    expect(result.category).toBe('CSAM');
+    expect(result.severity).toBe(0.9);
+    expect(result.confidence).toBe(0.92);
+    expect(result._audit.signals).toContain('llm_image:high');
+  });
+
+  it('flags CSAM with certain risk at severity 1.0', () => {
+    const result = scanContent({
+      imageClassification: { flagged: true, risk: 'certain', confidence: 0.99, severity: 1.0, skipped: false },
+    });
+    expect(result.flagged).toBe(true);
+    expect(result.rule_code).toBe('C22_CSAM');
+    expect(result.severity).toBe(1.0);
+    expect(isZeroTolerance(result)).toBe(true);
+  });
+
+  it('hash match in Layer 1 takes precedence over LLM flagging', () => {
+    const knownBadHashes = new Set(['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']);
+    const result = scanContent({
+      text: 'Normal caption',
+      mediaHashes: ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'],
+      knownBadHashes,
+      imageClassification: { flagged: true, risk: 'certain', confidence: 0.99, severity: 1.0, skipped: false },
+    });
+    expect(result.flagged).toBe(true);
+    expect(result._audit.hash_match).toBe(true);
+    expect(result._audit.signals).toContain('hash_registry_match');
+  });
+
+  it('CSAM text in Layer 2 takes precedence over LLM classification', () => {
+    const result = scanContent({
+      text: 'I have child pornography to share.',
+      imageClassification: { flagged: false, risk: 'none', confidence: 0.95, severity: 0, skipped: false },
+    });
+    expect(result.flagged).toBe(true);
+    expect(result.rule_code).toBe('C22_CSAM');
+    expect(result._audit.signals).not.toContain('llm_image:none');
+  });
+});
+
+// ============================================================================
+// imageClassifier — parseVerdict / classifyImage (pure logic tests, no API)
+// ============================================================================
+
+import { classifyImage } from '@/lib/child-safety/imageClassifier';
+
+describe('imageClassifier — classifyImage graceful degradation', () => {
+  it('returns skipped result when GROQ_API_KEY is missing', async () => {
+    // In the test environment GROQ_API_KEY is not set
+    const result = await classifyImage('dGVzdA=='); // base64 "test"
+    expect(result.skipped).toBe(true);
+    expect(result.flagged).toBe(false);
+  });
+
+  it('returns skipped result for empty payload', async () => {
+    const result = await classifyImage('');
+    expect(result.skipped).toBe(true);
+    expect(result.flagged).toBe(false);
+  });
+
+  it('returns skipped result for oversized payload', async () => {
+    const bigPayload = 'a'.repeat(5_100_001);
+    const result = await classifyImage(bigPayload);
+    expect(result.skipped).toBe(true);
+    expect(result.flagged).toBe(false);
+  });
+});

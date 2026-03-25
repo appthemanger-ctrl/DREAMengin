@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import IDariPanel from '@/components/IDariPanel';
+import ChildSafetyPanel from '@/components/ChildSafetyPanel';
 import Link from 'next/link';
 import {
   ArrowLeft, Bot, Shield, Activity, Users, Database,
@@ -242,6 +243,18 @@ export default async function AdminPage() {
           </div>
           <div className="de-widget-body">
             <IDariPanel userId={user?.id ?? ''} isAdmin={isAdmin} />
+          </div>
+        </div>
+
+        {/* Child Safety Console */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Shield className="w-4 h-4 mr-2" style={{ color: '#dc2626' }} />
+            <span className="de-widget-title">Child Safety Console</span>
+            <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 8 }}>TheBoogieMan.Ai · Zero Tolerance</span>
+          </div>
+          <div className="de-widget-body">
+            <ChildSafetyPanel isAdmin={isAdmin} />
           </div>
         </div>
 
