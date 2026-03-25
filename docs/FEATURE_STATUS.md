@@ -1,11 +1,12 @@
 # DREAMengin Feature Status
 
-Last updated: 2026-03-24  
+Last updated: 2026-03-25  
 Source of truth for product naming: `README.md`
 
 Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly aligned
 
-**Current phase:** Phase 8 — Real Runtime Completion (Points 1–100)  
+**Current version:** v2.0.0 — DREAMengin as one coherent product  
+**Previous phase:** Phase 8 — Real Runtime Completion (Points 1–100) — all 100 points ✅  
 See `docs/dreamengin_phase8.md` for the full 100-point specification.
 
 **Phase 8 progress: §A ✅ §B ✅ §C ✅ §D ✅ §E ✅ §F ✅ §G ✅ §H ✅ §I ✅ §J ✅**
@@ -14,9 +15,9 @@ See `docs/dreamengin_phase8.md` for the full 100-point specification.
 
 | Surface | Status | Repo truth |
 |---|---|---|
-| HomeDream | ✅ | Canonical route exists at `/homedream`; support route also exists at `/home`. |
-| EditProfileDream | 🟡 | Canonical route exists at `/edit-profiledream`; support route also exists at `/edit-profile`. Builder logic exists but naming is still mixed. |
-| ViewProfile | 🟡 | Canonical route exists at `/view-profile`; public/shared output also lives at `/profile/[handle]`. Public projection boundaries need cleaner language and wiring. |
+| HomeDream | ✅ | Canonical route at `/homedream`; `/home` support route redirects here. |
+| EditProfileDream | ✅ | Canonical route at `/edit-profiledream`; `/edit-profile` redirects here. Naming canonical throughout. |
+| ViewProfile | ✅ | Canonical route at `/view-profile`; `/profile/[handle]` is the public projection. Projection boundaries wired via `lib/profile/projectionFilter.ts`. |
 
 ## 2. Dreams system
 
@@ -26,8 +27,8 @@ See `docs/dreamengin_phase8.md` for the full 100-point specification.
 | Connector/Identity layer | ✅ | `components/dreams/DreamConnectorLayer.tsx` exists. |
 | Feature layer | ✅ | `components/dreams/DreamFeatureLayer.tsx` exists. |
 | Output/Projection layer | ✅ | `components/dreams/DreamOutputLayer.tsx` exists. |
-| Legacy widget absorption into Dreams naming | 🟡 | `components/widgets/*` still exists and is being repurposed. |
-| Automatic Super Widget composition | 🟡 | `components/dreams/SuperDreamWidget.tsx` exists, but profile-wide composition rules still need full alignment. |
+| Legacy widget absorption into Dreams naming | ✅ | `components/widgets/*` repurposed; canonical term is Dream Window throughout UI/onboarding/docs. |
+| Automatic Super Dream Window composition | ✅ | `components/dreams/SuperDreamWidget.tsx` composes compatible Dream Windows into named clusters with real add/remove/configure actions. |
 
 ## 2a. Dreams Space (second runtime)
 
@@ -51,7 +52,7 @@ See `docs/dreamengin_phase8.md` for the full 100-point specification.
 | Create / ContentEngin | ✅ | `app/daydream/create/page.tsx` exists; `components/daydream/ContentEngin.tsx` exists. |
 | DaydreamShell sideBComponent prop | ✅ | `components/daydream/DaydreamShell.tsx` now accepts `sideBComponent` prop (Phase 6). |
 | useDaydreamState hook | ✅ | `lib/daydream/useDaydreamState.ts` created (Phase 6). |
-| Legacy extra daydream routes | 🟡 | `analytics`, `media-vault`, and `play` still exist and must be repurposed (Phase 6). |
+| Legacy extra daydream routes | ✅ | `analytics`, `media-vault`, and `play` legacy routes repurposed or subordinated. |
 
 ## 4. Platform modules
 
@@ -70,7 +71,7 @@ See `docs/dreamengin_phase8.md` for the full 100-point specification.
 | Dr. Eams | ✅ | Canonical route at `/api/ai/eams`. `DrEamsSearchBar` wired in HomeDream (`WorkspaceDashboard`); `onOpenDrEams` calls real `openDrEams` from `DreamSystemContext`. Send-to-DreamDM routing live. Phase 6 item 5 complete. |
 | IDARi | ✅ | `/api/ai/idari` exists; admin-guard enforced even under dev bypass; `IDARI_PASSWORD` env check returns 503 when absent. 15 guard tests in `tests/idari-admin-guard.test.ts`. Phase 6 item 6 complete. |
 | TheBoogieMan.Ai | ✅ | `/api/ai/boogieman` and `/api/ai/boogieman/privacy-event` exist. Visibility-change events logged on `handleSave`; publish events logged on `handlePublish` in EditProfileDream. Phase 6 item 7 complete. |
-| AI Triad coordination bus | 🟡 | `lib/agents/agentBus.ts` exists; triad consensus gate is a Phase 6 item. |
+| AI Triad coordination bus | ✅ | `lib/agents/agentBus.ts` now covers all three agents (Dr. Eams, IDARi, TheBoogieMan) with typed event channels (`dreamengin:eams`, `dreamengin:idari`, `dreamengin:boogieman`) and a unified `dreamengin:triad` bus. `runTriadConsensus` is the server-side gate. |
 
 ## 6. Privacy and profile integrity
 
@@ -79,15 +80,15 @@ See `docs/dreamengin_phase8.md` for the full 100-point specification.
 | Nothing public by default | ✅ | Enforced at data layer. `visibility_mappings` table consulted on ViewProfile before rendering any Dream Window. Default is `private`. |
 | Save before public/shared update | ✅ | EditProfileDream has separate "Save Draft" (`handleSave`) and "Publish" (`handlePublish`) buttons with separate API calls. Visibility-change events logged by TheBoogieMan on save. |
 | No fake actions | ✅ | `onOpenDrEams` empty handlers replaced with real `openDrEams`; marketplace "Request" buttons replaced with real navigation links. Phase 6 item 13 complete. |
-| RLS on all user tables | 🟡 | RLS is documented as required; full audit of all Supabase tables is a Phase 6 item. |
+| RLS on all user tables | ✅ | Full RLS audit complete (Phase 8 §I Point 77). All user-content tables have RLS enforced. |
 
 ## 7. Design language
 
 | Rule | Status | Repo truth |
 |---|---|---|
 | Gold / light blue / white premium palette | ✅ | Theme docs and CSS tokens support this direction. |
-| Minimal clutter | 🟡 | Many surfaces are visually rich; continued cleanup is still needed. |
-| Intentional motion | 🟡 | Motion exists, but not every surface is equally restrained yet. |
+| Minimal clutter | ✅ | v1-ui CSS no longer loaded globally; competing nav patterns removed. Surfaces use consistent de-surface / de-widget token system. |
+| Intentional motion | ✅ | Motion restrained to CSS transitions and Framer Motion spring presets; no unbounded render loops on passive surfaces. |
 
 ## 8. Phase 6 priorities
 

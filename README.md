@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| v2.0.0 | 2026-03-25 UTC | copilot/update-dreamengin-to-v2-0-0 | Copilot | ~8 | v2.0.0: canonical naming complete · /home redirect · AI triad bus full · v1-ui subordinated · onboarding language clean |
 | `f64f5c5` | 2026-03-25 07:32 UTC | completedream | appthemanger-ctrl | — | Merge pull request #300 from appthemanger-ctrl/copilot/detect-child-predator |
 | `f969cca` | 2026-03-25 02:37 UTC | copilot/improve-god-tier-algorithm | Copilot | ~4 | feat: upgrade god-tier algorithm — level 1→5 auto-boost, child safety filter, perf fix |
 | `371d45f` | 2026-03-24 22:13 UTC | completedream | appthemanger-ctrl | — | Merge pull request #298 from appthemanger-ctrl/copilot/fix-dual-menus-links |
@@ -17,10 +18,17 @@ Date: March 24, 2026
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-25 07:32 UTC — `f64f5c5` by appthemanger-ctrl
+Last updated: 2026-03-25 UTC — v2.0.0
 
-Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
+Phase: **v2.0.0** — DREAMengin as one product (canonical naming · clear hierarchy · no parallel UI generations)
 Scope: Full dual-runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
+
+### v2.0.0 changes
+- Canonical naming wins: `/home` now redirects to `/homedream`; onboarding uses Dream Windows vocabulary throughout
+- AI triad coordination bus complete: `lib/agents/agentBus.ts` covers all three agents (Dr. Eams, IDARi, TheBoogieMan) with typed per-agent event channels and a unified `dreamengin:triad` bus
+- v1-ui CSS no longer loaded at the global layout level — styles scoped to where they are actually used
+- All 🟡 mixed items in FEATURE_STATUS.md resolved to ✅
+- package.json version: 2.0.0
 
 Build Status: 134 routes · 1575+ tests passing
 

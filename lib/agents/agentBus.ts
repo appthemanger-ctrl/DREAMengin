@@ -1,8 +1,11 @@
 /**
- * AgentBus: lightweight client-side event bridge between Dr. Eams and IDARi.
+ * AgentBus: lightweight client-side event bridge for the AI triad.
+ * Covers all three agents: Dr. Eams (user), IDARi (admin/builder), TheBoogieMan (policy).
  * - No external deps
  * - Safe to import from client components only
  */
+
+// ── IDARi events ─────────────────────────────────────────────────────────────
 
 export type IdariEventType =
   | 'idari:log'
@@ -17,11 +20,11 @@ export type IdariEventDetail = {
   details?: string;
 };
 
-const EVENT_NAME = 'dreamengin:idari';
+const IDARI_EVENT = 'dreamengin:idari';
 
 export function emitIdariEvent(detail: IdariEventDetail) {
   if (typeof window === 'undefined') return;
-  window.dispatchEvent(new CustomEvent<IdariEventDetail>(EVENT_NAME, { detail }));
+  window.dispatchEvent(new CustomEvent<IdariEventDetail>(IDARI_EVENT, { detail }));
 }
 
 export function onIdariEvent(handler: (detail: IdariEventDetail) => void) {
@@ -31,8 +34,115 @@ export function onIdariEvent(handler: (detail: IdariEventDetail) => void) {
     if (!ce.detail) return;
     handler(ce.detail);
   };
-  window.addEventListener(EVENT_NAME, listener);
-  return () => window.removeEventListener(EVENT_NAME, listener);
+  window.addEventListener(IDARI_EVENT, listener);
+  return () => window.removeEventListener(IDARI_EVENT, listener);
+}
+
+// ── Dr. Eams events ───────────────────────────────────────────────────────────
+
+export type EamsEventType =
+  | 'eams:query'
+  | 'eams:response'
+  | 'eams:navigate'
+  | 'eams:compose';
+
+export type EamsEventDetail = {
+  type: EamsEventType;
+  timestamp: string;
+  status?: 'success' | 'error' | 'pending';
+  message: string;
+  /** Optional route when type is eams:navigate */
+  route?: string;
+  details?: string;
+};
+
+const EAMS_EVENT = 'dreamengin:eams';
+
+export function emitEamsEvent(detail: EamsEventDetail) {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent<EamsEventDetail>(EAMS_EVENT, { detail }));
+}
+
+export function onEamsEvent(handler: (detail: EamsEventDetail) => void) {
+  if (typeof window === 'undefined') return () => {};
+  const listener = (evt: Event) => {
+    const ce = evt as CustomEvent<EamsEventDetail>;
+    if (!ce.detail) return;
+    handler(ce.detail);
+  };
+  window.addEventListener(EAMS_EVENT, listener);
+  return () => window.removeEventListener(EAMS_EVENT, listener);
+}
+
+// ── TheBoogieMan events ───────────────────────────────────────────────────────
+
+export type BoogieEventType =
+  | 'boogie:block'
+  | 'boogie:allow'
+  | 'boogie:warn'
+  | 'boogie:privacy-event';
+
+export type BoogieEventDetail = {
+  type: BoogieEventType;
+  timestamp: string;
+  /** True when BoogieMan hard-blocked the action */
+  hard_block: boolean;
+  message: string;
+  reason?: string;
+  details?: string;
+};
+
+const BOOGIE_EVENT = 'dreamengin:boogieman';
+
+export function emitBoogieEvent(detail: BoogieEventDetail) {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent<BoogieEventDetail>(BOOGIE_EVENT, { detail }));
+}
+
+export function onBoogieEvent(handler: (detail: BoogieEventDetail) => void) {
+  if (typeof window === 'undefined') return () => {};
+  const listener = (evt: Event) => {
+    const ce = evt as CustomEvent<BoogieEventDetail>;
+    if (!ce.detail) return;
+    handler(ce.detail);
+  };
+  window.addEventListener(BOOGIE_EVENT, listener);
+  return () => window.removeEventListener(BOOGIE_EVENT, listener);
+}
+
+// ── Unified triad bus ─────────────────────────────────────────────────────────
+
+/** Any event from the three-agent triad. */
+export type TriadAgentId = 'eams' | 'idari' | 'boogieman';
+
+export type TriadBusEventDetail = {
+  agent: TriadAgentId;
+  timestamp: string;
+  status?: 'success' | 'error' | 'pending' | 'blocked';
+  message: string;
+  details?: string;
+};
+
+const TRIAD_BUS_EVENT = 'dreamengin:triad';
+
+/**
+ * Emit a unified triad event.  Any component can subscribe to all three agents
+ * via `onTriadBusEvent` instead of subscribing to each channel separately.
+ */
+export function emitTriadBusEvent(detail: TriadBusEventDetail) {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent<TriadBusEventDetail>(TRIAD_BUS_EVENT, { detail }));
+}
+
+export function onTriadBusEvent(handler: (detail: TriadBusEventDetail) => void) {
+  if (typeof window === 'undefined') return () => {};
+  const listener = (evt: Event) => {
+    const ce = evt as CustomEvent<TriadBusEventDetail>;
+    if (!ce.detail) return;
+    handler(ce.detail);
+  };
+  window.addEventListener(TRIAD_BUS_EVENT, listener);
+  return () => window.removeEventListener(TRIAD_BUS_EVENT, listener);
 }
 
 // ── Legacy aliases so any code still importing old names compiles during migration ──
@@ -109,3 +219,5 @@ export async function runTriadConsensus(input: {
     boogie: boogieResult,
   };
 }
+
+
