@@ -1,5 +1,9 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { scanContent } from '@/lib/child-safety/childSafetyDetector';
+import { scanMediaUrlsForChildSafety } from '@/lib/child-safety/scanMediaUrls';
+import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
+import { createHash } from 'crypto';
 
 // GET - Fetch conversations
 export async function GET(req: NextRequest) {
@@ -67,6 +71,49 @@ export async function POST(req: NextRequest) {
   if (!content || content.trim().length === 0) {
     return NextResponse.json({ error: 'Message content is required' }, { status: 400 });
   }
+
+  // ── TheBoogieMan child safety scan (zero-tolerance) ──────────────────────
+  const childSafetyResult = scanContent({ text: content });
+  if (childSafetyResult.flagged) {
+    const contentHash = createHash('sha256').update(content).digest('hex');
+    reportChildSafetyIncident({
+      reportedUserId: user.id,
+      ruleCode: childSafetyResult.rule_code!,
+      detectionResult: childSafetyResult,
+      surface: 'message',
+      contentRef: `draft:${contentHash.slice(0, 16)}`,
+      contentHash,
+    }).catch((err) => console.error('[child-safety] message report error:', err));
+
+    return NextResponse.json(
+      { error: 'Message violates our child safety policy and has been blocked.' },
+      { status: 451 },
+    );
+  }
+
+  // ── TheBoogieMan media image scan (LLM + hash) — real-time ───────────────
+  // Only runs when an image attachment is present in the message.
+  if (media_url && typeof media_url === 'string' && media_type === 'image') {
+    const mediaSafetyResult = await scanMediaUrlsForChildSafety({
+      urls: [media_url],
+      supabase,
+    });
+    if (mediaSafetyResult.flagged) {
+      reportChildSafetyIncident({
+        reportedUserId: user.id,
+        ruleCode: mediaSafetyResult.rule_code!,
+        detectionResult: mediaSafetyResult,
+        surface: 'message',
+        contentRef: 'media:1_file',
+      }).catch((err) => console.error('[child-safety] message media report error:', err));
+
+      return NextResponse.json(
+        { error: 'Attached image violates our child safety policy and has been blocked.' },
+        { status: 451 },
+      );
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   let convId = conversation_id;
 

@@ -135,6 +135,7 @@ export const RULE_CODES = {
   C28_SPAM:            'C28_SPAM',
   C29_PRIVACY:         'C29_PRIVACY',
   C30_MALWARE:         'C30_MALWARE',
+  C31_GROOMING:        'C31_GROOMING',  // child predator grooming / solicitation of minors
 
   // E — Enforcement ladder
   E36_LADDER:          'E36_LADDER',
@@ -218,6 +219,7 @@ export const CATEGORY_SEVERITY: Record<string, StrikeSeverityLevel> = {
   C28_SPAM:       'LOW',
   C29_PRIVACY:    'MEDIUM',
   C30_MALWARE:    'CRITICAL',
+  C31_GROOMING:   'CRITICAL',  // zero-tolerance: child predator grooming
 };
 
 // ============================================================================
@@ -236,6 +238,7 @@ export const USER_REASON_MESSAGES: Partial<Record<string, string>> = {
   C28_SPAM:       'Your activity rate exceeded the allowed threshold.',
   C29_PRIVACY:    'Content flagged for sharing private information without consent.',
   C30_MALWARE:    'A potentially harmful link or file was detected.',
+  C31_GROOMING:   'Your activity has been flagged for child safety concerns. This requires immediate review.',
   ADMIN_REQUIRED: 'This action requires admin access.',
   HIGH_RISK:      'This action requires your confirmation before proceeding.',
   LOW_CONFIDENCE: 'This request could not be processed with sufficient confidence.',

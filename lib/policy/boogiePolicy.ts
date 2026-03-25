@@ -106,6 +106,7 @@ const RULE_TO_CATEGORY: Record<string, PolicyCategoryValue> = {
   C28_SPAM:       PolicyCategory.SPAM_SCAMS,
   C29_PRIVACY:    PolicyCategory.PRIVACY,
   C30_MALWARE:    PolicyCategory.MALWARE_ABUSE,
+  C31_GROOMING:   PolicyCategory.MINORS,  // child predator grooming → MINORS category
   CAT_HATE:       PolicyCategory.HATE,
   CAT_MISINFO:    PolicyCategory.MISINFO,
   CAT_EVASION:    PolicyCategory.EVASION,
@@ -118,6 +119,7 @@ const RULE_TO_CATEGORY: Record<string, PolicyCategoryValue> = {
 const RULE_TO_SEVERITY: Record<string, PolicySeverityLevel> = {
   C22_CSAM:    PolicySeverity.S5_PERM_BAN,   // one-strike (req 82)
   C30_MALWARE: PolicySeverity.S5_PERM_BAN,   // one-strike
+  C31_GROOMING:PolicySeverity.S5_PERM_BAN,   // one-strike: zero-tolerance for child predators
   C24_VIOLENCE:PolicySeverity.S4_TEMP_BAN,
   C25_SELF_HARM:PolicySeverity.S4_TEMP_BAN,
   C21_HARASSMENT:PolicySeverity.S3_FEATURE_LOCK,
@@ -226,7 +228,7 @@ function selectPolicySeverity(
   strikeCount: number,
 ): PolicySeverityLevel {
   // One-strike rules: immediate highest severity regardless of confidence (req 82)
-  if (ruleCode === 'C22_CSAM' || ruleCode === 'C30_MALWARE') {
+  if (ruleCode === 'C22_CSAM' || ruleCode === 'C30_MALWARE' || ruleCode === 'C31_GROOMING') {
     return PolicySeverity.S5_PERM_BAN;
   }
 

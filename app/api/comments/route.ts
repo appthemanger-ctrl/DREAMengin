@@ -1,6 +1,9 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { scanContent } from '@/lib/child-safety/childSafetyDetector';
+import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
+import { createHash } from 'crypto';
 
 const PostCommentSchema = z.object({
   post_id: z.string().uuid({ message: 'post_id must be a valid UUID' }),
@@ -93,6 +96,26 @@ export async function POST(req: NextRequest) {
   }
 
   const { post_id, content } = parsed.data;
+
+  // ── TheBoogieMan child safety scan (zero-tolerance) ──────────────────────
+  const childSafetyResult = scanContent({ text: content });
+  if (childSafetyResult.flagged) {
+    const contentHash = createHash('sha256').update(content).digest('hex');
+    reportChildSafetyIncident({
+      reportedUserId: user.id,
+      ruleCode: childSafetyResult.rule_code!,
+      detectionResult: childSafetyResult,
+      surface: 'comment',
+      contentRef: `post:${post_id}:draft:${contentHash.slice(0, 16)}`,
+      contentHash,
+    }).catch((err) => console.error('[child-safety] comment report error:', err));
+
+    return NextResponse.json(
+      { data: null, error: 'Comment violates our child safety policy and has been blocked.' },
+      { status: 451 },
+    );
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   const { data: comment, error } = await supabase
     .from('comments')
