@@ -14,16 +14,17 @@ Phase 8 (all 100 points) is complete. v2.0.0 closes all naming, layering, and st
 
 | Item | Status | Repo truth |
 |---|---|---|
-| Canonical naming wins across UI/routes/docs | ✅ | `lib/identity/canonical-names.ts` is single authority. All 🟡 naming items closed. |
-| HomeDream is the clear product center | ✅ | `/homedream` is runtime root. Gold Button + DreamDM Bar + dual runtime preserve continuity. |
-| v1-ui layer fully subordinated | ✅ | `components/v1-ui/` preserved as legacy archive only. CSS no longer imported globally or in HomeDream. Dream Rail (v2) CSS in `styles/home-dream.css`. |
-| Dreams / Daydreams / Engins legible to outsiders | ✅ | `docs/PRODUCT_DEFINITION.md` + `docs/NAMING_AUTHORITY.md` document the model. Product flow maps to canonical names end-to-end. |
-| Auth + onboarding + entry reliable | ✅ | `/join` → `/auth/callback` → `/homedream` path clean. Open-redirect guard on callback. |
+| Canonical naming wins across UI/routes/docs | ✅ | `lib/identity/canonical-names.ts` is single authority. All 🟡 naming items closed. Surface labels in WorkspaceDashboard use canonical names. |
+| HomeDream is the clear product center | ✅ | `/homedream` is runtime root. `/dreamengin` (orbit shell) redirects to `/homedream`. No competing home shell. |
+| Parallel old/new UI layers stop competing | ✅ | `components/v1-ui/` archived. `/dreamengin`, `/codespace`, `/physics-lab` all redirect to canonical Daydream routes. Archive headers on 12 dead root-level components. |
+| Dreams / Daydreams / Engins legible to outsiders | ✅ | `/codespace` → `/daydream/code`. `/physics-lab` → `/daydream/lab`. `/music` → `/daydream/music`. DreamDMBar routes aligned. Quick-action labels use canonical surface names. |
+| Auth + onboarding + entry reliable | ✅ | `/join` (email) → `/onboarding` → HomeDream. `/join` (OAuth) → `/auth/callback?next=/onboarding` → `/onboarding`. Returning users → `/homedream`. |
 | SuperDreamWidget composition aligned | ✅ | `components/dreams/SuperDreamWidget.tsx` with real cluster composition rules. |
-| AI triad coordination bus active | ✅ | `lib/agents/agentBus.ts` — client event bridge live. `runTriadConsensus` gate active on server (delete-dream, major ops). |
-| Clutter pass complete | ✅ | v1-ui CSS removed from global layout. Legacy CSS scoped to archive only. |
-| Motion restraint pass complete | ✅ | GodTier blur reduced (0.15/0.10). GlowLayer kernel 16. Transitions intentional. |
+| AI triad coordination bus active | ✅ | `lib/agents/agentBus.ts` — client event bridge live. `runTriadConsensus` gate active server-side. DreamDMBar `dreams` surface uses `toggleDrEams()` (not legacy route). |
+| Clutter pass complete | ✅ | v1-ui CSS removed from global layout. Archive headers on 12 dead components. Dead routes redirected. |
+| Motion restraint pass complete | ✅ | GodTier blur (0.15/0.10). GlowLayer kernel 16. All transitions intentional. |
 | Profile/public boundary clean | ✅ | `visibility_mappings` authoritative. ViewProfile reads projections only. Nothing public by default. |
+| Build enforcement updated for v2 | ✅ | `lib/adari.ts` + `scripts/postbuild.js` require v2 canonical files (not WheelLayout/WidgetEngine/etc.). Version check included. |
 | PRODUCT_VERSION in canonical-names | ✅ | `lib/identity/canonical-names.ts` exports `PRODUCT_VERSION = '2.0.0'`. |
 | package.json version | ✅ | `"version": "2.0.0"`. |
 

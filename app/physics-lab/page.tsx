@@ -1,16 +1,15 @@
-import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import PhysicsLab from '@/components/PhysicsLab';
 
+/**
+ * Legacy /physics-lab route — archived in v2.0.0.
+ *
+ * The canonical Lab surface is the Lab Daydream at /daydream/lab,
+ * powered by LabEngin with physics simulation capabilities.
+ *
+ * Per docs/ARCHITECTURE.md §3 (Daydream Surface Network) and docs/LAW.md §Route law.
+ */
 export const dynamic = 'force-dynamic';
 
-export default async function PhysicsLabPage() {
-  const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    redirect('/login');
-  }
-
-  return <PhysicsLab />;
+export default function PhysicsLabLegacyPage() {
+  redirect('/daydream/lab');
 }

@@ -1,3 +1,12 @@
+/**
+ * ARCHIVED — v2.0.0 (2026-03-25)
+ *
+ * This component is a v1-era legacy file. It is not imported by any active
+ * surface in DREAMengin v2.0.0. It is preserved here for reference only.
+ *
+ * Do not import this component in new code.
+ * Per docs/LAW.md §10: repurpose or remove legacy pieces before introducing new systems.
+ */
 'use client';
 
 import { useState, useEffect, useRef } from 'react';

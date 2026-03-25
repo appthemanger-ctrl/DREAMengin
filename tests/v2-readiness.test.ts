@@ -123,3 +123,138 @@ describe('DREAMengin v2.0.0 — release documentation', () => {
     expect(changelog).toContain('One Product');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Legacy route subordination — competing shells removed
+// ---------------------------------------------------------------------------
+
+describe('DREAMengin v2.0.0 — legacy route subordination', () => {
+  it('/dreamengin page redirects to /homedream (orbit shell removed as active route)', () => {
+    const page = readFileSync(resolve(__dirname, '../app/dreamengin/page.tsx'), 'utf8');
+    expect(page).toContain("redirect('/homedream')");
+    // Must not import or render the old Babylon orbit shell
+    expect(page).not.toContain("import DreamenginClient");
+    expect(page).not.toContain("import DreamenginApp");
+    expect(page).not.toContain('<DreamenginClient');
+    expect(page).not.toContain('<DreamenginApp');
+  });
+
+  it('/codespace page redirects to /daydream/code (canonical Code Daydream)', () => {
+    const page = readFileSync(resolve(__dirname, '../app/codespace/page.tsx'), 'utf8');
+    expect(page).toContain("redirect('/daydream/code')");
+    expect(page).not.toContain('import CodeSpaceClient');
+    expect(page).not.toContain('<CodeSpaceClient');
+  });
+
+  it('/physics-lab page redirects to /daydream/lab (canonical Lab Daydream)', () => {
+    const page = readFileSync(resolve(__dirname, '../app/physics-lab/page.tsx'), 'utf8');
+    expect(page).toContain("redirect('/daydream/lab')");
+    expect(page).not.toContain('import PhysicsLab');
+    expect(page).not.toContain('<PhysicsLab');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// DreamDMBar — canonical routing (no legacy shell refs)
+// ---------------------------------------------------------------------------
+
+describe('DREAMengin v2.0.0 — DreamDMBar routing clean', () => {
+  const bar = readFileSync(
+    resolve(__dirname, '../components/messaging/DreamDMBar.tsx'),
+    'utf8',
+  );
+
+  it('DreamDMBar does not route to /dreamengin', () => {
+    expect(bar).not.toContain('/dreamengin?q=');
+    expect(bar).not.toContain("href = `/dreamengin");
+  });
+
+  it('DreamDMBar does not route to /codespace', () => {
+    expect(bar).not.toContain('/codespace?snippet=');
+    expect(bar).not.toContain("href = `/codespace");
+  });
+
+  it('DreamDMBar does not route to legacy /music route', () => {
+    expect(bar).not.toContain('/music?prompt=');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Onboarding flow — new users see onboarding
+// ---------------------------------------------------------------------------
+
+describe('DREAMengin v2.0.0 — onboarding flow', () => {
+  it('/join redirects new email signups to /onboarding (not /homedream)', () => {
+    const join = readFileSync(resolve(__dirname, '../app/join/page.tsx'), 'utf8');
+    expect(join).toContain('/onboarding');
+    // The router.replace after signup must go to onboarding
+    expect(join).toContain('router.replace("/onboarding")');
+  });
+
+  it('/join OAuth redirects new users to /auth/callback?next=/onboarding', () => {
+    const join = readFileSync(resolve(__dirname, '../app/join/page.tsx'), 'utf8');
+    expect(join).toContain('next=/onboarding');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Build enforcement — adari.ts canonical REQUIRED_PATHS
+// ---------------------------------------------------------------------------
+
+describe('DREAMengin v2.0.0 — build enforcement updated', () => {
+  it('lib/adari.ts does not require legacy WheelLayout', () => {
+    const adari = readFileSync(resolve(__dirname, '../lib/adari.ts'), 'utf8');
+    expect(adari).not.toContain('WheelLayout.tsx');
+  });
+
+  it('lib/adari.ts does not require legacy WidgetEngine', () => {
+    const adari = readFileSync(resolve(__dirname, '../lib/adari.ts'), 'utf8');
+    expect(adari).not.toContain('WidgetEngine.tsx');
+  });
+
+  it('lib/adari.ts requires v2 canonical types/dream-window.ts', () => {
+    const adari = readFileSync(resolve(__dirname, '../lib/adari.ts'), 'utf8');
+    expect(adari).toContain('types/dream-window.ts');
+  });
+
+  it('lib/adari.ts requires v2 lib/identity/canonical-names.ts', () => {
+    const adari = readFileSync(resolve(__dirname, '../lib/adari.ts'), 'utf8');
+    expect(adari).toContain('lib/identity/canonical-names.ts');
+  });
+
+  it('scripts/postbuild.js does not require legacy WheelLayout', () => {
+    const postbuild = readFileSync(resolve(__dirname, '../scripts/postbuild.js'), 'utf8');
+    expect(postbuild).not.toContain('WheelLayout.tsx');
+  });
+
+  it('scripts/postbuild.js requires v2 canonical files', () => {
+    const postbuild = readFileSync(resolve(__dirname, '../scripts/postbuild.js'), 'utf8');
+    expect(postbuild).toContain('types/dream-window.ts');
+    expect(postbuild).toContain('lib/identity/canonical-names.ts');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// WorkspaceDashboard — canonical surface names in UI
+// ---------------------------------------------------------------------------
+
+describe('DREAMengin v2.0.0 — WorkspaceDashboard surface labels', () => {
+  const dashboard = readFileSync(
+    resolve(__dirname, '../components/home/WorkspaceDashboard.tsx'),
+    'utf8',
+  );
+
+  it('WorkspaceDashboard does not use confusing "Your Dreams" label for view-profile', () => {
+    // "Your Dreams" was misleading — should be "View Profile" per LAW.md
+    expect(dashboard).not.toContain("label: 'Your Dreams'");
+    expect(dashboard).not.toContain('label: "Your Dreams"');
+  });
+
+  it('WorkspaceDashboard uses canonical "View Profile" label', () => {
+    expect(dashboard).toContain('View Profile');
+  });
+
+  it('WorkspaceDashboard uses canonical "Edit ProfileDream" label', () => {
+    expect(dashboard).toContain('Edit ProfileDream');
+  });
+});

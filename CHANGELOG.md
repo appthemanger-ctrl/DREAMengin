@@ -12,34 +12,44 @@ All notable changes to DREAMengin are documented in this file.
 
 1. **Canonical naming wins** — Every surface, route, component, and doc now uses the single authority defined in `lib/identity/canonical-names.ts` and `docs/NAMING_AUTHORITY.md`. Widget-era naming is fully archived. Dream Window is the only term for modular runtime containers.
 
-2. **HomeDream is the clear product center** — `/homedream` is the authenticated runtime root. Gold Button + DreamDM Bar + dual runtime persistence make the hierarchy obvious and preserve context on every surface transition.
+2. **HomeDream is the clear product center** — `/homedream` is the authenticated runtime root. All competing shell routes (`/dreamengin`, etc.) now redirect to `/homedream`. Gold Button + DreamDM Bar + dual runtime persistence make the hierarchy obvious.
 
-3. **v1-ui layer fully subordinated** — `components/v1-ui/` is now a read-only legacy archive. The v1 widget-feed-screen CSS is no longer imported globally or by HomeDream. Dream Rail (v2) CSS lives in `styles/home-dream.css` with canonical class names (`dream-rail`, `dream-rail-icon`, `dream-feed-transition`).
+3. **Parallel old/new UI layers stop competing** — `components/v1-ui/` is archived. Competing Babylon orbit shell (`/dreamengin`) is redirected. `components/DashboardLayout*`, `NavBar*`, `HomeDashboard` all carry archive headers. v1-era CSS subordinated.
 
-4. **Dreams / Daydreams / Engins are legible** — The product model is documented in `docs/PRODUCT_DEFINITION.md`. The 6 Daydream Surfaces, 6 Engin runtimes, and 11 connection paths are all live and named consistently in UI and code.
+4. **Dreams / Daydreams / Engins are legible** — `/codespace` → `/daydream/code`. `/physics-lab` → `/daydream/lab`. `/music` routing fixed in DreamDMBar. Surface names in HomeDream quick-actions corrected to canonical terms.
 
-5. **Auth + onboarding + entry are boring and reliable** — The `/join` → `/auth/callback` → `/homedream` path is clean. Open-redirect guard enforced on the auth callback. All OAuth provider flows (Google, GitHub) go through the same path.
+5. **Auth + onboarding + entry are boring and reliable** — New users from `/join` go to `/onboarding` (not directly to `/homedream`). OAuth from `/join` sets `?next=/onboarding` on the auth callback. Returning users go straight to `/homedream`.
 
-6. **Core repo partials closed**:
-   - SuperDreamWidget composition: real cluster rules active (StarMaker, GameSphere, BrandDream, LabCode, ContentStream).
-   - AI triad coordination bus: `lib/agents/agentBus.ts` client bridge + `runTriadConsensus` server gate both active.
-   - Clutter pass: v1-ui CSS removed from global layout.
-   - Motion restraint: GodTier blur 0.15/0.10, GlowLayer kernel 16.
-   - Profile/public boundary: `visibility_mappings` is the single authoritative gate; ViewProfile reads only projections.
+6. **Core repo partials closed** — Build enforcement (`lib/adari.ts`, `scripts/postbuild.js`) updated from v1-era files to v2.0.0 canonical required files. DreamDMBar routing fully aligned to canonical Daydream routes. `PRODUCT_VERSION = '2.0.0'` in canonical-names.
 
 ### Changed
 
 - `package.json` — version `1.0.0` → `2.0.0`
 - `lib/identity/canonical-names.ts` — added `PRODUCT_VERSION = '2.0.0'` constant
 - `app/layout.tsx` — removed global `@/components/v1-ui/widget-feed-screen.css` import
-- `components/home/HomeDream.tsx` — removed `@/components/v1-ui/widget-feed-screen.css` import; renamed `widget-rail` → `dream-rail`, `widget-rail-right` → `dream-rail-right`, `widget-icon` → `dream-rail-icon`, `feed-area-transition` → `dream-feed-transition`; updated aria-labels from "Your widgets" → "Your Dream Windows"
+- `components/home/HomeDream.tsx` — removed v1-ui CSS import; renamed `widget-rail` → `dream-rail`, `widget-icon` → `dream-rail-icon`, `feed-area-transition` → `dream-feed-transition`; aria-labels updated
 - `styles/home-dream.css` — added v2 Dream Rail CSS classes
-- `docs/FEATURE_STATUS.md` — updated to v2.0.0; closed all 🟡 partial items; added v2.0.0 checklist section
+- `app/dreamengin/page.tsx` — was Babylon orbit shell; now `redirect('/homedream')`
+- `app/codespace/page.tsx` — was CodeSpace IDE; now `redirect('/daydream/code')`
+- `app/physics-lab/page.tsx` — was PhysicsLab; now `redirect('/daydream/lab')`
+- `app/join/page.tsx` — email signup redirects to `/onboarding`; OAuth sets `?next=/onboarding` on callback
+- `components/messaging/DreamDMBar.tsx` — `dreams` surface routes to `toggleDrEams()` (not `/dreamengin`); `code` → `/daydream/code`; `music` → `/daydream/music`
+- `components/home/WorkspaceDashboard.tsx` — quick-action pills: "DreamProfile" → "Edit ProfileDream", "Feed" → "Discover", "Your Dreams" → "View Profile"
+- `lib/adari.ts` — REQUIRED_PATHS updated to v2 canonical files; version check added
+- `scripts/postbuild.js` — same
+- `docs/FEATURE_STATUS.md` — all partial items closed; v2.0.0 checklist added
+- `tests/v2-readiness.test.ts` — 31 structural invariant tests
 
-### Architecture
+### Archived (preserved for reference, archive header added)
 
-- Dream Rail CSS is now owned by the HomeDream Surface (`styles/home-dream.css`), not the archived v1-ui layer.
-- `components/v1-ui/` remains in the repository as a read-only archive. Its components are not imported by any active surface.
+- `components/DashboardLayout.tsx`, `DashboardLayout-enhanced.tsx`
+- `components/NavBar.tsx`, `NavBar-enhanced.tsx`
+- `components/HomeDashboard.tsx`
+- `components/MobileFeedCard.tsx`, `MobileNavBarEnhanced.tsx`
+- `components/FeedCard-enhanced.tsx`
+- `components/AIAssistant-voice-enhanced.tsx`, `AIAssistantEnhanced.tsx`
+- `components/CollaborativeCanvas.tsx`, `ContentScheduler.tsx`
+- `components/v1-ui/` — CSS no longer globally imported
 
 ---
 
