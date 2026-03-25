@@ -1,10 +1,27 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+/**
+ * HomeSystem — Dual-runtime spatial hinge layout.
+ *
+ * Renders two independent runtime regions (Surface Space above, DreamSpace below)
+ * separated by the DreamDM Bar acting as a true spatial divider.
+ *
+ * Both WebGPU/Babylon.js contexts are mounted and interactive at all times.
+ * Dragging the bar resizes both regions in real time with snap points:
+ *   0.9 → Surface focus (90 % top / 10 % bottom)
+ *   0.5 → Balanced (50 / 50)
+ *   0.1 → Dream focus (10 % top / 90 % bottom)
+ *
+ * Architecture justification: ARCHITECTURE.md §1 (Runtime regions) + §10 (render-on-demand).
+ * Performance: both contexts stay alive — no unmount/remount on resize.
+ */
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
-import DreamDMBar, { BAR_H } from '@/components/messaging/DreamDMBar';
+import DreamDMBar from '@/components/messaging/DreamDMBar';
+import { DIVIDER_H, DEFAULT_SPLIT_RATIO } from '@/lib/dreamdm/barInteractions';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
@@ -19,19 +36,30 @@ type ProfileLike = {
 function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
   const dualRuntime = useDualRuntime();
   const { registerRuntimeCallbacks, unregisterRuntimeCallbacks, closeBothMenus, closeDrEams, openBothMenus } = useDreamSystem();
-  // DreamDMBar toggles bothMenusOpen -> GlobalDreamBar renders DualBottomMenu (DreamRadialMenu + SystemRadialMenu)
 
-  // barBlend: 0 = bar at bottom (Surface Space dominant), 1 = bar at top (DreamSpace dominant)
-  const [barBlend, setBarBlend] = useState(0);
+  /**
+   * splitRatio: fraction of the available viewport height given to Surface Space.
+   *   0.9 → 90 % Surface Space / 10 % DreamSpace  (default — Surface focus)
+   *   0.5 → 50 / 50 balanced
+   *   0.1 → 10 % Surface Space / 90 % DreamSpace  (Dream focus)
+   *
+   * The DreamDM Bar occupies DIVIDER_H px in the middle at all times.
+   */
+  const [splitRatio, setSplitRatio] = useState(DEFAULT_SPLIT_RATIO);
 
-  // barInsets: safe-area pixels the bar occupies at top / bottom of the viewport.
-  // Passed to RuntimeShell so content never hides behind the bar.
-  // Default: bar is at the bottom at BAR_H (80 px) rest height.
-  const [barInsets, setBarInsets] = useState<{ top: number; bottom: number }>({ top: 0, bottom: BAR_H });
-
-  const handleBarInsets = useCallback((top: number, bottom: number) => {
-    setBarInsets((prev) => (prev.top === top && prev.bottom === bottom ? prev : { top, bottom }));
-  }, []);
+  // Keep dominantRegion in sync with splitRatio so world-navigation callbacks
+  // still work as expected (they read dualRuntime.state.dominantRegion).
+  const prevRatioRef = useRef(DEFAULT_SPLIT_RATIO);
+  useEffect(() => {
+    const prev = prevRatioRef.current;
+    prevRatioRef.current = splitRatio;
+    if (splitRatio === prev) return;
+    if (splitRatio > 0.5 && dualRuntime.state.dominantRegion !== 'Surface Space') {
+      dualRuntime.setDominantRuntime('Surface Space');
+    } else if (splitRatio < 0.5 && dualRuntime.state.dominantRegion !== 'DreamSpace') {
+      dualRuntime.setDominantRuntime('DreamSpace');
+    }
+  }, [splitRatio, dualRuntime]);
 
   // ── Return to HomeDream Surface ──────────────────────────────────────────
 
@@ -40,46 +68,30 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     dualRuntime.goToHome();
     closeBothMenus();
     closeDrEams();
-    setBarBlend(0);
+    // Snap to Surface focus so the user can see HomeDream prominently.
+    setSplitRatio(DEFAULT_SPLIT_RATIO);
     if (wasHomeActive) {
       console.log('[HomeSystem] Refreshing Home (already active)');
     }
   }, [dualRuntime, closeBothMenus, closeDrEams]);
 
-  // ── DreamDMBar: direct callbacks (bar lives here, no context bridge needed) ──
-
-  const handleBarRuntimeMode = useCallback((mode: 'home' | 'blend' | 'dreamspace') => {
-    if (mode === 'dreamspace') {
-      dualRuntime.setBottomRuntime('DreamSpace');
-      dualRuntime.setDominantRuntime('DreamSpace');
-      return;
-    }
-    if (mode === 'home') {
-      dualRuntime.setTopRuntime('HomeDream Surface');
-      dualRuntime.setDominantRuntime('Surface Space');
-    }
-  }, [dualRuntime]);
+  // ── World navigation callbacks ────────────────────────────────────────────
 
   const openDreamSpace = useCallback(() => {
     dualRuntime.setBottomRuntime('DreamSpace');
     dualRuntime.setDominantRuntime('DreamSpace');
-    setBarBlend(1);
+    setSplitRatio(0.1); // Dream focus
   }, [dualRuntime]);
 
-  // Open DreamSpace world in Surface Space — allows both regions to show
-  // DreamsSpacePanel simultaneously (two independent Daydream/Engin sessions).
   const openDreamSpaceInSurface = useCallback(() => {
     dualRuntime.goToDreamSpace();
-    setBarBlend(0);
+    setSplitRatio(DEFAULT_SPLIT_RATIO);
   }, [dualRuntime]);
 
-  // Bar double-tap when at top → load HomeDream into DreamSpace (dual-home)
   const openHomeDreamSpace = useCallback(() => {
     dualRuntime.goToHomeDreamSpace();
-    setBarBlend(1);
+    setSplitRatio(0.1); // DreamSpace gets dominant share
   }, [dualRuntime]);
-
-  // ── Open a path in the Surface Space region (iframe) ─────────────────────
 
   const openInSurfaceRegion = useCallback((path: string) => {
     dualRuntime.setTopRuntime({ type: 'custom', path });
@@ -117,29 +129,32 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     return unregisterRuntimeCallbacks;
   }, [returnHome, openInSurface, registerRuntimeCallbacks, unregisterRuntimeCallbacks]);
 
-  const isSurfaceDominant = dualRuntime.state.dominantRegion === 'Surface Space';
-
   // Wire Dr. Eams panel open — used by WorkspaceDashboard search bar and agent cards.
-  // Per Phase 6 item 5: onOpenDrEams must call a real action (Constitution Art. II Rule 6).
-  // openDrEams is provided by DreamSystemContext which lives in the layout wrapper,
-  // so the state is shared with GlobalDreamBar (which renders the DrEamsPanel overlay).
   const { openDrEams } = useDreamSystem();
+
+  // ── Layout geometry ───────────────────────────────────────────────────────
+  // Available height for the two runtime regions (viewport minus the fixed divider bar).
+  // We use CSS calc() so the layout adapts to window resize without JS re-render.
+  const availFraction = splitRatio;          // 0..1
+  const surfaceHeight = `calc(${availFraction} * (100vh - ${DIVIDER_H}px))`;
+  const dreamHeight   = `calc(${1 - availFraction} * (100vh - ${DIVIDER_H}px))`;
+  // Bar sits at the boundary; its top = surfaceHeight (same calc).
+  const barOffsetTop  = `calc(${availFraction} * (100vh - ${DIVIDER_H}px))`;
 
   return (
     <>
       <StarfieldCanvas />
 
       {/*
-       * Dual runtime container.
-       * Both surfaces are ALWAYS mounted (pre-active) — no translateY hide.
-       * The DreamDMBar seam sits on top (z-index 102 via its own fixed style).
-       * Dominant region gets z-index 2 and full opacity; non-dominant gets
-       * z-index 1 and reduced opacity so it is visible but clearly behind.
+       * Split-screen layout.
+       * Surface Space and DreamSpace are positioned as a flex column so both
+       * are always rendered and interactive. The fixed-position DreamDM Bar
+       * sits between them; region heights are driven by splitRatio so the bar
+       * always lands exactly at the boundary.
        *
-       * TRUE LAYOUT REFLOW — the region containers themselves are sized to
-       * exclude the bar area via top/bottom driven by barInsets. RuntimeShell
-       * therefore always receives a box that is exactly the safe area and
-       * requires no internal clipping at all.
+       * Both contexts remain mounted at all times — no opacity tricks, no
+       * pointer-events blocking. This satisfies the "two persistent WebGPU
+       * contexts" requirement.
        */}
       <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
 
@@ -147,19 +162,19 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         <div
           style={{
             position: 'absolute',
-            top: barInsets.top,
+            top: 0,
             left: 0,
             right: 0,
-            bottom: barInsets.bottom,
-            zIndex: isSurfaceDominant ? 2 : 1,
-            opacity: isSurfaceDominant ? 1 - (barBlend * 0.18) : 0.4 + (barBlend * 0.3),
-            pointerEvents: isSurfaceDominant ? 'auto' : 'none',
-            transition: 'opacity 180ms ease',
+            height: surfaceHeight,
+            overflow: 'hidden',
+            // Surface Space is always interactive; its perceived "focus" is
+            // communicated through size, not opacity.
+            zIndex: 1,
           }}
         >
           <RuntimeView
             world={dualRuntime.state.surfaceSpaceWorld}
-            isActive={isSurfaceDominant}
+            isActive={true}
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
@@ -174,19 +189,17 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         <div
           style={{
             position: 'absolute',
-            top: barInsets.top,
+            top: `calc(${barOffsetTop} + ${DIVIDER_H}px)`,
             left: 0,
             right: 0,
-            bottom: barInsets.bottom,
-            zIndex: isSurfaceDominant ? 1 : 2,
-            opacity: isSurfaceDominant ? barBlend : 1,
-            pointerEvents: isSurfaceDominant ? 'none' : 'auto',
-            transition: 'opacity 180ms ease',
+            height: dreamHeight,
+            overflow: 'hidden',
+            zIndex: 1,
           }}
         >
           <RuntimeView
             world={dualRuntime.state.dreamSpaceWorld}
-            isActive={!isSurfaceDominant}
+            isActive={true}
             profile={profile}
             posts={initialPosts}
             isAdmin={isAdmin}
@@ -199,25 +212,24 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
       </div>
 
       {/*
-       * DreamDMBar — the seam between Surface Space and DreamSpace.
-       * Lives here (inside HomeSystem) so it only renders when the home
-       * surface is mounted. It is NOT in layout.tsx.
-       * position:fixed internally — visually overlays both regions.
+       * DreamDM Bar — the spatial hinge between Surface Space and DreamSpace.
+       * position:fixed internally; its top tracks barOffsetTop via splitRatio.
+       * Dragging the handle calls onSplitChange which updates splitRatio and
+       * immediately resizes both regions without any unmount/remount.
        */}
       <DreamDMBar
         onHome={returnHome}
         onBothMenus={openBothMenus}
         onHomeDreamSpace={openHomeDreamSpace}
-        onRuntimeModeChange={handleBarRuntimeMode}
-        onRuntimeBlendChange={setBarBlend}
-        onBarInsets={handleBarInsets}
+        splitRatio={splitRatio}
+        onSplitChange={setSplitRatio}
       />
     </>
   );
 }
 
 // Main export wraps with DualRuntimeContainer
- 
+
 export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
   return (
     <DualRuntimeContainer>
@@ -232,3 +244,4 @@ export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: {
     </DualRuntimeContainer>
   );
 }
+

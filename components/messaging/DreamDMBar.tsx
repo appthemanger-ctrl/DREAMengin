@@ -61,6 +61,10 @@ import {
   shouldCollapseTopExpandedDrag,
   shouldSnapBottomDragToTop,
   shouldTreatGoldReleaseAsTap,
+  snapSplitRatioOnRelease,
+  DIVIDER_H,
+  SPLIT_RATIO_MIN,
+  SPLIT_RATIO_MAX,
 } from '@/lib/dreamdm/barInteractions';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
@@ -146,12 +150,27 @@ interface DreamDMBarProps {
    *   bottom: pixels to inset from the bottom of the viewport (bar is at the bottom)
    */
   onBarInsets?: (top: number, bottom: number) => void;
+  /**
+   * Split-screen divider mode.
+   *
+   * When provided, the bar operates as a persistent spatial divider between
+   * Surface Space (top) and DreamSpace (bottom).
+   *
+   *   0.0 = DreamSpace fills the entire viewport (Surface collapsed)
+   *   0.5 = 50 / 50 balanced split
+   *   1.0 = Surface Space fills the entire viewport (DreamSpace collapsed)
+   *
+   * Default snap positions: 0.9 (Surface focus), 0.5 (balanced), 0.1 (Dream focus).
+   */
+  splitRatio?: number;
+  /** Called continuously while the user drags the divider. Emits the new 0..1 ratio. */
+  onSplitChange?: (ratio: number) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets }: DreamDMBarProps) {
+export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange }: DreamDMBarProps) {
   // ── Screen geometry ────────────────────────────────────────────────────────
   const [screenH, setScreenH] = useState(900);
   useEffect(() => {
@@ -322,6 +341,56 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
   }, [dragH, screenH, slideDown]);
+
+  // ── Divider drag — split-screen mode (splitRatio prop) ───────────────────
+  // When onSplitChange is provided, the bar operates as a true spatial divider.
+  // Dragging the handle resizes both regions in real time; releasing snaps to
+  // the closest of the three canonical split points (0.1 / 0.5 / 0.9).
+  const dividerDragRef = useRef({ active: false, lastY: 0, lastAt: 0, velocity: 0 });
+
+  const handleDividerDragStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!onSplitChange) return;
+    e.preventDefault(); e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const now = performance.now();
+    dividerDragRef.current = { active: true, lastY: e.clientY, lastAt: now, velocity: 0 };
+    setIsDragging(true);
+  }, [onSplitChange]);
+
+  const handleDividerDragMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dividerDragRef.current.active || !onSplitChange) return;
+    const now = performance.now();
+    dividerDragRef.current.velocity = calculatePointerVelocity(
+      dividerDragRef.current.lastY, e.clientY, dividerDragRef.current.lastAt, now,
+    );
+    dividerDragRef.current.lastY = e.clientY;
+    dividerDragRef.current.lastAt = now;
+    // Bar top = clientY - DIVIDER_H/2 so the grab point stays under the pointer.
+    const availH = screenH - DIVIDER_H;
+    const newRatio = availH > 0
+      ? Math.max(SPLIT_RATIO_MIN, Math.min(SPLIT_RATIO_MAX, (e.clientY - DIVIDER_H / 2) / availH))
+      : (splitRatio ?? 0.9);
+    onSplitChange(newRatio);
+  }, [onSplitChange, screenH, splitRatio]);
+
+  const handleDividerDragEnd = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dividerDragRef.current.active || !onSplitChange) return;
+    const now = performance.now();
+    const vel = calculatePointerVelocity(
+      dividerDragRef.current.lastY, e.clientY, dividerDragRef.current.lastAt, now,
+    );
+    const velocity = Number.isFinite(vel) ? vel : dividerDragRef.current.velocity;
+    dividerDragRef.current.active = false;
+    setIsDragging(false);
+    const availH = screenH - DIVIDER_H;
+    const rawRatio = availH > 0
+      ? Math.max(SPLIT_RATIO_MIN, Math.min(SPLIT_RATIO_MAX, (e.clientY - DIVIDER_H / 2) / availH))
+      : (splitRatio ?? 0.9);
+    onSplitChange(snapSplitRatioOnRelease(rawRatio, velocity));
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  }, [onSplitChange, screenH, splitRatio]);
 
   // ── Dream bar context (route-aware) ────────────────────────────────────────
   const barCtx = useDreamBarContext();
@@ -554,27 +623,36 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // ── Derived layout values ─────────────────────────────────────────────────
   const transition = isDragging ? 'none' : SPRING;
 
-  // Bar geometry
+  // ── Divider mode: bar is a fixed-height spatial seam driven by splitRatio ──
+  const isDividerMode = typeof splitRatio === 'number' && typeof onSplitChange === 'function';
+  const dividerBarTop: number = isDividerMode
+    ? Math.round((splitRatio as number) * (screenH - DIVIDER_H))
+    : 0;
+
+  // Bar geometry (legacy window mode)
   // - Bottom mode:       grows upward from the screen bottom (dragH)
   // - Top-compact mode:  thin nav bar at top (NAV_H), drag handle below
   // - Top-expanded mode: full panel at top (TOP_H), can slide away from top
-  const barH: number    = isTop
-    ? (isTopExpanded ? TOP_H : dragH) // compact uses dragH (starts at NAV_H); expanded = fixed TOP_H
-    : dragH;
-  const barTop: number  = isTop
-    ? (isTopExpanded ? slideDown : 0) // expanded can slide; compact is always pinned to top
-    : (screenH - dragH);              // grows from bottom
+  const barH: number    = isDividerMode ? DIVIDER_H : (isTop
+    ? (isTopExpanded ? TOP_H : dragH)
+    : dragH);
+  const barTop: number  = isDividerMode ? dividerBarTop : (isTop
+    ? (isTopExpanded ? slideDown : 0)
+    : (screenH - dragH));
 
   // showFull: whether to render the expanded tab panel instead of the compact bar
-  const showFull: boolean = isTopExpanded || dragH > 180;
+  const showFull: boolean = !isDividerMode && (isTopExpanded || dragH > 180);
 
   // Gold button geometry:
+  // - Divider mode: gold sits centered on the divider bar (vertically centered)
   // - Bottom mode: gold sits on the BAR's top edge  (center = barTop)
   // - Top modes:   gold hangs from the BAR's bottom edge (center = barTop + barH)
-  const attachedGoldTop: number = isTop
-    ? (barTop + barH - GOLD_R)  // bottom edge of the top bar / panel
-    : (barTop - GOLD_R);        // top edge of the bottom bar
-  const isGoldOffScreen: boolean = !isTop && (barTop - GOLD_R < 0);
+  const attachedGoldTop: number = isDividerMode
+    ? (barTop + DIVIDER_H / 2 - GOLD_R)  // centered on the divider
+    : (isTop
+      ? (barTop + barH - GOLD_R)  // bottom edge of the top bar / panel
+      : (barTop - GOLD_R));       // top edge of the bottom bar
+  const isGoldOffScreen: boolean = !isDividerMode && !isTop && (barTop - GOLD_R < 0);
   const goldTopPx: number = isGoldOffScreen ? 10 : attachedGoldTop;
 
   // Track if button is in screen-locked mode (for styling/behavior)
@@ -653,25 +731,26 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           transition,
           willChange: isDragging ? 'top, height' : undefined,
           display: 'flex',
-          // Drag handle at BOTTOM when at top (drag down to expand/collapse);
-          // drag handle at TOP when growing from bottom (drag up to expand).
-          flexDirection: isTop ? 'column-reverse' : 'column',
+          // Divider mode: handle always at top; legacy: handle position depends on snap state
+          flexDirection: isDividerMode ? 'column' : (isTop ? 'column-reverse' : 'column'),
           background: 'linear-gradient(180deg, rgba(242,243,247,0.97) 0%, rgba(238,240,245,0.99) 100%)',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-          borderTop: isTop ? 'none' : '1.5px solid rgba(200,152,26,0.45)',
-          borderBottom: isTop ? '1.5px solid rgba(200,152,26,0.45)' : 'none',
-          boxShadow: isTop
-            ? '0 4px 24px rgba(0,0,0,0.12)'
-            : '0 -4px 24px rgba(0,0,0,0.10)',
+          borderTop: isDividerMode ? '1.5px solid rgba(200,152,26,0.45)' : (isTop ? 'none' : '1.5px solid rgba(200,152,26,0.45)'),
+          borderBottom: isDividerMode ? '1.5px solid rgba(200,152,26,0.45)' : (isTop ? '1.5px solid rgba(200,152,26,0.45)' : 'none'),
+          boxShadow: isDividerMode
+            ? '0 2px 16px rgba(0,0,0,0.10), 0 -2px 16px rgba(0,0,0,0.08)'
+            : (isTop
+              ? '0 4px 24px rgba(0,0,0,0.12)'
+              : '0 -4px 24px rgba(0,0,0,0.10)'),
         }}
       >
         {/* ── Drag handle ──────────────────────────────────────────────────── */}
         <div
           role="separator" aria-label="Drag to resize DreamDM"
-          onPointerDown={handleDragStart}
-          onPointerMove={handleDragMove}
-          onPointerUp={handleDragEnd}
-          onPointerCancel={handleDragEnd}
+          onPointerDown={isDividerMode ? handleDividerDragStart : handleDragStart}
+          onPointerMove={isDividerMode ? handleDividerDragMove : handleDragMove}
+          onPointerUp={isDividerMode ? handleDividerDragEnd : handleDragEnd}
+          onPointerCancel={isDividerMode ? handleDividerDragEnd : handleDragEnd}
           style={{
             height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, cursor: isDragging ? 'grabbing' : 'grab',

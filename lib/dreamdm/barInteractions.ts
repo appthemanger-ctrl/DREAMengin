@@ -1,3 +1,51 @@
+// ── Split-screen divider constants ────────────────────────────────────────────
+/** Fixed height (px) of the DreamDM Bar when it operates as a true split-screen divider. */
+export const DIVIDER_H = 52;
+/** Canonical snap points for the split-screen divider: [Surface-focus, Balanced, Dream-focus] */
+export const SPLIT_SNAP_POINTS = [0.1, 0.5, 0.9] as const;
+/** Default split ratio — Surface Space dominant (90 % top / 10 % bottom). */
+export const DEFAULT_SPLIT_RATIO = 0.9;
+/** Min/max reachable ratio during a drag (prevents collapsing either region to zero). */
+export const SPLIT_RATIO_MIN = 0.05;
+export const SPLIT_RATIO_MAX = 0.95;
+/** Fling velocity (px/ms) needed to jump one whole snap step toward the throw direction. */
+export const SPLIT_FLING_VELOCITY_PX_PER_MS = 0.55;
+
+/**
+ * Returns the nearest canonical snap point for the given split ratio.
+ */
+export function snapToSplitPoint(ratio: number): number {
+  let best = SPLIT_SNAP_POINTS[0];
+  let bestDist = Math.abs(ratio - best);
+  for (const pt of SPLIT_SNAP_POINTS) {
+    const d = Math.abs(ratio - pt);
+    if (d < bestDist) { bestDist = d; best = pt; }
+  }
+  return best;
+}
+
+/**
+ * Resolves the final snap point after a drag release.
+ *
+ * If the fling velocity is strong enough upward (negative) or downward (positive),
+ * the snap steps one increment past the nearest point in that direction, giving a
+ * momentum-style feel consistent with the gold-button swipe gesture.
+ */
+export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number): number {
+  const nearest = snapToSplitPoint(ratio);
+  const idx = SPLIT_SNAP_POINTS.indexOf(nearest as 0.1 | 0.5 | 0.9);
+  if (velocityPxPerMs >= SPLIT_FLING_VELOCITY_PX_PER_MS && idx < SPLIT_SNAP_POINTS.length - 1) {
+    // fling downward → next higher Dream-focus point
+    return SPLIT_SNAP_POINTS[idx + 1];
+  }
+  if (velocityPxPerMs <= -SPLIT_FLING_VELOCITY_PX_PER_MS && idx > 0) {
+    // fling upward → next higher Surface-focus point
+    return SPLIT_SNAP_POINTS[idx - 1];
+  }
+  return nearest;
+}
+
+// ── Gold-button / bar snap constants (legacy bar-window behaviour) ─────────────
 /** Matches the existing touch-friendly second-tap escalation window used by the gold button. */
 export const GOLD_SECOND_TAP_WINDOW_MS = 280;
 export const GOLD_TAP_SLOP_PX = 14;

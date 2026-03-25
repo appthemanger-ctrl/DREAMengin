@@ -10,6 +10,12 @@ import {
   shouldCollapseTopExpandedDrag,
   shouldSnapBottomDragToTop,
   shouldTreatGoldReleaseAsTap,
+  snapToSplitPoint,
+  snapSplitRatioOnRelease,
+  SPLIT_SNAP_POINTS,
+  SPLIT_FLING_VELOCITY_PX_PER_MS,
+  DEFAULT_SPLIT_RATIO,
+  DIVIDER_H,
 } from '@/lib/dreamdm/barInteractions';
 
 describe('resolveGoldTapAction', () => {
@@ -93,5 +99,84 @@ describe('bar snap helpers', () => {
       snapDownPx: 88,
       velocityPxPerMs: 1,
     })).toBe(true);
+  });
+});
+
+// ── Split-screen divider snap helpers ─────────────────────────────────────────
+
+describe('snapToSplitPoint', () => {
+  it('snaps 0.9 ratio to the Surface-focus point', () => {
+    expect(snapToSplitPoint(0.9)).toBe(0.9);
+  });
+
+  it('snaps 0.5 ratio to the balanced point', () => {
+    expect(snapToSplitPoint(0.5)).toBe(0.5);
+  });
+
+  it('snaps 0.1 ratio to the Dream-focus point', () => {
+    expect(snapToSplitPoint(0.1)).toBe(0.1);
+  });
+
+  it('snaps a value midway between 0.5 and 0.9 to the nearest point', () => {
+    expect(snapToSplitPoint(0.75)).toBe(0.9);
+  });
+
+  it('snaps a value midway between 0.1 and 0.5 to the nearest point', () => {
+    expect(snapToSplitPoint(0.25)).toBe(0.1);
+  });
+
+  it('snaps an extreme low value to the lowest snap point', () => {
+    expect(snapToSplitPoint(0.0)).toBe(0.1);
+  });
+
+  it('snaps an extreme high value to the highest snap point', () => {
+    expect(snapToSplitPoint(1.0)).toBe(0.9);
+  });
+});
+
+describe('snapSplitRatioOnRelease', () => {
+  it('returns the nearest snap point when velocity is neutral', () => {
+    expect(snapSplitRatioOnRelease(0.88, 0)).toBe(0.9);
+    expect(snapSplitRatioOnRelease(0.55, 0)).toBe(0.5);
+    expect(snapSplitRatioOnRelease(0.15, 0)).toBe(0.1);
+  });
+
+  it('advances one snap step downward (Dream-focus) on a strong downward fling', () => {
+    // Current ratio near Surface-focus, flung downward → goes to balanced
+    expect(snapSplitRatioOnRelease(0.88, SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.5);
+    // Current ratio near balanced, flung downward → goes to Dream-focus
+    expect(snapSplitRatioOnRelease(0.52, SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.1);
+  });
+
+  it('advances one snap step upward (Surface-focus) on a strong upward fling', () => {
+    // Current ratio near Dream-focus, flung upward → goes to balanced
+    expect(snapSplitRatioOnRelease(0.12, -SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.5);
+    // Current ratio near balanced, flung upward → goes to Surface-focus
+    expect(snapSplitRatioOnRelease(0.48, -SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.9);
+  });
+
+  it('does not advance past the Dream-focus limit on a downward fling', () => {
+    expect(snapSplitRatioOnRelease(0.12, SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.1);
+  });
+
+  it('does not advance past the Surface-focus limit on an upward fling', () => {
+    expect(snapSplitRatioOnRelease(0.88, -SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.9);
+  });
+});
+
+describe('split-screen divider constants', () => {
+  it('exports three canonical snap points', () => {
+    expect(SPLIT_SNAP_POINTS).toHaveLength(3);
+    expect(SPLIT_SNAP_POINTS[0]).toBe(0.1);
+    expect(SPLIT_SNAP_POINTS[1]).toBe(0.5);
+    expect(SPLIT_SNAP_POINTS[2]).toBe(0.9);
+  });
+
+  it('defaults to the Surface-focus snap point', () => {
+    expect(DEFAULT_SPLIT_RATIO).toBe(0.9);
+  });
+
+  it('exports a positive DIVIDER_H', () => {
+    expect(DIVIDER_H).toBeGreaterThan(0);
   });
 });
