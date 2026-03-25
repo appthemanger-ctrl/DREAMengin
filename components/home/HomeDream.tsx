@@ -27,7 +27,6 @@ import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DreamWidgetGrid from './DreamWidgetGrid';
 
-import '@/components/v1-ui/widget-feed-screen.css';
 import '@/styles/home-dream.css';
 
 interface HomeDreamProps {
@@ -56,7 +55,7 @@ function RailWidgetIcon({
       type="button"
       aria-label={label}
       title={label}
-      className={`widget-icon w-12 h-12 rounded-xl bg-de-card/80 border border-de-border flex items-center justify-center transition-colors ${accentClass ?? 'hover:border-de-gold/40'}`}
+      className={`dream-rail-icon w-12 h-12 rounded-xl bg-de-card/80 border border-de-border flex items-center justify-center transition-colors ${accentClass ?? 'hover:border-de-gold/40'}`}
       onPointerDown={() => {
         timerRef.current = setTimeout(() => {
           timerRef.current = null;
@@ -208,10 +207,10 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
       {/* ── Main layout: left rail · center · right rail ────────────────────── */}
       <div className="flex" style={{ minHeight: 'calc(100vh - 64px)' }}>
 
-        {/* Left rail — user's own widget icons */}
+        {/* Left rail — user's Dream Windows */}
         <aside
-          className="widget-rail flex-shrink-0 w-[72px] md:w-20 overflow-y-auto overflow-x-hidden flex flex-col items-center gap-3 py-4 scrollbar-hide"
-          aria-label="Your widgets"
+          className="dream-rail flex-shrink-0 w-[72px] md:w-20 overflow-y-auto overflow-x-hidden flex flex-col items-center gap-3 py-4 scrollbar-hide"
+          aria-label="Your Dream Windows"
         >
           {userWidgets.map((widget) => (
             <RailWidgetIcon
@@ -231,7 +230,7 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
         >
           {selectedWidget ? (
             /* ── Inline widget content ─────────────────────────────────────── */
-            <div className="p-4 feed-area-transition">
+            <div className="p-4 dream-feed-transition">
               <button
                 type="button"
                 onClick={() => setSelectedWidget(null)}
@@ -302,10 +301,10 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
           )}
         </main>
 
-        {/* Right rail — following / social widgets */}
+        {/* Right rail — following / social Dream Windows */}
         <aside
-          className="widget-rail widget-rail-right flex-shrink-0 w-[72px] md:w-20 overflow-y-auto overflow-x-hidden flex flex-col items-center gap-3 py-4 scrollbar-hide"
-          aria-label="Following widgets"
+          className="dream-rail dream-rail-right flex-shrink-0 w-[72px] md:w-20 overflow-y-auto overflow-x-hidden flex flex-col items-center gap-3 py-4 scrollbar-hide"
+          aria-label="Following Dream Windows"
         >
           {followingWidgets.map((widget) => (
             <RailWidgetIcon

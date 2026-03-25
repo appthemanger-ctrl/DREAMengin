@@ -1,22 +1,39 @@
 # DREAMengin Feature Status
 
-Last updated: 2026-03-24  
+Last updated: 2026-03-25
 Source of truth for product naming: `README.md`
 
 Legend: ✅ implemented · 🟡 partial / mixed · ⏳ planned / not yet cleanly aligned
 
-**Current phase:** Phase 8 — Real Runtime Completion (Points 1–100)  
-See `docs/dreamengin_phase8.md` for the full 100-point specification.
+**Current phase:** v2.0.0 — One Product  
+Phase 8 (all 100 points) is complete. v2.0.0 closes all naming, layering, and structural partials.
 
 **Phase 8 progress: §A ✅ §B ✅ §C ✅ §D ✅ §E ✅ §F ✅ §G ✅ §H ✅ §I ✅ §J ✅**
+
+## 0. v2.0.0 checklist
+
+| Item | Status | Repo truth |
+|---|---|---|
+| Canonical naming wins across UI/routes/docs | ✅ | `lib/identity/canonical-names.ts` is single authority. All 🟡 naming items closed. |
+| HomeDream is the clear product center | ✅ | `/homedream` is runtime root. Gold Button + DreamDM Bar + dual runtime preserve continuity. |
+| v1-ui layer fully subordinated | ✅ | `components/v1-ui/` preserved as legacy archive only. CSS no longer imported globally or in HomeDream. Dream Rail (v2) CSS in `styles/home-dream.css`. |
+| Dreams / Daydreams / Engins legible to outsiders | ✅ | `docs/PRODUCT_DEFINITION.md` + `docs/NAMING_AUTHORITY.md` document the model. Product flow maps to canonical names end-to-end. |
+| Auth + onboarding + entry reliable | ✅ | `/join` → `/auth/callback` → `/homedream` path clean. Open-redirect guard on callback. |
+| SuperDreamWidget composition aligned | ✅ | `components/dreams/SuperDreamWidget.tsx` with real cluster composition rules. |
+| AI triad coordination bus active | ✅ | `lib/agents/agentBus.ts` — client event bridge live. `runTriadConsensus` gate active on server (delete-dream, major ops). |
+| Clutter pass complete | ✅ | v1-ui CSS removed from global layout. Legacy CSS scoped to archive only. |
+| Motion restraint pass complete | ✅ | GodTier blur reduced (0.15/0.10). GlowLayer kernel 16. Transitions intentional. |
+| Profile/public boundary clean | ✅ | `visibility_mappings` authoritative. ViewProfile reads projections only. Nothing public by default. |
+| PRODUCT_VERSION in canonical-names | ✅ | `lib/identity/canonical-names.ts` exports `PRODUCT_VERSION = '2.0.0'`. |
+| package.json version | ✅ | `"version": "2.0.0"`. |
 
 ## 1. Core surfaces
 
 | Surface | Status | Repo truth |
 |---|---|---|
 | HomeDream | ✅ | Canonical route exists at `/homedream`; support route also exists at `/home`. |
-| EditProfileDream | 🟡 | Canonical route exists at `/edit-profiledream`; support route also exists at `/edit-profile`. Builder logic exists but naming is still mixed. |
-| ViewProfile | 🟡 | Canonical route exists at `/view-profile`; public/shared output also lives at `/profile/[handle]`. Public projection boundaries need cleaner language and wiring. |
+| EditProfileDream | ✅ | Canonical route `/edit-profiledream`. Legacy `/edit-profile` redirects. Naming fully aligned. |
+| ViewProfile | ✅ | Canonical route `/view-profile`. Projection boundary clean: reads only from `visibility_mappings`. Public handle route `/profile/[handle]` uses same projection path. |
 
 ## 2. Dreams system
 
@@ -26,8 +43,8 @@ See `docs/dreamengin_phase8.md` for the full 100-point specification.
 | Connector/Identity layer | ✅ | `components/dreams/DreamConnectorLayer.tsx` exists. |
 | Feature layer | ✅ | `components/dreams/DreamFeatureLayer.tsx` exists. |
 | Output/Projection layer | ✅ | `components/dreams/DreamOutputLayer.tsx` exists. |
-| Legacy widget absorption into Dreams naming | 🟡 | `components/widgets/*` still exists and is being repurposed. |
-| Automatic Super Widget composition | 🟡 | `components/dreams/SuperDreamWidget.tsx` exists, but profile-wide composition rules still need full alignment. |
+| Legacy widget absorption into Dreams naming | ✅ | `components/widgets/*` repurposed; v1-ui layer archived. `types/dream-window.ts` is the single type authority. |
+| Automatic Super Widget composition | ✅ | `components/dreams/SuperDreamWidget.tsx` has real cluster composition rules (StarMaker, GameSphere, BrandDream, LabCode, ContentStream). |
 
 ## 2a. Dreams Space (second runtime)
 
@@ -70,7 +87,7 @@ See `docs/dreamengin_phase8.md` for the full 100-point specification.
 | Dr. Eams | ✅ | Canonical route at `/api/ai/eams`. `DrEamsSearchBar` wired in HomeDream (`WorkspaceDashboard`); `onOpenDrEams` calls real `openDrEams` from `DreamSystemContext`. Send-to-DreamDM routing live. Phase 6 item 5 complete. |
 | IDARi | ✅ | `/api/ai/idari` exists; admin-guard enforced even under dev bypass; `IDARI_PASSWORD` env check returns 503 when absent. 15 guard tests in `tests/idari-admin-guard.test.ts`. Phase 6 item 6 complete. |
 | TheBoogieMan.Ai | ✅ | `/api/ai/boogieman` and `/api/ai/boogieman/privacy-event` exist. Visibility-change events logged on `handleSave`; publish events logged on `handlePublish` in EditProfileDream. Phase 6 item 7 complete. |
-| AI Triad coordination bus | 🟡 | `lib/agents/agentBus.ts` exists; triad consensus gate is a Phase 6 item. |
+| AI Triad coordination bus | ✅ | `lib/agents/agentBus.ts` — client-side event bridge live. `runTriadConsensus` gate active server-side for delete-dream and critical ops. |
 
 ## 6. Privacy and profile integrity
 
@@ -86,8 +103,8 @@ See `docs/dreamengin_phase8.md` for the full 100-point specification.
 | Rule | Status | Repo truth |
 |---|---|---|
 | Gold / light blue / white premium palette | ✅ | Theme docs and CSS tokens support this direction. |
-| Minimal clutter | 🟡 | Many surfaces are visually rich; continued cleanup is still needed. |
-| Intentional motion | 🟡 | Motion exists, but not every surface is equally restrained yet. |
+| Minimal clutter | ✅ | v1-ui CSS removed from global layout and HomeDream. Dream Rail (v2) CSS scoped to `styles/home-dream.css`. Legacy CSS archived in `components/v1-ui/`. |
+| Intentional motion | ✅ | GodTier blur reduced (blurStrength 0.15/0.10). GlowLayer blurKernelSize 16. All animations purposeful and restrained. |
 
 ## 8. Phase 6 priorities
 
@@ -106,12 +123,15 @@ The following items are the Phase 6 focus. See `docs/dreamengin_phase6.md` for t
 11. ✅ Separate user DreamAds from platform promotions in code and UI language — done. Migration `20260321000000_ads_platform_promotions.sql` adds `is_platform_promotion` to `ad_listings`. Ads surface now renders "My DreamAds — Available" and "Platform Promotions" as distinct sections.
 12. ✅ Repurpose legacy Daydream routes (`analytics`, `media-vault`, `play`) — done. analytics is now a **real Analytics Daydream** surface (social media analytics for branding): `app/daydream/analytics/page.tsx` + `components/daydream/AnalyticsEngin.tsx`. media-vault → /daydream/create, play → /daydream/games.
 13. ✅ Complete real-capability audit: replace all fake actions with real ones — done. `onOpenDrEams={() => {}}` in `HomeSystem.tsx` (both RuntimeView instances) replaced with real `openDrEams` from `DreamSystemContext`. Marketplace "Request" button replaced with a real navigation link to the slot detail surface. No remaining empty handlers in `components/home/`, `components/dreams/`, or `components/daydream/`.
-## 8. Current alignment priorities
+## 8. v2.0.0 — Completed alignment work (2026-03-25)
 
-1. Make spec names primary everywhere in docs and UI copy.
-2. Continue folding legacy widget naming into Dreams naming.
-3. Tighten EditProfileDream → ViewProfile projection boundaries.
-4. Repurpose extra legacy routes into spec-defined systems instead of keeping them as free-floating product names.
+All prior alignment priorities are now closed:
+1. ✅ Spec names are primary everywhere in docs and UI copy.
+2. ✅ Legacy widget naming absorbed into Dreams naming; v1-ui layer archived.
+3. ✅ EditProfileDream → ViewProfile projection boundaries clean.
+4. ✅ All legacy routes either repurposed or redirected to canonical surfaces.
+5. ✅ v1-ui CSS removed from global layout; Dream Rail (v2) CSS in `styles/home-dream.css`.
+6. ✅ `PRODUCT_VERSION = '2.0.0'` declared in `lib/identity/canonical-names.ts`.
 
 ## 9. Phase 7 — Product Identity, Naming, and Constitution
 

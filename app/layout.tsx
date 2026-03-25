@@ -1,5 +1,4 @@
 import '@/styles/globals.css';
-import '@/components/v1-ui/widget-feed-screen.css';
 import type { Metadata, Viewport } from 'next';
 import { Space_Grotesk, Cormorant_Garamond } from 'next/font/google';
 import ThemeProvider from '@/components/providers/ThemeProvider';
