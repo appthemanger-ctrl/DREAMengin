@@ -489,7 +489,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
             <div className="flex gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-amber-800 dark:text-amber-300">
-                <strong>Hash Registry</strong> — Add SHA-256 hashes of known CSAM media from authorised sources
+                <strong>Hash Registry</strong> — Add SHA-256 hashes of known CSAM media from authorized sources
                 (NCMEC, IWF, INHOPE). These are cryptographic fingerprints only — no actual content is stored.
                 Hashes are matched against every uploaded file before it reaches the database.
               </div>

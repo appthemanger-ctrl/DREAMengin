@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { scanContent } from '@/lib/child-safety/childSafetyDetector';
+import { scanMediaUrlsForChildSafety } from '@/lib/child-safety/scanMediaUrls';
 import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
 import { createHash } from 'crypto';
 
@@ -113,6 +114,31 @@ export async function POST(req: NextRequest) {
       { error: 'Content violates our child safety policy and has been blocked.' },
       { status: 451 },
     );
+  }
+
+  // ── TheBoogieMan media image scan (LLM + hash) — real-time ───────────────
+  // Scans each image attached to the post before it is written to the DB.
+  // Graceful degradation: if Groq is not configured or fetch fails, scan
+  // returns CLEAN (skipped) so the post is never blocked by transient errors.
+  if (Array.isArray(media_urls) && media_urls.length > 0) {
+    const mediaSafetyResult = await scanMediaUrlsForChildSafety({
+      urls: media_urls,
+      supabase,
+    });
+    if (mediaSafetyResult.flagged) {
+      reportChildSafetyIncident({
+        reportedUserId: user.id,
+        ruleCode: mediaSafetyResult.rule_code!,
+        detectionResult: mediaSafetyResult,
+        surface: 'post',
+        contentRef: `media:${Array.isArray(media_urls) ? String(media_urls.length) : '?'}_files`,
+      }).catch((err) => console.error('[child-safety] post media report error:', err));
+
+      return NextResponse.json(
+        { error: 'Attached media violates our child safety policy and has been blocked.' },
+        { status: 451 },
+      );
+    }
   }
   // ─────────────────────────────────────────────────────────────────────────
 
