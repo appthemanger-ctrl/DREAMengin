@@ -168,6 +168,22 @@ export type PredictedIntent = {
   optimisticFeedback: boolean;
 };
 
+/** 1 = survival/minimal · 5 = GOD_TIER full power */
+export type AlgorithmLevel = 1 | 2 | 3 | 4 | 5;
+
+export type ChildContentFilter = {
+  /** True when child-safety mode is active. */
+  enabled: boolean;
+  /**
+   * Content-rating gate applied to every feed item.
+   * 'strict'  — family-safe only (G/PG)
+   * 'standard' — default platform rules
+   */
+  ageGating: 'strict' | 'standard';
+  /** Labels that are always blocked when enabled. */
+  blockedLabels: string[];
+};
+
 export type GodTierState = {
   mode: QualityMode;
   renderPlan: RenderPlan;
@@ -179,6 +195,10 @@ export type GodTierState = {
   uiHierarchy: UIHierarchyDecision[];
   frictionOverrides: string[];
   globalIntensity: number;
+  /** Current quality tier — auto-boosted from 1 → 5 when detected. */
+  algorithmLevel: AlgorithmLevel;
+  /** Child-safety content filter state. */
+  childContentFilter: ChildContentFilter;
 };
 
 // ─── Ring average ─────────────────────────────────────────────────────────────
@@ -205,6 +225,52 @@ export class RingAverage {
     for (let i = 0; i < count; i++) sum += this.values[i];
     return sum / count;
   }
+}
+
+/* =========================================================
+   ALGORITHM LEVEL COMPUTER
+   Maps (globalIntensity, pressureLevel) → 1..5 scale.
+   Level 1 = survival mode. Level 5 = GOD_TIER full power.
+   Auto-boost: if level 1 is detected, the orchestrator bumps
+   the render plan aggressively on the next update cycle.
+   ========================================================= */
+export function computeAlgorithmLevel(
+  globalIntensity: number,
+  pressureLevel: number,
+): AlgorithmLevel {
+  if (pressureLevel >= 3 || globalIntensity < 0.96) return 1;
+  if (pressureLevel === 2 || globalIntensity < 1.00) return 2;
+  if (globalIntensity < 1.05)                        return 3;
+  if (pressureLevel >= 1 || globalIntensity < 1.10)  return 4;
+  return 5;
+}
+
+/* =========================================================
+   CHILD CONTENT FILTER BUILDER
+   Produces the ChildContentFilter for a given run.
+   When childSafetyMode = true, all adult-rated labels are
+   blocked and ageGating is set to 'strict'.
+   ========================================================= */
+export function buildChildContentFilter(childSafetyMode: boolean): ChildContentFilter {
+  if (!childSafetyMode) {
+    return { enabled: false, ageGating: 'standard', blockedLabels: [] };
+  }
+  return {
+    enabled: true,
+    ageGating: 'strict',
+    blockedLabels: [
+      'adult',
+      'explicit',
+      'nudity',
+      'violence',
+      'mature',
+      'nsfw',
+      'sexual',
+      'gore',
+      'drugs',
+      'gambling',
+    ],
+  };
 }
 
 /* =========================================================
@@ -607,6 +673,8 @@ export function uiPrioritySolver(
 export class DreamEngineGodTierSystem {
   private resolutionScale = 1.2;
   private frameHistory = new RingAverage(24);
+  /** Tracks consecutive level-1 frames so we can fire the auto-boost. */
+  private level1FrameCount = 0;
 
   update(params: {
     device: DeviceSignals;
@@ -615,15 +683,33 @@ export class DreamEngineGodTierSystem {
     route: RouteSignals;
     meshes: MeshSnapshot[];
     ui: UIElementSnapshot[];
+    /** Enable child-safety content filtering. Default: false. */
+    childSafetyMode?: boolean;
   }): GodTierState {
-    const { device, runtime, ux, route, meshes, ui } = params;
+    const { device, runtime, ux, route, meshes, ui, childSafetyMode = false } = params;
 
     this.frameHistory.push(runtime.frameMs);
 
     const boot     = maxAssumptionBoot(device);
     const pressure = framePressureShield(runtime);
 
-    this.resolutionScale = fidelityScaler(runtime, boot.baseResolutionScale);
+    // ── Auto-level-boost: if we've been stuck at level 1 for 10+ frames,
+    //    forcibly reset the resolution scale to base maximum so the engine
+    //    climbs back to level 5.
+    const rawLevel = computeAlgorithmLevel(boot.globalIntensity, pressure.pressureLevel);
+    if (rawLevel === 1) {
+      this.level1FrameCount += 1;
+    } else {
+      this.level1FrameCount = 0;
+    }
+    const autoBoostActive = this.level1FrameCount >= 10;
+    if (autoBoostActive) {
+      // Reset scale to maximum base — fidelityScaler will climb from here
+      this.resolutionScale = boot.baseResolutionScale;
+      this.level1FrameCount = 0;
+    } else {
+      this.resolutionScale = fidelityScaler(runtime, boot.baseResolutionScale);
+    }
 
     const meshDecisions = meshes.map((mesh) => {
       const importance = heroObjectImportance(mesh, route);
@@ -637,38 +723,44 @@ export class DreamEngineGodTierSystem {
     const frictionOverrides = frictionOverride(ux, route);
     const uiHierarchy       = uiPrioritySolver(ui, ux);
 
+    // When auto-boost fires, override pressure gates to restore full quality
+    const effectivePressure = autoBoostActive ? 0 : pressure.pressureLevel;
+
     const renderPlan: RenderPlan = {
       targetFps: 60,
       renderEveryFrame: true,
       internalResolutionScale: this.resolutionScale,
       lodBias:
-        pressure.pressureLevel >= 3 ? 0.95 :
-        pressure.pressureLevel === 2 ? 1.05 :
+        effectivePressure >= 3 ? 0.95 :
+        effectivePressure === 2 ? 1.05 :
         1.22,
-      anisotropy: pressure.pressureLevel >= 3 ? 8 : 16,
-      shadowResolution: pressure.pressureLevel >= 2 ? 2048 : 4096,
+      anisotropy: effectivePressure >= 3 ? 8 : 16,
+      shadowResolution: effectivePressure >= 2 ? 2048 : 4096,
       allowBloom: true,
-      allowSSAO: pressure.preserveSSAO,
-      allowSSR: pressure.pressureLevel < 3,
-      allowDoF: pressure.pressureLevel < 2,
-      allowVolumetrics: pressure.pressureLevel < 2,
-      allowChromaticAberration: pressure.pressureLevel < 2,
+      allowSSAO: autoBoostActive ? true : pressure.preserveSSAO,
+      allowSSR: effectivePressure < 3,
+      allowDoF: effectivePressure < 2,
+      allowVolumetrics: effectivePressure < 2,
+      allowChromaticAberration: effectivePressure < 2,
       allowFilmGrain: false,
-      allowContactShadows: pressure.pressureLevel < 3,
+      allowContactShadows: effectivePressure < 3,
       maxDynamicLights:
-        pressure.pressureLevel >= 3 ? 3 :
-        pressure.pressureLevel === 2 ? 4 :
+        effectivePressure >= 3 ? 3 :
+        effectivePressure === 2 ? 4 :
         6,
       maxActiveAnimations:
-        pressure.pressureLevel >= 3 ? 14 :
-        pressure.pressureLevel === 2 ? 20 :
+        effectivePressure >= 3 ? 14 :
+        effectivePressure === 2 ? 20 :
         32,
       maxHeroAnimations:
-        pressure.pressureLevel >= 3 ? 4 :
-        pressure.pressureLevel === 2 ? 6 :
+        effectivePressure >= 3 ? 4 :
+        effectivePressure === 2 ? 6 :
         10,
       sceneMode: 'DOMINANT',
     };
+
+    const algorithmLevel: AlgorithmLevel =
+      autoBoostActive ? 5 : computeAlgorithmLevel(boot.globalIntensity, pressure.pressureLevel);
 
     return {
       mode: 'GOD_TIER',
@@ -681,6 +773,8 @@ export class DreamEngineGodTierSystem {
       uiHierarchy,
       frictionOverrides,
       globalIntensity: boot.globalIntensity,
+      algorithmLevel,
+      childContentFilter: buildChildContentFilter(childSafetyMode),
     };
   }
 }
@@ -778,6 +872,8 @@ export function getGodTierUiTokens(state: GodTierState) {
       '--gt-motion-route':       `${state.motionPlan.routeMs}ms`,
       '--gt-motion-ambient':     `${state.motionPlan.ambientMs}ms`,
       '--gt-global-intensity':   String(state.globalIntensity),
+      '--gt-algorithm-level':    String(state.algorithmLevel),
+      '--gt-child-safety':       state.childContentFilter.enabled ? '1' : '0',
     },
   };
 }
@@ -794,6 +890,7 @@ export function runDreamEngineGodTier(input: {
   route: RouteSignals;
   meshes: MeshSnapshot[];
   ui: UIElementSnapshot[];
+  childSafetyMode?: boolean;
 }): GodTierState {
   return godTierSystem.update(input);
 }
