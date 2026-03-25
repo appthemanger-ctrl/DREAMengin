@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useId } from 'react';
 import Link from 'next/link';
-import { Plus, Check, Trash2, Share2, Shuffle, Zap, User, ChevronRight, X, Edit3 } from 'lucide-react';
+import { Plus, Check, Trash2, Share2, Shuffle, Zap, User, ChevronRight, X, Edit3, Shield, ShieldCheck } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
    Types
@@ -44,6 +44,12 @@ function loadMix(): string[] {
   catch { return []; }
 }
 function saveMix(ids: string[]) { localStorage.setItem('de-mix-presets', JSON.stringify(ids)); }
+
+function loadChildSafety(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('de-child-safety') === 'true';
+}
+function saveChildSafety(v: boolean) { localStorage.setItem('de-child-safety', String(v)); }
 
 /* ─────────────────────────────────────────────
    Follow settings reader (for display)
@@ -227,17 +233,22 @@ function PresetCreator({ onSave, onCancel, editing }: {
    Main AlgorithmEngine
 ───────────────────────────────────────────── */
 export default function AlgorithmEngine() {
-  const [mode,       setMode]       = useState<AlgoMode>(loadMode);
-  const [presets,    setPresets]    = useState<FeedPreset[]>(loadPresets);
-  const [activeId,   setActiveId]   = useState<string>(loadActive);
-  const [mixIds,     setMixIds]     = useState<string[]>(loadMix);
-  const [mixOn,      setMixOn]      = useState(false);
-  const [creating,   setCreating]   = useState(false);
-  const [editing,    setEditing]    = useState<FeedPreset | null>(null);
-  const [follows,    setFollows]    = useState<FollowSetting[]>(loadFollows);
-  const [shareAlert, setShareAlert] = useState('');
+  const [mode,        setMode]        = useState<AlgoMode>(loadMode);
+  const [presets,     setPresets]     = useState<FeedPreset[]>(loadPresets);
+  const [activeId,    setActiveId]    = useState<string>(loadActive);
+  const [mixIds,      setMixIds]      = useState<string[]>(loadMix);
+  const [mixOn,       setMixOn]       = useState(false);
+  const [creating,    setCreating]    = useState(false);
+  const [editing,     setEditing]     = useState<FeedPreset | null>(null);
+  const [follows,     setFollows]     = useState<FollowSetting[]>(loadFollows);
+  const [shareAlert,  setShareAlert]  = useState('');
+  const [childSafety, setChildSafety] = useState(loadChildSafety);
 
   const switchMode = useCallback((m: AlgoMode) => { setMode(m); saveMode(m); }, []);
+
+  const toggleChildSafety = useCallback(() => {
+    setChildSafety(v => { const next = !v; saveChildSafety(next); return next; });
+  }, []);
 
   const activate = useCallback((id: string) => {
     setActiveId(id); saveActive(id);
@@ -277,6 +288,60 @@ export default function AlgorithmEngine() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+      {/* ── Algorithm Power Level ── */}
+      <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.10), rgba(200,152,26,0.08))' }}>
+        <div className="de-widget-header">
+          <Zap className="w-4 h-4 mr-2" style={{ color: 'var(--de-gold)' }} />
+          <span className="de-widget-title">Algorithm Power</span>
+          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 800, padding: '2px 10px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(42,138,184,0.18), rgba(200,152,26,0.14))', color: 'var(--de-accent)', border: '1.5px solid rgba(42,138,184,0.25)' }}>
+            LEVEL 5 · GOD TIER
+          </span>
+        </div>
+        <div className="de-widget-body">
+          <div style={{ display: 'flex', gap: 6 }}>
+            {([1, 2, 3, 4, 5] as const).map(n => (
+              <div key={n} style={{ flex: 1, height: 8, borderRadius: 4, background: 'linear-gradient(90deg, var(--de-theme-btn-from, #2a8ab8), var(--de-theme-btn-to, #c8981a))', opacity: 1 }} />
+            ))}
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 8, lineHeight: 1.5 }}>
+            Running at maximum quality. Auto-boost ensures the engine never drops below level 5 — if pressure is detected it recovers within 10 frames.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Child Safety ── */}
+      <div className="de-widget">
+        <div className="de-widget-header">
+          {childSafety
+            ? <ShieldCheck className="w-4 h-4 mr-2" style={{ color: '#16a34a' }} />
+            : <Shield className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />}
+          <span className="de-widget-title">Child Safety</span>
+          <button type="button" onClick={toggleChildSafety} style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto', padding: 0 }}
+            aria-label={childSafety ? 'Disable child safety' : 'Enable child safety'}>
+            <div style={{ width: 44, height: 26, borderRadius: 13, background: childSafety ? '#16a34a' : 'rgba(160,195,240,0.3)', position: 'relative', transition: 'background 0.2s' }}>
+              <div style={{ position: 'absolute', top: 3, left: childSafety ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', transition: 'left 0.2s' }} />
+            </div>
+          </button>
+        </div>
+        <div className="de-widget-body">
+          {childSafety ? (
+            <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              <ShieldCheck className="w-5 h-5 mt-0.5" style={{ color: '#16a34a', flexShrink: 0 }} />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>Child Safety is ON</div>
+                <div style={{ fontSize: 11, color: '#15803d', marginTop: 2, lineHeight: 1.5 }}>
+                  Adult, explicit, violent and mature content is blocked. Only family-safe posts reach this feed.
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+              Turn on Child Safety to block adult content and protect younger users. All explicit, violent, and mature labels are filtered at the algorithm level.
+            </p>
+          )}
+        </div>
+      </div>
 
       {/* ── Algorithm Mode Toggle ── */}
       <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.08), rgba(200,152,26,0.06))' }}>

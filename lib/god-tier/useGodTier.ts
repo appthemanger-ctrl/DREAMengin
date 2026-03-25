@@ -42,6 +42,12 @@ export interface UseGodTierOptions {
   ui?: UIElementSnapshot[];
   /** How often (ms) to re-run the orchestrator. Default: every rAF (~16ms). */
   tickMs?: number;
+  /**
+   * Enable child-safety content filtering.
+   * When true the algorithm blocks adult-rated content labels.
+   * Default: false.
+   */
+  childSafetyMode?: boolean;
 }
 
 export interface UseGodTierReturn {
@@ -67,6 +73,7 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
     nextLikelyRoutes = [],
     meshes = [],
     ui = [],
+    childSafetyMode = false,
   } = opts;
 
   // ── Engine instance (stable across renders) ─────────────────────────────────
@@ -87,6 +94,11 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
   // ── State ─────────────────────────────────────────────────────────────────────
   const [state, setState] = useState<GodTierState | null>(null);
   const [uiTokens, setUiTokens] = useState<ReturnType<typeof getGodTierUiTokens> | null>(null);
+
+  // ── React state throttle: update React state at ≤5fps to avoid 60fps re-renders.
+  //    CSS custom properties are injected directly every frame (no React overhead).
+  const lastReactUpdateRef = useRef<number>(0);
+  const REACT_STATE_INTERVAL_MS = 200; // 5fps cap for React state
 
   // ── Frame measurement ─────────────────────────────────────────────────────────
   const rafRef = useRef<number | null>(null);
@@ -128,13 +140,12 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
       route:   routeSignals,
       meshes,
       ui,
+      childSafetyMode,
     });
 
-    setState(next);
     const tokens = getGodTierUiTokens(next);
-    setUiTokens(tokens);
 
-    // Inject CSS custom properties on :root
+    // Always inject CSS custom properties directly — zero React overhead.
     if (typeof document !== 'undefined') {
       const root = document.documentElement;
       for (const [k, v] of Object.entries(tokens.vars)) {
@@ -142,8 +153,15 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
       }
     }
 
+    // Throttle React state updates to avoid 60fps component re-renders.
+    if (ts - lastReactUpdateRef.current >= REACT_STATE_INTERVAL_MS) {
+      lastReactUpdateRef.current = ts;
+      setState(next);
+      setUiTokens(tokens);
+    }
+
     rafRef.current = requestAnimationFrame(tick);
-  }, [route, activeTask, primaryIntent, nextLikelyRoutes, meshes, ui]);
+  }, [route, activeTask, primaryIntent, nextLikelyRoutes, meshes, ui, childSafetyMode]);
 
   // ── Scroll velocity tracking ───────────────────────────────────────────────
   useEffect(() => {

@@ -23,6 +23,8 @@ import {
   defaultRuntimeMetrics,
   defaultUXSignals,
   defaultRouteSignals,
+  computeAlgorithmLevel,
+  buildChildContentFilter,
   type MeshSnapshot,
   type UIElementSnapshot,
   type RouteSignals,
@@ -622,5 +624,92 @@ describe('default signal helpers', () => {
   it('defaultRouteSignals uses provided route', () => {
     const r = defaultRouteSignals('/test');
     expect(r.route).toBe('/test');
+  });
+});
+
+// ─── computeAlgorithmLevel ────────────────────────────────────────────────────
+
+describe('computeAlgorithmLevel', () => {
+  it('returns 5 at full intensity with no pressure', () => {
+    expect(computeAlgorithmLevel(1.12, 0)).toBe(5);
+  });
+
+  it('returns 4 at high intensity with mild pressure', () => {
+    expect(computeAlgorithmLevel(1.07, 1)).toBe(4);
+  });
+
+  it('returns 3 at baseline intensity with mild pressure', () => {
+    expect(computeAlgorithmLevel(1.0, 1)).toBe(3);
+  });
+
+  it('returns 2 at moderate pressure', () => {
+    expect(computeAlgorithmLevel(1.0, 2)).toBe(2);
+  });
+
+  it('returns 1 at severe pressure', () => {
+    expect(computeAlgorithmLevel(1.0, 3)).toBe(1);
+  });
+
+  it('returns 1 at low intensity', () => {
+    expect(computeAlgorithmLevel(0.94, 0)).toBe(1);
+  });
+});
+
+// ─── buildChildContentFilter ──────────────────────────────────────────────────
+
+describe('buildChildContentFilter', () => {
+  it('returns disabled filter when childSafetyMode is false', () => {
+    const f = buildChildContentFilter(false);
+    expect(f.enabled).toBe(false);
+    expect(f.ageGating).toBe('standard');
+    expect(f.blockedLabels).toHaveLength(0);
+  });
+
+  it('returns strict filter with blocked labels when childSafetyMode is true', () => {
+    const f = buildChildContentFilter(true);
+    expect(f.enabled).toBe(true);
+    expect(f.ageGating).toBe('strict');
+    expect(f.blockedLabels).toContain('adult');
+    expect(f.blockedLabels).toContain('explicit');
+    expect(f.blockedLabels).toContain('nsfw');
+    expect(f.blockedLabels.length).toBeGreaterThan(5);
+  });
+});
+
+// ─── DreamEngineGodTierSystem — level + child safety ─────────────────────────
+
+describe('DreamEngineGodTierSystem algorithmLevel and childContentFilter', () => {
+  let system: DreamEngineGodTierSystem;
+  beforeEach(() => { system = new DreamEngineGodTierSystem(); });
+
+  it('includes algorithmLevel in state', () => {
+    const state = system.update({ device, runtime, ux, route, meshes: [], ui: [] });
+    expect([1, 2, 3, 4, 5]).toContain(state.algorithmLevel);
+  });
+
+  it('includes childContentFilter in state (default disabled)', () => {
+    const state = system.update({ device, runtime, ux, route, meshes: [], ui: [] });
+    expect(state.childContentFilter.enabled).toBe(false);
+    expect(state.childContentFilter.ageGating).toBe('standard');
+  });
+
+  it('enables child content filter when childSafetyMode=true', () => {
+    const state = system.update({ device, runtime, ux, route, meshes: [], ui: [], childSafetyMode: true });
+    expect(state.childContentFilter.enabled).toBe(true);
+    expect(state.childContentFilter.ageGating).toBe('strict');
+    expect(state.childContentFilter.blockedLabels).toContain('adult');
+  });
+
+  it('getGodTierUiTokens emits --gt-algorithm-level and --gt-child-safety', () => {
+    const state = system.update({ device, runtime, ux, route, meshes: [], ui: [], childSafetyMode: true });
+    const { vars } = getGodTierUiTokens(state);
+    expect(vars['--gt-algorithm-level']).toBeDefined();
+    expect(vars['--gt-child-safety']).toBe('1');
+  });
+
+  it('--gt-child-safety is 0 when disabled', () => {
+    const state = system.update({ device, runtime, ux, route, meshes: [], ui: [] });
+    const { vars } = getGodTierUiTokens(state);
+    expect(vars['--gt-child-safety']).toBe('0');
   });
 });
