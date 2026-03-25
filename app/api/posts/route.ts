@@ -1,5 +1,8 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { scanContent } from '@/lib/child-safety/childSafetyDetector';
+import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
+import { createHash } from 'crypto';
 
 // GET - Fetch posts for feed
 // Query params:
@@ -91,6 +94,27 @@ export async function POST(req: NextRequest) {
   if (!content || content.trim().length === 0) {
     return NextResponse.json({ error: 'Content is required' }, { status: 400 });
   }
+
+  // ── TheBoogieMan child safety scan (zero-tolerance) ──────────────────────
+  const childSafetyResult = scanContent({ text: content });
+  if (childSafetyResult.flagged) {
+    const contentHash = createHash('sha256').update(content).digest('hex');
+    // Fire-and-forget report — do not await to avoid blocking the rejection
+    reportChildSafetyIncident({
+      reportedUserId: user.id,
+      ruleCode: childSafetyResult.rule_code!,
+      detectionResult: childSafetyResult,
+      surface: 'post',
+      contentRef: `draft:${contentHash.slice(0, 16)}`,
+      contentHash,
+    }).catch((err) => console.error('[child-safety] post report error:', err));
+
+    return NextResponse.json(
+      { error: 'Content violates our child safety policy and has been blocked.' },
+      { status: 451 },
+    );
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   const { data: post, error } = await supabase
     .from('app_posts')
