@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { SUPABASE_URL } from "@/lib/supabase/env";
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 
 /**
  * GET /api/auth/providers
@@ -16,26 +16,58 @@ interface SupabaseAuthSettings {
   external?: Record<string, boolean>;
 }
 
+export interface OAuthProvidersResponse {
+  google: boolean | null;
+  github: boolean | null;
+}
+
+export const UNKNOWN_OAUTH_PROVIDERS: OAuthProvidersResponse = {
+  google: null,
+  github: null,
+};
+
+export function getOAuthProvidersResponse(
+  settings: SupabaseAuthSettings,
+): OAuthProvidersResponse {
+  const external = settings.external ?? {};
+
+  return {
+    google: typeof external.google === "boolean" ? external.google : null,
+    github: typeof external.github === "boolean" ? external.github : null,
+  };
+}
+
 export async function GET() {
-  if (!SUPABASE_URL) {
-    return NextResponse.json({ google: false, github: false });
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return NextResponse.json(UNKNOWN_OAUTH_PROVIDERS, {
+      headers: { "Cache-Control": "no-store" },
+    });
   }
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/settings`);
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
+      cache: "no-store",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
 
     if (!res.ok) {
-      return NextResponse.json({ google: false, github: false });
+      return NextResponse.json(UNKNOWN_OAUTH_PROVIDERS, {
+        headers: { "Cache-Control": "no-store" },
+      });
     }
 
     const settings: SupabaseAuthSettings = await res.json();
-    const external = settings.external ?? {};
 
     return NextResponse.json(
-      { google: Boolean(external.google), github: Boolean(external.github) },
-      { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" } },
+      getOAuthProvidersResponse(settings),
+      { headers: { "Cache-Control": "no-store" } },
     );
   } catch {
-    return NextResponse.json({ google: false, github: false });
+    return NextResponse.json(UNKNOWN_OAUTH_PROVIDERS, {
+      headers: { "Cache-Control": "no-store" },
+    });
   }
 }
