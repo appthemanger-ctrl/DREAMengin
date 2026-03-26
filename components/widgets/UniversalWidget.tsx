@@ -1,20 +1,7 @@
 'use client';
-/**
- * components/widgets/UniversalWidget.tsx
- *
- * @deprecated Forwarding shim — canonical implementation is in
- *   components/dreams/SuperDreamWidget.tsx (Phase 8 §B Point 18).
- *
- * This component wraps connector-feed content inside a DreamShell,
- * making it a proper Dream Window. Use SuperDreamWidget for new
- * Dream Window composition.
- *
- * Architecture: docs/ARCHITECTURE.md §4 (Universal Dream Window model)
- * Phase 8 Section B: Point 18 — legacy widget absorbed into Dream Window naming.
- */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import DreamShell from '@/components/dreams/DreamShell';
+import WidgetCard from './WidgetCard';
 
 type ServiceType = 'instagram' | 'youtube' | 'spotify' | 'news' | 'weather' | 'github' | null;
 
@@ -70,7 +57,7 @@ export default function UniversalWidget({ service = null, title, sliceName }: Un
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const config = service ? SERVICE_CONFIGS[service] : null;
-  const displayTitle = title || config?.label || 'Dream Window';
+  const displayTitle = title || config?.label || 'Universal Widget';
 
   const supportsLiveFeed = useMemo(
     () => service === 'youtube' || service === 'github',
@@ -111,22 +98,13 @@ export default function UniversalWidget({ service = null, title, sliceName }: Un
   }, [service, supportsLiveFeed]);
 
   return (
-    <DreamShell
-      widgetId={`universal-${service ?? 'generic'}`}
-      title={displayTitle}
-      icon={config?.icon ?? '✦'}
-      dataState={loading ? 'loading' : loadError ? 'error' : 'ready'}
-      onRetry={() => {
-        setLoadError(null);
-        setItems([]);
-      }}
-    >
+    <WidgetCard title={displayTitle}>
       {!service ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 0' }}>
           <span style={{ fontSize: 28, opacity: 0.3 }}>∞</span>
-          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>Dream Window</p>
+          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>Universal Widget</p>
           <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', lineHeight: 1.5 }}>
-            Connect a service to fill this Dream Window with live content.
+            Connect a service to fill this widget with live content.
           </p>
           <button
             type="button"
@@ -233,9 +211,9 @@ export default function UniversalWidget({ service = null, title, sliceName }: Un
 
           {showAddWidgets && (
             <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(42,138,184,0.08)', border: '1px solid rgba(42,138,184,0.2)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>Add Dream Window for {config?.label}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>Add Widgets for {config?.label}</div>
               <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>
-                Would you like to add relevant Dream Windows for {config?.label}?
+                Would you like to add relevant widgets for {config?.label}?
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button type="button" className="de-btn de-btn-primary" style={{ fontSize: 10, padding: '5px 10px' }}>Add Suggested</button>
@@ -245,6 +223,6 @@ export default function UniversalWidget({ service = null, title, sliceName }: Un
           )}
         </div>
       )}
-    </DreamShell>
+    </WidgetCard>
   );
 }

@@ -17,7 +17,7 @@ export async function GET(
 ) {
   const { provider } = await params;
   const supabase = await createServerClient();
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
   const { data: { user } } = await supabase.auth.getUser();

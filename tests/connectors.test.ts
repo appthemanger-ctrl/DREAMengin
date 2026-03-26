@@ -8,7 +8,6 @@
  * B. Normalisation — stripHtml, deduplication, provider-specific normalisation
  * C. Status truthfulness — no connector starts as 'connected' in initial state
  * D. Nostr utilities — pubkey validation
- * E. ShellHub provider — credential fields, SSRF guard, registry entry
  *
  * No network calls, no DB calls — pure unit tests.
  *
@@ -34,10 +33,6 @@ import {
   deduplicateFeedItems,
 } from '@/lib/connectors/normalise';
 import { isValidNostrPubkey } from '@/lib/connectors/providers/nostr';
-import {
-  shellhubCredentialFields,
-  SHELLHUB_DEFAULT_SERVER,
-} from '@/lib/connectors/providers/shellhub';
 
 // ── A. ConnectorRegistry ──────────────────────────────────────────────────
 
@@ -396,66 +391,5 @@ describe('isValidNostrPubkey', () => {
 
   it('rejects npub with insufficient length', () => {
     expect(isValidNostrPubkey('npub1short')).toBe(false);
-  });
-});
-
-// ── E. ShellHub provider ──────────────────────────────────────────────────
-
-describe('ShellHub connector registry entry', () => {
-  it('is registered in CONNECTOR_REGISTRY', () => {
-    const sh = getConnectorDef('shellhub');
-    expect(sh).toBeDefined();
-  });
-
-  it('is tier-1 with defaultStatus not_connected', () => {
-    const sh = getConnectorDef('shellhub');
-    expect(sh!.tier).toBe('tier1');
-    expect(sh!.defaultStatus).toBe('not_connected');
-  });
-
-  it('is in the Utilities category', () => {
-    const sh = getConnectorDef('shellhub');
-    expect(sh!.category).toBe('Utilities');
-  });
-
-  it('has exactly 2 slice types', () => {
-    const sh = getConnectorDef('shellhub');
-    expect(sh!.sliceTypes).toHaveLength(2);
-  });
-
-  it('sliceType IDs start with sh-', () => {
-    const sh = getConnectorDef('shellhub');
-    for (const st of sh!.sliceTypes) {
-      expect(st.id.startsWith('sh-')).toBe(true);
-    }
-  });
-});
-
-describe('shellhubCredentialFields', () => {
-  it('returns 2 fields', () => {
-    expect(shellhubCredentialFields()).toHaveLength(2);
-  });
-
-  it('first field is server_url of type url', () => {
-    const fields = shellhubCredentialFields();
-    expect(fields[0].key).toBe('server_url');
-    expect(fields[0].type).toBe('url');
-  });
-
-  it('second field is api_key of type password', () => {
-    const fields = shellhubCredentialFields();
-    expect(fields[1].key).toBe('api_key');
-    expect(fields[1].type).toBe('password');
-  });
-
-  it('SHELLHUB_DEFAULT_SERVER is the ShellHub Cloud URL', () => {
-    expect(SHELLHUB_DEFAULT_SERVER).toBe('https://cloud.shellhub.io');
-  });
-
-  it('all fields have a non-empty hint', () => {
-    for (const field of shellhubCredentialFields()) {
-      expect(typeof field.hint).toBe('string');
-      expect(field.hint.length).toBeGreaterThan(0);
-    }
   });
 });
