@@ -2,6 +2,9 @@
  * tests/dev-bypass.test.ts
  *
  * Unit tests for the dev-auth-bypass helpers in lib/dev-bypass.ts (req #31–33).
+ *
+ * Both helpers read server-only env vars (DEV_BYPASS_AUTH, DEV_ADMIN) that are
+ * never NEXT_PUBLIC_ and are hard-blocked when NODE_ENV === 'production'.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -20,50 +23,65 @@ afterEach(() => {
 
 describe('isDevBypassActive', () => {
   it('returns false when env var is absent', async () => {
-    delete process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH;
+    delete process.env.DEV_BYPASS_AUTH;
     const { isDevBypassActive } = await import('@/lib/dev-bypass');
     expect(isDevBypassActive()).toBe(false);
   });
 
   it('returns false when env var is "false"', async () => {
-    process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH = 'false';
+    process.env.DEV_BYPASS_AUTH = 'false';
     const { isDevBypassActive } = await import('@/lib/dev-bypass');
     expect(isDevBypassActive()).toBe(false);
   });
 
   it('returns true only when env var is exactly "true"', async () => {
-    process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH = 'true';
+    process.env.DEV_BYPASS_AUTH = 'true';
     const { isDevBypassActive } = await import('@/lib/dev-bypass');
     expect(isDevBypassActive()).toBe(true);
+  });
+
+  it('returns false in production even when env var is "true" (hard production block)', async () => {
+    process.env.DEV_BYPASS_AUTH = 'true';
+    process.env.NODE_ENV = 'production';
+    const { isDevBypassActive } = await import('@/lib/dev-bypass');
+    expect(isDevBypassActive()).toBe(false);
   });
 });
 
 describe('isDevAdminBypassActive', () => {
   it('returns false when both env vars are absent', async () => {
-    delete process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH;
+    delete process.env.DEV_BYPASS_AUTH;
     delete process.env.DEV_ADMIN;
     const { isDevAdminBypassActive } = await import('@/lib/dev-bypass');
     expect(isDevAdminBypassActive()).toBe(false);
   });
 
   it('returns false when only DEV_ADMIN is set (req #32)', async () => {
-    delete process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH;
+    delete process.env.DEV_BYPASS_AUTH;
     process.env.DEV_ADMIN = 'true';
     const { isDevAdminBypassActive } = await import('@/lib/dev-bypass');
     expect(isDevAdminBypassActive()).toBe(false);
   });
 
-  it('returns false when only NEXT_PUBLIC_DEV_BYPASS_AUTH is set', async () => {
-    process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH = 'true';
+  it('returns false when only DEV_BYPASS_AUTH is set', async () => {
+    process.env.DEV_BYPASS_AUTH = 'true';
     delete process.env.DEV_ADMIN;
     const { isDevAdminBypassActive } = await import('@/lib/dev-bypass');
     expect(isDevAdminBypassActive()).toBe(false);
   });
 
   it('returns true only when BOTH env vars are "true" (req #32)', async () => {
-    process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH = 'true';
+    process.env.DEV_BYPASS_AUTH = 'true';
     process.env.DEV_ADMIN = 'true';
     const { isDevAdminBypassActive } = await import('@/lib/dev-bypass');
     expect(isDevAdminBypassActive()).toBe(true);
+  });
+
+  it('returns false in production even when both env vars are "true" (hard production block)', async () => {
+    process.env.DEV_BYPASS_AUTH = 'true';
+    process.env.DEV_ADMIN = 'true';
+    process.env.NODE_ENV = 'production';
+    const { isDevAdminBypassActive } = await import('@/lib/dev-bypass');
+    expect(isDevAdminBypassActive()).toBe(false);
   });
 });

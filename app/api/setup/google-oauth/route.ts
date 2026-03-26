@@ -41,17 +41,20 @@ export async function GET(request: Request) {
       value: SUPABASE_ANON_KEY ? "configured" : "missing",
     },
     {
-      name: "GOOGLE_OAUTH_CLIENT_ID configured",
-      ok: Boolean(process.env.GOOGLE_OAUTH_CLIENT_ID),
-      value: process.env.GOOGLE_OAUTH_CLIENT_ID
-        ? `${process.env.GOOGLE_OAUTH_CLIENT_ID.slice(0, 12)}... (configured)`
-        : "missing — set in Supabase Auth dashboard, not in env vars",
+      // The Google OAuth Client ID and Secret for Supabase auth belong in the
+      // Supabase Dashboard (Auth → Providers → Google), NOT in env vars.
+      // This check is informational only.
+      name: "Google OAuth configured in Supabase",
+      ok: null,
+      value:
+        "Configure in Supabase Dashboard → Authentication → Providers → Google. " +
+        "Do NOT set GOOGLE_OAUTH_CLIENT_SECRET in env vars — it belongs only in Supabase.",
     },
   ];
 
   return NextResponse.json({
     required_config_ok: checks
-      .filter((c) => c.name !== "GOOGLE_OAUTH_CLIENT_ID configured")
+      .filter((c) => c.ok !== null)
       .every((c) => c.ok),
     checks,
     instructions: {
@@ -65,7 +68,9 @@ export async function GET(request: Request) {
       },
       step2: {
         title: "Supabase Dashboard — configure Google provider",
-        url: "https://supabase.com/dashboard/project/_/auth/providers",
+        url: supabaseProjectRef
+          ? `https://supabase.com/dashboard/project/${supabaseProjectRef}/auth/providers`
+          : "https://supabase.com/dashboard/project/_/auth/providers",
         note:
           "Go to Authentication → Providers → Google. " +
           "Paste your Google Client ID and Client Secret there. " +
@@ -73,7 +78,9 @@ export async function GET(request: Request) {
       },
       step3: {
         title: "Supabase Dashboard — add app callback to redirect URL allow-list",
-        url: "https://supabase.com/dashboard/project/_/auth/url-configuration",
+        url: supabaseProjectRef
+          ? `https://supabase.com/dashboard/project/${supabaseProjectRef}/auth/url-configuration`
+          : "https://supabase.com/dashboard/project/_/auth/url-configuration",
         add_to_redirect_urls: [
           appCallbackUrl,
           // Add any other deployment URLs from VERCEL_URL or NEXT_PUBLIC_SITE_URL:
