@@ -15,7 +15,7 @@ export const SPLIT_FLING_VELOCITY_PX_PER_MS = 0.55;
  * Returns the nearest canonical snap point for the given split ratio.
  */
 export function snapToSplitPoint(ratio: number): number {
-  let best = SPLIT_SNAP_POINTS[0];
+  let best: number = SPLIT_SNAP_POINTS[0];
   let bestDist = Math.abs(ratio - best);
   for (const pt of SPLIT_SNAP_POINTS) {
     const d = Math.abs(ratio - pt);
