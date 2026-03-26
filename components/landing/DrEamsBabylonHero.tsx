@@ -262,20 +262,39 @@ export default function DrEamsBabylonHero({
     root.position = new Vector3(0, 0, 0);
 
     // ----- TORSO -----
-    // Main torso body — rounded cylinder (more 3D than box)
+    // Main torso body — wider chest, nipped waist for humanoid hourglass silhouette
     const torso = MeshBuilder.CreateCylinder(
       'torso',
-      { height: 0.90, diameterTop: 0.65, diameterBottom: 0.72, tessellation: 24 },
+      { height: 0.90, diameterTop: 0.70, diameterBottom: 0.54, tessellation: 24 },
       scene,
     );
     torso.material = coatMat;
     torso.position.y = 1.20;
     torso.parent = root;
 
+    // Chest pectoral plates — two rounded bumps for humanoid chest definition
+    const pecL = MeshBuilder.CreateSphere(
+      'pecL',
+      { diameterX: 0.25, diameterY: 0.14, diameterZ: 0.12, segments: 12 },
+      scene,
+    );
+    pecL.material = coatMat;
+    pecL.position = new Vector3(-0.14, 1.35, 0.22);
+    pecL.parent = root;
+
+    const pecR = MeshBuilder.CreateSphere(
+      'pecR',
+      { diameterX: 0.25, diameterY: 0.14, diameterZ: 0.12, segments: 12 },
+      scene,
+    );
+    pecR.material = coatMat;
+    pecR.position = new Vector3(0.14, 1.35, 0.22);
+    pecR.parent = root;
+
     // Torso front plate — adds dimension
     const torsoPlate = MeshBuilder.CreateCylinder(
       'torsoPlate',
-      { height: 0.82, diameterTop: 0.60, diameterBottom: 0.68, tessellation: 24 },
+      { height: 0.82, diameterTop: 0.64, diameterBottom: 0.50, tessellation: 24 },
       scene,
     );
     torsoPlate.material = coatMat;
@@ -590,35 +609,98 @@ export default function DrEamsBabylonHero({
     wristBandR.parent = elbowNodeR;
     glow.addIncludedOnlyMesh(wristBandR as Mesh);
 
-    // ----- HANDS -----
-    const handL = MeshBuilder.CreateSphere(
-      'handL',
-      { diameter: 0.17, segments: 10 },
-      scene,
-    );
-    handL.material = metalMat;
-    handL.position.y = -0.44;
-    handL.parent = elbowNodeL;
 
-    const handR = MeshBuilder.CreateSphere(
-      'handR',
-      { diameter: 0.17, segments: 10 },
+    // ----- HANDS (humanoid — palm + 4 fingers + thumb) -----
+    // Left palm
+    const handPalmL = MeshBuilder.CreateBox(
+      'handPalmL',
+      { width: 0.16, height: 0.09, depth: 0.09 },
       scene,
     );
-    handR.material = metalMat;
-    handR.position.y = -0.44;
-    handR.parent = elbowNodeR;
+    handPalmL.material = metalMat;
+    handPalmL.position = new Vector3(0, -0.50, 0.01);
+    handPalmL.parent = elbowNodeL;
+
+    // Right palm
+    const handPalmR = MeshBuilder.CreateBox(
+      'handPalmR',
+      { width: 0.16, height: 0.09, depth: 0.09 },
+      scene,
+    );
+    handPalmR.material = metalMat;
+    handPalmR.position = new Vector3(0, -0.50, 0.01);
+    handPalmR.parent = elbowNodeR;
+
+    // Fingers — 4 per hand, spaced across palm width
+    const fingerXOffsets = [-0.055, -0.018, 0.018, 0.055];
+    const fingerLengths   = [0.072, 0.086, 0.082, 0.064]; // index/middle/ring/pinky
+    fingerXOffsets.forEach((xOff, fi) => {
+      const fLen = fingerLengths[fi];
+
+      const fL = MeshBuilder.CreateCylinder(
+        `fingerL${fi}`,
+        { height: fLen, diameter: 0.026, tessellation: 8 },
+        scene,
+      );
+      fL.material = metalMat;
+      fL.position = new Vector3(xOff, -0.50 - fLen * 0.5 - 0.045, 0.01);
+      fL.parent = elbowNodeL;
+
+      const fR = MeshBuilder.CreateCylinder(
+        `fingerR${fi}`,
+        { height: fLen, diameter: 0.026, tessellation: 8 },
+        scene,
+      );
+      fR.material = metalMat;
+      fR.position = new Vector3(xOff, -0.50 - fLen * 0.5 - 0.045, 0.01);
+      fR.parent = elbowNodeR;
+
+      // Glowing finger-tip dot
+      const tipL = MeshBuilder.CreateSphere(`fingerTipL${fi}`, { diameter: 0.028, segments: 6 }, scene);
+      tipL.material = accentMat;
+      tipL.position = new Vector3(xOff, -0.50 - fLen - 0.045, 0.01);
+      tipL.parent = elbowNodeL;
+      glow.addIncludedOnlyMesh(tipL as Mesh);
+
+      const tipR = MeshBuilder.CreateSphere(`fingerTipR${fi}`, { diameter: 0.028, segments: 6 }, scene);
+      tipR.material = accentMat;
+      tipR.position = new Vector3(xOff, -0.50 - fLen - 0.045, 0.01);
+      tipR.parent = elbowNodeR;
+      glow.addIncludedOnlyMesh(tipR as Mesh);
+    });
+
+    // Thumbs — angled outward at 45°
+    const thumbL = MeshBuilder.CreateCylinder(
+      'thumbL',
+      { height: 0.060, diameter: 0.030, tessellation: 8 },
+      scene,
+    );
+    thumbL.material = metalMat;
+    thumbL.rotation.z = -Math.PI / 4;
+    thumbL.position = new Vector3(-0.093, -0.497, 0.01);
+    thumbL.parent = elbowNodeL;
+
+    const thumbR = MeshBuilder.CreateCylinder(
+      'thumbR',
+      { height: 0.060, diameter: 0.030, tessellation: 8 },
+      scene,
+    );
+    thumbR.material = metalMat;
+    thumbR.rotation.z = Math.PI / 4;
+    thumbR.position = new Vector3(0.093, -0.497, 0.01);
+    thumbR.parent = elbowNodeR;
+
 
     // ----- HIP BAND -----
-    // Rounded hip belt instead of flat box
+    // Wider hip band for humanoid flared-hip silhouette (wider than the nipped waist)
     const hipBand = MeshBuilder.CreateCylinder(
       'hipBand',
-      { height: 0.09, diameterTop: 0.76, diameterBottom: 0.72, tessellation: 24 },
+      { height: 0.11, diameterTop: 0.82, diameterBottom: 0.78, tessellation: 24 },
       scene,
     );
     hipBand.material = metalMat;
     hipBand.position.y = 0.77;
-    hipBand.scaling.z = 0.6;
+    hipBand.scaling.z = 0.65;
     hipBand.parent = root;
 
     // ----- HIP PIVOT NODES -----

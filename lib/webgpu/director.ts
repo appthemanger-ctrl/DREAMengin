@@ -558,8 +558,11 @@ export function applyDirectorFrame(
   frame:  DirectorFrame,
   devicePixelRatio = 1,
 ): void {
-  // Resolution
-  const hwScale = Math.max(0.67, devicePixelRatio / frame.resolutionScale);
+  // Resolution — cap at 1.0 so we never render below the canvas buffer resolution.
+  // Values > 1 cause Babylon to render at a fraction of the canvas size then
+  // upscale, producing visible blur.  Values ≤ 1 are fine: 1 = native canvas
+  // resolution; < 1 = super-sampling (sharper, costs more GPU).
+  const hwScale = Math.min(1.0, devicePixelRatio / frame.resolutionScale);
   engine.setHardwareScalingLevel(hwScale);
 
   // Mesh decisions
