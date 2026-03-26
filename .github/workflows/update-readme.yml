@@ -58,4 +58,21 @@ jobs:
           SHORT="${{ github.sha }}"
           SHORT="${SHORT:0:7}"
           git commit -m "docs: auto-update README [${SHORT}] [skip ci]"
-          git push origin HEAD:${{ github.ref_name }} || true
+
+          # Retry push up to 3 times, rebasing on the remote each time to
+          # handle concurrent pushes to the same branch (race condition).
+          for attempt in 1 2 3; do
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "✅ Push succeeded on attempt ${attempt}."
+              exit 0
+            fi
+            echo "⚠️  Push attempt ${attempt} failed — pulling and rebasing."
+            git pull --rebase origin ${{ github.ref_name }} || {
+              echo "❌ Rebase failed. Aborting."
+              git rebase --abort 2>/dev/null || true
+              exit 1
+            }
+          done
+
+          echo "❌ All push attempts failed."
+          exit 1
