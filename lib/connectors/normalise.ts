@@ -389,6 +389,120 @@ export function normaliseYouTubeSearchResult(item: YouTubeSearchItem): UnifiedFe
   };
 }
 
+// ── Generic RSS-backed providers ────────────────────────────────────────────
+
+interface GenericRssItem {
+  guid?: string;
+  id?: string;
+  link?: string;
+  isoDate?: string;
+  pubDate?: string;
+  title?: string;
+  author?: string;
+  creator?: string;
+  'dc:creator'?: string;
+  content?: string;
+  description?: string;
+  contentEncoded?: string;
+  'content:encoded'?: string;
+  enclosure?: {
+    url?: string;
+    type?: string;
+  };
+}
+
+function normaliseGenericRssItem(
+  provider: string,
+  item: GenericRssItem,
+  authorHandle: string,
+  authorName = authorHandle,
+): UnifiedFeedItem {
+  const rawHtml = item.contentEncoded ?? item['content:encoded'] ?? item.content ?? item.description ?? '';
+  const permalink = item.link ?? '';
+  const title = stripHtml(item.title ?? '');
+  const contentText = stripHtml(rawHtml) || title || 'Untitled post';
+  const media = normaliseGenericRssMedia(item, title || contentText);
+
+  return {
+    provider,
+    external_id: item.guid ?? item.id ?? permalink ?? `${provider}:${title || authorHandle}`,
+    author_handle: authorHandle,
+    author_name: authorName,
+    content_text: contentText,
+    content_html: rawHtml || undefined,
+    media,
+    permalink,
+    published_at: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+    raw: item,
+  };
+}
+
+function normaliseGenericRssMedia(item: GenericRssItem, alt: string): FeedItemMedia[] {
+  const enclosureUrl = item.enclosure?.url;
+  if (!enclosureUrl) return [];
+
+  const mediaType = item.enclosure?.type ?? '';
+  const type: FeedItemMedia['type'] =
+    mediaType.startsWith('audio/')
+      ? 'audio'
+      : mediaType.startsWith('video/')
+      ? 'video'
+      : enclosureUrl.match(/\.(mp3|m4a|aac|ogg)(\?|$)/i)
+      ? 'audio'
+      : enclosureUrl.match(/\.(mp4|mov|webm|m3u8)(\?|$)/i)
+      ? 'video'
+      : enclosureUrl.match(/\.(gif)(\?|$)/i)
+      ? 'gif'
+      : 'image';
+
+  return [{
+    url: enclosureUrl,
+    type,
+    alt,
+  }];
+}
+
+export function normaliseDevto(item: GenericRssItem, username: string): UnifiedFeedItem {
+  return normaliseGenericRssItem('devto', item, username, username);
+}
+
+export function normaliseFacebook(item: GenericRssItem, handle: string): UnifiedFeedItem {
+  return normaliseGenericRssItem('facebook', item, handle, handle);
+}
+
+export function normaliseHackerNews(item: GenericRssItem): UnifiedFeedItem {
+  const author = item.author ?? item['dc:creator'] ?? item.creator ?? 'hackernews';
+  return normaliseGenericRssItem('hackernews', item, author, author);
+}
+
+export function normaliseMedium(item: GenericRssItem, handle: string): UnifiedFeedItem {
+  return normaliseGenericRssItem('medium', item, handle, handle);
+}
+
+export function normalisePinterest(item: GenericRssItem, username: string): UnifiedFeedItem {
+  return normaliseGenericRssItem('pinterest', item, username, username);
+}
+
+export function normalisePodcast(item: GenericRssItem, authorName: string): UnifiedFeedItem {
+  return normaliseGenericRssItem('podcast', item, authorName, authorName);
+}
+
+export function normaliseSubstack(item: GenericRssItem, slug: string): UnifiedFeedItem {
+  return normaliseGenericRssItem('substack', item, slug, slug);
+}
+
+export function normaliseTikTok(item: GenericRssItem, username: string): UnifiedFeedItem {
+  return normaliseGenericRssItem('tiktok', item, `@${username}`, `@${username}`);
+}
+
+export function normaliseTumblr(item: GenericRssItem, slug: string): UnifiedFeedItem {
+  return normaliseGenericRssItem('tumblr', item, slug, slug);
+}
+
+export function normaliseTwitter(item: GenericRssItem, username: string): UnifiedFeedItem {
+  return normaliseGenericRssItem('twitter', item, `@${username}`, `@${username}`);
+}
+
 // ── Dedup helper ──────────────────────────────────────────────────────────
 
 /**

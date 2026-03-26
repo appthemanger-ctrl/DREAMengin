@@ -15,6 +15,7 @@
  */
 
 import {
+  deduplicateFeedItems,
   normaliseYouTubePlaylistItem,
   normaliseYouTubeSearchResult,
   type YouTubePlaylistItem,
@@ -65,12 +66,35 @@ interface PlaylistItemsResponse {
   items?: YouTubePlaylistItem[];
 }
 
+interface VideosResponse {
+  items?: Array<{
+    id?: string;
+    snippet?: YouTubeSearchItem['snippet'];
+  }>;
+}
+
 function requireAccessToken(accessToken: string): string {
   const token = accessToken.trim();
   if (!token) {
     throw new Error('YouTube access token is required.');
   }
   return token;
+}
+
+function getFirstEnvValue(...keys: string[]): string | undefined {
+  for (const key of keys) {
+    const value = process.env[key]?.trim();
+    if (value) return value;
+  }
+  return undefined;
+}
+
+export function getYouTubeApiKey(): string | undefined {
+  return getFirstEnvValue('YOUTUBE_API_KEY', 'API_KEY');
+}
+
+export function getYouTubeAnalyticsApiKey(): string | undefined {
+  return getFirstEnvValue('YOUTUBE_ANALYTICS_API_KEY', 'YOUTUBE_API_KEY', 'API_KEY');
 }
 
 async function fetchYouTubeJson<T>(url: string, accessToken: string): Promise<T> {
@@ -80,6 +104,27 @@ async function fetchYouTubeJson<T>(url: string, accessToken: string): Promise<T>
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',
     },
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`YouTube request failed: ${res.status} ${res.statusText}${text ? ` — ${text}` : ''}`);
+  }
+
+  return await res.json() as T;
+}
+
+async function fetchYouTubePublicJson<T>(url: string, apiKey: string): Promise<T> {
+  const key = apiKey.trim();
+  if (!key) {
+    throw new Error('YouTube API key is required.');
+  }
+
+  const res = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+    },
+    cache: 'no-store',
   });
 
   if (!res.ok) {
@@ -158,6 +203,50 @@ async function fetchSubscriptionFeed(
   );
 
   return batches.flat();
+}
+
+async function fetchTrendingVideos(apiKey: string, maxResults: number): Promise<UnifiedFeedItem[]> {
+  const data = await fetchYouTubePublicJson<VideosResponse>(
+    `${YT_API}/videos?part=snippet&chart=mostPopular&regionCode=US&maxResults=${maxResults}&key=${encodeURIComponent(apiKey)}`,
+    apiKey,
+  );
+
+  return (data.items ?? []).map((item) => normaliseYouTubeSearchResult({
+    id: { videoId: item.id ?? '' },
+    snippet: item.snippet,
+  }));
+}
+
+async function fetchWorldNewsVideos(apiKey: string, maxResults: number): Promise<UnifiedFeedItem[]> {
+  const data = await fetchYouTubePublicJson<SearchResponse>(
+    `${YT_API}/search?part=snippet&q=${encodeURIComponent('world news')}&type=video&order=date&relevanceLanguage=en&maxResults=${maxResults}&key=${encodeURIComponent(apiKey)}`,
+    apiKey,
+  );
+
+  return (data.items ?? []).map(normaliseYouTubeSearchResult);
+}
+
+function shuffleItems<T>(items: T[]): T[] {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+export async function youtubeDiscovery(apiKey: string, max: number): Promise<UnifiedFeedItem[]> {
+  const safeMax = Math.min(Math.max(1, Number.isFinite(max) ? Math.trunc(max) : 30), 50);
+  const fetchMax = Math.min(Math.max(safeMax, 12), 50);
+
+  const [trending, news] = await Promise.all([
+    fetchTrendingVideos(apiKey, fetchMax),
+    fetchWorldNewsVideos(apiKey, fetchMax),
+  ]);
+
+  return shuffleItems(
+    deduplicateFeedItems([...trending, ...news]).slice(0, safeMax * 2),
+  ).slice(0, safeMax);
 }
 
 /**

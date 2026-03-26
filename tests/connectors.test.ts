@@ -28,6 +28,8 @@ import {
   normaliseGitHub,
   normaliseReddit,
   normaliseNostr,
+  normalisePodcast,
+  normaliseTwitter,
   normaliseYouTubePlaylistItem,
   normaliseYouTubeSearchResult,
   deduplicateFeedItems,
@@ -338,6 +340,40 @@ describe('normaliseYouTubeSearchResult', () => {
     expect(item.external_id).toBe('subs:sub123');
     expect(item.author_handle).toBe('Dreamengin Dev');
     expect(item.content_text).toBe('Latest build log');
+  });
+});
+
+describe('normalisePodcast', () => {
+  it('maps podcast enclosures to audio media', () => {
+    const item = normalisePodcast({
+      guid: 'episode-1',
+      title: 'Dreamengin FM',
+      link: 'https://example.com/podcast/episode-1',
+      enclosure: {
+        url: 'https://cdn.example.com/audio/episode-1.mp3',
+        type: 'audio/mpeg',
+      },
+    }, 'Dreamengin FM');
+
+    expect(item.provider).toBe('podcast');
+    expect(item.media[0]).toMatchObject({
+      url: 'https://cdn.example.com/audio/episode-1.mp3',
+      type: 'audio',
+    });
+  });
+});
+
+describe('normaliseTwitter', () => {
+  it('prefixes the author handle with @ for Twitter feeds', () => {
+    const item = normaliseTwitter({
+      guid: 'tweet-1',
+      title: 'Build is green',
+      link: 'https://nitter.net/dreamengin/status/1',
+    }, 'dreamengin');
+
+    expect(item.provider).toBe('twitter');
+    expect(item.author_handle).toBe('@dreamengin');
+    expect(item.author_name).toBe('@dreamengin');
   });
 });
 

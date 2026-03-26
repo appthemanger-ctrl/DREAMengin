@@ -14,7 +14,7 @@ development and production.
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ✅ | ✅ (auto-injected by integration) | — | — |
 | `dreamengin_SUPABASE_*` | ✅ | ✅ (auto-injected by integration) | — | — |
 | `OPENAI_API_KEY` / `GROQ_API_KEY` | ✅ | ✅ | — | — |
-| `YOUTUBE_API_KEY` | ✅ | ✅ | — | — |
+| `YOUTUBE_API_KEY` / `API_KEY` | ✅ | ✅ | — | — |
 | `SESSION_SECRET` | ✅ | ✅ | — | — |
 | `IDARI_PASSWORD` | ✅ | ✅ | — | — |
 | `ADMIN_UNLOCK_KEY` | ✅ | ✅ | — | — |
@@ -49,6 +49,12 @@ development and production.
 3. Paste your **Google Client ID** and **Google Client Secret** there
 4. ⚠️ The Client Secret belongs **only** in the Supabase Dashboard — never in `.env.local`,
    never in Vercel env vars, never committed to source control
+
+### YouTube API key note
+
+- Prefer `YOUTUBE_API_KEY` for server-side YouTube integrations.
+- If your deployment already uses a shared `API_KEY`, DREAMengin now falls back to that value for YouTube discovery and other server-side YouTube API access when `YOUTUBE_API_KEY` is unset.
+- The same Google API key can be reused for YouTube Analytics requests after you enable that API in the same Google Cloud project.
 
 ### Step 3 — Supabase Dashboard (redirect URL allow-list)
 
