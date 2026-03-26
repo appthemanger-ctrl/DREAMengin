@@ -177,15 +177,6 @@ export default function ConnectorsClient() {
     flow.onConnectSuccess(connectorId, connectorName);
   }
 
-  function handleDisconnect(connectorId: string) {
-    // Remove from connected set so Sync Now button disappears
-    setConnectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(connectorId);
-      return next;
-    });
-  }
-
   React.useEffect(() => {
     if (flow.placementRequest && !flow.placementRequest.noSlotAvailable) {
       const slots = grid.filledSlots;
@@ -217,7 +208,6 @@ export default function ConnectorsClient() {
                 connector={conn}
                 status={statuses[conn.id]}
                 onConnectSuccess={handleConnectSuccess}
-                onDisconnect={handleDisconnect}
               />
               {connectedIds.has(conn.id) && (
                 <SyncButton connectorId={conn.id} connectorName={conn.name} />
@@ -239,7 +229,6 @@ export default function ConnectorsClient() {
               connector={conn}
               status={statuses[conn.id]}
               onConnectSuccess={handleConnectSuccess}
-              onDisconnect={handleDisconnect}
             />
           ))}
         </div>
@@ -257,7 +246,6 @@ export default function ConnectorsClient() {
               connector={conn}
               status={statuses[conn.id]}
               onConnectSuccess={handleConnectSuccess}
-              onDisconnect={handleDisconnect}
             />
           ))}
         </div>
