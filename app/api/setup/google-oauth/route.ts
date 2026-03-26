@@ -41,17 +41,20 @@ export async function GET(request: Request) {
       value: SUPABASE_ANON_KEY ? "configured" : "missing",
     },
     {
-      name: "GOOGLE_OAUTH_CLIENT_ID configured",
-      ok: Boolean(process.env.GOOGLE_OAUTH_CLIENT_ID),
-      value: process.env.GOOGLE_OAUTH_CLIENT_ID
-        ? `${process.env.GOOGLE_OAUTH_CLIENT_ID.slice(0, 12)}... (configured)`
-        : "missing — set in Supabase Auth dashboard, not in env vars",
+      // The Google OAuth Client ID and Secret for Supabase auth belong in the
+      // Supabase Dashboard (Auth → Providers → Google), NOT in env vars.
+      // This check is informational only.
+      name: "Google OAuth configured in Supabase",
+      ok: null,
+      value:
+        "Configure in Supabase Dashboard → Authentication → Providers → Google. " +
+        "Do NOT set GOOGLE_OAUTH_CLIENT_SECRET in env vars — it belongs only in Supabase.",
     },
   ];
 
   return NextResponse.json({
     required_config_ok: checks
-      .filter((c) => c.name !== "GOOGLE_OAUTH_CLIENT_ID configured")
+      .filter((c) => c.ok !== null)
       .every((c) => c.ok),
     checks,
     instructions: {

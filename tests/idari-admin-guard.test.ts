@@ -13,7 +13,7 @@
  *   - docs/IDARI_CONTRACT.md: "admin-only, server-side only; must remain guarded
  *     even when dev bypass tools exist elsewhere in the repo"
  *   - docs/dreamengin_phase6.md point 6: "IDARi must be protected by an admin-guard
- *     check even when NEXT_PUBLIC_DEV_BYPASS_AUTH is active."
+ *     check even when DEV_BYPASS_AUTH is active."
  *   - docs/AXIOMS.md: Security by Default
  */
 
@@ -103,7 +103,7 @@ describe('IDARi admin gate (Phase 6 spec point 5, 6)', () => {
 
 // ── Dev bypass must NOT exempt IDARi (Phase 6 spec point 6) ──────────────────
 //
-// NEXT_PUBLIC_DEV_BYPASS_AUTH=true skips auth for user-facing surfaces.
+// DEV_BYPASS_AUTH=true skips auth for user-facing surfaces.
 // IDARi must remain guarded regardless.
 //
 // The IDARi route uses supabase.auth.getUser() directly and never calls
@@ -111,17 +111,17 @@ describe('IDARi admin gate (Phase 6 spec point 5, 6)', () => {
 // that the guard logic is independent of the dev bypass flag.
 
 describe('IDARi ignores dev bypass flags (Phase 6 spec point 6)', () => {
-  const originalBypass = process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH;
+  const originalBypass = process.env.DEV_BYPASS_AUTH;
   const originalDevAdmin = process.env.DEV_ADMIN;
 
   beforeEach(() => {
-    process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH = 'true';
+    process.env.DEV_BYPASS_AUTH = 'true';
     process.env.DEV_ADMIN = 'true';
   });
 
   afterEach(() => {
-    if (originalBypass === undefined) delete process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH;
-    else process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH = originalBypass;
+    if (originalBypass === undefined) delete process.env.DEV_BYPASS_AUTH;
+    else process.env.DEV_BYPASS_AUTH = originalBypass;
     if (originalDevAdmin === undefined) delete process.env.DEV_ADMIN;
     else process.env.DEV_ADMIN = originalDevAdmin;
   });
@@ -129,7 +129,7 @@ describe('IDARi ignores dev bypass flags (Phase 6 spec point 6)', () => {
   it('even with DEV_ADMIN=true, a regular user is still denied (role-gate runs regardless)', () => {
     // The IDARi gate uses resolveActorRole based on DB/owner-email, not env bypass.
     // Simulating: dev bypass is active but user has no admin role.
-    const devBypassActive = process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === 'true';
+    const devBypassActive = process.env.DEV_BYPASS_AUTH === 'true';
     const devAdminActive = process.env.DEV_ADMIN === 'true';
 
     // Even with both bypass flags on, resolveActorRole returns null for a regular user.
