@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-26 07:40 UTC  
-**Triggered by commit:** `1b5c368` on `copilot/build-perfected-dreamwars-and-engin-battle` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/build-perfected-dreamwars-and-engin-battle
+**Last updated:** 2026-03-26 07:44 UTC  
+**Triggered by commit:** `04db344` on `copilot/fix-pnpm-outdated-lockfile` by Copilot  
+**Commit message:** fix: regenerate pnpm-lock.yaml to add missing gsap@3.14.2 entry
 
 ---
 
