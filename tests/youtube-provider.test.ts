@@ -56,7 +56,7 @@ describe('youtube provider discovery helpers', () => {
             id: 'trend-1',
             snippet: {
               title: 'Trending build fix',
-              channelTitle: 'Dreamengin',
+              channelTitle: 'DREAMengin',
               publishedAt: '2026-03-25T00:00:00.000Z',
               thumbnails: { high: { url: 'https://img.example/trend-1.jpg' } },
             },
@@ -110,5 +110,18 @@ describe('youtube provider discovery helpers', () => {
       'subs:news-1',
       'subs:shared-video',
     ]));
+  });
+
+  it('surfaces API request failures from discovery fetches', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ items: [] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('boom', { status: 500, statusText: 'Internal Server Error' }));
+
+    vi.stubGlobal('fetch', fetchMock);
+    const { youtubeDiscovery } = await import('@/lib/connectors/providers/youtube');
+
+    await expect(youtubeDiscovery('youtube-key', 5)).rejects.toThrow(
+      'YouTube request failed: 500 Internal Server Error — boom',
+    );
   });
 });
