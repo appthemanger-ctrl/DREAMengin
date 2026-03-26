@@ -10,6 +10,35 @@ Phase 8 (all 100 points) is complete. v2.0.0 closes all naming, layering, and st
 
 **Phase 8 progress: §A ✅ §B ✅ §C ✅ §D ✅ §E ✅ §F ✅ §G ✅ §H ✅ §I ✅ §J ✅**
 
+## Activity-First Protocol (v2.1 target)
+
+Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-03-25)
+
+| Feature | Status | Target |
+|---|---|---|
+| `activity_points` table (decaying 30-day sum) | ⏳ | DB migration |
+| `activity_verification` table (evidence of activity) | ⏳ | DB migration |
+| `views` table (verified human views) | ⏳ | DB migration |
+| `skip_credits` table (user credit balance) | ⏳ | DB migration |
+| `ad_views` table (verified ad views for billing) | ⏳ | DB migration |
+| `user_metrics` table (AQS, Real Shit Rate) | ⏳ | DB migration |
+| `visibility_score` feed ranking (replaces engagement ranking) | ⏳ | Algorithm |
+| Activity Quality Score (AQS) as core metric | ⏳ | Algorithm |
+| Activity tier multipliers (Tier 0–6) | ⏳ | Algorithm |
+| Points decay over 30-day rolling window | ⏳ | Algorithm |
+| Profile: total views + AQS + Real Shit Rate display | ⏳ | UI |
+| Feed: view count prominent, no like count | ⏳ | UI |
+| Ad units: Pre-Roll, Post-Roll, Rewarded (no mid-roll) | ⏳ | UI + Billing |
+| Skip credit system (earn + auto-apply) | ⏳ | UI + DB |
+| `AD` badge on all ad placements | ⏳ | UI |
+| CPV billing (Standard $0.08 / Premium $0.12 / Super $0.15) | ⏳ | Billing |
+| TheBoogieMan.Ai harmful content enforcement (search-only, no feed) | ⏳ | Moderation |
+| TheBoogieMan.Ai fraud detection (fake check-ins, bot views) | ⏳ | Moderation |
+| Parental controls — minors blocked from harmful content by default | ⏳ | Auth + UI |
+| IDARi platform health dashboard (Real Shit Rate, AQS, etc.) | ⏳ | Admin UI |
+| Ad revenue split (30% platform / 50% creator / 20% reward pool) | ⏳ | Billing |
+| Activity Reward Pool monthly distribution | ⏳ | Billing |
+
 ## 0. v2.0.0 checklist
 
 | Item | Status | Repo truth |
