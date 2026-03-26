@@ -7,9 +7,11 @@
 
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Leaderboard from '@/components/games/Leaderboard';
 import { useGamepad } from '@/lib/games/useGamepad';
+import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
+import { getGsap } from '@/lib/gsap/gsap';
 
 const Loading = () => (
   <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 13 }}>
@@ -41,6 +43,10 @@ const MemoryGrid         = dynamicImport(() => import('@/components/games/Memory
 const SpeedTap           = dynamicImport(() => import('@/components/games/SpeedTap'),           { ssr: false, loading: Loading });
 // Babylon.js side-scroller — replaces old Dr. Eams Canvas 2D platformer
 const BabylonSideScroller = dynamicImport(() => import('@/components/games/BabylonSideScroller'), { ssr: false, loading: Loading });
+// New Dream-universe games
+const DREAMwars   = dynamicImport(() => import('@/components/games/DREAMwars'),   { ssr: false, loading: Loading });
+const ENGINBattle = dynamicImport(() => import('@/components/games/ENGINBattle'), { ssr: false, loading: Loading });
+const DREAMquest  = dynamicImport(() => import('@/components/games/DREAMquest'),  { ssr: false, loading: Loading });
 
 interface GameDef {
   id: string;
@@ -112,6 +118,13 @@ const GAMES: GameDef[] = [
   // ── MADMAXI — Babylon.js 3-D side-scroller ───────────────────────────────
   { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', component: BabylonSideScroller,
     desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js 3-D side-scroller' },
+  // ── Dream Universe games ──────────────────────────────────────────────────
+  { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',         category: 'Strategy',    color: '#7c3aed', component: DREAMwars,
+    desc: 'Nightmares vs Dreamers RTS — build base, harvest Dream Energy, crush the enemy HQ' },
+  { id: 'engin-battle',  emoji: '⚙️', label: 'ENGIN Battle',      category: 'Strategy',    color: '#38bdf8', component: ENGINBattle,
+    desc: 'Age of Empires style — pick Dr. Eams, IDARi or Boogie; tech tree upgrades, 3-faction war' },
+  { id: 'dreamquest',    emoji: '✨', label: 'DREAMquest',         category: 'RPG',         color: '#a78bfa', component: DREAMquest,
+    desc: 'FF7 + Chrono Trigger RPG — traverse 5 dream layers, unlock dream abilities, defeat the Dream Destroyer' },
 ];
 
 // ── Universal D-Pad — fires de-game-input events consumed by all game canvases ──
@@ -221,6 +234,10 @@ export default function GamesHub() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('All');
   const { connected: gpConnected, gamepadName } = useGamepad();
+
+  // GSAP stagger entrance for the game card grid — replays on every filter change
+  const gridRef = useRef<HTMLDivElement>(null);
+  useGsapEntrance(gridRef, [filter], { stagger: 0.035, y: 18, duration: 0.32 });
 
   const categories = ['All', ...Array.from(new Set(GAMES.map(g => g.category))).sort()];
   const filtered = filter === 'All' ? GAMES : GAMES.filter(g => g.category === filter);
@@ -382,8 +399,8 @@ export default function GamesHub() {
         ))}
       </div>
 
-      {/* Game card grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
+      {/* Game card grid — ref'd for GSAP stagger entrance */}
+      <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
         {filtered.map(game => {
           const cardContent = (
             <>
@@ -414,13 +431,19 @@ export default function GamesHub() {
             display: 'flex',
             flexDirection: 'column',
             gap: 6,
-            transition: 'transform 0.12s, background 0.15s',
             textDecoration: 'none',
             width: '100%',
           };
 
-          const hoverIn  = (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.65)'; };
-          const hoverOut = (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = 'rgba(255,255,255,0.45)'; };
+          // GSAP hover: smooth lift + background brighten via gsap.to
+          const hoverIn  = (e: React.MouseEvent<HTMLElement>) => {
+            const el = e.currentTarget;
+            getGsap().then(gsap => gsap.to(el, { y: -3, background: 'rgba(255,255,255,0.68)', duration: 0.18, ease: 'power2.out', overwrite: 'auto' }));
+          };
+          const hoverOut = (e: React.MouseEvent<HTMLElement>) => {
+            const el = e.currentTarget;
+            getGsap().then(gsap => gsap.to(el, { y: 0, background: 'rgba(255,255,255,0.45)', duration: 0.22, ease: 'power2.out', overwrite: 'auto' }));
+          };
 
           // Link-out games open a full page; inline games render inside the hub
           if (game.href) {
