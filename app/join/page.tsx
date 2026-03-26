@@ -35,15 +35,18 @@ export default function JoinPage() {
   const [busy, setBusy]               = useState(false);
   const [error, setError]             = useState<string | null>(null);
   const [notice, setNotice]           = useState<string | null>(null);
-  const [oauthProviders, setOauthProviders] = useState<{ google: boolean; github: boolean } | null>(null);
+  const [oauthProviders, setOauthProviders] = useState<{ google: boolean | null; github: boolean | null } | null>(null);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   useEffect(() => {
     fetch("/api/auth/providers")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Unable to load OAuth provider status");
+        return r.json();
+      })
       .then((data) => setOauthProviders(data))
-      .catch(() => setOauthProviders({ google: false, github: false }));
+      .catch(() => setOauthProviders(null));
   }, []);
 
   useEffect(() => {
@@ -118,7 +121,7 @@ export default function JoinPage() {
 
     // Guard: if we know this provider is not configured, show a friendly message
     // instead of sending the user to an OAuth page that will reject them.
-    if (oauthProviders && !oauthProviders[provider]) {
+    if (oauthProviders?.[provider] === false) {
       setError(
         `${provider === "google" ? "Google" : "GitHub"} sign-in is not configured on this server. Please use email/password or contact support.`,
       );
@@ -226,7 +229,7 @@ export default function JoinPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <button
               type="button"
-              disabled={busy || oauthProviders?.google === false}
+              disabled={busy}
               onClick={() => oauth("google")}
               className="de-btn de-btn-ghost"
               style={{ width: "100%", opacity: oauthProviders?.google === false ? DISABLED_BUTTON_OPACITY : undefined }}
@@ -236,7 +239,7 @@ export default function JoinPage() {
             </button>
             <button
               type="button"
-              disabled={busy || oauthProviders?.github === false}
+              disabled={busy}
               onClick={() => oauth("github")}
               className="de-btn de-btn-ghost"
               style={{ width: "100%", opacity: oauthProviders?.github === false ? DISABLED_BUTTON_OPACITY : undefined }}

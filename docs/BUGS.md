@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-26 12:33 UTC  
-**Triggered by commit:** `6df1a23` on `completedream` by appthemanger-ctrl  
-**Commit message:** Delete arm1_transparent.png
+**Last updated:** 2026-03-26 14:07 UTC  
+**Triggered by commit:** `a1b84ee` on `copilot/fix-login-issues` by Copilot  
+**Commit message:** fix: stop auth provider probe from disabling OAuth login
 
 ---
 

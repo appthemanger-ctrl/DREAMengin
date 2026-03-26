@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `a1b84ee` | 2026-03-26 14:07 UTC | copilot/fix-login-issues | Copilot | +1 ~3 | fix: stop auth provider probe from disabling OAuth login |
 | `6df1a23` | 2026-03-26 12:33 UTC | completedream | appthemanger-ctrl | −1 | Delete arm1_transparent.png |
 | `4821f89` | 2026-03-26 09:48 UTC | completedream | appthemanger-ctrl | — | Merge pull request #312 from appthemanger-ctrl/copilot/update-auth-callback-url |
 | `4b7369b` | 2026-03-26 08:39 UTC | copilot/update-auth-callback-url | Copilot | +1 ~5 | Security: audit and harden auth/env setup for production safety |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `c5c6dc9` | 2026-03-26 07:40 UTC | completedream | appthemanger-ctrl | — | Merge pull request #310 from appthemanger-ctrl/copilot/build-perfected-dreamwars-and-engin-battle |
 | `1b5c368` | 2026-03-26 07:40 UTC | copilot/build-perfected-dreamwars-and-engin-battle | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/build-perfected-dreamwars-and-engin-battle |
 | `033c09c` | 2026-03-26 06:07 UTC | completedream | appthemanger-ctrl | — | Merge pull request #309 from appthemanger-ctrl/copilot/fix-3d-rendering-issue |
-| `a73d788` | 2026-03-26 06:06 UTC | copilot/fix-3d-rendering-issue | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/fix-3d-rendering-issue |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-26 12:33 UTC — `6df1a23` by appthemanger-ctrl
+Last updated: 2026-03-26 14:07 UTC — `a1b84ee` by Copilot
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
 Scope: Full dual-runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
