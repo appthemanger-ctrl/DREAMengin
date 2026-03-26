@@ -83,6 +83,9 @@ export async function createBabylonEngine(
     preserveDrawingBuffer,
     stencil,
     antialias,
+    // Render at physical pixel density on HiDPI/retina screens so the canvas
+    // drawing buffer matches the device's native resolution.
+    adaptToDeviceRatio: true,
   });
   return { engine, isWebGPU: false };
 }
