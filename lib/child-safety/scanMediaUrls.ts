@@ -62,13 +62,8 @@ const EXT_TO_MIME: Record<string, ImageMime> = {
 
 // Minimal Supabase client shape needed for hash registry lookup
 interface SupabaseLike {
-  from: (table: string) => {
-    select: (cols: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data?: any[] | null;
-      error?: unknown | null;
-    };
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  from: (table: string) => any;
 }
 
 export interface ScanMediaUrlsInput {
