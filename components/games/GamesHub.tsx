@@ -7,9 +7,11 @@
 
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Leaderboard from '@/components/games/Leaderboard';
 import { useGamepad } from '@/lib/games/useGamepad';
+import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
+import { getGsap } from '@/lib/gsap/gsap';
 
 const Loading = () => (
   <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 13 }}>
@@ -233,6 +235,10 @@ export default function GamesHub() {
   const [filter, setFilter] = useState<string>('All');
   const { connected: gpConnected, gamepadName } = useGamepad();
 
+  // GSAP stagger entrance for the game card grid — replays on every filter change
+  const gridRef = useRef<HTMLDivElement>(null);
+  useGsapEntrance(gridRef, [filter], { stagger: 0.035, y: 18, duration: 0.32 });
+
   const categories = ['All', ...Array.from(new Set(GAMES.map(g => g.category))).sort()];
   const filtered = filter === 'All' ? GAMES : GAMES.filter(g => g.category === filter);
   const active = activeGame ? GAMES.find(g => g.id === activeGame) : null;
@@ -393,8 +399,8 @@ export default function GamesHub() {
         ))}
       </div>
 
-      {/* Game card grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
+      {/* Game card grid — ref'd for GSAP stagger entrance */}
+      <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
         {filtered.map(game => {
           const cardContent = (
             <>
@@ -425,13 +431,19 @@ export default function GamesHub() {
             display: 'flex',
             flexDirection: 'column',
             gap: 6,
-            transition: 'transform 0.12s, background 0.15s',
             textDecoration: 'none',
             width: '100%',
           };
 
-          const hoverIn  = (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.65)'; };
-          const hoverOut = (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = 'rgba(255,255,255,0.45)'; };
+          // GSAP hover: smooth lift + background brighten via gsap.to
+          const hoverIn  = (e: React.MouseEvent<HTMLElement>) => {
+            const el = e.currentTarget;
+            getGsap().then(gsap => gsap.to(el, { y: -3, background: 'rgba(255,255,255,0.68)', duration: 0.18, ease: 'power2.out', overwrite: 'auto' }));
+          };
+          const hoverOut = (e: React.MouseEvent<HTMLElement>) => {
+            const el = e.currentTarget;
+            getGsap().then(gsap => gsap.to(el, { y: 0, background: 'rgba(255,255,255,0.45)', duration: 0.22, ease: 'power2.out', overwrite: 'auto' }));
+          };
 
           // Link-out games open a full page; inline games render inside the hub
           if (game.href) {

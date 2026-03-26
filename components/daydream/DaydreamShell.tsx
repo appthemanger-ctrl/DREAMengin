@@ -8,6 +8,7 @@ import GameRemote from '@/components/games/GameRemote';
 import { logJourneyDot, hasJourneyDot } from '@/lib/journey/journeyDots';
 import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
+import { useGsapFlip } from '@/lib/gsap/useGsapFlip';
 
 export type DaydreamWidget = {
   id: string;
@@ -49,9 +50,10 @@ type Props = {
 };
 
 export default function DaydreamShell({ title, enginName, accentColor, widgets, children, daydreamType, sideBComponent, sideBVariant = 'widgets' }: Props) {
-  const [side, setSide]   = useState<'A' | 'B'>('A');
-  const [phase, setPhase] = useState<'idle' | 'out' | 'in'>('idle');
-  const [busy, setBusy]   = useState(false);
+  const [side, setSide] = useState<'A' | 'B'>('A');
+
+  // GSAP-powered A↔B flip transition (replaces CSS keyframe approach)
+  const { containerRef, flip: gsapFlip, busy } = useGsapFlip();
 
   // Persist visit state to Supabase (Phase 6 pt 42 — no creative work silently discarded)
   useDaydreamState({
@@ -60,15 +62,8 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
   });
 
   const flip = useCallback(() => {
-    if (busy) return;
-    setBusy(true);
-    setPhase('out');
-    setTimeout(() => {
-      setSide(s => s === 'A' ? 'B' : 'A');
-      setPhase('in');
-      setTimeout(() => { setPhase('idle'); setBusy(false); }, 340);
-    }, 250);
-  }, [busy]);
+    gsapFlip(() => setSide(s => s === 'A' ? 'B' : 'A'));
+  }, [gsapFlip]);
 
   // Alt + F = flip (keyboard shortcut)
   useEffect(() => {
@@ -96,15 +91,12 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
    
   }, [title, enginName, accentColor]);
 
-  const contentStyle: React.CSSProperties =
-    phase === 'out' ? { animation: 'de-flip-out 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' }
-    : phase === 'in' ? { animation: 'de-flip-in 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' }
-    : {};
+  const contentStyle: React.CSSProperties = {};
 
   return (
     <>
       {/* Animated content — swaps between Side A (daydream) and Side B (engin) */}
-      <div style={contentStyle}>
+      <div ref={containerRef} style={contentStyle}>
         {side === 'A'
           ? children
           : (() => {

@@ -31,8 +31,8 @@ const features = [
   },
   {
     icon: Zap,
-    title: 'Framer Motion',
-    desc: 'Buttery-smooth entrance animations, hover states and layout transitions powered by spring physics.',
+    title: 'GSAP + Framer Motion',
+    desc: 'GreenSock (GSAP) powers sequenced UI transitions and staggered card entrances. Framer Motion handles spring-physics hover states and layout animations.',
   },
   {
     icon: Monitor,
