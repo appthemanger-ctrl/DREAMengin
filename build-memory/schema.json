@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-03-24T03:09:01.519Z",
+  "generated_at": "2026-03-26T09:49:03.467Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 113,
+  "count": 115,
   "tables": [
     {
       "table": "ad_campaigns",
@@ -846,6 +846,126 @@
         }
       ],
       "source": "20260325000000_phase8f_daydream_network.sql"
+    },
+    {
+      "table": "child_safety_hash_registry",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID        PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        },
+        {
+          "name": "hash_sha256",
+          "type": "TEXT        NOT NULL UNIQUE"
+        },
+        {
+          "name": "source",
+          "type": "TEXT        NOT NULL DEFAULT"
+        },
+        {
+          "name": "content_type",
+          "type": "TEXT        NOT NULL DEFAULT"
+        },
+        {
+          "name": "added_by",
+          "type": "UUID        REFERENCES auth"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT"
+        }
+      ],
+      "source": "20260325100000_child_safety.sql"
+    },
+    {
+      "table": "child_safety_incidents",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID        PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        },
+        {
+          "name": "reported_user_id",
+          "type": "UUID        NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "reporter_user_id",
+          "type": "UUID        REFERENCES auth"
+        },
+        {
+          "name": "rule_code",
+          "type": "TEXT        NOT NULL CHECK (rule_code IN ("
+        },
+        {
+          "name": "category",
+          "type": "TEXT        NOT NULL CHECK (category IN ("
+        },
+        {
+          "name": "severity",
+          "type": "NUMERIC(4"
+        },
+        {
+          "name": "confidence",
+          "type": "NUMERIC(4"
+        },
+        {
+          "name": "signal_count",
+          "type": "INTEGER     NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "hash_match",
+          "type": "BOOLEAN     NOT NULL DEFAULT false"
+        },
+        {
+          "name": "surface",
+          "type": "TEXT        NOT NULL"
+        },
+        {
+          "name": "content_ref",
+          "type": "TEXT        NOT NULL"
+        },
+        {
+          "name": "content_hash",
+          "type": "TEXT"
+        },
+        {
+          "name": "client_ip",
+          "type": "TEXT"
+        },
+        {
+          "name": "status",
+          "type": "TEXT        NOT NULL DEFAULT"
+        },
+        {
+          "name": "reported_at",
+          "type": "TIMESTAMPTZ"
+        },
+        {
+          "name": "ncmec_report_id",
+          "type": "TEXT"
+        },
+        {
+          "name": "ncmec_error",
+          "type": "TEXT"
+        },
+        {
+          "name": "reviewer_id",
+          "type": "UUID        REFERENCES auth"
+        },
+        {
+          "name": "reviewer_notes",
+          "type": "TEXT"
+        }
+      ],
+      "source": "20260325100000_child_safety.sql"
     },
     {
       "table": "collection_items",

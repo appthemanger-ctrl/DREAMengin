@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-24T03:09:01.519Z",
+  "generated_at": "2026-03-26T09:49:03.467Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 67,
+  "count": 69,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -39,6 +39,14 @@
       ]
     },
     {
+      "path": "/api/admin/child-safety",
+      "file": "app/api/admin/child-safety/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
       "path": "/api/admin/code-files",
       "file": "app/api/admin/code-files/route.ts",
       "methods": [
@@ -55,6 +63,13 @@
     {
       "path": "/api/ai/boogieman",
       "file": "app/api/ai/boogieman/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/ai/boogieman/child-safety",
+      "file": "app/api/ai/boogieman/child-safety/route.ts",
       "methods": [
         "POST"
       ]

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-24T03:09:01.519Z",
+  "generated_at": "2026-03-26T09:49:03.467Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 67,
+  "count": 69,
   "actions": [
     {
       "file": "app/api/account/delete-data/route.ts",
@@ -52,6 +52,17 @@
       "exports": []
     },
     {
+      "file": "app/api/admin/child-safety/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET",
+        "POST"
+      ],
+      "exports": [
+        "dynamic"
+      ]
+    },
+    {
       "file": "app/api/admin/code-files/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -64,6 +75,16 @@
       "type": "api-route-handler",
       "http_handlers": [
         "GET"
+      ],
+      "exports": [
+        "dynamic"
+      ]
+    },
+    {
+      "file": "app/api/ai/boogieman/child-safety/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
       ],
       "exports": [
         "dynamic"

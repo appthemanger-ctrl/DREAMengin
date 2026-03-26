@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-24T03:09:01.519Z",
+  "generated_at": "2026-03-26T09:49:03.467Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 76,
+  "count": 75,
   "surfaces": [
     {
       "type": "page",
@@ -42,6 +42,10 @@
         {
           "name": "IDariPanel",
           "from": "@/components/IDariPanel"
+        },
+        {
+          "name": "ChildSafetyPanel",
+          "from": "@/components/ChildSafetyPanel"
         }
       ]
     },
@@ -89,13 +93,8 @@
       "type": "page",
       "path": "/codespace",
       "file": "app/codespace/page.tsx",
-      "component": "CodeSpacePage",
-      "imports": [
-        {
-          "name": "CodeSpaceClient",
-          "from": "./CodeSpaceClient"
-        }
-      ]
+      "component": "CodeSpaceLegacyPage",
+      "imports": []
     },
     {
       "type": "page",
@@ -273,13 +272,8 @@
       "type": "page",
       "path": "/dreamengin",
       "file": "app/dreamengin/page.tsx",
-      "component": "DreamenginPage",
-      "imports": [
-        {
-          "name": "DreamenginClient",
-          "from": "./DreamenginClient"
-        }
-      ]
+      "component": "DreamenginLegacyPage",
+      "imports": []
     },
     {
       "type": "page",
@@ -498,13 +492,8 @@
       "type": "page",
       "path": "/physics-lab",
       "file": "app/physics-lab/page.tsx",
-      "component": "PhysicsLabPage",
-      "imports": [
-        {
-          "name": "PhysicsLab",
-          "from": "@/components/PhysicsLab"
-        }
-      ]
+      "component": "PhysicsLabLegacyPage",
+      "imports": []
     },
     {
       "type": "page",
@@ -743,12 +732,6 @@
       "name": "GameEngin",
       "file": "components/daydream/GameEngin.tsx",
       "owner": "Landing/world designer"
-    },
-    {
-      "type": "component",
-      "name": "HomeDashboard",
-      "file": "components/HomeDashboard.tsx",
-      "owner": "HomeDream designer"
     },
     {
       "type": "component",
