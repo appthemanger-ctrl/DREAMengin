@@ -65,7 +65,9 @@ export async function GET(request: Request) {
       },
       step2: {
         title: "Supabase Dashboard — configure Google provider",
-        url: "https://supabase.com/dashboard/project/_/auth/providers",
+        url: supabaseProjectRef
+          ? `https://supabase.com/dashboard/project/${supabaseProjectRef}/auth/providers`
+          : "https://supabase.com/dashboard/project/_/auth/providers",
         note:
           "Go to Authentication → Providers → Google. " +
           "Paste your Google Client ID and Client Secret there. " +
@@ -73,7 +75,9 @@ export async function GET(request: Request) {
       },
       step3: {
         title: "Supabase Dashboard — add app callback to redirect URL allow-list",
-        url: "https://supabase.com/dashboard/project/_/auth/url-configuration",
+        url: supabaseProjectRef
+          ? `https://supabase.com/dashboard/project/${supabaseProjectRef}/auth/url-configuration`
+          : "https://supabase.com/dashboard/project/_/auth/url-configuration",
         add_to_redirect_urls: [
           appCallbackUrl,
           // Add any other deployment URLs from VERCEL_URL or NEXT_PUBLIC_SITE_URL:
