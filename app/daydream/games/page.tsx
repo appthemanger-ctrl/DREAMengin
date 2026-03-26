@@ -16,7 +16,7 @@ export const metadata = { title: 'Games Daydream – DREAMengin', description: '
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: "/daydream/game" },
-  { id: 'all-games',  emoji: '🎮', label: 'All 20 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: "/daydream/game" },
+  { id: 'all-games',  emoji: '🎮', label: 'All 23 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: "/daydream/game" },
   { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: "/daydream/game" },
   { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: "/daydream/game" },
   { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: "/daydream/game" },
@@ -199,13 +199,13 @@ export default async function GamesDaydreamPage() {
             </div>
           </div>
 
-          {/* All 20 Games Hub */}
+          {/* All 23 Games Hub */}
           <div className="de-widget">
             <div className="de-widget-header">
               <Grid3x3 className="w-4 h-4" style={{ color: '#7c3aed' }} />
               <span className="de-widget-title ml-2">All Games</span>
               <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}>
-                20 Games
+                23 Games
               </span>
             </div>
             <div className="de-widget-body">
