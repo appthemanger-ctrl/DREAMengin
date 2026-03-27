@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `d928662` | 2026-03-27 13:04 UTC | copilot/update-mad-max-remote-control | Copilot | +1 ~5 | feat: cross-tab GameRemote + MADMAXI as default game |
 | `27a1470` | 2026-03-27 10:20 UTC | completedream | appthemanger-ctrl | — | Merge pull request #325 from appthemanger-ctrl/codex/enhance-game-engine-remote-functionality |
 | `2132344` | 2026-03-27 10:19 UTC | codex/enhance-game-engine-remote-functionality | appthemanger-ctrl | — | Merge branch 'completedream' into codex/enhance-game-engine-remote-functionality |
 | `bbc7c7b` | 2026-03-27 10:16 UTC | codex/enhance-game-engine-remote-functionality | appthemanger-ctrl | +1 ~5 | Upgrade MADMAXI with geometry, shadows, and animated skyline |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `5be364c` | 2026-03-27 02:06 UTC | copilot/add-gsap-animation-library | Copilot | +1 ~1 | feat: wire GSAP card entrances on Dream Effects; architecture docs/ARCHITECTURE.md §8 intentional motion with existing GSAP runtime; performance impact better |
 | `0940e65` | 2026-03-27 01:09 UTC | completedream | appthemanger-ctrl | — | Merge pull request #315 from appthemanger-ctrl/copilot/fix-visual-errors-and-layout |
 | `e33391f` | 2026-03-27 00:12 UTC | copilot/fix-visual-errors-and-layout | Copilot | ~2 | chore: address games layout review feedback |
-| `6c9a4c6` | 2026-03-27 00:11 UTC | copilot/fix-visual-errors-and-layout | Copilot | +2 ~5 | feat: split games library from console side |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-27 10:20 UTC — `27a1470` by appthemanger-ctrl
+Last updated: 2026-03-27 13:04 UTC — `d928662` by Copilot
 Last updated: 2026-03-27 10:18 UTC — `b08e631` by appthemanger-ctrl
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
