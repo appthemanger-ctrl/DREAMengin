@@ -458,7 +458,7 @@ function ConnectorCard({
         <div style={{
           position: 'absolute', top: 8, right: 8,
           width: 20, height: 20, borderRadius: '50%',
-          background: '#22c55e',
+          background: 'var(--de-accent, #c8a84e)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <Check size={11} style={{ color: '#fff' }} />
@@ -502,10 +502,10 @@ function ConnectorCard({
         marginTop: 8, padding: '3px 8px',
         borderRadius: 99,
         background: isAdded
-          ? 'rgba(34,197,94,0.10)'
+          ? 'rgba(200,168,78,0.12)'
           : `${connector.brandColor}14`,
         fontSize: 9, fontWeight: 700,
-        color: isAdded ? '#22c55e' : connector.brandColor,
+        color: isAdded ? 'var(--de-accent, #c8a84e)' : connector.brandColor,
         letterSpacing: '0.04em',
         textTransform: 'uppercase',
       }}>

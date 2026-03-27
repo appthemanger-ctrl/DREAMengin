@@ -22,10 +22,17 @@
  *                                  → open content composer
  *  discover   /discover /analytics → search / explore
  *  general    (everything else)    → open messages compose fallback
+ *
+ * Intent override (BarIntentMode)
+ * ──────────────────────────────────────────────────────────────────────
+ *  When a BarIntent is active (search / message / dreams / comment),
+ *  the resolved context overrides the surface-detected defaults so the
+ *  bar input, placeholder, and action button match the user's chosen mode.
  */
 
 import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
+import type { BarIntentMode } from './DreamSystemContext';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -52,7 +59,7 @@ export interface DreamBarContext {
    * Icon name hint — the UI layer maps this to an actual icon.
    * Using a string keeps this module free of React/lucide imports.
    */
-  iconHint: 'send' | 'pen-line' | 'code' | 'bot' | 'music' | 'sparkles' | 'search';
+  iconHint: 'send' | 'pen-line' | 'code' | 'bot' | 'music' | 'sparkles' | 'search' | 'message-circle';
 }
 
 // ── Surface detection (pure function — testable without React) ────────────────
@@ -124,13 +131,64 @@ const CONTEXT_MAP: Record<DreamBarSurface, Omit<DreamBarContext, 'surface'>> = {
   },
 };
 
+// ── Intent overrides (pure function — testable without React) ─────────────────
+
+/**
+ * Resolves bar context overrides when a BarIntentMode is active.
+ * Returns undefined for 'default' (no override — use surface context).
+ */
+export function resolveIntentOverride(
+  intentMode: BarIntentMode,
+  targetLabel?: string,
+): Omit<DreamBarContext, 'surface'> | undefined {
+  switch (intentMode) {
+    case 'search':
+      return {
+        placeholder:     'Search anything…',
+        actionLabel:     'Search',
+        actionAriaLabel: 'Search',
+        iconHint:        'search',
+      };
+    case 'message':
+      return {
+        placeholder:     'Type a message…',
+        actionLabel:     'Send',
+        actionAriaLabel: 'Send message',
+        iconHint:        'send',
+      };
+    case 'dreams':
+      return {
+        placeholder:     'Ask Dr. Eams…',
+        actionLabel:     'Ask',
+        actionAriaLabel: 'Ask Dr. Eams',
+        iconHint:        'bot',
+      };
+    case 'comment':
+      return {
+        placeholder:     targetLabel ? `Comment on ${targetLabel}'s post…` : 'Write a comment…',
+        actionLabel:     'Comment',
+        actionAriaLabel: 'Post comment',
+        iconHint:        'message-circle',
+      };
+    default:
+      return undefined;
+  }
+}
+
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useDreamBarContext(): DreamBarContext {
+export function useDreamBarContext(
+  intentMode?: BarIntentMode,
+  targetLabel?: string,
+): DreamBarContext {
   const pathname = usePathname();
 
   return useMemo<DreamBarContext>(() => {
     const surface = detectSurface(pathname ?? '/');
+    const intentOverride = intentMode ? resolveIntentOverride(intentMode, targetLabel) : undefined;
+    if (intentOverride) {
+      return { surface, ...intentOverride };
+    }
     return { surface, ...CONTEXT_MAP[surface] };
-  }, [pathname]);
+  }, [pathname, intentMode, targetLabel]);
 }
