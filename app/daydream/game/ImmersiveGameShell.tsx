@@ -35,7 +35,7 @@ export default function ImmersiveGameShell() {
     const target = rootRef.current ?? document.documentElement;
 
     try {
-      if (document.fullscreenElement == null && 'requestFullscreen' in target) {
+      if (document.fullscreenElement === null && 'requestFullscreen' in target) {
         await target.requestFullscreen();
       }
     } catch {

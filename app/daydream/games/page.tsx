@@ -21,10 +21,10 @@ const WIDGETS: DaydreamWidget[] = [
 ];
 
 const LIBRARY_SPOTLIGHT = [
-  { label: 'Dr. Eams Platformer', meta: 'Babylon.js 3D · immersive boot' },
-  { label: 'Word Sprint', meta: '1 minute typing rush' },
-  { label: 'Memory Grid', meta: 'Quick pattern recall' },
-  { label: 'Speed Tap', meta: 'Fast reflex score chase' },
+  { label: 'Dr. Eams Platformer', meta: 'Babylon.js 3D · immersive boot', emoji: '∞', href: '/daydream/game' },
+  { label: 'Word Sprint', meta: '1 minute typing rush', emoji: '📝', href: '/daydream/games' },
+  { label: 'Memory Grid', meta: 'Quick pattern recall', emoji: '🧩', href: '/daydream/games' },
+  { label: 'Speed Tap', meta: 'Fast reflex score chase', emoji: '⚡', href: '/daydream/games' },
 ];
 
 const CONSOLE_MODULES = [
@@ -177,7 +177,7 @@ export default async function GamesDaydreamPage() {
                     {LIBRARY_SPOTLIGHT.map((game) => (
                       <Link
                         key={game.label}
-                        href={game.label === 'Dr. Eams Platformer' ? '/daydream/game' : '/daydream/games'}
+                        href={game.href}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -190,7 +190,7 @@ export default async function GamesDaydreamPage() {
                         }}
                       >
                         <span style={{ width: 34, height: 34, borderRadius: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', fontWeight: 800 }}>
-                          {game.label === 'Dr. Eams Platformer' ? '∞' : game.label === 'Word Sprint' ? '📝' : game.label === 'Memory Grid' ? '🧩' : '⚡'}
+                          {game.emoji}
                         </span>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{game.label}</div>
