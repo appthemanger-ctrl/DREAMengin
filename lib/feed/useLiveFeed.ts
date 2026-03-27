@@ -48,8 +48,8 @@ export interface FeedPost {
   };
   likes_count?: number;
   comments_count?: number;
-  /** 'post' = platform post | 'connector' = external feed item */
-  source?: 'post' | 'connector';
+  /** 'post' = platform post | 'connector' = external feed item | 'share' = reshared content */
+  source?: 'post' | 'connector' | 'share';
   /** Connector provider id (mastodon, github, bluesky, …) */
   provider?: string;
 }
