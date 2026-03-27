@@ -24,6 +24,10 @@ const Loading = () => (
   </div>
 );
 
+// Time (ms) to wait after selecting a game before firing de-game-start, giving the
+// dynamically-imported game component enough time to mount before the event fires.
+const GAME_MOUNT_DELAY_MS = 350;
+
 // ── Dynamically imported games (ssr:false — all use canvas / browser APIs) ──
 const RTSGame         = dynamicImport(() => import('@/components/games/RTSGame'),         { ssr: false, loading: Loading });
 const TowerDefense    = dynamicImport(() => import('@/components/games/TowerDefense'),    { ssr: false, loading: Loading });
@@ -262,7 +266,7 @@ export default function GamesHub() {
     if (autoStartTimerRef.current) clearTimeout(autoStartTimerRef.current);
     autoStartTimerRef.current = setTimeout(() => {
       window.dispatchEvent(new CustomEvent('de-game-start'));
-    }, 350);
+    }, GAME_MOUNT_DELAY_MS);
   }, []);
 
   useEffect(() => {
