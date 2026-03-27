@@ -72,6 +72,14 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
     return () => window.removeEventListener('keydown', h);
   }, [flip]);
 
+  useEffect(() => {
+    const openSideB = () => {
+      if (side === 'A') flip();
+    };
+    window.addEventListener('de:open-side-b', openSideB);
+    return () => window.removeEventListener('de:open-side-b', openSideB);
+  }, [flip, side]);
+
   // ── Journey Trail — surface_first_entry instrumentation ──────────────────
   // Fires once the first time this surface is ever visited by the user.
   // Deduplicated by kind + surface together so each surface produces exactly one dot.

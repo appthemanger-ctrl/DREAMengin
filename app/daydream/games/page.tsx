@@ -1,38 +1,43 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Gamepad2, Trophy, Star, Play, Zap, Grid3x3 } from 'lucide-react';
-import WordSprint from '@/components/games/WordSprint';
-import MemoryGrid from '@/components/games/MemoryGrid';
-import SpeedTap from '@/components/games/SpeedTap';
-import Leaderboard from '@/components/games/Leaderboard';
+import { ArrowLeft, Gamepad2, Play, Sparkles, Trophy, Zap } from 'lucide-react';
 import GamesHub from '@/components/games/GamesHub';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
+import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: "/daydream/game" },
-  { id: 'all-games',  emoji: '🎮', label: 'All 23 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: "/daydream/game" },
-  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: "/daydream/game" },
-  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: "/daydream/game" },
-  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: "/daydream/game" },
-  { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: "/daydream/game" },
+  { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: '/daydream/game' },
+  { id: 'all-games',  emoji: '🎮', label: 'All 23 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
+  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: '/daydream/games' },
+  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: '/daydream/games' },
+  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: '/daydream/games' },
+  { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
+];
+
+const LIBRARY_SPOTLIGHT = [
+  { label: 'Dr. Eams Platformer', meta: 'Babylon.js 3D · immersive boot' },
+  { label: 'Word Sprint', meta: '1 minute typing rush' },
+  { label: 'Memory Grid', meta: 'Quick pattern recall' },
+  { label: 'Speed Tap', meta: 'Fast reflex score chase' },
+];
+
+const CONSOLE_MODULES = [
+  { title: 'Launch Bay', detail: 'Resume a run, jump to a favorite, or spin up a fresh session.' },
+  { title: 'Personal Bests', detail: 'Track your top scores without mixing them into the library view.' },
+  { title: 'Controller Deck', detail: 'Remote, control profiles, world builder, scripts, and analytics live here.' },
 ];
 
 /**
  * Games Daydream page.
  *
- * Side A: GamesHub — the canonical games hub component (reclassified from
- *   the previous inline layout).  All live games are registered here.
- * Side B: GameEngin — the control layer for personal bests, leaderboard
- *   sharing, game launcher, and the GameRemote controller.
- *
- * Wiring: GamesHub ←→ GameEngin via DaydreamShell (flip with Alt+F or the
- * engine button).
+ * Side A: GamesHub as the library surface.
+ * Side B: GameEngin as the console / control layer.
  */
 export default async function GamesDaydreamPage() {
   const supabase = await createServerClient();
@@ -50,7 +55,7 @@ export default async function GamesDaydreamPage() {
     >
       <div className="de-sky-bg min-h-screen">
         <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
             <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
               <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
             </Link>
@@ -61,155 +66,162 @@ export default async function GamesDaydreamPage() {
                 <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Games</h1>
               </div>
             </div>
-            <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Daydream</span>
+            <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Library + Console</span>
           </div>
         </header>
 
-        <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
-          {/* Dr. Eams hero */}
-          <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.12), rgba(200,152,26,0.10))', borderColor: 'rgba(42,138,184,0.3)' }}>
-            <div className="de-widget-header" style={{ borderBottomColor: 'rgba(42,138,184,0.2)' }}>
-              <div className="flex items-center gap-2"><Star className="w-4 h-4" style={{ color: 'var(--de-gold)' }} /><span className="de-widget-title">Dr. Eams Platformer</span></div>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(200,152,26,0.15)', color: 'var(--de-gold)', border: '1px solid rgba(200,152,26,0.3)' }}>✦ Live</span>
-            </div>
-            <div className="de-widget-body">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ width: 72, height: 72, borderRadius: 18, flexShrink: 0, background: 'linear-gradient(135deg, rgba(42,138,184,0.2), rgba(200,152,26,0.18))', border: '1.5px solid rgba(42,138,184,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>∞</div>
+        <div className="max-w-6xl mx-auto px-4 py-6 pb-24 space-y-4">
+          <div
+            className="de-widget"
+            style={{
+              background: 'linear-gradient(135deg, rgba(42,138,184,0.14), rgba(124,58,237,0.08), rgba(200,152,26,0.12))',
+              borderColor: 'rgba(42,138,184,0.28)',
+            }}
+          >
+            <div className="de-widget-body" style={{ padding: 18 }}>
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>Run. Jump. Dream.</div>
-                  <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>Babylon.js 3-D side-scroller. 3 levels, enemies, coins, and a star. Move + jump always work together.</div>
-                  <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                    {['3 Levels', 'Babylon.js 3D', 'PS5 Ready', 'Double Jump'].map(t => (
-                      <span key={t} style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 999, background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>{t}</span>
+                  <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.56)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.18)' }}>
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Library on Side A · Console on Side B
+                  </div>
+                  <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1.05, marginTop: 12 }}>
+                    Games stay in the library.
+                    <br />
+                    GameEngin stays on the console side.
+                  </h2>
+                  <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.7, maxWidth: 700, marginTop: 10 }}>
+                    This surface is now focused on browsing, picking, and launching games. Flip over to GameEngin when you want the console tools: controller setup, personal bests, world builder, scripts, analytics, and multiplayer controls.
+                  </p>
+                  <div className="flex flex-wrap gap-2" style={{ marginTop: 12 }}>
+                    {GAME_QUALITY_PILLARS.slice(0, 4).map((pillar) => (
+                      <span key={pillar.id} style={{ fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.56)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.18)' }}>
+                        {pillar.title}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
+                  <div style={{ borderRadius: 18, padding: 14, background: 'rgba(255,255,255,0.62)', border: '1px solid rgba(42,138,184,0.16)' }}>
+                    <div className="text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ color: 'var(--de-accent)' }}>Library Side</div>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', marginTop: 8 }}>23</div>
+                    <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 4 }}>Live arcade, strategy, puzzle, and challenge games.</div>
+                  </div>
+                  <div style={{ borderRadius: 18, padding: 14, background: 'rgba(14,25,48,0.88)', border: '1px solid rgba(74,175,255,0.22)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}>
+                    <div className="text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ color: '#7dd3fc' }}>Console Side</div>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: '#f8fbff', marginTop: 8 }}>ENGIN</div>
+                    <div style={{ fontSize: 12, color: 'rgba(226,232,240,0.72)', marginTop: 4 }}>Boot the control deck when you want setup, scores, and tools.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.95fr)]">
+            <div className="space-y-4">
+              <div className="de-widget" style={{ borderColor: 'rgba(124,58,237,0.24)' }}>
+                <div className="de-widget-header">
+                  <Gamepad2 className="w-4 h-4" style={{ color: '#7c3aed' }} />
+                  <span className="de-widget-title ml-2">Game Library</span>
+                  <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}>
+                    Side A
+                  </span>
+                </div>
+                <div className="de-widget-body" style={{ paddingTop: 12 }}>
+                  <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
+                    Browse the actual game shelf here. Pick a title, jump in, and keep the utility layer separated on the console side instead of mixing everything into one long feed.
+                  </div>
+                  <GamesHub />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="de-widget" style={{ borderColor: 'rgba(42,138,184,0.28)', background: 'linear-gradient(180deg, rgba(11,23,45,0.96), rgba(22,37,72,0.9))', color: '#f8fbff' }}>
+                <div className="de-widget-header" style={{ borderBottomColor: 'rgba(125,211,252,0.18)' }}>
+                  <Zap className="w-4 h-4" style={{ color: '#7dd3fc' }} />
+                  <span className="de-widget-title ml-2" style={{ color: '#f8fbff' }}>GameEngin Console</span>
+                  <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(125,211,252,0.12)', color: '#7dd3fc', border: '1px solid rgba(125,211,252,0.22)' }}>
+                    Side B
+                  </span>
+                </div>
+                <div className="de-widget-body" style={{ paddingTop: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc', marginBottom: 8 }}>Console Boot Ready</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#f8fbff', marginBottom: 8 }}>Dedicated control deck, not the game shelf.</div>
+                  <div style={{ fontSize: 12, lineHeight: 1.65, color: 'rgba(226,232,240,0.78)', marginBottom: 14 }}>
+                    Flip to the other side for your launch bay, score publishing, controller deck, world builder, game scripts, and analytics. The library stays clean here; the systems live over there.
+                  </div>
+                  <div style={{ display: 'grid', gap: 10 }}>
+                    {CONSOLE_MODULES.map((module) => (
+                      <div key={module.title} style={{ borderRadius: 14, padding: '12px 14px', background: 'rgba(15,23,42,0.72)', border: '1px solid rgba(125,211,252,0.14)' }}>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: '#f8fbff', marginBottom: 4 }}>{module.title}</div>
+                        <div style={{ fontSize: 11, lineHeight: 1.55, color: 'rgba(226,232,240,0.72)' }}>{module.detail}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="de-widget-actions">
+                  <OpenDaydreamSideBButton label="Open GameEngin Console" />
+                  <span style={{ fontSize: 11, color: 'rgba(226,232,240,0.65)', marginLeft: 'auto' }}>Alt+F also flips sides</span>
+                </div>
+              </div>
+
+              <div className="de-widget">
+                <div className="de-widget-header">
+                  <Play className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
+                  <span className="de-widget-title ml-2">Library Spotlight</span>
+                </div>
+                <div className="de-widget-body">
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    {LIBRARY_SPOTLIGHT.map((game) => (
+                      <Link
+                        key={game.label}
+                        href={game.label === 'Dr. Eams Platformer' ? '/daydream/game' : '/daydream/games'}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 12,
+                          padding: '10px 12px',
+                          borderRadius: 12,
+                          textDecoration: 'none',
+                          background: 'rgba(255,255,255,0.48)',
+                          border: '1px solid rgba(160,195,240,0.16)',
+                        }}
+                      >
+                        <span style={{ width: 34, height: 34, borderRadius: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', fontWeight: 800 }}>
+                          {game.label === 'Dr. Eams Platformer' ? '∞' : game.label === 'Word Sprint' ? '📝' : game.label === 'Memory Grid' ? '🧩' : '⚡'}
+                        </span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{game.label}</div>
+                          <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{game.meta}</div>
+                        </div>
+                        <Play className="w-3.5 h-3.5" style={{ color: 'var(--de-accent)', flexShrink: 0 }} />
+                      </Link>
                     ))}
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="de-widget-actions">
-              <Link href="/daydream/game" className="de-btn de-btn-primary" style={{ gap: 8 }}><Play className="w-4 h-4 fill-current" /> Play Now</Link>
-              <span style={{ fontSize: 11, color: 'var(--de-text-dim)', marginLeft: 'auto' }}><Zap className="w-3 h-3 inline mr-1" style={{ color: 'var(--de-gold)' }} />3 levels · Babylon.js 3D</span>
-            </div>
-          </div>
 
-          <div className="de-widget" style={{ borderColor: 'rgba(42,138,184,0.24)' }}>
-            <div className="de-widget-header">
-              <Zap className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
-              <span className="de-widget-title ml-2">Console-Class Game Plan</span>
-              <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>
-                Quality + Controls
-              </span>
-            </div>
-            <div className="de-widget-body">
-              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
-                The target is simple: games that feel premium on mobile at home, with better control confidence, faster restarts, and deeper reasons to come back.
-              </div>
-              <div style={{ display: 'grid', gap: 8 }}>
-                {GAME_QUALITY_PILLARS.map((pillar) => (
-                  <div
-                    key={pillar.id}
-                    style={{
-                      padding: '10px 12px',
-                      borderRadius: 12,
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(160,195,240,0.2)',
-                    }}
-                  >
-                    <div className="flex items-center gap-2" style={{ marginBottom: 4 }}>
-                      <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--de-accent)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{pillar.emphasis}</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{pillar.title}</span>
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
-                      {pillar.detail}
-                    </div>
+              <div className="de-widget">
+                <div className="de-widget-header">
+                  <Trophy className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
+                  <span className="de-widget-title ml-2">Why the split works</span>
+                </div>
+                <div className="de-widget-body">
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    {[
+                      'The library side stays readable and fast to browse.',
+                      'The console side can get deeper without cluttering game discovery.',
+                      'Launching a game feels cleaner because the control systems are framed as a separate deck.',
+                    ].map((item) => (
+                      <div key={item} style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.48)', border: '1px solid rgba(160,195,240,0.16)' }}>
+                        {item}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-          </div>
-
-          <div className="de-widget">
-            <div className="de-widget-header"><span style={{ fontSize: 16, marginRight: 8 }}>📝</span><span className="de-widget-title">Word Sprint</span><span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Live</span></div>
-            <div className="de-widget-body"><WordSprint /></div>
-          </div>
-
-          <div className="de-widget">
-            <div className="de-widget-header"><span style={{ fontSize: 16, marginRight: 8 }}>🧩</span><span className="de-widget-title">Memory Grid</span><span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Live</span></div>
-            <div className="de-widget-body"><MemoryGrid /></div>
-          </div>
-
-          <div className="de-widget">
-            <div className="de-widget-header"><span style={{ fontSize: 16, marginRight: 8 }}>⚡</span><span className="de-widget-title">Speed Tap</span><span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Live</span></div>
-            <div className="de-widget-body"><SpeedTap /></div>
-          </div>
-
-          <div className="de-widget">
-            <div className="de-widget-header">
-              <Trophy className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
-              <span className="de-widget-title ml-2">Leaderboards</span>
-              <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(200,152,26,0.12)', color: 'var(--de-gold)', border: '1px solid rgba(200,152,26,0.25)' }}>Top 10</span>
-            </div>
-            <div className="de-widget-body space-y-5">
-              {/* Dr. Eams Platformer */}
-              <section>
-                <div className="flex items-center gap-2 mb-2">
-                  <span style={{ fontSize: 14 }}>∞</span>
-                  <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--de-text-dim)' }}>Dr. Eams Platformer</h3>
-                </div>
-                <Leaderboard game="platformer" />
-              </section>
-
-              <div style={{ height: 1, background: 'rgba(160,195,240,0.18)' }} />
-
-              {/* Word Sprint */}
-              <section>
-                <div className="flex items-center gap-2 mb-2">
-                  <span style={{ fontSize: 14 }}>📝</span>
-                  <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--de-text-dim)' }}>Word Sprint</h3>
-                </div>
-                <Leaderboard game="word-sprint" />
-              </section>
-
-              <div style={{ height: 1, background: 'rgba(160,195,240,0.18)' }} />
-
-              {/* Memory Grid */}
-              <section>
-                <div className="flex items-center gap-2 mb-2">
-                  <span style={{ fontSize: 14 }}>🧩</span>
-                  <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--de-text-dim)' }}>Memory Grid</h3>
-                </div>
-                <Leaderboard game="memory-grid" />
-              </section>
-
-              <div style={{ height: 1, background: 'rgba(160,195,240,0.18)' }} />
-
-              {/* Speed Tap */}
-              <section>
-                <div className="flex items-center gap-2 mb-2">
-                  <span style={{ fontSize: 14 }}>⚡</span>
-                  <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--de-text-dim)' }}>Speed Tap</h3>
-                </div>
-                <Leaderboard game="speed-tap" />
-              </section>
-            </div>
-            <div className="de-widget-actions">
-              <Link href="/daydream/game" className="de-btn de-btn-ghost text-xs">
-                <Play className="w-3 h-3 fill-current" /> Play to rank up
-              </Link>
-            </div>
-          </div>
-
-          {/* All 23 Games Hub */}
-          <div className="de-widget">
-            <div className="de-widget-header">
-              <Grid3x3 className="w-4 h-4" style={{ color: '#7c3aed' }} />
-              <span className="de-widget-title ml-2">All Games</span>
-              <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}>
-                23 Games
-              </span>
-            </div>
-            <div className="de-widget-body">
-              <GamesHub />
             </div>
           </div>
         </div>

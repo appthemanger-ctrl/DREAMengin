@@ -493,13 +493,13 @@ export default function GameEngin({ onBack }: Props) {
             <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>
               GameEngin
             </div>
-            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Games · Control Layer</div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Games · Console Layer</div>
           </div>
           <span
             className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
             style={{ background: `${ACCENT}18`, color: ACCENT, border: `1px solid ${ACCENT}35` }}
           >
-            Side B
+            Console Side
           </span>
         </div>
       </header>
@@ -507,21 +507,21 @@ export default function GameEngin({ onBack }: Props) {
       {/* ══════════════════════════════════════════ Body */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
-        {/* ────────────────────── 1. Quality Command */}
+        {/* ────────────────────── 1. Console Deck */}
         <div className="de-widget" style={{ marginBottom: 14, borderColor: `${ACCENT}30` }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
-            <span className="de-widget-title ml-2">Quality Command</span>
+            <span className="de-widget-title ml-2">Console Deck</span>
             <span
               className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
               style={{ background: `${ACCENT}18`, color: ACCENT, border: `1px solid ${ACCENT}35` }}
             >
-              Console-Class Goal
+              Console-Class Focus
             </span>
           </div>
           <div className="de-widget-body">
             <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
-              GameEngin is steering toward premium game feel first: stronger controls, cleaner home-session flow, and deeper competitive loops before feature bloat.
+              GameEngin is the console side of Games: stronger controls, cleaner boot flow, faster restarts, and deeper competitive loops before feature bloat.
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
               {GAME_QUALITY_PILLARS.map((pillar) => (
@@ -594,11 +594,11 @@ export default function GameEngin({ onBack }: Props) {
           </div>
         </div>
 
-        {/* ────────────────────── 1. Quick Launch */}
+        {/* ────────────────────── 2. Launch Bay */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
-            <span className="de-widget-title ml-2">Quick Launch</span>
+            <span className="de-widget-title ml-2">Launch Bay</span>
             <span
               className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
               style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}
@@ -763,11 +763,11 @@ export default function GameEngin({ onBack }: Props) {
           </div>
         </div>
 
-        {/* ────────────────────── 4. Controller */}
+        {/* ────────────────────── 4. Controller Deck */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
-            <span className="de-widget-title ml-2">Controller</span>
+            <span className="de-widget-title ml-2">Controller Deck</span>
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 4 }}>
