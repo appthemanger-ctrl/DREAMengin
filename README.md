@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `5be364c` | 2026-03-27 02:06 UTC | copilot/add-gsap-animation-library | Copilot | +1 ~1 | feat: wire GSAP card entrances on Dream Effects; architecture docs/ARCHITECTURE.md §8 intentional motion with existing GSAP runtime; performance impact better |
 | `0940e65` | 2026-03-27 01:09 UTC | completedream | appthemanger-ctrl | — | Merge pull request #315 from appthemanger-ctrl/copilot/fix-visual-errors-and-layout |
 | `e33391f` | 2026-03-27 00:12 UTC | copilot/fix-visual-errors-and-layout | Copilot | ~2 | chore: address games layout review feedback |
 | `6c9a4c6` | 2026-03-27 00:11 UTC | copilot/fix-visual-errors-and-layout | Copilot | +2 ~5 | feat: split games library from console side |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `38c719f` | 2026-03-26 14:22 UTC | completedream | appthemanger-ctrl | — | Merge pull request #313 from appthemanger-ctrl/copilot/fix-login-issues |
 | `a1b84ee` | 2026-03-26 14:07 UTC | copilot/fix-login-issues | Copilot | +1 ~3 | fix: stop auth provider probe from disabling OAuth login |
 | `6df1a23` | 2026-03-26 12:33 UTC | completedream | appthemanger-ctrl | −1 | Delete arm1_transparent.png |
-| `4821f89` | 2026-03-26 09:48 UTC | completedream | appthemanger-ctrl | — | Merge pull request #312 from appthemanger-ctrl/copilot/update-auth-callback-url |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-27 01:09 UTC — `0940e65` by appthemanger-ctrl
+Last updated: 2026-03-27 02:06 UTC — `5be364c` by Copilot
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
 Scope: Full dual-runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
