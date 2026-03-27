@@ -22,6 +22,8 @@ type DisabledSupabaseClient = {
   storage: unknown
 }
 
+export type SupabaseCookieStore = Pick<Awaited<ReturnType<typeof cookies>>, 'getAll' | 'set'>
+
 /**
  * Supabase SSR client factory.
  *
@@ -53,13 +55,12 @@ function createDisabledClient(reason: string): SupabaseClient<Database> {
   return disabled as unknown as SupabaseClient<Database>
 }
 
-export async function createServerClient(): Promise<SupabaseClient<Database>> {
+export function createServerClientWithCookies(
+  cookieStore: SupabaseCookieStore
+): SupabaseClient<Database> {
   if (!isSupabaseConfigured()) {
     return createDisabledClient(`Supabase is not configured. ${SETUP_HINT}`)
   }
-
-  // In Next.js 16, cookies() is async
-  const cookieStore = await cookies()
 
   return createSupabaseServerClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
@@ -75,6 +76,10 @@ export async function createServerClient(): Promise<SupabaseClient<Database>> {
       },
     },
   })
+}
+
+export async function createServerClient(): Promise<SupabaseClient<Database>> {
+  return createServerClientWithCookies(await cookies())
 }
 
 export async function createServiceClient(): Promise<SupabaseClient<Database>> {

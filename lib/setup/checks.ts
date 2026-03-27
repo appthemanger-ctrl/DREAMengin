@@ -45,8 +45,8 @@ export function getSetupChecks(env: NodeJS.ProcessEnv = process.env): SetupCheck
       ok: Boolean(SUPABASE_ANON_KEY),
       hint: SUPABASE_ANON_KEY
         ? undefined
-        : 'Set NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel → Project → Settings → Environment Variables.',
-      note: 'Accepted names: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY · NEXT_PUBLIC_SUPABASE_ANON_KEY · NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY · NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY · dreamengin_SUPABASE_ANON_KEY',
+        : 'Set NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY, or NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel → Project → Settings → Environment Variables.',
+      note: 'Accepted names: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY · NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY · NEXT_PUBLIC_SUPABASE_ANON_KEY · NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY · NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY · dreamengin_SUPABASE_ANON_KEY',
       required: true,
     },
     {

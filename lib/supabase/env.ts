@@ -12,6 +12,7 @@
  *
  *  Standard names  (NEXT_PUBLIC_ = safe on client + server)
  *    NEXT_PUBLIC_SUPABASE_URL
+ *    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY   ← compatibility alias
  *    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY   ← new standard (2024-Q4)
  *    NEXT_PUBLIC_SUPABASE_ANON_KEY          ← legacy standard
  *
@@ -56,6 +57,7 @@ export const SUPABASE_ANON_KEY =
   process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY ||
   process.env.NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY ||
   // Standard Vercel-Supabase integration (NEXT_PUBLIC – client + server)
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   // Project-prefixed server-only aliases (server only – undefined in browser)
@@ -92,6 +94,6 @@ export const SETUP_HINT =
   'Ensure these environment variables are set in ' +
   'Vercel → Project → Settings → Environment Variables:\n' +
   '  URL  →  NEXT_PUBLIC_SUPABASE_URL  (already set by Vercel-Supabase integration)\n' +
-  '  KEY  →  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY  or  NEXT_PUBLIC_SUPABASE_ANON_KEY\n' +
+  '  KEY  →  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY  or  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY  or  NEXT_PUBLIC_SUPABASE_ANON_KEY\n' +
   'The app also accepts the project-prefixed variants:\n' +
   '  NEXT_PUBLIC_dreamengin_SUPABASE_URL / NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY';
