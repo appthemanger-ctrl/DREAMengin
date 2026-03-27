@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'platformer', emoji: '∞',  label: 'Dr. Eams',     desc: '3-level platformer, play now',  color: '#2a8ab8', href: '/daydream/game' },
+  { id: 'platformer', emoji: '🏎',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: '/daydream/games' },
   { id: 'all-games',  emoji: '🎮', label: 'All 23 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
   { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: '/daydream/games' },
   { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: '/daydream/games' },
@@ -22,7 +22,7 @@ const WIDGETS: DaydreamWidget[] = [
 ];
 
 const LIBRARY_SPOTLIGHT = [
-  { label: 'Dr. Eams Platformer', meta: 'Babylon.js 3D · immersive boot', emoji: '∞', href: '/daydream/game' },
+  { label: 'MADMAXI', meta: 'Babylon.js 3-D · 150 levels', emoji: '🏎', href: '/daydream/games' },
   { label: 'Word Sprint', meta: '1 minute typing rush', emoji: '📝', href: '/daydream/games' },
   { label: 'Memory Grid', meta: 'Quick pattern recall', emoji: '🧩', href: '/daydream/games' },
   { label: 'Speed Tap', meta: 'Fast reflex score chase', emoji: '⚡', href: '/daydream/games' },

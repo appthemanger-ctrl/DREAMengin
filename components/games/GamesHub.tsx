@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Leaderboard from '@/components/games/Leaderboard';
 import { useGamepad } from '@/lib/games/useGamepad';
+import { useRemoteChannel, broadcastGameInput } from '@/lib/games/useRemoteChannel';
 import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
 import { getGsap } from '@/lib/gsap/gsap';
 
@@ -64,6 +65,9 @@ interface GameDef {
 // ── 20 games — one from every major gaming category ─────────────────────────
 // Each entry is wired immediately after the game was finished.
 const GAMES: GameDef[] = [
+  // ── MADMAXI — Babylon.js 3-D side-scroller (default game) ─────────────────
+  { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', component: BabylonSideScroller,
+    desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js 3-D side-scroller' },
   // ── Strategy ──────────────────────────────────────────────────────────────
   { id: 'rts',           emoji: '⚔️', label: 'Red Alert RTS',    category: 'Strategy',    color: '#ef4444', component: RTSGame,
     desc: 'C&C Red Alert 2 style — build base, harvest ore, train units, destroy enemy HQ' },
@@ -115,9 +119,6 @@ const GAMES: GameDef[] = [
   // ── Adventure / Platformer ────────────────────────────────────────────────
   { id: 'maze',          emoji: '🌀', label: 'Maze Runner',      category: 'Adventure',   color: '#38bdf8', component: MazeGame,
     desc: 'Procedurally generated maze — navigate from start to the ★ exit' },
-  // ── MADMAXI — Babylon.js 3-D side-scroller ───────────────────────────────
-  { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', component: BabylonSideScroller,
-    desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js 3-D side-scroller' },
   // ── Dream Universe games ──────────────────────────────────────────────────
   { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',         category: 'Strategy',    color: '#7c3aed', component: DREAMwars,
     desc: 'Nightmares vs Dreamers RTS — build base, harvest Dream Energy, crush the enemy HQ' },
@@ -132,6 +133,7 @@ function fireGameInput(action: string, active: boolean) {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
   }
+  broadcastGameInput(action, active);
 }
 
 interface DPadState { left: boolean; right: boolean; up: boolean; down: boolean; jump: boolean; }
@@ -235,6 +237,9 @@ export default function GamesHub() {
   const [filter, setFilter] = useState<string>('All');
   const { connected: gpConnected, gamepadName } = useGamepad();
 
+  // Listen for cross-tab GameRemote inputs (game on this tab, remote on another)
+  useRemoteChannel();
+
   // GSAP stagger entrance for the game card grid — replays on every filter change
   const gridRef = useRef<HTMLDivElement>(null);
   useGsapEntrance(gridRef, [filter], { stagger: 0.035, y: 18, duration: 0.32 });
@@ -326,24 +331,41 @@ export default function GamesHub() {
             <GameComponent />
           </div>
 
-          {/* Universal D-Pad — shown for all games */}
+          {/* Remote control panel — open in a second tab to control this game */}
           <div style={{
-            padding: '0 12px',
+            padding: '10px 12px',
             borderTop: '1px solid rgba(160,195,240,0.08)',
             marginTop: 8,
             background: 'rgba(0,0,0,0.20)',
             flexShrink: 0,
           }}>
             <UniversalDPad />
-            {/* Gamepad / PS5 hint */}
-            {!gpConnected && (
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+              padding: '8px 0',
+            }}>
+              <a
+                href="/daydream/games?openEngin=1&remote=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  fontSize: 11, fontWeight: 700, letterSpacing: '0.06em',
+                  color: '#c8981a', textDecoration: 'none',
+                  padding: '6px 14px', borderRadius: 999,
+                  border: '1px solid rgba(200,152,26,0.3)',
+                  background: 'rgba(200,152,26,0.08)',
+                }}
+              >
+                🎮 Open Game Remote in new tab
+              </a>
               <p style={{
-                textAlign: 'center', fontSize: 10, color: 'rgba(160,195,240,0.38)',
-                margin: '0 0 10px', lineHeight: 1.5,
+                textAlign: 'center', fontSize: 10, color: 'rgba(160,195,240,0.45)',
+                margin: 0, lineHeight: 1.5,
               }}>
-                🎮 PS5 / Xbox controller? Press any button to auto-connect via Gamepad API
+                Game on this screen · Remote on the other — controls sync across tabs
               </p>
-            )}
+            </div>
             {gpConnected && (
               <p style={{
                 textAlign: 'center', fontSize: 10, color: 'rgba(74,222,128,0.6)',
