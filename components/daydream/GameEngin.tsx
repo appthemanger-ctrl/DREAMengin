@@ -217,7 +217,7 @@ export default function GameEngin({ onBack }: Props) {
   const [loading,    setLoading]    = useState(true);
   const [sharing,    setSharing]    = useState<string | null>(null);
   const [showRemote, setShowRemote] = useState(false);
-  const [controlProfile, setControlProfile] = useState(GAME_CONTROL_PROFILES[0].id);
+  const [controlProfile, setControlProfile] = useState('couch');
 
   // ── World Builder state ──────────────────────────────────────────────────────
   const [worldName,     setWorldName]     = useState('');
@@ -276,6 +276,9 @@ export default function GameEngin({ onBack }: Props) {
 
   function handleControlProfileSelect(profileId: string) {
     setControlProfile(profileId);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('de:games:control-profile', profileId);
+    }
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games',
       'game:control-profile',
@@ -391,6 +394,19 @@ export default function GameEngin({ onBack }: Props) {
   // persistGameState is stable (useCallback); eslint-disable-next-line
    
   }, [worldGrid, worldName, physicsConfig, scriptState, gameRestoring]);
+
+  // Restore controller profile preference and optional auto-open remote intent.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedControlProfile = window.localStorage.getItem('de:games:control-profile');
+    if (savedControlProfile && GAME_CONTROL_PROFILES.some((profile) => profile.id === savedControlProfile)) {
+      setControlProfile(savedControlProfile);
+    }
+    if (window.sessionStorage.getItem('de:games:auto-open-remote') === '1') {
+      window.sessionStorage.removeItem('de:games:auto-open-remote');
+      setShowRemote(true);
+    }
+  }, []);
 
   // ── Achievement computation ───────────────────────────────────────────────────
   const achievements = ACHIEVEMENT_DEFS.map(def => {
@@ -609,16 +625,16 @@ export default function GameEngin({ onBack }: Props) {
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
-                { key: 'platformer',    label: 'Dr. Eams Platformer', emoji: '∞',   href: '/game' },
-                { key: 'rts',           label: 'Red Alert RTS',       emoji: '⚔️',  href: '/daydream/games' },
-                { key: 'tower-defense', label: 'Tower Defense',       emoji: '🏰',  href: '/daydream/games' },
-                { key: 'space-shooter', label: 'Space Shooter',       emoji: '🚀',  href: '/daydream/games' },
-                { key: 'tetris',        label: 'Tetris',              emoji: '🟦',  href: '/daydream/games' },
-                { key: 'chess',         label: 'Chess',               emoji: '♛',   href: '/daydream/games' },
-                { key: 'rpg',           label: 'RPG Adventure',       emoji: '🗡️', href: '/daydream/games' },
-                { key: 'word-sprint',   label: 'Word Sprint',         emoji: '📝',  href: '/daydream/games' },
-                { key: 'memory-grid',   label: 'Memory Grid',         emoji: '🧩',  href: '/daydream/games' },
-                { key: 'speed-tap',     label: 'Speed Tap',           emoji: '⚡',  href: '/daydream/games' },
+                { key: 'platformer',    label: 'Dr. Eams Platformer', emoji: '∞',   href: '/daydream/game' },
+                { key: 'rts',           label: 'Red Alert RTS',       emoji: '⚔️',  href: '/daydream/games?openEngin=1&remote=1' },
+                { key: 'tower-defense', label: 'Tower Defense',       emoji: '🏰',  href: '/daydream/games?openEngin=1&remote=1' },
+                { key: 'space-shooter', label: 'Space Shooter',       emoji: '🚀',  href: '/daydream/games?openEngin=1&remote=1' },
+                { key: 'tetris',        label: 'Tetris',              emoji: '🟦',  href: '/daydream/games?openEngin=1&remote=1' },
+                { key: 'chess',         label: 'Chess',               emoji: '♛',   href: '/daydream/games?openEngin=1&remote=1' },
+                { key: 'rpg',           label: 'RPG Adventure',       emoji: '🗡️', href: '/daydream/games?openEngin=1&remote=1' },
+                { key: 'word-sprint',   label: 'Word Sprint',         emoji: '📝',  href: '/daydream/games?openEngin=1&remote=1' },
+                { key: 'memory-grid',   label: 'Memory Grid',         emoji: '🧩',  href: '/daydream/games?openEngin=1&remote=1' },
+                { key: 'speed-tap',     label: 'Speed Tap',           emoji: '⚡',  href: '/daydream/games?openEngin=1&remote=1' },
               ].map(g => (
                 <Link
                   key={g.key}

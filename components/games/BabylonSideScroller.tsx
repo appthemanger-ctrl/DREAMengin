@@ -963,6 +963,8 @@ class GameCore {
 
   // Parallax background stars
   private bgStars: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number }[] = [];
+  private skylineBands: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number; pulseOffset: number }[] = [];
+  private shadowGen: import('@babylonjs/core').ShadowGenerator | null = null;
 
   // camera ref
   private camMesh: import('@babylonjs/core').FreeCamera | null = null;
@@ -1044,17 +1046,36 @@ class GameCore {
 
     // ── Lighting ─────────────────────────────────────────────────────────────
     const ambient = new BJS.HemisphericLight('amb', new BJS.Vector3(0, 1, 0), scene);
-    ambient.intensity  = 0.7;
+    ambient.intensity  = 0.82;
     ambient.diffuse    = new BJS.Color3(0.85, 0.90, 1.0);
     ambient.groundColor= new BJS.Color3(0.1, 0.1, 0.25);
 
-    const sun = new BJS.DirectionalLight('sun', new BJS.Vector3(0.4, -1, 0.5), scene);
-    sun.intensity = 0.7;
+    const sun = new BJS.DirectionalLight('sun', new BJS.Vector3(0.35, -1, 0.45), scene);
+    sun.intensity = 0.95;
     sun.diffuse   = new BJS.Color3(1.0, 0.95, 0.8);
+    sun.shadowMinZ = 1;
+    sun.shadowMaxZ = 70;
+    const shadowGen = new BJS.ShadowGenerator(2048, sun);
+    shadowGen.usePercentageCloserFiltering = true;
+    shadowGen.filteringQuality = BJS.ShadowGenerator.QUALITY_HIGH;
+    shadowGen.bias = 0.0008;
+    this.shadowGen = shadowGen;
 
     // ── Glow layer ───────────────────────────────────────────────────────────
     const glow = new BJS.GlowLayer('glow', scene);
-    glow.intensity = 0.6;
+    glow.intensity = 0.9;
+
+    // MADMAXI graphics upgrade: lightweight post-processing for clearer highlights
+    // and smoother edges without changing gameplay physics.
+    const pipeline = new BJS.DefaultRenderingPipeline('madmaxi-pipeline', true, scene, [cam]);
+    pipeline.samples = 2;
+    pipeline.fxaaEnabled = true;
+    pipeline.imageProcessingEnabled = true;
+    pipeline.bloomEnabled = true;
+    pipeline.bloomThreshold = 0.72;
+    pipeline.bloomWeight = 0.34;
+    pipeline.bloomKernel = 62;
+    pipeline.bloomScale = 0.76;
 
     // ── Background plane (starfield / gradient) ──────────────────────────────
     const bg = BJS.MeshBuilder.CreatePlane('bg', { width: 120, height: 40 }, scene);
@@ -1065,6 +1086,25 @@ class GameCore {
     bgMat.backFaceCulling = false;
     bg.material = bgMat;
     this.bgPlane = bg;
+
+    // Aurora skyline bands — animated, layered backdrop for MADMAXI visual upgrade.
+    const skylineLayers: [number, number, number, number][] = [
+      [0.05, 12, 0.17, 0.24],
+      [0.09, 10, 0.22, 0.20],
+      [0.14, 8, 0.29, 0.16],
+    ];
+    skylineLayers.forEach(([parallax, depth, sat, alpha], idx) => {
+      const band = BJS.MeshBuilder.CreatePlane(`skyline_band_${idx}`, { width: 140, height: 18 }, scene);
+      const mat = new BJS.StandardMaterial(`skyline_mat_${idx}`, scene);
+      mat.disableLighting = true;
+      mat.alpha = alpha;
+      mat.backFaceCulling = false;
+      mat.diffuseColor = new BJS.Color3(zone.sky[0] + sat, zone.sky[1] + sat * 0.7, zone.sky[2] + sat * 1.05);
+      mat.emissiveColor = new BJS.Color3(zone.sky[0] + sat * 0.6, zone.sky[1] + sat * 0.45, zone.sky[2] + sat);
+      band.material = mat;
+      band.position.set(0, 10 + idx * 2.4, depth);
+      this.skylineBands.push({ mesh: band, baseX: 0, parallax, pulseOffset: idx * 1.8 });
+    });
 
     // ── Parallax star layers (3 depths, scrolling at different rates) ────────
     const rng = seededRng(this.level * STAR_SEED_PRIME + STAR_SEED_OFFSET);
@@ -1077,7 +1117,7 @@ class GameCore {
     for (const [parallax, depth, count, size] of starLayers) {
       for (let s = 0; s < count; s++) {
         const star = BJS.MeshBuilder.CreateSphere(`bgs_l${depth}_${s}`,
-          { diameter: size + rng() * size, segments: 3 }, scene);
+          { diameter: size + rng() * size, segments: 6 }, scene);
         const mat = new BJS.StandardMaterial(`bgsm_${depth}_${s}`, scene);
         const b = 0.55 + rng() * 0.45;
         mat.emissiveColor = new BJS.Color3(b * 0.90, b * 0.93, b);
@@ -1112,6 +1152,8 @@ class GameCore {
       }
       mat.specularColor = new BJS.Color3(0.15, 0.2, 0.4);
       mesh.material = mat;
+      mesh.receiveShadows = true;
+      shadowGen.addShadowCaster(mesh, false);
       this.platMeshes.push(mesh);
     }
 
@@ -1129,22 +1171,25 @@ class GameCore {
         // Central star body
         const star = BJS.MeshBuilder.CreateSphere(`goal_body`, { diameter: 0.88, segments: 10 }, scene);
         star.material = goalMat;
+        shadowGen.addShadowCaster(star, false);
         glow.addIncludedOnlyMesh(star);
         this.goalMesh = star;
         // Orbiting torus ring
         const ring = BJS.MeshBuilder.CreateTorus(`goal_ring`,
           { diameter: 1.5, thickness: 0.10, tessellation: 28 }, scene);
         ring.material = goalMat;
+        shadowGen.addShadowCaster(ring, false);
         glow.addIncludedOnlyMesh(ring);
         this.goalRing = ring;
         this.coinMeshes.push(null); // keep index aligned with this.coins[] for collision detection
       } else {
         const mesh = BJS.MeshBuilder.CreateSphere(`coin_${c.x}_${c.y}`,
-          { diameter: 0.42, segments: 8 }, scene);
+          { diameter: 0.42, segments: 14 }, scene);
         const mat  = new BJS.StandardMaterial(`cmat_${c.x}`, scene);
         mat.diffuseColor  = new BJS.Color3(0.95, 0.75, 0.1);
         mat.emissiveColor = new BJS.Color3(0.35, 0.25, 0.0);
         mesh.material = mat;
+        shadowGen.addShadowCaster(mesh, false);
         glow.addIncludedOnlyMesh(mesh);
         this.coinMeshes.push(mesh);
       }
@@ -1156,7 +1201,7 @@ class GameCore {
       const isBoss  = !!en.boss;
       const diameter = isBoss ? 0.85 * (en.size ?? 1.8) : 0.85;
       const mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`,
-        { diameter, segments: isBoss ? 14 : 10 }, scene);
+        { diameter, segments: isBoss ? 24 : 16 }, scene);
       const mat  = new BJS.StandardMaterial(`emat_${ei}`, scene);
       if (isBoss && en.bossColor) {
         const [r,g,b] = en.bossColor;
@@ -1170,26 +1215,29 @@ class GameCore {
         mat.specularColor = new BJS.Color3(0.5, 0.1, 0.1);
       }
       mesh.material = mat;
+      shadowGen.addShadowCaster(mesh, false);
       glow.addIncludedOnlyMesh(mesh);
       this.enemyMeshes.push(mesh);
     }
 
     // ── Player meshes (body + head) ───────────────────────────────────────────
     const body = BJS.MeshBuilder.CreateCapsule('player',
-      { radius: 0.32, height: 1.0, tessellation: 12, subdivisions: 4 }, scene);
+      { radius: 0.32, height: 1.0, tessellation: 20, subdivisions: 6 }, scene);
     const bodyMat = new BJS.StandardMaterial('bodyMat', scene);
     bodyMat.diffuseColor  = new BJS.Color3(0.1, 0.55, 0.95);
     bodyMat.emissiveColor = new BJS.Color3(0.03, 0.18, 0.45);
     bodyMat.specularColor = new BJS.Color3(0.4, 0.7, 1.0);
     body.material = bodyMat;
+    shadowGen.addShadowCaster(body, true);
     glow.addIncludedOnlyMesh(body);
     this.playerMesh = body;
 
-    const head = BJS.MeshBuilder.CreateSphere('phead', { diameter: 0.42, segments: 8 }, scene);
+    const head = BJS.MeshBuilder.CreateSphere('phead', { diameter: 0.42, segments: 18 }, scene);
     const headMat = new BJS.StandardMaterial('headMat', scene);
     headMat.diffuseColor  = new BJS.Color3(0.85, 0.80, 0.70);
     headMat.emissiveColor = new BJS.Color3(0.15, 0.12, 0.08);
     head.material = headMat;
+    shadowGen.addShadowCaster(head, true);
     glow.addIncludedOnlyMesh(head);
     this.playerHead = head;
 
@@ -1600,6 +1648,12 @@ class GameCore {
     const camBX = this.camX / PX_PER_BU;
     for (const { mesh, baseX, parallax } of this.bgStars) {
       mesh.position.x = baseX - camBX * parallax;
+      const twinkle = 0.92 + Math.sin(this.animTick * 0.045 + baseX) * 0.12;
+      mesh.scaling.setAll(twinkle);
+    }
+    for (const skyline of this.skylineBands) {
+      skyline.mesh.position.x = skyline.baseX - camBX * skyline.parallax;
+      skyline.mesh.position.y = 10 + Math.sin(this.animTick * 0.01 + skyline.pulseOffset) * 0.9;
     }
 
     // Camera follows player smoothly in X

@@ -6,6 +6,7 @@ import GamesHub from '@/components/games/GamesHub';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
+import AutoOpenGameEngin from '@/components/daydream/AutoOpenGameEngin';
 import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 
 export const dynamic = 'force-dynamic';
@@ -53,6 +54,7 @@ export default async function GamesDaydreamPage() {
       widgets={WIDGETS}
       sideBComponent={GameEngin}
     >
+      <AutoOpenGameEngin />
       <div className="de-sky-bg min-h-screen">
         <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
