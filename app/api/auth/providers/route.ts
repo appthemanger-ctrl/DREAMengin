@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/env";
+import {
+  GITHUB_OAUTH_UI_ENABLED,
+  GOOGLE_OAUTH_UI_ENABLED,
+  SUPABASE_ANON_KEY,
+  SUPABASE_URL,
+} from "@/lib/supabase/env";
 
 /**
  * GET /api/auth/providers
  *
- * Returns which OAuth providers are currently enabled in this Supabase project
- * by querying the public GoTrue /auth/v1/settings endpoint.
+ * Returns which OAuth providers should be exposed in this deployment. A
+ * provider is only considered available when:
+ *  1. the deployment has explicitly enabled its UI button, and
+ *  2. Supabase reports the provider as enabled in GoTrue settings.
  *
  * Used by the login and join pages to disable OAuth buttons before
  * attempting a redirect that Google/GitHub would reject with invalid_client.
@@ -30,10 +37,14 @@ export function getOAuthProvidersResponse(
   settings: SupabaseAuthSettings,
 ): OAuthProvidersResponse {
   const external = settings.external ?? {};
+  const googleConfigured = typeof external.google === "boolean" ? external.google : null;
+  const githubConfigured = typeof external.github === "boolean" ? external.github : null;
 
   return {
-    google: typeof external.google === "boolean" ? external.google : null,
-    github: typeof external.github === "boolean" ? external.github : null,
+    google:
+      GOOGLE_OAUTH_UI_ENABLED === true && googleConfigured === true ? true : false,
+    github:
+      GITHUB_OAUTH_UI_ENABLED === true && githubConfigured === true ? true : false,
   };
 }
 

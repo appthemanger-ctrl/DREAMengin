@@ -119,11 +119,11 @@ export default function JoinPage() {
   async function oauth(provider: "google" | "github") {
     setError(null);
 
-    // Guard: if we know this provider is not configured, show a friendly message
-    // instead of sending the user to an OAuth page that will reject them.
-    if (oauthProviders?.[provider] === false) {
+    // Guard: only allow OAuth when this deployment has explicitly enabled the
+    // provider and the Supabase probe confirms it is available.
+    if (oauthProviders?.[provider] !== true) {
       setError(
-        `${provider === "google" ? "Google" : "GitHub"} sign-in is not configured on this server. Please use email/password or contact support.`,
+        `${provider === "google" ? "Google" : "GitHub"} sign-in is unavailable on this server. Please use email/password or contact support.`,
       );
       return;
     }
@@ -229,21 +229,21 @@ export default function JoinPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <button
               type="button"
-              disabled={busy}
+              disabled={busy || oauthProviders?.google !== true}
               onClick={() => oauth("google")}
               className="de-btn de-btn-ghost"
-              style={{ width: "100%", opacity: oauthProviders?.google === false ? DISABLED_BUTTON_OPACITY : undefined }}
-              title={oauthProviders?.google === false ? "Google sign-in is not configured" : undefined}
+              style={{ width: "100%", opacity: oauthProviders?.google !== true ? DISABLED_BUTTON_OPACITY : undefined }}
+              title={oauthProviders?.google !== true ? "Google sign-in is unavailable until this deployment is configured" : undefined}
             >
               Continue with Google
             </button>
             <button
               type="button"
-              disabled={busy}
+              disabled={busy || oauthProviders?.github !== true}
               onClick={() => oauth("github")}
               className="de-btn de-btn-ghost"
-              style={{ width: "100%", opacity: oauthProviders?.github === false ? DISABLED_BUTTON_OPACITY : undefined }}
-              title={oauthProviders?.github === false ? "GitHub sign-in is not configured" : undefined}
+              style={{ width: "100%", opacity: oauthProviders?.github !== true ? DISABLED_BUTTON_OPACITY : undefined }}
+              title={oauthProviders?.github !== true ? "GitHub sign-in is unavailable until this deployment is configured" : undefined}
             >
               Continue with GitHub
             </button>

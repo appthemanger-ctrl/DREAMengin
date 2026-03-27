@@ -80,6 +80,24 @@ export const SUPABASE_JWT_SECRET =
   process.env.SUPABASE_JWT_SECRET ||
   '';
 
+function parseOptionalPublicBoolean(value: string | undefined): boolean | null {
+  if (!value) return null;
+
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on", "enabled"].includes(normalized)) return true;
+  if (["0", "false", "no", "off", "disabled"].includes(normalized)) return false;
+
+  return null;
+}
+
+export const GOOGLE_OAUTH_UI_ENABLED =
+  parseOptionalPublicBoolean(process.env.NEXT_PUBLIC_ENABLE_GOOGLE_OAUTH) ??
+  parseOptionalPublicBoolean(process.env.NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED);
+
+export const GITHUB_OAUTH_UI_ENABLED =
+  parseOptionalPublicBoolean(process.env.NEXT_PUBLIC_ENABLE_GITHUB_OAUTH) ??
+  parseOptionalPublicBoolean(process.env.NEXT_PUBLIC_GITHUB_OAUTH_ENABLED);
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 export function isSupabaseConfigured(): boolean {

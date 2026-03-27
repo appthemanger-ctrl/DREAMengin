@@ -195,6 +195,18 @@ describe('DREAMengin v2.0.0 — onboarding flow', () => {
     const join = readFileSync(resolve(__dirname, '../app/join/page.tsx'), 'utf8');
     expect(join).toContain('next=/onboarding');
   });
+
+  it('/login only starts OAuth when the provider probe returns true', () => {
+    const login = readFileSync(resolve(__dirname, '../app/login/page.tsx'), 'utf8');
+    expect(login).toContain('oauthProviders?.[provider] !== true');
+    expect(login).toContain('disabled={busy || oauthProviders?.google !== true}');
+  });
+
+  it('/join only starts OAuth when the provider probe returns true', () => {
+    const join = readFileSync(resolve(__dirname, '../app/join/page.tsx'), 'utf8');
+    expect(join).toContain('oauthProviders?.[provider] !== true');
+    expect(join).toContain('disabled={busy || oauthProviders?.google !== true}');
+  });
 });
 
 // ---------------------------------------------------------------------------
