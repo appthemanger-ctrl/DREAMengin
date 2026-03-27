@@ -15,6 +15,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
+ * Listens for the global `de-game-start` CustomEvent and calls `startFn`
+ * so that games auto-launch when selected from GamesHub (or when the
+ * GameRemote ▶ PLAY button is pressed).
+ *
+ * Pass `null` to temporarily disable (e.g. while the game is already playing).
+ */
+export function useGameAutoStart(startFn: (() => void) | null) {
+  const startFnRef = useRef(startFn);
+  startFnRef.current = startFn;
+
+  useEffect(() => {
+    const handler = () => {
+      if (startFnRef.current) startFnRef.current();
+    };
+    window.addEventListener('de-game-start', handler as EventListener);
+    return () => window.removeEventListener('de-game-start', handler as EventListener);
+  }, []);
+}
+
+/**
  * Keeps a React state value and a mutable ref in sync so that RAF loops
  * (which close over the ref) always see the current phase without
  * triggering unnecessary re-renders.

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 const WORDS = [
   'dream','blue','gold','sky','run','jump','play','make','create','build',
@@ -33,6 +33,7 @@ export default function WordSprint() {
     setWordIdx(0); setScore(0); setMisses(0); setTimeLeft(60);
     setInput(''); setFlash(null); setPhase('playing');
   }, []);
+  useGameAutoStart(phase === 'idle' ? start : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

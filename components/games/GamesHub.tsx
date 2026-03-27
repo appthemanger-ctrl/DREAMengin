@@ -255,12 +255,22 @@ export default function GamesHub() {
   const filtered = filter === 'All' ? GAMES : GAMES.filter(g => g.category === filter);
   const active = activeGame ? GAMES.find(g => g.id === activeGame) : null;
 
+  // Fire de-game-start after a game component has had time to mount
+  const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const launchGame = useCallback((id: string) => {
+    setActiveGame(id);
+    if (autoStartTimerRef.current) clearTimeout(autoStartTimerRef.current);
+    autoStartTimerRef.current = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('de-game-start'));
+    }, 350);
+  }, []);
+
   useEffect(() => {
     if (initializedLaunchRef.current) return;
     initializedLaunchRef.current = true;
     const requestedGame = resolveGameLaunchId(searchParams.get('game'), GAMES.map((game) => game.id), null);
-    if (requestedGame) setActiveGame(requestedGame);
-  }, [searchParams]);
+    if (requestedGame) launchGame(requestedGame);
+  }, [searchParams, launchGame]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -512,7 +522,7 @@ export default function GamesHub() {
             <button
               key={game.id}
               type="button"
-              onClick={() => setActiveGame(game.id)}
+              onClick={() => launchGame(game.id)}
               style={cardStyle}
               onMouseEnter={hoverIn}
               onMouseLeave={hoverOut}

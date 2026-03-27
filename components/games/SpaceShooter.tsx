@@ -4,7 +4,7 @@
  * Category: shoot 'em up / arcade
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 400; const CH = 560;
 type Phase = 'menu' | 'playing' | 'gameover';
@@ -54,6 +54,7 @@ export default function SpaceShooter() {
     setScore(0); setLives(3);
     setPhase('playing');
   }, [setPhase]);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

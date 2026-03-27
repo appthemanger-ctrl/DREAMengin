@@ -4,7 +4,7 @@
  * Category: music / rhythm
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 420; const CH = 520;
 const LANES = 4;
@@ -54,6 +54,7 @@ export default function RhythmGame() {
     patternIdxRef.current = 0; beatTimerRef.current = 0; pressedRef.current = new Set();
     setScore(0); setCombo(0); setPhase('playing');
   }, [setPhase]);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   const hitLane = useCallback((lane: number) => {
     if (phaseRef.current !== 'playing') return;

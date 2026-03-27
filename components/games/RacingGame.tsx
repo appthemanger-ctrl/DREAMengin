@@ -4,7 +4,7 @@
  * Category: racing / sports
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 500; const CH = 500;
 type Phase = 'menu' | 'playing' | 'done';
@@ -57,6 +57,7 @@ export default function RacingGame() {
     setTotalTime(0);
     setPhase('playing');
   }, [setPhase]);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

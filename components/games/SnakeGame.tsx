@@ -4,7 +4,7 @@
  * Category: arcade / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const CELL = 18; const COLS = 24; const ROWS = 22;
 const CW = COLS * CELL; const CH = ROWS * CELL;
@@ -43,6 +43,7 @@ export default function SnakeGame() {
     scoreRef.current = 0; speedRef.current = 150;
     setScore(0); setPhase('playing');
   }, [setPhase]);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

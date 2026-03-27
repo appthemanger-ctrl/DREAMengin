@@ -4,7 +4,7 @@
  * Category: endless runner / casual
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 360; const CH = 540;
 const BIRD_X = 80; const BIRD_R = 14;
@@ -40,6 +40,7 @@ export default function FlappyGame() {
       setPhase('menu');
     }
   }, [phaseRef, setPhase]);
+  useGameAutoStart(phase === 'menu' ? flap : null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.code === 'Space' || e.key === 'ArrowUp') { e.preventDefault(); flap(); } };

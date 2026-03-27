@@ -4,7 +4,7 @@
  * Category: board game / strategy
  */
 import { useCallback, useEffect, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 type Color = 'w' | 'b';
 type PieceType = 'K'|'Q'|'R'|'B'|'N'|'P';
@@ -71,6 +71,7 @@ export default function ChessGame() {
     setBoard(cloneBoard(INIT)); setTurn('w'); setSelected(null); setMoves([]);
     setStatus(''); setCaptured({w:[],b:[]}); setPhase('playing');
   }, []);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   const handleClick = useCallback((r: number, c: number) => {
     if (phase !== 'playing') return;

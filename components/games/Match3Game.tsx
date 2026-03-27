@@ -4,7 +4,7 @@
  * Category: puzzle / casual
  */
 import { useCallback, useEffect, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 const COLS = 8; const ROWS = 8;
 const GEMS = ['💎','🔴','💛','💚','💜','🔵'];
@@ -66,6 +66,7 @@ export default function Match3Game() {
     setBoard(makeBoard()); setScore(0); setMoves(30); setSelected(null); setMatches(new Set());
     setPhase('playing');
   }, []);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   const processMatches = useCallback((b: string[][]): boolean => {
     const m = findMatches(b);

@@ -4,7 +4,7 @@
  * Category: trivia / educational
  */
 import { useCallback, useEffect, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 type Phase = 'menu' | 'playing' | 'done';
 
@@ -42,6 +42,7 @@ export default function TriviaGame() {
     setShuffled(s); setIdx(0); setScore(0); setSelected(null); setStreak(0);
     setPhase('playing');
   }, []);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   const handleAnswer = useCallback((optIdx: number) => {
     if (selected !== null) return;

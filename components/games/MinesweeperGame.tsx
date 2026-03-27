@@ -4,7 +4,7 @@
  * Category: puzzle / casual
  */
 import { useCallback, useRef, useState, useEffect } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 const ROWS = 12; const COLS = 16; const MINES = 28;
 type CellState = 'hidden' | 'revealed' | 'flagged';
@@ -65,6 +65,7 @@ export default function MinesweeperGame() {
     if (timerRef.current) clearInterval(timerRef.current);
     setPhase('playing');
   }, []);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   const handleClick = useCallback((r: number, c: number) => {
     if (phase !== 'playing') return;
