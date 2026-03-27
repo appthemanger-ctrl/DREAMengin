@@ -91,7 +91,7 @@ function SyncButton({ connectorId, connectorName }: { connectorId: string; conne
         </span>
       )}
       {syncError && (
-        <span style={{ fontSize: 10, color: '#dc4444' }}>{syncError}</span>
+        <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{syncError}</span>
       )}
     </div>
   );
@@ -302,7 +302,7 @@ export default function ConnectorsClient() {
             position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom,0px) + 96px)',
             left: '50%', transform: 'translateX(-50%)',
             zIndex: 65,
-            background: 'rgba(34,197,94,0.95)',
+            background: 'rgba(200,168,78,0.95)',
             backdropFilter: 'blur(12px)',
             color: '#fff', fontSize: 13, fontWeight: 700,
             padding: '10px 20px', borderRadius: 999,
