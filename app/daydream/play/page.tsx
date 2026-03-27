@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { buildGameLaunchHref, DEFAULT_GAME_ID } from '@/lib/games/navigation';
 
 /**
  * Legacy play daydream route — repurposed to the Games Daydream.
@@ -11,5 +12,5 @@ import { redirect } from 'next/navigation';
 export const dynamic = 'force-dynamic';
 
 export default function PlayDaydreamLegacyPage() {
-  redirect('/daydream/games?openEngin=1&remote=1');
+  redirect(buildGameLaunchHref(DEFAULT_GAME_ID));
 }

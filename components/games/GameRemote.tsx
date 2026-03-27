@@ -25,7 +25,9 @@
 
 import { useCallback, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useGamepad } from '@/lib/games/useGamepad';
+import { buildGameLaunchHref, DEFAULT_GAME_ID } from '@/lib/games/navigation';
 import { broadcastGameInput } from '@/lib/games/useRemoteChannel';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -158,7 +160,7 @@ function Stick({ side, accentColor, label }: StickProps) {
     }
 
     setDir(newDir);
-  }, [side]);
+  }, [maxDisp, side]);
 
   const handlePointerUp = useCallback(() => {
     if (activeActionRef.current) {
@@ -334,85 +336,141 @@ function Stick({ side, accentColor, label }: StickProps) {
 
 // ── GameRemote ────────────────────────────────────────────────────────────────
 interface GameRemoteProps {
-  onBack: () => void;
+  onBack?: () => void;
+  embedded?: boolean;
+  playHref?: string;
+  gameLabel?: string;
 }
 
-export default function GameRemote({ onBack }: GameRemoteProps) {
+export default function GameRemote({
+  onBack,
+  embedded = false,
+  playHref,
+  gameLabel,
+}: GameRemoteProps) {
   const { connected: gpConnected, gamepadName } = useGamepad();
+  const searchParams = useSearchParams();
 
   const gpNameLower = gamepadName.toLowerCase();
   const isDualSense = gpNameLower.includes('dualsense')
     || gpNameLower.includes('playstation')
     || gpNameLower.includes('ps5')
     || gpNameLower.includes('ps4');
+  const resolvedPlayHref = playHref ?? buildGameLaunchHref(searchParams.get('game') ?? DEFAULT_GAME_ID);
+
+  const outerPaddingX = embedded ? 18 : 20;
+  const bottomPadding = embedded ? 28 : 56;
+  const cardMargin = embedded ? '0 18px 18px' : '0 20px 20px';
 
   return (
     <div style={{
       position: 'relative',
-      minHeight: '100dvh',
+      minHeight: embedded ? undefined : '100dvh',
       background: 'linear-gradient(160deg, #07101e 0%, #0b1a30 55%, #07101e 100%)',
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
+      borderRadius: embedded ? 20 : undefined,
+      border: embedded ? '1px solid rgba(160,195,240,0.12)' : undefined,
+      boxShadow: embedded ? '0 16px 48px rgba(0,0,0,0.28)' : undefined,
     }}>
-      {/* Header */}
-      <header style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '14px 20px',
-        borderBottom: '1px solid rgba(160,195,240,0.08)',
-        flexShrink: 0,
-      }}>
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label="Back to daydream (Side A)"
-          style={{
-            width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-            background: 'rgba(220,232,248,0.08)',
-            border: '1px solid rgba(160,195,240,0.18)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: 'rgba(220,235,255,0.8)', fontSize: 16,
-          }}
-        >
-          ←
-        </button>
-        <span style={{
-          fontSize: 13, fontWeight: 700, letterSpacing: '0.08em',
-          color: 'rgba(220,235,255,0.8)', textTransform: 'uppercase',
-        }}>Game Remote</span>
+      {!embedded && (
+        <header style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '14px 20px',
+          borderBottom: '1px solid rgba(160,195,240,0.08)',
+          flexShrink: 0,
+        }}>
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Back to daydream (Side A)"
+            style={{
+              width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+              background: 'rgba(220,232,248,0.08)',
+              border: '1px solid rgba(160,195,240,0.18)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'rgba(220,235,255,0.8)', fontSize: 16,
+            }}
+          >
+            ←
+          </button>
+          <span style={{
+            fontSize: 13, fontWeight: 700, letterSpacing: '0.08em',
+            color: 'rgba(220,235,255,0.8)', textTransform: 'uppercase',
+          }}>Game Remote</span>
 
-        {/* Physical controller status badge */}
-        <span
-          title={gpConnected ? gamepadName : 'Press any button on your controller to connect'}
-          style={{
-            fontSize: 9, fontWeight: 700, letterSpacing: '0.07em',
+          <span
+            title={gpConnected ? gamepadName : 'Press any button on your controller to connect'}
+            style={{
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.07em',
+              padding: '2px 8px', borderRadius: 999,
+              background: gpConnected ? 'rgba(74,222,128,0.12)' : 'rgba(160,195,240,0.06)',
+              color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.32)',
+              border: gpConnected
+                ? '1px solid rgba(74,222,128,0.30)'
+                : '1px solid rgba(160,195,240,0.10)',
+              transition: 'all 0.3s',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {gpConnected
+              ? (isDualSense ? '🎮 DualSense' : '🕹 Pad')
+              : '🎮 No pad'}
+          </span>
+
+          <span style={{
+            marginLeft: 'auto', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+            color: 'rgba(160,195,240,0.4)', textTransform: 'uppercase',
             padding: '2px 8px', borderRadius: 999,
-            background: gpConnected ? 'rgba(74,222,128,0.12)' : 'rgba(160,195,240,0.06)',
-            color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.32)',
-            border: gpConnected
-              ? '1px solid rgba(74,222,128,0.30)'
-              : '1px solid rgba(160,195,240,0.10)',
-            transition: 'all 0.3s',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {gpConnected
-            ? (isDualSense ? '🎮 DualSense' : '🕹 Pad')
-            : '🎮 No pad'}
-        </span>
+            border: '1px solid rgba(160,195,240,0.12)',
+          }}>Side B</span>
+        </header>
+      )}
 
-        <span style={{
-          marginLeft: 'auto', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
-          color: 'rgba(160,195,240,0.4)', textTransform: 'uppercase',
-          padding: '2px 8px', borderRadius: 999,
-          border: '1px solid rgba(160,195,240,0.12)',
-        }}>Side B</span>
-      </header>
+      {embedded && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          padding: '14px 18px 0',
+          flexWrap: 'wrap',
+          flexShrink: 0,
+        }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(160,195,240,0.45)' }}>
+              Default Remote
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#f8fbff', marginTop: 4 }}>
+              {gameLabel ? `${gameLabel} controller deck` : 'Universal controller deck'}
+            </div>
+          </div>
+          <span
+            title={gpConnected ? gamepadName : 'Press any button on your controller to connect'}
+            style={{
+              fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
+              padding: '4px 10px', borderRadius: 999,
+              background: gpConnected ? 'rgba(74,222,128,0.12)' : 'rgba(160,195,240,0.06)',
+              color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.5)',
+              border: gpConnected
+                ? '1px solid rgba(74,222,128,0.30)'
+                : '1px solid rgba(160,195,240,0.10)',
+              transition: 'all 0.3s',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {gpConnected
+              ? (isDualSense ? '🎮 DualSense linked' : '🕹 Pad linked')
+              : '🎮 Remote ready'}
+          </span>
+        </div>
+      )}
 
       {/* Button legend */}
       <div style={{
         display: 'flex', gap: 8, flexWrap: 'wrap',
-        padding: '10px 20px 0',
+        padding: `10px ${outerPaddingX}px 0`,
         flexShrink: 0,
       }}>
         {[
@@ -443,7 +501,7 @@ export default function GameRemote({ onBack }: GameRemoteProps) {
         display: 'flex',
         alignItems: 'flex-end',
         justifyContent: 'space-between',
-        padding: '0 20px 56px',
+        padding: `0 ${outerPaddingX}px ${bottomPadding}px`,
       }}>
         {/* LEFT stick */}
         <Stick side="left" accentColor="#2a8ab8" label="Move" />
@@ -477,7 +535,7 @@ export default function GameRemote({ onBack }: GameRemoteProps) {
 
           {/* Play link */}
           <Link
-            href="/daydream/games?openEngin=1&remote=1"
+            href={resolvedPlayHref}
             style={{
               fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
               color: '#c8981a', textDecoration: 'none',
@@ -497,7 +555,7 @@ export default function GameRemote({ onBack }: GameRemoteProps) {
 
       {/* Quick reference card */}
       <div style={{
-        margin: '0 20px 20px',
+        margin: cardMargin,
         borderRadius: 14,
         background: 'rgba(255,255,255,0.025)',
         border: '1px solid rgba(160,195,240,0.08)',
@@ -524,10 +582,12 @@ export default function GameRemote({ onBack }: GameRemoteProps) {
       {/* Physical controller hint */}
       {!gpConnected && (
         <p style={{
-          margin: '0 20px 18px', textAlign: 'center',
+          margin: embedded ? '0 18px 16px' : '0 20px 18px', textAlign: 'center',
           fontSize: 10, color: 'rgba(160,195,240,0.32)', lineHeight: 1.5,
         }}>
-          🎮 PS5 DualSense / Xbox controller? Press any button to connect via Gamepad API
+          {embedded
+            ? 'Remote inputs are mirrored into the shared game channel so the active game responds immediately.'
+            : '🎮 PS5 DualSense / Xbox controller? Press any button to connect via Gamepad API'}
         </p>
       )}
     </div>

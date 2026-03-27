@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `aeacc1c` | 2026-03-27 20:17 UTC | copilot/remove-engine-menu-on-play | Copilot | +3 ~6 | fix: launch games directly with shared remote controls |
 | `f504c9c` | 2026-03-27 19:44 UTC | completedream | appthemanger-ctrl | — | Merge pull request #327 from appthemanger-ctrl/copilot/improve-feed-user-content-display |
 | `183bd01` | 2026-03-27 19:39 UTC | copilot/improve-feed-user-content-display | Copilot | ~2 | feat: add image upload to feed composer, content type badges, and horizontal snap-scroll layout |
 | `3eb6dbf` | 2026-03-27 19:15 UTC | completedream | appthemanger-ctrl | — | Merge pull request #326 from appthemanger-ctrl/copilot/update-mad-max-remote-control |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `bbc7c7b` | 2026-03-27 10:16 UTC | codex/enhance-game-engine-remote-functionality | appthemanger-ctrl | +1 ~5 | Upgrade MADMAXI with geometry, shadows, and animated skyline |
 | `5341cd4` | 2026-03-27 02:31 UTC | completedream | appthemanger-ctrl | — | Merge pull request #316 from appthemanger-ctrl/copilot/update-supabase-client-implementation |
 | `ea44a92` | 2026-03-27 02:31 UTC | copilot/update-supabase-client-implementation | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/update-supabase-client-implementation |
-| `91fcc7e` | 2026-03-27 02:30 UTC | completedream | appthemanger-ctrl | — | Merge pull request #317 from appthemanger-ctrl/copilot/add-gsap-animation-library |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-27 19:44 UTC — `f504c9c` by appthemanger-ctrl
+Last updated: 2026-03-27 20:17 UTC — `aeacc1c` by Copilot
 Last updated: 2026-03-27 10:18 UTC — `b08e631` by appthemanger-ctrl
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
