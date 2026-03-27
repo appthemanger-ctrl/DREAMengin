@@ -20,11 +20,13 @@ import Link from 'next/link';
 import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
-  Send, Loader2, Globe, Lock, ArrowUp, Wifi,
+  Send, Loader2, Globe, Lock, ArrowUp, Wifi, X,
+  FileText, Radio, RefreshCw,
 } from 'lucide-react';
 import { useLiveFeed, type FeedPost } from '@/lib/feed/useLiveFeed';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { createClient } from '@/lib/supabase/client';
 
 interface HomeFeedProps {
   userId: string;
@@ -58,6 +60,8 @@ export default function HomeFeed({
   const [activeTab, setActiveTab] = useState<'feed' | 'trending' | 'following'>('feed');
   const [postError, setPostError] = useState<string | null>(null);
   const [sharePost, setSharePost] = useState<FeedPost | null>(null);
+  const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string }[]>([]);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleCommentFromBar = useCallback((post: FeedPost) => {
     setBarIntent({
@@ -102,24 +106,65 @@ export default function HomeFeed({
     }
   }, []);
 
+  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const maxSize = 50 * 1024 * 1024; // 50 MB
+    for (const file of files) {
+      if (file.size > maxSize) continue;
+      if (!file.type.startsWith('image/')) continue;
+      setSelectedImages((prev) => [...prev, { file, preview: URL.createObjectURL(file) }]);
+    }
+    if (e.target) e.target.value = '';
+  }, []);
+
+  const removeImage = useCallback((idx: number) => {
+    setSelectedImages((prev) => {
+      const next = [...prev];
+      URL.revokeObjectURL(next[idx].preview);
+      next.splice(idx, 1);
+      return next;
+    });
+  }, []);
+
   const handleCreatePost = async () => {
     const trimmed = newPostContent.trim();
-    if (!trimmed || isPosting) return;
+    if (!trimmed && selectedImages.length === 0) return;
+    if (isPosting) return;
     setIsPosting(true);
     setPostError(null);
     try {
+      // Upload images to Supabase storage
+      const mediaUrls: string[] = [];
+      if (selectedImages.length > 0) {
+        const supabase = createClient();
+        for (const img of selectedImages) {
+          const ext = img.file.name.split('.').pop() ?? 'jpg';
+          const filename = `${userId}/posts/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+          const { error: uploadErr } = await supabase.storage
+            .from('images')
+            .upload(filename, img.file, { cacheControl: '3600', upsert: false });
+          if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
+          const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filename);
+          mediaUrls.push(publicUrl);
+        }
+      }
+
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: trimmed, visibility: newPostVisibility }),
+        body: JSON.stringify({
+          content: trimmed || '📷',
+          visibility: newPostVisibility,
+          media_urls: mediaUrls,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Unable to create your post right now.');
       const createdPost: FeedPost = {
         id: data?.post?.id || `${Date.now()}`,
-        content: data?.post?.content || trimmed,
+        content: data?.post?.content || trimmed || '📷',
         visibility: data?.post?.visibility || newPostVisibility,
-        media_url: data?.post?.media_url || null,
+        media_url: mediaUrls[0] || data?.post?.media_url || null,
         created_at: data?.post?.created_at || new Date().toISOString(),
         profiles: {
           handle: data?.post?.profiles?.handle || userHandle,
@@ -132,6 +177,7 @@ export default function HomeFeed({
       };
       prependPost(createdPost);
       setNewPostContent('');
+      setSelectedImages((prev) => { prev.forEach((img) => URL.revokeObjectURL(img.preview)); return []; });
       setShowComposer(false);
     } catch (err) {
       setPostError(err instanceof Error ? err.message : 'Unable to create your post right now.');
@@ -256,18 +302,30 @@ export default function HomeFeed({
                   <textarea value={newPostContent} onChange={(e) => setNewPostContent(e.target.value)} placeholder="Share something with the community..." className="w-full bg-transparent text-foreground placeholder:text-muted-foreground resize-none focus:outline-none text-base min-h-[80px]" autoFocus />
                 </div>
               </div>
+              {/* Image previews */}
+              {selectedImages.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {selectedImages.map((img, idx) => (
+                    <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
+                      <img src={img.preview} alt="Preview" className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5" aria-label="Remove image"><X className="w-3 h-3" /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
               {postError && <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{postError}</div>}
+              <input ref={imageInputRef} type="file" accept="image/*" multiple onChange={handleImageSelect} className="hidden" />
               <div className="flex items-center justify-between pt-3 border-t border-border">
                 <div className="flex items-center gap-2">
-                  <button className="p-2 rounded-lg hover:bg-muted transition-colors" title="Add image"><ImageIcon className="w-5 h-5 text-primary" /></button>
+                  <button type="button" onClick={() => imageInputRef.current?.click()} className="p-2 rounded-lg hover:bg-muted transition-colors" title="Add image"><ImageIcon className="w-5 h-5 text-primary" /></button>
                   <button onClick={() => setNewPostVisibility(v => v === 'public' ? 'private' : 'public')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-sm text-muted-foreground">
                     {newPostVisibility === 'public' ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                     {newPostVisibility === 'public' ? 'Public' : 'Private'}
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => { setShowComposer(false); setNewPostContent(''); }} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[40px]">Cancel</button>
-                  <button onClick={handleCreatePost} disabled={!newPostContent.trim() || isPosting} className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-[40px]">
+                  <button onClick={() => { setShowComposer(false); setNewPostContent(''); setSelectedImages((prev) => { prev.forEach((img) => URL.revokeObjectURL(img.preview)); return []; }); }} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[40px]">Cancel</button>
+                  <button onClick={handleCreatePost} disabled={(!newPostContent.trim() && selectedImages.length === 0) || isPosting} className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-[40px]">
                     {isPosting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" />Post</>}
                   </button>
                 </div>
@@ -276,10 +334,20 @@ export default function HomeFeed({
           )}
         </div>
 
-        {/* Posts */}
-        <div className="space-y-4">
+        {/* Posts — horizontal snap-scroll layout */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 16,
+            overflowX: 'auto',
+            scrollSnapType: 'x mandatory',
+            WebkitOverflowScrolling: 'touch',
+            paddingBottom: 8,
+            scrollbarWidth: 'none',
+          }}
+        >
           {posts.length === 0 ? (
-            <div className="bg-card rounded-2xl border border-border p-12 text-center">
+            <div className="bg-card rounded-2xl border border-border p-12 text-center" style={{ minWidth: '100%', scrollSnapAlign: 'start', flexShrink: 0 }}>
               <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
               <p className="text-muted-foreground mb-6">Be the first to share something with the community!</p>
@@ -287,12 +355,36 @@ export default function HomeFeed({
             </div>
           ) : (
             posts.map(post => (
-              <article key={post.id} className="bg-card rounded-2xl border border-border p-4 hover:border-primary/20 transition-colors">
-                {post.source === 'connector' && post.provider && (
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 8, padding: '2px 8px', borderRadius: 100, background: 'rgba(74,158,214,0.10)', border: '1px solid rgba(74,158,214,0.25)', fontSize: 10, fontWeight: 700, color: '#4A9ED6', letterSpacing: '0.04em', textTransform: 'capitalize' as const }}>
-                    {`\u2197 ${post.provider}`}
-                  </div>
-                )}
+              <article
+                key={post.id}
+                className="bg-card rounded-2xl border border-border p-4 hover:border-primary/20 transition-colors"
+                style={{ minWidth: 320, maxWidth: 400, width: '85vw', scrollSnapAlign: 'start', flexShrink: 0 }}
+              >
+                {/* Content type badge — always visible */}
+                <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+                  {post.source === 'connector' && post.provider ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 100, background: 'rgba(74,158,214,0.10)', border: '1px solid rgba(74,158,214,0.25)', fontSize: 10, fontWeight: 700, color: '#4A9ED6', letterSpacing: '0.04em', textTransform: 'capitalize' as const }}>
+                      <Radio size={10} />
+                      {post.provider}
+                    </span>
+                  ) : post.source === 'share' ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 100, background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.25)', fontSize: 10, fontWeight: 700, color: '#16a34a', letterSpacing: '0.04em' }}>
+                      <RefreshCw size={10} />
+                      Share
+                    </span>
+                  ) : (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 100, background: 'rgba(200,152,26,0.10)', border: '1px solid rgba(200,152,26,0.25)', fontSize: 10, fontWeight: 700, color: '#c8981a', letterSpacing: '0.04em' }}>
+                      <FileText size={10} />
+                      Post
+                    </span>
+                  )}
+                  {post.visibility === 'private' && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 100, background: 'rgba(160,160,180,0.10)', border: '1px solid rgba(160,160,180,0.25)', fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: '0.04em' }}>
+                      <Lock size={10} />
+                      Private
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-start gap-3 mb-3">
                   <Link href={`/profile/${post.profiles?.handle}`} className="flex-shrink-0">
                     {post.profiles?.avatar_url ? (
@@ -312,10 +404,10 @@ export default function HomeFeed({
                   </div>
                   <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
                 </div>
-                <p className="text-foreground leading-relaxed mb-4 whitespace-pre-wrap">{post.content}</p>
+                <p className="text-foreground leading-relaxed mb-4 whitespace-pre-wrap" style={{ display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.content}</p>
                 {post.media_url && (
                   <div className="rounded-xl overflow-hidden mb-4 border border-border">
-                    <Image src={post.media_url} alt="Post media" width={600} height={400} className="w-full h-auto object-cover" />
+                    <Image src={post.media_url} alt="Post media" width={600} height={400} className="w-full h-auto object-cover" style={{ maxHeight: 240, objectFit: 'cover' }} />
                   </div>
                 )}
                 {post.source !== 'connector' && (
