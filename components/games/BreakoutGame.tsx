@@ -4,7 +4,7 @@
  * Category: arcade / classic
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 480; const CH = 520;
 const PAD_W = 80; const PAD_H = 12; const PAD_Y = CH - 40;
@@ -48,6 +48,7 @@ export default function BreakoutGame() {
     bricksRef.current = makeBricks(); scoreRef.current = 0; livesRef.current = 3; launchedRef.current = false;
     setScore(0); setLives(3); setPhase('playing');
   }, [setPhase]);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

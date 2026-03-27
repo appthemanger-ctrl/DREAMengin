@@ -533,20 +533,38 @@ export default function GameRemote({
             ⏸
           </button>
 
-          {/* Play link */}
-          <Link
-            href={resolvedPlayHref}
-            style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
-              color: '#c8981a', textDecoration: 'none',
-              padding: '4px 10px', borderRadius: 999,
-              border: '1px solid rgba(200,152,26,0.3)',
-              background: 'rgba(200,152,26,0.07)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            ▶ PLAY
-          </Link>
+          {/* Play button — fires de-game-start when embedded (starts the active game inline);
+              falls back to navigation link on the standalone remote page */}
+          {embedded ? (
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('de-game-start'))}
+              style={{
+                fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+                color: '#c8981a', cursor: 'pointer',
+                padding: '4px 10px', borderRadius: 999,
+                border: '1px solid rgba(200,152,26,0.3)',
+                background: 'rgba(200,152,26,0.07)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              ▶ PLAY
+            </button>
+          ) : (
+            <Link
+              href={resolvedPlayHref}
+              style={{
+                fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+                color: '#c8981a', textDecoration: 'none',
+                padding: '4px 10px', borderRadius: 999,
+                border: '1px solid rgba(200,152,26,0.3)',
+                background: 'rgba(200,152,26,0.07)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              ▶ PLAY
+            </Link>
+          )}
         </div>
 
         {/* RIGHT stick */}

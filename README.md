@@ -8,6 +8,8 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `e610ed4` | 2026-03-27 21:11 UTC | copilot/fix-game-launch-issue | Copilot | ~1 | refactor: extract GAME_MOUNT_DELAY_MS constant in GamesHub |
+| `34dab13` | 2026-03-27 21:08 UTC | copilot/fix-game-launch-issue | Copilot | ~27 | feat: auto-start games when clicked from GamesHub; fix GameRemote PLAY button |
 | `9f8ac1d` | 2026-03-27 20:21 UTC | completedream | appthemanger-ctrl | — | Merge pull request #328 from appthemanger-ctrl/copilot/remove-engine-menu-on-play |
 | `aeacc1c` | 2026-03-27 20:17 UTC | copilot/remove-engine-menu-on-play | Copilot | +3 ~6 | fix: launch games directly with shared remote controls |
 | `f504c9c` | 2026-03-27 19:44 UTC | completedream | appthemanger-ctrl | — | Merge pull request #327 from appthemanger-ctrl/copilot/improve-feed-user-content-display |
@@ -16,14 +18,12 @@ Date: March 24, 2026
 | `d928662` | 2026-03-27 13:04 UTC | copilot/update-mad-max-remote-control | Copilot | +1 ~5 | feat: cross-tab GameRemote + MADMAXI as default game |
 | `27a1470` | 2026-03-27 10:20 UTC | completedream | appthemanger-ctrl | — | Merge pull request #325 from appthemanger-ctrl/codex/enhance-game-engine-remote-functionality |
 | `2132344` | 2026-03-27 10:19 UTC | codex/enhance-game-engine-remote-functionality | appthemanger-ctrl | — | Merge branch 'completedream' into codex/enhance-game-engine-remote-functionality |
-| `bbc7c7b` | 2026-03-27 10:16 UTC | codex/enhance-game-engine-remote-functionality | appthemanger-ctrl | +1 ~5 | Upgrade MADMAXI with geometry, shadows, and animated skyline |
-| `5341cd4` | 2026-03-27 02:31 UTC | completedream | appthemanger-ctrl | — | Merge pull request #316 from appthemanger-ctrl/copilot/update-supabase-client-implementation |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-27 20:21 UTC — `9f8ac1d` by appthemanger-ctrl
+Last updated: 2026-03-27 21:11 UTC — `e610ed4` by Copilot
 Last updated: 2026-03-27 10:18 UTC — `b08e631` by appthemanger-ctrl
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)

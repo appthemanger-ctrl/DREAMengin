@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 const EMOJIS = ['🌊','🔥','⚡','🎵','💎','🌙','🎯','🚀'];
 
@@ -33,6 +33,7 @@ export default function MemoryGrid() {
     setCards(makeCards());
     setFlipped([]); setMoves(0); setElapsed(0); setLocked(false); setPhase('playing');
   }, []);
+  useGameAutoStart(phase === 'idle' ? start : null);
 
   // timer
   useEffect(() => {

@@ -4,7 +4,7 @@
  * Category: maze / adventure
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
 
 const CELL = 36; const MAZE_W = 15; const MAZE_H = 12;
 const CW = MAZE_W * CELL; const CH = MAZE_H * CELL;
@@ -59,6 +59,7 @@ export default function MazeGame() {
     startTimeRef.current = Date.now(); lastMoveRef.current = 0; tickRef.current = 0;
     setTime(0); setPhase('playing');
   }, [setPhase]);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

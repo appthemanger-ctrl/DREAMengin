@@ -7,7 +7,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 const CANVAS_W = 900;
 const CANVAS_H = 600;
@@ -471,6 +471,7 @@ export default function RTSGame() {
     setPhase('playing');
     setCredits(1500);
   }, []);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

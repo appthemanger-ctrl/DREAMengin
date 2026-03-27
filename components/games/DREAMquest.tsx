@@ -10,7 +10,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -685,6 +685,7 @@ export default function DREAMquest() {
     setTotalWon(0); setEnemy(null); setLog([]); setLvlUpMsg('');
     setDmgNums([]); setPhase('explore');
   }, []);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   // ── Shared UI helpers ─────────────────────────────────────────────────────
 

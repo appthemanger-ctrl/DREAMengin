@@ -4,7 +4,7 @@
  * Categories: strategy / tower defense
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 700; const CH = 480;
 const CELL = 40; const COLS = Math.floor(CW / CELL); const ROWS = Math.floor(CH / CELL);
@@ -68,6 +68,7 @@ export default function TowerDefense() {
     setGold(200); setLives(20); setWave(1);
     setPhase('playing');
   }, [setPhase]);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

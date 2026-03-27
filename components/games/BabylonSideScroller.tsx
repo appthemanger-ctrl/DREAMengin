@@ -19,7 +19,7 @@
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import {
   DreamEngineGodTierSystem,
@@ -491,6 +491,7 @@ export default function BabylonSideScroller() {
     setIsNewBest(false);
     setStatus('playing');
   }, []);
+  useGameAutoStart(status === 'title' ? () => startGame(1, 0, 3) : null);
 
   // ── Key events ─────────────────────────────────────────────────────────────
   useEffect(() => {

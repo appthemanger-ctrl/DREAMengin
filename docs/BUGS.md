@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-27 10:20 UTC  
-**Triggered by commit:** `27a1470` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #325 from appthemanger-ctrl/codex/enhance-game-engine-remote-functionality
+**Last updated:** 2026-03-27 21:08 UTC  
+**Triggered by commit:** `34dab13` on `copilot/fix-game-launch-issue` by Copilot  
+**Commit message:** feat: auto-start games when clicked from GamesHub; fix GameRemote PLAY button
 
 ---
 

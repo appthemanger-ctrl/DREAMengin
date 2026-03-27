@@ -10,7 +10,7 @@
  */
 
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 // ── Layout ────────────────────────────────────────────────────────────────────
 const CW = 800, CH = 576, T = 32, COLS = 25, ROWS = 18;
@@ -528,6 +528,7 @@ export default function DREAMwars() {
     setEnergy(300); setInfoLine(''); setSelBldgId(null);
     setPhase('playing');
   }, [setPhase]);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   // ── Train a unit from the selected dreamer building ────────────────────────
   const trainUnit = useCallback((type: UnitType) => {

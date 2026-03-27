@@ -4,7 +4,7 @@
  * Category: RPG / adventure
  */
 import { useCallback, useEffect, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 type Phase = 'menu' | 'explore' | 'battle' | 'shop' | 'gameover' | 'win';
 
@@ -61,6 +61,7 @@ export default function RPGGame() {
     setStats({ ...BASE }); setArea(0); setVictories(0); setLog([]); setEnemy(null);
     setPhase('explore');
   }, []);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   const explore = useCallback(() => {
     const eventIdx = Math.floor(Math.random() * EVENTS.length);

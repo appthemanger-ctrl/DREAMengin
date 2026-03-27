@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 type Phase = 'idle' | 'countdown' | 'playing' | 'done';
 
@@ -18,6 +18,7 @@ export default function SpeedTap() {
   const start = useCallback(() => {
     setCount(0); setCd(3); setTimeLeft(10); setPhase('countdown');
   }, []);
+  useGameAutoStart(phase === 'idle' ? start : null);
 
   // countdown 3-2-1
   useEffect(() => {

@@ -4,7 +4,7 @@
  * Category: puzzle / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 
 const COLS = 10; const ROWS = 20; const CELL = 26;
 const CW = COLS * CELL; const CH = ROWS * CELL;
@@ -85,6 +85,7 @@ export default function TetrisGame() {
     setScore(0); setLines(0); setLevel(1);
     setPhase('playing');
   }, [setPhase]);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

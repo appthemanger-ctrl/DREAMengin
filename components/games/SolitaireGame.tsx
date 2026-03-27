@@ -4,7 +4,7 @@
  * Category: card game / casual
  */
 import { useCallback, useEffect, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 type Suit = '♠'|'♥'|'♦'|'♣';
 type Rank = 'A'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|'10'|'J'|'Q'|'K';
@@ -45,6 +45,7 @@ export default function SolitaireGame() {
   const startGame = useCallback(() => {
     setState(makeGame()); setSelected(null); setMoves(0); setPhase('playing');
   }, []);
+  useGameAutoStart(phase === 'menu' ? startGame : null);
 
   const canPlace = (card: Card, onto: Card | null): boolean => {
     if (!onto) return card.rank === 'K';

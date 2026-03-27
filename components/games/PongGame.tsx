@@ -4,7 +4,7 @@
  * Category: sports / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
 
 const CW = 600; const CH = 400;
 const PAD_W = 10; const PAD_H = 70; const PAD_SPEED = 5;
@@ -34,6 +34,8 @@ export default function PongGame() {
     scoresRef.current = [0, 0]; setScores([0, 0]);
     setPhase('playing');
   }, [setPhase]);
+  // Default auto-start: vs AI mode
+  useGameAutoStart(phase === 'menu' ? () => startGame('ai') : null);
 
   useEffect(() => {
     if (phase !== 'playing') return;

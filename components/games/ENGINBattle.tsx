@@ -13,7 +13,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSubmitScore } from '@/lib/games/hooks';
+import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 
 // ─── Canvas / Grid constants ──────────────────────────────────────────────────
 const CANVAS_W = 784;
@@ -823,6 +823,8 @@ export default function ENGINBattle() {
     setHudData(INITIAL_HUD);
     setPhase('playing');
   }, []);
+  // Default auto-start: Dr. Eams faction
+  useGameAutoStart(phase === 'menu' ? () => startGame('eams') : null);
 
   // ── Main game loop ──
   useEffect(() => {
