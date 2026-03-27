@@ -5,17 +5,13 @@
  * Phase 5 — Truthful connector status row.
  * Never fakes "Connected" via a setTimeout.
  * Calls /api/connectors/{provider}/connect and reflects real server response.
+ * Providers with oauthStartUrl use OAuth redirect — no raw token paste.
  *
- * Status types (all handled):
- *   connected          → green badge, Manage button
- *   not_connected      → grey badge, Connect button
- *   needs_reauth       → amber badge, Reconnect button
- *   requires_approval  → purple badge, disabled with explanation
- *   unsupported        → muted badge, disabled with explanation
- *   needs_admin_setup  → grey badge, disabled with hint
- *   error              → red badge, Retry button
+ * Status badges use the DREAMengin palette (gold / light-blue / muted).
+ * No traffic-light (red/yellow/green) colors.
  *
  * ARCHITECTURE.md §3 — Component layer; no DB calls.
+ * ARCHITECTURE.md §8 — Gold / light blue / white design system.
  * AXIOMS.md §3 — Every visible action must do something real.
  */
 
@@ -25,17 +21,17 @@ import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
 import { CheckCircle, AlertCircle, Clock, RefreshCw, Lock, XCircle, Settings } from 'lucide-react';
 import { track } from '@/lib/telemetry';
 
-// ── Status badge ───────────────────────────────────────────────────────────
+// ── Status badge (DREAMengin palette — gold / light-blue / muted) ─────────
 
 function StatusBadge({ status }: { status: ConnectorStatus }) {
   const map: Record<ConnectorStatus, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
-    connected:         { label: 'Connected',      color: '#22c55e', bg: 'rgba(34,197,94,0.1)',    icon: <CheckCircle size={12} /> },
-    not_connected:     { label: 'Not Connected',  color: 'var(--de-text-dim)', bg: 'rgba(160,195,240,0.15)', icon: <Clock size={12} /> },
-    needs_reauth:      { label: 'Reconnect',      color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  icon: <RefreshCw size={12} /> },
-    requires_approval: { label: 'Needs Approval', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)',  icon: <Lock size={12} /> },
-    unsupported:       { label: 'Unsupported',    color: '#94a3b8', bg: 'rgba(148,163,184,0.1)', icon: <XCircle size={12} /> },
-    needs_admin_setup: { label: 'Needs Setup',    color: '#64748b', bg: 'rgba(100,116,139,0.1)', icon: <Settings size={12} /> },
-    error:             { label: 'Error',          color: '#dc4444', bg: 'rgba(220,68,68,0.1)',   icon: <AlertCircle size={12} /> },
+    connected:         { label: 'Connected',      color: 'var(--de-accent, #c8a84e)', bg: 'rgba(200,168,78,0.12)',  icon: <CheckCircle size={12} /> },
+    not_connected:     { label: 'Not Connected',  color: 'var(--de-text-dim)',        bg: 'rgba(160,195,240,0.15)', icon: <Clock size={12} /> },
+    needs_reauth:      { label: 'Reconnect',      color: 'var(--de-accent, #c8a84e)', bg: 'rgba(200,168,78,0.10)',  icon: <RefreshCw size={12} /> },
+    requires_approval: { label: 'Needs Approval', color: 'var(--de-text-dim)',        bg: 'rgba(160,195,240,0.12)', icon: <Lock size={12} /> },
+    unsupported:       { label: 'Unsupported',    color: '#94a3b8',                   bg: 'rgba(148,163,184,0.1)',  icon: <XCircle size={12} /> },
+    needs_admin_setup: { label: 'Needs Setup',    color: '#64748b',                   bg: 'rgba(100,116,139,0.1)',  icon: <Settings size={12} /> },
+    error:             { label: 'Error',          color: 'var(--de-text-dim)',        bg: 'rgba(160,195,240,0.12)', icon: <AlertCircle size={12} /> },
   };
   const entry = map[status] ?? map.error;
   return (
@@ -98,7 +94,7 @@ function CredentialModal({
         </div>
         <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {errorMsg && (
-            <div style={{ padding: '8px 12px', background: 'rgba(220,68,68,0.1)', borderRadius: 8, color: '#dc4444', fontSize: 12 }}>
+            <div style={{ padding: '8px 12px', background: 'rgba(160,195,240,0.12)', borderRadius: 8, color: 'var(--de-text-dim)', fontSize: 12 }}>
               {errorMsg}
             </div>
           )}
@@ -161,16 +157,6 @@ function getCredentialFields(provider: string): CredentialField[] {
       return [
         { key: 'pubkey', label: 'Public Key (npub or hex)', placeholder: 'npub1... or 64-char hex', type: 'text', hint: 'Your Nostr public key from Damus, Amethyst, or Snort.' },
         { key: 'relays', label: 'Relay URLs (comma-separated)', placeholder: 'wss://relay.damus.io, wss://nos.lol', type: 'text', hint: 'WebSocket relay URLs.' },
-      ];
-    case 'youtube':
-      return [
-        {
-          key: 'access_token',
-          label: 'Google OAuth Access Token',
-          placeholder: 'ya29.a0AfH6S...',
-          type: 'password',
-          hint: 'Needs the youtube.readonly scope. This implementation uses a real Google token and then syncs subscriptions, watch history, and Watch Later into widgets.',
-        },
       ];
     default:
       return [
@@ -249,6 +235,19 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
       ? connector.requirements ?? connector.description
       : connector.whatYouGet ?? connector.description;
 
+  /** Connectors with oauthStartUrl use browser redirect, not the credential modal. */
+  const usesOAuth = !!connector.oauthStartUrl;
+
+  function handleConnectClick() {
+    if (btnDisabled) return;
+    if (usesOAuth && connector.oauthStartUrl) {
+      track('connect_oauth_start', { connectorId: connector.id });
+      window.location.href = connector.oauthStartUrl;
+    } else {
+      setShowModal(true);
+    }
+  }
+
   return (
     <>
       <div className="de-row">
@@ -275,7 +274,7 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
         <button
           type="button"
           disabled={btnDisabled}
-          onClick={() => !btnDisabled && setShowModal(true)}
+          onClick={handleConnectClick}
           className="de-btn de-btn-primary"
           style={{
             fontSize: 11, padding: '6px 12px', flexShrink: 0,
@@ -287,7 +286,7 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
         </button>
       </div>
 
-      {showModal && (
+      {showModal && !usesOAuth && (
         <CredentialModal
           connector={connector}
           fields={fields}

@@ -4,6 +4,7 @@
 export type TelemetryEvent =
   | 'connect_success'
   | 'connect_failure'
+  | 'connect_oauth_start'
   | 'disconnect_success'
   | 'disconnect_failure'
   | 'add_widget'
