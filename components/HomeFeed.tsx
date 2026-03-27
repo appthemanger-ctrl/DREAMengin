@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useLiveFeed, type FeedPost } from '@/lib/feed/useLiveFeed';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
 interface HomeFeedProps {
   userId: string;
@@ -45,6 +46,8 @@ export default function HomeFeed({
   const { posts, newCount, flushNew, isLive, replacePosts, prependPost, updatePost } =
     useLiveFeed(userId, initialPosts);
 
+  const { setBarIntent } = useDreamSystem();
+
   const [tabLoading, setTabLoading] = useState(false);
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostVisibility, setNewPostVisibility] = useState<'public' | 'private'>('public');
@@ -55,6 +58,14 @@ export default function HomeFeed({
   const [activeTab, setActiveTab] = useState<'feed' | 'trending' | 'following'>('feed');
   const [postError, setPostError] = useState<string | null>(null);
   const [sharePost, setSharePost] = useState<FeedPost | null>(null);
+
+  const handleCommentFromBar = useCallback((post: FeedPost) => {
+    setBarIntent({
+      mode: 'comment',
+      targetPostId: post.id,
+      targetLabel: post.profiles?.display_name || post.profiles?.handle || undefined,
+    });
+  }, [setBarIntent]);
 
   const prevInitialRef = useRef(initialPosts);
   useEffect(() => {
@@ -313,7 +324,7 @@ export default function HomeFeed({
                       <Heart className={`w-4 h-4 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
                       <span>{post.likes_count ?? 0}</span>
                     </button>
-                    <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors min-h-[40px]">
+                    <button onClick={() => handleCommentFromBar(post)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors min-h-[40px]" aria-label="Comment on post">
                       <MessageCircle className="w-4 h-4" /><span>{post.comments_count || 0}</span>
                     </button>
                     <button onClick={() => handleSharePost(post)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-green-500 hover:bg-green-500/10 transition-colors min-h-[40px]" aria-label="Share post">

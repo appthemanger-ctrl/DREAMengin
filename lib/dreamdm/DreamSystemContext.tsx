@@ -12,6 +12,8 @@
  *   - runtimeCallbacks: thin bridge so GlobalDreamBar's menus can call
  *     returnHome and openInSurface on the active HomeSystem
  *   - openInSurface: stable accessor used by any component (panels, menus)
+ *   - barIntent: active input mode for the DreamDM Bar
+ *     (post / search / message / dreams / comment)
  */
 
 import React, {
@@ -23,6 +25,28 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
+
+// ── Bar intent types ──────────────────────────────────────────────────────────
+
+/**
+ * The DreamDM Bar operates in one of these intent modes.
+ *   default  — surface-detected default (post on feed, send on messages, etc.)
+ *   search   — universal search (friends, content, surfaces)
+ *   message  — compose / reply to a DM
+ *   dreams   — ask Dr. Eams
+ *   comment  — comment on a specific post (targetPostId required)
+ */
+export type BarIntentMode = 'default' | 'search' | 'message' | 'dreams' | 'comment';
+
+export interface BarIntent {
+  mode: BarIntentMode;
+  /** For comment mode: the post ID to comment on */
+  targetPostId?: string;
+  /** Human-readable label shown in the bar (e.g. "Replying to @handle") */
+  targetLabel?: string;
+}
+
+export const DEFAULT_BAR_INTENT: BarIntent = { mode: 'default' };
 
 // ── Callback types ────────────────────────────────────────────────────────────
 
@@ -69,6 +93,11 @@ interface DreamSystemContextValue {
    * Delegates to runtimeCallbacks.openInSurface when HomeSystem is active.
    */
   openInSurface: (id: SystemPanelId) => void;
+
+  /** Active bar intent mode — drives DreamDM Bar behaviour */
+  barIntent: BarIntent;
+  setBarIntent:   (intent: BarIntent) => void;
+  clearBarIntent: () => void;
 }
 
 // ── Context + provider ────────────────────────────────────────────────────────
@@ -84,12 +113,16 @@ const DreamSystemContext = createContext<DreamSystemContextValue>({
   registerRuntimeCallbacks:   () => {},
   unregisterRuntimeCallbacks: () => {},
   openInSurface:              () => {},
+  barIntent:                  DEFAULT_BAR_INTENT,
+  setBarIntent:               () => {},
+  clearBarIntent:             () => {},
 });
 
 export function DreamSystemProvider({ children }: { children: ReactNode }) {
   const [bothMenusOpen, setBothMenusOpen]       = useState(false);
   const [drEamsOpen,    setDrEamsOpen]           = useState(false);
   const [runtimeCallbacks, setRuntimeCallbacks] = useState<RuntimeCallbacks | null>(null);
+  const [barIntent,     setBarIntentState]       = useState<BarIntent>(DEFAULT_BAR_INTENT);
 
   // Stable ref so openInSurface doesn't re-create when callbacks change
   const callbacksRef = useRef<RuntimeCallbacks | null>(null);
@@ -113,6 +146,9 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
     callbacksRef.current?.openInSurface?.(id);
   }, []);
 
+  const setBarIntent   = useCallback((intent: BarIntent) => setBarIntentState(intent), []);
+  const clearBarIntent = useCallback(() => setBarIntentState(DEFAULT_BAR_INTENT), []);
+
   return (
     <DreamSystemContext.Provider value={{
       bothMenusOpen,
@@ -125,6 +161,9 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
       registerRuntimeCallbacks,
       unregisterRuntimeCallbacks,
       openInSurface,
+      barIntent,
+      setBarIntent,
+      clearBarIntent,
     }}>
       {children}
     </DreamSystemContext.Provider>
