@@ -8,24 +8,25 @@ import GameEngin from '@/components/daydream/GameEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import AutoOpenGameEngin from '@/components/daydream/AutoOpenGameEngin';
 import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
+import { buildGameLaunchHref } from '@/lib/games/navigation';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'platformer', emoji: '🏎',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: '/daydream/games' },
+  { id: 'platformer', emoji: '🏎',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: buildGameLaunchHref('platformer') },
   { id: 'all-games',  emoji: '🎮', label: 'All 23 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
-  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: '/daydream/games' },
-  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: '/daydream/games' },
-  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: '/daydream/games' },
+  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: buildGameLaunchHref('word-sprint') },
+  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: buildGameLaunchHref('memory-grid') },
+  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: buildGameLaunchHref('speed-tap') },
   { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
 ];
 
 const LIBRARY_SPOTLIGHT = [
-  { label: 'MADMAXI', meta: 'Babylon.js 3-D · 150 levels', emoji: '🏎', href: '/daydream/games' },
-  { label: 'Word Sprint', meta: '1 minute typing rush', emoji: '📝', href: '/daydream/games' },
-  { label: 'Memory Grid', meta: 'Quick pattern recall', emoji: '🧩', href: '/daydream/games' },
-  { label: 'Speed Tap', meta: 'Fast reflex score chase', emoji: '⚡', href: '/daydream/games' },
+  { label: 'MADMAXI', meta: 'Babylon.js 3-D · 150 levels', emoji: '🏎', href: buildGameLaunchHref('platformer') },
+  { label: 'Word Sprint', meta: '1 minute typing rush', emoji: '📝', href: buildGameLaunchHref('word-sprint') },
+  { label: 'Memory Grid', meta: 'Quick pattern recall', emoji: '🧩', href: buildGameLaunchHref('memory-grid') },
+  { label: 'Speed Tap', meta: 'Fast reflex score chase', emoji: '⚡', href: buildGameLaunchHref('speed-tap') },
 ];
 
 const CONSOLE_MODULES = [

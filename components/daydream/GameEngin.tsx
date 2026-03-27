@@ -32,6 +32,7 @@ import {
 import GameRemote from '@/components/games/GameRemote';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
+import { buildGameLaunchHref } from '@/lib/games/navigation';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -625,16 +626,16 @@ export default function GameEngin({ onBack }: Props) {
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
-                { key: 'platformer',    label: 'MADMAXI',             emoji: '🏎',   href: '/daydream/games' },
-                { key: 'rts',           label: 'Red Alert RTS',       emoji: '⚔️',  href: '/daydream/games' },
-                { key: 'tower-defense', label: 'Tower Defense',       emoji: '🏰',  href: '/daydream/games' },
-                { key: 'space-shooter', label: 'Space Shooter',       emoji: '🚀',  href: '/daydream/games' },
-                { key: 'tetris',        label: 'Tetris',              emoji: '🟦',  href: '/daydream/games' },
-                { key: 'chess',         label: 'Chess',               emoji: '♛',   href: '/daydream/games' },
-                { key: 'rpg',           label: 'RPG Adventure',       emoji: '🗡️', href: '/daydream/games' },
-                { key: 'word-sprint',   label: 'Word Sprint',         emoji: '📝',  href: '/daydream/games' },
-                { key: 'memory-grid',   label: 'Memory Grid',         emoji: '🧩',  href: '/daydream/games' },
-                { key: 'speed-tap',     label: 'Speed Tap',           emoji: '⚡',  href: '/daydream/games' },
+                { key: 'platformer',    label: 'MADMAXI',             emoji: '🏎',   href: buildGameLaunchHref('platformer') },
+                { key: 'rts',           label: 'Red Alert RTS',       emoji: '⚔️',  href: buildGameLaunchHref('rts') },
+                { key: 'tower-defense', label: 'Tower Defense',       emoji: '🏰',  href: buildGameLaunchHref('tower-defense') },
+                { key: 'space-shooter', label: 'Space Shooter',       emoji: '🚀',  href: buildGameLaunchHref('space-shooter') },
+                { key: 'tetris',        label: 'Tetris',              emoji: '🟦',  href: buildGameLaunchHref('tetris') },
+                { key: 'chess',         label: 'Chess',               emoji: '♛',   href: buildGameLaunchHref('chess') },
+                { key: 'rpg',           label: 'RPG Adventure',       emoji: '🗡️', href: buildGameLaunchHref('rpg') },
+                { key: 'word-sprint',   label: 'Word Sprint',         emoji: '📝',  href: buildGameLaunchHref('word-sprint') },
+                { key: 'memory-grid',   label: 'Memory Grid',         emoji: '🧩',  href: buildGameLaunchHref('memory-grid') },
+                { key: 'speed-tap',     label: 'Speed Tap',           emoji: '⚡',  href: buildGameLaunchHref('speed-tap') },
               ].map(g => (
                 <Link
                   key={g.key}

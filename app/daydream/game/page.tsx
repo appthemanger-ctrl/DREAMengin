@@ -6,6 +6,7 @@
 // every game including MADMAXI, accessible via Side B or a second tab.
 
 import { redirect } from 'next/navigation';
+import { buildGameLaunchHref, DEFAULT_GAME_ID } from '@/lib/games/navigation';
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
@@ -14,5 +15,5 @@ export const metadata = {
 };
 
 export default function GamePage() {
-  redirect('/daydream/games');
+  redirect(buildGameLaunchHref(DEFAULT_GAME_ID));
 }

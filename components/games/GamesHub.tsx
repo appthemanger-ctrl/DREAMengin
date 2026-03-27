@@ -7,9 +7,13 @@
 
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import GameRemote from '@/components/games/GameRemote';
 import Leaderboard from '@/components/games/Leaderboard';
 import { useGamepad } from '@/lib/games/useGamepad';
+import { buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
+import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBridge';
 import { useRemoteChannel, broadcastGameInput } from '@/lib/games/useRemoteChannel';
 import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
 import { getGsap } from '@/lib/gsap/gsap';
@@ -236,9 +240,12 @@ export default function GamesHub() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('All');
   const { connected: gpConnected, gamepadName } = useGamepad();
+  const searchParams = useSearchParams();
+  const initializedLaunchRef = useRef(false);
 
   // Listen for cross-tab GameRemote inputs (game on this tab, remote on another)
   useRemoteChannel();
+  useGameInputKeyboardBridge();
 
   // GSAP stagger entrance for the game card grid — replays on every filter change
   const gridRef = useRef<HTMLDivElement>(null);
@@ -247,6 +254,26 @@ export default function GamesHub() {
   const categories = ['All', ...Array.from(new Set(GAMES.map(g => g.category))).sort()];
   const filtered = filter === 'All' ? GAMES : GAMES.filter(g => g.category === filter);
   const active = activeGame ? GAMES.find(g => g.id === activeGame) : null;
+
+  useEffect(() => {
+    if (initializedLaunchRef.current) return;
+    initializedLaunchRef.current = true;
+    const requestedGame = resolveGameLaunchId(searchParams.get('game'), GAMES.map((game) => game.id), null);
+    if (requestedGame) setActiveGame(requestedGame);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const url = new URL(window.location.href);
+    if (activeGame) {
+      url.searchParams.set('game', activeGame);
+      window.localStorage.setItem('de:games:last-launch', activeGame);
+    } else {
+      url.searchParams.delete('game');
+    }
+    window.history.replaceState({}, '', url);
+  }, [activeGame]);
 
   // Lock body scroll when a game is open in the expanded overlay
   useEffect(() => {
@@ -331,7 +358,7 @@ export default function GamesHub() {
             <GameComponent />
           </div>
 
-          {/* Remote control panel — open in a second tab to control this game */}
+          {/* Default controller deck — same remote layout used by Side B */}
           <div style={{
             padding: '10px 12px',
             borderTop: '1px solid rgba(160,195,240,0.08)',
@@ -339,13 +366,17 @@ export default function GamesHub() {
             background: 'rgba(0,0,0,0.20)',
             flexShrink: 0,
           }}>
-            <UniversalDPad />
+            <GameRemote
+              embedded
+              gameLabel={active.label}
+              playHref={buildGameLaunchHref(active.id)}
+            />
             <div style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-              padding: '8px 0',
+              padding: '8px 0 0',
             }}>
               <a
-                href="/daydream/games?openEngin=1&remote=1"
+                href={buildGameLaunchHref(active.id, { openEngin: true, remote: true })}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -363,7 +394,7 @@ export default function GamesHub() {
                 textAlign: 'center', fontSize: 10, color: 'rgba(160,195,240,0.45)',
                 margin: 0, lineHeight: 1.5,
               }}>
-                Game on this screen · Remote on the other — controls sync across tabs
+                Play launches the selected game directly. Side B stays available if you want the remote on another screen.
               </p>
             </div>
             {gpConnected && (
@@ -498,4 +529,3 @@ export default function GamesHub() {
     </div>
   );
 }
-
