@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `0940e65` | 2026-03-27 01:09 UTC | completedream | appthemanger-ctrl | — | Merge pull request #315 from appthemanger-ctrl/copilot/fix-visual-errors-and-layout |
 | `e33391f` | 2026-03-27 00:12 UTC | copilot/fix-visual-errors-and-layout | Copilot | ~2 | chore: address games layout review feedback |
 | `6c9a4c6` | 2026-03-27 00:11 UTC | copilot/fix-visual-errors-and-layout | Copilot | +2 ~5 | feat: split games library from console side |
 | `bf4a6ec` | 2026-03-26 20:17 UTC | completedream | appthemanger-ctrl | — | Merge pull request #314 from appthemanger-ctrl/copilot/fix-api-key-usage |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `a1b84ee` | 2026-03-26 14:07 UTC | copilot/fix-login-issues | Copilot | +1 ~3 | fix: stop auth provider probe from disabling OAuth login |
 | `6df1a23` | 2026-03-26 12:33 UTC | completedream | appthemanger-ctrl | −1 | Delete arm1_transparent.png |
 | `4821f89` | 2026-03-26 09:48 UTC | completedream | appthemanger-ctrl | — | Merge pull request #312 from appthemanger-ctrl/copilot/update-auth-callback-url |
-| `4b7369b` | 2026-03-26 08:39 UTC | copilot/update-auth-callback-url | Copilot | +1 ~5 | Security: audit and harden auth/env setup for production safety |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-27 00:12 UTC — `e33391f` by Copilot
+Last updated: 2026-03-27 01:09 UTC — `0940e65` by appthemanger-ctrl
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
 Scope: Full dual-runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
