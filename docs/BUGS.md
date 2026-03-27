@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-26 14:07 UTC  
-**Triggered by commit:** `a1b84ee` on `copilot/fix-login-issues` by Copilot  
-**Commit message:** fix: stop auth provider probe from disabling OAuth login
+**Last updated:** 2026-03-27 02:30 UTC  
+**Triggered by commit:** `91fcc7e` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #317 from appthemanger-ctrl/copilot/add-gsap-animation-library
 
 ---
 
