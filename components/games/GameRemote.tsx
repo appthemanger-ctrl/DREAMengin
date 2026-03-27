@@ -43,9 +43,12 @@ function fireAction(action: GameInputAction, active: boolean) {
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const PAD_R    = 52;   // outer pad radius (px)
-const KNOB_R   = 15;   // inner knob radius
-const MAX_DISP = 38;   // max knob displacement from center
+const LEFT_PAD_R    = 52;   // outer pad radius (px)
+const RIGHT_PAD_R   = 62;   // right analog is intentionally larger for readability
+const LEFT_KNOB_R   = 15;   // inner knob radius
+const RIGHT_KNOB_R  = 17;   // slightly larger knob for action stick
+const LEFT_MAX_DISP = 38;   // max knob displacement from center
+const RIGHT_MAX_DISP= 44;   // larger travel to match larger right stick
 const DEAD     = 16;   // dead-zone: no action below this displacement
 
 // ── Direction helpers ─────────────────────────────────────────────────────────
@@ -102,9 +105,14 @@ interface StickProps {
 }
 
 function Stick({ side, accentColor, label }: StickProps) {
+  const padRadius = side === 'right' ? RIGHT_PAD_R : LEFT_PAD_R;
+  const knobRadius = side === 'right' ? RIGHT_KNOB_R : LEFT_KNOB_R;
+  const maxDisp = side === 'right' ? RIGHT_MAX_DISP : LEFT_MAX_DISP;
+
   const [knob, setKnob]     = useState({ x: 0, y: 0 });
   const [dir, setDir]       = useState<Dir8 | null>(null);
   const [active, setActive] = useState(false);
+  const [buttonAction, setButtonAction] = useState<GameInputAction | null>(null);
 
   const centerRef       = useRef<{ x: number; y: number } | null>(null);
   const activeActionRef = useRef<GameInputAction | null>(null);
@@ -124,7 +132,7 @@ function Stick({ side, accentColor, label }: StickProps) {
 
     const rawDx = e.clientX - centerRef.current.x;
     const rawDy = e.clientY - centerRef.current.y;
-    const clamped = clampToCircle({ x: rawDx, y: rawDy }, MAX_DISP);
+    const clamped = clampToCircle({ x: rawDx, y: rawDy }, maxDisp);
     setKnob(clamped);
 
     const newDir = angleToDir(rawDx, rawDy);
@@ -163,9 +171,27 @@ function Stick({ side, accentColor, label }: StickProps) {
     setActive(false);
   }, [side]);
 
+  const triggerButtonAction = useCallback((action: GameInputAction) => {
+    if (activeActionRef.current) {
+      fireAction(activeActionRef.current, false);
+      activeActionRef.current = null;
+    }
+    setButtonAction(action);
+    fireAction(action, true);
+  }, []);
+
+  const releaseButtonAction = useCallback(() => {
+    if (!buttonAction) return;
+    fireAction(buttonAction, false);
+    setButtonAction(null);
+  }, [buttonAction]);
+
   const map        = side === 'right' ? RIGHT_MAP : LEFT_MAP;
   const activeInfo = dir ? map[dir] : null;
   const dirLabel   = activeInfo ? activeInfo.label : null;
+  const buttonLabel = buttonAction
+    ? (Object.values(RIGHT_MAP).find(info => info.action === buttonAction)?.label ?? buttonAction)
+    : null;
   const labelColor = side === 'right' && dir
     ? RIGHT_MAP[dir].color
     : 'rgba(255,255,255,0.9)';
@@ -182,12 +208,12 @@ function Stick({ side, accentColor, label }: StickProps) {
       <div style={{
         height: 18,
         fontSize: 11, fontWeight: 800, letterSpacing: '0.06em',
-        color: dirLabel ? labelColor : 'transparent',
-        textShadow: dirLabel ? '0 1px 8px rgba(0,0,0,0.5)' : 'none',
+        color: (buttonLabel || dirLabel) ? labelColor : 'transparent',
+        textShadow: (buttonLabel || dirLabel) ? '0 1px 8px rgba(0,0,0,0.5)' : 'none',
         transition: 'color 0.08s',
         whiteSpace: 'nowrap',
       }}>
-        {dirLabel ?? '·'}
+        {buttonLabel ?? dirLabel ?? '·'}
       </div>
 
       {/* Outer ring */}
@@ -197,7 +223,7 @@ function Stick({ side, accentColor, label }: StickProps) {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         style={{
-          width: PAD_R * 2, height: PAD_R * 2,
+          width: padRadius * 2, height: padRadius * 2,
           borderRadius: '50%',
           background: active ? 'rgba(200,232,255,0.12)' : 'rgba(220,232,248,0.06)',
           border: `2px solid ${active ? accentColor + '66' : 'rgba(160,195,240,0.2)'}`,
@@ -219,9 +245,9 @@ function Stick({ side, accentColor, label }: StickProps) {
             left: 180, 'up-left': 225, up: 270, 'up-right': 315,
           };
           const rad = (angleDeg[dirKey] * Math.PI) / 180;
-          const tickR = PAD_R - 10;
-          const tx = Math.cos(rad) * tickR + PAD_R;
-          const ty = Math.sin(rad) * tickR + PAD_R;
+          const tickR = padRadius - 10;
+          const tx = Math.cos(rad) * tickR + padRadius;
+          const ty = Math.sin(rad) * tickR + padRadius;
           const isActive = dir === dirKey;
           return (
             <div key={dirKey} style={{
@@ -235,9 +261,30 @@ function Stick({ side, accentColor, label }: StickProps) {
               fontSize: 8, fontWeight: 900,
               color: isActive ? '#fff' : 'rgba(255,255,255,0.28)',
               transition: 'background 0.08s, color 0.08s, border-color 0.08s',
-              pointerEvents: 'none',
+              pointerEvents: 'auto',
+              cursor: 'pointer',
             }}>
-              {info.sym}
+              <button
+                type="button"
+                aria-label={`${info.label} button`}
+                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); triggerButtonAction(info.action); }}
+                onPointerUp={(e) => { e.preventDefault(); e.stopPropagation(); releaseButtonAction(); }}
+                onPointerCancel={(e) => { e.preventDefault(); e.stopPropagation(); releaseButtonAction(); }}
+                onPointerLeave={(e) => { e.preventDefault(); e.stopPropagation(); releaseButtonAction(); }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  background: 'transparent',
+                  borderRadius: '50%',
+                  color: 'inherit',
+                  font: 'inherit',
+                  cursor: 'pointer',
+                  padding: 0,
+                }}
+              >
+                {info.sym}
+              </button>
             </div>
           );
         })}
@@ -245,9 +292,9 @@ function Stick({ side, accentColor, label }: StickProps) {
         {/* Left stick cardinal markers (no symbols, just subtle lines) */}
         {side === 'left' && [0, 90, 180, 270].map(deg => {
           const rad = (deg * Math.PI) / 180;
-          const r = PAD_R - 8;
-          const tx = Math.cos(rad) * r + PAD_R;
-          const ty = Math.sin(rad) * r + PAD_R;
+          const r = padRadius - 8;
+          const tx = Math.cos(rad) * r + padRadius;
+          const ty = Math.sin(rad) * r + padRadius;
           return (
             <div key={deg} style={{
               position: 'absolute',
@@ -263,10 +310,10 @@ function Stick({ side, accentColor, label }: StickProps) {
         {/* Inner knob — follows finger, spring-snaps to center on release */}
         <div style={{
           position: 'absolute',
-          left: PAD_R + knob.x - KNOB_R,
-          top:  PAD_R + knob.y - KNOB_R,
-          width: KNOB_R * 2,
-          height: KNOB_R * 2,
+          left: padRadius + knob.x - knobRadius,
+          top:  padRadius + knob.y - knobRadius,
+          width: knobRadius * 2,
+          height: knobRadius * 2,
           borderRadius: '50%',
           background: active
             ? `radial-gradient(circle at 38% 38%, ${accentColor}ee, ${accentColor}88)`
@@ -409,7 +456,10 @@ export default function GameRemote({ onBack }: GameRemoteProps) {
           <button
             type="button"
             aria-label="Pause / menu"
-            onClick={() => fireAction('pause', true)}
+            onPointerDown={() => fireAction('pause', true)}
+            onPointerUp={() => fireAction('pause', false)}
+            onPointerCancel={() => fireAction('pause', false)}
+            onPointerLeave={() => fireAction('pause', false)}
             style={{
               width: 38, height: 38, borderRadius: '50%',
               background: 'rgba(160,195,240,0.06)',
@@ -425,7 +475,7 @@ export default function GameRemote({ onBack }: GameRemoteProps) {
 
           {/* Play link */}
           <Link
-            href="/game"
+            href="/daydream/games?openEngin=1&remote=1"
             style={{
               fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
               color: '#c8981a', textDecoration: 'none',
