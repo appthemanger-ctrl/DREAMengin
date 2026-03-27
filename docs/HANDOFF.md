@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-27 00:12 UTC | `e33391f` | copilot/fix-visual-errors-and-layout | Copilot | ~2 modified<br>chore: address games layout review feedback — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/00fe675e-3f70-48ba-aaf2-8ea6ddb3e6c2  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/daydream/game/ImmersiveGameShell.tsx`, `app/daydream/games/page.tsx` |
 | **auto** | 2026-03-26 18:42 UTC | `1dc2e58` | copilot/fix-api-key-usage | Copilot | +1 added  ~6 modified<br>fix: restore youtube discovery build exports — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/a8469398-9e77-4cef-92c2-c711403cbc11  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `tests/youtube-provider.test.ts`<br>✏️: `.env.example`, `app/connectors/ConnectorsClient.tsx`, `docs/AUTH_SETUP.md`, `lib/connectors/normalise.ts`, `lib/connectors/providers/youtube.ts`, `tests/connectors.test.ts` |
 | **auto** | 2026-03-26 14:22 UTC | `38c719f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #313 from appthemanger-ctrl/copilot/fix-login-issues — Stop OAuth provider preflight from blocking Google and GitHub login<br> |
 | **auto** | 2026-03-26 07:40 UTC | `c5c6dc9` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #310 from appthemanger-ctrl/copilot/build-perfected-dreamwars-and-engin-battle — feat: add GSAP (GreenSock) for high-performance UI transitions and stagger animations<br> |
 | **auto** | 2026-03-26 06:07 UTC | `033c09c` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #309 from appthemanger-ctrl/copilot/fix-3d-rendering-issue — fix: 3D rendering blur after load + humanoid robot hands/torso<br> |
-| **auto** | 2026-03-26 06:02 UTC | `940d80c` | completedream | appthemanger-ctrl | +1 added<br>Create RetroFrame agent for retro-modern concepts — Added a new creative agent named RetroFrame focused on retro-modern video and indie game concepts inspired by classic gaming aesthetics.<br>➕: `.github/agents/videogameAi.md` |
 
 ## What changed in this alignment pass
 
