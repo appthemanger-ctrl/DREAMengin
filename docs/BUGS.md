@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-26 14:07 UTC  
-**Triggered by commit:** `a1b84ee` on `copilot/fix-login-issues` by Copilot  
-**Commit message:** fix: stop auth provider probe from disabling OAuth login
+**Last updated:** 2026-03-27 02:04 UTC  
+**Triggered by commit:** `fc90830` on `copilot/update-supabase-client-implementation` by Copilot  
+**Commit message:** fix: restore Supabase server helper compatibility per docs/ARCHITECTURE.md §10 and env alias support with neutral performance impact
 
 ---
 
