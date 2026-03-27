@@ -288,10 +288,19 @@ describe('Point 51 — StarMakerEngin produces real playable/shareable output', 
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Point 52 — Games Daydream has real game loop and persistent state', () => {
-  it('Games page renders real game components (not placeholder)', () => {
+  it('Games page keeps the library surface and console side distinct', () => {
     const src = readSource('app/daydream/games/page.tsx');
-    // Games page must include real game components
-    expect(src).toMatch(/WordSprint|MemoryGrid|SpeedTap|GamesHub|GameEngin/);
+    expect(src).toContain('Game Library');
+    expect(src).toContain('GameEngin Console');
+    expect(src).toMatch(/Word Sprint|Memory Grid|Speed Tap|GamesHub|GameEngin/);
+  });
+
+  it('Immersive game launch shell exists for the playable route', () => {
+    expect(sourceExists('app/daydream/game/ImmersiveGameShell.tsx')).toBe(true);
+    const src = readSource('app/daydream/game/ImmersiveGameShell.tsx');
+    expect(src).toContain('requestFullscreen');
+    expect(src).toContain('DREAMENGIN');
+    expect(src).toContain('boot sequence');
   });
 
   it('GameEngin reads personal bests from game_scores', () => {
