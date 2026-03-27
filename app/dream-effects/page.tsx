@@ -1,10 +1,11 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState, useEffect } from 'react';
-import { motion, type Variants } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { Sparkles, Zap, Layers, Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
 import { getRendererBackend } from '@/lib/webgpu';
 
 /* Lazy-load the R3F scene so the heavy Three.js bundle is only pulled
@@ -41,20 +42,19 @@ const features = [
   },
 ];
 
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.15 * i, type: 'spring', stiffness: 80, damping: 14 },
-  }),
-};
-
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
 export default function DreamEffectsPage() {
   const [backend, setBackend] = useState<string>('detecting…');
+  const cardsRef = useRef<HTMLElement | null>(null);
+
+  useGsapEntrance(cardsRef, [features.length], {
+    duration: 0.44,
+    stagger: 0.08,
+    y: 26,
+    ease: 'power3.out',
+  });
 
   useEffect(() => {
     getRendererBackend().then((b) => setBackend(b));
@@ -73,8 +73,8 @@ export default function DreamEffectsPage() {
           Dream Effects Engine
         </h1>
         <p className="mt-3 text-gray-400 max-w-xl mx-auto">
-          GLSL shaders, React Three Fiber, Refractor distortion, Framer Motion
-          animations &amp; WebGPU — all running in your browser.
+          GLSL shaders, React Three Fiber, GSAP and Framer Motion animations,
+          plus WebGPU — all running in your browser.
         </p>
         <span className="inline-block mt-3 text-xs font-mono text-gray-500 border border-gray-800 rounded-full px-3 py-1">
           GPU backend: <span className="text-cyan-400">{backend}</span>
@@ -98,15 +98,13 @@ export default function DreamEffectsPage() {
       </motion.section>
 
       {/* Feature cards */}
-      <section className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {features.map((f, i) => (
+      <section
+        ref={cardsRef}
+        className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        {features.map((f) => (
           <motion.div
             key={f.title}
-            custom={i}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={cardVariants}
             whileHover={{ y: -4, boxShadow: '0 0 30px rgba(0,255,255,0.15)' }}
             className={cn(
               'rounded-xl border border-gray-800 bg-gray-900/60 backdrop-blur p-5',
