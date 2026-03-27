@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-27 02:31 UTC | `5341cd4` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #316 from appthemanger-ctrl/copilot/update-supabase-client-implementation — Restore Supabase SSR server-client compatibility and accept publishable default key alias<br> |
 | **auto** | 2026-03-27 01:09 UTC | `0940e65` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #315 from appthemanger-ctrl/copilot/fix-visual-errors-and-layout — Split Games Daydream into library vs. console and add immersive game boot flow<br> |
 | **auto** | 2026-03-27 00:12 UTC | `e33391f` | copilot/fix-visual-errors-and-layout | Copilot | ~2 modified<br>chore: address games layout review feedback — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/00fe675e-3f70-48ba-aaf2-8ea6ddb3e6c2  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/daydream/game/ImmersiveGameShell.tsx`, `app/daydream/games/page.tsx` |
 | **auto** | 2026-03-26 18:42 UTC | `1dc2e58` | copilot/fix-api-key-usage | Copilot | +1 added  ~6 modified<br>fix: restore youtube discovery build exports — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/a8469398-9e77-4cef-92c2-c711403cbc11  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `tests/youtube-provider.test.ts`<br>✏️: `.env.example`, `app/connectors/ConnectorsClient.tsx`, `docs/AUTH_SETUP.md`, `lib/connectors/normalise.ts`, `lib/connectors/providers/youtube.ts`, `tests/connectors.test.ts` |
 | **auto** | 2026-03-26 14:22 UTC | `38c719f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #313 from appthemanger-ctrl/copilot/fix-login-issues — Stop OAuth provider preflight from blocking Google and GitHub login<br> |
-| **auto** | 2026-03-26 07:40 UTC | `c5c6dc9` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #310 from appthemanger-ctrl/copilot/build-perfected-dreamwars-and-engin-battle — feat: add GSAP (GreenSock) for high-performance UI transitions and stagger animations<br> |
 
 ## What changed in this alignment pass
 
