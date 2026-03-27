@@ -26,6 +26,7 @@
 import { useCallback, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useGamepad } from '@/lib/games/useGamepad';
+import { broadcastGameInput } from '@/lib/games/useRemoteChannel';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type GameInputAction =
@@ -40,6 +41,7 @@ function fireAction(action: GameInputAction, active: boolean) {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
   }
+  broadcastGameInput(action, active);
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
