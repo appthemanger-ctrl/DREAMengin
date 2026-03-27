@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { inferProviderFromUrl } from '@/lib/widgets/parseConfig';
 import { ExternalLink, FileText, Heart, MessageCircle, Share2, Sparkles, Youtube } from 'lucide-react';
 import CommentSection from '@/components/feed/CommentSection';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
 interface FeedCardProps {
   item: {
@@ -35,6 +36,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
   const [likes, setLikes] = useState(item.likes_count || 0);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const { setBarIntent } = useDreamSystem();
   
   const source = item.source || item.type || 'app';
   const isDemo = item.id.startsWith('demo-');
@@ -304,8 +306,15 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
               </button>
               
               <button className="flex items-center gap-1.5 p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors active:scale-95"
-                onClick={() => setShowComments((v) => !v)}
-                aria-label={showComments ? 'Hide comments' : 'Show comments'}
+                onClick={() => {
+                  setBarIntent({
+                    mode: 'comment',
+                    targetPostId: item.id,
+                    targetLabel: item.profiles?.display_name || item.profiles?.handle || undefined,
+                  });
+                  setShowComments((v) => !v);
+                }}
+                aria-label={showComments ? 'Hide comments' : 'Comment via DreamDM Bar'}
                 aria-expanded={showComments}
               >
                 <MessageCircle className={cn("w-5 h-5", showComments && "fill-current text-primary")} />

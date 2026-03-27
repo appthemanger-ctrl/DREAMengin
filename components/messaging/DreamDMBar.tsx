@@ -31,6 +31,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import {
+  Bell,
   Bot,
   Code2,
   FileText,
@@ -68,6 +69,7 @@ import {
 } from '@/lib/dreamdm/barInteractions';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
+import { useDreamSystem, type BarIntentMode } from '@/lib/dreamdm/DreamSystemContext';
 import DreamWord from '@/components/ui/DreamWord';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
@@ -119,14 +121,15 @@ function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | nul
 function ContextIcon({ ctx, size }: { ctx: DreamBarContext; size: number }) {
   const props = { size, 'aria-hidden': true as const, style: { color: 'var(--de-blue)' } as React.CSSProperties };
   switch (ctx.iconHint) {
-    case 'send':      return <Send     {...props} />;
-    case 'pen-line':  return <PenLine  {...props} />;
-    case 'code':      return <Code2    {...props} />;
-    case 'bot':       return <Bot      {...props} />;
-    case 'music':     return <Music    {...props} />;
-    case 'search':    return <Search   {...props} />;
+    case 'send':           return <Send          {...props} />;
+    case 'pen-line':       return <PenLine       {...props} />;
+    case 'code':           return <Code2         {...props} />;
+    case 'bot':            return <Bot           {...props} />;
+    case 'music':          return <Music         {...props} />;
+    case 'search':         return <Search        {...props} />;
+    case 'message-circle': return <MessageCircle {...props} />;
     case 'sparkles':
-    default:          return <Sparkles {...props} />;
+    default:               return <Sparkles      {...props} />;
   }
 }
 
@@ -392,8 +395,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     }
   }, [onSplitChange, screenH, splitRatio]);
 
-  // ── Dream bar context (route-aware) ────────────────────────────────────────
-  const barCtx = useDreamBarContext();
+  // ── Dream bar context (route-aware + intent-aware) ──────────────────────────
+  const { barIntent, setBarIntent, clearBarIntent } = useDreamSystem();
+  const barCtx = useDreamBarContext(barIntent.mode, barIntent.targetLabel);
 
   // ── Messaging state ────────────────────────────────────────────────────────
   const [mounted,        setMounted]        = useState(false);
@@ -401,6 +405,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const [userId,         setUserId]         = useState('');
   const [selectedConv,   setSelectedConv]   = useState<DMConversation | null>(null);
   const [quickDraft,     setQuickDraft]     = useState('');
+  const [commentSending, setCommentSending] = useState(false);
 
   const { conversations, reload: reloadConvs } = useDreamDMConversations(userId);
   const { unreadCount, markAllRead }            = useNotifications();
@@ -451,6 +456,55 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const handleQuickSend = useCallback(async () => {
     const text = quickDraft.trim();
     if (!text) return;
+
+    // ── Intent-mode overrides take priority over surface detection ──────────
+    if (barIntent.mode === 'comment' && barIntent.targetPostId) {
+      setCommentSending(true);
+      try {
+        const res = await fetch('/api/comments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ post_id: barIntent.targetPostId, content: text }),
+        });
+        if (res.ok) {
+          setQuickDraft('');
+          clearBarIntent();
+        } else {
+          const { error } = await res.json().catch(() => ({})) as { error?: string };
+          console.error('[DreamBar] Comment failed:', error ?? 'Unknown error');
+        }
+      } catch (err) {
+        console.error('[DreamBar] Network error posting comment:', err);
+      } finally {
+        setCommentSending(false);
+      }
+      return;
+    }
+
+    if (barIntent.mode === 'search') {
+      setSearchQuery(text);
+      setShowSearch(true);
+      return;
+    }
+
+    if (barIntent.mode === 'message') {
+      if (selectedConv) {
+        await sendMessage({ conversationId: selectedConv.id, recipientId: selectedConv.otherUser.id, content: text, userId });
+        clearDraft(selectedConv.id);
+      } else {
+        window.location.href = `/messages?compose=${encodeURIComponent(text)}`;
+      }
+      setQuickDraft('');
+      return;
+    }
+
+    if (barIntent.mode === 'dreams') {
+      toggleDrEams();
+      setQuickDraft('');
+      return;
+    }
+
+    // ── Surface-detected defaults (barIntent.mode === 'default') ───────────
 
     // Messages surface: send as DM (existing behaviour)
     if (barCtx.surface === 'messages') {
@@ -524,7 +578,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     // General / fallback: compose a message
     window.location.href = `/messages?compose=${encodeURIComponent(text)}`;
     setQuickDraft('');
-  }, [quickDraft, selectedConv, sendMessage, clearDraft, userId, barCtx.surface]);
+  }, [quickDraft, selectedConv, sendMessage, clearDraft, userId, barCtx.surface, barIntent, clearBarIntent, toggleDrEams]);
 
   const handlePanelSend = useCallback(async () => {
     if (!selectedConv) return;
@@ -787,22 +841,22 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               />
             </div>
           ) : (
-            /* Compact bar — quick compose + unread badge */
+            /* Compact bar — quick compose + mode buttons + notifications */
             <div style={{
               flex: 1, display: 'flex', alignItems: 'center',
-              gap: 10, paddingTop: 0, paddingRight: 16, paddingLeft: 14,
+              gap: 6, paddingTop: 0, paddingRight: 12, paddingLeft: 14,
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}>
-              {/* Context icon + unread badge */}
+              {/* Notification bell + unread badge */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <ContextIcon ctx={barCtx} size={18} />
+                <Bell size={16} aria-hidden style={{ color: unreadCount > 0 ? 'var(--de-gold)' : 'var(--de-text-dim)', transition: 'color 0.18s' }} />
                 {unreadCount > 0 && (
                   <span
-                    aria-label={`${unreadCount} unread`}
+                    aria-label={`${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`}
                     style={{
-                      position: 'absolute', top: -6, right: -6,
-                      background: 'var(--de-gold)', color: 'white',
-                      borderRadius: 9999, fontSize: 9, fontWeight: 700,
+                      position: 'absolute', top: -6, right: -8,
+                      background: '#dc4444', color: 'white',
+                      borderRadius: 9999, fontSize: 8, fontWeight: 700,
                       lineHeight: 1, padding: '2px 4px', minWidth: 14, textAlign: 'center',
                     }}
                   >
@@ -810,6 +864,29 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                   </span>
                 )}
               </div>
+
+              {/* Comment mode indicator — shows which post and allows dismiss */}
+              {barIntent.mode === 'comment' && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  background: 'rgba(42,138,184,0.12)', borderRadius: 9999,
+                  padding: '3px 8px', fontSize: 10, color: 'var(--de-accent)',
+                  fontWeight: 600, flexShrink: 0, maxWidth: 120, overflow: 'hidden',
+                }}>
+                  <MessageCircle size={10} aria-hidden />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {barIntent.targetLabel ? `→ ${barIntent.targetLabel}` : 'Comment'}
+                  </span>
+                  <button
+                    type="button" onClick={clearBarIntent}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    aria-label="Cancel comment"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--de-text-dim)' }}
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              )}
 
               {/* Quick compose */}
               <input
@@ -822,7 +899,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
                 placeholder={
-                  barCtx.surface === 'messages' && selectedConv
+                  barCtx.surface === 'messages' && selectedConv && barIntent.mode === 'default'
                     ? `Message ${selectedConv.otherUser.display_name || selectedConv.otherUser.handle}…`
                     : barCtx.placeholder
                 }
@@ -832,7 +909,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                   background: composeFocused ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.40)',
                   border: composeFocused
                     ? '1.5px solid rgba(200,152,26,0.55)'
-                    : '1px solid rgba(180,185,200,0.40)',
+                    : barIntent.mode !== 'default'
+                      ? '1.5px solid rgba(42,138,184,0.45)'
+                      : '1px solid rgba(180,185,200,0.40)',
                   borderRadius: 9999, padding: '7px 14px', fontSize: 13,
                   color: 'var(--de-text)', outline: 'none', cursor: 'text',
                   transition: 'background 0.18s, border 0.18s',
@@ -854,43 +933,48 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 </span>
               )}
 
-              {/* Send / action button */}
+              {/* Send / action button — visible when there's text to submit */}
               {quickDraft.trim() && (
                 <button
                   type="button" onClick={() => { void handleQuickSend(); }}
                   onPointerDown={(e) => e.stopPropagation()}
-                  disabled={isSending} aria-label={barCtx.actionAriaLabel}
+                  disabled={isSending || commentSending} aria-label={barCtx.actionAriaLabel}
                   style={{
                     background: 'linear-gradient(135deg, var(--de-gold), var(--de-blue))',
                     border: 'none', borderRadius: '50%', width: 34, height: 34,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: isSending ? 'not-allowed' : 'pointer', flexShrink: 0, color: 'white',
-                    opacity: isSending ? 0.6 : 1,
+                    cursor: (isSending || commentSending) ? 'not-allowed' : 'pointer', flexShrink: 0, color: 'white',
+                    opacity: (isSending || commentSending) ? 0.6 : 1,
                   }}
                 >
-                  {isSending
+                  {(isSending || commentSending)
                     ? <Loader2 size={14} aria-hidden style={{ animation: 'spin 1s linear infinite' }} />
                     : <ContextIcon ctx={barCtx} size={14} />}
                 </button>
               )}
 
-              {/* Dr. Eams toggle */}
-              <button
-                type="button" onClick={toggleDrEams}
-                onPointerDown={(e) => e.stopPropagation()}
-                aria-pressed={drEamsMode}
-                aria-label={drEamsMode ? 'Dr. Eams mode ON' : 'Dr. Eams mode OFF'}
-                style={{
-                  flexShrink: 0,
-                  background: drEamsMode ? 'var(--de-gold)' : 'rgba(180,185,200,0.18)',
-                  border: 'none', borderRadius: '50%', width: 30, height: 30,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', color: drEamsMode ? 'white' : 'var(--de-text-dim)',
-                  transition: 'background 0.18s, color 0.18s',
-                }}
-              >
-                <Bot size={13} aria-hidden />
-              </button>
+              {/* ── Mode action buttons: Search, Message, Dr. Eams ────────── */}
+              <ModeButton
+                mode="search"
+                icon={<Search size={13} aria-hidden />}
+                activeMode={barIntent.mode}
+                onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
+                label="Search"
+              />
+              <ModeButton
+                mode="message"
+                icon={<Send size={13} aria-hidden />}
+                activeMode={barIntent.mode}
+                onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
+                label="Message"
+              />
+              <ModeButton
+                mode="dreams"
+                icon={<Bot size={13} aria-hidden />}
+                activeMode={barIntent.mode}
+                onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
+                label="Dr. Eams"
+              />
             </div>
           )}
         </div>
@@ -898,6 +982,48 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     </>
   );
 }
+// ─────────────────────────────────────────────────────────────────────────────
+// ModeButton — compact pill for switching bar intent mode
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ModeButton({
+  mode,
+  icon,
+  activeMode,
+  onSelect,
+  label,
+}: {
+  mode: BarIntentMode;
+  icon: React.ReactNode;
+  activeMode: BarIntentMode;
+  onSelect: (mode: BarIntentMode) => void;
+  label: string;
+}) {
+  const isActive = activeMode === mode;
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(mode)}
+      onPointerDown={(e) => e.stopPropagation()}
+      aria-pressed={isActive}
+      aria-label={isActive ? `${label} mode active — tap to deactivate` : `Switch to ${label} mode`}
+      title={label}
+      style={{
+        flexShrink: 0,
+        background: isActive ? 'var(--de-gold)' : 'rgba(180,185,200,0.18)',
+        border: 'none', borderRadius: '50%', width: 28, height: 28,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer',
+        color: isActive ? 'white' : 'var(--de-text-dim)',
+        transition: 'background 0.18s, color 0.18s, transform 0.12s',
+        transform: isActive ? 'scale(1.08)' : 'scale(1)',
+      }}
+    >
+      {icon}
+    </button>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // DreamSpaceMessaging
 // ─────────────────────────────────────────────────────────────────────────────
