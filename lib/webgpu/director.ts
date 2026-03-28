@@ -470,8 +470,15 @@ export function resolveResolutionScale(
  */
 export class WebGPUDirector {
   private _lastPressure: Pressure = 0;
-  private _hysteresisFrames       = 0;
-  private readonly HYSTERESIS     = 8; // frames before upgrading quality
+  /**
+   * Wall-clock timestamp (ms) of the last pressure downgrade.
+   * Upgrade decisions are held until at least HYSTERESIS_MS have elapsed
+   * after a downgrade — time-based hysteresis is smoother than frame-counting
+   * because it remains stable across variable frame-rate scenarios.
+   */
+  private _lastPressureDowngradeMs: number = -Infinity;
+  /** Minimum ms of sustained improvement before a quality upgrade fires. */
+  private readonly HYSTERESIS_MS = 200;
 
   update(input: {
     metrics: RuntimeMetrics;
@@ -480,26 +487,30 @@ export class WebGPUDirector {
   }): DirectorFrame {
     const { metrics, camera, objects } = input;
 
-    // Pressure — downgrade immediately, upgrade after hysteresis
+    // Pressure — downgrade immediately, upgrade after HYSTERESIS_MS of
+    // sustained improvement.  Time-based hysteresis avoids the frame-count
+    // drift that occurs at variable frame rates.
     const rawPressure = classifyPressure(metrics);
+    const nowMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
     let pressure: Pressure;
 
     if (rawPressure > this._lastPressure) {
-      // Downgrade is instant
-      pressure              = rawPressure;
-      this._hysteresisFrames = 0;
+      // Downgrade is instant — record the timestamp so the upgrade gate knows
+      // when consistent improvement began.
+      pressure                       = rawPressure;
+      this._lastPressureDowngradeMs  = nowMs;
     } else if (rawPressure < this._lastPressure) {
-      // Upgrade waits for HYSTERESIS frames of sustained improvement
-      this._hysteresisFrames++;
-      if (this._hysteresisFrames >= this.HYSTERESIS) {
-        pressure              = rawPressure;
-        this._hysteresisFrames = 0;
+      // Upgrade waits HYSTERESIS_MS of sustained low pressure before firing.
+      // Do NOT update _lastPressureDowngradeMs here — that timestamp marks the
+      // last downgrade and must remain stable so subsequent upgrade checks keep
+      // counting from the same reference point.
+      if (nowMs - this._lastPressureDowngradeMs >= this.HYSTERESIS_MS) {
+        pressure = rawPressure;
       } else {
         pressure = this._lastPressure;
       }
     } else {
-      pressure              = rawPressure;
-      this._hysteresisFrames = 0;
+      pressure = rawPressure;
     }
     this._lastPressure = pressure;
 

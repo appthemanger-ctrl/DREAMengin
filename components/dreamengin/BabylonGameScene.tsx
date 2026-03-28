@@ -179,9 +179,9 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
 
       engine.runRenderLoop(() => {
         scene.render();
-        // Re-evaluate both systems ~every 500ms to react to frame pressure
+        // Re-evaluate both systems ~every 250ms for faster quality adaptation
         const now = performance.now();
-        if (now - lastGodTierMs > 500) {
+        if (now - lastGodTierMs > 250) {
           lastGodTierMs = now;
           const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
           const avgFrame = perf ? perf.averageFrameTime : 16.6;
