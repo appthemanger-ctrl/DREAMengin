@@ -344,7 +344,7 @@ export default function LoginPage() {
           fontStyle: 'italic', fontSize: 32,
           background: 'linear-gradient(135deg, #e8d090, #c8981a)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-        }}>dreamEngin</div>
+        }}>dreamengin</div>
       </div>
     }>
       <LoginPageInner />
