@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-28 02:38 UTC  
-**Triggered by commit:** `0968c4e` on `copilot/improve-website-design-and-functionality` by Copilot  
-**Commit message:** feat: upgrade onboarding to dark premium theme; remove unused DreamWord imports from login/join
+**Last updated:** 2026-03-28 03:16 UTC  
+**Triggered by commit:** `33cb4eb` on `copilot/improve-website-design-and-functionality` by Copilot  
+**Commit message:** fix: clear HomeDream mobile overlap by using dynamic viewport height and hiding runtime zoom controls on phones
 
 ---
 
