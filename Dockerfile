@@ -1,18 +1,19 @@
 # ==========================================
 # Stage 1: Dependencies
 # ==========================================
-FROM node:24-alpine AS deps
+FROM node:24-bookworm-slim AS deps
 WORKDIR /app
 
 # Install dependencies only when needed
-COPY package.json package-lock.json* ./
-RUN npm ci --only=production && \
-    npm cache clean --force
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable pnpm && \
+    pnpm install --frozen-lockfile --prod && \
+    pnpm store prune
 
 # ==========================================
 # Stage 2: Builder
 # ==========================================
-FROM node:24-alpine AS builder
+FROM node:24-bookworm-slim AS builder
 WORKDIR /app
 
 # Copy dependencies
@@ -20,24 +21,24 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Set environment variables
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
 # Build application
-RUN npm run build
+RUN corepack enable pnpm && pnpm run build
 
 # ==========================================
 # Stage 3: Runner (Production)
 # ==========================================
-FROM node:24-alpine AS runner
+FROM node:24-bookworm-slim AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs nextjs
 
 # Copy necessary files
 COPY --from=builder /app/public ./public
