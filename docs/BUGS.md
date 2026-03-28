@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-28 18:46 UTC  
-**Triggered by commit:** `67478f6` on `copilot/replace-foundation-with-linux-software` by Copilot  
-**Commit message:** finish full pnpm and Linux foundation retooling sweep
+**Last updated:** 2026-03-28 18:47 UTC  
+**Triggered by commit:** `e00362d` on `copilot/replace-foundation-with-linux-software` by Copilot  
+**Commit message:** pin nginx compose image to Debian Bookworm variant
 
 ---
 
