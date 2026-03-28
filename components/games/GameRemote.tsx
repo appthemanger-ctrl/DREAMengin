@@ -106,12 +106,13 @@ interface StickProps {
   side: 'left' | 'right';
   accentColor: string;
   label: string;
+  scale?: number;
 }
 
-function Stick({ side, accentColor, label }: StickProps) {
-  const padRadius = side === 'right' ? RIGHT_PAD_R : LEFT_PAD_R;
-  const knobRadius = side === 'right' ? RIGHT_KNOB_R : LEFT_KNOB_R;
-  const maxDisp = side === 'right' ? RIGHT_MAX_DISP : LEFT_MAX_DISP;
+function Stick({ side, accentColor, label, scale = 1 }: StickProps) {
+  const padRadius = (side === 'right' ? RIGHT_PAD_R : LEFT_PAD_R) * scale;
+  const knobRadius = (side === 'right' ? RIGHT_KNOB_R : LEFT_KNOB_R) * scale;
+  const maxDisp = (side === 'right' ? RIGHT_MAX_DISP : LEFT_MAX_DISP) * scale;
 
   const [knob, setKnob]     = useState({ x: 0, y: 0 });
   const [dir, setDir]       = useState<Dir8 | null>(null);
@@ -319,6 +320,7 @@ export default function GameRemote({
     window.dispatchEvent(new CustomEvent('de-game-start'));
   }, [onPlay]);
 
+  const compactEmbedded = embedded;
   const outerPaddingX = embedded ? 18 : 20;
   const bottomPadding = embedded ? 28 : 56;
   const cardMargin = embedded ? '0 18px 18px' : '0 20px 20px';
@@ -401,10 +403,10 @@ export default function GameRemote({
         }}>
           <div>
             <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(160,195,240,0.45)' }}>
-              Default Remote
+              Shared Remote
             </div>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#f8fbff', marginTop: 4 }}>
-              {gameLabel ? `${gameLabel} controller deck` : 'Universal controller deck'}
+              {gameLabel ? `${gameLabel} controls` : 'Inline game controls'}
             </div>
           </div>
           <span
@@ -428,46 +430,50 @@ export default function GameRemote({
         </div>
       )}
 
-      {/* Button legend — 4 face buttons with × and △ swapped to standard PS positions */}
-      <div style={{
-        display: 'flex', gap: 8, flexWrap: 'wrap',
-        padding: `10px ${outerPaddingX}px 0`,
-        flexShrink: 0,
-      }}>
-        {[
-          { sym: '×', label: 'Jump',  color: '#38bdf8' },
-          { sym: '○', label: 'Shoot', color: '#f87171' },
-          { sym: '□', label: 'Spin',  color: '#fbbf24' },
-          { sym: '△', label: 'Duck',  color: '#4ade80' },
-        ].map(({ sym, label, color }) => (
-          <div key={sym} style={{
-            display: 'flex', alignItems: 'center', gap: 4,
-            padding: '2px 7px', borderRadius: 999,
-            background: 'rgba(255,255,255,0.03)',
-            border: `1px solid ${color}28`,
-          }}>
-            <span style={{ fontSize: 10, fontWeight: 900, color }}>{sym}</span>
-            <span style={{ fontSize: 9, color: 'rgba(220,235,255,0.45)' }}>{label}</span>
-          </div>
-        ))}
-      </div>
+      {!compactEmbedded && (
+        <div style={{
+          display: 'flex', gap: 8, flexWrap: 'wrap',
+          padding: `10px ${outerPaddingX}px 0`,
+          flexShrink: 0,
+        }}>
+          {[
+            { sym: '×', label: 'Jump',  color: '#38bdf8' },
+            { sym: '○', label: 'Shoot', color: '#f87171' },
+            { sym: '□', label: 'Spin',  color: '#fbbf24' },
+            { sym: '△', label: 'Duck',  color: '#4ade80' },
+          ].map(({ sym, label, color }) => (
+            <div key={sym} style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '2px 7px', borderRadius: 999,
+              background: 'rgba(255,255,255,0.03)',
+              border: `1px solid ${color}28`,
+            }}>
+              <span style={{ fontSize: 10, fontWeight: 900, color }}>{sym}</span>
+              <span style={{ fontSize: 9, color: 'rgba(220,235,255,0.45)' }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Sticks + face buttons */}
       <div style={{
         flex: 1,
         display: 'flex',
-        alignItems: 'flex-end',
+        alignItems: compactEmbedded ? 'center' : 'flex-end',
         justifyContent: 'space-between',
-        padding: `0 ${outerPaddingX}px ${bottomPadding}px`,
+        gap: compactEmbedded ? 12 : 0,
+        padding: compactEmbedded
+          ? `12px ${outerPaddingX}px ${bottomPadding}px`
+          : `0 ${outerPaddingX}px ${bottomPadding}px`,
       }}>
         {/* LEFT stick */}
-        <Stick side="left" accentColor="#2a8ab8" label="Move" />
+        <Stick side="left" accentColor="#2a8ab8" label="Move" scale={compactEmbedded ? 0.78 : 1} />
 
         {/* Center controls */}
         <div style={{
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', gap: 10,
-          paddingBottom: 24,
+          paddingBottom: compactEmbedded ? 0 : 24,
         }}>
           {/* Pause / menu button */}
           <button
@@ -526,10 +532,10 @@ export default function GameRemote({
 
         {/* RIGHT side: stick + face button diamond */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <Stick side="right" accentColor="#c8981a" label="Actions" />
+          <Stick side="right" accentColor="#c8981a" label="Actions" scale={compactEmbedded ? 0.78 : 1} />
 
           {/* Face button diamond — △/○/□/× tappable buttons; × at top (jump), △ at right side */}
-          <div style={{ position: 'relative', width: 88, height: 88, flexShrink: 0 }}>
+          {!compactEmbedded && <div style={{ position: 'relative', width: 88, height: 88, flexShrink: 0 }}>
             {([
               { sym: '×', action: 'jump'  as GameInputAction, color: '#38bdf8', top:  0,  left: 30 },
               { sym: '△', action: 'duck'  as GameInputAction, color: '#4ade80', top:  30, left: 60 },
@@ -566,35 +572,36 @@ export default function GameRemote({
                 {sym}
               </button>
             ))}
-          </div>
+          </div>}
         </div>
       </div>
 
-      {/* Quick reference card */}
-      <div style={{
-        margin: cardMargin,
-        borderRadius: 14,
-        background: 'rgba(255,255,255,0.025)',
-        border: '1px solid rgba(160,195,240,0.08)',
-        padding: '10px 14px',
-        display: 'grid', gridTemplateColumns: '1fr 1fr',
-        gap: '3px 16px',
-        flexShrink: 0,
-      }}>
-        {([
-          ['L-stick', 'Move'],
-          ['×',       'Jump'],
-          ['△',       'Duck'],
-          ['□',       'Spin'],
-          ['○',       'Shoot'],
-          ['R-stick ↗', 'Jump+Shoot'],
-        ] as [string, string][]).map(([ctrl, action]) => (
-          <div key={ctrl} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <span style={{ fontSize: 10, color: 'rgba(160,195,240,0.45)', minWidth: 58 }}>{ctrl}</span>
-            <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(220,235,255,0.65)' }}>{action}</span>
-          </div>
-        ))}
-      </div>
+      {!compactEmbedded && (
+        <div style={{
+          margin: cardMargin,
+          borderRadius: 14,
+          background: 'rgba(255,255,255,0.025)',
+          border: '1px solid rgba(160,195,240,0.08)',
+          padding: '10px 14px',
+          display: 'grid', gridTemplateColumns: '1fr 1fr',
+          gap: '3px 16px',
+          flexShrink: 0,
+        }}>
+          {([
+            ['L-stick', 'Move'],
+            ['×',       'Jump'],
+            ['△',       'Duck'],
+            ['□',       'Spin'],
+            ['○',       'Shoot'],
+            ['R-stick ↗', 'Jump+Shoot'],
+          ] as [string, string][]).map(([ctrl, action]) => (
+            <div key={ctrl} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <span style={{ fontSize: 10, color: 'rgba(160,195,240,0.45)', minWidth: 58 }}>{ctrl}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(220,235,255,0.65)' }}>{action}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Physical controller hint */}
       {!gpConnected && (
