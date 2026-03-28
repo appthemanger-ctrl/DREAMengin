@@ -32,7 +32,7 @@ export default function PasswordField({
 
   return (
     <label className={className || 'block'}>
-      <span className="mb-1 block text-sm" style={{ color: 'var(--de-text, #1a3a6a)' }}>{label}</span>
+      <span className="mb-1 block text-sm font-semibold uppercase tracking-wider" style={{ color: 'rgba(140,170,220,0.55)', fontSize: 11, letterSpacing: '0.08em' }}>{label}</span>
       <div className="relative">
         <input
           id={inputId}
@@ -45,10 +45,10 @@ export default function PasswordField({
           style={!inputClassName ? {
             width: '100%',
             padding: '11px 48px 11px 14px',
-            borderRadius: 10,
-            background: 'var(--de-mist, rgba(180,210,250,0.22))',
-            border: '1px solid var(--de-border, rgba(160,195,240,0.45))',
-            color: 'var(--de-text, #1a3a6a)',
+            borderRadius: 12,
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            color: 'rgba(220,235,255,0.90)',
             fontSize: 14,
             outline: 'none',
           } : undefined}
@@ -58,7 +58,7 @@ export default function PasswordField({
           type="button"
           onClick={() => setVisible((current) => !current)}
           className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-lg"
-          style={{ color: 'var(--de-text-dim, rgba(60,100,160,0.55))' }}
+          style={{ color: 'rgba(140,170,220,0.55)' }}
           aria-label={visible ? `Hide ${label}` : `Show ${label}`}
           title={visible ? 'Hide password' : 'Show password'}
         >
