@@ -71,6 +71,9 @@ export async function createBabylonEngine(
         antialias,
         powerPreference: 'high-performance',
         enableAllFeatures: true,
+        // Render at physical pixel density on HiDPI/retina screens — same
+        // policy as the WebGL path so both paths produce crisp output.
+        adaptToDeviceRatio: true,
       });
       return { engine, isWebGPU: true };
     } catch {
