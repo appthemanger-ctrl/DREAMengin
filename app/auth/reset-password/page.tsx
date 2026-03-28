@@ -51,35 +51,59 @@ export default function ResetPasswordPage() {
       className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
       style={{ background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%)' }}
     >
-      {/* Ambient glow */}
+      {/* Ambient glow — SICC enhanced */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-        <div style={{ position: 'absolute', top: '-80px', right: '-60px', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(56,189,248,0.09) 0%, transparent 65%)', filter: 'blur(60px)' }} />
-        <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '340px', height: '340px', background: 'radial-gradient(circle, rgba(200,152,26,0.08) 0%, transparent 65%)', filter: 'blur(60px)' }} />
+        <div style={{
+          position: 'absolute', top: '-100px', right: '-80px',
+          width: '600px', height: '600px',
+          background: 'radial-gradient(circle, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0.04) 40%, transparent 65%)',
+          filter: 'blur(80px)',
+          animation: 'sicc-soft-float 8s ease-in-out infinite',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '-60px', left: '-50px',
+          width: '500px', height: '500px',
+          background: 'radial-gradient(circle, rgba(200,152,26,0.11) 0%, rgba(200,152,26,0.03) 40%, transparent 65%)',
+          filter: 'blur(80px)',
+          animation: 'sicc-soft-float 6s ease-in-out infinite reverse',
+        }} />
+        <div style={{
+          position: 'absolute', top: '30%', left: '50%',
+          transform: 'translateX(-50%)',
+          width: '400px', height: '300px',
+          background: 'radial-gradient(ellipse, rgba(100,130,255,0.06) 0%, transparent 60%)',
+          filter: 'blur(60px)',
+          animation: 'sicc-soft-float 10s ease-in-out infinite',
+        }} />
       </div>
 
-      {/* Wordmark */}
-      <div style={{ marginBottom: 32, textAlign: "center" }}>
+      {/* Wordmark — SICC premium */}
+      <div className="sicc-soft-float" style={{ marginBottom: 32, textAlign: "center", position: 'relative' }}>
         <div style={{
           fontFamily: 'var(--font-cormorant, Georgia, serif)',
-          fontStyle: 'italic', fontWeight: 500, fontSize: 32,
-          letterSpacing: '-0.01em', lineHeight: 1,
+          fontStyle: 'italic', fontWeight: 500,
+          fontSize: 40, letterSpacing: '-0.01em', lineHeight: 1,
           display: 'flex', alignItems: 'baseline', justifyContent: 'center',
         }}>
-          <span style={{ background: 'linear-gradient(135deg, #e8d090 0%, #c8981a 60%, #a07820 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>dream</span>
-          <span style={{ color: 'rgba(220,235,255,0.60)' }}>engin</span>
+          <span className="sicc-gradient-text" style={{ fontSize: 'inherit' }}>dream</span>
+          <span style={{ color: 'rgba(220,235,255,0.55)', fontWeight: 400 }}>engin</span>
+        </div>
+        <div style={{ fontSize: 13, color: "rgba(165,195,235,0.50)", marginTop: 10, letterSpacing: "0.04em" }}>
+          Reset your password
         </div>
       </div>
 
       <div
-        className="w-full max-w-md"
+        className="w-full max-w-md sicc-glass-in"
         style={{
-          background: 'rgba(255,255,255,0.04)',
-          backdropFilter: 'blur(32px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(32px) saturate(160%)',
-          border: '1px solid rgba(255,255,255,0.10)',
+          background: 'rgba(255,255,255,0.05)',
+          backdropFilter: 'blur(40px) saturate(170%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(170%)',
+          border: '1px solid rgba(255,255,255,0.12)',
           borderRadius: 24,
-          boxShadow: '0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)',
+          boxShadow: '0 8px 56px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.10)',
           overflow: 'hidden',
+          position: 'relative',
         }}
       >
         {/* Card top accent */}

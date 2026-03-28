@@ -1528,10 +1528,24 @@ body, .dreamnav-surface, .controls {
 }
 
 /* =============================================================================
-   SICC — Super Immersive Creative Controls
-   Premium visual layer for DreamDMBar, gold button, action surfaces.
-   Architecture: THEME.md (Gold=action · premium feel · intentional motion)
-   Performance: CSS-only keyframes; zero JS overhead.
+   SICC — Stylized · Intuitive · Cohesive · Coherent
+          Super Immersive Creative Controls
+
+   Both meanings are canon.
+
+   Design philosophy:
+     Stylized    — every surface feels premium and intentionally crafted
+     Intuitive   — motion guides attention; nothing decorates without purpose
+     Cohesive    — the same visual language spans every route and component
+     Coherent    — widget, button, card, badge all reinforce one runtime
+
+   Technical layer:
+     Super Immersive Creative Controls — CSS-only keyframes and utility
+     classes that cascade through the existing de- design tokens so ALL
+     surfaces inherit SICC polish without per-file edits.
+
+   Architecture: THEME.md (Gold=action · Sky-blue=connected · White=clarity)
+   Performance:  CSS-only keyframes; zero JS overhead.
    =========================================================================== */
 
 /* ── Gold button idle breathing ring ── */
@@ -1693,4 +1707,158 @@ body, .dreamnav-surface, .controls {
   );
   background-size: 200% 100%;
   animation: sicc-edge-shimmer 8s linear infinite reverse;
+}
+
+/* =============================================================================
+   SICC PLATFORM CASCADES
+   These rules extend existing de- design tokens so every surface that uses
+   de-widget, de-btn-gold, de-dark-card, etc. automatically inherits SICC
+   polish — Stylized, Intuitive, Cohesive, Coherent across all 59+ routes.
+   =========================================================================== */
+
+/* ── Widget cards: subtle glass entrance across all surfaces ── */
+.de-widget {
+  animation: sicc-glass-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Gold buttons: premium shimmer sweep on all gold actions ── */
+.de-btn-gold {
+  position: relative;
+  overflow: hidden;
+}
+.de-btn-gold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,0.20) 45%,
+    rgba(255,255,255,0.38) 50%,
+    rgba(255,255,255,0.20) 55%,
+    transparent 70%
+  );
+  animation: sicc-shimmer-sweep 3.2s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ── Primary buttons: refined hover glow ── */
+.de-btn-primary {
+  transition: opacity 0.15s, transform 0.1s, box-shadow 0.25s;
+}
+.de-btn-primary:hover {
+  box-shadow: 0 6px 24px rgba(42,138,184,0.35), 0 0 0 2px rgba(42,138,184,0.10);
+}
+
+/* ── Dark glass cards: SICC entrance on auth/dark surfaces ── */
+.de-dark-card {
+  animation: sicc-glass-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Dark background: ambient glow orbs float ── */
+.de-dark-bg .pointer-events-none > div,
+[style*="linear-gradient(155deg"] .pointer-events-none > div {
+  animation: sicc-soft-float 7s ease-in-out infinite;
+}
+[style*="linear-gradient(155deg"] .pointer-events-none > div:nth-child(2) {
+  animation-delay: -3.5s;
+}
+[style*="linear-gradient(155deg"] .pointer-events-none > div:nth-child(3) {
+  animation-delay: -1.5s;
+}
+
+/* ── Wordmark gold word: SICC gradient shimmer on all surfaces ── */
+.de-dream-word {
+  background-size: 200% 100%;
+  animation: sicc-edge-shimmer 5s linear infinite;
+}
+
+/* ── Widget header borders: refined gold edge ── */
+.de-widget-header {
+  border-image: linear-gradient(90deg,
+    rgba(160,195,240,0.05),
+    rgba(200,152,26,0.18) 30%,
+    rgba(160,195,240,0.30) 50%,
+    rgba(200,152,26,0.18) 70%,
+    rgba(160,195,240,0.05)
+  ) 1;
+}
+
+/* ── Ghost buttons: refined hover lift ── */
+.de-btn-ghost {
+  transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+}
+.de-btn-ghost:hover {
+  background: rgba(160,195,240,0.28);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* ── Row items: smooth hover feedback ── */
+.de-row {
+  transition: background 0.15s, transform 0.1s;
+}
+.de-row:hover {
+  background: rgba(200,215,240,0.12);
+}
+
+/* ── Dark accent bar: SICC edge shimmer ── */
+.de-dark-card-accent::before {
+  background-size: 200% 100%;
+  animation: sicc-edge-shimmer 6s linear infinite;
+}
+
+/* ── Dark input: SICC focus glow ring ── */
+.de-dark-input:focus {
+  border-color: rgba(56,189,248,0.45);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.14), 0 0 12px rgba(56,189,248,0.06);
+}
+
+/* ── Dark wordmark gradient: SICC shimmer ── */
+.de-wordmark-dark .dream {
+  background-size: 200% 100%;
+  animation: sicc-edge-shimmer 5s linear infinite;
+}
+
+/* ── Sky background: smooth entrance for page loads ── */
+@keyframes sicc-page-enter {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.de-sky-bg {
+  animation: sicc-page-enter 0.35s ease both;
+}
+
+/* ── Sticky headers: refined blur + gold accent bottom ── */
+.de-sky-bg > .sticky {
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+}
+
+/* ── Stagger widget entrance for pages with multiple cards ── */
+.de-widget:nth-child(2)  { animation-delay: 0.06s; }
+.de-widget:nth-child(3)  { animation-delay: 0.12s; }
+.de-widget:nth-child(4)  { animation-delay: 0.18s; }
+.de-widget:nth-child(5)  { animation-delay: 0.24s; }
+.de-widget:nth-child(6)  { animation-delay: 0.30s; }
+
+/* ── Respect reduced motion preference ── */
+@media (prefers-reduced-motion: reduce) {
+  .de-widget,
+  .de-dark-card,
+  .de-sky-bg,
+  .de-dream-word,
+  .de-wordmark-dark .dream,
+  .de-dark-card-accent::before,
+  .de-btn-gold::after,
+  .sicc-gold-breathe,
+  .sicc-shimmer::after,
+  .sicc-glass-in,
+  .sicc-badge-pop,
+  .sicc-soft-float,
+  .sicc-gradient-text,
+  .sicc-bar-edge::before,
+  .sicc-bar-edge::after {
+    animation: none !important;
+  }
 }
