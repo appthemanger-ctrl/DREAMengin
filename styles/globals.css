@@ -1378,3 +1378,124 @@ body, .dreamnav-surface, .controls {
   animation-duration: var(--gt-motion-ambient);
   animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95);
 }
+
+/* =============================================================================
+   DARK PREMIUM CARDS — used on auth/landing/about surfaces (dark bg)
+   Architecture: THEME.md (Gold=action · Sky-blue=connected · White=clarity)
+   =========================================================================== */
+
+/* Dark glass card — replaces .de-widget on dark backgrounds */
+.de-dark-card {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 20px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+/* Card accent bar — gold→sky gradient top border */
+.de-dark-card-accent::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(200,152,26,0.55) 40%, rgba(56,189,248,0.35) 70%, transparent);
+}
+
+/* Dark input — used in auth forms */
+.de-dark-input {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(220,235,255,0.90);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+.de-dark-input:focus {
+  border-color: rgba(56,189,248,0.40);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.12);
+}
+.de-dark-input::placeholder {
+  color: rgba(140,170,220,0.35);
+}
+
+/* Dark label — uppercase tracking label */
+.de-dark-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(140,170,220,0.55);
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Dark section heading */
+.de-dark-heading {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 800;
+  color: rgba(220,235,255,0.95);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Dark body text */
+.de-dark-body {
+  color: rgba(165,195,235,0.65);
+  line-height: 1.7;
+}
+
+/* Dark muted text */
+.de-dark-muted {
+  color: rgba(140,170,220,0.45);
+}
+
+/* Dark gold accent text */
+.de-dark-gold {
+  color: #c8981a;
+}
+
+/* Dark sky accent text */
+.de-dark-sky {
+  color: #38bdf8;
+}
+
+/* Premium page background — deep navy */
+.de-dark-bg {
+  background: linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%);
+  min-height: 100vh;
+}
+
+/* Dark divider */
+.de-dark-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  border: none;
+  margin: 0;
+}
+
+/* Gradient wordmark */
+.de-wordmark-dark {
+  font-family: var(--font-cormorant, Georgia, serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+}
+.de-wordmark-dark .dream {
+  background: linear-gradient(135deg, #e8d090 0%, #c8981a 60%, #a07820 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.de-wordmark-dark .engin {
+  color: rgba(220,235,255,0.60);
+}

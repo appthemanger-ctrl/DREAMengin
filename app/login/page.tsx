@@ -134,27 +134,75 @@ function LoginPageInner() {
   };
 
   return (
-    <div className="de-sky-bg min-h-screen flex flex-col items-center justify-center px-4 py-10">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
+      style={{
+        background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%)',
+      }}
+    >
+      {/* Ambient glow */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+        <div style={{
+          position: 'absolute', top: '-80px', right: '-60px',
+          width: '500px', height: '500px',
+          background: 'radial-gradient(circle, rgba(56,189,248,0.10) 0%, transparent 65%)',
+          filter: 'blur(60px)',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '-40px', left: '-40px',
+          width: '400px', height: '400px',
+          background: 'radial-gradient(circle, rgba(200,152,26,0.09) 0%, transparent 65%)',
+          filter: 'blur(60px)',
+        }} />
+      </div>
 
-      {/* dreamengin wordmark */}
-      <div style={{ marginBottom: 28, textAlign: "center" }}>
-        <span className="de-wordmark" style={{ fontSize: 36 }}><DreamWord />engin</span>
-        <div style={{ fontSize: 13, color: "var(--de-text-dim)", marginTop: 6, letterSpacing: "0.04em" }}>
+      {/* Wordmark */}
+      <div style={{ marginBottom: 32, textAlign: "center", position: 'relative' }}>
+        <div style={{
+          fontFamily: 'var(--font-cormorant, Georgia, serif)',
+          fontStyle: 'italic', fontWeight: 500,
+          fontSize: 36, letterSpacing: '-0.01em', lineHeight: 1,
+          display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0,
+        }}>
+          <span style={{
+            background: 'linear-gradient(135deg, #e8d090 0%, #c8981a 60%, #a07820 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+          }}>dream</span>
+          <span style={{ color: 'rgba(220,235,255,0.60)' }}>engin</span>
+        </div>
+        <div style={{ fontSize: 13, color: "rgba(165,195,235,0.55)", marginTop: 8, letterSpacing: "0.03em" }}>
           Welcome back — sign in to your space
         </div>
       </div>
 
-      {/* Form card */}
-      <div className="de-widget w-full max-w-md" style={{ background: "rgba(255,255,255,0.93)", boxShadow: "0 4px 24px rgba(0,0,0,0.07)" }}>
-        <div className="de-widget-header">
-          <span className="de-widget-title">Sign In</span>
-        </div>
+      {/* Form card — dark glass */}
+      <div
+        className="w-full max-w-md"
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          backdropFilter: 'blur(32px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(160%)',
+          border: '1px solid rgba(255,255,255,0.10)',
+          borderRadius: 24,
+          boxShadow: '0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)',
+          overflow: 'hidden',
+          position: 'relative',
+        }}
+      >
+        {/* Card top accent line */}
+        <div style={{
+          height: 2,
+          background: 'linear-gradient(90deg, transparent, rgba(200,152,26,0.6) 40%, rgba(56,189,248,0.4) 70%, transparent)',
+        }} aria-hidden="true" />
 
-        <div className="de-widget-body" style={{ paddingTop: 18, paddingBottom: 18 }}>
+        <div style={{ padding: '24px 24px 8px' }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(210,230,255,0.90)', marginBottom: 20, letterSpacing: '-0.01em' }}>
+            Sign In
+          </div>
           <form onSubmit={signIn} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
             <label style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--de-text-dim)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(140,170,220,0.55)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                 Email
               </span>
               <input
@@ -162,7 +210,13 @@ function LoginPageInner() {
                 type="email"
                 inputMode="email"
                 autoComplete="email"
-                style={INPUT_STYLE}
+                style={{
+                  ...INPUT_STYLE,
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  color: 'rgba(220,235,255,0.90)',
+                  borderRadius: 12,
+                }}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -178,50 +232,68 @@ function LoginPageInner() {
             />
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: -6 }}>
-              <Link href="/auth/reset-password" style={{ fontSize: 12, color: 'var(--de-accent)', fontWeight: 600 }}>
+              <Link href="/auth/reset-password" style={{ fontSize: 12, color: '#c8981a', fontWeight: 600 }}>
                 Forgot password?
               </Link>
             </div>
 
-            <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "var(--de-text)", minHeight: 44, cursor: "pointer" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "rgba(165,195,235,0.72)", minHeight: 44, cursor: "pointer" }}>
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: "var(--de-accent)" }}
+                style={{ width: 16, height: 16, accentColor: "#c8981a" }}
               />
               Remember me
             </label>
 
             {error && (
-              <div className="de-notice" style={{
-                background: "rgba(220,68,68,0.08)",
-                borderColor: "rgba(220,68,68,0.25)",
-                color: "#dc4444",
+              <div style={{
+                padding: '10px 14px', borderRadius: 10,
+                background: "rgba(220,68,68,0.10)",
+                border: "1px solid rgba(220,68,68,0.25)",
+                color: "#f87171", fontSize: 13,
               }}>
                 {error}
               </div>
             )}
 
-            <button type="submit" disabled={busy} className="de-btn de-btn-gold" style={{ width: "100%" }}>
+            <button
+              type="submit"
+              disabled={busy}
+              style={{
+                width: '100%', padding: '13px 20px',
+                borderRadius: 12, border: 'none', cursor: busy ? 'not-allowed' : 'pointer',
+                background: busy ? 'rgba(200,152,26,0.5)' : 'linear-gradient(135deg, #F59E0B, #D97706)',
+                color: '#fff', fontWeight: 700, fontSize: 14,
+                boxShadow: busy ? 'none' : '0 4px 20px rgba(245,158,11,0.35)',
+                transition: 'opacity 0.15s, box-shadow 0.15s',
+                opacity: busy ? 0.7 : 1,
+              }}
+            >
               {busy ? "Signing in…" : "Sign In"}
             </button>
           </form>
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "18px 0" }}>
-            <div style={{ flex: 1, height: 1, background: "var(--de-border)" }} />
-            <span style={{ fontSize: 11, color: "var(--de-text-dim)" }}>or continue with</span>
-            <div style={{ flex: 1, height: 1, background: "var(--de-border)" }} />
+            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+            <span style={{ fontSize: 11, color: "rgba(140,170,220,0.45)" }}>or continue with</span>
+            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingBottom: 20 }}>
             <button
               type="button"
               disabled={busy}
               onClick={() => oauth("google")}
-              className="de-btn de-btn-ghost"
-              style={{ width: "100%", opacity: oauthProviders?.google === false ? DISABLED_BUTTON_OPACITY : undefined }}
+              style={{
+                width: '100%', padding: '12px 20px',
+                borderRadius: 12, cursor: busy ? 'not-allowed' : 'pointer',
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+                color: 'rgba(210,230,255,0.85)', fontWeight: 600, fontSize: 13,
+                opacity: oauthProviders?.google === false ? DISABLED_BUTTON_OPACITY : 1,
+              }}
               title={oauthProviders?.google === false ? "Google sign-in is not configured" : undefined}
             >
               Continue with Google
@@ -230,8 +302,13 @@ function LoginPageInner() {
               type="button"
               disabled={busy}
               onClick={() => oauth("github")}
-              className="de-btn de-btn-ghost"
-              style={{ width: "100%", opacity: oauthProviders?.github === false ? DISABLED_BUTTON_OPACITY : undefined }}
+              style={{
+                width: '100%', padding: '12px 20px',
+                borderRadius: 12, cursor: busy ? 'not-allowed' : 'pointer',
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+                color: 'rgba(210,230,255,0.85)', fontWeight: 600, fontSize: 13,
+                opacity: oauthProviders?.github === false ? DISABLED_BUTTON_OPACITY : 1,
+              }}
               title={oauthProviders?.github === false ? "GitHub sign-in is not configured" : undefined}
             >
               Continue with GitHub
@@ -239,16 +316,19 @@ function LoginPageInner() {
           </div>
         </div>
 
-        <div className="de-widget-actions" style={{ justifyContent: "center" }}>
-          <span style={{ fontSize: 13, color: "var(--de-text-dim)" }}>
+        <div style={{
+          padding: '14px 24px 20px',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          textAlign: 'center',
+        }}>
+          <span style={{ fontSize: 13, color: "rgba(140,170,220,0.55)" }}>
             New here?{" "}
-            <Link href="/join" style={{ color: "var(--de-accent)", fontWeight: 700 }}>
+            <Link href="/join" style={{ color: "#c8981a", fontWeight: 700 }}>
               Create an account
             </Link>
           </span>
         </div>
       </div>
-
     </div>
   );
 }
@@ -256,10 +336,16 @@ function LoginPageInner() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="de-sky-bg min-h-screen flex items-center justify-center">
-        <div className="de-widget" style={{ padding: 32, textAlign: 'center' }}>
-          <span className="de-wordmark" style={{ fontSize: 28 }}><DreamWord />engin</span>
-        </div>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%)' }}
+      >
+        <div style={{
+          fontFamily: 'var(--font-cormorant, Georgia, serif)',
+          fontStyle: 'italic', fontSize: 32,
+          background: 'linear-gradient(135deg, #e8d090, #c8981a)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+        }}>dreamEngin</div>
       </div>
     }>
       <LoginPageInner />
