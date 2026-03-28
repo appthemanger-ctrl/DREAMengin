@@ -320,7 +320,6 @@ export default function GameRemote({
     window.dispatchEvent(new CustomEvent('de-game-start'));
   }, [onPlay]);
 
-  const compactEmbedded = embedded;
   const outerPaddingX = embedded ? 18 : 20;
   const bottomPadding = embedded ? 28 : 56;
   const cardMargin = embedded ? '0 18px 18px' : '0 20px 20px';
@@ -430,7 +429,7 @@ export default function GameRemote({
         </div>
       )}
 
-      {!compactEmbedded && (
+      {!embedded && (
         <div style={{
           display: 'flex', gap: 8, flexWrap: 'wrap',
           padding: `10px ${outerPaddingX}px 0`,
@@ -459,21 +458,21 @@ export default function GameRemote({
       <div style={{
         flex: 1,
         display: 'flex',
-        alignItems: compactEmbedded ? 'center' : 'flex-end',
+        alignItems: embedded ? 'center' : 'flex-end',
         justifyContent: 'space-between',
-        gap: compactEmbedded ? 12 : 0,
-        padding: compactEmbedded
+        gap: embedded ? 12 : 0,
+        padding: embedded
           ? `12px ${outerPaddingX}px ${bottomPadding}px`
           : `0 ${outerPaddingX}px ${bottomPadding}px`,
       }}>
         {/* LEFT stick */}
-        <Stick side="left" accentColor="#2a8ab8" label="Move" scale={compactEmbedded ? 0.78 : 1} />
+        <Stick side="left" accentColor="#2a8ab8" label="Move" scale={embedded ? 0.78 : 1} />
 
         {/* Center controls */}
         <div style={{
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', gap: 10,
-          paddingBottom: compactEmbedded ? 0 : 24,
+          paddingBottom: embedded ? 0 : 24,
         }}>
           {/* Pause / menu button */}
           <button
@@ -532,10 +531,10 @@ export default function GameRemote({
 
         {/* RIGHT side: stick + face button diamond */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <Stick side="right" accentColor="#c8981a" label="Actions" scale={compactEmbedded ? 0.78 : 1} />
+          <Stick side="right" accentColor="#c8981a" label="Actions" scale={embedded ? 0.78 : 1} />
 
           {/* Face button diamond — △/○/□/× tappable buttons; × at top (jump), △ at right side */}
-          {!compactEmbedded && <div style={{ position: 'relative', width: 88, height: 88, flexShrink: 0 }}>
+          {!embedded && <div style={{ position: 'relative', width: 88, height: 88, flexShrink: 0 }}>
             {([
               { sym: '×', action: 'jump'  as GameInputAction, color: '#38bdf8', top:  0,  left: 30 },
               { sym: '△', action: 'duck'  as GameInputAction, color: '#4ade80', top:  30, left: 60 },
@@ -576,7 +575,7 @@ export default function GameRemote({
         </div>
       </div>
 
-      {!compactEmbedded && (
+      {!embedded && (
         <div style={{
           margin: cardMargin,
           borderRadius: 14,
