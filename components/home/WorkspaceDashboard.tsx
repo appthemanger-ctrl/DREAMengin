@@ -191,17 +191,23 @@ function ActionBtn({
       className={primary ? 'de-pressable-primary' : 'de-pressable'}
       style={{
         flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', gap: 5, padding: '10px 6px',
-        borderRadius: 14, border: 'none', cursor: 'pointer',
+        justifyContent: 'center', gap: 5, padding: '12px 6px',
+        borderRadius: 16, border: 'none', cursor: 'pointer',
         background: primary
-          ? 'linear-gradient(135deg,#c8981a22,#c8981a10)'
-          : 'rgba(255,255,255,0.60)',
-        boxShadow: primary ? 'inset 0 0 0 1px rgba(200,152,26,0.30)' : 'inset 0 0 0 1px rgba(180,185,200,0.20)',
+          ? 'linear-gradient(135deg, rgba(200,152,26,0.14), rgba(200,152,26,0.06))'
+          : 'rgba(255,255,255,0.65)',
+        boxShadow: primary
+          ? 'inset 0 0 0 1.5px rgba(200,152,26,0.30), 0 2px 8px rgba(200,152,26,0.08)'
+          : 'inset 0 0 0 1px rgba(180,185,200,0.18), 0 1px 4px rgba(0,0,0,0.03)',
         WebkitTapHighlightColor: 'transparent',
+        transition: 'all 0.18s ease',
       }}
     >
-      <Icon size={18} style={{ color: primary ? '#c8981a' : 'var(--de-heading)' }} />
-      <span style={{ fontSize: 10, fontWeight: 600, color: primary ? '#c8981a' : 'var(--de-heading)' }}>
+      <Icon size={18} style={{
+        color: primary ? '#c8981a' : 'var(--de-heading)',
+        filter: primary ? 'drop-shadow(0 0 3px rgba(200,152,26,0.30))' : 'none',
+      }} />
+      <span style={{ fontSize: 10, fontWeight: 700, color: primary ? '#c8981a' : 'var(--de-heading)', letterSpacing: '0.02em' }}>
         {label}
       </span>
     </button>
@@ -215,14 +221,26 @@ function WindowChrome({ title }: { title: string }) {
     <div style={{
       display: 'flex', alignItems: 'center', gap: 8,
       padding: '10px 16px',
-      borderBottom: '1px solid rgba(0,0,0,0.06)',
+      borderBottom: '1px solid rgba(0,0,0,0.05)',
+      background: 'rgba(255,255,255,0.25)',
     }}>
       <div style={{ display: 'flex', gap: 5 }}>
-        {['#ff5f56','#ffbd2e','#27c93f'].map((c, i) => (
-          <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />
+        {[
+          { bg: '#ff5f56', shadow: '0 0 4px rgba(255,95,86,0.35)' },
+          { bg: '#ffbd2e', shadow: '0 0 4px rgba(255,189,46,0.35)' },
+          { bg: '#27c93f', shadow: '0 0 4px rgba(39,201,63,0.35)' },
+        ].map((dot, i) => (
+          <div key={i} style={{
+            width: 10, height: 10, borderRadius: '50%',
+            background: dot.bg,
+            boxShadow: dot.shadow,
+          }} />
         ))}
       </div>
-      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)', flex: 1, textAlign: 'center' }}>
+      <span style={{
+        fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', flex: 1, textAlign: 'center',
+        letterSpacing: '0.02em',
+      }}>
         {title}
       </span>
     </div>
@@ -400,12 +418,19 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
         {/* ── Page body ── */}
         <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>
 
-          {/* ── Hero greeting ── */}
+          {/* ── Hero greeting — SICC premium ── */}
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 12, color: 'var(--de-text-dim)', fontWeight: 500, marginBottom: 2, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+            <div style={{
+              fontSize: 11, color: 'var(--de-gold)', fontWeight: 700, marginBottom: 4,
+              letterSpacing: '0.08em', textTransform: 'uppercase',
+              opacity: 0.75,
+            }}>
               {greeting}
             </div>
-            <div style={{ fontSize: isCompactViewport ? 26 : 30, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: isCompactViewport ? 14 : 16 }}>
+            <div className="sicc-gradient-text" style={{
+              fontSize: isCompactViewport ? 28 : 32, fontWeight: 800,
+              lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: isCompactViewport ? 14 : 16,
+            }}>
               {name}
             </div>
 
@@ -481,14 +506,14 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
           {/* Axiom 4 (Stylized), Law §3 (every action is real — real surface navigation) */}
           <DaydreamPulseStrip />
 
-          {/* ── WORKSPACE WINDOW PANEL — full width, elevated ── */}
-          <div style={{
-            background: 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(28px)',
-            WebkitBackdropFilter: 'blur(28px)',
+          {/* ── WORKSPACE WINDOW PANEL — SICC elevated glass ── */}
+          <div className="sicc-glass-in" style={{
+            background: 'rgba(255,255,255,0.75)',
+            backdropFilter: 'blur(32px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(160%)',
             borderRadius: isCompactViewport ? 20 : 24,
-            border: '1px solid rgba(255,255,255,0.90)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.10), 0 2px 12px rgba(0,0,0,0.05)',
+            border: '1px solid rgba(255,255,255,0.92)',
+            boxShadow: '0 8px 48px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.60)',
             overflow: 'hidden',
             marginBottom: 16,
           }}>
@@ -643,20 +668,30 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             userId={userId ?? profile?.id}
           />
 
-          {/* ── Widget glass zone — Feed section ── */}
-          <div style={{
-            background: 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
+          {/* ── Widget glass zone — SICC Feed section ── */}
+          <div className="sicc-glass-in" style={{
+            background: 'rgba(255,255,255,0.75)',
+            backdropFilter: 'blur(28px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(28px) saturate(160%)',
             borderRadius: isCompactViewport ? 20 : 24,
-            border: '1px solid rgba(255,255,255,0.90)',
-            boxShadow: '0 6px 28px rgba(0,0,0,0.08)',
+            border: '1px solid rgba(255,255,255,0.92)',
+            boxShadow: '0 6px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.50)',
             overflow: 'hidden',
             marginBottom: 16,
           }}>
-            <div style={{ padding: isCompactViewport ? '12px 14px 10px' : '14px 18px 10px', borderBottom: '1px solid rgba(180,185,200,0.12)' }}>
+            <div style={{
+              padding: isCompactViewport ? '12px 14px 10px' : '14px 18px 10px',
+              borderBottom: '1px solid rgba(180,185,200,0.10)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
               <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
                 Feed
+              </span>
+              <span style={{
+                fontSize: 9, fontWeight: 600, color: 'var(--de-gold)', opacity: 0.7,
+                letterSpacing: '0.06em', textTransform: 'uppercase',
+              }}>
+                LIVE
               </span>
             </div>
             <HomeFeed

@@ -1526,3 +1526,171 @@ body, .dreamnav-surface, .controls {
 .de-wordmark-dark .engin {
   color: rgba(220,235,255,0.60);
 }
+
+/* =============================================================================
+   SICC — Super Immersive Creative Controls
+   Premium visual layer for DreamDMBar, gold button, action surfaces.
+   Architecture: THEME.md (Gold=action · premium feel · intentional motion)
+   Performance: CSS-only keyframes; zero JS overhead.
+   =========================================================================== */
+
+/* ── Gold button idle breathing ring ── */
+@keyframes sicc-gold-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0px rgba(200,152,26,0.0),
+      0 0 18px rgba(200,152,26,0.20);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(200,152,26,0.12),
+      0 0 28px rgba(200,152,26,0.35);
+  }
+}
+
+/* ── Gold button active pulse burst ── */
+@keyframes sicc-gold-burst {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  50%  { transform: scale(1.8); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* ── Shimmer sweep for send button / primary actions ── */
+@keyframes sicc-shimmer-sweep {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+
+/* ── Mode button active glow ring ── */
+@keyframes sicc-mode-glow {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(200,152,26,0.0); }
+  50%      { box-shadow: 0 0 0 4px rgba(200,152,26,0.25); }
+}
+
+/* ── Divider bar edge shimmer ── */
+@keyframes sicc-edge-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Soft float for hero elements ── */
+@keyframes sicc-soft-float {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-3px); }
+}
+
+/* ── Glass surface entrance ── */
+@keyframes sicc-glass-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    backdrop-filter: blur(24px);
+  }
+}
+
+/* ── Notification badge pop ── */
+@keyframes sicc-badge-pop {
+  0%   { transform: scale(0.3); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── SICC utility classes ── */
+
+.sicc-gold-breathe {
+  animation: sicc-gold-breathe 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.sicc-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.sicc-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,0.25) 45%,
+    rgba(255,255,255,0.45) 50%,
+    rgba(255,255,255,0.25) 55%,
+    transparent 70%
+  );
+  animation: sicc-shimmer-sweep 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.sicc-glass-in {
+  animation: sicc-glass-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sicc-badge-pop {
+  animation: sicc-badge-pop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.sicc-soft-float {
+  animation: sicc-soft-float 4s ease-in-out infinite;
+}
+
+/* ── SICC premium gradient text ── */
+.sicc-gradient-text {
+  background: linear-gradient(135deg,
+    #c8981a 0%,
+    #e8b830 25%,
+    #f0d060 50%,
+    #e8b830 75%,
+    #c8981a 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: sicc-edge-shimmer 4s linear infinite;
+}
+
+/* ── SICC divider bar edge glow ── */
+.sicc-bar-edge {
+  position: relative;
+}
+.sicc-bar-edge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(200,152,26,0.15) 15%,
+    rgba(200,152,26,0.50) 35%,
+    rgba(232,184,48,0.65) 50%,
+    rgba(200,152,26,0.50) 65%,
+    rgba(200,152,26,0.15) 85%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: sicc-edge-shimmer 6s linear infinite;
+}
+.sicc-bar-edge::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(42,138,184,0.10) 20%,
+    rgba(42,138,184,0.35) 50%,
+    rgba(42,138,184,0.10) 80%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: sicc-edge-shimmer 8s linear infinite reverse;
+}

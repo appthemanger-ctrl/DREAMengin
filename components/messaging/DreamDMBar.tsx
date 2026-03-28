@@ -728,6 +728,45 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   return (
     <>
       {/* ── Gold sphere button ──────────────────────────────────────────────── */}
+      {/* SICC gold button outer glow ring */}
+      <div
+        aria-hidden
+        style={{
+          position: 'fixed',
+          top: goldTopPx - 6,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: GOLD_SZ + 12,
+          height: GOLD_SZ + 12,
+          borderRadius: '50%',
+          zIndex: 101,
+          pointerEvents: 'none',
+          transition: isDragging ? 'none' : `top ${SPRING}`,
+          background: 'transparent',
+          border: '1.5px solid rgba(200,152,26,0.20)',
+          animation: goldPressed ? 'none' : 'sicc-gold-breathe 3.2s cubic-bezier(0.45,0.05,0.55,0.95) infinite',
+          opacity: isScreenLocked ? 0.85 : 0.65,
+        }}
+      />
+      {/* SICC gold button burst ring (visible on press) */}
+      {goldPressed && (
+        <div
+          aria-hidden
+          style={{
+            position: 'fixed',
+            top: goldTopPx - 4,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: GOLD_SZ + 8,
+            height: GOLD_SZ + 8,
+            borderRadius: '50%',
+            zIndex: 101,
+            pointerEvents: 'none',
+            border: '2px solid rgba(232,184,48,0.55)',
+            animation: 'sicc-gold-burst 0.5s ease-out forwards',
+          }}
+        />
+      )}
       <button
         type="button"
         aria-label="Gold button — tap for menus, double-tap to open HomeDream"
@@ -738,10 +777,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           setGoldPressed(false);
         }}
         style={{
-          position: 'fixed', // Always fixed to ensure no scroll movement when screen-locked
+          position: 'fixed',
           top: goldTopPx,
           left: '50%',
-          transform: `translateX(-50%) scale(${goldPressed ? 0.90 : 1})`,
+          transform: `translateX(-50%) scale(${goldPressed ? 0.88 : 1})`,
           width: GOLD_SZ, height: GOLD_SZ,
           borderRadius: '50%',
           border: 'none',
@@ -752,32 +791,43 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           WebkitTapHighlightColor: 'transparent',
           outline: 'none',
           transition: goldPressed
-            ? 'transform 0.08s ease'
+            ? 'transform 0.08s ease, box-shadow 0.08s ease'
             : isDragging
               ? 'none'
-              : `top ${SPRING}, transform 0.22s cubic-bezier(0.34,1.6,0.64,1)`,
+              : `top ${SPRING}, transform 0.22s cubic-bezier(0.34,1.6,0.64,1), box-shadow 0.3s ease`,
           willChange: 'transform',
           background: `radial-gradient(circle at 36% 32%,
-            #fffde0 0%, #f7e07a 12%, #d4a843 38%, #a16207 68%, #6b3c03 100%)`,
+            #fffde0 0%, #f7e07a 10%, #e8c040 22%, #d4a843 38%, #a16207 65%, #6b3c03 100%)`,
           boxShadow: goldPressed
-            ? `inset 0 3px 6px rgba(80,40,0,0.50),
-               inset -2px -2px 8px rgba(80,40,0,0.30),
-               0 2px 8px rgba(100,58,4,0.35),
-               0 0 0 1.5px rgba(180,120,20,0.45)`
-            : `inset 0 2px 4px rgba(255,255,220,0.85),
-               inset -3px -3px 10px rgba(80,40,0,0.40),
-               0 6px 24px rgba(100,58,4,0.55),
-               0 2px 8px rgba(212,168,67,0.50),
-               0 0 0 1.5px rgba(180,120,20,0.45)${isScreenLocked ? ', 0 0 20px rgba(200,152,26,0.6)' : ''}`,
+            ? `inset 0 3px 8px rgba(80,40,0,0.55),
+               inset -2px -2px 10px rgba(80,40,0,0.35),
+               0 2px 8px rgba(100,58,4,0.40),
+               0 0 0 2px rgba(200,152,26,0.50),
+               0 0 16px rgba(200,152,26,0.30)`
+            : `inset 0 2px 5px rgba(255,255,220,0.90),
+               inset -3px -3px 12px rgba(80,40,0,0.42),
+               0 6px 28px rgba(100,58,4,0.50),
+               0 2px 10px rgba(212,168,67,0.55),
+               0 0 0 1.5px rgba(180,120,20,0.45),
+               0 0 ${isScreenLocked ? '24px' : '14px'} rgba(200,152,26,${isScreenLocked ? '0.55' : '0.25'})`,
         }}
       >
+        {/* SICC specular highlight — enhanced */}
         <span aria-hidden style={{
-          position: 'absolute', top: '14%', left: '18%',
-          width: '36%', height: '22%', borderRadius: '50%',
-          background: 'rgba(255,255,245,0.55)', filter: 'blur(3px)', pointerEvents: 'none',
+          position: 'absolute', top: '10%', left: '15%',
+          width: '40%', height: '24%', borderRadius: '50%',
+          background: 'linear-gradient(135deg, rgba(255,255,245,0.70) 0%, rgba(255,255,220,0.20) 100%)',
+          filter: 'blur(2.5px)', pointerEvents: 'none',
+        }} />
+        {/* SICC secondary edge highlight */}
+        <span aria-hidden style={{
+          position: 'absolute', bottom: '12%', right: '16%',
+          width: '22%', height: '14%', borderRadius: '50%',
+          background: 'rgba(255,240,180,0.25)',
+          filter: 'blur(3px)', pointerEvents: 'none',
         }} />
         <svg width="22" height="11" viewBox="0 0 80 36"
-          style={{ opacity: 0.82, flexShrink: 0, position: 'relative' }} aria-hidden>
+          style={{ opacity: 0.88, flexShrink: 0, position: 'relative', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.15))' }} aria-hidden>
           <path d="M10 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
           <path d="M10 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
         </svg>
@@ -786,6 +836,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
       {/* ── DreamDM window ───────────────────────────────────────────────────── */}
       <div
         aria-label="DreamDM Bar"
+        className="sicc-bar-edge"
         style={{
           position: 'fixed',
           top: barTop,
@@ -799,15 +850,21 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           display: 'flex',
           // Divider mode: handle always at top; legacy: handle position depends on snap state
           flexDirection: isDividerMode ? 'column' : (isTop ? 'column-reverse' : 'column'),
-          background: 'linear-gradient(180deg, rgba(242,243,247,0.97) 0%, rgba(238,240,245,0.99) 100%)',
-          backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-          borderTop: isDividerMode ? '1.5px solid rgba(200,152,26,0.45)' : (isTop ? 'none' : '1.5px solid rgba(200,152,26,0.45)'),
-          borderBottom: isDividerMode ? '1.5px solid rgba(200,152,26,0.45)' : (isTop ? '1.5px solid rgba(200,152,26,0.45)' : 'none'),
+          background: isDividerMode
+            ? 'linear-gradient(180deg, rgba(245,246,250,0.98) 0%, rgba(240,242,247,0.99) 100%)'
+            : 'linear-gradient(180deg, rgba(248,249,253,0.97) 0%, rgba(242,244,249,0.99) 100%)',
+          backdropFilter: 'blur(32px) saturate(160%)', WebkitBackdropFilter: 'blur(32px) saturate(160%)',
+          borderTop: isDividerMode ? 'none' : (isTop ? 'none' : 'none'),
+          borderBottom: isDividerMode ? 'none' : (isTop ? 'none' : 'none'),
           boxShadow: isDividerMode
-            ? '0 2px 16px rgba(0,0,0,0.10), 0 -2px 16px rgba(0,0,0,0.08)'
+            ? `0 4px 24px rgba(0,0,0,0.08), 0 -4px 24px rgba(0,0,0,0.06),
+               0 1px 0 rgba(200,152,26,0.18), 0 -1px 0 rgba(200,152,26,0.12),
+               inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(255,255,255,0.25)`
             : (isTop
-              ? '0 4px 24px rgba(0,0,0,0.12)'
-              : '0 -4px 24px rgba(0,0,0,0.10)'),
+              ? `0 6px 32px rgba(0,0,0,0.12), 0 1px 0 rgba(200,152,26,0.15),
+                 inset 0 -1px 0 rgba(255,255,255,0.35)`
+              : `0 -6px 32px rgba(0,0,0,0.10), 0 -1px 0 rgba(200,152,26,0.15),
+                 inset 0 1px 0 rgba(255,255,255,0.45)`),
         }}
       >
         {/* ── Drag handle ──────────────────────────────────────────────────── */}
@@ -821,12 +878,23 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, cursor: isDragging ? 'grabbing' : 'grab',
             touchAction: 'none', userSelect: 'none',
+            position: 'relative',
           }}
         >
+          {/* SICC drag handle — refined dual-line with gold center */}
           <div style={{
-            width: 40, height: 4, borderRadius: 99,
-            background: 'rgba(200,152,26,0.45)',
-          }} />
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+          }}>
+            <div style={{
+              width: 44, height: 3, borderRadius: 99,
+              background: 'linear-gradient(90deg, rgba(200,152,26,0.15), rgba(200,152,26,0.55), rgba(200,152,26,0.15))',
+              boxShadow: '0 0 4px rgba(200,152,26,0.15)',
+            }} />
+            <div style={{
+              width: 28, height: 2, borderRadius: 99,
+              background: 'linear-gradient(90deg, rgba(42,138,184,0.08), rgba(42,138,184,0.25), rgba(42,138,184,0.08))',
+            }} />
+          </div>
         </div>
 
         {/* ── Bar body ─────────────────────────────────────────────────────── */}
@@ -861,15 +929,22 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             }}>
               {/* Notification bell + unread badge */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <Bell size={16} aria-hidden style={{ color: unreadCount > 0 ? 'var(--de-gold)' : 'var(--de-text-dim)', transition: 'color 0.18s' }} />
+                <Bell size={16} aria-hidden style={{
+                  color: unreadCount > 0 ? 'var(--de-gold)' : 'var(--de-text-dim)',
+                  transition: 'color 0.18s, filter 0.3s',
+                  filter: unreadCount > 0 ? 'drop-shadow(0 0 4px rgba(200,152,26,0.35))' : 'none',
+                }} />
                 {unreadCount > 0 && (
                   <span
                     aria-label={`${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`}
+                    className="sicc-badge-pop"
                     style={{
                       position: 'absolute', top: -6, right: -8,
-                      background: '#dc4444', color: 'white',
+                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                      color: 'white',
                       borderRadius: 9999, fontSize: 8, fontWeight: 700,
                       lineHeight: 1, padding: '2px 4px', minWidth: 14, textAlign: 'center',
+                      boxShadow: '0 2px 6px rgba(220,38,38,0.35), 0 0 0 1.5px rgba(255,255,255,0.85)',
                     }}
                   >
                     {unreadCount > 99 ? '99+' : unreadCount}
@@ -918,16 +993,21 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 aria-label={barCtx.actionAriaLabel}
                 style={{
                   flex: 1, minWidth: 0,
-                  background: composeFocused ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.40)',
+                  background: composeFocused
+                    ? 'rgba(255,255,255,0.82)'
+                    : 'rgba(255,255,255,0.48)',
                   border: composeFocused
-                    ? '1.5px solid rgba(200,152,26,0.55)'
+                    ? '1.5px solid rgba(200,152,26,0.60)'
                     : barIntent.mode !== 'default'
-                      ? '1.5px solid rgba(42,138,184,0.45)'
-                      : '1px solid rgba(180,185,200,0.40)',
-                  borderRadius: 9999, padding: isCompactViewport ? '7px 12px' : '7px 14px', fontSize: isCompactViewport ? 16 : 13,
+                      ? '1.5px solid rgba(42,138,184,0.50)'
+                      : '1px solid rgba(180,185,200,0.35)',
+                  borderRadius: 9999, padding: isCompactViewport ? '8px 14px' : '8px 16px', fontSize: isCompactViewport ? 16 : 13,
                   color: 'var(--de-text)', outline: 'none', cursor: 'text',
-                  transition: 'background 0.18s, border 0.18s',
+                  transition: 'background 0.22s ease, border 0.22s ease, box-shadow 0.22s ease',
                   WebkitAppearance: 'none',
+                  boxShadow: composeFocused
+                    ? '0 0 0 3px rgba(200,152,26,0.10), 0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.50)'
+                    : 'inset 0 1px 0 rgba(255,255,255,0.35)',
                 }}
               />
 
@@ -946,18 +1026,21 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 </span>
               )}
 
-              {/* Send / action button — visible when there's text to submit */}
+              {/* Send / action button — SICC premium gradient with shimmer */}
               {quickDraft.trim() && (
                 <button
                   type="button" onClick={() => { void handleQuickSend(); }}
                   onPointerDown={(e) => e.stopPropagation()}
                   disabled={isSending || commentSending} aria-label={barCtx.actionAriaLabel}
+                  className="sicc-shimmer"
                   style={{
-                    background: 'linear-gradient(135deg, var(--de-gold), var(--de-blue))',
-                    border: 'none', borderRadius: '50%', width: 34, height: 34,
+                    background: 'linear-gradient(135deg, var(--de-gold) 0%, #e0b020 40%, var(--de-blue) 100%)',
+                    border: 'none', borderRadius: '50%', width: 36, height: 36,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: (isSending || commentSending) ? 'not-allowed' : 'pointer', flexShrink: 0, color: 'white',
                     opacity: (isSending || commentSending) ? 0.6 : 1,
+                    boxShadow: '0 3px 12px rgba(200,152,26,0.35), 0 1px 3px rgba(0,0,0,0.10)',
+                    transition: 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s, box-shadow 0.18s',
                   }}
                 >
                   {(isSending || commentSending)
@@ -1028,13 +1111,22 @@ function ModeButton({
       title={label}
       style={{
         flexShrink: 0,
-        background: isActive ? 'var(--de-gold)' : 'rgba(180,185,200,0.18)',
-        border: 'none', borderRadius: '50%', width: compact ? 26 : 28, height: compact ? 26 : 28,
+        background: isActive
+          ? 'linear-gradient(135deg, var(--de-gold) 0%, #d4a843 100%)'
+          : 'rgba(180,185,200,0.15)',
+        border: isActive ? '1.5px solid rgba(232,184,48,0.50)' : '1px solid rgba(180,185,200,0.20)',
+        borderRadius: '50%',
+        width: compact ? 28 : 30,
+        height: compact ? 28 : 30,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer',
         color: isActive ? 'white' : 'var(--de-text-dim)',
-        transition: 'background 0.18s, color 0.18s, transform 0.12s',
-        transform: isActive ? 'scale(1.08)' : 'scale(1)',
+        transition: 'all 0.22s cubic-bezier(0.34,1.56,0.64,1)',
+        transform: isActive ? 'scale(1.10)' : 'scale(1)',
+        boxShadow: isActive
+          ? '0 2px 10px rgba(200,152,26,0.40), 0 0 0 2px rgba(200,152,26,0.15)'
+          : '0 1px 3px rgba(0,0,0,0.06)',
+        animation: isActive ? 'sicc-mode-glow 2s ease-in-out infinite' : 'none',
       }}
     >
       {icon}
@@ -1290,7 +1382,8 @@ function DreamSpaceMessaging({
                 <button
                   type="submit" aria-label="Send message"
                   disabled={(!messageBody.trim() && !selectedFile) || isSending}
-                  style={{ background: 'linear-gradient(135deg, var(--de-gold) 0%, var(--de-blue) 100%)', border: 'none', borderRadius: '50%', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (!messageBody.trim() && !selectedFile) || isSending ? 'not-allowed' : 'pointer', color: 'white', flexShrink: 0, opacity: (!messageBody.trim() && !selectedFile) || isSending ? 0.5 : 1 }}
+                  className="sicc-shimmer"
+                  style={{ background: 'linear-gradient(135deg, var(--de-gold) 0%, #e0b020 40%, var(--de-blue) 100%)', border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (!messageBody.trim() && !selectedFile) || isSending ? 'not-allowed' : 'pointer', color: 'white', flexShrink: 0, opacity: (!messageBody.trim() && !selectedFile) || isSending ? 0.5 : 1, boxShadow: '0 3px 10px rgba(200,152,26,0.30)', transition: 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s' }}
                 >
                   {isSending ? <Loader2 size={13} aria-hidden /> : <Send size={13} aria-hidden />}
                 </button>
