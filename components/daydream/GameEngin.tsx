@@ -802,6 +802,9 @@ export default function GameEngin({ onBack }: Props) {
               </div>
             </div>
 
+            {/* Remote lives directly under the game screen, as requested */}
+            <GameRemote embedded gameLabel={selectedPlayable.label} playHref={buildGameLaunchHref(selectedPlayable.id, { openEngin: true, play: true })} onPlay={() => launchPlayableGame(selectedPlayable.id)} />
+
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, marginBottom: 12 }}>
               <button type="button" onClick={() => launchPlayableGame(selectedPlayable.id)} className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
                 ▶ Play on screen
@@ -819,8 +822,6 @@ export default function GameEngin({ onBack }: Props) {
                 Last saved: {savedPlayableSession.label} · {new Date(savedPlayableSession.savedAt).toLocaleString()}
               </div>
             )}
-
-            <GameRemote embedded gameLabel={selectedPlayable.label} playHref={buildGameLaunchHref(selectedPlayable.id, { openEngin: true, play: true })} onPlay={() => launchPlayableGame(selectedPlayable.id)} />
 
             <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>
               {GAMES.slice(0, 12).map((game) => (

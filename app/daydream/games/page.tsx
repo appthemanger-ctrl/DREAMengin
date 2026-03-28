@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Gamepad2, Play, Sparkles, Trophy, Zap } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Play, Sparkles, Zap } from 'lucide-react';
 import GamesHub from '@/components/games/GamesHub';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
@@ -30,16 +30,15 @@ const LIBRARY_SPOTLIGHT = [
 ];
 
 const CONSOLE_MODULES = [
-  { title: 'Saved Runs', detail: 'GameEngin keeps your saved launches and quick resume slots like a console memory deck.' },
-  { title: 'Remote Dock', detail: 'The PS-style remote lives with the games, and GameEngin remembers your control setup.' },
-  { title: 'Console Home', detail: 'Think PS5 home screen energy: launch, resume, and return to your library without the page feeling like tools.' },
+  { title: 'Saved Runs', detail: 'GameEngin keeps your saved launches and quick resume slots.' },
+  { title: 'Remote Dock', detail: 'The remote lives directly under the game screen in GameEngin — always there when you play.' },
 ];
 
 /**
  * Games Daydream page.
  *
- * Games Daydream is the main game shelf and big-screen play surface.
- * GameEngin remains the save / resume console companion for the library.
+ * Side A = game library browser.
+ * Side B (GameEngin) = big-screen play surface + remote directly under the game screen.
  */
 export default async function GamesDaydreamPage() {
   const supabase = await createServerClient();
@@ -91,10 +90,10 @@ export default async function GamesDaydreamPage() {
                   <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1.05, marginTop: 12 }}>
                     All the games live here.
                     <br />
-                    Play happens on the GameEngin side.
+                    Play + remote happen on the GameEngin side.
                   </h2>
                   <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.7, maxWidth: 700, marginTop: 10 }}>
-                    Games Daydream is now the actual home for the full library: browse, discover, save a title into GameEngin, and then flip over to the engine side for the big-screen play surface, fullscreen takeover, and PS-style remote.
+                    Browse all 23 games here, then flip over to GameEngin to play. The remote controller sits directly under the game screen in GameEngin — right where it should be.
                   </p>
                   <div className="flex flex-wrap gap-2" style={{ marginTop: 12 }}>
                     {GAME_QUALITY_PILLARS.slice(0, 4).map((pillar) => (
@@ -133,7 +132,7 @@ export default async function GamesDaydreamPage() {
                 </div>
                 <div className="de-widget-body" style={{ paddingTop: 12 }}>
                   <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
-                    Browse the actual game shelf here, choose what belongs in your GameEngin, and keep the actual play surface on the engine side where the screen and remote live.
+                    Browse the actual game shelf here. Open GameEngin to play — the controller remote is right there under the game screen.
                   </div>
                   <GamesHub />
                 </div>
@@ -144,16 +143,16 @@ export default async function GamesDaydreamPage() {
               <div className="de-widget" style={{ borderColor: 'rgba(42,138,184,0.28)', background: 'linear-gradient(180deg, rgba(11,23,45,0.96), rgba(22,37,72,0.9))', color: '#f8fbff' }}>
                 <div className="de-widget-header" style={{ borderBottomColor: 'rgba(125,211,252,0.18)' }}>
                   <Zap className="w-4 h-4" style={{ color: '#7dd3fc' }} />
-                  <span className="de-widget-title ml-2" style={{ color: '#f8fbff' }}>GameEngin Console Home</span>
+                  <span className="de-widget-title ml-2" style={{ color: '#f8fbff' }}>GameEngin Console</span>
                   <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(125,211,252,0.12)', color: '#7dd3fc', border: '1px solid rgba(125,211,252,0.22)' }}>
                     PS-style
                   </span>
                 </div>
                 <div className="de-widget-body" style={{ paddingTop: 12 }}>
                   <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc', marginBottom: 8 }}>Console Boot Ready</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#f8fbff', marginBottom: 8 }}>GameEngin is where the games are actually played.</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#f8fbff', marginBottom: 8 }}>Game screen + remote in one place.</div>
                   <div style={{ fontSize: 12, lineHeight: 1.65, color: 'rgba(226,232,240,0.78)', marginBottom: 14 }}>
-                    Open GameEngin when you want the big play screen, fullscreen mode, PS-style remote, saved runs, quick resume, and your score deck. This side stays focused on the library and everything around the games.
+                    Open GameEngin to play. The remote controller sits directly under the game screen — you don&apos;t need to go anywhere else to use it.
                   </div>
                   <div style={{ display: 'grid', gap: 10 }}>
                     {CONSOLE_MODULES.map((module) => (
@@ -165,7 +164,7 @@ export default async function GamesDaydreamPage() {
                   </div>
                 </div>
                 <div className="de-widget-actions">
-                  <OpenDaydreamSideBButton label="Open GameEngin Console Home" />
+                  <OpenDaydreamSideBButton label="Open GameEngin" />
                   <span style={{ fontSize: 11, color: 'rgba(226,232,240,0.65)', marginLeft: 'auto' }}>Choose here, play there</span>
                 </div>
               </div>
@@ -201,26 +200,6 @@ export default async function GamesDaydreamPage() {
                         </div>
                         <Play className="w-3.5 h-3.5" style={{ color: 'var(--de-accent)', flexShrink: 0 }} />
                       </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="de-widget">
-                <div className="de-widget-header">
-                  <Trophy className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
-                  <span className="de-widget-title ml-2">Why the split works</span>
-                </div>
-                <div className="de-widget-body">
-                  <div style={{ display: 'grid', gap: 8 }}>
-                    {[
-                      'The library side stays readable and fast to browse.',
-                      'The library stays focused on finding, staging, and managing games.',
-                      'GameEngin gets to be the dedicated play surface with fullscreen and remote controls.',
-                    ].map((item) => (
-                      <div key={item} style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.48)', border: '1px solid rgba(160,195,240,0.16)' }}>
-                        {item}
-                      </div>
                     ))}
                   </div>
                 </div>
