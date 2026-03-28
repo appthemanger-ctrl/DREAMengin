@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { 
   Search, Home, Compass, Settings, User, MessageSquare,
   TrendingUp, ShoppingBag, Music, FileText, Calendar,
-  Command, ArrowRight
+  Command, ArrowRight, Stars
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -88,6 +88,14 @@ export default function CommandPalette() {
       keywords: ['profile', 'account', 'me'],
       action: () => router.push('/edit-profiledream'),
       category: 'Settings'
+    },
+    {
+      id: 'constellation',
+      label: 'Dream Constellation',
+      icon: Stars,
+      keywords: ['constellation', 'map', 'surfaces', 'explore', 'graph', 'dream'],
+      action: () => router.push('/daydream/constellation'),
+      category: 'Explore'
     },
   ];
 

@@ -10,6 +10,7 @@ import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
 import GlobalCustomizeUI from '@/components/customize/GlobalCustomizeUI';
 import WarpCanvas from '@/components/warp/WarpCanvas';
 import GodTierProvider from '@/components/providers/GodTierProvider';
+import KonamiDream from '@/components/KonamiDream';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -69,6 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <main role="main" aria-label="Main content">{children}</main>
               <GlobalDreamBar />
               <GlobalCustomizeUI />
+              <KonamiDream />
             </DreamSystemProvider>
           </CustomizeModeProvider>
           {/* Permanent policy footer (req 10) — always accessible, no login required */}
