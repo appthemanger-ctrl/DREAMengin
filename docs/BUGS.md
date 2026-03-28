@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-27 21:08 UTC  
-**Triggered by commit:** `34dab13` on `copilot/fix-game-launch-issue` by Copilot  
-**Commit message:** feat: auto-start games when clicked from GamesHub; fix GameRemote PLAY button
+**Last updated:** 2026-03-28 02:33 UTC  
+**Triggered by commit:** `55c12d2` on `copilot/improve-website-design-and-functionality` by Copilot  
+**Commit message:** feat: premium SICK design upgrade — landing, auth pages, about page, global dark theme CSS
 
 ---
 
