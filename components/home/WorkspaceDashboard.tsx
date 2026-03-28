@@ -77,21 +77,27 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
       style={{
         minWidth: 152, flexShrink: 0,
         padding: '14px 16px',
-        background: 'rgba(255,255,255,0.92)',
+        background: isDrEams
+          ? 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,250,235,0.92))'
+          : 'rgba(255,255,255,0.92)',
         borderRadius: 18,
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-        border: `1px solid ${isDrEams ? 'rgba(200,152,26,0.20)' : 'rgba(180,185,200,0.18)'}`,
+        boxShadow: isDrEams
+          ? '0 3px 16px rgba(200,152,26,0.10), 0 1px 4px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.60)'
+          : '0 2px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.50)',
+        border: `1px solid ${isDrEams ? 'rgba(200,152,26,0.25)' : 'rgba(180,185,200,0.15)'}`,
         cursor: handleClick ? 'pointer' : 'default',
         textAlign: 'left',
         WebkitTapHighlightColor: 'transparent',
+        transition: 'all 0.22s ease',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <div style={{
-          width: 32, height: 32, borderRadius: '50%',
+          width: 34, height: 34, borderRadius: '50%',
           background: agent.bg,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 14, fontWeight: 700, color: agent.iconColor, flexShrink: 0,
+          boxShadow: isDrEams ? '0 0 8px rgba(200,152,26,0.20)' : 'none',
         }}>
           {agent.initial}
         </div>
@@ -99,7 +105,7 @@ function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDr
           {agent.name}
         </span>
       </div>
-      <div style={{ fontSize: 11, color: isDrEams ? 'var(--de-accent)' : 'var(--de-text-dim)', fontWeight: isDrEams ? 600 : 400 }}>
+      <div style={{ fontSize: 11, color: isDrEams ? 'var(--de-gold)' : 'var(--de-text-dim)', fontWeight: isDrEams ? 600 : 400 }}>
         {isDrEams ? 'Tap to chat ◈' : isIdari ? 'Admin only ⬡' : 'Policy enforcer 👁'}
       </div>
     </button>
@@ -146,13 +152,15 @@ function MetricWidget({
 }) {
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.70)', borderRadius: 14,
-      border: '1px solid rgba(180,185,200,0.15)',
+      background: 'rgba(255,255,255,0.75)', borderRadius: 16,
+      border: '1px solid rgba(180,185,200,0.12)',
       padding: '12px 14px',
       display: 'flex', flexDirection: 'column', gap: 4,
+      boxShadow: '0 1px 4px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.50)',
+      transition: 'box-shadow 0.22s ease',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Icon size={13} style={{ color }} />
+        <Icon size={13} style={{ color, filter: `drop-shadow(0 0 3px ${color}33)` }} />
         <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           {label}
         </span>
@@ -333,17 +341,17 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
             : 'calc(env(safe-area-inset-bottom, 0px) + 132px)',
         }}
       >
-        {/* ── Floating header ── */}
+        {/* ── Floating header — SICC refined ── */}
         <div style={{
           position: 'sticky', top: 0, zIndex: 50,
           padding: isCompactViewport
             ? 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px'
             : '16px 20px 12px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'rgba(var(--de-bg-start-rgb, 2,8,24),0.72)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: 'rgba(var(--de-bg-start-rgb, 2,8,24),0.78)',
+          backdropFilter: 'blur(28px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(160%)',
+          borderBottom: '1px solid rgba(200,152,26,0.08)',
           pointerEvents: 'auto',
         }}>
           {/* dreamengin wordmark */}
@@ -451,14 +459,16 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                   className="de-pressable"
                   style={{
                     borderRadius: 999,
-                    border: '1px solid rgba(180,185,200,0.30)',
-                    background: 'rgba(255,255,255,0.65)',
+                    border: '1px solid rgba(180,185,200,0.25)',
+                    background: 'rgba(255,255,255,0.70)',
                     color: 'var(--de-heading)',
-                    padding: isCompactViewport ? '7px 12px' : '7px 14px',
+                    padding: isCompactViewport ? '7px 12px' : '8px 16px',
                     fontSize: isCompactViewport ? 11 : 12,
                     fontWeight: 600,
                     cursor: 'pointer',
                     WebkitTapHighlightColor: 'transparent',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.45)',
+                    transition: 'all 0.18s ease',
                   }}
                 >
                   {item.label}
@@ -471,12 +481,14 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                   className="de-pressable"
                   style={{
                     borderRadius: 999,
-                    border: '1px solid rgba(200,152,26,0.35)',
-                    background: 'rgba(200,152,26,0.10)',
+                    border: '1.5px solid rgba(200,152,26,0.35)',
+                    background: 'linear-gradient(135deg, rgba(200,152,26,0.12), rgba(200,152,26,0.06))',
                     color: 'var(--de-heading)',
-                    padding: isCompactViewport ? '7px 12px' : '7px 14px', fontSize: isCompactViewport ? 11 : 12, fontWeight: 600,
+                    padding: isCompactViewport ? '7px 12px' : '8px 16px', fontSize: isCompactViewport ? 11 : 12, fontWeight: 600,
                     display: 'flex', alignItems: 'center', gap: 5,
                     cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
+                    boxShadow: '0 2px 8px rgba(200,152,26,0.10)',
+                    transition: 'all 0.18s ease',
                   }}
                 >
                   <span style={{ fontSize: 11 }}>✦</span>
@@ -488,11 +500,14 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
                 onClick={() => enterCustomizeMode('home')}
                 className="de-pressable"
                 style={{
-                  borderRadius: 999, border: '1px solid rgba(58,111,216,0.30)',
-                  background: 'rgba(58,111,216,0.07)', color: '#3a6fd8',
-                  padding: isCompactViewport ? '7px 12px' : '7px 14px', fontSize: isCompactViewport ? 11 : 12, fontWeight: 700,
+                  borderRadius: 999, border: '1.5px solid rgba(58,111,216,0.30)',
+                  background: 'linear-gradient(135deg, rgba(58,111,216,0.08), rgba(58,111,216,0.03))',
+                  color: '#3a6fd8',
+                  padding: isCompactViewport ? '7px 12px' : '8px 16px', fontSize: isCompactViewport ? 11 : 12, fontWeight: 700,
                   display: 'flex', alignItems: 'center', gap: 5,
                   cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
+                  boxShadow: '0 2px 8px rgba(58,111,216,0.08)',
+                  transition: 'all 0.18s ease',
                 }}
               >
                 <Palette size={12} />
