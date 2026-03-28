@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-28 03:16 UTC  
-**Triggered by commit:** `33cb4eb` on `copilot/improve-website-design-and-functionality` by Copilot  
-**Commit message:** fix: clear HomeDream mobile overlap by using dynamic viewport height and hiding runtime zoom controls on phones
+**Last updated:** 2026-03-28 03:20 UTC  
+**Triggered by commit:** `f1c2a2e` on `copilot/improve-website-design-and-functionality` by Copilot  
+**Commit message:** fix: align login fallback wordmark casing with dreamengin brand
 
 ---
 
