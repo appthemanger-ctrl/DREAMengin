@@ -19,6 +19,7 @@
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
+import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 2.5;
@@ -47,10 +48,16 @@ export default function RuntimeShell({
   const [showZoomControls, setShowZoomControls] = useState(true);
 
   useEffect(() => {
-    const update = () => setShowZoomControls(window.innerWidth >= 768);
+    const update = () => setShowZoomControls(!isCompactRuntimeViewport(window.innerWidth));
     update();
     window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    window.visualViewport?.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+      window.visualViewport?.removeEventListener('resize', update);
+    };
   }, []);
 
   const zoomIn  = useCallback(() => setZoom((z) => Math.min(Math.round((z + ZOOM_STEP) * 100) / 100, MAX_ZOOM)), []);
@@ -76,7 +83,16 @@ export default function RuntimeShell({
   });
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        overscrollBehavior: 'contain',
+        contain: 'layout paint size',
+      }}
+    >
 
       {/* ── Zoom controls — top-right of the region, never zoomed ───────── */}
       {showZoomControls && (
@@ -237,13 +253,18 @@ export default function RuntimeShell({
          */
         <div
           style={{
+            position: 'relative',
             width: `${(100 / zoom).toFixed(4)}%`,
             height: `${(100 / zoom).toFixed(4)}%`,
+            minHeight: '100%',
             transform: `scale(${zoom})`,
             transformOrigin: 'top left',
             overflowY: 'auto',
             overflowX: 'hidden',
             WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           {children}

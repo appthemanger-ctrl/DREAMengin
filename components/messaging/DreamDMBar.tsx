@@ -71,6 +71,7 @@ import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
 import { useDreamSystem, type BarIntentMode } from '@/lib/dreamdm/DreamSystemContext';
 import DreamWord from '@/components/ui/DreamWord';
+import { getPreferredViewportHeight, isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
 /** Thick bar height when locked at the bottom */
@@ -176,11 +177,21 @@ interface DreamDMBarProps {
 export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange }: DreamDMBarProps) {
   // ── Screen geometry ────────────────────────────────────────────────────────
   const [screenH, setScreenH] = useState(900);
+  const [screenW, setScreenW] = useState(1440);
   useEffect(() => {
-    const update = () => setScreenH(window.innerHeight);
+    const update = () => {
+      setScreenH(getPreferredViewportHeight(window.innerHeight, window.visualViewport?.height));
+      setScreenW(window.visualViewport?.width ?? window.innerWidth);
+    };
     update();
     window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    window.visualViewport?.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+      window.visualViewport?.removeEventListener('resize', update);
+    };
   }, []);
 
   // ── Window position state ──────────────────────────────────────────────────
@@ -711,6 +722,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   // Track if button is in screen-locked mode (for styling/behavior)
   const isScreenLocked: boolean = isGoldOffScreen;
+  const isCompactViewport = isCompactRuntimeViewport(screenW);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -844,7 +856,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             /* Compact bar — quick compose + mode buttons + notifications */
             <div style={{
               flex: 1, display: 'flex', alignItems: 'center',
-              gap: 6, paddingTop: 0, paddingRight: 12, paddingLeft: 14,
+              gap: isCompactViewport ? 4 : 6, paddingTop: 0, paddingRight: isCompactViewport ? 8 : 12, paddingLeft: isCompactViewport ? 10 : 14,
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}>
               {/* Notification bell + unread badge */}
@@ -912,14 +924,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                     : barIntent.mode !== 'default'
                       ? '1.5px solid rgba(42,138,184,0.45)'
                       : '1px solid rgba(180,185,200,0.40)',
-                  borderRadius: 9999, padding: '7px 14px', fontSize: 13,
+                  borderRadius: 9999, padding: isCompactViewport ? '7px 12px' : '7px 14px', fontSize: isCompactViewport ? 16 : 13,
                   color: 'var(--de-text)', outline: 'none', cursor: 'text',
                   transition: 'background 0.18s, border 0.18s',
+                  WebkitAppearance: 'none',
                 }}
               />
 
               {/* Context action label (shown when focused or has text) */}
-              {(composeFocused || quickDraft.trim()) && (
+              {!isCompactViewport && (composeFocused || quickDraft.trim()) && (
                 <span
                   aria-hidden
                   style={{
@@ -960,6 +973,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 activeMode={barIntent.mode}
                 onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
                 label="Search"
+                compact={isCompactViewport}
               />
               <ModeButton
                 mode="message"
@@ -967,6 +981,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 activeMode={barIntent.mode}
                 onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
                 label="Message"
+                compact={isCompactViewport}
               />
               <ModeButton
                 mode="dreams"
@@ -974,6 +989,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 activeMode={barIntent.mode}
                 onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
                 label="Dr. Eams"
+                compact={isCompactViewport}
               />
             </div>
           )}
@@ -992,12 +1008,14 @@ function ModeButton({
   activeMode,
   onSelect,
   label,
+  compact = false,
 }: {
   mode: BarIntentMode;
   icon: React.ReactNode;
   activeMode: BarIntentMode;
   onSelect: (mode: BarIntentMode) => void;
   label: string;
+  compact?: boolean;
 }) {
   const isActive = activeMode === mode;
   return (
@@ -1011,7 +1029,7 @@ function ModeButton({
       style={{
         flexShrink: 0,
         background: isActive ? 'var(--de-gold)' : 'rgba(180,185,200,0.18)',
-        border: 'none', borderRadius: '50%', width: 28, height: 28,
+        border: 'none', borderRadius: '50%', width: compact ? 26 : 28, height: compact ? 26 : 28,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer',
         color: isActive ? 'white' : 'var(--de-text-dim)',

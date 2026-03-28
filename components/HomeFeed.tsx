@@ -27,6 +27,7 @@ import { useLiveFeed, type FeedPost } from '@/lib/feed/useLiveFeed';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { createClient } from '@/lib/supabase/client';
+import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 
 interface HomeFeedProps {
   userId: string;
@@ -61,6 +62,7 @@ export default function HomeFeed({
   const [postError, setPostError] = useState<string | null>(null);
   const [sharePost, setSharePost] = useState<FeedPost | null>(null);
   const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string }[]>([]);
+  const [viewportWidth, setViewportWidth] = useState(1280);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleCommentFromBar = useCallback((post: FeedPost) => {
@@ -72,6 +74,22 @@ export default function HomeFeed({
   }, [setBarIntent]);
 
   const prevInitialRef = useRef(initialPosts);
+  useEffect(() => {
+    const updateViewport = () => {
+      const width = window.visualViewport?.width ?? window.innerWidth;
+      setViewportWidth(width);
+    };
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
+    window.addEventListener('orientationchange', updateViewport);
+    window.visualViewport?.addEventListener('resize', updateViewport);
+    return () => {
+      window.removeEventListener('resize', updateViewport);
+      window.removeEventListener('orientationchange', updateViewport);
+      window.visualViewport?.removeEventListener('resize', updateViewport);
+    };
+  }, []);
+
   useEffect(() => {
     if (prevInitialRef.current !== initialPosts) {
       prevInitialRef.current = initialPosts;
@@ -225,10 +243,12 @@ export default function HomeFeed({
     return `${Math.floor(s / 86400)}d`;
   };
 
+  const isCompactEmbedded = embedded && isCompactRuntimeViewport(viewportWidth);
+
   return (
     <>
     <div className={embedded ? 'h-full' : 'min-h-screen de-sky-bg'}>
-      <div className={embedded ? 'h-full px-4 pt-4 pb-4' : 'max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8'}>
+      <div className={embedded ? (isCompactEmbedded ? 'h-full px-3 pt-3 pb-6' : 'h-full px-4 pt-4 pb-4') : 'max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8'}>
 
         {/* Tabs + live indicator */}
         <div className="flex items-center gap-1 mb-6 bg-card rounded-2xl border border-border p-1">
@@ -338,11 +358,13 @@ export default function HomeFeed({
         <div
           style={{
             display: 'flex',
+            flexDirection: isCompactEmbedded ? 'column' : 'row',
             gap: 16,
-            overflowX: 'auto',
-            scrollSnapType: 'x mandatory',
+            overflowX: isCompactEmbedded ? 'visible' : 'auto',
+            overflowY: 'visible',
+            scrollSnapType: isCompactEmbedded ? 'none' : 'x mandatory',
             WebkitOverflowScrolling: 'touch',
-            paddingBottom: 8,
+            paddingBottom: isCompactEmbedded ? 16 : 8,
             scrollbarWidth: 'none',
           }}
         >
@@ -358,7 +380,13 @@ export default function HomeFeed({
               <article
                 key={post.id}
                 className="bg-card rounded-2xl border border-border p-4 hover:border-primary/20 transition-colors"
-                style={{ minWidth: 320, maxWidth: 400, width: '85vw', scrollSnapAlign: 'start', flexShrink: 0 }}
+                style={{
+                  minWidth: isCompactEmbedded ? 0 : 320,
+                  maxWidth: isCompactEmbedded ? '100%' : 400,
+                  width: isCompactEmbedded ? '100%' : '85vw',
+                  scrollSnapAlign: isCompactEmbedded ? 'unset' : 'start',
+                  flexShrink: 0,
+                }}
               >
                 {/* Content type badge — always visible */}
                 <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>

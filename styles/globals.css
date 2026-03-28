@@ -163,11 +163,38 @@ a:active {
   user-select: none;
   cursor: pointer;
   transition: transform 0.12s cubic-bezier(0.34, 1.4, 0.64, 1),
-              opacity 0.10s ease;
+              opacity 0.10s ease,
+              box-shadow 0.12s ease;
 }
 .de-pressable:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
+  opacity: 0.88;
+}
+
+.de-pressable-primary {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.10s cubic-bezier(0.34, 1.6, 0.64, 1),
+              opacity 0.10s ease,
+              box-shadow 0.10s ease;
+}
+.de-pressable-primary:active {
+  transform: scale(0.93);
   opacity: 0.9;
+}
+
+.de-pressable-sm {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.08s ease, opacity 0.08s ease;
+}
+.de-pressable-sm:active {
+  transform: scale(0.94);
+  opacity: 0.88;
 }
 
 /* ── Card press feedback ── */

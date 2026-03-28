@@ -100,9 +100,15 @@ export default function RuntimeView({
   const outerStyle: React.CSSProperties = {
     position: 'absolute',
     inset: 0,
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
     opacity: isActive ? 1 : 0.3,
     pointerEvents: isActive ? 'auto' : 'none',
     transition: 'opacity 0.3s ease',
+    contain: 'layout paint size',
   };
 
   /* ── Home runtime ────────────────────────────────────────────────────────── */
