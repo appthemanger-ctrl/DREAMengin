@@ -340,6 +340,7 @@ interface GameRemoteProps {
   embedded?: boolean;
   playHref?: string;
   gameLabel?: string;
+  onPlay?: () => void;
 }
 
 export default function GameRemote({
@@ -347,6 +348,7 @@ export default function GameRemote({
   embedded = false,
   playHref,
   gameLabel,
+  onPlay,
 }: GameRemoteProps) {
   const { connected: gpConnected, gamepadName } = useGamepad();
   const searchParams = useSearchParams();
@@ -356,7 +358,7 @@ export default function GameRemote({
     || gpNameLower.includes('playstation')
     || gpNameLower.includes('ps5')
     || gpNameLower.includes('ps4');
-  const resolvedPlayHref = playHref ?? buildGameLaunchHref(searchParams.get('game') ?? DEFAULT_GAME_ID);
+  const resolvedPlayHref = playHref ?? buildGameLaunchHref(searchParams.get('game') ?? DEFAULT_GAME_ID, { play: true });
 
   const outerPaddingX = embedded ? 18 : 20;
   const bottomPadding = embedded ? 28 : 56;
@@ -538,7 +540,13 @@ export default function GameRemote({
           {embedded ? (
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('de-game-start'))}
+              onClick={() => {
+                if (onPlay) {
+                  onPlay();
+                  return;
+                }
+                window.dispatchEvent(new CustomEvent('de-game-start'));
+              }}
               style={{
                 fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
                 color: '#c8981a', cursor: 'pointer',

@@ -25,14 +25,20 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   ArrowLeft, Gamepad2, Trophy, Play, Share2,
   Map, Award, Sliders, FileCode, Radio, Lock, Unlock,
 } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
+import { GAMES } from '@/components/games/GamesHub';
+import { GAME_LIBRARY_SESSION_STORAGE_KEY, type SavedGameSession } from '@/lib/games/library-state';
+import { useGamepad } from '@/lib/games/useGamepad';
+import { isLaunchFlagEnabled, buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
+import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBridge';
+import { useRemoteChannel } from '@/lib/games/useRemoteChannel';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
-import { buildGameLaunchHref } from '@/lib/games/navigation';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -212,6 +218,14 @@ function makeEmptyGrid(): TileType[][] {
 // ── Component ──────────────────────────────────────────────────────────────────
 
 export default function GameEngin({ onBack }: Props) {
+  const searchParams = useSearchParams();
+  const { connected: gpConnected, gamepadName } = useGamepad();
+  const playOverlayRef = useRef<HTMLDivElement>(null);
+  const initializedPlaySurfaceRef = useRef(false);
+  const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useRemoteChannel();
+  useGameInputKeyboardBridge();
 
   // ── Existing state ───────────────────────────────────────────────────────────
   const [scores,     setScores]     = useState<GameScore[]>([]);
@@ -219,6 +233,10 @@ export default function GameEngin({ onBack }: Props) {
   const [sharing,    setSharing]    = useState<string | null>(null);
   const [showRemote, setShowRemote] = useState(false);
   const [controlProfile, setControlProfile] = useState('couch');
+  const [savedLaunches, setSavedLaunches] = useState<SavedGameSession[]>([]);
+  const [selectedPlayableGame, setSelectedPlayableGame] = useState<string>(GAMES[0]?.id ?? 'platformer');
+  const [activePlayableGame, setActivePlayableGame] = useState<string | null>(null);
+  const [expandedPlayableGame, setExpandedPlayableGame] = useState<string | null>(null);
 
   // ── World Builder state ──────────────────────────────────────────────────────
   const [worldName,     setWorldName]     = useState('');
@@ -403,19 +421,173 @@ export default function GameEngin({ onBack }: Props) {
     if (savedControlProfile && GAME_CONTROL_PROFILES.some((profile) => profile.id === savedControlProfile)) {
       setControlProfile(savedControlProfile);
     }
+    try {
+      const parsed = JSON.parse(window.localStorage.getItem(GAME_LIBRARY_SESSION_STORAGE_KEY) ?? '[]');
+      if (Array.isArray(parsed)) setSavedLaunches(parsed as SavedGameSession[]);
+    } catch {
+      setSavedLaunches([]);
+    }
     if (window.sessionStorage.getItem('de:games:auto-open-remote') === '1') {
       window.sessionStorage.removeItem('de:games:auto-open-remote');
       setShowRemote(true);
     }
   }, []);
 
+  const queuePlayableGameStart = useCallback(() => {
+    if (autoStartTimerRef.current) clearTimeout(autoStartTimerRef.current);
+    autoStartTimerRef.current = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('de-game-start'));
+    }, 350);
+  }, []);
+
+  const savePlayableGame = useCallback((gameId: string, source: SavedGameSession['source']) => {
+    const game = GAMES.find((entry) => entry.id === gameId);
+    if (typeof window === 'undefined' || !game) return;
+    const nextSession: SavedGameSession = {
+      gameId,
+      label: game.label,
+      savedAt: new Date().toISOString(),
+      source,
+    };
+    const updated = [nextSession, ...savedLaunches.filter((session) => session.gameId !== gameId)].slice(0, 8);
+    window.localStorage.setItem(GAME_LIBRARY_SESSION_STORAGE_KEY, JSON.stringify(updated));
+    setSavedLaunches(updated);
+  }, [savedLaunches]);
+
+  const launchPlayableGame = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
+    setSelectedPlayableGame(gameId);
+    setActivePlayableGame(gameId);
+    if (options.expand) setExpandedPlayableGame(gameId);
+    queuePlayableGameStart();
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('de:games:last-launch', gameId);
+    }
+  }, [queuePlayableGameStart]);
+
+  useEffect(() => {
+    if (initializedPlaySurfaceRef.current) return;
+    initializedPlaySurfaceRef.current = true;
+
+    const fallbackGame = savedLaunches[0]?.gameId ?? GAMES[0]?.id ?? 'platformer';
+    const requestedGame = resolveGameLaunchId(searchParams.get('game'), GAMES.map((game) => game.id), fallbackGame);
+    if (!requestedGame) return;
+    setSelectedPlayableGame(requestedGame);
+    if (isLaunchFlagEnabled(searchParams.get('play'))) {
+      setActivePlayableGame(requestedGame);
+      if (isLaunchFlagEnabled(searchParams.get('expand'))) setExpandedPlayableGame(requestedGame);
+      queuePlayableGameStart();
+    }
+  }, [queuePlayableGameStart, savedLaunches, searchParams]);
+
+  useEffect(() => {
+    if (!expandedPlayableGame || !playOverlayRef.current) return;
+    const target = playOverlayRef.current;
+    void (async () => {
+      try {
+        if (document.fullscreenElement === null && 'requestFullscreen' in target) {
+          await target.requestFullscreen();
+        }
+      } catch {
+        // Ignore fullscreen denial; keep the expanded overlay.
+      }
+    })();
+
+    return () => {
+      if (document.fullscreenElement) {
+        void document.exitFullscreen().catch(() => undefined);
+      }
+    };
+  }, [expandedPlayableGame]);
+
+  useEffect(() => {
+    if (!expandedPlayableGame) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleFullscreenChange = () => {
+      if (document.fullscreenElement === null) setExpandedPlayableGame(null);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, [expandedPlayableGame]);
+
   // ── Achievement computation ───────────────────────────────────────────────────
+  const selectedPlayable = GAMES.find((game) => game.id === selectedPlayableGame) ?? GAMES[0];
+  const activePlayable = activePlayableGame ? GAMES.find((game) => game.id === activePlayableGame) ?? null : null;
+  const expandedPlayable = expandedPlayableGame ? GAMES.find((game) => game.id === expandedPlayableGame) ?? null : null;
+  const savedPlayableSession = selectedPlayable ? savedLaunches.find((session) => session.gameId === selectedPlayable.id) ?? null : null;
+  const ActivePlayableComponent = activePlayable?.component && activePlayable.id === selectedPlayable.id
+    ? activePlayable.component
+    : null;
   const achievements = ACHIEVEMENT_DEFS.map(def => {
     let unlocked = def.unlockFn(scores);
     if (def.id === 'world-builder' && savedWorld)  unlocked = true;
     if (def.id === 'code-runner'   && savedScript) unlocked = true;
     return { ...def, unlocked };
   });
+
+  if (expandedPlayable?.component) {
+    const ExpandedGameComponent = expandedPlayable.component;
+    const gpNameLower = gamepadName.toLowerCase();
+    const isDualSense = gpNameLower.includes('dualsense')
+      || gpNameLower.includes('playstation')
+      || gpNameLower.includes('ps5')
+      || gpNameLower.includes('ps4');
+
+    return (
+      <div
+        ref={playOverlayRef}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9999,
+          background: 'linear-gradient(160deg, #07101e 0%, #0b1a30 55%, #07101e 100%)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '10px 14px', background: 'rgba(0,0,0,0.30)', borderBottom: '1px solid rgba(160,195,240,0.10)', flexShrink: 0 }}>
+          <button
+            type="button"
+            onClick={() => setExpandedPlayableGame(null)}
+            style={{ background: 'rgba(160,195,240,0.12)', border: '1px solid rgba(160,195,240,0.20)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', color: 'rgba(220,235,255,0.85)', fontSize: 12, fontWeight: 700 }}
+          >
+            ← Back to GameEngin
+          </button>
+          <span style={{ fontSize: 20 }}>{expandedPlayable.emoji}</span>
+          <span style={{ fontWeight: 800, color: '#fff', fontSize: 15, letterSpacing: '-0.01em' }}>{expandedPlayable.label}</span>
+          <span style={{ fontSize: 10, padding: '2px 9px', borderRadius: 999, background: `${expandedPlayable.color}22`, color: expandedPlayable.color, border: `1px solid ${expandedPlayable.color}44`, fontWeight: 700 }}>
+            {expandedPlayable.category}
+          </span>
+          <button
+            type="button"
+            onClick={() => savePlayableGame(expandedPlayable.id, 'fullscreen')}
+            style={{ background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.24)', borderRadius: 999, padding: '5px 12px', cursor: 'pointer', color: '#4ade80', fontSize: 11, fontWeight: 700 }}
+          >
+            Save to GameEngin
+          </button>
+          <span
+            title={gpConnected ? gamepadName : 'Press any button on your controller to connect'}
+            style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', padding: '3px 9px', borderRadius: 999, background: gpConnected ? 'rgba(74,222,128,0.14)' : 'rgba(160,195,240,0.07)', color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.35)', border: gpConnected ? '1px solid rgba(74,222,128,0.35)' : '1px solid rgba(160,195,240,0.12)' }}
+          >
+            {gpConnected ? (isDualSense ? '🎮 DualSense' : '🕹 Controller') : '🎮 No Controller'}
+          </span>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: '12px 12px 0', flexShrink: 0 }}>
+            <ExpandedGameComponent />
+          </div>
+          <div style={{ padding: '10px 12px', borderTop: '1px solid rgba(160,195,240,0.08)', marginTop: 8, background: 'rgba(0,0,0,0.20)', flexShrink: 0 }}>
+            <GameRemote embedded gameLabel={expandedPlayable.label} playHref={buildGameLaunchHref(expandedPlayable.id, { openEngin: true, play: true })} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ── Early return: GameRemote overlay ─────────────────────────────────────────
   if (showRemote) return <GameRemote onBack={() => setShowRemote(false)} />;
@@ -524,22 +696,150 @@ export default function GameEngin({ onBack }: Props) {
       {/* ══════════════════════════════════════════ Body */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
+        <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(125,211,252,0.24)', background: 'linear-gradient(180deg, rgba(10,18,38,0.98), rgba(2,6,14,0.98))', color: '#f8fbff' }}>
+          <div className="de-widget-header" style={{ borderBottomColor: 'rgba(125,211,252,0.18)' }}>
+            <Play className="w-4 h-4" style={{ color: '#7dd3fc' }} />
+            <span className="de-widget-title ml-2" style={{ color: '#f8fbff' }}>Play Screen</span>
+            <span className="ml-auto text-xs font-semibold px-2 py-1 rounded-full" style={{ background: 'rgba(125,211,252,0.12)', color: '#7dd3fc', border: '1px solid rgba(125,211,252,0.22)' }}>
+              Engine only
+            </span>
+          </div>
+          <div className="de-widget-body" style={{ paddingTop: 12 }}>
+            <div style={{ fontSize: 12, lineHeight: 1.65, color: 'rgba(226,232,240,0.78)', marginBottom: 14 }}>
+              GameEngin is the actual play surface. Pick a saved game or any library title, boot it on the big screen here, expand fullscreen when you want the browser to disappear, and use the PS-style remote on the game itself.
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+              {savedLaunches.slice(0, 5).map((session) => (
+                <button
+                  key={session.gameId}
+                  type="button"
+                  onClick={() => setSelectedPlayableGame(session.gameId)}
+                  style={{
+                    padding: '5px 10px',
+                    borderRadius: 999,
+                    border: session.gameId === selectedPlayable.id ? '1px solid rgba(74,222,128,0.35)' : '1px solid rgba(125,211,252,0.16)',
+                    background: session.gameId === selectedPlayable.id ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.04)',
+                    color: session.gameId === selectedPlayable.id ? '#4ade80' : 'rgba(226,232,240,0.74)',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {session.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ borderRadius: 24, padding: 14, background: 'linear-gradient(180deg, rgba(28,37,58,0.96), rgba(5,8,16,0.98))', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 22px 60px rgba(0,0,0,0.3)' }}>
+              <div style={{ borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(125,211,252,0.14)', background: 'radial-gradient(circle at top, rgba(42,138,184,0.18), rgba(3,5,10,0.98) 60%)', minHeight: 320 }}>
+                {ActivePlayableComponent ? (
+                  <div style={{ padding: 12 }}>
+                    <ActivePlayableComponent />
+                  </div>
+                ) : (
+                  <div style={{ minHeight: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '32px 24px', textAlign: 'center' }}>
+                    <div style={{ width: 82, height: 82, borderRadius: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 38, background: `${selectedPlayable.color}18`, border: `1px solid ${selectedPlayable.color}35`, boxShadow: `0 0 28px ${selectedPlayable.color}33` }}>
+                      {selectedPlayable.emoji}
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#7dd3fc' }}>
+                      Ready to boot
+                    </div>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: '#f8fbff', lineHeight: 1.05 }}>
+                      {selectedPlayable.label}
+                    </div>
+                    <div style={{ fontSize: 13, lineHeight: 1.7, color: 'rgba(226,232,240,0.74)', maxWidth: 640 }}>
+                      {selectedPlayable.desc}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, marginBottom: 12 }}>
+              <button type="button" onClick={() => launchPlayableGame(selectedPlayable.id)} className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
+                ▶ Play on screen
+              </button>
+              <button type="button" onClick={() => launchPlayableGame(selectedPlayable.id, { expand: true })} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(125,211,252,0.22)', color: '#7dd3fc' }}>
+                ⤢ Expand fullscreen
+              </button>
+              <button type="button" onClick={() => savePlayableGame(selectedPlayable.id, 'library-screen')} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(74,222,128,0.22)', color: '#4ade80' }}>
+                💾 Save state
+              </button>
+            </div>
+
+            {savedPlayableSession && (
+              <div style={{ fontSize: 11, color: '#4ade80', fontWeight: 700, marginBottom: 12 }}>
+                Last saved: {savedPlayableSession.label} · {new Date(savedPlayableSession.savedAt).toLocaleString()}
+              </div>
+            )}
+
+            <GameRemote embedded gameLabel={selectedPlayable.label} playHref={buildGameLaunchHref(selectedPlayable.id, { openEngin: true, play: true })} onPlay={() => launchPlayableGame(selectedPlayable.id)} />
+
+            <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>
+              {GAMES.slice(0, 12).map((game) => (
+                <button
+                  key={game.id}
+                  type="button"
+                  onClick={() => setSelectedPlayableGame(game.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '10px 12px',
+                    borderRadius: 10,
+                    border: game.id === selectedPlayable.id ? `1px solid ${game.color}66` : '1px solid rgba(160,195,240,0.14)',
+                    background: game.id === selectedPlayable.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    color: '#f8fbff',
+                  }}
+                >
+                  <span style={{ fontSize: 20, lineHeight: 1 }}>{game.emoji}</span>
+                  <span style={{ flex: 1, fontSize: 13, fontWeight: 700 }}>{game.label}</span>
+                  {savedLaunches.some((session) => session.gameId === game.id) && (
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#4ade80' }}>Saved</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* ────────────────────── 1. Console Deck */}
         <div className="de-widget" style={{ marginBottom: 14, borderColor: `${ACCENT}30` }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
-            <span className="de-widget-title ml-2">Console Deck</span>
+            <span className="de-widget-title ml-2">Console Home</span>
             <span
               className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
               style={{ background: `${ACCENT}18`, color: ACCENT, border: `1px solid ${ACCENT}35` }}
             >
-              Console-Class Focus
+              PS-style memory deck
             </span>
           </div>
           <div className="de-widget-body">
             <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
-              GameEngin is the console side of Games: stronger controls, cleaner boot flow, faster restarts, and deeper competitive loops before feature bloat.
+              GameEngin is the console home behind the Games shelf: saved launches, quick resume, controller memory, and your personal score deck. It should read more like a PS5 home layer than a dev tools panel.
             </div>
+            {savedLaunches[0] && (
+              <div
+                style={{
+                  marginBottom: 12,
+                  padding: '10px 12px',
+                  borderRadius: 10,
+                  background: 'rgba(34,197,94,0.08)',
+                  border: '1px solid rgba(34,197,94,0.2)',
+                }}
+              >
+                <div style={{ fontSize: 11, fontWeight: 800, color: '#166534', marginBottom: 4 }}>
+                  Quick Resume
+                </div>
+                <div style={{ fontSize: 11, lineHeight: 1.55, color: 'var(--de-heading)' }}>
+                  {savedLaunches[0].label} saved from the {savedLaunches[0].source === 'fullscreen' ? 'fullscreen screen' : 'library screen'} · {new Date(savedLaunches[0].savedAt).toLocaleString()}
+                </div>
+              </div>
+            )}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
               {GAME_QUALITY_PILLARS.map((pillar) => (
                 <span
@@ -620,22 +920,25 @@ export default function GameEngin({ onBack }: Props) {
               className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
               style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}
             >
-              20 Games
+              23 Games
             </span>
           </div>
           <div className="de-widget-body">
+            <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
+              These entries boot a selected game back on the Games Daydream big screen so the library stays the main home for play.
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
-                { key: 'platformer',    label: 'MADMAXI',             emoji: '🏎',   href: buildGameLaunchHref('platformer') },
-                { key: 'rts',           label: 'Red Alert RTS',       emoji: '⚔️',  href: buildGameLaunchHref('rts') },
-                { key: 'tower-defense', label: 'Tower Defense',       emoji: '🏰',  href: buildGameLaunchHref('tower-defense') },
-                { key: 'space-shooter', label: 'Space Shooter',       emoji: '🚀',  href: buildGameLaunchHref('space-shooter') },
-                { key: 'tetris',        label: 'Tetris',              emoji: '🟦',  href: buildGameLaunchHref('tetris') },
-                { key: 'chess',         label: 'Chess',               emoji: '♛',   href: buildGameLaunchHref('chess') },
-                { key: 'rpg',           label: 'RPG Adventure',       emoji: '🗡️', href: buildGameLaunchHref('rpg') },
-                { key: 'word-sprint',   label: 'Word Sprint',         emoji: '📝',  href: buildGameLaunchHref('word-sprint') },
-                { key: 'memory-grid',   label: 'Memory Grid',         emoji: '🧩',  href: buildGameLaunchHref('memory-grid') },
-                { key: 'speed-tap',     label: 'Speed Tap',           emoji: '⚡',  href: buildGameLaunchHref('speed-tap') },
+                { key: 'platformer',    label: 'MADMAXI',             emoji: '🏎',   href: buildGameLaunchHref('platformer', { play: true }) },
+                { key: 'rts',           label: 'Red Alert RTS',       emoji: '⚔️',  href: buildGameLaunchHref('rts', { play: true }) },
+                { key: 'tower-defense', label: 'Tower Defense',       emoji: '🏰',  href: buildGameLaunchHref('tower-defense', { play: true }) },
+                { key: 'space-shooter', label: 'Space Shooter',       emoji: '🚀',  href: buildGameLaunchHref('space-shooter', { play: true }) },
+                { key: 'tetris',        label: 'Tetris',              emoji: '🟦',  href: buildGameLaunchHref('tetris', { play: true }) },
+                { key: 'chess',         label: 'Chess',               emoji: '♛',   href: buildGameLaunchHref('chess', { play: true }) },
+                { key: 'rpg',           label: 'RPG Adventure',       emoji: '🗡️', href: buildGameLaunchHref('rpg', { play: true }) },
+                { key: 'word-sprint',   label: 'Word Sprint',         emoji: '📝',  href: buildGameLaunchHref('word-sprint', { play: true }) },
+                { key: 'memory-grid',   label: 'Memory Grid',         emoji: '🧩',  href: buildGameLaunchHref('memory-grid', { play: true }) },
+                { key: 'speed-tap',     label: 'Speed Tap',           emoji: '⚡',  href: buildGameLaunchHref('speed-tap', { play: true }) },
               ].map(g => (
                 <Link
                   key={g.key}
@@ -659,7 +962,7 @@ export default function GameEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-actions">
             <Link href="/daydream/games" className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
-              <Gamepad2 className="w-3 h-3" /> View All 20 Games
+              <Gamepad2 className="w-3 h-3" /> View All 23 Games
             </Link>
           </div>
         </div>
