@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ["@supabase/supabase-js"],
+  experimental: {
+    serverExternalPackages: ["@supabase/supabase-js"],
+  },
 
-  // Reduce bundle/source-map pressure in constrained build workers.
   productionBrowserSourceMaps: false,
 
   images: {
@@ -12,24 +13,13 @@ const nextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
-      {
-        protocol: "https",
-        hostname: "*.googleapis.com",
-      },
-      {
-        protocol: "https",
-        hostname: "*.gstatic.com",
-      },
-      {
-        protocol: "https",
-        hostname: "i.ytimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "*.scdn.co",
-      },
+      { protocol: "https", hostname: "*.googleapis.com" },
+      { protocol: "https", hostname: "*.gstatic.com" },
+      { protocol: "https", hostname: "i.ytimg.com" },
+      { protocol: "https", hostname: "*.scdn.co" },
     ],
   },
+
   async redirects() {
     return [
       {
