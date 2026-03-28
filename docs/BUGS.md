@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-28 18:04 UTC  
-**Triggered by commit:** `89866a9` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #335 from appthemanger-ctrl/copilot/update-image-processing-module
+**Last updated:** 2026-03-28 18:37 UTC  
+**Triggered by commit:** `7296531` on `copilot/replace-foundation-with-linux-software` by Copilot  
+**Commit message:** replace Alpine Linux foundation with Debian Bookworm in Docker infrastructure
 
 ---
 
