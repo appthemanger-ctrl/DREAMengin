@@ -36,8 +36,6 @@ export default function SpaceShooter() {
   const rafRef = useRef(0);
   const submitScore = useSubmitScore('space-shooter');
   useEffect(() => { if (phase === 'gameover') submitScore(scoreRef.current); }, [phase, submitScore]);
-  const touchRef = useRef<{ x: number } | null>(null);
-
   const explode = (x: number, y: number, color: string) => {
     for (let i = 0; i < 12; i++) {
       const angle = (Math.PI * 2 * i) / 12;
@@ -78,8 +76,6 @@ export default function SpaceShooter() {
       const speed = 4;
       if (keysRef.current.has('ArrowLeft') || keysRef.current.has('a')) ship.x = Math.max(16, ship.x - speed);
       if (keysRef.current.has('ArrowRight') || keysRef.current.has('d')) ship.x = Math.min(CW - 16, ship.x + speed);
-      if (touchRef.current) ship.x += (touchRef.current.x - ship.x) * 0.15;
-
       // Auto shoot
       shootTimerRef.current++;
       if (shootTimerRef.current >= 12) {
@@ -189,7 +185,7 @@ export default function SpaceShooter() {
   if (phase === 'menu') return (
     <div style={{ background: '#050815', borderRadius: 12, padding: 32, textAlign: 'center', color: '#fff', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
       <div style={{ fontSize: 26, fontWeight: 900, color: '#60a5fa' }}>🚀 SPACE SHOOTER</div>
-      <div style={{ fontSize: 12, color: '#9ca3af' }}>Arrow keys / touch to move. Auto-fire. Destroy all enemies!</div>
+      <div style={{ fontSize: 12, color: '#9ca3af' }}>Arrow keys, A/D, or the shared GameRemote to move. Auto-fire. Destroy all enemies!</div>
       <button onClick={startGame} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>▶ Launch</button>
     </div>
   );
@@ -203,9 +199,10 @@ export default function SpaceShooter() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <canvas ref={canvasRef} width={CW} height={CH}
-        onTouchMove={e => { touchRef.current = { x: (e.touches[0].clientX - canvasRef.current!.getBoundingClientRect().left) * (CW / canvasRef.current!.getBoundingClientRect().width) }; }}
-        onTouchEnd={() => { touchRef.current = null; }}
         style={{ width: '100%', maxWidth: 400, margin: '0 auto', borderRadius: 8, display: 'block', border: '2px solid rgba(96,165,250,0.3)' }} />
+      <div style={{ color: '#93c5fd', fontSize: 11, fontWeight: 700, textAlign: 'center' }}>
+        Use the shared PS-style GameRemote or keyboard controls.
+      </div>
     </div>
   );
 }

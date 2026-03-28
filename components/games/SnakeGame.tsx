@@ -127,7 +127,7 @@ export default function SnakeGame() {
   if (phase === 'menu') return (
     <div style={{ background: '#0f1a0f', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
       <div style={{ fontSize: 26, fontWeight: 900, color: '#4ade80' }}>🐍 SNAKE</div>
-      <div style={{ fontSize: 12, color: '#86efac' }}>Arrow keys or WASD. Eat apples, don&apos;t hit walls!</div>
+      <div style={{ fontSize: 12, color: '#86efac' }}>Arrow keys, WASD, or the shared GameRemote. Eat apples, don&apos;t hit walls!</div>
       {best > 0 && <div style={{ color: '#facc15', fontSize: 13 }}>Best: {best}</div>}
       <button onClick={startGame} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>▶ Play</button>
     </div>
@@ -144,13 +144,8 @@ export default function SnakeGame() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
       <canvas ref={canvasRef} width={CW} height={CH} tabIndex={0}
         style={{ width: '100%', maxWidth: CW, borderRadius: 8, display: 'block', border: '2px solid rgba(74,222,128,0.3)', outline: 'none' }} />
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-        {(['up','left','down','right'] as Dir[]).map(d => (
-          <button key={d} onPointerDown={() => { const map: Record<Dir,Dir> = {up:'down',down:'up',left:'right',right:'left'}; if(d!==map[dirRef.current]) nextDirRef.current=d; }}
-            style={{ width: 40, height: 40, background: '#1a2a1a', border: '1px solid #374151', borderRadius: 8, color: '#4ade80', fontSize: 16, cursor: 'pointer' }}>
-            {d === 'up' ? '↑' : d === 'down' ? '↓' : d === 'left' ? '←' : '→'}
-          </button>
-        ))}
+      <div style={{ color: '#4ade80', fontSize: 11, fontWeight: 700, textAlign: 'center' }}>
+        Use the shared PS-style GameRemote or keyboard controls.
       </div>
     </div>
   );

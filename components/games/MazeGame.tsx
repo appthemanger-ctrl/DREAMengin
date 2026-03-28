@@ -126,7 +126,7 @@ export default function MazeGame() {
   if (phase === 'menu') return (
     <div style={{ background: '#0f0f1a', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
       <div style={{ fontSize: 26, fontWeight: 900, color: '#3b82f6' }}>🌀 MAZE RUNNER</div>
-      <div style={{ fontSize: 12, color: '#9ca3af' }}>Navigate the maze from 🧑 to ★ — Arrow keys or WASD</div>
+      <div style={{ fontSize: 12, color: '#9ca3af' }}>Navigate the maze from 🧑 to ★ — Arrow keys, WASD, or the shared GameRemote</div>
       {best !== null && <div style={{ color: '#facc15', fontSize: 13 }}>Best time: {best}s</div>}
       <button onClick={startGame} style={{ background: '#1d4ed8', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>▶ Enter Maze</button>
     </div>
@@ -142,13 +142,8 @@ export default function MazeGame() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
       <div style={{ color: '#9ca3af', fontSize: 12 }}>Time: {time}s · Get to the ★ in the corner!</div>
       <canvas ref={canvasRef} width={CW} height={CH} tabIndex={0} style={{ width: '100%', maxWidth: CW, borderRadius: 8, display: 'block', border: '2px solid rgba(59,130,246,0.3)', outline: 'none' }} />
-      <div style={{ display: 'flex', gap: 8, flexDirection: 'column', alignItems: 'center' }}>
-        <button onPointerDown={() => keysRef.current.add('ArrowUp')} onPointerUp={() => keysRef.current.delete('ArrowUp')} style={{ width: 44, height: 44, background: '#1e3a5f', border: '1px solid #374151', borderRadius: 8, color: '#3b82f6', fontSize: 18, cursor: 'pointer' }}>↑</button>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {(['ArrowLeft','ArrowDown','ArrowRight'] as const).map((k, i) => (
-            <button key={k} onPointerDown={() => keysRef.current.add(k)} onPointerUp={() => keysRef.current.delete(k)} style={{ width: 44, height: 44, background: '#1e3a5f', border: '1px solid #374151', borderRadius: 8, color: '#3b82f6', fontSize: 18, cursor: 'pointer' }}>{['←','↓','→'][i]}</button>
-          ))}
-        </div>
+      <div style={{ color: '#60a5fa', fontSize: 11, fontWeight: 700, textAlign: 'center' }}>
+        Use the shared PS-style GameRemote or keyboard controls.
       </div>
     </div>
   );

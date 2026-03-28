@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildGameLaunchHref, DEFAULT_GAME_ID, resolveGameLaunchId } from '@/lib/games/navigation';
+import { upsertSavedGameSession } from '@/lib/games/library-state';
+import { buildGameLaunchHref, DEFAULT_GAME_ID, isLaunchFlagEnabled, resolveGameLaunchId } from '@/lib/games/navigation';
 import { GAME_INPUT_KEYBOARD_MAP } from '@/lib/games/useGameInputKeyboardBridge';
 
 describe('game launch navigation', () => {
@@ -8,14 +9,25 @@ describe('game launch navigation', () => {
   });
 
   it('builds a remote launch href for a selected game', () => {
-    expect(buildGameLaunchHref('snake', { openEngin: true, remote: true }))
-      .toBe('/daydream/games?game=snake&openEngin=1&remote=1');
+    expect(buildGameLaunchHref('snake', { openEngin: true, remote: true, play: true }))
+      .toBe('/daydream/games?game=snake&openEngin=1&remote=1&play=1');
+  });
+
+  it('can request fullscreen play when the route should boot straight into the expanded game view', () => {
+    expect(buildGameLaunchHref('platformer', { play: true, expand: true }))
+      .toBe('/daydream/games?game=platformer&play=1&expand=1');
   });
 
   it('keeps valid requested game ids and falls back invalid ones', () => {
     expect(resolveGameLaunchId('snake', ['snake', DEFAULT_GAME_ID])).toBe('snake');
     expect(resolveGameLaunchId('unknown', ['snake', DEFAULT_GAME_ID])).toBe(DEFAULT_GAME_ID);
     expect(resolveGameLaunchId(null, ['snake', DEFAULT_GAME_ID], null)).toBeNull();
+  });
+
+  it('treats only 1 as an enabled launch flag', () => {
+    expect(isLaunchFlagEnabled('1')).toBe(true);
+    expect(isLaunchFlagEnabled('0')).toBe(false);
+    expect(isLaunchFlagEnabled(null)).toBe(false);
   });
 });
 
@@ -31,5 +43,22 @@ describe('shared remote keyboard bridge', () => {
     expect(GAME_INPUT_KEYBOARD_MAP.jump).toEqual([{ key: 'ArrowUp', code: 'ArrowUp' }]);
     expect(GAME_INPUT_KEYBOARD_MAP.shoot).toEqual([{ key: ' ', code: 'Space' }]);
     expect(GAME_INPUT_KEYBOARD_MAP.pause).toEqual([{ key: 'Escape', code: 'Escape' }]);
+  });
+});
+
+describe('saved game sessions', () => {
+  it('keeps the newest saved session first and de-duplicates by game id', () => {
+    expect(upsertSavedGameSession([
+      { gameId: 'snake', label: 'Snake', savedAt: '2026-03-27T12:00:00.000Z', source: 'library-screen' },
+      { gameId: 'tetris', label: 'Tetris', savedAt: '2026-03-27T11:00:00.000Z', source: 'fullscreen' },
+    ], {
+      gameId: 'snake',
+      label: 'Snake',
+      savedAt: '2026-03-28T01:00:00.000Z',
+      source: 'fullscreen',
+    })).toEqual([
+      { gameId: 'snake', label: 'Snake', savedAt: '2026-03-28T01:00:00.000Z', source: 'fullscreen' },
+      { gameId: 'tetris', label: 'Tetris', savedAt: '2026-03-27T11:00:00.000Z', source: 'fullscreen' },
+    ]);
   });
 });
