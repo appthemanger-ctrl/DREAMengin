@@ -40,3 +40,8 @@ node_modules/
 
 # AI agent generated artefacts (context snapshots, spec proposals, patches)
 .github/generated/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
