@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `33cb4eb` | 2026-03-28 03:16 UTC | copilot/improve-website-design-and-functionality | Copilot | ~3 | fix: clear HomeDream mobile overlap by using dynamic viewport height and hiding runtime zoom controls on phones |
 | `0968c4e` | 2026-03-28 02:38 UTC | copilot/improve-website-design-and-functionality | Copilot | ~3 | feat: upgrade onboarding to dark premium theme; remove unused DreamWord imports from login/join |
 | `55c12d2` | 2026-03-28 02:33 UTC | copilot/improve-website-design-and-functionality | Copilot | ~7 | feat: premium SICK design upgrade — landing, auth pages, about page, global dark theme CSS |
 | `b404e87` | 2026-03-27 23:56 UTC | completedream | appthemanger-ctrl | — | Merge pull request #329 from appthemanger-ctrl/copilot/fix-game-launch-issue |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `aeacc1c` | 2026-03-27 20:17 UTC | copilot/remove-engine-menu-on-play | Copilot | +3 ~6 | fix: launch games directly with shared remote controls |
 | `f504c9c` | 2026-03-27 19:44 UTC | completedream | appthemanger-ctrl | — | Merge pull request #327 from appthemanger-ctrl/copilot/improve-feed-user-content-display |
 | `183bd01` | 2026-03-27 19:39 UTC | copilot/improve-feed-user-content-display | Copilot | ~2 | feat: add image upload to feed composer, content type badges, and horizontal snap-scroll layout |
-| `3eb6dbf` | 2026-03-27 19:15 UTC | completedream | appthemanger-ctrl | — | Merge pull request #326 from appthemanger-ctrl/copilot/update-mad-max-remote-control |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-28 02:38 UTC — `0968c4e` by Copilot
+Last updated: 2026-03-28 03:16 UTC — `33cb4eb` by Copilot
 Last updated: 2026-03-27 10:18 UTC — `b08e631` by appthemanger-ctrl
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
