@@ -42,6 +42,29 @@ check_command() {
     return 0
 }
 
+run_pnpm() {
+    corepack pnpm "$@"
+}
+
+run_vercel() {
+    run_pnpm dlx vercel@latest "$@"
+}
+
+docker_compose_cmd() {
+    if docker compose version >/dev/null 2>&1; then
+        docker compose "$@"
+        return
+    fi
+
+    if command -v docker-compose >/dev/null 2>&1; then
+        docker-compose "$@"
+        return
+    fi
+
+    print_error "Docker Compose is required"
+    exit 1
+}
+
 # Print header
 print_header
 
@@ -53,7 +76,7 @@ print_info "Checking prerequisites..."
 MISSING_DEPS=0
 
 check_command "node" || MISSING_DEPS=1
-check_command "npm" || MISSING_DEPS=1
+check_command "corepack" || MISSING_DEPS=1
 check_command "git" || MISSING_DEPS=1
 check_command "docker" || print_info "Docker not found (optional)"
 check_command "kubectl" || print_info "kubectl not found (optional)"
@@ -123,23 +146,27 @@ deploy_local() {
         exit 1
     fi
     
-    if ! check_command "docker-compose"; then
+    if docker compose version >/dev/null 2>&1; then
+        print_success "docker compose is available"
+    elif command -v docker-compose >/dev/null 2>&1; then
+        print_success "docker-compose is installed"
+    else
         print_error "Docker Compose is required"
         exit 1
     fi
     
     # Build and start services
     print_info "Building Docker images..."
-    docker-compose build
+    docker_compose_cmd build
     
     print_info "Starting services..."
-    docker-compose up -d
+    docker_compose_cmd up -d
     
     print_info "Waiting for services to be ready..."
     sleep 10
     
     # Check if services are running
-    if docker-compose ps | grep -q "Up"; then
+    if docker_compose_cmd ps | grep -q "Up"; then
         print_success "All services are running!"
         echo ""
         print_info "Access points:"
@@ -150,11 +177,11 @@ deploy_local() {
         echo "  - Prometheus:  http://localhost:9090"
         echo "  - Mailhog:     http://localhost:8025"
         echo ""
-        print_info "To view logs: docker-compose logs -f"
-        print_info "To stop:      docker-compose down"
+        print_info "To view logs: docker compose logs -f"
+        print_info "To stop:      docker compose down"
     else
         print_error "Some services failed to start"
-        docker-compose logs
+        docker_compose_cmd logs
         exit 1
     fi
 }
@@ -165,33 +192,27 @@ deploy_local() {
 deploy_production() {
     print_info "Deploying to Vercel..."
     
-    # Check for Vercel CLI
-    if ! check_command "vercel"; then
-        print_info "Installing Vercel CLI..."
-        npm install -g vercel
-    fi
-    
     # Check for Vercel token
     if [ -z "$VERCEL_TOKEN" ]; then
         print_info "Vercel token not found in .env"
         print_info "Please run: vercel login"
-        vercel login
+        run_vercel login
     fi
     
     # Install dependencies
     print_info "Installing dependencies..."
-    npm ci
+    run_pnpm install --frozen-lockfile
     
     # Build
     print_info "Building application..."
-    npm run build
+    run_pnpm run build
     
     # Deploy
     print_info "Deploying to Vercel..."
     if [ -z "$VERCEL_TOKEN" ]; then
-        vercel --prod
+        run_vercel --prod
     else
-        vercel --prod --token=$VERCEL_TOKEN
+        run_vercel --prod --token="$VERCEL_TOKEN"
     fi
     
     print_success "Deployed to Vercel!"
