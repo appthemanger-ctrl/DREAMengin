@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import DrEamsBabylonHero from '@/components/landing/DrEamsBabylonHero';
+import ParticleConstellation from '@/components/landing/ParticleConstellation';
 
 /**
  * LandingHero — Premium SICK redesign.
@@ -136,6 +137,8 @@ export default function LandingHero() {
             WebkitMaskImage: 'radial-gradient(ellipse 90% 70% at 50% 30%, black 0%, transparent 80%)',
           }}
         />
+        {/* Interactive particle constellation — responds to mouse */}
+        <ParticleConstellation />
       </div>
 
       {/* ── Nav bar ── */}
