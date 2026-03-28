@@ -16,9 +16,9 @@
     "build-memory:sync": "node scripts/sync-build-memory.mjs",
     "build-memory:check": "node scripts/check-build-memory-drift.mjs",
     "preflight": "node scripts/vercel-preflight.cjs . && node scripts/spec-check.cjs . && pnpm run typecheck && pnpm run lint && pnpm run test:ci",
-    "build:gamesengin": "next build",
-    "build:games": "next build",
-    "test:games": "vitest run tests/game-navigation.test.ts"
+    "build:gamesengin": "tsc --project tsconfig.gamesengin.json --noEmit",
+    "build:games": "tsc --project tsconfig.games.json --noEmit",
+    "test:games": "vitest run tests/game-navigation.test.ts tests/game-remote-regression.test.ts tests/game-quality-plan.test.ts"
   },
   "dependencies": {
     "@babylonjs/core": "^8.54.3",

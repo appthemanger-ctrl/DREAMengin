@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "engine/**/*.ts",
+    "engine/**/*.tsx",
+    "games/**/*.ts",
+    "games/**/*.tsx",
+    "components/daydream/GameEngin.tsx",
+    "components/daydream/AutoOpenGameEngin.tsx",
+    "components/games/**/*.ts",
+    "components/games/**/*.tsx",
+    "lib/games/**/*.ts",
+    "lib/games/**/*.tsx",
+    "app/daydream/games/**/*.ts",
+    "app/daydream/games/**/*.tsx",
+    "app/daydream/game/**/*.ts",
+    "app/daydream/game/**/*.tsx",
+    "app/api/game-scores/**/*.ts",
+    "app/api/game-scores/**/*.tsx"
+  ]
+}

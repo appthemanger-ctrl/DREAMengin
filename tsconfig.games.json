@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "games/**/*.ts",
+    "games/**/*.tsx",
+    "components/games/**/*.ts",
+    "components/games/**/*.tsx",
+    "lib/games/**/*.ts",
+    "lib/games/**/*.tsx",
+    "app/daydream/games/**/*.ts",
+    "app/daydream/games/**/*.tsx"
+  ]
+}
