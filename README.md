@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `9db95d8` | 2026-03-28 04:47 UTC | completedream | appthemanger-ctrl | ~1 | Refactor next.config.mjs for better configuration |
 | `344369e` | 2026-03-28 04:13 UTC | completedream | appthemanger-ctrl | — | Merge pull request #330 from appthemanger-ctrl/copilot/implement-game-daydream-features |
 | `1492dfc` | 2026-03-28 03:07 UTC | copilot/implement-game-daydream-features | Copilot | ~7 | refactor: remove duplicate in-game remotes |
 | `fe034a5` | 2026-03-28 02:48 UTC | copilot/implement-game-daydream-features | Copilot | +1 | test: guard shared ps5 remote usage |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `e610ed4` | 2026-03-27 21:11 UTC | copilot/fix-game-launch-issue | Copilot | ~1 | refactor: extract GAME_MOUNT_DELAY_MS constant in GamesHub |
 | `34dab13` | 2026-03-27 21:08 UTC | copilot/fix-game-launch-issue | Copilot | ~27 | feat: auto-start games when clicked from GamesHub; fix GameRemote PLAY button |
 | `9f8ac1d` | 2026-03-27 20:21 UTC | completedream | appthemanger-ctrl | — | Merge pull request #328 from appthemanger-ctrl/copilot/remove-engine-menu-on-play |
-| `aeacc1c` | 2026-03-27 20:17 UTC | copilot/remove-engine-menu-on-play | Copilot | +3 ~6 | fix: launch games directly with shared remote controls |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-28 04:13 UTC — `344369e` by appthemanger-ctrl
+Last updated: 2026-03-28 04:47 UTC — `9db95d8` by appthemanger-ctrl
 Last updated: 2026-03-27 10:18 UTC — `b08e631` by appthemanger-ctrl
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
