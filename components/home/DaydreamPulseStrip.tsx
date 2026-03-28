@@ -22,6 +22,7 @@
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import DreamBeatCanvas from '@/components/home/DreamBeatCanvas';
 
 // ── Canonical Daydream surface definitions (docs/ARCHITECTURE.md §1) ──────────
 
@@ -88,6 +89,15 @@ const DAYDREAMS = [
     color: '#6366f1',
     glow: 'rgba(99,102,241,0.45)',
     delay: '2.10s',
+  },
+  {
+    id: 'constellation',
+    emoji: '✦',
+    label: 'Map',
+    href: '/daydream/constellation',
+    color: '#c8981a',
+    glow: 'rgba(200,152,26,0.45)',
+    delay: '2.45s',
   },
 ] as const;
 
@@ -259,7 +269,7 @@ export default function DaydreamPulseStrip() {
                 marginTop: 1,
               }}
             >
-              7 live creative surfaces
+              7 live creative surfaces + map
             </div>
           </div>
 
@@ -410,24 +420,13 @@ export default function DaydreamPulseStrip() {
           </motion.div>
         </div>
 
-        {/* ── Panel footer — ambient gradient bar ── */}
+        {/* ── Panel footer — DreamBeat ambient waveform visualizer ── */}
         <div
           aria-hidden="true"
-          style={{
-            height: 3,
-            background: `linear-gradient(90deg,
-              #8b5cf6 0%,
-              #22c55e 14%,
-              #06b6d4 29%,
-              #3b82f6 43%,
-              #f97316 57%,
-              #ec4899 71%,
-              #6366f1 86%,
-              #c8981a 100%
-            )`,
-            opacity: 0.55,
-          }}
-        />
+          style={{ overflow: 'hidden', borderTop: '1px solid rgba(200,152,26,0.10)' }}
+        >
+          <DreamBeatCanvas height={38} />
+        </div>
       </div>
     </>
   );

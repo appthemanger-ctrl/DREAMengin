@@ -1862,3 +1862,79 @@ body, .dreamnav-surface, .controls {
     animation: none !important;
   }
 }
+
+/* =============================================================================
+   HYPER DREAM MODE
+   Applied via body.hyper-dream when the Konami code easter egg is activated.
+   All SICC animations run at 3× speed; extra neon glow on buttons + cards;
+   a subtle scanline overlay covers the viewport.
+   Auto-removed after 18 s by KonamiDream.tsx.
+   =========================================================================== */
+
+@keyframes hd-viewport-scanlines {
+  from { background-position: 0 0; }
+  to   { background-position: 0 8px; }
+}
+
+@keyframes hd-neon-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(56,189,248,0.6), 0 0 20px rgba(56,189,248,0.3), 0 0 40px rgba(56,189,248,0.1); }
+  50%       { box-shadow: 0 0 14px rgba(200,152,26,0.8), 0 0 30px rgba(200,152,26,0.4), 0 0 60px rgba(200,152,26,0.15); }
+}
+
+/* Scanline pseudo-overlay on the root */
+body.hyper-dream::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 6px,
+    rgba(0,0,0,0.08) 6px,
+    rgba(0,0,0,0.08) 8px
+  );
+  animation: hd-viewport-scanlines 0.18s linear infinite;
+  mix-blend-mode: overlay;
+}
+
+/* 3× speed for all SICC keyframe animations */
+body.hyper-dream .de-btn-gold::after,
+body.hyper-dream .de-dream-word,
+body.hyper-dream .de-wordmark-dark .dream,
+body.hyper-dream .de-dark-card-accent::before,
+body.hyper-dream .sicc-gold-breathe,
+body.hyper-dream .sicc-shimmer::after,
+body.hyper-dream .sicc-gradient-text,
+body.hyper-dream .sicc-bar-edge::before,
+body.hyper-dream .sicc-bar-edge::after,
+body.hyper-dream .de-orb-tile .de-pulse-ring,
+body.hyper-dream .de-strip-shimmer {
+  animation-duration: calc(var(--sicc-dur, 3s) / 3) !important;
+  animation-play-state: running !important;
+}
+
+/* Neon pulse on all gold buttons during hyper mode */
+body.hyper-dream .de-btn-gold,
+body.hyper-dream .de-btn-primary {
+  animation: hd-neon-pulse 0.9s ease-in-out infinite !important;
+}
+
+/* Widget cards: amplified glass shimmer */
+body.hyper-dream .de-widget {
+  outline: 1px solid rgba(56,189,248,0.18);
+  transition: outline 0s;
+}
+
+/* Dark cards: extra pop */
+body.hyper-dream .de-dark-card {
+  border-color: rgba(200,152,26,0.45) !important;
+}
+
+/* Disable hyper-dream in reduced-motion environments */
+@media (prefers-reduced-motion: reduce) {
+  body.hyper-dream::before { animation: none; }
+  body.hyper-dream .de-btn-gold,
+  body.hyper-dream .de-btn-primary { animation: none !important; }
+}
