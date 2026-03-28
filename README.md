@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `bdb3780` | 2026-03-28 11:46 UTC | completedream | appthemanger-ctrl | +1 −1 | Rename gameengin.agent.md to gameengin.md |
 | `47d635c` | 2026-03-28 11:44 UTC | completedream | appthemanger-ctrl | ~1 | Implement GameEngin and Games Library AI workflows |
 | `b06e8f7` | 2026-03-28 07:50 UTC | completedream | appthemanger-ctrl | +1 | Revise Spec-Engin AI Agent workflow for improvements |
 | `89c0be0` | 2026-03-28 06:57 UTC | completedream | appthemanger-ctrl | +1 | Create gameengin.agent.md template for custom agents |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `0e08044` | 2026-03-28 05:53 UTC | copilot/design-generate-validate-game | Copilot | +5 ~1 | feat: add GameEngin AI Agent and Games Library AI Agent workflows with scripts |
 | `bd955c1` | 2026-03-28 06:10 UTC | completedream | appthemanger-ctrl | — | Merge pull request #331 from appthemanger-ctrl/copilot/improve-website-design-and-functionality |
 | `5c85bbe` | 2026-03-28 06:07 UTC | copilot/improve-website-design-and-functionality | Copilot | −3 ~1 | chore: remove committed pycache, add __pycache__ and .github/generated to .gitignore |
-| `d1e3b77` | 2026-03-28 06:07 UTC | copilot/improve-website-design-and-functionality | Copilot | +7 ~2 | feat: add Spec-Engin AI Agent workflow + context scanner scripts (fix all errors) |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-28 11:44 UTC — `47d635c` by appthemanger-ctrl
+Last updated: 2026-03-28 11:46 UTC — `bdb3780` by appthemanger-ctrl
 Last updated: 2026-03-28 06:10 UTC — `bd955c1` by appthemanger-ctrl
 Last updated: 2026-03-27 10:18 UTC — `b08e631` by appthemanger-ctrl
 
