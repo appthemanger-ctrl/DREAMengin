@@ -32,7 +32,11 @@ import {
 } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
 import { GAMES } from '@/components/games/GamesHub';
-import { GAME_LIBRARY_SESSION_STORAGE_KEY, type SavedGameSession } from '@/lib/games/library-state';
+import {
+  GAME_LIBRARY_SESSION_STORAGE_KEY,
+  MAX_SAVED_GAME_SESSIONS,
+  type SavedGameSession,
+} from '@/lib/games/library-state';
 import { useGamepad } from '@/lib/games/useGamepad';
 import { isLaunchFlagEnabled, buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
 import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBridge';
@@ -449,7 +453,8 @@ export default function GameEngin({ onBack }: Props) {
       savedAt: new Date().toISOString(),
       source,
     };
-    const updated = [nextSession, ...savedLaunches.filter((session) => session.gameId !== gameId)].slice(0, 8);
+    const updated = [nextSession, ...savedLaunches.filter((session) => session.gameId !== gameId)]
+      .slice(0, MAX_SAVED_GAME_SESSIONS);
     window.localStorage.setItem(GAME_LIBRARY_SESSION_STORAGE_KEY, JSON.stringify(updated));
     setSavedLaunches(updated);
   }, [savedLaunches]);
@@ -836,7 +841,7 @@ export default function GameEngin({ onBack }: Props) {
                   Quick Resume
                 </div>
                 <div style={{ fontSize: 11, lineHeight: 1.55, color: 'var(--de-heading)' }}>
-                  {savedLaunches[0].label} saved from the {savedLaunches[0].source === 'fullscreen' ? 'fullscreen screen' : 'library screen'} · {new Date(savedLaunches[0].savedAt).toLocaleString()}
+                  {savedLaunches[0].label} saved from the {savedLaunches[0].source === 'fullscreen' ? 'fullscreen' : 'library screen'} · {new Date(savedLaunches[0].savedAt).toLocaleString()}
                 </div>
               </div>
             )}

@@ -359,6 +359,13 @@ export default function GameRemote({
     || gpNameLower.includes('ps5')
     || gpNameLower.includes('ps4');
   const resolvedPlayHref = playHref ?? buildGameLaunchHref(searchParams.get('game') ?? DEFAULT_GAME_ID, { play: true });
+  const handleEmbeddedPlay = useCallback(() => {
+    if (onPlay) {
+      onPlay();
+      return;
+    }
+    window.dispatchEvent(new CustomEvent('de-game-start'));
+  }, [onPlay]);
 
   const outerPaddingX = embedded ? 18 : 20;
   const bottomPadding = embedded ? 28 : 56;
@@ -540,13 +547,7 @@ export default function GameRemote({
           {embedded ? (
             <button
               type="button"
-              onClick={() => {
-                if (onPlay) {
-                  onPlay();
-                  return;
-                }
-                window.dispatchEvent(new CustomEvent('de-game-start'));
-              }}
+              onClick={handleEmbeddedPlay}
               style={{
                 fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
                 color: '#c8981a', cursor: 'pointer',
