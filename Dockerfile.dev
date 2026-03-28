@@ -1,19 +1,20 @@
-FROM node:24-alpine
+FROM node:24-bookworm-slim
 
 WORKDIR /app
 
-# Install dependencies for development
-RUN apk add --no-cache \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     python3 \
     make \
-    g++
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install all dependencies (including dev)
-RUN npm install
+RUN corepack enable pnpm && pnpm install
 
 # Copy application code
 COPY . .
@@ -22,4 +23,4 @@ COPY . .
 EXPOSE 3000
 
 # Development command with hot reload
-CMD ["npm", "run", "dev"]
+CMD ["pnpm", "run", "dev"]
