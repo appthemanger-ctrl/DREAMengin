@@ -121,7 +121,7 @@ services:
   # Nginx (Reverse Proxy)
   # ==========================================
   nginx:
-    image: nginx:stable
+    image: nginx:stable-bookworm
     container_name: dreamengin-nginx
     ports:
       - "80:80"
