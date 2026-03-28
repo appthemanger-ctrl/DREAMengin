@@ -291,7 +291,7 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
         style={{
           minHeight: '100%',
           width: '100%',
-          paddingBottom: 140,
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 176px)',
         }}
       >
         {/* ── Floating header ── */}
