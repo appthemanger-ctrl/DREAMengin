@@ -19,4 +19,29 @@ describe('existing PS5 remote usage', () => {
     expect(src).not.toContain('function UniversalDPad');
     expect(src).not.toContain('interface DPadState');
   });
+
+  it('removes per-game on-screen remote pads in favor of the shared GameRemote', () => {
+    const babylon = readFileSync(join(REPO_ROOT, 'components/games/BabylonSideScroller.tsx'), 'utf8');
+    const maze = readFileSync(join(REPO_ROOT, 'components/games/MazeGame.tsx'), 'utf8');
+    const snake = readFileSync(join(REPO_ROOT, 'components/games/SnakeGame.tsx'), 'utf8');
+    const racing = readFileSync(join(REPO_ROOT, 'components/games/RacingGame.tsx'), 'utf8');
+    const rhythm = readFileSync(join(REPO_ROOT, 'components/games/RhythmGame.tsx'), 'utf8');
+    const shooter = readFileSync(join(REPO_ROOT, 'components/games/SpaceShooter.tsx'), 'utf8');
+
+    expect(babylon).not.toContain('Virtual D-Pad');
+    expect(babylon).not.toContain("handleVpad('jump', true)");
+    expect(maze).not.toContain("keysRef.current.add('ArrowUp')");
+    expect(snake).not.toContain("(['up','left','down','right'] as Dir[])");
+    expect(racing).not.toContain("[['↑','ArrowUp'],['↓','ArrowDown'],['←','ArrowLeft'],['→','ArrowRight']]");
+    expect(rhythm).not.toContain('onPointerDown={() => hitLane(i)}');
+    expect(shooter).not.toContain('onTouchMove={');
+  });
+
+  it('keeps rhythm game playable through shared remote-compatible inputs', () => {
+    const src = readFileSync(join(REPO_ROOT, 'components/games/RhythmGame.tsx'), 'utf8');
+
+    expect(src).toContain("['a', 'ArrowLeft', 'z']");
+    expect(src).toContain("['l', 'ArrowRight', ' ']");
+    expect(src).toContain('shared GameRemote directions');
+  });
 });

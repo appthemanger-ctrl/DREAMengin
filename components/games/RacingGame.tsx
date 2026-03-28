@@ -181,7 +181,7 @@ export default function RacingGame() {
   if (phase === 'menu') return (
     <div style={{ background: '#1a1a2e', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
       <div style={{ fontSize: 26, fontWeight: 900, color: '#3b82f6' }}>🏎 TOP-DOWN RACING</div>
-      <div style={{ fontSize: 12, color: '#9ca3af' }}>W/S or ↑/↓ = accelerate/brake · A/D or ←/→ = steer · 3 laps to win!</div>
+      <div style={{ fontSize: 12, color: '#9ca3af' }}>W/S or ↑/↓ = accelerate/brake · A/D or ←/→ = steer · shared GameRemote supported · 3 laps to win!</div>
       {best !== null && <div style={{ color: '#facc15', fontSize: 13 }}>Best time: {best.toFixed(1)}s</div>}
       <button onClick={startGame} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>▶ Race!</button>
     </div>
@@ -197,11 +197,8 @@ export default function RacingGame() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
       <canvas ref={canvasRef} width={CW} height={CH} tabIndex={0} style={{ width: '100%', maxWidth: CW, borderRadius: 8, display: 'block', border: '2px solid rgba(59,130,246,0.3)', outline: 'none' }} />
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-        {[['↑','ArrowUp'],['↓','ArrowDown'],['←','ArrowLeft'],['→','ArrowRight']].map(([label, key]) => (
-          <button key={key} onPointerDown={() => keysRef.current.add(key)} onPointerUp={() => keysRef.current.delete(key)} onPointerLeave={() => keysRef.current.delete(key)}
-            style={{ width: 40, height: 40, background: '#1e2a4a', border: '1px solid #374151', borderRadius: 8, color: '#3b82f6', fontSize: 16, cursor: 'pointer' }}>{label}</button>
-        ))}
+      <div style={{ color: '#60a5fa', fontSize: 11, fontWeight: 700, textAlign: 'center' }}>
+        Use the shared PS-style GameRemote or keyboard controls.
       </div>
     </div>
   );

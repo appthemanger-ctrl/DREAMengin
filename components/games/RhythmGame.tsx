@@ -17,6 +17,15 @@ type Phase = 'menu' | 'playing' | 'done';
 const LANE_COLORS = ['#ef4444','#3b82f6','#22c55e','#f59e0b'];
 const LANE_KEYS = ['A','S','K','L'];
 const LANE_ARROWS = ['←','↓','↑','→'];
+// Each lane keeps its original keyboard binding but also accepts inputs that
+// arrive through the shared GameRemote keyboard bridge (left/down/up/right or
+// the PS-style spin/jump/shoot aliases z/↑/space).
+const LANE_INPUTS: readonly string[][] = [
+  ['a', 'ArrowLeft', 'z'],
+  ['s', 'ArrowDown'],
+  ['k', 'ArrowUp'],
+  ['l', 'ArrowRight', ' '],
+];
 
 interface Note { id: number; lane: number; y: number; hit: boolean; missed: boolean; }
 interface Effect { x: number; y: number; text: string; color: string; alpha: number; vy: number; }
@@ -81,7 +90,7 @@ export default function RhythmGame() {
   useEffect(() => {
     if (phase !== 'playing') return;
     const onKey = (e: KeyboardEvent) => {
-      const idx = LANE_KEYS.indexOf(e.key.toUpperCase());
+      const idx = LANE_INPUTS.findIndex((keys) => keys.includes(e.key));
       if (idx !== -1) { e.preventDefault(); hitLane(idx); }
     };
     window.addEventListener('keydown', onKey);
@@ -182,7 +191,7 @@ export default function RhythmGame() {
       <div style={{ display: 'flex', gap: 12 }}>
         {LANE_COLORS.map((c, i) => <div key={i} style={{ width: 48, height: 48, background: c, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>{LANE_ARROWS[i]}</div>)}
       </div>
-      <div style={{ fontSize: 12, color: '#9ca3af' }}>Press A/S/K/L when notes reach the hit zone!</div>
+      <div style={{ fontSize: 12, color: '#9ca3af' }}>Press A/S/K/L or use the shared GameRemote directions when notes reach the hit zone!</div>
       {best > 0 && <div style={{ color: '#facc15', fontSize: 13 }}>Best: {best}</div>}
       <button onClick={startGame} style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>▶ Start</button>
     </div>
@@ -198,10 +207,8 @@ export default function RhythmGame() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
       <canvas ref={canvasRef} width={CW} height={CH} style={{ width: '100%', maxWidth: CW, borderRadius: 8, display: 'block', border: '2px solid rgba(167,139,250,0.3)' }} />
-      <div style={{ display: 'flex', gap: 8 }}>
-        {LANE_COLORS.map((c, i) => (
-          <button key={i} onPointerDown={() => hitLane(i)} style={{ width: 50, height: 50, background: c, border: 'none', borderRadius: 8, color: '#fff', fontSize: 20, fontWeight: 900, cursor: 'pointer' }}>{LANE_ARROWS[i]}</button>
-        ))}
+      <div style={{ color: '#c4b5fd', fontSize: 11, fontWeight: 700, textAlign: 'center' }}>
+        Use the shared PS-style GameRemote or keyboard controls.
       </div>
     </div>
   );

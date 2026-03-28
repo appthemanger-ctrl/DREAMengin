@@ -14,8 +14,7 @@
  *  • 15 themed zones — sky, platform colours and lore text change every 10 levels.
  *  • Session-seeded generation: every playthrough is unique, retrying a level
  *    gives the same layout.
- *  • Virtual D-Pad for touch / mobile.
- *  • GameRemote CustomEvent bridge.
+ *  • Shared GameRemote CustomEvent bridge.
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
@@ -403,7 +402,6 @@ export default function BabylonSideScroller() {
   const [level,  setLevel]    = useState(1);
   const [score,  setScore]    = useState(0);
   const [lives,  setLives]    = useState(3);
-  const [vpad,   setVpad]     = useState({ left: false, right: false, jump: false });
   const vpadRef  = useRef({ left: false, right: false, jump: false });
   const [bestScore, setBestScore] = useState(() => {
     try { return parseInt(localStorage.getItem('madmaxi_best') ?? '0', 10); }
@@ -537,15 +535,6 @@ export default function BabylonSideScroller() {
     window.addEventListener('de-game-input', handler);
     return () => window.removeEventListener('de-game-input', handler);
   }, []);
-
-  // ── Touch D-Pad ────────────────────────────────────────────────────────────
-  const handleVpad = useCallback((key: 'left'|'right'|'jump', active: boolean) => {
-    const vp = { ...vpadRef.current, [key]: active };
-    vpadRef.current = vp;
-    setVpad(vp);
-    gameRef.current?.setVpad(vp);
-    if (active && key === 'jump' && status === 'title') startGame(1, 0, 3);
-  }, [status, startGame]);
 
   // ── Cleanup ────────────────────────────────────────────────────────────────
   useEffect(() => () => { gameRef.current?.destroy(); }, []);
@@ -783,117 +772,8 @@ export default function BabylonSideScroller() {
         )}
       </div>
 
-      {/* ── Virtual D-Pad ── */}
-      {(status === 'playing' || status === 'title') && (
-        <div style={{ display: 'flex', gap: 32, alignItems: 'center', marginTop: 8, userSelect: 'none' }}>
-
-          {/* ── Cross D-Pad (left) ── */}
-          <div style={{ position: 'relative', width: 144, height: 144, flexShrink: 0 }}>
-            {/* Up / Jump */}
-            <button
-              style={{
-                ...btnBase, position: 'absolute', left: '50%', top: 0,
-                transform: 'translateX(-50%)',
-                width: 48, height: 48, borderRadius: '10px 10px 4px 4px', fontSize: 20,
-                background: vpad.jump ? 'rgba(250,200,26,0.75)' : 'rgba(250,200,26,0.18)',
-                color: vpad.jump ? '#000' : 'rgba(250,200,26,0.9)',
-                boxShadow: vpad.jump ? '0 0 16px rgba(250,200,26,0.6)' : 'none',
-                transition: 'background 0.08s, box-shadow 0.08s',
-              }}
-              onPointerDown={(e) => { e.preventDefault(); handleVpad('jump', true); }}
-              onPointerUp={() => handleVpad('jump', false)}
-              onPointerLeave={() => handleVpad('jump', false)}
-              onPointerCancel={() => handleVpad('jump', false)}
-              aria-label="Jump"
-            >▲</button>
-
-            {/* Left */}
-            <button
-              style={{
-                ...btnBase, position: 'absolute', left: 0, top: '50%',
-                transform: 'translateY(-50%)',
-                width: 48, height: 48, borderRadius: '10px 4px 4px 10px', fontSize: 20,
-                background: vpad.left ? 'rgba(74,175,255,0.75)' : 'rgba(74,175,255,0.18)',
-                color: vpad.left ? '#fff' : 'rgba(180,220,255,0.9)',
-                boxShadow: vpad.left ? '0 0 16px rgba(74,175,255,0.6)' : 'none',
-                transition: 'background 0.08s, box-shadow 0.08s',
-              }}
-              onPointerDown={(e) => { e.preventDefault(); handleVpad('left', true); }}
-              onPointerUp={() => handleVpad('left', false)}
-              onPointerLeave={() => handleVpad('left', false)}
-              onPointerCancel={() => handleVpad('left', false)}
-              aria-label="Move left"
-            >◀</button>
-
-            {/* Center hub */}
-            <div style={{
-              position: 'absolute', left: '50%', top: '50%',
-              transform: 'translate(-50%,-50%)',
-              width: 44, height: 44, borderRadius: 8,
-              background: 'rgba(160,195,240,0.08)',
-              border: '1.5px solid rgba(160,195,240,0.15)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 11, fontWeight: 800, color: 'rgba(160,195,240,0.3)',
-              letterSpacing: '0.05em',
-            }}>✦</div>
-
-            {/* Right */}
-            <button
-              style={{
-                ...btnBase, position: 'absolute', right: 0, top: '50%',
-                transform: 'translateY(-50%)',
-                width: 48, height: 48, borderRadius: '4px 10px 10px 4px', fontSize: 20,
-                background: vpad.right ? 'rgba(74,175,255,0.75)' : 'rgba(74,175,255,0.18)',
-                color: vpad.right ? '#fff' : 'rgba(180,220,255,0.9)',
-                boxShadow: vpad.right ? '0 0 16px rgba(74,175,255,0.6)' : 'none',
-                transition: 'background 0.08s, box-shadow 0.08s',
-              }}
-              onPointerDown={(e) => { e.preventDefault(); handleVpad('right', true); }}
-              onPointerUp={() => handleVpad('right', false)}
-              onPointerLeave={() => handleVpad('right', false)}
-              onPointerCancel={() => handleVpad('right', false)}
-              aria-label="Move right"
-            >▶</button>
-
-            {/* Down (cosmetic — reserved for future use) */}
-            <div
-              style={{
-                position: 'absolute', left: '50%', bottom: 0,
-                transform: 'translateX(-50%)',
-                width: 48, height: 48, borderRadius: '4px 4px 10px 10px',
-                background: 'rgba(160,195,240,0.06)',
-                border: '1.5px solid rgba(160,195,240,0.10)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 20, color: 'rgba(160,195,240,0.2)',
-              }}
-            >▼</div>
-          </div>
-
-          {/* ── Action button — JUMP (right side) ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
-            <button
-              style={{
-                ...btnBase, width: 72, height: 72, borderRadius: '50%', fontSize: 22, fontWeight: 800,
-                background: vpad.jump ? 'rgba(250,200,26,0.75)' : 'rgba(250,200,26,0.18)',
-                color: vpad.jump ? '#000' : 'rgba(250,200,26,0.9)',
-                boxShadow: vpad.jump ? '0 0 24px rgba(250,200,26,0.55)' : 'none',
-                border: '2px solid rgba(250,200,26,0.35)',
-                transition: 'background 0.08s, box-shadow 0.08s',
-              }}
-              onPointerDown={(e) => { e.preventDefault(); handleVpad('jump', true); }}
-              onPointerUp={() => handleVpad('jump', false)}
-              onPointerLeave={() => handleVpad('jump', false)}
-              onPointerCancel={() => handleVpad('jump', false)}
-              aria-label="Jump"
-            >▲</button>
-            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(250,200,26,0.5)', letterSpacing: '0.08em' }}>JUMP</span>
-          </div>
-
-        </div>
-      )}
-
       <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', maxWidth: 500 }}>
-        ← → / A D move &nbsp;·&nbsp; ↑ / W / Space jump (double-jump) &nbsp;·&nbsp;
+        Use the shared PS-style GameRemote or keyboard: ← → / A D move &nbsp;·&nbsp; ↑ / W / Space jump (double-jump) &nbsp;·&nbsp;
         Hold forward <strong>and</strong> press jump — they always work together
       </p>
     </div>
