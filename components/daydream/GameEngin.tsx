@@ -242,6 +242,28 @@ export default function GameEngin({ onBack }: Props) {
   const [activePlayableGame, setActivePlayableGame] = useState<string | null>(null);
   const [expandedPlayableGame, setExpandedPlayableGame] = useState<string | null>(null);
 
+  /**
+   * Active GPU rendering backend for this session.
+   * Probed once on mount via WebGPUEngine.IsSupportedAsync so the header
+   * can surface a live engine-type badge (WebGPU vs WebGL2) to the user.
+   */
+  const [engineType, setEngineType] = useState<'WebGPU' | 'WebGL2' | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let cancelled = false;
+    import('@babylonjs/core')
+      .then(({ WebGPUEngine }) =>
+        WebGPUEngine.IsSupportedAsync.then((supported) => {
+          if (!cancelled) setEngineType(supported ? 'WebGPU' : 'WebGL2');
+        }),
+      )
+      .catch(() => {
+        if (!cancelled) setEngineType('WebGL2');
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   // ── World Builder state ──────────────────────────────────────────────────────
   const [worldName,     setWorldName]     = useState('');
   const [worldGrid,     setWorldGrid]     = useState<TileType[][]>(makeEmptyGrid);
@@ -695,6 +717,25 @@ export default function GameEngin({ onBack }: Props) {
           >
             Console Side
           </span>
+          {/* Engine type status badge — shows which GPU backend is powering the games layer */}
+          {engineType && (
+            <span
+              title={engineType === 'WebGPU' ? 'WebGPU backend active — modern compute path' : 'WebGL2 backend active — compatibility path'}
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: '0.05em',
+                padding: '3px 8px',
+                borderRadius: 999,
+                background: engineType === 'WebGPU' ? 'rgba(139,92,246,0.14)' : 'rgba(56,189,248,0.12)',
+                color:      engineType === 'WebGPU' ? '#a78bfa'               : '#38bdf8',
+                border:     engineType === 'WebGPU' ? '1px solid rgba(139,92,246,0.30)' : '1px solid rgba(56,189,248,0.24)',
+                flexShrink: 0,
+              }}
+            >
+              {engineType === 'WebGPU' ? '⚡ WebGPU' : '🔷 WebGL2'}
+            </span>
+          )}
         </div>
       </header>
 

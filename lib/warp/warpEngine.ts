@@ -251,12 +251,34 @@ export class WarpEngine {
   private width:        number = 800;
   private height:       number = 600;
 
+  /**
+   * Compact Float32Array buffer for fast numeric access to live particle data.
+   * Layout per particle slot (STRIDE floats):
+   *   [0] pos.x  [1] pos.y  [2] vel.x  [3] vel.y  [4] life  [5] opacity
+   *
+   * Kept in sync at the end of every step() call.  Callers (e.g. a future GPU
+   * upload path or OffscreenCanvas worker) can read this without iterating the
+   * particle object array.
+   */
+  private static readonly STRIDE = 6;
+  private readonly _numericBuf: Float32Array;
+  /**
+   * Cached subarray view covering only live particles.
+   * Updated by _syncNumericBuf() each step() so the getter can return it
+   * without allocating a new subarray on every access.
+   */
+  private _cachedSubarray: Float32Array;
+
   constructor(opts: WarpEngineOptions = {}) {
     this.maxParticles = opts.maxParticles ?? 320;
     this.spawnRate    = opts.spawnRate    ?? 30;
     this.effect       = opts.effect       ?? 'particles';
     this.extraKernels = opts.extraKernels ?? [];
     this.kernels      = [...EFFECT_KERNELS[this.effect], ...this.extraKernels];
+    // Pre-allocate the full-capacity typed buffer once — avoids GC pressure
+    // during the animation loop.
+    this._numericBuf     = new Float32Array(this.maxParticles * WarpEngine.STRIDE);
+    this._cachedSubarray = this._numericBuf.subarray(0, 0); // empty until first step
   }
 
   /** Resize the simulation domain (call when the canvas is resized). */
@@ -313,6 +335,62 @@ export class WarpEngine {
     for (let i = 0; i < spawning; i++) {
       this.particles.push(spawnParticle(this.effect, this.width, this.height));
     }
+
+    // 4. Sync live numeric data into the compact typed buffer so callers
+    //    (e.g. future GPU upload passes) can read it without iterating objects.
+    this._syncNumericBuf();
+  }
+
+  /**
+   * Sync live particle numeric data into the Float32Array backing buffer
+   * and cache a subarray view covering only the live particle range.
+   * Called automatically at the end of every step().
+   */
+  private _syncNumericBuf(): void {
+    const S = WarpEngine.STRIDE;
+    const len = this.particles.length;
+    for (let i = 0; i < len; i++) {
+      const p  = this.particles[i];
+      const base = i * S;
+      this._numericBuf[base]     = p.pos.x;
+      this._numericBuf[base + 1] = p.pos.y;
+      this._numericBuf[base + 2] = p.vel.x;
+      this._numericBuf[base + 3] = p.vel.y;
+      this._numericBuf[base + 4] = p.life;
+      this._numericBuf[base + 5] = p.opacity;
+    }
+    // Cache the live subarray so the numericBuf getter returns it without
+    // allocating a new view on every access.
+    this._cachedSubarray = this._numericBuf.subarray(0, len * S);
+  }
+
+  /**
+   * Read-only view of the live numeric particle data as a typed array.
+   * Length = `particles.length × STRIDE` (6 floats per particle).
+   * Layout: [x, y, vx, vy, life, opacity] per particle slot.
+   * The returned view is cached and only reallocated when the live particle
+   * count changes, so repeated per-frame accesses are allocation-free.
+   */
+  get numericBuf(): Float32Array {
+    return this._cachedSubarray;
+  }
+
+  /**
+   * Return a deep-cloned snapshot of the current simulation state.
+   * Uses structuredClone for a zero-dependency, spec-compliant deep copy of
+   * all serialisable particle data — suitable for undo/redo, replay recording,
+   * or cross-worker serialisation.
+   *
+   * Note: kernel functions are NOT included (functions are not cloneable);
+   * re-apply via setEffect() after restoring from a snapshot.
+   */
+  snapshot(): { time: number; spawnAccum: number; particles: WarpParticle[]; effect: WarpEffect } {
+    return structuredClone({
+      time:       this.time,
+      spawnAccum: this.spawnAccum,
+      particles:  this.particles,
+      effect:     this.effect,
+    });
   }
 
   /** Elapsed simulation time in seconds. */

@@ -204,12 +204,14 @@ export type GodTierState = {
 // ─── Ring average ─────────────────────────────────────────────────────────────
 
 export class RingAverage {
-  private values: number[];
+  // Float32Array gives typed, cache-friendly storage for the ring buffer
+  // with no boxing overhead — values are always numeric (frame times in ms).
+  private values: Float32Array;
   private index = 0;
   private filled = false;
 
   constructor(private readonly size: number) {
-    this.values = new Array(size).fill(0);
+    this.values = new Float32Array(size); // pre-zeroed, typed
   }
 
   push(v: number) {
@@ -675,6 +677,14 @@ export class DreamEngineGodTierSystem {
   private frameHistory = new RingAverage(24);
   /** Tracks consecutive level-1 frames so we can fire the auto-boost. */
   private level1FrameCount = 0;
+  /**
+   * Timestamp of the last fidelity-scale adaptation (ms).
+   * Prevents rapid scale jitter by enforcing a minimum interval between
+   * consecutive changes — mirrors the rAF cadence in the calling render loop.
+   */
+  private lastAdaptMs: number = -Infinity;
+  /** Minimum wall-clock interval between resolution-scale adaptations (ms). */
+  private static readonly MIN_ADAPT_INTERVAL_MS = 100;
 
   update(params: {
     device: DeviceSignals;
@@ -703,13 +713,26 @@ export class DreamEngineGodTierSystem {
       this.level1FrameCount = 0;
     }
     const autoBoostActive = this.level1FrameCount >= 10;
+
+    // Use performance.now() to rate-limit scale adaptation so rapid successive
+    // update() calls (e.g. during a burst of short frames) don't jitter the
+    // hardware scaling level every frame — changes are batched to at most once
+    // per MIN_ADAPT_INTERVAL_MS, matching the rAF evaluation cadence.
+    const nowMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const canAdapt = nowMs - this.lastAdaptMs >= DreamEngineGodTierSystem.MIN_ADAPT_INTERVAL_MS;
+
     if (autoBoostActive) {
-      // Reset scale to maximum base — fidelityScaler will climb from here
+      // Reset scale to maximum base — fidelityScaler will climb from here.
+      // Reset lastAdaptMs to -Infinity so the frame immediately AFTER the
+      // boost deactivates is not held back by the rate limiter.
       this.resolutionScale = boot.baseResolutionScale;
       this.level1FrameCount = 0;
-    } else {
+      this.lastAdaptMs = -Infinity;
+    } else if (canAdapt) {
       this.resolutionScale = fidelityScaler(runtime, boot.baseResolutionScale);
+      this.lastAdaptMs = nowMs;
     }
+    // else: keep existing scale — not enough time has elapsed to adapt
 
     const meshDecisions = meshes.map((mesh) => {
       const importance = heroObjectImportance(mesh, route);
