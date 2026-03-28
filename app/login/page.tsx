@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import DreamWord from "@/components/ui/DreamWord";
 
 import PasswordField from "@/components/auth/PasswordField";
 import { createClient } from "@/lib/supabase/client";

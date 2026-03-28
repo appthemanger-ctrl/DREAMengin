@@ -6,7 +6,6 @@ import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/client";
 import PasswordField from "@/components/auth/PasswordField";
-import DreamWord from "@/components/ui/DreamWord";
 
 // Shared input style — matches the de-widget design system
 const INPUT_STYLE: React.CSSProperties = {
