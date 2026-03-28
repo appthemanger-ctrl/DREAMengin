@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Gamepad2, Play, Sparkles, Trophy, Zap } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Play, Sparkles, Zap } from 'lucide-react';
 import GamesHub from '@/components/games/GamesHub';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
@@ -30,9 +30,8 @@ const LIBRARY_SPOTLIGHT = [
 ];
 
 const CONSOLE_MODULES = [
-  { title: 'Saved Runs', detail: 'GameEngin keeps your saved launches and quick resume slots like a console memory deck.' },
-  { title: 'Remote Dock', detail: 'The PS-style remote lives with the games, and GameEngin remembers your control setup.' },
-  { title: 'Console Home', detail: 'Think PS5 home screen energy: launch, resume, and return to your library without the page feeling like tools.' },
+  { title: 'Saved Runs', detail: 'GameEngin keeps your saved launches and quick resume slots.' },
+  { title: 'Remote Dock', detail: 'The remote lives with the games, and GameEngin remembers your control setup.' },
 ];
 
 /**
@@ -201,26 +200,6 @@ export default async function GamesDaydreamPage() {
                         </div>
                         <Play className="w-3.5 h-3.5" style={{ color: 'var(--de-accent)', flexShrink: 0 }} />
                       </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="de-widget">
-                <div className="de-widget-header">
-                  <Trophy className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
-                  <span className="de-widget-title ml-2">Why the split works</span>
-                </div>
-                <div className="de-widget-body">
-                  <div style={{ display: 'grid', gap: 8 }}>
-                    {[
-                      'The library side stays readable and fast to browse.',
-                      'The library stays focused on finding, staging, and managing games.',
-                      'GameEngin gets to be the dedicated play surface with fullscreen and remote controls.',
-                    ].map((item) => (
-                      <div key={item} style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.48)', border: '1px solid rgba(160,195,240,0.16)' }}>
-                        {item}
-                      </div>
                     ))}
                   </div>
                 </div>

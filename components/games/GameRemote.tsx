@@ -242,70 +242,22 @@ function Stick({ side, accentColor, label }: StickProps) {
           transition: 'border-color 0.12s, background 0.12s, box-shadow 0.12s',
         }}
       >
-        {/* 8 direction tick dots (right stick only — shows PS5 symbol) */}
-        {side === 'right' && (Object.entries(RIGHT_MAP) as [Dir8, typeof RIGHT_MAP[Dir8]][]).map(([dirKey, info]) => {
-          const angleDeg: Record<Dir8, number> = {
-            right: 0, 'down-right': 45, down: 90, 'down-left': 135,
-            left: 180, 'up-left': 225, up: 270, 'up-right': 315,
-          };
-          const rad = (angleDeg[dirKey] * Math.PI) / 180;
-          const tickR = padRadius - 10;
-          const tx = Math.cos(rad) * tickR + padRadius;
-          const ty = Math.sin(rad) * tickR + padRadius;
-          const isActive = dir === dirKey;
-          return (
-            <div key={dirKey} style={{
-              position: 'absolute',
-              left: tx - 10, top: ty - 10,
-              width: 20, height: 20,
-              borderRadius: '50%',
-              background: isActive ? info.color : 'rgba(255,255,255,0.06)',
-              border: `1.5px solid ${isActive ? info.color : 'rgba(255,255,255,0.1)'}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 8, fontWeight: 900,
-              color: isActive ? '#fff' : 'rgba(255,255,255,0.28)',
-              transition: 'background 0.08s, color 0.08s, border-color 0.08s',
-              pointerEvents: 'auto',
-              cursor: 'pointer',
-            }}>
-              <button
-                type="button"
-                aria-label={`${info.label} button`}
-                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); triggerButtonAction(info.action); }}
-                onPointerUp={(e) => { e.preventDefault(); e.stopPropagation(); releaseButtonAction(); }}
-                onPointerCancel={(e) => { e.preventDefault(); e.stopPropagation(); releaseButtonAction(); }}
-                onPointerLeave={(e) => { e.preventDefault(); e.stopPropagation(); releaseButtonAction(); }}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                  background: 'transparent',
-                  borderRadius: '50%',
-                  color: 'inherit',
-                  font: 'inherit',
-                  cursor: 'pointer',
-                  padding: 0,
-                }}
-              >
-                {info.sym}
-              </button>
-            </div>
-          );
-        })}
-
-        {/* Left stick cardinal markers (no symbols, just subtle lines) */}
-        {side === 'left' && [0, 90, 180, 270].map(deg => {
+        {/* Cardinal tick marks — subtle direction indicators for both sticks */}
+        {[0, 90, 180, 270].map((deg, i) => {
           const rad = (deg * Math.PI) / 180;
           const r = padRadius - 8;
           const tx = Math.cos(rad) * r + padRadius;
           const ty = Math.sin(rad) * r + padRadius;
+          const dirAtDeg = (['right', 'down', 'left', 'up'] as Dir8[])[i];
+          const isActive = side === 'right' && dir === dirAtDeg;
           return (
             <div key={deg} style={{
               position: 'absolute',
               left: tx - 2, top: ty - 2,
               width: 4, height: 4,
               borderRadius: '50%',
-              background: 'rgba(160,195,240,0.25)',
+              background: isActive ? accentColor : 'rgba(160,195,240,0.25)',
+              transition: 'background 0.08s',
               pointerEvents: 'none',
             }} />
           );
@@ -476,21 +428,17 @@ export default function GameRemote({
         </div>
       )}
 
-      {/* Button legend */}
+      {/* Button legend — simplified, just the 4 face buttons */}
       <div style={{
         display: 'flex', gap: 8, flexWrap: 'wrap',
         padding: `10px ${outerPaddingX}px 0`,
         flexShrink: 0,
       }}>
         {[
-          { sym: '×',  label: 'Jump',  color: '#38bdf8' },
-          { sym: '○',  label: 'Shoot', color: '#f87171' },
-          { sym: '□',  label: 'Spin',  color: '#fbbf24' },
-          { sym: '△',  label: 'Duck',  color: '#4ade80' },
-          { sym: 'L1', label: 'J+Spin', color: '#a78bfa' },
-          { sym: 'R2', label: 'J+Shot', color: '#a78bfa' },
-          { sym: 'L2', label: 'Hold',   color: '#818cf8' },
-          { sym: 'R1', label: 'Dash',   color: '#818cf8' },
+          { sym: '△', label: 'Jump',  color: '#38bdf8' },
+          { sym: '○', label: 'Shoot', color: '#f87171' },
+          { sym: '□', label: 'Spin',  color: '#fbbf24' },
+          { sym: '×', label: 'Duck',  color: '#4ade80' },
         ].map(({ sym, label, color }) => (
           <div key={sym} style={{
             display: 'flex', alignItems: 'center', gap: 4,
@@ -504,7 +452,7 @@ export default function GameRemote({
         ))}
       </div>
 
-      {/* Sticks */}
+      {/* Sticks + face buttons */}
       <div style={{
         flex: 1,
         display: 'flex',
@@ -576,8 +524,46 @@ export default function GameRemote({
           )}
         </div>
 
-        {/* RIGHT stick */}
-        <Stick side="right" accentColor="#c8981a" label="Actions" />
+        {/* RIGHT side: stick + face button diamond */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+          <Stick side="right" accentColor="#c8981a" label="Actions" />
+
+          {/* Face button diamond — ×/○/□/△ as tappable buttons */}
+          <div style={{ position: 'relative', width: 88, height: 88, flexShrink: 0 }}>
+            {([
+              { sym: '△', action: 'jump'  as GameInputAction, color: '#38bdf8', top:  0,  left: 30 },
+              { sym: '×', action: 'duck'  as GameInputAction, color: '#4ade80', top:  30, left: 60 },
+              { sym: '□', action: 'spin'  as GameInputAction, color: '#fbbf24', top:  30, left: 0  },
+              { sym: '○', action: 'shoot' as GameInputAction, color: '#f87171', top:  60, left: 30 },
+            ]).map(({ sym, action, color, top, left }) => (
+              <button
+                key={sym}
+                type="button"
+                aria-label={sym}
+                onPointerDown={(e) => { e.preventDefault(); fireAction(action, true); }}
+                onPointerUp={(e)   => { e.preventDefault(); fireAction(action, false); }}
+                onPointerCancel={(e) => { e.preventDefault(); fireAction(action, false); }}
+                onPointerLeave={(e)  => { e.preventDefault(); fireAction(action, false); }}
+                style={{
+                  position: 'absolute',
+                  top, left,
+                  width: 28, height: 28,
+                  borderRadius: '50%',
+                  background: `${color}18`,
+                  border: `1.5px solid ${color}55`,
+                  color,
+                  fontSize: 11, fontWeight: 900,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer',
+                  touchAction: 'none',
+                  transition: 'background 0.08s, border-color 0.08s',
+                }}
+              >
+                {sym}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Quick reference card */}
@@ -592,15 +578,15 @@ export default function GameRemote({
         flexShrink: 0,
       }}>
         {([
-          ['Left ↕↔', 'Move / Jump / Duck'],
-          ['Right ↑',  '× Jump'],
-          ['Right ↓',  '△ Duck'],
-          ['Right ←',  '□ Spin'],
-          ['Right →',  '○ Shoot'],
-          ['Right ↗',  'R2 Jump+Shoot'],
-        ] as [string, string][]).map(([dir, action]) => (
-          <div key={dir} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <span style={{ fontSize: 10, color: 'rgba(160,195,240,0.45)', fontFamily: 'monospace', minWidth: 58 }}>{dir}</span>
+          ['L-stick', 'Move'],
+          ['△',       'Jump'],
+          ['×',       'Duck'],
+          ['□',       'Spin'],
+          ['○',       'Shoot'],
+          ['R-stick ↗', 'Jump+Shoot'],
+        ] as [string, string][]).map(([ctrl, action]) => (
+          <div key={ctrl} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <span style={{ fontSize: 10, color: 'rgba(160,195,240,0.45)', minWidth: 58 }}>{ctrl}</span>
             <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(220,235,255,0.65)' }}>{action}</span>
           </div>
         ))}
