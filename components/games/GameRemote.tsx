@@ -428,17 +428,17 @@ export default function GameRemote({
         </div>
       )}
 
-      {/* Button legend — simplified, just the 4 face buttons */}
+      {/* Button legend — 4 face buttons with × and △ swapped to standard PS positions */}
       <div style={{
         display: 'flex', gap: 8, flexWrap: 'wrap',
         padding: `10px ${outerPaddingX}px 0`,
         flexShrink: 0,
       }}>
         {[
-          { sym: '△', label: 'Jump',  color: '#38bdf8' },
+          { sym: '×', label: 'Jump',  color: '#38bdf8' },
           { sym: '○', label: 'Shoot', color: '#f87171' },
           { sym: '□', label: 'Spin',  color: '#fbbf24' },
-          { sym: '×', label: 'Duck',  color: '#4ade80' },
+          { sym: '△', label: 'Duck',  color: '#4ade80' },
         ].map(({ sym, label, color }) => (
           <div key={sym} style={{
             display: 'flex', alignItems: 'center', gap: 4,
@@ -528,11 +528,11 @@ export default function GameRemote({
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
           <Stick side="right" accentColor="#c8981a" label="Actions" />
 
-          {/* Face button diamond — ×/○/□/△ as tappable buttons */}
+          {/* Face button diamond — △/○/□/× tappable buttons; × at top (jump), △ at right side */}
           <div style={{ position: 'relative', width: 88, height: 88, flexShrink: 0 }}>
             {([
-              { sym: '△', action: 'jump'  as GameInputAction, color: '#38bdf8', top:  0,  left: 30 },
-              { sym: '×', action: 'duck'  as GameInputAction, color: '#4ade80', top:  30, left: 60 },
+              { sym: '×', action: 'jump'  as GameInputAction, color: '#38bdf8', top:  0,  left: 30 },
+              { sym: '△', action: 'duck'  as GameInputAction, color: '#4ade80', top:  30, left: 60 },
               { sym: '□', action: 'spin'  as GameInputAction, color: '#fbbf24', top:  30, left: 0  },
               { sym: '○', action: 'shoot' as GameInputAction, color: '#f87171', top:  60, left: 30 },
             ]).map(({ sym, action, color, top, left }) => (
@@ -544,6 +544,9 @@ export default function GameRemote({
                 onPointerUp={(e)   => { e.preventDefault(); fireAction(action, false); }}
                 onPointerCancel={(e) => { e.preventDefault(); fireAction(action, false); }}
                 onPointerLeave={(e)  => { e.preventDefault(); fireAction(action, false); }}
+                onTouchStart={(e)  => { e.preventDefault(); fireAction(action, true); }}
+                onTouchEnd={(e)    => { e.preventDefault(); fireAction(action, false); }}
+                onTouchCancel={(e) => { e.preventDefault(); fireAction(action, false); }}
                 style={{
                   position: 'absolute',
                   top, left,
@@ -556,6 +559,7 @@ export default function GameRemote({
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer',
                   touchAction: 'none',
+                  WebkitTapHighlightColor: 'transparent',
                   transition: 'background 0.08s, border-color 0.08s',
                 }}
               >
@@ -579,8 +583,8 @@ export default function GameRemote({
       }}>
         {([
           ['L-stick', 'Move'],
-          ['△',       'Jump'],
-          ['×',       'Duck'],
+          ['×',       'Jump'],
+          ['△',       'Duck'],
           ['□',       'Spin'],
           ['○',       'Shoot'],
           ['R-stick ↗', 'Jump+Shoot'],
