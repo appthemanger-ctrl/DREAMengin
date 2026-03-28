@@ -8,9 +8,9 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
-| `e00362d` | 2026-03-28 18:47 UTC | copilot/replace-foundation-with-linux-software | Copilot | ~1 | pin nginx compose image to Debian Bookworm variant |
-| `67478f6` | 2026-03-28 18:46 UTC | copilot/replace-foundation-with-linux-software | Copilot | ~4 | finish full pnpm and Linux foundation retooling sweep |
-| `7296531` | 2026-03-28 18:37 UTC | copilot/replace-foundation-with-linux-software | Copilot | ~3 | replace Alpine Linux foundation with Debian Bookworm in Docker infrastructure |
+| `bbdd3b6` | 2026-03-28 19:10 UTC | completedream | appthemanger-ctrl | — | Merge pull request #336 from appthemanger-ctrl/copilot/fix-remote-control-issue |
+| `9356f90` | 2026-03-28 18:37 UTC | copilot/fix-remote-control-issue | Copilot | ~2 | chore: clean up remote review feedback |
+| `4768f55` | 2026-03-28 18:32 UTC | copilot/fix-remote-control-issue | Copilot | ~3 | fix: make embedded game remote compact and generic |
 | `89866a9` | 2026-03-28 18:04 UTC | completedream | appthemanger-ctrl | — | Merge pull request #335 from appthemanger-ctrl/copilot/update-image-processing-module |
 | `15a59bb` | 2026-03-28 18:03 UTC | copilot/update-image-processing-module | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/update-image-processing-module |
 | `bf4da48` | 2026-03-28 12:23 UTC | completedream | appthemanger-ctrl | — | Merge pull request #334 from appthemanger-ctrl/copilot/perform-optimization-in-app |
@@ -23,7 +23,7 @@ Date: March 24, 2026
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-28 18:47 UTC — `e00362d` by Copilot
+Last updated: 2026-03-28 19:10 UTC — `bbdd3b6` by appthemanger-ctrl
 Last updated: 2026-03-28 12:12 UTC — `e56e13a` by appthemanger-ctrl
 Last updated: 2026-03-28 06:10 UTC — `bd955c1` by appthemanger-ctrl
 Last updated: 2026-03-27 10:18 UTC — `b08e631` by appthemanger-ctrl

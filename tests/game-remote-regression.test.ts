@@ -13,6 +13,15 @@ describe('existing PS5 remote usage', () => {
     expect(src).toContain('if (showRemote) return <GameRemote onBack={() => setShowRemote(false)} />;');
   });
 
+  it('keeps the embedded shared remote generic instead of a MADMAXI controller deck', () => {
+    const src = readFileSync(join(REPO_ROOT, 'components/games/GameRemote.tsx'), 'utf8');
+
+    expect(src).toContain('Shared Remote');
+    expect(src).toContain("Inline game controls");
+    expect(src).not.toContain('controller deck');
+    expect(src).not.toContain('Default Remote');
+  });
+
   it('does not reintroduce the old duplicate UniversalDPad controller in GamesHub', () => {
     const src = readFileSync(join(REPO_ROOT, 'components/games/GamesHub.tsx'), 'utf8');
 
