@@ -136,10 +136,10 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
   // Available height for the two runtime regions (viewport minus the fixed divider bar).
   // We use CSS calc() so the layout adapts to window resize without JS re-render.
   const availFraction = splitRatio;          // 0..1
-  const surfaceHeight = `calc(${availFraction} * (100vh - ${DIVIDER_H}px))`;
-  const dreamHeight   = `calc(${1 - availFraction} * (100vh - ${DIVIDER_H}px))`;
+  const surfaceHeight = `calc(${availFraction} * (100dvh - ${DIVIDER_H}px))`;
+  const dreamHeight   = `calc(${1 - availFraction} * (100dvh - ${DIVIDER_H}px))`;
   // Bar sits at the boundary; its top = surfaceHeight (same calc).
-  const barOffsetTop  = `calc(${availFraction} * (100vh - ${DIVIDER_H}px))`;
+  const barOffsetTop  = `calc(${availFraction} * (100dvh - ${DIVIDER_H}px))`;
 
   return (
     <>
@@ -156,7 +156,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
        * pointer-events blocking. This satisfies the "two persistent WebGPU
        * contexts" requirement.
        */}
-      <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', width: '100%', height: '100dvh', overflow: 'hidden' }}>
 
         {/* ── Surface Space (top runtime) ──────────────────────────────── */}
         <div
@@ -244,4 +244,3 @@ export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: {
     </DualRuntimeContainer>
   );
 }
-

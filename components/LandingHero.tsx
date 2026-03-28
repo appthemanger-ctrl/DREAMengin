@@ -6,14 +6,18 @@ import { useState, useEffect } from 'react';
 import DrEamsBabylonHero from '@/components/landing/DrEamsBabylonHero';
 
 /**
- * LandingHero — Light blue · gold · white premium landing page.
+ * LandingHero — Premium SICK redesign.
  *
- * Design philosophy:
- *   3D environment  → platform identity  (DrEamsBabylonHero robot)
- *   2D interface    → precision interaction (flat, clean, exact)
- *   micro-motion    → polish (subtle easing, small transforms, short durations)
+ * Design philosophy (AXIOMS.md §Stylized + §Intuitive + §Cohesive + §Coherent):
+ *   Deep navy→sky split bg  → platform depth and identity
+ *   3D Dr. Eams robot       → interactive brand signature
+ *   2D precision interface  → flat, clean, readable
+ *   Gold / sky-blue palette → premium, aspirational, trustworthy
+ *   Micro-motion            → purposeful, no decorative noise
  *
- * Palette: light-blue bg · gold CTAs · white card surfaces · navy text
+ * Palette: deep navy bg · sky blue accents · gold CTAs · white card surfaces
+ * Architecture: ARCHITECTURE.md §8 (Design system direction)
+ * Theme: THEME.md (Gold = action · Light blue = live · White = clarity)
  */
 
 const ACTIONS = [
@@ -27,76 +31,165 @@ const ACTIONS = [
   'share your work',
 ];
 
+const FEATURES = [
+  {
+    emoji: '🎵',
+    title: 'Music Daydream',
+    desc: 'Record, share, and perform. StarMakerEngin powers your sound.',
+    color: '#ec4899',
+    bg: 'rgba(236,72,153,0.08)',
+    border: 'rgba(236,72,153,0.18)',
+  },
+  {
+    emoji: '🎮',
+    title: 'Games Daydream',
+    desc: '20+ arcade games, multiplayer rooms, GameEngin controls.',
+    color: '#6366f1',
+    bg: 'rgba(99,102,241,0.08)',
+    border: 'rgba(99,102,241,0.18)',
+  },
+  {
+    emoji: '💻',
+    title: 'Code Daydream',
+    desc: 'Live editor, CodeEngin runtime, shareable environments.',
+    color: '#0ea5e9',
+    bg: 'rgba(14,165,233,0.08)',
+    border: 'rgba(14,165,233,0.18)',
+  },
+  {
+    emoji: '🎨',
+    title: 'Brand Daydream',
+    desc: 'BrandingEngin + ContentEngin. Design your presence.',
+    color: '#c8981a',
+    bg: 'rgba(200,152,26,0.08)',
+    border: 'rgba(200,152,26,0.22)',
+  },
+];
+
 // Precision easing — smooth deceleration, no bounce
-// CSS equivalents: --ease-decel / --ease-precise (see styles/globals.css)
 const easeDecel   = { ease: [0, 0, 0.2, 1]    as const, duration: 0.3 };
 const easePrecise = { ease: [0.4, 0, 0.2, 1]  as const, duration: 0.2 };
 
 export default function LandingHero() {
   const [actionIdx, setActionIdx] = useState(0);
-  const [heroSize, setHeroSize] = useState(480);
+  const [heroSize, setHeroSize] = useState(460);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setActionIdx((i) => (i + 1) % ACTIONS.length);
-    }, 2400);
+    }, 2600);
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    const update = () => setHeroSize(window.innerWidth < 768 ? 340 : 480);
+    const update = () =>
+      setHeroSize(window.innerWidth < 768 ? 300 : window.innerWidth < 1280 ? 400 : 460);
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
 
   return (
-    <div className="relative min-h-dvh flex flex-col overflow-hidden"
-      style={{ background: 'linear-gradient(160deg, #f0f7ff 0%, #e4eff9 55%, #dce9f5 100%)' }}
+    <div
+      className="relative flex flex-col overflow-hidden"
+      style={{ minHeight: '100dvh', background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 40%, #0f2244 70%, #0a1628 100%)' }}
     >
-
-      {/* ── Ambient depth layers ── */}
+      {/* ── Atmospheric glow layers ── */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        {/* Soft sky-blue radial — top-left, platform warmth */}
-        <div className="absolute -top-32 -left-32 w-[520px] h-[520px]"
-          style={{ background: 'radial-gradient(circle, rgba(125,211,252,0.22) 0%, transparent 68%)', filter: 'blur(40px)' }}
+        {/* Primary sky-blue aurora — top-right */}
+        <div
+          className="absolute"
+          style={{
+            top: '-80px', right: '-60px',
+            width: '660px', height: '660px',
+            background: 'radial-gradient(circle, rgba(56,189,248,0.14) 0%, rgba(14,165,233,0.06) 45%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
         />
-        {/* Warm gold — bottom-right, aspirational */}
-        <div className="absolute -bottom-24 -right-16 w-[440px] h-[440px]"
-          style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 68%)', filter: 'blur(48px)' }}
+        {/* Gold warmth — bottom-left aspirational anchor */}
+        <div
+          className="absolute"
+          style={{
+            bottom: '-60px', left: '-40px',
+            width: '540px', height: '540px',
+            background: 'radial-gradient(circle, rgba(200,152,26,0.13) 0%, rgba(245,158,11,0.05) 50%, transparent 70%)',
+            filter: 'blur(72px)',
+          }}
         />
-        {/* White highlight — top-center, premium glass feel */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[180px]"
-          style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 70%)' }}
+        {/* Deep navy center glow */}
+        <div
+          className="absolute"
+          style={{
+            top: '30%', left: '50%', transform: 'translate(-50%, -50%)',
+            width: '900px', height: '600px',
+            background: 'radial-gradient(ellipse, rgba(30,80,180,0.10) 0%, transparent 65%)',
+            filter: 'blur(80px)',
+          }}
+        />
+        {/* Subtle grid overlay for depth */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+            maskImage: 'radial-gradient(ellipse 90% 70% at 50% 30%, black 0%, transparent 80%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 90% 70% at 50% 30%, black 0%, transparent 80%)',
+          }}
         />
       </div>
 
       {/* ── Nav bar ── */}
       <motion.nav
-        initial={{ opacity: 0, y: -12 }}
+        initial={{ opacity: 0, y: -14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ ...easeDecel, duration: 0.25 }}
-        className="relative z-10 flex items-center justify-between px-5 py-4 md:px-8 md:py-5"
-        style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
+        transition={{ ...easeDecel, duration: 0.3 }}
+        className="relative z-20 flex items-center justify-between px-6 md:px-10"
+        style={{
+          paddingTop: 'max(20px, env(safe-area-inset-top))',
+          paddingBottom: 16,
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          background: 'rgba(7,14,28,0.50)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
         aria-label="Site navigation"
       >
-        {/* Wordmark — deep navy on light bg */}
+        {/* Wordmark */}
         <Link
           href="/"
-          className="de-wordmark text-[#0f2a5c] text-xl tracking-tight select-none"
+          className="select-none flex items-baseline gap-0"
           aria-label="DREAMengin — home"
+          style={{
+            fontFamily: 'var(--font-cormorant, Georgia, serif)',
+            fontStyle: 'italic',
+            fontWeight: 500,
+            fontSize: 24,
+            letterSpacing: '-0.01em',
+            lineHeight: 1,
+          }}
         >
-          DREAMengin
+          <span style={{
+            background: 'linear-gradient(135deg, #e8d090 0%, #c8981a 60%, #a07820 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>dream</span>
+          <span style={{ color: 'rgba(220,235,255,0.65)' }}>engin</span>
         </Link>
 
         <div className="flex items-center gap-2">
           <Link href="/about">
             <motion.span
               whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.96 }}
               transition={easePrecise}
-              className="premium-btn premium-btn-ghost-light text-sm px-4 py-2"
-              style={{ cursor: 'pointer' }}
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-full cursor-pointer"
+              style={{
+                color: 'rgba(200,220,255,0.72)',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                letterSpacing: '0.01em',
+              }}
             >
               About
             </motion.span>
@@ -104,10 +197,15 @@ export default function LandingHero() {
           <Link href="/login">
             <motion.span
               whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.96 }}
               transition={easePrecise}
-              className="premium-btn premium-btn-gold text-sm px-4 py-2"
-              style={{ cursor: 'pointer' }}
+              className="inline-flex items-center justify-center px-5 py-2 text-sm font-semibold rounded-full cursor-pointer"
+              style={{
+                background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+                color: 'white',
+                boxShadow: '0 4px 20px rgba(245,158,11,0.35)',
+                letterSpacing: '0.01em',
+              }}
             >
               Sign In
             </motion.span>
@@ -115,147 +213,266 @@ export default function LandingHero() {
         </div>
       </motion.nav>
 
-      {/* ── Hero Content ── */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-5 pt-8 pb-24 text-center md:pt-0">
+      {/* ── Main hero section — two columns on desktop ── */}
+      <div className="relative z-10 flex-1 flex flex-col lg:flex-row lg:items-center lg:justify-between px-6 md:px-10 lg:px-16 pt-10 pb-10 lg:pt-0 lg:pb-0 gap-8 lg:gap-4">
 
-        {/* Brand tagline — EXPLORE · DISCOVER · DREAM */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...easeDecel, delay: 0.1 }}
-          className="mb-5 inline-flex items-center gap-3 px-5 py-2 rounded-full text-xs font-bold tracking-[0.18em] uppercase select-none"
-          style={{
-            background: 'rgba(255,255,255,0.88)',
-            border: '1px solid rgba(200,152,26,0.35)',
-            color: '#9a6f0a',
-            boxShadow: '0 1px 6px rgba(200,152,26,0.14)',
-          }}
-          aria-label="DREAMengin brand promise: Explore, Discover, Dream"
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#D97706] animate-pulse" aria-hidden="true" />
-          <span>Explore</span>
-          <span style={{ color: 'rgba(200,152,26,0.4)', fontWeight: 300 }} aria-hidden="true">·</span>
-          <span>Discover</span>
-          <span style={{ color: 'rgba(200,152,26,0.4)', fontWeight: 300 }} aria-hidden="true">·</span>
-          <span>Dream</span>
-        </motion.div>
+        {/* ── Left column: text content ── */}
+        <div className="flex flex-col items-center text-center lg:items-start lg:text-left lg:max-w-[52%] lg:py-16">
 
-        {/* Headline */}
-        <motion.h1
-          id="hero-heading"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...easeDecel, delay: 0.18 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-4"
-          style={{ color: '#0a1e3c' }}
-        >
-          Space to
-          <br />
-          <span className="relative inline-block">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={actionIdx}
-                initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
-                animate={{ opacity: 1, y: 0,  filter: 'blur(0px)' }}
-                exit={{    opacity: 0, y: -14, filter: 'blur(6px)' }}
-                transition={{ duration: 0.28, ease: [0, 0, 0.2, 1] }}
-                className="inline-block bg-gradient-to-r from-[#0EA5E9] via-[#0369A1] to-[#B45309] bg-clip-text text-transparent"
-                aria-live="polite"
-                aria-atomic="true"
+          {/* Brand pill */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...easeDecel, delay: 0.08 }}
+            className="mb-6 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.16em] uppercase select-none"
+            style={{
+              background: 'rgba(200,152,26,0.12)',
+              border: '1px solid rgba(200,152,26,0.30)',
+              color: '#d4a832',
+            }}
+            aria-label="DREAMengin — Creative OS"
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full animate-pulse"
+              style={{ background: '#F59E0B' }}
+              aria-hidden="true"
+            />
+            Creative Operating Surface
+          </motion.div>
+
+          {/* Headline */}
+          <motion.h1
+            id="hero-heading"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...easeDecel, delay: 0.14 }}
+            className="font-bold tracking-tight leading-[1.04] mb-5"
+            style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', color: 'rgba(220,235,255,0.97)' }}
+          >
+            Space to
+            <br />
+            <span
+              className="relative inline-block"
+              style={{ minWidth: 'max-content' }}
+            >
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={actionIdx}
+                  initial={{ opacity: 0, y: 16, filter: 'blur(8px)' }}
+                  animate={{ opacity: 1, y: 0,  filter: 'blur(0px)' }}
+                  exit={{    opacity: 0, y: -16, filter: 'blur(8px)' }}
+                  transition={{ duration: 0.3, ease: [0, 0, 0.2, 1] }}
+                  className="inline-block"
+                  style={{
+                    background: 'linear-gradient(135deg, #38bdf8 0%, #0ea5e9 40%, #c8981a 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {ACTIONS[actionIdx]}
+                </motion.span>
+              </AnimatePresence>
+            </span>
+          </motion.h1>
+
+          {/* Sub-headline */}
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...easeDecel, delay: 0.22 }}
+            className="text-base md:text-lg leading-relaxed mb-8 max-w-md"
+            style={{ color: 'rgba(165,195,235,0.72)' }}
+          >
+            A spatial, privacy-first creative OS. Six Daydream surfaces. Real AI tools. Your world — layered, connected, and entirely yours.
+          </motion.p>
+
+          {/* CTA row */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...easeDecel, delay: 0.28 }}
+            className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-xs sm:max-w-none lg:justify-start"
+          >
+            <Link href="/join" className="w-full sm:w-auto">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.025, boxShadow: '0 10px 40px rgba(245,158,11,0.55)' }}
+                whileTap={{ scale: 0.97 }}
+                transition={easePrecise}
+                className="w-full font-semibold rounded-full text-white"
+                style={{
+                  padding: '14px 32px',
+                  fontSize: '0.975rem',
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                  boxShadow: '0 6px 28px rgba(245,158,11,0.40)',
+                  letterSpacing: '0.01em',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
               >
-                {ACTIONS[actionIdx]}
-              </motion.span>
-            </AnimatePresence>
-          </span>
-        </motion.h1>
+                Get Started — Free
+              </motion.button>
+            </Link>
+            <Link href="/login" className="w-full sm:w-auto">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.02, background: 'rgba(255,255,255,0.1)' }}
+                whileTap={{ scale: 0.97 }}
+                transition={easePrecise}
+                className="w-full font-medium rounded-full"
+                style={{
+                  padding: '14px 32px',
+                  fontSize: '0.975rem',
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: 'rgba(200,220,255,0.88)',
+                  letterSpacing: '0.01em',
+                  cursor: 'pointer',
+                }}
+              >
+                Sign In
+              </motion.button>
+            </Link>
+          </motion.div>
 
-        {/* Sub-headline */}
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...easeDecel, delay: 0.26 }}
-          className="text-base md:text-lg max-w-sm md:max-w-md leading-relaxed mb-10"
-          style={{ color: 'rgba(15,42,92,0.58)' }}
-        >
-          A spatial, privacy-first creative operating surface. Navigate your digital world as layered dreams.
-        </motion.p>
+          {/* Stats strip */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.48, duration: 0.45 }}
+            className="mt-10 flex items-center gap-7 md:gap-10"
+            aria-label="Platform statistics"
+          >
+            {[
+              { val: '6',   label: 'Daydreams'    },
+              { val: '20+', label: 'Games'         },
+              { val: '11',  label: 'Engin Paths'   },
+              { val: '∞',   label: 'Possibilities' },
+            ].map((s) => (
+              <div key={s.val} className="flex flex-col items-center lg:items-start gap-0.5">
+                <span
+                  className="font-extrabold leading-none"
+                  style={{ fontSize: '1.55rem', color: 'rgba(220,235,255,0.95)' }}
+                >
+                  {s.val}
+                </span>
+                <span
+                  className="text-xs tracking-wide font-medium"
+                  style={{ color: 'rgba(140,170,220,0.55)' }}
+                >
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
 
-        {/* CTA Buttons */}
+        {/* ── Right column: Dr. Eams robot ── */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...easeDecel, delay: 0.32 }}
-          className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-xs sm:max-w-none sm:justify-center"
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ ...easeDecel, delay: 0.30, duration: 0.55 }}
+          className="relative flex flex-col items-center justify-center lg:flex-1 lg:max-w-[48%]"
+          style={{ minHeight: heroSize + 60 }}
         >
-          <Link href="/join" className="w-full sm:w-auto">
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              transition={easePrecise}
-              className="w-full premium-btn premium-btn-gold text-base px-8 py-3.5 font-semibold"
-            >
-              Get Started — Free
-            </motion.button>
-          </Link>
-          <Link href="/login" className="w-full sm:w-auto">
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              transition={easePrecise}
-              className="w-full premium-btn premium-btn-ghost-light text-base px-8 py-3.5"
-            >
-              Sign In
-            </motion.button>
-          </Link>
-        </motion.div>
-
-        {/* Stats strip */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.55, duration: 0.4 }}
-          className="mt-12 flex items-center gap-6 md:gap-10 text-center"
-          aria-label="Platform statistics"
-        >
-          {[
-            { val: '6',   label: 'Dream Spaces' },
-            { val: '20+', label: 'Games'         },
-            { val: '25+', label: 'Integrations'  },
-          ].map((s, i) => (
-            <div key={s.val} className="flex flex-col items-center gap-0.5">
-              <span className="text-2xl font-bold" style={{ color: '#0a1e3c' }}>{s.val}</span>
-              <span className="text-xs tracking-wide" style={{ color: 'rgba(15,42,92,0.45)' }}>{s.label}</span>
-            </div>
-          ))}
+          {/* Robot glow halo */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            aria-hidden="true"
+            style={{
+              background: 'radial-gradient(ellipse 80% 60% at 50% 60%, rgba(56,189,248,0.16) 0%, rgba(200,152,26,0.05) 55%, transparent 75%)',
+            }}
+          />
+          <DrEamsBabylonHero width={heroSize} height={heroSize} />
+          <p
+            className="mt-2 text-xs font-semibold select-none tracking-widest uppercase"
+            style={{ color: 'rgba(200,152,26,0.70)', letterSpacing: '0.14em' }}
+          >
+            tap · drag · interact ✦
+          </p>
         </motion.div>
       </div>
 
-      {/* ── Dr. Eams 3D Babylon.js robot ── */}
+      {/* ── Feature cards strip ── */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ ...easeDecel, delay: 0.4, duration: 0.45 }}
-        className="relative z-10 flex flex-col items-center justify-center pb-8 md:absolute md:bottom-0 md:right-0 md:pb-0 md:pr-4"
+        transition={{ delay: 0.55, duration: 0.45, ease: [0, 0, 0.2, 1] }}
+        className="relative z-10 px-6 md:px-10 pb-10 md:pb-14"
+        aria-label="Platform features"
       >
-        {/* Subtle glow behind the robot — gold + sky mix */}
+        {/* Section label */}
         <div
-          className="absolute inset-0 pointer-events-none"
-          aria-hidden="true"
-          style={{
-            background: 'radial-gradient(ellipse 75% 55% at 50% 75%, rgba(125,211,252,0.2) 0%, rgba(245,158,11,0.06) 60%, transparent 80%)',
-          }}
-        />
-        <DrEamsBabylonHero width={heroSize} height={heroSize} />
-        <p
-          className="mt-1 text-xs font-semibold select-none tracking-widest uppercase"
-          style={{ color: 'rgba(200,152,26,0.75)', letterSpacing: '0.12em' }}
+          className="mb-4 text-center text-xs font-bold tracking-[0.16em] uppercase"
+          style={{ color: 'rgba(140,170,220,0.45)' }}
         >
-          tap · drag · interact ✦
-        </p>
-      </motion.div>
+          Six Daydream Surfaces
+        </div>
 
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {FEATURES.map((f, i) => (
+            <motion.div
+              key={f.title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.58 + i * 0.06, duration: 0.35, ease: [0, 0, 0.2, 1] }}
+              className="rounded-2xl p-4 flex flex-col gap-2"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(14px)',
+                WebkitBackdropFilter: 'blur(14px)',
+              }}
+            >
+              <span
+                className="text-2xl"
+                role="img"
+                aria-label={f.title}
+              >
+                {f.emoji}
+              </span>
+              <div
+                className="text-sm font-bold leading-tight"
+                style={{ color: 'rgba(210,230,255,0.90)' }}
+              >
+                {f.title}
+              </div>
+              <div
+                className="text-xs leading-relaxed"
+                style={{ color: 'rgba(140,170,220,0.60)' }}
+              >
+                {f.desc}
+              </div>
+              <div
+                className="mt-1 h-0.5 rounded-full"
+                style={{ background: f.color, opacity: 0.35, width: '40%' }}
+                aria-hidden="true"
+              />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Bottom trust line */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 md:gap-8">
+          {[
+            { icon: '🔒', text: 'Privacy-first by design' },
+            { icon: '✦',  text: 'AI Triad: Dr. Eams · IDARi · BoogieMan' },
+            { icon: '🌐', text: 'Built on Supabase + WebGPU' },
+          ].map((item) => (
+            <div
+              key={item.text}
+              className="flex items-center gap-2 text-xs"
+              style={{ color: 'rgba(140,170,220,0.45)' }}
+            >
+              <span aria-hidden="true" style={{ fontSize: 11 }}>{item.icon}</span>
+              {item.text}
+            </div>
+          ))}
+        </div>
+      </motion.div>
     </div>
   );
 }

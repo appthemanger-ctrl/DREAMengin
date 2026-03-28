@@ -18,7 +18,8 @@
  * always receives a correctly-sized box and needs no internal inset clipping.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 2.5;
@@ -44,6 +45,20 @@ export default function RuntimeShell({
   iframeTitle,
 }: RuntimeShellProps) {
   const [zoom, setZoom] = useState(1.0);
+  const [showZoomControls, setShowZoomControls] = useState(true);
+
+  useEffect(() => {
+    const update = () => setShowZoomControls(!isCompactRuntimeViewport(window.innerWidth));
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    window.visualViewport?.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+      window.visualViewport?.removeEventListener('resize', update);
+    };
+  }, []);
 
   const zoomIn  = useCallback(() => setZoom((z) => Math.min(Math.round((z + ZOOM_STEP) * 100) / 100, MAX_ZOOM)), []);
   const zoomOut = useCallback(() => setZoom((z) => Math.max(Math.round((z - ZOOM_STEP) * 100) / 100, MIN_ZOOM)), []);
@@ -68,70 +83,81 @@ export default function RuntimeShell({
   });
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        overscrollBehavior: 'contain',
+        contain: 'layout paint size',
+      }}
+    >
 
       {/* ── Zoom controls — top-right of the region, never zoomed ───────── */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 8,
-          right: 52, // leave room for other controls
-          zIndex: 200,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          background: 'rgba(2,8,24,0.72)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          borderRadius: 20,
-          padding: '2px 4px',
-          border: '1px solid rgba(200,152,26,0.18)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.30)',
-          userSelect: 'none',
-        }}
-      >
-        <button
-          type="button"
-          onClick={zoomOut}
-          disabled={zoom <= MIN_ZOOM}
-          aria-label="Zoom out"
-          style={ctrlBtn(zoom <= MIN_ZOOM)}
-        >
-          −
-        </button>
-        <button
-          type="button"
-          onClick={resetZoom}
-          aria-label={`Reset zoom — currently ${pct}%`}
+      {showZoomControls && (
+        <div
           style={{
-            minWidth: 34,
-            height: 22,
-            borderRadius: 9,
-            border: 'none',
-            background: isDefault ? 'transparent' : 'rgba(200,152,26,0.18)',
-            color: isDefault ? 'rgba(255,255,255,0.40)' : '#d4a843',
-            fontSize: 10,
-            fontWeight: 700,
-            cursor: 'pointer',
-            letterSpacing: '0.02em',
-            transition: 'background 0.12s, color 0.12s',
-            WebkitTapHighlightColor: 'transparent',
-            padding: '0 3px',
-            flexShrink: 0,
+            position: 'absolute',
+            top: 8,
+            right: 52, // leave room for other controls
+            zIndex: 200,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            background: 'rgba(2,8,24,0.72)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            borderRadius: 20,
+            padding: '2px 4px',
+            border: '1px solid rgba(200,152,26,0.18)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.30)',
+            userSelect: 'none',
           }}
         >
-          {pct}%
-        </button>
-        <button
-          type="button"
-          onClick={zoomIn}
-          disabled={zoom >= MAX_ZOOM}
-          aria-label="Zoom in"
-          style={ctrlBtn(zoom >= MAX_ZOOM)}
-        >
-          +
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={zoomOut}
+            disabled={zoom <= MIN_ZOOM}
+            aria-label="Zoom out"
+            style={ctrlBtn(zoom <= MIN_ZOOM)}
+          >
+            −
+          </button>
+          <button
+            type="button"
+            onClick={resetZoom}
+            aria-label={`Reset zoom — currently ${pct}%`}
+            style={{
+              minWidth: 34,
+              height: 22,
+              borderRadius: 9,
+              border: 'none',
+              background: isDefault ? 'transparent' : 'rgba(200,152,26,0.18)',
+              color: isDefault ? 'rgba(255,255,255,0.40)' : '#d4a843',
+              fontSize: 10,
+              fontWeight: 700,
+              cursor: 'pointer',
+              letterSpacing: '0.02em',
+              transition: 'background 0.12s, color 0.12s',
+              WebkitTapHighlightColor: 'transparent',
+              padding: '0 3px',
+              flexShrink: 0,
+            }}
+          >
+            {pct}%
+          </button>
+          <button
+            type="button"
+            onClick={zoomIn}
+            disabled={zoom >= MAX_ZOOM}
+            aria-label="Zoom in"
+            style={ctrlBtn(zoom >= MAX_ZOOM)}
+          >
+            +
+          </button>
+        </div>
+      )}
 
       {/* ── Content ─────────────────────────────────────────────────────── */}
       {iframeUrl ? (
@@ -227,13 +253,18 @@ export default function RuntimeShell({
          */
         <div
           style={{
+            position: 'relative',
             width: `${(100 / zoom).toFixed(4)}%`,
             height: `${(100 / zoom).toFixed(4)}%`,
+            minHeight: '100%',
             transform: `scale(${zoom})`,
             transformOrigin: 'top left',
             overflowY: 'auto',
             overflowX: 'hidden',
             WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           {children}

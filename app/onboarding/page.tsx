@@ -2,7 +2,6 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import DreamWord from '@/components/ui/DreamWord';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Welcome – Dreamengin' };
@@ -56,30 +55,92 @@ export default async function OnboardingPage() {
   if (!user) redirect('/login');
 
   return (
-    <div className="de-sky-bg min-h-screen">
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+    <div
+      className="min-h-screen"
+      style={{ background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%)' }}
+    >
+      {/* Ambient glow — SICC enhanced */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+        <div style={{
+          position: 'absolute', top: '-100px', right: '-80px',
+          width: '600px', height: '600px',
+          background: 'radial-gradient(circle, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0.04) 40%, transparent 65%)',
+          filter: 'blur(80px)',
+          animation: 'sicc-soft-float 8s ease-in-out infinite',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '-60px', left: '-50px',
+          width: '500px', height: '500px',
+          background: 'radial-gradient(circle, rgba(200,152,26,0.11) 0%, rgba(200,152,26,0.03) 40%, transparent 65%)',
+          filter: 'blur(80px)',
+          animation: 'sicc-soft-float 6s ease-in-out infinite reverse',
+        }} />
+        <div style={{
+          position: 'absolute', top: '30%', left: '50%',
+          transform: 'translateX(-50%)',
+          width: '400px', height: '300px',
+          background: 'radial-gradient(ellipse, rgba(100,130,255,0.06) 0%, transparent 60%)',
+          filter: 'blur(60px)',
+          animation: 'sicc-soft-float 10s ease-in-out infinite',
+        }} />
+      </div>
+
+      <header
+        className="sticky top-0 z-30"
+        style={{
+          background: 'rgba(7,14,28,0.82)',
+          backdropFilter: 'blur(32px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(160%)',
+          borderBottom: '1px solid rgba(200,152,26,0.08)',
+        }}
+      >
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
+          <Link
+            href="/homedream"
+            className="p-2 -ml-2 rounded-full"
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <ArrowLeft className="w-4 h-4" style={{ color: 'rgba(165,195,235,0.72)' }} />
           </Link>
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Getting Started</h1>
-          <Link href="/homedream" className="ml-auto text-xs font-semibold" style={{ color: 'var(--de-text-dim)' }}>Skip →</Link>
+          <h1 className="text-lg font-bold" style={{ color: 'rgba(210,230,255,0.90)' }}>Getting Started</h1>
+          <Link href="/homedream" className="ml-auto text-xs font-semibold" style={{ color: 'rgba(140,170,220,0.55)' }}>Skip →</Link>
         </div>
       </header>
 
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
-        {/* Wordmark hero */}
-        <div style={{ textAlign: 'center', paddingBottom: 8 }}>
-          <span className="de-wordmark" style={{ fontSize: 32 }}><DreamWord />engin</span>
-          <p style={{ fontSize: 13, color: 'var(--de-text-dim)', marginTop: 6 }}>
+        {/* Wordmark hero — SICC premium */}
+        <div className="sicc-soft-float" style={{ textAlign: 'center', paddingBottom: 16, paddingTop: 8 }}>
+          <div style={{
+            fontFamily: 'var(--font-cormorant, Georgia, serif)',
+            fontStyle: 'italic', fontWeight: 500,
+            fontSize: 40, letterSpacing: '-0.01em', lineHeight: 1,
+            display: 'flex', alignItems: 'baseline', justifyContent: 'center',
+          }}>
+            <span className="sicc-gradient-text" style={{ fontSize: 'inherit' }}>dream</span>
+            <span style={{ color: 'rgba(220,235,255,0.55)', fontWeight: 400 }}>engin</span>
+          </div>
+          <p style={{ fontSize: 14, color: 'rgba(165,195,235,0.55)', marginTop: 8 }}>
             Here&apos;s a quick tour of your new space
           </p>
         </div>
 
         {TIPS.map((tip, i) => (
-          <div key={i} className="de-widget" style={{ background: 'rgba(255,255,255,0.93)', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-            <div className="de-widget-body">
+          <div
+            key={i}
+            className="sicc-glass-in"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(32px) saturate(160%)',
+              WebkitBackdropFilter: 'blur(32px) saturate(160%)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              borderRadius: 20,
+              overflow: 'hidden',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+              animationDelay: `${i * 0.08}s`,
+            }}
+          >
+            <div style={{ padding: '16px 18px' }}>
               <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                 {/* Step icon */}
                 <div style={{ width: 48, height: 48, borderRadius: 14, background: `${tip.color}18`, border: `1.5px solid ${tip.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0, position: 'relative' }}>
@@ -89,14 +150,22 @@ export default async function OnboardingPage() {
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div className="font-bold text-sm mb-1" style={{ color: 'var(--de-heading)' }}>{tip.title}</div>
-                  <p className="text-sm" style={{ color: 'var(--de-text)', lineHeight: 1.6 }}>{tip.body}</p>
+                  <div className="font-bold text-sm mb-1" style={{ color: 'rgba(210,230,255,0.90)' }}>{tip.title}</div>
+                  <p className="text-sm" style={{ color: 'rgba(165,195,235,0.65)', lineHeight: 1.6 }}>{tip.body}</p>
                 </div>
               </div>
             </div>
             {tip.action && (
-              <div className="de-widget-actions">
-                <Link href={tip.action.href} className="de-btn de-btn-ghost text-xs">
+              <div style={{ padding: '10px 18px 14px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Link
+                  href={tip.action.href}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    padding: '8px 16px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+                    color: 'rgba(200,220,255,0.80)', textDecoration: 'none',
+                  }}
+                >
                   {tip.action.label} <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -105,13 +174,23 @@ export default async function OnboardingPage() {
         ))}
 
         <div style={{ textAlign: 'center', paddingTop: 8 }}>
-          <Link href="/homedream" className="de-btn de-btn-gold" style={{ display: 'inline-flex', fontSize: 14, padding: '12px 28px' }}>
-            Start Using Dreamengin →
+          <Link
+            href="/homedream"
+            className="sicc-shimmer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              fontSize: 15, padding: '14px 32px', borderRadius: 999, fontWeight: 700,
+              background: 'linear-gradient(135deg, var(--de-gold, #c8981a) 0%, var(--de-gold-bright, #e8b830) 100%)',
+              color: '#fff', boxShadow: '0 4px 20px rgba(200,152,26,0.35)',
+              textDecoration: 'none',
+            }}
+          >
+            Start Using DREAMengin →
           </Link>
         </div>
 
-        <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--de-text-dim)', marginTop: 8 }}>
-          These tips are always available in <Link href="/settings/help" style={{ color: 'var(--de-accent)' }}>Settings → Help</Link>
+        <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(140,170,220,0.45)', marginTop: 8 }}>
+          These tips are always available in <Link href="/settings/help" style={{ color: '#c8981a' }}>Settings → Help</Link>
         </p>
       </div>
     </div>
