@@ -20,6 +20,8 @@ import sys
 import urllib.error
 import urllib.request
 
+DEFAULT_MAX_TOKENS = 16_384
+
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -85,7 +87,7 @@ Output a unified diff (git patch) ONLY. Start with the first "diff --git" line.
 # ── OpenAI call ───────────────────────────────────────────────────────────────
 
 def call_openai(api_key: str, model: str, system: str, user: str,
-                max_tokens: int = 8192) -> str:
+                max_tokens: int = DEFAULT_MAX_TOKENS) -> str:
     payload = {
         "model":      model,
         "max_tokens": max_tokens,
@@ -122,6 +124,12 @@ def main():
     parser.add_argument("--spec",    required=True,  help="Path to dreamengin-spec.json")
     parser.add_argument("--out",     required=True,  help="Path to write dreamengin-patch.diff")
     parser.add_argument("--model",   default="gpt-4.1", help="OpenAI model name")
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=DEFAULT_MAX_TOKENS,
+        help=f"Maximum completion tokens to request (default: {DEFAULT_MAX_TOKENS})",
+    )
     args = parser.parse_args()
 
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
@@ -138,7 +146,7 @@ def main():
     user_prompt = TASK_TEMPLATE.format(spec=spec_text, context=context_text)
 
     print(f"Calling {args.model} for implementation patch…", file=sys.stderr)
-    raw = call_openai(api_key, args.model, SYSTEM, user_prompt, max_tokens=8192)
+    raw = call_openai(api_key, args.model, SYSTEM, user_prompt, max_tokens=args.max_tokens)
 
     # Strip markdown fences if the model wrapped the diff in them.
     cleaned = raw.strip()
