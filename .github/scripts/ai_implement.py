@@ -21,6 +21,7 @@ import urllib.error
 import urllib.request
 
 DEFAULT_MAX_TOKENS = 16_384
+DEFAULT_MAX_ROUND_TRIPS = 8
 
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
@@ -86,15 +87,11 @@ Output a unified diff (git patch) ONLY. Start with the first "diff --git" line.
 
 # ── OpenAI call ───────────────────────────────────────────────────────────────
 
-def call_openai(api_key: str, model: str, system: str, user: str,
-                max_tokens: int = DEFAULT_MAX_TOKENS) -> str:
+def call_openai(api_key: str, model: str, messages, max_tokens: int = DEFAULT_MAX_TOKENS):
     payload = {
         "model":      model,
         "max_tokens": max_tokens,
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user",   "content": user},
-        ],
+        "messages": messages,
     }
     data = json.dumps(payload).encode("utf-8")
     req  = urllib.request.Request(
@@ -113,7 +110,18 @@ def call_openai(api_key: str, model: str, system: str, user: str,
         print(f"OpenAI API error {exc.code}: {body}", file=sys.stderr)
         sys.exit(1)
 
-    return result["choices"][0]["message"]["content"]
+    choice = result["choices"][0]
+    return choice["message"]["content"], choice.get("finish_reason")
+
+
+def strip_markdown_fences(text: str) -> str:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.splitlines()
+        start = 1
+        end   = len(lines) - 1 if lines[-1].startswith("```") else len(lines)
+        return "\n".join(lines[start:end])
+    return text
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -130,6 +138,12 @@ def main():
         default=DEFAULT_MAX_TOKENS,
         help=f"Maximum completion tokens to request (default: {DEFAULT_MAX_TOKENS})",
     )
+    parser.add_argument(
+        "--max-round-trips",
+        type=int,
+        default=DEFAULT_MAX_ROUND_TRIPS,
+        help=f"Maximum continuation calls when the model hits its output cap (default: {DEFAULT_MAX_ROUND_TRIPS})",
+    )
     args = parser.parse_args()
 
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
@@ -144,18 +158,50 @@ def main():
         spec_text = fh.read()
 
     user_prompt = TASK_TEMPLATE.format(spec=spec_text, context=context_text)
+    messages = [
+        {"role": "system", "content": SYSTEM},
+        {"role": "user", "content": user_prompt},
+    ]
 
     print(f"Calling {args.model} for implementation patch…", file=sys.stderr)
-    raw = call_openai(api_key, args.model, SYSTEM, user_prompt, max_tokens=args.max_tokens)
+    chunks = []
+    finish_reason = None
 
-    # Strip markdown fences if the model wrapped the diff in them.
-    cleaned = raw.strip()
-    if cleaned.startswith("```"):
-        lines = cleaned.splitlines()
-        # Drop opening fence (and optional language tag) + closing fence.
-        start = 1
-        end   = len(lines) - 1 if lines[-1].startswith("```") else len(lines)
-        cleaned = "\n".join(lines[start:end])
+    for attempt in range(args.max_round_trips):
+        raw, finish_reason = call_openai(api_key, args.model, messages, max_tokens=args.max_tokens)
+        cleaned = strip_markdown_fences(raw)
+        chunks.append(cleaned)
+
+        if finish_reason != "length":
+            break
+
+        print(
+            f"Model hit max_tokens; requesting continuation {attempt + 2}/{args.max_round_trips}…",
+            file=sys.stderr,
+        )
+        messages.extend([
+            {"role": "assistant", "content": raw},
+            {
+                "role": "user",
+                "content": (
+                    "Continue the SAME unified diff exactly where you left off. "
+                    "Output ONLY the remaining diff lines. Do not repeat earlier lines, "
+                    "do not restart from the beginning, and do not add prose or fences."
+                ),
+            },
+        ])
+    else:
+        finish_reason = "length"
+
+    if finish_reason == "length":
+        print(
+            f"Error: implementation patch exceeded {args.max_round_trips} completion rounds. "
+            "Increase --max-round-trips or --max-tokens.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    cleaned = "".join(chunks)
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as fh:

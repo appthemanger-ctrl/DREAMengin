@@ -23,7 +23,11 @@ function runValidator(spec: unknown) {
     });
 }
 
-function runStubbedOpenAiScript(scriptPath: string, args: string[], responseContent: string) {
+function runStubbedOpenAiScript(
+  scriptPath: string,
+  args: string[],
+  responses: Array<{ content: string; finishReason?: string }>,
+) {
   const python = `
 import importlib.util
 import json
@@ -31,6 +35,8 @@ import sys
 
 script_path = sys.argv[1]
 forwarded_argv = sys.argv[2:]
+responses = ${JSON.stringify(responses)}
+state = {"index": 0}
 spec = importlib.util.spec_from_file_location("stubbed_module", script_path)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
@@ -48,11 +54,14 @@ class FakeResponse:
 def fake_urlopen(req, timeout=0):
     payload = json.loads(req.data.decode("utf-8"))
     print(payload["max_tokens"])
+    response = responses[state["index"]]
+    state["index"] += 1
     return FakeResponse({
         "choices": [{
             "message": {
-                "content": ${JSON.stringify(responseContent)}
-            }
+                "content": response["content"]
+            },
+            "finish_reason": response.get("finishReason", "stop")
         }]
     })
 
@@ -108,19 +117,21 @@ describe('report-driven AI scripts', () => {
     const stdout = runStubbedOpenAiScript(
       reportProposer,
       ['--context', contextPath, '--out', outPath],
-      JSON.stringify({
-        title: 'ok',
-        advanced_game_upgrade: {
-          target_game_id: 'babylon-side-scroller',
-          target_file: 'components/games/BabylonSideScroller.tsx',
-        },
-        v1_scope: {
-          files_to_create: [],
-          files_to_modify: ['components/games/BabylonSideScroller.tsx'],
-          files_to_delete: [],
-          test_plan: [],
-        },
-      }),
+      [{
+        content: JSON.stringify({
+          title: 'ok',
+          advanced_game_upgrade: {
+            target_game_id: 'babylon-side-scroller',
+            target_file: 'components/games/BabylonSideScroller.tsx',
+          },
+          v1_scope: {
+            files_to_create: [],
+            files_to_modify: ['components/games/BabylonSideScroller.tsx'],
+            files_to_delete: [],
+            test_plan: [],
+          },
+        }),
+      }],
     );
 
     expect(stdout.trim()).toBe('16384');
@@ -142,10 +153,38 @@ describe('report-driven AI scripts', () => {
     const stdout = runStubbedOpenAiScript(
       implementer,
       ['--context', contextPath, '--spec', specPath, '--out', outPath, '--max-tokens', '24576'],
-      'diff --git a/sample.txt b/sample.txt\n',
+      [{ content: 'diff --git a/sample.txt b/sample.txt\n' }],
     );
 
     expect(stdout.trim()).toBe('24576');
     expect(readFileSync(outPath, 'utf8')).toBe('diff --git a/sample.txt b/sample.txt\n');
+  });
+
+  it('ai_implement.py continues across multiple completion rounds when needed', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'dreamengin-report-implement-continued-'));
+    const contextPath = join(dir, 'context.md');
+    const specPath = join(dir, 'spec.json');
+    const outPath = join(dir, 'patch.diff');
+    writeFileSync(contextPath, '# context\n');
+    writeFileSync(specPath, JSON.stringify({ title: 'ok', v1_scope: { files_to_modify: [] } }));
+
+    const stdout = runStubbedOpenAiScript(
+      implementer,
+      ['--context', contextPath, '--spec', specPath, '--out', outPath],
+      [
+        {
+          content: 'diff --git a/sample.txt b/sample.txt\n+first chunk\n',
+          finishReason: 'length',
+        },
+        {
+          content: '+second chunk\n',
+        },
+      ],
+    );
+
+    expect(stdout.trim().split('\n')).toEqual(['16384', '16384']);
+    expect(readFileSync(outPath, 'utf8')).toBe(
+      'diff --git a/sample.txt b/sample.txt\n+first chunk\n+second chunk\n',
+    );
   });
 });
