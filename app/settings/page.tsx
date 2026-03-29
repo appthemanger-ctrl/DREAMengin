@@ -57,12 +57,16 @@ export default async function SettingsPage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.88)', borderBottom: '1px solid rgba(160,195,240,0.28)', boxShadow: '0 1px 0 rgba(200,152,26,0.08), 0 4px 16px rgba(0,0,0,0.04)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
+          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)', minWidth: 40, minHeight: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ArrowLeft className="w-5 h-5" style={{ color: 'var(--de-text)' }} />
           </Link>
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Settings</h1>
+          <div style={{ flex: 1 }}>
+            <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)', letterSpacing: '-0.02em' }}>Settings</h1>
+          </div>
+          {/* Subtle brand wordmark */}
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--de-gold)', opacity: 0.65 }}>DREAM</span>
         </div>
       </header>
 
@@ -76,8 +80,8 @@ export default async function SettingsPage() {
               <span className="de-widget-title" style={{ color: '#8b5cf6' }}>Admin Access</span>
             </div>
             <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-              <Link href="/admin" className="de-row" style={{ borderRadius: 12 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg,#8b5cf6,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(139,92,246,0.3)' }}>
+              <Link href="/admin" className="de-row" style={{ borderRadius: 14 }}>
+                <div style={{ width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg,#8b5cf6,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 3px 10px rgba(139,92,246,0.32)' }}>
                   <Bot className="w-4 h-4 text-white" />
                 </div>
                 <div style={{ flex: 1 }}>
@@ -92,21 +96,21 @@ export default async function SettingsPage() {
 
         {/* Navigation groups */}
         {NAV_GROUPS.map((group) => (
-          <div key={group.heading} className="de-widget" style={{ background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+          <div key={group.heading} className="de-widget" style={{ background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid rgba(160,195,240,0.22)' }}>
             <div className="de-widget-header">
               <span className="de-widget-title">{group.heading}</span>
             </div>
             <div className="de-widget-body" style={{ padding: '4px 6px' }}>
               {group.items.map(({ href, icon: Icon, label, desc, iconBg }, idx) => (
-                <Link key={href} href={href} className="de-row" style={{ borderRadius: 12, borderBottom: idx < group.items.length - 1 ? '1px solid rgba(160,195,240,0.15)' : 'none' }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 10, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 2px 8px ${iconBg}40` }}>
+                <Link key={href} href={href} className="de-row" style={{ borderRadius: 14, borderBottom: idx < group.items.length - 1 ? '1px solid rgba(160,195,240,0.13)' : 'none', minHeight: 60 }}>
+                  <div style={{ width: 42, height: 42, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 3px 10px ${iconBg}44` }}>
                     <Icon className="w-4 h-4 text-white" />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{label}</div>
-                    <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>{desc}</div>
+                    <div className="text-xs" style={{ color: 'var(--de-text-dim)', marginTop: 1 }}>{desc}</div>
                   </div>
-                  <ChevronRight className="w-4 h-4" style={{ color: 'var(--de-text-dim)', opacity: 0.5 }} />
+                  <ChevronRight className="w-4 h-4" style={{ color: 'var(--de-text-dim)', opacity: 0.4 }} />
                 </Link>
               ))}
             </div>
@@ -114,10 +118,10 @@ export default async function SettingsPage() {
         ))}
 
         {/* Logout */}
-        <div className="de-widget" style={{ background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+        <div className="de-widget" style={{ background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid rgba(220,68,68,0.15)' }}>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-            <Link href="/api/auth/logout" className="de-row" style={{ borderRadius: 12, color: '#dc4444' }}>
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: '#dc4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(220,68,68,0.3)' }}>
+            <Link href="/api/auth/logout" className="de-row" style={{ borderRadius: 14, minHeight: 60 }}>
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg,#ef4444,#dc2626)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 3px 10px rgba(220,68,68,0.28)' }}>
                 <LogOut className="w-4 h-4 text-white" />
               </div>
               <span className="text-sm font-semibold" style={{ color: '#dc4444' }}>Sign Out</span>

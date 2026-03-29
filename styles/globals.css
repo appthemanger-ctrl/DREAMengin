@@ -1614,7 +1614,35 @@ body, .dreamnav-surface, .controls {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* ── SICC utility classes ── */
+/* ── Bottom-sheet slide-up — used by premium modals ── */
+@keyframes sicc-sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Gold capsule → sphere reveal ── */
+@keyframes sicc-gold-reveal {
+  from {
+    width: 36px;
+    height: 8px;
+    border-radius: 99px;
+    opacity: 0.5;
+  }
+  to {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    opacity: 1;
+  }
+}
+
+
 
 .sicc-gold-breathe {
   animation: sicc-gold-breathe 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
@@ -1938,3 +1966,258 @@ body.hyper-dream .de-dark-card {
   body.hyper-dream .de-btn-gold,
   body.hyper-dream .de-btn-primary { animation: none !important; }
 }
+
+/* =============================================================================
+   SICC UX MAXOUT — Premium iOS Mobile Experience Layer
+   Every authenticated surface inherits these upgrades without per-file edits.
+   Focus: touch targets, typography, glassmorphism depth, active/press states,
+   micro-animations, branding presence, and cohesive spacing at mobile sizes.
+   =========================================================================== */
+
+/* ── Mobile typography: larger, cleaner reading rhythm ── */
+@media (max-width: 640px) {
+  h1 { font-size: clamp(22px, 6vw, 32px) !important; line-height: 1.18 !important; }
+  h2 { font-size: clamp(18px, 5vw, 26px) !important; line-height: 1.22 !important; }
+  h3 { font-size: clamp(15px, 4.2vw, 20px) !important; }
+  .de-widget-title { font-size: 14px !important; font-weight: 700 !important; }
+  .de-widget-body  { font-size: 14px !important; line-height: 1.55 !important; }
+}
+
+/* ── All interactive elements: iOS-spec 44 px minimum touch target ── */
+button,
+[role="button"],
+a,
+.de-btn,
+.de-row {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Buttons: richer active / press state ── */
+.de-btn:active {
+  transform: scale(0.96) !important;
+  filter: brightness(0.94);
+  transition: transform 0.07s ease, filter 0.07s ease !important;
+}
+.de-btn-gold:active {
+  box-shadow:
+    inset 0 3px 10px rgba(80,40,0,0.50),
+    0 0 0 3px rgba(42,138,184,0.45),
+    0 4px 16px rgba(200,152,26,0.30) !important;
+  transform: scale(0.95) !important;
+}
+.de-btn-primary:active {
+  box-shadow:
+    inset 0 2px 8px rgba(0,50,100,0.35),
+    0 0 0 3px rgba(42,138,184,0.28),
+    0 2px 12px rgba(42,138,184,0.30) !important;
+  transform: scale(0.95) !important;
+}
+
+/* ── Widget cards: deeper glassmorphism depth for mobile ── */
+@media (max-width: 640px) {
+  .de-widget {
+    border-radius: 22px !important;
+    backdrop-filter: blur(28px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+    box-shadow:
+      0 4px 24px rgba(0,0,0,0.07),
+      0 1px 0 rgba(255,255,255,0.65) inset,
+      0 -1px 0 rgba(160,195,240,0.12) inset !important;
+  }
+  .de-widget-header {
+    border-radius: 22px 22px 0 0 !important;
+    padding: 14px 18px 12px !important;
+  }
+  .de-widget-body {
+    padding: 14px 18px !important;
+  }
+  .de-widget-actions {
+    padding: 10px 18px 16px !important;
+  }
+}
+
+/* ── Headers: premium glass sticky bars ── */
+header.sticky {
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  box-shadow: 0 1px 0 rgba(160,195,240,0.22), 0 4px 16px rgba(0,0,0,0.04) !important;
+}
+
+/* ── De-row list items: mobile-optimized touch zones ── */
+.de-row {
+  min-height: 56px !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+  transition: background 0.15s, transform 0.08s !important;
+}
+.de-row:active {
+  background: rgba(42,138,184,0.08) !important;
+  transform: scale(0.985) !important;
+}
+
+/* ── De-glass containers: enhanced on mobile ── */
+@media (max-width: 640px) {
+  .de-glass {
+    backdrop-filter: blur(24px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+  }
+  .de-glass-card {
+    border-radius: 20px !important;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.55) inset !important;
+  }
+}
+
+/* ── App-level branding wordmark anchor ── */
+.de-brand-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.de-brand-bar .de-brand-name {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--de-heading) 0%, var(--de-blue) 55%, var(--de-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Settings / account page: icon buttons richer treatment ── */
+.de-settings-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.12s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s;
+}
+.de-settings-icon-btn:active {
+  transform: scale(0.88) !important;
+}
+
+/* ── Premium focus ring for accessibility — iOS style blue ring ── */
+button:focus-visible,
+input:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2.5px solid rgba(42,138,184,0.72) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(42,138,184,0.14) !important;
+}
+
+/* ── Input fields: premium iOS feel ── */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+  border-radius: 14px;
+  font-size: 16px !important; /* prevents iOS auto-zoom */
+  transition: border 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: rgba(42,138,184,0.55) !important;
+  box-shadow: 0 0 0 3.5px rgba(42,138,184,0.12) !important;
+}
+
+/* ── Scroll containers: momentum scroll on iOS ── */
+.overflow-y-auto,
+.overflow-y-scroll,
+[style*="overflow-y: auto"],
+[style*="overflow-y: scroll"] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* ── Page transitions: smooth entry on all authenticated screens ── */
+main[role="main"] > * {
+  animation: sicc-page-enter 0.38s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+/* ── Pull-to-refresh safe zone ── */
+@supports (padding: env(safe-area-inset-top)) {
+  .de-sky-bg,
+  .dream-bg {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+  }
+}
+
+/* ── De-notice: richer callout blocks ── */
+.de-notice {
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  backdrop-filter: blur(8px);
+}
+
+/* ── Gold shimmer on the DreamDM bar drag handle: stronger on mobile ── */
+@media (max-width: 640px) {
+  .sicc-bar-edge::before {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(200,152,26,0.18) 12%,
+      rgba(200,152,26,0.65) 32%,
+      rgba(232,184,48,0.85) 50%,
+      rgba(200,152,26,0.65) 68%,
+      rgba(200,152,26,0.18) 88%,
+      transparent 100%
+    );
+    height: 2px;
+  }
+  .sicc-bar-edge::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(42,138,184,0.14) 18%,
+      rgba(42,138,184,0.44) 50%,
+      rgba(42,138,184,0.14) 82%,
+      transparent 100%
+    );
+    height: 1px;
+  }
+}
+
+/* ── Premium skeleton loaders: smooth pulse ── */
+.skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    rgba(160,195,240,0.15) 25%,
+    rgba(200,220,240,0.28) 50%,
+    rgba(160,195,240,0.15) 75%
+  );
+  background-size: 200% 100%;
+  animation: sicc-shimmer-sweep 1.8s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* ── Bottom safe padding for fixed-bar layout ── */
+.pb-bar-safe {
+  padding-bottom: 110px !important;
+}
+@media (max-width: 640px) {
+  .pb-24 {
+    padding-bottom: max(110px, calc(96px + env(safe-area-inset-bottom, 0px))) !important;
+  }
+}
+
+/* ── ModeButton pills in DreamDMBar: larger touch zone on mobile ── */
+@media (max-width: 640px) {
+  .sicc-mode-btn {
+    min-width: 40px !important;
+    min-height: 36px !important;
+    padding: 0 10px !important;
+  }
+}
+
