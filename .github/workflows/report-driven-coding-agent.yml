@@ -1,0 +1,181 @@
+name: Report-Driven GitHub Coding Agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      report_path:
+        description: 'Path to a repo report (markdown/json) for the agent to act on'
+        required: false
+        default: 'docs/BUGS.md'
+        type: string
+      report_text:
+        description: 'Optional free-form report text to use instead of report_path'
+        required: false
+        default: ''
+        type: string
+      commit_changes:
+        description: 'Commit and push validated changes back to the current branch'
+        required: false
+        default: true
+        type: boolean
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: report-driven-coding-agent-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10.30.0'
+  GENERATED_DIR: .github/generated
+
+jobs:
+  report-agent:
+    name: Scan report → propose → implement → validate
+    if: github.event_name != 'issues' || contains(github.event.issue.labels.*.name, 'ai-report-agent')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      REPORT_TEXT: ${{ github.event_name == 'issues' && github.event.issue.body || inputs.report_text }}
+      REPORT_PATH: ${{ github.event_name == 'workflow_dispatch' && inputs.report_path || 'docs/BUGS.md' }}
+      REPORT_SOURCE: ${{ github.event_name == 'issues' && format('issue #{0}: {1}', github.event.issue.number, github.event.issue.title) || inputs.report_path }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Scan repository context
+        run: |
+          mkdir -p "${{ env.GENERATED_DIR }}"
+          python .github/scripts/scan_dreamengin_context.py \
+            > "${{ env.GENERATED_DIR }}/dreamengin-context.md"
+
+      - name: Build report-aware context
+        run: |
+          python .github/scripts/assemble_report_context.py \
+            --repo-context "${{ env.GENERATED_DIR }}/dreamengin-context.md" \
+            --report-path "${REPORT_PATH}" \
+            --report-source "${REPORT_SOURCE}" \
+            --out "${{ env.GENERATED_DIR }}/report-agent-context.md"
+
+      - name: Propose implementation plan from report
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python .github/scripts/ai_report_propose.py \
+            --context "${{ env.GENERATED_DIR }}/report-agent-context.md" \
+            --out "${{ env.GENERATED_DIR }}/report-agent-spec.json" \
+            --model gpt-4.1
+
+      - name: Implement plan as git patch
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python .github/scripts/ai_implement.py \
+            --context "${{ env.GENERATED_DIR }}/report-agent-context.md" \
+            --spec "${{ env.GENERATED_DIR }}/report-agent-spec.json" \
+            --out "${{ env.GENERATED_DIR }}/report-agent-patch.diff" \
+            --model gpt-4.1
+
+      - name: Apply AI patch
+        id: apply-patch
+        continue-on-error: true
+        run: |
+          if [ -s "${{ env.GENERATED_DIR }}/report-agent-patch.diff" ]; then
+            git apply --check "${{ env.GENERATED_DIR }}/report-agent-patch.diff" && \
+            git apply "${{ env.GENERATED_DIR }}/report-agent-patch.diff" && \
+            echo "applied=true" >> "$GITHUB_OUTPUT" || \
+            echo "applied=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "applied=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint repository
+        run: pnpm run lint
+
+      - name: Build repository
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Run targeted validated tests
+        run: pnpm run test:games
+
+      - name: Commit report-driven changes
+        if: success() && steps.apply-patch.outputs.applied == 'true' && github.event_name == 'workflow_dispatch' && inputs.commit_changes
+        run: |
+          git config user.name "GitHub Coding Agent"
+          git config user.email "github-coding-agent@users.noreply.github.com"
+          if ! git diff --quiet || ! git diff --cached --quiet; then
+            git add -A
+            git commit -m "AI: implement report-driven repo changes [skip ci]"
+          else
+            echo "Nothing to commit."
+          fi
+
+      - name: Push validated changes
+        if: success() && steps.apply-patch.outputs.applied == 'true' && github.event_name == 'workflow_dispatch' && inputs.commit_changes
+        run: |
+          if git log origin/${{ github.ref_name }}..HEAD --oneline | grep -q .; then
+            git push origin HEAD:${{ github.ref_name }}
+          else
+            echo "Nothing new to push."
+          fi
+
+      - name: Comment on issue with result
+        if: always() && github.event_name == 'issues'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const applied = '${{ steps.apply-patch.outputs.applied }}' === 'true';
+            const body = [
+              '## Report-Driven Coding Agent',
+              '',
+              `- Patch applied: ${applied ? '✅' : '⚠️ no/failed patch apply'}`,
+              `- Job status: ${{ job.status }}`,
+              '',
+              'This run scanned the repo context, built a report-aware prompt, proposed a change set, attempted a patch, and ran lint/build/test gates.',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Pipeline summary
+        if: always()
+        run: |
+          echo "## Report-Driven GitHub Coding Agent" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Step | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Report context built | ✅ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Spec proposal        | ✅ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Patch applied        | ${{ steps.apply-patch.outputs.applied == 'true' && '✅' || '⚠ skipped/failed' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Lint + build + tests | ${{ job.status == 'success' && '✅' || '❌' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Report source: \`${REPORT_SOURCE}\`" >> "$GITHUB_STEP_SUMMARY"
