@@ -211,21 +211,22 @@ export default function LabEngin({ onBack }: Props) {
   // ── Benchmark Suite (runnable) ────────────────────────────────────────────────
   const [benchRunning, setBenchRunning] = useState(false);
   const [benchResults, setBenchResults] = useState<Array<{ name: string; score: string; unit: string }>>([]);
-  function runBenchmark() {
+  const [benchSaveMsg, setBenchSaveMsg] = useState('');
+  async function runBenchmark() {
     setBenchRunning(true);
     setBenchResults([]);
-    const tests = [
-      { name: 'WebGPU Render Loop',    score: () => (Math.random() * 40 + 55).toFixed(1),  unit: 'FPS' },
-      { name: 'Physics Tick Rate',     score: () => (Math.random() * 20 + 110).toFixed(0), unit: 'ticks/s' },
-      { name: 'Memory Throughput',     score: () => (Math.random() * 5  + 22).toFixed(1),  unit: 'GB/s' },
-      { name: 'AI Inference Latency',  score: () => (Math.random() * 5  + 8).toFixed(1),   unit: 'ms' },
-    ];
-    tests.forEach((t, i) => {
-      setTimeout(() => {
-        setBenchResults(prev => [...prev, { name: t.name, score: t.score(), unit: t.unit }]);
-        if (i === tests.length - 1) setBenchRunning(false);
-      }, 600 * (i + 1));
-    });
+    setBenchSaveMsg('');
+    try {
+      const res = await fetch('/api/lab/benchmarks', { method: 'POST' });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Unable to run benchmark');
+      setBenchResults(json.results ?? []);
+      setBenchSaveMsg(json.record?.id ? `Saved benchmark as ${json.record.title}.` : '');
+    } catch (error) {
+      setBenchSaveMsg(error instanceof Error ? error.message : 'Unable to run benchmark');
+    } finally {
+      setBenchRunning(false);
+    }
   }
 
   // ── Daydream Persistence (Phase 8 §F, pts 49-53) ─────────────────────────────
@@ -1074,6 +1075,11 @@ export default function LabEngin({ onBack }: Props) {
           <div className="de-widget-body">
             {benchResults.length === 0 && !benchRunning && (
               <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', padding: '8px 0' }}>Click Run to benchmark your WebGPU, physics, memory and AI speeds.</p>
+            )}
+            {benchSaveMsg && (
+              <div style={{ fontSize: 10, color: benchSaveMsg.startsWith('Saved') ? '#22c55e' : '#ef4444', marginBottom: 8 }}>
+                {benchSaveMsg}
+              </div>
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {benchResults.map(b => (

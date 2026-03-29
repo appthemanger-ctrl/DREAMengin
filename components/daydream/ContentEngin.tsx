@@ -344,6 +344,10 @@ export default function ContentEngin({ onBack }: Props) {
 
   // ── Viral Hook copy feedback ──────────────────────────────────────────────────
   const [copiedHook, setCopiedHook] = useState<number | null>(null);
+  const [hookTopic, setHookTopic] = useState('');
+  const [hookLoading, setHookLoading] = useState(false);
+  const [hookResults, setHookResults] = useState<string[]>([]);
+  const [hookSaveMsg, setHookSaveMsg] = useState('');
   function copyHook(text: string, idx: number) {
     navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedHook(idx);
@@ -352,19 +356,54 @@ export default function ContentEngin({ onBack }: Props) {
 
   // ── SEO Title Scorer (live input) ─────────────────────────────────────────────
   const [seoInput, setSeoInput] = useState('');
-  function scoreSEO(title: string): number {
-    let score = 40;
-    if (title.length > 30 && title.length < 70) score += 20;
-    if (/\[|\d/.test(title)) score += 10;
-    if (/how|what|why|best|guide|tips|secret|ultimate|step/i.test(title)) score += 15;
-    if (title.includes('(') || title.includes(':')) score += 5;
-    if (/you|your/i.test(title)) score += 10;
-    return Math.min(100, score);
-  }
-  const seoScore = seoInput.trim().length > 3 ? scoreSEO(seoInput) : null;
+  const [seoLoading, setSeoLoading] = useState(false);
+  const [seoResult, setSeoResult] = useState<{ score: number; reasons: string[] } | null>(null);
+  const [seoSaveMsg, setSeoSaveMsg] = useState('');
 
   // ── Multi-Platform Scheduler countdown ───────────────────────────────────────
   const [schedulerNow] = useState(() => new Date());
+
+  async function handleGenerateHooks() {
+    if (!hookTopic.trim()) return;
+    setHookLoading(true);
+    setHookSaveMsg('');
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'viral-hooks', topic: hookTopic.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Unable to generate hooks');
+      setHookResults(json.hooks ?? []);
+      setHookSaveMsg(json.draft?.id ? 'Saved to Drafts.' : '');
+    } catch (error) {
+      setHookSaveMsg(error instanceof Error ? error.message : 'Unable to generate hooks');
+    } finally {
+      setHookLoading(false);
+    }
+  }
+
+  async function handleSeoScore() {
+    if (!seoInput.trim()) return;
+    setSeoLoading(true);
+    setSeoSaveMsg('');
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'seo-score', title: seoInput.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Unable to score title');
+      setSeoResult({ score: json.score, reasons: json.reasons ?? [] });
+      setSeoSaveMsg(json.draft?.id ? 'Saved to Drafts.' : '');
+    } catch (error) {
+      setSeoSaveMsg(error instanceof Error ? error.message : 'Unable to score title');
+    } finally {
+      setSeoLoading(false);
+    }
+  }
 
   // ── Daydream Persistence (Phase 8 §F, pts 49-56) ─────────────────────────────
   // Saves and restores the ContentEngin workspace state across sessions.
@@ -1201,16 +1240,39 @@ export default function ContentEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-              Attention-grabbing opening lines. Tap 📋 to copy instantly.
+              Generates hooks through a real server route and saves the result into Drafts.
             </p>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                value={hookTopic}
+                onChange={e => setHookTopic(e.target.value)}
+                placeholder="Topic or campaign..."
+                style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none' }}
+              />
+              <button
+                type="button"
+                onClick={handleGenerateHooks}
+                disabled={hookLoading || !hookTopic.trim()}
+                className="de-btn de-btn-primary"
+                style={{ opacity: hookLoading || !hookTopic.trim() ? 0.6 : 1 }}
+              >
+                {hookLoading ? '…' : 'Generate'}
+              </button>
+            </div>
+            {hookSaveMsg && (
+              <div style={{ fontSize: 10, color: hookSaveMsg === 'Saved to Drafts.' ? '#22c55e' : '#ef4444', marginBottom: 8 }}>
+                {hookSaveMsg}
+              </div>
+            )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-              {[
+              {(hookResults.length > 0 ? hookResults : [
                 'Nobody talks about this, but…',
                 'I wasted 3 years not knowing this one thing:',
                 'Unpopular opinion: [your take] is better than [alternative]',
                 'Here\'s what I wish someone told me when I started:',
                 'POV: You just discovered the creator tool you\'ve been looking for.',
-              ].map((hook, i) => (
+              ]).map((hook, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 9, background: copiedHook === i ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.06)', border: `1px solid ${copiedHook === i ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.15)'}`, transition: 'background 0.2s, border 0.2s' }}>
                   <span style={{ fontSize: 11, flex: 1, color: 'var(--de-heading)', lineHeight: 1.4 }}>{hook}</span>
                   <button type="button" onClick={() => copyHook(hook, i)}
@@ -1254,25 +1316,48 @@ export default function ContentEngin({ onBack }: Props) {
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
             <span className="de-widget-title ml-1">SEO Title Optimizer</span>
-            {seoScore !== null && (
-              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: seoScore >= 80 ? '#22c55e' : seoScore >= 60 ? ACCENT : '#ef4444', background: seoScore >= 80 ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)', padding: '2px 7px', borderRadius: 5 }}>
-                {seoScore}pts
+            {seoResult !== null && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: seoResult.score >= 80 ? '#22c55e' : seoResult.score >= 60 ? ACCENT : '#ef4444', background: seoResult.score >= 80 ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)', padding: '2px 7px', borderRadius: 5 }}>
+                {seoResult.score}pts
               </span>
             )}
           </div>
           <div className="de-widget-body">
-            <input
-              type="text"
-              value={seoInput}
-              onChange={e => setSeoInput(e.target.value)}
-              placeholder="Type your title to score it…"
-              style={{ width: '100%', padding: '8px 10px', borderRadius: 9, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', marginBottom: 10, outline: 'none', boxSizing: 'border-box' }}
-            />
-            {seoScore !== null && seoInput.trim() && (
-              <div style={{ height: 6, borderRadius: 4, background: 'rgba(0,0,0,0.06)', marginBottom: 10 }}>
-                <div style={{ height: '100%', borderRadius: 4, width: `${seoScore}%`, background: seoScore >= 80 ? '#22c55e' : seoScore >= 60 ? ACCENT : '#ef4444', transition: 'width 0.4s ease' }} />
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                value={seoInput}
+                onChange={e => setSeoInput(e.target.value)}
+                placeholder="Type your title to score it…"
+                style={{ flex: 1, padding: '8px 10px', borderRadius: 9, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <button
+                type="button"
+                onClick={handleSeoScore}
+                disabled={seoLoading || !seoInput.trim()}
+                className="de-btn de-btn-primary"
+                style={{ opacity: seoLoading || !seoInput.trim() ? 0.6 : 1 }}
+              >
+                {seoLoading ? '…' : 'Score'}
+              </button>
+            </div>
+            {seoSaveMsg && (
+              <div style={{ fontSize: 10, color: seoSaveMsg === 'Saved to Drafts.' ? '#22c55e' : '#ef4444', marginBottom: 8 }}>
+                {seoSaveMsg}
               </div>
             )}
+            {seoResult !== null && seoInput.trim() && (
+              <div style={{ height: 6, borderRadius: 4, background: 'rgba(0,0,0,0.06)', marginBottom: 10 }}>
+                <div style={{ height: '100%', borderRadius: 4, width: `${seoResult.score}%`, background: seoResult.score >= 80 ? '#22c55e' : seoResult.score >= 60 ? ACCENT : '#ef4444', transition: 'width 0.4s ease' }} />
+              </div>
+            )}
+            {seoResult?.reasons?.length ? (
+              <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {seoResult.reasons.map((reason, idx) => (
+                  <div key={idx} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>• {reason}</div>
+                ))}
+              </div>
+            ) : null}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {[
                 { title: 'How I Built [X] in [Time] (Step-by-Step)', score: 92 },
@@ -1282,7 +1367,7 @@ export default function ContentEngin({ onBack }: Props) {
                 <div key={t.title} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15` }}>
                   <span style={{ flex: 1, fontSize: 11, color: 'var(--de-heading)' }}>{t.title}</span>
                   <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', flexShrink: 0 }}>{t.score}pts</span>
-                  <button type="button" onClick={() => { setSeoInput(t.title); }}
+                  <button type="button" onClick={() => { setSeoInput(t.title); setSeoResult(null); setSeoSaveMsg(''); }}
                     style={{ fontSize: 10, color: ACCENT, background: 'none', border: 'none', cursor: 'pointer' }}>Use</button>
                 </div>
               ))}
