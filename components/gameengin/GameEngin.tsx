@@ -25,13 +25,43 @@
 
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as BABYLON from '@babylonjs/core';
-import '@babylonjs/loaders';
 import { createClient } from '@/lib/supabase/client';
 import { DualSenseManager } from './input/DualSenseManager';
 
 // TensorFlow.js imports (dynamic to avoid SSR issues)
 let tf: any = null;
 let tfReady = false;
+
+// Simple learning engine (records play data, adapts in future passes)
+class LearningEngine {
+  private buffer: any[] = [];
+
+  constructor(
+    private supabase: any,
+    private windowId: string
+  ) {}
+
+  record(data: any) {
+    this.buffer.push(data);
+    if (this.buffer.length > 30) this.buffer.shift();
+  }
+
+  async save() {
+    if (this.buffer.length === 0) return;
+
+    try {
+      // In production, save to Supabase game_telemetry table
+      console.log('Learning data collected:', this.buffer.length, 'samples');
+      // await this.supabase.from('game_telemetry').insert({
+      //   window_id: this.windowId,
+      //   data: this.buffer,
+      //   project: projectId
+      // });
+    } catch (err) {
+      console.warn('Failed to save learning data:', err);
+    }
+  }
+}
 
 interface GameEnginProps {
   projectId: 'neon-drift' | 'echo-arena';
@@ -49,37 +79,6 @@ export default function GameEngin({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const supabase = useMemo(() => createClient(), []);
   const [status, setStatus] = useState('Initializing WebGPU...');
-
-  // Simple learning engine (records play data, adapts in future passes)
-  class LearningEngine {
-    private buffer: any[] = [];
-
-    constructor(
-      private supabase: any,
-      private windowId: string
-    ) {}
-
-    record(data: any) {
-      this.buffer.push(data);
-      if (this.buffer.length > 30) this.buffer.shift();
-    }
-
-    async save() {
-      if (this.buffer.length === 0) return;
-
-      try {
-        // In production, save to Supabase game_telemetry table
-        console.log('Learning data collected:', this.buffer.length, 'samples');
-        // await this.supabase.from('game_telemetry').insert({
-        //   window_id: this.windowId,
-        //   data: this.buffer,
-        //   project: projectId
-        // });
-      } catch (err) {
-        console.warn('Failed to save learning data:', err);
-      }
-    }
-  }
 
   // Neon Drift — modern cyberpunk endless racer
   async function loadNeonDrift(
