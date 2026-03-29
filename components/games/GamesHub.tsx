@@ -1,6 +1,6 @@
 'use client';
 /**
- * GamesHub — Client-side games collection showcasing all 20 games.
+ * GamesHub — Client-side games collection showcasing the playable catalog.
  * Lazy-loads each game component to keep the initial bundle small.
  * Every finished game is wired here immediately after completion.
  */
@@ -56,6 +56,7 @@ const DREAMquest  = dynamicImport(() => import('@/components/games/DREAMquest'),
 // WebGPU-powered games with DualSense controller support
 const NeonDrift   = dynamicImport(() => import('@/components/games/NeonDrift'),   { ssr: false, loading: Loading });
 const EchoArena   = dynamicImport(() => import('@/components/games/EchoArena'),   { ssr: false, loading: Loading });
+const LucidAvenue = dynamicImport(() => import('@/components/games/LucidAvenue'), { ssr: false, loading: Loading });
 
 export interface GameDef {
   id: string;
@@ -70,7 +71,7 @@ export interface GameDef {
   href?: string;
 }
 
-// ── 20 games — one from every major gaming category ─────────────────────────
+// ── Playable games across the major DREAMengin categories ───────────────────
 // Each entry is wired immediately after the game was finished.
 export const GAMES: GameDef[] = [
   // ── MADMAXI — Babylon.js 3-D side-scroller (default game) ─────────────────
@@ -127,6 +128,8 @@ export const GAMES: GameDef[] = [
   // ── Adventure / Platformer ────────────────────────────────────────────────
   { id: 'maze',          emoji: '🌀', label: 'Maze Runner',      category: 'Adventure',   color: '#38bdf8', component: MazeGame,
     desc: 'Procedurally generated maze — navigate from start to the ★ exit' },
+  { id: 'lucid-avenue',  emoji: '🌴', label: 'Lucid Avenue',     category: 'Adventure',   color: '#f59e0b', component: LucidAvenue,
+    desc: 'Original LA-inspired retro city quest — collect signal shards, dodge patrols, and restore the observatory skyline' },
   // ── Dream Universe games ──────────────────────────────────────────────────
   { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',         category: 'Strategy',    color: '#7c3aed', component: DREAMwars,
     desc: 'Nightmares vs Dreamers RTS — build base, harvest Dream Energy, crush the enemy HQ' },

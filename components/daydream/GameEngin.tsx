@@ -34,6 +34,7 @@ import {
 import GameRemote from '@/components/games/GameRemote';
 import { GAMES } from '@/components/games/GamesHub';
 import {
+  GAME_LIBRARY_SELECTION_STORAGE_KEY,
   GAME_LIBRARY_SESSION_STORAGE_KEY,
   MAX_SAVED_GAME_SESSIONS,
   type SavedGameSession,

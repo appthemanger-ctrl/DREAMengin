@@ -252,7 +252,47 @@ export default function ImmersiveGameShell() {
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ flex: 1, minHeight: 0, padding: '12px 12px 0', overflow: 'hidden' }}>
           <div style={{ height: '100%', borderRadius: 24, overflow: 'hidden', background: 'rgba(5, 12, 24, 0.92)', border: '1px solid rgba(125,211,252,0.16)', boxShadow: '0 24px 80px rgba(0,0,0,0.34)' }}>
-            <ActiveGameComponent />
+            {ActiveGameComponent ? (
+              <ActiveGameComponent />
+            ) : (
+              <div
+                style={{
+                  height: '100%',
+                  display: 'grid',
+                  placeItems: 'center',
+                  padding: 24,
+                  textAlign: 'center',
+                  color: 'rgba(226,232,240,0.82)',
+                }}
+              >
+                <div style={{ display: 'grid', gap: 10, maxWidth: 420 }}>
+                  <div style={{ fontSize: 28 }}>{game.emoji}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#f8fbff' }}>{game.label}</div>
+                  <div style={{ fontSize: 13, lineHeight: 1.7 }}>{game.desc}</div>
+                  {game.href && (
+                    <Link
+                      href={game.href}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: 44,
+                        padding: '10px 16px',
+                        borderRadius: 12,
+                        background: 'rgba(125,211,252,0.12)',
+                        border: '1px solid rgba(125,211,252,0.24)',
+                        color: '#7dd3fc',
+                        textDecoration: 'none',
+                        fontSize: 13,
+                        fontWeight: 800,
+                      }}
+                    >
+                      Open game page
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
