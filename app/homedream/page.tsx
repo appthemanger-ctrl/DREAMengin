@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import HomeSystem from '@/components/home/HomeSystem';
 import { isOwnerEmail } from '@/lib/ai/triad';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +20,7 @@ export default async function Home() {
     } = await supabase.auth.getUser();
     user = authUser;
 
-    if (!user) redirect('/login');
+    if (!user && !isDevBypassActive()) redirect('/login');
 
     // Fetch user profile
     const { data: profileData } = await supabase

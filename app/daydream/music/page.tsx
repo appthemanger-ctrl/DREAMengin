@@ -5,6 +5,7 @@ import { ArrowLeft, Music, DiscAlbum, TrendingUp, Upload, ListMusic, Sparkles, G
 import SoundRecorder from '@/components/music/SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import StarMakerEngin from '@/components/daydream/StarMakerEngin';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Music Studio – Dreamengin', description: 'Record, release, and manage your music.' };
@@ -23,7 +24,7 @@ const WIDGETS: DaydreamWidget[] = [
 export default async function MusicDaydreamPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user && !isDevBypassActive()) redirect('/login');
 
   return (
     <DaydreamShell
