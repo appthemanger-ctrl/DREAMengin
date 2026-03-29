@@ -102,9 +102,9 @@ resource "vercel_project" "dreamengin" {
     repo = "your-org/dreamengin"
   }
   
-  build_command    = "npm run build"
+  build_command    = "pnpm run build"
   output_directory = ".next"
-  install_command  = "npm install"
+  install_command  = "corepack enable pnpm && pnpm install --frozen-lockfile"
   
   # Environment variables
   environment = [
