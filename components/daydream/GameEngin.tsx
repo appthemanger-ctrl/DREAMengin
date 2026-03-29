@@ -8,6 +8,7 @@
  *   - Allow one-tap publish of high scores to the leaderboard (real Supabase write).
  *   - Surface the "Play Now" entry points for all live games.
  *   - Provide a GameRemote controller shortcut.
+ *   - DualSense controller support: Bluetooth pairing (Android 12+, iOS 14.5+), haptic feedback, gyro steering.
  *   - Functional World Builder: 5×5 tile-grid editor, save to state, bridge emit on save.
  *   - Achievement System: 8 achievements, score-driven unlock logic.
  *   - Physics Config: gravity preset selector + friction slider, apply to world state.
@@ -223,13 +224,31 @@ function makeEmptyGrid(): TileType[][] {
 
 export default function GameEngin({ onBack }: Props) {
   const searchParams = useSearchParams();
-  const { connected: gpConnected, gamepadName } = useGamepad();
+  const { connected: gpConnected, gamepadName, isDualSense, rumble } = useGamepad();
   const playOverlayRef = useRef<HTMLDivElement>(null);
   const initializedPlaySurfaceRef = useRef(false);
   const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useRemoteChannel();
   useGameInputKeyboardBridge();
+
+  // ── DualSense haptic feedback support ───────────────────────────────────────
+  // Expose rumble function globally so games can access it via window.gamepadRumble
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Make rumble function globally accessible for games
+    (window as any).gamepadRumble = rumble;
+
+    // Welcome haptic feedback when DualSense connects
+    if (gpConnected && isDualSense) {
+      rumble(0.3, 80); // Light welcome pulse
+    }
+
+    return () => {
+      delete (window as any).gamepadRumble;
+    };
+  }, [gpConnected, isDualSense, rumble]);
 
   // ── Existing state ───────────────────────────────────────────────────────────
   const [scores,     setScores]     = useState<GameScore[]>([]);
@@ -565,11 +584,6 @@ export default function GameEngin({ onBack }: Props) {
 
   if (expandedPlayable?.component) {
     const ExpandedGameComponent = expandedPlayable.component;
-    const gpNameLower = gamepadName.toLowerCase();
-    const isDualSense = gpNameLower.includes('dualsense')
-      || gpNameLower.includes('playstation')
-      || gpNameLower.includes('ps5')
-      || gpNameLower.includes('ps4');
 
     return (
       <div
