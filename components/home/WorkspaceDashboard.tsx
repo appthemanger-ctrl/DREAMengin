@@ -1,39 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Bell, ChevronRight,
-  Music, ShoppingBag,
-  Sparkles, Gamepad2, FlaskConical, Code2, Palette, Pen,
-  Users, TrendingUp, Star, BarChart3,
-  LucideIcon,
-} from 'lucide-react';
+import { Bell, ChevronRight } from 'lucide-react';
+
 import NotificationCenter from '@/components/NotificationCenter';
-import { useNotifications } from '@/lib/notifications/useNotifications';
-import DreamWord from '@/components/ui/DreamWord';
-import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
-import DrEamsSearchBar from '@/components/dreamengin/DrEamsSearchBar';
-import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
-import DreamWindowRail from '@/components/home/DreamWindowRail';
 import HomeFeed from '@/components/HomeFeed';
+import { useNotifications } from '@/lib/notifications/useNotifications';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
-
-// ── AI Triad agent definitions ─────────────────────────────────────────────────
-
-// ── AI Triad agent definitions — only the user-facing agent is shown to all users ──
-// IDARi and TheBoogieMan are admin-only per IDARI_CONTRACT.md
-const AI_AGENTS_USER = [
-  { id: 'dr-eams', name: 'Dr. Eams', initial: '◈', bg: '#4A90D9', iconColor: '#fff', time: '11:50 PM', sub: '03:40 PM' },
-] as const;
-
-const AI_AGENTS_ADMIN = [
-  { id: 'dr-eams',   name: 'Dr. Eams',     initial: '◈', bg: '#4A90D9', iconColor: '#fff',    time: '11:50 PM', sub: '03:40 PM' },
-  { id: 'idari',     name: 'IDARi',        initial: '⬡', bg: '#1a1a1a', iconColor: '#c8981a', time: '1:50 PM',  sub: '02:30 PM' },
-  { id: 'boogieman', name: 'TheBoogieMan', initial: '👁', bg: '#2d1a4a', iconColor: '#fff',    time: '1:30 PM',  sub: '1:30 PM'  },
-] as const;
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 type ProfileLike = {
   id?: string;
@@ -42,7 +16,6 @@ type ProfileLike = {
   avatar_url?: string | null;
 };
 
- 
 type Post = Record<string, any>;
 
 interface WorkspaceDashboardProps {
@@ -50,147 +23,20 @@ interface WorkspaceDashboardProps {
   posts: Post[];
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
-  /** Open a path contained inside this runtime region (iframe) */
   onOpenInRegion?: (path: string) => void;
-  /** Open a URL inside the current runtime region (no full-page navigation). */
   onOpenUrl?: (url: string, title?: string) => void;
   isAdmin?: boolean;
-  /** Authenticated user ID — passed to DreamWindowRail for layout restore */
   userId?: string;
 }
 
-// ── AI Agent activity card ─────────────────────────────────────────────────────
-
-type AgentType = typeof AI_AGENTS_USER[number] | typeof AI_AGENTS_ADMIN[number];
-
-function AgentActivityCard({ agent, onOpenDrEams }: { agent: AgentType; onOpenDrEams?: () => void }) {
-  const isDrEams = agent.id === 'dr-eams';
-  const isIdari  = agent.id === 'idari';
-
-  const handleClick = isDrEams ? onOpenDrEams : undefined;
-
-  return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className={handleClick ? (isDrEams ? 'de-pressable-primary' : 'de-pressable') : undefined}
-      style={{
-        minWidth: 152, flexShrink: 0,
-        padding: '14px 16px',
-        background: isDrEams
-          ? 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,250,235,0.92))'
-          : 'rgba(255,255,255,0.92)',
-        borderRadius: 18,
-        boxShadow: isDrEams
-          ? '0 3px 16px rgba(200,152,26,0.10), 0 1px 4px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.60)'
-          : '0 2px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.50)',
-        border: `1px solid ${isDrEams ? 'rgba(200,152,26,0.25)' : 'rgba(180,185,200,0.15)'}`,
-        cursor: handleClick ? 'pointer' : 'default',
-        textAlign: 'left',
-        WebkitTapHighlightColor: 'transparent',
-        transition: 'all 0.22s ease',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-        <div style={{
-          width: 34, height: 34, borderRadius: '50%',
-          background: agent.bg,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 14, fontWeight: 700, color: agent.iconColor, flexShrink: 0,
-          boxShadow: isDrEams ? '0 0 8px rgba(200,152,26,0.20)' : 'none',
-        }}>
-          {agent.initial}
-        </div>
-        <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--de-heading)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 88 }}>
-          {agent.name}
-        </span>
-      </div>
-      <div style={{ fontSize: 11, color: isDrEams ? 'var(--de-gold)' : 'var(--de-text-dim)', fontWeight: isDrEams ? 600 : 400 }}>
-        {isDrEams ? 'Tap to chat ◈' : isIdari ? 'Admin only ⬡' : 'Policy enforcer 👁'}
-      </div>
-    </button>
-  );
-}
-
-// ── Activity card ───────────────────────────────────────────────────────────────
-
-function ActivityCard({ post, index }: { post: Post; index: number }) {
-  const colors = ['#c8981a','#4A9ED6','#6366f1','#22c55e','#ec4899','#f97316','#14b8a6','#8b5cf6'];
-  const color = colors[index % colors.length];
-  const title = post.content?.slice(0, 60) || post.title || 'Activity';
-  const time = post.created_at
-    ? new Date(post.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-    : '';
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'flex-start', gap: 10,
-      padding: '10px 0', borderBottom: '1px solid rgba(180,185,200,0.10)',
-    }}>
-      <div style={{
-        width: 8, height: 8, borderRadius: '50%', background: color,
-        marginTop: 5, flexShrink: 0,
-      }} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 12, color: 'var(--de-heading)', fontWeight: 500,
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {title}
-        </div>
-        {time && (
-          <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 2 }}>{time}</div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Metric widget ────────────────────────────────────────────────────────────────
-
-function MetricWidget({
-  icon: Icon, label, value, sub, color,
+function QuickLink({
+  label,
+  onClick,
+  primary = false,
 }: {
-  icon: LucideIcon; label: string; value: string; sub: string; color: string; trend: number[];
-}) {
-  return (
-    <div style={{
-      background: 'rgba(255,255,255,0.75)', borderRadius: 16,
-      border: '1px solid rgba(180,185,200,0.12)',
-      padding: '12px 14px',
-      display: 'flex', flexDirection: 'column', gap: 4,
-      boxShadow: '0 1px 4px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.50)',
-      transition: 'box-shadow 0.22s ease',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Icon size={13} style={{ color, filter: `drop-shadow(0 0 3px ${color}33)` }} />
-        <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          {label}
-        </span>
-      </div>
-      <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>{value}</div>
-      <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{sub}</div>
-    </div>
-  );
-}
-
-// ── Metric band cell ─────────────────────────────────────────────────────────────
-
-function MetricBandCell({ value, label, color, last }: { value: string; label: string; color: string; last?: boolean }) {
-  return (
-    <div style={{
-      flex: 1, padding: '10px 12px', textAlign: 'center',
-      borderRight: last ? 'none' : '1px solid rgba(180,185,200,0.12)',
-    }}>
-      <div style={{ fontSize: 16, fontWeight: 800, color }}>{value}</div>
-      <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 }}>{label}</div>
-    </div>
-  );
-}
-
-// ── Action button ────────────────────────────────────────────────────────────────
-
-function ActionBtn({
-  icon: Icon, label, onClick, primary = false,
-}: {
-  icon: LucideIcon; label: string; onClick?: () => void; primary?: boolean;
+  label: string;
+  onClick: () => void;
+  primary?: boolean;
 }) {
   return (
     <button
@@ -198,95 +44,52 @@ function ActionBtn({
       onClick={onClick}
       className={primary ? 'de-pressable-primary' : 'de-pressable'}
       style={{
-        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', gap: 5, padding: '12px 6px',
-        borderRadius: 16, border: 'none', cursor: 'pointer',
+        borderRadius: 999,
+        border: primary
+          ? '1.5px solid rgba(200,152,26,0.35)'
+          : '1px solid rgba(180,185,200,0.22)',
         background: primary
-          ? 'linear-gradient(135deg, rgba(200,152,26,0.14), rgba(200,152,26,0.06))'
-          : 'rgba(255,255,255,0.65)',
-        boxShadow: primary
-          ? 'inset 0 0 0 1.5px rgba(200,152,26,0.30), 0 2px 8px rgba(200,152,26,0.08)'
-          : 'inset 0 0 0 1px rgba(180,185,200,0.18), 0 1px 4px rgba(0,0,0,0.03)',
+          ? 'linear-gradient(135deg, rgba(200,152,26,0.16), rgba(200,152,26,0.07))'
+          : 'rgba(255,255,255,0.72)',
+        color: 'var(--de-heading)',
+        padding: '8px 14px',
+        fontSize: 12,
+        fontWeight: primary ? 700 : 600,
+        cursor: 'pointer',
         WebkitTapHighlightColor: 'transparent',
+        boxShadow: primary
+          ? '0 2px 8px rgba(200,152,26,0.10)'
+          : '0 1px 3px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.45)',
         transition: 'all 0.18s ease',
       }}
     >
-      <Icon size={18} style={{
-        color: primary ? '#c8981a' : 'var(--de-heading)',
-        filter: primary ? 'drop-shadow(0 0 3px rgba(200,152,26,0.30))' : 'none',
-      }} />
-      <span style={{ fontSize: 10, fontWeight: 700, color: primary ? '#c8981a' : 'var(--de-heading)', letterSpacing: '0.02em' }}>
-        {label}
-      </span>
+      {label}
     </button>
   );
 }
 
-// ── Window chrome title bar ─────────────────────────────────────────────────────
-
-function WindowChrome({ title }: { title: string }) {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 8,
-      padding: '10px 16px',
-      borderBottom: '1px solid rgba(0,0,0,0.05)',
-      background: 'rgba(255,255,255,0.25)',
-    }}>
-      <div style={{ display: 'flex', gap: 5 }}>
-        {[
-          { bg: '#ff5f56', shadow: '0 0 4px rgba(255,95,86,0.35)' },
-          { bg: '#ffbd2e', shadow: '0 0 4px rgba(255,189,46,0.35)' },
-          { bg: '#27c93f', shadow: '0 0 4px rgba(39,201,63,0.35)' },
-        ].map((dot, i) => (
-          <div key={i} style={{
-            width: 10, height: 10, borderRadius: '50%',
-            background: dot.bg,
-            boxShadow: dot.shadow,
-          }} />
-        ))}
-      </div>
-      <span style={{
-        fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', flex: 1, textAlign: 'center',
-        letterSpacing: '0.02em',
-      }}>
-        {title}
-      </span>
-    </div>
-  );
-}
-
-// ── Main WorkspaceDashboard ────────────────────────────────────────────────────
-
-export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpenDreamSpace, onOpenUrl, isAdmin = false, userId }: WorkspaceDashboardProps) {
+export default function WorkspaceDashboard({
+  profile,
+  posts,
+  onOpenDrEams,
+  onOpenDreamSpace,
+  onOpenUrl,
+}: WorkspaceDashboardProps) {
   const router = useRouter();
-  const name = profile?.display_name || profile?.handle || 'Dreamer';
-  const { enterCustomizeMode } = useCustomizeMode();
+  const [notifOpen, setNotifOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(1280);
+  const { unreadCount } = useNotifications();
 
-  /** Navigate inside the runtime region when possible, else use router. */
+  const name = profile?.display_name || profile?.handle || 'Dreamer';
+  const isCompactViewport = isCompactRuntimeViewport(viewportWidth);
+
   const openPage = (url: string, title?: string) => {
     if (onOpenUrl) {
       onOpenUrl(url, title);
-    } else {
-      router.push(url);
+      return;
     }
+    router.push(url);
   };
-
-  // Use admin or user agent list based on role
-  const AI_AGENTS = isAdmin ? AI_AGENTS_ADMIN : AI_AGENTS_USER;
-
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-
-  // ── Live notification state ────────────────────────────────────────────────
-  const [notifOpen, setNotifOpen] = useState(false);
-  const { unreadCount } = useNotifications();
-
-  // ── Real profile stats — fetched from API on mount ────────────────────────
-  const [stats, setStats] = useState<{ followers: number | null; following: number | null }>({
-    followers: null,
-    following: null,
-  });
 
   useEffect(() => {
     const updateViewport = () => {
@@ -304,424 +107,236 @@ export default function WorkspaceDashboard({ profile, posts, onOpenDrEams, onOpe
     };
   }, []);
 
-  useEffect(() => {
-    if (!profile?.id) return;
-    fetch(`/api/profile?user_id=${encodeURIComponent(profile.id)}`)
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => {
-        if (data?.followers_count !== undefined) {
-          setStats({ followers: data.followers_count ?? 0, following: data.following_count ?? 0 });
-        }
-      })
-      .catch(() => { /* non-critical — leave as null */ });
-  }, [profile?.id]);
-
-  const formatCount = (n: number | null) => {
-    if (n === null) return '—';
-    if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
-    return String(n);
-  };
-
-  const realPostCount = posts.length;
-  const feedPosts = posts;
-  const isCompactViewport = isCompactRuntimeViewport(viewportWidth);
-
-  // ── Render ────────────────────────────────────────────────────────────────
-
   return (
-    <>
-      {/* ── Full-screen scrollable workspace ── */}
+    <div
+      data-scroll
+      style={{
+        minHeight: '100%',
+        width: '100%',
+        paddingBottom: isCompactViewport
+          ? 'calc(env(safe-area-inset-bottom, 0px) + 168px)'
+          : 'calc(env(safe-area-inset-bottom, 0px) + 132px)',
+      }}
+    >
       <div
-        data-scroll
         style={{
-          minHeight: '100%',
-          width: '100%',
-          paddingBottom: isCompactViewport
-            ? 'calc(env(safe-area-inset-bottom, 0px) + 168px)'
-            : 'calc(env(safe-area-inset-bottom, 0px) + 132px)',
-        }}
-      >
-        {/* ── Floating header — SICC refined ── */}
-        <div style={{
-          position: 'sticky', top: 0, zIndex: 50,
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
           padding: isCompactViewport
             ? 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px'
             : '16px 20px 12px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           background: 'rgba(var(--de-bg-start-rgb, 2,8,24),0.78)',
           backdropFilter: 'blur(28px) saturate(160%)',
           WebkitBackdropFilter: 'blur(28px) saturate(160%)',
           borderBottom: '1px solid rgba(200,152,26,0.08)',
           pointerEvents: 'auto',
-        }}>
-          {/* dreamengin wordmark */}
-          <span style={{
-            fontFamily: 'var(--font-cormorant, Georgia, serif)', fontStyle: 'italic',
-            fontSize: isCompactViewport ? 22 : 24, fontWeight: 400,
-            letterSpacing: '-0.01em', flexShrink: 0,
-            display: 'flex', alignItems: 'baseline',
-          }}>
-            <span className="de-dream-word">dream</span>
-            <span style={{ color: '#a07828' }}>engin</span>
-          </span>
+        }}
+      >
+        <span
+          style={{
+            fontFamily: 'var(--font-cormorant, Georgia, serif)',
+            fontStyle: 'italic',
+            fontSize: isCompactViewport ? 22 : 24,
+            fontWeight: 400,
+            letterSpacing: '-0.01em',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'baseline',
+          }}
+        >
+          <span className="de-dream-word">dream</span>
+          <span style={{ color: '#a07828' }}>engin</span>
+        </span>
 
-          {/* Right side: notification bell + profile link */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: isCompactViewport ? 8 : 12 }}>
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-              <button
-                type="button"
-                aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
-                onClick={() => setNotifOpen((v) => !v)}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  borderRadius: 10, color: 'var(--de-text-dim)', position: 'relative',
-                  minWidth: 40, minHeight: 40,
-                  touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
-                }}
-              >
-                <Bell size={19} />
-                {unreadCount > 0 && (
-                  <span aria-hidden="true" style={{
-                    position: 'absolute', top: 4, right: 4,
-                    background: '#c8981a', color: '#fff',
-                    fontSize: 8, fontWeight: 800, borderRadius: '50%',
-                    minWidth: 14, height: 14,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    lineHeight: 1, padding: '0 2px',
-                  }}>
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </button>
-              {notifOpen && (
-                <NotificationCenter isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
-              )}
-              {notifOpen && (
-                <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 49 }}
-                  onClick={() => setNotifOpen(false)} />
-              )}
-            </div>
-
-            {/* Flip to Profile — clean text navigation */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: isCompactViewport ? 8 : 12 }}>
+          <div style={{ position: 'relative', flexShrink: 0 }}>
             <button
               type="button"
-              onClick={() => openPage('/edit-profiledream', 'DreamProfile')}
+              aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
+              onClick={() => setNotifOpen((v) => !v)}
               style={{
-                fontSize: isCompactViewport ? 13 : 14, color: 'var(--de-text-dim)',
-                background: 'none', border: 'none',
-                fontWeight: isCompactViewport ? 600 : 500,
-                letterSpacing: '-0.01em', whiteSpace: 'nowrap',
-                padding: isCompactViewport ? '8px 0 8px 2px' : '8px 0 8px 4px', minHeight: 40,
-                display: 'flex', alignItems: 'center',
+                background: 'none',
+                border: 'none',
                 cursor: 'pointer',
+                padding: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 10,
+                color: 'var(--de-text-dim)',
+                position: 'relative',
+                minWidth: 40,
+                minHeight: 40,
+                touchAction: 'manipulation',
                 WebkitTapHighlightColor: 'transparent',
               }}
             >
-              {isCompactViewport ? 'Profile \u203a' : 'Flip to Profile \u203a'}
+              <Bell size={19} />
+              {unreadCount > 0 && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute',
+                    top: 4,
+                    right: 4,
+                    background: '#c8981a',
+                    color: '#fff',
+                    fontSize: 8,
+                    fontWeight: 800,
+                    borderRadius: '50%',
+                    minWidth: 14,
+                    height: 14,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    lineHeight: 1,
+                    padding: '0 2px',
+                  }}
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </button>
+            {notifOpen && (
+              <NotificationCenter isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+            )}
+            {notifOpen && (
+              <div
+                aria-hidden="true"
+                style={{ position: 'fixed', inset: 0, zIndex: 49 }}
+                onClick={() => setNotifOpen(false)}
+              />
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => openPage('/edit-profiledream', 'DreamProfile')}
+            style={{
+              fontSize: isCompactViewport ? 13 : 14,
+              color: 'var(--de-text-dim)',
+              background: 'none',
+              border: 'none',
+              fontWeight: isCompactViewport ? 600 : 500,
+              letterSpacing: '-0.01em',
+              whiteSpace: 'nowrap',
+              padding: isCompactViewport ? '8px 0 8px 2px' : '8px 0 8px 4px',
+              minHeight: 40,
+              display: 'flex',
+              alignItems: 'center',
+              cursor: 'pointer',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            {isCompactViewport ? 'Profile ›' : 'Edit ProfileDream ›'}
+          </button>
+        </div>
+      </div>
+
+      <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>
+        <div style={{ marginBottom: 14 }}>
+          <div
+            style={{
+              fontSize: 11,
+              color: 'var(--de-gold)',
+              fontWeight: 700,
+              marginBottom: 4,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              opacity: 0.75,
+            }}
+          >
+            HomeDream
+          </div>
+          <div
+            className="sicc-gradient-text"
+            style={{
+              fontSize: isCompactViewport ? 26 : 30,
+              fontWeight: 800,
+              lineHeight: 1.05,
+              letterSpacing: '-0.03em',
+              marginBottom: 12,
+            }}
+          >
+            {name}&rsquo;s feed
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <QuickLink label="Edit ProfileDream" onClick={() => openPage('/edit-profiledream', 'Edit ProfileDream')} />
+            <QuickLink label="View Profile" onClick={() => openPage('/view-profile', 'View Profile')} />
+            {onOpenDreamSpace && (
+              <QuickLink label="Daydreams" onClick={onOpenDreamSpace} primary />
+            )}
+            <QuickLink label="Dr. Eams" onClick={onOpenDrEams} />
           </div>
         </div>
 
-        {/* ── Page body ── */}
-        <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>
-
-          {/* ── Hero greeting — SICC premium ── */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{
-              fontSize: 11, color: 'var(--de-gold)', fontWeight: 700, marginBottom: 4,
-              letterSpacing: '0.08em', textTransform: 'uppercase',
-              opacity: 0.75,
-            }}>
-              {greeting}
-            </div>
-            <div className="sicc-gradient-text" style={{
-              fontSize: isCompactViewport ? 28 : 32, fontWeight: 800,
-              lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: isCompactViewport ? 14 : 16,
-            }}>
-              {name}
-            </div>
-
-            {/* ── Dr. Eams search bar — Phase 6: HomeDream search with send-to-DreamDM routing ── */}
-            <div style={{ marginTop: isCompactViewport ? 14 : 16, marginBottom: 4 }}>
-              <DrEamsSearchBar onOpenDrEams={onOpenDrEams} />
-            </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-              {[
-                { href: '/edit-profiledream', label: 'Edit ProfileDream' },
-                { href: '/discover', label: 'Discover' },
-                { href: '/view-profile', label: 'View Profile' },
-              ].map((item) => (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => openPage(item.href, item.label)}
-                  className="de-pressable"
-                  style={{
-                    borderRadius: 999,
-                    border: '1px solid rgba(180,185,200,0.25)',
-                    background: 'rgba(255,255,255,0.70)',
-                    color: 'var(--de-heading)',
-                    padding: isCompactViewport ? '7px 12px' : '8px 16px',
-                    fontSize: isCompactViewport ? 11 : 12,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    WebkitTapHighlightColor: 'transparent',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.45)',
-                    transition: 'all 0.18s ease',
-                  }}
-                >
-                  {item.label}
-                </button>
-              ))}
-              {onOpenDreamSpace && (
-                <button
-                  type="button"
-                  onClick={onOpenDreamSpace}
-                  className="de-pressable"
-                  style={{
-                    borderRadius: 999,
-                    border: '1.5px solid rgba(200,152,26,0.35)',
-                    background: 'linear-gradient(135deg, rgba(200,152,26,0.12), rgba(200,152,26,0.06))',
-                    color: 'var(--de-heading)',
-                    padding: isCompactViewport ? '7px 12px' : '8px 16px', fontSize: isCompactViewport ? 11 : 12, fontWeight: 600,
-                    display: 'flex', alignItems: 'center', gap: 5,
-                    cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
-                    boxShadow: '0 2px 8px rgba(200,152,26,0.10)',
-                    transition: 'all 0.18s ease',
-                  }}
-                >
-                  <span style={{ fontSize: 11 }}>✦</span>
-                  DreamSpace
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => enterCustomizeMode('home')}
-                className="de-pressable"
-                style={{
-                  borderRadius: 999, border: '1.5px solid rgba(58,111,216,0.30)',
-                  background: 'linear-gradient(135deg, rgba(58,111,216,0.08), rgba(58,111,216,0.03))',
-                  color: '#3a6fd8',
-                  padding: isCompactViewport ? '7px 12px' : '8px 16px', fontSize: isCompactViewport ? 11 : 12, fontWeight: 700,
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
-                  boxShadow: '0 2px 8px rgba(58,111,216,0.08)',
-                  transition: 'all 0.18s ease',
-                }}
-              >
-                <Palette size={12} />
-                Customize
-              </button>
-            </div>
-          </div>
-
-          {/* ── DaydreamPulseStrip — live Dream Surfaces panel ── */}
-          {/* Architecture: docs/ARCHITECTURE.md §8 (premium palette + intentional motion)  */}
-          {/* Axiom 4 (Stylized), Law §3 (every action is real — real surface navigation) */}
-          <DaydreamPulseStrip />
-
-          {/* ── WORKSPACE WINDOW PANEL — SICC elevated glass ── */}
-          <div className="sicc-glass-in" style={{
-            background: 'rgba(255,255,255,0.75)',
-            backdropFilter: 'blur(32px) saturate(160%)',
-            WebkitBackdropFilter: 'blur(32px) saturate(160%)',
-            borderRadius: isCompactViewport ? 20 : 24,
-            border: '1px solid rgba(255,255,255,0.92)',
-            boxShadow: '0 8px 48px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.60)',
-            overflow: 'hidden',
-            marginBottom: 16,
-          }}>
-            {/* Window chrome — canonical surface name per docs/LAW.md §Route law */}
-            <WindowChrome title="HomeDream" />
-
-            {/* ── Activity feed — full width, temporal scanning ── */}
-            <div style={{ padding: isCompactViewport ? '12px 14px 0' : '14px 18px 0' }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: 10,
-              }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
-                  Recent Activity
-                </span>
-                {feedPosts.length > 0 && (
-                  <span
-                    aria-label={`${feedPosts.length} new activities`}
-                    style={{
-                      background: 'rgba(200,152,26,0.12)', color: '#c8981a',
-                      borderRadius: 100, fontSize: 11, fontWeight: 600, padding: '3px 10px',
-                    }}
-                  >
-                    {feedPosts.length} new
-                  </span>
-                )}
-              </div>
-
-              {/* AI Triad agent cards — horizontal scroll */}
-              <div
-                data-scroll
-                style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none', marginBottom: 4, WebkitOverflowScrolling: 'touch' }}
-              >
-                {AI_AGENTS.map(agent => (
-                  <AgentActivityCard key={agent.id} agent={agent} onOpenDrEams={onOpenDrEams} />
-                ))}
-              </div>
-
-              {/* Feed area remains independently scrollable */}
-              <div
-                data-scroll
-                style={{ maxHeight: isCompactViewport ? 240 : 300, overflowY: 'auto', paddingRight: 4, WebkitOverflowScrolling: 'touch' }}
-              >
-                {feedPosts.length > 0 ? (
-                  feedPosts.slice(0, 8).map((post, i) => (
-                    <ActivityCard key={post.id || i} post={post} index={i} />
-                  ))
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--de-text-dim)', fontSize: 12 }}>
-                    Your feed is live.{' '}
-                    <button type="button" onClick={() => openPage('/daydream/create', 'Create')} style={{ color: 'var(--de-accent)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>Post something</button>
-                    {' '}or{' '}
-                    <button type="button" onClick={() => openPage('/discover', 'Discover')} style={{ color: 'var(--de-accent)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>Discover creators</button>{' '}
-                    to fill it.
-                  </div>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => openPage('/discover', 'Discover')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  padding: '10px 0',
-                  fontSize: 12, color: 'var(--de-accent)', fontWeight: 600,
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  WebkitTapHighlightColor: 'transparent',
-                }}
-              >
-                View all activity <ChevronRight size={13} />
-              </button>
-            </div>
-
-            {/* ── Metric widgets — 2×2 grid, full width ── */}
-            <div style={{ padding: isCompactViewport ? '0 14px' : '0 16px', marginBottom: 14 }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: 10,
-              }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
-                  Telemetry
-                </span>
-                <button
-                  type="button"
-                  onClick={() => openPage('/daydream/analytics', 'Analytics')}
-                  style={{ fontSize: 12, color: 'var(--de-accent)',
-                    fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 3, WebkitTapHighlightColor: 'transparent' }}
-                >
-                  Full stats <ChevronRight size={12} />
-                </button>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <MetricWidget
-                  icon={Users} label="Followers" value={formatCount(stats.followers)}
-                  sub={stats.followers !== null ? 'real-time' : 'loading…'}
-                  color="#c8981a" trend={[]} />
-                <MetricWidget
-                  icon={TrendingUp} label="Following" value={formatCount(stats.following)}
-                  sub={stats.following !== null ? 'real-time' : 'loading…'}
-                  color="#4A9ED6" trend={[]} />
-                <MetricWidget
-                  icon={Star} label="Posts" value={String(realPostCount)}
-                  sub="public feed"
-                  color="#6366f1" trend={[]} />
-                <MetricWidget
-                  icon={BarChart3} label="Activity" value={posts.length > 0 ? 'Active' : '—'}
-                  sub={posts.length > 0 ? `${posts.length} recent` : 'No posts yet'}
-                  color="#22c55e" trend={[]} />
-              </div>
-            </div>
-
-            {/* ── Metrics status band — full width ── */}
-            <div style={{
-              display: 'flex',
-              borderTop: '1px solid rgba(180,185,200,0.12)',
-              borderBottom: '1px solid rgba(180,185,200,0.12)',
-              background: 'rgba(255,255,255,0.38)',
-            }}>
-              <MetricBandCell value={String(realPostCount)} label="Posts"     color="var(--de-gold)" />
-              <MetricBandCell value={formatCount(stats.followers)} label="Followers" color="#4A9ED6" />
-              <MetricBandCell value={formatCount(stats.following)} label="Following" color="#6366f1" />
-              <MetricBandCell value="—"    label="Reach"    color="#22c55e" last />
-            </div>
-
-            {/* ── Action controls ── */}
-            <div style={{ padding: isCompactViewport ? '12px 14px 14px' : '14px 16px 16px', background: 'rgba(255,255,255,0.28)' }}>
-              {/* Primary row — Dr. Eams + Shop */}
-              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-                <ActionBtn icon={Sparkles}    label="Dr. Eams" onClick={onOpenDrEams} primary />
-                <ActionBtn icon={ShoppingBag} label="Shop"     onClick={() => router.push('/shop')} />
-              </div>
-              {/* Daydreams row 1 — Music · Games · Lab */}
-              <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-                <ActionBtn icon={Music}        label="Music"  onClick={() => router.push('/daydream/music')} />
-                <ActionBtn icon={Gamepad2}     label="Games"  onClick={() => router.push('/daydream/games')} />
-                <ActionBtn icon={FlaskConical} label="Lab"    onClick={() => router.push('/daydream/lab')} />
-              </div>
-              {/* Daydreams row 2 — Code · Brand · Create */}
-              <div style={{ display: 'flex', gap: 10 }}>
-                <ActionBtn icon={Code2}   label="Code"   onClick={() => router.push('/daydream/code')} />
-                <ActionBtn icon={Palette} label="Brand"  onClick={() => router.push('/daydream/brand')} />
-                <ActionBtn icon={Pen}     label="Create" onClick={() => router.push('/daydream/create')} />
-              </div>
-            </div>
-          </div>
-
-          {/* ── Dream Window Rail — Phase 8 §A Point 5 ── */}
-          {/* Compact swipeable strip between feed and DreamDM Bar; real DB data */}
-          <DreamWindowRail
-            onOpenDreamSpace={onOpenDreamSpace}
-            userId={userId ?? profile?.id}
-          />
-
-          {/* ── Widget glass zone — SICC Feed section ── */}
-          <div className="sicc-glass-in" style={{
+        <div
+          className="sicc-glass-in"
+          style={{
             background: 'rgba(255,255,255,0.75)',
             backdropFilter: 'blur(28px) saturate(160%)',
             WebkitBackdropFilter: 'blur(28px) saturate(160%)',
             borderRadius: isCompactViewport ? 20 : 24,
             border: '1px solid rgba(255,255,255,0.92)',
-            boxShadow: '0 6px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.50)',
+            boxShadow: '0 8px 48px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.60)',
             overflow: 'hidden',
             marginBottom: 16,
-          }}>
-            <div style={{
-              padding: isCompactViewport ? '12px 14px 10px' : '14px 18px 10px',
+          }}
+        >
+          <div
+            style={{
+              padding: isCompactViewport ? '12px 14px 10px' : '14px 18px 12px',
               borderBottom: '1px solid rgba(180,185,200,0.10)',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--de-heading)' }}>
-                Feed
-              </span>
-              <span style={{
-                fontSize: 9, fontWeight: 600, color: 'var(--de-gold)', opacity: 0.7,
-                letterSpacing: '0.06em', textTransform: 'uppercase',
-              }}>
-                LIVE
-              </span>
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)' }}>
+                HomeDream Feed
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 2 }}>
+                Feed first. No extra search surface.
+              </div>
             </div>
-            <HomeFeed
-              userId={profile?.id ?? ''}
-              userHandle={profile?.handle ?? 'user'}
-              userAvatar={profile?.avatar_url ?? null}
-              userDisplayName={profile?.display_name || profile?.handle || 'Dreamer'}
-              initialPosts={posts as Parameters<typeof HomeFeed>[0]['initialPosts']}
-              embedded
-            />
+            {onOpenDreamSpace && (
+              <button
+                type="button"
+                onClick={onOpenDreamSpace}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '6px 0',
+                  fontSize: 12,
+                  color: 'var(--de-accent)',
+                  fontWeight: 600,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                Daydreams <ChevronRight size={13} />
+              </button>
+            )}
           </div>
 
+          <HomeFeed
+            userId={profile?.id ?? ''}
+            userHandle={profile?.handle ?? 'user'}
+            userAvatar={profile?.avatar_url ?? null}
+            userDisplayName={profile?.display_name || profile?.handle || 'Dreamer'}
+            initialPosts={posts as Parameters<typeof HomeFeed>[0]['initialPosts']}
+            embedded
+          />
         </div>
       </div>
-
-    </>
+    </div>
   );
 }
