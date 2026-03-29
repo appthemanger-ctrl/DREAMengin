@@ -92,7 +92,7 @@ export default function ImmersiveGameShell() {
     window.dispatchEvent(new CustomEvent('de-game-start'));
   };
 
-  const ActiveGameComponent = game.component;
+  const ActiveGameComponent = game.component ?? (() => null);
 
   return (
     <div

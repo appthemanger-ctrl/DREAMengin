@@ -518,7 +518,7 @@ export default function GameEngin({ onBack }: Props) {
   const openPlayableGamePage = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
     savePlayableGame(gameId, options.expand ? 'fullscreen' : 'library-screen');
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem(GAME_LIBRARY_SELECTION_STORAGE_KEY, gameId);
+    window.localStorage.setItem(GAME_LIBRARY_SESSION_STORAGE_KEY, gameId);
     window.localStorage.setItem('de:games:last-launch', gameId);
     window.location.assign(buildGameLaunchHref(gameId, { play: true, expand: options.expand }));
   }, [savePlayableGame]);
