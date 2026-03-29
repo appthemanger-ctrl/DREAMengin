@@ -241,6 +241,8 @@ export default function GameEngin({ onBack }: Props) {
   const [selectedPlayableGame, setSelectedPlayableGame] = useState<string>(GAMES[0]?.id ?? 'platformer');
   const [activePlayableGame, setActivePlayableGame] = useState<string | null>(null);
   const [expandedPlayableGame, setExpandedPlayableGame] = useState<string | null>(null);
+  /** Controls "DREAMengin powered by…" boot splash shown when entering fullscreen */
+  const [showEnginSplash, setShowEnginSplash] = useState(false);
 
   /**
    * Active GPU rendering backend for this session.
@@ -484,7 +486,10 @@ export default function GameEngin({ onBack }: Props) {
   const launchPlayableGame = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
     setSelectedPlayableGame(gameId);
     setActivePlayableGame(gameId);
-    if (options.expand) setExpandedPlayableGame(gameId);
+    if (options.expand) {
+      setShowEnginSplash(true);
+      setExpandedPlayableGame(gameId);
+    }
     queuePlayableGameStart();
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('de:games:last-launch', gameId);
@@ -501,7 +506,10 @@ export default function GameEngin({ onBack }: Props) {
     setSelectedPlayableGame(requestedGame);
     if (isLaunchFlagEnabled(searchParams.get('play'))) {
       setActivePlayableGame(requestedGame);
-      if (isLaunchFlagEnabled(searchParams.get('expand'))) setExpandedPlayableGame(requestedGame);
+      if (isLaunchFlagEnabled(searchParams.get('expand'))) {
+        setShowEnginSplash(true);
+        setExpandedPlayableGame(requestedGame);
+      }
       queuePlayableGameStart();
     }
   }, [queuePlayableGameStart, savedLaunches, searchParams]);
@@ -576,6 +584,14 @@ export default function GameEngin({ onBack }: Props) {
           overflow: 'hidden',
         }}
       >
+        {/* ── DREAMengin "Powered by" boot splash ── */}
+        {showEnginSplash && (
+          <EnginBootSplash
+            game={expandedPlayable}
+            onDone={() => setShowEnginSplash(false)}
+          />
+        )}
+
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '10px 14px', background: 'rgba(0,0,0,0.30)', borderBottom: '1px solid rgba(160,195,240,0.10)', flexShrink: 0 }}>
           <button
             type="button"
@@ -588,6 +604,9 @@ export default function GameEngin({ onBack }: Props) {
           <span style={{ fontWeight: 800, color: '#fff', fontSize: 15, letterSpacing: '-0.01em' }}>{expandedPlayable.label}</span>
           <span style={{ fontSize: 10, padding: '2px 9px', borderRadius: 999, background: `${expandedPlayable.color}22`, color: expandedPlayable.color, border: `1px solid ${expandedPlayable.color}44`, fontWeight: 700 }}>
             {expandedPlayable.category}
+          </span>
+          <span style={{ fontSize: 9, padding: '2px 8px', borderRadius: 999, background: 'rgba(42,138,184,0.14)', color: '#7dd3fc', border: '1px solid rgba(42,138,184,0.28)', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Powered by DREAMengin
           </span>
           <button
             type="button"
@@ -806,11 +825,11 @@ export default function GameEngin({ onBack }: Props) {
             <GameRemote embedded gameLabel={selectedPlayable.label} playHref={buildGameLaunchHref(selectedPlayable.id, { openEngin: true, play: true })} onPlay={() => launchPlayableGame(selectedPlayable.id)} />
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, marginBottom: 12 }}>
-              <button type="button" onClick={() => launchPlayableGame(selectedPlayable.id)} className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
-                ▶ Play on screen
+              <button type="button" onClick={() => launchPlayableGame(selectedPlayable.id, { expand: true })} className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
+                ⤢ Play fullscreen
               </button>
-              <button type="button" onClick={() => launchPlayableGame(selectedPlayable.id, { expand: true })} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(125,211,252,0.22)', color: '#7dd3fc' }}>
-                ⤢ Expand fullscreen
+              <button type="button" onClick={() => launchPlayableGame(selectedPlayable.id)} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(125,211,252,0.22)', color: '#7dd3fc' }}>
+                ▶ Play on screen
               </button>
               <button type="button" onClick={() => savePlayableGame(selectedPlayable.id, 'library-screen')} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(74,222,128,0.22)', color: '#4ade80' }}>
                 💾 Save state
@@ -1928,6 +1947,138 @@ export default function GameEngin({ onBack }: Props) {
         </div>
 
       </div>
+    </div>
+  );
+}
+
+// ── EnginBootSplash ────────────────────────────────────────────────────────────
+/**
+ * Full-screen "DREAMengin powered by…" boot splash shown for 2.5 s when a game
+ * enters fullscreen. Auto-dismisses via onDone callback.
+ */
+function EnginBootSplash({
+  game,
+  onDone,
+}: {
+  game: { label: string; emoji: string; color: string; category: string };
+  onDone: () => void;
+}) {
+  const [phase, setPhase] = useState<'intro' | 'title' | 'fade'>('intro');
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase('title'), 600);
+    const t2 = setTimeout(() => setPhase('fade'),  2000);
+    const t3 = setTimeout(() => onDone(),           2500);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [onDone]);
+
+  return (
+    <div
+      onClick={onDone}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 100,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 0,
+        background: 'radial-gradient(ellipse at 50% 40%, rgba(42,138,184,0.28) 0%, rgba(4,8,20,0.99) 62%)',
+        cursor: 'pointer',
+        transition: 'opacity 0.5s ease',
+        opacity: phase === 'fade' ? 0 : 1,
+        pointerEvents: phase === 'fade' ? 'none' : 'auto',
+      }}
+    >
+      {/* Animated top glow bar */}
+      <div style={{
+        position: 'absolute',
+        top: 0, left: 0, right: 0,
+        height: 3,
+        background: `linear-gradient(90deg, transparent, ${game.color}, #7dd3fc, ${game.color}, transparent)`,
+        opacity: phase === 'intro' ? 0 : 1,
+        transition: 'opacity 0.4s ease',
+      }} />
+
+      {/* Powered-by eyebrow */}
+      <div style={{
+        fontSize: 11,
+        fontWeight: 800,
+        letterSpacing: '0.26em',
+        textTransform: 'uppercase',
+        color: '#7dd3fc',
+        opacity: phase === 'intro' ? 0 : 1,
+        transform: phase === 'intro' ? 'translateY(8px)' : 'translateY(0)',
+        transition: 'opacity 0.45s ease, transform 0.45s ease',
+        marginBottom: 10,
+      }}>
+        Powered by DREAMengin
+      </div>
+
+      {/* Main logo wordmark */}
+      <div style={{
+        fontSize: 'clamp(48px, 10vw, 96px)',
+        fontWeight: 900,
+        letterSpacing: '-0.04em',
+        lineHeight: 1,
+        color: '#f8fbff',
+        opacity: phase === 'intro' ? 0 : 1,
+        transform: phase === 'intro' ? 'scale(0.92)' : 'scale(1)',
+        transition: 'opacity 0.5s ease, transform 0.5s ease',
+        textShadow: `0 0 60px rgba(42,138,184,0.55), 0 0 120px rgba(42,138,184,0.25)`,
+      }}>
+        DREAMENGIN
+      </div>
+
+      {/* Game title + emoji */}
+      <div style={{
+        marginTop: 22,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '10px 22px',
+        borderRadius: 999,
+        background: `${game.color}18`,
+        border: `1px solid ${game.color}44`,
+        opacity: phase === 'intro' ? 0 : 1,
+        transform: phase === 'intro' ? 'translateY(10px)' : 'translateY(0)',
+        transition: 'opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s',
+      }}>
+        <span style={{ fontSize: 24 }}>{game.emoji}</span>
+        <span style={{ fontSize: 18, fontWeight: 800, color: '#f8fbff', letterSpacing: '-0.02em' }}>
+          {game.label}
+        </span>
+        <span style={{
+          fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999,
+          background: `${game.color}22`, color: game.color, border: `1px solid ${game.color}44`,
+        }}>
+          {game.category}
+        </span>
+      </div>
+
+      {/* Skip hint */}
+      <div style={{
+        position: 'absolute',
+        bottom: 22,
+        fontSize: 11,
+        color: 'rgba(160,195,240,0.45)',
+        letterSpacing: '0.06em',
+        opacity: phase === 'intro' ? 0 : 1,
+        transition: 'opacity 0.5s ease 0.3s',
+      }}>
+        Tap anywhere to skip
+      </div>
+
+      {/* Bottom glow bar */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0, left: 0, right: 0,
+        height: 3,
+        background: `linear-gradient(90deg, transparent, ${game.color}, #7dd3fc, ${game.color}, transparent)`,
+        opacity: phase === 'intro' ? 0 : 1,
+        transition: 'opacity 0.4s ease',
+      }} />
     </div>
   );
 }

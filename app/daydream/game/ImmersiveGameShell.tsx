@@ -78,6 +78,9 @@ export default function ImmersiveGameShell() {
             <div style={{ marginTop: 18, fontSize: 34, fontWeight: 900, lineHeight: 0.98, color: '#f8fbff', letterSpacing: '-0.04em' }}>
               DREAMENGIN
             </div>
+            <div style={{ marginTop: 4, fontSize: 11, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#7dd3fc' }}>
+              Powered by DREAMengin
+            </div>
             <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.7, color: 'rgba(226,232,240,0.76)' }}>
               Starting your game session like a console boot: dark room, system wake-up, then straight into the title screen.
             </div>

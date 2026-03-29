@@ -174,7 +174,7 @@ export default function GamesHub() {
     if (typeof window === 'undefined') return;
     saveGameToEngin(id, 'library-screen');
     window.localStorage.setItem(GAME_LIBRARY_SELECTION_STORAGE_KEY, id);
-    window.location.assign(buildGameLaunchHref(id, { openEngin: true, play: true }));
+    window.location.assign(buildGameLaunchHref(id, { openEngin: true, play: true, expand: true }));
   }, [saveGameToEngin]);
 
   useEffect(() => {
