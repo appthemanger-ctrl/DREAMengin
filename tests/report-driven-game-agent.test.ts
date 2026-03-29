@@ -23,6 +23,52 @@ function runValidator(spec: unknown) {
     });
 }
 
+function runStubbedOpenAiScript(scriptPath: string, args: string[], responseContent: string) {
+  const python = `
+import importlib.util
+import json
+import sys
+
+script_path = sys.argv[1]
+forwarded_argv = sys.argv[2:]
+spec = importlib.util.spec_from_file_location("stubbed_module", script_path)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+class FakeResponse:
+    def __init__(self, body):
+        self.body = body
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc, tb):
+        return False
+    def read(self):
+        return json.dumps(self.body).encode("utf-8")
+
+def fake_urlopen(req, timeout=0):
+    payload = json.loads(req.data.decode("utf-8"))
+    print(payload["max_tokens"])
+    return FakeResponse({
+        "choices": [{
+            "message": {
+                "content": ${JSON.stringify(responseContent)}
+            }
+        }]
+    })
+
+module.urllib.request.urlopen = fake_urlopen
+sys.argv = [script_path] + forwarded_argv
+module.main()
+`;
+
+  return execFileSync('python', ['-c', python, scriptPath, ...args], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    env: { ...process.env, OPENAI_API_KEY: 'test-key' },
+    stdio: 'pipe',
+  });
+}
+
 describe('validate_report_agent_spec.py', () => {
   it('accepts specs that include a known advanced game upgrade and game file touch', () => {
     const invoke = runValidator({
@@ -59,61 +105,23 @@ describe('report-driven AI scripts', () => {
     const contextPath = join(dir, 'context.md');
     const outPath = join(dir, 'spec.json');
     writeFileSync(contextPath, '# context\n\n<report>full report</report>\n');
-
-    const python = `
-import importlib.util
-import json
-import sys
-
-script_path, context_path, out_path = sys.argv[1:4]
-spec = importlib.util.spec_from_file_location("report_propose", script_path)
-module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(module)
-
-class FakeResponse:
-    def __init__(self, body):
-        self.body = body
-    def __enter__(self):
-        return self
-    def __exit__(self, exc_type, exc, tb):
-        return False
-    def read(self):
-        return json.dumps(self.body).encode("utf-8")
-
-def fake_urlopen(req, timeout=0):
-    payload = json.loads(req.data.decode("utf-8"))
-    print(payload["max_tokens"])
-    return FakeResponse({
-        "choices": [{
-            "message": {
-                "content": json.dumps({
-                    "title": "ok",
-                    "advanced_game_upgrade": {
-                        "target_game_id": "babylon-side-scroller",
-                        "target_file": "components/games/BabylonSideScroller.tsx"
-                    },
-                    "v1_scope": {
-                        "files_to_create": [],
-                        "files_to_modify": ["components/games/BabylonSideScroller.tsx"],
-                        "files_to_delete": [],
-                        "test_plan": []
-                    }
-                })
-            }
-        }]
-    })
-
-module.urllib.request.urlopen = fake_urlopen
-sys.argv = [script_path, "--context", context_path, "--out", out_path]
-module.main()
-`;
-
-    const stdout = execFileSync('python', ['-c', python, reportProposer, contextPath, outPath], {
-      cwd: repoRoot,
-      encoding: 'utf8',
-      env: { ...process.env, OPENAI_API_KEY: 'test-key' },
-      stdio: 'pipe',
-    });
+    const stdout = runStubbedOpenAiScript(
+      reportProposer,
+      ['--context', contextPath, '--out', outPath],
+      JSON.stringify({
+        title: 'ok',
+        advanced_game_upgrade: {
+          target_game_id: 'babylon-side-scroller',
+          target_file: 'components/games/BabylonSideScroller.tsx',
+        },
+        v1_scope: {
+          files_to_create: [],
+          files_to_modify: ['components/games/BabylonSideScroller.tsx'],
+          files_to_delete: [],
+          test_plan: [],
+        },
+      }),
+    );
 
     expect(stdout.trim()).toBe('16384');
     expect(JSON.parse(readFileSync(outPath, 'utf8'))).toMatchObject({
@@ -131,49 +139,11 @@ module.main()
     const outPath = join(dir, 'patch.diff');
     writeFileSync(contextPath, '# context\n');
     writeFileSync(specPath, JSON.stringify({ title: 'ok', v1_scope: { files_to_modify: [] } }));
-
-    const python = `
-import importlib.util
-import json
-import sys
-
-script_path, context_path, spec_path, out_path = sys.argv[1:5]
-spec = importlib.util.spec_from_file_location("report_implement", script_path)
-module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(module)
-
-class FakeResponse:
-    def __init__(self, body):
-        self.body = body
-    def __enter__(self):
-        return self
-    def __exit__(self, exc_type, exc, tb):
-        return False
-    def read(self):
-        return json.dumps(self.body).encode("utf-8")
-
-def fake_urlopen(req, timeout=0):
-    payload = json.loads(req.data.decode("utf-8"))
-    print(payload["max_tokens"])
-    return FakeResponse({
-        "choices": [{
-            "message": {
-                "content": "diff --git a/sample.txt b/sample.txt\\n"
-            }
-        }]
-    })
-
-module.urllib.request.urlopen = fake_urlopen
-sys.argv = [script_path, "--context", context_path, "--spec", spec_path, "--out", out_path, "--max-tokens", "24576"]
-module.main()
-`;
-
-    const stdout = execFileSync('python', ['-c', python, implementer, contextPath, specPath, outPath], {
-      cwd: repoRoot,
-      encoding: 'utf8',
-      env: { ...process.env, OPENAI_API_KEY: 'test-key' },
-      stdio: 'pipe',
-    });
+    const stdout = runStubbedOpenAiScript(
+      implementer,
+      ['--context', contextPath, '--spec', specPath, '--out', outPath, '--max-tokens', '24576'],
+      'diff --git a/sample.txt b/sample.txt\n',
+    );
 
     expect(stdout.trim()).toBe('24576');
     expect(readFileSync(outPath, 'utf8')).toBe('diff --git a/sample.txt b/sample.txt\n');
