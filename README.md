@@ -45,6 +45,23 @@ Tech Stack:
 - pnpm 10.30.0
 - Node 24
 
+## Repository State Analysis
+
+For a comprehensive, real-time analysis of the entire codebase, see **[REPO_STATE.md](./REPO_STATE.md)**
+
+This auto-generated document provides:
+- 📊 Complete code metrics (478+ files, 104K+ lines)
+- 🔍 All API routes, pages, and components
+- 📦 Dependency health and 2026 standards compliance
+- 🧪 Test coverage and status
+- ⚠️ Technical debt and redundancies
+- ✅ Actionable items prioritized by severity
+
+**Update the analysis:** `pnpm run repo-state`
+**Documentation:** [docs/REPO_STATE_ANALYZER.md](./docs/REPO_STATE_ANALYZER.md)
+
+The state is automatically updated on push to main, PR merge, and daily at 2 AM UTC.
+
 ---
 
 ## Canonical Route System
