@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `7a1ed6c` | 2026-03-29 08:37 UTC | completedream | appthemanger-ctrl | — | Merge pull request #347 from appthemanger-ctrl/copilot/fix-game-engine-control-issue |
 | `199199d` | 2026-03-29 07:39 UTC | copilot/fix-game-engine-control-issue | Copilot | ~1 | test: align remote regression labels |
 | `310dd57` | 2026-03-29 07:34 UTC | copilot/fix-game-engine-control-issue | Copilot | ~6 | feat: route game launches to dedicated session page |
 | `cecace6` | 2026-03-29 07:28 UTC | copilot/fix-game-engine-control-issue | Copilot | ~3 | feat: restore original game remote layout |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `1abd71b` | 2026-03-29 07:09 UTC | completedream | appthemanger-ctrl | — | Merge pull request #345 from appthemanger-ctrl/claude/integrate-dualsense-controller |
 | `64710f3` | 2026-03-29 07:09 UTC | claude/integrate-dualsense-controller | appthemanger-ctrl | — | Merge branch 'completedream' into claude/integrate-dualsense-controller |
 | `a3fe16e` | 2026-03-29 07:07 UTC | completedream | appthemanger-ctrl | — | Merge pull request #343 from appthemanger-ctrl/claude/add-game-engine-component |
-| `cd956fd` | 2026-03-29 07:07 UTC | claude/add-game-engine-component | appthemanger-ctrl | — | Merge branch 'completedream' into claude/add-game-engine-component |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-29 07:39 UTC — `199199d` by Copilot
+Last updated: 2026-03-29 08:37 UTC — `7a1ed6c` by appthemanger-ctrl
 Last updated: 2026-03-29 07:09 UTC — `1abd71b` by appthemanger-ctrl
 Last updated: 2026-03-29 05:33 UTC — `e9245a6` by appthemanger-ctrl
 Last updated: 2026-03-29 05:30 UTC — `c762599` by appthemanger-ctrl
