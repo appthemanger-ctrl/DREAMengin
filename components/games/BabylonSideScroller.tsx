@@ -38,6 +38,12 @@ const JUMP_VY    = 0.68;    // initial jump Y velocity
 const WALK_SPD   = 0.115;   // horizontal speed
 const COYOTE_MS  = 8;       // extra frames to jump after leaving ledge
 const JBUF_MS    = 6;       // frames to buffer a jump before landing
+const DASH_SPD   = 0.42;    // player dash speed (≈ 3.7× walk)
+const DASH_DUR   = 10;      // dash duration in frames
+const DASH_COOL  = 45;      // frames between dashes
+const PROJ_SPD   = 4.5;     // boss projectile speed (px/frame)
+const PROJ_LIFE  = 120;     // frames before projectile despawns
+const COMBO_WIN  = 1500;    // ms window to chain a combo kill
 
 // Babylon render-unit scale:  1 BU ≈ 40 logical px
 const PX_PER_BU  = 40;
@@ -402,7 +408,7 @@ export default function BabylonSideScroller() {
   const [level,  setLevel]    = useState(1);
   const [score,  setScore]    = useState(0);
   const [lives,  setLives]    = useState(3);
-  const vpadRef  = useRef({ left: false, right: false, jump: false });
+  const vpadRef  = useRef({ left: false, right: false, jump: false, dash: false });
   const [bestScore, setBestScore] = useState(() => {
     try { return parseInt(localStorage.getItem('madmaxi_best') ?? '0', 10); }
     catch { return 0; }
@@ -423,6 +429,10 @@ export default function BabylonSideScroller() {
   const [bossHp,    setBossHp]    = useState(0);
   const [bossMaxHp, setBossMaxHp] = useState(0);
   const [bossName,  setBossName]  = useState('');
+
+  // Combat feedback
+  const [comboCount, setComboCount] = useState(0);
+  const [dashReady,  setDashReady]  = useState(true);
 
   // Zone / story
   const [zoneName,   setZoneName]   = useState('');
@@ -483,6 +493,8 @@ export default function BabylonSideScroller() {
       },
       onProgress: (pct) => setProgress(pct),
       onBossHp:   (hp) => setBossHp(hp),
+      onCombo:    (c)  => setComboCount(c),
+      onDash:     ()   => { setDashReady(false); setTimeout(() => setDashReady(true), DASH_COOL * 16); },
     }, sessionSeedRef.current);
     gameRef.current = core;
     setProgress(0);
@@ -504,10 +516,21 @@ export default function BabylonSideScroller() {
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) {
         e.preventDefault();
       }
+      // Shift = dash
+      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        const vp = { ...vpadRef.current, dash: true };
+        vpadRef.current = vp;
+        gameRef.current?.setVpad(vp);
+      }
     };
     const up = (e: KeyboardEvent) => {
       keysDown.delete(e.code);
       gameRef.current?.setKeys(keysDown);
+      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        const vp = { ...vpadRef.current, dash: false };
+        vpadRef.current = vp;
+        gameRef.current?.setVpad(vp);
+      }
     };
     window.addEventListener('keydown', down);
     window.addEventListener('keyup',   up);
@@ -529,6 +552,8 @@ export default function BabylonSideScroller() {
       if (action === 'move-stop') { vp.left = false; vp.right = false; }
       if (action === 'jump' || action === 'jump-spin' || action === 'jump-shoot')
         vp.jump = active;
+      if (action === 'dash' || action === 'attack')
+        vp.dash = active;
       vpadRef.current = vp;
       gameRef.current?.setVpad(vp);
     };
@@ -758,6 +783,32 @@ export default function BabylonSideScroller() {
               </div>
             )}
 
+            {/* Combo + Dash indicators */}
+            <div style={{
+              position: 'absolute', top: bossMaxHp > 0 ? 80 : 42,
+              right: 12, pointerEvents: 'none',
+              display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4,
+            }}>
+              {comboCount > 1 && (
+                <div style={{
+                  background: 'rgba(255,180,0,0.2)', border: '1px solid #fa0',
+                  borderRadius: 4, padding: '2px 8px',
+                  fontSize: 11, fontWeight: 700, color: '#ffd700',
+                  textShadow: '0 0 8px #fa0',
+                }}>
+                  ×{comboCount} COMBO
+                </div>
+              )}
+              <div style={{
+                background: dashReady ? 'rgba(0,200,255,0.15)' : 'rgba(100,100,100,0.15)',
+                border: `1px solid ${dashReady ? '#0cf' : '#444'}`,
+                borderRadius: 4, padding: '2px 8px',
+                fontSize: 10, color: dashReady ? '#0cf' : '#666',
+              }}>
+                {dashReady ? '⚡ DASH' : '· dash ·'}
+              </div>
+            </div>
+
             {/* Progress bar (hidden during boss fights — no scrolling world) */}
             {bossMaxHp === 0 && (
               <div style={{ position: 'absolute', bottom: 8, left: 12, right: 12,
@@ -774,7 +825,7 @@ export default function BabylonSideScroller() {
 
       <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', maxWidth: 500 }}>
         Use the shared PS-style GameRemote or keyboard: ← → / A D move &nbsp;·&nbsp; ↑ / W / Space jump (double-jump) &nbsp;·&nbsp;
-        Hold forward <strong>and</strong> press jump — they always work together
+        <strong>Shift</strong> to dash &nbsp;·&nbsp; Dodge boss projectiles!
       </p>
     </div>
   );
@@ -787,14 +838,16 @@ interface GameCallbacks {
   onComplete:  (nextLevel: number) => void;
   onProgress?: (pct: number) => void;
   onBossHp?:   (current: number) => void;
+  onCombo?:    (count: number) => void;
+  onDash?:     () => void;
 }
 
-type VPad = { left: boolean; right: boolean; jump: boolean };
+type VPad = { left: boolean; right: boolean; jump: boolean; dash: boolean };
 
 class GameCore {
   private disposed = false;
   private keys: Set<string> = new Set();
-  private vpad: VPad = { left: false, right: false, jump: false };
+  private vpad: VPad = { left: false, right: false, jump: false, dash: false };
   private godTier = new DreamEngineGodTierSystem();
 
   // physics state (logical pixels, Y-down)
@@ -809,6 +862,23 @@ class GameCore {
   private prevJump   = false;
   private facingR    = true;
   private invincible = 0; // frames
+
+  // ── Dash system ────────────────────────────────────────────────────────
+  private dashFrames = 0;   // frames of active dash remaining
+  private dashCool   = 0;   // cooldown frames remaining
+  private dashDir    = 1;   // direction (+1 or -1)
+
+  // ── Combo system ───────────────────────────────────────────────────────
+  private comboCount     = 0;       // consecutive kills in window
+  private comboTimestamp = 0;       // ms timestamp of last kill
+
+  // ── Boss projectiles ───────────────────────────────────────────────────
+  private projectiles: {
+    x: number; y: number;
+    vx: number; vy: number;
+    life: number;
+    mesh: import('@babylonjs/core').Mesh | null;
+  }[] = [];
 
   private score: number;
   private lives: number;
@@ -828,6 +898,8 @@ class GameCore {
   // Babylon
   private engine: import('@babylonjs/core').AbstractEngine | null = null;
   private scene:  import('@babylonjs/core').Scene  | null = null;
+  // Cached BJS module reference (set once in initBabylon)
+  private bjs: typeof import('@babylonjs/core') | null = null;
 
   // Babylon mesh refs
   private playerMesh:  import('@babylonjs/core').Mesh | null = null;
@@ -902,6 +974,14 @@ class GameCore {
     this.invincible = 0;
     this.dying  = false;
     this.goalIdx = -1;
+    // Reset combat state
+    this.dashFrames = 0;
+    this.dashCool   = 0;
+    this.comboCount = 0;
+    this.comboTimestamp = 0;
+    // Dispose any live projectiles
+    for (const p of this.projectiles) p.mesh?.dispose();
+    this.projectiles = [];
   }
 
   private async initBabylon(canvas: HTMLCanvasElement) {
@@ -915,6 +995,7 @@ class GameCore {
     const scene  = new BJS.Scene(engine);
     this.engine  = engine;
     this.scene   = scene;
+    this.bjs     = BJS;
 
     // Sky gradient — zone-themed
     const zone = ZONES[getZoneIdx(this.level)];
@@ -1196,6 +1277,7 @@ class GameCore {
     const isLeft  = this.keys.has('ArrowLeft')  || this.keys.has('KeyA')  || this.vpad.left;
     const isRight = this.keys.has('ArrowRight') || this.keys.has('KeyD')  || this.vpad.right;
     const isJump  = this.keys.has('ArrowUp')    || this.keys.has('KeyW')  || this.keys.has('Space') || this.vpad.jump;
+    const isDash  = this.vpad.dash;
 
     // Jump buffer — remember a fresh jump press for JBUF_MS frames
     const freshJump = isJump && !this.prevJump;
@@ -1203,10 +1285,25 @@ class GameCore {
     if (this.jBufFr > 0) this.jBufFr--;
     this.prevJump = isJump;
 
-    // Horizontal movement — always applies regardless of jump state
-    this.pvx = isRight ? WALK_SPD * PX_PER_BU
-              : isLeft  ? -WALK_SPD * PX_PER_BU
-              : 0;
+    // ── Dash system ────────────────────────────────────────────────────────
+    if (this.dashCool > 0) this.dashCool--;
+    if (isDash && this.dashCool === 0 && this.dashFrames === 0) {
+      this.dashDir    = this.facingR ? 1 : -1;
+      this.dashFrames = DASH_DUR;
+      this.dashCool   = DASH_COOL;
+      this.invincible = Math.max(this.invincible, DASH_DUR + 2); // i-frames during dash
+      this.cbs.onDash?.();
+    }
+
+    // ── Horizontal movement ────────────────────────────────────────────────
+    if (this.dashFrames > 0) {
+      this.pvx = this.dashDir * DASH_SPD * PX_PER_BU;
+      this.dashFrames--;
+    } else {
+      this.pvx = isRight ? WALK_SPD * PX_PER_BU
+                : isLeft  ? -WALK_SPD * PX_PER_BU
+                : 0;
+    }
     if (isRight) this.facingR = true;
     if (isLeft)  this.facingR = false;
 
@@ -1392,8 +1489,17 @@ class GameCore {
               this.enemyMeshes[i]!.setEnabled(false);
               this.enemyMeshes[i] = null;
             }
-            this.score += 200;
+            // Combo kill scoring
+            const now = Date.now();
+            if (now - this.comboTimestamp < COMBO_WIN) {
+              this.comboCount++;
+            } else {
+              this.comboCount = 1;
+            }
+            this.comboTimestamp = now;
+            this.score += 200 * this.comboCount;
             this.cbs.onScore(this.score);
+            this.cbs.onCombo?.(this.comboCount);
           }
         } else if (this.invincible === 0) {
           // Hit by enemy
@@ -1403,6 +1509,77 @@ class GameCore {
           this.cbs.onDie(this.lives);
           return;
         }
+      }
+
+      // ── Boss projectile firing ─────────────────────────────────────────
+      if (en.boss && en.alive && this.animTick % 80 === 0) {
+        // Boss fires a projectile toward the player
+        const PW2 = 28;
+        const bCX = en.curX + (en.size ?? 1.8) * 32 / 2;
+        const bCY = en.curY + (en.size ?? 1.8) * 32 / 2;
+        const pCX = this.px + PW2 / 2;
+        const pCY = this.py + 20;
+        const dx = pCX - bCX;
+        const dy = pCY - bCY;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const projMesh = (this.scene && this.bjs) ? ((): import('@babylonjs/core').Mesh | null => {
+          try {
+            const BJS = this.bjs!;
+            const m = BJS.MeshBuilder.CreateSphere('proj_' + Date.now(),
+              { diameter: 0.35, segments: 6 }, this.scene!);
+            const mat = new BJS.StandardMaterial('projMat', this.scene!);
+            mat.emissiveColor = new BJS.Color3(1, 0.2, 0.2);
+            m.material = mat;
+            m.position.set(
+              (bCX - this.camX - GW / 2) / PX_PER_BU,
+              -(bCY - GH / 2) / PX_PER_BU,
+              0.5,
+            );
+            return m;
+          } catch { return null; }
+        })() : null;
+
+        this.projectiles.push({
+          x: bCX, y: bCY,
+          vx: (dx / dist) * PROJ_SPD,
+          vy: (dy / dist) * PROJ_SPD,
+          life: PROJ_LIFE,
+          mesh: projMesh,
+        });
+      }
+    }
+
+    // ── Projectile updates ───────────────────────────────────────────────
+    for (let p = this.projectiles.length - 1; p >= 0; p--) {
+      const proj = this.projectiles[p];
+      proj.life--;
+      proj.x += proj.vx;
+      proj.y += proj.vy;
+
+      // Update mesh position
+      if (proj.mesh) {
+        proj.mesh.position.x = (proj.x - this.camX - GW / 2) / PX_PER_BU;
+        proj.mesh.position.y = -(proj.y - GH / 2) / PX_PER_BU;
+      }
+
+      // Expire
+      if (proj.life <= 0 || proj.y > GH + 20) {
+        proj.mesh?.dispose();
+        this.projectiles.splice(p, 1);
+        continue;
+      }
+
+      // Hit player
+      if (this.invincible === 0 &&
+          proj.x > this.px - 8 && proj.x < this.px + PW + 8 &&
+          proj.y > this.py - 8 && proj.y < this.py + PH + 8) {
+        proj.mesh?.dispose();
+        this.projectiles.splice(p, 1);
+        this.dying = true;
+        this.invincible = 90;
+        this.lives--;
+        this.cbs.onDie(this.lives);
+        return;
       }
     }
 
@@ -1548,10 +1725,14 @@ class GameCore {
     this.disposed = true;
     window.removeEventListener('resize', this.onResize);
     this.dustPS?.stop();
+    // Clean up projectile meshes
+    for (const proj of this.projectiles) proj.mesh?.dispose();
+    this.projectiles = [];
     this.scene?.dispose();
     this.engine?.stopRenderLoop();
     this.engine?.dispose();
     this.engine = null;
     this.scene  = null;
+    this.bjs    = null;
   }
 }
