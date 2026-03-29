@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-29 10:10 UTC  
-**Triggered by commit:** `8a09050` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #349 from appthemanger-ctrl/copilot/fix-active-game-component-error
+**Last updated:** 2026-03-29 19:53 UTC  
+**Triggered by commit:** `26e9808` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #350 from appthemanger-ctrl/copilot/improve-user-experience
 
 ---
 
