@@ -1,9 +1,10 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle } from 'lucide-react';
+import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import ContentEngin from '@/components/daydream/ContentEngin';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'note',      emoji: '📝', label: 'Quick Note',  desc: 'Capture a thought instantly',  color: '#f59e0b', href: '/daydream/create' },
@@ -42,23 +43,16 @@ export default async function CreateDaydreamPage() {
       sideBComponent={ContentEngin}
     >
     <div className="de-sky-bg min-h-screen">
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </Link>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>DREAMengin</div>
-            <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
-              <PlusCircle className="w-4 h-4" style={{ color: '#6366f1' }} />
-              <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Create</h1>
-            </div>
-          </div>
-          <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.2)' }}>Daydream</span>
-        </div>
-      </header>
+      <AuthenticatedPageHeader
+        backHref="/homedream"
+        title="Create"
+        subtitle="Capture ideas, tasks, media, and launch-ready content without breaking flow."
+        icon={<PlusCircle className="w-4 h-4" />}
+        accentColor="#6366f1"
+        badge="Daydream"
+      />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+      <div className="de-auth-content space-y-4">
         <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Everything you make lives here as widgets—not pages.</p>
 
         {widgets.map(({ icon: Icon, label, singular, desc, color, addHref }) => (
