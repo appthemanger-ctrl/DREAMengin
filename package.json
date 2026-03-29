@@ -15,10 +15,11 @@
     "test:watch": "vitest",
     "build-memory:sync": "node scripts/sync-build-memory.mjs",
     "build-memory:check": "node scripts/check-build-memory-drift.mjs",
+    "repo-state": "node scripts/analyze-repo-state.mjs",
     "preflight": "node scripts/vercel-preflight.cjs . && node scripts/spec-check.cjs . && pnpm run typecheck && pnpm run lint && pnpm run test:ci",
     "build:gamesengin": "tsc --project tsconfig.gamesengin.json --noEmit",
     "build:games": "tsc --project tsconfig.games.json --noEmit",
-    "test:games": "vitest run tests/game-navigation.test.ts tests/game-remote-regression.test.ts tests/game-quality-plan.test.ts"
+    "test:games": "vitest run tests/game-navigation.test.ts tests/game-remote-regression.test.ts tests/game-quality-plan.test.ts tests/report-driven-game-agent.test.ts"
   },
   "dependencies": {
     "@babylonjs/core": "^8.54.3",

@@ -1,6 +1,6 @@
 // ── Split-screen divider constants ────────────────────────────────────────────
 /** Fixed height (px) of the DreamDM Bar when it operates as a true split-screen divider. */
-export const DIVIDER_H = 52;
+export const DIVIDER_H = 80;
 /** Canonical snap points for the split-screen divider: [Surface-focus, Balanced, Dream-focus] */
 export const SPLIT_SNAP_POINTS = [0.1, 0.5, 0.9] as const;
 /** Default split ratio — Surface Space dominant (90 % top / 10 % bottom). */

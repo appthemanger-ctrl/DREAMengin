@@ -48,6 +48,9 @@ Allowed paths for changes:
 
 Rules:
 - Align changes with v1_scope.files_to_create / files_to_modify in the spec.
+- The spec may include an advanced_game_upgrade object. When present, the patch
+  must actually implement that game-facing slice and touch the named game file
+  or another GameEngin/game file listed in v1_scope.
 - Keep TypeScript strict, components clean and composable.
 - Add or modify Vitest tests when behaviour changes.
 - Preserve the dual-runtime (SurfaceSpace / DreamSpace) and privacy model.
@@ -71,6 +74,7 @@ Implement the FIRST COHERENT SLICE described in the spec above.
 The slice must be:
   - creative and noticeable — not purely cosmetic,
   - aligned with SICC (both layers),
+  - inclusive of the advanced game upgrade promised by the spec,
   - within existing architecture and constraints,
   - buildable: still passes `pnpm run build` and `pnpm run test`.
 

@@ -1,0 +1,112 @@
+name: Update Repository State
+
+on:
+  # Run on pushes to main branch
+  push:
+    branches:
+      - main
+    # Skip if only REPO_STATE.md changed (avoid infinite loops)
+    paths-ignore:
+      - 'REPO_STATE.md'
+
+  # Run on PR merge
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+  # Run daily at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  update-repo-state:
+    name: Analyze and Update Repository State
+    runs-on: ubuntu-latest
+
+    # Only run on merged PRs or direct pushes or manual/scheduled runs
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for accurate analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.0
+
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run repository state analyzer
+        run: node scripts/analyze-repo-state.mjs
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet REPO_STATE.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in REPO_STATE.md"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in REPO_STATE.md"
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add REPO_STATE.md
+          git commit -m "docs: auto-update REPO_STATE.md [skip ci]"
+          git push
+
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## Repository State Analysis Complete 🔍" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.check_changes.outputs.changed }}" == "true" ]; then
+            echo "✅ REPO_STATE.md has been updated with the latest analysis" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changes detected - repository state is up to date" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Quick Stats" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Extract stats from generated file
+          if [ -f "REPO_STATE.md" ]; then
+            grep "Total Code Files:" REPO_STATE.md || echo "Stats not available"
+            grep "Total Lines of Code:" REPO_STATE.md || echo "Stats not available"
+            grep "API Routes:" REPO_STATE.md || echo "Stats not available"
+            grep "Tests:" REPO_STATE.md || echo "Stats not available"
+          fi
