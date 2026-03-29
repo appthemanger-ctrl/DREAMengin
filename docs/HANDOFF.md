@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-29 09:31 UTC | `9121370` | copilot/build-new-la-inspired-game | Copilot | ~1 modified<br>test: refactor report agent script stubs — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/794091cf-2f17-4775-b26e-5a43e7b7cb57  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `tests/report-driven-game-agent.test.ts` |
 | **auto** | 2026-03-29 08:51 UTC | `5f13cf5` | completedream | appthemanger-ctrl | +1 added<br>Create pokemoncristal.yaml<br>➕: `pokemoncristal.yaml` |
 | **auto** | 2026-03-29 08:50 UTC | `ee4d4e7` | completedream | appthemanger-ctrl | −1 deleted<br>Delete pokemoncryst<br>🗑️: `pokemoncryst` |
 | **auto** | 2026-03-29 07:34 UTC | `310dd57` | copilot/fix-game-engine-control-issue | Copilot | ~6 modified<br>feat: route game launches to dedicated session page — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/99a16083-ae20-4386-bb8e-b92f8b8ed8ce  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/daydream/game/ImmersiveGameShell.tsx`, `app/daydream/game/page.tsx`, `components/daydream/GameEngin.tsx`, `lib/games/navigation.ts`, `next-env.d.ts`, `tests/game-navigation.test.ts` |
 | **auto** | 2026-03-29 07:07 UTC | `cd956fd` | claude/add-game-engine-component | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into claude/add-game-engine-component<br> |
-| **auto** | 2026-03-29 06:48 UTC | `67740cb` | copilot/add-ai-agent-for-game-building | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/add-ai-agent-for-game-building<br> |
 
 ## What changed in this alignment pass
 
