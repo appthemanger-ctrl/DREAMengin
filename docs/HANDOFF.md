@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-29 05:30 UTC | `c762599` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #341 from appthemanger-ctrl/copilot/upgrade-gaming-engine-fullscreen — Upgrade GameEngin shelf, console deck, and fullscreen boot flow<br> |
 | **auto** | 2026-03-29 04:38 UTC | `c1b0d6b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #338 from appthemanger-ctrl/copilot/fix-home-page-issues — Make HomeDream feed-first and unclip the DreamDM divider<br> |
 | **auto** | 2026-03-28 18:32 UTC | `4768f55` | copilot/fix-remote-control-issue | Copilot | ~3 modified<br>fix: make embedded game remote compact and generic — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/3825bf0a-6673-4c57-9f05-50c4c356c7b4  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/games/GameRemote.tsx`, `next-env.d.ts`, `tests/game-remote-regression.test.ts` |
 | **auto** | 2026-03-28 18:03 UTC | `15a59bb` | copilot/update-image-processing-module | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/update-image-processing-module<br> |
 | **auto** | 2026-03-28 12:23 UTC | `33332d8` | copilot/perform-optimization-in-app | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/perform-optimization-in-app<br> |
-| **auto** | 2026-03-28 12:14 UTC | `82824c9` | copilot/perform-optimization-in-app | Copilot | +6 added  ~5 modified<br>feat: DREAM HYPERMODE drop — ParticleConstellation, KonamiDream, DreamBeatCanvas, DreamConstellationMap — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/b30050c6-7734-412a-a4bd-8dc997947a35  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `app/daydream/constellation/ConstellationClient.tsx`, `app/daydream/constellation/page.tsx`, `components/KonamiDream.tsx`, `components/daydream/DreamConstellationMap.tsx`, `components/home/DreamBeatCanvas.tsx`, `components/landing/ParticleConstellation.tsx`<br>✏️: `app/layout.tsx`, `components/CommandPalette.tsx`, `components/LandingHero.tsx`, `components/home/DaydreamPulseStrip.tsx`, `styles/globals.css` |
 
 ## What changed in this alignment pass
 
