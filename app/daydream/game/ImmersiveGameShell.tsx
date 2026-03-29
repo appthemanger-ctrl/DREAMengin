@@ -15,6 +15,12 @@ const BOOT_MESSAGES = [
   'Mounting game session',
 ] as const;
 
+const SESSION_CAPABILITY_CHIPS = [
+  'Dedicated session',
+  'Remote dock live',
+  'No-scroll shell',
+] as const;
+
 export default function ImmersiveGameShell() {
   const searchParams = useSearchParams();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -92,7 +98,7 @@ export default function ImmersiveGameShell() {
     window.dispatchEvent(new CustomEvent('de-game-start'));
   };
 
-  const ActiveGameComponent = game.component;
+  const ActiveGameComponent = game.component ?? (() => null);
 
   return (
     <div
@@ -250,6 +256,48 @@ export default function ImmersiveGameShell() {
       </div>
 
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div
+          style={{
+            padding: '10px 12px 0',
+            flexShrink: 0,
+          }}
+        >
+          <div
+            style={{
+              borderRadius: 18,
+              padding: '10px 14px',
+              border: '1px solid rgba(125,211,252,0.14)',
+              background: 'rgba(7,14,28,0.78)',
+              display: 'grid',
+              gap: 10,
+            }}
+          >
+            <div style={{ fontSize: 12, lineHeight: 1.7, color: 'rgba(226,232,240,0.74)' }}>
+              {game.desc}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {SESSION_CAPABILITY_CHIPS.map((chip) => (
+                <div
+                  key={chip}
+                  style={{
+                    borderRadius: 999,
+                    padding: '6px 10px',
+                    fontSize: 10,
+                    fontWeight: 800,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: '#7dd3fc',
+                    background: 'rgba(125,211,252,0.08)',
+                    border: '1px solid rgba(125,211,252,0.16)',
+                  }}
+                >
+                  {chip}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div style={{ flex: 1, minHeight: 0, padding: '12px 12px 0', overflow: 'hidden' }}>
           <div style={{ height: '100%', borderRadius: 24, overflow: 'hidden', background: 'rgba(5, 12, 24, 0.92)', border: '1px solid rgba(125,211,252,0.16)', boxShadow: '0 24px 80px rgba(0,0,0,0.34)' }}>
             {ActiveGameComponent ? (

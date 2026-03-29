@@ -93,6 +93,7 @@ export interface LucidAvenueState {
   battery: number;
   credits: number;
   scanTurns: number;
+  jamTurns: number;
   shards: string[];
   caches: string[];
   flags: Record<LucidFlag, boolean>;
@@ -106,6 +107,7 @@ export interface LucidAvenueState {
 const TOTAL_SHARDS = 6;
 const MAX_HEAT = 6;
 const MAX_LOG_ENTRIES = 6;
+export const LUCID_AVENUE_6900_TARGET = 6900;
 
 export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
   shoreline: {
@@ -516,6 +518,7 @@ export function createInitialLucidAvenueState(): LucidAvenueState {
     battery: 2,
     credits: 20,
     scanTurns: 0,
+    jamTurns: 0,
     shards: [],
     caches: [],
     flags: {
@@ -580,6 +583,7 @@ export function calculateLucidAvenueScore(state: LucidAvenueState) {
     + (state.credits * 10)
     + (state.battery * 50)
     + Math.max(0, 1000 - state.turn * 8)
+    + (state.jamTurns * 60)
     - (state.heat * 120);
 
   return Math.max(0, base + (state.outcome === 'win' ? 2500 : 0));
@@ -590,6 +594,42 @@ export function getLucidAvenueCompletionPercent(state: LucidAvenueState) {
     + Object.values(state.flags).filter(Boolean).length
     + (state.outcome === 'win' ? 2 : 0);
   return Math.min(100, Math.round((progress / 13) * 100));
+}
+
+export function getLucidAvenueStoryBeat(state: LucidAvenueState) {
+  if (!state.flags.metRook) {
+    return {
+      act: 'Act I · Shoreline ignition',
+      title: 'The blackout starts at the coast',
+      synopsis: 'Rook has the first lead, but Lucid Angeles is still dark and fragmented. Boot the run, meet the fixer, and prove this route is real.',
+    };
+  }
+  if (!state.flags.junctionPowered) {
+    return {
+      act: 'Act II · Transit under pressure',
+      title: 'The city opens when the rails wake up',
+      synopsis: 'Mika and Ion push you deeper into Midcity. Patrols overlap harder now, and the whole west side waits on restored junction power.',
+    };
+  }
+  if (!state.flags.relayAligned) {
+    return {
+      act: 'Act III · Skyline conspiracy',
+      title: 'Studio secrets and hill relays',
+      synopsis: 'Sol and Vera are holding the keys to the upper city. Recover enough shards, crack the skyline locks, and align the hill array for summit access.',
+    };
+  }
+  if (state.outcome === 'win') {
+    return {
+      act: 'Finale · City relit',
+      title: 'Lucid Angeles comes back online',
+      synopsis: 'The observatory sync lands and the skyline breathes again. GameEngin logs this run as a full-city recovery.',
+    };
+  }
+  return {
+    act: 'Finale · Summit drive',
+    title: 'Everything points uphill now',
+    synopsis: 'The route is stabilized. Every remaining move is about finishing the climb and landing the final observatory sync.',
+  };
 }
 
 function keyForPosition(position: Position) {
@@ -716,8 +756,16 @@ function advancePatrols(state: LucidAvenueState) {
   const nextState = {
     ...state,
     patrolSteps,
+    jamTurns: Math.max(0, state.jamTurns - 1),
     scanTurns: Math.max(0, state.scanTurns - 1),
   };
+
+  if (state.jamTurns > 0) {
+    return appendLog({
+      ...nextState,
+      message: 'GameEngin uplink is flooding the patrol net. Their route timing stalls for another beat.',
+    }, '🛰️ Patrol grid jam held.');
+  }
 
   const patrolContact = getLucidAvenuePatrolPositions(nextState).some((patrol) => isSamePosition(patrol.position, nextState.player));
   if (patrolContact) {
@@ -927,6 +975,26 @@ export function scanLucidAvenue(state: LucidAvenueState) {
     scanTurns: 3,
     message: 'Pulse scan active. Patrol routes flare in your visor and the heat drops a notch.',
   }, '📡 Scan pulse fired.'));
+}
+
+export function jamLucidAvenueGrid(state: LucidAvenueState) {
+  if (state.outcome !== 'playing') return state;
+  if (state.battery <= 0) {
+    return withMessage(state, 'Battery too low. You need charge before pushing a district-wide GameEngin jam.', '🔋 No battery left for jam.');
+  }
+  if (state.credits < 20) {
+    return withMessage(state, 'You need 20 credits to flood the district net with a GameEngin jam.', '💸 Not enough credits for jam.');
+  }
+
+  return advancePatrols(appendLog({
+    ...state,
+    turn: state.turn + 1,
+    battery: state.battery - 1,
+    credits: state.credits - 20,
+    heat: Math.max(0, state.heat - 2),
+    jamTurns: Math.max(state.jamTurns, 2),
+    message: 'GameEngin uplink floods the district grid. Patrol timing desyncs and the city goes quiet for a moment.',
+  }, '🛰️ District patrol grid jammed.'));
 }
 
 export function getLucidAvenueHint(state: LucidAvenueState) {

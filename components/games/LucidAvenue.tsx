@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'r
 import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 import {
   LUCID_AVENUE_DISTRICTS,
+  LUCID_AVENUE_6900_TARGET,
   calculateLucidAvenueScore,
   createInitialLucidAvenueState,
   getLucidAvenueCompletionPercent,
@@ -13,7 +14,9 @@ import {
   getLucidAvenueObjectiveKeys,
   getLucidAvenuePatrolPathKeys,
   getLucidAvenuePatrolPositions,
+  getLucidAvenueStoryBeat,
   interactInLucidAvenue,
+  jamLucidAvenueGrid,
   requestLucidAvenueHint,
   isSamePosition,
   moveLucidAvenuePlayer,
@@ -28,11 +31,46 @@ type Phase = 'menu' | 'playing' | 'win' | 'lose';
 const MAP_CELL_SIZE = 34;
 const TRAINER_CAM_CELL_SIZE = 40;
 const VIEWPORT_RADIUS = 3;
+const LUCID_OUTFIT_STORAGE_KEY = 'de:games:lucid-outfit';
+
+type PlayerOutfitId = 'coastline' | 'midnight' | 'gold-6900';
+
+const PLAYER_OUTFITS: Array<{
+  id: PlayerOutfitId;
+  label: string;
+  accent: string;
+  palette: Partial<SpritePalette>;
+  perk: string;
+}> = [
+  {
+    id: 'coastline',
+    label: 'Coastline',
+    accent: '#38bdf8',
+    palette: { a: '#fde68a', b: '#38bdf8', w: '#f8fafc' },
+    perk: 'Balanced street runner for the full city route.',
+  },
+  {
+    id: 'midnight',
+    label: 'Midnight',
+    accent: '#a78bfa',
+    palette: { a: '#c4b5fd', b: '#7c3aed', w: '#e2e8f0' },
+    perk: 'Noir-style fit for stealthier late-night district runs.',
+  },
+  {
+    id: 'gold-6900',
+    label: 'Gold 6900',
+    accent: '#f59e0b',
+    palette: { a: '#fde68a', b: '#f59e0b', w: '#fff7ed' },
+    perk: 'Prestige fit built for the 6900 club score chase.',
+  },
+];
 
 export default function LucidAvenue() {
   const [phase, setPhase] = useState<Phase>('menu');
   const [state, setState] = useState<LucidAvenueState>(() => createInitialLucidAvenueState());
   const [viewportWidth, setViewportWidth] = useState(1280);
+  const [selectedOutfitId, setSelectedOutfitId] = useState<PlayerOutfitId>('coastline');
+  const [lastLaunchGameId, setLastLaunchGameId] = useState<string>('lucid-avenue');
   const submitScore = useSubmitScore('lucid-avenue');
 
   const district = useMemo(() => getLucidAvenueDistrict(state.districtId), [state.districtId]);
@@ -56,6 +94,20 @@ export default function LucidAvenue() {
     window.addEventListener('resize', updateViewport);
     return () => window.removeEventListener('resize', updateViewport);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedOutfit = window.localStorage.getItem(LUCID_OUTFIT_STORAGE_KEY) as PlayerOutfitId | null;
+    if (savedOutfit && PLAYER_OUTFITS.some((entry) => entry.id === savedOutfit)) {
+      setSelectedOutfitId(savedOutfit);
+    }
+    setLastLaunchGameId(window.localStorage.getItem('de:games:last-launch') ?? 'lucid-avenue');
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(LUCID_OUTFIT_STORAGE_KEY, selectedOutfitId);
+  }, [selectedOutfitId]);
 
   useEffect(() => {
     if (phase === 'menu') return;
@@ -98,6 +150,11 @@ export default function LucidAvenue() {
     runStateAction((current) => requestLucidAvenueHint(current));
   }, [phase, runStateAction]);
 
+  const jamGrid = useCallback(() => {
+    if (phase !== 'playing') return;
+    runStateAction((current) => jamLucidAvenueGrid(current));
+  }, [phase, runStateAction]);
+
   useEffect(() => {
     if (phase !== 'playing') return undefined;
 
@@ -130,12 +187,21 @@ export default function LucidAvenue() {
       } else if (key === 'h') {
         event.preventDefault();
         askAi();
+      } else if (key === 'g') {
+        event.preventDefault();
+        jamGrid();
+      } else if (key === 't') {
+        event.preventDefault();
+        setSelectedOutfitId((current) => {
+          const index = PLAYER_OUTFITS.findIndex((entry) => entry.id === current);
+          return PLAYER_OUTFITS[(index + 1) % PLAYER_OUTFITS.length]?.id ?? PLAYER_OUTFITS[0].id;
+        });
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [askAi, interact, move, phase, scan, startGame, wait]);
+  }, [askAi, interact, jamGrid, move, phase, scan, startGame, wait]);
 
   const districtVisitedCount = state.visitedDistrictIds.length;
   const scanActive = state.scanTurns > 0;
@@ -143,6 +209,7 @@ export default function LucidAvenue() {
   const districtShardCount = district.shards.filter((entry) => state.shards.includes(entry.id)).length;
   const districtCacheCount = district.caches.filter((entry) => state.caches.includes(entry.id)).length;
   const aiHint = useMemo(() => getLucidAvenueHint(state), [state]);
+  const storyBeat = useMemo(() => getLucidAvenueStoryBeat(state), [state]);
   const trainerCamRows = useMemo(() => buildTrainerCamRows(state, district), [district, state]);
   const nearbyNpc = district.npcs.find((npc) => (
     Math.abs(npc.position.x - state.player.x) <= 2 && Math.abs(npc.position.y - state.player.y) <= 2
@@ -154,6 +221,8 @@ export default function LucidAvenue() {
   const isMobileLayout = viewportWidth <= 900;
   const mapCellSize = isPhoneLayout ? 22 : isMobileLayout ? 28 : MAP_CELL_SIZE;
   const trainerCamCellSize = isPhoneLayout ? 28 : isMobileLayout ? 34 : TRAINER_CAM_CELL_SIZE;
+  const selectedOutfit = PLAYER_OUTFITS.find((entry) => entry.id === selectedOutfitId) ?? PLAYER_OUTFITS[0];
+  const in6900Club = score >= LUCID_AVENUE_6900_TARGET;
 
   if (phase === 'menu') {
     return (
@@ -170,7 +239,7 @@ export default function LucidAvenue() {
           <div style={{ maxWidth: 760, color: 'rgba(226,232,240,0.84)', fontSize: 13, lineHeight: 1.8 }}>
             This is an original LA-inspired retro city quest, expanded far beyond the tiny earlier slice:
             six districts, deterministic patrol routes, shard recovery, NPC-gated progression, relay terminals,
-            skyline keys, observatory finale, classic handheld-style sprite animation, AI route hints, and a full mission loop built for DREAMengin.
+            skyline keys, observatory finale, classic handheld-style sprite animation, triple outfit loadouts, GameEngin-linked jam tech, AI route hints, and a full mission loop built for DREAMengin.
             It is not a copy of the archive’s copyrighted content.
           </div>
         </div>
@@ -182,8 +251,11 @@ export default function LucidAvenue() {
             '5 quest flags',
             'Patrol rhythm stealth',
             'Sprite animation + trainer cam',
+            '3 runner outfits',
+            'GameEngin grid jam',
             'AI route hints',
             'NPC + terminal progression',
+            '6900 Club score target',
             'Dedicated observatory finale',
           ].map((item) => (
             <div key={item} style={chipStyle}>
@@ -214,12 +286,37 @@ export default function LucidAvenue() {
           ))}
         </div>
 
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
+          {PLAYER_OUTFITS.map((outfit) => (
+            <button
+              key={outfit.id}
+              type="button"
+              onClick={() => setSelectedOutfitId(outfit.id)}
+              style={{
+                ...chipStyle,
+                textAlign: 'left',
+                borderColor: outfit.id === selectedOutfitId ? `${outfit.accent}88` : 'rgba(148,163,184,0.14)',
+                background: outfit.id === selectedOutfitId ? 'rgba(30,41,59,0.96)' : chipStyle.background,
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center' }}>
+                <span style={{ color: '#f8fafc', fontWeight: 800 }}>{outfit.label}</span>
+                <span style={{ fontSize: 10, color: outfit.accent, fontWeight: 900, letterSpacing: '0.08em' }}>
+                  {outfit.id === 'gold-6900' ? '6900' : 'FIT'}
+                </span>
+              </div>
+              <span style={{ color: 'rgba(226,232,240,0.7)', fontSize: 11, lineHeight: 1.55 }}>{outfit.perk}</span>
+            </button>
+          ))}
+        </div>
+
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           <button onClick={startGame} style={primaryButtonStyle}>
             ▶ Start the full Lucid run
           </button>
           <div style={{ ...chipStyle, minHeight: 46, alignItems: 'center', display: 'flex' }}>
-            Keyboard / remote: move · Space interact · Q scan · E wait · H AI hint
+            Keyboard / remote: move · Space interact · Q scan · E wait · G jam · H AI hint · T cycle outfit
           </div>
         </div>
       </div>
@@ -241,6 +338,7 @@ export default function LucidAvenue() {
           <StatChip label="Score" value={score.toLocaleString()} accent="#f59e0b" />
           <StatChip label="Completion" value={`${completion}%`} accent="#22c55e" />
           <StatChip label="Districts" value={`${districtVisitedCount}/6`} accent="#38bdf8" />
+          <StatChip label="Club" value={in6900Club ? '6900 ✓' : `6900 · ${Math.max(0, LUCID_AVENUE_6900_TARGET - score)}`} accent={in6900Club ? '#f59e0b' : '#a78bfa'} />
           <button onClick={startGame} style={secondaryButtonStyle}>Restart</button>
         </div>
       </div>
@@ -282,18 +380,37 @@ export default function LucidAvenue() {
                   patrolPathKeys,
                   phase,
                   size: trainerCamCellSize,
+                  playerPalette: selectedOutfit.palette,
                 })))}
               </div>
             </div>
 
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={retroInsetPanelStyle}>
+                <div style={{ ...sectionHeadingStyle, fontSize: 11 }}>GameEngin uplink</div>
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <div style={routeIntelStyle}>
+                    <span style={{ color: '#94a3b8' }}>Console cart</span>
+                    <span style={{ color: '#f8fafc' }}>{lastLaunchGameId === 'lucid-avenue' ? 'Lucid Avenue mounted' : `Returning from ${lastLaunchGameId}`}</span>
+                  </div>
+                  <div style={routeIntelStyle}>
+                    <span style={{ color: '#94a3b8' }}>Remote dock</span>
+                    <span style={{ color: '#f8fafc' }}>Shared session online</span>
+                  </div>
+                  <div style={routeIntelStyle}>
+                    <span style={{ color: '#94a3b8' }}>Outfit deck</span>
+                    <span style={{ color: selectedOutfit.accent, fontWeight: 800 }}>{selectedOutfit.label}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={retroInsetPanelStyle}>
                 <div style={{ ...sectionHeadingStyle, fontSize: 11 }}>Current route</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8 }}>
                   <MiniMetric label="District shards" value={`${districtShardCount}/${district.shards.length || 0}`} />
                   <MiniMetric label="Caches cracked" value={`${districtCacheCount}/${district.caches.length || 0}`} />
                   <MiniMetric label="Patrols" value={`${district.patrols.length}`} />
-                  <MiniMetric label="Contacts" value={`${district.npcs.length}`} />
+                  <MiniMetric label="Jam turns" value={`${state.jamTurns}`} />
                 </div>
               </div>
 
@@ -337,6 +454,7 @@ export default function LucidAvenue() {
                 patrolPathKeys,
                 phase,
                 size: mapCellSize,
+                playerPalette: selectedOutfit.palette,
               }))
             ))}
           </div>
@@ -371,6 +489,36 @@ export default function LucidAvenue() {
                 <div key={entry} style={{ fontSize: 12, color: 'rgba(226,232,240,0.78)', lineHeight: 1.65 }}>
                   • {entry}
                 </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={panelStyle}>
+            <div style={sectionHeadingStyle}>Story drive</div>
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div style={{ color: '#f8fafc', fontSize: 14, fontWeight: 900 }}>{storyBeat.act}</div>
+              <div style={{ color: selectedOutfit.accent, fontSize: 12, fontWeight: 800 }}>{storyBeat.title}</div>
+              <div style={{ fontSize: 12, color: 'rgba(226,232,240,0.8)', lineHeight: 1.7 }}>{storyBeat.synopsis}</div>
+            </div>
+          </div>
+
+          <div style={panelStyle}>
+            <div style={sectionHeadingStyle}>Outfit deck</div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {PLAYER_OUTFITS.map((outfit) => (
+                <button
+                  key={outfit.id}
+                  type="button"
+                  onClick={() => setSelectedOutfitId(outfit.id)}
+                  style={{
+                    ...outfitButtonStyle,
+                    borderColor: outfit.id === selectedOutfitId ? `${outfit.accent}88` : 'rgba(148,163,184,0.16)',
+                    background: outfit.id === selectedOutfitId ? 'rgba(30,41,59,0.96)' : 'rgba(15,23,42,0.72)',
+                  }}
+                >
+                  <span style={{ color: '#f8fafc', fontWeight: 800 }}>{outfit.label}</span>
+                  <span style={{ color: 'rgba(226,232,240,0.72)', fontSize: 11 }}>{outfit.perk}</span>
+                </button>
               ))}
             </div>
           </div>
@@ -415,12 +563,14 @@ export default function LucidAvenue() {
               <BarRow label="Battery" value={state.battery} max={6} color="#38bdf8" />
               <BarRow label="Shards" value={state.shards.length} max={6} color="#c084fc" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
-              <MiniMetric label="Credits" value={`${state.credits}`} />
-              <MiniMetric label="Visited" value={`${districtVisitedCount}/6`} />
-              <MiniMetric label="Flags" value={`${Object.values(state.flags).filter(Boolean).length}/5`} />
-              <MiniMetric label="State" value={phase === 'playing' ? 'Active' : phase === 'win' ? 'Won' : 'Burned'} />
-            </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
+                <MiniMetric label="Credits" value={`${state.credits}`} />
+                <MiniMetric label="Visited" value={`${districtVisitedCount}/6`} />
+                <MiniMetric label="Flags" value={`${Object.values(state.flags).filter(Boolean).length}/5`} />
+                <MiniMetric label="State" value={phase === 'playing' ? 'Active' : phase === 'win' ? 'Won' : 'Burned'} />
+                <MiniMetric label="Jam" value={state.jamTurns > 0 ? `Live +${state.jamTurns}` : 'Idle'} />
+                <MiniMetric label="Club target" value={`${LUCID_AVENUE_6900_TARGET}`} />
+              </div>
           </div>
 
           <div style={panelStyle}>
@@ -437,10 +587,11 @@ export default function LucidAvenue() {
                 <button onClick={scan} disabled={phase !== 'playing'} style={actionButtonStyle}>Scan</button>
                 <button onClick={wait} disabled={phase !== 'playing'} style={actionButtonStyle}>Wait</button>
               </div>
+              <button onClick={jamGrid} disabled={phase !== 'playing'} style={actionButtonStyle}>Jam Grid</button>
               <button onClick={askAi} disabled={phase !== 'playing'} style={actionButtonStyle}>AI Hint</button>
               <div style={{ fontSize: 11, color: 'rgba(226,232,240,0.6)', textAlign: 'center' }}>
                 Shared GameRemote directions work in the dedicated play session.
-                Keyboard extras: Space / Enter interact, Q scan, E wait, H AI hint, R restart.
+                Keyboard extras: Space / Enter interact, Q scan, E wait, G jam, H AI hint, T cycle outfit, R restart.
               </div>
             </div>
           </div>
@@ -476,7 +627,7 @@ export default function LucidAvenue() {
           </div>
           <div style={{ fontSize: 12, color: 'rgba(248,250,252,0.82)', lineHeight: 1.7 }}>
             {phase === 'win'
-              ? `Lucid Angeles lights back up after ${state.turn} turns with ${state.shards.length}/6 shards, ${state.credits} credits, and a final score of ${score.toLocaleString()}.`
+              ? `Lucid Angeles lights back up after ${state.turn} turns with ${state.shards.length}/6 shards, ${state.credits} credits, and a final score of ${score.toLocaleString()}.${in6900Club ? ' The 6900 Club logs your run as a prestige clear.' : ''}`
               : `Heat capped out after ${state.turn} turns. Reset the run, route cleaner through the patrol rhythm, and try again.`}
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -499,6 +650,7 @@ function renderCell({
   patrolPathKeys,
   phase,
   size = MAP_CELL_SIZE,
+  playerPalette,
 }: {
   tile: string;
   position: Position;
@@ -508,6 +660,7 @@ function renderCell({
   patrolPathKeys: Set<string>;
   phase: Phase;
   size?: number;
+  playerPalette?: Partial<SpritePalette>;
 }) {
   const district = getLucidAvenueDistrict(state.districtId);
   const playerHere = isSamePosition(state.player, position);
@@ -594,6 +747,7 @@ function renderCell({
             frame={state.turn}
             size={Math.max(18, Math.round(size * 0.72))}
             accent={district.color}
+            paletteOverrides={spriteKind.startsWith('player') ? playerPalette : undefined}
           />
         )
         : !isWall && <div style={pixelGroundDotStyle} />}
@@ -734,17 +888,20 @@ function PixelSprite({
   frame,
   size,
   accent,
+  paletteOverrides,
 }: {
   kind: SpriteKind;
   frame: number;
   size: number;
   accent?: string;
+  paletteOverrides?: Partial<SpritePalette>;
 }) {
   const frames = spriteFrames[kind];
   const activeFrame = frames[frame % frames.length];
   const palette: SpritePalette = {
     ...spritePalettes[kind],
     ...(accent ? { b: accent } : {}),
+    ...paletteOverrides,
   };
 
   return (
@@ -910,6 +1067,16 @@ const actionButtonStyle: CSSProperties = {
   color: '#f8fafc',
   fontSize: 12,
   fontWeight: 800,
+  cursor: 'pointer',
+};
+
+const outfitButtonStyle: CSSProperties = {
+  borderRadius: 12,
+  padding: '10px 12px',
+  border: '1px solid rgba(148,163,184,0.16)',
+  display: 'grid',
+  gap: 4,
+  textAlign: 'left',
   cursor: 'pointer',
 };
 

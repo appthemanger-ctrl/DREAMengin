@@ -129,7 +129,7 @@ export const GAMES: GameDef[] = [
   { id: 'maze',          emoji: '🌀', label: 'Maze Runner',      category: 'Adventure',   color: '#38bdf8', component: MazeGame,
     desc: 'Procedurally generated maze — navigate from start to the ★ exit' },
   { id: 'lucid-avenue',  emoji: '🌴', label: 'Lucid Avenue',     category: 'Adventure',   color: '#f59e0b', component: LucidAvenue,
-    desc: 'Original LA-inspired retro city quest — collect signal shards, dodge patrols, and restore the observatory skyline' },
+    desc: 'Original LA-inspired retro city quest — GameEngin-linked city run with AI route hints, grid jams, triple outfits, and an observatory skyline finale' },
   // ── Dream Universe games ──────────────────────────────────────────────────
   { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',         category: 'Strategy',    color: '#7c3aed', component: DREAMwars,
     desc: 'Nightmares vs Dreamers RTS — build base, harvest Dream Energy, crush the enemy HQ' },
@@ -144,7 +144,7 @@ export const GAMES: GameDef[] = [
     desc: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
 ];
 
-const FEATURED_GAME_IDS = ['platformer', 'dreamquest', 'dreamwars', 'space-shooter'] as const;
+const FEATURED_GAME_IDS = ['platformer', 'lucid-avenue', 'dreamquest', 'dreamwars'] as const;
 const QUICK_RESUME_FALLBACK_COUNT = 3;
 const ENGINE_CAPABILITY_CHIPS = [
   'Fullscreen boot',

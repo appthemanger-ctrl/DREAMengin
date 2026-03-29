@@ -5,7 +5,9 @@ import {
   createInitialLucidAvenueState,
   getLucidAvenueHint,
   getLucidAvenueMissionChecklist,
+  getLucidAvenueStoryBeat,
   interactInLucidAvenue,
+  jamLucidAvenueGrid,
   moveLucidAvenuePlayer,
   requestLucidAvenueHint,
 } from '@/lib/games/lucid-avenue-world';
@@ -32,6 +34,10 @@ describe('Lucid Avenue game slice', () => {
     expect(src).toContain('classic handheld-style sprite animation');
     expect(src).toContain('Trainer cam');
     expect(src).toContain('AI Hint');
+    expect(src).toContain('3 runner outfits');
+    expect(src).toContain('GameEngin uplink');
+    expect(src).toContain('Jam Grid');
+    expect(src).toContain('6900 Club');
     expect(src).toContain('Shared GameRemote directions work in the dedicated play session.');
   });
 
@@ -101,5 +107,20 @@ describe('Lucid Avenue game slice', () => {
 
     expect(state.message).toContain('AI route hint');
     expect(state.log[0]).toContain('AI route hint');
+  });
+
+  it('supports GameEngin-linked grid jamming and story beats for deeper system play', () => {
+    let state = createInitialLucidAvenueState();
+
+    const beat = getLucidAvenueStoryBeat(state);
+    expect(beat.act).toContain('Act I');
+    expect(beat.synopsis).toContain('Rook');
+
+    state = jamLucidAvenueGrid(state);
+
+    expect(state.jamTurns).toBeGreaterThan(0);
+    expect(state.credits).toBe(0);
+    expect(state.battery).toBe(1);
+    expect(state.message).toContain('GameEngin uplink');
   });
 });
