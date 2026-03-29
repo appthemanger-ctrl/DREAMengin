@@ -386,6 +386,10 @@ function renderCell({
   const terminalHere = district.terminals.find((terminal) => isSamePosition(terminal.position, position));
   const exitHere = district.exits.find((entry) => isSamePosition(entry.position, position));
   const key = `${position.x},${position.y}`;
+  let playerLabel = '😎';
+
+  if (phase === 'win') playerLabel = '🤩';
+  if (phase === 'lose') playerLabel = '😵';
 
   const isWall = tile === '#';
   let background = isWall
@@ -409,7 +413,7 @@ function renderCell({
   if (terminalHere) label = terminalHere.emoji;
   if (exitHere) label = '⇢';
   if (patrolHere) label = patrolHere.emoji;
-  if (playerHere) label = phase === 'win' ? '🤩' : phase === 'lose' ? '😵' : '😎';
+  if (playerHere) label = playerLabel;
 
   return (
     <div
@@ -598,4 +602,3 @@ const sectionHeadingStyle: CSSProperties = {
   textTransform: 'uppercase',
   letterSpacing: '0.12em',
 };
-
