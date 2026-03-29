@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `de2f48a` | 2026-03-29 05:26 UTC | copilot/upgrade-gaming-engine-fullscreen | Copilot | ~4 | feat: broaden GameEngin upgrade beyond fullscreen |
 | `e0c2deb` | 2026-03-29 04:49 UTC | copilot/upgrade-gaming-engine-fullscreen | Copilot | ~3 | feat: fullscreen game launch + DREAMengin powered by splash screen |
 | `f58c3a8` | 2026-03-29 04:40 UTC | completedream | appthemanger-ctrl | — | Merge pull request #339 from appthemanger-ctrl/copilot/fix-invalid-next-config-options |
 | `634a30d` | 2026-03-29 04:39 UTC | copilot/fix-invalid-next-config-options | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/fix-invalid-next-config-options |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `d9956c3` | 2026-03-28 19:38 UTC | completedream | appthemanger-ctrl | — | Merge pull request #337 from appthemanger-ctrl/copilot/replace-foundation-with-linux-software |
 | `f7c366c` | 2026-03-28 19:37 UTC | copilot/replace-foundation-with-linux-software | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/replace-foundation-with-linux-software |
 | `bbdd3b6` | 2026-03-28 19:10 UTC | completedream | appthemanger-ctrl | — | Merge pull request #336 from appthemanger-ctrl/copilot/fix-remote-control-issue |
-| `9356f90` | 2026-03-28 18:37 UTC | copilot/fix-remote-control-issue | Copilot | ~2 | chore: clean up remote review feedback |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-29 04:49 UTC — `e0c2deb` by Copilot
+Last updated: 2026-03-29 05:26 UTC — `de2f48a` by Copilot
 Last updated: 2026-03-29 04:38 UTC — `c1b0d6b` by appthemanger-ctrl
 Last updated: 2026-03-28 12:12 UTC — `e56e13a` by appthemanger-ctrl
 Last updated: 2026-03-28 06:10 UTC — `bd955c1` by appthemanger-ctrl
