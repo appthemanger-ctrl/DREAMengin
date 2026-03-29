@@ -33,12 +33,16 @@ Non-negotiable constraints:
 - Prefer modifying existing files over introducing new runtime surfaces.
 - The clarified request is NOT for an in-app help widget. It is for GitHub-based
   automation that can act on a report.
+- Every run must also upgrade at least one advanced game or GameEngin experience.
+- The mandatory game upgrade must target a non-trivial experience, not a simple
+  tap-only loop.
 
 Your plan must:
 - address the report as completely as possible in a single coherent slice,
 - avoid unrelated cleanup,
 - be buildable and testable in CI,
-- be specific about which files to create/modify.
+- be specific about which files to create/modify,
+- explicitly name the advanced game target being upgraded.
 """
 
 
@@ -55,6 +59,10 @@ Task:
 3. Prefer GitHub workflows/scripts/docs when the report is about repo automation.
 4. If previously-added work appears misaligned with the report, include reverting
    that work in the plan.
+5. Even if the report is not game-specific, include a second slice that upgrades
+   at least one advanced game target from the provided manifest or game catalog.
+6. Favor upgrades that deepen GameEngin standards: richer systems, better AI,
+   better progression, better rendering, better feel, or more advanced encounters.
 
 Output JSON ONLY:
 {{
@@ -62,10 +70,19 @@ Output JSON ONLY:
   "report_summary": "...",
   "implementation_goal": "...",
   "motivation": "...",
+  "advanced_game_upgrade": {{
+    "target_game_id": "...",
+    "target_file": "...",
+    "why_this_game": "...",
+    "upgrade_type": "...",
+    "player_value": "...",
+    "engine_value": "..."
+  }},
   "constraints_respected": [
     "no new deps",
     "existing repo automation reused",
-    "minimal unrelated churn"
+    "minimal unrelated churn",
+    "at least one advanced game upgraded"
   ],
   "v1_scope": {{
     "description": "...",

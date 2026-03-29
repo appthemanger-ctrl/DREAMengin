@@ -33,6 +33,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build report-aware context for the GitHub coding agent")
     parser.add_argument("--repo-context", required=True, help="Path to dreamengin-context.md")
     parser.add_argument("--report-path", help="Path to a markdown/json report inside the repo")
+    parser.add_argument("--game-catalog-path", help="Path to generated game catalog markdown/json")
+    parser.add_argument("--advanced-targets-path", help="Path to advanced game target manifest JSON")
     parser.add_argument("--report-source", default="", help="Human-readable label for the report source")
     parser.add_argument("--out", required=True, help="Path to write the combined context markdown")
     args = parser.parse_args()
@@ -45,6 +47,8 @@ def main() -> None:
     env_report_text = os.environ.get("REPORT_TEXT", "").strip()
     file_report_text = read_text(args.report_path).strip() if args.report_path else ""
     report_text = env_report_text or file_report_text
+    game_catalog_text = read_text(args.game_catalog_path).strip() if args.game_catalog_path else ""
+    advanced_targets_text = read_text(args.advanced_targets_path).strip() if args.advanced_targets_path else ""
 
     if not report_text:
         print(
@@ -73,6 +77,20 @@ def main() -> None:
         if not report_text.endswith("\n"):
             fh.write("\n")
         fh.write("</report>\n\n")
+        if advanced_targets_text:
+            fh.write("## Advanced Game Targets\n\n")
+            fh.write("<advanced_game_targets>\n")
+            fh.write(advanced_targets_text)
+            if not advanced_targets_text.endswith("\n"):
+                fh.write("\n")
+            fh.write("</advanced_game_targets>\n\n")
+        if game_catalog_text:
+            fh.write("## Game Catalog\n\n")
+            fh.write("<game_catalog>\n")
+            fh.write(game_catalog_text)
+            if not game_catalog_text.endswith("\n"):
+                fh.write("\n")
+            fh.write("</game_catalog>\n\n")
         fh.write("## Repository Context\n\n")
         fh.write("<repo_context>\n")
         fh.write(repo_context)

@@ -539,6 +539,7 @@ Design:            docs/THEME.md
 Security:          docs/SECURITY.md
 AI agents:         docs/DR_EAMS.md, docs/IDARI_CONTRACT.md, docs/BOOGIEMAN_POLICY.md
 GitHub coding agent: .github/workflows/report-driven-coding-agent.yml
+Advanced game targets: config/advanced-game-targets.json
 
 Phase 7 authority:
   Product identity:  docs/PRODUCT_DEFINITION.md  (what DREAMengin is and is not)
