@@ -9,6 +9,7 @@ import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButt
 import AutoOpenGameEngin from '@/components/daydream/AutoOpenGameEngin';
 import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildGameLaunchHref } from '@/lib/games/navigation';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
@@ -43,7 +44,7 @@ const CONSOLE_MODULES = [
 export default async function GamesDaydreamPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user && !isDevBypassActive()) redirect('/login');
 
   return (
     <DaydreamShell
