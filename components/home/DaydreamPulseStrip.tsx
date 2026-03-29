@@ -90,15 +90,6 @@ const DAYDREAMS = [
     glow: 'rgba(99,102,241,0.45)',
     delay: '2.10s',
   },
-  {
-    id: 'constellation',
-    emoji: '✦',
-    label: 'Map',
-    href: '/daydream/constellation',
-    color: '#c8981a',
-    glow: 'rgba(200,152,26,0.45)',
-    delay: '2.45s',
-  },
 ] as const;
 
 // ── Framer-motion entrance variants ───────────────────────────────────────────
@@ -259,7 +250,7 @@ export default function DaydreamPulseStrip() {
                 letterSpacing: '-0.01em',
               }}
             >
-              Dream Surfaces
+               Daydreams
             </div>
             <div
               style={{
@@ -269,7 +260,7 @@ export default function DaydreamPulseStrip() {
                 marginTop: 1,
               }}
             >
-              7 live creative surfaces + map
+               6 live daydreams + analytics
             </div>
           </div>
 
