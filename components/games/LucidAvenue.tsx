@@ -8,11 +8,13 @@ import {
   createInitialLucidAvenueState,
   getLucidAvenueCompletionPercent,
   getLucidAvenueDistrict,
+  getLucidAvenueHint,
   getLucidAvenueMissionChecklist,
   getLucidAvenueObjectiveKeys,
   getLucidAvenuePatrolPathKeys,
   getLucidAvenuePatrolPositions,
   interactInLucidAvenue,
+  requestLucidAvenueHint,
   isSamePosition,
   moveLucidAvenuePlayer,
   scanLucidAvenue,
@@ -24,10 +26,13 @@ import {
 type Phase = 'menu' | 'playing' | 'win' | 'lose';
 
 const MAP_CELL_SIZE = 34;
+const TRAINER_CAM_CELL_SIZE = 40;
+const VIEWPORT_RADIUS = 3;
 
 export default function LucidAvenue() {
   const [phase, setPhase] = useState<Phase>('menu');
   const [state, setState] = useState<LucidAvenueState>(() => createInitialLucidAvenueState());
+  const [viewportWidth, setViewportWidth] = useState(1280);
   const submitScore = useSubmitScore('lucid-avenue');
 
   const district = useMemo(() => getLucidAvenueDistrict(state.districtId), [state.districtId]);
@@ -44,6 +49,13 @@ export default function LucidAvenue() {
   }, []);
 
   useGameAutoStart(phase === 'menu' ? startGame : null);
+
+  useEffect(() => {
+    const updateViewport = () => setViewportWidth(window.innerWidth);
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
+    return () => window.removeEventListener('resize', updateViewport);
+  }, []);
 
   useEffect(() => {
     if (phase === 'menu') return;
@@ -81,6 +93,11 @@ export default function LucidAvenue() {
     runStateAction((current) => waitLucidAvenueTurn(current));
   }, [phase, runStateAction]);
 
+  const askAi = useCallback(() => {
+    if (phase !== 'playing') return;
+    runStateAction((current) => requestLucidAvenueHint(current));
+  }, [phase, runStateAction]);
+
   useEffect(() => {
     if (phase !== 'playing') return undefined;
 
@@ -110,16 +127,33 @@ export default function LucidAvenue() {
       } else if (key === 'r') {
         event.preventDefault();
         startGame();
+      } else if (key === 'h') {
+        event.preventDefault();
+        askAi();
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [interact, move, phase, scan, startGame, wait]);
+  }, [askAi, interact, move, phase, scan, startGame, wait]);
 
   const districtVisitedCount = state.visitedDistrictIds.length;
   const scanActive = state.scanTurns > 0;
   const featuredDistricts = Object.values(LUCID_AVENUE_DISTRICTS);
+  const districtShardCount = district.shards.filter((entry) => state.shards.includes(entry.id)).length;
+  const districtCacheCount = district.caches.filter((entry) => state.caches.includes(entry.id)).length;
+  const aiHint = useMemo(() => getLucidAvenueHint(state), [state]);
+  const trainerCamRows = useMemo(() => buildTrainerCamRows(state, district), [district, state]);
+  const nearbyNpc = district.npcs.find((npc) => (
+    Math.abs(npc.position.x - state.player.x) <= 2 && Math.abs(npc.position.y - state.player.y) <= 2
+  ));
+  const nearbyTerminal = district.terminals.find((terminal) => (
+    Math.abs(terminal.position.x - state.player.x) <= 2 && Math.abs(terminal.position.y - state.player.y) <= 2
+  ));
+  const isPhoneLayout = viewportWidth <= 430;
+  const isMobileLayout = viewportWidth <= 900;
+  const mapCellSize = isPhoneLayout ? 22 : isMobileLayout ? 28 : MAP_CELL_SIZE;
+  const trainerCamCellSize = isPhoneLayout ? 28 : isMobileLayout ? 34 : TRAINER_CAM_CELL_SIZE;
 
   if (phase === 'menu') {
     return (
@@ -136,7 +170,7 @@ export default function LucidAvenue() {
           <div style={{ maxWidth: 760, color: 'rgba(226,232,240,0.84)', fontSize: 13, lineHeight: 1.8 }}>
             This is an original LA-inspired retro city quest, expanded far beyond the tiny earlier slice:
             six districts, deterministic patrol routes, shard recovery, NPC-gated progression, relay terminals,
-            skyline keys, observatory finale, and a full mission loop built for DREAMengin.
+            skyline keys, observatory finale, classic handheld-style sprite animation, AI route hints, and a full mission loop built for DREAMengin.
             It is not a copy of the archive’s copyrighted content.
           </div>
         </div>
@@ -147,6 +181,8 @@ export default function LucidAvenue() {
             '6 signal shards',
             '5 quest flags',
             'Patrol rhythm stealth',
+            'Sprite animation + trainer cam',
+            'AI route hints',
             'NPC + terminal progression',
             'Dedicated observatory finale',
           ].map((item) => (
@@ -183,7 +219,7 @@ export default function LucidAvenue() {
             ▶ Start the full Lucid run
           </button>
           <div style={{ ...chipStyle, minHeight: 46, alignItems: 'center', display: 'flex' }}>
-            Keyboard / remote: move · Space interact · Q scan · E wait
+            Keyboard / remote: move · Space interact · Q scan · E wait · H AI hint
           </div>
         </div>
       </div>
@@ -209,7 +245,7 @@ export default function LucidAvenue() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(320px, 0.9fr)', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobileLayout ? '1fr' : 'minmax(0, 1.2fr) minmax(320px, 0.9fr)', gap: 14 }}>
         <div style={panelStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ color: '#f8fafc', fontWeight: 800, fontSize: 14 }}>City grid</div>
@@ -222,13 +258,72 @@ export default function LucidAvenue() {
             </div>
           </div>
 
+          <div style={{ display: 'grid', gridTemplateColumns: isMobileLayout ? '1fr' : 'minmax(280px, 320px) minmax(0, 1fr)', gap: 12, alignItems: 'start' }}>
+            <div style={retroInsetPanelStyle}>
+              <div style={{ ...sectionHeadingStyle, fontSize: 11 }}>Trainer cam</div>
+              <div style={{ fontSize: 11, color: 'rgba(226,232,240,0.66)', lineHeight: 1.6 }}>
+                A zoomed sprite view around your runner for a classic handheld-style route feel.
+              </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${VIEWPORT_RADIUS * 2 + 1}, ${trainerCamCellSize}px)`,
+                  gap: 3,
+                  justifyContent: 'center',
+                  padding: 8,
+                }}
+              >
+                {trainerCamRows.flatMap((row) => row.map((cell) => renderCell({
+                  tile: cell.tile,
+                  position: cell.position,
+                  state,
+                  patrols,
+                  objectiveKeys,
+                  patrolPathKeys,
+                  phase,
+                  size: trainerCamCellSize,
+                })))}
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={retroInsetPanelStyle}>
+                <div style={{ ...sectionHeadingStyle, fontSize: 11 }}>Current route</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8 }}>
+                  <MiniMetric label="District shards" value={`${districtShardCount}/${district.shards.length || 0}`} />
+                  <MiniMetric label="Caches cracked" value={`${districtCacheCount}/${district.caches.length || 0}`} />
+                  <MiniMetric label="Patrols" value={`${district.patrols.length}`} />
+                  <MiniMetric label="Contacts" value={`${district.npcs.length}`} />
+                </div>
+              </div>
+
+              <div style={retroInsetPanelStyle}>
+                <div style={{ ...sectionHeadingStyle, fontSize: 11 }}>Nearby route intel</div>
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <div style={routeIntelStyle}>
+                    <span style={{ color: '#94a3b8' }}>Contact</span>
+                    <span style={{ color: '#f8fafc' }}>{nearbyNpc ? `${nearbyNpc.emoji} ${nearbyNpc.name}` : 'No nearby contact'}</span>
+                  </div>
+                  <div style={routeIntelStyle}>
+                    <span style={{ color: '#94a3b8' }}>Terminal</span>
+                    <span style={{ color: '#f8fafc' }}>{nearbyTerminal ? `${nearbyTerminal.emoji} ${nearbyTerminal.name}` : 'No nearby terminal'}</span>
+                  </div>
+                  <div style={routeIntelStyle}>
+                    <span style={{ color: '#94a3b8' }}>AI hint</span>
+                    <span style={{ color: '#f8fafc', textAlign: 'right' }}>{aiHint}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: `repeat(${district.map[0].length}, ${MAP_CELL_SIZE}px)`,
-              gap: 4,
+              gridTemplateColumns: `repeat(${district.map[0].length}, ${mapCellSize}px)`,
+              gap: isPhoneLayout ? 2 : 4,
               justifyContent: 'center',
-              padding: 8,
+              padding: isPhoneLayout ? 4 : 8,
               overflowX: 'auto',
             }}
           >
@@ -241,6 +336,7 @@ export default function LucidAvenue() {
                 objectiveKeys,
                 patrolPathKeys,
                 phase,
+                size: mapCellSize,
               }))
             ))}
           </div>
@@ -280,6 +376,39 @@ export default function LucidAvenue() {
           </div>
 
           <div style={panelStyle}>
+            <div style={sectionHeadingStyle}>Route atlas</div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {featuredDistricts.map((entry, index) => {
+                const active = entry.id === district.id;
+                const visited = state.visitedDistrictIds.includes(entry.id);
+                return (
+                  <div
+                    key={entry.id}
+                    style={{
+                      borderRadius: 12,
+                      padding: '10px 12px',
+                      background: active ? 'rgba(30,41,59,0.96)' : 'rgba(15,23,42,0.72)',
+                      border: `1px solid ${active ? `${entry.color}55` : 'rgba(148,163,184,0.12)'}`,
+                      display: 'grid',
+                      gap: 4,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
+                      <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>
+                        {index + 1}. {entry.name}
+                      </div>
+                      <div style={{ fontSize: 10, color: active ? '#fde68a' : visited ? '#86efac' : '#94a3b8', fontWeight: 800 }}>
+                        {active ? 'ACTIVE' : visited ? 'VISITED' : 'UNVISITED'}
+                      </div>
+                    </div>
+                    <div style={{ color: 'rgba(226,232,240,0.62)', fontSize: 11, lineHeight: 1.55 }}>{entry.subtitle}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={panelStyle}>
             <div style={sectionHeadingStyle}>Resources</div>
             <div style={{ display: 'grid', gap: 8 }}>
               <BarRow label="Heat" value={state.heat} max={6} color={state.heat >= 4 ? '#ef4444' : '#f59e0b'} />
@@ -308,9 +437,10 @@ export default function LucidAvenue() {
                 <button onClick={scan} disabled={phase !== 'playing'} style={actionButtonStyle}>Scan</button>
                 <button onClick={wait} disabled={phase !== 'playing'} style={actionButtonStyle}>Wait</button>
               </div>
+              <button onClick={askAi} disabled={phase !== 'playing'} style={actionButtonStyle}>AI Hint</button>
               <div style={{ fontSize: 11, color: 'rgba(226,232,240,0.6)', textAlign: 'center' }}>
                 Shared GameRemote directions work in the dedicated play session.
-                Keyboard extras: Space / Enter interact, Q scan, E wait, R restart.
+                Keyboard extras: Space / Enter interact, Q scan, E wait, H AI hint, R restart.
               </div>
             </div>
           </div>
@@ -368,6 +498,7 @@ function renderCell({
   objectiveKeys,
   patrolPathKeys,
   phase,
+  size = MAP_CELL_SIZE,
 }: {
   tile: string;
   position: Position;
@@ -376,6 +507,7 @@ function renderCell({
   objectiveKeys: Set<string>;
   patrolPathKeys: Set<string>;
   phase: Phase;
+  size?: number;
 }) {
   const district = getLucidAvenueDistrict(state.districtId);
   const playerHere = isSamePosition(state.player, position);
@@ -386,54 +518,85 @@ function renderCell({
   const terminalHere = district.terminals.find((terminal) => isSamePosition(terminal.position, position));
   const exitHere = district.exits.find((entry) => isSamePosition(entry.position, position));
   const key = `${position.x},${position.y}`;
-  let playerLabel = '😎';
-
-  if (phase === 'win') playerLabel = '🤩';
-  if (phase === 'lose') playerLabel = '😵';
-
   const isWall = tile === '#';
-  let background = isWall
-    ? 'linear-gradient(180deg, rgba(15,23,42,0.98), rgba(2,6,23,0.96))'
-    : 'linear-gradient(180deg, rgba(30,41,59,0.92), rgba(15,23,42,0.86))';
-
-  if (!isWall && patrolPathKeys.has(key) && state.scanTurns > 0) {
-    background = 'linear-gradient(180deg, rgba(37,99,235,0.24), rgba(15,23,42,0.86))';
-  }
-  if (!isWall && objectiveKeys.has(key) && state.scanTurns > 0) {
-    background = 'linear-gradient(180deg, rgba(168,85,247,0.24), rgba(15,23,42,0.86))';
-  }
-  if (exitHere) {
-    background = 'linear-gradient(180deg, rgba(15,118,110,0.45), rgba(8,47,73,0.82))';
-  }
-
-  let label = '';
-  if (shardHere) label = '✨';
-  if (cacheHere) label = '📦';
-  if (npcHere) label = npcHere.emoji;
-  if (terminalHere) label = terminalHere.emoji;
-  if (exitHere) label = '⇢';
-  if (patrolHere) label = patrolHere.emoji;
-  if (playerHere) label = playerLabel;
+  const background = getTileBackground({
+    isWall,
+    districtColor: district.color,
+    scanPatrol: !isWall && patrolPathKeys.has(key) && state.scanTurns > 0,
+    scanObjective: !isWall && objectiveKeys.has(key) && state.scanTurns > 0,
+    isExit: Boolean(exitHere),
+  });
+  const spriteKind = playerHere
+    ? phase === 'win'
+      ? 'playerWin'
+      : phase === 'lose'
+        ? 'playerLose'
+        : 'player'
+    : patrolHere
+      ? 'patrol'
+      : shardHere
+        ? 'shard'
+        : cacheHere
+          ? 'cache'
+          : terminalHere
+            ? 'terminal'
+            : exitHere
+              ? 'exit'
+              : npcHere
+                ? 'npc'
+                : null;
 
   return (
     <div
       key={`${position.x}-${position.y}`}
       style={{
-        width: MAP_CELL_SIZE,
-        height: MAP_CELL_SIZE,
-        borderRadius: 10,
+        width: size,
+        height: size,
+        borderRadius: 6,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         background,
         border: isWall ? '1px solid rgba(71,85,105,0.28)' : '1px solid rgba(148,163,184,0.16)',
         color: '#f8fafc',
-        fontSize: 18,
-        boxShadow: !isWall ? 'inset 0 1px 0 rgba(255,255,255,0.05)' : 'none',
+        boxShadow: !isWall ? 'inset 0 1px 0 rgba(255,255,255,0.05)' : 'inset 0 1px 0 rgba(255,255,255,0.03)',
+        position: 'relative',
+        overflow: 'hidden',
       }}
       title={buildCellTitle({ playerHere, patrolHere, shardHere, cacheHere, npcHere, terminalHere, exitHere, district })}
     >
-      {label}
+      {!isWall && (
+        <>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              opacity: 0.14,
+              background: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.12) 0 1px, transparent 1px 4px)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: `${Math.max(10, Math.round(size * 0.24))}px`,
+              background: 'linear-gradient(180deg, rgba(2,6,23,0), rgba(2,6,23,0.22) 40%, rgba(2,6,23,0.34))',
+            }}
+          />
+        </>
+      )}
+      {spriteKind
+        ? (
+          <PixelSprite
+            kind={spriteKind}
+            frame={state.turn}
+            size={Math.max(18, Math.round(size * 0.72))}
+            accent={district.color}
+          />
+        )
+        : !isWall && <div style={pixelGroundDotStyle} />}
     </div>
   );
 }
@@ -465,6 +628,152 @@ function buildCellTitle({
   if (terminalHere) return terminalHere.name;
   if (exitHere) return exitHere.label;
   return district.name;
+}
+
+function buildTrainerCamRows(state: LucidAvenueState, district: ReturnType<typeof getLucidAvenueDistrict>) {
+  const rows: Array<Array<{ position: Position; tile: string }>> = [];
+
+  for (let y = state.player.y - VIEWPORT_RADIUS; y <= state.player.y + VIEWPORT_RADIUS; y += 1) {
+    const row: Array<{ position: Position; tile: string }> = [];
+    for (let x = state.player.x - VIEWPORT_RADIUS; x <= state.player.x + VIEWPORT_RADIUS; x += 1) {
+      row.push({
+        position: { x, y },
+        tile: district.map[y]?.[x] ?? '#',
+      });
+    }
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function getTileBackground({
+  isWall,
+  districtColor,
+  scanPatrol,
+  scanObjective,
+  isExit,
+}: {
+  isWall: boolean;
+  districtColor: string;
+  scanPatrol: boolean;
+  scanObjective: boolean;
+  isExit: boolean;
+}) {
+  if (isWall) {
+    return 'repeating-linear-gradient(0deg, rgba(15,23,42,0.98) 0 6px, rgba(30,41,59,0.98) 6px 12px), repeating-linear-gradient(90deg, rgba(51,65,85,0.5) 0 2px, transparent 2px 6px)';
+  }
+
+  if (isExit) {
+    return 'linear-gradient(180deg, rgba(20,83,45,0.78), rgba(8,47,73,0.86)), repeating-linear-gradient(90deg, rgba(255,255,255,0.12) 0 2px, transparent 2px 6px)';
+  }
+
+  if (scanObjective) {
+    return `linear-gradient(180deg, ${districtColor}44, rgba(15,23,42,0.82)), repeating-linear-gradient(90deg, rgba(255,255,255,0.12) 0 1px, transparent 1px 4px)`;
+  }
+
+  if (scanPatrol) {
+    return 'linear-gradient(180deg, rgba(37,99,235,0.34), rgba(15,23,42,0.84)), repeating-linear-gradient(90deg, rgba(255,255,255,0.12) 0 1px, transparent 1px 4px)';
+  }
+
+  return `linear-gradient(180deg, ${districtColor}20, rgba(15,23,42,0.86)), repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 4px)`;
+}
+
+type SpriteKind = 'player' | 'playerWin' | 'playerLose' | 'patrol' | 'shard' | 'cache' | 'terminal' | 'exit' | 'npc';
+type SpritePalette = Record<string, string>;
+
+const spritePalettes: Record<SpriteKind, SpritePalette> = {
+  player: { '.': 'transparent', k: '#0f172a', a: '#fde68a', b: '#38bdf8', s: '#f1c27d', w: '#f8fafc' },
+  playerWin: { '.': 'transparent', k: '#0f172a', a: '#86efac', b: '#67e8f9', s: '#f1c27d', w: '#f8fafc' },
+  playerLose: { '.': 'transparent', k: '#0f172a', a: '#fca5a5', b: '#94a3b8', s: '#f1c27d', w: '#f8fafc' },
+  patrol: { '.': 'transparent', k: '#0f172a', a: '#e2e8f0', b: '#ef4444', s: '#cbd5e1', w: '#f8fafc' },
+  shard: { '.': 'transparent', k: '#0f172a', a: '#c084fc', b: '#f8fafc', s: '#f5d0fe', w: '#f8fafc' },
+  cache: { '.': 'transparent', k: '#0f172a', a: '#f59e0b', b: '#92400e', s: '#fde68a', w: '#f8fafc' },
+  terminal: { '.': 'transparent', k: '#0f172a', a: '#22d3ee', b: '#0f766e', s: '#67e8f9', w: '#f8fafc' },
+  exit: { '.': 'transparent', k: '#0f172a', a: '#4ade80', b: '#14532d', s: '#bbf7d0', w: '#f8fafc' },
+  npc: { '.': 'transparent', k: '#0f172a', a: '#f472b6', b: '#7c3aed', s: '#f1c27d', w: '#f8fafc' },
+};
+
+const spriteFrames: Record<SpriteKind, string[][]> = {
+  player: [
+    ['..aa....', '.aasa...', '.abbaa..', '.abbaa..', '..bb....', '.b..b...', 'b....b..', '.w..w...'],
+    ['..aa....', '.aasa...', '.abbaa..', '.abbaa..', '..bb....', '...bb...', '..b..b..', '.w..w...'],
+  ],
+  playerWin: [
+    ['..aa....', '.aasa...', '.abbaa..', '.abbaa..', '.bbbb...', 'b....b..', '.b..b...', '..ww....'],
+  ],
+  playerLose: [
+    ['..aa....', '.aasa...', '..bbaa..', '.abbaa..', '..bb....', '.b..b...', '..ww....', '.w..w...'],
+  ],
+  patrol: [
+    ['........', '.kkkkkk.', '.kbbbbk.', '.kwwwwk.', '.kbbbbk.', '..k..k..', '.a....a.', '..a..a..'],
+    ['........', '.kkkkkk.', '.kbbbbk.', '.kwwwwk.', '.kbbbbk.', '..k..k..', '..a..a..', '.a....a.'],
+  ],
+  shard: [
+    ['....a...', '...aba..', '..ababa.', '.abbbbba', '..ababa.', '...aba..', '....a...', '........'],
+    ['........', '...aba..', '..ababa.', '.abbbbba', '..ababa.', '...aba..', '........', '........'],
+  ],
+  cache: [
+    ['........', '.kkkkkk.', '.kaaaak.', '.kassak.', '.kbbbbk.', '.kkkkkk.', '........', '........'],
+  ],
+  terminal: [
+    ['........', '.kkkkkk.', '.kssssk.', '.kabba.k', '.kbbbbk.', '..k..k..', '.a....a.', '........'],
+    ['........', '.kkkkkk.', '.kabssk.', '.kabba.k', '.kbbbbk.', '..k..k..', '.a....a.', '........'],
+  ],
+  exit: [
+    ['...a....', '..aaa...', '.aaaaa..', '...a....', '...a....', '...a....', '..bbb...', '.bbbb...'],
+  ],
+  npc: [
+    ['..aa....', '.aasa...', '.abbaa..', '.abbba..', '..bb....', '.b..b...', '.w..w...', '........'],
+    ['..aa....', '.aasa...', '.abbba..', '.abbaa..', '..bb....', '...bb...', '.w..w...', '........'],
+  ],
+};
+
+function PixelSprite({
+  kind,
+  frame,
+  size,
+  accent,
+}: {
+  kind: SpriteKind;
+  frame: number;
+  size: number;
+  accent?: string;
+}) {
+  const frames = spriteFrames[kind];
+  const activeFrame = frames[frame % frames.length];
+  const palette: SpritePalette = {
+    ...spritePalettes[kind],
+    ...(accent ? { b: accent } : {}),
+  };
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        width: size,
+        height: size,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(8, 1fr)',
+        gridTemplateRows: 'repeat(8, 1fr)',
+        imageRendering: 'pixelated',
+        filter: 'drop-shadow(0 1px 0 rgba(15,23,42,0.7))',
+        zIndex: 1,
+      }}
+    >
+      {activeFrame.flatMap((row, y) => (
+        row.split('').map((pixel, x) => (
+          <div
+            key={`${kind}-${frame}-${x}-${y}`}
+            style={{
+              background: palette[pixel] ?? 'transparent',
+              borderRadius: pixel === '.' ? 0 : 0.5,
+            }}
+          />
+        ))
+      ))}
+    </div>
+  );
 }
 
 function StatChip({ label, value, accent }: { label: string; value: string; accent: string }) {
@@ -520,6 +829,15 @@ const panelStyle: CSSProperties = {
   border: '1px solid rgba(148,163,184,0.14)',
   display: 'grid',
   gap: 10,
+};
+
+const retroInsetPanelStyle: CSSProperties = {
+  borderRadius: 12,
+  padding: 10,
+  background: 'rgba(2,6,23,0.42)',
+  border: '1px solid rgba(148,163,184,0.12)',
+  display: 'grid',
+  gap: 8,
 };
 
 const pillStyle: CSSProperties = {
@@ -601,4 +919,24 @@ const sectionHeadingStyle: CSSProperties = {
   fontWeight: 900,
   textTransform: 'uppercase',
   letterSpacing: '0.12em',
+};
+
+const routeIntelStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  gap: 10,
+  alignItems: 'center',
+  fontSize: 11,
+  borderRadius: 10,
+  padding: '8px 10px',
+  background: 'rgba(15,23,42,0.72)',
+  border: '1px solid rgba(148,163,184,0.12)',
+};
+
+const pixelGroundDotStyle: CSSProperties = {
+  width: 4,
+  height: 4,
+  borderRadius: 999,
+  background: 'rgba(226,232,240,0.24)',
+  zIndex: 1,
 };

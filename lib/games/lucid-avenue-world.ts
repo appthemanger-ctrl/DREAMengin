@@ -928,6 +928,46 @@ export function scanLucidAvenue(state: LucidAvenueState) {
   }, '📡 Scan pulse fired.'));
 }
 
+export function getLucidAvenueHint(state: LucidAvenueState) {
+  if (!state.flags.metRook) {
+    return 'AI route hint: move along Shoreline and talk to Rook before chasing deeper objectives.';
+  }
+  if (!state.flags.tramPass) {
+    return state.shards.length >= 2
+      ? 'AI route hint: return to Mika in the Arts District to unlock the tram pass.'
+      : 'AI route hint: recover two shards before asking Mika to open the transit line.';
+  }
+  if (!state.flags.junctionPowered) {
+    return 'AI route hint: reach the Midcity Junction Core and bring the relay back online.';
+  }
+  if (!state.flags.skylineKey) {
+    return state.shards.length >= 4
+      ? 'AI route hint: visit Sol in the Studio Lot for the skyline key.'
+      : 'AI route hint: recover four total shards so Sol will trust the route enough to trade the skyline key.';
+  }
+  if (!state.flags.relayAligned) {
+    return state.shards.length >= 5
+      ? 'AI route hint: align Vera’s Sky Array in Sunset Heights.'
+      : 'AI route hint: recover one more shard before trying to align the hill relay.';
+  }
+  if (state.shards.length < TOTAL_SHARDS) {
+    return 'AI route hint: the summit can wait — finish recovering every remaining shard first.';
+  }
+  if (state.districtId !== 'observatory') {
+    return 'AI route hint: your route is stable enough now. Climb to the observatory for the final sync.';
+  }
+  return 'AI route hint: interact with the Observatory Core to finish the run.';
+}
+
+export function requestLucidAvenueHint(state: LucidAvenueState) {
+  if (state.outcome !== 'playing') return state;
+  const hint = getLucidAvenueHint(state);
+  return appendLog({
+    ...state,
+    message: hint,
+  }, `🧠 ${hint}`);
+}
+
 export function interactInLucidAvenue(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
   const npc = findNearbyNpc(state);

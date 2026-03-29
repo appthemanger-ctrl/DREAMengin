@@ -3,9 +3,11 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   createInitialLucidAvenueState,
+  getLucidAvenueHint,
   getLucidAvenueMissionChecklist,
   interactInLucidAvenue,
   moveLucidAvenuePlayer,
+  requestLucidAvenueHint,
 } from '@/lib/games/lucid-avenue-world';
 
 const REPO_ROOT = process.cwd();
@@ -27,6 +29,9 @@ describe('Lucid Avenue game slice', () => {
     expect(src).toContain('original LA-inspired retro city quest');
     expect(src).toContain('not a copy of the archive’s copyrighted content');
     expect(src).toContain('six districts, deterministic patrol routes');
+    expect(src).toContain('classic handheld-style sprite animation');
+    expect(src).toContain('Trainer cam');
+    expect(src).toContain('AI Hint');
     expect(src).toContain('Shared GameRemote directions work in the dedicated play session.');
   });
 
@@ -85,5 +90,16 @@ describe('Lucid Avenue game slice', () => {
 
     expect(state.outcome).toBe('win');
     expect(state.message).toContain('Lucid Angeles lights back up');
+  });
+
+  it('provides AI route hints and can surface them into the game log', () => {
+    let state = createInitialLucidAvenueState();
+
+    expect(getLucidAvenueHint(state)).toContain('talk to Rook');
+
+    state = requestLucidAvenueHint(state);
+
+    expect(state.message).toContain('AI route hint');
+    expect(state.log[0]).toContain('AI route hint');
   });
 });
