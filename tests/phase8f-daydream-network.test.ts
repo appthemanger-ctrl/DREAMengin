@@ -310,12 +310,21 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
     expect(src).toContain('requestFullscreen');
     expect(src).toContain('DREAMENGIN');
     expect(src).toContain('boot sequence');
+    expect(src).toContain('Elite Game Engine');
   });
 
   it('GameEngin reads personal bests from game_scores', () => {
     const src = readSource('components/daydream/GameEngin.tsx');
     expect(src).toContain('game_scores');
     expect(src).toContain('score');
+  });
+
+  it('Neon Drift realizes the elite engine directly in the web app play surface', () => {
+    const src = readSource('components/games/NeonDrift.tsx');
+    expect(src).toContain('EliteGameEngine');
+    expect(src).toContain('elite.onFrame');
+    expect(src).toContain('qualityTier');
+    expect(src).toContain('elite engine');
   });
 
   it('GameEngin persists world builder and physics config', () => {

@@ -79,13 +79,13 @@ export default function ImmersiveGameShell() {
               DREAMENGIN
             </div>
             <div style={{ marginTop: 4, fontSize: 11, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#7dd3fc' }}>
-              Powered by DREAMengin
+              Powered by DREAMengin Elite Game Engine
             </div>
             <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.7, color: 'rgba(226,232,240,0.76)' }}>
               Starting your game session like a console boot: dark room, system wake-up, then straight into the title screen.
             </div>
             <div style={{ marginTop: 8, fontSize: 11, lineHeight: 1.7, color: 'rgba(226,232,240,0.56)', letterSpacing: '0.04em' }}>
-              Engine shelf → console handoff → remote docked → fullscreen boot.
+              Engine shelf → console handoff → remote docked → fullscreen boot → elite runtime in the web app.
             </div>
 
             <div style={{ marginTop: 22, display: 'grid', gap: 10 }}>

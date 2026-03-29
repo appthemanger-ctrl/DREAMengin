@@ -19,6 +19,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
 import * as BABYLON from '@babylonjs/core';
 import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager';
+import { EliteGameEngine } from '@/lib/gameengin';
 import { AIDirector } from '@/lib/gameengin/ai-director';
 import { PostFXManager } from '@/lib/gameengin/post-fx';
 
@@ -67,11 +68,13 @@ export default function NeonDrift() {
   const [renderInfo, setRenderInfo] = useState('');
   const [status, setStatus] = useState('Ready to race');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef<BABYLON.WebGPUEngine | BABYLON.Engine | null>(null);
+  const eliteEngineRef = useRef<EliteGameEngine | null>(null);
+  const engineRef = useRef<BABYLON.AbstractEngine | null>(null);
   const sceneRef = useRef<BABYLON.Scene | null>(null);
   const dualSenseRef = useRef<DualSenseManager | null>(null);
   const postFxRef = useRef<PostFXManager | null>(null);
   const directorRef = useRef<AIDirector>(new AIDirector());
+  const telemetryEntityRef = useRef<number | null>(null);
   const scoreRef = useRef(0);
   const speedRef = useRef(0);
   const distanceRef = useRef(0);
@@ -131,12 +134,14 @@ export default function NeonDrift() {
   useEffect(() => {
     if (!canvasRef.current || phase !== 'playing') return;
 
-    let engine: BABYLON.WebGPUEngine | BABYLON.Engine | null = null;
+    let elite: EliteGameEngine | null = null;
+    let engine: BABYLON.AbstractEngine | null = null;
     let scene: BABYLON.Scene | null = null;
     let dualSense: DualSenseManager | null = null;
     let postFx: PostFXManager | null = null;
     let car: BABYLON.Mesh | null = null;
     let trailPS: BABYLON.ParticleSystem | null = null;
+    let renderObserver: BABYLON.Observer<BABYLON.Scene> | null = null;
     const obstacles: ObstacleState[] = [];
     const boostGates: BoostGateState[] = [];
     const trackTiles: BABYLON.Mesh[] = [];
@@ -150,31 +155,18 @@ export default function NeonDrift() {
 
       // ── Engine (WebGPU-first) ──────────────────────────────────────────────
       try {
-        const { WebGPUEngine, Engine } = await import('@babylonjs/core/Engines');
-
-        let webGPUSupported = false;
-        try { webGPUSupported = await WebGPUEngine.IsSupportedAsync; } catch { /* */ }
-
-        if (webGPUSupported) {
-          engine = new WebGPUEngine(canvasRef.current, {
-            powerPreference: 'high-performance',
-            antialias: true,
-          });
-          await (engine as BABYLON.WebGPUEngine).initAsync();
-          setRenderInfo('WebGPU');
-        } else {
-          engine = new Engine(canvasRef.current, true, {
-            preserveDrawingBuffer: true,
-            stencil: true,
-            adaptToDeviceRatio: true,
-          });
-          setRenderInfo('WebGL2');
+        elite = new EliteGameEngine(canvasRef.current);
+        await elite.init();
+        eliteEngineRef.current = elite;
+        engine = elite.babylonEngine;
+        scene = elite.babylonScene;
+        if (!engine || !scene) {
+          throw new Error('Elite Game Engine failed to create Babylon scene');
         }
-
         engineRef.current = engine;
-        scene = new BABYLON.Scene(engine);
         sceneRef.current = scene;
         scene.clearColor = new BABYLON.Color4(0.01, 0.01, 0.05, 1);
+        setRenderInfo(elite.isUsingWebGPU ? 'WebGPU · elite engine' : 'WebGL2 · elite engine');
 
         // ── Camera ───────────────────────────────────────────────────────────
         const camera = new BABYLON.ArcRotateCamera('cam', -Math.PI / 2, Math.PI / 3.5, 28,
@@ -336,6 +328,7 @@ export default function NeonDrift() {
           postFxRef.current = postFx;
           await postFx.init();
           await postFx.enableGlow(0.6, 32);
+          postFx.applyBudget(elite.budget);
         } catch { /* post-fx optional */ }
 
         // ── AI Director ───────────────────────────────────────────────────────
@@ -346,10 +339,31 @@ export default function NeonDrift() {
         dualSenseRef.current = dualSense;
         await dualSense.init();
 
-        setStatus(engine instanceof BABYLON.Engine ? 'WebGL2' : 'WebGPU');
+        setStatus(elite.isUsingWebGPU ? 'Elite WebGPU runtime active' : 'Elite compatibility runtime active');
+
+        const telemetryEntity = elite.world.createEntity();
+        telemetryEntityRef.current = telemetryEntity;
+        elite.world.addComponent(telemetryEntity, {
+          type: 'transform',
+          x: carXRef.current,
+          y: 0,
+          z: distanceRef.current,
+        });
+
+        let lastTelemetryHud = 0;
+        elite.onFrame((_dt, telemetry) => {
+          if (performance.now() - lastTelemetryHud < 250) return;
+          lastTelemetryHud = performance.now();
+          setRenderInfo(
+            `${telemetry.isWebGPU ? 'WebGPU' : 'WebGL2'} · ${telemetry.avgFps}fps · ${telemetry.qualityTier} tier`
+          );
+        });
+        elite.onQualityChange((budget) => {
+          postFx?.applyBudget(budget);
+        });
 
         // ── Game loop ─────────────────────────────────────────────────────────
-        scene.onBeforeRenderObservable.add(() => {
+        renderObserver = scene.onBeforeRenderObservable.add(() => {
           if (phaseRef.current !== 'playing' || !car || !engine) return;
           frameTick++;
 
@@ -527,9 +541,17 @@ export default function NeonDrift() {
           // ── Car lean during lane change ───────────────────────────────────
           const leanTarget = (targetX - carXRef.current) * 0.15;
           car.rotation.z = car.rotation.z + (leanTarget - car.rotation.z) * 0.15;
-        });
 
-        engine.runRenderLoop(() => scene?.render());
+          if (telemetryEntityRef.current === null) return;
+          const transform = elite?.world.getComponent<{ type: string; x: number; y: number; z: number }>(
+            telemetryEntityRef.current,
+            'transform',
+          );
+          if (transform) {
+            transform.x = carXRef.current;
+            transform.z = distanceRef.current;
+          }
+        });
 
         const resizeObserver = new ResizeObserver(() => engine?.resize());
         resizeObserver.observe(canvasRef.current!.parentElement ?? document.body);
@@ -544,11 +566,15 @@ export default function NeonDrift() {
     init();
 
     return () => {
+      if (renderObserver && scene) {
+        scene.onBeforeRenderObservable.remove(renderObserver);
+      }
       dualSense?.dispose();
       postFx?.dispose();
       postFxRef.current = null;
-      scene?.dispose();
-      engine?.dispose();
+      elite?.dispose();
+      eliteEngineRef.current = null;
+      telemetryEntityRef.current = null;
       engineRef.current = null;
       sceneRef.current = null;
     };
