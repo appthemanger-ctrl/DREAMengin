@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-28 19:10 UTC  
-**Triggered by commit:** `bbdd3b6` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #336 from appthemanger-ctrl/copilot/fix-remote-control-issue
+**Last updated:** 2026-03-29 05:26 UTC  
+**Triggered by commit:** `de2f48a` on `copilot/upgrade-gaming-engine-fullscreen` by Copilot  
+**Commit message:** feat: broaden GameEngin upgrade beyond fullscreen
 
 ---
 
