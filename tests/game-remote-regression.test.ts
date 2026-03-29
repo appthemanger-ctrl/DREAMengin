@@ -28,8 +28,8 @@ describe('existing PS5 remote usage', () => {
     expect(src).toContain('const RIGHT_PAD_R   = 62');
     expect(src).toContain('const LEFT_PAD_R    = 52');
     expect(src).toContain('RIGHT_STICK_RING_BUTTONS');
-    expect(src).toContain("{ sym: 'L1', label: 'Jump+Spin'");
-    expect(src).toContain("{ sym: 'R2', label: 'Jump+Shot'");
+    expect(src).toContain("{ sym: 'L1', label: 'J+Spin'");
+    expect(src).toContain("{ sym: 'R2', label: 'J+Shot'");
     expect(src).toContain("{ sym: '△', label: 'Duck'");
     expect(src).toContain('REMOTE_ACTION_PILLS');
     expect(src).toContain("{ sym: 'R1', label: 'Dash'");
