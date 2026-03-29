@@ -342,6 +342,30 @@ export default function ContentEngin({ onBack }: Props) {
   const [hashtags, setHashtags]           = useState<string[]>([]);
   const [hashtagLoading, setHashtagLoading] = useState(false);
 
+  // ── Viral Hook copy feedback ──────────────────────────────────────────────────
+  const [copiedHook, setCopiedHook] = useState<number | null>(null);
+  function copyHook(text: string, idx: number) {
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setCopiedHook(idx);
+    setTimeout(() => setCopiedHook(null), 1400);
+  }
+
+  // ── SEO Title Scorer (live input) ─────────────────────────────────────────────
+  const [seoInput, setSeoInput] = useState('');
+  function scoreSEO(title: string): number {
+    let score = 40;
+    if (title.length > 30 && title.length < 70) score += 20;
+    if (/\[|\d/.test(title)) score += 10;
+    if (/how|what|why|best|guide|tips|secret|ultimate|step/i.test(title)) score += 15;
+    if (title.includes('(') || title.includes(':')) score += 5;
+    if (/you|your/i.test(title)) score += 10;
+    return Math.min(100, score);
+  }
+  const seoScore = seoInput.trim().length > 3 ? scoreSEO(seoInput) : null;
+
+  // ── Multi-Platform Scheduler countdown ───────────────────────────────────────
+  const [schedulerNow] = useState(() => new Date());
+
   // ── Daydream Persistence (Phase 8 §F, pts 49-56) ─────────────────────────────
   // Saves and restores the ContentEngin workspace state across sessions.
   type ContentSavedState = {
@@ -1177,7 +1201,7 @@ export default function ContentEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-              Attention-grabbing opening lines proven to stop the scroll.
+              Attention-grabbing opening lines. Tap 📋 to copy instantly.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {[
@@ -1187,10 +1211,12 @@ export default function ContentEngin({ onBack }: Props) {
                 'Here\'s what I wish someone told me when I started:',
                 'POV: You just discovered the creator tool you\'ve been looking for.',
               ].map((hook, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 9, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 9, background: copiedHook === i ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.06)', border: `1px solid ${copiedHook === i ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.15)'}`, transition: 'background 0.2s, border 0.2s' }}>
                   <span style={{ fontSize: 11, flex: 1, color: 'var(--de-heading)', lineHeight: 1.4 }}>{hook}</span>
-                  <button type="button" onClick={() => navigator.clipboard?.writeText(hook).catch(() => {})}
-                    style={{ fontSize: 10, color: 'var(--de-text-dim)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>📋</button>
+                  <button type="button" onClick={() => copyHook(hook, i)}
+                    style={{ fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, opacity: copiedHook === i ? 1 : 0.6 }}>
+                    {copiedHook === i ? '✅' : '📋'}
+                  </button>
                 </div>
               ))}
             </div>
@@ -1223,26 +1249,41 @@ export default function ContentEngin({ onBack }: Props) {
           </div>
         </div>
 
-        {/* ── Feature 15: SEO Title Optimizer ── */}
+        {/* ── Feature 15: SEO Title Optimizer (live scoring) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
             <span className="de-widget-title ml-1">SEO Title Optimizer</span>
+            {seoScore !== null && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: seoScore >= 80 ? '#22c55e' : seoScore >= 60 ? ACCENT : '#ef4444', background: seoScore >= 80 ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)', padding: '2px 7px', borderRadius: 5 }}>
+                {seoScore}pts
+              </span>
+            )}
           </div>
           <div className="de-widget-body">
-            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-              Search-friendly headlines that rank and click through.
-            </p>
+            <input
+              type="text"
+              value={seoInput}
+              onChange={e => setSeoInput(e.target.value)}
+              placeholder="Type your title to score it…"
+              style={{ width: '100%', padding: '8px 10px', borderRadius: 9, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', marginBottom: 10, outline: 'none', boxSizing: 'border-box' }}
+            />
+            {seoScore !== null && seoInput.trim() && (
+              <div style={{ height: 6, borderRadius: 4, background: 'rgba(0,0,0,0.06)', marginBottom: 10 }}>
+                <div style={{ height: '100%', borderRadius: 4, width: `${seoScore}%`, background: seoScore >= 80 ? '#22c55e' : seoScore >= 60 ? ACCENT : '#ef4444', transition: 'width 0.4s ease' }} />
+              </div>
+            )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {[
-                { title: 'How I Built [X] in [Time] (Step-by-Step Guide)', score: 92, color: '#22c55e' },
-                { title: '[Number] Things I Learned from [Experience]',    score: 88, color: '#22c55e' },
-                { title: 'The Ultimate Guide to [Topic] for [Audience]',   score: 85, color: '#f59e0b' },
-                { title: 'Why [Common Belief] Is Wrong (And What to Do)',  score: 78, color: '#f59e0b' },
+                { title: 'How I Built [X] in [Time] (Step-by-Step)', score: 92 },
+                { title: '[Number] Things I Learned from [Experience]', score: 88 },
+                { title: 'The Ultimate Guide to [Topic] for [Audience]', score: 85 },
               ].map(t => (
                 <div key={t.title} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15` }}>
                   <span style={{ flex: 1, fontSize: 11, color: 'var(--de-heading)' }}>{t.title}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: t.color, flexShrink: 0 }}>{t.score}pts</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', flexShrink: 0 }}>{t.score}pts</span>
+                  <button type="button" onClick={() => { setSeoInput(t.title); }}
+                    style={{ fontSize: 10, color: ACCENT, background: 'none', border: 'none', cursor: 'pointer' }}>Use</button>
                 </div>
               ))}
             </div>
@@ -1374,7 +1415,7 @@ export default function ContentEngin({ onBack }: Props) {
             <span style={{ fontSize: 16 }}>🎮</span>
             <span className="de-widget-title ml-2">Cinematic Intro Templates</span>
             <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
-              EliteEngine
+              FREE
             </span>
           </div>
           <div className="de-widget-body">

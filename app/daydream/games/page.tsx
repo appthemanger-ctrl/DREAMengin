@@ -459,7 +459,7 @@ export default async function GamesDaydreamPage() {
                 <div className="de-widget-header">
                   <span style={{ fontSize: 16 }}>🤖</span>
                   <span className="de-widget-title ml-2">AI Director</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>EliteEngine</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>FREE</span>
                 </div>
                 <div className="de-widget-body">
                   <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 10 }}>
@@ -522,7 +522,7 @@ export default async function GamesDaydreamPage() {
                 <div className="de-widget-header">
                   <Zap className="w-4 h-4 mr-1" style={{ color: '#c8981a' }} />
                   <span className="de-widget-title">World Builder</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>EliteEngine</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>FREE</span>
                 </div>
                 <div className="de-widget-body">
                   <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 10 }}>
@@ -539,7 +539,7 @@ export default async function GamesDaydreamPage() {
                 <div className="de-widget-header">
                   <span style={{ fontSize: 16 }}>🎮</span>
                   <span className="de-widget-title ml-2">Elite WebGPU Games</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>EliteEngine</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>FREE</span>
                 </div>
                 <div className="de-widget-body">
                   <div style={{ display: 'flex', gap: 10 }}>

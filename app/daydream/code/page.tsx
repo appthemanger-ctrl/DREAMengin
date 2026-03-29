@@ -420,7 +420,7 @@ export default async function CodeDaydreamPage() {
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🎮 Game Engine Integration</span>
-              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>EliteEngine</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>FREE</span>
             </div>
             <div className="de-widget-body">
               <div style={{ padding: '10px 12px', borderRadius: 10, background: '#1a1a2e', fontFamily: 'monospace', fontSize: 11, color: '#c084fc', lineHeight: 1.8 }}>

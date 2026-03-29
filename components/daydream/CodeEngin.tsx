@@ -3386,7 +3386,7 @@ export default function CodeEngin({ onBack }: Props) {
             <span style={{ fontSize: 16 }}>🎮</span>
             <span className="de-widget-title ml-2">Game Engine Code Integration</span>
             <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
-              EliteEngine
+              FREE
             </span>
           </div>
           <div className="de-widget-body">

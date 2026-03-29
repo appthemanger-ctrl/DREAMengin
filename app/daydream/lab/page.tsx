@@ -145,7 +145,7 @@ export default async function LabDaydreamPage() {
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">⚡ WebGPU Compute</span>
-              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>EliteEngine</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>FREE</span>
             </div>
             <div className="de-widget-body">
               <div className="grid grid-cols-3 gap-2">

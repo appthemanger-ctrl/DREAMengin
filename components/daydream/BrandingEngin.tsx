@@ -186,6 +186,26 @@ export default function BrandingEngin({ onBack }: Props) {
   const [newAssetName, setNewAssetName]   = useState('');
   const [newAssetValue, setNewAssetValue] = useState('');
 
+  // ── Color Palette Generator (regeneratable) ───────────────────────────────────
+  const PALETTE_PRESETS = [
+    ['#ec4899','#f9a8d4','#c026d3','#fbbf24','#1e1b4b','#f0fdf4'],
+    ['#2a8ab8','#bae6fd','#0284c7','#f59e0b','#0f172a','#f8fafc'],
+    ['#22c55e','#bbf7d0','#15803d','#facc15','#052e16','#fffde7'],
+    ['#8b5cf6','#ede9fe','#6d28d9','#fb923c','#1e1b4b','#fff7ed'],
+    ['#ef4444','#fecaca','#b91c1c','#fbbf24','#1c1917','#fffbeb'],
+  ];
+  const [paletteIdx, setPaletteIdx] = useState(0);
+  const currentPalette = PALETTE_PRESETS[paletteIdx % PALETTE_PRESETS.length];
+  const [copiedColor, setCopiedColor] = useState<string | null>(null);
+  function copyColor(c: string) {
+    navigator.clipboard?.writeText(c).catch(() => {});
+    setCopiedColor(c);
+    setTimeout(() => setCopiedColor(null), 1200);
+  }
+
+  // ── Game Engine Visual Preset active selection ────────────────────────────────
+  const [activePreset, setActivePreset] = useState('Brand Pink');
+
   // ── Load brand_kit_items from DB on mount ─────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
@@ -883,19 +903,23 @@ export default function BrandingEngin({ onBack }: Props) {
             <span className="de-widget-title">Color Palette Generator</span>
           </div>
           <div className="de-widget-body">
-            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-              Your brand accent color generates a cohesive palette automatically.
-            </p>
             <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-              {['#ec4899','#f9a8d4','#c026d3','#fbbf24','#1e1b4b','#f0fdf4'].map(c => (
-                <div key={c} title={c} style={{ flex: 1, height: 36, borderRadius: 8, background: c, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.4)', transition: 'transform 0.1s' }}
-                  onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.9)'; }}
+              {currentPalette.map(c => (
+                <div key={c} title={copiedColor === c ? 'Copied!' : c}
+                  style={{ flex: 1, height: 36, borderRadius: 8, background: c, cursor: 'pointer', border: copiedColor === c ? '2px solid #22c55e' : '2px solid rgba(255,255,255,0.4)', transition: 'transform 0.1s, border 0.2s', transform: copiedColor === c ? 'scale(0.9)' : 'scale(1)' }}
+                  onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.88)'; }}
                   onPointerUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-                  onClick={() => { navigator.clipboard?.writeText(c).catch(() => {}); }}
+                  onClick={() => copyColor(c)}
                 />
               ))}
             </div>
-            <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Tap a swatch to copy the hex code.</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{copiedColor ? `Copied ${copiedColor}` : 'Tap swatch to copy hex.'}</span>
+              <button type="button" onClick={() => setPaletteIdx(i => i + 1)}
+                style={{ fontSize: 10, fontWeight: 700, color: ACCENT, background: `${ACCENT}12`, border: `1px solid ${ACCENT}25`, borderRadius: 6, padding: '4px 10px', cursor: 'pointer' }}>
+                ↻ New Palette
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1041,32 +1065,31 @@ export default function BrandingEngin({ onBack }: Props) {
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🎮</span>
             <span className="de-widget-title ml-2">Game Engine Visual Presets</span>
-            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
-              EliteEngine
-            </span>
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-              Apply your brand color palette to the Game Engine visual theme — affects post-processing, bloom, and HUD colors across all games.
+              Apply your brand palette to Game Engine post-processing, bloom, and HUD colors across all games.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {[
-                { name: 'Brand Pink', accent: '#ec4899', active: true },
-                { name: 'Neon Gold',  accent: '#c8981a', active: false },
-                { name: 'Dream Blue', accent: '#2a8ab8', active: false },
-              ].map(preset => (
-                <button key={preset.name} type="button"
-                  style={{ padding: '10px 8px', borderRadius: 10, background: `${preset.accent}14`, border: `2px solid ${preset.accent}${preset.active ? '80' : '25'}`, cursor: 'pointer', textAlign: 'center' }}
-                  onClick={() => {
-                    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
-                      'brand', 'brand:game-theme', { accent: preset.accent },
-                    );
-                  }}>
-                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: preset.accent, margin: '0 auto 5px' }} />
-                  <div style={{ fontSize: 10, fontWeight: 700, color: preset.accent }}>{preset.name}</div>
-                  {preset.active && <div style={{ fontSize: 9, color: '#22c55e', marginTop: 2 }}>● Active</div>}
-                </button>
-              ))}
+                { name: 'Brand Pink', accent: '#ec4899' },
+                { name: 'Neon Gold',  accent: '#c8981a' },
+                { name: 'Dream Blue', accent: '#2a8ab8' },
+              ].map(preset => {
+                const active = activePreset === preset.name;
+                return (
+                  <button key={preset.name} type="button"
+                    style={{ padding: '10px 8px', borderRadius: 10, background: `${preset.accent}14`, border: `2px solid ${preset.accent}${active ? '90' : '25'}`, cursor: 'pointer', textAlign: 'center', transition: 'border 0.2s' }}
+                    onClick={() => {
+                      setActivePreset(preset.name);
+                      (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('brand', 'brand:game-theme', { accent: preset.accent });
+                    }}>
+                    <div style={{ width: 24, height: 24, borderRadius: '50%', background: preset.accent, margin: '0 auto 5px', boxShadow: active ? `0 0 8px ${preset.accent}` : 'none', transition: 'box-shadow 0.2s' }} />
+                    <div style={{ fontSize: 10, fontWeight: 700, color: preset.accent }}>{preset.name}</div>
+                    {active && <div style={{ fontSize: 9, color: '#22c55e', marginTop: 2 }}>● Active</div>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
