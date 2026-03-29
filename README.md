@@ -8,22 +8,22 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
-| `f6345cf` | 2026-03-29 06:51 UTC | claude/add-game-engine-component | Claude | +2 −3 ~2 | Integrate WebGPU games properly (remove demo, add to platform) |
-| `b615474` | 2026-03-29 06:44 UTC | claude/add-game-engine-component | appthemanger-ctrl | — | Merge branch 'completedream' into claude/add-game-engine-component |
-| `fa48359` | 2026-03-29 05:38 UTC | claude/add-game-engine-component | Claude | +1 ~3 | Fix linting issues and add comprehensive documentation |
-| `540aaf3` | 2026-03-29 05:31 UTC | claude/add-game-engine-component | Claude | +4 ~1 | Add GameEngin component with WebGPU and DualSense support |
-| `e9245a6` | 2026-03-29 05:33 UTC | completedream | appthemanger-ctrl | — | Merge pull request #342 from appthemanger-ctrl/claude/analyze-repo-state |
-| `4d3ca81` | 2026-03-29 05:33 UTC | claude/analyze-repo-state | appthemanger-ctrl | — | Merge branch 'completedream' into claude/analyze-repo-state |
-| `5785eac` | 2026-03-29 05:25 UTC | claude/analyze-repo-state | Claude | +4 ~2 | feat: Add comprehensive repository state analyzer system |
-| `c762599` | 2026-03-29 05:30 UTC | completedream | appthemanger-ctrl | — | Merge pull request #341 from appthemanger-ctrl/copilot/upgrade-gaming-engine-fullscreen |
-| `de2f48a` | 2026-03-29 05:26 UTC | copilot/upgrade-gaming-engine-fullscreen | Copilot | ~4 | feat: broaden GameEngin upgrade beyond fullscreen |
-| `e0c2deb` | 2026-03-29 04:49 UTC | copilot/upgrade-gaming-engine-fullscreen | Copilot | ~3 | feat: fullscreen game launch + DREAMengin powered by splash screen |
+| `6d941f6` | 2026-03-29 06:48 UTC | completedream | appthemanger-ctrl | — | Merge pull request #340 from appthemanger-ctrl/copilot/add-ai-agent-for-game-building |
+| `67740cb` | 2026-03-29 06:48 UTC | copilot/add-ai-agent-for-game-building | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/add-ai-agent-for-game-building |
+| `a604cd3` | 2026-03-29 05:45 UTC | copilot/add-ai-agent-for-game-building | Copilot | +3 ~10 | feat: require advanced game upgrades in github coding agent |
+| `d730e21` | 2026-03-29 05:23 UTC | copilot/add-ai-agent-for-game-building | Copilot | +4 −2 ~2 | feat: add report-driven GitHub coding agent workflow |
+| `58655cf` | 2026-03-29 04:50 UTC | copilot/add-ai-agent-for-game-building | Copilot | ~2 | fix: address code review — audit payload source tag + animation name |
+| `e86d9d8` | 2026-03-29 04:47 UTC | copilot/add-ai-agent-for-game-building | Copilot | +2 ~1 | feat: add Game Builder AI agent for GameEngin |
+| `d9956c3` | 2026-03-28 19:38 UTC | completedream | appthemanger-ctrl | — | Merge pull request #337 from appthemanger-ctrl/copilot/replace-foundation-with-linux-software |
+| `f7c366c` | 2026-03-28 19:37 UTC | copilot/replace-foundation-with-linux-software | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/replace-foundation-with-linux-software |
+| `bbdd3b6` | 2026-03-28 19:10 UTC | completedream | appthemanger-ctrl | — | Merge pull request #336 from appthemanger-ctrl/copilot/fix-remote-control-issue |
+| `9356f90` | 2026-03-28 18:37 UTC | copilot/fix-remote-control-issue | Copilot | ~2 | chore: clean up remote review feedback |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-29 06:51 UTC — `f6345cf` by Claude
+Last updated: 2026-03-29 06:48 UTC — `6d941f6` by appthemanger-ctrl
 Last updated: 2026-03-29 05:33 UTC — `e9245a6` by appthemanger-ctrl
 Last updated: 2026-03-29 05:30 UTC — `c762599` by appthemanger-ctrl
 Last updated: 2026-03-29 04:38 UTC — `c1b0d6b` by appthemanger-ctrl
