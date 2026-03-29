@@ -1,10 +1,14 @@
-// Canonical Side B (LabEngin) entry point for the Lab Daydream (spec §6).
-// Redirects to /daydream/lab?openEngin=1 so DaydreamShell auto-flips to Side B.
+import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import StandaloneEnginSurface from '@/components/daydream/StandaloneEnginSurface';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'LabEngin – DREAMengin', description: 'Lab Daydream control layer.' };
 
-export default function LabEnginPage() {
-  redirect('/daydream/lab?openEngin=1');
+export default async function LabEnginPage() {
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  return <StandaloneEnginSurface engin="LabEngin" backHref="/daydream/lab" />;
 }

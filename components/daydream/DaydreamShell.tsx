@@ -82,8 +82,8 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
     return () => window.removeEventListener('de:open-side-b', openSideB);
   }, [flip, side]);
 
-  // Auto-open Side B (Engin) when navigating via the /engin canonical route (spec §6).
-  // Triggered by ?openEngin=1 query param set by each /daydream/*/engin redirect page.
+  // Auto-open Side B (Engin) when ?openEngin=1 is present.
+  // This remains as a legacy deep-link path for explicit Side B entry points.
   useEffect(() => {
     if (searchParams.get('openEngin') === '1' && side === 'A') {
       const timer = window.setTimeout(() => flip(), 80);

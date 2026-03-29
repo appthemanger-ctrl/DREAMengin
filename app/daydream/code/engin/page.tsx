@@ -1,10 +1,14 @@
-// Canonical Side B (CodeEngin) entry point for the Code Daydream (spec §6).
-// Redirects to /daydream/code?openEngin=1 so DaydreamShell auto-flips to Side B.
+import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import StandaloneEnginSurface from '@/components/daydream/StandaloneEnginSurface';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'CodeEngin – DREAMengin', description: 'Code Daydream control layer.' };
 
-export default function CodeEnginPage() {
-  redirect('/daydream/code?openEngin=1');
+export default async function CodeEnginPage() {
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  return <StandaloneEnginSurface engin="CodeEngin" backHref="/daydream/code" />;
 }
