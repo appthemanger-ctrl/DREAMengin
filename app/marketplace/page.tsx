@@ -1,9 +1,10 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ShoppingBag, PlusCircle } from 'lucide-react';
+import { ShoppingBag, PlusCircle } from 'lucide-react';
 import MarketplaceListingCard from '@/components/marketplace/MarketplaceListingCard';
 import DreamWord from '@/components/ui/DreamWord';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'DreamMarketplace – Dreamengin', description: 'Discover themes, widgets, and tools from the community.' };
@@ -41,24 +42,25 @@ export default async function MarketplacePage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(245,243,238,0.92)', borderBottom: '1px solid rgba(200,165,80,0.18)' }}>
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(200,152,26,0.10)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </Link>
-          <ShoppingBag className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
-          <h1 className="text-lg font-bold"><DreamWord />Marketplace</h1>
-          <Link href="/shop/sell" className="ml-auto de-btn de-btn-primary text-xs" style={{ padding: '6px 12px', gap: 5 }}>
+      <AuthenticatedPageHeader
+        backHref="/homedream"
+        title="DreamMarketplace"
+        subtitle="Themes, widgets, sounds, and creator tools curated into a premium storefront."
+        icon={<ShoppingBag className="w-4 h-4" />}
+        accentColor="var(--de-gold)"
+        badge="Storefront"
+      />
+
+      <div className="de-auth-content space-y-4">
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Link href="/shop/sell" className="de-btn de-btn-primary text-xs" style={{ padding: '8px 12px', gap: 5 }}>
             <PlusCircle className="w-3 h-3" /> Sell
           </Link>
         </div>
-      </header>
-
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
         {/* Hero */}
-        <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.1), rgba(200,152,26,0.08))', borderColor: 'rgba(42,138,184,0.2)' }}>
-          <div className="de-widget-body text-center py-5">
+        <div className="de-auth-hero">
+          <div className="text-center py-3" style={{ position: 'relative', zIndex: 1 }}>
             <div style={{ fontSize: 38, marginBottom: 8 }}>∞</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}><DreamWord />Marketplace</div>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 16px' }}>

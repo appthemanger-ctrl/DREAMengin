@@ -1,8 +1,9 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, LayoutGrid, Pin, Eye, EyeOff, Plus } from 'lucide-react';
+import { LayoutGrid, Pin, Eye, EyeOff, Plus } from 'lucide-react';
 import DreamWord from '@/components/ui/DreamWord';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Dreams – DREAMengin Settings' };
@@ -14,17 +15,16 @@ export default async function WidgetsSettingsPage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(245,243,238,0.92)', borderBottom: '1px solid rgba(200,165,80,0.18)' }}>
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(200,152,26,0.10)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </Link>
-          <LayoutGrid className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
-          <h1 className="text-lg font-bold"><DreamWord />s</h1>
-        </div>
-      </header>
+      <AuthenticatedPageHeader
+        backHref="/settings"
+        title="Dreams"
+        subtitle="Decide what stays pinned, visible, and launch-ready on HomeDream."
+        icon={<LayoutGrid className="w-4 h-4" />}
+        accentColor="var(--de-gold)"
+        badge="Settings"
+      />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+      <div className="de-auth-content space-y-4">
 
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Home<DreamWord /> Dreams</span></div>
