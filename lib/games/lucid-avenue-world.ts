@@ -115,7 +115,6 @@ export interface LucidAvenueState {
 
 export const LUCID_AVENUE_TOTAL_SHARDS = 8;
 export const LUCID_AVENUE_TOTAL_FLAGS = 7;
-const TOTAL_SHARDS = LUCID_AVENUE_TOTAL_SHARDS;
 const MAX_HEAT = 6;
 const MAX_LOG_ENTRIES = 6;
 export const LUCID_AVENUE_6900_TARGET = 6900;
@@ -743,9 +742,9 @@ export function getLucidAvenueMissionChecklist(state: LucidAvenueState) {
     state.flags.skylineKey ? '✅ Skyline key recovered from Sol.' : '⬜ Convince Sol to hand over the skyline key.',
     state.flags.civicSeal ? '✅ Civic seal cleared by Noa.' : '⬜ Secure Noa’s civic seal in Civic Center.',
     state.flags.relayAligned ? '✅ Sunset relay aligned.' : '⬜ Sync Vera’s sky array in Sunset Heights.',
-    state.shards.length >= TOTAL_SHARDS
-      ? `✅ All ${TOTAL_SHARDS} signal shards recovered.`
-      : `⬜ Recover all signal shards (${state.shards.length}/${TOTAL_SHARDS}).`,
+    state.shards.length >= LUCID_AVENUE_TOTAL_SHARDS
+      ? `✅ All ${LUCID_AVENUE_TOTAL_SHARDS} signal shards recovered.`
+      : `⬜ Recover all signal shards (${state.shards.length}/${LUCID_AVENUE_TOTAL_SHARDS}).`,
   ];
 
   if (state.outcome === 'win') {
@@ -756,7 +755,7 @@ export function getLucidAvenueMissionChecklist(state: LucidAvenueState) {
     && state.flags.skylineKey
     && state.flags.civicSeal
     && state.flags.relayAligned
-    && state.shards.length >= TOTAL_SHARDS
+    && state.shards.length >= LUCID_AVENUE_TOTAL_SHARDS
   ) {
     checklist.push('⬜ Reach the observatory and trigger the final sync.');
   }
@@ -781,7 +780,7 @@ export function getLucidAvenueCompletionPercent(state: LucidAvenueState) {
   const progress = state.shards.length
     + Object.values(state.flags).filter(Boolean).length
     + (state.outcome === 'win' ? 2 : 0);
-  return Math.min(100, Math.round((progress / (TOTAL_SHARDS + LUCID_AVENUE_TOTAL_FLAGS + 2)) * 100));
+  return Math.min(100, Math.round((progress / (LUCID_AVENUE_TOTAL_SHARDS + LUCID_AVENUE_TOTAL_FLAGS + 2)) * 100));
 }
 
 export function getLucidAvenueStoryBeat(state: LucidAvenueState) {
@@ -842,7 +841,7 @@ function isAdjacent(a: Position, b: Position) {
 function meetsRequirements(state: LucidAvenueState, requirements: Requirement[] = []) {
   return requirements.every((requirement) => (
     requirement === 'allShards'
-      ? state.shards.length >= TOTAL_SHARDS
+      ? state.shards.length >= LUCID_AVENUE_TOTAL_SHARDS
       : state.flags[requirement]
   ));
 }
@@ -879,7 +878,7 @@ function collectAtCurrentPosition(state: LucidAvenueState) {
       ...nextState,
       shards: [...nextState.shards, shard.id],
       credits: nextState.credits + 15,
-      message: `${shard.label} recovered. ${TOTAL_SHARDS - (nextState.shards.length + 1)} shard(s) left in the city.`,
+      message: `${shard.label} recovered. ${LUCID_AVENUE_TOTAL_SHARDS - (nextState.shards.length + 1)} shard(s) left in the city.`,
     }, `✨ ${shard.label} recovered.`);
   }
 
@@ -1273,7 +1272,7 @@ export function getLucidAvenueHint(state: LucidAvenueState) {
       ? 'AI route hint: align Vera’s Sky Array in Sunset Heights.'
       : 'AI route hint: recover enough remaining shards before trying to align the hill relay.';
   }
-  if (state.shards.length < TOTAL_SHARDS) {
+    if (state.shards.length < LUCID_AVENUE_TOTAL_SHARDS) {
     return 'AI route hint: the summit can wait — finish recovering every remaining shard first.';
   }
   if (state.districtId !== 'observatory') {

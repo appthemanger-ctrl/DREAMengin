@@ -226,7 +226,6 @@ export default function LucidAvenue() {
   const trainerCamCellSize = isPhoneLayout ? 28 : isMobileLayout ? 34 : TRAINER_CAM_CELL_SIZE;
   const selectedOutfit = PLAYER_OUTFITS.find((entry) => entry.id === selectedOutfitId) ?? PLAYER_OUTFITS[0];
   const in6900Club = score >= LUCID_AVENUE_6900_TARGET;
-  const totalFlags = Object.keys(state.flags).length;
 
   if (phase === 'menu') {
     return (
@@ -570,7 +569,7 @@ export default function LucidAvenue() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
                 <MiniMetric label="Credits" value={`${state.credits}`} />
                 <MiniMetric label="Visited" value={`${districtVisitedCount}/${totalDistricts}`} />
-                <MiniMetric label="Flags" value={`${Object.values(state.flags).filter(Boolean).length}/${totalFlags}`} />
+                <MiniMetric label="Flags" value={`${Object.values(state.flags).filter(Boolean).length}/${LUCID_AVENUE_TOTAL_FLAGS}`} />
                 <MiniMetric label="State" value={phase === 'playing' ? 'Active' : phase === 'win' ? 'Won' : 'Burned'} />
                 <MiniMetric label="Jam" value={state.jamTurns > 0 ? `Live +${state.jamTurns}` : 'Idle'} />
                 <MiniMetric label="Club target" value={`${LUCID_AVENUE_6900_TARGET}`} />
