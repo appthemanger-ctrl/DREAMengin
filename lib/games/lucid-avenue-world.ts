@@ -105,6 +105,7 @@ export interface LucidAvenueState {
 
 const TOTAL_SHARDS = 6;
 const MAX_HEAT = 6;
+const MAX_LOG_ENTRIES = 6;
 
 export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
   shoreline: {
@@ -618,7 +619,7 @@ function tileAt(district: LucidDistrict, position: Position) {
 function appendLog(state: LucidAvenueState, text: string) {
   return {
     ...state,
-    log: [text, ...state.log].slice(0, 6),
+    log: [text, ...state.log].slice(0, MAX_LOG_ENTRIES),
   };
 }
 
