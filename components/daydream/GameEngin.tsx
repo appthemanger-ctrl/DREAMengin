@@ -696,6 +696,24 @@ export default function GameEngin({ onBack }: Props) {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   const activeControlProfile = GAME_CONTROL_PROFILES.find((profile) => profile.id === controlProfile) ?? GAME_CONTROL_PROFILES[0];
+  const playableCategoriesCount = new Set(GAMES.map((game) => game.category)).size;
+  const engineDeckStats = [
+    { label: 'Playable', value: String(GAMES.length), tone: '#7dd3fc' },
+    { label: 'Categories', value: String(playableCategoriesCount), tone: '#c084fc' },
+    { label: 'Saved Slots', value: String(savedLaunches.length), tone: '#4ade80' },
+    { label: 'Backend', value: engineType ?? 'Detecting…', tone: engineType === 'WebGPU' ? '#a78bfa' : '#38bdf8' },
+  ] as const;
+  const selectedPlayableCapabilities = [
+    'Fullscreen boot',
+    'Remote dock',
+    'Quick resume',
+    `${activeControlProfile.label} controls`,
+  ];
+  const selectedPlayableStatus = [
+    `${selectedPlayable.category} class`,
+    savedPlayableSession ? 'Saved to memory deck' : 'Ready for first save',
+    activePlayable ? 'Live on play screen' : 'Standby',
+  ];
 
   return (
     <div className="de-sky-bg min-h-screen">
@@ -728,7 +746,7 @@ export default function GameEngin({ onBack }: Props) {
             <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>
               GameEngin
             </div>
-            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Games · Console Layer</div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Games · Console Layer · Powered by DREAMengin</div>
           </div>
           <span
             className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
@@ -771,7 +789,69 @@ export default function GameEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-body" style={{ paddingTop: 12 }}>
             <div style={{ fontSize: 12, lineHeight: 1.65, color: 'rgba(226,232,240,0.78)', marginBottom: 14 }}>
-              GameEngin is the actual play surface. Pick a saved game or any library title, boot it on the big screen here, expand fullscreen when you want the browser to disappear, and use the PS-style remote on the game itself.
+              GameEngin is the actual play surface. Pick a saved game or any library title, boot it on the big screen here, expand fullscreen when you want the browser to disappear, and use the PS-style remote on the game itself. This layer should feel like the actual console OS behind every playable game, not just a launcher.
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 14 }}>
+              {engineDeckStats.map((stat) => (
+                <div
+                  key={stat.label}
+                  style={{
+                    borderRadius: 16,
+                    padding: '12px 12px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(125,211,252,0.12)',
+                  }}
+                >
+                  <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: stat.tone }}>
+                    {stat.label}
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 22, fontWeight: 900, color: '#f8fbff', lineHeight: 1 }}>
+                    {stat.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.16fr)_minmax(0,0.84fr)]" style={{ marginBottom: 12 }}>
+              <div style={{ borderRadius: 16, padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(125,211,252,0.12)' }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc', marginBottom: 8 }}>
+                  Now Playing Deck
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 42, height: 42, borderRadius: 12, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, background: `${selectedPlayable.color}18`, border: `1px solid ${selectedPlayable.color}44` }}>
+                    {selectedPlayable.emoji}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 16, fontWeight: 900, color: '#f8fbff', letterSpacing: '-0.02em' }}>{selectedPlayable.label}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(226,232,240,0.68)', lineHeight: 1.55 }}>{selectedPlayable.desc}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ borderRadius: 16, padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(125,211,252,0.12)' }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc', marginBottom: 8 }}>
+                  Engine Status
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {selectedPlayableStatus.map((item) => (
+                    <span
+                      key={item}
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        padding: '4px 8px',
+                        borderRadius: 999,
+                        background: 'rgba(255,255,255,0.06)',
+                        color: 'rgba(226,232,240,0.82)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
@@ -818,6 +898,56 @@ export default function GameEngin({ onBack }: Props) {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]" style={{ marginTop: 14, marginBottom: 12 }}>
+              <div style={{ borderRadius: 18, padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(125,211,252,0.12)' }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc', marginBottom: 8 }}>
+                  Launch Modes
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {['Fullscreen Boot', 'Screen Play', 'Remote Dock'].map((mode) => (
+                    <span
+                      key={mode}
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        padding: '5px 10px',
+                        borderRadius: 999,
+                        background: 'rgba(255,255,255,0.06)',
+                        color: '#f8fbff',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      {mode}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ borderRadius: 18, padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(125,211,252,0.12)' }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc', marginBottom: 8 }}>
+                  Engine Capabilities
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {selectedPlayableCapabilities.map((capability) => (
+                    <span
+                      key={capability}
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        padding: '5px 10px',
+                        borderRadius: 999,
+                        background: `${selectedPlayable.color}18`,
+                        color: selectedPlayable.color,
+                        border: `1px solid ${selectedPlayable.color}35`,
+                      }}
+                    >
+                      {capability}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -1963,12 +2093,15 @@ function EnginBootSplash({
   game: { label: string; emoji: string; color: string; category: string };
   onDone: () => void;
 }) {
+  const SPLASH_INTRO_DURATION_MS = 600;
+  const SPLASH_FADE_START_MS = 2000;
+  const SPLASH_TOTAL_DURATION_MS = 2500;
   const [phase, setPhase] = useState<'intro' | 'title' | 'fade'>('intro');
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('title'), 600);
-    const t2 = setTimeout(() => setPhase('fade'),  2000);
-    const t3 = setTimeout(() => onDone(),           2500);
+    const t1 = setTimeout(() => setPhase('title'), SPLASH_INTRO_DURATION_MS);
+    const t2 = setTimeout(() => setPhase('fade'), SPLASH_FADE_START_MS);
+    const t3 = setTimeout(() => onDone(), SPLASH_TOTAL_DURATION_MS);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [onDone]);
 

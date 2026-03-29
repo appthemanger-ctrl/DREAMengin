@@ -295,6 +295,15 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
     expect(src).toMatch(/Word Sprint|Memory Grid|Speed Tap|GamesHub|GameEngin/);
   });
 
+  it('GamesHub exposes an upgraded engine shelf with search and featured launch deck', () => {
+    const src = readSource('components/games/GamesHub.tsx');
+    expect(src).toContain('Engine Shelf');
+    expect(src).toContain('Featured Launch Deck');
+    expect(src).toContain('Search the GameEngin shelf');
+    expect(src).toContain('Fullscreen boot');
+    expect(src).toContain('expand: true');
+  });
+
   it('Immersive game launch shell exists for the playable route', () => {
     expect(sourceExists('app/daydream/game/ImmersiveGameShell.tsx')).toBe(true);
     const src = readSource('app/daydream/game/ImmersiveGameShell.tsx');
@@ -314,6 +323,14 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
     expect(src).toContain('worldGrid');
     expect(src).toContain('physicsConfig');
     expect(src).toContain('persistGameState');
+  });
+
+  it('GameEngin renders engine deck metadata beyond simple fullscreen launch', () => {
+    const src = readSource('components/daydream/GameEngin.tsx');
+    expect(src).toContain('Now Playing Deck');
+    expect(src).toContain('Engine Status');
+    expect(src).toContain('Launch Modes');
+    expect(src).toContain('Engine Capabilities');
   });
 
   it('game_scores migration exists with RLS', () => {

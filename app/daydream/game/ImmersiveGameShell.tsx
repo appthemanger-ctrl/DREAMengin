@@ -84,6 +84,9 @@ export default function ImmersiveGameShell() {
             <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.7, color: 'rgba(226,232,240,0.76)' }}>
               Starting your game session like a console boot: dark room, system wake-up, then straight into the title screen.
             </div>
+            <div style={{ marginTop: 8, fontSize: 11, lineHeight: 1.7, color: 'rgba(226,232,240,0.56)', letterSpacing: '0.04em' }}>
+              Engine shelf → console handoff → remote docked → fullscreen boot.
+            </div>
 
             <div style={{ marginTop: 22, display: 'grid', gap: 10 }}>
               {BOOT_MESSAGES.map((message, index) => {

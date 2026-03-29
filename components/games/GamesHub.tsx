@@ -133,18 +133,42 @@ export const GAMES: GameDef[] = [
     desc: 'FF7 + Chrono Trigger RPG — traverse 5 dream layers, unlock dream abilities, defeat the Dream Destroyer' },
 ];
 
+const FEATURED_GAME_IDS = ['platformer', 'dreamquest', 'dreamwars', 'space-shooter'] as const;
+const QUICK_RESUME_FALLBACK_COUNT = 3;
+const ENGINE_CAPABILITY_CHIPS = [
+  'Fullscreen boot',
+  'Remote ready',
+  'Quick resume',
+  'Powered by DREAMengin',
+] as const;
+
 export default function GamesHub() {
   const [savedSessions, setSavedSessions] = useState<SavedGameSession[]>([]);
   const [filter, setFilter] = useState<string>('All');
+  const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
   const initializedLaunchRef = useRef(false);
 
   // GSAP stagger entrance for the game card grid — replays on every filter change
   const gridRef = useRef<HTMLDivElement>(null);
-  useGsapEntrance(gridRef, [filter], { stagger: 0.035, y: 18, duration: 0.32 });
+  useGsapEntrance(gridRef, [filter, query], { stagger: 0.035, y: 18, duration: 0.32 });
 
   const categories = ['All', ...Array.from(new Set(GAMES.map(g => g.category))).sort()];
-  const filtered = filter === 'All' ? GAMES : GAMES.filter(g => g.category === filter);
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredByCategory = filter === 'All' ? GAMES : GAMES.filter((game) => game.category === filter);
+  const filtered = normalizedQuery
+    ? filteredByCategory.filter((game) => (
+      `${game.label} ${game.category} ${game.desc}`.toLowerCase().includes(normalizedQuery)
+    ))
+    : filteredByCategory;
+  const savedGameIds = new Set(savedSessions.map((session) => session.gameId));
+  const featuredGames = FEATURED_GAME_IDS
+    .map((id) => GAMES.find((game) => game.id === id))
+    .filter((game): game is GameDef => Boolean(game));
+  const recentLaunches = savedSessions
+    .map((session) => GAMES.find((game) => game.id === session.gameId))
+    .filter((game): game is GameDef => Boolean(game))
+    .slice(0, 4);
 
   const saveGameToEngin = useCallback((id: string, source: SavedGameSession['source']) => {
     if (typeof window === 'undefined') return;
@@ -205,6 +229,196 @@ export default function GamesHub() {
   // ── Library — pick a game and play ────────────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div
+        style={{
+          borderRadius: 18,
+          padding: 14,
+          background: 'linear-gradient(135deg, rgba(42,138,184,0.14), rgba(124,58,237,0.08), rgba(15,23,42,0.08))',
+          border: '1px solid rgba(42,138,184,0.2)',
+          display: 'grid',
+          gap: 12,
+        }}
+      >
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div style={{ flex: 1 }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--de-accent)',
+              }}
+            >
+              Engine Shelf
+            </div>
+            <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1.05 }}>
+              Browse the upgraded GameEngin library.
+            </div>
+            <div style={{ marginTop: 8, fontSize: 12, lineHeight: 1.65, color: 'var(--de-text-dim)', maxWidth: 760 }}>
+              This is the engine shelf now — discovery, featured launches, quick resume awareness, fullscreen boot, and remote-ready cards all live in one place before handoff into GameEngin.
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, minWidth: 'min(100%, 320px)' }}>
+            {[
+              { label: 'Playable', value: String(GAMES.length) },
+              { label: 'Categories', value: String(categories.length - 1) },
+              { label: 'Saved', value: String(savedSessions.length) },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                style={{
+                  borderRadius: 14,
+                  padding: '10px 12px',
+                  background: 'rgba(255,255,255,0.56)',
+                  border: '1px solid rgba(42,138,184,0.14)',
+                }}
+              >
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--de-accent)' }}>{stat.label}</div>
+                <div style={{ marginTop: 6, fontSize: 24, fontWeight: 900, color: 'var(--de-heading)' }}>{stat.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {ENGINE_CAPABILITY_CHIPS.map((chip) => (
+            <span
+              key={chip}
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                padding: '4px 10px',
+                borderRadius: 999,
+                background: 'rgba(255,255,255,0.58)',
+                color: 'var(--de-accent)',
+                border: '1px solid rgba(42,138,184,0.16)',
+              }}
+            >
+              {chip}
+            </span>
+          ))}
+        </div>
+
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
+          <div style={{ display: 'grid', gap: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--de-text-dim)' }}>
+              Featured Launch Deck
+            </div>
+            <div style={{ display: 'grid', gap: 8, gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
+              {featuredGames.map((game) => (
+                <button
+                  key={game.id}
+                  type="button"
+                  onClick={() => playGame(game.id)}
+                  style={{
+                    borderRadius: 14,
+                    padding: '12px 12px',
+                    border: `1px solid ${game.color}30`,
+                    background: 'rgba(255,255,255,0.52)',
+                    textAlign: 'left',
+                    display: 'grid',
+                    gap: 6,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <span style={{ fontSize: 22, lineHeight: 1 }}>{game.emoji}</span>
+                    <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: game.color }}>
+                      Boot now
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>{game.label}</div>
+                  <div style={{ fontSize: 10, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>{game.category} · fullscreen-ready</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gap: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--de-text-dim)' }}>
+              Quick Resume Rack
+            </div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {(recentLaunches.length ? recentLaunches : featuredGames.slice(0, QUICK_RESUME_FALLBACK_COUNT)).map((game) => (
+                <button
+                  key={`recent-${game.id}`}
+                  type="button"
+                  onClick={() => playGame(game.id)}
+                  style={{
+                    borderRadius: 14,
+                    padding: '10px 12px',
+                    border: `1px solid ${game.color}24`,
+                    background: savedGameIds.has(game.id) ? `${game.color}16` : 'rgba(255,255,255,0.48)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span style={{ fontSize: 20, lineHeight: 1 }}>{game.emoji}</span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: 'block', fontSize: 12, fontWeight: 800, color: 'var(--de-heading)' }}>{game.label}</span>
+                    <span style={{ display: 'block', fontSize: 10, color: 'var(--de-text-dim)' }}>
+                      {savedGameIds.has(game.id) ? 'Resume from your memory deck' : 'Pin to your memory deck on first boot'}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <label style={{ flex: 1, display: 'grid', gap: 6 }}>
+          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--de-text-dim)' }}>
+            Search the GameEngin shelf
+          </span>
+          <input
+            type="text"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search by title, category, or vibe"
+            aria-label="Search the GameEngin shelf"
+            style={{
+              width: '100%',
+              borderRadius: 14,
+              border: '1px solid rgba(160,195,240,0.2)',
+              background: 'rgba(255,255,255,0.72)',
+              padding: '12px 14px',
+              fontSize: 13,
+              color: 'var(--de-heading)',
+              outline: 'none',
+            }}
+          />
+        </label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--de-text-dim)', alignSelf: 'center' }}>
+            Live filters
+          </span>
+          {normalizedQuery && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                padding: '5px 10px',
+                borderRadius: 999,
+                border: '1px solid rgba(239,68,68,0.18)',
+                background: 'rgba(254,242,242,0.85)',
+                color: '#dc2626',
+                cursor: 'pointer',
+              }}
+            >
+              Clear search
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Category filter pills */}
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
         {categories.map(cat => (
@@ -239,12 +453,28 @@ export default function GamesHub() {
               <div style={{ fontSize: 10, color: 'var(--de-text-dim)', lineHeight: 1.4 }}>
                 {game.desc}
               </div>
-              <div style={{
-                fontSize: 9, padding: '2px 6px', borderRadius: 999,
-                background: `${game.color}18`, color: game.color, border: `1px solid ${game.color}30`,
-                fontWeight: 700, alignSelf: 'flex-start',
-              }}>
-                {game.category}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                <div style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 999,
+                  background: `${game.color}18`, color: game.color, border: `1px solid ${game.color}30`,
+                  fontWeight: 700, alignSelf: 'flex-start',
+                }}>
+                  {game.category}
+                </div>
+                <div style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 999,
+                  background: 'rgba(42,138,184,0.08)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.16)',
+                  fontWeight: 700, alignSelf: 'flex-start',
+                }}>
+                  Fullscreen boot
+                </div>
+                <div style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 999,
+                  background: 'rgba(124,58,237,0.08)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.16)',
+                  fontWeight: 700, alignSelf: 'flex-start',
+                }}>
+                  Remote ready
+                </div>
               </div>
               <div style={{
                 marginTop: 4,
@@ -257,7 +487,7 @@ export default function GamesHub() {
                 textAlign: 'center',
                 letterSpacing: '0.06em',
               }}>
-                {isSaved ? '▶ Play again' : '▶ Play'}
+                {isSaved ? '▶ Quick resume' : '▶ Boot in GameEngin'}
               </div>
             </>
           );
@@ -311,7 +541,7 @@ export default function GamesHub() {
       </div>
 
       <div style={{ textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 11, paddingTop: 4 }}>
-        {GAMES.length} games across {categories.length - 1} categories · Powered by GameEngin
+        {filtered.length} visible on the upgraded engine shelf · {GAMES.length} total games across {categories.length - 1} categories · Powered by GameEngin
       </div>
     </div>
   );
