@@ -22,6 +22,7 @@ export default async function Home() {
 
     if (!user && !isDevBypassActive()) redirect('/login');
 
+    if (user) {
     // Fetch user profile
     const { data: profileData } = await supabase
       .from('profiles')
@@ -113,6 +114,7 @@ export default async function Home() {
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
     posts = allEntries;
+    } // end if (user)
 
   } catch {
     redirect('/login');
