@@ -28,10 +28,11 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
   ArrowLeft, Gamepad2, Trophy, Play, Share2,
-  Map, Award, Sliders, FileCode, Radio, Lock, Unlock,
+  Map, Award, Sliders, FileCode, Radio, Lock, Unlock, Bot,
 } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
 import { GAMES } from '@/components/games/GamesHub';
+import GameBuilderAgent from '@/components/games/GameBuilderAgent';
 import {
   GAME_LIBRARY_SESSION_STORAGE_KEY,
   MAX_SAVED_GAME_SESSIONS,
@@ -370,6 +371,12 @@ export default function GameEngin({ onBack }: Props) {
     );
   }
 
+  // ── Game Builder AI — insert code from agent into script editor ───────────────
+  const handleInsertCode = useCallback((code: string, language: string) => {
+    setScriptState({ code, language: language === 'Lua' ? 'Lua' : 'GameScript' });
+    setSavedScript(null); // mark as unsaved after insert
+  }, []);
+
   // ── Multiplayer Lobby state ──────────────────────────────────────────────────
   const [lobbyActive, setLobbyActive] = useState(false);
   const [lobbyCode, setLobbyCode] = useState('');
@@ -398,6 +405,9 @@ export default function GameEngin({ onBack }: Props) {
     { id: 'rp-2', game: 'Chess',               duration: '18:44', date: '2025-01-09' },
     { id: 'rp-3', game: 'Tetris',              duration: '2:58', date: '2025-01-08' },
   ]);
+
+  // ── Game Builder AI state ────────────────────────────────────────────────────
+  const [gameBuilderOpen, setGameBuilderOpen] = useState(false);
 
   // ── Social Challenge state ───────────────────────────────────────────────────
   const [challengeSent, setChallengeSent] = useState(false);
@@ -1583,7 +1593,53 @@ export default function GameEngin({ onBack }: Props) {
           </div>
         </div>
 
-        {/* ────────────────────── 9. Cross-Engin Sync Panel */}
+        {/* ────────────────────── 9. Game Builder AI */}
+        <div className="de-widget" style={{ marginBottom: 14, borderColor: `${ACCENT}40` }}>
+          <button
+            type="button"
+            className="de-widget-header"
+            style={{ width: '100%', cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+            onClick={() => setGameBuilderOpen(prev => !prev)}
+            aria-expanded={gameBuilderOpen}
+            aria-controls="game-builder-ai-body"
+          >
+            <Bot className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Game Builder AI</span>
+            <span
+              className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+              style={{ background: `${ACCENT}18`, color: ACCENT, border: `1px solid ${ACCENT}35` }}
+            >
+              AI Agent
+            </span>
+            <span
+              style={{
+                marginLeft: 8,
+                fontSize: 10,
+                color: 'rgba(226,232,240,0.45)',
+                transition: 'transform 0.2s',
+                transform: gameBuilderOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                display: 'inline-block',
+              }}
+            >
+              ▶
+            </span>
+          </button>
+          {gameBuilderOpen && (
+            <div id="game-builder-ai-body" className="de-widget-body" style={{ paddingTop: 10 }}>
+              <div style={{ fontSize: 11, color: 'rgba(226,232,240,0.6)', lineHeight: 1.6, marginBottom: 10 }}>
+                Ask the Game Builder AI for help designing mechanics, generating scripts, building worlds, and more. Code snippets can be inserted directly into the Script editor above.
+              </div>
+              <GameBuilderAgent
+                currentGameId={selectedPlayableGame}
+                scriptContext={scriptState.code}
+                worldContext={savedWorld ? JSON.stringify(savedWorld) : undefined}
+                onInsertCode={handleInsertCode}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* ────────────────────── 10. Cross-Engin Sync Panel */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Radio className="w-4 h-4" style={{ color: ACCENT }} />
