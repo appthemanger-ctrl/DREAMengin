@@ -53,6 +53,9 @@ const BabylonSideScroller = dynamicImport(() => import('@/components/games/Babyl
 const DREAMwars   = dynamicImport(() => import('@/components/games/DREAMwars'),   { ssr: false, loading: Loading });
 const ENGINBattle = dynamicImport(() => import('@/components/games/ENGINBattle'), { ssr: false, loading: Loading });
 const DREAMquest  = dynamicImport(() => import('@/components/games/DREAMquest'),  { ssr: false, loading: Loading });
+// WebGPU-powered games with DualSense controller support
+const NeonDrift   = dynamicImport(() => import('@/components/games/NeonDrift'),   { ssr: false, loading: Loading });
+const EchoArena   = dynamicImport(() => import('@/components/games/EchoArena'),   { ssr: false, loading: Loading });
 
 export interface GameDef {
   id: string;
@@ -131,6 +134,11 @@ export const GAMES: GameDef[] = [
     desc: 'Age of Empires style — pick Dr. Eams, IDARi or Boogie; tech tree upgrades, 3-faction war' },
   { id: 'dreamquest',    emoji: '✨', label: 'DREAMquest',         category: 'RPG',         color: '#a78bfa', component: DREAMquest,
     desc: 'FF7 + Chrono Trigger RPG — traverse 5 dream layers, unlock dream abilities, defeat the Dream Destroyer' },
+  // ── WebGPU-Powered Games ──────────────────────────────────────────────
+  { id: 'neon-drift',    emoji: '🏎️', label: 'Neon Drift',        category: 'Racing',      color: '#0ff',    component: NeonDrift,
+    desc: 'WebGPU cyberpunk racer — DualSense gyro steering, haptic feedback, high-performance 3D rendering' },
+  { id: 'echo-arena',    emoji: '🎯', label: 'Echo Arena',        category: 'Shooter',     color: '#a78bfa', component: EchoArena,
+    desc: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
 ];
 
 const FEATURED_GAME_IDS = ['platformer', 'dreamquest', 'dreamwars', 'space-shooter'] as const;
