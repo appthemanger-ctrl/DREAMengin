@@ -22,6 +22,19 @@ describe('existing PS5 remote usage', () => {
     expect(src).not.toContain('Default Remote');
   });
 
+  it('keeps the original remote layout with a larger right analog and wrapped action buttons', () => {
+    const src = readFileSync(join(REPO_ROOT, 'components/games/GameRemote.tsx'), 'utf8');
+
+    expect(src).toContain('const RIGHT_PAD_R   = 62');
+    expect(src).toContain('const LEFT_PAD_R    = 52');
+    expect(src).toContain('RIGHT_STICK_RING_BUTTONS');
+    expect(src).toContain("{ sym: 'L1', label: 'J+Spin'");
+    expect(src).toContain("{ sym: 'R2', label: 'J+Shot'");
+    expect(src).toContain("{ sym: '△', label: 'Duck'");
+    expect(src).toContain('REMOTE_ACTION_PILLS');
+    expect(src).toContain("{ sym: 'R1', label: 'Dash'");
+  });
+
   it('does not reintroduce the old duplicate UniversalDPad controller in GamesHub', () => {
     const src = readFileSync(join(REPO_ROOT, 'components/games/GamesHub.tsx'), 'utf8');
 

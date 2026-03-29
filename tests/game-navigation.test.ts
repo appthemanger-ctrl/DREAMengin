@@ -1,7 +1,11 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { upsertSavedGameSession } from '@/lib/games/library-state';
 import { buildGameLaunchHref, DEFAULT_GAME_ID, isLaunchFlagEnabled, resolveGameLaunchId } from '@/lib/games/navigation';
 import { GAME_INPUT_KEYBOARD_MAP } from '@/lib/games/useGameInputKeyboardBridge';
+
+const REPO_ROOT = process.cwd();
 
 describe('game launch navigation', () => {
   it('builds a direct game launch href by default', () => {
@@ -10,12 +14,12 @@ describe('game launch navigation', () => {
 
   it('builds a remote launch href for a selected game', () => {
     expect(buildGameLaunchHref('snake', { openEngin: true, remote: true, play: true }))
-      .toBe('/daydream/games?game=snake&openEngin=1&remote=1&play=1');
+      .toBe('/daydream/game?game=snake&openEngin=1&remote=1&play=1');
   });
 
   it('can request fullscreen play when the route should boot straight into the expanded game view', () => {
     expect(buildGameLaunchHref('platformer', { play: true, expand: true }))
-      .toBe('/daydream/games?game=platformer&play=1&expand=1');
+      .toBe('/daydream/game?game=platformer&play=1&expand=1');
   });
 
   it('keeps valid requested game ids and falls back invalid ones', () => {
@@ -28,6 +32,18 @@ describe('game launch navigation', () => {
     expect(isLaunchFlagEnabled('1')).toBe(true);
     expect(isLaunchFlagEnabled('0')).toBe(false);
     expect(isLaunchFlagEnabled(null)).toBe(false);
+  });
+
+  it('keeps dedicated game sessions on a no-scroll full-screen page with the shared remote docked underneath', () => {
+    const pageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/page.tsx'), 'utf8');
+    const shellSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/ImmersiveGameShell.tsx'), 'utf8');
+
+    expect(pageSrc).toContain('return <ImmersiveGameShell />;');
+    expect(shellSrc).toContain("height: '100dvh'");
+    expect(shellSrc).toContain("overflow: 'hidden'");
+    expect(shellSrc).toContain('<GameRemote');
+    expect(shellSrc).toContain('Dedicated Game Session');
+    expect(shellSrc).toContain("document.querySelector('footer')");
   });
 });
 

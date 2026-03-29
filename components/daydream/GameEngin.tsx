@@ -515,6 +515,14 @@ export default function GameEngin({ onBack }: Props) {
     }
   }, [queuePlayableGameStart]);
 
+  const openPlayableGamePage = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
+    savePlayableGame(gameId, options.expand ? 'fullscreen' : 'library-screen');
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(GAME_LIBRARY_SELECTION_STORAGE_KEY, gameId);
+    window.localStorage.setItem('de:games:last-launch', gameId);
+    window.location.assign(buildGameLaunchHref(gameId, { play: true, expand: options.expand }));
+  }, [savePlayableGame]);
+
   useEffect(() => {
     if (initializedPlaySurfaceRef.current) return;
     initializedPlaySurfaceRef.current = true;
@@ -966,14 +974,14 @@ export default function GameEngin({ onBack }: Props) {
             </div>
 
             {/* Remote lives directly under the game screen, as requested */}
-            <GameRemote embedded gameLabel={selectedPlayable.label} playHref={buildGameLaunchHref(selectedPlayable.id, { openEngin: true, play: true })} onPlay={() => launchPlayableGame(selectedPlayable.id)} />
+            <GameRemote embedded gameLabel={selectedPlayable.label} playHref={buildGameLaunchHref(selectedPlayable.id, { play: true })} onPlay={() => openPlayableGamePage(selectedPlayable.id)} />
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, marginBottom: 12 }}>
-              <button type="button" onClick={() => launchPlayableGame(selectedPlayable.id, { expand: true })} className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
+              <button type="button" onClick={() => openPlayableGamePage(selectedPlayable.id, { expand: true })} className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
                 ⤢ Play fullscreen
               </button>
-              <button type="button" onClick={() => launchPlayableGame(selectedPlayable.id)} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(125,211,252,0.22)', color: '#7dd3fc' }}>
-                ▶ Play on screen
+              <button type="button" onClick={() => openPlayableGamePage(selectedPlayable.id)} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(125,211,252,0.22)', color: '#7dd3fc' }}>
+                ▶ Launch game page
               </button>
               <button type="button" onClick={() => savePlayableGame(selectedPlayable.id, 'library-screen')} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(74,222,128,0.22)', color: '#4ade80' }}>
                 💾 Save state
