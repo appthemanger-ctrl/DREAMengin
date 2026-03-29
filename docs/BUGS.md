@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-29 04:49 UTC  
-**Triggered by commit:** `e0c2deb` on `copilot/upgrade-gaming-engine-fullscreen` by Copilot  
-**Commit message:** feat: fullscreen game launch + DREAMengin powered by splash screen
+**Last updated:** 2026-03-29 05:26 UTC  
+**Triggered by commit:** `de2f48a` on `copilot/upgrade-gaming-engine-fullscreen` by Copilot  
+**Commit message:** feat: broaden GameEngin upgrade beyond fullscreen
 
 ---
 
