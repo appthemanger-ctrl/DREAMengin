@@ -55,6 +55,28 @@ const LEFT_MAX_DISP = 38;   // max knob displacement from center
 const RIGHT_MAX_DISP= 44;   // larger travel to match larger right stick
 const DEAD     = 16;   // dead-zone: no action below this displacement
 
+const REMOTE_ACTION_PILLS = [
+  { sym: '×', label: 'Jump', action: 'jump' as GameInputAction, color: '#38bdf8' },
+  { sym: '○', label: 'Shoot', action: 'shoot' as GameInputAction, color: '#f87171' },
+  { sym: '□', label: 'Spin', action: 'spin' as GameInputAction, color: '#fbbf24' },
+  { sym: '△', label: 'Duck', action: 'duck' as GameInputAction, color: '#4ade80' },
+  { sym: 'L1', label: 'J+Spin', action: 'jump-spin' as GameInputAction, color: '#a78bfa' },
+  { sym: 'R2', label: 'J+Shot', action: 'jump-shoot' as GameInputAction, color: '#a78bfa' },
+  { sym: 'L2', label: 'Hold', action: 'l2' as GameInputAction, color: '#818cf8' },
+  { sym: 'R1', label: 'Dash', action: 'r1' as GameInputAction, color: '#818cf8' },
+] as const;
+
+const RIGHT_STICK_RING_BUTTONS = [
+  { sym: '×', label: 'Jump', action: 'jump' as GameInputAction, color: '#38bdf8', top: 0, left: 72 },
+  { sym: 'L1', label: 'Jump+Spin', action: 'jump-spin' as GameInputAction, color: '#a78bfa', top: 30, left: 10 },
+  { sym: 'R2', label: 'Jump+Shot', action: 'jump-shoot' as GameInputAction, color: '#a78bfa', top: 30, left: 134 },
+  { sym: '□', label: 'Spin', action: 'spin' as GameInputAction, color: '#fbbf24', top: 76, left: 0 },
+  { sym: '○', label: 'Shoot', action: 'shoot' as GameInputAction, color: '#f87171', top: 76, left: 144 },
+  { sym: 'L2', label: 'Hold', action: 'l2' as GameInputAction, color: '#818cf8', top: 124, left: 18 },
+  { sym: 'R1', label: 'Dash', action: 'r1' as GameInputAction, color: '#818cf8', top: 124, left: 126 },
+  { sym: '△', label: 'Duck', action: 'duck' as GameInputAction, color: '#4ade80', top: 146, left: 72 },
+] as const;
+
 // ── Direction helpers ─────────────────────────────────────────────────────────
 type Dir8 = 'right' | 'down-right' | 'down' | 'down-left' | 'left' | 'up-left' | 'up' | 'up-right';
 
@@ -323,6 +345,10 @@ export default function GameRemote({
   const outerPaddingX = embedded ? 18 : 20;
   const bottomPadding = embedded ? 28 : 56;
   const cardMargin = embedded ? '0 18px 18px' : '0 20px 20px';
+  const rightClusterScale = embedded ? 0.78 : 1;
+  const rightClusterSize = 178 * rightClusterScale;
+  const rightButtonSize = 28 * rightClusterScale;
+  const rightButtonFontSize = embedded ? 9 : 11;
 
   return (
     <div style={{
@@ -435,12 +461,7 @@ export default function GameRemote({
           padding: `10px ${outerPaddingX}px 0`,
           flexShrink: 0,
         }}>
-          {[
-            { sym: '×', label: 'Jump',  color: '#38bdf8' },
-            { sym: '○', label: 'Shoot', color: '#f87171' },
-            { sym: '□', label: 'Spin',  color: '#fbbf24' },
-            { sym: '△', label: 'Duck',  color: '#4ade80' },
-          ].map(({ sym, label, color }) => (
+          {REMOTE_ACTION_PILLS.map(({ sym, label, color }) => (
             <div key={sym} style={{
               display: 'flex', alignItems: 'center', gap: 4,
               padding: '2px 7px', borderRadius: 999,
@@ -454,7 +475,7 @@ export default function GameRemote({
         </div>
       )}
 
-      {/* Sticks + face buttons */}
+      {/* Sticks + center controls + original right action cluster */}
       <div style={{
         flex: 1,
         display: 'flex',
@@ -529,22 +550,24 @@ export default function GameRemote({
           )}
         </div>
 
-        {/* RIGHT side: stick + face button diamond */}
+        {/* RIGHT side: larger analog with buttons wrapped around it like the original remote */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <Stick side="right" accentColor="#c8981a" label="Actions" scale={embedded ? 0.78 : 1} />
+          <div style={{
+            position: 'relative',
+            width: rightClusterSize,
+            height: rightClusterSize,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <Stick side="right" accentColor="#c8981a" label="Actions" scale={rightClusterScale} />
 
-          {/* Face button diamond — △/○/□/× tappable buttons; × at top (jump), △ at right side */}
-          {!embedded && <div style={{ position: 'relative', width: 88, height: 88, flexShrink: 0 }}>
-            {([
-              { sym: '×', action: 'jump'  as GameInputAction, color: '#38bdf8', top:  0,  left: 30 },
-              { sym: '△', action: 'duck'  as GameInputAction, color: '#4ade80', top:  30, left: 60 },
-              { sym: '□', action: 'spin'  as GameInputAction, color: '#fbbf24', top:  30, left: 0  },
-              { sym: '○', action: 'shoot' as GameInputAction, color: '#f87171', top:  60, left: 30 },
-            ]).map(({ sym, action, color, top, left }) => (
+            {RIGHT_STICK_RING_BUTTONS.map(({ sym, label, action, color, top, left }) => (
               <button
                 key={sym}
                 type="button"
-                aria-label={sym}
+                aria-label={label}
                 onPointerDown={(e) => { e.preventDefault(); fireAction(action, true); }}
                 onPointerUp={(e)   => { e.preventDefault(); fireAction(action, false); }}
                 onPointerCancel={(e) => { e.preventDefault(); fireAction(action, false); }}
@@ -554,24 +577,28 @@ export default function GameRemote({
                 onTouchCancel={(e) => { e.preventDefault(); fireAction(action, false); }}
                 style={{
                   position: 'absolute',
-                  top, left,
-                  width: 28, height: 28,
+                  top: top * rightClusterScale,
+                  left: left * rightClusterScale,
+                  width: rightButtonSize,
+                  height: rightButtonSize,
                   borderRadius: '50%',
                   background: `${color}18`,
                   border: `1.5px solid ${color}55`,
                   color,
-                  fontSize: 11, fontWeight: 900,
+                  fontSize: rightButtonFontSize,
+                  fontWeight: 900,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer',
                   touchAction: 'none',
                   WebkitTapHighlightColor: 'transparent',
-                  transition: 'background 0.08s, border-color 0.08s',
+                  boxShadow: '0 2px 12px rgba(5, 10, 20, 0.35)',
+                  transition: 'background 0.08s, border-color 0.08s, transform 0.08s',
                 }}
               >
                 {sym}
               </button>
             ))}
-          </div>}
+          </div>
         </div>
       </div>
 
