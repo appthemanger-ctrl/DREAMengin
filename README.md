@@ -8,21 +8,22 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
-| `e9245a6` | 2026-03-29 05:33 UTC | completedream | appthemanger-ctrl | — | Merge pull request #342 from appthemanger-ctrl/claude/analyze-repo-state |
-| `4d3ca81` | 2026-03-29 05:33 UTC | claude/analyze-repo-state | appthemanger-ctrl | — | Merge branch 'completedream' into claude/analyze-repo-state |
-| `5785eac` | 2026-03-29 05:25 UTC | claude/analyze-repo-state | Claude | +4 ~2 | feat: Add comprehensive repository state analyzer system |
-| `c762599` | 2026-03-29 05:30 UTC | completedream | appthemanger-ctrl | — | Merge pull request #341 from appthemanger-ctrl/copilot/upgrade-gaming-engine-fullscreen |
-| `de2f48a` | 2026-03-29 05:26 UTC | copilot/upgrade-gaming-engine-fullscreen | Copilot | ~4 | feat: broaden GameEngin upgrade beyond fullscreen |
-| `e0c2deb` | 2026-03-29 04:49 UTC | copilot/upgrade-gaming-engine-fullscreen | Copilot | ~3 | feat: fullscreen game launch + DREAMengin powered by splash screen |
-| `f58c3a8` | 2026-03-29 04:40 UTC | completedream | appthemanger-ctrl | — | Merge pull request #339 from appthemanger-ctrl/copilot/fix-invalid-next-config-options |
-| `634a30d` | 2026-03-29 04:39 UTC | copilot/fix-invalid-next-config-options | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/fix-invalid-next-config-options |
-| `2cf45db` | 2026-03-29 03:31 UTC | copilot/fix-invalid-next-config-options | Copilot | ~1 | fix: move serverExternalPackages out of experimental config |
-| `c1b0d6b` | 2026-03-29 04:38 UTC | completedream | appthemanger-ctrl | — | Merge pull request #338 from appthemanger-ctrl/copilot/fix-home-page-issues |
+| `67740cb` | 2026-03-29 06:48 UTC | copilot/add-ai-agent-for-game-building | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/add-ai-agent-for-game-building |
+| `a604cd3` | 2026-03-29 05:45 UTC | copilot/add-ai-agent-for-game-building | Copilot | +3 ~10 | feat: require advanced game upgrades in github coding agent |
+| `d730e21` | 2026-03-29 05:23 UTC | copilot/add-ai-agent-for-game-building | Copilot | +4 −2 ~2 | feat: add report-driven GitHub coding agent workflow |
+| `58655cf` | 2026-03-29 04:50 UTC | copilot/add-ai-agent-for-game-building | Copilot | ~2 | fix: address code review — audit payload source tag + animation name |
+| `e86d9d8` | 2026-03-29 04:47 UTC | copilot/add-ai-agent-for-game-building | Copilot | +2 ~1 | feat: add Game Builder AI agent for GameEngin |
+| `d9956c3` | 2026-03-28 19:38 UTC | completedream | appthemanger-ctrl | — | Merge pull request #337 from appthemanger-ctrl/copilot/replace-foundation-with-linux-software |
+| `f7c366c` | 2026-03-28 19:37 UTC | copilot/replace-foundation-with-linux-software | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/replace-foundation-with-linux-software |
+| `bbdd3b6` | 2026-03-28 19:10 UTC | completedream | appthemanger-ctrl | — | Merge pull request #336 from appthemanger-ctrl/copilot/fix-remote-control-issue |
+| `9356f90` | 2026-03-28 18:37 UTC | copilot/fix-remote-control-issue | Copilot | ~2 | chore: clean up remote review feedback |
+| `4768f55` | 2026-03-28 18:32 UTC | copilot/fix-remote-control-issue | Copilot | ~3 | fix: make embedded game remote compact and generic |
 
 
 ---
 
 ## Current Implementation Status
+Last updated: 2026-03-29 06:48 UTC — `67740cb` by appthemanger-ctrl
 Last updated: 2026-03-29 05:33 UTC — `e9245a6` by appthemanger-ctrl
 Last updated: 2026-03-29 05:30 UTC — `c762599` by appthemanger-ctrl
 Last updated: 2026-03-29 04:38 UTC — `c1b0d6b` by appthemanger-ctrl

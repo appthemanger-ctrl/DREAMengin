@@ -1,0 +1,51 @@
+{
+  "minimumExpectation": "Every report-driven GitHub coding agent run must include at least one advanced GameEngin or game upgrade. The mandatory game slice must target a non-trivial experience, not a simple tap-only loop.",
+  "engineStandards": [
+    "Push GameEngin toward state-of-the-art feel: strong responsiveness, readable depth, and premium rendering or systems polish.",
+    "Prefer Babylon.js 8+ and WebGPU-first paths when rendering changes are involved, or deepen existing engine-grade gameplay systems already in the repo.",
+    "Upgrades must improve meaningful gameplay depth: combat, progression, AI, procedural variety, bosses, simulation, narrative systems, or competitive loops.",
+    "Do not spend the mandatory game slice on a simple tap-only game when an advanced target is available.",
+    "Every game upgrade must remain remote-ready, quick-resume friendly, and compatible with existing GameEngin launch/navigation patterns."
+  ],
+  "advancedTargets": [
+    {
+      "id": "babylon-side-scroller",
+      "label": "Babylon Side Scroller",
+      "componentPath": "components/games/BabylonSideScroller.tsx",
+      "tier": "flagship",
+      "why": "Babylon-powered platformer with procedural zones, boss encounters, and room for deeper movement/combat polish.",
+      "requiredUpgradeThemes": [
+        "combat depth",
+        "boss behaviors",
+        "procedural variety",
+        "render polish"
+      ]
+    },
+    {
+      "id": "engin-battle",
+      "label": "ENGINBattle",
+      "componentPath": "components/games/ENGINBattle.tsx",
+      "tier": "advanced",
+      "why": "Systems-heavy strategy game suited for stronger faction logic, AI, economy, or battlefield readability improvements.",
+      "requiredUpgradeThemes": [
+        "system depth",
+        "enemy AI",
+        "strategy readability",
+        "late-game escalation"
+      ]
+    },
+    {
+      "id": "dreamquest",
+      "label": "DREAMquest",
+      "componentPath": "components/games/DREAMquest.tsx",
+      "tier": "advanced",
+      "why": "RPG structure supports richer quest chains, encounter depth, world-state progression, and more premium feedback loops.",
+      "requiredUpgradeThemes": [
+        "quest depth",
+        "progression loops",
+        "world-state reactivity",
+        "encounter variety"
+      ]
+    }
+  ]
+}
