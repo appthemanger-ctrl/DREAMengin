@@ -2,11 +2,20 @@ export type DistrictId =
   | 'shoreline'
   | 'arts-district'
   | 'midcity'
+  | 'river-gates'
   | 'studio-lot'
+  | 'civic-center'
   | 'sunset-heights'
   | 'observatory';
 
-export type LucidFlag = 'metRook' | 'tramPass' | 'junctionPowered' | 'skylineKey' | 'relayAligned';
+export type LucidFlag =
+  | 'metRook'
+  | 'tramPass'
+  | 'junctionPowered'
+  | 'floodgatesPatched'
+  | 'skylineKey'
+  | 'civicSeal'
+  | 'relayAligned';
 type Requirement = LucidFlag | 'allShards';
 
 export interface Position {
@@ -104,7 +113,9 @@ export interface LucidAvenueState {
   visitedDistrictIds: DistrictId[];
 }
 
-const TOTAL_SHARDS = 6;
+export const LUCID_AVENUE_TOTAL_SHARDS = 8;
+export const LUCID_AVENUE_TOTAL_FLAGS = 7;
+const TOTAL_SHARDS = LUCID_AVENUE_TOTAL_SHARDS;
 const MAX_HEAT = 6;
 const MAX_LOG_ENTRIES = 6;
 export const LUCID_AVENUE_6900_TARGET = 6900;
@@ -272,13 +283,13 @@ export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
         label: 'Back toward Arts District',
       },
       {
-        id: 'midcity-to-studio',
+        id: 'midcity-to-river',
         position: { x: 13, y: 5 },
-        to: 'studio-lot',
+        to: 'river-gates',
         spawn: { x: 1, y: 9 },
-        label: 'Cut through the Studio Lot',
+        label: 'Drop into River Gates',
         requirements: ['junctionPowered'],
-        blockedMessage: 'Studio shutters are sealed until Midcity relay power comes back.',
+        blockedMessage: 'River Gate locks stay shut until Midcity relay power comes back.',
       },
       {
         id: 'midcity-to-heights',
@@ -286,6 +297,8 @@ export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
         to: 'sunset-heights',
         spawn: { x: 1, y: 1 },
         label: 'Climb into Sunset Heights',
+        requirements: ['civicSeal'],
+        blockedMessage: 'The upper hill corridor stays dark until Civic Center certifies your badge.',
       },
     ],
     patrols: [
@@ -329,6 +342,87 @@ export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
     ],
     locks: [],
   },
+  'river-gates': {
+    id: 'river-gates',
+    name: 'River Gates',
+    subtitle: 'Concrete channels, flood tunnels, and a pump lattice that keeps half the avenue from drowning.',
+    color: '#14b8a6',
+    map: [
+      '###############',
+      '#....#....#...#',
+      '#.##.#.##.#.#.#',
+      '#.#..#....#.#.#',
+      '#.#.#####.#.#.#',
+      '#...#...#.#...#',
+      '###.#.#.#.###.#',
+      '#...#.#...#...#',
+      '#.###.#####.#.#',
+      '#.............#',
+      '###############',
+    ],
+    spawn: { x: 1, y: 9 },
+    atmosphere: [
+      'Dex has been keeping the flood pumps barely alive while the blackout chews through the lower canals.',
+      'The district is wider than it looks because every safe lane is split by maintenance barriers and water locks.',
+      'Patch the floodgate controller and the western studio corridor will finally stay open.',
+    ],
+    exits: [
+      {
+        id: 'river-to-midcity',
+        position: { x: 1, y: 9 },
+        to: 'midcity',
+        spawn: { x: 13, y: 5 },
+        label: 'Climb back into Midcity',
+      },
+      {
+        id: 'river-to-studio',
+        position: { x: 13, y: 1 },
+        to: 'studio-lot',
+        spawn: { x: 1, y: 9 },
+        label: 'Thread through the studio service road',
+        requirements: ['floodgatesPatched'],
+        blockedMessage: 'The studio service road is still underwater until Dex patches the floodgates.',
+      },
+    ],
+    patrols: [
+      {
+        id: 'river-patrol-1',
+        name: 'Canal scanner',
+        emoji: '🚤',
+        path: [
+          { x: 11, y: 5 },
+          { x: 12, y: 5 },
+          { x: 13, y: 5 },
+          { x: 12, y: 5 },
+          { x: 11, y: 5 },
+        ],
+      },
+      {
+        id: 'river-patrol-2',
+        name: 'Pump inspector',
+        emoji: '🚓',
+        path: [
+          { x: 7, y: 1 },
+          { x: 7, y: 2 },
+          { x: 7, y: 3 },
+          { x: 7, y: 2 },
+        ],
+      },
+    ],
+    shards: [
+      { id: 'river-signal-east', position: { x: 11, y: 5 }, label: 'Canal shard' },
+    ],
+    caches: [
+      { id: 'river-cache', position: { x: 3, y: 5 }, label: 'Maintenance crate', credits: 20, battery: 1 },
+    ],
+    npcs: [
+      { id: 'dex', name: 'Dex', emoji: '🛠️', position: { x: 5, y: 9 }, title: 'Flood runner' },
+    ],
+    terminals: [
+      { id: 'floodgate-controller', name: 'Floodgate Controller', emoji: '🌊', position: { x: 9, y: 1 } },
+    ],
+    locks: [],
+  },
   'studio-lot': {
     id: 'studio-lot',
     name: 'Studio Lot',
@@ -355,11 +449,20 @@ export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
     ],
     exits: [
       {
-        id: 'studio-to-midcity',
+        id: 'studio-to-river',
         position: { x: 1, y: 9 },
-        to: 'midcity',
-        spawn: { x: 13, y: 5 },
-        label: 'Return to Midcity',
+        to: 'river-gates',
+        spawn: { x: 13, y: 1 },
+        label: 'Return to River Gates',
+      },
+      {
+        id: 'studio-to-civic',
+        position: { x: 13, y: 9 },
+        to: 'civic-center',
+        spawn: { x: 1, y: 9 },
+        label: 'Slip into Civic Center',
+        requirements: ['skylineKey'],
+        blockedMessage: 'Civic security will not even open the trench route without Sol’s skyline key.',
       },
     ],
     patrols: [
@@ -383,6 +486,84 @@ export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
     ],
     npcs: [
       { id: 'sol', name: 'Sol', emoji: '🎬', position: { x: 11, y: 5 }, title: 'Archive keeper' },
+    ],
+    terminals: [],
+    locks: [],
+  },
+  'civic-center': {
+    id: 'civic-center',
+    name: 'Civic Center',
+    subtitle: 'Civic archives, courthouse plazas, and the sealed access ring that certifies summit traffic.',
+    color: '#8b5cf6',
+    map: [
+      '###############',
+      '#...#.....#...#',
+      '#.#.#.###.#.#.#',
+      '#.#...#...#.#.#',
+      '#.#####.###.#.#',
+      '#.....#.....#.#',
+      '###.#.#####.#.#',
+      '#...#...#...#.#',
+      '#.#####.#.###.#',
+      '#.............#',
+      '###############',
+    ],
+    spawn: { x: 1, y: 9 },
+    atmosphere: [
+      'Noa runs the civic archive loop and knows which summit corridors are still under lock.',
+      'The plaza is open, but the interior pathways are full of slow-moving watchers that punish sloppy timing.',
+      'Without the civic seal, Sunset Heights stays detached from the rest of the route.',
+    ],
+    exits: [
+      {
+        id: 'civic-to-studio',
+        position: { x: 1, y: 9 },
+        to: 'studio-lot',
+        spawn: { x: 13, y: 9 },
+        label: 'Fall back toward the Studio Lot',
+      },
+      {
+        id: 'civic-to-heights',
+        position: { x: 13, y: 1 },
+        to: 'sunset-heights',
+        spawn: { x: 1, y: 1 },
+        label: 'Push up the certified hill route',
+        requirements: ['civicSeal'],
+        blockedMessage: 'The certified hill route is locked until Noa clears you with the civic seal.',
+      },
+    ],
+    patrols: [
+      {
+        id: 'civic-patrol-1',
+        name: 'Archive marshal',
+        emoji: '🚔',
+        path: [
+          { x: 9, y: 5 },
+          { x: 10, y: 5 },
+          { x: 11, y: 5 },
+          { x: 10, y: 5 },
+        ],
+      },
+      {
+        id: 'civic-patrol-2',
+        name: 'Plaza watcher',
+        emoji: '🛰️',
+        path: [
+          { x: 11, y: 9 },
+          { x: 10, y: 9 },
+          { x: 9, y: 9 },
+          { x: 10, y: 9 },
+        ],
+      },
+    ],
+    shards: [
+      { id: 'civic-signal', position: { x: 11, y: 9 }, label: 'Archive shard' },
+    ],
+    caches: [
+      { id: 'civic-cache', position: { x: 3, y: 5 }, label: 'Clerk vault stash', credits: 25, battery: 1 },
+    ],
+    npcs: [
+      { id: 'noa', name: 'Noa', emoji: '📜', position: { x: 5, y: 5 }, title: 'Civic archivist' },
     ],
     terminals: [],
     locks: [],
@@ -413,11 +594,11 @@ export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
     ],
     exits: [
       {
-        id: 'heights-to-midcity',
+        id: 'heights-to-civic',
         position: { x: 1, y: 9 },
-        to: 'midcity',
-        spawn: { x: 13, y: 9 },
-        label: 'Drop back into Midcity',
+        to: 'civic-center',
+        spawn: { x: 13, y: 1 },
+        label: 'Drop back into Civic Center',
       },
       {
         id: 'heights-to-observatory',
@@ -444,6 +625,7 @@ export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
     ],
     shards: [
       { id: 'heights-signal', position: { x: 11, y: 8 }, label: 'Skyline shard' },
+      { id: 'heights-signal-west', position: { x: 7, y: 1 }, label: 'Ridgeline shard' },
     ],
     caches: [
       { id: 'heights-cache', position: { x: 5, y: 9 }, label: 'Lookout satchel', battery: 2, credits: 20 },
@@ -525,7 +707,9 @@ export function createInitialLucidAvenueState(): LucidAvenueState {
       metRook: false,
       tramPass: false,
       junctionPowered: false,
+      floodgatesPatched: false,
       skylineKey: false,
+      civicSeal: false,
       relayAligned: false,
     },
     patrolSteps: { ...INITIAL_PATROL_STEPS },
@@ -555,7 +739,9 @@ export function getLucidAvenueMissionChecklist(state: LucidAvenueState) {
     state.flags.metRook ? '✅ Rook briefed the run.' : '⬜ Meet Rook on Shoreline.',
     state.flags.tramPass ? '✅ Tram pass unlocked.' : '⬜ Earn Mika’s tram pass with 2 shards.',
     state.flags.junctionPowered ? '✅ Midcity relay junction online.' : '⬜ Power the Midcity junction core.',
+    state.flags.floodgatesPatched ? '✅ River Gates floodgrid patched.' : '⬜ Help Dex patch the River Gates floodgrid.',
     state.flags.skylineKey ? '✅ Skyline key recovered from Sol.' : '⬜ Convince Sol to hand over the skyline key.',
+    state.flags.civicSeal ? '✅ Civic seal cleared by Noa.' : '⬜ Secure Noa’s civic seal in Civic Center.',
     state.flags.relayAligned ? '✅ Sunset relay aligned.' : '⬜ Sync Vera’s sky array in Sunset Heights.',
     state.shards.length >= TOTAL_SHARDS
       ? `✅ All ${TOTAL_SHARDS} signal shards recovered.`
@@ -566,7 +752,9 @@ export function getLucidAvenueMissionChecklist(state: LucidAvenueState) {
     checklist.push('✅ Observatory core stabilized. Lucid Angeles is glowing again.');
   } else if (
     state.flags.junctionPowered
+    && state.flags.floodgatesPatched
     && state.flags.skylineKey
+    && state.flags.civicSeal
     && state.flags.relayAligned
     && state.shards.length >= TOTAL_SHARDS
   ) {
@@ -593,7 +781,7 @@ export function getLucidAvenueCompletionPercent(state: LucidAvenueState) {
   const progress = state.shards.length
     + Object.values(state.flags).filter(Boolean).length
     + (state.outcome === 'win' ? 2 : 0);
-  return Math.min(100, Math.round((progress / 13) * 100));
+  return Math.min(100, Math.round((progress / (TOTAL_SHARDS + LUCID_AVENUE_TOTAL_FLAGS + 2)) * 100));
 }
 
 export function getLucidAvenueStoryBeat(state: LucidAvenueState) {
@@ -611,11 +799,18 @@ export function getLucidAvenueStoryBeat(state: LucidAvenueState) {
       synopsis: 'Mika and Ion push you deeper into Midcity. Patrols overlap harder now, and the whole west side waits on restored junction power.',
     };
   }
-  if (!state.flags.relayAligned) {
+  if (!state.flags.floodgatesPatched || !state.flags.skylineKey) {
     return {
       act: 'Act III · Skyline conspiracy',
-      title: 'Studio secrets and hill relays',
-      synopsis: 'Sol and Vera are holding the keys to the upper city. Recover enough shards, crack the skyline locks, and align the hill array for summit access.',
+      title: 'Flood tunnels and studio secrets',
+      synopsis: 'Dex is holding the lower city together while Sol guards the skyline key. Patch the River Gates and push the route farther west.',
+    };
+  }
+  if (!state.flags.relayAligned || !state.flags.civicSeal) {
+    return {
+      act: 'Act IV · Civic lockdown',
+      title: 'Archive seals and hill relays',
+      synopsis: 'Noa and Vera now control the climb. Secure the civic seal, finish the expanded shard hunt, and align the hill array for summit access.',
     };
   }
   if (state.outcome === 'win') {
@@ -830,34 +1025,70 @@ function handleNpcInteraction(state: LucidAvenueState, npc: LucidNpc) {
       if (!state.flags.junctionPowered) {
         return withMessage(state, 'Ion points at the Junction Core on the lower platform: restore that and the studio shutters lift.', '🛰️ Ion: “The core below us powers everything west.”');
       }
-      if (state.shards.length < 4) {
-        return withMessage(state, 'Ion says Sol will only trade the skyline key once the route looks recoverable.', '🛰️ Ion: “Four shards gets you in the archive room.”');
+      if (!state.flags.floodgatesPatched) {
+        return withMessage(state, 'Ion reroutes your badge to River Gates and says Dex needs the floodgrid patched before the western districts stay stable.', '🛰️ Ion: “River Gates first. No stable pumps, no west-side route.”');
       }
-      return withMessage(state, 'Ion pings Sunset Heights and says Vera can align the last relay once the skyline key is secured.', '🛰️ Ion: “Heights are next. Don’t stall.”');
+      if (state.shards.length < 5) {
+        return withMessage(state, 'Ion says Sol will only trade the skyline key once the route looks recoverable.', '🛰️ Ion: “Five shards gets you in the archive room.”');
+      }
+      return withMessage(state, 'Ion pings Studio Lot and Civic Center: Sol has the skyline key, but Noa still controls the certified hill lanes.', '🛰️ Ion: “Get the key, then get Noa.”');
+
+    case 'dex':
+      if (!state.flags.junctionPowered) {
+        return withMessage(state, 'Dex will not crack the flood lattice while Midcity is still dark.', '🛠️ Dex: “Bring the junction back before you ask me for miracles.”');
+      }
+      if (!state.flags.floodgatesPatched) {
+        return withMessage(state, 'Dex slaps the floodgate controller and says the console on the upper catwalk is ready for you now.', '🛠️ Dex: “Patch the controller and I can hold the lower city.”');
+      }
+      return withMessage(state, 'Dex says the studio road is finally dry enough for a full run and reminds you to keep collecting shards.', '🛠️ Dex: “West side is open. Don’t waste it.”');
 
     case 'sol':
       if (!state.flags.junctionPowered) {
         return withMessage(state, 'Sol keeps the archive cases sealed until city power returns.', '🎬 Sol: “No power, no key, no deal.”');
       }
-      if (!state.flags.skylineKey && state.shards.length >= 4) {
+      if (!state.flags.floodgatesPatched) {
+        return withMessage(state, 'Sol wants the flood tunnels stabilized before he risks opening the skyline archive.', '🎬 Sol: “Patch River Gates. Then we talk.”');
+      }
+      if (!state.flags.skylineKey && state.shards.length >= 5) {
         return appendLog({
           ...state,
           flags: { ...state.flags, skylineKey: true },
           credits: state.credits + 30,
           message: 'Sol slides the skyline key across the console. The hill locks will listen to it.',
-        }, '🎬 Sol: “Four shards is enough. Take the skyline key.”');
+        }, '🎬 Sol: “Five shards is enough. Take the skyline key.”');
       }
       if (!state.flags.skylineKey) {
-        return withMessage(state, 'Sol wants four recovered shards before he risks opening summit infrastructure.', '🎬 Sol: “Recover more of the city before I unlock its crown.”');
+        return withMessage(state, 'Sol wants five recovered shards before he risks opening summit infrastructure.', '🎬 Sol: “Recover more of the city before I unlock its crown.”');
       }
-      return withMessage(state, 'Sol reminds you Vera still has to line up the hillside relay before the summit route opens.', '🎬 Sol: “Key gets you close. Vera gets you through.”');
+      if (!state.flags.civicSeal) {
+        return withMessage(state, 'Sol points you toward Civic Center and says Noa is the only one who can certify the upper corridor.', '🎬 Sol: “Key gets you in. Noa gets you higher.”');
+      }
+      return withMessage(state, 'Sol reminds you Vera still has to line up the hillside relay before the summit route opens.', '🎬 Sol: “You’ve got the paperwork. Finish the sky.”');
+
+    case 'noa':
+      if (!state.flags.skylineKey) {
+        return withMessage(state, 'Noa refuses to certify an unknown route without Sol’s skyline key on your badge.', '📜 Noa: “Bring valid skyline credentials.”');
+      }
+      if (!state.flags.civicSeal && state.shards.length >= 6) {
+        return appendLog({
+          ...state,
+          flags: { ...state.flags, civicSeal: true },
+          credits: state.credits + 25,
+          battery: state.battery + 1,
+          message: 'Noa stamps your badge with a civic seal. The upper hill corridor is officially yours.',
+        }, '📜 Noa: “Certified. Use the corridor well.”');
+      }
+      if (!state.flags.civicSeal) {
+        return withMessage(state, 'Noa wants six recovered shards on the board before certifying a summit corridor.', '📜 Noa: “Bring me a city worth certifying.”');
+      }
+      return withMessage(state, 'Noa confirms Sunset Heights is the last clean approach and tells you Vera is waiting.', '📜 Noa: “The hills are open. Finish the climb.”');
 
     case 'vera':
-      if (!state.flags.skylineKey) {
-        return withMessage(state, 'Vera sees the dead locks on your badge and tells you to get Sol’s skyline key first.', '🔭 Vera: “Come back with the right key.”');
+      if (!state.flags.civicSeal) {
+        return withMessage(state, 'Vera sees the uncertified locks on your badge and tells you to get Noa’s civic seal first.', '🔭 Vera: “Come back with the right clearance.”');
       }
-      if (state.shards.length < 5) {
-        return withMessage(state, 'Vera wants the city nearly whole before she risks aligning the hill array.', '🔭 Vera: “Bring me one more shard.”');
+      if (state.shards.length < 7) {
+        return withMessage(state, 'Vera wants the city nearly whole before she risks aligning the hill array.', '🔭 Vera: “Bring me one more block of the city.”');
       }
       if (!state.flags.relayAligned) {
         return withMessage(state, 'Vera says the array terminal beside the overlook is ready for you now.', '🔭 Vera: “The sky array is primed. Finish the alignment yourself.”');
@@ -865,7 +1096,7 @@ function handleNpcInteraction(state: LucidAvenueState, npc: LucidNpc) {
       return withMessage(state, 'Vera watches the summit gate and says the observatory will open if your shard count is complete.', '🔭 Vera: “You’re almost there.”');
 
     case 'aria':
-      if (!meetsRequirements(state, ['junctionPowered', 'skylineKey', 'relayAligned', 'allShards'])) {
+      if (!meetsRequirements(state, ['junctionPowered', 'floodgatesPatched', 'skylineKey', 'civicSeal', 'relayAligned', 'allShards'])) {
         return withMessage(state, 'Aria says the observatory can only hold if the whole route is already stabilized.', '🌌 Aria: “No half-fixes at the summit.”');
       }
       return withMessage(state, 'Aria holds the dome steady. One last interaction with the core will relight the city.', '🌌 Aria: “I’ve held it long enough. Finish it.”');
@@ -891,11 +1122,26 @@ function handleTerminalInteraction(state: LucidAvenueState, terminal: LucidTermi
         message: 'Midcity relay power comes back online. Studio shutters are unlocked.',
       }, '🖥️ Junction Core restored.');
 
-    case 'sky-array':
-      if (!state.flags.skylineKey) {
-        return withMessage(state, 'The Sky Array needs Sol’s skyline key before it will unlock calibration controls.', '📡 Sky Array: skyline key missing.');
+    case 'floodgate-controller':
+      if (!state.flags.junctionPowered) {
+        return withMessage(state, 'The floodgate controller is offline until Midcity relay power is restored.', '🌊 Floodgate Controller: waiting for upstream power.');
       }
-      if (state.shards.length < 5) {
+      if (state.flags.floodgatesPatched) {
+        return withMessage(state, 'The floodgate controller is already stabilized. River Gates is finally holding.', '🌊 Floodgate Controller: stable flow.');
+      }
+      return appendLog({
+        ...state,
+        flags: { ...state.flags, floodgatesPatched: true },
+        battery: state.battery + 1,
+        credits: state.credits + 20,
+        message: 'River Gates pumps stabilize and the western studio road clears out.',
+      }, '🌊 Floodgate Controller patched.');
+
+    case 'sky-array':
+      if (!state.flags.civicSeal) {
+        return withMessage(state, 'The Sky Array needs Noa’s civic seal before it will unlock calibration controls.', '📡 Sky Array: civic seal missing.');
+      }
+      if (state.shards.length < 7) {
         return withMessage(state, 'The array wants more network stability before it risks a summit handoff.', '📡 Sky Array: insufficient city sync.');
       }
       if (state.flags.relayAligned) {
@@ -909,7 +1155,7 @@ function handleTerminalInteraction(state: LucidAvenueState, terminal: LucidTermi
       }, '📡 Sky Array aligned.');
 
     case 'observatory-core':
-      if (!meetsRequirements(state, ['junctionPowered', 'skylineKey', 'relayAligned', 'allShards'])) {
+      if (!meetsRequirements(state, ['junctionPowered', 'floodgatesPatched', 'skylineKey', 'civicSeal', 'relayAligned', 'allShards'])) {
         return withMessage(state, 'The observatory core flickers but refuses the sync. Something on the route is still missing.', '✨ Observatory Core: sync rejected.');
       }
       return appendLog({
@@ -1009,15 +1255,23 @@ export function getLucidAvenueHint(state: LucidAvenueState) {
   if (!state.flags.junctionPowered) {
     return 'AI route hint: reach the Midcity Junction Core and bring the relay back online.';
   }
+  if (!state.flags.floodgatesPatched) {
+    return 'AI route hint: head into River Gates, find Dex, and patch the floodgate controller before pushing west.';
+  }
   if (!state.flags.skylineKey) {
-    return state.shards.length >= 4
+    return state.shards.length >= 5
       ? 'AI route hint: visit Sol in the Studio Lot for the skyline key.'
-      : 'AI route hint: recover four total shards so Sol will trust the route enough to trade the skyline key.';
+      : 'AI route hint: recover five total shards so Sol will trust the route enough to trade the skyline key.';
+  }
+  if (!state.flags.civicSeal) {
+    return state.shards.length >= 6
+      ? 'AI route hint: visit Noa in Civic Center to secure the civic seal.'
+      : 'AI route hint: recover six total shards so Noa will certify your hill corridor.';
   }
   if (!state.flags.relayAligned) {
-    return state.shards.length >= 5
+    return state.shards.length >= 7
       ? 'AI route hint: align Vera’s Sky Array in Sunset Heights.'
-      : 'AI route hint: recover one more shard before trying to align the hill relay.';
+      : 'AI route hint: recover enough remaining shards before trying to align the hill relay.';
   }
   if (state.shards.length < TOTAL_SHARDS) {
     return 'AI route hint: the summit can wait — finish recovering every remaining shard first.';

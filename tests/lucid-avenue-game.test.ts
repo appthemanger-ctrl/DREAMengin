@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  LUCID_AVENUE_DISTRICTS,
   createInitialLucidAvenueState,
   getLucidAvenueHint,
   getLucidAvenueMissionChecklist,
@@ -30,7 +31,7 @@ describe('Lucid Avenue game slice', () => {
     expect(src).toContain('Lucid Avenue');
     expect(src).toContain('original LA-inspired retro city quest');
     expect(src).toContain('not a copy of the archive’s copyrighted content');
-    expect(src).toContain('six districts, deterministic patrol routes');
+    expect(src).toContain('eight connected districts, multiple west-side routes');
     expect(src).toContain('classic handheld-style sprite animation');
     expect(src).toContain('Trainer cam');
     expect(src).toContain('AI Hint');
@@ -41,13 +42,16 @@ describe('Lucid Avenue game slice', () => {
     expect(src).toContain('Shared GameRemote directions work in the dedicated play session.');
   });
 
-  it('starts on Shoreline with a full mission arc instead of a single-room loop', () => {
+  it('starts on Shoreline with a larger multi-district mission arc instead of a single-room loop', () => {
     const state = createInitialLucidAvenueState();
     const checklist = getLucidAvenueMissionChecklist(state);
 
     expect(state.districtId).toBe('shoreline');
+    expect(Object.keys(LUCID_AVENUE_DISTRICTS)).toHaveLength(8);
     expect(checklist).toContain('⬜ Meet Rook on Shoreline.');
     expect(checklist).toContain('⬜ Power the Midcity junction core.');
+    expect(checklist).toContain('⬜ Help Dex patch the River Gates floodgrid.');
+    expect(checklist).toContain('⬜ Secure Noa’s civic seal in Civic Center.');
     expect(checklist).toContain('⬜ Sync Vera’s sky array in Sunset Heights.');
   });
 
@@ -80,14 +84,19 @@ describe('Lucid Avenue game slice', () => {
         'arts-signal',
         'midcity-signal-east',
         'midcity-signal-south',
+        'river-signal-east',
         'studio-signal',
+        'civic-signal',
         'heights-signal',
+        'heights-signal-west',
       ],
       flags: {
         metRook: true,
         tramPass: true,
         junctionPowered: true,
+        floodgatesPatched: true,
         skylineKey: true,
+        civicSeal: true,
         relayAligned: true,
       },
     };
@@ -122,5 +131,21 @@ describe('Lucid Avenue game slice', () => {
     expect(state.credits).toBe(0);
     expect(state.battery).toBe(1);
     expect(state.message).toContain('GameEngin uplink');
+  });
+
+  it('updates AI hints toward the expanded west-side mission chain', () => {
+    let state = createInitialLucidAvenueState();
+    state = {
+      ...state,
+      flags: {
+        ...state.flags,
+        metRook: true,
+        tramPass: true,
+        junctionPowered: true,
+      },
+      shards: ['shoreline-signal', 'arts-signal', 'midcity-signal-east'],
+    };
+
+    expect(getLucidAvenueHint(state)).toContain('River Gates');
   });
 });

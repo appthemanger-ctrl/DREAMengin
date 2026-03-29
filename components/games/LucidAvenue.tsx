@@ -5,6 +5,8 @@ import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 import {
   LUCID_AVENUE_DISTRICTS,
   LUCID_AVENUE_6900_TARGET,
+  LUCID_AVENUE_TOTAL_FLAGS,
+  LUCID_AVENUE_TOTAL_SHARDS,
   calculateLucidAvenueScore,
   createInitialLucidAvenueState,
   getLucidAvenueCompletionPercent,
@@ -206,6 +208,7 @@ export default function LucidAvenue() {
   const districtVisitedCount = state.visitedDistrictIds.length;
   const scanActive = state.scanTurns > 0;
   const featuredDistricts = Object.values(LUCID_AVENUE_DISTRICTS);
+  const totalDistricts = featuredDistricts.length;
   const districtShardCount = district.shards.filter((entry) => state.shards.includes(entry.id)).length;
   const districtCacheCount = district.caches.filter((entry) => state.caches.includes(entry.id)).length;
   const aiHint = useMemo(() => getLucidAvenueHint(state), [state]);
@@ -223,6 +226,7 @@ export default function LucidAvenue() {
   const trainerCamCellSize = isPhoneLayout ? 28 : isMobileLayout ? 34 : TRAINER_CAM_CELL_SIZE;
   const selectedOutfit = PLAYER_OUTFITS.find((entry) => entry.id === selectedOutfitId) ?? PLAYER_OUTFITS[0];
   const in6900Club = score >= LUCID_AVENUE_6900_TARGET;
+  const totalFlags = Object.keys(state.flags).length;
 
   if (phase === 'menu') {
     return (
@@ -238,23 +242,23 @@ export default function LucidAvenue() {
           </div>
           <div style={{ maxWidth: 760, color: 'rgba(226,232,240,0.84)', fontSize: 13, lineHeight: 1.8 }}>
             This is an original LA-inspired retro city quest, expanded far beyond the tiny earlier slice:
-            six districts, deterministic patrol routes, shard recovery, NPC-gated progression, relay terminals,
-            skyline keys, observatory finale, classic handheld-style sprite animation, triple outfit loadouts, GameEngin-linked jam tech, AI route hints, and a full mission loop built for DREAMengin.
+            eight connected districts, multiple west-side routes, expanded shard recovery, NPC-gated progression, relay terminals,
+            civic clearances, observatory finale, classic handheld-style sprite animation, triple outfit loadouts, GameEngin-linked jam tech, AI route hints, and a much larger mission loop built for DREAMengin.
             It is not a copy of the archive’s copyrighted content.
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
           {[
-            '6 connected districts',
-            '6 signal shards',
-            '5 quest flags',
+            `${totalDistricts} connected districts`,
+            `${LUCID_AVENUE_TOTAL_SHARDS} signal shards`,
+            `${LUCID_AVENUE_TOTAL_FLAGS} quest flags`,
             'Patrol rhythm stealth',
             'Sprite animation + trainer cam',
             '3 runner outfits',
             'GameEngin grid jam',
             'AI route hints',
-            'NPC + terminal progression',
+            'NPC + terminal mission chain',
             '6900 Club score target',
             'Dedicated observatory finale',
           ].map((item) => (
@@ -337,7 +341,7 @@ export default function LucidAvenue() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           <StatChip label="Score" value={score.toLocaleString()} accent="#f59e0b" />
           <StatChip label="Completion" value={`${completion}%`} accent="#22c55e" />
-          <StatChip label="Districts" value={`${districtVisitedCount}/6`} accent="#38bdf8" />
+          <StatChip label="Districts" value={`${districtVisitedCount}/${totalDistricts}`} accent="#38bdf8" />
           <StatChip label="Club" value={in6900Club ? '6900 ✓' : `6900 · ${Math.max(0, LUCID_AVENUE_6900_TARGET - score)}`} accent={in6900Club ? '#f59e0b' : '#a78bfa'} />
           <button onClick={startGame} style={secondaryButtonStyle}>Restart</button>
         </div>
@@ -349,7 +353,7 @@ export default function LucidAvenue() {
             <div style={{ color: '#f8fafc', fontWeight: 800, fontSize: 14 }}>City grid</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               <MiniChip text={`Turn ${state.turn}`} />
-              <MiniChip text={`${state.shards.length}/6 shards`} />
+              <MiniChip text={`${state.shards.length}/${LUCID_AVENUE_TOTAL_SHARDS} shards`} />
               <MiniChip text={`Battery ${state.battery}`} />
               <MiniChip text={`Heat ${state.heat}/${6}`} tone={state.heat >= 4 ? '#f87171' : '#facc15'} />
               <MiniChip text={scanActive ? `Scan +${state.scanTurns}` : 'Scan idle'} tone={scanActive ? '#67e8f9' : '#94a3b8'} />
@@ -561,12 +565,12 @@ export default function LucidAvenue() {
             <div style={{ display: 'grid', gap: 8 }}>
               <BarRow label="Heat" value={state.heat} max={6} color={state.heat >= 4 ? '#ef4444' : '#f59e0b'} />
               <BarRow label="Battery" value={state.battery} max={6} color="#38bdf8" />
-              <BarRow label="Shards" value={state.shards.length} max={6} color="#c084fc" />
+              <BarRow label="Shards" value={state.shards.length} max={LUCID_AVENUE_TOTAL_SHARDS} color="#c084fc" />
             </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
                 <MiniMetric label="Credits" value={`${state.credits}`} />
-                <MiniMetric label="Visited" value={`${districtVisitedCount}/6`} />
-                <MiniMetric label="Flags" value={`${Object.values(state.flags).filter(Boolean).length}/5`} />
+                <MiniMetric label="Visited" value={`${districtVisitedCount}/${totalDistricts}`} />
+                <MiniMetric label="Flags" value={`${Object.values(state.flags).filter(Boolean).length}/${totalFlags}`} />
                 <MiniMetric label="State" value={phase === 'playing' ? 'Active' : phase === 'win' ? 'Won' : 'Burned'} />
                 <MiniMetric label="Jam" value={state.jamTurns > 0 ? `Live +${state.jamTurns}` : 'Idle'} />
                 <MiniMetric label="Club target" value={`${LUCID_AVENUE_6900_TARGET}`} />
@@ -627,7 +631,7 @@ export default function LucidAvenue() {
           </div>
           <div style={{ fontSize: 12, color: 'rgba(248,250,252,0.82)', lineHeight: 1.7 }}>
             {phase === 'win'
-              ? `Lucid Angeles lights back up after ${state.turn} turns with ${state.shards.length}/6 shards, ${state.credits} credits, and a final score of ${score.toLocaleString()}.${in6900Club ? ' The 6900 Club logs your run as a prestige clear.' : ''}`
+              ? `Lucid Angeles lights back up after ${state.turn} turns with ${state.shards.length}/${LUCID_AVENUE_TOTAL_SHARDS} shards, ${state.credits} credits, and a final score of ${score.toLocaleString()}.${in6900Club ? ' The 6900 Club logs your run as a prestige clear.' : ''}`
               : `Heat capped out after ${state.turn} turns. Reset the run, route cleaner through the patrol rhythm, and try again.`}
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
