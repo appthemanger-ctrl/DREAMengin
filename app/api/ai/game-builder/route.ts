@@ -210,10 +210,10 @@ export async function POST(req: NextRequest) {
   await writeAuditLog({
     request_id,
     user_id: user.id,
-    agent: 'dr_eams',
+    agent: 'dr_eams',  // game-builder shares the eams audit channel (no dedicated enum value)
     ok: true,
     latency_ms: Date.now() - requestStart,
-    payload: { message, game_id, has_code: !!result.code_snippet },
+    payload: { source: 'game_builder', message, game_id, has_code: !!result.code_snippet },
   });
 
   return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } });

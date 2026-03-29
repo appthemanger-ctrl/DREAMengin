@@ -379,7 +379,7 @@ export default function GameBuilderAgent({
                     borderRadius: '50%',
                     background: ACCENT,
                     display: 'inline-block',
-                    animation: `de-bounce 0.9s ease-in-out ${i * 0.15}s infinite`,
+                    animation: `game-builder-bounce 0.9s ease-in-out ${i * 0.15}s infinite`,
                   }}
                 />
               ))}
@@ -468,7 +468,7 @@ export default function GameBuilderAgent({
 
       {/* Bounce animation keyframes injected once */}
       <style>{`
-        @keyframes de-bounce {
+        @keyframes game-builder-bounce {
           0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
           30% { transform: translateY(-4px); opacity: 1; }
         }
