@@ -119,6 +119,63 @@ export default async function ShopPage() {
           Sellers set their own prices and manage checkout directly. Use &ldquo;Contact Seller&rdquo; to arrange purchase via DreamDM.
         </div>
 
+        {/* ── Platform Feature Tiers ── */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>✦</span>
+            <span className="de-widget-title ml-2">Platform Feature Tiers</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 14 }}>
+              Every engine and daydream now ships with 20 industry features. Here&apos;s what you unlock at each tier.
+            </p>
+
+            {/* Tier comparison */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+              {[
+                { tier: 'Free', color: '#22c55e', features: 10 },
+                { tier: 'Pro',  color: '#6366f1', features: 16 },
+                { tier: 'Elite',color: '#c8981a', features: 20 },
+              ].map(t => (
+                <div key={t.tier} style={{ flex: 1, padding: '12px 10px', borderRadius: 12, background: `${t.color}0e`, border: `1.5px solid ${t.color}30`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: t.color }}>{t.tier}</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: t.color, marginTop: 4 }}>{t.features}</div>
+                  <div style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>features per engine</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Per-engine breakdown */}
+            {[
+              { emoji: '🎮', name: 'GameEngin',     accent: '#c8981a', features: ['Console Home', 'Tournament Mode', 'AI Director', 'Season Pass', 'Dream Economy', 'Daily Quests', 'Multiplayer Lobby', 'World Builder (Elite)', 'Speedrun Timer', 'Neon Drift + Echo Arena (Elite)'] },
+              { emoji: '🎨', name: 'BrandingEngin', accent: '#ec4899', features: ['Brand Kit', 'Brand Voice AI', 'Competitor Watch', 'Press Kit Builder (Elite)', 'Sponsorship Pitch (Elite)', 'Color Palette Generator', 'Typography Kit', 'Persona Builder', 'Bio Optimizer', 'Game Engine Visual Presets (Elite)'] },
+              { emoji: '📝', name: 'ContentEngin',  accent: '#f59e0b', features: ['Smart Draft Generator', 'Hashtag Optimizer', 'Viral Hook Builder', 'Multi-Platform Scheduler', 'Ad Copy Generator (Elite)', 'Content Repurposer', 'SEO Optimizer', 'Short Video Editor', 'Performance Predictor', 'Cinematic Intros (Elite)'] },
+              { emoji: '💻', name: 'CodeEngin',     accent: '#6366f1', features: ['Live Notebook', 'CI Pipeline', 'AI Code Assist', 'Security Scanner', 'Performance Profiler', 'Package Manager', 'Database Browser', 'REST Client', 'Pair Programming (Pro)', 'Game Engine Integration (Elite)'] },
+              { emoji: '🔬', name: 'LabEngin',      accent: '#22c55e', features: ['Simulation Runner', 'Data Visualization', 'WebGPU Monitor (Elite)', 'Benchmark Suite', 'Neural Visualizer', 'Quantum Circuit Simulator (Elite)', 'Parameter Sweep', 'Hypothesis Tracker', 'Resource Monitor', 'CI/CD Integration'] },
+              { emoji: '📊', name: 'AnalyticsEngin',accent: '#6366f1', features: ['Social Media Overview', 'Engagement Funnel', 'A/B Post Comparison', 'Content Gap Analysis', 'Competitor Benchmark', 'Audience Demographics', 'Brand Sentiment', 'Revenue from Content', 'Growth Projection', 'Game Engine Telemetry (Elite)'] },
+            ].map(eng => (
+              <div key={eng.name} style={{ marginBottom: 12, padding: '12px 14px', borderRadius: 14, background: `${eng.accent}07`, border: `1px solid ${eng.accent}18` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 20 }}>{eng.emoji}</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>{eng.name}</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: eng.accent, background: `${eng.accent}15`, padding: '2px 7px', borderRadius: 5 }}>20 features</span>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {eng.features.map(f => (
+                    <span key={f} style={{ fontSize: 10, fontWeight: f.includes('(Elite)') ? 700 : f.includes('(Pro)') ? 600 : 500, padding: '3px 8px', borderRadius: 6, background: f.includes('(Elite)') ? `${eng.accent}18` : f.includes('(Pro)') ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.6)', color: f.includes('(Elite)') ? eng.accent : f.includes('(Pro)') ? '#6366f1' : 'var(--de-text)', border: `1px solid ${f.includes('(Elite)') ? eng.accent + '30' : f.includes('(Pro)') ? 'rgba(99,102,241,0.2)' : 'rgba(0,0,0,0.07)'}` }}>
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <div style={{ fontSize: 10, color: 'var(--de-text-dim)', textAlign: 'center', marginTop: 6 }}>
+              Features marked <strong style={{ color: '#c8981a' }}>(Elite)</strong> require EliteGameEngine. Features marked <strong style={{ color: '#6366f1' }}>(Pro)</strong> require Pro tier.
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

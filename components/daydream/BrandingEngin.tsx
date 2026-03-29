@@ -846,6 +846,231 @@ export default function BrandingEngin({ onBack }: Props) {
           </div>
         </div>
 
+        {/* ── Feature 13: Brand Health Score ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>💪</span>
+            <span className="de-widget-title ml-2">Brand Health Score</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ textAlign: 'center', padding: '10px 0' }}>
+              <div style={{ fontSize: 48, fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>74</div>
+              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 4 }}>/ 100 — Good</div>
+              <div style={{ margin: '12px auto', height: 8, maxWidth: 200, borderRadius: 4, background: 'rgba(0,0,0,0.07)' }}>
+                <div style={{ height: '100%', borderRadius: 4, width: '74%', background: 'linear-gradient(90deg, #22c55e, #6366f1)' }} />
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
+              {[
+                { label: 'Profile completeness', score: 90, color: '#22c55e' },
+                { label: 'Post consistency',      score: 65, color: '#f59e0b' },
+                { label: 'Engagement quality',    score: 78, color: '#6366f1' },
+                { label: 'Brand voice clarity',   score: 62, color: '#ec4899' },
+              ].map(s => (
+                <div key={s.label} style={{ padding: '8px 10px', borderRadius: 9, background: `${s.color}0e`, border: `1px solid ${s.color}20` }}>
+                  <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginBottom: 3 }}>{s.label}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: s.color }}>{s.score}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 14: Color Palette Generator ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Palette className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Color Palette Generator</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Your brand accent color generates a cohesive palette automatically.
+            </p>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+              {['#ec4899','#f9a8d4','#c026d3','#fbbf24','#1e1b4b','#f0fdf4'].map(c => (
+                <div key={c} title={c} style={{ flex: 1, height: 36, borderRadius: 8, background: c, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.4)', transition: 'transform 0.1s' }}
+                  onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.9)'; }}
+                  onPointerUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+                  onClick={() => { navigator.clipboard?.writeText(c).catch(() => {}); }}
+                />
+              ))}
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Tap a swatch to copy the hex code.</div>
+          </div>
+        </div>
+
+        {/* ── Feature 15: Typography Kit ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <BookOpen className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Typography Kit</span>
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[
+              { role: 'Display', font: 'Syne Mono', sample: 'DREAMengin', size: 22, weight: 800 },
+              { role: 'Body',    font: 'Inter',     sample: 'Building the future of creativity.', size: 13, weight: 400 },
+              { role: 'Caption', font: 'JetBrains Mono', sample: 'v2.0.0 · production', size: 11, weight: 500 },
+            ].map(t => (
+              <div key={t.role} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}15` }}>
+                <div style={{ fontSize: 9, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+                  {t.role} · {t.font}
+                </div>
+                <div style={{ fontSize: t.size, fontWeight: t.weight, color: 'var(--de-heading)' }}>{t.sample}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Feature 16: Sponsorship Pitch Generator ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Megaphone className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Sponsorship Pitch Generator</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Auto-generate a brand pitch deck one-pager ready to send to sponsors.
+            </p>
+            <div style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(236,72,153,0.06)', border: '1px solid rgba(236,72,153,0.18)', fontSize: 12, color: 'var(--de-text)', lineHeight: 1.6 }}>
+              <strong>Hi [Sponsor Name],</strong><br />
+              I&apos;m <em>{profile?.display_name ?? 'a creator'}</em>{profile?.handle ? ` (@${profile.handle})` : ''} with a highly engaged audience of{' '}
+              {profile ? profile.follower_count.toLocaleString() : '—'} followers.<br /><br />
+              My content focus: <strong>creative tech, building in public, lifestyle</strong>.<br />
+              Average engagement rate: <strong>5.2%</strong> (3× industry avg).<br /><br />
+              I&apos;d love to partner on a sponsored post, story series, or long-term campaign.
+              My rates start at <strong>$500 per post</strong>.<br /><br />
+              Let&apos;s create something special together. 🚀
+            </div>
+            <button type="button"
+              onClick={() => {
+                const text = `Hi [Sponsor], I'm ${profile?.display_name ?? 'a creator'} with ${profile?.follower_count ?? 0} followers. Engagement 5.2%. Let's collab.`;
+                navigator.clipboard?.writeText(text).catch(() => {});
+              }}
+              style={{ marginTop: 8, padding: '7px 14px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: `${ACCENT}14`, border: `1px solid ${ACCENT}30`, color: ACCENT, cursor: 'pointer', width: '100%' }}>
+              📋 Copy Pitch to Clipboard
+            </button>
+          </div>
+        </div>
+
+        {/* ── Feature 17: Press Kit Builder ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Layers className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Press Kit Builder</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Your press kit is auto-assembled from your profile, stats, and brand assets.
+            </p>
+            {[
+              { label: 'Creator Bio',       status: profile?.display_name ? '✅' : '⚠', detail: 'From your profile' },
+              { label: 'Logo / Avatar',     status: '✅', detail: 'Profile photo used' },
+              { label: 'Audience Stats',    status: '✅', detail: '14.2K followers, 5.2% eng' },
+              { label: 'Media Kit PDF',     status: '📄', detail: 'Ready to export' },
+              { label: 'Social Links',      status: '🔗', detail: 'Connect platforms to include' },
+            ].map(item => (
+              <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 10px', marginBottom: 5, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}12` }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)' }}>{item.label}</div>
+                  <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{item.detail}</div>
+                </div>
+                <span style={{ fontSize: 16 }}>{item.status}</span>
+              </div>
+            ))}
+            <button type="button"
+              style={{ marginTop: 6, padding: '8px 14px', borderRadius: 9, fontSize: 11, fontWeight: 700, background: `${ACCENT}14`, border: `1px solid ${ACCENT}30`, color: ACCENT, cursor: 'pointer', width: '100%' }}>
+              ⬇ Download Press Kit
+            </button>
+          </div>
+        </div>
+
+        {/* ── Feature 18: Social Media Bio Optimizer ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Eye className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Bio Optimizer</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Platform-optimized bios generated from your brand voice.
+            </p>
+            {[
+              { platform: '📸 Instagram', bio: '✨ Creative tech builder | DREAMengin • Building in public 🚀 | DMs open', chars: 72 },
+              { platform: '🐦 X / Twitter', bio: 'Building the future of creative tech @DREAMengin | shipped daily 🔥', chars: 67 },
+              { platform: '🎵 TikTok', bio: 'creative tech & builds 🛠 | dreamengin.io', chars: 42 },
+              { platform: '💼 LinkedIn', bio: 'Creator & Developer | DREAMengin Platform | Creative Technology Innovator', chars: 74 },
+            ].map(b => (
+              <div key={b.platform} style={{ marginBottom: 8, padding: '9px 11px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15` }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>{b.platform} · {b.chars} chars</div>
+                <div style={{ fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.4 }}>{b.bio}</div>
+                <button type="button" onClick={() => navigator.clipboard?.writeText(b.bio).catch(() => {})}
+                  style={{ marginTop: 5, fontSize: 10, color: 'var(--de-text-dim)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                  📋 Copy
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Feature 19: Audience Persona Builder ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Users className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Audience Persona Builder</span>
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[
+              { name: 'The Hustler', age: '22–28', interests: 'Tech, Startups, Side hustles', device: 'Mobile', pct: 38 },
+              { name: 'The Creative', age: '18–24', interests: 'Art, Music, Content creation', device: 'Mobile', pct: 29 },
+              { name: 'The Builder', age: '28–36', interests: 'Dev, Open-source, Products', device: 'Desktop', pct: 21 },
+            ].map(p => (
+              <div key={p.name} style={{ padding: '10px 12px', borderRadius: 10, background: `${ACCENT}08`, border: `1px solid ${ACCENT}18` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{p.name}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: ACCENT }}>{p.pct}%</span>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Age: {p.age} · {p.device}</div>
+                <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{p.interests}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Feature 20: Game Engine Visual Presets ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>🎮</span>
+            <span className="de-widget-title ml-2">Game Engine Visual Presets</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              EliteEngine
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Apply your brand color palette to the Game Engine visual theme — affects post-processing, bloom, and HUD colors across all games.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+              {[
+                { name: 'Brand Pink', accent: '#ec4899', active: true },
+                { name: 'Neon Gold',  accent: '#c8981a', active: false },
+                { name: 'Dream Blue', accent: '#2a8ab8', active: false },
+              ].map(preset => (
+                <button key={preset.name} type="button"
+                  style={{ padding: '10px 8px', borderRadius: 10, background: `${preset.accent}14`, border: `2px solid ${preset.accent}${preset.active ? '80' : '25'}`, cursor: 'pointer', textAlign: 'center' }}
+                  onClick={() => {
+                    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+                      'brand', 'brand:game-theme', { accent: preset.accent },
+                    );
+                  }}>
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: preset.accent, margin: '0 auto 5px' }} />
+                  <div style={{ fontSize: 10, fontWeight: 700, color: preset.accent }}>{preset.name}</div>
+                  {preset.active && <div style={{ fontSize: 9, color: '#22c55e', marginTop: 2 }}>● Active</div>}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* ── Journey Trail ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">

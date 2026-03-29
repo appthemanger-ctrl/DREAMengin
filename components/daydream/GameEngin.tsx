@@ -2101,12 +2101,149 @@ export default function GameEngin({ onBack }: Props) {
           </div>
         </div>
 
+        {/* ── Feature 17: Season Pass / Battle Pass Tracker ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>⭐</span>
+            <span className="de-widget-title ml-2">Season Pass</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#c8981a', background: 'rgba(200,152,26,0.12)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              Season 3
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 12 }}>
+              <span style={{ color: 'var(--de-text-dim)' }}>XP Progress</span>
+              <span style={{ fontWeight: 700, color: 'var(--de-heading)' }}>4,200 / 10,000 XP</span>
+            </div>
+            <div style={{ height: 8, borderRadius: 4, background: 'rgba(200,152,26,0.12)', marginBottom: 8 }}>
+              <div style={{ height: '100%', borderRadius: 4, width: '42%', background: 'linear-gradient(90deg, #c8981a, #f59e0b)' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 5 }}>
+              {[
+                { tier: 1, reward: '💎', unlocked: true },
+                { tier: 2, reward: '🎮', unlocked: true },
+                { tier: 3, reward: '🏆', unlocked: true },
+                { tier: 4, reward: '🌟', unlocked: false },
+                { tier: 5, reward: '👑', unlocked: false },
+              ].map(t => (
+                <div key={t.tier} style={{ textAlign: 'center', padding: '8px 4px', borderRadius: 8, background: t.unlocked ? 'rgba(200,152,26,0.15)' : 'rgba(0,0,0,0.05)', border: `1px solid ${t.unlocked ? 'rgba(200,152,26,0.35)' : 'rgba(0,0,0,0.08)'}`, opacity: t.unlocked ? 1 : 0.5 }}>
+                  <div style={{ fontSize: 18, filter: t.unlocked ? 'none' : 'grayscale(1)' }}>{t.reward}</div>
+                  <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>T{t.tier}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 10, fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center' }}>
+              Level 42 · 5,800 XP needed for next reward tier
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 18: Daily / Weekly Quests ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>📋</span>
+            <span className="de-widget-title ml-2">Quests</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              2/4 done
+            </span>
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+            {[
+              { quest: 'Play 3 games today',        xp: '+100 XP', done: true,  progress: '3/3' },
+              { quest: 'Reach 500 pts in Speed Tap', xp: '+200 XP', done: true,  progress: '✓'   },
+              { quest: 'Win a multiplayer match',    xp: '+300 XP', done: false, progress: '0/1'  },
+              { quest: 'Post a high score',          xp: '+150 XP', done: false, progress: '0/1'  },
+            ].map(q => (
+              <div key={q.quest} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 9, background: q.done ? 'rgba(34,197,94,0.07)' : 'rgba(255,255,255,0.5)', border: `1px solid ${q.done ? 'rgba(34,197,94,0.25)' : 'rgba(0,0,0,0.06)'}` }}>
+                <span style={{ fontSize: 16 }}>{q.done ? '✅' : '⬜'}</span>
+                <span style={{ flex: 1, fontSize: 11, color: 'var(--de-heading)', fontWeight: 600, textDecoration: q.done ? 'line-through' : 'none', opacity: q.done ? 0.6 : 1 }}>{q.quest}</span>
+                <span style={{ fontSize: 10, color: '#c8981a', fontWeight: 700 }}>{q.xp}</span>
+                <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{q.progress}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Feature 19: In-Game Economy ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>💰</span>
+            <span className="de-widget-title ml-2">Dream Economy</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 10 }}>
+              {[
+                { label: 'DreamCoins', val: '2,840', emoji: '🟡', color: '#c8981a' },
+                { label: 'Gems',       val: '142',   emoji: '💎', color: '#6366f1' },
+                { label: 'Tokens',     val: '28',    emoji: '🎫', color: '#ec4899' },
+              ].map(c => (
+                <div key={c.label} style={{ padding: '10px 8px', borderRadius: 10, background: `${c.color}0e`, border: `1px solid ${c.color}25`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 20 }}>{c.emoji}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: c.color }}>{c.val}</div>
+                  <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>{c.label}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>Recent Earnings</div>
+              {[
+                { action: 'Speed Tap high score',  coins: '+50', time: '2h ago' },
+                { action: 'Daily login bonus',     coins: '+25', time: '6h ago' },
+                { action: 'Tournament 2nd place',  coins: '+200', time: '1d ago' },
+              ].map(e => (
+                <div key={e.action} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, padding: '5px 0', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                  <span style={{ color: 'var(--de-text-dim)' }}>{e.action}</span>
+                  <span style={{ color: '#c8981a', fontWeight: 700 }}>{e.coins} 🟡</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 20: Speedrun Timer ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>⏱</span>
+            <span className="de-widget-title ml-2">Speedrun Timer</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Precision timing for runs — supports splits, PB tracking, and world record comparison.
+            </p>
+            <div style={{ textAlign: 'center', padding: '12px 0' }}>
+              <div style={{ fontSize: 42, fontWeight: 900, fontFamily: 'monospace', color: '#2a8ab8', letterSpacing: '0.04em' }}>
+                02:34.817
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 4 }}>Personal Best: 02:31.204</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              {['Start', 'Split', 'Reset'].map(action => (
+                <button key={action} type="button"
+                  style={{ flex: 1, padding: '8px 4px', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: 'pointer', background: action === 'Start' ? 'rgba(34,197,94,0.14)' : action === 'Reset' ? 'rgba(239,68,68,0.1)' : 'rgba(42,138,184,0.12)', border: `1px solid ${action === 'Start' ? 'rgba(34,197,94,0.3)' : action === 'Reset' ? 'rgba(239,68,68,0.2)' : 'rgba(42,138,184,0.25)'}`, color: action === 'Start' ? '#22c55e' : action === 'Reset' ? '#ef4444' : '#2a8ab8' }}>
+                  {action}
+                </button>
+              ))}
+            </div>
+            <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {[
+                { split: 'World 1-1', time: '00:28.431', diff: '-0.123', ahead: true },
+                { split: 'World 1-2', time: '00:54.802', diff: '+0.341', ahead: false },
+                { split: 'World 2-1', time: '01:31.019', diff: '-0.892', ahead: true },
+              ].map(s => (
+                <div key={s.split} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, padding: '4px 8px', borderRadius: 7, background: s.ahead ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.06)' }}>
+                  <span style={{ color: 'var(--de-text-dim)' }}>{s.split}</span>
+                  <span style={{ fontFamily: 'monospace', color: 'var(--de-heading)' }}>{s.time}</span>
+                  <span style={{ fontFamily: 'monospace', fontWeight: 700, color: s.ahead ? '#22c55e' : '#ef4444' }}>{s.diff}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
 }
-
-// ── EnginBootSplash ────────────────────────────────────────────────────────────
 /**
  * Full-screen "DREAMengin powered by…" boot splash shown for 2.5 s when a game
  * enters fullscreen. Auto-dismisses via onDone callback.
