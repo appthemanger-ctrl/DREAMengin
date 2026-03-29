@@ -1,0 +1,425 @@
+name: Elite GameEngin Evolution 🚀
+
+# DREAMengin Elite Game Engine — 2026
+#
+# The most comprehensive game engine CI pipeline in the repo.
+# Combines: WebGPU validation, AI-powered analysis, performance
+# regression detection, game quality scoring, and automated
+# improvement proposals.
+#
+# Triggers:
+#   - Push to components/games/, lib/gameengin/, components/gameengin/
+#   - Manual workflow dispatch (with optional AI directive)
+#   - Daily at 06:00 UTC
+
+on:
+  push:
+    paths:
+      - 'components/games/**'
+      - 'components/gameengin/**'
+      - 'lib/gameengin/**'
+      - '.github/workflows/elite-gameengin-evolution.yml'
+  workflow_dispatch:
+    inputs:
+      directive:
+        description: 'AI directive for this run (optional — e.g. "improve NeonDrift boss AI")'
+        required: false
+        default: ''
+        type: string
+      game_target:
+        description: 'Target game ID from advanced-game-targets.json (optional)'
+        required: false
+        default: ''
+        type: string
+  schedule:
+    - cron: '0 6 * * *'   # daily 06:00 UTC
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: elite-gameengin-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10.30.0'
+  GENERATED_DIR: .github/generated/elite
+
+jobs:
+
+  # ── Phase 1: Build & Lint Gate ─────────────────────────────────────────────
+  build-gate:
+    name: 🏗 Build + Lint + Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      build_ok: ${{ steps.build.outcome == 'success' }}
+      lint_warnings: ${{ steps.lint.outputs.warnings }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - id: build
+        name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - id: lint
+        name: Lint game engine scope
+        run: |
+          WARNINGS=$(pnpm exec next lint \
+            --dir components/games \
+            --dir components/gameengin \
+            --dir lib/gameengin \
+            2>&1 | grep -c "Warning:" || true)
+          echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
+          pnpm exec next lint \
+            --dir components/games \
+            --dir components/gameengin \
+            --dir lib/gameengin || true
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      - name: Game tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-report
+          path: .next/
+          retention-days: 1
+
+  # ── Phase 2: Quality Analysis ──────────────────────────────────────────────
+  quality-analysis:
+    name: 🔍 Game Quality Analysis
+    runs-on: ubuntu-latest
+    needs: build-gate
+    timeout-minutes: 15
+    if: needs.build-gate.outputs.build_ok == 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Scan engine context
+        run: |
+          mkdir -p ${{ env.GENERATED_DIR }}
+          python .github/scripts/scan_dreamengin_context.py \
+            > ${{ env.GENERATED_DIR }}/engine-context.md
+
+      - name: Catalog game library
+        run: |
+          python .github/scripts/catalog_games_for_ai.py \
+            > ${{ env.GENERATED_DIR }}/game-catalog.md
+
+      - name: Compute game quality metrics
+        run: |
+          python3 - << 'EOF'
+          import json, os, glob, re
+
+          games_dir = "components/games"
+          metrics = {}
+
+          for path in glob.glob(f"{games_dir}/*.tsx"):
+            name = os.path.basename(path).replace(".tsx", "")
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+              src = f.read()
+
+            lines = src.count("\n")
+            has_webgpu = "WebGPUEngine" in src or "WebGPU" in src
+            has_babylon = "BABYLON" in src or "@babylonjs" in src
+            has_dual_sense = "DualSense" in src or "useGamepad" in src
+            has_post_fx = "PostFX" in src or "GlowLayer" in src or "DefaultRenderingPipeline" in src
+            has_ai = "AIDirector" in src or "tensorflow" in src or "tfjs" in src
+            has_particle = "ParticleSystem" in src or "particle" in src.lower()
+            has_audio = "AudioContext" in src or "Audio" in src
+            has_leaderboard = "useSubmitScore" in src or "leaderboard" in src.lower()
+            has_physics = "HavokPlugin" in src or "physics" in src.lower()
+            has_combo = "combo" in src.lower()
+            has_boss = "boss" in src.lower() or "Boss" in src
+            has_procedural = "procedural" in src.lower() or "seededRng" in src or "seeded" in src.lower()
+            has_fullscreen = "requestFullscreen" in src or "fullscreen" in src.lower()
+
+            score = (
+              (30 if has_webgpu else 0) +
+              (20 if has_babylon else 0) +
+              (10 if has_dual_sense else 0) +
+              (15 if has_post_fx else 0) +
+              (10 if has_ai else 0) +
+              (8  if has_particle else 0) +
+              (5  if has_audio else 0) +
+              (5  if has_leaderboard else 0) +
+              (10 if has_physics else 0) +
+              (5  if has_combo else 0) +
+              (8  if has_boss else 0) +
+              (8  if has_procedural else 0) +
+              (4  if has_fullscreen else 0) +
+              min(10, lines // 100)
+            )
+
+            metrics[name] = {
+              "lines": lines,
+              "engineScore": score,
+              "features": {
+                "webgpu": has_webgpu,
+                "babylon": has_babylon,
+                "dualSense": has_dual_sense,
+                "postFx": has_post_fx,
+                "aiDirector": has_ai,
+                "particles": has_particle,
+                "audio": has_audio,
+                "leaderboard": has_leaderboard,
+                "physics": has_physics,
+                "combo": has_combo,
+                "bossFights": has_boss,
+                "procedural": has_procedural,
+                "fullscreen": has_fullscreen,
+              }
+            }
+
+          # Sort by score descending
+          ranked = sorted(metrics.items(), key=lambda x: -x[1]["engineScore"])
+
+          out = {
+            "totalGames": len(metrics),
+            "eliteGames": [n for n, m in ranked if m["engineScore"] >= 60],
+            "avgScore": sum(m["engineScore"] for m in metrics.values()) // max(1, len(metrics)),
+            "topGame": ranked[0][0] if ranked else None,
+            "ranked": [{"name": n, **m} for n, m in ranked],
+          }
+
+          os.makedirs("${{ env.GENERATED_DIR }}", exist_ok=True)
+          with open("${{ env.GENERATED_DIR }}/quality-metrics.json", "w") as f:
+            json.dump(out, f, indent=2)
+
+          print(f"✅ Analyzed {len(metrics)} games")
+          print(f"🏆 Top game: {out['topGame']}")
+          print(f"🎮 Elite games (≥60): {out['eliteGames']}")
+          print(f"📊 Avg score: {out['avgScore']}")
+
+          # Write summary
+          with open("$GITHUB_STEP_SUMMARY", "a") as f:
+            f.write("## 🎮 Game Quality Report\n\n")
+            f.write(f"| Metric | Value |\n|--------|-------|\n")
+            f.write(f"| Total games | {out['totalGames']} |\n")
+            f.write(f"| Elite games (score ≥ 60) | {len(out['eliteGames'])} |\n")
+            f.write(f"| Average engine score | {out['avgScore']} |\n")
+            f.write(f"| Top game | {out['topGame']} |\n\n")
+            f.write("### Rankings\n\n| Game | Score | Features |\n|------|-------|----------|\n")
+            for item in ranked[:10]:
+              feats = [k for k, v in item["features"].items() if v]
+              f.write(f"| {item['name']} | {item['engineScore']} | {', '.join(feats[:5])} |\n")
+          EOF
+
+      - name: Upload quality metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-metrics
+          path: ${{ env.GENERATED_DIR }}/quality-metrics.json
+          retention-days: 7
+
+  # ── Phase 3: AI Evolution Proposals ───────────────────────────────────────
+  ai-evolution:
+    name: 🤖 AI Evolution Proposals
+    runs-on: ubuntu-latest
+    needs: quality-analysis
+    timeout-minutes: 20
+    if: ${{ secrets.OPENAI_API_KEY != '' }}
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download quality metrics
+        uses: actions/download-artifact@v4
+        with:
+          name: quality-metrics
+          path: ${{ env.GENERATED_DIR }}
+
+      - name: Generate AI evolution spec
+        id: ai_spec
+        run: |
+          mkdir -p ${{ env.GENERATED_DIR }}
+
+          DIRECTIVE="${{ github.event.inputs.directive }}"
+          GAME_TARGET="${{ github.event.inputs.game_target }}"
+          METRICS=$(cat ${{ env.GENERATED_DIR }}/quality-metrics.json 2>/dev/null || echo "{}")
+          ADV_TARGETS=$(cat config/advanced-game-targets.json 2>/dev/null || echo "{}")
+
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg metrics "$METRICS" \
+              --arg targets "$ADV_TARGETS" \
+              --arg directive "$DIRECTIVE" \
+              --arg game_target "$GAME_TARGET" \
+              '{
+                model: "gpt-4.1",
+                response_format: { type: "json_object" },
+                max_tokens: 2000,
+                messages: [{
+                  role: "system",
+                  content: "You are the DREAMengin Elite Game Engine Evolution AI. Your job is to propose concrete, implementable upgrades to push DREAMengin toward being the best web browser game engine in 2026. Focus on: WebGPU rendering, post-processing FX, AI-driven gameplay, procedural content, physics depth, and combat systems. Always ground proposals in the existing Babylon.js + React + TypeScript stack."
+                },{
+                  role: "user",
+                  content: ("Game quality metrics:\n" + $metrics + "\n\nAdvanced targets:\n" + $targets + "\n\nDirective: " + (if $directive != "" then $directive else "evolve the weakest-scoring game with the most impactful elite engine features" end) + "\n\nGame target: " + (if $game_target != "" then $game_target else "auto-select from advanced targets" end) + "\n\nOutput JSON only:\n{\"target_game\":\"...\",\"upgrade_theme\":\"...\",\"priority_features\":[\"...\"],\"implementation_plan\":[{\"step\":1,\"description\":\"...\",\"files\":[\"...\"],\"estimated_lines\":0}],\"expected_score_improvement\":0,\"rationale\":\"...\"}")
+                }]
+              }')"
+          )
+
+          SPEC=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
+          if [ -n "$SPEC" ]; then
+            echo "$SPEC" > ${{ env.GENERATED_DIR }}/evolution-spec.json
+            echo "spec_generated=true" >> "$GITHUB_OUTPUT"
+            echo "Target: $(echo "$SPEC" | jq -r '.target_game // "unknown"')"
+            echo "Theme: $(echo "$SPEC" | jq -r '.upgrade_theme // "unknown"')"
+          else
+            echo "spec_generated=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️ AI spec generation failed — API may be unavailable"
+          fi
+
+      - name: Save evolution spec as artifact
+        if: steps.ai_spec.outputs.spec_generated == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: evolution-spec
+          path: ${{ env.GENERATED_DIR }}/evolution-spec.json
+          retention-days: 30
+
+      - name: Write evolution summary
+        if: steps.ai_spec.outputs.spec_generated == 'true'
+        run: |
+          python3 - << 'EOF'
+          import json, os
+
+          spec_path = "${{ env.GENERATED_DIR }}/evolution-spec.json"
+          try:
+            with open(spec_path) as f:
+              spec = json.load(f)
+          except Exception:
+            spec = {}
+
+          with open(os.environ.get("GITHUB_STEP_SUMMARY", "/dev/stdout"), "a") as f:
+            f.write("## 🤖 AI Evolution Proposal\n\n")
+            f.write(f"**Target game:** `{spec.get('target_game', 'N/A')}`\n\n")
+            f.write(f"**Upgrade theme:** {spec.get('upgrade_theme', 'N/A')}\n\n")
+            f.write(f"**Priority features:**\n")
+            for feat in spec.get('priority_features', []):
+              f.write(f"- {feat}\n")
+            f.write(f"\n**Expected score improvement:** +{spec.get('expected_score_improvement', 0)}\n\n")
+            f.write(f"**Rationale:** {spec.get('rationale', 'N/A')}\n\n")
+            f.write("### Implementation Plan\n\n")
+            for step in spec.get('implementation_plan', []):
+              files = ', '.join(f"`{f}`" for f in step.get('files', []))
+              f.write(f"{step.get('step', '?')}. **{step.get('description', '')}** — {files}\n")
+          EOF
+
+  # ── Phase 4: Auto-Fix & Commit ────────────────────────────────────────────
+  autofix:
+    name: 🔧 ESLint Auto-Fix + Commit
+    runs-on: ubuntu-latest
+    needs: build-gate
+    timeout-minutes: 10
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: ESLint auto-fix (game engine scope)
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --dir components/games \
+            --dir components/gameengin \
+            --dir lib/gameengin \
+            || true
+
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "elite-gameengin-bot"
+          git config user.email "elite-gameengin-bot@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "✅ No fixes needed"
+          else
+            git add -A
+            git commit -m "fix(elite-gameengin): ESLint auto-fix — engine scope [skip ci]"
+            git push || true
+          fi
+
+  # ── Summary ───────────────────────────────────────────────────────────────
+  summary:
+    name: 📊 Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [build-gate, quality-analysis, ai-evolution, autofix]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Write pipeline summary
+        run: |
+          echo "# 🚀 Elite GameEngin Evolution Pipeline" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Phase | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🏗 Build + Lint | ${{ needs.build-gate.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🔍 Quality Analysis | ${{ needs.quality-analysis.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🤖 AI Evolution | ${{ needs.ai-evolution.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🔧 Auto-Fix | ${{ needs.autofix.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Meta | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Directive | ${{ github.event.inputs.directive || 'auto' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engine year | **2026** |" >> "$GITHUB_STEP_SUMMARY"

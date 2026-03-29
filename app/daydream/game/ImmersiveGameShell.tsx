@@ -138,7 +138,7 @@ export default function ImmersiveGameShell() {
               {game.label}
             </div>
             <div style={{ marginTop: 4, fontSize: 11, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#7dd3fc' }}>
-              Powered by DREAMengin
+              Powered by DREAMengin Elite Game Engine
             </div>
             <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.7, color: 'rgba(226,232,240,0.76)' }}>
               Launching a dedicated game surface so the screen behaves like a console session: game first, remote docked, no scrolling shell around it.

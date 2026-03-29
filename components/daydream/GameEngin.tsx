@@ -725,16 +725,19 @@ export default function GameEngin({ onBack }: Props) {
     { label: 'Saved Slots', value: String(savedLaunches.length), tone: '#4ade80' },
     { label: 'Backend', value: engineType ?? 'Detecting…', tone: engineType === 'WebGPU' ? '#a78bfa' : '#38bdf8' },
   ] as const;
+  const selectedPlayableUsesEliteRuntime = selectedPlayable.id === 'neon-drift' || selectedPlayable.id === 'echo-arena';
   const selectedPlayableCapabilities = [
     'Fullscreen boot',
     'Remote dock',
     'Quick resume',
     `${activeControlProfile.label} controls`,
+    ...(selectedPlayableUsesEliteRuntime ? ['Elite engine telemetry', 'Adaptive quality'] : []),
   ];
   const selectedPlayableStatus = [
     `${selectedPlayable.category} class`,
     savedPlayableSession ? 'Saved to memory deck' : 'Ready for first save',
     activePlayable ? 'Live on play screen' : 'Standby',
+    ...(selectedPlayableUsesEliteRuntime ? ['Elite engine active in web app'] : []),
   ];
 
   return (
@@ -811,7 +814,7 @@ export default function GameEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-body" style={{ paddingTop: 12 }}>
             <div style={{ fontSize: 12, lineHeight: 1.65, color: 'rgba(226,232,240,0.78)', marginBottom: 14 }}>
-              GameEngin is the actual play surface. Pick a saved game or any library title, boot it on the big screen here, expand fullscreen when you want the browser to disappear, and use the PS-style remote on the game itself. This layer should feel like the actual console OS behind every playable game, not just a launcher.
+              GameEngin is the actual play surface. Pick a saved game or any library title, boot it on the big screen here, expand fullscreen when you want the browser to disappear, and use the PS-style remote on the game itself. This layer should feel like the actual console OS behind every playable game, not just a launcher. Elite-engine titles surface their runtime directly here in the web app with live telemetry, adaptive quality, and AI-assisted pacing.
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 14 }}>
