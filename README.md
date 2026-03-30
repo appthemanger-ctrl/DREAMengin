@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `881b20c` | 2026-03-30 20:50 UTC | copilot/wire-games-to-new-game-engine-again | Copilot | ~1 | fix: cast getPreferredCanvasFormat() return to GPUTextureFormat in WebGPURenderer |
 | `6105687` | 2026-03-30 20:43 UTC | completedream | appthemanger-ctrl | — | Merge pull request #360 from appthemanger-ctrl/copilot/wire-games-to-new-game-engine |
 | `e0b7550` | 2026-03-30 20:42 UTC | copilot/wire-games-to-new-game-engine | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/wire-games-to-new-game-engine |
 | `a684f16` | 2026-03-30 18:22 UTC | copilot/wire-games-to-new-game-engine | Copilot | +6 ~3 | feat: add authored MADMAXI zone starter packs |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `d1be2cb` | 2026-03-30 15:34 UTC | copilot/wire-games-to-new-game-engine | Copilot | ~6 | chore: plan MADMAXI overhaul - robot character, 10-coin mechanic, title fix |
 | `94d9099` | 2026-03-30 13:38 UTC | copilot/wire-games-to-new-game-engine | Copilot | ~2 | feat: route games daydream launches to immersive engine sessions |
 | `2467dd3` | 2026-03-30 10:14 UTC | completedream | appthemanger-ctrl | — | Merge pull request #359 from appthemanger-ctrl/copilot/update-repo-state-trigger |
-| `9cd107f` | 2026-03-30 09:38 UTC | copilot/update-repo-state-trigger | Copilot | ~1 | fix: update update-repo-state.yml triggers from main to completedream |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-30 20:43 UTC — `6105687` by appthemanger-ctrl
+Last updated: 2026-03-30 20:50 UTC — `881b20c` by Copilot
 Last updated: 2026-03-30 20:35 UTC — `e798b6a` by appthemanger-ctrl
 Last updated: 2026-03-29 08:51 UTC — `5f13cf5` by appthemanger-ctrl
 Last updated: 2026-03-29 07:09 UTC — `1abd71b` by appthemanger-ctrl
