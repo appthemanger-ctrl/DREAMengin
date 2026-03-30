@@ -15,20 +15,22 @@ import { isDevBypassActive } from '@/lib/dev-bypass';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
 
+const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });
+
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'platformer', emoji: '🏎',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: buildGameLaunchHref('platformer') },
+  { id: 'platformer', emoji: '🏎',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: immersiveGameHref('platformer') },
   { id: 'all-games',  emoji: '🎮', label: 'All 23 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
-  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: buildGameLaunchHref('word-sprint') },
-  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: buildGameLaunchHref('memory-grid') },
-  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: buildGameLaunchHref('speed-tap') },
+  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: immersiveGameHref('word-sprint') },
+  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: immersiveGameHref('memory-grid') },
+  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: immersiveGameHref('speed-tap') },
   { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
 ];
 
 const LIBRARY_SPOTLIGHT = [
-  { label: 'MADMAXI', meta: 'Babylon.js 3-D · 150 levels', emoji: '🏎', href: buildGameLaunchHref('platformer') },
-  { label: 'Word Sprint', meta: '1 minute typing rush', emoji: '📝', href: buildGameLaunchHref('word-sprint') },
-  { label: 'Memory Grid', meta: 'Quick pattern recall', emoji: '🧩', href: buildGameLaunchHref('memory-grid') },
-  { label: 'Speed Tap', meta: 'Fast reflex score chase', emoji: '⚡', href: buildGameLaunchHref('speed-tap') },
+  { label: 'MADMAXI', meta: 'Babylon.js 3-D · 150 levels', emoji: '🏎', href: immersiveGameHref('platformer') },
+  { label: 'Word Sprint', meta: '1 minute typing rush', emoji: '📝', href: immersiveGameHref('word-sprint') },
+  { label: 'Memory Grid', meta: 'Quick pattern recall', emoji: '🧩', href: immersiveGameHref('memory-grid') },
+  { label: 'Speed Tap', meta: 'Fast reflex score chase', emoji: '⚡', href: immersiveGameHref('speed-tap') },
 ];
 
 const CONSOLE_MODULES = [
@@ -535,8 +537,8 @@ export default async function GamesDaydreamPage() {
                 <div className="de-widget-body">
                   <div style={{ display: 'flex', gap: 10 }}>
                     {[
-                      { name: 'Neon Drift',   emoji: '🏎', desc: 'WebGPU neon racer', href: buildGameLaunchHref('neon-drift') },
-                      { name: 'Echo Arena',   emoji: '🚀', desc: 'WebGPU space shooter', href: buildGameLaunchHref('echo-arena') },
+                      { name: 'Neon Drift',   emoji: '🏎', desc: 'WebGPU neon racer', href: immersiveGameHref('neon-drift') },
+                      { name: 'Echo Arena',   emoji: '🚀', desc: 'WebGPU space shooter', href: immersiveGameHref('echo-arena') },
                     ].map(g => (
                       <Link key={g.name} href={g.href} style={{ flex: 1, textDecoration: 'none' }}>
                         <div style={{ padding: '12px 10px', borderRadius: 12, background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.22)', textAlign: 'center' }}>
@@ -567,4 +569,3 @@ export default async function GamesDaydreamPage() {
     </DaydreamShell>
   );
 }
-

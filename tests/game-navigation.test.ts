@@ -45,6 +45,18 @@ describe('game launch navigation', () => {
     expect(shellSrc).toContain('Dedicated Game Session');
     expect(shellSrc).toContain("document.querySelector('footer')");
   });
+
+  it('lets the games daydream launch spotlight titles directly into immersive full-screen engine sessions', () => {
+    const gamesPageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/games/page.tsx'), 'utf8');
+
+    expect(gamesPageSrc).toContain("const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('platformer')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('word-sprint')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('memory-grid')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('speed-tap')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('neon-drift')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('echo-arena')");
+  });
 });
 
 describe('shared remote keyboard bridge', () => {
