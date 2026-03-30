@@ -73,38 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <KonamiDream />
             </DreamSystemProvider>
           </CustomizeModeProvider>
-          {/* Permanent policy footer (req 10) — always accessible, no login required */}
-          {/* z-index 110: sits above DreamDMBar (100/102) so the link is always tappable */}
-          <footer
-            style={{
-              position: 'fixed',
-              bottom: 90,
-              left: 0,
-              right: 0,
-              zIndex: 110,
-              pointerEvents: 'none',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              padding: '0 12px 0',
-            }}
-          >
-            <Link
-              href="/policy"
-              style={{
-                pointerEvents: 'auto',
-                fontSize: 11,
-                color: 'var(--de-text-dim, rgba(80,100,130,0.7))',
-                textDecoration: 'none',
-                padding: '3px 8px',
-                borderRadius: 20,
-                background: 'rgba(220,232,248,0.55)',
-                backdropFilter: 'blur(6px)',
-                border: '1px solid rgba(160,195,240,0.2)',
-              }}
-            >
-              Policy
-            </Link>
-          </footer>
+
         </ThemeProvider>
       </body>
     </html>

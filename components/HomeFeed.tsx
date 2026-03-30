@@ -21,13 +21,20 @@ import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
   Send, Loader2, Globe, Lock, ArrowUp, Wifi, X,
-  FileText, Radio, RefreshCw,
+  FileText, Radio, RefreshCw, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { useLiveFeed, type FeedPost } from '@/lib/feed/useLiveFeed';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { createClient } from '@/lib/supabase/client';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
+
+interface Comment {
+  id: string;
+  content: string;
+  created_at: string;
+  profile: { handle: string; display_name: string | null; avatar_url: string | null } | null;
+}
 
 interface HomeFeedProps {
   userId: string;
@@ -64,6 +71,12 @@ export default function HomeFeed({
   const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string }[]>([]);
   const [viewportWidth, setViewportWidth] = useState(1280);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  // ── Inline comments state ─────────────────────────────────────────────────
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
+  const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
+  const [commentLoadingSet, setCommentLoadingSet] = useState<Set<string>>(new Set());
+  const [commentDraftMap, setCommentDraftMap] = useState<Record<string, string>>({});
+  const [commentSendingSet, setCommentSendingSet] = useState<Set<string>>(new Set());
 
   const handleCommentFromBar = useCallback((post: FeedPost) => {
     setBarIntent({
@@ -72,6 +85,59 @@ export default function HomeFeed({
       targetLabel: post.profiles?.display_name || post.profiles?.handle || undefined,
     });
   }, [setBarIntent]);
+
+  const loadComments = useCallback(async (postId: string) => {
+    if (commentsMap[postId]) return; // already loaded
+    setCommentLoadingSet(prev => new Set(prev).add(postId));
+    try {
+      const res = await fetch(`/api/comments?post_id=${encodeURIComponent(postId)}&limit=20`);
+      if (res.ok) {
+        const data = await res.json() as { data?: Comment[] };
+        setCommentsMap(prev => ({ ...prev, [postId]: data.data ?? [] }));
+      }
+    } catch { /* silent */ } finally {
+      setCommentLoadingSet(prev => { const s = new Set(prev); s.delete(postId); return s; });
+    }
+  }, [commentsMap]);
+
+  const toggleComments = useCallback(async (postId: string) => {
+    setExpandedComments(prev => {
+      const next = new Set(prev);
+      if (next.has(postId)) {
+        next.delete(postId);
+      } else {
+        next.add(postId);
+        void loadComments(postId);
+      }
+      return next;
+    });
+  }, [loadComments]);
+
+  const submitComment = useCallback(async (postId: string) => {
+    const content = (commentDraftMap[postId] ?? '').trim();
+    if (!content) return;
+    setCommentSendingSet(prev => new Set(prev).add(postId));
+    try {
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: postId, content }),
+      });
+      if (res.ok) {
+        const data = await res.json() as { data?: Comment };
+        setCommentDraftMap(prev => ({ ...prev, [postId]: '' }));
+        if (data.data) {
+          setCommentsMap(prev => ({
+            ...prev,
+            [postId]: [...(prev[postId] ?? []), data.data!],
+          }));
+        }
+        updatePost(postId, { comments_count: (posts.find(p => p.id === postId)?.comments_count ?? 0) + 1 });
+      }
+    } catch { /* silent */ } finally {
+      setCommentSendingSet(prev => { const s = new Set(prev); s.delete(postId); return s; });
+    }
+  }, [commentDraftMap, posts, updatePost]);
 
   const prevInitialRef = useRef(initialPosts);
   useEffect(() => {
@@ -354,38 +420,40 @@ export default function HomeFeed({
           )}
         </div>
 
-        {/* Posts — horizontal snap-scroll layout */}
+        {/* Posts — scrollable context box */}
         <div
           style={{
-            display: 'flex',
-            flexDirection: isCompactEmbedded ? 'column' : 'row',
-            gap: 16,
-            overflowX: isCompactEmbedded ? 'visible' : 'auto',
-            overflowY: 'visible',
-            scrollSnapType: isCompactEmbedded ? 'none' : 'x mandatory',
-            WebkitOverflowScrolling: 'touch',
-            paddingBottom: isCompactEmbedded ? 16 : 8,
-            scrollbarWidth: 'none',
+            background: 'var(--de-card, rgba(255,255,255,0.92))',
+            borderRadius: 20,
+            border: '1px solid var(--de-border, rgba(180,185,200,0.22))',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+            overflow: 'hidden',
           }}
         >
+          <div
+            style={{
+              overflowY: 'auto',
+              maxHeight: isCompactEmbedded ? '60vh' : 'min(560px, 70vh)',
+              overscrollBehavior: 'contain',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'thin',
+            }}
+          >
           {posts.length === 0 ? (
-            <div className="bg-card rounded-2xl border border-border p-12 text-center" style={{ minWidth: '100%', scrollSnapAlign: 'start', flexShrink: 0 }}>
+            <div className="bg-card rounded-2xl border border-border p-12 text-center">
               <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
               <p className="text-muted-foreground mb-6">Be the first to share something with the community!</p>
               <button onClick={() => setShowComposer(true)} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors min-h-[48px]">Create a Post</button>
             </div>
           ) : (
-            posts.map(post => (
+            posts.map((post, postIdx) => (
               <article
                 key={post.id}
-                className="bg-card rounded-2xl border border-border p-4 hover:border-primary/20 transition-colors"
+                className="bg-card hover:border-primary/20 transition-colors"
                 style={{
-                  minWidth: isCompactEmbedded ? 0 : 320,
-                  maxWidth: isCompactEmbedded ? '100%' : 400,
-                  width: isCompactEmbedded ? '100%' : '85vw',
-                  scrollSnapAlign: isCompactEmbedded ? 'unset' : 'start',
-                  flexShrink: 0,
+                  borderBottom: postIdx < posts.length - 1 ? '1px solid var(--de-border, rgba(180,185,200,0.15))' : 'none',
+                  padding: '16px',
                 }}
               >
                 {/* Content type badge — always visible */}
@@ -444,8 +512,14 @@ export default function HomeFeed({
                       <Heart className={`w-4 h-4 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
                       <span>{post.likes_count ?? 0}</span>
                     </button>
-                    <button onClick={() => handleCommentFromBar(post)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors min-h-[40px]" aria-label="Comment on post">
-                      <MessageCircle className="w-4 h-4" /><span>{post.comments_count || 0}</span>
+                    <button
+                      onClick={() => void toggleComments(post.id)}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${expandedComments.has(post.id) ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-primary/10'}`}
+                      aria-label={expandedComments.has(post.id) ? 'Hide comments' : 'Show comments'}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>{post.comments_count || 0}</span>
+                      {expandedComments.has(post.id) ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                     </button>
                     <button onClick={() => handleSharePost(post)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-green-500 hover:bg-green-500/10 transition-colors min-h-[40px]" aria-label="Share post">
                       <Share2 className="w-4 h-4" />
@@ -453,6 +527,70 @@ export default function HomeFeed({
                     <button onClick={() => void toggleSave(post.id)} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${savedPosts.has(post.id) ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-primary/10'}`} aria-label={savedPosts.has(post.id) ? 'Unsave post' : 'Save post'}>
                       <Bookmark className={`w-4 h-4 ${savedPosts.has(post.id) ? 'fill-current' : ''}`} />
                     </button>
+                  </div>
+                )}
+                {/* ── Inline comment thread ─────────────────────────────────────── */}
+                {expandedComments.has(post.id) && (
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(180,185,200,0.15)' }}>
+                    {commentLoadingSet.has(post.id) ? (
+                      <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
+                    ) : (
+                      <>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12, maxHeight: 240, overflowY: 'auto', overscrollBehavior: 'contain' }}>
+                          {(commentsMap[post.id] ?? []).length === 0 ? (
+                            <p className="text-xs text-muted-foreground text-center py-3">No comments yet — be first!</p>
+                          ) : (
+                            (commentsMap[post.id] ?? []).map(c => (
+                              <div key={c.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(42,138,184,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, fontWeight: 700, color: 'var(--de-accent)' }}>
+                                  {c.profile?.avatar_url ? (
+                                    <Image src={c.profile.avatar_url} alt={c.profile.handle} width={28} height={28} style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                                  ) : (
+                                    (c.profile?.display_name || c.profile?.handle)?.[0]?.toUpperCase()
+                                  )}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>
+                                    {c.profile?.display_name || c.profile?.handle}
+                                    <span style={{ fontWeight: 400, color: 'var(--de-text-dim)', marginLeft: 4 }}>· {timeAgo(c.created_at)}</span>
+                                  </div>
+                                  <p style={{ fontSize: 13, color: 'var(--de-text)', lineHeight: 1.45 }}>{c.content}</p>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                        {/* Comment composer */}
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                          <input
+                            type="text"
+                            value={commentDraftMap[post.id] ?? ''}
+                            onChange={(e) => setCommentDraftMap(prev => ({ ...prev, [post.id]: e.target.value }))}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void submitComment(post.id); } }}
+                            placeholder="Add a comment…"
+                            style={{
+                              flex: 1, minWidth: 0, padding: '7px 12px',
+                              borderRadius: 999, fontSize: 13, border: '1px solid rgba(180,185,200,0.35)',
+                              background: 'rgba(255,255,255,0.72)', color: 'var(--de-text)', outline: 'none',
+                            }}
+                          />
+                          <button
+                            type="button"
+                            disabled={!(commentDraftMap[post.id] ?? '').trim() || commentSendingSet.has(post.id)}
+                            onClick={() => void submitComment(post.id)}
+                            style={{
+                              flexShrink: 0, background: 'linear-gradient(135deg, var(--de-gold,#c8981a), var(--de-blue,#2a8ab8))',
+                              border: 'none', borderRadius: '50%', width: 32, height: 32,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              cursor: 'pointer', color: 'white', opacity: !(commentDraftMap[post.id] ?? '').trim() ? 0.45 : 1,
+                            }}
+                            aria-label="Post comment"
+                          >
+                            {commentSendingSet.has(post.id) ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
                 {post.source === 'connector' && (post as FeedPost & { permalink?: string }).permalink && (
@@ -463,6 +601,7 @@ export default function HomeFeed({
               </article>
             ))
           )}
+          </div>
         </div>
       </div>
     </div>

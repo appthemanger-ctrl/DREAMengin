@@ -103,18 +103,29 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(160deg, #dce8f8 0%, #c8d8f0 40%, #f5e8c4 100%)',
+      background: 'linear-gradient(160deg, #070e1c 0%, #0c1829 40%, #0f2244 70%, #0a1628 100%)',
       paddingBottom: 100,
+      position: 'relative',
+      overflow: 'hidden',
     }}>
+
+      {/* WebGPU 2026 atmospheric layers */}
+      <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-80px', right: '-60px', width: '660px', height: '660px', background: 'radial-gradient(circle, rgba(56,189,248,0.10) 0%, rgba(14,165,233,0.04) 45%, transparent 70%)', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', bottom: '-60px', left: '-40px', width: '540px', height: '540px', background: 'radial-gradient(circle, rgba(200,152,26,0.10) 0%, rgba(245,158,11,0.04) 50%, transparent 70%)', filter: 'blur(72px)' }} />
+        <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%, -50%)', width: '900px', height: '600px', background: 'radial-gradient(ellipse, rgba(30,80,180,0.07) 0%, transparent 65%)', filter: 'blur(80px)' }} />
+      </div>
 
       {/* ── Owner preview banner ── */}
       {isOwner && (
         <div style={{
-          background: 'rgba(200,152,26,0.12)',
-          borderBottom: '1px solid rgba(200,152,26,0.25)',
+          background: 'rgba(200,152,26,0.10)',
+          borderBottom: '1px solid rgba(200,152,26,0.22)',
           padding: '8px 16px',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-          fontSize: 12, color: '#8a6800',
+          fontSize: 12, color: 'rgba(212,168,67,0.90)',
+          backdropFilter: 'blur(16px)',
+          position: 'relative', zIndex: 10,
         }}>
           <span>You are viewing your public ViewProfile.{dreamWindowCount > 0 ? ` ${dreamWindowCount} Dream Window${dreamWindowCount === 1 ? '' : 's'} visible.` : ''}</span>
           <Link href="/edit-profiledream" style={{ fontWeight: 700, color: '#c8981a', textDecoration: 'underline' }}>
@@ -124,8 +135,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       )}
 
       {/* ── dreamengin brand header ── */}
-      <div style={{ paddingTop: 18, paddingBottom: 2, textAlign: 'center' }}>
-        <span className="de-wordmark" style={{ fontSize: 28 }}>
+      <div style={{ paddingTop: 18, paddingBottom: 2, textAlign: 'center', position: 'relative', zIndex: 10 }}>
+        <span className="de-wordmark" style={{ fontSize: 28, background: 'linear-gradient(135deg, #e8d090 0%, #c8981a 60%, #a07820 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
           <DreamWord />engin
         </span>
       </div>
@@ -135,8 +146,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         maxWidth: 520, margin: '0 auto',
         padding: '8px 16px 16px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        position: 'relative', zIndex: 10,
       }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: 'rgba(220,235,255,0.97)', margin: 0 }}>
           {isOwner ? 'ViewProfile' : `@${handle}`}
         </h1>
 
@@ -149,11 +161,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 href="/edit-profiledream"
                 style={{
                   width: 34, height: 34, borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.75)',
-                  border: '1.5px solid rgba(0,0,0,0.1)',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1.5px solid rgba(255,255,255,0.15)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 14, textDecoration: 'none', color: '#666',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  fontSize: 14, textDecoration: 'none', color: 'rgba(200,220,255,0.75)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
+                  backdropFilter: 'blur(12px)',
                 }}
                 title="Edit profile"
               >
@@ -167,7 +180,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       </div>
 
       {/* ── Widget grid ── */}
-      <div style={{ maxWidth: 520, margin: '0 auto', padding: '0 16px' }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', padding: '0 16px', position: 'relative', zIndex: 10 }}>
         <ProfileWidgetGrid
           displayName={displayName}
           handle={profile.handle}
@@ -183,14 +196,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         />
       </div>
 
-      {/* ── Gold infinity button ── */}
-      <div style={{ textAlign: 'center', marginTop: 32 }}>
+      {/* ── Gold infinity button — WebGPU 2026 glow ── */}
+      <div style={{ textAlign: 'center', marginTop: 32, position: 'relative', zIndex: 10 }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           width: 56, height: 56, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #c8981a, #e0b830)',
-          boxShadow: '0 4px 20px rgba(200,152,26,0.45)',
+          background: 'radial-gradient(circle at 36% 32%, #fffde0 0%, #f7e07a 10%, #e8c040 22%, #d4a843 38%, #a16207 65%, #6b3c03 100%)',
+          boxShadow: '0 4px 20px rgba(200,152,26,0.55), 0 0 40px rgba(200,152,26,0.25), inset 0 2px 5px rgba(255,255,220,0.80)',
           cursor: 'pointer',
+          animation: 'sicc-infinity-glow 2.4s ease-in-out infinite',
         }}>
           <InfinityIcon size={20} variant="flat" colorScheme="dark" />
         </div>

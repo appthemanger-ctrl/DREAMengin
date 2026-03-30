@@ -1,13 +1,13 @@
 // ── Split-screen divider constants ────────────────────────────────────────────
 /** Fixed height (px) of the DreamDM Bar when it operates as a true split-screen divider. */
 export const DIVIDER_H = 80;
-/** Canonical snap points for the split-screen divider: [Surface-focus, Balanced, Dream-focus] */
-export const SPLIT_SNAP_POINTS = [0.1, 0.5, 0.9] as const;
-/** Default split ratio — Surface Space dominant (90 % top / 10 % bottom). */
-export const DEFAULT_SPLIT_RATIO = 0.9;
-/** Min/max reachable ratio during a drag (prevents collapsing either region to zero). */
+/** Canonical snap points for the split-screen divider: [Dream-focus, Balanced, Surface-focus, Surface-only] */
+export const SPLIT_SNAP_POINTS = [0.1, 0.5, 0.9, 1.0] as const;
+/** Default split ratio — Surface Space fully dominant (DreamSpace hidden). Swipe bar up to reveal. */
+export const DEFAULT_SPLIT_RATIO = 1.0;
+/** Min/max reachable ratio during a drag (prevents collapsing Surface to zero; allows full DreamSpace hide). */
 export const SPLIT_RATIO_MIN = 0.05;
-export const SPLIT_RATIO_MAX = 0.95;
+export const SPLIT_RATIO_MAX = 1.0;
 /** Fling velocity (px/ms) needed to jump one whole snap step toward the throw direction. */
 export const SPLIT_FLING_VELOCITY_PX_PER_MS = 0.55;
 
@@ -33,7 +33,7 @@ export function snapToSplitPoint(ratio: number): number {
  */
 export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number): number {
   const nearest = snapToSplitPoint(ratio);
-  const idx = SPLIT_SNAP_POINTS.indexOf(nearest as 0.1 | 0.5 | 0.9);
+  const idx = (SPLIT_SNAP_POINTS as readonly number[]).indexOf(nearest);
   if (velocityPxPerMs >= SPLIT_FLING_VELOCITY_PX_PER_MS && idx > 0) {
     // fling downward → lower split ratio (more Dream Space)
     return SPLIT_SNAP_POINTS[idx - 1];
