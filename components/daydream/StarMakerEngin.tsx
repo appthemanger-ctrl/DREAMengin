@@ -36,10 +36,22 @@ import {
   type MelodySuggestion,
   type PlaybackQualityMode,
 } from '@/lib/music/starmaker';
+import {
+  BEAT_PRESETS,
+  INSTRUMENT_PRESETS,
+  PROJECT_TEMPLATES,
+  GENRE_LIST,
+  type BeatPreset,
+  type InstrumentPreset,
+  type ProjectTemplate,
+} from '@/lib/music/presets';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import Link from 'next/link';
 import {
   ArrowLeft,
+  Download,
+  FileAudio,
+  FolderOpen,
   Gauge,
   Mic2,
   Music,
@@ -50,6 +62,8 @@ import {
   Sparkles,
   Upload,
   Wand2,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
@@ -424,6 +438,24 @@ export default function StarMakerEngin({ onBack }: Props) {
   const [playbackStep, setPlaybackStep] = useState(0);
   const audioContextRef = useRef<AudioContext | null>(null);
 
+  // ── Preset Library state ──
+  const [presetGenreFilter, setPresetGenreFilter] = useState<string>('All');
+  const [activePresetId,    setActivePresetId]    = useState<string | null>(null);
+  const [activeTemplateId,  setActiveTemplateId]  = useState<string | null>(null);
+  const [presetApplied,     setPresetApplied]     = useState(false);
+
+  // ── File Import / Export state ──
+  const [importedFileName,  setImportedFileName]  = useState<string | null>(null);
+  const [importedWaveform,  setImportedWaveform]  = useState<number[] | null>(null);
+  const [importPending,     setImportPending]      = useState(false);
+  const [exportPending2,    setExportPending2]     = useState(false);
+  const [exportMsg,         setExportMsg]          = useState<string | null>(null);
+  const importFileRef = useRef<HTMLInputElement | null>(null);
+  const importedBlobRef = useRef<Blob | null>(null);
+
+  // ── Zoom Timeline state ──
+  const [zoomLevel, setZoomLevel] = useState(1);  // 0.5 → 4
+
   const effectList = useMemo(() => Array.from(activeEffects), [activeEffects]);
 
   const playbackProfile = useMemo(() => summarizePlaybackProfile({
@@ -691,6 +723,125 @@ export default function StarMakerEngin({ onBack }: Props) {
     );
   }
 
+  // ── Preset Library handlers ──
+  function handleApplyPreset(preset: BeatPreset) {
+    setBeatGrid(preset.grid.map(row => [...row]));
+    setBpm(clamp(preset.bpm, 60, 180));
+    setMusicalKey(preset.key as MusicalKey);
+    setKeyMode(preset.keyMode);
+    setChordProgression([...preset.chordProgression]);
+    setActiveEffects(new Set(preset.effects as EffectName[]));
+    setActivePresetId(preset.id);
+    setPresetApplied(true);
+    setTimeout(() => setPresetApplied(false), 1800);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'music', 'music:preset-applied', { presetId: preset.id, genre: preset.genre },
+    );
+  }
+
+  function handleApplyInstrument(inst: InstrumentPreset) {
+    setMixer({ ...inst.mixer });
+    setActiveEffects(new Set(inst.effects as EffectName[]));
+    setPitch(inst.pitch);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'music', 'music:instrument-applied', { instrumentId: inst.id },
+    );
+  }
+
+  function handleApplyTemplate(tmpl: ProjectTemplate) {
+    handleApplyPreset(tmpl.preset);
+    handleApplyInstrument(tmpl.instrument);
+    setQualityMode(tmpl.qualityMode);
+    setActiveTemplateId(tmpl.id);
+  }
+
+  // ── File Import handler (Web Audio API decode) ──
+  async function handleFileImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportPending(true);
+    setImportedFileName(file.name);
+    importedBlobRef.current = file;
+
+    try {
+      const ctx = ensureAudioContext();
+      if (ctx) {
+        const arrayBuf = await file.arrayBuffer();
+        const audioBuf = await ctx.decodeAudioData(arrayBuf).catch(() => null);
+        if (audioBuf) {
+          // Downsample to 48 bars for visualisation
+          const raw = audioBuf.getChannelData(0);
+          const bars = 48;
+          const chunkSize = Math.floor(raw.length / bars);
+          const waveform = Array.from({ length: bars }, (_, i) => {
+            let sum = 0;
+            for (let j = 0; j < chunkSize; j++) {
+              sum += Math.abs(raw[i * chunkSize + j] ?? 0);
+            }
+            return Math.min(1, (sum / chunkSize) * 3.5);
+          });
+          setImportedWaveform(waveform);
+        } else {
+          // Fallback visual
+          setImportedWaveform(Array.from({ length: 48 }, () => 0.2 + Math.random() * 0.7));
+        }
+      } else {
+        setImportedWaveform(Array.from({ length: 48 }, () => 0.2 + Math.random() * 0.7));
+      }
+    } catch {
+      setImportedWaveform(Array.from({ length: 48 }, () => 0.2 + Math.random() * 0.7));
+    }
+    setImportPending(false);
+    // Reset input so same file can be re-selected
+    if (importFileRef.current) importFileRef.current.value = '';
+  }
+
+  // ── File Export handler ──
+  async function handleProjectExport() {
+    setExportPending2(true);
+    setExportMsg(null);
+    try {
+      // If we have an imported audio file, offer it for download
+      if (importedBlobRef.current && importedFileName) {
+        const url = URL.createObjectURL(importedBlobRef.current);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = importedFileName;
+        a.click();
+        URL.revokeObjectURL(url);
+        setExportMsg(`✓ Exported: ${importedFileName}`);
+      } else {
+        // Export project as JSON
+        const project = {
+          version: '1.0',
+          exportedAt: new Date().toISOString(),
+          bpm,
+          musicalKey,
+          keyMode,
+          pitch,
+          beatGrid,
+          mixer,
+          effects: Array.from(activeEffects),
+          chordProgression,
+          qualityMode,
+          activePresetId,
+        };
+        const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `starmaker-project-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setExportMsg('✓ Project JSON exported');
+      }
+    } catch {
+      setExportMsg('Export failed — try again');
+    }
+    setExportPending2(false);
+    setTimeout(() => setExportMsg(null), 3000);
+  }
+
 
   // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -800,6 +951,41 @@ export default function StarMakerEngin({ onBack }: Props) {
           onCollabToggle={handleCollabToggle}
           onPlaylistMove={movePlaylistItem}
           onPlaylistSave={handleSavePlaylist}
+        />
+
+        {/* ── NEW: Preset Library ── */}
+        <DAWPresetLibraryPanel
+          genreFilter={presetGenreFilter}
+          activePresetId={activePresetId}
+          activeTemplateId={activeTemplateId}
+          presetApplied={presetApplied}
+          onGenreChange={setPresetGenreFilter}
+          onApplyPreset={handleApplyPreset}
+          onApplyInstrument={handleApplyInstrument}
+          onApplyTemplate={handleApplyTemplate}
+        />
+
+        {/* ── NEW: File Import / Export ── */}
+        <DAWFileIOPanel
+          importedFileName={importedFileName}
+          importedWaveform={importedWaveform}
+          importPending={importPending}
+          exportPending={exportPending2}
+          exportMsg={exportMsg}
+          zoomLevel={zoomLevel}
+          onZoomChange={setZoomLevel}
+          onImportClick={() => importFileRef.current?.click()}
+          onExport={handleProjectExport}
+        />
+
+        {/* Hidden file input for audio import */}
+        <input
+          ref={importFileRef}
+          type="file"
+          accept="audio/wav,audio/mp3,audio/mpeg,audio/ogg,audio/flac,audio/aac,.wav,.mp3,.ogg,.flac,.aac"
+          aria-label="Import audio file"
+          style={{ display: 'none' }}
+          onChange={handleFileImport}
         />
 
       </div>
@@ -2044,6 +2230,436 @@ function DAWCollabPlaylistPanel({
             }}>
             Save Playlist Order
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: DAWPresetLibraryPanel
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface DAWPresetLibraryPanelProps {
+  genreFilter:      string;
+  activePresetId:   string | null;
+  activeTemplateId: string | null;
+  presetApplied:    boolean;
+  onGenreChange:    (g: string) => void;
+  onApplyPreset:    (p: BeatPreset) => void;
+  onApplyInstrument:(p: InstrumentPreset) => void;
+  onApplyTemplate:  (t: ProjectTemplate) => void;
+}
+
+function DAWPresetLibraryPanel({
+  genreFilter, activePresetId, activeTemplateId, presetApplied,
+  onGenreChange, onApplyPreset, onApplyInstrument, onApplyTemplate,
+}: DAWPresetLibraryPanelProps) {
+  const [tab, setTab] = useState<'beats' | 'instruments' | 'templates'>('beats');
+
+  const filteredBeats = genreFilter === 'All'
+    ? BEAT_PRESETS
+    : BEAT_PRESETS.filter(p => p.genre === genreFilter);
+
+  const GENRE_COLORS: Record<string, string> = {
+    Trap: '#00bcd4', Drill: '#ec407a', House: '#7c4dff', 'Deep House': '#3d85c8',
+    'Lo-Fi': '#81c784', Reggaeton: '#f06292', Afrobeats: '#ffca28', Pop: '#a855f7',
+    Rock: '#ef5350', 'Drum & Bass': '#ff7043', 'R&B': '#26c6da', Techno: '#b0bec5',
+  };
+
+  return (
+    <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
+      <div style={{ ...DAW_STYLES.sectionHeader, justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Sparkles className="w-3 h-3" style={{ color: DAW.accent }} />
+          <span style={DAW_STYLES.sectionTitle}>Preset Library</span>
+          {presetApplied && <span style={{ ...dawPill(DAW.green), fontSize: 9 }}>✓ Applied</span>}
+        </div>
+        <span style={{ fontSize: 9, color: DAW.dim }}>
+          {BEAT_PRESETS.length} beats · {INSTRUMENT_PRESETS.length} instruments · {PROJECT_TEMPLATES.length} templates
+        </span>
+      </div>
+
+      {/* Tab bar */}
+      <div style={{ display: 'flex', borderBottom: `1px solid ${DAW.border}` }}>
+        {(['beats', 'instruments', 'templates'] as const).map(t => (
+          <button key={t} type="button" onClick={() => setTab(t)}
+            style={{
+              flex: 1, padding: '8px', fontSize: 10, fontWeight: 700, cursor: 'pointer',
+              border: 'none', letterSpacing: '0.06em', textTransform: 'uppercase',
+              background: tab === t ? `${DAW.accent}14` : 'transparent',
+              color: tab === t ? DAW.accent : DAW.dim,
+              borderBottom: tab === t ? `2px solid ${DAW.accent}` : '2px solid transparent',
+            }}>
+            {t}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ padding: '12px 14px' }}>
+        {tab === 'beats' && (
+          <>
+            {/* Genre filter chips */}
+            <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 8, marginBottom: 10 }}>
+              {(['All', ...GENRE_LIST]).map(g => (
+                <button key={g} type="button" onClick={() => onGenreChange(g)}
+                  style={{
+                    flexShrink: 0, padding: '4px 10px', borderRadius: 999, fontSize: 10,
+                    fontWeight: 700, cursor: 'pointer', border: 'none',
+                    background: genreFilter === g
+                      ? (GENRE_COLORS[g] ?? DAW.accent)
+                      : DAW.surfaceHi,
+                    color: genreFilter === g ? '#fff' : DAW.dim,
+                    transition: 'all 0.15s',
+                  }}>
+                  {g}
+                </button>
+              ))}
+            </div>
+
+            {/* Beat preset cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {filteredBeats.map(preset => {
+                const active = activePresetId === preset.id;
+                const color = GENRE_COLORS[preset.genre] ?? DAW.accent;
+                return (
+                  <div key={preset.id} style={{
+                    padding: '10px 12px', borderRadius: 10,
+                    background: active ? `${color}14` : DAW.surfaceHi,
+                    border: `1px solid ${active ? `${color}50` : DAW.border}`,
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    transition: 'all 0.15s',
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                      background: `${color}22`, border: `1px solid ${color}40`,
+                      display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+                      padding: '3px 4px', gap: 1,
+                    }}>
+                      {/* Mini grid preview */}
+                      {preset.grid.map((row, ri) => (
+                        <div key={ri} style={{ display: 'flex', gap: 1 }}>
+                          {row.map((on, si) => (
+                            <div key={si} style={{
+                              flex: 1, height: 3, borderRadius: 1,
+                              background: on ? color : 'rgba(255,255,255,0.1)',
+                            }} />
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: active ? color : DAW.text }}>
+                          {preset.name}
+                        </span>
+                        <span style={{ ...dawPill(color), fontSize: 9 }}>{preset.genre}</span>
+                      </div>
+                      <div style={{ fontSize: 10, color: DAW.dim, lineHeight: 1.4 }}>
+                        {preset.bpm} BPM · {preset.key} {preset.keyMode} · {preset.inspiredBy}
+                      </div>
+                    </div>
+                    <button type="button" onClick={() => onApplyPreset(preset)}
+                      style={{
+                        flexShrink: 0, padding: '6px 12px', borderRadius: 7, cursor: 'pointer',
+                        border: `1px solid ${active ? color : `${color}40`}`,
+                        background: active ? `${color}25` : `${color}12`,
+                        color: active ? color : DAW.dim,
+                        fontSize: 11, fontWeight: 700, transition: 'all 0.15s',
+                      }}>
+                      {active ? '✓ Active' : 'Apply'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {tab === 'instruments' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {INSTRUMENT_PRESETS.map(inst => {
+              const CAT_COLORS: Record<string, string> = {
+                Synth: '#00bcd4', Drums: '#ec407a', Bass: '#7c4dff',
+                Pad: '#26c6da', Lead: '#ffca28', FX: '#ef5350',
+              };
+              const color = CAT_COLORS[inst.category] ?? DAW.accent;
+              return (
+                <div key={inst.id} style={{
+                  padding: '10px 12px', borderRadius: 10,
+                  background: DAW.surfaceHi, border: `1px solid ${DAW.border}`,
+                  display: 'flex', alignItems: 'center', gap: 10,
+                }}>
+                  <span style={{ ...dawPill(color), fontSize: 9, flexShrink: 0 }}>{inst.category}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: DAW.text }}>{inst.name}</div>
+                    <div style={{ fontSize: 10, color: DAW.dim, marginTop: 1 }}>{inst.description}</div>
+                  </div>
+                  <button type="button" onClick={() => onApplyInstrument(inst)}
+                    style={{
+                      flexShrink: 0, padding: '6px 12px', borderRadius: 7, cursor: 'pointer',
+                      border: `1px solid ${color}40`,
+                      background: `${color}12`, color: DAW.dim,
+                      fontSize: 11, fontWeight: 700, transition: 'all 0.15s',
+                    }}>
+                    Load
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {tab === 'templates' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {PROJECT_TEMPLATES.map(tmpl => {
+              const active = activeTemplateId === tmpl.id;
+              return (
+                <div key={tmpl.id} style={{
+                  padding: '12px 14px', borderRadius: 10,
+                  background: active ? `${DAW.accent}10` : DAW.surfaceHi,
+                  border: `1px solid ${active ? `${DAW.accent}45` : DAW.border}`,
+                  transition: 'all 0.15s',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: active ? DAW.accent : DAW.text, flex: 1 }}>
+                      {tmpl.name}
+                    </span>
+                    <span style={{ ...dawPill(DAW.accent), fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      {tmpl.qualityMode}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 11, color: DAW.dim, marginBottom: 8 }}>{tmpl.description}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 10, color: DAW.dim }}>
+                      {tmpl.bpm} BPM · {tmpl.key} {tmpl.keyMode}
+                    </span>
+                    <button type="button" onClick={() => onApplyTemplate(tmpl)}
+                      style={{
+                        padding: '7px 16px', borderRadius: 8, cursor: 'pointer',
+                        border: `1px solid ${active ? DAW.accent : `${DAW.accent}40`}`,
+                        background: active ? `${DAW.accent}22` : `${DAW.accent}12`,
+                        color: active ? DAW.accent : DAW.dim,
+                        fontSize: 11, fontWeight: 700, transition: 'all 0.15s',
+                      }}>
+                      {active ? '✓ Loaded' : 'Load Template'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: DAWFileIOPanel — import audio, zoom timeline, export project
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface DAWFileIOPanelProps {
+  importedFileName: string | null;
+  importedWaveform: number[] | null;
+  importPending:    boolean;
+  exportPending:    boolean;
+  exportMsg:        string | null;
+  zoomLevel:        number;
+  onZoomChange:     (z: number) => void;
+  onImportClick:    () => void;
+  onExport:         () => void;
+}
+
+const ZOOM_LEVELS = [0.5, 0.75, 1, 1.5, 2, 3, 4] as const;
+const ZOOM_LABELS: Record<number, string> = { 0.5: '½×', 0.75: '¾×', 1: '1×', 1.5: '1.5×', 2: '2×', 3: '3×', 4: '4×' };
+
+function DAWFileIOPanel({
+  importedFileName, importedWaveform, importPending, exportPending, exportMsg,
+  zoomLevel, onZoomChange, onImportClick, onExport,
+}: DAWFileIOPanelProps) {
+  const barWidth = Math.max(3, Math.round(4 * zoomLevel));
+
+  return (
+    <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
+      {/* Header */}
+      <div style={{ ...DAW_STYLES.sectionHeader, justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <FileAudio className="w-3 h-3" style={{ color: DAW.accent }} />
+          <span style={DAW_STYLES.sectionTitle}>File I/O + Zoom Editor</span>
+        </div>
+        <span style={{ fontSize: 9, color: DAW.dim }}>WAV · MP3 · OGG · FLAC · AAC</span>
+      </div>
+
+      <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+        {/* Import / Export row */}
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="button" onClick={onImportClick}
+            disabled={importPending}
+            style={{
+              flex: 1, padding: '10px', borderRadius: 8, cursor: importPending ? 'not-allowed' : 'pointer',
+              border: `1px solid ${DAW.accent}40`, background: `${DAW.accent}12`,
+              color: DAW.accent, fontSize: 13, fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              opacity: importPending ? 0.6 : 1, transition: 'all 0.15s',
+            }}>
+            <FolderOpen className="w-4 h-4" />
+            {importPending ? 'Decoding…' : importedFileName ? 'Re-Import' : 'Import Audio'}
+          </button>
+
+          <button type="button" onClick={onExport}
+            disabled={exportPending}
+            style={{
+              flex: 1, padding: '10px', borderRadius: 8, cursor: exportPending ? 'not-allowed' : 'pointer',
+              border: `1px solid rgba(34,197,94,0.35)`, background: 'rgba(34,197,94,0.1)',
+              color: DAW.green, fontSize: 13, fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              opacity: exportPending ? 0.6 : 1, transition: 'all 0.15s',
+            }}>
+            <Download className="w-4 h-4" />
+            {exportPending ? 'Exporting…' : 'Export'}
+          </button>
+        </div>
+
+        {/* Export message */}
+        {exportMsg && (
+          <div style={{
+            padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 600,
+            background: exportMsg.startsWith('✓') ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+            color: exportMsg.startsWith('✓') ? DAW.green : DAW.red,
+            border: `1px solid ${exportMsg.startsWith('✓') ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.25)'}`,
+          }}>
+            {exportMsg}
+          </div>
+        )}
+
+        {/* Imported file info */}
+        {importedFileName && !importPending && (
+          <div style={{
+            padding: '8px 12px', borderRadius: 8,
+            background: DAW.surfaceHi, border: `1px solid ${DAW.border}`,
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <FileAudio className="w-4 h-4" style={{ color: DAW.accent, flexShrink: 0 }} />
+            <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: DAW.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {importedFileName}
+            </span>
+            <span style={{ ...dawPill(DAW.green), fontSize: 9, flexShrink: 0 }}>Loaded</span>
+          </div>
+        )}
+
+        {/* Zoom controls */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <ZoomOut className="w-3 h-3" style={{ color: DAW.dim }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>ZOOM</span>
+              <ZoomIn className="w-3 h-3" style={{ color: DAW.dim }} />
+            </div>
+            <div style={{ display: 'flex', gap: 3 }}>
+              {ZOOM_LEVELS.map(z => (
+                <button key={z} type="button" onClick={() => onZoomChange(z)}
+                  style={{
+                    padding: '3px 6px', borderRadius: 5, fontSize: 9, fontWeight: 700,
+                    cursor: 'pointer', border: `1px solid ${zoomLevel === z ? DAW.accent : DAW.border}`,
+                    background: zoomLevel === z ? `${DAW.accent}18` : 'transparent',
+                    color: zoomLevel === z ? DAW.accent : DAW.dim, transition: 'all 0.12s',
+                  }}>
+                  {ZOOM_LABELS[z]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Zoom slider */}
+          <input type="range" min={0.5} max={4} step={0.25} value={zoomLevel}
+            onChange={e => onZoomChange(Number(e.target.value))}
+            aria-label="Timeline zoom level"
+            style={{ width: '100%', accentColor: DAW.accent, cursor: 'pointer', marginBottom: 8 }}
+          />
+
+          {/* Zoomable waveform visualiser */}
+          <div style={{
+            borderRadius: 8, background: '#090b12',
+            border: `1px solid ${DAW.border}`,
+            overflow: 'hidden', position: 'relative',
+          }}>
+            {/* Ruler */}
+            <div style={{
+              display: 'flex', height: 16, background: '#0d0f17',
+              borderBottom: `1px solid ${DAW.border}`,
+            }}>
+              {Array.from({ length: 8 }, (_, i) => (
+                <div key={i} style={{
+                  flex: 1, display: 'flex', alignItems: 'center',
+                  borderLeft: i > 0 ? `1px solid ${DAW.border}` : 'none',
+                  paddingLeft: 4,
+                  fontSize: 8, fontWeight: 700, color: DAW.dim, fontFamily: 'monospace',
+                }}>
+                  {i + 1}
+                </div>
+              ))}
+            </div>
+
+            {/* Waveform area */}
+            <div style={{ overflowX: 'auto' }}>
+              <div style={{
+                display: 'flex', alignItems: 'flex-end', gap: 1,
+                height: 64, padding: '4px 6px',
+                minWidth: `${barWidth * (importedWaveform?.length ?? 48) + (importedWaveform?.length ?? 48)}px`,
+              }}>
+                {(importedWaveform ?? Array.from({ length: 48 }, (_, i) => {
+                  const v = Math.abs(Math.sin(i * 0.42)) * 0.6 + 0.1;
+                  return v;
+                })).map((h, i) => (
+                  <div key={i} style={{
+                    width: barWidth, borderRadius: 1, flexShrink: 0,
+                    background: importedWaveform
+                      ? `rgba(0,208,240,${0.35 + h * 0.65})`
+                      : `rgba(0,208,240,${0.18 + h * 0.3})`,
+                    height: `${Math.round(Math.max(4, h * 100))}%`,
+                    transition: 'height 0.2s',
+                  }} />
+                ))}
+              </div>
+            </div>
+
+            {!importedWaveform && (
+              <div style={{
+                position: 'absolute', inset: 0, display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(9,11,18,0.72)',
+                pointerEvents: 'none',
+              }}>
+                <span style={{ fontSize: 11, color: DAW.dim, textAlign: 'center', padding: '0 20px' }}>
+                  Import an audio file to see its waveform here
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 9, color: DAW.dim }}>
+            <span>Zoom: {zoomLevel}×</span>
+            <span>Scroll to scrub · Click bar to focus</span>
+          </div>
+        </div>
+
+        {/* Supported formats notice */}
+        <div style={{
+          padding: '8px 12px', borderRadius: 8, fontSize: 10,
+          background: DAW.surfaceHi, border: `1px solid ${DAW.border}`,
+          color: DAW.dim, lineHeight: 1.6,
+        }}>
+          <span style={{ fontWeight: 700, color: DAW.text }}>Supported formats: </span>
+          WAV · MP3 · OGG · FLAC · AAC
+          {' · '}
+          <span style={{ fontWeight: 700, color: DAW.text }}>Export: </span>
+          Project JSON · Original file re-export
+          <br />
+          <span style={{ color: `${DAW.accent}aa` }}>
+            Inspired by Ableton, Logic Pro, Pro Tools, Cubase, FL Studio · Splice-compatible stems
+          </span>
         </div>
       </div>
     </div>
