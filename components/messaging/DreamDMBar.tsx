@@ -883,8 +883,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             )}
             <svg width="24" height="12" viewBox="0 0 80 36"
               style={{ opacity: 0.90, flexShrink: 0, position: 'relative', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))' }} aria-hidden>
-              <path d="M10 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
-              <path d="M10 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
+              <path d="M12 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
+              <path d="M12 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
             </svg>
           </>
         )}
