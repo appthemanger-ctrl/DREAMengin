@@ -10,6 +10,7 @@ import { logJourneyDot, hasJourneyDot } from '@/lib/journey/journeyDots';
 import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useGsapFlip } from '@/lib/gsap/useGsapFlip';
+import { useSearchParams } from 'next/navigation';
 
 export type DaydreamWidget = {
   id: string;
@@ -52,6 +53,7 @@ type Props = {
 
 export default function DaydreamShell({ title, enginName, accentColor, widgets, children, daydreamType, sideBComponent, sideBVariant = 'widgets' }: Props) {
   const [side, setSide] = useState<'A' | 'B'>('A');
+  const searchParams = useSearchParams();
 
   // GSAP-powered A↔B flip transition (replaces CSS keyframe approach)
   const { containerRef, flip: gsapFlip, busy } = useGsapFlip();
@@ -80,6 +82,16 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
     window.addEventListener('de:open-side-b', openSideB);
     return () => window.removeEventListener('de:open-side-b', openSideB);
   }, [flip, side]);
+
+  // Auto-open Side B (Engin) when ?openEngin=1 is present.
+  // This remains as a legacy deep-link path for explicit Side B entry points.
+  useEffect(() => {
+    if (searchParams.get('openEngin') === '1' && side === 'A') {
+      const timer = window.setTimeout(() => flip(), 80);
+      return () => window.clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Journey Trail — surface_first_entry instrumentation ──────────────────
   // Fires once the first time this surface is ever visited by the user.
