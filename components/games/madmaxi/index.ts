@@ -7,4 +7,4 @@ export {
   getEnemyKindForIndex,
   getMadmaxiEnemyCount,
   getPowerUpForIndex,
-} from './madmaxi';
+} from './MadmaxiGame';

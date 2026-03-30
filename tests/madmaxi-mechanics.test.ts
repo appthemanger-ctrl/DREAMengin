@@ -8,7 +8,8 @@ import {
   getEnemyKindForIndex,
   getMadmaxiEnemyCount,
   getPowerUpForIndex,
-} from '@/components/games/BabylonSideScroller';
+} from '@/components/games/madmaxi';
+import { getMadmaxiEnemyCount as getMadmaxiEnemyCountFromWrapper } from '@/components/games/BabylonSideScroller';
 
 describe('MADMAXI mechanics config', () => {
   it('tracks ten distinct enemy archetypes and four power-ups', () => {
@@ -23,6 +24,7 @@ describe('MADMAXI mechanics config', () => {
     expect(getMadmaxiEnemyCount(11)).toBe(12);
     expect(getMadmaxiEnemyCount(21)).toBe(14);
     expect(getMadmaxiEnemyCount(101)).toBe(30);
+    expect(getMadmaxiEnemyCountFromWrapper(21)).toBe(getMadmaxiEnemyCount(21));
   });
 
   it('locks super mode to the clean-streak rules requested for MADMAXI', () => {
