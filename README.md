@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `e598c80` | 2026-03-30 23:54 UTC | copilot/add-mobile-control-layer | Copilot | +4 ~4 | feat: add shared mobile game hud layer |
 | `9cb65dd` | 2026-03-30 21:56 UTC | completedream | appthemanger-ctrl | — | Merge pull request #365 from appthemanger-ctrl/copilot/wire-games-to-new-game-engine-again |
 | `881b20c` | 2026-03-30 20:50 UTC | copilot/wire-games-to-new-game-engine-again | Copilot | ~1 | fix: cast getPreferredCanvasFormat() return to GPUTextureFormat in WebGPURenderer |
 | `6105687` | 2026-03-30 20:43 UTC | completedream | appthemanger-ctrl | — | Merge pull request #360 from appthemanger-ctrl/copilot/wire-games-to-new-game-engine |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `f9e08c0` | 2026-03-30 17:08 UTC | copilot/wire-games-to-new-game-engine | Copilot | +1 ~4 | feat: expand MADMAXI gameplay and add L3/R3 remote support |
 | `5441716` | 2026-03-30 15:55 UTC | copilot/wire-games-to-new-game-engine | Copilot | ~3 | feat: MADMAXI robot hero + 10-coin mechanic + catalog rebrand complete |
 | `d1be2cb` | 2026-03-30 15:34 UTC | copilot/wire-games-to-new-game-engine | Copilot | ~6 | chore: plan MADMAXI overhaul - robot character, 10-coin mechanic, title fix |
-| `94d9099` | 2026-03-30 13:38 UTC | copilot/wire-games-to-new-game-engine | Copilot | ~2 | feat: route games daydream launches to immersive engine sessions |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-30 21:56 UTC — `9cb65dd` by appthemanger-ctrl
+Last updated: 2026-03-30 23:54 UTC — `e598c80` by Copilot
 Last updated: 2026-03-30 20:35 UTC — `e798b6a` by appthemanger-ctrl
 Last updated: 2026-03-29 08:51 UTC — `5f13cf5` by appthemanger-ctrl
 Last updated: 2026-03-29 07:09 UTC — `1abd71b` by appthemanger-ctrl
