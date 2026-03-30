@@ -5,6 +5,8 @@ export {
   MADMAXI_SUPER_SECONDS,
   MADMAXI_SUPER_STREAK,
   getEnemyKindForIndex,
+  getMadmaxiLevelDefinition,
   getMadmaxiEnemyCount,
   getPowerUpForIndex,
+  isMadmaxiAuthoredLevel,
 } from './madmaxi';

@@ -13,8 +13,8 @@
  *  • Double-jump, coyote-time, dash with i-frames.
  *
  * Level structure:
- *  • Levels 1-2 are hard handcrafted intros (enemies, tight gaps, moving floors).
- *  • Levels 3-149 are procedurally generated (difficulty scales with level).
+ *  • The first two levels of every 10-level zone band are authored set-pieces.
+ *  • The remaining non-boss levels in that band resume procedural generation.
  *  • Every 10th level is a boss arena (15 unique bosses, 15 themed zones).
  *  • Session-seeded RNG — unique each run, same layout on level retry.
  *
@@ -34,6 +34,23 @@ import {
   defaultRouteSignals,
   type BabylonSceneLike,
 } from '@/lib/god-tier/godTierEngine';
+import {
+  BOSS_ENRAGE_MULTIPLIER,
+  BOSS_ENRAGE_THRESHOLD,
+  MADMAXI_SUPER_SECONDS,
+  MADMAXI_SUPER_STREAK,
+  STAR_SEED_OFFSET,
+  STAR_SEED_PRIME,
+  TOTAL_LEVELS,
+  ZONES,
+  getBossForLevel,
+  getZoneIdx,
+  isBossLevel,
+  seededRng,
+} from './config';
+import { getMadmaxiLevelDefinition } from './levels';
+import { MadmaxiAudioController } from './audio';
+import type { CoinDef, EnemyDef, HazardDef, MadmaxiEnemyKind, MadmaxiPowerUpKind, PlatDef, PowerUpDef } from './types';
 
 // ─── Game constants ──────────────────────────────────────────────────────────
 const GW = 800; // logical canvas width
@@ -54,526 +71,12 @@ const SHIELD_DURATION_FRAMES    = 8 * 60;
 const HIGH_JUMP_DURATION_FRAMES = 8 * 60;
 const LASER_DURATION_FRAMES     = 8 * 60;
 const GIANT_DURATION_FRAMES     = 4 * 60;
-const EXTRA_POWERUP_EVERY_N_LEVELS = 3;
 
 // Babylon render-unit scale:  1 BU ≈ 40 logical px
 const PX_PER_BU  = 40;
-const TOTAL_LEVELS = 150;
 
 const SESSION_SEED: number =
-  // 'use client' ensures this only runs in the browser (no SSR hydration mismatch).
   typeof window !== 'undefined' ? (Math.floor(Math.random() * 2147483647) || 1) : 1;
-
-// Named constants for boss behaviour
-const BOSS_ENRAGE_THRESHOLD  = 0.5;   // fraction of max HP at which boss speeds up
-const BOSS_ENRAGE_MULTIPLIER = 1.5;   // speed multiplier when enraged
-
-// Named constants for seeding
-const LEVEL_SEED_KEY    = 31337;      // prime-ish XOR key mixed with level number
-const STAR_SEED_PRIME   = 7919;       // prime for parallax star distribution
-const STAR_SEED_OFFSET  = 13;         // offset to avoid seed=0
-
-/** Zone index 0-14; changes every 10 levels. */
-function getZoneIdx(level: number): number { return Math.min(14, Math.floor((level - 1) / 10)); }
-/** Returns true for every 10th level (boss arenas). */
-function isBossLevel(level: number): boolean { return level % 10 === 0 && level >= 10 && level <= TOTAL_LEVELS; }
-
-// ─── Zone metadata (15 zones, one per 10-level band) ─────────────────────────
-interface ZoneMeta {
-  name: string; story: string;
-  sky: [number,number,number];
-  gnd: [number,number,number]; plt: [number,number,number]; em: [number,number,number];
-}
-const ZONES: ZoneMeta[] = [
-  { name:'Lucid Meadows',    story:'The dream begins at the edge of waking.\nRun far — something stirs in the meadow.',
-    sky:[0.04,0.07,0.18], gnd:[0.12,0.20,0.14], plt:[0.22,0.40,0.28], em:[0.02,0.05,0.02] },
-  { name:'Crystal Caverns',  story:'The meadow cracks open.\nGlimmering tunnels pulse with forgotten dreams.',
-    sky:[0.02,0.03,0.14], gnd:[0.10,0.12,0.35], plt:[0.18,0.22,0.62], em:[0.02,0.03,0.12] },
-  { name:'Neon Corridor',    story:'A dead city awakens in neon.\nEchoes of a dreamer who never woke.',
-    sky:[0.04,0.00,0.10], gnd:[0.12,0.00,0.18], plt:[0.36,0.02,0.50], em:[0.06,0.00,0.10] },
-  { name:'Cloud Kingdom',    story:'Higher. The storms below look like oceans.\nA kingdom built on forgotten promises.',
-    sky:[0.12,0.16,0.30], gnd:[0.28,0.32,0.44], plt:[0.50,0.56,0.72], em:[0.06,0.07,0.12] },
-  { name:'Shadow Vale',      story:'The light runs out here.\nSomething ancient waits in the dark.',
-    sky:[0.01,0.01,0.04], gnd:[0.06,0.02,0.06], plt:[0.12,0.04,0.14], em:[0.02,0.01,0.02] },
-  { name:'Ocean Abyss',      story:'Deeper than sleep. The dreamer drowns\nin memories that belong to someone else.',
-    sky:[0.01,0.04,0.12], gnd:[0.02,0.10,0.22], plt:[0.04,0.24,0.46], em:[0.01,0.04,0.08] },
-  { name:'Time Rift',        story:'The past and future bleed together.\nRun — or be erased.',
-    sky:[0.07,0.04,0.14], gnd:[0.14,0.10,0.22], plt:[0.28,0.18,0.48], em:[0.04,0.02,0.08] },
-  { name:'Mind Maze',        story:'Every corridor is a fear.\nOnly the dreamer can choose which door opens.',
-    sky:[0.08,0.03,0.10], gnd:[0.18,0.05,0.16], plt:[0.36,0.08,0.38], em:[0.05,0.01,0.06] },
-  { name:'Storm Peaks',      story:'At the roof of dreams the wind strips\neverything away but the will to continue.',
-    sky:[0.04,0.06,0.16], gnd:[0.14,0.18,0.26], plt:[0.26,0.32,0.52], em:[0.03,0.04,0.08] },
-  { name:'The Void',         story:'Nothing. And yet — you are still here.\nThe last dream before the final truth.',
-    sky:[0.01,0.01,0.02], gnd:[0.05,0.02,0.06], plt:[0.09,0.03,0.11], em:[0.02,0.01,0.03] },
-  { name:'Reborn Highlands', story:'Surviving the void changes everything.\nThe highlands bloom where nothing should grow.',
-    sky:[0.06,0.10,0.18], gnd:[0.18,0.26,0.20], plt:[0.32,0.48,0.36], em:[0.03,0.06,0.04] },
-  { name:'Echo Halls',       story:'Every footstep echoes with a life unlived.\nThe halls replay every choice ever made.',
-    sky:[0.04,0.04,0.14], gnd:[0.10,0.10,0.26], plt:[0.20,0.20,0.52], em:[0.02,0.02,0.08] },
-  { name:'Final Frontier',   story:'Beyond the last horizon the dreamer\nfinally sees what they have been running toward.',
-    sky:[0.08,0.04,0.12], gnd:[0.18,0.08,0.20], plt:[0.36,0.14,0.42], em:[0.05,0.02,0.07] },
-  { name:'Ascendant Realm',  story:'The dreamer becomes the dream.\nEach step here reshapes the world behind you.',
-    sky:[0.10,0.08,0.18], gnd:[0.20,0.16,0.30], plt:[0.38,0.32,0.58], em:[0.06,0.05,0.10] },
-  { name:'The Dream Heart',  story:'The heart of all dreams.\nOnly one who has survived everything arrives here.',
-    sky:[0.08,0.04,0.20], gnd:[0.12,0.08,0.28], plt:[0.22,0.14,0.52], em:[0.04,0.02,0.10] },
-];
-
-// ─── Boss metadata (15 bosses, one per zone at every 10th level) ─────────────
-interface BossMeta {
-  name: string; title: string; intro: string;
-  hp: number; spd: number; size: number;
-  col: [number,number,number]; em: [number,number,number];
-}
-const BOSSES: BossMeta[] = [
-  { name:'The Meadow Troll',    title:'Guardian of the Gate',
-    intro:'A lumbering troll blocks the only exit.\nStomp it 3 times to pass.',
-    hp:3,  spd:1.8, size:1.8, col:[0.20,0.50,0.20], em:[0.04,0.12,0.04] },
-  { name:'Crystal Golem',       title:'Sentinel of the Deep',
-    intro:'An ancient golem of crystallised dreams.\nFour hits to shatter.',
-    hp:4,  spd:1.4, size:2.0, col:[0.30,0.40,0.80], em:[0.06,0.09,0.22] },
-  { name:'Neon Phantom',        title:'Ghost of the Corridor',
-    intro:'It flickers between states of existence.\nHit it 4 times — fast.',
-    hp:4,  spd:3.2, size:1.6, col:[0.70,0.00,0.80], em:[0.20,0.00,0.26] },
-  { name:'Cloud Titan',         title:'King of the Skylands',
-    intro:'Massive and slow, but one hit sends you flying.\nLand on it 5 times.',
-    hp:5,  spd:0.9, size:2.4, col:[0.70,0.75,0.90], em:[0.14,0.16,0.22] },
-  { name:'Shadow Beast',        title:'Devourer of Light',
-    intro:'Born from absolute darkness.\nFast. Relentless. Five hits.',
-    hp:5,  spd:3.6, size:1.9, col:[0.10,0.02,0.14], em:[0.06,0.01,0.08] },
-  { name:'Deep Leviathan',      title:'Ruler of the Abyss',
-    intro:'The ocean dreamed this nightmare into being.\nSix stomps to silence it.',
-    hp:6,  spd:2.0, size:2.3, col:[0.04,0.18,0.40], em:[0.01,0.05,0.12] },
-  { name:'Time Wraith',         title:'The Uncorrectable Error',
-    intro:'A mistake echoing across every timeline.\nSix hits to erase it.',
-    hp:6,  spd:3.8, size:1.7, col:[0.60,0.60,0.70], em:[0.12,0.12,0.16] },
-  { name:'Mind Demon',          title:'The Fear You Never Faced',
-    intro:'A manifestation of every avoided thought.\nSeven hits to confront it.',
-    hp:7,  spd:2.8, size:2.1, col:[0.55,0.05,0.55], em:[0.14,0.01,0.14] },
-  { name:'Storm Drake',         title:'Fury of the Peak',
-    intro:'Born from lightning at the top of the dream world.\nEight hits to ground it.',
-    hp:8,  spd:2.5, size:2.2, col:[0.30,0.35,0.60], em:[0.07,0.08,0.16] },
-  { name:'The Void Lord',       title:'Master of Nothingness',
-    intro:'It has watched you from the beginning.\nTHE HALFWAY BOSS. Ten hits.',
-    hp:10, spd:2.2, size:2.8, col:[0.05,0.00,0.10], em:[0.10,0.00,0.16] },
-  { name:'Risen Goliath',       title:'What Survived the Void',
-    intro:'Something came back from nothing — changed.\nEight hits.',
-    hp:8,  spd:2.6, size:2.3, col:[0.55,0.42,0.15], em:[0.14,0.10,0.02] },
-  { name:'Echo Specter',        title:'A Life Unlived',
-    intro:'Every echo has become a monster.\nNine hits to silence every regret.',
-    hp:9,  spd:3.4, size:1.8, col:[0.10,0.60,0.70], em:[0.02,0.14,0.18] },
-  { name:'Frontier Colossus',   title:'The Wall at the Edge',
-    intro:'A titan at the border of the last unknown.\nTen hits.',
-    hp:10, spd:2.8, size:2.5, col:[0.55,0.08,0.14], em:[0.14,0.01,0.02] },
-  { name:'Ascendant Titan',     title:"The Dreamer's Shadow",
-    intro:"A reflection of everything you could have been.\nEleven hits.",
-    hp:11, spd:3.0, size:2.6, col:[0.70,0.65,0.20], em:[0.18,0.16,0.02] },
-  { name:'The Dream King',      title:'Ruler of All Dreams',
-    intro:'From the heart of every dream ever dreamed.\nFINAL BOSS. Fifteen hits.',
-    hp:15, spd:2.4, size:3.2, col:[0.80,0.60,0.08], em:[0.28,0.18,0.00] },
-];
-
-// ─── Seeded RNG (deterministic, avoids hydration mismatches) ─────────────────
-function seededRng(seed: number) {
-  let s = (seed | 0) >>> 0;
-  return () => {
-    s = Math.imul(s, 1664525) + 1013904223 >>> 0;
-    return s / 0x100000000;
-  };
-}
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-export const MADMAXI_ENEMY_KINDS = [
-  'runner',
-  'charger',
-  'hopper',
-  'flyer',
-  'zigzag',
-  'orbiter',
-  'sniper',
-  'burrower',
-  'spiker',
-  'shadow',
-] as const;
-export type MadmaxiEnemyKind = typeof MADMAXI_ENEMY_KINDS[number];
-
-export const MADMAXI_POWERUP_KINDS = [
-  'shield',
-  'high-jump',
-  'laser',
-  'giant',
-] as const;
-export type MadmaxiPowerUpKind = typeof MADMAXI_POWERUP_KINDS[number];
-
-export const MADMAXI_SUPER_STREAK = 9;
-export const MADMAXI_SUPER_SECONDS = 30;
-
-export function getMadmaxiEnemyCount(level: number): number {
-  return 10 + Math.floor((Math.max(1, level) - 1) / 10) * 2;
-}
-
-interface PlatDef {
-  x: number; y: number; w: number; h: number;
-  type: 'solid' | 'moving' | 'goal';
-  moveRange?: number; moveSpd?: number;
-}
-interface CoinDef { x: number; y: number; isGoal?: boolean; }
-interface HazardDef {
-  x: number; y: number;
-  type: 'spike' | 'drop';
-  moveRange?: number;
-  moveSpd?: number;
-  triggerRadius?: number;
-}
-interface PowerUpDef { x: number; y: number; type: MadmaxiPowerUpKind; }
-interface EnemyDef {
-  x: number; y: number; vx: number;
-  kind?: MadmaxiEnemyKind;
-  anchorX?: number;
-  anchorY?: number;
-  /** True for boss enemies. */
-  boss?: boolean;
-  /** Hits required to defeat (bosses only); regular enemies always take 1. */
-  hitsLeft?: number;
-  /** Visual scale multiplier (bosses only). */
-  size?: number;
-  /** Boss body colour [R,G,B]. */
-  bossColor?: [number,number,number];
-  /** Boss emissive colour [R,G,B]. */
-  bossEmissive?: [number,number,number];
-}
-
-interface LevelDef {
-  platforms: PlatDef[];
-  coins: CoinDef[];
-  enemies: EnemyDef[];
-  hazards?: HazardDef[];
-  powerUps?: PowerUpDef[];
-  worldW: number;
-  /** Zone name shown in HUD. */
-  zoneName?: string;
-  /** Lore text shown in the between-level overlay. */
-  zoneStory?: string;
-  /** True for boss arenas — victory requires stomping the boss, not a goal coin. */
-  isBossLevel?: boolean;
-}
-
-// ─── Level data (logical pixels, Y-down) ─────────────────────────────────────
-// Ground sits at y=400.  Platforms use their TOP-LEFT corner (x,y,w,h).
-// sessionSeed gives each playthrough unique procedural layouts.
-
-/** Returns the boss entry for a given level (safe index clamping). */
-function getBossForLevel(level: number): BossMeta {
-  return BOSSES[Math.min(BOSSES.length - 1, Math.floor(level / 10) - 1)];
-}
-
-export function getEnemyKindForIndex(index: number, level: number): MadmaxiEnemyKind {
-  const rotation = Math.floor((Math.max(1, level) - 1) / 10) % MADMAXI_ENEMY_KINDS.length;
-  return MADMAXI_ENEMY_KINDS[(index + rotation) % MADMAXI_ENEMY_KINDS.length];
-}
-
-export function getPowerUpForIndex(index: number, rng: () => number): MadmaxiPowerUpKind {
-  return MADMAXI_POWERUP_KINDS[(index + Math.floor(rng() * MADMAXI_POWERUP_KINDS.length)) % MADMAXI_POWERUP_KINDS.length];
-}
-
-function makeLevel(n: number, sessionSeed: number): LevelDef {
-  if (n === 1) return {
-    worldW: 2400,
-    platforms: [
-      { x: 0,    y: 400, w: 2400, h: 80, type: 'solid' },
-      { x: 300,  y: 310, w: 120,  h: 20, type: 'solid' },
-      { x: 500,  y: 250, w: 140,  h: 20, type: 'solid' },
-      { x: 700,  y: 200, w: 120,  h: 20, type: 'solid' },
-      { x: 900,  y: 310, w: 160,  h: 20, type: 'solid' },
-      { x: 1100, y: 250, w: 140,  h: 20, type: 'solid' },
-      { x: 1300, y: 170, w: 130,  h: 20, type: 'solid' },
-      { x: 1550, y: 300, w: 160,  h: 20, type: 'moving', moveRange: 80, moveSpd: 0.7 },
-      { x: 1800, y: 200, w: 130,  h: 20, type: 'solid' },
-      { x: 2050, y: 260, w: 200,  h: 20, type: 'solid' },
-      { x: 2200, y: 160, w: 140,  h: 20, type: 'goal' },
-    ],
-    // 9 silver coins + 1 gold Dream Star (isGoal)
-    coins: [
-      { x: 360, y: 278 },
-      { x: 570, y: 218 },
-      { x: 770, y: 168 },
-      { x: 965, y: 278 },
-      { x: 1155,y: 218 },
-      { x: 1375,y: 138 },
-      { x: 1635,y: 268 },
-      { x: 1875,y: 168 },
-      { x: 2095,y: 228 },
-      { x: 2245,y: 128, isGoal: true },
-    ],
-    // One enemy per coin: 10 enemy archetypes for the opening gauntlet
-    enemies: [
-      { x: 260,  y: 368, vx: 2.4, kind: 'runner' },
-      { x: 450,  y: 368, vx: 1.9, kind: 'charger' },
-      { x: 620,  y: 350, vx: 1.3, kind: 'hopper', anchorY: 350 },
-      { x: 760,  y: 210, vx: 1.5, kind: 'flyer', anchorY: 210 },
-      { x: 900,  y: 285, vx: 1.7, kind: 'zigzag', anchorY: 285 },
-      { x: 1120, y: 250, vx: 1.1, kind: 'orbiter', anchorX: 1120, anchorY: 250 },
-      { x: 1280, y: 332, vx: 0.8, kind: 'sniper', anchorY: 332 },
-      { x: 1470, y: 374, vx: 1.6, kind: 'burrower', anchorY: 374 },
-      { x: 1820, y: 360, vx: 1.2, kind: 'spiker' },
-      { x: 2060, y: 330, vx: 2.1, kind: 'shadow', anchorY: 330 },
-    ],
-    hazards: [
-      { x: 540, y: 228, type: 'spike', moveRange: 46, moveSpd: 0.9 },
-      { x: 1180, y: 205, type: 'drop', triggerRadius: 180 },
-      { x: 1940, y: 158, type: 'spike', moveRange: 34, moveSpd: 1.1 },
-    ],
-    powerUps: [
-      { x: 1010, y: 278, type: 'shield' },
-      { x: 1730, y: 168, type: 'laser' },
-    ],
-    zoneName: ZONES[0].name,
-    zoneStory: ZONES[0].story,
-  };
-
-  if (n === 2) return {
-    worldW: 2800,
-    platforms: [
-      { x: 0,    y: 400, w: 2800, h: 80, type: 'solid' },
-      { x: 200,  y: 330, w: 100,  h: 20, type: 'solid' },
-      { x: 360,  y: 260, w: 90,   h: 20, type: 'solid' },
-      { x: 510,  y: 190, w: 100,  h: 20, type: 'solid' },
-      { x: 660,  y: 280, w: 90,   h: 20, type: 'moving', moveRange: 100, moveSpd: 1.2 },
-      { x: 820,  y: 200, w: 80,   h: 20, type: 'solid' },
-      { x: 980,  y: 300, w: 110,  h: 20, type: 'solid' },
-      { x: 1150, y: 180, w: 90,   h: 20, type: 'moving', moveRange: 60, moveSpd: 0.9 },
-      { x: 1310, y: 260, w: 110,  h: 20, type: 'solid' },
-      { x: 1480, y: 150, w: 100,  h: 20, type: 'solid' },
-      { x: 1650, y: 240, w: 100,  h: 20, type: 'moving', moveRange: 80, moveSpd: 1.0 },
-      { x: 1820, y: 160, w: 90,   h: 20, type: 'solid' },
-      { x: 2000, y: 280, w: 120,  h: 20, type: 'solid' },
-      { x: 2200, y: 180, w: 110,  h: 20, type: 'solid' },
-      { x: 2440, y: 240, w: 130,  h: 20, type: 'solid' },
-      { x: 2620, y: 140, w: 120,  h: 20, type: 'goal' },
-    ],
-    // 9 silver coins + 1 gold Dream Star (isGoal)
-    coins: [
-      { x: 245, y: 298 },
-      { x: 408, y: 228 },
-      { x: 558, y: 158 },
-      { x: 725, y: 248 },
-      { x: 868, y: 168 },
-      { x: 1025,y: 268 },
-      { x: 1205,y: 148 },
-      { x: 1370,y: 228 },
-      { x: 1540,y: 118 },
-      { x: 2668,y: 108, isGoal: true },
-    ],
-    enemies: [
-      { x: 220,  y: 368, vx: 2.6, kind: 'runner' },
-      { x: 430,  y: 340, vx: 2.1, kind: 'charger' },
-      { x: 620,  y: 355, vx: 1.5, kind: 'hopper', anchorY: 355 },
-      { x: 830,  y: 195, vx: 1.8, kind: 'flyer', anchorY: 195 },
-      { x: 980,  y: 290, vx: 1.9, kind: 'zigzag', anchorY: 290 },
-      { x: 1220, y: 240, vx: 1.3, kind: 'orbiter', anchorX: 1220, anchorY: 240 },
-      { x: 1490, y: 145, vx: 0.8, kind: 'sniper', anchorY: 145 },
-      { x: 1710, y: 372, vx: 1.7, kind: 'burrower', anchorY: 372 },
-      { x: 2140, y: 360, vx: 1.5, kind: 'spiker' },
-      { x: 2510, y: 330, vx: 2.4, kind: 'shadow', anchorY: 330 },
-    ],
-    hazards: [
-      { x: 690, y: 248, type: 'spike', moveRange: 60, moveSpd: 1.1 },
-      { x: 1180, y: 148, type: 'drop', triggerRadius: 160 },
-      { x: 2080, y: 250, type: 'spike', moveRange: 48, moveSpd: 1.25 },
-      { x: 2350, y: 120, type: 'drop', triggerRadius: 180 },
-    ],
-    powerUps: [
-      { x: 1045, y: 250, type: 'high-jump' },
-      { x: 2270, y: 150, type: 'giant' },
-    ],
-    zoneName: ZONES[0].name,
-  };
-
-  if (isBossLevel(n)) return makeBossLevel(n);
-  return makeProceduralLevel(n, sessionSeed);
-}
-
-// ─── Procedural level generator (levels 3-149 excluding boss levels) ─────────
-function makeProceduralLevel(n: number, sessionSeed: number): LevelDef {
-  // XOR session seed with level key → unique per session, repeatable on retry
-  const rng = seededRng(((sessionSeed ^ (n * LEVEL_SEED_KEY + 7)) | 1) >>> 0);
-  const zoneIdx = getZoneIdx(n);
-  const zone    = ZONES[zoneIdx];
-
-  // t: difficulty 0.0 (level 3) → 1.0 (level 149)
-  const t = Math.min(1, (n - 3) / 146);
-
-  const worldW    = Math.round(3000 + t * 2800);               // 3000 → 5800 px
-  const minPlatW  = Math.max(42, Math.round(125 - t * 83));    // 125 → 42 px
-  const maxPlatW  = Math.max(minPlatW + 15, Math.round(160 - t * 80)); // 160 → 80 px
-  const minGap    = Math.round(52 + t * 18);                   // 52 → 70 px
-  const maxGap    = Math.round(82 + t * 8);                    // 82 → 90 px  (safe single-jump range)
-  const movRatio  = 0.28 + t * 0.52;                           // 28% → 80% moving
-  const movSpd    = 1.0  + t * 1.8;                            // 1.0 → 2.8
-  const platCount = Math.round(12 + t * 17);                   // 12 → 29 platforms
-  const enemyCnt  = getMadmaxiEnemyCount(n);                   // 10 + 2 every 10 levels
-  const enemySpd  = 1.6  + t * 2.2;                            // 1.6 → 3.8
-
-  const platforms: PlatDef[] = [{ x: 0, y: 400, w: worldW, h: 80, type: 'solid' }];
-  const coins:   CoinDef[]   = [];
-  const enemies: EnemyDef[]  = [];
-  const hazards: HazardDef[] = [];
-  const powerUps: PowerUpDef[] = [];
-
-  let cx = 150, cy = 340;
-  let cw = Math.round(minPlatW + rng() * (maxPlatW - minPlatW));
-
-  for (let i = 0; i < platCount; i++) {
-    const gap = Math.round(minGap + rng() * (maxGap - minGap));
-    cx += cw + gap;
-    if (cx > worldW - 300) break;
-
-    // Up to 100 px higher (clamped — safely reachable with a single jump),
-    // or up to 200 px lower (gravity assists falling).
-    const rawDy  = (rng() - 0.5) * 400;
-    const clampedDy = rawDy < 0 ? Math.max(rawDy, -100) : Math.min(rawDy, 200);
-    cy = Math.max(90, Math.min(370, Math.round(cy + clampedDy)));
-    cw = Math.round(minPlatW + rng() * (maxPlatW - minPlatW));
-
-    const isMoving = rng() < movRatio;
-    const p: PlatDef = { x: cx, y: cy, w: cw, h: 20, type: isMoving ? 'moving' : 'solid' };
-    if (isMoving) {
-      p.moveRange = Math.round(40 + rng() * 60);
-      p.moveSpd   = parseFloat((movSpd * (0.7 + rng() * 0.6)).toFixed(2));
-    }
-    platforms.push(p);
-  } // end platform generation loop
-
-  // After the loop: coin placement outside the for loop
-  // Collect all platform (non-ground) positions for coin placement
-  const coinPlats = platforms.slice(1); // skip the ground slab
-  // Distribute exactly 9 silver coins across the non-goal platforms
-  // (evenly spaced through the array so they spread across the whole level)
-  const step = Math.max(1, Math.floor(coinPlats.length / 9));
-  for (let ci = 0; ci < 9 && ci * step < coinPlats.length; ci++) {
-    const cp = coinPlats[Math.min(coinPlats.length - 2, ci * step)]; // avoid last (goal) plat
-    coins.push({ x: cp.x + Math.round(cp.w * 0.4), y: cp.y - 32 });
-  }
-  // Ensure we always have exactly 9 regular coins (pad from beginning if short)
-  while (coins.length < 9 && coinPlats.length > 0) {
-    const cp = coinPlats[coins.length % coinPlats.length];
-    coins.push({ x: cp.x + Math.round(cp.w * 0.5), y: cp.y - 28 });
-  }
-
-  // Goal — 60-95 px past last platform's right edge, 20-120 px higher
-  const goalGap  = Math.round(60 + rng() * 35);
-  const goalRise = Math.round(20 + rng() * 100);
-  const goalX    = Math.min(worldW - 170, cx + cw + goalGap);
-  const goalY    = Math.max(90, cy - goalRise);
-  platforms.push({ x: goalX, y: goalY, w: 110, h: 20, type: 'goal' });
-  coins.push({ x: goalX + 35, y: goalY - 40, isGoal: true });
-
-  // Enemies spread evenly across world
-  const spacing = Math.round(worldW / (enemyCnt + 1));
-  for (let i = 0; i < enemyCnt; i++) {
-    const ex  = Math.max(150, Math.min(worldW - 150, Math.round(spacing * (i + 1) + (rng() - 0.5) * 120)));
-    const spd = parseFloat((enemySpd * (0.6 + rng() * 0.8)).toFixed(2));
-    const kind = getEnemyKindForIndex(i, n);
-    const anchorY = kind === 'flyer'
-      ? Math.max(150, 260 - (i % 3) * 28)
-      : kind === 'zigzag'
-        ? 280
-        : kind === 'orbiter'
-          ? Math.max(175, 240 - (i % 2) * 36)
-          : kind === 'shadow'
-            ? 320
-            : 368;
-    enemies.push({
-      x: ex,
-      y: kind === 'flyer' || kind === 'zigzag' || kind === 'orbiter' || kind === 'shadow' ? anchorY : 368,
-      vx: rng() < 0.5 ? spd : -spd,
-      kind,
-      anchorX: ex,
-      anchorY,
-    });
-  }
-
-  // Progressive hazards: sliding spikes and falling debris.
-  const hazardCount = Math.min(8, 2 + Math.floor(t * 6));
-  const hazardPlats = platforms.slice(1, Math.max(2, platforms.length - 1));
-  for (let hi = 0; hi < hazardCount && hazardPlats.length > 0; hi++) {
-    const hp = hazardPlats[(hi * 2 + Math.floor(rng() * 3)) % hazardPlats.length];
-    if (hi % 2 === 0) {
-      hazards.push({
-        x: hp.x + Math.round(hp.w * 0.2),
-        y: hp.y - 14,
-        type: 'spike',
-        moveRange: Math.max(18, Math.round(hp.w * 0.35)),
-        moveSpd: parseFloat((0.9 + t * 1.8 + rng() * 0.5).toFixed(2)),
-      });
-    } else {
-      hazards.push({
-        x: hp.x + Math.round(hp.w * 0.5),
-        y: Math.max(40, hp.y - 140 - Math.round(rng() * 80)),
-        type: 'drop',
-        triggerRadius: 140 + Math.round(rng() * 120),
-      });
-    }
-  }
-
-  // Drop a couple of power-ups every few levels.
-  const powerUpCount = n % EXTRA_POWERUP_EVERY_N_LEVELS === 0 ? 2 : 1;
-  for (let pi = 0; pi < powerUpCount && coinPlats.length > 0; pi++) {
-    const pp = coinPlats[(pi * 3 + Math.floor(rng() * 3)) % coinPlats.length];
-    powerUps.push({
-      x: pp.x + Math.round(pp.w * 0.55),
-      y: pp.y - 62,
-      type: getPowerUpForIndex(pi, rng),
-    });
-  }
-
-  // Show zone intro story on the first level of each zone.
-  // Level 3 is the first procedural level — show zone 0 story even though 3 % 10 ≠ 1.
-  const isFirstOfZone = (n % 10 === 1) || n === 3;
-
-  return {
-    platforms,
-    coins,
-    enemies,
-    hazards,
-    powerUps,
-    worldW,
-    zoneName: zone.name,
-    zoneStory: isFirstOfZone ? zone.story : undefined,
-  };
-}
-
-// ─── Boss arena generator (every 10th level) ─────────────────────────────────
-function makeBossLevel(n: number): LevelDef {
-  const bossIdx = Math.min(BOSSES.length - 1, Math.floor(n / 10) - 1);
-  const boss    = BOSSES[bossIdx];
-  const zone    = ZONES[getZoneIdx(n)];
-
-  const worldW = 1100;
-  const platforms: PlatDef[] = [
-    { x: 0,   y: 400, w: worldW, h: 80, type: 'solid' },
-    { x: 160, y: 300, w: 130,   h: 20, type: 'solid' },
-    { x: 380, y: 235, w: 140,   h: 20, type: 'solid' },
-    { x: 620, y: 280, w: 130,   h: 20, type: 'solid' },
-    { x: 860, y: 215, w: 110,   h: 20, type: 'solid' },
-  ];
-
-  // Score coins scattered around the arena (no goal coin — boss IS the goal)
-  const coins: CoinDef[] = [
-    { x: 200, y: 270 }, { x: 440, y: 205 }, { x: 660, y: 250 }, { x: 900, y: 185 },
-  ];
-
-  const enemies: EnemyDef[] = [{
-    x: 450, y: 355, vx: boss.spd,
-    boss: true, hitsLeft: boss.hp, size: boss.size,
-    bossColor: boss.col, bossEmissive: boss.em,
-  }];
-
-  return {
-    platforms, coins, enemies, worldW,
-    zoneName: zone.name,
-    zoneStory: `⚔ BOSS: ${boss.name}\n${boss.title}\n\n${boss.intro}`,
-    isBossLevel: true,
-  };
-}
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function BabylonSideScroller() {
@@ -624,6 +127,10 @@ export default function BabylonSideScroller() {
   // Zone / story
   const [zoneName,   setZoneName]   = useState('');
   const [zoneStory,  setZoneStory]  = useState('');
+  const [encounterName, setEncounterName] = useState('');
+  const [audioTheme, setAudioTheme] = useState('');
+  const [vfxTheme, setVfxTheme] = useState('');
+  const [isAuthoredStage, setIsAuthoredStage] = useState(false);
   const [wasABoss,   setWasABoss]   = useState(false); // was the level we just finished a boss?
 
   // Submit final score when game truly ends (win = all 150 levels, or dead with 0 lives)
@@ -639,17 +146,22 @@ export default function BabylonSideScroller() {
     if (!canvas) return;
     gameRef.current?.destroy();
 
-    // Derive zone/boss info for this level
-    const zIdx    = getZoneIdx(lv);
-    const isBoss  = isBossLevel(lv);
+    // Derive zone/boss/authored metadata for this level
+    const zIdx = getZoneIdx(lv);
+    const levelDef = getMadmaxiLevelDefinition(lv, sessionSeedRef.current);
+    const isBoss = isBossLevel(lv);
     const bossEntry = isBoss ? getBossForLevel(lv) : null;
-    setZoneName(ZONES[zIdx].name);
+    setZoneName(levelDef.zoneName ?? ZONES[zIdx].name);
+    setEncounterName(levelDef.encounterName ?? (bossEntry ? bossEntry.name : ''));
+    setAudioTheme(levelDef.audioTheme ?? ZONES[zIdx].audioTheme);
+    setVfxTheme(levelDef.vfxTheme ?? ZONES[zIdx].vfxTheme);
+    setIsAuthoredStage(Boolean(levelDef.isAuthored));
     setBossHp(bossEntry ? bossEntry.hp : 0);
     setBossMaxHp(bossEntry ? bossEntry.hp : 0);
     setBossName(bossEntry ? bossEntry.name : '');
     setWasABoss(false);
     setCoinCount(0);
-    setCoinTotal(9);
+    setCoinTotal(levelDef.coins.filter((coin) => !coin.isGoal).length);
 
     const core = new GameCore(canvas, lv, sc, li, {
       onScore:    (s)  => {
@@ -671,15 +183,14 @@ export default function BabylonSideScroller() {
         setRuntimeBoosts({ shield: 0, 'high-jump': 0, laser: 0, giant: 0 });
       },
       onComplete: (lv) => {
-        const nextZone = getZoneIdx(lv);
-        const isNewZone = lv > 1 && getZoneIdx(lv - 1) !== nextZone;
+        const nextLevelDef = getMadmaxiLevelDefinition(lv, sessionSeedRef.current);
         const nextIsBoss = isBossLevel(lv);
-        // Build story text for the "level complete" overlay
-        let story = '';
-        if (isNewZone) story += ZONES[nextZone].story;
-        if (nextIsBoss) {
-          const nb = getBossForLevel(lv);
-          story += (story ? '\n\n' : '') + `⚔ BOSS NEXT: ${nb.name}\n${nb.intro}`;
+        let story = nextLevelDef.zoneStory ?? '';
+        if (nextLevelDef.encounterName && !nextIsBoss) {
+          story += (story ? '\n\n' : '') + `⚡ NEXT ENCOUNTER: ${nextLevelDef.encounterName}`;
+        }
+        if (!story && (nextLevelDef.audioTheme || nextLevelDef.vfxTheme)) {
+          story = `🎵 ${nextLevelDef.audioTheme ?? ''} · ✨ ${nextLevelDef.vfxTheme ?? ''}`.trim();
         }
         setZoneStory(story);
         setWasABoss(isBossLevel(lv - 1));
@@ -832,7 +343,7 @@ export default function BabylonSideScroller() {
               + <span style={{ color: '#fa0', fontWeight: 700 }}>1 gold Dream Star</span> to clear each level
             </div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.40)', marginBottom: 22, textAlign: 'center' }}>
-              150 levels · 15 zones · boss every 10 · unique each run
+              150 levels · 15 zones · 2 authored openers per zone · boss every 10
             </div>
             <button
               style={{ ...btnBase, background: 'linear-gradient(135deg,#c8981a,#f7c44a)',
@@ -989,11 +500,28 @@ export default function BabylonSideScroller() {
                 {'❤️'.repeat(Math.max(0, lives))}
               </div>
             </div>
+            <div style={{ position: 'absolute', top: bossMaxHp > 0 ? 80 : 42, left: 12, display: 'flex', gap: 6, pointerEvents: 'none', flexWrap: 'wrap', maxWidth: 360 }}>
+              {encounterName && (
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#dbeafe', background: 'rgba(15,23,42,0.58)', border: '1px solid rgba(125,211,252,0.3)', borderRadius: 999, padding: '2px 8px' }}>
+                  {isAuthoredStage ? '✍' : '∞'} {encounterName}
+                </div>
+              )}
+              {audioTheme && (
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#fde68a', background: 'rgba(32,18,4,0.62)', border: '1px solid rgba(250,204,21,0.34)', borderRadius: 999, padding: '2px 8px' }}>
+                  🎵 {audioTheme}
+                </div>
+              )}
+              {vfxTheme && (
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#bfdbfe', background: 'rgba(8,20,40,0.62)', border: '1px solid rgba(96,165,250,0.34)', borderRadius: 999, padding: '2px 8px' }}>
+                  ✨ {vfxTheme}
+                </div>
+              )}
+            </div>
 
             {/* ── Coin counter HUD (9 silver + 1 gold Dream Star) ── */}
             {bossMaxHp === 0 && (
               <div style={{
-                position: 'absolute', top: 42, left: 12, pointerEvents: 'none',
+                position: 'absolute', top: encounterName || audioTheme || vfxTheme ? (bossMaxHp > 0 ? 116 : 78) : 42, left: 12, pointerEvents: 'none',
                 display: 'flex', alignItems: 'center', gap: 4,
                 background: 'rgba(0,0,0,0.42)', borderRadius: 6, padding: '3px 9px',
               }}>
@@ -1040,7 +568,7 @@ export default function BabylonSideScroller() {
 
             {/* Combo + Dash indicators */}
             <div style={{
-              position: 'absolute', top: bossMaxHp > 0 ? 80 : 42,
+              position: 'absolute', top: encounterName || audioTheme || vfxTheme ? (bossMaxHp > 0 ? 154 : 116) : (bossMaxHp > 0 ? 80 : 42),
               right: 12, pointerEvents: 'none',
               display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4,
             }}>
@@ -1196,6 +724,7 @@ class GameCore {
   private isBossLevel = false;
   private bossHitsMax = 0;
   private sessionSeed: number;
+  private audio = new MadmaxiAudioController();
 
   // Babylon
   private engine: import('@babylonjs/core').AbstractEngine | null = null;
@@ -1273,9 +802,11 @@ class GameCore {
   }
 
   private initLevel(n: number) {
-    const def = makeLevel(n, this.sessionSeed);
+    const def = getMadmaxiLevelDefinition(n, this.sessionSeed);
     this.worldW      = def.worldW;
     this.isBossLevel = def.isBossLevel ?? false;
+    this.audio.setTheme(def.audioTheme);
+    this.audio.playCue('zone-start');
     this.platforms   = def.platforms.map(p => ({ ...p, curX: p.x, moveDir: 1 }));
     this.coins       = def.coins.map(c => ({ ...c, collected: false }));
     this.enemies     = def.enemies.map(e => ({
@@ -1786,6 +1317,7 @@ class GameCore {
     if (type === 'laser') this.laserFrames = 8 * 60;
     if (type === 'giant') this.giantFrames = 4 * 60;
     this.emitRuntime();
+    this.audio.playCue('powerup');
   }
 
   private absorbOrDie() {
@@ -1794,11 +1326,13 @@ class GameCore {
       this.shieldFrames = 0;
       this.invincible = 45;
       this.emitRuntime();
+      this.audio.playCue('hurt');
       return;
     }
     this.dying = true;
     this.invincible = 90;
     this.lives--;
+    this.audio.playCue('hurt');
     this.cbs.onDie(this.lives);
   }
 
@@ -1819,6 +1353,7 @@ class GameCore {
       ? new BJS.Color3(1.0, 0.85, 0.18)
       : new BJS.Color3(0.0, 0.85, 1.0);
     mesh.material = mat;
+    this.audio.playCue('laser');
     this.projectiles.push({
       x: startX,
       y: startY,
@@ -1963,6 +1498,7 @@ class GameCore {
         this.jBufFr    = 0;
         this.coyoteFr  = 0;
         this.emitDust();
+        this.audio.playCue('jump');
       } else if (!canJump && this.jumpCount === 1) {
         // Double-jump
         const jumpPower = this.highJumpFrames > 0 || this.superFrames > 0 ? JUMP_VY * 1.10 : JUMP_VY * 0.85;
@@ -1970,6 +1506,7 @@ class GameCore {
         this.jumpCount = 2;
         this.jBufFr    = 0;
         this.emitDust();
+        this.audio.playCue('jump');
       }
     }
 
@@ -2002,6 +1539,7 @@ class GameCore {
           this.goalRing = null;
           this.score += 500;
           this.cbs.onScore(this.score);
+          this.audio.playCue('goal');
           this.cbs.onComplete(this.level + 1);
           return;
         } else {
@@ -2013,6 +1551,7 @@ class GameCore {
           this.collectedRegularCoins++;
           this.score += 100;
           this.cbs.onScore(this.score);
+          this.audio.playCue('coin');
           this.cbs.onCoinCount?.(this.collectedRegularCoins, this.totalRegularCoins);
 
           // All 9 silver coins collected → camera zoom toward the Gold Dream Star
@@ -2160,11 +1699,13 @@ class GameCore {
                 this.enemyMeshes[i] = null;
               }
               this.score += this.bossHitsMax * 300;
+              this.audio.playCue('boss-hit');
               this.cbs.onScore(this.score);
               this.cbs.onComplete(this.level + 1);
               return;
             }
             // Boss still alive — bounce player higher for drama
+            this.audio.playCue('boss-hit');
             this.pvy = -JUMP_VY * 0.9 * PX_PER_BU;
           } else {
             en.alive = false;
@@ -2181,6 +1722,7 @@ class GameCore {
             }
             this.comboTimestamp = now;
             this.score += 200 * this.comboCount;
+            this.audio.playCue('enemy-hit');
             this.cbs.onScore(this.score);
             this.cbs.onCombo?.(this.comboCount);
           }
@@ -2267,6 +1809,7 @@ class GameCore {
                 this.enemyMeshes[i]?.setEnabled(false);
                 this.enemyMeshes[i] = null;
                 this.score += this.bossHitsMax * 300;
+                this.audio.playCue('boss-hit');
                 this.cbs.onScore(this.score);
                 this.cbs.onComplete(this.level + 1);
               }
@@ -2275,6 +1818,7 @@ class GameCore {
               this.enemyMeshes[i]?.setEnabled(false);
               this.enemyMeshes[i] = null;
               this.score += 250;
+              this.audio.playCue('enemy-hit');
             }
             this.cbs.onScore(this.score);
             consumed = true;
@@ -2562,6 +2106,7 @@ class GameCore {
     this.scene?.dispose();
     this.engine?.stopRenderLoop();
     this.engine?.dispose();
+    this.audio.dispose();
     this.engine = null;
     this.scene  = null;
     this.bjs    = null;
