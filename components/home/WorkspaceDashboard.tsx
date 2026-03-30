@@ -6,6 +6,7 @@ import { Bell, ChevronRight } from 'lucide-react';
 
 import NotificationCenter from '@/components/NotificationCenter';
 import HomeFeed from '@/components/HomeFeed';
+import BrandLogo from '@/components/BrandLogo';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 
@@ -136,21 +137,23 @@ export default function WorkspaceDashboard({
           pointerEvents: 'auto',
         }}
       >
-        <span
-          style={{
-            fontFamily: 'var(--font-cormorant, Georgia, serif)',
-            fontStyle: 'italic',
-            fontSize: isCompactViewport ? 22 : 24,
-            fontWeight: 400,
-            letterSpacing: '-0.01em',
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'baseline',
-          }}
-        >
-          <span className="de-dream-word">dream</span>
-          <span style={{ color: '#a07828' }}>engin</span>
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <BrandLogo width={isCompactViewport ? 26 : 30} height={isCompactViewport ? 26 : 30} alt="DREAMengin" />
+          <span
+            style={{
+              fontFamily: 'var(--font-cormorant, Georgia, serif)',
+              fontStyle: 'italic',
+              fontSize: isCompactViewport ? 22 : 24,
+              fontWeight: 400,
+              letterSpacing: '-0.01em',
+              display: 'flex',
+              alignItems: 'baseline',
+            }}
+          >
+            <span className="de-dream-word">dream</span>
+            <span style={{ color: '#a07828' }}>engin</span>
+          </span>
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: isCompactViewport ? 8 : 12 }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -239,38 +242,45 @@ export default function WorkspaceDashboard({
 
       <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>
         <div style={{ marginBottom: 14 }}>
-          <div
-            style={{
-              fontSize: 11,
-              color: 'var(--de-gold)',
-              fontWeight: 700,
-              marginBottom: 4,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              opacity: 0.75,
-            }}
-          >
-            HomeDream
-          </div>
-          <div
-            className="sicc-gradient-text"
-            style={{
-              fontSize: isCompactViewport ? 26 : 30,
-              fontWeight: 800,
-              lineHeight: 1.05,
-              letterSpacing: '-0.03em',
-              marginBottom: 12,
-            }}
-          >
-            {name}&rsquo;s feed
-          </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <QuickLink label="Edit ProfileDream" onClick={() => openPage('/edit-profiledream', 'Edit ProfileDream')} />
-            <QuickLink label="View Profile" onClick={() => openPage('/view-profile', 'View Profile')} />
-            {onOpenDreamSpace && (
-              <QuickLink label="Daydreams" onClick={onOpenDreamSpace} primary />
-            )}
-            <QuickLink label="Dr. Eams" onClick={onOpenDrEams} />
+          <div className="de-auth-hero" style={{ marginBottom: 12 }}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: 'var(--de-gold)',
+                  fontWeight: 700,
+                  marginBottom: 4,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  opacity: 0.8,
+                }}
+              >
+                HomeDream
+              </div>
+              <div
+                className="sicc-gradient-text"
+                style={{
+                  fontSize: isCompactViewport ? 26 : 30,
+                  fontWeight: 800,
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.03em',
+                  marginBottom: 10,
+                }}
+              >
+                {name}&rsquo;s feed
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.65, maxWidth: 680, marginBottom: 12 }}>
+                Your runtime home is now framed like an operating surface: profile, dreamspace, Dr. Eams, and feed actions stay visible without breaking immersion.
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <QuickLink label="Edit ProfileDream" onClick={() => openPage('/edit-profiledream', 'Edit ProfileDream')} />
+                <QuickLink label="View Profile" onClick={() => openPage('/view-profile', 'View Profile')} />
+                {onOpenDreamSpace && (
+                  <QuickLink label="Daydreams" onClick={onOpenDreamSpace} primary />
+                )}
+                <QuickLink label="Dr. Eams" onClick={onOpenDrEams} />
+              </div>
+            </div>
           </div>
         </div>
 

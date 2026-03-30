@@ -1,7 +1,8 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, HelpCircle, BookOpen, Wand2, MessageCircle } from 'lucide-react';
+import { HelpCircle, BookOpen, Wand2, MessageCircle } from 'lucide-react';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Help – Dreamengin Settings' };
@@ -21,17 +22,16 @@ export default async function HelpPage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </Link>
-          <HelpCircle className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Help & Onboarding</h1>
-        </div>
-      </header>
+      <AuthenticatedPageHeader
+        backHref="/settings"
+        title="Help & Onboarding"
+        subtitle="Guides, setup paths, and recovery points for the whole operating surface."
+        icon={<HelpCircle className="w-4 h-4" />}
+        accentColor="var(--de-accent)"
+        badge="Settings"
+      />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+      <div className="de-auth-content space-y-4">
 
         <div className="de-widget">
           <div className="de-widget-header">

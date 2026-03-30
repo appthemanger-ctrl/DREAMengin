@@ -177,14 +177,31 @@ export default function DreamsSpacePanel({
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Header */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        padding: '10px 14px 6px',
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '12px 14px 8px',
         flexShrink: 0,
       }}>
-        <span style={{ fontSize: 16 }}>✨</span>
-        <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)', letterSpacing: '-0.02em' }}>
-          Dreams Space
-        </span>
+        <div style={{
+          width: 32,
+          height: 32,
+          borderRadius: 12,
+          background: 'linear-gradient(135deg, rgba(42,138,184,0.92), rgba(200,152,26,0.88))',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 6px 18px rgba(42,138,184,0.18)',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 16 }}>✨</span>
+        </div>
+        <div>
+          <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)', letterSpacing: '-0.02em', display: 'block' }}>
+            Dreams Space
+          </span>
+          <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+            Pinned apps + feeds across the dual runtime
+          </span>
+        </div>
         <span style={{ fontSize: 10, color: 'var(--de-text-dim)', marginLeft: 'auto', fontStyle: 'italic' }}>
           dual runtime
         </span>
@@ -225,10 +242,19 @@ export default function DreamsSpacePanel({
 
       {view === 'apps' ? (
         /* ── Permanent iOS-style app home screen ─────────────────────────────── */
-        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 10px 16px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 10px 20px' }}>
 
           {/* Section: Daydreams */}
-          <div style={{ marginBottom: 16 }}>
+          <div style={{
+            marginBottom: 16,
+            background: 'rgba(255,255,255,0.58)',
+            borderRadius: 22,
+            border: '1px solid rgba(255,255,255,0.78)',
+            padding: '12px 8px 10px',
+            boxShadow: '0 10px 28px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.52)',
+            backdropFilter: 'blur(24px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+          }}>
             <div style={{
               fontSize: 10,
               fontWeight: 700,
@@ -258,7 +284,15 @@ export default function DreamsSpacePanel({
           </div>
 
           {/* Section: Engin — Shop, Marketplace, Ads, Links */}
-          <div>
+          <div style={{
+            background: 'rgba(255,255,255,0.58)',
+            borderRadius: 22,
+            border: '1px solid rgba(255,255,255,0.78)',
+            padding: '12px 8px 10px',
+            boxShadow: '0 10px 28px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.52)',
+            backdropFilter: 'blur(24px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+          }}>
             <div style={{
               fontSize: 10,
               fontWeight: 700,
@@ -360,4 +394,3 @@ export default function DreamsSpacePanel({
     </div>
   );
 }
-
