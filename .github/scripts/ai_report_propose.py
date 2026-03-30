@@ -18,6 +18,8 @@ import sys
 import urllib.error
 import urllib.request
 
+DEFAULT_MAX_TOKENS = 16_384
+
 
 SYSTEM = """\
 You are the DREAMengin GitHub Coding Agent.
@@ -97,7 +99,7 @@ Output JSON ONLY:
 """
 
 
-def call_openai(api_key: str, model: str, system: str, user: str, max_tokens: int = 4096) -> str:
+def call_openai(api_key: str, model: str, system: str, user: str, max_tokens: int = DEFAULT_MAX_TOKENS) -> str:
     payload = {
         "model": model,
         "max_tokens": max_tokens,
@@ -131,6 +133,12 @@ def main() -> None:
     parser.add_argument("--context", required=True, help="Path to report-agent-context.md")
     parser.add_argument("--out", required=True, help="Path to write report-agent-spec.json")
     parser.add_argument("--model", default="gpt-4.1", help="OpenAI model name")
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=DEFAULT_MAX_TOKENS,
+        help=f"Maximum completion tokens to request (default: {DEFAULT_MAX_TOKENS})",
+    )
     args = parser.parse_args()
 
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
@@ -143,7 +151,7 @@ def main() -> None:
 
     user_prompt = TASK_TEMPLATE.format(context=context_text)
     print(f"Calling {args.model} for report-agent proposal…", file=sys.stderr)
-    raw = call_openai(api_key, args.model, SYSTEM, user_prompt, max_tokens=4096)
+    raw = call_openai(api_key, args.model, SYSTEM, user_prompt, max_tokens=args.max_tokens)
 
     cleaned = raw.strip()
     if cleaned.startswith("```"):
