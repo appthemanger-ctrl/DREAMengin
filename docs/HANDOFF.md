@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-30 05:54 UTC | `b87284f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #356 from appthemanger-ctrl/copilot/fix-global-gpu-device-type-error — fix: resolve GPUDevice __brand nominal-typing conflict in WebGPU renderer<br> |
 | **auto** | 2026-03-30 05:33 UTC | `3fba734` | copilot/update-ui-ux-for-visuals | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/update-ui-ux-for-visuals<br> |
 | **auto** | 2026-03-30 05:26 UTC | `3e38db3` | copilot/fix-button-infinity-symbol | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-button-infinity-symbol<br> |
 | **auto** | 2026-03-30 04:36 UTC | `12412f1` | copilot/build-new-la-inspired-game | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/build-new-la-inspired-game<br> |
 | **auto** | 2026-03-30 03:49 UTC | `7676a82` | copilot/improve-industry-integration-features | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/improve-industry-integration-features<br> |
-| **auto** | 2026-03-30 03:39 UTC | `90ac6e3` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #352 from appthemanger-ctrl/copilot/update-system-prompt — Render standalone Daydream Engin routes directly<br> |
 
 ## What changed in this alignment pass
 
