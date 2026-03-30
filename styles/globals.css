@@ -2377,3 +2377,974 @@ main[role="main"] > * {
     font-size: 10px;
   }
 }
+
+/* =============================================================================
+   C+++ VOID / OLED DARK THEME
+   Applied via [data-theme="void"] on :root — the deepest, most premium
+   dark experience in DREAMengin. OLED blacks, electric neon accents,
+   ultra-rich glassmorphism, holographic shimmer.
+   Gold = action · Sky-neon = connected · White = clarity (README §28)
+   =========================================================================== */
+
+[data-theme="void"] {
+  /* ── Core void palette ── */
+  --de-navy:        #040810;
+  --de-deep:        #060c16;
+  --de-blue:        #38bdf8;
+  --de-midblue:     #7dd3fc;
+  --de-accent:      #38bdf8;
+  --de-glow:        #0ea5e9;
+  --de-gold:        #fbbf24;
+  --de-gold-bright: #fde68a;
+  --de-gold-dim:    #d97706;
+  --de-white:       #f1f5f9;
+  --de-mist:        rgba(56,189,248,0.06);
+  --de-glass:       rgba(8,18,40,0.72);
+  --de-glass2:      rgba(12,24,50,0.85);
+  --de-border:      rgba(56,189,248,0.12);
+  --de-border-gold: rgba(251,191,36,0.22);
+  --de-text:        rgba(226,240,255,0.90);
+  --de-text-dim:    rgba(148,180,220,0.55);
+  --de-heading:     rgba(240,250,255,0.96);
+  --de-red:         #f87171;
+  --de-bg-start:    #030608;
+  --de-bg-mid:      #050a14;
+  --de-bg-end:      #080f1e;
+  --de-widget-bg:   rgba(8,18,40,0.68);
+  --de-widget-border: rgba(56,189,248,0.14);
+
+  /* ── Override background ── */
+  --de-theme-from:  #03060c;
+  --de-theme-mid:   #060c18;
+  --de-theme-to:    #04080f;
+  --de-theme-angle: 155deg;
+  --de-theme-btn-from: #0ea5e9;
+  --de-theme-btn-to:   #fbbf24;
+
+  /* ── Tailwind HSL overrides ── */
+  --background:            222 47% 6%;
+  --foreground:            210 40% 94%;
+  --card:                  222 47% 8%;
+  --card-foreground:       210 40% 94%;
+  --popover:               222 47% 7%;
+  --popover-foreground:    210 40% 94%;
+  --primary:               199 89% 58%;
+  --primary-foreground:    222 47% 6%;
+  --secondary:             222 30% 14%;
+  --secondary-foreground:  210 40% 82%;
+  --muted:                 222 30% 12%;
+  --muted-foreground:      215 20% 52%;
+  --accent:                43 96% 56%;
+  --accent-foreground:     222 47% 6%;
+  --destructive:           0 72% 65%;
+  --destructive-foreground:0 0% 100%;
+  --border:                222 30% 14%;
+  --input:                 222 30% 14%;
+  --ring:                  199 89% 58%;
+  --glow-primary:          199 89% 58%;
+  --glow-accent:           43 96% 56%;
+}
+
+/* ── Void body background ── */
+[data-theme="void"] body,
+[data-theme="void"] html {
+  background: linear-gradient(
+    155deg,
+    #030608 0%,
+    #060c18 40%,
+    #08101e 75%,
+    #04080f 100%
+  ) !important;
+  color: rgba(226,240,255,0.90);
+}
+
+/* ── Void sky background ── */
+[data-theme="void"] .de-sky-bg {
+  background: linear-gradient(
+    155deg,
+    #030608 0%,
+    #060c18 40%,
+    #08101e 75%,
+    #04080f 100%
+  ) !important;
+}
+
+/* ── Void glass surfaces ── */
+[data-theme="void"] .de-glass,
+[data-theme="void"] .de-surface {
+  background: rgba(8,18,40,0.72) !important;
+  border-color: rgba(56,189,248,0.14) !important;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(56,189,248,0.08) !important;
+}
+
+/* ── Void widget cards ── */
+[data-theme="void"] .de-widget {
+  background: radial-gradient(
+    ellipse at 25% 18%,
+    rgba(56,189,248,0.08) 0%,
+    rgba(8,18,40,0.62) 50%,
+    rgba(4,8,16,0.80) 100%
+  ) !important;
+  border-color: rgba(56,189,248,0.12) !important;
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(56,189,248,0.10),
+    0 0 40px rgba(56,189,248,0.03) !important;
+}
+
+/* ── Void auth header ── */
+[data-theme="void"] .de-auth-header {
+  background: linear-gradient(180deg, rgba(4,8,20,0.95) 0%, rgba(6,12,24,0.92) 100%) !important;
+  border-bottom-color: rgba(56,189,248,0.12) !important;
+  box-shadow:
+    0 1px 0 rgba(56,189,248,0.08),
+    0 8px 32px rgba(0,0,0,0.4) !important;
+}
+
+/* ── Void auth hero ── */
+[data-theme="void"] .de-auth-hero {
+  background: linear-gradient(145deg, rgba(8,20,48,0.90) 0%, rgba(4,12,30,0.85) 100%) !important;
+  border-color: rgba(56,189,248,0.12) !important;
+  box-shadow:
+    0 16px 64px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(56,189,248,0.08) !important;
+}
+[data-theme="void"] .de-auth-hero::before {
+  background:
+    radial-gradient(circle at top right, rgba(251,191,36,0.08), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(56,189,248,0.08), transparent 38%) !important;
+}
+
+/* ── Void heading + text ── */
+[data-theme="void"] .de-auth-title { color: rgba(240,250,255,0.96) !important; }
+[data-theme="void"] .de-auth-eyebrow { color: var(--de-accent) !important; }
+[data-theme="void"] .de-auth-badge {
+  color: var(--de-gold) !important;
+  background: rgba(251,191,36,0.08) !important;
+  border-color: rgba(251,191,36,0.20) !important;
+}
+
+/* ── Void buttons ── */
+[data-theme="void"] .de-btn-primary {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+  box-shadow: 0 4px 20px rgba(14,165,233,0.45), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+}
+[data-theme="void"] .de-btn-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  box-shadow: 0 4px 20px rgba(251,191,36,0.45), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+  color: #080c14 !important;
+}
+[data-theme="void"] .de-btn-ghost {
+  background: rgba(56,189,248,0.06) !important;
+  border-color: rgba(56,189,248,0.18) !important;
+  color: var(--de-text) !important;
+}
+
+/* ── Void back button ── */
+[data-theme="void"] .de-auth-back {
+  background: rgba(56,189,248,0.06) !important;
+  border-color: rgba(56,189,248,0.14) !important;
+}
+
+/* ── Void rows ── */
+[data-theme="void"] .de-row:hover { background: rgba(56,189,248,0.06) !important; }
+[data-theme="void"] .de-row:active { background: rgba(56,189,248,0.10) !important; }
+
+/* ── Void tags ── */
+[data-theme="void"] .de-tag { color: rgba(148,180,220,0.50) !important; }
+[data-theme="void"] .de-badge { color: var(--de-gold) !important; border-color: rgba(251,191,36,0.22) !important; }
+
+/* =============================================================================
+   VOID AMBIENT GLOW SYSTEM
+   Neon orb backgrounds + living aurora for authenticated surfaces in void mode.
+   =========================================================================== */
+
+/* ── Void ambient orbs — placed via ::before/::after on de-sky-bg ── */
+[data-theme="void"] .de-sky-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 15%, rgba(14,165,233,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 82% 72%, rgba(251,191,36,0.05) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 55% 45%, rgba(139,92,246,0.04) 0%, transparent 60%);
+  animation: void-orbs-drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes void-orbs-drift {
+  0%   { transform: translateX(0px) translateY(0px); }
+  33%  { transform: translateX(12px) translateY(-8px); }
+  66%  { transform: translateX(-6px) translateY(14px); }
+  100% { transform: translateX(8px) translateY(-4px); }
+}
+
+/* ── Void starfield layer ── */
+[data-theme="void"] .de-sky-bg::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at 15% 18%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 38% 8%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 62% 22%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 84% 11%, rgba(255,255,255,0.45) 0%, transparent 100%),
+    radial-gradient(1px 1px at 7% 55%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 28% 67%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 72% 48%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 91% 61%, rgba(255,255,255,0.45) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 83%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 19% 90%, rgba(255,255,255,0.38) 0%, transparent 100%),
+    radial-gradient(1px 1px at 57% 76%, rgba(255,255,255,0.32) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 85%, rgba(255,255,255,0.42) 0%, transparent 100%);
+  animation: void-stars-twinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes void-stars-twinkle {
+  0%   { opacity: 0.6; }
+  50%  { opacity: 1.0; }
+  100% { opacity: 0.7; }
+}
+
+/* =============================================================================
+   PREMIUM NEON GLOW SYSTEM
+   Reusable neon effect utilities for any surface.
+   =========================================================================== */
+
+/* ── Electric neon border ── */
+.neon-border-blue {
+  border: 1px solid rgba(56,189,248,0.45) !important;
+  box-shadow:
+    0 0 8px rgba(56,189,248,0.15),
+    0 0 20px rgba(56,189,248,0.08),
+    inset 0 0 8px rgba(56,189,248,0.04) !important;
+}
+.neon-border-gold {
+  border: 1px solid rgba(251,191,36,0.45) !important;
+  box-shadow:
+    0 0 8px rgba(251,191,36,0.15),
+    0 0 20px rgba(251,191,36,0.08),
+    inset 0 0 8px rgba(251,191,36,0.04) !important;
+}
+.neon-border-purple {
+  border: 1px solid rgba(167,139,250,0.45) !important;
+  box-shadow:
+    0 0 8px rgba(167,139,250,0.15),
+    0 0 20px rgba(167,139,250,0.08) !important;
+}
+
+/* ── Neon text glow ── */
+.neon-text-blue {
+  color: #38bdf8;
+  text-shadow:
+    0 0 8px rgba(56,189,248,0.7),
+    0 0 20px rgba(56,189,248,0.4),
+    0 0 40px rgba(56,189,248,0.2);
+}
+.neon-text-gold {
+  color: #fbbf24;
+  text-shadow:
+    0 0 8px rgba(251,191,36,0.7),
+    0 0 20px rgba(251,191,36,0.4),
+    0 0 40px rgba(251,191,36,0.2);
+}
+
+/* ── Neon button pulse animation ── */
+@keyframes neon-pulse-blue {
+  0%, 100% { box-shadow: 0 0 6px rgba(56,189,248,0.4), 0 0 18px rgba(56,189,248,0.2); }
+  50%       { box-shadow: 0 0 12px rgba(56,189,248,0.7), 0 0 36px rgba(56,189,248,0.35); }
+}
+@keyframes neon-pulse-gold {
+  0%, 100% { box-shadow: 0 0 6px rgba(251,191,36,0.4), 0 0 18px rgba(251,191,36,0.2); }
+  50%       { box-shadow: 0 0 12px rgba(251,191,36,0.7), 0 0 36px rgba(251,191,36,0.35); }
+}
+.neon-pulse-blue { animation: neon-pulse-blue 2.5s ease-in-out infinite; }
+.neon-pulse-gold { animation: neon-pulse-gold 2.5s ease-in-out infinite; }
+
+/* =============================================================================
+   HOLOGRAPHIC / IRIDESCENT TEXT + CARD SYSTEM
+   The highest-tier visual treatment for featured elements, hero text,
+   and premium card borders.
+   =========================================================================== */
+
+/* ── Holographic gradient text ── */
+@keyframes holo-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.holo-text {
+  background: linear-gradient(
+    90deg,
+    #38bdf8 0%,
+    #818cf8 15%,
+    #c084fc 30%,
+    #f472b6 45%,
+    #fbbf24 60%,
+    #34d399 75%,
+    #38bdf8 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: holo-shift 5s linear infinite;
+}
+
+/* ── Holographic card border ── */
+.holo-border {
+  position: relative;
+  border: 1px solid transparent !important;
+  background-clip: padding-box;
+}
+.holo-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(56,189,248,0.6) 0%,
+    rgba(167,139,250,0.4) 25%,
+    rgba(251,191,36,0.5) 50%,
+    rgba(52,211,153,0.4) 75%,
+    rgba(56,189,248,0.6) 100%
+  );
+  background-size: 300% 300%;
+  animation: holo-shift 4s linear infinite;
+  z-index: -1;
+}
+
+/* ── Iridescent shimmer overlay ── */
+.iridescent {
+  position: relative;
+  overflow: hidden;
+}
+.iridescent::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(56,189,248,0.06) 35%,
+    rgba(167,139,250,0.08) 45%,
+    rgba(251,191,36,0.06) 55%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: sicc-shimmer-sweep 4s ease-in-out infinite;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* =============================================================================
+   AURORA BACKGROUND SYSTEM
+   Animated aurora/nebula backgrounds for Daydream surfaces and hero areas.
+   =========================================================================== */
+
+.aurora-bg {
+  position: relative;
+  overflow: hidden;
+}
+.aurora-bg::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(56,189,248,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 70%, rgba(139,92,246,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 70% at 50% 10%, rgba(52,211,153,0.08) 0%, transparent 50%);
+  animation: aurora-flow 12s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes aurora-flow {
+  0%   { transform: rotate(0deg) scale(1); }
+  33%  { transform: rotate(3deg) scale(1.05); }
+  66%  { transform: rotate(-2deg) scale(0.97); }
+  100% { transform: rotate(1deg) scale(1.02); }
+}
+
+.aurora-bg > * { position: relative; z-index: 1; }
+
+/* ── Void aurora variant (darker, more dramatic) ── */
+.aurora-void {
+  position: relative;
+  overflow: hidden;
+}
+.aurora-void::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(ellipse 90% 60% at 15% 25%, rgba(14,165,233,0.08) 0%, transparent 65%),
+    radial-gradient(ellipse 75% 55% at 85% 75%, rgba(251,191,36,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 75% at 50% 5%, rgba(167,139,250,0.07) 0%, transparent 55%);
+  animation: aurora-flow 16s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+.aurora-void > * { position: relative; z-index: 1; }
+
+/* =============================================================================
+   DEPTH CARD SYSTEM — 3-LAYER SPATIAL DEPTH
+   Cards with real visual depth using layered shadows + glassmorphism.
+   Used for Daydream surfaces, Dream Windows, and premium feature areas.
+   =========================================================================== */
+
+.depth-card {
+  position: relative;
+  background: rgba(255,255,255,0.62);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.75);
+  border-radius: 24px;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.04),
+    0 8px 24px rgba(0,0,0,0.06),
+    0 24px 64px rgba(0,0,0,0.08),
+    inset 0 1.5px 0 rgba(255,255,255,0.90),
+    inset 0 -1px 0 rgba(160,195,240,0.12);
+  transition: transform 0.22s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.22s ease;
+}
+.depth-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.06),
+    0 16px 40px rgba(0,0,0,0.10),
+    0 40px 80px rgba(0,0,0,0.12),
+    inset 0 1.5px 0 rgba(255,255,255,0.95),
+    inset 0 -1px 0 rgba(160,195,240,0.15);
+}
+
+/* ── Void depth card ── */
+[data-theme="void"] .depth-card {
+  background: rgba(6,14,32,0.80) !important;
+  border-color: rgba(56,189,248,0.12) !important;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.3),
+    0 8px 24px rgba(0,0,0,0.5),
+    0 24px 64px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(56,189,248,0.08),
+    0 0 60px rgba(56,189,248,0.03) !important;
+}
+[data-theme="void"] .depth-card:hover {
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.4),
+    0 16px 40px rgba(0,0,0,0.6),
+    0 40px 80px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(56,189,248,0.12),
+    0 0 80px rgba(56,189,248,0.05) !important;
+}
+
+/* =============================================================================
+   PREMIUM DAYDREAM TILE SYSTEM
+   Upgrades the marble widget tiles to full c+++ level premium glass tiles
+   with deep depth, neon accent glows, and hover lift.
+   =========================================================================== */
+
+.de-daydream-tile {
+  position: relative;
+  background: radial-gradient(
+    ellipse at 28% 20%,
+    rgba(255,255,255,0.88) 0%,
+    rgba(215,235,255,0.55) 42%,
+    rgba(200,225,255,0.28) 100%
+  );
+  backdrop-filter: blur(32px) saturate(220%);
+  -webkit-backdrop-filter: blur(32px) saturate(220%);
+  border: 1.5px solid rgba(255,255,255,0.80);
+  border-radius: 24px;
+  padding: 22px 16px 18px;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.09),
+    0 2px 8px rgba(0,0,0,0.05),
+    inset 0 2px 0 rgba(255,255,255,0.96),
+    inset 0 -1.5px 0 rgba(160,195,240,0.18);
+  cursor: pointer;
+  transition:
+    transform 0.20s cubic-bezier(0.34,1.5,0.64,1),
+    box-shadow 0.20s ease,
+    border-color 0.18s ease;
+  overflow: hidden;
+}
+.de-daydream-tile::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 52%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.36) 0%, transparent 100%);
+  border-radius: 22px 22px 60% 60% / 22px 22px 44% 44%;
+  pointer-events: none;
+}
+.de-daydream-tile:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.13),
+    0 4px 14px rgba(0,0,0,0.07),
+    inset 0 2px 0 rgba(255,255,255,0.98),
+    inset 0 -1.5px 0 rgba(160,195,240,0.24);
+}
+.de-daydream-tile:active {
+  transform: scale(0.94) !important;
+  transition-duration: 0.10s !important;
+}
+
+/* ── Void daydream tile ── */
+[data-theme="void"] .de-daydream-tile {
+  background: radial-gradient(
+    ellipse at 28% 20%,
+    rgba(56,189,248,0.10) 0%,
+    rgba(8,18,42,0.72) 48%,
+    rgba(4,8,20,0.88) 100%
+  ) !important;
+  border-color: rgba(56,189,248,0.18) !important;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.5),
+    0 2px 8px rgba(0,0,0,0.3),
+    inset 0 1.5px 0 rgba(56,189,248,0.12),
+    0 0 24px rgba(56,189,248,0.04) !important;
+}
+[data-theme="void"] .de-daydream-tile:hover {
+  border-color: rgba(56,189,248,0.30) !important;
+  box-shadow:
+    0 16px 56px rgba(0,0,0,0.65),
+    0 4px 16px rgba(0,0,0,0.4),
+    inset 0 1.5px 0 rgba(56,189,248,0.18),
+    0 0 40px rgba(56,189,248,0.08) !important;
+}
+
+/* =============================================================================
+   FEED CARD PREMIUM SYSTEM
+   Upgrades all FeedCard instances to c+++ level with depth glass,
+   colored accent bars per source, and premium action states.
+   =========================================================================== */
+
+.feed-card-premium {
+  position: relative;
+  background: rgba(255,255,255,0.68);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.80);
+  border-radius: 20px;
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.06),
+    inset 0 1.5px 0 rgba(255,255,255,0.88);
+  overflow: hidden;
+  transition: transform 0.18s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.18s ease;
+}
+.feed-card-premium:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.09),
+    inset 0 1.5px 0 rgba(255,255,255,0.92);
+}
+
+/* ── Void feed card ── */
+[data-theme="void"] .feed-card-premium {
+  background: rgba(6,14,32,0.80) !important;
+  border-color: rgba(56,189,248,0.10) !important;
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(56,189,248,0.06) !important;
+}
+
+/* ── Source accent left-border ── */
+.feed-card-premium[data-source="youtube"]::before   { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #ef4444; border-radius: 20px 0 0 20px; }
+.feed-card-premium[data-source="app"]::before       { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #38bdf8, #818cf8); border-radius: 20px 0 0 20px; }
+.feed-card-premium[data-source="post"]::before      { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #38bdf8, #818cf8); border-radius: 20px 0 0 20px; }
+.feed-card-premium[data-source="demo"]::before      { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #c084fc, #f472b6); border-radius: 20px 0 0 20px; }
+
+/* ── Action buttons: premium press states ── */
+.feed-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--de-text-dim);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s, transform 0.10s cubic-bezier(0.34,1.56,0.64,1);
+  -webkit-tap-highlight-color: transparent;
+}
+.feed-action-btn:hover {
+  background: rgba(160,195,240,0.12);
+}
+.feed-action-btn:active {
+  transform: scale(0.90);
+}
+.feed-action-btn.liked {
+  color: #ef4444;
+  background: rgba(239,68,68,0.08);
+}
+.feed-action-btn.liked:hover {
+  background: rgba(239,68,68,0.14);
+}
+[data-theme="void"] .feed-action-btn:hover {
+  background: rgba(56,189,248,0.08) !important;
+}
+
+/* ── Avatar ring: gold+blue gradient ── */
+.avatar-ring {
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #fbbf24 100%);
+  flex-shrink: 0;
+}
+.avatar-ring img,
+.avatar-ring > div {
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.95);
+  display: block;
+}
+
+/* =============================================================================
+   COMMAND PALETTE PREMIUM SYSTEM
+   Raycast/Spotlight-level command palette overlay.
+   =========================================================================== */
+
+.cmd-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(2,6,18,0.72);
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: max(80px, 12vh);
+  animation: cmd-backdrop-in 0.18s ease both;
+}
+@keyframes cmd-backdrop-in {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to   { opacity: 1; backdrop-filter: blur(24px); }
+}
+
+.cmd-modal {
+  width: min(640px, 96vw);
+  max-height: min(520px, 80vh);
+  background: rgba(10,20,44,0.95);
+  backdrop-filter: blur(48px) saturate(200%);
+  -webkit-backdrop-filter: blur(48px) saturate(200%);
+  border: 1px solid rgba(56,189,248,0.18);
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04) inset,
+    0 32px 80px rgba(0,0,0,0.6),
+    0 0 120px rgba(56,189,248,0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: cmd-modal-in 0.22s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes cmd-modal-in {
+  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.cmd-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(56,189,248,0.10);
+}
+.cmd-search-icon {
+  color: rgba(56,189,248,0.55);
+  flex-shrink: 0;
+}
+.cmd-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 17px;
+  font-weight: 500;
+  color: rgba(226,240,255,0.92);
+  font-family: inherit;
+  caret-color: #38bdf8;
+}
+.cmd-search-input::placeholder {
+  color: rgba(148,180,220,0.38);
+}
+.cmd-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(56,189,248,0.08);
+  border: 1px solid rgba(56,189,248,0.18);
+  color: rgba(148,180,220,0.65);
+  flex-shrink: 0;
+}
+
+.cmd-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+  scrollbar-width: none;
+}
+.cmd-results::-webkit-scrollbar { display: none; }
+
+.cmd-category {
+  padding: 8px 12px 4px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(148,180,220,0.45);
+}
+
+.cmd-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.10s, transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.cmd-item:hover,
+.cmd-item.selected {
+  background: rgba(56,189,248,0.10);
+}
+.cmd-item.selected {
+  background: rgba(56,189,248,0.14);
+  border: 1px solid rgba(56,189,248,0.18);
+}
+.cmd-item:active {
+  transform: scale(0.985);
+}
+.cmd-item-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(56,189,248,0.08);
+  border: 1px solid rgba(56,189,248,0.14);
+  color: #38bdf8;
+}
+.cmd-item-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(226,240,255,0.88);
+}
+.cmd-item-hint {
+  font-size: 11px;
+  color: rgba(148,180,220,0.40);
+  flex-shrink: 0;
+}
+.cmd-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: rgba(148,180,220,0.38);
+  font-size: 13px;
+}
+
+/* =============================================================================
+   PREMIUM NOTIFICATION CARD SYSTEM
+   Type-colored notification cards with left-border accents and micro-animations.
+   =========================================================================== */
+
+.notif-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 16px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-bottom: 1px solid rgba(160,195,240,0.10);
+}
+.notif-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.notif-card.unread::before { opacity: 1; }
+.notif-card:hover { background: rgba(160,195,240,0.06); }
+.notif-card:last-child { border-bottom: none; }
+
+/* ── Type-colored accent bars ── */
+.notif-card[data-type="like"]::before     { background: #ef4444; }
+.notif-card[data-type="comment"]::before  { background: #3b82f6; }
+.notif-card[data-type="follow"]::before   { background: #22c55e; }
+.notif-card[data-type="trending"]::before { background: #f97316; }
+.notif-card[data-type="revenue"]::before  { background: #10b981; }
+.notif-card[data-type="message"]::before  { background: #38bdf8; }
+
+/* ── Type icon container ── */
+.notif-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.notif-icon[data-type="like"]     { background: rgba(239,68,68,0.10);  color: #ef4444; }
+.notif-icon[data-type="comment"]  { background: rgba(59,130,246,0.10); color: #3b82f6; }
+.notif-icon[data-type="follow"]   { background: rgba(34,197,94,0.10);  color: #22c55e; }
+.notif-icon[data-type="trending"] { background: rgba(249,115,22,0.10); color: #f97316; }
+.notif-icon[data-type="revenue"]  { background: rgba(16,185,129,0.10); color: #10b981; }
+.notif-icon[data-type="message"]  { background: rgba(56,189,248,0.10); color: #38bdf8; }
+
+/* ── Void notification override ── */
+[data-theme="void"] .notif-card:hover { background: rgba(56,189,248,0.05) !important; }
+[data-theme="void"] .notif-card { border-bottom-color: rgba(56,189,248,0.06) !important; }
+
+/* =============================================================================
+   TOPBAR / NAV PREMIUM SYSTEM
+   Premium sticky navigation bar with glassmorphism and brand presence.
+   =========================================================================== */
+
+.topbar-premium {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  background: rgba(240,247,255,0.88);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border-bottom: 1px solid rgba(160,195,240,0.22);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.7) inset,
+    0 2px 16px rgba(0,0,0,0.04);
+}
+
+[data-theme="void"] .topbar-premium {
+  background: rgba(4,8,20,0.92) !important;
+  border-bottom-color: rgba(56,189,248,0.10) !important;
+  box-shadow:
+    0 1px 0 rgba(56,189,248,0.06) inset,
+    0 2px 24px rgba(0,0,0,0.5) !important;
+}
+
+.topbar-back-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(160,195,240,0.10);
+  border: 1px solid rgba(160,195,240,0.20);
+  color: var(--de-text);
+  cursor: pointer;
+  transition: background 0.14s, transform 0.10s cubic-bezier(0.34,1.56,0.64,1);
+  -webkit-tap-highlight-color: transparent;
+}
+.topbar-back-btn:hover { background: rgba(160,195,240,0.20); }
+.topbar-back-btn:active { transform: scale(0.88); }
+
+[data-theme="void"] .topbar-back-btn {
+  background: rgba(56,189,248,0.06) !important;
+  border-color: rgba(56,189,248,0.14) !important;
+  color: rgba(226,240,255,0.80) !important;
+}
+
+.topbar-title {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--de-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-theme="void"] .topbar-title { color: rgba(240,250,255,0.94) !important; }
+
+/* =============================================================================
+   VOID THEME TOGGLE BUTTON
+   Premium floating pill to switch between VOID and default themes.
+   =========================================================================== */
+
+.void-toggle {
+  position: fixed;
+  bottom: max(130px, calc(120px + env(safe-area-inset-bottom, 0px)));
+  right: 16px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.14s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+}
+.void-toggle:active { transform: scale(0.92); }
+
+/* Light mode void toggle */
+.void-toggle {
+  background: rgba(8,18,40,0.88);
+  color: rgba(226,240,255,0.90);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(56,189,248,0.12);
+  border: 1px solid rgba(56,189,248,0.22);
+}
+.void-toggle:hover {
+  box-shadow: 0 6px 28px rgba(14,165,233,0.3), inset 0 1px 0 rgba(56,189,248,0.18);
+}
+
+/* Dark mode void toggle (back to light) */
+[data-theme="void"] .void-toggle {
+  background: rgba(240,248,255,0.90) !important;
+  color: #0f1e34 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8) !important;
+  border-color: rgba(160,195,240,0.30) !important;
+}
+
+/* =============================================================================
+   RESPECT REDUCED MOTION — VOID / NEON ADDITIONS
+   =========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="void"] .de-sky-bg::before,
+  [data-theme="void"] .de-sky-bg::after,
+  .aurora-bg::before,
+  .aurora-void::before,
+  .holo-text,
+  .holo-border::before,
+  .iridescent::after,
+  .neon-pulse-blue,
+  .neon-pulse-gold {
+    animation: none !important;
+  }
+}

@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Palette, Share2, ImageIcon } from 'lucide-react';
+import { Palette, Share2, ImageIcon, BarChart2, Users, TrendingUp } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import BrandingEngin from '@/components/daydream/BrandingEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';

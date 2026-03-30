@@ -90,20 +90,11 @@ function NotifRow({ n, onRead, onDelete }: NotifRowProps) {
       tabIndex={0}
       onClick={() => void handleClick()}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') void handleClick(); }}
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 10,
-        padding: '12px 14px',
-        cursor: 'pointer',
-        background: n.read ? 'transparent' : 'rgba(74,144,217,0.05)',
-        borderBottom: '1px solid rgba(160,195,240,0.15)',
-        transition: 'background 0.12s',
-        position: 'relative',
-      }}
+      className={`notif-card${!n.read ? ' unread' : ''}`}
+      data-type={n.type}
     >
-      {/* Type icon */}
-      <div style={{ marginTop: 2, flexShrink: 0 }}>
+      {/* Type icon container */}
+      <div className="notif-icon" data-type={n.type} style={{ marginTop: 1 }}>
         <NotifIcon type={n.type} />
       </div>
 
@@ -129,8 +120,9 @@ function NotifRow({ n, onRead, onDelete }: NotifRowProps) {
           {/* Unread dot */}
           {!n.read && (
             <div style={{
-              width: 7, height: 7, borderRadius: '50%',
-              background: '#4A90D9', flexShrink: 0,
+              width: 6, height: 6, borderRadius: '50%',
+              background: 'var(--de-accent)', flexShrink: 0,
+              boxShadow: '0 0 6px rgba(56,189,248,0.6)',
             }} />
           )}
         </div>
@@ -145,7 +137,7 @@ function NotifRow({ n, onRead, onDelete }: NotifRowProps) {
         }}>
           {n.message}
         </p>
-        <span style={{ fontSize: 10, color: 'var(--de-text-dim)', opacity: 0.7, marginTop: 3, display: 'block' }}>
+        <span style={{ fontSize: 10, color: 'var(--de-text-dim)', opacity: 0.6, marginTop: 3, display: 'block', letterSpacing: '0.01em' }}>
           {formatTs(n.timestamp)}
         </span>
       </div>
@@ -159,17 +151,25 @@ function NotifRow({ n, onRead, onDelete }: NotifRowProps) {
           background: 'none',
           border: 'none',
           cursor: 'pointer',
-          padding: 2,
+          padding: '4px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          opacity: 0.45,
+          opacity: 0,
           color: 'var(--de-text-dim)',
+          borderRadius: 6,
+          transition: 'opacity 0.15s, background 0.12s',
         }}
+        className="notif-dismiss-btn"
       >
         <X size={11} />
       </button>
+
+      <style>{`
+        .notif-card:hover .notif-dismiss-btn { opacity: 0.55 !important; }
+        .notif-dismiss-btn:hover { opacity: 1 !important; background: rgba(160,195,240,0.14) !important; }
+      `}</style>
     </div>
   );
 }
@@ -235,25 +235,25 @@ export default function NotificationCenter({ isOpen: controlledOpen, onClose }: 
           ...(isControlled
             ? { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }
             : { top: '100%', right: 0, marginTop: 8 }),
-          width: 'min(22rem, 96vw)',
-          maxHeight: '70vh',
-          background: 'rgba(255,255,255,0.97)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(160,195,240,0.35)',
-          borderRadius: 20,
-          boxShadow: '0 12px 48px rgba(0,0,0,0.14)',
+          width: 'min(24rem, 96vw)',
+          maxHeight: '72vh',
+          background: 'rgba(250,252,255,0.96)',
+          backdropFilter: 'blur(36px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(36px) saturate(180%)',
+          border: '1px solid rgba(255,255,255,0.85)',
+          borderRadius: 22,
+          boxShadow: '0 4px 8px rgba(0,0,0,0.04), 0 16px 56px rgba(0,0,0,0.14), 0 0 0 0.5px rgba(160,195,240,0.35)',
           zIndex: 50,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          animation: 'de-notif-in 0.22s cubic-bezier(0.34,1.22,0.64,1)',
+          animation: 'de-notif-in 0.26s cubic-bezier(0.34,1.22,0.64,1)',
         }}
       >
         <style>{`
           @keyframes de-notif-in {
-            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-            to   { opacity: 1; transform: translateY(0)    scale(1);    }
+            from { opacity: 0; transform: translateY(-10px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
           }
         `}</style>
 
@@ -262,20 +262,31 @@ export default function NotificationCenter({ isOpen: controlledOpen, onClose }: 
           display: 'flex',
           alignItems: 'center',
           gap: 10,
-          padding: '14px 16px 10px',
-          borderBottom: '1px solid rgba(160,195,240,0.20)',
+          padding: '14px 16px 12px',
+          borderBottom: '1px solid rgba(160,195,240,0.18)',
           flexShrink: 0,
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.90) 0%, rgba(248,250,255,0.80) 100%)',
         }}>
-          <Bell size={16} style={{ color: 'var(--de-heading)' }} />
-          <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--de-heading)', flex: 1 }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 9,
+            background: 'linear-gradient(135deg, rgba(56,189,248,0.15), rgba(200,152,26,0.12))',
+            border: '1px solid rgba(160,195,240,0.28)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <Bell size={13} style={{ color: 'var(--de-heading)' }} />
+          </div>
+          <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--de-heading)', flex: 1, letterSpacing: '-0.01em' }}>
             Notifications
           </span>
           {unreadCount > 0 && (
             <span style={{
-              fontSize: 10, fontWeight: 700,
-              background: 'rgba(74,144,217,0.12)',
-              color: '#4A90D9',
-              padding: '2px 8px', borderRadius: 99,
+              fontSize: 10, fontWeight: 800,
+              background: 'rgba(56,189,248,0.12)',
+              color: 'var(--de-accent)',
+              padding: '3px 8px', borderRadius: 99,
+              border: '1px solid rgba(56,189,248,0.22)',
+              letterSpacing: '0.02em',
             }}>
               {unreadCount} new
             </span>
@@ -285,11 +296,19 @@ export default function NotificationCenter({ isOpen: controlledOpen, onClose }: 
             aria-label="Close notifications"
             onClick={close}
             style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              padding: 4, color: 'var(--de-text-dim)', display: 'flex',
+              background: 'rgba(160,195,240,0.10)',
+              border: '1px solid rgba(160,195,240,0.18)',
+              borderRadius: 8,
+              cursor: 'pointer',
+              padding: '4px',
+              color: 'var(--de-text-dim)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background 0.12s',
             }}
           >
-            <X size={14} />
+            <X size={13} />
           </button>
         </div>
 
@@ -301,16 +320,17 @@ export default function NotificationCenter({ isOpen: controlledOpen, onClose }: 
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 5,
-              padding: '7px 16px',
+              gap: 6,
+              padding: '8px 16px',
               background: 'none',
               border: 'none',
-              borderBottom: '1px solid rgba(160,195,240,0.15)',
+              borderBottom: '1px solid rgba(160,195,240,0.12)',
               cursor: 'pointer',
               fontSize: 11,
               fontWeight: 700,
-              color: '#4A90D9',
+              color: 'var(--de-accent)',
               flexShrink: 0,
+              letterSpacing: '0.02em',
             }}
           >
             <Check size={11} />
