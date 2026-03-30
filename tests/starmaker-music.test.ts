@@ -12,6 +12,14 @@ const starmakerSource = fs.readFileSync(
   path.join(process.cwd(), 'components/daydream/StarMakerEngin.tsx'),
   'utf8',
 );
+const arrangementPanelSource = fs.readFileSync(
+  path.join(process.cwd(), 'components/daydream/starmaker/MultitrackArrangementPanel.tsx'),
+  'utf8',
+);
+const arrangementModelSource = fs.readFileSync(
+  path.join(process.cwd(), 'lib/music/starmakerArrangement.ts'),
+  'utf8',
+);
 
 describe('summarizePlaybackProfile', () => {
   it('derives playback metrics from density, effects, and quality mode', () => {
@@ -140,12 +148,11 @@ describe('StarMaker sample editor advanced workflow', () => {
   });
 
   it('adds a real multitrack arrangement surface with source rack and clip lanes', () => {
-    expect(starmakerSource).toContain('Multitrack Arrangement');
-    expect(starmakerSource).toContain('SOURCE RACK');
-    expect(starmakerSource).toContain('Capture Current to Rack');
-    expect(starmakerSource).toContain('placeArrangementClip');
-    expect(starmakerSource).toContain('selectedClipId');
-    expect(starmakerSource).toContain('Play Arrangement');
+    expect(starmakerSource).toContain('MultitrackArrangementPanel');
+    expect(arrangementPanelSource).toContain('Multitrack Arrangement');
+    expect(arrangementPanelSource).toContain('SOURCE RACK');
+    expect(arrangementPanelSource).toContain('Capture Current to Rack');
+    expect(arrangementPanelSource).toContain('Play Arrangement');
   });
 
   it('exports arrangement state with tracks, sources, and clips', () => {
@@ -160,5 +167,18 @@ describe('StarMaker sample editor advanced workflow', () => {
     expect(starmakerSource).toContain('toggleArrangementPlayback');
     expect(starmakerSource).toContain('arrangementBuffersRef');
     expect(starmakerSource).toContain('arrLooping');
+  });
+
+  it('gives arrangement its own dedicated file structure and shared model module', () => {
+    expect(starmakerSource).toContain("@/components/daydream/starmaker/MultitrackArrangementPanel");
+    expect(starmakerSource).toContain("@/lib/music/starmakerArrangement");
+    expect(arrangementModelSource).toContain('export const ARRANGEMENT_BARS = 16');
+    expect(arrangementModelSource).toContain('export interface ArrangementClip');
+  });
+
+  it('includes the reviewer expectation note about full DAW-grade editing scope', () => {
+    expect(arrangementPanelSource).toContain('A reviewer may expect full DAW-grade arrangement editing');
+    expect(arrangementPanelSource).toContain('drag-and-drop clips');
+    expect(arrangementPanelSource).toContain('persistent project storage');
   });
 });

@@ -37,6 +37,15 @@ import {
   type PlaybackQualityMode,
 } from '@/lib/music/starmaker';
 import {
+  ARRANGEMENT_BARS,
+  ARRANGEMENT_SOURCE_COLORS,
+  ARRANGEMENT_TRACKS,
+  type ArrangementClip,
+  type ArrangementSource,
+  type ArrangementTrackId,
+  type ArrangementTrackState,
+} from '@/lib/music/starmakerArrangement';
+import {
   BEAT_PRESETS,
   INSTRUMENT_PRESETS,
   PROJECT_TEMPLATES,
@@ -46,6 +55,7 @@ import {
   type ProjectTemplate,
 } from '@/lib/music/presets';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import MultitrackArrangementPanel from '@/components/daydream/starmaker/MultitrackArrangementPanel';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -53,12 +63,10 @@ import {
   FileAudio,
   FolderOpen,
   Gauge,
-  Layers3,
   Mic2,
   Music,
   Pause,
   Play,
-  Plus,
   Radio,
   Sliders,
   Sparkles,
@@ -2461,45 +2469,6 @@ interface HistoryEntry {
   name: string;
 }
 
-type ArrangementTrackId = 'lead' | 'stack' | 'bass' | 'fx';
-
-interface ArrangementSource {
-  id: string;
-  name: string;
-  durationSec: number;
-  waveform: number[];
-  color: string;
-}
-
-interface ArrangementClip {
-  id: string;
-  trackId: ArrangementTrackId;
-  sourceId: string;
-  label: string;
-  startBar: number;
-  barLength: number;
-  gain: number;
-  color: string;
-}
-
-interface ArrangementTrackState {
-  id: ArrangementTrackId;
-  label: string;
-  color: string;
-  volume: number;
-  muted: boolean;
-  solo: boolean;
-}
-
-const ARRANGEMENT_BARS = 16;
-const ARRANGEMENT_TRACKS: ArrangementTrackState[] = [
-  { id: 'lead', label: 'Lead Vox', color: '#00d0f0', volume: 0.95, muted: false, solo: false },
-  { id: 'stack', label: 'Stacks', color: '#a855f7', volume: 0.85, muted: false, solo: false },
-  { id: 'bass', label: 'Bass / Low', color: '#22c55e', volume: 0.9, muted: false, solo: false },
-  { id: 'fx', label: 'FX / Texture', color: '#f97316', volume: 0.78, muted: false, solo: false },
-];
-const ARRANGEMENT_SOURCE_COLORS = ['#00d0f0', '#a855f7', '#22c55e', '#f97316', '#ec4899', '#38bdf8'] as const;
-
 function computeAudioStats(buffer: AudioBuffer): AudioStats {
   let peak = 0;
   let sumSquares = 0;
@@ -3334,10 +3303,6 @@ function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadCons
   const hasAudio = !!fileName;
   const undoDepth = undoStackRef.current.length;
   const redoDepth = redoStackRef.current.length;
-  const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
-  const selectedSource = sourceLibrary.find(source => source.id === selectedSourceId) ?? null;
-  const arrangementBarsUsed = arrClips.length ? Math.max(...arrClips.map(clip => clip.startBar + clip.barLength)) : 0;
-
   return (
     <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}
       onMouseUp={handleBarMouseUp}
@@ -3814,391 +3779,49 @@ function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadCons
           </div>
         )}
 
-        {/* ── Multitrack Arrangement ── */}
-        <div style={{
-          borderRadius: 10,
-          background: '#0c1018',
-          border: `1px solid ${DAW.border}`,
-          overflow: 'hidden',
-        }}>
-          <div style={{ ...DAW_STYLES.sectionHeader, justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Layers3 className="w-3 h-3" style={{ color: DAW.purple }} />
-              <span style={DAW_STYLES.sectionTitle}>Multitrack Arrangement</span>
-              {arrPlaying && <span style={{ ...dawPill(DAW.green), fontSize: 9 }}>● PREVIEW</span>}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <span style={{ ...dawPill(DAW.dim), fontSize: 9 }}>{sourceLibrary.length} sources</span>
-              <span style={{ ...dawPill(DAW.dim), fontSize: 9 }}>{arrClips.length} clips</span>
-              <span style={{ ...dawPill(DAW.dim), fontSize: 9 }}>{Math.max(arrangementBarsUsed, 0)} / {ARRANGEMENT_BARS} bars used</span>
-            </div>
-          </div>
-
-          <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={captureCurrentToRack}
-                disabled={!hasAudio}
-                style={{
-                  padding: '9px 12px', borderRadius: 8,
-                  border: `1px solid ${hasAudio ? `${DAW.purple}55` : DAW.border}`,
-                  background: hasAudio ? `${DAW.purple}16` : DAW.surfaceHi,
-                  color: hasAudio ? DAW.purple : DAW.dim,
-                  cursor: hasAudio ? 'pointer' : 'not-allowed',
-                  fontSize: 11, fontWeight: 700,
-                  display: 'flex', alignItems: 'center', gap: 6,
-                }}
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Capture Current to Rack
-              </button>
-              <button
-                type="button"
-                onClick={toggleArrangementPlayback}
-                disabled={!arrClips.length}
-                style={{
-                  padding: '9px 12px', borderRadius: 8,
-                  border: `1px solid ${arrClips.length ? `${DAW.accent}55` : DAW.border}`,
-                  background: arrClips.length ? `${DAW.accent}16` : DAW.surfaceHi,
-                  color: arrClips.length ? DAW.accent : DAW.dim,
-                  cursor: arrClips.length ? 'pointer' : 'not-allowed',
-                  fontSize: 11, fontWeight: 700,
-                  display: 'flex', alignItems: 'center', gap: 6,
-                }}
-              >
-                {arrPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" style={{ marginLeft: 1 }} />}
-                {arrPlaying ? 'Stop Arrangement' : 'Play Arrangement'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setArrLooping(prev => !prev)}
-                style={{
-                  padding: '9px 12px', borderRadius: 8,
-                  border: `1px solid ${arrLooping ? `${DAW.green}55` : DAW.border}`,
-                  background: arrLooping ? `${DAW.green}14` : DAW.surfaceHi,
-                  color: arrLooping ? DAW.green : DAW.dim,
-                  cursor: 'pointer',
-                  fontSize: 11, fontWeight: 700,
-                }}
-              >
-                {arrLooping ? 'Loop On' : 'Loop Off'}
-              </button>
-              <span style={{ fontSize: 10, color: DAW.dim, alignSelf: 'center' }}>
-                Click a bar cell to place the selected source on a track lane.
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>
-                SOURCE RACK
-              </div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {sourceLibrary.length > 0 ? sourceLibrary.map(source => (
-                  <button
-                    key={source.id}
-                    type="button"
-                    onClick={() => setSelectedSourceId(source.id)}
-                    style={{
-                      padding: '8px 10px',
-                      borderRadius: 8,
-                      border: `1px solid ${selectedSourceId === source.id ? source.color : `${source.color}40`}`,
-                      background: selectedSourceId === source.id ? `${source.color}22` : `${source.color}10`,
-                      color: selectedSourceId === source.id ? '#fff' : source.color,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      minWidth: 150,
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 20 }}>
-                      {source.waveform.slice(0, 16).map((h, index) => (
-                        <div
-                          key={index}
-                          style={{
-                            width: 3,
-                            height: `${Math.max(4, Math.round(h * 18))}px`,
-                            borderRadius: 999,
-                            background: source.color,
-                            opacity: 0.9,
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <div style={{ textAlign: 'left', minWidth: 0 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: selectedSourceId === source.id ? '#fff' : DAW.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {source.name}
-                      </div>
-                      <div style={{ fontSize: 9, color: selectedSourceId === source.id ? '#f5f7fb' : DAW.dim }}>
-                        {fmtSec(source.durationSec)}
-                      </div>
-                    </div>
-                  </button>
-                )) : (
-                  <div style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: 8,
-                    border: `1px dashed ${DAW.borderBright}`,
-                    color: DAW.dim,
-                    fontSize: 10,
-                    lineHeight: 1.6,
-                  }}>
-                    Capture the current edited sample into the Source Rack, then click a bar cell in a lane to place clips.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div style={{ borderRadius: 8, overflow: 'hidden', border: `1px solid ${DAW.border}` }}>
-              <div style={{ display: 'flex', background: '#0a0d14', borderBottom: `1px solid ${DAW.border}` }}>
-                <div style={{ width: 156, flexShrink: 0, borderRight: `1px solid ${DAW.border}`, padding: '8px 10px', fontSize: 9, color: DAW.dim, fontWeight: 700, letterSpacing: '0.08em' }}>
-                  TRACKS
-                </div>
-                <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))` }}>
-                  {Array.from({ length: ARRANGEMENT_BARS }, (_, bar) => (
-                    <div key={bar} style={{
-                      padding: '8px 0',
-                      textAlign: 'center',
-                      borderLeft: bar > 0 ? `1px solid ${DAW.border}` : 'none',
-                      fontSize: 9,
-                      fontWeight: 700,
-                      color: arrPlayheadBar === bar && arrPlaying ? DAW.accent : DAW.dim,
-                      background: arrPlayheadBar === bar && arrPlaying ? 'rgba(0,208,240,0.08)' : 'transparent',
-                    }}>
-                      {bar + 1}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {arrTracks.map(track => {
-                const trackClips = arrClips.filter(clip => clip.trackId === track.id);
-                return (
-                  <div key={track.id} style={{ display: 'flex', minHeight: 68, borderTop: `1px solid ${DAW.border}` }}>
-                    <div style={{
-                      width: 156,
-                      flexShrink: 0,
-                      borderRight: `1px solid ${DAW.border}`,
-                      background: '#0f131d',
-                      padding: '8px 10px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 7,
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                        <div>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: DAW.text }}>{track.label}</div>
-                          <div style={{ fontSize: 9, color: track.color }}>Lane {track.id}</div>
-                        </div>
-                        <div style={{ display: 'flex', gap: 4 }}>
-                          <button
-                            type="button"
-                            onClick={() => setArrTracks(prev => prev.map(item => item.id === track.id ? { ...item, muted: !item.muted } : item))}
-                            style={{
-                              width: 24, height: 24, borderRadius: 6, cursor: 'pointer',
-                              border: `1px solid ${track.muted ? `${DAW.red}55` : DAW.border}`,
-                              background: track.muted ? `${DAW.red}18` : DAW.surfaceHi,
-                              color: track.muted ? DAW.red : DAW.dim, fontSize: 10, fontWeight: 800,
-                            }}
-                          >M</button>
-                          <button
-                            type="button"
-                            onClick={() => setArrTracks(prev => prev.map(item => item.id === track.id ? { ...item, solo: !item.solo } : item))}
-                            style={{
-                              width: 24, height: 24, borderRadius: 6, cursor: 'pointer',
-                              border: `1px solid ${track.solo ? `${DAW.green}55` : DAW.border}`,
-                              background: track.solo ? `${DAW.green}18` : DAW.surfaceHi,
-                              color: track.solo ? DAW.green : DAW.dim, fontSize: 10, fontWeight: 800,
-                            }}
-                          >S</button>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 9, color: DAW.dim, fontWeight: 700 }}>VOL</span>
-                        <input
-                          type="range"
-                          min={0}
-                          max={1.2}
-                          step={0.01}
-                          value={track.volume}
-                          onChange={(e) => setArrTracks(prev => prev.map(item => item.id === track.id ? { ...item, volume: Number(e.target.value) } : item))}
-                          aria-label={`${track.label} arrangement volume`}
-                          style={{ flex: 1, accentColor: track.color }}
-                        />
-                        <span style={{ fontSize: 9, color: DAW.dim, fontFamily: 'monospace', width: 30 }}>
-                          {Math.round(track.volume * 100)}%
-                        </span>
-                      </div>
-                    </div>
-
-                    <div style={{ flex: 1, position: 'relative', background: '#0a0d14' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))`, height: '100%' }}>
-                        {Array.from({ length: ARRANGEMENT_BARS }, (_, bar) => (
-                          <button
-                            key={bar}
-                            type="button"
-                            onClick={() => placeArrangementClip(track.id, bar)}
-                            title={selectedSource ? `Place ${selectedSource.name} on bar ${bar + 1}` : 'Select or capture a source first'}
-                            style={{
-                              border: 'none',
-                              borderLeft: bar > 0 ? `1px solid ${DAW.border}` : 'none',
-                              borderRight: 'none',
-                              borderBottom: 'none',
-                              borderTop: 'none',
-                              background: arrPlayheadBar === bar && arrPlaying ? 'rgba(0,208,240,0.08)' : (bar % 4 === 0 ? 'rgba(255,255,255,0.03)' : 'transparent'),
-                              cursor: selectedSource ? 'copy' : 'not-allowed',
-                            }}
-                          />
-                        ))}
-                      </div>
-
-                      {trackClips.map(clip => {
-                        const source = sourceLibrary.find(item => item.id === clip.sourceId);
-                        return (
-                          <button
-                            key={clip.id}
-                            type="button"
-                            onClick={() => setSelectedClipId(clip.id)}
-                            title={`${clip.label} · ${clip.barLength} bar clip`}
-                            style={{
-                              position: 'absolute',
-                              left: `${(clip.startBar / ARRANGEMENT_BARS) * 100}%`,
-                              top: 10,
-                              width: `${(clip.barLength / ARRANGEMENT_BARS) * 100}%`,
-                              height: 48,
-                              borderRadius: 8,
-                              border: `1px solid ${selectedClipId === clip.id ? '#ffffff' : `${clip.color}88`}`,
-                              background: `linear-gradient(135deg, ${clip.color}44, ${clip.color}22)`,
-                              boxShadow: selectedClipId === clip.id ? `0 0 0 1px ${clip.color}, 0 0 16px ${clip.color}40` : 'none',
-                              color: '#fff',
-                              padding: '7px 8px',
-                              textAlign: 'left',
-                              cursor: 'pointer',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            <div style={{ fontSize: 10, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {clip.label}
-                            </div>
-                            <div style={{ fontSize: 8, opacity: 0.8 }}>
-                              {source?.name ?? 'Missing source'} · {clip.barLength} bar
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div style={{
-              padding: '10px 12px',
-              borderRadius: 8,
-              background: 'rgba(255,255,255,0.03)',
-              border: `1px solid ${DAW.border}`,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 8,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                <div style={{ fontSize: 10, color: DAW.dim }}>
-                  {selectedClip
-                    ? `Selected clip: ${selectedClip.label} on ${arrTracks.find(track => track.id === selectedClip.trackId)?.label ?? selectedClip.trackId}`
-                    : 'Select an arrangement clip to edit it'}
-                </div>
-                {selectedClip && (
-                  <span style={{ ...dawPill(selectedClip.color), fontSize: 9 }}>
-                    Bars {selectedClip.startBar + 1}-{selectedClip.startBar + selectedClip.barLength}
-                  </span>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                {[
-                  {
-                    label: '← Nudge',
-                    action: () => updateSelectedClip(clip => ({ ...clip, startBar: Math.max(0, clip.startBar - 1) })),
-                  },
-                  {
-                    label: 'Nudge →',
-                    action: () => updateSelectedClip(clip => ({ ...clip, startBar: Math.min(ARRANGEMENT_BARS - clip.barLength, clip.startBar + 1) })),
-                  },
-                  {
-                    label: 'Shorter',
-                    action: () => updateSelectedClip(clip => ({ ...clip, barLength: Math.max(1, clip.barLength - 1) })),
-                  },
-                  {
-                    label: 'Longer',
-                    action: () => updateSelectedClip(clip => ({ ...clip, barLength: Math.min(ARRANGEMENT_BARS - clip.startBar, clip.barLength + 1) })),
-                  },
-                  {
-                    label: 'Duplicate',
-                    action: () => {
-                      if (!selectedClip) { showOpMsg('⚠ Select an arrangement clip first'); return; }
-                      const duplicate: ArrangementClip = {
-                        ...selectedClip,
-                        id: `clip-${Date.now()}-${Math.round(Math.random() * 999)}`,
-                        startBar: Math.min(ARRANGEMENT_BARS - selectedClip.barLength, selectedClip.startBar + selectedClip.barLength),
-                      };
-                      setArrClips(prev => [...prev, duplicate]);
-                      setSelectedClipId(duplicate.id);
-                    },
-                  },
-                  {
-                    label: 'Remove',
-                    action: () => {
-                      if (!selectedClip) { showOpMsg('⚠ Select an arrangement clip first'); return; }
-                      setArrClips(prev => prev.filter(clip => clip.id !== selectedClip.id));
-                      setSelectedClipId(null);
-                    },
-                  },
-                ].map(control => (
-                  <button
-                    key={control.label}
-                    type="button"
-                    onClick={control.action}
-                    disabled={!selectedClip}
-                    style={{
-                      padding: '7px 10px',
-                      borderRadius: 8,
-                      border: `1px solid ${selectedClip ? DAW.borderBright : DAW.border}`,
-                      background: selectedClip ? DAW.surfaceHi : 'rgba(255,255,255,0.03)',
-                      color: selectedClip ? DAW.text : DAW.dim,
-                      cursor: selectedClip ? 'pointer' : 'not-allowed',
-                      fontSize: 10,
-                      fontWeight: 700,
-                      opacity: selectedClip ? 1 : 0.45,
-                    }}
-                  >
-                    {control.label}
-                  </button>
-                ))}
-              </div>
-
-              {selectedClip && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 9, color: DAW.dim, fontWeight: 700 }}>CLIP GAIN</span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={1.2}
-                    step={0.01}
-                    value={selectedClip.gain}
-                    onChange={(e) => updateSelectedClip(clip => ({ ...clip, gain: Number(e.target.value) }))}
-                    aria-label="Selected arrangement clip gain"
-                    style={{ flex: 1, accentColor: selectedClip.color }}
-                  />
-                  <span style={{ fontSize: 9, color: DAW.dim, fontFamily: 'monospace', width: 34 }}>
-                    {Math.round(selectedClip.gain * 100)}%
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <MultitrackArrangementPanel
+          hasAudio={hasAudio}
+          sourceLibrary={sourceLibrary}
+          selectedSourceId={selectedSourceId}
+          selectedClipId={selectedClipId}
+          arrTracks={arrTracks}
+          arrClips={arrClips}
+          arrPlaying={arrPlaying}
+          arrLooping={arrLooping}
+          arrPlayheadBar={arrPlayheadBar}
+          formatSeconds={fmtSec}
+          onCaptureCurrentToRack={captureCurrentToRack}
+          onToggleArrangementPlayback={toggleArrangementPlayback}
+          onToggleArrangementLoop={() => setArrLooping(prev => !prev)}
+          onSelectSource={setSelectedSourceId}
+          onSelectClip={setSelectedClipId}
+          onTrackMuteToggle={(trackId) => setArrTracks(prev => prev.map(item => item.id === trackId ? { ...item, muted: !item.muted } : item))}
+          onTrackSoloToggle={(trackId) => setArrTracks(prev => prev.map(item => item.id === trackId ? { ...item, solo: !item.solo } : item))}
+          onTrackVolumeChange={(trackId, volume) => setArrTracks(prev => prev.map(item => item.id === trackId ? { ...item, volume } : item))}
+          onPlaceClip={placeArrangementClip}
+          onNudgeClipLeft={() => updateSelectedClip(clip => ({ ...clip, startBar: Math.max(0, clip.startBar - 1) }))}
+          onNudgeClipRight={() => updateSelectedClip(clip => ({ ...clip, startBar: Math.min(ARRANGEMENT_BARS - clip.barLength, clip.startBar + 1) }))}
+          onShortenClip={() => updateSelectedClip(clip => ({ ...clip, barLength: Math.max(1, clip.barLength - 1) }))}
+          onLengthenClip={() => updateSelectedClip(clip => ({ ...clip, barLength: Math.min(ARRANGEMENT_BARS - clip.startBar, clip.barLength + 1) }))}
+          onDuplicateClip={() => {
+            const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
+            if (!selectedClip) { showOpMsg('⚠ Select an arrangement clip first'); return; }
+            const duplicate: ArrangementClip = {
+              ...selectedClip,
+              id: `clip-${Date.now()}-${Math.round(Math.random() * 999)}`,
+              startBar: Math.min(ARRANGEMENT_BARS - selectedClip.barLength, selectedClip.startBar + selectedClip.barLength),
+            };
+            setArrClips(prev => [...prev, duplicate]);
+            setSelectedClipId(duplicate.id);
+          }}
+          onRemoveClip={() => {
+            const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
+            if (!selectedClip) { showOpMsg('⚠ Select an arrangement clip first'); return; }
+            setArrClips(prev => prev.filter(clip => clip.id !== selectedClip.id));
+            setSelectedClipId(null);
+          }}
+          onSelectedClipGainChange={(gain) => updateSelectedClip(clip => ({ ...clip, gain }))}
+        />
 
         {/* ── Formats notice ── */}
         <div style={{
