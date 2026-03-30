@@ -18,19 +18,19 @@ export const metadata = { title: 'Games Daydream – DREAMengin', description: '
 const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'platformer', emoji: '🏎',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: immersiveGameHref('platformer') },
-  { id: 'all-games',  emoji: '🎮', label: 'All Games',    desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
-  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: immersiveGameHref('word-sprint') },
-  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: immersiveGameHref('memory-grid') },
-  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: immersiveGameHref('speed-tap') },
-  { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
+  { id: 'platformer',   emoji: '🤖',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: immersiveGameHref('platformer') },
+  { id: 'all-games',    emoji: '🎮',  label: 'All Games',     desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
+  { id: 'dreamquest',   emoji: '✨',  label: 'DREAMquest',    desc: 'FF-style RPG · 5 dream layers', color: '#a78bfa', href: immersiveGameHref('dreamquest') },
+  { id: 'dreamwars',    emoji: '🌙',  label: 'DREAMwars',     desc: 'Nightmares vs Dreamers RTS',    color: '#7c3aed', href: immersiveGameHref('dreamwars') },
+  { id: 'neon-drift',   emoji: '🏎️',  label: 'Neon Drift',    desc: 'WebGPU cyberpunk racer',        color: '#0ff',    href: immersiveGameHref('neon-drift') },
+  { id: 'scores',       emoji: '🏆',  label: 'Leaderboard',   desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
 ];
 
 const LIBRARY_SPOTLIGHT = [
-  { label: 'MADMAXI', meta: 'Babylon.js 3-D · 150 levels', emoji: '🏎', href: immersiveGameHref('platformer') },
-  { label: 'Word Sprint', meta: '1 minute typing rush', emoji: '📝', href: immersiveGameHref('word-sprint') },
-  { label: 'Memory Grid', meta: 'Quick pattern recall', emoji: '🧩', href: immersiveGameHref('memory-grid') },
-  { label: 'Speed Tap', meta: 'Fast reflex score chase', emoji: '⚡', href: immersiveGameHref('speed-tap') },
+  { label: 'MADMAXI',      meta: 'Babylon.js 3-D · 150 levels', emoji: '🤖', href: immersiveGameHref('platformer') },
+  { label: 'DREAMquest',   meta: 'FF-style · 5 Dream Layers',   emoji: '✨', href: immersiveGameHref('dreamquest') },
+  { label: 'DREAMwars',    meta: 'Nightmares vs Dreamers RTS',  emoji: '🌙', href: immersiveGameHref('dreamwars') },
+  { label: 'Neon Drift',   meta: 'WebGPU · DualSense Ready',    emoji: '🏎️', href: immersiveGameHref('neon-drift') },
 ];
 
 const CONSOLE_MODULES = [

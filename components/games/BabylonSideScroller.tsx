@@ -1,20 +1,26 @@
 'use client';
 
 /**
- * BabylonSideScroller — Babylon.js powered 3D side-scrolling platformer.
+ * BabylonSideScroller — MADMAXI · Babylon.js 3-D side-scrolling platformer.
  *
- * Replaces the old Canvas-2D Dr. Eams Platformer.
- * Key improvements:
- *  • Babylon.js @babylonjs/core v8 for 3-D rendering (glow, lighting, PBR).
- *  • Set<string>-based key tracking so movement + jump always work together.
- *  • Coyote-time (8 frames after leaving ledge) + jump buffering (6 frames).
- *  • Double-jump, particle bursts, scrolling parallax background layers.
- *  • 2 handcrafted intro levels + 148 procedurally-generated levels (3-150).
- *  • Every 10th level is a named boss fight (15 unique bosses).
- *  • 15 themed zones — sky, platform colours and lore text change every 10 levels.
- *  • Session-seeded generation: every playthrough is unique, retrying a level
- *    gives the same layout.
- *  • Shared GameRemote CustomEvent bridge.
+ * MADMAXI is the DREAMengin robot hero (inspired by the landing-page Dr. Eams
+ * character: gold metallic body, cyan visor, animated arms & legs).
+ *
+ * Mechanics:
+ *  • Collect 9 SILVER coins + 1 GOLD coin (the Dream Star) to clear each level.
+ *  • When the 9th silver coin is collected the camera zooms toward the Gold Star.
+ *  • Stomp enemies (or boss) to earn combo multipliers.
+ *  • Double-jump, coyote-time, dash with i-frames.
+ *
+ * Level structure:
+ *  • Levels 1-2 are hard handcrafted intros (enemies, tight gaps, moving floors).
+ *  • Levels 3-149 are procedurally generated (difficulty scales with level).
+ *  • Every 10th level is a boss arena (15 unique bosses, 15 themed zones).
+ *  • Session-seeded RNG — unique each run, same layout on level retry.
+ *
+ * Tech:
+ *  • Babylon.js @babylonjs/core v8 — glow, PBR, shadows, bloom post-process.
+ *  • Shared GameRemote CustomEvent bridge (de-game-input).
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
@@ -228,21 +234,26 @@ function makeLevel(n: number, sessionSeed: number): LevelDef {
       { x: 2050, y: 260, w: 200,  h: 20, type: 'solid' },
       { x: 2200, y: 160, w: 140,  h: 20, type: 'goal' },
     ],
+    // 9 silver coins + 1 gold Dream Star (isGoal)
     coins: [
-      { x: 360, y: 280 }, { x: 400, y: 280 },
-      { x: 560, y: 220 }, { x: 600, y: 220 },
-      { x: 760, y: 170 }, { x: 800, y: 170 },
-      { x: 950, y: 280 }, { x: 990, y: 280 },
-      { x: 1140,y: 220 }, { x: 1180,y: 220 },
-      { x: 1360,y: 140 }, { x: 1400,y: 140 },
-      { x: 1620,y: 270 }, { x: 1660,y: 270 },
-      { x: 1860,y: 170 }, { x: 1900,y: 170 },
-      { x: 2240,y: 130, isGoal: true },
+      { x: 360, y: 278 },
+      { x: 570, y: 218 },
+      { x: 770, y: 168 },
+      { x: 965, y: 278 },
+      { x: 1155,y: 218 },
+      { x: 1375,y: 138 },
+      { x: 1635,y: 268 },
+      { x: 1875,y: 168 },
+      { x: 2095,y: 228 },
+      { x: 2245,y: 128, isGoal: true },
     ],
+    // Harder enemies — faster, more of them
     enemies: [
-      { x: 900,  y: 368, vx: 1.4 },
-      { x: 1300, y: 368, vx: -1.6 },
-      { x: 1800, y: 368, vx: 1.2 },
+      { x: 600,  y: 368, vx: 2.2 },
+      { x: 950,  y: 368, vx: -2.4 },
+      { x: 1350, y: 368, vx: 2.0 },
+      { x: 1700, y: 368, vx: -2.6 },
+      { x: 2000, y: 368, vx: 2.1 },
     ],
     zoneName: ZONES[0].name,
     zoneStory: ZONES[0].story,
@@ -268,19 +279,27 @@ function makeLevel(n: number, sessionSeed: number): LevelDef {
       { x: 2440, y: 240, w: 130,  h: 20, type: 'solid' },
       { x: 2620, y: 140, w: 120,  h: 20, type: 'goal' },
     ],
+    // 9 silver coins + 1 gold Dream Star (isGoal)
     coins: [
-      { x: 240, y: 300 }, { x: 400, y: 230 }, { x: 550, y: 160 },
-      { x: 720, y: 250 }, { x: 860, y: 170 }, { x: 1020,y: 270 },
-      { x: 1200,y: 150 }, { x: 1360,y: 230 }, { x: 1520,y: 120 },
-      { x: 1690,y: 210 }, { x: 1860,y: 130 }, { x: 2050,y: 250 },
-      { x: 2240,y: 150 }, { x: 2660,y: 110, isGoal: true },
+      { x: 245, y: 298 },
+      { x: 408, y: 228 },
+      { x: 558, y: 158 },
+      { x: 725, y: 248 },
+      { x: 868, y: 168 },
+      { x: 1025,y: 268 },
+      { x: 1205,y: 148 },
+      { x: 1370,y: 228 },
+      { x: 1540,y: 118 },
+      { x: 2668,y: 108, isGoal: true },
     ],
+    // Harder level 2 — fast enemies with tighter gaps
     enemies: [
-      { x: 200, y: 368, vx: 1.5 },
-      { x: 700, y: 368, vx: -1.8 },
-      { x: 1200,y: 368, vx: 1.6 },
-      { x: 1800,y: 368, vx: -2.0 },
-      { x: 2400,y: 368, vx: 1.7 },
+      { x: 350,  y: 368, vx: 2.4 },
+      { x: 800,  y: 368, vx: -2.8 },
+      { x: 1300, y: 368, vx: 2.5 },
+      { x: 1850, y: 368, vx: -2.9 },
+      { x: 2250, y: 368, vx: 2.6 },
+      { x: 2600, y: 368, vx: -2.3 },
     ],
     zoneName: ZONES[0].name,
   };
@@ -336,11 +355,22 @@ function makeProceduralLevel(n: number, sessionSeed: number): LevelDef {
       p.moveSpd   = parseFloat((movSpd * (0.7 + rng() * 0.6)).toFixed(2));
     }
     platforms.push(p);
+  } // end platform generation loop
 
-    if (rng() > 0.3) {
-      coins.push({ x: cx + Math.round(cw * 0.25), y: cy - 30 });
-      if (rng() > 0.55 && cw > 65) coins.push({ x: cx + Math.round(cw * 0.65), y: cy - 30 });
-    }
+  // After the loop: coin placement outside the for loop
+  // Collect all platform (non-ground) positions for coin placement
+  const coinPlats = platforms.slice(1); // skip the ground slab
+  // Distribute exactly 9 silver coins across the non-goal platforms
+  // (evenly spaced through the array so they spread across the whole level)
+  const step = Math.max(1, Math.floor(coinPlats.length / 9));
+  for (let ci = 0; ci < 9 && ci * step < coinPlats.length; ci++) {
+    const cp = coinPlats[Math.min(coinPlats.length - 2, ci * step)]; // avoid last (goal) plat
+    coins.push({ x: cp.x + Math.round(cp.w * 0.4), y: cp.y - 32 });
+  }
+  // Ensure we always have exactly 9 regular coins (pad from beginning if short)
+  while (coins.length < 9 && coinPlats.length > 0) {
+    const cp = coinPlats[coins.length % coinPlats.length];
+    coins.push({ x: cp.x + Math.round(cp.w * 0.5), y: cp.y - 28 });
   }
 
   // Goal — 60-95 px past last platform's right edge, 20-120 px higher
@@ -421,6 +451,10 @@ export default function BabylonSideScroller() {
   const [progress, setProgress] = useState(0);
   const [isNewBest, setIsNewBest] = useState(false);
 
+  // Coin counter — 9 silver + 1 gold per level
+  const [coinCount,    setCoinCount]    = useState(0);
+  const [coinTotal,    setCoinTotal]    = useState(9); // total regular coins in current level
+
   // Session seed — module-level so it's set once per page load (not per render).
   // Every playthrough gets a unique seed; retrying a level uses the same one.
   const sessionSeedRef = useRef(SESSION_SEED);
@@ -461,6 +495,8 @@ export default function BabylonSideScroller() {
     setBossMaxHp(bossEntry ? bossEntry.hp : 0);
     setBossName(bossEntry ? bossEntry.name : '');
     setWasABoss(false);
+    setCoinCount(0);
+    setCoinTotal(9);
 
     const core = new GameCore(canvas, lv, sc, li, {
       onScore:    (s)  => {
@@ -491,10 +527,11 @@ export default function BabylonSideScroller() {
         setLevel(lv);
         setStatus(lv > TOTAL_LEVELS ? 'win' : 'complete');
       },
-      onProgress: (pct) => setProgress(pct),
-      onBossHp:   (hp) => setBossHp(hp),
-      onCombo:    (c)  => setComboCount(c),
-      onDash:     ()   => { setDashReady(false); setTimeout(() => setDashReady(true), DASH_COOL * 16); },
+      onProgress:   (pct) => setProgress(pct),
+      onBossHp:     (hp) => setBossHp(hp),
+      onCombo:      (c)  => setComboCount(c),
+      onDash:       ()   => { setDashReady(false); setTimeout(() => setDashReady(true), DASH_COOL * 16); },
+      onCoinCount:  (collected, total) => { setCoinCount(collected); setCoinTotal(total); },
     }, sessionSeedRef.current);
     gameRef.current = core;
     setProgress(0);
@@ -589,34 +626,41 @@ export default function BabylonSideScroller() {
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(180deg,rgba(10,15,40,0.85),rgba(5,5,20,0.92))',
+            background: 'linear-gradient(180deg,rgba(4,8,28,0.90),rgba(8,4,22,0.95))',
             borderRadius: 12,
           }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#fa0', letterSpacing: '0.15em',
-                          textTransform: 'uppercase', marginBottom: 8 }}>
-              DREAMengin × Babylon.js
+            {/* Robot silhouette decoration */}
+            <div style={{ fontSize: 52, lineHeight: 1, marginBottom: 4, filter: 'drop-shadow(0 0 18px #0af) drop-shadow(0 0 6px #c8981a)' }}>🤖</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#0af', letterSpacing: '0.22em',
+                          textTransform: 'uppercase', marginBottom: 6 }}>
+              DREAMengin · Babylon.js · 3-D Platformer
             </div>
-            <div style={{ fontSize: 46, fontWeight: 900, color: '#fff',
-                          textShadow: '0 0 32px #fa0,0 0 12px #fa0,0 0 4px #f80', lineHeight: 1.0, marginBottom: 6,
-                          letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: 50, fontWeight: 900, color: '#fff',
+                          textShadow: '0 0 36px #c8981a,0 0 14px #c8981a,0 0 4px #f80',
+                          lineHeight: 1.0, marginBottom: 4, letterSpacing: '-0.02em' }}>
               MADMAXI
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fa0', letterSpacing: '0.1em',
-                          textTransform: 'uppercase', marginBottom: 20 }}>
-              🏎 MAX SPEED · MAX GLORY
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0af', letterSpacing: '0.12em',
+                          textTransform: 'uppercase', marginBottom: 16 }}>
+              ⚙ DREAMengin&apos;s Robot Hero
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 28, textAlign: 'center' }}>
+            <div style={{ fontSize: 12, color: 'rgba(200,220,255,0.65)', marginBottom: 6, textAlign: 'center', lineHeight: 1.6 }}>
+              Collect <span style={{ color: '#aaa', fontWeight: 700 }}>9 silver coins</span>{' '}
+              + <span style={{ color: '#fa0', fontWeight: 700 }}>1 gold Dream Star</span> to clear each level
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.40)', marginBottom: 22, textAlign: 'center' }}>
               150 levels · 15 zones · boss every 10 · unique each run
             </div>
             <button
               style={{ ...btnBase, background: 'linear-gradient(135deg,#c8981a,#f7c44a)',
-                       color: '#000', padding: '12px 36px', fontSize: 16, fontWeight: 800, boxShadow: '0 0 20px #fa06' }}
+                       color: '#000', padding: '12px 40px', fontSize: 16, fontWeight: 900,
+                       boxShadow: '0 0 24px #c8981a88, 0 0 8px #fa08' }}
               onClick={() => startGame(1, 0, 3)}
             >
-              ▶ Race Now
+              ▶ Run MAXI
             </button>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 14 }}>
-              WASD / Arrows · Space to jump · move + jump works together
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.32)', marginTop: 14 }}>
+              ← → / A D move &nbsp;·&nbsp; ↑ / W / Space jump (double-jump) &nbsp;·&nbsp; Shift = dash
             </div>
           </div>
         )}
@@ -763,6 +807,34 @@ export default function BabylonSideScroller() {
               </div>
             </div>
 
+            {/* ── Coin counter HUD (9 silver + 1 gold Dream Star) ── */}
+            {bossMaxHp === 0 && (
+              <div style={{
+                position: 'absolute', top: 42, left: 12, pointerEvents: 'none',
+                display: 'flex', alignItems: 'center', gap: 4,
+                background: 'rgba(0,0,0,0.42)', borderRadius: 6, padding: '3px 9px',
+              }}>
+                {Array.from({ length: coinTotal }).map((_, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      fontSize: 12,
+                      filter: i < coinCount
+                        ? (i === coinTotal - 1 ? 'drop-shadow(0 0 4px #fa0)' : 'drop-shadow(0 0 3px #aaa)')
+                        : 'grayscale(1) opacity(0.35)',
+                      transition: 'filter 0.15s',
+                    }}
+                  >
+                    {/* last coin is gold Dream Star */}
+                    {i === coinTotal - 1 ? '⭐' : '🪙'}
+                  </span>
+                ))}
+                <span style={{ fontSize: 10, fontWeight: 700, color: coinCount >= coinTotal ? '#fa0' : '#ccc', marginLeft: 4 }}>
+                  {coinCount}/{coinTotal}
+                </span>
+              </div>
+            )}
+
             {/* Boss health bar */}
             {bossMaxHp > 0 && (
               <div style={{ position: 'absolute', top: 42, left: 12, right: 12, pointerEvents: 'none' }}>
@@ -833,13 +905,15 @@ export default function BabylonSideScroller() {
 
 // ─── GameCore — owns the Babylon.js engine lifecycle ─────────────────────────
 interface GameCallbacks {
-  onScore:     (s: number) => void;
-  onDie:       (livesLeft: number) => void;
-  onComplete:  (nextLevel: number) => void;
-  onProgress?: (pct: number) => void;
-  onBossHp?:   (current: number) => void;
-  onCombo?:    (count: number) => void;
-  onDash?:     () => void;
+  onScore:      (s: number) => void;
+  onDie:        (livesLeft: number) => void;
+  onComplete:   (nextLevel: number) => void;
+  onProgress?:  (pct: number) => void;
+  onBossHp?:    (current: number) => void;
+  onCombo?:     (count: number) => void;
+  onDash?:      () => void;
+  /** Reports coin collection: collected regular coins, total regular coins. */
+  onCoinCount?: (collected: number, total: number) => void;
 }
 
 type VPad = { left: boolean; right: boolean; jump: boolean; dash: boolean };
@@ -902,8 +976,13 @@ class GameCore {
   private bjs: typeof import('@babylonjs/core') | null = null;
 
   // Babylon mesh refs
-  private playerMesh:  import('@babylonjs/core').Mesh | null = null;
-  private playerHead:  import('@babylonjs/core').Mesh | null = null;
+  private playerMesh:  import('@babylonjs/core').Mesh | null = null; // robot body
+  private playerHead:  import('@babylonjs/core').Mesh | null = null; // robot head box
+  private playerVisor: import('@babylonjs/core').Mesh | null = null; // cyan visor stripe
+  private playerArmL:  import('@babylonjs/core').Mesh | null = null; // left arm
+  private playerArmR:  import('@babylonjs/core').Mesh | null = null; // right arm
+  private playerLegL:  import('@babylonjs/core').Mesh | null = null; // left leg
+  private playerLegR:  import('@babylonjs/core').Mesh | null = null; // right leg
   private platMeshes:  import('@babylonjs/core').Mesh[] = [];
   private coinMeshes:  (import('@babylonjs/core').Mesh | null)[] = [];
   private enemyMeshes: (import('@babylonjs/core').Mesh | null)[] = [];
@@ -913,6 +992,14 @@ class GameCore {
   private goalMesh:    import('@babylonjs/core').Mesh | null = null;
   private goalRing:    import('@babylonjs/core').Mesh | null = null;
   private goalIdx:     number = -1;
+
+  // ── Coin collection tracking ────────────────────────────────────────────
+  private totalRegularCoins  = 0;   // number of non-goal coins in this level
+  private collectedRegularCoins = 0; // coins picked up so far
+  // Camera zoom toward goal after 9th coin
+  private coinFlashFrames    = 0;   // countdown for zoom-out animation
+  private coinFlashDir       = 1;   // +1 = goal is to the right, -1 = to the left
+  private camZoomOffset      = 0;   // extra cam height during coin zoom
 
   // Parallax background stars
   private bgStars: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number }[] = [];
@@ -958,6 +1045,11 @@ class GameCore {
       ...e, alive: true, curX: e.x, curY: e.y,
       hitsLeft: e.hitsLeft ?? 1,
     }));
+    // Count regular (non-goal) coins for HUD
+    this.totalRegularCoins      = def.coins.filter(c => !c.isGoal).length;
+    this.collectedRegularCoins  = 0;
+    this.coinFlashFrames        = 0;
+    this.camZoomOffset          = 0;
     // Track max boss HP for health-bar percentage calculations
     const bossEnemy = def.enemies.find(e => e.boss);
     this.bossHitsMax = bossEnemy?.hitsLeft ?? 0;
@@ -1148,8 +1240,11 @@ class GameCore {
         const mesh = BJS.MeshBuilder.CreateSphere(`coin_${c.x}_${c.y}`,
           { diameter: 0.42, segments: 14 }, scene);
         const mat  = new BJS.StandardMaterial(`cmat_${c.x}`, scene);
-        mat.diffuseColor  = new BJS.Color3(0.95, 0.75, 0.1);
-        mat.emissiveColor = new BJS.Color3(0.35, 0.25, 0.0);
+        // SILVER coins (regular) — flat metallic look
+        mat.diffuseColor  = new BJS.Color3(0.80, 0.82, 0.88);
+        mat.emissiveColor = new BJS.Color3(0.18, 0.20, 0.26);
+        mat.specularColor = new BJS.Color3(1.0, 1.0, 1.0);
+        mat.specularPower = 96;
         mesh.material = mat;
         shadowGen.addShadowCaster(mesh, false);
         glow.addIncludedOnlyMesh(mesh);
@@ -1182,26 +1277,81 @@ class GameCore {
       this.enemyMeshes.push(mesh);
     }
 
-    // ── Player meshes (body + head) ───────────────────────────────────────────
-    const body = BJS.MeshBuilder.CreateCapsule('player',
-      { radius: 0.32, height: 1.0, tessellation: 20, subdivisions: 6 }, scene);
-    const bodyMat = new BJS.StandardMaterial('bodyMat', scene);
-    bodyMat.diffuseColor  = new BJS.Color3(0.1, 0.55, 0.95);
-    bodyMat.emissiveColor = new BJS.Color3(0.03, 0.18, 0.45);
-    bodyMat.specularColor = new BJS.Color3(0.4, 0.7, 1.0);
-    body.material = bodyMat;
-    shadowGen.addShadowCaster(body, true);
-    glow.addIncludedOnlyMesh(body);
-    this.playerMesh = body;
+    // ── MADMAXI Robot player ─────────────────────────────────────────────────
+    // Build a robot character evocative of the landing-page Dr. Eams design:
+    //  Body → gold/silver metallic box torso
+    //  Head → box with prominent cyan glowing visor band
+    //  Arms → thin boxes on either side, swing when walking
+    //  Legs → box legs, step animation
 
-    const head = BJS.MeshBuilder.CreateSphere('phead', { diameter: 0.42, segments: 18 }, scene);
-    const headMat = new BJS.StandardMaterial('headMat', scene);
-    headMat.diffuseColor  = new BJS.Color3(0.85, 0.80, 0.70);
-    headMat.emissiveColor = new BJS.Color3(0.15, 0.12, 0.08);
-    head.material = headMat;
-    shadowGen.addShadowCaster(head, true);
-    glow.addIncludedOnlyMesh(head);
-    this.playerHead = head;
+    // Shared robot gold material
+    const robotBodyMat = new BJS.StandardMaterial('robotBodyMat', scene);
+    robotBodyMat.diffuseColor  = new BJS.Color3(0.76, 0.60, 0.14); // gold body
+    robotBodyMat.emissiveColor = new BJS.Color3(0.28, 0.20, 0.04);
+    robotBodyMat.specularColor = new BJS.Color3(1.0, 0.88, 0.40);
+    robotBodyMat.specularPower = 120;
+
+    const robotDarkMat = new BJS.StandardMaterial('robotDarkMat', scene);
+    robotDarkMat.diffuseColor  = new BJS.Color3(0.22, 0.20, 0.24); // dark silver joints
+    robotDarkMat.emissiveColor = new BJS.Color3(0.06, 0.06, 0.08);
+    robotDarkMat.specularColor = new BJS.Color3(0.6, 0.6, 0.7);
+    robotDarkMat.specularPower = 80;
+
+    const robotVisorMat = new BJS.StandardMaterial('robotVisorMat', scene);
+    robotVisorMat.diffuseColor  = new BJS.Color3(0.0, 0.7, 1.0);  // cyan visor
+    robotVisorMat.emissiveColor = new BJS.Color3(0.0, 0.5, 0.9);
+    robotVisorMat.specularColor = new BJS.Color3(0.4, 0.9, 1.0);
+    robotVisorMat.specularPower = 200;
+
+    // Body (torso)
+    const robotBody = BJS.MeshBuilder.CreateBox('robot_body',
+      { width: 0.55, height: 0.62, depth: 0.38 }, scene);
+    robotBody.material = robotBodyMat;
+    shadowGen.addShadowCaster(robotBody, true);
+    glow.addIncludedOnlyMesh(robotBody);
+    this.playerMesh = robotBody;
+
+    // Head (box, sits on top of body)
+    const robotHead = BJS.MeshBuilder.CreateBox('robot_head',
+      { width: 0.44, height: 0.36, depth: 0.36 }, scene);
+    robotHead.material = robotBodyMat;
+    shadowGen.addShadowCaster(robotHead, true);
+    this.playerHead = robotHead;
+
+    // Visor (thin flat box on front of head, glowing cyan)
+    const robotVisor = BJS.MeshBuilder.CreateBox('robot_visor',
+      { width: 0.30, height: 0.09, depth: 0.05 }, scene);
+    robotVisor.material = robotVisorMat;
+    glow.addIncludedOnlyMesh(robotVisor);
+    this.playerVisor = robotVisor;
+
+    // Left arm
+    const robotArmL = BJS.MeshBuilder.CreateBox('robot_arm_l',
+      { width: 0.16, height: 0.42, depth: 0.18 }, scene);
+    robotArmL.material = robotDarkMat;
+    shadowGen.addShadowCaster(robotArmL, false);
+    this.playerArmL = robotArmL;
+
+    // Right arm
+    const robotArmR = BJS.MeshBuilder.CreateBox('robot_arm_r',
+      { width: 0.16, height: 0.42, depth: 0.18 }, scene);
+    robotArmR.material = robotDarkMat;
+    shadowGen.addShadowCaster(robotArmR, false);
+    this.playerArmR = robotArmR;
+
+    // Left leg
+    const robotLegL = BJS.MeshBuilder.CreateBox('robot_leg_l',
+      { width: 0.20, height: 0.44, depth: 0.22 }, scene);
+    robotLegL.material = robotBodyMat;
+    shadowGen.addShadowCaster(robotLegL, false);
+    this.playerLegL = robotLegL;
+
+    // Right leg
+    const robotLegR = BJS.MeshBuilder.CreateBox('robot_leg_r',
+      { width: 0.20, height: 0.44, depth: 0.22 }, scene);
+    robotLegR.material = robotBodyMat;
+    shadowGen.addShadowCaster(robotLegR, false);
+    this.playerLegR = robotLegR;
 
     // ── Particle system (landing/jump dust) ────────────────────────────────
     const dust = new BJS.ParticleSystem('dust', 60, scene);
@@ -1416,7 +1566,7 @@ class GameCore {
       if (Math.abs(PCX - cx) < CW + 8 && Math.abs(PCY - cy) < CW + 8) {
         c.collected = true;
         if (c.isGoal) {
-          // Hide the goal star meshes
+          // Gold Dream Star collected → level complete
           this.goalMesh?.setEnabled(false);
           this.goalMesh = null;
           this.goalRing?.setEnabled(false);
@@ -1426,12 +1576,22 @@ class GameCore {
           this.cbs.onComplete(this.level + 1);
           return;
         } else {
+          // Silver coin collected
           if (this.coinMeshes[i]) {
             this.coinMeshes[i]!.setEnabled(false);
             this.coinMeshes[i] = null;
           }
+          this.collectedRegularCoins++;
           this.score += 100;
           this.cbs.onScore(this.score);
+          this.cbs.onCoinCount?.(this.collectedRegularCoins, this.totalRegularCoins);
+
+          // All 9 silver coins collected → camera zoom toward the Gold Dream Star
+          if (this.collectedRegularCoins >= this.totalRegularCoins && this.goalIdx >= 0) {
+            const goal = this.coins[this.goalIdx];
+            this.coinFlashDir    = goal.x > this.px ? 1 : -1;
+            this.coinFlashFrames = 70; // 70-frame zoom animation
+          }
         }
       }
     }
@@ -1671,30 +1831,74 @@ class GameCore {
       }
     }
 
-    // Player
+    // ── MADMAXI Robot player ──────────────────────────────────────────────
     const PW = 28, PH = 40;
     const { bx: pbx, by: pby } = toB(this.px, this.py, PW, PH);
+    const isMoving  = Math.abs(this.pvx) > 0.5;
+    const isVisible = this.invincible === 0 || (this.animTick & 4) !== 0;
+    // Walk cycle: swings arms+legs 180° out of phase
+    const walkPhase  = isMoving ? this.animTick * 0.32 : 0;
+    const legSwing   = isMoving ? Math.sin(walkPhase) * 0.30 : 0; // radians
+    const armSwing   = isMoving ? -Math.sin(walkPhase) * 0.28 : 0;
+    // Squash-stretch on body
+    const bodyScaleX = this.onGround ? 1.12 : 0.90;
+    const bodyScaleY = this.onGround ? 0.90 : 1.12;
+
     if (this.playerMesh) {
-      this.playerMesh.position.x = pbx;
-      this.playerMesh.position.y = pby;
-      this.playerMesh.position.z = 0;
-      // Squash-stretch
-      if (this.onGround) {
-        this.playerMesh.scaling.x = 1.15;
-        this.playerMesh.scaling.y = 0.88;
-      } else {
-        this.playerMesh.scaling.x = 0.88;
-        this.playerMesh.scaling.y = 1.15;
-      }
-      this.playerMesh.scaling.z = 1;
-      // Flicker when invincible
-      this.playerMesh.setEnabled(this.invincible === 0 || (this.animTick & 4) !== 0);
+      this.playerMesh.position.set(pbx, pby, 0);
+      this.playerMesh.scaling.set(bodyScaleX, bodyScaleY, 1);
+      this.playerMesh.rotation.y = this.facingR ? 0 : Math.PI;
+      this.playerMesh.setEnabled(isVisible);
     }
     if (this.playerHead) {
-      this.playerHead.position.x = pbx + (this.facingR ? 0.1 : -0.1);
-      this.playerHead.position.y = pby + 0.55;
-      this.playerHead.position.z = 0;
-      this.playerHead.setEnabled(this.invincible === 0 || (this.animTick & 4) !== 0);
+      this.playerHead.position.set(pbx, pby + 0.52, 0);
+      this.playerHead.rotation.y = this.facingR ? 0 : Math.PI;
+      this.playerHead.setEnabled(isVisible);
+    }
+    if (this.playerVisor) {
+      // Visor sits in front of head (−z is toward camera in our setup)
+      const visorZ = this.facingR ? -0.20 : 0.20;
+      this.playerVisor.position.set(pbx, pby + 0.52, visorZ);
+      this.playerVisor.setEnabled(isVisible);
+      // Pulse the visor glow when all coins collected (beacon effect)
+      if (this.collectedRegularCoins >= this.totalRegularCoins && this.totalRegularCoins > 0) {
+        const p = 0.9 + Math.sin(this.animTick * 0.22) * 0.2;
+        this.playerVisor.scaling.setAll(p);
+      } else {
+        this.playerVisor.scaling.setAll(1);
+      }
+    }
+    if (this.playerArmL) {
+      this.playerArmL.position.set(pbx - 0.38, pby + 0.05, 0);
+      this.playerArmL.rotation.x = armSwing;
+      this.playerArmL.setEnabled(isVisible);
+    }
+    if (this.playerArmR) {
+      this.playerArmR.position.set(pbx + 0.38, pby + 0.05, 0);
+      this.playerArmR.rotation.x = -armSwing;
+      this.playerArmR.setEnabled(isVisible);
+    }
+    if (this.playerLegL) {
+      this.playerLegL.position.set(pbx - 0.14, pby - 0.54, 0);
+      this.playerLegL.rotation.x = legSwing;
+      this.playerLegL.setEnabled(isVisible);
+    }
+    if (this.playerLegR) {
+      this.playerLegR.position.set(pbx + 0.14, pby - 0.54, 0);
+      this.playerLegR.rotation.x = -legSwing;
+      this.playerLegR.setEnabled(isVisible);
+    }
+
+    // ── Camera Y zoom when all silver coins collected ──────────────────────
+    if (this.coinFlashFrames > 0) {
+      this.coinFlashFrames--;
+      // First 30 frames: zoom out (camera moves up by up to 3.5 BU)
+      // Next 40 frames: zoom back in
+      if (this.coinFlashFrames > 40) {
+        this.camZoomOffset = ((70 - this.coinFlashFrames) / 30) * 3.5;
+      } else {
+        this.camZoomOffset = (this.coinFlashFrames / 40) * 3.5;
+      }
     }
 
     // Parallax background plane
@@ -1714,10 +1918,13 @@ class GameCore {
       skyline.mesh.position.y = 10 + Math.sin(this.animTick * 0.01 + skyline.pulseOffset) * 0.9;
     }
 
-    // Camera follows player smoothly in X
+    // Camera follows player smoothly in X; zooms up on coin flash
     if (this.camMesh) {
-      // Camera X is fixed — mesh positions handle horizontal scrolling
       this.camMesh.position.x = 0;
+      // Smooth cam Y toward target (normally 6 BU, zoomed out when flash active)
+      const targetCamY = 6 + this.camZoomOffset;
+      this.camMesh.position.y += (targetCamY - this.camMesh.position.y) * 0.10;
+      this.camMesh.setTarget(new (this.bjs!.Vector3)(0, this.camMesh.position.y - 0.5, 0));
     }
   }
 
@@ -1734,5 +1941,13 @@ class GameCore {
     this.engine = null;
     this.scene  = null;
     this.bjs    = null;
+    // Nullify robot refs (already disposed via scene.dispose)
+    this.playerMesh = null;
+    this.playerHead = null;
+    this.playerVisor = null;
+    this.playerArmL = null;
+    this.playerArmR = null;
+    this.playerLegL = null;
+    this.playerLegR = null;
   }
 }
