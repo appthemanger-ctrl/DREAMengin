@@ -130,50 +130,56 @@ describe('snapToSplitPoint', () => {
   });
 
   it('snaps an extreme high value to the highest snap point', () => {
-    expect(snapToSplitPoint(1.0)).toBe(0.9);
+    expect(snapToSplitPoint(1.0)).toBe(1.0);
   });
 });
 
 describe('snapSplitRatioOnRelease', () => {
   it('returns the nearest snap point when velocity is neutral', () => {
+    expect(snapSplitRatioOnRelease(0.97, 0)).toBe(1.0);
     expect(snapSplitRatioOnRelease(0.88, 0)).toBe(0.9);
     expect(snapSplitRatioOnRelease(0.55, 0)).toBe(0.5);
     expect(snapSplitRatioOnRelease(0.15, 0)).toBe(0.1);
   });
 
   it('advances one snap step downward (Dream-focus) on a strong downward fling', () => {
+    // Current ratio near Surface-only, flung downward → goes to Surface-focus
+    expect(snapSplitRatioOnRelease(0.97, SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.9);
     // Current ratio near Surface-focus, flung downward → goes to balanced
     expect(snapSplitRatioOnRelease(0.88, SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.5);
     // Current ratio near balanced, flung downward → goes to Dream-focus
     expect(snapSplitRatioOnRelease(0.52, SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.1);
   });
 
-  it('advances one snap step upward (Surface-focus) on a strong upward fling', () => {
+  it('advances one snap step upward (Surface-only) on a strong upward fling', () => {
     // Current ratio near Dream-focus, flung upward → goes to balanced
     expect(snapSplitRatioOnRelease(0.12, -SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.5);
     // Current ratio near balanced, flung upward → goes to Surface-focus
     expect(snapSplitRatioOnRelease(0.48, -SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.9);
+    // Current ratio near Surface-focus, flung upward → goes to Surface-only
+    expect(snapSplitRatioOnRelease(0.88, -SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(1.0);
   });
 
   it('does not advance past the Dream-focus limit on a downward fling', () => {
     expect(snapSplitRatioOnRelease(0.12, SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.1);
   });
 
-  it('does not advance past the Surface-focus limit on an upward fling', () => {
-    expect(snapSplitRatioOnRelease(0.88, -SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(0.9);
+  it('does not advance past the Surface-only limit on an upward fling', () => {
+    expect(snapSplitRatioOnRelease(0.97, -SPLIT_FLING_VELOCITY_PX_PER_MS)).toBe(1.0);
   });
 });
 
 describe('split-screen divider constants', () => {
-  it('exports three canonical snap points', () => {
-    expect(SPLIT_SNAP_POINTS).toHaveLength(3);
+  it('exports four canonical snap points including hidden DreamSpace', () => {
+    expect(SPLIT_SNAP_POINTS).toHaveLength(4);
     expect(SPLIT_SNAP_POINTS[0]).toBe(0.1);
     expect(SPLIT_SNAP_POINTS[1]).toBe(0.5);
     expect(SPLIT_SNAP_POINTS[2]).toBe(0.9);
+    expect(SPLIT_SNAP_POINTS[3]).toBe(1.0);
   });
 
-  it('defaults to the Surface-focus snap point', () => {
-    expect(DEFAULT_SPLIT_RATIO).toBe(0.9);
+  it('defaults to Surface-only (DreamSpace hidden)', () => {
+    expect(DEFAULT_SPLIT_RATIO).toBe(1.0);
   });
 
   it('exports a positive DIVIDER_H', () => {

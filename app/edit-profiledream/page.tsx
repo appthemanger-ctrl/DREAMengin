@@ -257,7 +257,7 @@ export default function EditProfileDreamPage() {
   if (isLoading) {
     return (
       <div style={{ minHeight: '100svh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'linear-gradient(160deg, #dce8f8 0%, #c8d8f0 40%, #f5e8c4 100%)' }}>
+        background: 'linear-gradient(160deg, #070e1c 0%, #0c1829 40%, #0f2244 70%, #0a1628 100%)' }}>
         <Loader2 className="animate-spin" size={32} style={{ color: '#c8981a' }} />
       </div>
     );
@@ -265,45 +265,46 @@ export default function EditProfileDreamPage() {
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '12px 14px', borderRadius: 12,
-    background: 'rgba(255,255,255,0.80)', border: '1px solid rgba(160,195,240,0.35)',
-    color: 'var(--de-heading)', fontSize: 14, outline: 'none',
+    background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+    color: 'rgba(220,235,255,0.95)', fontSize: 14, outline: 'none',
     boxSizing: 'border-box',
   };
   const labelStyle: React.CSSProperties = {
-    fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)',
+    fontSize: 11, fontWeight: 700, color: 'rgba(140,170,220,0.70)',
     marginBottom: 6, display: 'block', letterSpacing: '0.05em', textTransform: 'uppercase',
   };
 
   return (
     <div style={{
       minHeight: '100svh',
-      background: 'linear-gradient(160deg, #dce8f8 0%, #c8d8f0 40%, #f5e8c4 100%)',
+      background: 'linear-gradient(160deg, #070e1c 0%, #0c1829 40%, #0f2244 70%, #0a1628 100%)',
       paddingBottom: 100,
+      position: 'relative',
     }}>
       {/* ── Inline header (not sticky — DreamDMBar is the persistent navigation) ── */}
       <header style={{
-        background: 'rgba(220,232,248,0.92)',
+        background: 'rgba(7,14,28,0.85)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(160,195,240,0.30)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
         padding: '0 16px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 56 }}>
           <Link href="/view-profile"
             style={{
               width: 36, height: 36, borderRadius: 10,
-              background: 'rgba(255,255,255,0.70)',
-              border: '1px solid rgba(160,195,240,0.30)',
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               textDecoration: 'none',
             }}>
-            <ArrowLeft size={16} style={{ color: 'var(--de-heading)' }} />
+            <ArrowLeft size={16} style={{ color: 'rgba(200,220,255,0.85)' }} />
           </Link>
           <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', margin: 0, lineHeight: 1.1 }}>
+            <h1 style={{ fontSize: 18, fontWeight: 800, color: 'rgba(220,235,255,0.97)', margin: 0, lineHeight: 1.1 }}>
               Edit Profile<DreamWord />
             </h1>
-            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0, lineHeight: 1 }}>
+            <p style={{ fontSize: 11, color: 'rgba(140,170,220,0.60)', margin: 0, lineHeight: 1 }}>
               Arrange Dreams and choose what View Profile exposes
             </p>
           </div>
@@ -313,10 +314,10 @@ export default function EditProfileDreamPage() {
               href="/view-profile"
               style={{
                 padding: '7px 14px', borderRadius: 10,
-                background: 'rgba(255,255,255,0.70)',
-                border: '1px solid rgba(160,195,240,0.30)',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.15)',
                 display: 'flex', alignItems: 'center', gap: 5,
-                textDecoration: 'none', color: 'var(--de-heading)',
+                textDecoration: 'none', color: 'rgba(200,220,255,0.80)',
                 fontSize: 12, fontWeight: 700, flexShrink: 0,
               }}
             >
@@ -332,9 +333,9 @@ export default function EditProfileDreamPage() {
             title="Save changes privately — does not update your public profile"
             style={{
               padding: '8px 14px', borderRadius: 10,
-              background: 'rgba(255,255,255,0.75)',
-              border: '1px solid rgba(160,195,240,0.45)',
-              color: 'var(--de-heading)',
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              color: 'rgba(200,220,255,0.80)',
               fontWeight: 600, fontSize: 12, cursor: isSaving || isPublishing || !isDirty ? 'default' : 'pointer',
               display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0,
               opacity: isSaving ? 0.7 : isDirty ? 1 : 0.50,
@@ -376,7 +377,7 @@ export default function EditProfileDreamPage() {
                 flex: 1, padding: '8px 0',
                 background: 'none', border: 'none', cursor: isSaving || isPublishing ? 'default' : 'pointer',
                 fontSize: 13, fontWeight: activeTab === tab ? 700 : 500,
-                color: activeTab === tab ? '#c8981a' : 'var(--de-text-dim)',
+                color: activeTab === tab ? '#c8981a' : 'rgba(140,170,220,0.60)',
                 borderBottom: activeTab === tab ? '2.5px solid #c8981a' : '2.5px solid transparent',
                 transition: 'all 0.15s',
                 textTransform: 'capitalize',

@@ -474,6 +474,22 @@ export default function LandingHero() {
               {item.text}
             </div>
           ))}
+          <Link
+            href="/policy"
+            className="flex items-center gap-1.5 text-xs"
+            style={{
+              color: 'rgba(140,170,220,0.55)',
+              textDecoration: 'none',
+              padding: '3px 10px',
+              borderRadius: 20,
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              backdropFilter: 'blur(6px)',
+              transition: 'background 0.18s, color 0.18s',
+            }}
+          >
+            Policy
+          </Link>
         </div>
       </motion.div>
     </div>
