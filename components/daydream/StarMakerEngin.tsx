@@ -53,10 +53,12 @@ import {
   FileAudio,
   FolderOpen,
   Gauge,
+  Layers3,
   Mic2,
   Music,
   Pause,
   Play,
+  Plus,
   Radio,
   Sliders,
   Sparkles,
@@ -898,6 +900,7 @@ export default function StarMakerEngin({ onBack }: Props) {
 
         {/* ── NEW: File Import / Export ── */}
         <DAWFileIOPanel
+          bpm={bpm}
           externalLoad={externalLoadRequest}
           projectSnapshot={projectSnapshot}
           onExternalLoadConsumed={() => setExternalLoadRequest(null)}
@@ -2414,6 +2417,7 @@ function encodeWav(buffer: AudioBuffer): Blob {
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface DAWFileIOPanelProps {
+  bpm: number;
   externalLoad: { blob: Blob; name: string; mimeType: string } | null;
   projectSnapshot: Record<string, unknown>;
   onExternalLoadConsumed: () => void;
@@ -2457,6 +2461,45 @@ interface HistoryEntry {
   name: string;
 }
 
+type ArrangementTrackId = 'lead' | 'stack' | 'bass' | 'fx';
+
+interface ArrangementSource {
+  id: string;
+  name: string;
+  durationSec: number;
+  waveform: number[];
+  color: string;
+}
+
+interface ArrangementClip {
+  id: string;
+  trackId: ArrangementTrackId;
+  sourceId: string;
+  label: string;
+  startBar: number;
+  barLength: number;
+  gain: number;
+  color: string;
+}
+
+interface ArrangementTrackState {
+  id: ArrangementTrackId;
+  label: string;
+  color: string;
+  volume: number;
+  muted: boolean;
+  solo: boolean;
+}
+
+const ARRANGEMENT_BARS = 16;
+const ARRANGEMENT_TRACKS: ArrangementTrackState[] = [
+  { id: 'lead', label: 'Lead Vox', color: '#00d0f0', volume: 0.95, muted: false, solo: false },
+  { id: 'stack', label: 'Stacks', color: '#a855f7', volume: 0.85, muted: false, solo: false },
+  { id: 'bass', label: 'Bass / Low', color: '#22c55e', volume: 0.9, muted: false, solo: false },
+  { id: 'fx', label: 'FX / Texture', color: '#f97316', volume: 0.78, muted: false, solo: false },
+];
+const ARRANGEMENT_SOURCE_COLORS = ['#00d0f0', '#a855f7', '#22c55e', '#f97316', '#ec4899', '#38bdf8'] as const;
+
 function computeAudioStats(buffer: AudioBuffer): AudioStats {
   let peak = 0;
   let sumSquares = 0;
@@ -2489,7 +2532,7 @@ function computeAudioStats(buffer: AudioBuffer): AudioStats {
   };
 }
 
-function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed }: DAWFileIOPanelProps) {
+function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadConsumed }: DAWFileIOPanelProps) {
   // ── Audio state ──
   const [fileName,      setFileName]      = useState<string | null>(null);
   const [fileSize,      setFileSize]       = useState(0);
@@ -2523,6 +2566,14 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
   const [opPending,     setOpPending]      = useState(false);
   const [historyTick,   setHistoryTick]    = useState(0);
   const [playbackMode,  setPlaybackMode]   = useState<'full' | 'selection-once' | 'selection-loop'>('full');
+  const [sourceLibrary, setSourceLibrary]  = useState<ArrangementSource[]>([]);
+  const [arrTracks, setArrTracks]          = useState<ArrangementTrackState[]>(() => ARRANGEMENT_TRACKS.map(track => ({ ...track })));
+  const [arrClips, setArrClips]            = useState<ArrangementClip[]>([]);
+  const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
+  const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
+  const [arrPlaying, setArrPlaying]        = useState(false);
+  const [arrLooping, setArrLooping]        = useState(true);
+  const [arrPlayheadBar, setArrPlayheadBar] = useState(0);
 
   // ── Refs ──
   const fileInputRef    = useRef<HTMLInputElement | null>(null);
@@ -2535,6 +2586,11 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
   const audioCtxRef     = useRef<AudioContext | null>(null);
   const undoStackRef    = useRef<HistoryEntry[]>([]);
   const redoStackRef    = useRef<HistoryEntry[]>([]);
+  const arrangementBuffersRef = useRef<Record<string, AudioBuffer>>({});
+  const arrangementSourcesRef = useRef<AudioBufferSourceNode[]>([]);
+  const arrangementGainsRef   = useRef<GainNode[]>([]);
+  const arrangementTimerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const arrangementPlayheadRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Helper: get/create OfflineAudioContext for processing ──
   function getOfflineCtx(length: number, sr: number, ch: number) {
@@ -2587,6 +2643,93 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
     const activeBarWidth = Math.max(3, Math.round(4 * (explicitZoom ?? zoomLevel))) + 1;
     const targetLeft = Math.max(0, targetBar * activeBarWidth - scroller.clientWidth * 0.2);
     scroller.scrollTo({ left: targetLeft, behavior: 'smooth' });
+  }
+
+  function getBarSeconds() {
+    return 240 / Math.max(60, bpm);
+  }
+
+  function captureCurrentToRack() {
+    const currentBlob = audioBlobRef.current;
+    const currentBuffer = audioBufRef.current;
+    if (!fileName || !currentBlob || !currentBuffer) {
+      showOpMsg('⚠ Load a decodable audio clip first');
+      return;
+    }
+
+    const id = `src-${Date.now()}`;
+    const color = ARRANGEMENT_SOURCE_COLORS[sourceLibrary.length % ARRANGEMENT_SOURCE_COLORS.length];
+    arrangementBuffersRef.current[id] = currentBuffer;
+    const entry: ArrangementSource = {
+      id,
+      name: fileName,
+      durationSec: currentBuffer.duration,
+      waveform: [...waveform],
+      color,
+    };
+    setSourceLibrary(prev => [...prev, entry]);
+    setSelectedSourceId(id);
+    showOpMsg(`✓ Added ${fileName} to Source Rack`);
+  }
+
+  function placeArrangementClip(trackId: ArrangementTrackId, startBar: number) {
+    const sourceId = selectedSourceId ?? sourceLibrary[0]?.id ?? null;
+    if (!sourceId) {
+      showOpMsg('⚠ Capture a clip into the Source Rack first');
+      return;
+    }
+    const source = sourceLibrary.find(item => item.id === sourceId);
+    if (!source) {
+      showOpMsg('⚠ Selected source is unavailable');
+      return;
+    }
+    const barLength = Math.max(1, Math.min(4, Math.ceil(source.durationSec / getBarSeconds())));
+    const clip: ArrangementClip = {
+      id: `clip-${Date.now()}-${Math.round(Math.random() * 999)}`,
+      trackId,
+      sourceId,
+      label: source.name.replace(/\.[^.]+$/, ''),
+      startBar: Math.max(0, Math.min(ARRANGEMENT_BARS - barLength, startBar)),
+      barLength,
+      gain: 1,
+      color: source.color,
+    };
+    setArrClips(prev => [...prev, clip]);
+    setSelectedClipId(clip.id);
+    showOpMsg(`✓ Placed ${source.name} on ${arrTracks.find(track => track.id === trackId)?.label ?? trackId}`);
+  }
+
+  function updateSelectedClip(updater: (clip: ArrangementClip) => ArrangementClip | null) {
+    if (!selectedClipId) {
+      showOpMsg('⚠ Select an arrangement clip first');
+      return;
+    }
+    setArrClips(prev => prev.flatMap(clip => {
+      if (clip.id !== selectedClipId) return [clip];
+      const next = updater(clip);
+      return next ? [next] : [];
+    }));
+  }
+
+  function stopArrangementPlayback(resetPlayhead = true) {
+    arrangementSourcesRef.current.forEach(node => {
+      try { node.stop(); } catch { /* already stopped */ }
+    });
+    arrangementSourcesRef.current = [];
+    arrangementGainsRef.current.forEach(node => {
+      try { node.disconnect(); } catch { /* ignore */ }
+    });
+    arrangementGainsRef.current = [];
+    if (arrangementTimerRef.current) {
+      clearTimeout(arrangementTimerRef.current);
+      arrangementTimerRef.current = null;
+    }
+    if (arrangementPlayheadRef.current) {
+      clearInterval(arrangementPlayheadRef.current);
+      arrangementPlayheadRef.current = null;
+    }
+    setArrPlaying(false);
+    if (resetPlayhead) setArrPlayheadBar(0);
   }
 
   // ── Load blob (from file input or external recording) ──
@@ -2691,6 +2834,76 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
     }
     showOpMsg(successMessage);
   }, [loadBlob]);
+
+  const startArrangementPlayback = useCallback(() => {
+    if (!arrClips.length) {
+      showOpMsg('⚠ Add clips to the arrangement first');
+      return;
+    }
+    if (!audioCtxRef.current) {
+      const W = window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+      const Ctor = window.AudioContext ?? W.webkitAudioContext;
+      if (Ctor) audioCtxRef.current = new Ctor();
+    }
+    const ctx = audioCtxRef.current;
+    if (!ctx) {
+      showOpMsg('⚠ AudioContext unavailable');
+      return;
+    }
+    stopArrangementPlayback(false);
+
+    const soloTracks = new Set(arrTracks.filter(track => track.solo).map(track => track.id));
+    const audibleTracks = new Set(
+      arrTracks
+        .filter(track => !track.muted && (soloTracks.size === 0 || soloTracks.has(track.id)))
+        .map(track => track.id),
+    );
+    const barSeconds = getBarSeconds();
+    const cycleSeconds = ARRANGEMENT_BARS * barSeconds;
+    const startAt = ctx.currentTime + 0.05;
+
+    for (const clip of arrClips) {
+      if (!audibleTracks.has(clip.trackId)) continue;
+      const buffer = arrangementBuffersRef.current[clip.sourceId];
+      const track = arrTracks.find(item => item.id === clip.trackId);
+      if (!buffer || !track) continue;
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      const gainNode = ctx.createGain();
+      gainNode.gain.value = Math.max(0, Math.min(1.2, clip.gain * track.volume));
+      source.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      const clipDurationSec = Math.min(buffer.duration, clip.barLength * barSeconds);
+      source.start(startAt + clip.startBar * barSeconds, 0, clipDurationSec);
+      arrangementSourcesRef.current.push(source);
+      arrangementGainsRef.current.push(gainNode);
+    }
+
+    const startedAt = performance.now();
+    setArrPlaying(true);
+    setArrPlayheadBar(0);
+    arrangementPlayheadRef.current = setInterval(() => {
+      const elapsedSec = (performance.now() - startedAt) / 1000;
+      const bar = Math.min(ARRANGEMENT_BARS - 1, Math.floor(elapsedSec / barSeconds));
+      setArrPlayheadBar(bar);
+    }, 50);
+    arrangementTimerRef.current = setTimeout(() => {
+      if (arrLooping) {
+        startArrangementPlayback();
+      } else {
+        stopArrangementPlayback();
+      }
+    }, cycleSeconds * 1000 + 80);
+    showOpMsg(`✓ Arrangement preview ${arrLooping ? 'looping' : 'playing'} across ${ARRANGEMENT_BARS} bars`);
+  }, [arrClips, arrLooping, arrTracks]);
+
+  const toggleArrangementPlayback = useCallback(() => {
+    if (arrPlaying) {
+      stopArrangementPlayback();
+      return;
+    }
+    startArrangementPlayback();
+  }, [arrPlaying, startArrangementPlayback]);
 
   // ── React to external load (from SoundRecorder "Send to Editor") ──
   useEffect(() => {
@@ -3065,7 +3278,23 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
   }
 
   function handleExportProject() {
-    const snapshot = { ...projectSnapshot, exportedAt: new Date().toISOString() };
+    const snapshot = {
+      ...projectSnapshot,
+      arrangement: {
+        bars: ARRANGEMENT_BARS,
+        looping: arrLooping,
+        selectedSourceId,
+        tracks: arrTracks,
+        sources: sourceLibrary.map(source => ({
+          id: source.id,
+          name: source.name,
+          durationSec: source.durationSec,
+          color: source.color,
+        })),
+        clips: arrClips,
+      },
+      exportedAt: new Date().toISOString(),
+    };
     const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
     downloadBlob(blob, `starmaker-project-${Date.now()}.json`);
     showOpMsg('✓ Project JSON exported');
@@ -3074,6 +3303,7 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
   // ── Cleanup ──
   useEffect(() => {
     return () => {
+      stopArrangementPlayback();
       cancelAnimationFrame(playRafRef.current);
       if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
       if (audioCtxRef.current) {
@@ -3082,6 +3312,7 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
         });
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Computed display values ──
@@ -3103,6 +3334,9 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
   const hasAudio = !!fileName;
   const undoDepth = undoStackRef.current.length;
   const redoDepth = redoStackRef.current.length;
+  const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
+  const selectedSource = sourceLibrary.find(source => source.id === selectedSourceId) ?? null;
+  const arrangementBarsUsed = arrClips.length ? Math.max(...arrClips.map(clip => clip.startBar + clip.barLength)) : 0;
 
   return (
     <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}
@@ -3579,6 +3813,392 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
             </div>
           </div>
         )}
+
+        {/* ── Multitrack Arrangement ── */}
+        <div style={{
+          borderRadius: 10,
+          background: '#0c1018',
+          border: `1px solid ${DAW.border}`,
+          overflow: 'hidden',
+        }}>
+          <div style={{ ...DAW_STYLES.sectionHeader, justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Layers3 className="w-3 h-3" style={{ color: DAW.purple }} />
+              <span style={DAW_STYLES.sectionTitle}>Multitrack Arrangement</span>
+              {arrPlaying && <span style={{ ...dawPill(DAW.green), fontSize: 9 }}>● PREVIEW</span>}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ ...dawPill(DAW.dim), fontSize: 9 }}>{sourceLibrary.length} sources</span>
+              <span style={{ ...dawPill(DAW.dim), fontSize: 9 }}>{arrClips.length} clips</span>
+              <span style={{ ...dawPill(DAW.dim), fontSize: 9 }}>{Math.max(arrangementBarsUsed, 0)} / {ARRANGEMENT_BARS} bars used</span>
+            </div>
+          </div>
+
+          <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={captureCurrentToRack}
+                disabled={!hasAudio}
+                style={{
+                  padding: '9px 12px', borderRadius: 8,
+                  border: `1px solid ${hasAudio ? `${DAW.purple}55` : DAW.border}`,
+                  background: hasAudio ? `${DAW.purple}16` : DAW.surfaceHi,
+                  color: hasAudio ? DAW.purple : DAW.dim,
+                  cursor: hasAudio ? 'pointer' : 'not-allowed',
+                  fontSize: 11, fontWeight: 700,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Capture Current to Rack
+              </button>
+              <button
+                type="button"
+                onClick={toggleArrangementPlayback}
+                disabled={!arrClips.length}
+                style={{
+                  padding: '9px 12px', borderRadius: 8,
+                  border: `1px solid ${arrClips.length ? `${DAW.accent}55` : DAW.border}`,
+                  background: arrClips.length ? `${DAW.accent}16` : DAW.surfaceHi,
+                  color: arrClips.length ? DAW.accent : DAW.dim,
+                  cursor: arrClips.length ? 'pointer' : 'not-allowed',
+                  fontSize: 11, fontWeight: 700,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}
+              >
+                {arrPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" style={{ marginLeft: 1 }} />}
+                {arrPlaying ? 'Stop Arrangement' : 'Play Arrangement'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setArrLooping(prev => !prev)}
+                style={{
+                  padding: '9px 12px', borderRadius: 8,
+                  border: `1px solid ${arrLooping ? `${DAW.green}55` : DAW.border}`,
+                  background: arrLooping ? `${DAW.green}14` : DAW.surfaceHi,
+                  color: arrLooping ? DAW.green : DAW.dim,
+                  cursor: 'pointer',
+                  fontSize: 11, fontWeight: 700,
+                }}
+              >
+                {arrLooping ? 'Loop On' : 'Loop Off'}
+              </button>
+              <span style={{ fontSize: 10, color: DAW.dim, alignSelf: 'center' }}>
+                Click a bar cell to place the selected source on a track lane.
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>
+                SOURCE RACK
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {sourceLibrary.length > 0 ? sourceLibrary.map(source => (
+                  <button
+                    key={source.id}
+                    type="button"
+                    onClick={() => setSelectedSourceId(source.id)}
+                    style={{
+                      padding: '8px 10px',
+                      borderRadius: 8,
+                      border: `1px solid ${selectedSourceId === source.id ? source.color : `${source.color}40`}`,
+                      background: selectedSourceId === source.id ? `${source.color}22` : `${source.color}10`,
+                      color: selectedSourceId === source.id ? '#fff' : source.color,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      minWidth: 150,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 20 }}>
+                      {source.waveform.slice(0, 16).map((h, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            width: 3,
+                            height: `${Math.max(4, Math.round(h * 18))}px`,
+                            borderRadius: 999,
+                            background: source.color,
+                            opacity: 0.9,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <div style={{ textAlign: 'left', minWidth: 0 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: selectedSourceId === source.id ? '#fff' : DAW.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {source.name}
+                      </div>
+                      <div style={{ fontSize: 9, color: selectedSourceId === source.id ? '#f5f7fb' : DAW.dim }}>
+                        {fmtSec(source.durationSec)}
+                      </div>
+                    </div>
+                  </button>
+                )) : (
+                  <div style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 8,
+                    border: `1px dashed ${DAW.borderBright}`,
+                    color: DAW.dim,
+                    fontSize: 10,
+                    lineHeight: 1.6,
+                  }}>
+                    Capture the current edited sample into the Source Rack, then click a bar cell in a lane to place clips.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div style={{ borderRadius: 8, overflow: 'hidden', border: `1px solid ${DAW.border}` }}>
+              <div style={{ display: 'flex', background: '#0a0d14', borderBottom: `1px solid ${DAW.border}` }}>
+                <div style={{ width: 156, flexShrink: 0, borderRight: `1px solid ${DAW.border}`, padding: '8px 10px', fontSize: 9, color: DAW.dim, fontWeight: 700, letterSpacing: '0.08em' }}>
+                  TRACKS
+                </div>
+                <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))` }}>
+                  {Array.from({ length: ARRANGEMENT_BARS }, (_, bar) => (
+                    <div key={bar} style={{
+                      padding: '8px 0',
+                      textAlign: 'center',
+                      borderLeft: bar > 0 ? `1px solid ${DAW.border}` : 'none',
+                      fontSize: 9,
+                      fontWeight: 700,
+                      color: arrPlayheadBar === bar && arrPlaying ? DAW.accent : DAW.dim,
+                      background: arrPlayheadBar === bar && arrPlaying ? 'rgba(0,208,240,0.08)' : 'transparent',
+                    }}>
+                      {bar + 1}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {arrTracks.map(track => {
+                const trackClips = arrClips.filter(clip => clip.trackId === track.id);
+                return (
+                  <div key={track.id} style={{ display: 'flex', minHeight: 68, borderTop: `1px solid ${DAW.border}` }}>
+                    <div style={{
+                      width: 156,
+                      flexShrink: 0,
+                      borderRight: `1px solid ${DAW.border}`,
+                      background: '#0f131d',
+                      padding: '8px 10px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 7,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: DAW.text }}>{track.label}</div>
+                          <div style={{ fontSize: 9, color: track.color }}>Lane {track.id}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          <button
+                            type="button"
+                            onClick={() => setArrTracks(prev => prev.map(item => item.id === track.id ? { ...item, muted: !item.muted } : item))}
+                            style={{
+                              width: 24, height: 24, borderRadius: 6, cursor: 'pointer',
+                              border: `1px solid ${track.muted ? `${DAW.red}55` : DAW.border}`,
+                              background: track.muted ? `${DAW.red}18` : DAW.surfaceHi,
+                              color: track.muted ? DAW.red : DAW.dim, fontSize: 10, fontWeight: 800,
+                            }}
+                          >M</button>
+                          <button
+                            type="button"
+                            onClick={() => setArrTracks(prev => prev.map(item => item.id === track.id ? { ...item, solo: !item.solo } : item))}
+                            style={{
+                              width: 24, height: 24, borderRadius: 6, cursor: 'pointer',
+                              border: `1px solid ${track.solo ? `${DAW.green}55` : DAW.border}`,
+                              background: track.solo ? `${DAW.green}18` : DAW.surfaceHi,
+                              color: track.solo ? DAW.green : DAW.dim, fontSize: 10, fontWeight: 800,
+                            }}
+                          >S</button>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, color: DAW.dim, fontWeight: 700 }}>VOL</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1.2}
+                          step={0.01}
+                          value={track.volume}
+                          onChange={(e) => setArrTracks(prev => prev.map(item => item.id === track.id ? { ...item, volume: Number(e.target.value) } : item))}
+                          aria-label={`${track.label} arrangement volume`}
+                          style={{ flex: 1, accentColor: track.color }}
+                        />
+                        <span style={{ fontSize: 9, color: DAW.dim, fontFamily: 'monospace', width: 30 }}>
+                          {Math.round(track.volume * 100)}%
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ flex: 1, position: 'relative', background: '#0a0d14' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))`, height: '100%' }}>
+                        {Array.from({ length: ARRANGEMENT_BARS }, (_, bar) => (
+                          <button
+                            key={bar}
+                            type="button"
+                            onClick={() => placeArrangementClip(track.id, bar)}
+                            title={selectedSource ? `Place ${selectedSource.name} on bar ${bar + 1}` : 'Select or capture a source first'}
+                            style={{
+                              border: 'none',
+                              borderLeft: bar > 0 ? `1px solid ${DAW.border}` : 'none',
+                              borderRight: 'none',
+                              borderBottom: 'none',
+                              borderTop: 'none',
+                              background: arrPlayheadBar === bar && arrPlaying ? 'rgba(0,208,240,0.08)' : (bar % 4 === 0 ? 'rgba(255,255,255,0.03)' : 'transparent'),
+                              cursor: selectedSource ? 'copy' : 'not-allowed',
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      {trackClips.map(clip => {
+                        const source = sourceLibrary.find(item => item.id === clip.sourceId);
+                        return (
+                          <button
+                            key={clip.id}
+                            type="button"
+                            onClick={() => setSelectedClipId(clip.id)}
+                            title={`${clip.label} · ${clip.barLength} bar clip`}
+                            style={{
+                              position: 'absolute',
+                              left: `${(clip.startBar / ARRANGEMENT_BARS) * 100}%`,
+                              top: 10,
+                              width: `${(clip.barLength / ARRANGEMENT_BARS) * 100}%`,
+                              height: 48,
+                              borderRadius: 8,
+                              border: `1px solid ${selectedClipId === clip.id ? '#ffffff' : `${clip.color}88`}`,
+                              background: `linear-gradient(135deg, ${clip.color}44, ${clip.color}22)`,
+                              boxShadow: selectedClipId === clip.id ? `0 0 0 1px ${clip.color}, 0 0 16px ${clip.color}40` : 'none',
+                              color: '#fff',
+                              padding: '7px 8px',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            <div style={{ fontSize: 10, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {clip.label}
+                            </div>
+                            <div style={{ fontSize: 8, opacity: 0.8 }}>
+                              {source?.name ?? 'Missing source'} · {clip.barLength} bar
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{
+              padding: '10px 12px',
+              borderRadius: 8,
+              background: 'rgba(255,255,255,0.03)',
+              border: `1px solid ${DAW.border}`,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 10, color: DAW.dim }}>
+                  {selectedClip
+                    ? `Selected clip: ${selectedClip.label} on ${arrTracks.find(track => track.id === selectedClip.trackId)?.label ?? selectedClip.trackId}`
+                    : 'Select an arrangement clip to edit it'}
+                </div>
+                {selectedClip && (
+                  <span style={{ ...dawPill(selectedClip.color), fontSize: 9 }}>
+                    Bars {selectedClip.startBar + 1}-{selectedClip.startBar + selectedClip.barLength}
+                  </span>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                {[
+                  {
+                    label: '← Nudge',
+                    action: () => updateSelectedClip(clip => ({ ...clip, startBar: Math.max(0, clip.startBar - 1) })),
+                  },
+                  {
+                    label: 'Nudge →',
+                    action: () => updateSelectedClip(clip => ({ ...clip, startBar: Math.min(ARRANGEMENT_BARS - clip.barLength, clip.startBar + 1) })),
+                  },
+                  {
+                    label: 'Shorter',
+                    action: () => updateSelectedClip(clip => ({ ...clip, barLength: Math.max(1, clip.barLength - 1) })),
+                  },
+                  {
+                    label: 'Longer',
+                    action: () => updateSelectedClip(clip => ({ ...clip, barLength: Math.min(ARRANGEMENT_BARS - clip.startBar, clip.barLength + 1) })),
+                  },
+                  {
+                    label: 'Duplicate',
+                    action: () => {
+                      if (!selectedClip) { showOpMsg('⚠ Select an arrangement clip first'); return; }
+                      const duplicate: ArrangementClip = {
+                        ...selectedClip,
+                        id: `clip-${Date.now()}-${Math.round(Math.random() * 999)}`,
+                        startBar: Math.min(ARRANGEMENT_BARS - selectedClip.barLength, selectedClip.startBar + selectedClip.barLength),
+                      };
+                      setArrClips(prev => [...prev, duplicate]);
+                      setSelectedClipId(duplicate.id);
+                    },
+                  },
+                  {
+                    label: 'Remove',
+                    action: () => {
+                      if (!selectedClip) { showOpMsg('⚠ Select an arrangement clip first'); return; }
+                      setArrClips(prev => prev.filter(clip => clip.id !== selectedClip.id));
+                      setSelectedClipId(null);
+                    },
+                  },
+                ].map(control => (
+                  <button
+                    key={control.label}
+                    type="button"
+                    onClick={control.action}
+                    disabled={!selectedClip}
+                    style={{
+                      padding: '7px 10px',
+                      borderRadius: 8,
+                      border: `1px solid ${selectedClip ? DAW.borderBright : DAW.border}`,
+                      background: selectedClip ? DAW.surfaceHi : 'rgba(255,255,255,0.03)',
+                      color: selectedClip ? DAW.text : DAW.dim,
+                      cursor: selectedClip ? 'pointer' : 'not-allowed',
+                      fontSize: 10,
+                      fontWeight: 700,
+                      opacity: selectedClip ? 1 : 0.45,
+                    }}
+                  >
+                    {control.label}
+                  </button>
+                ))}
+              </div>
+
+              {selectedClip && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 9, color: DAW.dim, fontWeight: 700 }}>CLIP GAIN</span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1.2}
+                    step={0.01}
+                    value={selectedClip.gain}
+                    onChange={(e) => updateSelectedClip(clip => ({ ...clip, gain: Number(e.target.value) }))}
+                    aria-label="Selected arrangement clip gain"
+                    style={{ flex: 1, accentColor: selectedClip.color }}
+                  />
+                  <span style={{ fontSize: 9, color: DAW.dim, fontFamily: 'monospace', width: 34 }}>
+                    {Math.round(selectedClip.gain * 100)}%
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* ── Formats notice ── */}
         <div style={{

@@ -138,4 +138,27 @@ describe('StarMaker sample editor advanced workflow', () => {
     expect(starmakerSource).toContain("Shift+Space");
     expect(starmakerSource).toContain("Ctrl/Cmd+Z");
   });
+
+  it('adds a real multitrack arrangement surface with source rack and clip lanes', () => {
+    expect(starmakerSource).toContain('Multitrack Arrangement');
+    expect(starmakerSource).toContain('SOURCE RACK');
+    expect(starmakerSource).toContain('Capture Current to Rack');
+    expect(starmakerSource).toContain('placeArrangementClip');
+    expect(starmakerSource).toContain('selectedClipId');
+    expect(starmakerSource).toContain('Play Arrangement');
+  });
+
+  it('exports arrangement state with tracks, sources, and clips', () => {
+    expect(starmakerSource).toContain('arrangement: {');
+    expect(starmakerSource).toContain('tracks: arrTracks');
+    expect(starmakerSource).toContain('sources: sourceLibrary.map');
+    expect(starmakerSource).toContain('clips: arrClips');
+  });
+
+  it('uses Web Audio scheduling for arrangement preview playback', () => {
+    expect(starmakerSource).toContain('createBufferSource()');
+    expect(starmakerSource).toContain('toggleArrangementPlayback');
+    expect(starmakerSource).toContain('arrangementBuffersRef');
+    expect(starmakerSource).toContain('arrLooping');
+  });
 });
