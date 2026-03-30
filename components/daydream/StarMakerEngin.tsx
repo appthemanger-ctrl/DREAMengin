@@ -444,17 +444,10 @@ export default function StarMakerEngin({ onBack }: Props) {
   const [activeTemplateId,  setActiveTemplateId]  = useState<string | null>(null);
   const [presetApplied,     setPresetApplied]     = useState(false);
 
-  // ── File Import / Export state ──
-  const [importedFileName,  setImportedFileName]  = useState<string | null>(null);
-  const [importedWaveform,  setImportedWaveform]  = useState<number[] | null>(null);
-  const [importPending,     setImportPending]      = useState(false);
-  const [exportPending2,    setExportPending2]     = useState(false);
-  const [exportMsg,         setExportMsg]          = useState<string | null>(null);
-  const importFileRef = useRef<HTMLInputElement | null>(null);
-  const importedBlobRef = useRef<Blob | null>(null);
-
-  // ── Zoom Timeline state ──
-  const [zoomLevel, setZoomLevel] = useState(1);  // 0.5 → 4
+  // ── External load request: fires when SoundRecorder sends a recording here ──
+  const [externalLoadRequest, setExternalLoadRequest] = useState<{
+    blob: Blob; name: string; mimeType: string;
+  } | null>(null);
 
   const effectList = useMemo(() => Array.from(activeEffects), [activeEffects]);
 
@@ -755,92 +748,30 @@ export default function StarMakerEngin({ onBack }: Props) {
     setActiveTemplateId(tmpl.id);
   }
 
-  // ── File Import handler (Web Audio API decode) ──
-  async function handleFileImport(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImportPending(true);
-    setImportedFileName(file.name);
-    importedBlobRef.current = file;
-
-    try {
-      const ctx = ensureAudioContext();
-      if (ctx) {
-        const arrayBuf = await file.arrayBuffer();
-        const audioBuf = await ctx.decodeAudioData(arrayBuf).catch(() => null);
-        if (audioBuf) {
-          // Downsample to 48 bars for visualisation
-          const raw = audioBuf.getChannelData(0);
-          const bars = 48;
-          const chunkSize = Math.floor(raw.length / bars);
-          const waveform = Array.from({ length: bars }, (_, i) => {
-            let sum = 0;
-            for (let j = 0; j < chunkSize; j++) {
-              sum += Math.abs(raw[i * chunkSize + j] ?? 0);
-            }
-            return Math.min(1, (sum / chunkSize) * 3.5);
-          });
-          setImportedWaveform(waveform);
-        } else {
-          // Fallback visual
-          setImportedWaveform(Array.from({ length: 48 }, () => 0.2 + Math.random() * 0.7));
-        }
-      } else {
-        setImportedWaveform(Array.from({ length: 48 }, () => 0.2 + Math.random() * 0.7));
-      }
-    } catch {
-      setImportedWaveform(Array.from({ length: 48 }, () => 0.2 + Math.random() * 0.7));
+  // ── Listen for recordings sent from SoundRecorder via CustomEvent ──
+  useEffect(() => {
+    function handleRecordingEvent(e: Event) {
+      const detail = (e as CustomEvent<{ blob: Blob; name: string; mimeType: string }>).detail;
+      if (detail?.blob) setExternalLoadRequest({ ...detail });
     }
-    setImportPending(false);
-    // Reset input so same file can be re-selected
-    if (importFileRef.current) importFileRef.current.value = '';
-  }
+    window.addEventListener('starmaker:load-recording', handleRecordingEvent);
+    return () => window.removeEventListener('starmaker:load-recording', handleRecordingEvent);
+  }, []);
 
-  // ── File Export handler ──
-  async function handleProjectExport() {
-    setExportPending2(true);
-    setExportMsg(null);
-    try {
-      // If we have an imported audio file, offer it for download
-      if (importedBlobRef.current && importedFileName) {
-        const url = URL.createObjectURL(importedBlobRef.current);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = importedFileName;
-        a.click();
-        URL.revokeObjectURL(url);
-        setExportMsg(`✓ Exported: ${importedFileName}`);
-      } else {
-        // Export project as JSON
-        const project = {
-          version: '1.0',
-          exportedAt: new Date().toISOString(),
-          bpm,
-          musicalKey,
-          keyMode,
-          pitch,
-          beatGrid,
-          mixer,
-          effects: Array.from(activeEffects),
-          chordProgression,
-          qualityMode,
-          activePresetId,
-        };
-        const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `starmaker-project-${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        setExportMsg('✓ Project JSON exported');
-      }
-    } catch {
-      setExportMsg('Export failed — try again');
-    }
-    setExportPending2(false);
-    setTimeout(() => setExportMsg(null), 3000);
-  }
+  // ── Project snapshot for JSON export (passed to DAWFileIOPanel) ──
+  const projectSnapshot = useMemo(() => ({
+    version: '1.0',
+    bpm,
+    musicalKey,
+    keyMode,
+    pitch,
+    beatGrid,
+    mixer,
+    effects: Array.from(activeEffects),
+    chordProgression,
+    qualityMode,
+    activePresetId,
+  }), [bpm, musicalKey, keyMode, pitch, beatGrid, mixer, activeEffects, chordProgression, qualityMode, activePresetId]);
 
 
   // ── Render ────────────────────────────────────────────────────────────────────
@@ -967,25 +898,9 @@ export default function StarMakerEngin({ onBack }: Props) {
 
         {/* ── NEW: File Import / Export ── */}
         <DAWFileIOPanel
-          importedFileName={importedFileName}
-          importedWaveform={importedWaveform}
-          importPending={importPending}
-          exportPending={exportPending2}
-          exportMsg={exportMsg}
-          zoomLevel={zoomLevel}
-          onZoomChange={setZoomLevel}
-          onImportClick={() => importFileRef.current?.click()}
-          onExport={handleProjectExport}
-        />
-
-        {/* Hidden file input for audio import */}
-        <input
-          ref={importFileRef}
-          type="file"
-          accept="audio/wav,audio/mp3,audio/mpeg,audio/ogg,audio/flac,audio/aac,.wav,.mp3,.ogg,.flac,.aac"
-          aria-label="Import audio file"
-          style={{ display: 'none' }}
-          onChange={handleFileImport}
+          externalLoad={externalLoadRequest}
+          projectSnapshot={projectSnapshot}
+          onExternalLoadConsumed={() => setExternalLoadRequest(null)}
         />
 
       </div>
@@ -2455,103 +2370,721 @@ function DAWPresetLibraryPanel({
   );
 }
 
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Sub-component: DAWFileIOPanel — import audio, zoom timeline, export project
+// WAV encoder — convert AudioBuffer to downloadable WAV blob
+// ─────────────────────────────────────────────────────────────────────────────
+
+function encodeWav(buffer: AudioBuffer): Blob {
+  const numCh = buffer.numberOfChannels;
+  const sr = buffer.sampleRate;
+  const len = buffer.length;
+  const bytesPerSample = 2;
+  const blockAlign = numCh * bytesPerSample;
+  const dataSize = len * blockAlign;
+  const ab = new ArrayBuffer(44 + dataSize);
+  const dv = new DataView(ab);
+  const ws = (o: number, s: string) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+  ws(0, 'RIFF'); dv.setUint32(4, 36 + dataSize, true); ws(8, 'WAVE');
+  ws(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true);
+  dv.setUint16(22, numCh, true); dv.setUint32(24, sr, true);
+  dv.setUint32(28, sr * blockAlign, true); dv.setUint16(32, blockAlign, true);
+  dv.setUint16(34, 16, true); ws(36, 'data'); dv.setUint32(40, dataSize, true);
+  let off = 44;
+  for (let i = 0; i < len; i++) {
+    for (let ch = 0; ch < numCh; ch++) {
+      const s = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
+      dv.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true); off += 2;
+    }
+  }
+  return new Blob([ab], { type: 'audio/wav' });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-component: DAWFileIOPanel — Full DAW Sample Editor
+//   • Self-contained: owns file input, AudioContext, AudioBuffer, playback
+//   • Transport: Play/Pause/Stop/Loop + Volume
+//   • Scrubable progress bar
+//   • Click on waveform bar → seek to that sample position
+//   • Drag on waveform → select region (highlighted)
+//   • Real-time playhead cursor during playback
+//   • Hover tooltip showing time position
+//   • Sample operations: Trim, Fade In, Fade Out, Normalize, Reverse, Silence
+//   • Receives SoundRecorder recordings via `externalLoad` prop
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface DAWFileIOPanelProps {
-  importedFileName: string | null;
-  importedWaveform: number[] | null;
-  importPending:    boolean;
-  exportPending:    boolean;
-  exportMsg:        string | null;
-  zoomLevel:        number;
-  onZoomChange:     (z: number) => void;
-  onImportClick:    () => void;
-  onExport:         () => void;
+  externalLoad: { blob: Blob; name: string; mimeType: string } | null;
+  projectSnapshot: Record<string, unknown>;
+  onExternalLoadConsumed: () => void;
 }
 
+const FIO_BARS = 96;  // number of waveform bars
 const ZOOM_LEVELS = [0.5, 0.75, 1, 1.5, 2, 3, 4] as const;
 const ZOOM_LABELS: Record<number, string> = { 0.5: '½×', 0.75: '¾×', 1: '1×', 1.5: '1.5×', 2: '2×', 3: '3×', 4: '4×' };
 
-function DAWFileIOPanel({
-  importedFileName, importedWaveform, importPending, exportPending, exportMsg,
-  zoomLevel, onZoomChange, onImportClick, onExport,
-}: DAWFileIOPanelProps) {
+function fmtSec(s: number): string {
+  const m = Math.floor(s / 60);
+  const rem = (s % 60).toFixed(2).padStart(5, '0');
+  return `${m}:${rem}`;
+}
+
+function fmtFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function buildWaveform(buffer: AudioBuffer, bars: number): number[] {
+  const raw = buffer.getChannelData(0);
+  const chunkSize = Math.max(1, Math.floor(raw.length / bars));
+  return Array.from({ length: bars }, (_, i) => {
+    let sum = 0;
+    for (let j = 0; j < chunkSize; j++) sum += Math.abs(raw[i * chunkSize + j] ?? 0);
+    return Math.min(1, (sum / chunkSize) * 4.2);
+  });
+}
+
+function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed }: DAWFileIOPanelProps) {
+  // ── Audio state ──
+  const [fileName,      setFileName]      = useState<string | null>(null);
+  const [fileSize,      setFileSize]       = useState(0);
+  const [duration,      setDuration]       = useState(0);
+  const [sampleRate,    setSampleRate]     = useState(0);
+  const [numChannels,   setNumChannels]    = useState(0);
+  const [waveform,      setWaveform]       = useState<number[]>([]);
+  const [isImporting,   setIsImporting]    = useState(false);
+  const [importErr,     setImportErr]      = useState<string | null>(null);
+
+  // ── Playback state ──
+  const [isPlaying,     setIsPlaying]      = useState(false);
+  const [isLooping,     setIsLooping]      = useState(false);
+  const [volume,        setVolume]         = useState(0.85);
+  const [playPos,       setPlayPos]        = useState(0);   // 0-1
+
+  // ── Zoom ──
+  const [zoomLevel,     setZoomLevel]      = useState(1);
+
+  // ── Waveform interaction ──
+  const [hoveredBar,    setHoveredBar]     = useState<number | null>(null);
+  const [selStart,      setSelStart]       = useState<number | null>(null);   // bar indices
+  const [selEnd,        setSelEnd]         = useState<number | null>(null);
+  const [isDragging,    setIsDragging]     = useState(false);
+  const [dragAnchor,    setDragAnchor]     = useState<number | null>(null);
+
+  // ── Operation feedback ──
+  const [opMsg,         setOpMsg]          = useState<string | null>(null);
+  const [opPending,     setOpPending]      = useState(false);
+
+  // ── Refs ──
+  const fileInputRef    = useRef<HTMLInputElement | null>(null);
+  const audioRef        = useRef<HTMLAudioElement | null>(null);
+  const audioBufRef     = useRef<AudioBuffer | null>(null);
+  const audioBlobRef    = useRef<Blob | null>(null);
+  const blobUrlRef      = useRef<string | null>(null);
+  const playRafRef      = useRef<number>(0);
+  const audioCtxRef     = useRef<AudioContext | null>(null);
+
+  // ── Helper: get/create OfflineAudioContext for processing ──
+  function getOfflineCtx(length: number, sr: number, ch: number) {
+    return new OfflineAudioContext(ch, length, sr);
+  }
+
+  // ── Helper: show operation message ──
+  function showOpMsg(msg: string) {
+    setOpMsg(msg);
+    setTimeout(() => setOpMsg(null), 3500);
+  }
+
+  // ── Helper: download a blob ──
+  function downloadBlob(blob: Blob, name: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Load blob (from file input or external recording) ──
+  const loadBlob = useCallback(async (blob: Blob, name: string) => {
+    setImportErr(null);
+    setIsImporting(true);
+    setIsPlaying(false);
+    setPlayPos(0);
+    setSelStart(null); setSelEnd(null);
+
+    // Revoke old blob URL
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    blobUrlRef.current = URL.createObjectURL(blob);
+    audioBlobRef.current = blob;
+
+    try {
+      // Decode with Web Audio API
+      if (!audioCtxRef.current) {
+        const W = window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+        const Ctor = window.AudioContext ?? W.webkitAudioContext;
+        if (Ctor) audioCtxRef.current = new Ctor();
+      }
+      const ctx = audioCtxRef.current;
+      let audioBuf: AudioBuffer | null = null;
+      if (ctx) {
+        const ab = await blob.arrayBuffer();
+        audioBuf = await ctx.decodeAudioData(ab).catch(() => null);
+      }
+
+      if (audioBuf) {
+        audioBufRef.current = audioBuf;
+        setDuration(audioBuf.duration);
+        setSampleRate(audioBuf.sampleRate);
+        setNumChannels(audioBuf.numberOfChannels);
+        setWaveform(buildWaveform(audioBuf, FIO_BARS));
+      } else {
+        // Fallback: use HTML Audio for duration only, fake waveform
+        audioBufRef.current = null;
+        const tmpAudio = new Audio(blobUrlRef.current);
+        await new Promise<void>(resolve => {
+          tmpAudio.onloadedmetadata = () => { setDuration(tmpAudio.duration); resolve(); };
+          tmpAudio.onerror = () => resolve();
+        });
+        setWaveform(Array.from({ length: FIO_BARS }, (_, i) => Math.abs(Math.sin(i * 0.38)) * 0.6 + 0.12));
+        setSampleRate(44100); setNumChannels(1);
+      }
+
+      setFileName(name);
+      setFileSize(blob.size);
+
+      // Set up HTML Audio element for playback
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
+      const audio = new Audio(blobUrlRef.current);
+      audio.loop = isLooping;
+      audio.volume = volume;
+      audio.onended = () => { setIsPlaying(false); setPlayPos(0); cancelAnimationFrame(playRafRef.current); };
+      audio.onerror = () => { setIsPlaying(false); setImportErr('Playback failed — format may be unsupported by this browser. Export as WAV instead.'); };
+      audioRef.current = audio;
+
+    } catch (err) {
+      setImportErr(`Import failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    setIsImporting(false);
+  }, [isLooping, volume]);
+
+  // ── React to external load (from SoundRecorder "Send to Editor") ──
+  useEffect(() => {
+    if (!externalLoad) return;
+    loadBlob(externalLoad.blob, externalLoad.name);
+    onExternalLoadConsumed();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalLoad]);
+
+  // ── Sync loop/volume to audio element ──
+  useEffect(() => {
+    if (audioRef.current) { audioRef.current.loop = isLooping; }
+  }, [isLooping]);
+  useEffect(() => {
+    if (audioRef.current) { audioRef.current.volume = volume; }
+  }, [volume]);
+
+  // ── Playback animation ──
+  const animatePlayback = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || audio.paused) return;
+    if (audio.duration) setPlayPos(audio.currentTime / audio.duration);
+    playRafRef.current = requestAnimationFrame(animatePlayback);
+  }, []);
+
+  // ── Transport: Play / Pause ──
+  function togglePlay() {
+    const audio = audioRef.current;
+    if (!audio || !fileName) return;
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+      cancelAnimationFrame(playRafRef.current);
+    } else {
+      // If there's a selection and no current seek, start from selection start
+      if (selStart !== null && audio.currentTime === 0 && audio.duration) {
+        audio.currentTime = (selStart / waveform.length) * audio.duration;
+      }
+      audio.play().then(() => {
+        setIsPlaying(true);
+        animatePlayback();
+      }).catch((err: Error) => {
+        setImportErr(`Playback failed: ${err?.message || 'Try tapping play again after any user gesture.'}`);
+      });
+    }
+  }
+
+  // ── Transport: Stop ──
+  function handleStop() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+    setIsPlaying(false);
+    setPlayPos(0);
+    cancelAnimationFrame(playRafRef.current);
+  }
+
+  // ── Seek from progress bar click ──
+  function handleSeekBar(e: React.MouseEvent<HTMLDivElement>) {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audio.currentTime = pct * audio.duration;
+    setPlayPos(pct);
+  }
+
+  // ── Waveform: click to seek + drag to select ──
+  function handleBarMouseDown(barIdx: number, e: React.MouseEvent) {
+    e.preventDefault();
+    setDragAnchor(barIdx);
+    setIsDragging(true);
+    setSelStart(barIdx); setSelEnd(barIdx);
+    // Seek to this position
+    const audio = audioRef.current;
+    if (audio && audio.duration) {
+      audio.currentTime = (barIdx / waveform.length) * audio.duration;
+      setPlayPos(barIdx / waveform.length);
+    }
+  }
+
+  function handleBarMouseEnter(barIdx: number) {
+    setHoveredBar(barIdx);
+    if (isDragging && dragAnchor !== null) {
+      const lo = Math.min(dragAnchor, barIdx);
+      const hi = Math.max(dragAnchor, barIdx);
+      setSelStart(lo); setSelEnd(hi);
+    }
+  }
+
+  function handleBarMouseUp() {
+    setIsDragging(false);
+  }
+
+  // ── Sample operation helpers ──
+
+  function getSelectionBuffer(): AudioBuffer | null {
+    const buf = audioBufRef.current;
+    if (!buf) return null;
+    const start = selStart !== null ? Math.floor((selStart / waveform.length) * buf.length) : 0;
+    const end   = selEnd   !== null ? Math.floor(((selEnd + 1) / waveform.length) * buf.length) : buf.length;
+    const len   = Math.max(1, end - start);
+    // Create a copy of the region using OfflineAudioContext
+    const result = getOfflineCtx(len, buf.sampleRate, buf.numberOfChannels);
+    const src = result.createBufferSource();
+    // Build offline buffer
+    const offBuf = result.createBuffer(buf.numberOfChannels, len, buf.sampleRate);
+    for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+      offBuf.copyToChannel(buf.getChannelData(ch).slice(start, start + len), ch);
+    }
+    src.buffer = offBuf;
+    src.connect(result.destination);
+    return offBuf;
+  }
+
+  async function handleTrim() {
+    const trimBuf = getSelectionBuffer();
+    if (!trimBuf) { showOpMsg('⚠ Load audio first'); return; }
+    setOpPending(true);
+    const wav = encodeWav(trimBuf);
+    const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
+    downloadBlob(wav, `${baseName}-trimmed.wav`);
+    // Also reload trimmed version as the active file
+    await loadBlob(wav, `${baseName}-trimmed.wav`);
+    showOpMsg('✓ Trimmed to selection — now editing trimmed clip');
+    setOpPending(false);
+  }
+
+  function handleFadeIn() {
+    const buf = audioBufRef.current;
+    if (!buf) { showOpMsg('⚠ Load audio first'); return; }
+    setOpPending(true);
+    const start = selStart !== null ? Math.floor((selStart / waveform.length) * buf.length) : 0;
+    const end   = selEnd   !== null ? Math.floor(((selEnd + 1) / waveform.length) * buf.length) : buf.length;
+    const len   = end - start;
+    const newBuf = audioCtxRef.current?.createBuffer(buf.numberOfChannels, buf.length, buf.sampleRate) ?? null;
+    if (!newBuf) { showOpMsg('⚠ AudioContext unavailable'); setOpPending(false); return; }
+    for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+      const src = buf.getChannelData(ch);
+      const dst = newBuf.getChannelData(ch);
+      for (let i = 0; i < buf.length; i++) {
+        if (i >= start && i < end) {
+          dst[i] = src[i] * ((i - start) / len);
+        } else {
+          dst[i] = src[i];
+        }
+      }
+    }
+    audioBufRef.current = newBuf;
+    setWaveform(buildWaveform(newBuf, FIO_BARS));
+    const wav = encodeWav(newBuf);
+    const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
+    downloadBlob(wav, `${baseName}-fadein.wav`);
+    showOpMsg('✓ Fade In applied + downloaded');
+    setOpPending(false);
+  }
+
+  function handleFadeOut() {
+    const buf = audioBufRef.current;
+    if (!buf) { showOpMsg('⚠ Load audio first'); return; }
+    setOpPending(true);
+    const start = selStart !== null ? Math.floor((selStart / waveform.length) * buf.length) : 0;
+    const end   = selEnd   !== null ? Math.floor(((selEnd + 1) / waveform.length) * buf.length) : buf.length;
+    const len   = end - start;
+    const newBuf = audioCtxRef.current?.createBuffer(buf.numberOfChannels, buf.length, buf.sampleRate) ?? null;
+    if (!newBuf) { showOpMsg('⚠ AudioContext unavailable'); setOpPending(false); return; }
+    for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+      const src = buf.getChannelData(ch);
+      const dst = newBuf.getChannelData(ch);
+      for (let i = 0; i < buf.length; i++) {
+        if (i >= start && i < end) {
+          dst[i] = src[i] * (1 - (i - start) / len);
+        } else {
+          dst[i] = src[i];
+        }
+      }
+    }
+    audioBufRef.current = newBuf;
+    setWaveform(buildWaveform(newBuf, FIO_BARS));
+    const wav = encodeWav(newBuf);
+    const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
+    downloadBlob(wav, `${baseName}-fadeout.wav`);
+    showOpMsg('✓ Fade Out applied + downloaded');
+    setOpPending(false);
+  }
+
+  function handleNormalize() {
+    const buf = audioBufRef.current;
+    if (!buf) { showOpMsg('⚠ Load audio first'); return; }
+    setOpPending(true);
+    let peak = 0;
+    for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+      const data = buf.getChannelData(ch);
+      for (let i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i]));
+    }
+    const gain = peak > 0 ? 0.99 / peak : 1;
+    const newBuf = audioCtxRef.current?.createBuffer(buf.numberOfChannels, buf.length, buf.sampleRate) ?? null;
+    if (!newBuf) { showOpMsg('⚠ AudioContext unavailable'); setOpPending(false); return; }
+    for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+      const src = buf.getChannelData(ch);
+      const dst = newBuf.getChannelData(ch);
+      for (let i = 0; i < buf.length; i++) dst[i] = src[i] * gain;
+    }
+    audioBufRef.current = newBuf;
+    setWaveform(buildWaveform(newBuf, FIO_BARS));
+    const wav = encodeWav(newBuf);
+    const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
+    downloadBlob(wav, `${baseName}-normalized.wav`);
+    const gainDb = (20 * Math.log10(gain)).toFixed(1);
+    showOpMsg(`✓ Normalized +${gainDb} dB — downloaded as WAV`);
+    setOpPending(false);
+  }
+
+  function handleReverse() {
+    const buf = audioBufRef.current;
+    if (!buf) { showOpMsg('⚠ Load audio first'); return; }
+    setOpPending(true);
+    const start = selStart !== null ? Math.floor((selStart / waveform.length) * buf.length) : 0;
+    const end   = selEnd   !== null ? Math.floor(((selEnd + 1) / waveform.length) * buf.length) : buf.length;
+    const newBuf = audioCtxRef.current?.createBuffer(buf.numberOfChannels, buf.length, buf.sampleRate) ?? null;
+    if (!newBuf) { showOpMsg('⚠ AudioContext unavailable'); setOpPending(false); return; }
+    for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+      const src = buf.getChannelData(ch);
+      const dst = newBuf.getChannelData(ch);
+      dst.set(src);
+      // Reverse the selected region
+      for (let lo = start, hi = end - 1; lo < hi; lo++, hi--) {
+        [dst[lo], dst[hi]] = [dst[hi], dst[lo]];
+      }
+    }
+    audioBufRef.current = newBuf;
+    setWaveform(buildWaveform(newBuf, FIO_BARS));
+    const wav = encodeWav(newBuf);
+    const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
+    downloadBlob(wav, `${baseName}-reversed.wav`);
+    showOpMsg('✓ Reversed — downloaded as WAV');
+    setOpPending(false);
+  }
+
+  function handleSilence() {
+    const buf = audioBufRef.current;
+    if (!buf) { showOpMsg('⚠ Load audio first'); return; }
+    if (selStart === null) { showOpMsg('⚠ Select a region first (drag on waveform)'); return; }
+    setOpPending(true);
+    const start = Math.floor((selStart / waveform.length) * buf.length);
+    const end   = Math.floor(((selEnd! + 1) / waveform.length) * buf.length);
+    const newBuf = audioCtxRef.current?.createBuffer(buf.numberOfChannels, buf.length, buf.sampleRate) ?? null;
+    if (!newBuf) { showOpMsg('⚠ AudioContext unavailable'); setOpPending(false); return; }
+    for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+      const src = buf.getChannelData(ch);
+      const dst = newBuf.getChannelData(ch);
+      dst.set(src);
+      for (let i = start; i < end; i++) dst[i] = 0;
+    }
+    audioBufRef.current = newBuf;
+    setWaveform(buildWaveform(newBuf, FIO_BARS));
+    const wav = encodeWav(newBuf);
+    const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
+    downloadBlob(wav, `${baseName}-silenced.wav`);
+    showOpMsg('✓ Region silenced — downloaded as WAV');
+    setOpPending(false);
+  }
+
+  function handleExportAudio() {
+    const buf = audioBufRef.current;
+    if (!buf) {
+      // Fall back to original blob
+      if (audioBlobRef.current && fileName) {
+        downloadBlob(audioBlobRef.current, fileName);
+        showOpMsg(`✓ Downloaded: ${fileName}`);
+      } else {
+        showOpMsg('⚠ No audio loaded');
+      }
+      return;
+    }
+    const wav = encodeWav(buf);
+    const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
+    downloadBlob(wav, `${baseName}.wav`);
+    showOpMsg(`✓ Downloaded as WAV: ${baseName}.wav`);
+  }
+
+  function handleExportProject() {
+    const snapshot = { ...projectSnapshot, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+    downloadBlob(blob, `starmaker-project-${Date.now()}.json`);
+    showOpMsg('✓ Project JSON exported');
+  }
+
+  // ── Cleanup ──
+  useEffect(() => {
+    return () => {
+      cancelAnimationFrame(playRafRef.current);
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+      if (audioCtxRef.current) void audioCtxRef.current.close().catch(() => undefined);
+    };
+  }, []);
+
+  // ── Computed display values ──
   const barWidth = Math.max(3, Math.round(4 * zoomLevel));
+  const playheadBar = Math.floor(playPos * waveform.length);
+
+  const hasSelection = selStart !== null && selEnd !== null;
+  const selDuration = hasSelection
+    ? ((selEnd! - selStart! + 1) / waveform.length) * duration
+    : 0;
+  const selStartSec = hasSelection ? (selStart! / waveform.length) * duration : 0;
+
+  const hoveredTime = hoveredBar !== null
+    ? (hoveredBar / waveform.length) * duration
+    : null;
+
+  const hasAudio = !!fileName;
 
   return (
-    <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
-      {/* Header */}
+    <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}
+      onMouseUp={handleBarMouseUp}
+      onMouseLeave={() => { handleBarMouseUp(); setHoveredBar(null); }}>
+
+      {/* ── Header ── */}
       <div style={{ ...DAW_STYLES.sectionHeader, justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FileAudio className="w-3 h-3" style={{ color: DAW.accent }} />
-          <span style={DAW_STYLES.sectionTitle}>File I/O + Zoom Editor</span>
+          <span style={DAW_STYLES.sectionTitle}>Sample Editor</span>
+          {fileName && <span style={{ ...dawPill(DAW.green), fontSize: 9 }}>Loaded</span>}
+          {externalLoad && <span style={{ ...dawPill(DAW.orange), fontSize: 9, animation: 'pulse 1s infinite' }}>Incoming ↗</span>}
         </div>
         <span style={{ fontSize: 9, color: DAW.dim }}>WAV · MP3 · OGG · FLAC · AAC</span>
       </div>
 
       <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-        {/* Import / Export row */}
+        {/* ── Import / Export buttons ── */}
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" onClick={onImportClick}
-            disabled={importPending}
+          <button type="button" onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting}
             style={{
-              flex: 1, padding: '10px', borderRadius: 8, cursor: importPending ? 'not-allowed' : 'pointer',
+              flex: 1, padding: '10px', borderRadius: 8, cursor: isImporting ? 'not-allowed' : 'pointer',
               border: `1px solid ${DAW.accent}40`, background: `${DAW.accent}12`,
-              color: DAW.accent, fontSize: 13, fontWeight: 700,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              opacity: importPending ? 0.6 : 1, transition: 'all 0.15s',
+              color: DAW.accent, fontSize: 13, fontWeight: 700, opacity: isImporting ? 0.6 : 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.15s',
             }}>
             <FolderOpen className="w-4 h-4" />
-            {importPending ? 'Decoding…' : importedFileName ? 'Re-Import' : 'Import Audio'}
+            {isImporting ? 'Decoding…' : hasAudio ? 'Re-Import' : 'Import Audio'}
           </button>
 
-          <button type="button" onClick={onExport}
-            disabled={exportPending}
+          <button type="button" onClick={handleExportAudio}
+            disabled={!hasAudio}
             style={{
-              flex: 1, padding: '10px', borderRadius: 8, cursor: exportPending ? 'not-allowed' : 'pointer',
+              flex: 1, padding: '10px', borderRadius: 8, cursor: hasAudio ? 'pointer' : 'not-allowed',
               border: `1px solid rgba(34,197,94,0.35)`, background: 'rgba(34,197,94,0.1)',
-              color: DAW.green, fontSize: 13, fontWeight: 700,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              opacity: exportPending ? 0.6 : 1, transition: 'all 0.15s',
+              color: DAW.green, fontSize: 13, fontWeight: 700, opacity: hasAudio ? 1 : 0.4,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.15s',
             }}>
             <Download className="w-4 h-4" />
-            {exportPending ? 'Exporting…' : 'Export'}
+            {hasSelection ? 'Export Selection' : 'Export WAV'}
+          </button>
+
+          <button type="button" onClick={handleExportProject}
+            title="Export project as JSON"
+            style={{
+              padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
+              border: `1px solid ${DAW.border}`, background: DAW.surfaceHi,
+              color: DAW.dim, fontSize: 13, fontWeight: 700, transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+            <Upload className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Export message */}
-        {exportMsg && (
+        {/* Hidden file input */}
+        <input ref={fileInputRef} type="file"
+          accept="audio/wav,audio/mp3,audio/mpeg,audio/ogg,audio/flac,audio/aac,audio/mp4,.wav,.mp3,.ogg,.flac,.aac,.m4a"
+          aria-label="Import audio file for editing"
+          style={{ display: 'none' }}
+          onChange={async (e) => {
+            const f = e.target.files?.[0];
+            if (f) await loadBlob(f, f.name);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+          }}
+        />
+
+        {/* ── Error / status messages ── */}
+        {importErr && (
+          <div style={{
+            padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 600, lineHeight: 1.5,
+            background: 'rgba(239,68,68,0.1)', color: DAW.red, border: `1px solid rgba(239,68,68,0.25)`,
+          }}>⚠️ {importErr}</div>
+        )}
+        {opMsg && (
           <div style={{
             padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 600,
-            background: exportMsg.startsWith('✓') ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-            color: exportMsg.startsWith('✓') ? DAW.green : DAW.red,
-            border: `1px solid ${exportMsg.startsWith('✓') ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.25)'}`,
-          }}>
-            {exportMsg}
-          </div>
+            background: opMsg.startsWith('✓') ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.08)',
+            color: opMsg.startsWith('✓') ? DAW.green : '#f59e0b',
+            border: `1px solid ${opMsg.startsWith('✓') ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.2)'}`,
+          }}>{opMsg}</div>
         )}
 
-        {/* Imported file info */}
-        {importedFileName && !importPending && (
+        {/* ── File metadata ── */}
+        {hasAudio && (
           <div style={{
             padding: '8px 12px', borderRadius: 8,
             background: DAW.surfaceHi, border: `1px solid ${DAW.border}`,
-            display: 'flex', alignItems: 'center', gap: 8,
+            display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
           }}>
             <FileAudio className="w-4 h-4" style={{ color: DAW.accent, flexShrink: 0 }} />
-            <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: DAW.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {importedFileName}
+            <span style={{ fontSize: 12, fontWeight: 600, color: DAW.text, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {fileName}
             </span>
-            <span style={{ ...dawPill(DAW.green), fontSize: 9, flexShrink: 0 }}>Loaded</span>
+            {[
+              fmtSec(duration),
+              `${sampleRate ? (sampleRate / 1000).toFixed(1) + 'kHz' : '—'}`,
+              numChannels === 2 ? 'Stereo' : numChannels === 1 ? 'Mono' : `${numChannels}ch`,
+              fmtFileSize(fileSize),
+            ].map(v => (
+              <span key={v} style={{ ...dawPill(DAW.dim), fontSize: 9, flexShrink: 0 }}>{v}</span>
+            ))}
           </div>
         )}
 
-        {/* Zoom controls */}
+        {/* ── Transport controls ── */}
+        {hasAudio && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {/* Transport row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              {/* Play/Pause */}
+              <button type="button" onClick={togglePlay}
+                style={{
+                  width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                  background: isPlaying ? DAW.red : DAW.accent, color: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, transition: 'background 0.15s',
+                }}
+                aria-label={isPlaying ? 'Pause' : 'Play'}>
+                {isPlaying
+                  ? <Pause className="w-5 h-5 fill-current" />
+                  : <Play  className="w-5 h-5 fill-current" style={{ marginLeft: 2 }} />
+                }
+              </button>
+
+              {/* Stop */}
+              <button type="button" onClick={handleStop}
+                style={{
+                  width: 32, height: 32, borderRadius: '50%', border: `1px solid ${DAW.border}`,
+                  cursor: 'pointer', background: DAW.surfaceHi, color: DAW.dim,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}
+                aria-label="Stop">
+                <div style={{ width: 10, height: 10, borderRadius: 2, background: 'currentColor' }} />
+              </button>
+
+              {/* Loop toggle */}
+              <button type="button" onClick={() => setIsLooping(p => !p)}
+                style={{
+                  width: 32, height: 32, borderRadius: 8,
+                  border: `1px solid ${isLooping ? DAW.accent : DAW.border}`,
+                  cursor: 'pointer', background: isLooping ? `${DAW.accent}18` : DAW.surfaceHi,
+                  color: isLooping ? DAW.accent : DAW.dim,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 14, flexShrink: 0, transition: 'all 0.15s',
+                }}
+                aria-label={isLooping ? 'Disable loop' : 'Enable loop'}
+                title="Loop">
+                ↺
+              </button>
+
+              {/* Time display */}
+              <div style={{ flex: 1, textAlign: 'right', fontFamily: 'monospace', fontSize: 11, color: DAW.dim }}>
+                <span style={{ color: DAW.text, fontWeight: 700 }}>{fmtSec(playPos * duration)}</span>
+                {' / '}{fmtSec(duration)}
+              </div>
+
+              {/* Volume */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ fontSize: 9, color: DAW.dim, fontWeight: 700 }}>VOL</span>
+                <input type="range" min={0} max={1} step={0.01} value={volume}
+                  onChange={e => setVolume(Number(e.target.value))}
+                  aria-label="Playback volume"
+                  style={{ width: 60, accentColor: DAW.accent, cursor: 'pointer' }} />
+                <span style={{ fontSize: 9, color: DAW.dim, fontFamily: 'monospace', width: 28 }}>
+                  {Math.round(volume * 100)}%
+                </span>
+              </div>
+            </div>
+
+            {/* Progress bar (scrubable) */}
+            <div
+              role="slider"
+              aria-label="Playback position"
+              aria-valuenow={Math.round(playPos * 100)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              tabIndex={0}
+              onClick={handleSeekBar}
+              style={{
+                height: 8, borderRadius: 999, cursor: 'pointer',
+                background: 'rgba(255,255,255,0.08)', position: 'relative', overflow: 'hidden',
+              }}>
+              <div style={{
+                position: 'absolute', left: 0, top: 0, bottom: 0,
+                width: `${playPos * 100}%`,
+                background: `linear-gradient(90deg, ${DAW.accent} 0%, ${DAW.purple} 100%)`,
+                borderRadius: 999, transition: isPlaying ? 'none' : 'width 0.1s',
+              }} />
+              {/* Playhead pip */}
+              <div style={{
+                position: 'absolute', top: '50%', transform: 'translate(-50%, -50%)',
+                left: `${playPos * 100}%`,
+                width: 12, height: 12, borderRadius: '50%',
+                background: '#fff', border: `2px solid ${DAW.accent}`,
+                transition: isPlaying ? 'none' : 'left 0.1s',
+              }} />
+            </div>
+          </div>
+        )}
+
+        {/* ── Zoom controls ── */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <ZoomOut className="w-3 h-3" style={{ color: DAW.dim }} />
               <span style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>ZOOM</span>
@@ -2559,7 +3092,7 @@ function DAWFileIOPanel({
             </div>
             <div style={{ display: 'flex', gap: 3 }}>
               {ZOOM_LEVELS.map(z => (
-                <button key={z} type="button" onClick={() => onZoomChange(z)}
+                <button key={z} type="button" onClick={() => setZoomLevel(z)}
                   style={{
                     padding: '3px 6px', borderRadius: 5, fontSize: 9, fontWeight: 700,
                     cursor: 'pointer', border: `1px solid ${zoomLevel === z ? DAW.accent : DAW.border}`,
@@ -2571,94 +3104,172 @@ function DAWFileIOPanel({
               ))}
             </div>
           </div>
-
-          {/* Zoom slider */}
           <input type="range" min={0.5} max={4} step={0.25} value={zoomLevel}
-            onChange={e => onZoomChange(Number(e.target.value))}
+            onChange={e => setZoomLevel(Number(e.target.value))}
             aria-label="Timeline zoom level"
-            style={{ width: '100%', accentColor: DAW.accent, cursor: 'pointer', marginBottom: 8 }}
+            style={{ width: '100%', accentColor: DAW.accent, cursor: 'pointer', marginBottom: 6 }}
           />
+        </div>
 
-          {/* Zoomable waveform visualiser */}
-          <div style={{
-            borderRadius: 8, background: '#090b12',
-            border: `1px solid ${DAW.border}`,
-            overflow: 'hidden', position: 'relative',
-          }}>
-            {/* Ruler */}
-            <div style={{
-              display: 'flex', height: 16, background: '#0d0f17',
-              borderBottom: `1px solid ${DAW.border}`,
-            }}>
-              {Array.from({ length: 8 }, (_, i) => (
+        {/* ── Waveform / Sample Editor ── */}
+        <div style={{ borderRadius: 8, background: '#090b12', border: `1px solid ${DAW.border}`, overflow: 'hidden', position: 'relative', userSelect: 'none' }}>
+
+          {/* Time ruler */}
+          <div style={{ display: 'flex', height: 14, background: '#0d0f17', borderBottom: `1px solid ${DAW.border}` }}>
+            {Array.from({ length: 8 }, (_, i) => {
+              const t = duration ? fmtSec((i / 8) * duration) : `${i + 1}`;
+              return (
                 <div key={i} style={{
                   flex: 1, display: 'flex', alignItems: 'center',
                   borderLeft: i > 0 ? `1px solid ${DAW.border}` : 'none',
-                  paddingLeft: 4,
-                  fontSize: 8, fontWeight: 700, color: DAW.dim, fontFamily: 'monospace',
+                  paddingLeft: 3,
+                  fontSize: 7, fontWeight: 700, color: DAW.dim, fontFamily: 'monospace',
                 }}>
-                  {i + 1}
+                  {t}
                 </div>
-              ))}
-            </div>
-
-            {/* Waveform area */}
-            <div style={{ overflowX: 'auto' }}>
-              <div style={{
-                display: 'flex', alignItems: 'flex-end', gap: 1,
-                height: 64, padding: '4px 6px',
-                minWidth: `${barWidth * (importedWaveform?.length ?? 48) + (importedWaveform?.length ?? 48)}px`,
-              }}>
-                {(importedWaveform ?? Array.from({ length: 48 }, (_, i) => {
-                  const v = Math.abs(Math.sin(i * 0.42)) * 0.6 + 0.1;
-                  return v;
-                })).map((h, i) => (
-                  <div key={i} style={{
-                    width: barWidth, borderRadius: 1, flexShrink: 0,
-                    background: importedWaveform
-                      ? `rgba(0,208,240,${0.35 + h * 0.65})`
-                      : `rgba(0,208,240,${0.18 + h * 0.3})`,
-                    height: `${Math.round(Math.max(4, h * 100))}%`,
-                    transition: 'height 0.2s',
-                  }} />
-                ))}
-              </div>
-            </div>
-
-            {!importedWaveform && (
-              <div style={{
-                position: 'absolute', inset: 0, display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(9,11,18,0.72)',
-                pointerEvents: 'none',
-              }}>
-                <span style={{ fontSize: 11, color: DAW.dim, textAlign: 'center', padding: '0 20px' }}>
-                  Import an audio file to see its waveform here
-                </span>
-              </div>
-            )}
+              );
+            })}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 9, color: DAW.dim }}>
-            <span>Zoom: {zoomLevel}×</span>
-            <span>Scroll to scrub · Click bar to focus</span>
+          {/* Scrollable waveform */}
+          <div style={{ overflowX: 'auto' }}>
+            <div
+              style={{
+                display: 'flex', alignItems: 'center', gap: 1,
+                height: 72, padding: '4px 6px',
+                minWidth: `${barWidth * waveform.length + waveform.length}px`,
+                position: 'relative', cursor: 'crosshair',
+              }}>
+
+              {/* Render bars */}
+              {(waveform.length > 0 ? waveform : Array.from({ length: FIO_BARS }, (_, i) => Math.abs(Math.sin(i * 0.42)) * 0.55 + 0.08)).map((h, i) => {
+                const inSel = hasSelection && i >= selStart! && i <= selEnd!;
+                const isPlayhead = i === playheadBar && isPlaying;
+                const isHovered = i === hoveredBar;
+
+                let barColor: string;
+                if (isPlayhead) {
+                  barColor = '#ffffff';
+                } else if (inSel) {
+                  barColor = `rgba(168,85,247,${0.55 + h * 0.45})`;
+                } else if (isHovered) {
+                  barColor = `rgba(0,208,240,${0.7 + h * 0.3})`;
+                } else if (waveform.length > 0) {
+                  barColor = `rgba(0,208,240,${0.3 + h * 0.7})`;
+                } else {
+                  barColor = `rgba(0,208,240,${0.15 + h * 0.25})`;
+                }
+
+                return (
+                  <div
+                    key={i}
+                    onMouseDown={(e) => handleBarMouseDown(i, e)}
+                    onMouseEnter={() => handleBarMouseEnter(i)}
+                    title={duration ? `${fmtSec((i / waveform.length) * duration)} — Click to seek, Drag to select` : 'Click to seek'}
+                    style={{
+                      width: barWidth, borderRadius: 1, flexShrink: 0,
+                      background: barColor,
+                      height: `${Math.round(Math.max(6, h * 96))}%`,
+                      cursor: 'pointer',
+                      transition: 'background 0.05s, height 0.15s',
+                      outline: isPlayhead ? `1px solid white` : 'none',
+                    }}
+                  />
+                );
+              })}
+
+              {/* Playhead line overlay */}
+              {isPlaying && waveform.length > 0 && (
+                <div style={{
+                  position: 'absolute', top: 0, bottom: 0,
+                  left: `${(playPos * 100)}%`,
+                  width: 1.5, background: DAW.accent,
+                  pointerEvents: 'none',
+                  boxShadow: `0 0 4px ${DAW.accent}`,
+                  transition: 'none',
+                }} />
+              )}
+            </div>
           </div>
+
+          {/* Empty state overlay */}
+          {waveform.length === 0 && (
+            <div style={{
+              position: 'absolute', inset: 0, display: 'flex',
+              alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8,
+              background: 'rgba(9,11,18,0.80)', pointerEvents: 'none',
+            }}>
+              <FileAudio className="w-6 h-6" style={{ color: `${DAW.accent}60` }} />
+              <span style={{ fontSize: 11, color: DAW.dim, textAlign: 'center', padding: '0 20px' }}>
+                Import an audio file to edit it here
+                <br />
+                <span style={{ fontSize: 9, opacity: 0.7 }}>Or tap ⚡ DAW in the Recorder to send a take directly</span>
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Supported formats notice */}
+        {/* ── Waveform info row (hover + selection) ── */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: DAW.dim }}>
+          <span>
+            {hoveredTime !== null
+              ? `🕐 ${fmtSec(hoveredTime)} — click to seek · drag to select`
+              : hasAudio ? 'Click bar to seek · Drag to select region' : 'Zoom: ' + zoomLevel + '×'}
+          </span>
+          {hasSelection && (
+            <span style={{ color: DAW.purple, fontWeight: 700 }}>
+              ◀ {fmtSec(selStartSec)} → {fmtSec(selStartSec + selDuration)} ({fmtSec(selDuration)}) ▶
+            </span>
+          )}
+        </div>
+
+        {/* ── Sample Operations Toolbar ── */}
+        {hasAudio && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em', marginBottom: 2 }}>
+              SAMPLE OPERATIONS {hasSelection ? `· selection: ${fmtSec(selDuration)}` : '· (select region to target)'}
+            </div>
+            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+              {[
+                { label: 'Trim',       icon: '✂',  action: handleTrim,      color: DAW.accent,  title: 'Trim to selection (or full file). Downloads trimmed WAV.' },
+                { label: 'Fade In',    icon: '↗',  action: handleFadeIn,    color: DAW.green,   title: 'Apply linear fade-in to selection (or full file).' },
+                { label: 'Fade Out',   icon: '↘',  action: handleFadeOut,   color: DAW.green,   title: 'Apply linear fade-out to selection (or full file).' },
+                { label: 'Normalize',  icon: '⇕',  action: handleNormalize, color: DAW.orange,  title: 'Normalize peak to -0.1dBFS. Downloads as WAV.' },
+                { label: 'Reverse',    icon: '⟵⟶', action: handleReverse,   color: DAW.purple,  title: 'Reverse selection (or full file). Downloads as WAV.' },
+                { label: 'Silence',    icon: '—',  action: handleSilence,   color: DAW.red,     title: 'Silence selected region. Select first.' },
+              ].map(op => (
+                <button key={op.label} type="button" onClick={op.action}
+                  disabled={opPending}
+                  title={op.title}
+                  style={{
+                    padding: '7px 12px', borderRadius: 8, cursor: opPending ? 'not-allowed' : 'pointer',
+                    border: `1px solid ${op.color}35`,
+                    background: `${op.color}10`, color: op.color,
+                    fontSize: 11, fontWeight: 700, opacity: opPending ? 0.5 : 1,
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    transition: 'all 0.15s',
+                  }}>
+                  <span style={{ fontSize: 12 }}>{op.icon}</span> {op.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Formats notice ── */}
         <div style={{
           padding: '8px 12px', borderRadius: 8, fontSize: 10,
           background: DAW.surfaceHi, border: `1px solid ${DAW.border}`,
           color: DAW.dim, lineHeight: 1.6,
         }}>
-          <span style={{ fontWeight: 700, color: DAW.text }}>Supported formats: </span>
-          WAV · MP3 · OGG · FLAC · AAC
+          <span style={{ fontWeight: 700, color: DAW.text }}>Import: </span>
+          WAV · MP3 · OGG · FLAC · AAC · M4A
           {' · '}
           <span style={{ fontWeight: 700, color: DAW.text }}>Export: </span>
-          Project JSON · Original file re-export
+          WAV (all operations) · Original file · Project JSON
           <br />
-          <span style={{ color: `${DAW.accent}aa` }}>
-            Inspired by Ableton, Logic Pro, Pro Tools, Cubase, FL Studio · Splice-compatible stems
+          <span style={{ color: `${DAW.accent}99` }}>
+            Inspired by Ableton, Logic Pro, Pro Tools, Cubase, FL Studio · Splice stem compatibility
           </span>
         </div>
       </div>
