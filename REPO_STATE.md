@@ -3,10 +3,10 @@
 > **Comprehensive analysis of the entire codebase**
 > Generated automatically - DO NOT EDIT MANUALLY
 
-**Last Updated:** 3/29/2026, 5:23:56 AM
-**Branch:** claude/analyze-repo-state
-**Commit:** ebf9850 - Initial plan
-**Total Commits:** 2
+**Last Updated:** 3/30/2026, 4:35:02 AM
+**Branch:** completedream
+**Commit:** 3bdd5104 - docs: auto-update README [dd7bbe4] [skip ci]
+**Total Commits:** 2502
 
 ---
 
@@ -41,14 +41,14 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 478
-- 📝 Total Lines of Code: 104,558
-- 📦 Size: 3.85 MB
-- 🧪 Tests: 73 files, unknown passing
-- 📄 API Routes: 69
-- 🎨 Components: 31 categories
-- 📖 Documentation: 44 files
-- ⚙️ GitHub Actions: 49 workflows
+- 📁 Total Code Files: 493
+- 📝 Total Lines of Code: 112,376
+- 📦 Size: 4.22 MB
+- 🧪 Tests: 77 files, 70 passing
+- 📄 API Routes: 71
+- 🎨 Components: 32 categories
+- 📖 Documentation: 47 files
+- ⚙️ GitHub Actions: 51 workflows
 
 ## Tech Stack
 
@@ -64,13 +64,15 @@
 
 ### All Dependencies
 
-**Production Dependencies:** 20
+**Production Dependencies:** 22
 ```
 @babylonjs/core@^8.54.3
 @react-three/drei@^10.7.7
 @react-three/fiber@^9.5.0
 @supabase/ssr@^0.9.0
 @supabase/supabase-js@^2.97.0
+@tensorflow/tfjs@^4.22.0
+@tensorflow/tfjs-backend-webgpu@^4.22.0
 axios@^1.7.0
 clsx@^2.1.1
 framer-motion@^12.35.0
@@ -84,8 +86,7 @@ swr@^2.4.1
 tailwind-merge@^3.5.0
 three@^0.167.0
 uuid@^13.0.0
-yaml@^2.8.2
-zod@^4.3.6
+... and 2 more
 ```
 
 **Dev Dependencies:** 16
@@ -114,13 +115,13 @@ vitest@^4.0.18
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 155 | .tsx(83), .ts(70), .css(2) |
-| `components/` | 209 | .tsx(204), .ts(5) |
-| `lib/` | 193 | .ts(188), .tsx(3), .md(2) |
-| `tests/` | 74 | .ts(74) |
+| `app/` | 163 | .tsx(89), .ts(72), .css(2) |
+| `components/` | 215 | .tsx(208), .ts(6), .md(1) |
+| `lib/` | 198 | .ts(193), .tsx(3), .md(2) |
+| `tests/` | 79 | .ts(78), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 45 | .png(18), .PNG(11), .jpeg(6) |
-| `docs/` | 40 | .md(40) |
+| `docs/` | 43 | .md(43) |
 | `scripts/` | 22 | .mjs(12), .sh(3), .cjs(3) |
 | `supabase/` | 40 | .sql(39), .toml(1) |
 
@@ -128,19 +129,19 @@ vitest@^4.0.18
 
 ### File Distribution
 
-- **App Routes (TSX):** 83
-- **Component Files:** 204
-- **Library Files:** 191
-- **Test Files:** 67
+- **App Routes (TSX):** 89
+- **Component Files:** 208
+- **Library Files:** 196
+- **Test Files:** 71
 
 ### Code Volume
 
-- **Total Lines:** 104,558
-- **Total Size:** 3.85 MB
+- **Total Lines:** 112,376
+- **Total Size:** 4.22 MB
 
 ## API Routes
 
-**Total API Endpoints:** 69
+**Total API Endpoints:** 71
 
 ### All Routes
 
@@ -177,6 +178,7 @@ vitest@^4.0.18
 | `/api/connectors/status` | GET | /app/api/connectors/status/route.ts |
 | `/api/connectors/youtube/oauth/callback` | GET | /app/api/connectors/youtube/oauth/callback/route.ts |
 | `/api/connectors/youtube/oauth/start` | GET | /app/api/connectors/youtube/oauth/start/route.ts |
+| `/api/content/intelligence` | POST | /app/api/content/intelligence/route.ts |
 | `/api/dr-eams/hf` | POST | /app/api/dr-eams/hf/route.ts |
 | `/api/dr-eams/run` | POST | /app/api/dr-eams/run/route.ts |
 | `/api/drafts/[id]` | PATCH, DELETE | /app/api/drafts/[id]/route.ts |
@@ -190,17 +192,16 @@ vitest@^4.0.18
 | `/api/game-scores` | GET, POST | /app/api/game-scores/route.ts |
 | `/api/home-layout` | GET, POST | /app/api/home-layout/route.ts |
 | `/api/journey` | GET, POST | /app/api/journey/route.ts |
+| `/api/lab/benchmarks` | POST | /app/api/lab/benchmarks/route.ts |
 | `/api/likes` | GET, POST, DELETE | /app/api/likes/route.ts |
 | `/api/marketplace/request` | POST | /app/api/marketplace/request/route.ts |
 | `/api/marketplace` | GET, POST | /app/api/marketplace/route.ts |
 | `/api/messages/boards` | POST | /app/api/messages/boards/route.ts |
-| `/api/messages` | GET, POST | /app/api/messages/route.ts |
-| `/api/music` | GET, POST, DELETE | /app/api/music/route.ts |
-| ... | ... | ... and 19 more routes |
+| ... | ... | ... and 21 more routes |
 
 ## Pages & Routes
 
-**Total Pages:** 67
+**Total Pages:** 73
 
 ### All Pages
 
@@ -216,15 +217,21 @@ vitest@^4.0.18
 | `/codespace` | /app/codespace/page.tsx |
 | `/connectors` | /app/connectors/page.tsx |
 | `/daydream/analytics` | /app/daydream/analytics/page.tsx |
+| `/daydream/brand/engin` | /app/daydream/brand/engin/page.tsx |
 | `/daydream/brand` | /app/daydream/brand/page.tsx |
+| `/daydream/code/engin` | /app/daydream/code/engin/page.tsx |
 | `/daydream/code` | /app/daydream/code/page.tsx |
 | `/daydream/constellation` | /app/daydream/constellation/page.tsx |
+| `/daydream/create/engin` | /app/daydream/create/engin/page.tsx |
 | `/daydream/create` | /app/daydream/create/page.tsx |
 | `/daydream/game` | /app/daydream/game/page.tsx |
+| `/daydream/games/engin` | /app/daydream/games/engin/page.tsx |
 | `/daydream/games` | /app/daydream/games/page.tsx |
+| `/daydream/lab/engin` | /app/daydream/lab/engin/page.tsx |
 | `/daydream/lab` | /app/daydream/lab/page.tsx |
 | `/daydream/lab/portfolio` | /app/daydream/lab/portfolio/page.tsx |
 | `/daydream/media-vault` | /app/daydream/media-vault/page.tsx |
+| `/daydream/music/engin` | /app/daydream/music/engin/page.tsx |
 | `/daydream/music` | /app/daydream/music/page.tsx |
 | `/daydream/play` | /app/daydream/play/page.tsx |
 | `/discover` | /app/discover/page.tsx |
@@ -250,17 +257,11 @@ vitest@^4.0.18
 | `/music` | /app/music/page.tsx |
 | `/music/upload` | /app/music/upload/page.tsx |
 | `/notes` | /app/notes/page.tsx |
-| `/onboarding` | /app/onboarding/page.tsx |
-| `/` | /app/page.tsx |
-| `/physics-lab` | /app/physics-lab/page.tsx |
-| `/policy` | /app/policy/page.tsx |
-| `/profile/[handle]` | /app/profile/[handle]/page.tsx |
-| `/profile` | /app/profile/page.tsx |
-| ... | ... and 17 more pages |
+| ... | ... and 23 more pages |
 
 ## Components
 
-**Total Component Categories:** 31
+**Total Component Categories:** 32
 
 ### Component Organization
 
@@ -271,13 +272,14 @@ vitest@^4.0.18
 | `controls/` | 1 |
 | `core/` | 1 |
 | `customize/` | 7 |
-| `daydream/` | 15 |
+| `daydream/` | 16 |
 | `dreamengin/` | 16 |
 | `dreamnav/` | 2 |
 | `dreams/` | 7 |
 | `feed/` | 4 |
 | `feeds/` | 1 |
-| `games/` | 27 |
+| `gameengin/` | 1 |
+| `games/` | 29 |
 | `home/` | 9 |
 | `landing/` | 2 |
 | `marketplace/` | 2 |
@@ -293,7 +295,7 @@ vitest@^4.0.18
 | `shaders/` | 4 |
 | `spatial/` | 5 |
 | `three/` | 2 |
-| `ui/` | 6 |
+| `ui/` | 7 |
 | `universe/` | 6 |
 | `warp/` | 1 |
 | `widgets/` | 12 |
@@ -321,9 +323,9 @@ vitest@^4.0.18
 
 ## Tests
 
-**Test Files:** 73
-**Tests Passing:** unknown
-**Tests Failing:** 0
+**Test Files:** 77
+**Tests Passing:** 70
+**Tests Failing:** 1
 
 ### Test Files
 
@@ -332,6 +334,7 @@ vitest@^4.0.18
 - /tests/ai-edit-engine.test.ts
 - /tests/analytics-scheduled.test.ts
 - /tests/auth-providers-route.test.ts
+- /tests/authenticated-ui-shells.test.ts
 - /tests/babylon-optimizero.test.ts
 - /tests/babylon-webgpu-engine.test.ts
 - /tests/boogie-policy-module.test.ts
@@ -339,19 +342,18 @@ vitest@^4.0.18
 - /tests/branding-logos.test.ts
 - /tests/child-safety.test.ts
 - /tests/connectors.test.ts
+- /tests/content-intelligence-routes.test.ts
 - /tests/creative-optimizero.test.ts
+- /tests/daydream-engin-routes.test.ts
 - /tests/dev-bypass.test.ts
 - /tests/diff-viewer.test.ts
 - /tests/dr-eams-search-bar.test.ts
 - /tests/dream-bar-context.test.ts
-- /tests/dream-effects.test.ts
-- /tests/dream-state.test.ts
-- /tests/dream-window-system.test.ts
-- ... and 53 more test files
+- ... and 57 more test files
 
 ## Documentation
 
-**Total Documentation Files:** 44
+**Total Documentation Files:** 47
 
 ### Documentation Files
 
@@ -373,8 +375,11 @@ vitest@^4.0.18
 - [CONSTITUTION.md](/docs/CONSTITUTION.md)
 - [COPILOT_TOOLKIT.md](/docs/COPILOT_TOOLKIT.md)
 - [DR_EAMS.md](/docs/DR_EAMS.md)
+- [DUALSENSE_EXAMPLE.md](/docs/DUALSENSE_EXAMPLE.md)
+- [DUALSENSE_INTEGRATION.md](/docs/DUALSENSE_INTEGRATION.md)
 - [FEATURE_STATUS.md](/docs/FEATURE_STATUS.md)
 - [GENERATION_LAW.md](/docs/GENERATION_LAW.md)
+- [GITHUB_CODING_AGENT.md](/docs/GITHUB_CODING_AGENT.md)
 - [GOLD_BUTTON_DUAL_RUNTIME.md](/docs/GOLD_BUTTON_DUAL_RUNTIME.md)
 - [GOLD_BUTTON_QUICK_REF.md](/docs/GOLD_BUTTON_QUICK_REF.md)
 - [HANDOFF.md](/docs/HANDOFF.md)
@@ -382,14 +387,11 @@ vitest@^4.0.18
 - [LAW.md](/docs/LAW.md)
 - [NAMING_AUTHORITY.md](/docs/NAMING_AUTHORITY.md)
 - [POLICY_TESTS.md](/docs/POLICY_TESTS.md)
-- [PRODUCT_DEFINITION.md](/docs/PRODUCT_DEFINITION.md)
-- [REPO_STATE_ANALYZER.md](/docs/REPO_STATE_ANALYZER.md)
-- [SECURITY.md](/docs/SECURITY.md)
-- ... and 14 more docs
+- ... and 17 more docs
 
 ## CI/CD Workflows
 
-**Total Workflows:** 49
+**Total Workflows:** 51
 
 ### Workflow Files
 
@@ -414,6 +416,7 @@ vitest@^4.0.18
 - db-extension-check.yml
 - deploy-artifact.yml
 - dreamengin-preflight.yml
+- elite-gameengin-evolution.yml
 - engin-branding.yml
 - engin-code.yml
 - engin-content.yml
@@ -434,6 +437,7 @@ vitest@^4.0.18
 - preflight.yml
 - refreshlock.yml
 - repo-snapshot.yml
+- report-driven-coding-agent.yml
 - spec-engin-ai-agent.yml
 - sync-build-memory.yml
 - update-bugs.yml
@@ -465,7 +469,7 @@ vitest@^4.0.18
 
 ### Next.js App Router Architecture
 
-54 Server Components, 29 Client Components
+60 Server Components, 29 Client Components
 
 ### Supabase Backend
 
@@ -509,6 +513,8 @@ Using Supabase for database, auth, and storage
 
 ### Potentially unused dependencies
 
+- @tensorflow/tfjs
+- @tensorflow/tfjs-backend-webgpu
 - axios
 - swr
 - yaml
@@ -544,6 +550,7 @@ Using Supabase for database, auth, and storage
 ### Medium Priority
 
 - 🟡 Review and remove redundant code
+- 🟡 Fix 1 failing tests
 
 ### Low Priority
 
@@ -554,4 +561,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 3/29/2026, 5:23:56 AM*
+*Last updated: 3/30/2026, 4:35:02 AM*
