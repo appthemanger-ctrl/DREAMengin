@@ -15,20 +15,22 @@ import { isDevBypassActive } from '@/lib/dev-bypass';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
 
+const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });
+
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'platformer', emoji: '🏎',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: buildGameLaunchHref('platformer') },
-  { id: 'all-games',  emoji: '🎮', label: 'All 23 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
-  { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: buildGameLaunchHref('word-sprint') },
-  { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: buildGameLaunchHref('memory-grid') },
-  { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: buildGameLaunchHref('speed-tap') },
-  { id: 'scores',     emoji: '🏆', label: 'Leaderboard',  desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
+  { id: 'platformer',   emoji: '🤖',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: immersiveGameHref('platformer') },
+  { id: 'all-games',    emoji: '🎮',  label: 'All Games',     desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
+  { id: 'dreamquest',   emoji: '✨',  label: 'DREAMquest',    desc: 'FF-style RPG · 5 dream layers', color: '#a78bfa', href: immersiveGameHref('dreamquest') },
+  { id: 'dreamwars',    emoji: '🌙',  label: 'DREAMwars',     desc: 'Nightmares vs Dreamers RTS',    color: '#7c3aed', href: immersiveGameHref('dreamwars') },
+  { id: 'neon-drift',   emoji: '🏎️',  label: 'Neon Drift',    desc: 'WebGPU cyberpunk racer',        color: '#0ff',    href: immersiveGameHref('neon-drift') },
+  { id: 'scores',       emoji: '🏆',  label: 'Leaderboard',   desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
 ];
 
 const LIBRARY_SPOTLIGHT = [
-  { label: 'MADMAXI', meta: 'Babylon.js 3-D · 150 levels', emoji: '🏎', href: buildGameLaunchHref('platformer') },
-  { label: 'Word Sprint', meta: '1 minute typing rush', emoji: '📝', href: buildGameLaunchHref('word-sprint') },
-  { label: 'Memory Grid', meta: 'Quick pattern recall', emoji: '🧩', href: buildGameLaunchHref('memory-grid') },
-  { label: 'Speed Tap', meta: 'Fast reflex score chase', emoji: '⚡', href: buildGameLaunchHref('speed-tap') },
+  { label: 'MADMAXI',      meta: 'Babylon.js 3-D · 150 levels', emoji: '🤖', href: immersiveGameHref('platformer') },
+  { label: 'DREAMquest',   meta: 'FF-style · 5 Dream Layers',   emoji: '✨', href: immersiveGameHref('dreamquest') },
+  { label: 'DREAMwars',    meta: 'Nightmares vs Dreamers RTS',  emoji: '🌙', href: immersiveGameHref('dreamwars') },
+  { label: 'Neon Drift',   meta: 'WebGPU · DualSense Ready',    emoji: '🏎️', href: immersiveGameHref('neon-drift') },
 ];
 
 const CONSOLE_MODULES = [
@@ -85,7 +87,7 @@ export default async function GamesDaydreamPage() {
                     Play + remote happen on the GameEngin side.
                   </h2>
                   <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.7, maxWidth: 700, marginTop: 10 }}>
-                    Browse all 23 games here, then flip over to GameEngin to play. The remote controller sits directly under the game screen in GameEngin — right where it should be.
+                    Browse all games here, then flip over to GameEngin to play. The remote controller sits directly under the game screen in GameEngin — right where it should be.
                   </p>
                   <div className="flex flex-wrap gap-2" style={{ marginTop: 12 }}>
                     {GAME_QUALITY_PILLARS.slice(0, 4).map((pillar) => (
@@ -99,7 +101,7 @@ export default async function GamesDaydreamPage() {
                 <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
                   <div style={{ borderRadius: 18, padding: 14, background: 'rgba(255,255,255,0.62)', border: '1px solid rgba(42,138,184,0.16)' }}>
                     <div className="text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ color: 'var(--de-accent)' }}>Library Side</div>
-                    <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', marginTop: 8 }}>23</div>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', marginTop: 8 }}>16+</div>
                     <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 4 }}>Arcade, strategy, puzzle, and challenge games on one shelf.</div>
                   </div>
                   <div style={{ borderRadius: 18, padding: 14, background: 'rgba(14,25,48,0.88)', border: '1px solid rgba(74,175,255,0.22)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}>
@@ -535,8 +537,8 @@ export default async function GamesDaydreamPage() {
                 <div className="de-widget-body">
                   <div style={{ display: 'flex', gap: 10 }}>
                     {[
-                      { name: 'Neon Drift',   emoji: '🏎', desc: 'WebGPU neon racer', href: buildGameLaunchHref('neon-drift') },
-                      { name: 'Echo Arena',   emoji: '🚀', desc: 'WebGPU space shooter', href: buildGameLaunchHref('echo-arena') },
+                      { name: 'Neon Drift',   emoji: '🏎', desc: 'WebGPU neon racer', href: immersiveGameHref('neon-drift') },
+                      { name: 'Echo Arena',   emoji: '🚀', desc: 'WebGPU space shooter', href: immersiveGameHref('echo-arena') },
                     ].map(g => (
                       <Link key={g.name} href={g.href} style={{ flex: 1, textDecoration: 'none' }}>
                         <div style={{ padding: '12px 10px', borderRadius: 12, background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.22)', textAlign: 'center' }}>
@@ -567,4 +569,3 @@ export default async function GamesDaydreamPage() {
     </DaydreamShell>
   );
 }
-

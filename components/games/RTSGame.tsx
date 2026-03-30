@@ -1,16 +1,9 @@
 'use client';
 
 /**
- * DREAM FORCE: Operation Dream Protocol
- *
- * Year 2047. The NEXUS CORPS has activated the Dream Protocol — a neural
- * broadcast network that enslaves human consciousness. You command the
- * DREAM RESISTANCE. Destroy the Nexus Command Forge before the final
- * broadcast reaches critical power and ends free thought forever.
- *
- * Red Alert 2-inspired real-time strategy. Canvas-based, zero server deps.
- * Factions · Base Building · Resource Harvesting · Unit Production · AI
- * Detailed sprite rendering · Particle FX · Screen shake · Mini-map
+ * RTSGame — DREAM FORCE — original DREAMengin RTS.
+ * Canvas-based, runs entirely in the browser with no server dependencies.
+ * Supports: base building, unit production, resource gathering, combat, AI opponent.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';

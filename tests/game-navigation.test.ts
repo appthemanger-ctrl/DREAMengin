@@ -53,6 +53,17 @@ describe('game launch navigation', () => {
     expect(hudSrc).toContain('<GameRemote');
     expect(hudSrc).toContain('/daydream/games');
   });
+
+  it('lets the games daydream launch spotlight titles directly into immersive full-screen engine sessions', () => {
+    const gamesPageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/games/page.tsx'), 'utf8');
+
+    expect(gamesPageSrc).toContain("const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('platformer')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('dreamquest')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('dreamwars')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('neon-drift')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('echo-arena')");
+  });
 });
 
 describe('shared remote keyboard bridge', () => {

@@ -1,6 +1,6 @@
 'use client';
 /**
- * TetrisGame — Classic falling block puzzle.
+ * TetrisGame — BLOCK STACK: DREAMengin falling shard game.
  * Category: puzzle / classic
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
