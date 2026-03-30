@@ -34,16 +34,24 @@ describe('game launch navigation', () => {
     expect(isLaunchFlagEnabled(null)).toBe(false);
   });
 
-  it('keeps dedicated game sessions on a no-scroll full-screen page with the shared remote docked underneath', () => {
+  it('keeps dedicated game sessions on a true full-screen page with a floating HUD controller', () => {
     const pageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/page.tsx'), 'utf8');
     const shellSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/ImmersiveGameShell.tsx'), 'utf8');
+    const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
 
+    // Page wraps the shell
     expect(pageSrc).toContain('return <ImmersiveGameShell />;');
+    // Shell is a true full-screen fixed container with overflow hidden
+    expect(shellSrc).toContain("position: 'fixed'");
     expect(shellSrc).toContain("height: '100dvh'");
     expect(shellSrc).toContain("overflow: 'hidden'");
-    expect(shellSrc).toContain('<GameRemote');
-    expect(shellSrc).toContain('Dedicated Game Session');
+    // Shell mounts the floating HUD (not GameRemote directly)
+    expect(shellSrc).toContain('<GameHUD');
+    // Footer is still hidden during gameplay
     expect(shellSrc).toContain("document.querySelector('footer')");
+    // HUD contains GameRemote and EXIT navigation back to games daydream
+    expect(hudSrc).toContain('<GameRemote');
+    expect(hudSrc).toContain('/daydream/games');
   });
 });
 

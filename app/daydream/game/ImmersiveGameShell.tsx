@@ -4,6 +4,8 @@
  * ImmersiveGameShell — True full-screen game launcher with PS5-style boot
  * sequence and a floating HUD controller overlay.
  *
+ * DREAMENGIN Elite Game Engine — GameEngin boot sequence:
+ *
  * Boot phases:
  *   1 (0 – 800 ms)     Black screen · pulsing ⬡ hex logo in game accent colour
  *   2 (800 – 2200 ms)  "GAMEENGIN" sweeps in from the right · "by DREAMengin" · game emoji
