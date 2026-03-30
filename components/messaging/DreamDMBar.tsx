@@ -44,6 +44,7 @@ import {
   Send,
   Sparkles,
   X,
+  ImageIcon,
 } from 'lucide-react';
 
 import { formatRelativeTime }                    from '@/lib/utils';
@@ -432,6 +433,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const [selectedConv,   setSelectedConv]   = useState<DMConversation | null>(null);
   const [quickDraft,     setQuickDraft]     = useState('');
   const [commentSending, setCommentSending] = useState(false);
+  const [quickDraftFiles, setQuickDraftFiles] = useState<File[]>([]);
+  const [quickDraftPreviews, setQuickDraftPreviews] = useState<string[]>([]);
+  const quickFileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { conversations, reload: reloadConvs } = useDreamDMConversations(userId);
   const { unreadCount, markAllRead }            = useNotifications();
@@ -478,10 +483,54 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
    
   }, []);
 
+  // ── Quick file handlers ────────────────────────────────────────────────────
+  const handleQuickFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newFiles = files.slice(0, 5 - quickDraftFiles.length);
+
+    if (newFiles.length === 0) return;
+
+    // Create previews
+    const newPreviews: string[] = [];
+    newFiles.forEach(file => {
+      if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+        newPreviews.push(URL.createObjectURL(file));
+      }
+    });
+
+    setQuickDraftFiles(prev => [...prev, ...newFiles]);
+    setQuickDraftPreviews(prev => [...prev, ...newPreviews]);
+
+    // Reset input
+    if (quickFileInputRef.current) quickFileInputRef.current.value = '';
+  }, [quickDraftFiles.length]);
+
+  const handleRemoveQuickFile = useCallback((index: number) => {
+    setQuickDraftFiles(prev => prev.filter((_, i) => i !== index));
+    setQuickDraftPreviews(prev => {
+      const updated = prev.filter((_, i) => i !== index);
+      // Revoke the URL to free memory
+      if (prev[index]) URL.revokeObjectURL(prev[index]);
+      return updated;
+    });
+  }, []);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    // Reset height to get accurate scrollHeight
+    textarea.style.height = 'auto';
+    // Set height to scrollHeight (content height), max 120px
+    const newHeight = Math.min(textarea.scrollHeight, 120);
+    textarea.style.height = `${newHeight}px`;
+  }, [quickDraft]);
+
   // ── Send handlers ──────────────────────────────────────────────────────────
   const handleQuickSend = useCallback(async () => {
     const text = quickDraft.trim();
-    if (!text) return;
+    if (!text && quickDraftFiles.length === 0) return;
 
     // ── Intent-mode overrides take priority over surface detection ──────────
     if (barIntent.mode === 'comment' && barIntent.targetPostId) {
@@ -547,13 +596,50 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     // Feed / home surface: create a post via POST /api/posts
     if (barCtx.surface === 'feed') {
       try {
+        // Upload media files if any
+        const mediaUrls: string[] = [];
+        if (quickDraftFiles.length > 0) {
+          const { createClient } = await import('@/lib/supabase/client');
+          const supabase = createClient();
+
+          for (const file of quickDraftFiles) {
+            const bucket = file.type.startsWith('image/') ? 'images'
+                         : file.type.startsWith('video/') ? 'videos'
+                         : 'files';
+            const ext = file.name.split('.').pop();
+            const filename = `${userId}/posts/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+
+            const { error: uploadError } = await supabase.storage
+              .from(bucket)
+              .upload(filename, file, {
+                cacheControl: '3600',
+                upsert: false,
+              });
+
+            if (!uploadError) {
+              const { data: { publicUrl } } = supabase.storage
+                .from(bucket)
+                .getPublicUrl(filename);
+              mediaUrls.push(publicUrl);
+            }
+          }
+        }
+
         const res = await fetch('/api/posts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: text, visibility: 'public' }),
+          body: JSON.stringify({
+            content: text || '',
+            visibility: 'public',
+            media_urls: mediaUrls
+          }),
         });
         if (res.ok) {
           setQuickDraft('');
+          // Clean up files and previews
+          quickDraftPreviews.forEach(url => URL.revokeObjectURL(url));
+          setQuickDraftFiles([]);
+          setQuickDraftPreviews([]);
         } else {
           const { error } = await res.json().catch(() => ({})) as { error?: string };
           console.error('[DreamBar] Post creation failed:', error ?? 'Unknown error', '— opening full composer');
@@ -604,7 +690,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     // General / fallback: compose a message
     window.location.href = `/messages?compose=${encodeURIComponent(text)}`;
     setQuickDraft('');
-  }, [quickDraft, selectedConv, sendMessage, clearDraft, userId, barCtx.surface, barIntent, clearBarIntent, toggleDrEams]);
+  }, [quickDraft, quickDraftFiles, quickDraftPreviews, selectedConv, sendMessage, clearDraft, userId, barCtx.surface, barIntent, clearBarIntent, toggleDrEams]);
 
   const handlePanelSend = useCallback(async () => {
     if (!selectedConv) return;
@@ -980,10 +1066,69 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           ) : (
             /* Compact bar — quick compose + mode buttons + notifications */
             <div style={{
-              flex: 1, display: 'flex', alignItems: 'center',
+              flex: 1, display: 'flex', flexDirection: 'column',
               gap: isCompactViewport ? 4 : 6, paddingTop: 0, paddingRight: isCompactViewport ? 8 : 12, paddingLeft: isCompactViewport ? 10 : 14,
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}>
+              {/* Media previews - shown when files are selected */}
+              {quickDraftFiles.length > 0 && (
+                <div style={{
+                  display: 'flex', gap: 6, overflowX: 'auto', padding: '6px 0',
+                  scrollbarWidth: 'thin',
+                }}>
+                  {quickDraftFiles.map((file, idx) => (
+                    <div key={idx} style={{
+                      position: 'relative', minWidth: 60, height: 60,
+                      borderRadius: 8, overflow: 'hidden',
+                      background: 'rgba(180,185,200,0.15)',
+                      flexShrink: 0,
+                    }}>
+                      {file.type.startsWith('image/') && quickDraftPreviews[idx] && (
+                        <Image
+                          src={quickDraftPreviews[idx]}
+                          alt="Preview"
+                          width={60}
+                          height={60}
+                          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                        />
+                      )}
+                      {file.type.startsWith('video/') && quickDraftPreviews[idx] && (
+                        <video
+                          src={quickDraftPreviews[idx]}
+                          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                        />
+                      )}
+                      {!file.type.startsWith('image/') && !file.type.startsWith('video/') && (
+                        <div style={{
+                          width: '100%', height: '100%',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 24,
+                        }}>
+                          📎
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveQuickFile(idx)}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        aria-label="Remove file"
+                        style={{
+                          position: 'absolute', top: 2, right: 2,
+                          background: '#dc4444', color: 'white',
+                          border: 'none', borderRadius: '50%',
+                          width: 18, height: 18,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          cursor: 'pointer', padding: 0,
+                        }}
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', gap: isCompactViewport ? 4 : 6 }}>
               {/* Notification bell + unread badge */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
                 <Bell size={16} aria-hidden style={{
@@ -1032,9 +1177,45 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 </div>
               )}
 
-              {/* Quick compose */}
+              {/* Media picker button - hidden file input */}
               <input
-                type="text" value={quickDraft}
+                ref={quickFileInputRef}
+                type="file"
+                accept="image/*,video/*"
+                capture="environment"
+                multiple
+                onChange={handleQuickFileSelect}
+                style={{ display: 'none' }}
+              />
+              <button
+                type="button"
+                onClick={() => quickFileInputRef.current?.click()}
+                onPointerDown={(e) => e.stopPropagation()}
+                disabled={quickDraftFiles.length >= 5}
+                aria-label="Add photos or videos"
+                style={{
+                  flexShrink: 0,
+                  background: quickDraftFiles.length > 0 ? 'rgba(42,138,184,0.15)' : 'rgba(180,185,200,0.15)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: isCompactViewport ? 36 : 32,
+                  height: isCompactViewport ? 36 : 32,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: quickDraftFiles.length >= 5 ? 'not-allowed' : 'pointer',
+                  color: quickDraftFiles.length > 0 ? 'var(--de-accent)' : 'var(--de-text-dim)',
+                  opacity: quickDraftFiles.length >= 5 ? 0.5 : 1,
+                  transition: 'all 0.18s',
+                }}
+              >
+                <ImageIcon size={13} aria-hidden />
+              </button>
+
+              {/* Quick compose - now a textarea */}
+              <textarea
+                ref={textareaRef}
+                value={quickDraft}
                 onChange={(e) => setQuickDraft(e.target.value)}
                 onFocus={() => setComposeFocused(true)}
                 onBlur={() => setComposeFocused(false)}
@@ -1048,8 +1229,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                     : barCtx.placeholder
                 }
                 aria-label={barCtx.actionAriaLabel}
+                rows={1}
                 style={{
-                  flex: 1, minWidth: 0,
+                  flex: 1, minWidth: 0, resize: 'none', overflow: 'hidden',
                   background: composeFocused
                     ? 'rgba(255,255,255,0.82)'
                     : 'rgba(255,255,255,0.48)',
@@ -1058,13 +1240,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                     : barIntent.mode !== 'default'
                       ? '1.5px solid rgba(42,138,184,0.50)'
                       : '1px solid rgba(180,185,200,0.35)',
-                  borderRadius: 9999, padding: isCompactViewport ? '8px 14px' : '8px 16px', fontSize: isCompactViewport ? 16 : 13,
+                  borderRadius: 16, padding: isCompactViewport ? '8px 14px' : '8px 16px', fontSize: isCompactViewport ? 16 : 13,
                   color: 'var(--de-text)', outline: 'none', cursor: 'text',
                   transition: 'background 0.22s ease, border 0.22s ease, box-shadow 0.22s ease',
                   WebkitAppearance: 'none',
                   boxShadow: composeFocused
                     ? '0 0 0 3px rgba(200,152,26,0.10), 0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.50)'
                     : 'inset 0 1px 0 rgba(255,255,255,0.35)',
+                  lineHeight: 1.4,
+                  fontFamily: 'inherit',
                 }}
               />
 
@@ -1084,7 +1268,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               )}
 
               {/* Send / action button — SICC premium gradient with shimmer */}
-              {quickDraft.trim() && (
+              {(quickDraft.trim() || quickDraftFiles.length > 0) && (
                 <button
                   type="button" onClick={() => { void handleQuickSend(); }}
                   onPointerDown={(e) => e.stopPropagation()}
@@ -1134,6 +1318,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 label="Dr. Eams"
                 compact={isCompactViewport}
               />
+              </div>
             </div>
           )}
         </div>
