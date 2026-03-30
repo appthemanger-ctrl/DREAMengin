@@ -1,47 +1,94 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Maximize2, Power } from 'lucide-react';
-import GameRemote from '@/components/games/GameRemote';
-import { GAMES } from '@/components/games/GamesHub';
-import { buildGameLaunchHref, DEFAULT_GAME_ID, isLaunchFlagEnabled, resolveGameLaunchId } from '@/lib/games/navigation';
+/**
+ * ImmersiveGameShell — True full-screen game launcher with PS5-style boot
+ * sequence and a floating HUD controller overlay.
+ *
+ * Boot phases:
+ *   1 (0 – 800 ms)     Black screen · pulsing ⬡ hex logo in game accent colour
+ *   2 (800 – 2200 ms)  "GAMEENGIN" sweeps in from the right · "by DREAMengin" · game emoji
+ *   3 (2200 – 3400 ms) Game title card · category badge · "Press any button to start"
+ *   4 (3400 ms+)       Waiting for user input → fade out → game revealed
+ *
+ * Skip button is available from phase 1.
+ * After boot dismissal: game fills 100 vw × 100 dvh, GameHUD floats at bottom.
+ */
+
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import GameHUD from '@/components/games/GameHUD';
+import { GAMES } from '@/components/games/GamesHub';
+import {
+  buildGameLaunchHref,
+  DEFAULT_GAME_ID,
+  resolveGameLaunchId,
+} from '@/lib/games/navigation';
 
-const BOOT_MESSAGES = [
-  'Booting DREAMENGIN GameOS',
-  'Loading render pipeline',
-  'Docking remote surface',
-  'Mounting game session',
-] as const;
-
-const SESSION_CAPABILITY_CHIPS = [
-  'Dedicated session',
-  'Remote dock live',
-  'No-scroll shell',
-] as const;
+// ── Boot-sequence keyframe CSS (injected once into the document) ─────────────
+const BOOT_KEYFRAMES = `
+@keyframes de-hex-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50%       { opacity: 1;    transform: scale(1.07); }
+}
+@keyframes de-glow-ring-a {
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50%       { opacity: 0.65; transform: scale(1.18); }
+}
+@keyframes de-glow-ring-b {
+  0%, 100% { opacity: 0.10; transform: scale(1); }
+  50%       { opacity: 0.40; transform: scale(1.12); }
+}
+@keyframes de-sweep-in {
+  from { opacity: 0; transform: translateX(56px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes de-sweep-in-sub {
+  from { opacity: 0; transform: translateX(38px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes de-emoji-pop {
+  0%  { opacity: 0; transform: scale(0.4); }
+  70% { transform: scale(1.12); }
+  100%{ opacity: 1; transform: scale(1); }
+}
+@keyframes de-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes de-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes de-boot-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; pointer-events: none; }
+}
+`;
 
 export default function ImmersiveGameShell() {
   const searchParams = useSearchParams();
   const rootRef = useRef<HTMLDivElement>(null);
-  const [bootStep, setBootStep] = useState(0);
-  const [ready, setReady] = useState(false);
 
-  const gameId = resolveGameLaunchId(searchParams.get('game'), GAMES.map((game) => game.id), DEFAULT_GAME_ID);
-  const wantsFullscreen = isLaunchFlagEnabled(searchParams.get('expand'));
-  const [overlayDismissed, setOverlayDismissed] = useState(!wantsFullscreen);
-
+  // ── Resolve game ──────────────────────────────────────────────────────────
+  const gameId = resolveGameLaunchId(
+    searchParams.get('game'),
+    GAMES.map((g) => g.id),
+    DEFAULT_GAME_ID,
+  );
   const game = useMemo(
     () => GAMES.find((entry) => entry.id === gameId) ?? GAMES[0],
     [gameId],
   );
 
-  useEffect(() => {
-    setOverlayDismissed(!wantsFullscreen);
-  }, [wantsFullscreen, gameId]);
+  // ── Boot sequence state ───────────────────────────────────────────────────
+  // phase 1–4 mirrors the spec; 0 = not yet started
+  const [bootPhase, setBootPhase] = useState<1 | 2 | 3 | 4>(1);
+  const [fadingOut, setFadingOut] = useState(false);
+  const [bootDone, setBootDone] = useState(false);
 
+  // ── Suppress layout chrome ────────────────────────────────────────────────
   useEffect(() => {
-    const prev = document.body.style.overflow;
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
     const footer = document.querySelector('footer') as HTMLElement | null;
@@ -49,310 +96,335 @@ export default function ImmersiveGameShell() {
     if (footer) footer.style.display = 'none';
 
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevOverflow;
       if (footer) footer.style.display = prevFooterDisplay ?? '';
     };
   }, []);
 
+  // ── Inject boot keyframes once ────────────────────────────────────────────
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem('de:games:last-launch', game.id);
+    if (typeof document === 'undefined') return;
+    const id = 'de-boot-keyframes';
+    if (!document.getElementById(id)) {
+      const style = document.createElement('style');
+      style.id = id;
+      style.textContent = BOOT_KEYFRAMES;
+      document.head.appendChild(style);
+    }
+  }, []);
+
+  // ── Persist last-played ───────────────────────────────────────────────────
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('de:games:last-launch', game.id);
+    }
   }, [game.id]);
 
+  // ── Phase progression timers ──────────────────────────────────────────────
   useEffect(() => {
-    if (!wantsFullscreen) return undefined;
+    // Reset on every game change
+    setBootPhase(1);
+    setFadingOut(false);
+    setBootDone(false);
 
-    setBootStep(0);
-    setReady(false);
-    const timers = BOOT_MESSAGES.map((_, index) => (
-      window.setTimeout(() => setBootStep(index), index * 450)
-    ));
-    const readyTimer = window.setTimeout(() => setReady(true), 1700);
+    const t1 = window.setTimeout(() => setBootPhase(2), 800);
+    const t2 = window.setTimeout(() => setBootPhase(3), 2200);
+    const t3 = window.setTimeout(() => setBootPhase(4), 3400);
 
     return () => {
-      timers.forEach((timer) => window.clearTimeout(timer));
-      window.clearTimeout(readyTimer);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
     };
-  }, [game.id, wantsFullscreen]);
+  }, [game.id]);
 
-  const progress = useMemo(
-    () => ((bootStep + 1) / BOOT_MESSAGES.length) * 100,
-    [bootStep],
-  );
+  // ── Dismiss helpers ───────────────────────────────────────────────────────
+  const dismissBoot = useCallback(async () => {
+    if (fadingOut || bootDone) return;
+    setFadingOut(true);
 
-  async function handleEnterExperience() {
-    const target = rootRef.current ?? document.documentElement;
-
+    // Attempt native fullscreen (best-effort; requires user gesture)
     try {
-      if (document.fullscreenElement === null && 'requestFullscreen' in target) {
+      const target = rootRef.current ?? document.documentElement;
+      if (!document.fullscreenElement && 'requestFullscreen' in target) {
         await target.requestFullscreen();
       }
     } catch {
-      // Ignore fullscreen denial and continue into the experience.
+      /* fullscreen denied — continue anyway */
     }
 
-    setOverlayDismissed(true);
-  }
+    window.setTimeout(() => setBootDone(true), 500);
+  }, [fadingOut, bootDone]);
 
-  const handleRemotePlay = () => {
-    window.dispatchEvent(new CustomEvent('de-game-start'));
-  };
+  // Skip is allowed immediately; "press any key" listens from phase 4
+  useEffect(() => {
+    if (bootPhase < 4 || bootDone || fadingOut) return undefined;
+    const handler = () => { dismissBoot(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [bootPhase, bootDone, fadingOut, dismissBoot]);
 
+  // ── Render ────────────────────────────────────────────────────────────────
   const ActiveGameComponent = game.component ?? (() => null);
+  const accent = game.color;
 
   return (
     <div
       ref={rootRef}
       style={{
-        minHeight: '100dvh',
+        position: 'fixed',
+        inset: 0,
+        width: '100vw',
         height: '100dvh',
         overflow: 'hidden',
-        background: 'linear-gradient(180deg, #040816 0%, #050c18 38%, #07101e 100%)',
-        display: 'flex',
-        flexDirection: 'column',
+        background: '#000',
       }}
     >
-      {wantsFullscreen && !overlayDismissed && (
+      {/* ── Game viewport — always mounted so assets begin loading immediately ── */}
+      <div style={{ position: 'absolute', inset: 0 }}>
+        {game.component ? (
+          <ActiveGameComponent />
+        ) : (
+          /* Fallback placeholder for link-only games */
+          <div
+            style={{
+              height: '100%',
+              display: 'grid',
+              placeItems: 'center',
+              background: 'linear-gradient(180deg, #040816 0%, #07101e 100%)',
+              color: 'rgba(226,232,240,0.82)',
+              padding: 24,
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ display: 'grid', gap: 12, maxWidth: 420 }}>
+              <div style={{ fontSize: 40 }}>{game.emoji}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#f8fbff' }}>{game.label}</div>
+              <div style={{ fontSize: 14, lineHeight: 1.7 }}>{game.desc}</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── PS5-style boot overlay ── hidden once bootDone ── */}
+      {!bootDone && (
         <div
+          role="presentation"
+          onClick={bootPhase >= 3 ? dismissBoot : undefined}
           style={{
-            position: 'fixed',
+            position: 'absolute',
             inset: 0,
-            zIndex: 60,
+            zIndex: 40,
+            background: '#000',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 20,
-            background: 'radial-gradient(circle at top, rgba(42,138,184,0.2), rgba(4,8,18,0.98) 48%), linear-gradient(180deg, #040816, #02040b)',
+            cursor: bootPhase >= 4 ? 'pointer' : 'default',
+            animation: fadingOut
+              ? 'de-boot-fade-out 0.5s ease forwards'
+              : undefined,
           }}
         >
-          <div
-            style={{
-              width: 'min(100%, 460px)',
-              borderRadius: 28,
-              padding: '28px 24px',
-              background: 'linear-gradient(180deg, rgba(8,18,38,0.96), rgba(4,10,22,0.96))',
-              border: '1px solid rgba(125,211,252,0.18)',
-              boxShadow: '0 28px 80px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.06)',
-            }}
-          >
-            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ background: 'rgba(125,211,252,0.08)', color: '#7dd3fc', border: '1px solid rgba(125,211,252,0.18)' }}>
-              <Power className="w-3.5 h-3.5" />
-              DREAMENGIN boot sequence
-            </div>
-
-            <div style={{ marginTop: 18, fontSize: 34, fontWeight: 900, lineHeight: 0.98, color: '#f8fbff', letterSpacing: '-0.04em' }}>
-              {game.label}
-            </div>
-            <div style={{ marginTop: 4, fontSize: 11, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#7dd3fc' }}>
-              Powered by DREAMengin Elite Game Engine
-            </div>
-            <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.7, color: 'rgba(226,232,240,0.76)' }}>
-              Launching a dedicated game surface so the screen behaves like a console session: game first, remote docked, no scrolling shell around it.
-            </div>
-
-            <div style={{ marginTop: 22, display: 'grid', gap: 10 }}>
-              {BOOT_MESSAGES.map((message, index) => {
-                const active = index <= bootStep;
-                return (
-                  <div
-                    key={message}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 12,
-                      padding: '10px 12px',
-                      borderRadius: 14,
-                      background: active ? 'rgba(125,211,252,0.08)' : 'rgba(255,255,255,0.03)',
-                      border: active ? '1px solid rgba(125,211,252,0.18)' : '1px solid rgba(255,255,255,0.05)',
-                    }}
-                  >
-                    <span style={{ fontSize: 12, fontWeight: 700, color: active ? '#f8fbff' : 'rgba(226,232,240,0.46)' }}>{message}</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: active ? '#7dd3fc' : 'rgba(226,232,240,0.34)' }}>
-                      {active ? 'Ready' : 'Wait'}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div style={{ marginTop: 18, borderRadius: 999, height: 8, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-              <div style={{ width: `${progress}%`, height: '100%', borderRadius: 999, background: 'linear-gradient(90deg, #2a8ab8, #7dd3fc, #c8981a)', transition: 'width 0.35s ease' }} />
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center" style={{ marginTop: 22 }}>
-              <button
-                type="button"
-                onClick={handleEnterExperience}
-                disabled={!ready}
-                className="de-btn de-btn-primary"
+          {/* ── Phase 1: pulsing hex logo ── */}
+          {bootPhase === 1 && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 20,
+                animation: 'de-fade-in 0.4s ease forwards',
+              }}
+            >
+              <div
                 style={{
-                  minWidth: 210,
+                  position: 'relative',
+                  width: 130,
+                  height: 130,
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
-                  opacity: ready ? 1 : 0.6,
-                  cursor: ready ? 'pointer' : 'wait',
                 }}
               >
-                <Maximize2 className="w-4 h-4" />
-                {ready ? 'Enter full experience' : 'Preparing...'}
-              </button>
-              <div style={{ fontSize: 11, lineHeight: 1.6, color: 'rgba(226,232,240,0.58)' }}>
-                Fullscreen will be requested when your browser allows it.
+                {/* Outer glow ring */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: -20,
+                    borderRadius: '50%',
+                    border: `2px solid ${accent}`,
+                    animation: 'de-glow-ring-a 1.6s ease-in-out infinite',
+                  }}
+                />
+                {/* Inner glow ring */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: -10,
+                    borderRadius: '50%',
+                    border: `1px solid ${accent}`,
+                    animation: 'de-glow-ring-b 1.6s ease-in-out infinite 0.4s',
+                  }}
+                />
+                {/* Hex symbol */}
+                <div
+                  style={{
+                    fontSize: 76,
+                    lineHeight: 1,
+                    color: accent,
+                    textShadow: `0 0 48px ${accent}, 0 0 80px ${accent}44`,
+                    animation: 'de-hex-pulse 1.6s ease-in-out infinite',
+                  }}
+                >
+                  ⬡
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* ── Phase 2: GAMEENGIN text + game emoji ── */}
+          {bootPhase === 2 && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 14,
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 56,
+                  lineHeight: 1,
+                  animation: 'de-emoji-pop 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards',
+                }}
+              >
+                {game.emoji}
+              </div>
+              <div
+                style={{
+                  fontSize: 'clamp(36px, 7vw, 58px)',
+                  fontWeight: 900,
+                  letterSpacing: '0.10em',
+                  color: '#f8fbff',
+                  textTransform: 'uppercase',
+                  animation: 'de-sweep-in 0.5s cubic-bezier(0.2,0,0,1) 0.05s both',
+                }}
+              >
+                GAMEENGIN
+              </div>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  letterSpacing: '0.26em',
+                  color: 'rgba(220,235,255,0.50)',
+                  textTransform: 'uppercase',
+                  animation: 'de-sweep-in-sub 0.5s cubic-bezier(0.2,0,0,1) 0.22s both',
+                }}
+              >
+                by DREAMengin
+              </div>
+            </div>
+          )}
+
+          {/* ── Phase 3 + 4: game title card ── */}
+          {(bootPhase === 3 || bootPhase === 4) && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 18,
+                textAlign: 'center',
+                padding: '0 28px',
+                animation: 'de-fade-in 0.4s ease forwards',
+              }}
+            >
+              <div style={{ fontSize: 52, lineHeight: 1 }}>{game.emoji}</div>
+              <div
+                style={{
+                  fontSize: 'clamp(26px, 5.5vw, 52px)',
+                  fontWeight: 900,
+                  letterSpacing: '-0.03em',
+                  color: '#f8fbff',
+                  lineHeight: 1.1,
+                }}
+              >
+                {game.label}
+              </div>
+              {/* Category badge */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '4px 16px',
+                  borderRadius: 999,
+                  background: `${accent}1f`,
+                  border: `1px solid ${accent}55`,
+                  color: accent,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  letterSpacing: '0.20em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {game.category}
+              </div>
+              {/* "Press any button" — only in phase 4 */}
+              {bootPhase === 4 && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(220,235,255,0.52)',
+                    animation: 'de-blink 1.3s ease-in-out infinite',
+                  }}
+                >
+                  Press any button to start
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Skip button — always visible ── */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); dismissBoot(); }}
+            style={{
+              position: 'absolute',
+              bottom: 24,
+              right: 24,
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'rgba(220,235,255,0.32)',
+              padding: '6px 13px',
+              borderRadius: 8,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              cursor: 'pointer',
+            }}
+          >
+            Skip →
+          </button>
         </div>
       )}
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '10px 14px',
-          borderBottom: '1px solid rgba(125,211,252,0.12)',
-          background: 'rgba(7,14,28,0.94)',
-          flexShrink: 0,
-        }}
-      >
-        <Link
-          href={buildGameLaunchHref(game.id, { openEngin: true })}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: 108,
-            padding: '10px 14px',
-            borderRadius: 12,
-            textDecoration: 'none',
-            background: 'rgba(220,232,248,0.08)',
-            border: '1px solid rgba(160,195,240,0.18)',
-            color: 'rgba(220,235,255,0.88)',
-            fontSize: 13,
-            fontWeight: 800,
-          }}
-        >
-          ← Games
-        </Link>
-
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc' }}>
-            Dedicated Game Session
-          </div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: '#f8fbff', marginTop: 2 }}>
-            {game.label}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleEnterExperience}
-          className="de-btn de-btn-ghost text-xs"
-          style={{ borderColor: 'rgba(125,211,252,0.22)', color: '#7dd3fc' }}
-        >
-          <Maximize2 className="w-3.5 h-3.5" />
-          Fullscreen
-        </button>
-      </div>
-
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div
-          style={{
-            padding: '10px 12px 0',
-            flexShrink: 0,
-          }}
-        >
-          <div
-            style={{
-              borderRadius: 18,
-              padding: '10px 14px',
-              border: '1px solid rgba(125,211,252,0.14)',
-              background: 'rgba(7,14,28,0.78)',
-              display: 'grid',
-              gap: 10,
-            }}
-          >
-            <div style={{ fontSize: 12, lineHeight: 1.7, color: 'rgba(226,232,240,0.74)' }}>
-              {game.desc}
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {SESSION_CAPABILITY_CHIPS.map((chip) => (
-                <div
-                  key={chip}
-                  style={{
-                    borderRadius: 999,
-                    padding: '6px 10px',
-                    fontSize: 10,
-                    fontWeight: 800,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    color: '#7dd3fc',
-                    background: 'rgba(125,211,252,0.08)',
-                    border: '1px solid rgba(125,211,252,0.16)',
-                  }}
-                >
-                  {chip}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ flex: 1, minHeight: 0, padding: '12px 12px 0', overflow: 'hidden' }}>
-          <div style={{ height: '100%', borderRadius: 24, overflow: 'hidden', background: 'rgba(5, 12, 24, 0.92)', border: '1px solid rgba(125,211,252,0.16)', boxShadow: '0 24px 80px rgba(0,0,0,0.34)' }}>
-            {ActiveGameComponent ? (
-              <ActiveGameComponent />
-            ) : (
-              <div
-                style={{
-                  height: '100%',
-                  display: 'grid',
-                  placeItems: 'center',
-                  padding: 24,
-                  textAlign: 'center',
-                  color: 'rgba(226,232,240,0.82)',
-                }}
-              >
-                <div style={{ display: 'grid', gap: 10, maxWidth: 420 }}>
-                  <div style={{ fontSize: 28 }}>{game.emoji}</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#f8fbff' }}>{game.label}</div>
-                  <div style={{ fontSize: 13, lineHeight: 1.7 }}>{game.desc}</div>
-                  {game.href && (
-                    <Link
-                      href={game.href}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: 44,
-                        padding: '10px 16px',
-                        borderRadius: 12,
-                        background: 'rgba(125,211,252,0.12)',
-                        border: '1px solid rgba(125,211,252,0.24)',
-                        color: '#7dd3fc',
-                        textDecoration: 'none',
-                        fontSize: 13,
-                        fontWeight: 800,
-                      }}
-                    >
-                      Open game page
-                    </Link>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div style={{ padding: '10px 12px 12px', borderTop: '1px solid rgba(160,195,240,0.08)', background: 'rgba(2,8,18,0.96)', flexShrink: 0 }}>
-          <GameRemote
-            embedded
-            gameLabel={game.label}
-            playHref={buildGameLaunchHref(game.id, { play: true })}
-            onPlay={handleRemotePlay}
-          />
-        </div>
-      </div>
+      {/* ── Floating HUD — mounted only after boot is done ── */}
+      {bootDone && (
+        <GameHUD
+          gameLabel={game.label}
+          gameEmoji={game.emoji}
+          playHref={buildGameLaunchHref(game.id, { play: true })}
+        />
+      )}
     </div>
   );
 }
+
