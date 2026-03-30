@@ -92,7 +92,7 @@ export class WebGPURenderer {
     this.dev = (await adapter.requestDevice()) as unknown as GPUDevice;
 
     this.ctx = canvas.getContext('webgpu') as GPUCanvasContext;
-    this.fmt = gpu.getPreferredCanvasFormat();
+    this.fmt = gpu.getPreferredCanvasFormat() as GPUTextureFormat;
     this.ctx.configure({ device: this.dev, format: this.fmt, alphaMode: 'opaque' });
 
     this._mkBuffers();
