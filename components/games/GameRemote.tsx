@@ -316,6 +316,10 @@ interface GameRemoteProps {
   playHref?: string;
   gameLabel?: string;
   onPlay?: () => void;
+  /** Called when the embedded EXIT button is pressed. */
+  onExit?: () => void;
+  /** If provided and onExit is absent, EXIT button renders as a navigation link. */
+  exitHref?: string;
 }
 
 export default function GameRemote({
@@ -324,6 +328,8 @@ export default function GameRemote({
   playHref,
   gameLabel,
   onPlay,
+  onExit,
+  exitHref,
 }: GameRemoteProps) {
   const { connected: gpConnected, gamepadName } = useGamepad();
   const searchParams = useSearchParams();
@@ -452,6 +458,38 @@ export default function GameRemote({
               ? (isDualSense ? '🎮 DualSense linked' : '🕹 Pad linked')
               : '🎮 Remote ready'}
           </span>
+
+          {/* EXIT button — only rendered when embedded and an exit action is provided */}
+          {embedded && (onExit || exitHref) && (
+            onExit ? (
+              <button
+                type="button"
+                onClick={onExit}
+                style={{
+                  padding: '6px 14px', borderRadius: 8,
+                  background: 'rgba(239,68,68,0.14)',
+                  border: '1px solid rgba(239,68,68,0.4)',
+                  color: '#ef4444', fontSize: 11, fontWeight: 800,
+                  letterSpacing: '0.08em', cursor: 'pointer', flexShrink: 0,
+                }}
+              >
+                ✕ Exit
+              </button>
+            ) : (
+              <Link
+                href={exitHref!}
+                style={{
+                  padding: '6px 14px', borderRadius: 8,
+                  background: 'rgba(239,68,68,0.14)',
+                  border: '1px solid rgba(239,68,68,0.4)',
+                  color: '#ef4444', fontSize: 11, fontWeight: 800,
+                  letterSpacing: '0.08em', textDecoration: 'none', flexShrink: 0,
+                }}
+              >
+                ✕ Exit
+              </Link>
+            )
+          )}
         </div>
       )}
 
