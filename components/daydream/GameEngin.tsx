@@ -428,7 +428,89 @@ export default function GameEngin({ onBack }: Props) {
     { id: 'ch-2', from: 'CodeWizard42', game: 'Word Sprint', score: 11200 },
   ]);
 
-  // ── Daydream Persistence (Phase 8 §F, pts 49-52) ─────────────────────────────
+  // ── Speedrun Timer ────────────────────────────────────────────────────────────
+  const [srActive, setSrActive]   = useState(false);
+  const [srMs, setSrMs]           = useState(0);
+  const [srSplits, setSrSplits]   = useState<number[]>([]);
+  const srRef                     = useRef<ReturnType<typeof setInterval> | null>(null);
+  const srPB                      = 151204; // 02:31.204 in ms
+  useEffect(() => {
+    if (srActive) {
+      srRef.current = setInterval(() => setSrMs(ms => ms + 10), 10);
+    } else {
+      if (srRef.current) clearInterval(srRef.current);
+    }
+    return () => { if (srRef.current) clearInterval(srRef.current); };
+  }, [srActive]);
+  function srFormat(ms: number) {
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    const cs = Math.floor((ms % 1000) / 10);
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(3,'0')}`;
+  }
+
+  // ── Daily Quests ─────────────────────────────────────────────────────────────
+  const initialQuests = [
+    { id: 'q1', quest: 'Play 3 games today',          xp: 100, done: false },
+    { id: 'q2', quest: 'Reach 500 pts in Speed Tap',  xp: 200, done: false },
+    { id: 'q3', quest: 'Win a multiplayer match',     xp: 300, done: false },
+    { id: 'q4', quest: 'Post a high score',           xp: 150, done: false },
+  ];
+  const [quests, setQuests] = useState(() => {
+    if (typeof window === 'undefined') return initialQuests;
+    try {
+      const stored = localStorage.getItem('de-daily-quests');
+      if (stored) {
+        const parsed = JSON.parse(stored) as typeof initialQuests;
+        // Reset daily quests at midnight
+        const dayKey = new Date().toDateString();
+        const storedDay = localStorage.getItem('de-quest-day');
+        if (storedDay !== dayKey) {
+          localStorage.setItem('de-quest-day', dayKey);
+          return initialQuests;
+        }
+        return parsed;
+      }
+    } catch { /* ignore */ }
+    return initialQuests;
+  });
+  function toggleQuest(id: string) {
+    setQuests(prev => {
+      const next = prev.map(q => {
+        if (q.id !== id) return q;
+        const nowDone = !q.done;
+        if (nowDone) setCoins(c => c + q.xp);
+        return { ...q, done: nowDone };
+      });
+      if (typeof window !== 'undefined') localStorage.setItem('de-daily-quests', JSON.stringify(next));
+      return next;
+    });
+  }
+
+  // ── Dream Economy ─────────────────────────────────────────────────────────────
+  const [coins, setCoins] = useState(() => {
+    if (typeof window === 'undefined') return 2840;
+    return parseInt(localStorage.getItem('de-dream-coins') ?? '2840', 10);
+  });
+  useEffect(() => {
+    if (typeof window !== 'undefined') localStorage.setItem('de-dream-coins', String(coins));
+  }, [coins]);
+
+  // ── Season Pass ───────────────────────────────────────────────────────────────
+  const [seasonXP, setSeasonXP] = useState(() => {
+    if (typeof window === 'undefined') return 4200;
+    return parseInt(localStorage.getItem('de-season-xp') ?? '4200', 10);
+  });
+  const seasonMax = 10000;
+  function earnXP(amount: number) {
+    setSeasonXP(prev => {
+      const next = Math.min(prev + amount, seasonMax);
+      if (typeof window !== 'undefined') localStorage.setItem('de-season-xp', String(next));
+      return next;
+    });
+  }
+
+
   // Saves and restores the GameEngin workspace state across sessions.
   type GameSavedState = {
     worldGrid?: TileType[][];
@@ -519,7 +601,7 @@ export default function GameEngin({ onBack }: Props) {
   const openPlayableGamePage = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
     savePlayableGame(gameId, options.expand ? 'fullscreen' : 'library-screen');
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem(GAME_LIBRARY_SELECTION_STORAGE_KEY, gameId);
+    window.localStorage.setItem(GAME_LIBRARY_SESSION_STORAGE_KEY, gameId);
     window.localStorage.setItem('de:games:last-launch', gameId);
     window.location.assign(buildGameLaunchHref(gameId, { play: true, expand: options.expand }));
   }, [savePlayableGame]);
@@ -726,16 +808,19 @@ export default function GameEngin({ onBack }: Props) {
     { label: 'Saved Slots', value: String(savedLaunches.length), tone: '#4ade80' },
     { label: 'Backend', value: engineType ?? 'Detecting…', tone: engineType === 'WebGPU' ? '#a78bfa' : '#38bdf8' },
   ] as const;
+  const selectedPlayableUsesEliteRuntime = selectedPlayable.id === 'neon-drift' || selectedPlayable.id === 'echo-arena';
   const selectedPlayableCapabilities = [
     'Fullscreen boot',
     'Remote dock',
     'Quick resume',
     `${activeControlProfile.label} controls`,
+    ...(selectedPlayableUsesEliteRuntime ? ['Elite engine telemetry', 'Adaptive quality'] : []),
   ];
   const selectedPlayableStatus = [
     `${selectedPlayable.category} class`,
     savedPlayableSession ? 'Saved to memory deck' : 'Ready for first save',
     activePlayable ? 'Live on play screen' : 'Standby',
+    ...(selectedPlayableUsesEliteRuntime ? ['Elite engine active in web app'] : []),
   ];
 
   return (
@@ -812,7 +897,7 @@ export default function GameEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-body" style={{ paddingTop: 12 }}>
             <div style={{ fontSize: 12, lineHeight: 1.65, color: 'rgba(226,232,240,0.78)', marginBottom: 14 }}>
-              GameEngin is the actual play surface. Pick a saved game or any library title, boot it on the big screen here, expand fullscreen when you want the browser to disappear, and use the PS-style remote on the game itself. This layer should feel like the actual console OS behind every playable game, not just a launcher.
+              GameEngin is the actual play surface. Pick a saved game or any library title, boot it on the big screen here, expand fullscreen when you want the browser to disappear, and use the PS-style remote on the game itself. This layer should feel like the actual console OS behind every playable game, not just a launcher. Elite-engine titles surface their runtime directly here in the web app with live telemetry, adaptive quality, and AI-assisted pacing.
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 14 }}>
@@ -2099,12 +2184,155 @@ export default function GameEngin({ onBack }: Props) {
           </div>
         </div>
 
+        {/* ── Feature 17: Season Pass / Battle Pass Tracker ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>⭐</span>
+            <span className="de-widget-title ml-2">Season Pass</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#c8981a', background: 'rgba(200,152,26,0.12)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              Season 3
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 12 }}>
+              <span style={{ color: 'var(--de-text-dim)' }}>XP Progress</span>
+              <span style={{ fontWeight: 700, color: 'var(--de-heading)' }}>{seasonXP.toLocaleString()} / {seasonMax.toLocaleString()} XP</span>
+            </div>
+            <div style={{ height: 8, borderRadius: 4, background: 'rgba(200,152,26,0.12)', marginBottom: 8 }}>
+              <div style={{ height: '100%', borderRadius: 4, width: `${Math.round((seasonXP / seasonMax) * 100)}%`, background: 'linear-gradient(90deg, #c8981a, #f59e0b)', transition: 'width 0.4s ease' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 5 }}>
+              {[
+                { tier: 1, reward: '💎', xpNeeded: 2000 },
+                { tier: 2, reward: '🎮', xpNeeded: 4000 },
+                { tier: 3, reward: '🏆', xpNeeded: 6000 },
+                { tier: 4, reward: '🌟', xpNeeded: 8000 },
+                { tier: 5, reward: '👑', xpNeeded: 10000 },
+              ].map(t => {
+                const unlocked = seasonXP >= t.xpNeeded;
+                return (
+                  <div key={t.tier} style={{ textAlign: 'center', padding: '8px 4px', borderRadius: 8, background: unlocked ? 'rgba(200,152,26,0.15)' : 'rgba(0,0,0,0.05)', border: `1px solid ${unlocked ? 'rgba(200,152,26,0.35)' : 'rgba(0,0,0,0.08)'}`, opacity: unlocked ? 1 : 0.5 }}>
+                    <div style={{ fontSize: 18, filter: unlocked ? 'none' : 'grayscale(1)' }}>{t.reward}</div>
+                    <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>T{t.tier}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <button type="button" onClick={() => earnXP(250)}
+              style={{ marginTop: 10, width: '100%', padding: '7px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: 'rgba(200,152,26,0.12)', border: '1px solid rgba(200,152,26,0.3)', color: '#c8981a', cursor: 'pointer' }}>
+              + Earn 250 XP (Practice Session)
+            </button>
+          </div>
+        </div>
+
+        {/* ── Feature 18: Daily / Weekly Quests ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>📋</span>
+            <span className="de-widget-title ml-2">Daily Quests</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              {quests.filter(q => q.done).length}/{quests.length} done
+            </span>
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+            {quests.map(q => (
+              <button key={q.id} type="button" onClick={() => toggleQuest(q.id)}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 9, background: q.done ? 'rgba(34,197,94,0.07)' : 'rgba(255,255,255,0.5)', border: `1px solid ${q.done ? 'rgba(34,197,94,0.25)' : 'rgba(0,0,0,0.06)'}`, cursor: 'pointer', textAlign: 'left', width: '100%' }}>
+                <span style={{ fontSize: 16 }}>{q.done ? '✅' : '⬜'}</span>
+                <span style={{ flex: 1, fontSize: 11, color: 'var(--de-heading)', fontWeight: 600, textDecoration: q.done ? 'line-through' : 'none', opacity: q.done ? 0.6 : 1 }}>{q.quest}</span>
+                <span style={{ fontSize: 10, color: '#c8981a', fontWeight: 700 }}>+{q.xp} XP</span>
+              </button>
+            ))}
+            <p style={{ fontSize: 10, color: 'var(--de-text-dim)', textAlign: 'center', marginTop: 4 }}>Tap a quest to mark it complete — XP added to your Season Pass</p>
+          </div>
+        </div>
+
+        {/* ── Feature 19: Dream Economy ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>💰</span>
+            <span className="de-widget-title ml-2">Dream Economy</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 10 }}>
+              <div style={{ padding: '10px 8px', borderRadius: 10, background: 'rgba(200,152,26,0.08)', border: '1px solid rgba(200,152,26,0.25)', textAlign: 'center' }}>
+                <div style={{ fontSize: 20 }}>🟡</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#c8981a' }}>{coins.toLocaleString()}</div>
+                <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>DreamCoins</div>
+              </div>
+              <div style={{ padding: '10px 8px', borderRadius: 10, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', textAlign: 'center' }}>
+                <div style={{ fontSize: 20 }}>💎</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#6366f1' }}>142</div>
+                <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>Gems</div>
+              </div>
+              <div style={{ padding: '10px 8px', borderRadius: 10, background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.2)', textAlign: 'center' }}>
+                <div style={{ fontSize: 20 }}>🎫</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#ec4899' }}>28</div>
+                <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>Tokens</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 7 }}>
+              <button type="button" onClick={() => { setCoins(c => c + 25); }}
+                style={{ flex: 1, padding: '7px 4px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: 'rgba(200,152,26,0.12)', border: '1px solid rgba(200,152,26,0.3)', color: '#c8981a', cursor: 'pointer' }}>
+                🎁 Daily Login +25
+              </button>
+              <button type="button" onClick={() => { setCoins(c => Math.max(0, c - 100)); }}
+                style={{ flex: 1, padding: '7px 4px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#6366f1', cursor: 'pointer' }}>
+                🛒 Spend 100
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 20: Speedrun Timer ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>⏱</span>
+            <span className="de-widget-title ml-2">Speedrun Timer</span>
+            {srActive && <span style={{ marginLeft: 'auto', fontSize: 9, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 4, fontWeight: 700, animation: 'pulse 1s infinite' }}>● LIVE</span>}
+          </div>
+          <div className="de-widget-body">
+            <div style={{ textAlign: 'center', padding: '10px 0' }}>
+              <div style={{ fontSize: 40, fontWeight: 900, fontFamily: 'monospace', color: srMs > srPB ? '#ef4444' : '#2a8ab8', letterSpacing: '0.04em', transition: 'color 0.3s' }}>
+                {srFormat(srMs)}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 4 }}>
+                PB: {srFormat(srPB)} {srMs > 0 && srMs <= srPB && <span style={{ color: '#22c55e', fontWeight: 700 }}>🎯 On pace!</span>}
+                {srMs > srPB && srMs > 0 && <span style={{ color: '#ef4444', fontWeight: 700 }}>+{srFormat(srMs - srPB)} behind PB</span>}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <button type="button" onClick={() => setSrActive(a => !a)}
+                style={{ flex: 1, padding: '10px 4px', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: 'pointer', background: srActive ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.14)', border: `1px solid ${srActive ? 'rgba(239,68,68,0.3)' : 'rgba(34,197,94,0.3)'}`, color: srActive ? '#ef4444' : '#22c55e' }}>
+                {srActive ? '⏸ Pause' : srMs > 0 ? '▶ Resume' : '▶ Start'}
+              </button>
+              <button type="button" onClick={() => setSrSplits(s => [...s, srMs])}
+                disabled={!srActive}
+                style={{ flex: 1, padding: '10px 4px', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: srActive ? 'pointer' : 'default', background: 'rgba(42,138,184,0.12)', border: '1px solid rgba(42,138,184,0.25)', color: '#2a8ab8', opacity: srActive ? 1 : 0.4 }}>
+                ✂ Split
+              </button>
+              <button type="button" onClick={() => { setSrActive(false); setSrMs(0); setSrSplits([]); }}
+                style={{ flex: 1, padding: '10px 4px', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: 'pointer', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444' }}>
+                🔄 Reset
+              </button>
+            </div>
+            {srSplits.length > 0 && (
+              <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {srSplits.map((split, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, padding: '4px 8px', borderRadius: 7, background: split <= srPB * ((i + 1) / 3) ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.06)' }}>
+                    <span style={{ color: 'var(--de-text-dim)' }}>Split {i + 1}</span>
+                    <span style={{ fontFamily: 'monospace', color: 'var(--de-heading)' }}>{srFormat(split)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );
 }
-
-// ── EnginBootSplash ────────────────────────────────────────────────────────────
 /**
  * Full-screen "DREAMengin powered by…" boot splash shown for 2.5 s when a game
  * enters fullscreen. Auto-dismisses via onDone callback.

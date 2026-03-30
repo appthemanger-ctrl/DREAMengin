@@ -34,13 +34,13 @@ export function snapToSplitPoint(ratio: number): number {
 export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number): number {
   const nearest = snapToSplitPoint(ratio);
   const idx = SPLIT_SNAP_POINTS.indexOf(nearest as 0.1 | 0.5 | 0.9);
-  if (velocityPxPerMs >= SPLIT_FLING_VELOCITY_PX_PER_MS && idx < SPLIT_SNAP_POINTS.length - 1) {
-    // fling downward → next higher Dream-focus point
-    return SPLIT_SNAP_POINTS[idx + 1];
-  }
-  if (velocityPxPerMs <= -SPLIT_FLING_VELOCITY_PX_PER_MS && idx > 0) {
-    // fling upward → next higher Surface-focus point
+  if (velocityPxPerMs >= SPLIT_FLING_VELOCITY_PX_PER_MS && idx > 0) {
+    // fling downward → lower split ratio (more Dream Space)
     return SPLIT_SNAP_POINTS[idx - 1];
+  }
+  if (velocityPxPerMs <= -SPLIT_FLING_VELOCITY_PX_PER_MS && idx < SPLIT_SNAP_POINTS.length - 1) {
+    // fling upward → higher split ratio (more Surface Space)
+    return SPLIT_SNAP_POINTS[idx + 1];
   }
   return nearest;
 }

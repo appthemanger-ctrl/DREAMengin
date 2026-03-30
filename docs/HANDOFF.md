@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
-| **auto** | 2026-03-29 19:55 UTC | `aa06e1f` | copilot/build-new-la-inspired-game | Copilot | ~4 modified<br>feat: expand lucid avenue world content — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/366faa16-9c0f-4918-a043-be58351e99ee  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/games/GamesHub.tsx`, `components/games/LucidAvenue.tsx`, `lib/games/lucid-avenue-world.ts`, `tests/lucid-avenue-game.test.ts` |
-| **auto** | 2026-03-29 09:31 UTC | `9121370` | copilot/build-new-la-inspired-game | Copilot | ~1 modified<br>test: refactor report agent script stubs — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/794091cf-2f17-4775-b26e-5a43e7b7cb57  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `tests/report-driven-game-agent.test.ts` |
-| **auto** | 2026-03-29 08:51 UTC | `5f13cf5` | completedream | appthemanger-ctrl | +1 added<br>Create pokemoncristal.yaml<br>➕: `pokemoncristal.yaml` |
-| **auto** | 2026-03-29 08:50 UTC | `ee4d4e7` | completedream | appthemanger-ctrl | −1 deleted<br>Delete pokemoncryst<br>🗑️: `pokemoncryst` |
-| **auto** | 2026-03-29 07:34 UTC | `310dd57` | copilot/fix-game-engine-control-issue | Copilot | ~6 modified<br>feat: route game launches to dedicated session page — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/99a16083-ae20-4386-bb8e-b92f8b8ed8ce  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/daydream/game/ImmersiveGameShell.tsx`, `app/daydream/game/page.tsx`, `components/daydream/GameEngin.tsx`, `lib/games/navigation.ts`, `next-env.d.ts`, `tests/game-navigation.test.ts` |
+| **auto** | 2026-03-30 03:49 UTC | `7676a82` | copilot/improve-industry-integration-features | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/improve-industry-integration-features<br> |
+| **auto** | 2026-03-30 03:39 UTC | `90ac6e3` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #352 from appthemanger-ctrl/copilot/update-system-prompt — Render standalone Daydream Engin routes directly<br> |
+| **auto** | 2026-03-29 19:53 UTC | `42d1c43` | copilot/improve-user-experience | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/improve-user-experience<br> |
+| **auto** | 2026-03-29 12:02 UTC | `5b5f005` | completedream | appthemanger-ctrl | −1 deleted<br>Delete pokemoncristal.yaml<br>🗑️: `pokemoncristal.yaml` |
+| **auto** | 2026-03-29 09:35 UTC | `8516a81` | copilot/fix-active-game-component-error | Copilot | ~3 modified<br>fix: resolve 3 TypeScript build errors blocking Vercel deploy — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/2acb3a9b-3d03-40a7-9bdf-961ab6fd7d45  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/daydream/game/ImmersiveGameShell.tsx`, `app/homedream/page.tsx`, `components/daydream/GameEngin.tsx` |
 
 ## What changed in this alignment pass
 

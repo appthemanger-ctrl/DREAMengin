@@ -14,8 +14,9 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Lock, Smartphone, Key, Shield, AlertTriangle, Check, Loader2 } from 'lucide-react';
+import { Lock, Smartphone, Key, Shield, AlertTriangle, Check, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,17 +51,16 @@ export default function SecuritySettingsPage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </Link>
-          <Shield className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Security</h1>
-        </div>
-      </header>
+      <AuthenticatedPageHeader
+        backHref="/settings"
+        title="Security"
+        subtitle="Passwords, sessions, MFA guidance, and account safety in one place."
+        icon={<Shield className="w-4 h-4" />}
+        accentColor="var(--de-accent)"
+        badge="Settings"
+      />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+      <div className="de-auth-content space-y-4">
 
         {/* Password */}
         <div className="de-widget">

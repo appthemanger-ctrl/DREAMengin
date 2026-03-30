@@ -26,6 +26,7 @@ import DreamNavControls from '@/components/dreamnav/DreamNavControls';
 import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DreamWidgetGrid from './DreamWidgetGrid';
+import BrandLogo from '@/components/BrandLogo';
 
 import '@/styles/home-dream.css';
 
@@ -191,16 +192,22 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
       )}
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-de-border px-6 py-4 flex items-center justify-between premium-header"
+      <header
+        className="sticky top-0 z-30 border-b border-de-border px-4 py-3 flex items-center justify-between premium-header"
+        style={{ backdropFilter: 'blur(28px) saturate(160%)', WebkitBackdropFilter: 'blur(28px) saturate(160%)', boxShadow: '0 1px 0 rgba(200,152,26,0.10), 0 4px 16px rgba(0,0,0,0.04)' }}
       >
-        <h1 className="text-2xl font-light tracking-widest text-de-gold select-none">
-          dreamengin
-        </h1>
+        <div className="flex items-center gap-2.5">
+          <BrandLogo width={28} height={28} alt="DREAMengin" />
+          <h1 className="text-xl font-bold tracking-tight select-none de-dream-word" style={{ letterSpacing: '-0.02em' }}>
+            dreamengin
+          </h1>
+        </div>
         <Link
           href="/edit-profiledream"
-          className="text-sm text-de-sky hover:text-de-gold transition-colors"
+          className="text-sm font-semibold transition-colors"
+          style={{ color: 'var(--de-accent)', padding: '6px 14px', borderRadius: 99, background: 'rgba(42,138,184,0.10)', border: '1px solid rgba(42,138,184,0.20)' }}
         >
-          Edit Profile
+          Profile
         </Link>
       </header>
 

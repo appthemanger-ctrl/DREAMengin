@@ -5,8 +5,9 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Shield, AlertTriangle, Download, FileText, ChevronRight } from 'lucide-react';
+import { Shield, AlertTriangle, Download, FileText, ChevronRight } from 'lucide-react';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Policy & Safety – Dreamengin Settings' };
@@ -39,26 +40,16 @@ export default async function SafetySettingsPage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      <header
-        className="sticky top-0 z-30 backdrop-blur-xl"
-        style={{ background: 'rgba(220,232,248,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
-      >
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </Link>
-          <Shield className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Policy &amp; Safety</h1>
-          <span
-            className="ml-auto text-xs font-mono px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(42,138,184,0.12)', color: 'var(--de-accent)' }}
-          >
-            {BOOGIE_POLICY_VERSION}
-          </span>
-        </div>
-      </header>
+      <AuthenticatedPageHeader
+        backHref="/settings"
+        title="Policy & Safety"
+        subtitle="Your standing, safety history, and appeal routes — all visible in one place."
+        icon={<Shield className="w-4 h-4" />}
+        accentColor="var(--de-accent)"
+        badge={BOOGIE_POLICY_VERSION}
+      />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+      <div className="de-auth-content space-y-4">
 
         {/* Quick links */}
         <div className="de-widget">

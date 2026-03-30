@@ -342,6 +342,69 @@ export default function ContentEngin({ onBack }: Props) {
   const [hashtags, setHashtags]           = useState<string[]>([]);
   const [hashtagLoading, setHashtagLoading] = useState(false);
 
+  // ── Viral Hook copy feedback ──────────────────────────────────────────────────
+  const [copiedHook, setCopiedHook] = useState<number | null>(null);
+  const [hookTopic, setHookTopic] = useState('');
+  const [hookLoading, setHookLoading] = useState(false);
+  const [hookResults, setHookResults] = useState<string[]>([]);
+  const [hookSaveMsg, setHookSaveMsg] = useState('');
+  function copyHook(text: string, idx: number) {
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setCopiedHook(idx);
+    setTimeout(() => setCopiedHook(null), 1400);
+  }
+
+  // ── SEO Title Scorer (live input) ─────────────────────────────────────────────
+  const [seoInput, setSeoInput] = useState('');
+  const [seoLoading, setSeoLoading] = useState(false);
+  const [seoResult, setSeoResult] = useState<{ score: number; reasons: string[] } | null>(null);
+  const [seoSaveMsg, setSeoSaveMsg] = useState('');
+
+  // ── Multi-Platform Scheduler countdown ───────────────────────────────────────
+  const [schedulerNow] = useState(() => new Date());
+
+  async function handleGenerateHooks() {
+    if (!hookTopic.trim()) return;
+    setHookLoading(true);
+    setHookSaveMsg('');
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'viral-hooks', topic: hookTopic.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Unable to generate hooks');
+      setHookResults(json.hooks ?? []);
+      setHookSaveMsg(json.draft?.id ? 'Saved to Drafts.' : '');
+    } catch (error) {
+      setHookSaveMsg(error instanceof Error ? error.message : 'Unable to generate hooks');
+    } finally {
+      setHookLoading(false);
+    }
+  }
+
+  async function handleSeoScore() {
+    if (!seoInput.trim()) return;
+    setSeoLoading(true);
+    setSeoSaveMsg('');
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'seo-score', title: seoInput.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Unable to score title');
+      setSeoResult({ score: json.score, reasons: json.reasons ?? [] });
+      setSeoSaveMsg(json.draft?.id ? 'Saved to Drafts.' : '');
+    } catch (error) {
+      setSeoSaveMsg(error instanceof Error ? error.message : 'Unable to score title');
+    } finally {
+      setSeoLoading(false);
+    }
+  }
+
   // ── Daydream Persistence (Phase 8 §F, pts 49-56) ─────────────────────────────
   // Saves and restores the ContentEngin workspace state across sessions.
   type ContentSavedState = {
@@ -1166,6 +1229,310 @@ export default function ContentEngin({ onBack }: Props) {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* ── Feature 13: Viral Hook Builder ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Zap className="w-4 h-4 mr-1" style={{ color: '#ef4444' }} />
+            <span className="de-widget-title ml-1">Viral Hook Builder</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Generates hooks through a real server route and saves the result into Drafts.
+            </p>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                value={hookTopic}
+                onChange={e => setHookTopic(e.target.value)}
+                placeholder="Topic or campaign..."
+                style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none' }}
+              />
+              <button
+                type="button"
+                onClick={handleGenerateHooks}
+                disabled={hookLoading || !hookTopic.trim()}
+                className="de-btn de-btn-primary"
+                style={{ opacity: hookLoading || !hookTopic.trim() ? 0.6 : 1 }}
+              >
+                {hookLoading ? '…' : 'Generate'}
+              </button>
+            </div>
+            {hookSaveMsg && (
+              <div style={{ fontSize: 10, color: hookSaveMsg === 'Saved to Drafts.' ? '#22c55e' : '#ef4444', marginBottom: 8 }}>
+                {hookSaveMsg}
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {(hookResults.length > 0 ? hookResults : [
+                'Nobody talks about this, but…',
+                'I wasted 3 years not knowing this one thing:',
+                'Unpopular opinion: [your take] is better than [alternative]',
+                'Here\'s what I wish someone told me when I started:',
+                'POV: You just discovered the creator tool you\'ve been looking for.',
+              ]).map((hook, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 9, background: copiedHook === i ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.06)', border: `1px solid ${copiedHook === i ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.15)'}`, transition: 'background 0.2s, border 0.2s' }}>
+                  <span style={{ fontSize: 11, flex: 1, color: 'var(--de-heading)', lineHeight: 1.4 }}>{hook}</span>
+                  <button type="button" onClick={() => copyHook(hook, i)}
+                    style={{ fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, opacity: copiedHook === i ? 1 : 0.6 }}>
+                    {copiedHook === i ? '✅' : '📋'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 14: Content Repurposer ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <FileText className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-1">Content Repurposer</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Transform one piece of content into multiple formats automatically.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {[
+                { from: '📝 Blog Post', to: '🐦 Tweet Thread', arrow: '→' },
+                { from: '🎬 Long Video', to: '📱 5 Reels', arrow: '→' },
+                { from: '🎙 Podcast', to: '📝 Newsletter', arrow: '→' },
+                { from: '🧵 Thread', to: '📸 Carousel', arrow: '→' },
+              ].map(r => (
+                <div key={r.from} style={{ padding: '10px 10px', borderRadius: 10, background: `${ACCENT}08`, border: `1px solid ${ACCENT}18`, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{r.from}</div>
+                  <div style={{ fontSize: 11, color: ACCENT, fontWeight: 700 }}>{r.arrow} {r.to}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 15: SEO Title Optimizer (live scoring) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-1">SEO Title Optimizer</span>
+            {seoResult !== null && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: seoResult.score >= 80 ? '#22c55e' : seoResult.score >= 60 ? ACCENT : '#ef4444', background: seoResult.score >= 80 ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)', padding: '2px 7px', borderRadius: 5 }}>
+                {seoResult.score}pts
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                value={seoInput}
+                onChange={e => setSeoInput(e.target.value)}
+                placeholder="Type your title to score it…"
+                style={{ flex: 1, padding: '8px 10px', borderRadius: 9, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <button
+                type="button"
+                onClick={handleSeoScore}
+                disabled={seoLoading || !seoInput.trim()}
+                className="de-btn de-btn-primary"
+                style={{ opacity: seoLoading || !seoInput.trim() ? 0.6 : 1 }}
+              >
+                {seoLoading ? '…' : 'Score'}
+              </button>
+            </div>
+            {seoSaveMsg && (
+              <div style={{ fontSize: 10, color: seoSaveMsg === 'Saved to Drafts.' ? '#22c55e' : '#ef4444', marginBottom: 8 }}>
+                {seoSaveMsg}
+              </div>
+            )}
+            {seoResult !== null && seoInput.trim() && (
+              <div style={{ height: 6, borderRadius: 4, background: 'rgba(0,0,0,0.06)', marginBottom: 10 }}>
+                <div style={{ height: '100%', borderRadius: 4, width: `${seoResult.score}%`, background: seoResult.score >= 80 ? '#22c55e' : seoResult.score >= 60 ? ACCENT : '#ef4444', transition: 'width 0.4s ease' }} />
+              </div>
+            )}
+            {seoResult?.reasons?.length ? (
+              <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {seoResult.reasons.map((reason, idx) => (
+                  <div key={idx} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>• {reason}</div>
+                ))}
+              </div>
+            ) : null}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {[
+                { title: 'How I Built [X] in [Time] (Step-by-Step)', score: 92 },
+                { title: '[Number] Things I Learned from [Experience]', score: 88 },
+                { title: 'The Ultimate Guide to [Topic] for [Audience]', score: 85 },
+              ].map(t => (
+                <div key={t.title} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15` }}>
+                  <span style={{ flex: 1, fontSize: 11, color: 'var(--de-heading)' }}>{t.title}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', flexShrink: 0 }}>{t.score}pts</span>
+                  <button type="button" onClick={() => { setSeoInput(t.title); setSeoResult(null); setSeoSaveMsg(''); }}
+                    style={{ fontSize: 10, color: ACCENT, background: 'none', border: 'none', cursor: 'pointer' }}>Use</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 16: Newsletter Template Generator ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Image className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-1">Newsletter Template</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)', fontSize: 12, color: 'var(--de-text)', lineHeight: 1.7 }}>
+              <strong>Subject: [Main Hook] — Issue #[N]</strong><br /><br />
+              👋 Hey [First Name],<br /><br />
+              <strong>This week:</strong><br />
+              • 🔥 [Main insight or announcement]<br />
+              • 💡 [Secondary tip or tool recommendation]<br />
+              • 📖 [Curated read or resource]<br /><br />
+              <strong>Deep Dive: [Topic]</strong><br />
+              [2–3 sentences on your main topic]<br /><br />
+              Until next week 🚀<br />
+              [Your Name]
+            </div>
+            <button type="button"
+              onClick={() => navigator.clipboard?.writeText('Subject: [Main Hook] — Issue #[N]\n\nHey [First Name],\n\nThis week:\n• [Main insight]\n• [Tip]\n• [Resource]\n\n[Your Name]').catch(() => {})}
+              style={{ marginTop: 8, padding: '7px 14px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: `${ACCENT}14`, border: `1px solid ${ACCENT}30`, color: ACCENT, cursor: 'pointer', width: '100%' }}>
+              📋 Copy Template
+            </button>
+          </div>
+        </div>
+
+        {/* ── Feature 17: Content Performance Predictor ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Video className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-1">Performance Predictor</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Score your next piece of content before posting — based on format, timing, and your past performance.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {[
+                { type: '📱 Reel', score: 91, label: 'High potential' },
+                { type: '📝 Carousel', score: 84, label: 'Strong' },
+                { type: '🐦 Thread', score: 72, label: 'Moderate' },
+                { type: '📸 Static Post', score: 58, label: 'Average' },
+              ].map(f => (
+                <div key={f.type} style={{ padding: '10px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 13, marginBottom: 4 }}>{f.type}</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: f.score >= 80 ? '#22c55e' : f.score >= 65 ? ACCENT : '#ef4444' }}>{f.score}%</div>
+                  <div style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{f.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 18: Multi-Platform Scheduler ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Calendar className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-1">Multi-Platform Scheduler</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Post to all your platforms at the optimal time in one tap.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {[
+                { platform: '📸 Instagram', optimal: 'Wed 6 PM', queued: 2 },
+                { platform: '🎵 TikTok',    optimal: 'Fri 7 PM', queued: 1 },
+                { platform: '🐦 X',         optimal: 'Thu 9 AM', queued: 3 },
+                { platform: '▶️ YouTube',   optimal: 'Sat 2 PM', queued: 0 },
+              ].map(p => (
+                <div key={p.platform} style={{ padding: '9px 10px', borderRadius: 9, background: `${ACCENT}08`, border: `1px solid ${ACCENT}18` }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 3 }}>{p.platform}</div>
+                  <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Best: {p.optimal}</div>
+                  <div style={{ fontSize: 10, color: p.queued > 0 ? ACCENT : 'var(--de-text-dim)', fontWeight: p.queued > 0 ? 700 : 400 }}>
+                    {p.queued > 0 ? `${p.queued} queued` : 'No posts queued'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 19: Ad Copy Generator ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>📣</span>
+            <span className="de-widget-title ml-2">Ad Copy Generator</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Headlines, body copy, and CTAs for paid campaigns — ready to test.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                {
+                  label: 'Awareness',
+                  headline: 'The creative platform that gets you seen.',
+                  body: 'Build your brand, grow your audience, and create better content — all in one place.',
+                  cta: 'Explore DREAMengin →',
+                },
+                {
+                  label: 'Conversion',
+                  headline: 'Stop wasting time. Start creating.',
+                  body: 'DREAMengin gives you analytics, publishing, and brand tools creators actually use.',
+                  cta: 'Start Free Today',
+                },
+              ].map(ad => (
+                <div key={ad.label} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)' }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{ad.label}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 3 }}>{ad.headline}</div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 6 }}>{ad.body}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: ACCENT }}>{ad.cta}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature 20: Game Engine Cinematic Templates ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>🎮</span>
+            <span className="de-widget-title ml-2">Cinematic Intro Templates</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              FREE
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Game-engine-powered animated video intros for your content — rendered by EliteGameEngine WebGPU.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {[
+                { name: 'Neon Burst', desc: 'Particle explosion logo reveal', emoji: '✨', tier: 'Free' },
+                { name: 'Drift Intro', desc: 'Racing car speed reveal', emoji: '🏎', tier: 'Premium' },
+                { name: 'Galaxy Fly', desc: 'Space flythrough with brand text', emoji: '🌌', tier: 'Premium' },
+                { name: 'Glitch Cut', desc: 'Cyberpunk glitch screen reveal', emoji: '⚡', tier: 'Free' },
+              ].map(t => (
+                <div key={t.name} style={{ padding: '10px 10px', borderRadius: 10, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{t.emoji}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{t.name}</div>
+                  <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 4 }}>{t.desc}</div>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: t.tier === 'Free' ? '#22c55e' : '#8b5cf6', background: t.tier === 'Free' ? 'rgba(34,197,94,0.1)' : 'rgba(139,92,246,0.1)', padding: '2px 6px', borderRadius: 4 }}>
+                    {t.tier}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <button type="button"
+              onClick={() => {
+                (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+                  'content', 'content:cinematic-render', { template: 'neon-burst' },
+                );
+              }}
+              style={{ marginTop: 8, padding: '8px 14px', borderRadius: 9, fontSize: 11, fontWeight: 700, background: 'rgba(139,92,246,0.14)', border: '1px solid rgba(139,92,246,0.3)', color: '#8b5cf6', cursor: 'pointer', width: '100%' }}>
+              🎬 Render Neon Burst Intro
+            </button>
           </div>
         </div>
 

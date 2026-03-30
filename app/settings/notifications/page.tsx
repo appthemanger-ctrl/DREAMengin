@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Bell, MessageSquare, Heart, Users, DollarSign, Sparkles, Check, Loader2 } from 'lucide-react';
+import { Bell, MessageSquare, Heart, Users, DollarSign, Sparkles, Check, Loader2 } from 'lucide-react';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,18 +92,16 @@ export default function NotificationSettingsPage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      {/* Header */}
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </Link>
-          <Bell className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
-          <h1 className="text-lg font-bold" style={{ color: 'var(--de-heading)' }}>Notifications</h1>
-        </div>
-      </header>
+      <AuthenticatedPageHeader
+        backHref="/settings"
+        title="Notifications"
+        subtitle="Tune messages, follows, likes, sales, and digest behavior for your operating surface."
+        icon={<Bell className="w-4 h-4" />}
+        accentColor="var(--de-accent)"
+        badge="Settings"
+      />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+      <div className="de-auth-content space-y-4">
         {/* Push Notifications */}
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Push Notifications</span></div>

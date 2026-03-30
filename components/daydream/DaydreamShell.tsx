@@ -5,10 +5,12 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
+import BrandLogo from '@/components/BrandLogo';
 import { logJourneyDot, hasJourneyDot } from '@/lib/journey/journeyDots';
 import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useGsapFlip } from '@/lib/gsap/useGsapFlip';
+import { useSearchParams } from 'next/navigation';
 
 export type DaydreamWidget = {
   id: string;
@@ -51,6 +53,7 @@ type Props = {
 
 export default function DaydreamShell({ title, enginName, accentColor, widgets, children, daydreamType, sideBComponent, sideBVariant = 'widgets' }: Props) {
   const [side, setSide] = useState<'A' | 'B'>('A');
+  const searchParams = useSearchParams();
 
   // GSAP-powered A↔B flip transition (replaces CSS keyframe approach)
   const { containerRef, flip: gsapFlip, busy } = useGsapFlip();
@@ -79,6 +82,16 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
     window.addEventListener('de:open-side-b', openSideB);
     return () => window.removeEventListener('de:open-side-b', openSideB);
   }, [flip, side]);
+
+  // Auto-open Side B (Engin) when ?openEngin=1 is present.
+  // This remains as a legacy deep-link path for explicit Side B entry points.
+  useEffect(() => {
+    if (searchParams.get('openEngin') === '1' && side === 'A') {
+      const timer = window.setTimeout(() => flip(), 80);
+      return () => window.clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Journey Trail — surface_first_entry instrumentation ──────────────────
   // Fires once the first time this surface is ever visited by the user.
@@ -133,8 +146,8 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
               position: 'fixed',
               bottom: 0,
               right: 0,
-              width: 64,
-              height: 64,
+              width: 72,
+              height: 72,
               zIndex: 48,
               clipPath: 'polygon(100% 0, 100% 100%, 0 100%)',
               cursor: 'pointer',
@@ -142,15 +155,27 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
               background: `linear-gradient(135deg, ${accentColor}cc, rgba(200,152,26,0.85))`,
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: `-3px -3px 24px rgba(0,0,0,0.3), -1px -1px 0 rgba(255,255,255,0.1) inset, 0 0 20px ${accentColor}40`,
+              boxShadow: `-6px -6px 28px rgba(0,0,0,0.22), -1px -1px 0 rgba(255,255,255,0.18) inset, 0 0 24px ${accentColor}40`,
               padding: 0,
             }}
           />
           <div style={{
-            position: 'fixed', bottom: 18, right: 72, zIndex: 48,
-            fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
-            color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 6px rgba(0,0,0,0.5)',
+            position: 'fixed',
+            bottom: 20,
+            right: 84,
+            zIndex: 48,
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: '0.12em',
+            color: 'rgba(255,255,255,0.92)',
+            textShadow: '0 1px 8px rgba(0,0,0,0.45)',
             pointerEvents: 'none',
+            padding: '8px 12px',
+            borderRadius: 999,
+            background: 'rgba(8,16,36,0.42)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.12)',
           }}>
             ENGIN →
           </div>
@@ -196,20 +221,32 @@ function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
             <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>{enginName}</div>
             <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{title} · Control Layer</div>
           </div>
+          <div className="ml-auto" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BrandLogo width={24} height={24} alt="DREAMengin" />
           <span
-            className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+            className="text-xs font-semibold px-2 py-1 rounded-full"
             style={{ background: `${accentColor}18`, color: accentColor, border: `1px solid ${accentColor}35` }}
           >
             Side B
           </span>
+          </div>
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
-        {/* Engin intro */}
-        <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 16 }}>
-          {enginName} — the powered control layer for {title}. Tap any tool to launch.
-        </p>
+      <div className="de-auth-content" style={{ paddingTop: 20 }}>
+        <div className="de-auth-hero" style={{ marginBottom: 16 }}>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: accentColor, marginBottom: 8 }}>
+              {title} · Engin Side
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.03em', color: 'var(--de-heading)', marginBottom: 8 }}>
+              {enginName} is the powered control layer behind {title}.
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.65, margin: 0 }}>
+              Use Side B like the operational deck: faster launch paths, clearer tool groups, and a more premium control surface that still keeps the daydream context anchored.
+            </p>
+          </div>
+        </div>
 
         {/* Engin pill dual-button controls (spec §7.1 / §14.3) */}
         <EnginPillControls enginName={enginName} accentColor={accentColor} onBack={onBack} />
@@ -250,7 +287,7 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
         whileTap={{ scale: 0.92 }}
         transition={{ type: 'spring', stiffness: 400, damping: 35 }}
         style={{
-          padding: '8px 18px',
+          padding: '10px 18px',
           background: 'none',
           border: 'none',
           cursor: 'pointer',
@@ -270,7 +307,7 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
         whileTap={{ scale: 0.92 }}
         transition={{ type: 'spring', stiffness: 400, damping: 35 }}
         style={{
-          padding: '8px 18px',
+          padding: '10px 18px',
           background: 'none',
           border: 'none',
           cursor: 'pointer',
@@ -301,7 +338,7 @@ function MarbleWidget({ w }: { w: DaydreamWidget }) {
         borderRadius: 22,
         border: '1.5px solid rgba(255,255,255,0.78)',
         boxShadow: `0 8px 32px ${w.color}30, inset 0 2px 0 rgba(255,255,255,0.95), inset 0 -2px 0 ${w.color}20, 0 0 0 0.5px rgba(255,255,255,0.2)`,
-        padding: '20px 14px 16px',
+        padding: '22px 14px 18px',
         display: 'flex',
         flexDirection: 'column' as const,
         alignItems: 'center',
@@ -309,7 +346,7 @@ function MarbleWidget({ w }: { w: DaydreamWidget }) {
         cursor: 'pointer',
         userSelect: 'none' as const,
         WebkitUserSelect: 'none' as const,
-        minHeight: 118,
+        minHeight: 126,
         justifyContent: 'center',
         transition: 'box-shadow 0.2s cubic-bezier(0.34,1.56,0.64,1)',
         textDecoration: 'none',
