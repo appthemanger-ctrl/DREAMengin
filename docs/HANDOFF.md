@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-03-30 23:54 UTC | `e598c80` | copilot/add-mobile-control-layer | Copilot | +4 added  ~4 modified<br>feat: add shared mobile game hud layer — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/64628a58-0305-4f52-b426-8a442ff291da  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `components/games/MobileGameHUD.module.css`, `components/games/MobileGameHUD.tsx`, `lib/games/mobileControls.ts`, `tests/mobile-game-controls.test.ts`<br>✏️: `app/daydream/game/ImmersiveGameShell.tsx`, `components/games/EchoArena.tsx`, `components/games/GamesHub.tsx`, `styles/globals.css` |
 | **auto** | 2026-03-30 20:50 UTC | `881b20c` | copilot/wire-games-to-new-game-engine-again | Copilot | ~1 modified<br>fix: cast getPreferredCanvasFormat() return to GPUTextureFormat in WebGPURenderer — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/48a07363-e2f5-4c74-9017-432878cc6b71  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/webgpu/renderer.ts` |
 | **auto** | 2026-03-30 20:42 UTC | `e0b7550` | copilot/wire-games-to-new-game-engine | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/wire-games-to-new-game-engine<br> |
 | **auto** | 2026-03-30 20:35 UTC | `e798b6a` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #364 from appthemanger-ctrl/copilot/create-independent-engine-structures — feat: all 6 engines — independent app-like file structure under /engines/<br> |
 | **auto** | 2026-03-30 20:08 UTC | `861339c` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #363 from appthemanger-ctrl/copilot/create-high-quality-game-graphics — DREAM FORCE: Replace RTSGame blob graphics with cinematic 2026-quality canvas rendering<br> |
-| **auto** | 2026-03-30 17:59 UTC | `9eb4d68` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #361 from appthemanger-ctrl/copilot/update-music-starmakerengine — Refactor StarMaker arrangement into dedicated files<br> |
 
 ## What changed in this alignment pass
 
