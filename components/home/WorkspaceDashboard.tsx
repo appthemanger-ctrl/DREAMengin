@@ -7,6 +7,7 @@ import { Bell, ChevronRight } from 'lucide-react';
 import NotificationCenter from '@/components/NotificationCenter';
 import HomeFeed from '@/components/HomeFeed';
 import BrandLogo from '@/components/BrandLogo';
+import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 
@@ -283,6 +284,8 @@ export default function WorkspaceDashboard({
             </div>
           </div>
         </div>
+
+        <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
 
         <div
           className="sicc-glass-in"

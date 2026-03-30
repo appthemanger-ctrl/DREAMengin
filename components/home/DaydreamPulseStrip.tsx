@@ -113,8 +113,20 @@ const orbVariants = {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function DaydreamPulseStrip() {
+interface DaydreamPulseStripProps {
+  onOpenDaydream?: (href: string, label: string) => void;
+}
+
+export default function DaydreamPulseStrip({ onOpenDaydream }: DaydreamPulseStripProps) {
   const router = useRouter();
+
+  const openDaydream = (href: string, label: string) => {
+    if (onOpenDaydream) {
+      onOpenDaydream(href, label);
+      return;
+    }
+    router.push(href);
+  };
 
   return (
     <>
@@ -250,7 +262,7 @@ export default function DaydreamPulseStrip() {
                 letterSpacing: '-0.01em',
               }}
             >
-               Daydreams
+              Daydreams
             </div>
             <div
               style={{
@@ -260,7 +272,7 @@ export default function DaydreamPulseStrip() {
                 marginTop: 1,
               }}
             >
-               6 live daydreams + analytics
+              6 live daydreams + analytics
             </div>
           </div>
 
@@ -328,11 +340,11 @@ export default function DaydreamPulseStrip() {
                 role="button"
                 tabIndex={0}
                 aria-label={`Open ${d.label} Daydream Surface`}
-                onClick={() => router.push(d.href)}
+                onClick={() => openDaydream(d.href, d.label)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    router.push(d.href);
+                    openDaydream(d.href, d.label);
                   }
                 }}
               >

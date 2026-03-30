@@ -21,6 +21,7 @@ export default async function Home() {
     user = authUser;
 
     if (!user && !isDevBypassActive()) redirect('/login');
+    if (!user) redirect('/login');
 
     if (user) {
     // Fetch user profile

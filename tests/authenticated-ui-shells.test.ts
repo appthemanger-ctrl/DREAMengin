@@ -47,12 +47,17 @@ describe('authenticated UI shell upgrade rollout', () => {
   it('upgrades shared post-login shells with premium framing', () => {
     const daydreamShell = readFileSync(join(root, 'components/daydream/DaydreamShell.tsx'), 'utf-8');
     const dashboard = readFileSync(join(root, 'components/home/WorkspaceDashboard.tsx'), 'utf-8');
+    const pulseStrip = readFileSync(join(root, 'components/home/DaydreamPulseStrip.tsx'), 'utf-8');
     const dreamsPanel = readFileSync(join(root, 'components/dreams/DreamsSpacePanel.tsx'), 'utf-8');
 
     expect(daydreamShell).toContain('de-auth-hero');
     expect(daydreamShell).toContain('BrandLogo');
     expect(dashboard).toContain('de-auth-hero');
     expect(dashboard).toContain('BrandLogo');
+    expect(dashboard).toContain('DaydreamPulseStrip');
+    expect(dashboard).toContain('onOpenDaydream');
+    expect(pulseStrip).toContain('6 live daydreams + analytics');
+    expect(pulseStrip).toContain('onOpenDaydream');
     expect(dreamsPanel).toContain('Pinned apps + feeds across the dual runtime');
   });
 });
