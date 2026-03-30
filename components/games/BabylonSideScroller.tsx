@@ -50,6 +50,11 @@ const DASH_COOL  = 45;      // frames between dashes
 const PROJ_SPD   = 4.5;     // boss projectile speed (px/frame)
 const PROJ_LIFE  = 120;     // frames before projectile despawns
 const COMBO_WIN  = 1500;    // ms window to chain a combo kill
+const SHIELD_DURATION_FRAMES    = 8 * 60;
+const HIGH_JUMP_DURATION_FRAMES = 8 * 60;
+const LASER_DURATION_FRAMES     = 8 * 60;
+const GIANT_DURATION_FRAMES     = 4 * 60;
+const EXTRA_POWERUP_EVERY_N_LEVELS = 3;
 
 // Babylon render-unit scale:  1 BU ≈ 40 logical px
 const PX_PER_BU  = 40;
@@ -176,14 +181,54 @@ function seededRng(seed: number) {
 }
 
 // ─── Types ───────────────────────────────────────────────────────────────────
+export const MADMAXI_ENEMY_KINDS = [
+  'runner',
+  'charger',
+  'hopper',
+  'flyer',
+  'zigzag',
+  'orbiter',
+  'sniper',
+  'burrower',
+  'spiker',
+  'shadow',
+] as const;
+export type MadmaxiEnemyKind = typeof MADMAXI_ENEMY_KINDS[number];
+
+export const MADMAXI_POWERUP_KINDS = [
+  'shield',
+  'high-jump',
+  'laser',
+  'giant',
+] as const;
+export type MadmaxiPowerUpKind = typeof MADMAXI_POWERUP_KINDS[number];
+
+export const MADMAXI_SUPER_STREAK = 9;
+export const MADMAXI_SUPER_SECONDS = 30;
+
+export function getMadmaxiEnemyCount(level: number): number {
+  return 10 + Math.floor((Math.max(1, level) - 1) / 10) * 2;
+}
+
 interface PlatDef {
   x: number; y: number; w: number; h: number;
   type: 'solid' | 'moving' | 'goal';
   moveRange?: number; moveSpd?: number;
 }
 interface CoinDef { x: number; y: number; isGoal?: boolean; }
+interface HazardDef {
+  x: number; y: number;
+  type: 'spike' | 'drop';
+  moveRange?: number;
+  moveSpd?: number;
+  triggerRadius?: number;
+}
+interface PowerUpDef { x: number; y: number; type: MadmaxiPowerUpKind; }
 interface EnemyDef {
   x: number; y: number; vx: number;
+  kind?: MadmaxiEnemyKind;
+  anchorX?: number;
+  anchorY?: number;
   /** True for boss enemies. */
   boss?: boolean;
   /** Hits required to defeat (bosses only); regular enemies always take 1. */
@@ -200,6 +245,8 @@ interface LevelDef {
   platforms: PlatDef[];
   coins: CoinDef[];
   enemies: EnemyDef[];
+  hazards?: HazardDef[];
+  powerUps?: PowerUpDef[];
   worldW: number;
   /** Zone name shown in HUD. */
   zoneName?: string;
@@ -216,6 +263,15 @@ interface LevelDef {
 /** Returns the boss entry for a given level (safe index clamping). */
 function getBossForLevel(level: number): BossMeta {
   return BOSSES[Math.min(BOSSES.length - 1, Math.floor(level / 10) - 1)];
+}
+
+export function getEnemyKindForIndex(index: number, level: number): MadmaxiEnemyKind {
+  const rotation = Math.floor((Math.max(1, level) - 1) / 10) % MADMAXI_ENEMY_KINDS.length;
+  return MADMAXI_ENEMY_KINDS[(index + rotation) % MADMAXI_ENEMY_KINDS.length];
+}
+
+export function getPowerUpForIndex(index: number, rng: () => number): MadmaxiPowerUpKind {
+  return MADMAXI_POWERUP_KINDS[(index + Math.floor(rng() * MADMAXI_POWERUP_KINDS.length)) % MADMAXI_POWERUP_KINDS.length];
 }
 
 function makeLevel(n: number, sessionSeed: number): LevelDef {
@@ -247,13 +303,27 @@ function makeLevel(n: number, sessionSeed: number): LevelDef {
       { x: 2095,y: 228 },
       { x: 2245,y: 128, isGoal: true },
     ],
-    // Harder enemies — faster, more of them
+    // One enemy per coin: 10 enemy archetypes for the opening gauntlet
     enemies: [
-      { x: 600,  y: 368, vx: 2.2 },
-      { x: 950,  y: 368, vx: -2.4 },
-      { x: 1350, y: 368, vx: 2.0 },
-      { x: 1700, y: 368, vx: -2.6 },
-      { x: 2000, y: 368, vx: 2.1 },
+      { x: 260,  y: 368, vx: 2.4, kind: 'runner' },
+      { x: 450,  y: 368, vx: 1.9, kind: 'charger' },
+      { x: 620,  y: 350, vx: 1.3, kind: 'hopper', anchorY: 350 },
+      { x: 760,  y: 210, vx: 1.5, kind: 'flyer', anchorY: 210 },
+      { x: 900,  y: 285, vx: 1.7, kind: 'zigzag', anchorY: 285 },
+      { x: 1120, y: 250, vx: 1.1, kind: 'orbiter', anchorX: 1120, anchorY: 250 },
+      { x: 1280, y: 332, vx: 0.8, kind: 'sniper', anchorY: 332 },
+      { x: 1470, y: 374, vx: 1.6, kind: 'burrower', anchorY: 374 },
+      { x: 1820, y: 360, vx: 1.2, kind: 'spiker' },
+      { x: 2060, y: 330, vx: 2.1, kind: 'shadow', anchorY: 330 },
+    ],
+    hazards: [
+      { x: 540, y: 228, type: 'spike', moveRange: 46, moveSpd: 0.9 },
+      { x: 1180, y: 205, type: 'drop', triggerRadius: 180 },
+      { x: 1940, y: 158, type: 'spike', moveRange: 34, moveSpd: 1.1 },
+    ],
+    powerUps: [
+      { x: 1010, y: 278, type: 'shield' },
+      { x: 1730, y: 168, type: 'laser' },
     ],
     zoneName: ZONES[0].name,
     zoneStory: ZONES[0].story,
@@ -292,14 +362,27 @@ function makeLevel(n: number, sessionSeed: number): LevelDef {
       { x: 1540,y: 118 },
       { x: 2668,y: 108, isGoal: true },
     ],
-    // Harder level 2 — fast enemies with tighter gaps
     enemies: [
-      { x: 350,  y: 368, vx: 2.4 },
-      { x: 800,  y: 368, vx: -2.8 },
-      { x: 1300, y: 368, vx: 2.5 },
-      { x: 1850, y: 368, vx: -2.9 },
-      { x: 2250, y: 368, vx: 2.6 },
-      { x: 2600, y: 368, vx: -2.3 },
+      { x: 220,  y: 368, vx: 2.6, kind: 'runner' },
+      { x: 430,  y: 340, vx: 2.1, kind: 'charger' },
+      { x: 620,  y: 355, vx: 1.5, kind: 'hopper', anchorY: 355 },
+      { x: 830,  y: 195, vx: 1.8, kind: 'flyer', anchorY: 195 },
+      { x: 980,  y: 290, vx: 1.9, kind: 'zigzag', anchorY: 290 },
+      { x: 1220, y: 240, vx: 1.3, kind: 'orbiter', anchorX: 1220, anchorY: 240 },
+      { x: 1490, y: 145, vx: 0.8, kind: 'sniper', anchorY: 145 },
+      { x: 1710, y: 372, vx: 1.7, kind: 'burrower', anchorY: 372 },
+      { x: 2140, y: 360, vx: 1.5, kind: 'spiker' },
+      { x: 2510, y: 330, vx: 2.4, kind: 'shadow', anchorY: 330 },
+    ],
+    hazards: [
+      { x: 690, y: 248, type: 'spike', moveRange: 60, moveSpd: 1.1 },
+      { x: 1180, y: 148, type: 'drop', triggerRadius: 160 },
+      { x: 2080, y: 250, type: 'spike', moveRange: 48, moveSpd: 1.25 },
+      { x: 2350, y: 120, type: 'drop', triggerRadius: 180 },
+    ],
+    powerUps: [
+      { x: 1045, y: 250, type: 'high-jump' },
+      { x: 2270, y: 150, type: 'giant' },
     ],
     zoneName: ZONES[0].name,
   };
@@ -323,15 +406,17 @@ function makeProceduralLevel(n: number, sessionSeed: number): LevelDef {
   const maxPlatW  = Math.max(minPlatW + 15, Math.round(160 - t * 80)); // 160 → 80 px
   const minGap    = Math.round(52 + t * 18);                   // 52 → 70 px
   const maxGap    = Math.round(82 + t * 8);                    // 82 → 90 px  (safe single-jump range)
-  const movRatio  = 0.20 + t * 0.45;                           // 20% → 65% moving
+  const movRatio  = 0.28 + t * 0.52;                           // 28% → 80% moving
   const movSpd    = 1.0  + t * 1.8;                            // 1.0 → 2.8
   const platCount = Math.round(12 + t * 17);                   // 12 → 29 platforms
-  const enemyCnt  = Math.round(4  + t * 7);                    // 4 → 11 enemies
+  const enemyCnt  = getMadmaxiEnemyCount(n);                   // 10 + 2 every 10 levels
   const enemySpd  = 1.6  + t * 2.2;                            // 1.6 → 3.8
 
   const platforms: PlatDef[] = [{ x: 0, y: 400, w: worldW, h: 80, type: 'solid' }];
   const coins:   CoinDef[]   = [];
   const enemies: EnemyDef[]  = [];
+  const hazards: HazardDef[] = [];
+  const powerUps: PowerUpDef[] = [];
 
   let cx = 150, cy = 340;
   let cw = Math.round(minPlatW + rng() * (maxPlatW - minPlatW));
@@ -386,14 +471,74 @@ function makeProceduralLevel(n: number, sessionSeed: number): LevelDef {
   for (let i = 0; i < enemyCnt; i++) {
     const ex  = Math.max(150, Math.min(worldW - 150, Math.round(spacing * (i + 1) + (rng() - 0.5) * 120)));
     const spd = parseFloat((enemySpd * (0.6 + rng() * 0.8)).toFixed(2));
-    enemies.push({ x: ex, y: 368, vx: rng() < 0.5 ? spd : -spd });
+    const kind = getEnemyKindForIndex(i, n);
+    const anchorY = kind === 'flyer'
+      ? Math.max(150, 260 - (i % 3) * 28)
+      : kind === 'zigzag'
+        ? 280
+        : kind === 'orbiter'
+          ? Math.max(175, 240 - (i % 2) * 36)
+          : kind === 'shadow'
+            ? 320
+            : 368;
+    enemies.push({
+      x: ex,
+      y: kind === 'flyer' || kind === 'zigzag' || kind === 'orbiter' || kind === 'shadow' ? anchorY : 368,
+      vx: rng() < 0.5 ? spd : -spd,
+      kind,
+      anchorX: ex,
+      anchorY,
+    });
+  }
+
+  // Progressive hazards: sliding spikes and falling debris.
+  const hazardCount = Math.min(8, 2 + Math.floor(t * 6));
+  const hazardPlats = platforms.slice(1, Math.max(2, platforms.length - 1));
+  for (let hi = 0; hi < hazardCount && hazardPlats.length > 0; hi++) {
+    const hp = hazardPlats[(hi * 2 + Math.floor(rng() * 3)) % hazardPlats.length];
+    if (hi % 2 === 0) {
+      hazards.push({
+        x: hp.x + Math.round(hp.w * 0.2),
+        y: hp.y - 14,
+        type: 'spike',
+        moveRange: Math.max(18, Math.round(hp.w * 0.35)),
+        moveSpd: parseFloat((0.9 + t * 1.8 + rng() * 0.5).toFixed(2)),
+      });
+    } else {
+      hazards.push({
+        x: hp.x + Math.round(hp.w * 0.5),
+        y: Math.max(40, hp.y - 140 - Math.round(rng() * 80)),
+        type: 'drop',
+        triggerRadius: 140 + Math.round(rng() * 120),
+      });
+    }
+  }
+
+  // Drop a couple of power-ups every few levels.
+  const powerUpCount = n % EXTRA_POWERUP_EVERY_N_LEVELS === 0 ? 2 : 1;
+  for (let pi = 0; pi < powerUpCount && coinPlats.length > 0; pi++) {
+    const pp = coinPlats[(pi * 3 + Math.floor(rng() * 3)) % coinPlats.length];
+    powerUps.push({
+      x: pp.x + Math.round(pp.w * 0.55),
+      y: pp.y - 62,
+      type: getPowerUpForIndex(pi, rng),
+    });
   }
 
   // Show zone intro story on the first level of each zone.
   // Level 3 is the first procedural level — show zone 0 story even though 3 % 10 ≠ 1.
   const isFirstOfZone = (n % 10 === 1) || n === 3;
 
-  return { platforms, coins, enemies, worldW, zoneName: zone.name, zoneStory: isFirstOfZone ? zone.story : undefined };
+  return {
+    platforms,
+    coins,
+    enemies,
+    hazards,
+    powerUps,
+    worldW,
+    zoneName: zone.name,
+    zoneStory: isFirstOfZone ? zone.story : undefined,
+  };
 }
 
 // ─── Boss arena generator (every 10th level) ─────────────────────────────────
@@ -438,7 +583,7 @@ export default function BabylonSideScroller() {
   const [level,  setLevel]    = useState(1);
   const [score,  setScore]    = useState(0);
   const [lives,  setLives]    = useState(3);
-  const vpadRef  = useRef({ left: false, right: false, jump: false, dash: false });
+  const vpadRef  = useRef({ left: false, right: false, jump: false, dash: false, shoot: false });
   const [bestScore, setBestScore] = useState(() => {
     try { return parseInt(localStorage.getItem('madmaxi_best') ?? '0', 10); }
     catch { return 0; }
@@ -467,6 +612,14 @@ export default function BabylonSideScroller() {
   // Combat feedback
   const [comboCount, setComboCount] = useState(0);
   const [dashReady,  setDashReady]  = useState(true);
+  const [noDeathStreak, setNoDeathStreak] = useState(0);
+  const [superSeconds, setSuperSeconds] = useState(0);
+  const [runtimeBoosts, setRuntimeBoosts] = useState({
+    shield: 0,
+    'high-jump': 0,
+    laser: 0,
+    giant: 0,
+  });
 
   // Zone / story
   const [zoneName,   setZoneName]   = useState('');
@@ -510,7 +663,13 @@ export default function BabylonSideScroller() {
           }
         }
       },
-      onDie:      (li) => { setLives(li); setStatus('dead'); },
+      onDie:      (li) => {
+        setLives(li);
+        setStatus('dead');
+        setNoDeathStreak(0);
+        setSuperSeconds(0);
+        setRuntimeBoosts({ shield: 0, 'high-jump': 0, laser: 0, giant: 0 });
+      },
       onComplete: (lv) => {
         const nextZone = getZoneIdx(lv);
         const isNewZone = lv > 1 && getZoneIdx(lv - 1) !== nextZone;
@@ -525,6 +684,11 @@ export default function BabylonSideScroller() {
         setZoneStory(story);
         setWasABoss(isBossLevel(lv - 1));
         setLevel(lv);
+        setNoDeathStreak((prev) => {
+          const next = prev + 1;
+          if (next >= MADMAXI_SUPER_STREAK) setSuperSeconds(MADMAXI_SUPER_SECONDS);
+          return next;
+        });
         setStatus(lv > TOTAL_LEVELS ? 'win' : 'complete');
       },
       onProgress:   (pct) => setProgress(pct),
@@ -532,12 +696,19 @@ export default function BabylonSideScroller() {
       onCombo:      (c)  => setComboCount(c),
       onDash:       ()   => { setDashReady(false); setTimeout(() => setDashReady(true), DASH_COOL * 16); },
       onCoinCount:  (collected, total) => { setCoinCount(collected); setCoinTotal(total); },
-    }, sessionSeedRef.current);
+      onRuntime:    (runtime) => {
+        setSuperSeconds(runtime.superSeconds);
+        setRuntimeBoosts(runtime.boosts);
+      },
+    }, {
+      sessionSeed: sessionSeedRef.current,
+      superSeconds,
+    });
     gameRef.current = core;
     setProgress(0);
     setIsNewBest(false);
     setStatus('playing');
-  }, []);
+  }, [superSeconds]);
   useGameAutoStart(status === 'title' ? () => startGame(1, 0, 3) : null);
 
   // ── Key events ─────────────────────────────────────────────────────────────
@@ -553,6 +724,11 @@ export default function BabylonSideScroller() {
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) {
         e.preventDefault();
       }
+      if (e.code === 'KeyJ' || e.code === 'KeyX') {
+        const vp = { ...vpadRef.current, shoot: true };
+        vpadRef.current = vp;
+        gameRef.current?.setVpad(vp);
+      }
       // Shift = dash
       if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
         const vp = { ...vpadRef.current, dash: true };
@@ -565,6 +741,11 @@ export default function BabylonSideScroller() {
       gameRef.current?.setKeys(keysDown);
       if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
         const vp = { ...vpadRef.current, dash: false };
+        vpadRef.current = vp;
+        gameRef.current?.setVpad(vp);
+      }
+      if (e.code === 'KeyJ' || e.code === 'KeyX') {
+        const vp = { ...vpadRef.current, shoot: false };
         vpadRef.current = vp;
         gameRef.current?.setVpad(vp);
       }
@@ -587,10 +768,12 @@ export default function BabylonSideScroller() {
       if (action === 'move-right' || action === 'move-up-right' || action === 'move-down-right')
         vp.right = active;
       if (action === 'move-stop') { vp.left = false; vp.right = false; }
-      if (action === 'jump' || action === 'jump-spin' || action === 'jump-shoot')
+      if (action === 'jump' || action === 'jump-spin' || action === 'jump-shoot' || action === 'r3')
         vp.jump = active;
-      if (action === 'dash' || action === 'attack')
+      if (action === 'dash' || action === 'r1')
         vp.dash = active;
+      if (action === 'attack' || action === 'shoot' || action === 'jump-shoot')
+        vp.shoot = active;
       vpadRef.current = vp;
       gameRef.current?.setVpad(vp);
     };
@@ -861,6 +1044,27 @@ export default function BabylonSideScroller() {
               right: 12, pointerEvents: 'none',
               display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4,
             }}>
+              <div style={{
+                background: noDeathStreak >= MADMAXI_SUPER_STREAK
+                  ? 'rgba(255,215,0,0.18)'
+                  : 'rgba(0,0,0,0.28)',
+                border: `1px solid ${noDeathStreak >= MADMAXI_SUPER_STREAK ? '#ffd700' : 'rgba(255,255,255,0.16)'}`,
+                borderRadius: 4, padding: '2px 8px',
+                fontSize: 10, fontWeight: 700,
+                color: noDeathStreak >= MADMAXI_SUPER_STREAK ? '#ffd700' : '#d1d5db',
+              }}>
+                STREAK {noDeathStreak}/{MADMAXI_SUPER_STREAK}
+              </div>
+              {superSeconds > 0 && (
+                <div style={{
+                  background: 'rgba(255,215,0,0.18)', border: '1px solid #ffd700',
+                  borderRadius: 4, padding: '2px 8px',
+                  fontSize: 11, fontWeight: 800, color: '#fff3b0',
+                  textShadow: '0 0 10px #ffd700',
+                }}>
+                  ✦ SUPER MADMAXI {superSeconds}s
+                </div>
+              )}
               {comboCount > 1 && (
                 <div style={{
                   background: 'rgba(255,180,0,0.2)', border: '1px solid #fa0',
@@ -879,6 +1083,18 @@ export default function BabylonSideScroller() {
               }}>
                 {dashReady ? '⚡ DASH' : '· dash ·'}
               </div>
+              {(runtimeBoosts.shield > 0 || runtimeBoosts['high-jump'] > 0 || runtimeBoosts.laser > 0 || runtimeBoosts.giant > 0) && (
+                <div style={{
+                  background: 'rgba(15,23,42,0.55)', border: '1px solid rgba(125,211,252,0.35)',
+                  borderRadius: 6, padding: '4px 8px', display: 'flex', flexDirection: 'column', gap: 2,
+                  fontSize: 10, color: '#dbeafe', minWidth: 128,
+                }}>
+                  {runtimeBoosts.shield > 0 && <span>🛡 Shield {runtimeBoosts.shield}s</span>}
+                  {runtimeBoosts['high-jump'] > 0 && <span>⤴ High Jump {runtimeBoosts['high-jump']}s</span>}
+                  {runtimeBoosts.laser > 0 && <span>◎ Eye Laser {runtimeBoosts.laser}s</span>}
+                  {runtimeBoosts.giant > 0 && <span>⬛ Giant {runtimeBoosts.giant}s</span>}
+                </div>
+              )}
             </div>
 
             {/* Progress bar (hidden during boss fights — no scrolling world) */}
@@ -897,7 +1113,7 @@ export default function BabylonSideScroller() {
 
       <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', maxWidth: 500 }}>
         Use the shared PS-style GameRemote or keyboard: ← → / A D move &nbsp;·&nbsp; ↑ / W / Space jump (double-jump) &nbsp;·&nbsp;
-        <strong>Shift</strong> to dash &nbsp;·&nbsp; Dodge boss projectiles!
+        <strong>Shift</strong> to dash &nbsp;·&nbsp; <strong>J / X</strong> to fire laser when powered &nbsp;·&nbsp; Dodge boss projectiles!
       </p>
     </div>
   );
@@ -914,14 +1130,23 @@ interface GameCallbacks {
   onDash?:      () => void;
   /** Reports coin collection: collected regular coins, total regular coins. */
   onCoinCount?: (collected: number, total: number) => void;
+  onRuntime?:   (runtime: {
+    superSeconds: number;
+    boosts: Record<MadmaxiPowerUpKind, number>;
+  }) => void;
 }
 
-type VPad = { left: boolean; right: boolean; jump: boolean; dash: boolean };
+type VPad = { left: boolean; right: boolean; jump: boolean; dash: boolean; shoot: boolean };
+
+type RuntimeCarry = {
+  sessionSeed: number;
+  superSeconds: number;
+};
 
 class GameCore {
   private disposed = false;
   private keys: Set<string> = new Set();
-  private vpad: VPad = { left: false, right: false, jump: false, dash: false };
+  private vpad: VPad = { left: false, right: false, jump: false, dash: false, shoot: false };
   private godTier = new DreamEngineGodTierSystem();
 
   // physics state (logical pixels, Y-down)
@@ -951,6 +1176,7 @@ class GameCore {
     x: number; y: number;
     vx: number; vy: number;
     life: number;
+    friendly?: boolean;
     mesh: import('@babylonjs/core').Mesh | null;
   }[] = [];
 
@@ -961,7 +1187,9 @@ class GameCore {
 
   private platforms: (PlatDef & { curX: number; moveDir: number })[] = [];
   private coins: (CoinDef & { collected: boolean })[] = [];
-  private enemies: (EnemyDef & { alive: boolean; curX: number; curY: number; hitsLeft: number })[] = [];
+  private enemies: (EnemyDef & { alive: boolean; curX: number; curY: number; hitsLeft: number; state: number })[] = [];
+  private hazards: (HazardDef & { curX: number; curY: number; moveDir: number; active: boolean; fallVy: number })[] = [];
+  private powerUps: (PowerUpDef & { collected: boolean })[] = [];
 
   private camX   = 0;
   private worldW = 2400;
@@ -992,6 +1220,8 @@ class GameCore {
   private goalMesh:    import('@babylonjs/core').Mesh | null = null;
   private goalRing:    import('@babylonjs/core').Mesh | null = null;
   private goalIdx:     number = -1;
+  private hazardMeshes: (import('@babylonjs/core').Mesh | null)[] = [];
+  private powerUpMeshes: (import('@babylonjs/core').Mesh | null)[] = [];
 
   // ── Coin collection tracking ────────────────────────────────────────────
   private totalRegularCoins  = 0;   // number of non-goal coins in this level
@@ -1000,6 +1230,12 @@ class GameCore {
   private coinFlashFrames    = 0;   // countdown for zoom-out animation
   private coinFlashDir       = 1;   // +1 = goal is to the right, -1 = to the left
   private camZoomOffset      = 0;   // extra cam height during coin zoom
+  private shootCool          = 0;
+  private shieldFrames       = 0;
+  private highJumpFrames     = 0;
+  private laserFrames        = 0;
+  private giantFrames        = 0;
+  private superFrames        = 0;
 
   // Parallax background stars
   private bgStars: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number }[] = [];
@@ -1024,13 +1260,14 @@ class GameCore {
     score: number,
     lives: number,
     cbs: GameCallbacks,
-    sessionSeed = 1,
+    runtimeCarry: RuntimeCarry,
   ) {
     this.level = level;
     this.score = score;
     this.lives = lives;
     this.cbs   = cbs;
-    this.sessionSeed = sessionSeed;
+    this.sessionSeed = runtimeCarry.sessionSeed;
+    this.superFrames = Math.round(runtimeCarry.superSeconds * 60);
     this.initLevel(level);
     this.initBabylon(canvas);
   }
@@ -1044,7 +1281,17 @@ class GameCore {
     this.enemies     = def.enemies.map(e => ({
       ...e, alive: true, curX: e.x, curY: e.y,
       hitsLeft: e.hitsLeft ?? 1,
+      state: 0,
     }));
+    this.hazards = (def.hazards ?? []).map((h) => ({
+      ...h,
+      curX: h.x,
+      curY: h.y,
+      moveDir: 1,
+      active: true,
+      fallVy: 0,
+    }));
+    this.powerUps = (def.powerUps ?? []).map((p) => ({ ...p, collected: false }));
     // Count regular (non-goal) coins for HUD
     this.totalRegularCoins      = def.coins.filter(c => !c.isGoal).length;
     this.collectedRegularCoins  = 0;
@@ -1071,9 +1318,19 @@ class GameCore {
     this.dashCool   = 0;
     this.comboCount = 0;
     this.comboTimestamp = 0;
+    this.shootCool = 0;
     // Dispose any live projectiles
     for (const p of this.projectiles) p.mesh?.dispose();
     this.projectiles = [];
+    this.cbs.onRuntime?.({
+      superSeconds: Math.ceil(this.superFrames / 60),
+      boosts: {
+        shield: Math.ceil(this.shieldFrames / 60),
+        'high-jump': Math.ceil(this.highJumpFrames / 60),
+        laser: Math.ceil(this.laserFrames / 60),
+        giant: Math.ceil(this.giantFrames / 60),
+      },
+    });
   }
 
   private async initBabylon(canvas: HTMLCanvasElement) {
@@ -1094,8 +1351,8 @@ class GameCore {
     scene.clearColor = new BJS.Color4(zone.sky[0], zone.sky[1], zone.sky[2], 1);
 
     // ── Camera (FreeCamera, side-view looking in +Z direction) ──────────────
-    const cam = new BJS.FreeCamera('cam', new BJS.Vector3(0, 6, -22), scene);
-    cam.setTarget(new BJS.Vector3(0, 6, 0));
+    const cam = new BJS.FreeCamera('cam', new BJS.Vector3(0, 5.25, -22), scene);
+    cam.setTarget(new BJS.Vector3(0, 4.8, 0));
     this.camMesh = cam;
 
     // ── Lighting ─────────────────────────────────────────────────────────────
@@ -1252,13 +1509,88 @@ class GameCore {
       }
     }
 
+    // ── Hazard meshes ─────────────────────────────────────────────────────────
+    for (let hi = 0; hi < this.hazards.length; hi++) {
+      const hz = this.hazards[hi];
+      let mesh: import('@babylonjs/core').Mesh;
+      if (hz.type === 'spike') {
+        mesh = BJS.MeshBuilder.CreateCylinder(`haz_${hi}`, {
+          diameterTop: 0,
+          diameterBottom: 0.55,
+          height: 0.6,
+          tessellation: 6,
+        }, scene);
+      } else {
+        mesh = BJS.MeshBuilder.CreateBox(`haz_${hi}`, { width: 0.46, height: 0.46, depth: 0.46 }, scene);
+      }
+      const mat = new BJS.StandardMaterial(`haz_mat_${hi}`, scene);
+      mat.diffuseColor = hz.type === 'spike' ? new BJS.Color3(0.75, 0.08, 0.18) : new BJS.Color3(0.56, 0.24, 0.08);
+      mat.emissiveColor = hz.type === 'spike' ? new BJS.Color3(0.22, 0.01, 0.05) : new BJS.Color3(0.12, 0.05, 0.01);
+      mesh.material = mat;
+      glow.addIncludedOnlyMesh(mesh);
+      this.hazardMeshes.push(mesh);
+    }
+
+    // ── Power-up meshes ───────────────────────────────────────────────────────
+    for (let pi = 0; pi < this.powerUps.length; pi++) {
+      const p = this.powerUps[pi];
+      const mesh = BJS.MeshBuilder.CreateTorus(`power_${pi}`, {
+        diameter: 0.55,
+        thickness: 0.14,
+        tessellation: 18,
+      }, scene);
+      const mat = new BJS.StandardMaterial(`power_mat_${pi}`, scene);
+      if (p.type === 'shield') mat.emissiveColor = new BJS.Color3(0.15, 0.8, 1.0);
+      if (p.type === 'high-jump') mat.emissiveColor = new BJS.Color3(0.4, 1.0, 0.4);
+      if (p.type === 'laser') mat.emissiveColor = new BJS.Color3(1.0, 0.25, 0.4);
+      if (p.type === 'giant') mat.emissiveColor = new BJS.Color3(0.95, 0.72, 0.12);
+      mat.diffuseColor = mat.emissiveColor.scale(0.8);
+      mesh.material = mat;
+      glow.addIncludedOnlyMesh(mesh);
+      this.powerUpMeshes.push(mesh);
+    }
+
     // ── Enemy meshes ──────────────────────────────────────────────────────────
     for (let ei = 0; ei < this.enemies.length; ei++) {
       const en = this.enemies[ei];
       const isBoss  = !!en.boss;
       const diameter = isBoss ? 0.85 * (en.size ?? 1.8) : 0.85;
-      const mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`,
-        { diameter, segments: isBoss ? 24 : 16 }, scene);
+      let mesh: import('@babylonjs/core').Mesh;
+      if (isBoss) {
+        mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter, segments: 24 }, scene);
+      } else {
+        switch (en.kind) {
+          case 'runner':
+          case 'charger':
+            mesh = BJS.MeshBuilder.CreateBox(`enemy_${ei}`, { width: 0.78, height: 0.62, depth: 0.48 }, scene);
+            break;
+          case 'hopper':
+            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.78, segments: 16 }, scene);
+            break;
+          case 'flyer':
+            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameterTop: 0.18, diameterBottom: 0.8, height: 0.54, tessellation: 3 }, scene);
+            break;
+          case 'zigzag':
+            mesh = BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78, thickness: 0.18, tessellation: 14 }, scene);
+            break;
+          case 'orbiter':
+            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.58, segments: 10 }, scene);
+            break;
+          case 'sniper':
+            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameter: 0.6, height: 0.8, tessellation: 8 }, scene);
+            break;
+          case 'burrower':
+            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.72, segments: 12 }, scene);
+            break;
+          case 'spiker':
+            mesh = BJS.MeshBuilder.CreatePolyhedron(`enemy_${ei}`, { type: 4, size: 0.46 }, scene);
+            break;
+          case 'shadow':
+          default:
+            mesh = BJS.MeshBuilder.CreateCapsule(`enemy_${ei}`, { radius: 0.22, height: 0.95, tessellation: 10 }, scene);
+            break;
+        }
+      }
       const mat  = new BJS.StandardMaterial(`emat_${ei}`, scene);
       if (isBoss && en.bossColor) {
         const [r,g,b] = en.bossColor;
@@ -1267,9 +1599,23 @@ class GameCore {
         mat.emissiveColor = new BJS.Color3(er, eg, eb);
         mat.specularColor = new BJS.Color3(0.8, 0.7, 0.4);
       } else {
-        mat.diffuseColor  = new BJS.Color3(0.85, 0.18, 0.18);
-        mat.emissiveColor = new BJS.Color3(0.35, 0.03, 0.03);
-        mat.specularColor = new BJS.Color3(0.5, 0.1, 0.1);
+        const colorMap: Record<MadmaxiEnemyKind, [number, number, number]> = {
+          runner: [0.90, 0.28, 0.18],
+          charger: [0.88, 0.42, 0.08],
+          hopper: [0.60, 0.90, 0.18],
+          flyer: [0.15, 0.90, 0.85],
+          zigzag: [0.82, 0.22, 0.88],
+          orbiter: [0.35, 0.55, 1.0],
+          sniper: [0.96, 0.82, 0.22],
+          burrower: [0.58, 0.28, 0.08],
+          spiker: [0.86, 0.10, 0.28],
+          shadow: [0.44, 0.44, 0.56],
+        };
+        const kind = en.kind ?? 'runner';
+        const [r, g, b] = colorMap[kind];
+        mat.diffuseColor  = new BJS.Color3(r, g, b);
+        mat.emissiveColor = new BJS.Color3(r * 0.28, g * 0.18, b * 0.28);
+        mat.specularColor = new BJS.Color3(0.6, 0.6, 0.7);
       }
       mesh.material = mat;
       shadowGen.addShadowCaster(mesh, false);
@@ -1418,6 +1764,72 @@ class GameCore {
   setKeys(k: Set<string>) { this.keys = k; }
   setVpad(v: VPad)        { this.vpad = v; }
 
+  private emitRuntime() {
+    this.cbs.onRuntime?.({
+      superSeconds: Math.ceil(this.superFrames / 60),
+      boosts: {
+        shield: Math.ceil(this.shieldFrames / 60),
+        'high-jump': Math.ceil(this.highJumpFrames / 60),
+        laser: Math.ceil(this.laserFrames / 60),
+        giant: Math.ceil(this.giantFrames / 60),
+      },
+    });
+  }
+
+  private canShootLaser() {
+    return this.superFrames > 0 || this.laserFrames > 0;
+  }
+
+  private grantPowerUp(type: MadmaxiPowerUpKind) {
+    if (type === 'shield') this.shieldFrames = 8 * 60;
+    if (type === 'high-jump') this.highJumpFrames = 8 * 60;
+    if (type === 'laser') this.laserFrames = 8 * 60;
+    if (type === 'giant') this.giantFrames = 4 * 60;
+    this.emitRuntime();
+  }
+
+  private absorbOrDie() {
+    if (this.superFrames > 0) return;
+    if (this.shieldFrames > 0) {
+      this.shieldFrames = 0;
+      this.invincible = 45;
+      this.emitRuntime();
+      return;
+    }
+    this.dying = true;
+    this.invincible = 90;
+    this.lives--;
+    this.cbs.onDie(this.lives);
+  }
+
+  private firePlayerLaser() {
+    if (!this.scene || !this.bjs || this.shootCool > 0 || !this.canShootLaser()) return;
+    this.shootCool = 12;
+    const BJS = this.bjs;
+    const startX = this.px + (this.facingR ? 30 : -2);
+    const startY = this.py + 16;
+    const mesh = BJS.MeshBuilder.CreateCylinder(`player_laser_${Date.now()}`, {
+      diameter: 0.14,
+      height: 0.9,
+      tessellation: 8,
+    }, this.scene);
+    mesh.rotation.z = Math.PI / 2;
+    const mat = new BJS.StandardMaterial(`player_laser_mat_${Date.now()}`, this.scene);
+    mat.emissiveColor = this.superFrames > 0
+      ? new BJS.Color3(1.0, 0.85, 0.18)
+      : new BJS.Color3(0.0, 0.85, 1.0);
+    mesh.material = mat;
+    this.projectiles.push({
+      x: startX,
+      y: startY,
+      vx: this.facingR ? 8.4 : -8.4,
+      vy: 0,
+      life: 46,
+      friendly: true,
+      mesh,
+    });
+  }
+
   // ── Physics & logic tick ──────────────────────────────────────────────────
   private tick() {
     if (!this.engine || !this.scene) return;
@@ -1428,12 +1840,23 @@ class GameCore {
     const isRight = this.keys.has('ArrowRight') || this.keys.has('KeyD')  || this.vpad.right;
     const isJump  = this.keys.has('ArrowUp')    || this.keys.has('KeyW')  || this.keys.has('Space') || this.vpad.jump;
     const isDash  = this.vpad.dash;
+    const isShoot = this.keys.has('KeyJ') || this.keys.has('KeyX') || this.vpad.shoot;
+
+    if (this.superFrames > 0) this.superFrames--;
+    if (this.shieldFrames > 0) this.shieldFrames--;
+    if (this.highJumpFrames > 0) this.highJumpFrames--;
+    if (this.laserFrames > 0) this.laserFrames--;
+    if (this.giantFrames > 0) this.giantFrames--;
+    if (this.shootCool > 0) this.shootCool--;
+    if (this.animTick % 15 === 0) this.emitRuntime();
 
     // Jump buffer — remember a fresh jump press for JBUF_MS frames
     const freshJump = isJump && !this.prevJump;
     if (freshJump) this.jBufFr = JBUF_MS;
     if (this.jBufFr > 0) this.jBufFr--;
     this.prevJump = isJump;
+
+    if (isShoot) this.firePlayerLaser();
 
     // ── Dash system ────────────────────────────────────────────────────────
     if (this.dashCool > 0) this.dashCool--;
@@ -1450,15 +1873,17 @@ class GameCore {
       this.pvx = this.dashDir * DASH_SPD * PX_PER_BU;
       this.dashFrames--;
     } else {
-      this.pvx = isRight ? WALK_SPD * PX_PER_BU
-                : isLeft  ? -WALK_SPD * PX_PER_BU
+      const baseWalk = this.superFrames > 0 ? WALK_SPD * 1.45 : WALK_SPD;
+      this.pvx = isRight ? baseWalk * PX_PER_BU
+                : isLeft  ? -baseWalk * PX_PER_BU
                 : 0;
     }
     if (isRight) this.facingR = true;
     if (isLeft)  this.facingR = false;
 
-    // Gravity
-    this.pvy += GRAV * PX_PER_BU;
+    // Gravity — lighter during super mode / hover
+    const gravityMul = this.superFrames > 0 && isJump && this.pvy > 0 ? 0.18 : 1;
+    this.pvy += GRAV * gravityMul * PX_PER_BU;
     if (this.pvy > MAX_FALL * PX_PER_BU) this.pvy = MAX_FALL * PX_PER_BU;
 
     // Move
@@ -1472,7 +1897,9 @@ class GameCore {
     const wasOnGround = this.onGround;
     this.onGround = false;
 
-    const PW = 28, PH = 40; // player hitbox
+    const playerScale = this.giantFrames > 0 ? 1.45 : this.superFrames > 0 ? 1.18 : 1;
+    const PW = 28 * playerScale;
+    const PH = 40 * playerScale;
 
     for (let i = 0; i < this.platforms.length; i++) {
       const p = this.platforms[i];
@@ -1530,14 +1957,16 @@ class GameCore {
     const canJump = this.onGround || this.coyoteFr > 0;
     if (this.jBufFr > 0) {
       if (canJump && this.jumpCount === 0) {
-        this.pvy       = -JUMP_VY * PX_PER_BU;
+        const jumpPower = this.highJumpFrames > 0 || this.superFrames > 0 ? JUMP_VY * 1.28 : JUMP_VY;
+        this.pvy       = -jumpPower * PX_PER_BU;
         this.jumpCount = 1;
         this.jBufFr    = 0;
         this.coyoteFr  = 0;
         this.emitDust();
       } else if (!canJump && this.jumpCount === 1) {
         // Double-jump
-        this.pvy       = -JUMP_VY * 0.85 * PX_PER_BU;
+        const jumpPower = this.highJumpFrames > 0 || this.superFrames > 0 ? JUMP_VY * 1.10 : JUMP_VY * 0.85;
+        this.pvy       = -jumpPower * PX_PER_BU;
         this.jumpCount = 2;
         this.jBufFr    = 0;
         this.emitDust();
@@ -1596,6 +2025,41 @@ class GameCore {
       }
     }
 
+    // ── Power-up collection ────────────────────────────────────────────────
+    for (let i = 0; i < this.powerUps.length; i++) {
+      const p = this.powerUps[i];
+      if (p.collected) continue;
+      if (Math.abs(PCX - p.x) < 22 && Math.abs(PCY - p.y) < 22) {
+        p.collected = true;
+        this.powerUpMeshes[i]?.setEnabled(false);
+        this.powerUpMeshes[i] = null;
+        this.grantPowerUp(p.type);
+      }
+    }
+
+    // ── Hazard collisions / updates ────────────────────────────────────────
+    for (let i = 0; i < this.hazards.length; i++) {
+      const hz = this.hazards[i];
+      if (hz.type === 'spike') {
+        if (hz.moveRange && hz.moveSpd) {
+          hz.curX += hz.moveSpd * hz.moveDir;
+          if (hz.curX > hz.x + hz.moveRange || hz.curX < hz.x - hz.moveRange) hz.moveDir *= -1;
+        }
+      } else {
+        const distX = Math.abs((this.px + PW / 2) - hz.x);
+        if (distX < (hz.triggerRadius ?? 140)) hz.fallVy = Math.min(hz.fallVy + 0.34, 8.2);
+        hz.curY += hz.fallVy;
+        if (hz.curY > 420) {
+          hz.curY = hz.y;
+          hz.fallVy = 0;
+        }
+      }
+      if (Math.abs(PCX - hz.curX) < 22 && Math.abs(PCY - hz.curY) < 28) {
+        this.absorbOrDie();
+        if (this.dying) return;
+      }
+    }
+
     // ── Enemy collisions ──────────────────────────────────────────────────
     if (this.invincible > 0) this.invincible--;
 
@@ -1607,7 +2071,66 @@ class GameCore {
       const enrageMultiplier = (en.boss && this.bossHitsMax > 0 && en.hitsLeft / this.bossHitsMax <= BOSS_ENRAGE_THRESHOLD) ? BOSS_ENRAGE_MULTIPLIER : 1.0;
 
       // Move enemy
-      en.curX += en.vx * enrageMultiplier;
+      if (en.boss) {
+        en.curX += en.vx * enrageMultiplier;
+      } else {
+        const anchorX = en.anchorX ?? en.x;
+        const anchorY = en.anchorY ?? en.y;
+        switch (en.kind) {
+          case 'charger':
+            if (Math.abs(this.px - en.curX) < 220) {
+              en.vx = this.px > en.curX ? Math.abs(en.vx) + 0.16 : -Math.abs(en.vx) - 0.16;
+            }
+            en.curX += en.vx * 1.22;
+            break;
+          case 'hopper':
+            en.state += 0.18;
+            en.curX += en.vx * 0.85;
+            en.curY = anchorY - Math.abs(Math.sin(en.state) * 42);
+            break;
+          case 'flyer':
+            en.state += 0.08;
+            en.curX += en.vx * 0.75;
+            en.curY = anchorY + Math.sin(en.state * 2.2) * 26;
+            break;
+          case 'zigzag':
+            en.state += 0.12;
+            en.curX += en.vx * 0.92;
+            en.curY = anchorY + Math.sin(en.state * 3.4) * 40;
+            break;
+          case 'orbiter':
+            en.state += 0.08;
+            en.curX = anchorX + Math.cos(en.state) * 46;
+            en.curY = anchorY + Math.sin(en.state) * 32;
+            break;
+          case 'sniper':
+            en.state += 1;
+            en.curX += Math.sin(en.state * 0.05) * 0.35;
+            en.curY = anchorY;
+            if (this.animTick % 120 === 0 && Math.abs(this.px - en.curX) < 280) {
+              en.vx = this.px > en.curX ? Math.abs(en.vx) : -Math.abs(en.vx);
+            }
+            break;
+          case 'burrower':
+            en.state += 0.15;
+            en.curX += en.vx * 0.65;
+            en.curY = anchorY + Math.sin(en.state) * 12;
+            break;
+          case 'spiker':
+            en.curX += en.vx * 0.55;
+            en.curY = 360;
+            break;
+          case 'shadow':
+            en.curX += (this.px > en.curX ? 1.8 : -1.8) + en.vx * 0.2;
+            en.curY = anchorY + Math.sin(this.animTick * 0.08 + i) * 22;
+            break;
+          case 'runner':
+          default:
+            en.curX += en.vx;
+            en.curY = anchorY;
+            break;
+        }
+      }
       // Reverse at world edges
       const groundPlat = this.platforms.find(p => p.y === 400);
       const gLeft  = groundPlat ? groundPlat.x : 0;
@@ -1620,7 +2143,7 @@ class GameCore {
       const px2e = this.px + PW, py2e = this.py + PH;
 
       if (px2e > en.curX && this.px < ex2 && py2e > en.curY && this.py < ey2) {
-        const stompThreshold = en.boss ? (en.size ?? 1.8) * 22 : 22;
+        const stompThreshold = en.boss ? (en.size ?? 1.8) * 22 : (this.giantFrames > 0 || this.superFrames > 0 ? 34 : 22);
         const stompOv = py2e - en.curY;
         if (stompOv < stompThreshold && this.pvy > 0) {
           // Stomp hit!
@@ -1663,17 +2186,14 @@ class GameCore {
           }
         } else if (this.invincible === 0) {
           // Hit by enemy
-          this.dying = true;
-          this.invincible = 90;
-          this.lives--;
-          this.cbs.onDie(this.lives);
-          return;
+          this.absorbOrDie();
+          if (this.dying) return;
         }
       }
 
-      // ── Boss projectile firing ─────────────────────────────────────────
-      if (en.boss && en.alive && this.animTick % 80 === 0) {
-        // Boss fires a projectile toward the player
+      // ── Boss / sniper projectile firing ────────────────────────────────
+      if ((en.boss && en.alive && this.animTick % 80 === 0) || (en.kind === 'sniper' && en.alive && this.animTick % 130 === 0)) {
+        // Boss or sniper fires a projectile toward the player
         const PW2 = 28;
         const bCX = en.curX + (en.size ?? 1.8) * 32 / 2;
         const bCY = en.curY + (en.size ?? 1.8) * 32 / 2;
@@ -1688,7 +2208,9 @@ class GameCore {
             const m = BJS.MeshBuilder.CreateSphere('proj_' + Date.now(),
               { diameter: 0.35, segments: 6 }, this.scene!);
             const mat = new BJS.StandardMaterial('projMat', this.scene!);
-            mat.emissiveColor = new BJS.Color3(1, 0.2, 0.2);
+            mat.emissiveColor = en.boss
+              ? new BJS.Color3(1, 0.2, 0.2)
+              : new BJS.Color3(1.0, 0.85, 0.18);
             m.material = mat;
             m.position.set(
               (bCX - this.camX - GW / 2) / PX_PER_BU,
@@ -1701,9 +2223,9 @@ class GameCore {
 
         this.projectiles.push({
           x: bCX, y: bCY,
-          vx: (dx / dist) * PROJ_SPD,
-          vy: (dy / dist) * PROJ_SPD,
-          life: PROJ_LIFE,
+          vx: (dx / dist) * (en.boss ? PROJ_SPD : PROJ_SPD * 0.8),
+          vy: (dy / dist) * (en.boss ? PROJ_SPD : PROJ_SPD * 0.8),
+          life: en.boss ? PROJ_LIFE : Math.round(PROJ_LIFE * 0.65),
           mesh: projMesh,
         });
       }
@@ -1729,17 +2251,48 @@ class GameCore {
         continue;
       }
 
-      // Hit player
-      if (this.invincible === 0 &&
+      if (proj.friendly) {
+        let consumed = false;
+        for (let i = 0; i < this.enemies.length; i++) {
+          const en = this.enemies[i];
+          if (!en.alive) continue;
+          const eSize = en.boss ? Math.round((en.size ?? 1.8) * 32) : en.kind === 'spiker' ? 36 : 32;
+          if (proj.x > en.curX - 12 && proj.x < en.curX + eSize + 12 &&
+              proj.y > en.curY - 12 && proj.y < en.curY + eSize + 12) {
+            if (en.boss) {
+              en.hitsLeft--;
+              this.cbs.onBossHp?.(en.hitsLeft);
+              if (en.hitsLeft <= 0) {
+                en.alive = false;
+                this.enemyMeshes[i]?.setEnabled(false);
+                this.enemyMeshes[i] = null;
+                this.score += this.bossHitsMax * 300;
+                this.cbs.onScore(this.score);
+                this.cbs.onComplete(this.level + 1);
+              }
+            } else {
+              en.alive = false;
+              this.enemyMeshes[i]?.setEnabled(false);
+              this.enemyMeshes[i] = null;
+              this.score += 250;
+            }
+            this.cbs.onScore(this.score);
+            consumed = true;
+            break;
+          }
+        }
+        if (consumed) {
+          proj.mesh?.dispose();
+          this.projectiles.splice(p, 1);
+          continue;
+        }
+      } else if (this.invincible === 0 &&
           proj.x > this.px - 8 && proj.x < this.px + PW + 8 &&
           proj.y > this.py - 8 && proj.y < this.py + PH + 8) {
         proj.mesh?.dispose();
         this.projectiles.splice(p, 1);
-        this.dying = true;
-        this.invincible = 90;
-        this.lives--;
-        this.cbs.onDie(this.lives);
-        return;
+        this.absorbOrDie();
+        if (this.dying) return;
       }
     }
 
@@ -1807,6 +2360,39 @@ class GameCore {
       }
     }
 
+    // Hazards
+    for (let i = 0; i < this.hazardMeshes.length; i++) {
+      const mesh = this.hazardMeshes[i];
+      if (!mesh) continue;
+      const hz = this.hazards[i];
+      const { bx, by } = toB(hz.curX, hz.curY, 18, 18);
+      mesh.position.x = bx;
+      mesh.position.y = by;
+      mesh.position.z = 0.1;
+      if (hz.type === 'spike') {
+        mesh.rotation.z = Math.PI;
+      } else {
+        mesh.rotation.x += 0.04;
+        mesh.rotation.y += 0.06;
+      }
+    }
+
+    // Power-ups
+    for (let i = 0; i < this.powerUpMeshes.length; i++) {
+      const mesh = this.powerUpMeshes[i];
+      if (!mesh) continue;
+      const p = this.powerUps[i];
+      if (p.collected) {
+        mesh.setEnabled(false);
+        continue;
+      }
+      const { bx, by } = toB(p.x, p.y, 18, 18);
+      mesh.position.x = bx;
+      mesh.position.y = by + Math.sin(this.animTick * 0.08 + i) * 0.14;
+      mesh.position.z = 0.18;
+      mesh.rotation.y += 0.04;
+    }
+
     // Enemies
     for (let i = 0; i < this.enemyMeshes.length; i++) {
       const m = this.enemyMeshes[i];
@@ -1828,11 +2414,35 @@ class GameCore {
       } else {
         const pulse = 1 + Math.sin(this.animTick * 0.1 + i) * 0.06;
         m.scaling.setAll(pulse);
+        switch (en.kind) {
+          case 'flyer':
+            m.rotation.z = Math.sin(this.animTick * 0.18 + i) * 0.25;
+            break;
+          case 'zigzag':
+            m.rotation.x += 0.06;
+            m.rotation.z += 0.03;
+            break;
+          case 'orbiter':
+            m.rotation.y += 0.08;
+            break;
+          case 'sniper':
+            m.rotation.y = this.px > en.curX ? Math.PI / 2 : -Math.PI / 2;
+            break;
+          case 'spiker':
+            m.rotation.y += 0.02;
+            break;
+          case 'shadow':
+            m.scaling.setAll(1.0 + Math.sin(this.animTick * 0.2) * 0.15);
+            break;
+          default:
+            m.rotation.y = en.vx >= 0 ? 0 : Math.PI;
+            break;
+        }
       }
     }
 
     // ── MADMAXI Robot player ──────────────────────────────────────────────
-    const PW = 28, PH = 40;
+    const PW = 28 * (this.giantFrames > 0 ? 1.45 : 1), PH = 40 * (this.giantFrames > 0 ? 1.45 : 1);
     const { bx: pbx, by: pby } = toB(this.px, this.py, PW, PH);
     const isMoving  = Math.abs(this.pvx) > 0.5;
     const isVisible = this.invincible === 0 || (this.animTick & 4) !== 0;
@@ -1841,14 +2451,22 @@ class GameCore {
     const legSwing   = isMoving ? Math.sin(walkPhase) * 0.30 : 0; // radians
     const armSwing   = isMoving ? -Math.sin(walkPhase) * 0.28 : 0;
     // Squash-stretch on body
-    const bodyScaleX = this.onGround ? 1.12 : 0.90;
-    const bodyScaleY = this.onGround ? 0.90 : 1.12;
+    const giantMul = this.giantFrames > 0 ? 1.45 : 1;
+    const superPulse = this.superFrames > 0 ? 1 + Math.sin(this.animTick * 0.18) * 0.08 : 1;
+    const bodyScaleX = (this.onGround ? 1.12 : 0.90) * giantMul * superPulse;
+    const bodyScaleY = (this.onGround ? 0.90 : 1.12) * giantMul * superPulse;
 
     if (this.playerMesh) {
       this.playerMesh.position.set(pbx, pby, 0);
       this.playerMesh.scaling.set(bodyScaleX, bodyScaleY, 1);
       this.playerMesh.rotation.y = this.facingR ? 0 : Math.PI;
       this.playerMesh.setEnabled(isVisible);
+      const mat = this.playerMesh.material as import('@babylonjs/core').StandardMaterial | null;
+      if (mat) {
+        mat.emissiveColor = this.superFrames > 0
+          ? new (this.bjs!.Color3)(0.55, 0.48, 0.12)
+          : new (this.bjs!.Color3)(0.28, 0.20, 0.04);
+      }
     }
     if (this.playerHead) {
       this.playerHead.position.set(pbx, pby + 0.52, 0);
@@ -1866,6 +2484,12 @@ class GameCore {
         this.playerVisor.scaling.setAll(p);
       } else {
         this.playerVisor.scaling.setAll(1);
+      }
+      const mat = this.playerVisor.material as import('@babylonjs/core').StandardMaterial | null;
+      if (mat) {
+        mat.emissiveColor = this.superFrames > 0
+          ? new (this.bjs!.Color3)(1.0, 0.92, 0.25)
+          : new (this.bjs!.Color3)(0.0, 0.5, 0.9);
       }
     }
     if (this.playerArmL) {
@@ -1922,7 +2546,7 @@ class GameCore {
     if (this.camMesh) {
       this.camMesh.position.x = 0;
       // Smooth cam Y toward target (normally 6 BU, zoomed out when flash active)
-      const targetCamY = 6 + this.camZoomOffset;
+      const targetCamY = 5.25 + this.camZoomOffset;
       this.camMesh.position.y += (targetCamY - this.camMesh.position.y) * 0.10;
       this.camMesh.setTarget(new (this.bjs!.Vector3)(0, this.camMesh.position.y - 0.5, 0));
     }

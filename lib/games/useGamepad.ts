@@ -21,8 +21,8 @@
  *   7  R2             → jump-shoot
  *   8  Share / Create → (ignored)
  *   9  Options        → pause
- *   10 L3             → (ignored)
- *   11 R3             → (ignored)
+ *   10 L3             → l3
+ *   11 R3             → r3
  *   12 D-Pad Up       → jump
  *   13 D-Pad Down     → duck
  *   14 D-Pad Left     → move-left
@@ -57,7 +57,7 @@ type GameAction =
   | 'move-left' | 'move-right' | 'move-up' | 'move-down'
   | 'move-stop'
   | 'jump' | 'duck' | 'spin' | 'shoot'
-  | 'jump-spin' | 'jump-shoot' | 'l2' | 'r1'
+  | 'jump-spin' | 'jump-shoot' | 'l2' | 'r1' | 'l3' | 'r3'
   | 'pause';
 
 export interface GamepadStatus {
@@ -92,8 +92,8 @@ const BUTTON_MAP: (GameAction | null)[] = [
   'jump-shoot', // 7  R2 / RT
   null,         // 8  Share / Back
   'pause',      // 9  Options / Start
-  null,         // 10 L3
-  null,         // 11 R3
+  'l3',         // 10 L3
+  'r3',         // 11 R3
   'jump',       // 12 D-Pad Up
   'duck',       // 13 D-Pad Down
   'move-left',  // 14 D-Pad Left

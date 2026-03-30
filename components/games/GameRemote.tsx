@@ -36,7 +36,7 @@ export type GameInputAction =
   | 'move-up-left' | 'move-up-right' | 'move-down-left' | 'move-down-right'
   | 'move-stop'
   | 'jump' | 'duck' | 'spin' | 'shoot'
-  | 'jump-spin' | 'jump-shoot' | 'l2' | 'r1'
+  | 'jump-spin' | 'jump-shoot' | 'l2' | 'r1' | 'l3' | 'r3'
   | 'pause';
 
 function fireAction(action: GameInputAction, active: boolean) {
@@ -48,11 +48,11 @@ function fireAction(action: GameInputAction, active: boolean) {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const LEFT_PAD_R    = 52;   // outer pad radius (px)
-const RIGHT_PAD_R   = 62;   // right analog is intentionally larger for readability
+const RIGHT_PAD_R   = 70;   // right analog is intentionally larger for readability
 const LEFT_KNOB_R   = 15;   // inner knob radius
-const RIGHT_KNOB_R  = 17;   // slightly larger knob for action stick
+const RIGHT_KNOB_R  = 19;   // slightly larger knob for action stick
 const LEFT_MAX_DISP = 38;   // max knob displacement from center
-const RIGHT_MAX_DISP= 44;   // larger travel to match larger right stick
+const RIGHT_MAX_DISP= 50;   // larger travel to match larger right stick
 const DEAD     = 16;   // dead-zone: no action below this displacement
 
 const REMOTE_ACTION_PILLS = [
@@ -64,6 +64,8 @@ const REMOTE_ACTION_PILLS = [
   { sym: 'R2', label: 'J+Shot', action: 'jump-shoot' as GameInputAction, color: '#a78bfa' },
   { sym: 'L2', label: 'Hold', action: 'l2' as GameInputAction, color: '#818cf8' },
   { sym: 'R1', label: 'Dash', action: 'r1' as GameInputAction, color: '#818cf8' },
+  { sym: 'L3', label: 'Stick Click', action: 'l3' as GameInputAction, color: '#94a3b8' },
+  { sym: 'R3', label: 'Stick Click / Jump', action: 'r3' as GameInputAction, color: '#facc15' },
 ] as const;
 
 const RIGHT_STICK_RING_BUTTONS = [
@@ -129,9 +131,22 @@ interface StickProps {
   accentColor: string;
   label: string;
   scale?: number;
+  clickAction?: GameInputAction;
+  clickSym?: string;
+  clickLabel?: string;
+  clickColor?: string;
 }
 
-function Stick({ side, accentColor, label, scale = 1 }: StickProps) {
+function Stick({
+  side,
+  accentColor,
+  label,
+  scale = 1,
+  clickAction,
+  clickSym,
+  clickLabel,
+  clickColor = 'rgba(220,235,255,0.82)',
+}: StickProps) {
   const padRadius = (side === 'right' ? RIGHT_PAD_R : LEFT_PAD_R) * scale;
   const knobRadius = (side === 'right' ? RIGHT_KNOB_R : LEFT_KNOB_R) * scale;
   const maxDisp = (side === 'right' ? RIGHT_MAX_DISP : LEFT_MAX_DISP) * scale;
@@ -305,6 +320,44 @@ function Stick({ side, accentColor, label, scale = 1 }: StickProps) {
           pointerEvents: 'none',
         }} />
       </div>
+
+      {clickAction && clickSym && (
+        <button
+          type="button"
+          aria-label={clickLabel ?? clickSym}
+          onPointerDown={(e) => { e.preventDefault(); triggerButtonAction(clickAction); }}
+          onPointerUp={(e) => { e.preventDefault(); releaseButtonAction(); }}
+          onPointerCancel={(e) => { e.preventDefault(); releaseButtonAction(); }}
+          onPointerLeave={(e) => { e.preventDefault(); releaseButtonAction(); }}
+          onTouchStart={(e) => { e.preventDefault(); triggerButtonAction(clickAction); }}
+          onTouchEnd={(e) => { e.preventDefault(); releaseButtonAction(); }}
+          onTouchCancel={(e) => { e.preventDefault(); releaseButtonAction(); }}
+          title={clickLabel ?? clickSym}
+          style={{
+            minWidth: side === 'right' ? 72 * scale : 58 * scale,
+            height: 26 * scale,
+            borderRadius: 999,
+            padding: '0 10px',
+            background: side === 'right'
+              ? 'rgba(250,204,21,0.16)'
+              : 'rgba(148,163,184,0.16)',
+            border: `1.5px solid ${side === 'right' ? '#facc15' : 'rgba(148,163,184,0.6)'}`,
+            color: clickColor,
+            fontSize: 10 * scale,
+            fontWeight: 900,
+            letterSpacing: '0.08em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: side === 'right'
+              ? '0 0 14px rgba(250,204,21,0.18)'
+              : '0 0 10px rgba(148,163,184,0.12)',
+          }}
+        >
+          {clickSym}
+        </button>
+      )}
     </div>
   );
 }
@@ -345,8 +398,8 @@ export default function GameRemote({
   const outerPaddingX = embedded ? 18 : 20;
   const bottomPadding = embedded ? 28 : 56;
   const cardMargin = embedded ? '0 18px 18px' : '0 20px 20px';
-  const rightClusterScale = embedded ? 0.78 : 1;
-  const rightClusterSize = 178 * rightClusterScale;
+  const rightClusterScale = embedded ? 0.84 : 1;
+  const rightClusterSize = 190 * rightClusterScale;
   const rightButtonSize = 28 * rightClusterScale;
   const rightButtonFontSize = embedded ? 9 : 11;
 
@@ -487,7 +540,15 @@ export default function GameRemote({
           : `0 ${outerPaddingX}px ${bottomPadding}px`,
       }}>
         {/* LEFT stick */}
-        <Stick side="left" accentColor="#2a8ab8" label="Move" scale={embedded ? 0.78 : 1} />
+        <Stick
+          side="left"
+          accentColor="#2a8ab8"
+          label="Move"
+          scale={embedded ? 0.78 : 1}
+          clickAction="l3"
+          clickSym="L3"
+          clickLabel="Left stick click"
+        />
 
         {/* Center controls */}
         <div style={{
@@ -561,7 +622,16 @@ export default function GameRemote({
             justifyContent: 'center',
             flexShrink: 0,
           }}>
-            <Stick side="right" accentColor="#c8981a" label="Actions" scale={rightClusterScale} />
+            <Stick
+              side="right"
+              accentColor="#c8981a"
+              label="Actions"
+              scale={rightClusterScale}
+              clickAction="r3"
+              clickSym="R3 / ×"
+              clickLabel="Right stick click / jump"
+              clickColor="#fef08a"
+            />
 
             {RIGHT_STICK_RING_BUTTONS.map(({ sym, label, action, color, top, left }) => (
               <button
@@ -615,10 +685,12 @@ export default function GameRemote({
         }}>
           {([
             ['L-stick', 'Move'],
+            ['L3',      'Stick Click'],
             ['×',       'Jump'],
             ['△',       'Duck'],
             ['□',       'Spin'],
             ['○',       'Shoot'],
+            ['R3',      'Stick Click / Jump'],
             ['R-stick ↗', 'Jump+Shoot'],
           ] as [string, string][]).map(([ctrl, action]) => (
             <div key={ctrl} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
