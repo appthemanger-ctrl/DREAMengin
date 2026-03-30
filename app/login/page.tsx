@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-
+import Image from "next/image";
 import PasswordField from "@/components/auth/PasswordField";
 import { createClient } from "@/lib/supabase/client";
 
@@ -168,6 +168,17 @@ function LoginPageInner() {
 
       {/* Wordmark — SICC premium */}
       <div className="sicc-soft-float" style={{ marginBottom: 32, textAlign: "center", position: 'relative' }}>
+        {/* Brand logo */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
+          <Image
+            src="/images/logo1.PNG"
+            alt="DREAMengin"
+            width={56}
+            height={56}
+            style={{ objectFit: 'contain', filter: 'drop-shadow(0 4px 16px rgba(200,152,26,0.35)) brightness(1.05)' }}
+            priority
+          />
+        </div>
         <div style={{
           fontFamily: 'var(--font-cormorant, Georgia, serif)',
           fontStyle: 'italic', fontWeight: 500,

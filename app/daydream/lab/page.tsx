@@ -1,9 +1,10 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, FlaskConical } from 'lucide-react';
+import { FlaskConical } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import LabEngin from '@/components/daydream/LabEngin';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Lab Daydream – Dreamengin', description: 'Experiments, prototypes, simulations, and models.' };
@@ -34,30 +35,25 @@ export default async function LabDaydreamPage() {
       sideBComponent={LabEngin}
     >
       <div className="de-sky-bg min-h-screen">
-        <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-              <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-            </Link>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>DREAMengin</div>
-              <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
-                <FlaskConical className="w-4 h-4" style={{ color: '#22c55e' }} />
-                <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Lab</h1>
-              </div>
-            </div>
-            <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>Daydream</span>
-          </div>
-        </header>
+        <AuthenticatedPageHeader
+          backHref="/homedream"
+          title="Lab"
+          subtitle="Experiments, prototypes, simulations, and model flow with less friction."
+          icon={<FlaskConical className="w-4 h-4" />}
+          accentColor="#22c55e"
+          badge="Daydream"
+        />
 
-        <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+        <div className="de-auth-content space-y-4">
           {/* Intro */}
-          <div style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 18, padding: '20px 20px 18px', border: '1px solid rgba(34,197,94,0.15)' }}>
+          <div className="de-auth-hero">
+            <div style={{ position: 'relative', zIndex: 1 }}>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Lab</h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
               Your experimental workspace. Run experiments, build prototypes, test models, and explore simulations.
               Flip to LabEngin for 20 industry-grade research and engineering tools.
             </p>
+            </div>
           </div>
 
           {/* ── Feature 1: Quick Action Cards ── */}

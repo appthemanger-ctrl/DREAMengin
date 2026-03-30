@@ -1,10 +1,11 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Music, DiscAlbum, TrendingUp, Upload, ListMusic, Sparkles, Gauge } from 'lucide-react';
+import { Music, DiscAlbum, TrendingUp, Upload, ListMusic, Sparkles, Gauge } from 'lucide-react';
 import SoundRecorder from '@/components/music/SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import StarMakerEngin from '@/components/daydream/StarMakerEngin';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 
 export const dynamic = 'force-dynamic';
@@ -36,23 +37,30 @@ export default async function MusicDaydreamPage() {
       sideBComponent={StarMakerEngin}
     >
       <div className="de-sky-bg min-h-screen">
-        <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-              <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-            </Link>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>DREAMengin</div>
-              <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
-                <Music className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
-                <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Music Studio</h1>
+        <AuthenticatedPageHeader
+          backHref="/homedream"
+          title="Music Studio"
+          subtitle="Record, release, and manage your music."
+          icon={<Music className="w-4 h-4" />}
+          accentColor="#2a8ab8"
+          badge="Daydream"
+        />
+
+        <div className="de-auth-content space-y-4">
+          <div className="de-auth-hero">
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--de-accent)', marginBottom: 8 }}>
+                Audio Capture + Artist Flow
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.03em', color: 'var(--de-heading)', marginBottom: 10 }}>
+                Build tracks, releases, and your artist identity in one place.
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.7, maxWidth: 680 }}>
+                Music Studio is now framed like a premium control surface: recorder first, release planning second, and direct paths into Brand, Create, and analytics without leaving the session.
               </div>
             </div>
-            <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Daydream</span>
           </div>
-        </header>
 
-        <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Sound Recorder</span></div>
             <div className="de-widget-body"><SoundRecorder /></div>

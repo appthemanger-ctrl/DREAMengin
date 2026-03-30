@@ -69,11 +69,11 @@ export default function RuntimeShell({
 
   /* ── shared button style helpers ─────────────────────────────────────────── */
   const ctrlBtn = (disabled: boolean): React.CSSProperties => ({
-    width: 26, height: 26, borderRadius: '50%',
+    width: 30, height: 30, borderRadius: '50%',
     border: 'none',
-    background: disabled ? 'transparent' : 'rgba(255,255,255,0.08)',
-    color: disabled ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.80)',
-    fontSize: 17, fontWeight: 700,
+    background: disabled ? 'transparent' : 'rgba(255,255,255,0.10)',
+    color: disabled ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.92)',
+    fontSize: 18, fontWeight: 700,
     cursor: disabled ? 'default' : 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     lineHeight: 1,
@@ -99,19 +99,19 @@ export default function RuntimeShell({
         <div
           style={{
             position: 'absolute',
-            top: 8,
+            top: 10,
             right: 52, // leave room for other controls
             zIndex: 200,
             display: 'flex',
             alignItems: 'center',
-            gap: 1,
-            background: 'rgba(2,8,24,0.72)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            borderRadius: 20,
-            padding: '2px 4px',
+            gap: 2,
+            background: 'rgba(6,14,34,0.78)',
+            backdropFilter: 'blur(16px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(16px) saturate(160%)',
+            borderRadius: 999,
+            padding: '4px 6px',
             border: '1px solid rgba(200,152,26,0.18)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.30)',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.24)',
             userSelect: 'none',
           }}
         >
@@ -130,18 +130,18 @@ export default function RuntimeShell({
             aria-label={`Reset zoom — currently ${pct}%`}
             style={{
               minWidth: 34,
-              height: 22,
-              borderRadius: 9,
+              height: 24,
+              borderRadius: 999,
               border: 'none',
               background: isDefault ? 'transparent' : 'rgba(200,152,26,0.18)',
               color: isDefault ? 'rgba(255,255,255,0.40)' : '#d4a843',
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: 700,
               cursor: 'pointer',
               letterSpacing: '0.02em',
               transition: 'background 0.12s, color 0.12s',
               WebkitTapHighlightColor: 'transparent',
-              padding: '0 3px',
+              padding: '0 8px',
               flexShrink: 0,
             }}
           >
@@ -176,11 +176,11 @@ export default function RuntimeShell({
               alignItems: 'center',
               gap: 8,
               padding: '0 8px',
-              background: 'rgba(2,8,24,0.90)',
-              backdropFilter: 'blur(14px)',
-              WebkitBackdropFilter: 'blur(14px)',
+              background: 'rgba(6,14,34,0.92)',
+              backdropFilter: 'blur(18px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(18px) saturate(180%)',
               borderBottom: '1px solid rgba(200,152,26,0.20)',
-              boxShadow: '0 1px 8px rgba(0,0,0,0.30)',
+              boxShadow: '0 2px 14px rgba(0,0,0,0.28)',
             }}
           >
             <button
@@ -189,12 +189,12 @@ export default function RuntimeShell({
               aria-label="Back to runtime"
               style={{
                 display: 'flex', alignItems: 'center', gap: 4,
-                padding: '5px 12px 5px 8px',
+                padding: '6px 13px 6px 10px',
                 border: 'none',
-                borderRadius: 10,
-                background: 'rgba(255,255,255,0.09)',
-                color: 'rgba(255,255,255,0.85)',
-                fontSize: 12, fontWeight: 600,
+                borderRadius: 999,
+                background: 'rgba(255,255,255,0.10)',
+                color: 'rgba(255,255,255,0.92)',
+                fontSize: 12, fontWeight: 700,
                 cursor: 'pointer',
                 WebkitTapHighlightColor: 'transparent',
                 flexShrink: 0,

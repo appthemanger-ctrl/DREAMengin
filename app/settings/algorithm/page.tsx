@@ -1,8 +1,8 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Cpu } from 'lucide-react';
+import { Cpu } from 'lucide-react';
 import AlgorithmEngine from '@/components/feed/AlgorithmEngine';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
@@ -17,23 +17,16 @@ export default async function AlgorithmPage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      <header
-        className="sticky top-0 z-30 backdrop-blur-xl"
-        style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
-      >
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/settings" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </Link>
-          <Cpu className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
-          <div>
-            <div className="text-lg font-bold" style={{ color: 'var(--de-heading)', lineHeight: 1.1 }}>My Algorithm</div>
-            <div className="text-xs" style={{ color: 'var(--de-text-dim)' }}>You own your feed</div>
-          </div>
-        </div>
-      </header>
+      <AuthenticatedPageHeader
+        backHref="/settings"
+        title="My Algorithm"
+        subtitle="Your rules, presets, and ranking logic — tuned from a single control room."
+        icon={<Cpu className="w-4 h-4" />}
+        accentColor="var(--de-accent)"
+        badge="Settings"
+      />
 
-      <div className="max-w-2xl mx-auto px-4 py-5 pb-24">
+      <div className="de-auth-content">
         <AlgorithmEngine />
       </div>
     </div>

@@ -1,9 +1,10 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Code2 } from 'lucide-react';
+import { Code2 } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import CodeEngin from '@/components/daydream/CodeEngin';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Code Daydream – Dreamengin', description: 'Code projects, snippets, files, and deployments.' };
@@ -34,29 +35,24 @@ export default async function CodeDaydreamPage() {
       sideBComponent={CodeEngin}
     >
       <div className="de-sky-bg min-h-screen">
-        <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-              <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-            </Link>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>DREAMengin</div>
-              <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
-                <Code2 className="w-4 h-4" style={{ color: '#6366f1' }} />
-                <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Code</h1>
-              </div>
-            </div>
-            <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.2)' }}>Daydream</span>
-          </div>
-        </header>
+        <AuthenticatedPageHeader
+          backHref="/homedream"
+          title="Code"
+          subtitle="Project flow, snippets, files, and deployment entry points in one command surface."
+          icon={<Code2 className="w-4 h-4" />}
+          accentColor="#6366f1"
+          badge="Daydream"
+        />
 
-        <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+        <div className="de-auth-content space-y-4">
           {/* Intro */}
-          <div style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 18, padding: '20px 20px 18px', border: '1px solid rgba(99,102,241,0.15)' }}>
+          <div className="de-auth-hero">
+            <div style={{ position: 'relative', zIndex: 1 }}>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Code</h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
               Your engineering workspace. 20 industry-grade coding features — from live notebooks and CI pipelines to AI assist, security scanner, and game engine integration. Flip to CodeEngin for the full control layer.
             </p>
+            </div>
           </div>
 
           {/* ── Feature 1: Quick Links ── */}

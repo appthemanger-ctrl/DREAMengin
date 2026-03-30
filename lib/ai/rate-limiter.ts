@@ -45,8 +45,8 @@ export async function checkRateLimit(
 
   if (error) {
     console.error('Rate limit check error:', error);
-    // Fail open (allow request) on error
-    return { allowed: true, rpm: 0 };
+    // Fail-closed per spec §8: any error returns { allowed: false, rpm: 0 }
+    return { allowed: false, rpm: 0 };
   }
 
   const allowed = data?.allowed === true;

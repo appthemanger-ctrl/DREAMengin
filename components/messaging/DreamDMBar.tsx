@@ -80,9 +80,12 @@ export const BAR_H = 80;
 const TOP_H        = 340;
 /** Compact nav-bar height when locked at the top (collapsed/nav-bar mode) */
 export const NAV_H = 52;
-/** Gold button diameter */
-const GOLD_SZ      = 48;
+/** Gold button diameter (full / revealed) */
+const GOLD_SZ      = 60;
 const GOLD_R       = GOLD_SZ / 2;
+/** Gold capsule size when in minimized / idle state */
+const GOLD_MIN_W   = 36;
+const GOLD_MIN_H   = 8;
 /** Snap to bottom when dragged down this many px from top */
 const SNAP_DOWN_PX = 88;
 /** Drag distance to expand compact nav bar into full panel */
@@ -220,6 +223,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   // ── Gold button press state (iOS-like feedback) ────────────────────────────
   const [goldPressed, setGoldPressed] = useState(false);
+  /**
+   * goldMinimized — button rests as a thin gold capsule by default.
+   * Expands to the full sphere on first touch, auto-minimizes back after
+   * the interaction settles (2 s after pointer-up with no new interaction).
+   */
+  const [goldMinimized, setGoldMinimized] = useState(true);
+  const goldMinTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Gold button double-tap ─────────────────────────────────────────────────
   const goldRef = useRef({ lastAt: 0 });
@@ -256,6 +266,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     e.stopPropagation();
     goldDragRef.current = { active: true, startY: e.clientY };
     setGoldPressed(true);
+    // Reveal: cancel any pending minimize timer and expand to full sphere
+    if (goldMinTimerRef.current) { clearTimeout(goldMinTimerRef.current); goldMinTimerRef.current = null; }
+    setGoldMinimized(false);
   }, []);
   const handleGoldPointerUp = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -269,6 +282,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     } else if (shouldTreatGoldReleaseAsTap(dy)) {
       handleGoldTap();
     }
+    // Auto-minimize after 2 s of inactivity
+    goldMinTimerRef.current = setTimeout(() => { setGoldMinimized(true); goldMinTimerRef.current = null; }, 2000);
   }, [handleGoldTap, isTop]);
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
@@ -724,32 +739,45 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const isScreenLocked: boolean = isGoldOffScreen;
   const isCompactViewport = isCompactRuntimeViewport(screenW);
 
+  // ── Minimized-mode geometry ───────────────────────────────────────────────
+  // When minimized, the capsule is centered on the same Y axis as the full button
+  // but only GOLD_MIN_H tall and GOLD_MIN_W wide (a subtle gold pill indicator).
+  // The "top" for the capsule should align its center with goldTopPx + GOLD_R.
+  const goldCenterY = goldTopPx + GOLD_R;
+  const minCapsuleTop = goldCenterY - GOLD_MIN_H / 2;
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
-      {/* ── Gold sphere button ──────────────────────────────────────────────── */}
-      {/* SICC gold button outer glow ring */}
-      <div
-        aria-hidden
-        style={{
-          position: 'fixed',
-          top: goldTopPx - 6,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: GOLD_SZ + 12,
-          height: GOLD_SZ + 12,
-          borderRadius: '50%',
-          zIndex: 101,
-          pointerEvents: 'none',
-          transition: isDragging ? 'none' : `top ${SPRING}`,
-          background: 'transparent',
-          border: '1.5px solid rgba(200,152,26,0.20)',
-          animation: goldPressed ? 'none' : 'sicc-gold-breathe 3.2s cubic-bezier(0.45,0.05,0.55,0.95) infinite',
-          opacity: isScreenLocked ? 0.85 : 0.65,
-        }}
-      />
-      {/* SICC gold button burst ring (visible on press) */}
-      {goldPressed && (
+      {/* ── Gold sphere / capsule button ────────────────────────────────────── */}
+
+      {/* SICC outer glow ring — only when revealed */}
+      {!goldMinimized && (
+        <div
+          aria-hidden
+          style={{
+            position: 'fixed',
+            top: goldTopPx - 6,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: GOLD_SZ + 12,
+            height: GOLD_SZ + 12,
+            borderRadius: '50%',
+            zIndex: 101,
+            pointerEvents: 'none',
+            transition: isDragging ? 'none' : `top ${SPRING}, opacity 0.4s ease, width 0.38s cubic-bezier(0.34,1.22,0.64,1), height 0.38s cubic-bezier(0.34,1.22,0.64,1)`,
+            background: 'transparent',
+            border: goldPressed
+              ? '2px solid rgba(42,138,184,0.55)'  // Blue ring on press
+              : '1.5px solid rgba(200,152,26,0.22)',
+            animation: goldPressed ? 'none' : 'sicc-gold-breathe 3.2s cubic-bezier(0.45,0.05,0.55,0.95) infinite',
+            opacity: isScreenLocked ? 0.9 : 0.72,
+          }}
+        />
+      )}
+
+      {/* SICC gold/blue burst ring on press */}
+      {goldPressed && !goldMinimized && (
         <div
           aria-hidden
           style={{
@@ -762,11 +790,12 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             borderRadius: '50%',
             zIndex: 101,
             pointerEvents: 'none',
-            border: '2px solid rgba(232,184,48,0.55)',
-            animation: 'sicc-gold-burst 0.5s ease-out forwards',
+            border: '2.5px solid rgba(42,138,184,0.65)',
+            animation: 'sicc-gold-burst 0.55s ease-out forwards',
           }}
         />
       )}
+
       <button
         type="button"
         aria-label="Gold button — tap for menus, double-tap to open HomeDream"
@@ -775,14 +804,20 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         onPointerCancel={() => {
           goldDragRef.current.active = false;
           setGoldPressed(false);
+          // auto-minimize after cancel too
+          goldMinTimerRef.current = setTimeout(() => { setGoldMinimized(true); goldMinTimerRef.current = null; }, 2000);
         }}
         style={{
           position: 'fixed',
-          top: goldTopPx,
+          // When minimized: center the capsule pill; when revealed: full sphere position
+          top: goldMinimized ? minCapsuleTop : goldTopPx,
           left: '50%',
-          transform: `translateX(-50%) scale(${goldPressed ? 0.88 : 1})`,
-          width: GOLD_SZ, height: GOLD_SZ,
-          borderRadius: '50%',
+          transform: goldMinimized
+            ? 'translateX(-50%)'
+            : `translateX(-50%) scale(${goldPressed ? 0.88 : 1})`,
+          width:  goldMinimized ? GOLD_MIN_W : GOLD_SZ,
+          height: goldMinimized ? GOLD_MIN_H : GOLD_SZ,
+          borderRadius: goldMinimized ? 99 : '50%',
           border: 'none',
           cursor: 'pointer',
           zIndex: 102,
@@ -790,47 +825,69 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           touchAction: 'manipulation',
           WebkitTapHighlightColor: 'transparent',
           outline: 'none',
-          transition: goldPressed
-            ? 'transform 0.08s ease, box-shadow 0.08s ease'
-            : isDragging
-              ? 'none'
-              : `top ${SPRING}, transform 0.22s cubic-bezier(0.34,1.6,0.64,1), box-shadow 0.3s ease`,
-          willChange: 'transform',
-          background: `radial-gradient(circle at 36% 32%,
-            #fffde0 0%, #f7e07a 10%, #e8c040 22%, #d4a843 38%, #a16207 65%, #6b3c03 100%)`,
-          boxShadow: goldPressed
-            ? `inset 0 3px 8px rgba(80,40,0,0.55),
-               inset -2px -2px 10px rgba(80,40,0,0.35),
-               0 2px 8px rgba(100,58,4,0.40),
-               0 0 0 2px rgba(200,152,26,0.50),
-               0 0 16px rgba(200,152,26,0.30)`
-            : `inset 0 2px 5px rgba(255,255,220,0.90),
-               inset -3px -3px 12px rgba(80,40,0,0.42),
-               0 6px 28px rgba(100,58,4,0.50),
-               0 2px 10px rgba(212,168,67,0.55),
-               0 0 0 1.5px rgba(180,120,20,0.45),
-               0 0 ${isScreenLocked ? '24px' : '14px'} rgba(200,152,26,${isScreenLocked ? '0.55' : '0.25'})`,
+          transition: goldMinimized
+            ? (isDragging ? 'none' : `top ${SPRING}, width 0.42s cubic-bezier(0.34,1.22,0.64,1), height 0.42s cubic-bezier(0.34,1.22,0.64,1), border-radius 0.42s ease, opacity 0.3s ease, box-shadow 0.3s ease`)
+            : goldPressed
+              ? 'transform 0.08s ease, box-shadow 0.1s ease, border 0.08s ease'
+              : isDragging
+                ? 'none'
+                : `top ${SPRING}, transform 0.26s cubic-bezier(0.34,1.6,0.64,1), box-shadow 0.3s ease, width 0.42s cubic-bezier(0.34,1.22,0.64,1), height 0.42s cubic-bezier(0.34,1.22,0.64,1), border-radius 0.42s ease`,
+          willChange: 'transform, width, height',
+          // Minimized: subtle translucent gold pill
+          background: goldMinimized
+            ? 'linear-gradient(90deg, rgba(200,152,26,0.45), rgba(232,184,48,0.65), rgba(200,152,26,0.45))'
+            : `radial-gradient(circle at 36% 32%,
+                #fffde0 0%, #f7e07a 10%, #e8c040 22%, #d4a843 38%, #a16207 65%, #6b3c03 100%)`,
+          boxShadow: goldMinimized
+            ? '0 1px 6px rgba(200,152,26,0.28)'
+            : goldPressed
+              ? `inset 0 3px 8px rgba(80,40,0,0.55),
+                 inset -2px -2px 10px rgba(80,40,0,0.35),
+                 0 2px 8px rgba(100,58,4,0.40),
+                 0 0 0 3px rgba(42,138,184,0.55),
+                 0 0 20px rgba(42,138,184,0.35)`
+              : `inset 0 2px 5px rgba(255,255,220,0.90),
+                 inset -3px -3px 12px rgba(80,40,0,0.42),
+                 0 8px 32px rgba(100,58,4,0.55),
+                 0 2px 12px rgba(212,168,67,0.60),
+                 0 0 0 1.5px rgba(180,120,20,0.45),
+                 0 0 ${isScreenLocked ? '28px' : '16px'} rgba(200,152,26,${isScreenLocked ? '0.60' : '0.30'})`,
+          overflow: 'hidden',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
-        {/* SICC specular highlight — enhanced */}
-        <span aria-hidden style={{
-          position: 'absolute', top: '10%', left: '15%',
-          width: '40%', height: '24%', borderRadius: '50%',
-          background: 'linear-gradient(135deg, rgba(255,255,245,0.70) 0%, rgba(255,255,220,0.20) 100%)',
-          filter: 'blur(2.5px)', pointerEvents: 'none',
-        }} />
-        {/* SICC secondary edge highlight */}
-        <span aria-hidden style={{
-          position: 'absolute', bottom: '12%', right: '16%',
-          width: '22%', height: '14%', borderRadius: '50%',
-          background: 'rgba(255,240,180,0.25)',
-          filter: 'blur(3px)', pointerEvents: 'none',
-        }} />
-        <svg width="22" height="11" viewBox="0 0 80 36"
-          style={{ opacity: 0.88, flexShrink: 0, position: 'relative', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.15))' }} aria-hidden>
-          <path d="M10 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
-          <path d="M10 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
-        </svg>
+        {/* Contents only shown when revealed */}
+        {!goldMinimized && (
+          <>
+            {/* SICC specular highlight */}
+            <span aria-hidden style={{
+              position: 'absolute', top: '10%', left: '15%',
+              width: '40%', height: '24%', borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(255,255,245,0.72) 0%, rgba(255,255,220,0.22) 100%)',
+              filter: 'blur(2.5px)', pointerEvents: 'none',
+            }} />
+            {/* SICC secondary edge highlight */}
+            <span aria-hidden style={{
+              position: 'absolute', bottom: '12%', right: '16%',
+              width: '22%', height: '14%', borderRadius: '50%',
+              background: 'rgba(255,240,180,0.25)',
+              filter: 'blur(3px)', pointerEvents: 'none',
+            }} />
+            {/* Blue inner glow on press */}
+            {goldPressed && (
+              <span aria-hidden style={{
+                position: 'absolute', inset: 0, borderRadius: '50%',
+                background: 'radial-gradient(circle at 50% 50%, rgba(42,138,184,0.22) 0%, transparent 70%)',
+                pointerEvents: 'none',
+              }} />
+            )}
+            <svg width="24" height="12" viewBox="0 0 80 36"
+              style={{ opacity: 0.90, flexShrink: 0, position: 'relative', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))' }} aria-hidden>
+              <path d="M10 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
+              <path d="M10 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
+            </svg>
+          </>
+        )}
       </button>
 
       {/* ── DreamDM window ───────────────────────────────────────────────────── */}
@@ -1034,18 +1091,21 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                   disabled={isSending || commentSending} aria-label={barCtx.actionAriaLabel}
                   className="sicc-shimmer"
                   style={{
-                    background: 'linear-gradient(135deg, var(--de-gold) 0%, #e0b020 40%, var(--de-blue) 100%)',
-                    border: 'none', borderRadius: '50%', width: 36, height: 36,
+                    background: 'linear-gradient(135deg, var(--de-gold) 0%, #e0b020 38%, var(--de-blue) 100%)',
+                    border: 'none', borderRadius: '50%',
+                    width: isCompactViewport ? 42 : 38,
+                    height: isCompactViewport ? 42 : 38,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: (isSending || commentSending) ? 'not-allowed' : 'pointer', flexShrink: 0, color: 'white',
                     opacity: (isSending || commentSending) ? 0.6 : 1,
-                    boxShadow: '0 3px 12px rgba(200,152,26,0.35), 0 1px 3px rgba(0,0,0,0.10)',
-                    transition: 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s, box-shadow 0.18s',
+                    boxShadow: '0 4px 16px rgba(200,152,26,0.40), 0 1px 4px rgba(0,0,0,0.12)',
+                    transition: 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s, box-shadow 0.2s',
+                    WebkitTapHighlightColor: 'transparent',
                   }}
                 >
                   {(isSending || commentSending)
-                    ? <Loader2 size={14} aria-hidden style={{ animation: 'spin 1s linear infinite' }} />
-                    : <ContextIcon ctx={barCtx} size={14} />}
+                    ? <Loader2 size={15} aria-hidden style={{ animation: 'spin 1s linear infinite' }} />
+                    : <ContextIcon ctx={barCtx} size={15} />}
                 </button>
               )}
 
@@ -1101,6 +1161,7 @@ function ModeButton({
   compact?: boolean;
 }) {
   const isActive = activeMode === mode;
+  const sz = compact ? 36 : 32;
   return (
     <button
       type="button"
@@ -1109,24 +1170,27 @@ function ModeButton({
       aria-pressed={isActive}
       aria-label={isActive ? `${label} mode active — tap to deactivate` : `Switch to ${label} mode`}
       title={label}
+      className="sicc-mode-btn"
       style={{
         flexShrink: 0,
         background: isActive
           ? 'linear-gradient(135deg, var(--de-gold) 0%, #d4a843 100%)'
           : 'rgba(180,185,200,0.15)',
-        border: isActive ? '1.5px solid rgba(232,184,48,0.50)' : '1px solid rgba(180,185,200,0.20)',
+        border: isActive
+          ? '1.5px solid rgba(232,184,48,0.55)'
+          : '1px solid rgba(180,185,200,0.22)',
         borderRadius: '50%',
-        width: compact ? 28 : 30,
-        height: compact ? 28 : 30,
+        width: sz, height: sz,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer',
         color: isActive ? 'white' : 'var(--de-text-dim)',
         transition: 'all 0.22s cubic-bezier(0.34,1.56,0.64,1)',
-        transform: isActive ? 'scale(1.10)' : 'scale(1)',
+        transform: isActive ? 'scale(1.12)' : 'scale(1)',
         boxShadow: isActive
-          ? '0 2px 10px rgba(200,152,26,0.40), 0 0 0 2px rgba(200,152,26,0.15)'
+          ? '0 3px 12px rgba(200,152,26,0.42), 0 0 0 2.5px rgba(200,152,26,0.16)'
           : '0 1px 3px rgba(0,0,0,0.06)',
         animation: isActive ? 'sicc-mode-glow 2s ease-in-out infinite' : 'none',
+        WebkitTapHighlightColor: 'transparent',
       }}
     >
       {icon}

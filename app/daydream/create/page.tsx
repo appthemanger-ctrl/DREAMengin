@@ -1,9 +1,10 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Lightbulb, CheckSquare, Calendar, FolderKanban, PlusCircle, Zap, FileText, BarChart2, Video } from 'lucide-react';
+import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import ContentEngin from '@/components/daydream/ContentEngin';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'note',      emoji: '📝', label: 'Quick Note',  desc: 'Capture a thought instantly',  color: '#f59e0b', href: '/daydream/create' },
@@ -36,134 +37,26 @@ export default async function CreateDaydreamPage() {
       sideBComponent={ContentEngin}
     >
     <div className="de-sky-bg min-h-screen">
-      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-          </Link>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>DREAMengin</div>
-            <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
-              <PlusCircle className="w-4 h-4" style={{ color: ACCENT }} />
-              <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Create</h1>
-            </div>
-          </div>
-          <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: ACCENT, border: '1px solid rgba(245,158,11,0.2)' }}>Daydream</span>
-        </div>
-      </header>
+      <AuthenticatedPageHeader
+        backHref="/homedream"
+        title="Create"
+        subtitle="Capture ideas, tasks, media, and launch-ready content without breaking flow."
+        icon={<PlusCircle className="w-4 h-4" />}
+        accentColor="#6366f1"
+        badge="Daydream"
+      />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
-        <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Everything you make lives here as widgets — not pages. 20 industry features in ContentEngin (Side B).</p>
+      <div className="de-auth-content space-y-4">
+        <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Everything you make lives here as widgets—not pages.</p>
 
-        {/* ── Feature 1: Ideas ── */}
-        <div className="de-widget">
-          <div className="de-widget-header">
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: `${ACCENT}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Lightbulb className="w-4 h-4" style={{ color: ACCENT }} />
-            </div>
-            <span className="de-widget-title ml-2">Ideas</span>
-          </div>
-          <div className="de-widget-body">
-            <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Capture ideas before they slip away.</p>
-            <div className="mt-3 flex items-center justify-center py-4" style={{ color: 'var(--de-text-dim)', fontSize: 12 }}>No ideas yet</div>
-          </div>
-          <div className="de-widget-actions">
-            <Link href="/notes" className="de-btn de-btn-ghost text-xs">+ Add Idea</Link>
-          </div>
-        </div>
-
-        {/* ── Feature 2: Tasks ── */}
-        <div className="de-widget">
-          <div className="de-widget-header">
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CheckSquare className="w-4 h-4" style={{ color: '#10b981' }} />
-            </div>
-            <span className="de-widget-title ml-2">Tasks</span>
-          </div>
-          <div className="de-widget-body">
-            <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Your to-dos, prioritised and trackable.</p>
-            <div className="mt-3 flex items-center justify-center py-4" style={{ color: 'var(--de-text-dim)', fontSize: 12 }}>No tasks yet</div>
-          </div>
-          <div className="de-widget-actions">
-            <Link href="/notes" className="de-btn de-btn-ghost text-xs">+ Add Task</Link>
-          </div>
-        </div>
-
-        {/* ── Feature 3: Calendar ── */}
-        <div className="de-widget">
-          <div className="de-widget-header">
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Calendar className="w-4 h-4" style={{ color: '#6366f1' }} />
-            </div>
-            <span className="de-widget-title ml-2">Calendar</span>
-          </div>
-          <div className="de-widget-body">
-            <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Schedule, plan, and review your timeline.</p>
-            <div className="grid grid-cols-7 gap-1 mt-3">
-              {['M','T','W','T','F','S','S'].map((d, i) => (
-                <div key={i} style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', padding: '4px 0' }}>{d}</div>
-              ))}
-              {Array.from({ length: 28 }, (_, i) => (
-                <div key={i} style={{ textAlign: 'center', fontSize: 10, padding: '4px 2px', borderRadius: 5, background: i === 28 ? `${ACCENT}18` : 'transparent', color: 'var(--de-heading)', fontWeight: i === 28 ? 700 : 400 }}>{i + 1}</div>
-              ))}
-            </div>
-          </div>
-          <div className="de-widget-actions">
-            <Link href="/notes" className="de-btn de-btn-ghost text-xs">+ Add Event</Link>
-          </div>
-        </div>
-
-        {/* ── Feature 4: Projects ── */}
-        <div className="de-widget">
-          <div className="de-widget-header">
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(14,165,233,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <FolderKanban className="w-4 h-4" style={{ color: '#0ea5e9' }} />
-            </div>
-            <span className="de-widget-title ml-2">Projects</span>
-          </div>
-          <div className="de-widget-body">
-            <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Kanban boards for active projects.</p>
-            <div className="mt-3 flex items-center justify-center py-4" style={{ color: 'var(--de-text-dim)', fontSize: 12 }}>No projects yet</div>
-          </div>
-          <div className="de-widget-actions">
-            <Link href="/lab/new" className="de-btn de-btn-ghost text-xs">+ New Project</Link>
-          </div>
-        </div>
-
-        {/* ── Feature 5: Smart Draft Generator ── */}
-        <div className="de-widget">
-          <div className="de-widget-header">
-            <Zap className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
-            <span className="de-widget-title">Smart Draft Generator</span>
-          </div>
-          <div className="de-widget-body">
-            <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 8 }}>
-              Pick a template and generate a draft instantly — Blog Post, Tweet Thread, Caption, Newsletter, or Product Launch.
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {['Blog Post', 'Tweet Thread', 'Caption', 'Newsletter', 'Product Launch'].map(t => (
-                <span key={t} style={{ padding: '4px 10px', borderRadius: 999, fontSize: 10, fontWeight: 600, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}25` }}>{t}</span>
-              ))}
-            </div>
-          </div>
-          <div className="de-widget-actions">
-            <Link href="/daydream/create" className="de-btn de-btn-primary text-xs">Open ContentEngin</Link>
-          </div>
-        </div>
-
-        {/* ── Feature 6: Viral Hook Builder ── */}
-        <div className="de-widget">
-          <div className="de-widget-header">
-            <span className="de-widget-title">🔥 Viral Hook Builder</span>
-          </div>
-          <div className="de-widget-body">
-            {[
-              'Nobody talks about this, but…',
-              'I wasted 3 years not knowing this one thing:',
-              'POV: You just discovered the creator tool you needed.',
-            ].map((hook, i) => (
-              <div key={i} style={{ padding: '7px 10px', marginBottom: 5, borderRadius: 8, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.4 }}>
-                {hook}
+        {widgets.map(({ icon: Icon, label, singular, desc, color, addHref }) => (
+          <div key={label} className="de-widget">
+            <div className="de-widget-header">
+              <div className="flex items-center gap-2">
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon className="w-4 h-4" style={{ color }} />
+                </div>
+                <span className="de-widget-title">{label}</span>
               </div>
             ))}
           </div>

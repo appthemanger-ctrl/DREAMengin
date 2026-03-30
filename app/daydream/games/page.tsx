@@ -1,12 +1,13 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Gamepad2, Play, Sparkles, Zap } from 'lucide-react';
+import { Gamepad2, Play, Sparkles, Zap } from 'lucide-react';
 import GamesHub from '@/components/games/GamesHub';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import AutoOpenGameEngin from '@/components/daydream/AutoOpenGameEngin';
+import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildGameLaunchHref } from '@/lib/games/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
@@ -57,31 +58,21 @@ export default async function GamesDaydreamPage() {
     >
       <AutoOpenGameEngin />
       <div className="de-sky-bg min-h-screen">
-        <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
-          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Link href="/homedream" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
-              <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
-            </Link>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1 }}>DREAMengin</div>
-              <div className="flex items-center gap-2" style={{ marginTop: 2 }}>
-                <Gamepad2 className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
-                <h1 className="text-base font-bold" style={{ color: 'var(--de-heading)' }}>Games</h1>
-              </div>
-            </div>
-            <span className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(42,138,184,0.1)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.2)' }}>Library + Console</span>
-          </div>
-        </header>
+        <AuthenticatedPageHeader
+          backHref="/homedream"
+          title="Games"
+          subtitle="Library, launches, and console handoff tuned for mobile play."
+          icon={<Gamepad2 className="w-4 h-4" />}
+          accentColor="#2a8ab8"
+          badge="Library + Console"
+          containerClassName="max-w-6xl"
+        />
 
-        <div className="max-w-6xl mx-auto px-4 py-6 pb-24 space-y-4">
+        <div className="de-auth-content-wide space-y-4">
           <div
-            className="de-widget"
-            style={{
-              background: 'linear-gradient(135deg, rgba(42,138,184,0.14), rgba(124,58,237,0.08), rgba(200,152,26,0.12))',
-              borderColor: 'rgba(42,138,184,0.28)',
-            }}
+            className="de-auth-hero"
           >
-            <div className="de-widget-body" style={{ padding: 18 }}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                 <div style={{ flex: 1 }}>
                   <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.56)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.18)' }}>
