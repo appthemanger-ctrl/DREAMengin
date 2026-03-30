@@ -5,8 +5,96 @@ import Link from 'next/link';
 import { ArrowLeft, RotateCcw, Check } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { THEME_PRESETS } from '@/lib/ui/theme-engine';
-import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, type DeTheme } from '@/components/ThemeApplicator';
+import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidThemeActive, type DeTheme } from '@/components/ThemeApplicator';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
+
+/* ── VOID / OLED Dark Theme Toggle ── */
+function VoidThemeSection() {
+  const [isVoid, setIsVoid] = useState(false);
+
+  useEffect(() => {
+    setIsVoid(isVoidThemeActive());
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<{ void: boolean }>;
+      setIsVoid(ce.detail.void);
+    };
+    window.addEventListener('de-theme-mode-changed', handler);
+    return () => window.removeEventListener('de-theme-mode-changed', handler);
+  }, []);
+
+  const toggle = () => {
+    const next = !isVoid;
+    setIsVoid(next);
+    applyVoidTheme(next);
+  };
+
+  return (
+    <section style={{ marginBottom: 24 }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>
+        VOID Mode
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 12 }}>
+        Deep OLED dark theme — electric neon, aurora backgrounds, maximum depth. Premium dark.
+      </div>
+      <button
+        type="button"
+        onClick={toggle}
+        style={{
+          width: '100%', padding: '16px 18px', borderRadius: 18, cursor: 'pointer', border: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          background: isVoid
+            ? 'linear-gradient(135deg, rgba(4,8,20,0.95) 0%, rgba(8,18,40,0.90) 100%)'
+            : 'rgba(8,18,40,0.06)',
+          outline: isVoid ? '2px solid rgba(56,189,248,0.55)' : '1.5px solid rgba(160,195,240,0.30)',
+          boxShadow: isVoid
+            ? '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(56,189,248,0.12), inset 0 1px 0 rgba(56,189,248,0.10)'
+            : '0 2px 8px rgba(0,0,0,0.04)',
+          transition: 'all 0.22s cubic-bezier(0.34,1.2,0.64,1)',
+        }}
+        aria-pressed={isVoid}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span style={{
+            width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
+            background: isVoid ? 'rgba(56,189,248,0.12)' : 'rgba(8,18,40,0.08)',
+            border: isVoid ? '1px solid rgba(56,189,248,0.25)' : '1px solid rgba(160,195,240,0.22)',
+            flexShrink: 0,
+          }}>
+            🌌
+          </span>
+          <span style={{ textAlign: 'left' }}>
+            <span style={{
+              display: 'block', fontSize: 14, fontWeight: 800, letterSpacing: '-0.01em',
+              color: isVoid ? 'rgba(226,240,255,0.95)' : 'var(--de-heading)',
+              marginBottom: 2,
+            }}>
+              VOID — OLED Dark {isVoid && <span style={{ marginLeft: 6, fontSize: 10, background: 'rgba(56,189,248,0.15)', color: '#38bdf8', padding: '1px 7px', borderRadius: 99, border: '1px solid rgba(56,189,248,0.25)' }}>ON</span>}
+            </span>
+            <span style={{ fontSize: 11, color: isVoid ? 'rgba(148,180,220,0.60)' : 'var(--de-text-dim)' }}>
+              Neon glow · Deep glass · Aurora backgrounds
+            </span>
+          </span>
+        </div>
+
+        {/* Toggle pill */}
+        <div style={{
+          width: 48, height: 28, borderRadius: 99, padding: 3, flexShrink: 0,
+          background: isVoid ? '#0ea5e9' : 'rgba(160,195,240,0.30)',
+          transition: 'background 0.22s',
+          display: 'flex', alignItems: 'center',
+        }}>
+          <div style={{
+            width: 22, height: 22, borderRadius: '50%',
+            background: '#fff',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+            transform: isVoid ? 'translateX(20px)' : 'translateX(0)',
+            transition: 'transform 0.22s cubic-bezier(0.34,1.56,0.64,1)',
+          }} />
+        </div>
+      </button>
+    </section>
+  );
+}
 
 /* ── Gradient Preset Picker ── */
 function GradientThemePicker() {
@@ -394,6 +482,9 @@ export default function AppearanceSettingsPage() {
             ))}
           </div>
         </section>
+
+        {/* ── VOID / OLED Dark Mode ── */}
+        <VoidThemeSection />
 
         {/* ── Gradient Theme — user-editable sky+gold ── */}
         <GradientThemePicker />

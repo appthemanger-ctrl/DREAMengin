@@ -49,12 +49,41 @@ export function applyTheme(theme: DeTheme) {
   root.style.setProperty('--de-theme-btn-to',   theme.btnTo);
 }
 
+/** Toggle VOID / OLED dark theme by setting data-theme="void" on documentElement */
+export function applyVoidTheme(enable: boolean) {
+  const root = document.documentElement;
+  if (enable) {
+    root.setAttribute('data-theme', 'void');
+    localStorage.setItem('de-theme-mode', 'void');
+  } else {
+    root.removeAttribute('data-theme');
+    localStorage.removeItem('de-theme-mode');
+    // Reapply light theme from storage
+    try {
+      const raw = localStorage.getItem('de-theme');
+      if (raw) applyTheme(JSON.parse(raw) as DeTheme);
+    } catch { /* ignore */ }
+  }
+  window.dispatchEvent(new CustomEvent('de-theme-mode-changed', { detail: { void: enable } }));
+}
+
+export function isVoidThemeActive(): boolean {
+  if (typeof document === 'undefined') return false;
+  return document.documentElement.getAttribute('data-theme') === 'void';
+}
+
 export default function ThemeApplicator() {
   useEffect(() => {
     const load = () => {
       try {
-        const raw = localStorage.getItem('de-theme');
-        if (raw) applyTheme(JSON.parse(raw) as DeTheme);
+        // Restore void mode first
+        const mode = localStorage.getItem('de-theme-mode');
+        if (mode === 'void') {
+          document.documentElement.setAttribute('data-theme', 'void');
+        } else {
+          const raw = localStorage.getItem('de-theme');
+          if (raw) applyTheme(JSON.parse(raw) as DeTheme);
+        }
       } catch { /* ignore */ }
     };
     load();

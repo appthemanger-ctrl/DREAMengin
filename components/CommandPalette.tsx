@@ -1,20 +1,24 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { 
+import {
   Search, Home, Compass, Settings, User, MessageSquare,
-  TrendingUp, ShoppingBag, Music, FileText, Calendar,
-  Command, ArrowRight, Stars
+  TrendingUp, ShoppingBag, Music, Gamepad2, FlaskConical,
+  Code2, Palette, PenLine, Stars, ArrowRight, Zap,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface CommandItem {
   id: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  description?: string;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  iconColor: string;
+  iconBg: string;
   keywords: string[];
   action: () => void;
   category: string;
+  shortcut?: string;
 }
 
 export default function CommandPalette() {
@@ -22,120 +26,195 @@ export default function CommandPalette() {
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const commands: CommandItem[] = [
     {
       id: 'home',
-      label: 'Go to Home',
+      label: 'HomeDream',
+      description: 'Your private daily surface',
       icon: Home,
-      keywords: ['home', 'feed', 'dashboard'],
+      iconColor: '#38bdf8',
+      iconBg: 'rgba(56,189,248,0.12)',
+      keywords: ['home', 'feed', 'dashboard', 'homedream'],
       action: () => router.push('/homedream'),
-      category: 'Navigation'
-    },
-    {
-      id: 'discover',
-      label: 'Explore Discover',
-      icon: Compass,
-      keywords: ['discover', 'explore', 'find'],
-      action: () => router.push('/discover'),
-      category: 'Navigation'
-    },
-    {
-      id: 'analytics',
-      label: 'View Analytics',
-      icon: TrendingUp,
-      keywords: ['analytics', 'stats', 'metrics', 'insights'],
-      action: () => router.push('/analytics'),
-      category: 'Navigation'
-    },
-    {
-      id: 'shop',
-      label: 'Open Shop',
-      icon: ShoppingBag,
-      keywords: ['shop', 'store', 'merch', 'buy'],
-      action: () => router.push('/shop'),
-      category: 'Navigation'
-    },
-    {
-      id: 'music',
-      label: 'Browse Music',
-      icon: Music,
-      keywords: ['music', 'audio', 'tracks', 'songs'],
-      action: () => router.push('/music'),
-      category: 'Navigation'
+      category: 'Surfaces',
+      shortcut: '⌘H',
     },
     {
       id: 'messages',
-      label: 'Open Messages',
+      label: 'DreamDM',
+      description: 'Messages and conversations',
       icon: MessageSquare,
-      keywords: ['messages', 'chat', 'dm', 'inbox'],
+      iconColor: '#34d399',
+      iconBg: 'rgba(52,211,153,0.12)',
+      keywords: ['messages', 'chat', 'dm', 'inbox', 'dreamdm'],
       action: () => router.push('/messages'),
-      category: 'Navigation'
-    },
-    {
-      id: 'settings',
-      label: 'Open Settings',
-      icon: Settings,
-      keywords: ['settings', 'preferences', 'config'],
-      action: () => router.push('/settings'),
-      category: 'Settings'
+      category: 'Surfaces',
+      shortcut: '⌘M',
     },
     {
       id: 'profile',
-      label: 'View Profile',
+      label: 'Edit ProfileDream',
+      description: 'Build your public presence',
       icon: User,
-      keywords: ['profile', 'account', 'me'],
+      iconColor: '#a78bfa',
+      iconBg: 'rgba(167,139,250,0.12)',
+      keywords: ['profile', 'account', 'me', 'edit'],
       action: () => router.push('/edit-profiledream'),
-      category: 'Settings'
+      category: 'Surfaces',
+    },
+    {
+      id: 'music',
+      label: 'Music Daydream',
+      description: 'Create, organize and release music',
+      icon: Music,
+      iconColor: '#f472b6',
+      iconBg: 'rgba(244,114,182,0.12)',
+      keywords: ['music', 'audio', 'tracks', 'songs', 'starmaker'],
+      action: () => router.push('/daydream/music'),
+      category: 'Daydreams',
+    },
+    {
+      id: 'games',
+      label: 'Games Daydream',
+      description: 'Play and build games',
+      icon: Gamepad2,
+      iconColor: '#fbbf24',
+      iconBg: 'rgba(251,191,36,0.12)',
+      keywords: ['games', 'play', 'game', 'gaming'],
+      action: () => router.push('/daydream/games'),
+      category: 'Daydreams',
+    },
+    {
+      id: 'lab',
+      label: 'Lab Daydream',
+      description: 'Experiments and prototypes',
+      icon: FlaskConical,
+      iconColor: '#34d399',
+      iconBg: 'rgba(52,211,153,0.12)',
+      keywords: ['lab', 'experiment', 'prototype', 'science'],
+      action: () => router.push('/daydream/lab'),
+      category: 'Daydreams',
+    },
+    {
+      id: 'code',
+      label: 'Code Daydream',
+      description: 'Projects, snippets and deployments',
+      icon: Code2,
+      iconColor: '#38bdf8',
+      iconBg: 'rgba(56,189,248,0.12)',
+      keywords: ['code', 'dev', 'programming', 'engineer'],
+      action: () => router.push('/daydream/code'),
+      category: 'Daydreams',
+    },
+    {
+      id: 'brand',
+      label: 'Brand Daydream',
+      description: 'Campaigns, identity and assets',
+      icon: Palette,
+      iconColor: '#f97316',
+      iconBg: 'rgba(249,115,22,0.12)',
+      keywords: ['brand', 'design', 'campaign', 'identity'],
+      action: () => router.push('/daydream/brand'),
+      category: 'Daydreams',
+    },
+    {
+      id: 'create',
+      label: 'Create Daydream',
+      description: 'Write, compose, and publish',
+      icon: PenLine,
+      iconColor: '#a78bfa',
+      iconBg: 'rgba(167,139,250,0.12)',
+      keywords: ['create', 'write', 'compose', 'post', 'content'],
+      action: () => router.push('/daydream/create'),
+      category: 'Daydreams',
+    },
+    {
+      id: 'discover',
+      label: 'Discover',
+      description: 'Explore the DREAMengin universe',
+      icon: Compass,
+      iconColor: '#38bdf8',
+      iconBg: 'rgba(56,189,248,0.10)',
+      keywords: ['discover', 'explore', 'find', 'browse'],
+      action: () => router.push('/discover'),
+      category: 'Platform',
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      description: 'Stats, metrics and insights',
+      icon: TrendingUp,
+      iconColor: '#34d399',
+      iconBg: 'rgba(52,211,153,0.10)',
+      keywords: ['analytics', 'stats', 'metrics', 'insights'],
+      action: () => router.push('/analytics'),
+      category: 'Platform',
+    },
+    {
+      id: 'shop',
+      label: 'DreamShop',
+      description: 'Official platform commerce',
+      icon: ShoppingBag,
+      iconColor: '#fbbf24',
+      iconBg: 'rgba(251,191,36,0.10)',
+      keywords: ['shop', 'store', 'merch', 'buy', 'dreamshop'],
+      action: () => router.push('/shop'),
+      category: 'Platform',
     },
     {
       id: 'constellation',
       label: 'Dream Constellation',
+      description: 'Visual map of all your surfaces',
       icon: Stars,
-      keywords: ['constellation', 'map', 'surfaces', 'explore', 'graph', 'dream'],
+      iconColor: '#c084fc',
+      iconBg: 'rgba(192,132,252,0.12)',
+      keywords: ['constellation', 'map', 'surfaces', 'explore', 'graph'],
       action: () => router.push('/daydream/constellation'),
-      category: 'Explore'
+      category: 'Platform',
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      description: 'Preferences and account',
+      icon: Settings,
+      iconColor: 'rgba(148,180,220,0.70)',
+      iconBg: 'rgba(148,180,220,0.08)',
+      keywords: ['settings', 'preferences', 'config', 'account'],
+      action: () => router.push('/settings'),
+      category: 'System',
     },
   ];
 
   const filteredCommands = search
     ? commands.filter(cmd =>
         cmd.label.toLowerCase().includes(search.toLowerCase()) ||
+        (cmd.description ?? '').toLowerCase().includes(search.toLowerCase()) ||
         cmd.keywords.some(kw => kw.toLowerCase().includes(search.toLowerCase()))
       )
     : commands;
 
   const groupedCommands = filteredCommands.reduce((acc, cmd) => {
-    if (!acc[cmd.category]) {
-      acc[cmd.category] = [];
-    }
+    if (!acc[cmd.category]) acc[cmd.category] = [];
     acc[cmd.category].push(cmd);
     return acc;
   }, {} as Record<string, CommandItem[]>);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // CMD+K or CTRL+K to open
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsOpen(prev => !prev);
         setSearch('');
         setSelectedIndex(0);
       }
-
-      // ESC to close
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-      }
-
-      // Navigation
+      if (e.key === 'Escape') setIsOpen(false);
       if (isOpen) {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-          setSelectedIndex(prev => 
-            Math.min(prev + 1, filteredCommands.length - 1)
-          );
+          setSelectedIndex(prev => Math.min(prev + 1, filteredCommands.length - 1));
         }
         if (e.key === 'ArrowUp') {
           e.preventDefault();
@@ -151,104 +230,84 @@ export default function CommandPalette() {
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, selectedIndex, filteredCommands]);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
-      inputRef.current.focus();
+      setTimeout(() => inputRef.current?.focus(), 40);
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [search]);
+  useEffect(() => { setSelectedIndex(0); }, [search]);
 
   if (!isOpen) return null;
 
-  let currentIndex = 0;
+  let globalIndex = 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] px-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={() => setIsOpen(false)}
-      />
-
-      {/* Command Palette */}
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-4 duration-300">
-        {/* Search Input */}
-        <div className="flex items-center border-b border-slate-200 dark:border-slate-700 px-4">
-          <Search className="w-5 h-5 text-slate-400 mr-3" />
+    <div className="cmd-backdrop" onClick={() => setIsOpen(false)}>
+      {/* Modal — stop propagation so clicks inside don't close */}
+      <div className="cmd-modal" onClick={e => e.stopPropagation()} role="dialog" aria-label="Command palette" aria-modal="true">
+        {/* ── Search row ── */}
+        <div className="cmd-search-row">
+          <Search className="cmd-search-icon" style={{ width: 18, height: 18 }} />
           <input
             ref={inputRef}
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Type a command or search..."
-            className="flex-1 py-4 bg-transparent outline-none text-slate-900 dark:text-white placeholder-slate-400"
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search commands, surfaces, daydreams…"
+            className="cmd-search-input"
+            autoComplete="off"
+            spellCheck={false}
           />
-          <div className="flex items-center space-x-1 text-xs text-slate-400">
-            <kbd className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-600">
-              ESC
-            </kbd>
-            <span>to close</span>
-          </div>
+          <span className="cmd-kbd">ESC</span>
         </div>
 
-        {/* Commands List */}
-        <div className="max-h-96 overflow-y-auto">
-          {Object.keys(groupedCommands).length === 0 ? (
-            <div className="py-12 text-center text-slate-500">
-              <p>No commands found</p>
+        {/* ── Results ── */}
+        <div className="cmd-results" ref={listRef}>
+          {filteredCommands.length === 0 ? (
+            <div className="cmd-empty">
+              <Zap style={{ width: 28, height: 28, margin: '0 auto 10px', opacity: 0.3, display: 'block' }} />
+              <p>No results for &ldquo;{search}&rdquo;</p>
             </div>
           ) : (
             Object.entries(groupedCommands).map(([category, cmds]) => (
-              <div key={category} className="py-2">
-                <div className="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                  {category}
-                </div>
-                {cmds.map((cmd) => {
-                  const itemIndex = currentIndex++;
-                  const Icon = cmd.icon;
+              <div key={category}>
+                <div className="cmd-category">{category}</div>
+                {cmds.map(cmd => {
+                  const itemIndex = globalIndex++;
                   const isSelected = itemIndex === selectedIndex;
-
+                  const Icon = cmd.icon;
                   return (
                     <button
                       key={cmd.id}
-                      onClick={() => {
-                        cmd.action();
-                        setIsOpen(false);
-                        setSearch('');
-                      }}
+                      type="button"
+                      className={`cmd-item${isSelected ? ' selected' : ''}`}
+                      onClick={() => { cmd.action(); setIsOpen(false); setSearch(''); }}
                       onMouseEnter={() => setSelectedIndex(itemIndex)}
-                      className={`w-full flex items-center justify-between px-4 py-3 transition-colors ${
-                        isSelected
-                          ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20'
-                          : 'hover:bg-slate-50 dark:hover:bg-slate-800'
-                      }`}
                     >
-                      <div className="flex items-center space-x-3">
-                        <div className={`p-2 rounded-lg ${
-                          isSelected
-                            ? 'bg-gradient-to-br from-blue-500 to-purple-500 text-white'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                        }`}>
-                          <Icon className="w-4 h-4" />
-                        </div>
-                        <span className={`font-medium ${
-                          isSelected
-                            ? 'text-slate-900 dark:text-white'
-                            : 'text-slate-700 dark:text-slate-300'
-                        }`}>
-                          {cmd.label}
-                        </span>
-                      </div>
-                      {isSelected && (
-                        <ArrowRight className="w-4 h-4 text-slate-400" />
+                      <span
+                        className="cmd-item-icon"
+                        style={{ background: cmd.iconBg, borderColor: `${cmd.iconColor}20`, color: cmd.iconColor }}
+                      >
+                        <Icon style={{ width: 15, height: 15 }} />
+                      </span>
+                      <span style={{ flex: 1, textAlign: 'left' }}>
+                        <span className="cmd-item-label">{cmd.label}</span>
+                        {cmd.description && (
+                          <span style={{ display: 'block', fontSize: 11, color: 'rgba(148,180,220,0.45)', marginTop: 1 }}>
+                            {cmd.description}
+                          </span>
+                        )}
+                      </span>
+                      {cmd.shortcut && (
+                        <span className="cmd-kbd cmd-item-hint">{cmd.shortcut}</span>
+                      )}
+                      {isSelected && !cmd.shortcut && (
+                        <ArrowRight style={{ width: 13, height: 13, color: 'rgba(56,189,248,0.50)', flexShrink: 0 }} />
                       )}
                     </button>
                   );
@@ -258,31 +317,26 @@ export default function CommandPalette() {
           )}
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-slate-200 dark:border-slate-700 px-4 py-3 bg-slate-50 dark:bg-slate-800/50">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1">
-                <kbd className="px-2 py-1 bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600">
-                  ↑↓
-                </kbd>
-                <span>to navigate</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <kbd className="px-2 py-1 bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600">
-                  ↵
-                </kbd>
-                <span>to select</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Command className="w-3 h-3" />
-              <span>+</span>
-              <kbd className="px-2 py-1 bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600">
-                K
-              </kbd>
-            </div>
+        {/* ── Footer ── */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '10px 16px',
+          borderTop: '1px solid rgba(56,189,248,0.08)',
+          background: 'rgba(4,10,24,0.60)',
+        }}>
+          <div style={{ display: 'flex', gap: 14 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'rgba(148,180,220,0.38)' }}>
+              <span className="cmd-kbd">↑↓</span> navigate
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'rgba(148,180,220,0.38)' }}>
+              <span className="cmd-kbd">↵</span> open
+            </span>
           </div>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'rgba(148,180,220,0.30)' }}>
+            <span className="cmd-kbd">⌘K</span>
+          </span>
         </div>
       </div>
     </div>

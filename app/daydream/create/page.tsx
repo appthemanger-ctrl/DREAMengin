@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle } from 'lucide-react';
+import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle, FileText, BarChart2, Video } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import ContentEngin from '@/components/daydream/ContentEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
@@ -49,18 +49,24 @@ export default async function CreateDaydreamPage() {
       <div className="de-auth-content space-y-4">
         <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Everything you make lives here as widgets—not pages.</p>
 
-        {widgets.map(({ icon: Icon, label, singular, desc, color, addHref }) => (
+        {WIDGETS.map(({ emoji, label, desc, color, href }) => (
           <div key={label} className="de-widget">
             <div className="de-widget-header">
               <div className="flex items-center gap-2">
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon className="w-4 h-4" style={{ color }} />
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+                  {emoji}
                 </div>
                 <span className="de-widget-title">{label}</span>
               </div>
-            ))}
+            </div>
+            <div className="de-widget-body">
+              <p style={{ fontSize: 12, color: 'var(--de-text-dim)', margin: 0 }}>{desc}</p>
+              {href && (
+                <a href={href} style={{ marginTop: 8, display: 'inline-block', fontSize: 12, fontWeight: 600, color }}>Open →</a>
+              )}
+            </div>
           </div>
-        </div>
+        ))}
 
         {/* ── Feature 7: Content Repurposer ── */}
         <div className="de-widget">
