@@ -437,6 +437,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const [quickDraftPreviews, setQuickDraftPreviews] = useState<string[]>([]);
   const quickFileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Measured height of a single empty line — captured on first resize
+  const singleLineHRef = useRef(0);
+  // Extra height the compose bubble adds above the fixed bar (divider mode only)
+  const [composeExtraH, setComposeExtraH] = useState(0);
 
   const { conversations, reload: reloadConvs } = useDreamDMConversations(userId);
   const { unreadCount, markAllRead }            = useNotifications();
@@ -515,16 +519,23 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     });
   }, []);
 
-  // Auto-resize textarea
+  // Auto-resize textarea — bubble expansion
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
     // Reset height to get accurate scrollHeight
     textarea.style.height = 'auto';
-    // Set height to scrollHeight (content height), max 120px
-    const newHeight = Math.min(textarea.scrollHeight, 120);
+    // Allow up to 240px (~8 lines) — much more room than the old 120px cap
+    const newHeight = Math.min(textarea.scrollHeight, 240);
     textarea.style.height = `${newHeight}px`;
+
+    // Capture the single-line height the first time (when textarea is empty or one line)
+    if (singleLineHRef.current === 0 || quickDraft === '') {
+      singleLineHRef.current = newHeight;
+    }
+    const baseline = singleLineHRef.current || newHeight;
+    setComposeExtraH(Math.max(0, newHeight - baseline));
   }, [quickDraft]);
 
   // ── Send handlers ──────────────────────────────────────────────────────────
@@ -799,12 +810,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // - Bottom mode:       grows upward from the screen bottom (dragH)
   // - Top-compact mode:  thin nav bar at top (NAV_H), drag handle below
   // - Top-expanded mode: full panel at top (TOP_H), can slide away from top
-  const barH: number    = isDividerMode ? DIVIDER_H : (isTop
-    ? (isTopExpanded ? TOP_H : dragH)
-    : dragH);
-  const barTop: number  = isDividerMode ? dividerBarTop : (isTop
-    ? (isTopExpanded ? slideDown : 0)
-    : (screenH - dragH));
+  //
+  // In divider mode, the bar grows upward into Surface Space as the user types
+  // (composeExtraH > 0), keeping the divider line anchored at its split position.
+  const barH: number    = isDividerMode
+    ? DIVIDER_H + composeExtraH
+    : (isTop ? (isTopExpanded ? TOP_H : dragH) : dragH);
+  const barTop: number  = isDividerMode
+    ? dividerBarTop - composeExtraH
+    : (isTop ? (isTopExpanded ? slideDown : 0) : (screenH - dragH));
 
   // showFull: whether to render the expanded tab panel instead of the compact bar
   const showFull: boolean = !isDividerMode && (isTopExpanded || dragH > 180);
@@ -1067,13 +1081,101 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             /* Compact bar — quick compose + mode buttons + notifications */
             <div style={{
               flex: 1, display: 'flex', flexDirection: 'column',
-              gap: isCompactViewport ? 4 : 6, paddingTop: 0, paddingRight: isCompactViewport ? 8 : 12, paddingLeft: isCompactViewport ? 10 : 14,
+              gap: isCompactViewport ? 3 : 4, paddingTop: 0, paddingRight: isCompactViewport ? 8 : 12, paddingLeft: isCompactViewport ? 10 : 14,
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+              justifyContent: 'flex-end',
             }}>
+              {/* ── Top accessory row: Bell + Comment indicator + Mode buttons ── */}
+              {/* Slides out of the way when composing multi-line */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: isCompactViewport ? 5 : 4,
+                overflow: 'hidden',
+                maxHeight: composeExtraH > 20 ? 0 : 28,
+                opacity: composeExtraH > 20 ? 0 : 1,
+                transition: 'max-height 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease',
+              }}>
+                {/* Notification bell + unread badge */}
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <Bell size={16} aria-hidden style={{
+                    color: unreadCount > 0 ? 'var(--de-gold)' : 'var(--de-text-dim)',
+                    transition: 'color 0.18s, filter 0.3s',
+                    filter: unreadCount > 0 ? 'drop-shadow(0 0 4px rgba(200,152,26,0.35))' : 'none',
+                  }} />
+                  {unreadCount > 0 && (
+                    <span
+                      aria-label={`${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`}
+                      className="sicc-badge-pop"
+                      style={{
+                        position: 'absolute', top: -6, right: -8,
+                        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        color: 'white',
+                        borderRadius: 9999, fontSize: 8, fontWeight: 700,
+                        lineHeight: 1, padding: '2px 4px', minWidth: 14, textAlign: 'center',
+                        boxShadow: '0 2px 6px rgba(220,38,38,0.35), 0 0 0 1.5px rgba(255,255,255,0.85)',
+                      }}
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </div>
+
+                {/* Comment mode indicator */}
+                {barIntent.mode === 'comment' && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    background: 'rgba(42,138,184,0.12)', borderRadius: 9999,
+                    padding: '3px 8px', fontSize: 10, color: 'var(--de-accent)',
+                    fontWeight: 600, flexShrink: 0, maxWidth: 120, overflow: 'hidden',
+                  }}>
+                    <MessageCircle size={10} aria-hidden />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {barIntent.targetLabel ? `→ ${barIntent.targetLabel}` : 'Comment'}
+                    </span>
+                    <button
+                      type="button" onClick={clearBarIntent}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      aria-label="Cancel comment"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--de-text-dim)' }}
+                    >
+                      <X size={10} />
+                    </button>
+                  </div>
+                )}
+
+                {/* Spacer pushes mode buttons to the right */}
+                <div style={{ flex: 1 }} />
+
+                {/* Mode buttons: Search · Message · Dr. Eams */}
+                <ModeButton
+                  mode="search"
+                  icon={<Search size={13} aria-hidden />}
+                  activeMode={barIntent.mode}
+                  onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
+                  label="Search"
+                  compact={isCompactViewport}
+                />
+                <ModeButton
+                  mode="message"
+                  icon={<Send size={13} aria-hidden />}
+                  activeMode={barIntent.mode}
+                  onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
+                  label="Message"
+                  compact={isCompactViewport}
+                />
+                <ModeButton
+                  mode="dreams"
+                  icon={<Bot size={13} aria-hidden />}
+                  activeMode={barIntent.mode}
+                  onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
+                  label="Dr. Eams"
+                  compact={isCompactViewport}
+                />
+              </div>
+
               {/* Media previews - shown when files are selected */}
               {quickDraftFiles.length > 0 && (
                 <div style={{
-                  display: 'flex', gap: 6, overflowX: 'auto', padding: '6px 0',
+                  display: 'flex', gap: 6, overflowX: 'auto', padding: '4px 0',
                   scrollbarWidth: 'thin',
                 }}>
                   {quickDraftFiles.map((file, idx) => (
@@ -1128,196 +1230,115 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 </div>
               )}
 
-              <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', gap: isCompactViewport ? 4 : 6 }}>
-              {/* Notification bell + unread badge */}
-              <div style={{ position: 'relative', flexShrink: 0 }}>
-                <Bell size={16} aria-hidden style={{
-                  color: unreadCount > 0 ? 'var(--de-gold)' : 'var(--de-text-dim)',
-                  transition: 'color 0.18s, filter 0.3s',
-                  filter: unreadCount > 0 ? 'drop-shadow(0 0 4px rgba(200,152,26,0.35))' : 'none',
-                }} />
-                {unreadCount > 0 && (
-                  <span
-                    aria-label={`${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`}
-                    className="sicc-badge-pop"
+              {/* ── Compose row: [Camera] [Bubble textarea] [Send] ───────────── */}
+              {/* Bottom-aligned so buttons anchor to the baseline as the bubble grows */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: isCompactViewport ? 6 : 5 }}>
+                {/* Media picker button - hidden file input */}
+                <input
+                  ref={quickFileInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  capture="environment"
+                  multiple
+                  onChange={handleQuickFileSelect}
+                  style={{ display: 'none' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => quickFileInputRef.current?.click()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  disabled={quickDraftFiles.length >= 5}
+                  aria-label="Add photos or videos"
+                  style={{
+                    flexShrink: 0,
+                    background: quickDraftFiles.length > 0 ? 'rgba(42,138,184,0.15)' : 'rgba(180,185,200,0.15)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: isCompactViewport ? 36 : 32,
+                    height: isCompactViewport ? 36 : 32,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: quickDraftFiles.length >= 5 ? 'not-allowed' : 'pointer',
+                    color: quickDraftFiles.length > 0 ? 'var(--de-accent)' : 'var(--de-text-dim)',
+                    opacity: quickDraftFiles.length >= 5 ? 0.5 : 1,
+                    transition: 'all 0.18s',
+                  }}
+                >
+                  <ImageIcon size={13} aria-hidden />
+                </button>
+
+                {/* Quick compose — bubble textarea */}
+                <textarea
+                  ref={textareaRef}
+                  value={quickDraft}
+                  onChange={(e) => setQuickDraft(e.target.value)}
+                  onFocus={() => setComposeFocused(true)}
+                  onBlur={() => setComposeFocused(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleQuickSend(); }
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  placeholder={
+                    barCtx.surface === 'messages' && selectedConv && barIntent.mode === 'default'
+                      ? `Message ${selectedConv.otherUser.display_name || selectedConv.otherUser.handle}…`
+                      : barCtx.placeholder
+                  }
+                  aria-label={barCtx.actionAriaLabel}
+                  rows={1}
+                  style={{
+                    flex: 1, minWidth: 0, resize: 'none', overflow: 'hidden',
+                    background: composeFocused
+                      ? 'rgba(255,255,255,0.88)'
+                      : 'rgba(255,255,255,0.52)',
+                    border: composeFocused
+                      ? '1.5px solid rgba(200,152,26,0.60)'
+                      : barIntent.mode !== 'default'
+                        ? '1.5px solid rgba(42,138,184,0.50)'
+                        : '1px solid rgba(180,185,200,0.35)',
+                    // Pill when single-line; relax to speech-bubble radius as it grows
+                    borderRadius: composeExtraH > 20 ? 20 : 999,
+                    padding: isCompactViewport ? '9px 14px' : '8px 14px',
+                    fontSize: isCompactViewport ? 16 : 13,
+                    color: 'var(--de-text)', outline: 'none', cursor: 'text',
+                    transition: 'background 0.22s ease, border 0.22s ease, box-shadow 0.22s ease, border-radius 0.22s ease',
+                    WebkitAppearance: 'none',
+                    boxShadow: composeFocused
+                      ? '0 0 0 3px rgba(200,152,26,0.10), 0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.50)'
+                      : 'inset 0 1px 0 rgba(255,255,255,0.35)',
+                    lineHeight: 1.4,
+                    fontFamily: 'inherit',
+                  }}
+                />
+
+                {/* Send / action button — SICC premium gradient with shimmer */}
+                {(quickDraft.trim() || quickDraftFiles.length > 0) ? (
+                  <button
+                    type="button" onClick={() => { void handleQuickSend(); }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    disabled={isSending || commentSending} aria-label={barCtx.actionAriaLabel}
+                    className="sicc-shimmer"
                     style={{
-                      position: 'absolute', top: -6, right: -8,
-                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                      color: 'white',
-                      borderRadius: 9999, fontSize: 8, fontWeight: 700,
-                      lineHeight: 1, padding: '2px 4px', minWidth: 14, textAlign: 'center',
-                      boxShadow: '0 2px 6px rgba(220,38,38,0.35), 0 0 0 1.5px rgba(255,255,255,0.85)',
+                      background: 'linear-gradient(135deg, var(--de-gold) 0%, #e0b020 38%, var(--de-blue) 100%)',
+                      border: 'none', borderRadius: '50%',
+                      width: isCompactViewport ? 36 : 32,
+                      height: isCompactViewport ? 36 : 32,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: (isSending || commentSending) ? 'not-allowed' : 'pointer', flexShrink: 0, color: 'white',
+                      opacity: (isSending || commentSending) ? 0.6 : 1,
+                      boxShadow: '0 4px 16px rgba(200,152,26,0.40), 0 1px 4px rgba(0,0,0,0.12)',
+                      transition: 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s, box-shadow 0.2s',
+                      WebkitTapHighlightColor: 'transparent',
                     }}
                   >
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                )}
-              </div>
-
-              {/* Comment mode indicator — shows which post and allows dismiss */}
-              {barIntent.mode === 'comment' && (
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  background: 'rgba(42,138,184,0.12)', borderRadius: 9999,
-                  padding: '3px 8px', fontSize: 10, color: 'var(--de-accent)',
-                  fontWeight: 600, flexShrink: 0, maxWidth: 120, overflow: 'hidden',
-                }}>
-                  <MessageCircle size={10} aria-hidden />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {barIntent.targetLabel ? `→ ${barIntent.targetLabel}` : 'Comment'}
-                  </span>
-                  <button
-                    type="button" onClick={clearBarIntent}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    aria-label="Cancel comment"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--de-text-dim)' }}
-                  >
-                    <X size={10} />
+                    {(isSending || commentSending)
+                      ? <Loader2 size={15} aria-hidden style={{ animation: 'spin 1s linear infinite' }} />
+                      : <ContextIcon ctx={barCtx} size={15} />}
                   </button>
-                </div>
-              )}
-
-              {/* Media picker button - hidden file input */}
-              <input
-                ref={quickFileInputRef}
-                type="file"
-                accept="image/*,video/*"
-                capture="environment"
-                multiple
-                onChange={handleQuickFileSelect}
-                style={{ display: 'none' }}
-              />
-              <button
-                type="button"
-                onClick={() => quickFileInputRef.current?.click()}
-                onPointerDown={(e) => e.stopPropagation()}
-                disabled={quickDraftFiles.length >= 5}
-                aria-label="Add photos or videos"
-                style={{
-                  flexShrink: 0,
-                  background: quickDraftFiles.length > 0 ? 'rgba(42,138,184,0.15)' : 'rgba(180,185,200,0.15)',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: isCompactViewport ? 36 : 32,
-                  height: isCompactViewport ? 36 : 32,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: quickDraftFiles.length >= 5 ? 'not-allowed' : 'pointer',
-                  color: quickDraftFiles.length > 0 ? 'var(--de-accent)' : 'var(--de-text-dim)',
-                  opacity: quickDraftFiles.length >= 5 ? 0.5 : 1,
-                  transition: 'all 0.18s',
-                }}
-              >
-                <ImageIcon size={13} aria-hidden />
-              </button>
-
-              {/* Quick compose - now a textarea */}
-              <textarea
-                ref={textareaRef}
-                value={quickDraft}
-                onChange={(e) => setQuickDraft(e.target.value)}
-                onFocus={() => setComposeFocused(true)}
-                onBlur={() => setComposeFocused(false)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleQuickSend(); }
-                }}
-                onPointerDown={(e) => e.stopPropagation()}
-                placeholder={
-                  barCtx.surface === 'messages' && selectedConv && barIntent.mode === 'default'
-                    ? `Message ${selectedConv.otherUser.display_name || selectedConv.otherUser.handle}…`
-                    : barCtx.placeholder
-                }
-                aria-label={barCtx.actionAriaLabel}
-                rows={1}
-                style={{
-                  flex: 1, minWidth: 0, resize: 'none', overflow: 'hidden',
-                  background: composeFocused
-                    ? 'rgba(255,255,255,0.82)'
-                    : 'rgba(255,255,255,0.48)',
-                  border: composeFocused
-                    ? '1.5px solid rgba(200,152,26,0.60)'
-                    : barIntent.mode !== 'default'
-                      ? '1.5px solid rgba(42,138,184,0.50)'
-                      : '1px solid rgba(180,185,200,0.35)',
-                  borderRadius: 16, padding: isCompactViewport ? '8px 14px' : '8px 16px', fontSize: isCompactViewport ? 16 : 13,
-                  color: 'var(--de-text)', outline: 'none', cursor: 'text',
-                  transition: 'background 0.22s ease, border 0.22s ease, box-shadow 0.22s ease',
-                  WebkitAppearance: 'none',
-                  boxShadow: composeFocused
-                    ? '0 0 0 3px rgba(200,152,26,0.10), 0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.50)'
-                    : 'inset 0 1px 0 rgba(255,255,255,0.35)',
-                  lineHeight: 1.4,
-                  fontFamily: 'inherit',
-                }}
-              />
-
-              {/* Context action label (shown when focused or has text) */}
-              {!isCompactViewport && (composeFocused || quickDraft.trim()) && (
-                <span
-                  aria-hidden
-                  style={{
-                    fontSize: 10, fontWeight: 700, color: 'var(--de-gold)',
-                    flexShrink: 0, whiteSpace: 'nowrap', letterSpacing: '0.04em',
-                    textTransform: 'uppercase', opacity: 0.85,
-                    transition: 'opacity 0.18s',
-                  }}
-                >
-                  {barCtx.actionLabel}
-                </span>
-              )}
-
-              {/* Send / action button — SICC premium gradient with shimmer */}
-              {(quickDraft.trim() || quickDraftFiles.length > 0) && (
-                <button
-                  type="button" onClick={() => { void handleQuickSend(); }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  disabled={isSending || commentSending} aria-label={barCtx.actionAriaLabel}
-                  className="sicc-shimmer"
-                  style={{
-                    background: 'linear-gradient(135deg, var(--de-gold) 0%, #e0b020 38%, var(--de-blue) 100%)',
-                    border: 'none', borderRadius: '50%',
-                    width: isCompactViewport ? 42 : 38,
-                    height: isCompactViewport ? 42 : 38,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: (isSending || commentSending) ? 'not-allowed' : 'pointer', flexShrink: 0, color: 'white',
-                    opacity: (isSending || commentSending) ? 0.6 : 1,
-                    boxShadow: '0 4px 16px rgba(200,152,26,0.40), 0 1px 4px rgba(0,0,0,0.12)',
-                    transition: 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s, box-shadow 0.2s',
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  {(isSending || commentSending)
-                    ? <Loader2 size={15} aria-hidden style={{ animation: 'spin 1s linear infinite' }} />
-                    : <ContextIcon ctx={barCtx} size={15} />}
-                </button>
-              )}
-
-              {/* ── Mode action buttons: Search, Message, Dr. Eams ────────── */}
-              <ModeButton
-                mode="search"
-                icon={<Search size={13} aria-hidden />}
-                activeMode={barIntent.mode}
-                onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
-                label="Search"
-                compact={isCompactViewport}
-              />
-              <ModeButton
-                mode="message"
-                icon={<Send size={13} aria-hidden />}
-                activeMode={barIntent.mode}
-                onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
-                label="Message"
-                compact={isCompactViewport}
-              />
-              <ModeButton
-                mode="dreams"
-                icon={<Bot size={13} aria-hidden />}
-                activeMode={barIntent.mode}
-                onSelect={(m) => setBarIntent(m === barIntent.mode ? { mode: 'default' } : { mode: m })}
-                label="Dr. Eams"
-                compact={isCompactViewport}
-              />
+                ) : (
+                  /* Placeholder spacer keeps layout stable when send button is hidden */
+                  <div style={{ width: isCompactViewport ? 36 : 32, flexShrink: 0 }} />
+                )}
               </div>
             </div>
           )}
