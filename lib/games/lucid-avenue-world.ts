@@ -17,6 +17,13 @@ export type LucidFlag =
   | 'civicSeal'
   | 'relayAligned';
 type Requirement = LucidFlag | 'allShards';
+export type LucidAvenueMode = 'story' | 'sandbox';
+export type LucidVehicleId = 'foot' | 'hoverbike' | 'tram-runner';
+export type LucidContractId =
+  | 'signal-cartography'
+  | 'street-delivery'
+  | 'night-circuit'
+  | 'summit-license';
 
 export interface Position {
   x: number;
@@ -95,6 +102,7 @@ export interface LucidDistrict {
 }
 
 export interface LucidAvenueState {
+  mode: LucidAvenueMode;
   districtId: DistrictId;
   player: Position;
   turn: number;
@@ -111,10 +119,16 @@ export interface LucidAvenueState {
   message: string;
   outcome: 'playing' | 'win' | 'lose';
   visitedDistrictIds: DistrictId[];
+  vehicleId: LucidVehicleId;
+  vehicleBoostTurns: number;
+  vehicleMoves: number;
+  jamActivations: number;
+  completedContractIds: LucidContractId[];
 }
 
 export const LUCID_AVENUE_TOTAL_SHARDS = 8;
 export const LUCID_AVENUE_TOTAL_FLAGS = 7;
+export const LUCID_AVENUE_TOTAL_CONTRACTS = 4;
 const MAX_HEAT = 6;
 const MAX_LOG_ENTRIES = 6;
 export const LUCID_AVENUE_6900_TARGET = 6900;
@@ -690,21 +704,60 @@ export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
 const ALL_PATROLS = Object.values(LUCID_AVENUE_DISTRICTS).flatMap((district) => district.patrols);
 const INITIAL_PATROL_STEPS = Object.fromEntries(ALL_PATROLS.map((patrol) => [patrol.id, 0])) as Record<string, number>;
 
-export function createInitialLucidAvenueState(): LucidAvenueState {
+const LUCID_CONTRACT_DEFS: Array<{
+  id: LucidContractId;
+  title: string;
+  description: string;
+  reward: { credits?: number; battery?: number };
+  completeWhen: (state: LucidAvenueState) => boolean;
+}> = [
+  {
+    id: 'signal-cartography',
+    title: 'Signal cartography',
+    description: 'Recover 4 shards and bring Midcity relay power online.',
+    reward: { credits: 20, battery: 1 },
+    completeWhen: (state) => state.shards.length >= 4 && state.flags.junctionPowered,
+  },
+  {
+    id: 'street-delivery',
+    title: 'Street delivery',
+    description: 'Visit 4 districts and crack 3 caches while keeping the west-side route moving.',
+    reward: { credits: 35 },
+    completeWhen: (state) => state.visitedDistrictIds.length >= 4 && state.caches.length >= 3,
+  },
+  {
+    id: 'night-circuit',
+    title: 'Night circuit',
+    description: 'Deploy a vehicle, run at least 4 boosted blocks, and jam the district net once.',
+    reward: { credits: 30, battery: 1 },
+    completeWhen: (state) => state.vehicleMoves >= 4 && state.jamActivations >= 1,
+  },
+  {
+    id: 'summit-license',
+    title: 'Summit license',
+    description: 'Secure the civic seal and align the final relay for summit-class clearance.',
+    reward: { credits: 45, battery: 1 },
+    completeWhen: (state) => state.flags.civicSeal && state.flags.relayAligned,
+  },
+];
+
+export function createInitialLucidAvenueState(options: { mode?: LucidAvenueMode } = {}): LucidAvenueState {
+  const mode = options.mode ?? 'story';
   return {
+    mode,
     districtId: 'shoreline',
     player: { ...LUCID_AVENUE_DISTRICTS.shoreline.spawn },
     turn: 0,
     heat: 0,
-    battery: 2,
-    credits: 20,
+    battery: mode === 'sandbox' ? 4 : 2,
+    credits: mode === 'sandbox' ? 80 : 20,
     scanTurns: 0,
     jamTurns: 0,
     shards: [],
     caches: [],
     flags: {
-      metRook: false,
-      tramPass: false,
+      metRook: mode === 'sandbox',
+      tramPass: mode === 'sandbox',
       junctionPowered: false,
       floodgatesPatched: false,
       skylineKey: false,
@@ -712,10 +765,19 @@ export function createInitialLucidAvenueState(): LucidAvenueState {
       relayAligned: false,
     },
     patrolSteps: { ...INITIAL_PATROL_STEPS },
-    log: ['New route loaded. Recover every signal shard and relight the observatory.'],
-    message: 'Collect every signal shard, stabilize the relays, and finish at the observatory core.',
+    log: [mode === 'sandbox'
+      ? 'Free-roam sandbox loaded. Jump districts, deploy vehicles, and clear route contracts in any order.'
+      : 'New route loaded. Recover every signal shard and relight the observatory.'],
+    message: mode === 'sandbox'
+      ? 'Sandbox live. The whole city is open for free-roam routes, vehicle runs, and persistent contracts.'
+      : 'Collect every signal shard, stabilize the relays, and finish at the observatory core.',
     outcome: 'playing',
     visitedDistrictIds: ['shoreline'],
+    vehicleId: 'foot',
+    vehicleBoostTurns: 0,
+    vehicleMoves: 0,
+    jamActivations: 0,
+    completedContractIds: [],
   };
 }
 
@@ -735,6 +797,9 @@ export function getLucidAvenuePatrolPositions(
 
 export function getLucidAvenueMissionChecklist(state: LucidAvenueState) {
   const checklist = [
+    state.mode === 'sandbox'
+      ? `🟦 Free-roam sandbox live (${state.completedContractIds.length}/${LUCID_AVENUE_TOTAL_CONTRACTS} route contracts banked).`
+      : '🛣️ Story route live. Push the city back online in sequence.',
     state.flags.metRook ? '✅ Rook briefed the run.' : '⬜ Meet Rook on Shoreline.',
     state.flags.tramPass ? '✅ Tram pass unlocked.' : '⬜ Earn Mika’s tram pass with 2 shards.',
     state.flags.junctionPowered ? '✅ Midcity relay junction online.' : '⬜ Power the Midcity junction core.',
@@ -763,14 +828,25 @@ export function getLucidAvenueMissionChecklist(state: LucidAvenueState) {
   return checklist;
 }
 
+export function getLucidAvenueRouteContracts(state: LucidAvenueState) {
+  return LUCID_CONTRACT_DEFS.map((contract) => ({
+    id: contract.id,
+    title: contract.title,
+    description: contract.description,
+    completed: state.completedContractIds.includes(contract.id),
+  }));
+}
+
 export function calculateLucidAvenueScore(state: LucidAvenueState) {
   const flagCount = Object.values(state.flags).filter(Boolean).length;
   const base = (state.shards.length * 500)
     + (flagCount * 250)
+    + (state.completedContractIds.length * 225)
     + (state.credits * 10)
     + (state.battery * 50)
     + Math.max(0, 1000 - state.turn * 8)
     + (state.jamTurns * 60)
+    + (state.vehicleMoves * 25)
     - (state.heat * 120);
 
   return Math.max(0, base + (state.outcome === 'win' ? 2500 : 0));
@@ -779,11 +855,19 @@ export function calculateLucidAvenueScore(state: LucidAvenueState) {
 export function getLucidAvenueCompletionPercent(state: LucidAvenueState) {
   const progress = state.shards.length
     + Object.values(state.flags).filter(Boolean).length
+    + state.completedContractIds.length
     + (state.outcome === 'win' ? 2 : 0);
-  return Math.min(100, Math.round((progress / (LUCID_AVENUE_TOTAL_SHARDS + LUCID_AVENUE_TOTAL_FLAGS + 2)) * 100));
+  return Math.min(100, Math.round((progress / (LUCID_AVENUE_TOTAL_SHARDS + LUCID_AVENUE_TOTAL_FLAGS + LUCID_AVENUE_TOTAL_CONTRACTS + 2)) * 100));
 }
 
 export function getLucidAvenueStoryBeat(state: LucidAvenueState) {
+  if (state.mode === 'sandbox') {
+    return {
+      act: 'Sandbox · Lucid free roam',
+      title: 'The whole city is yours to route',
+      synopsis: 'GameEngin has dropped you into a freer systemic layer: jump districts from the atlas, deploy vehicles for boosted movement, and bank persistent route contracts in any order.',
+    };
+  }
   if (!state.flags.metRook) {
     return {
       act: 'Act I · Shoreline ignition',
@@ -839,11 +923,33 @@ function isAdjacent(a: Position, b: Position) {
 }
 
 function meetsRequirements(state: LucidAvenueState, requirements: Requirement[] = []) {
+  if (state.mode === 'sandbox') return true;
   return requirements.every((requirement) => (
     requirement === 'allShards'
       ? state.shards.length >= LUCID_AVENUE_TOTAL_SHARDS
       : state.flags[requirement]
   ));
+}
+
+function syncContracts(state: LucidAvenueState) {
+  let nextState = state;
+
+  for (const contract of LUCID_CONTRACT_DEFS) {
+    if (nextState.completedContractIds.includes(contract.id) || !contract.completeWhen(nextState)) continue;
+    const creditGain = contract.reward.credits ?? 0;
+    const batteryGain = contract.reward.battery ?? 0;
+    nextState = appendLog({
+      ...nextState,
+      completedContractIds: [...nextState.completedContractIds, contract.id],
+      credits: nextState.credits + creditGain,
+      battery: nextState.battery + batteryGain,
+      message: nextState.outcome === 'playing'
+        ? `${contract.title} banked. +${creditGain} credits${batteryGain ? `, +${batteryGain} battery` : ''}.`
+        : nextState.message,
+    }, `🗺️ ${contract.title} complete.`);
+  }
+
+  return nextState;
 }
 
 function tileAt(district: LucidDistrict, position: Position) {
@@ -918,7 +1024,9 @@ function warpIfStandingOnExit(state: LucidAvenueState) {
 }
 
 function resolvePatrolContact(state: LucidAvenueState, reason: string) {
-  const nextHeat = Math.min(MAX_HEAT, state.heat + 2);
+  const nextHeat = state.mode === 'sandbox'
+    ? Math.min(MAX_HEAT - 1, state.heat + 1)
+    : Math.min(MAX_HEAT, state.heat + 2);
   const nextState = appendLog({
     ...state,
     heat: nextHeat,
@@ -927,7 +1035,7 @@ function resolvePatrolContact(state: LucidAvenueState, reason: string) {
     outcome: nextHeat >= MAX_HEAT ? 'lose' : state.outcome,
   }, `🚨 ${reason}`);
 
-  if (nextHeat >= MAX_HEAT) {
+  if (state.mode !== 'sandbox' && nextHeat >= MAX_HEAT) {
     return appendLog({
       ...nextState,
       message: 'Heat maxed out. The route is burned and the city shutters down around you.',
@@ -1170,40 +1278,79 @@ function handleTerminalInteraction(state: LucidAvenueState, terminal: LucidTermi
 
 export function moveLucidAvenuePlayer(state: LucidAvenueState, dx: number, dy: number) {
   if (state.outcome !== 'playing') return state;
-  const district = getLucidAvenueDistrict(state.districtId);
-  const nextPosition = { x: state.player.x + dx, y: state.player.y + dy };
-
-  if (!isPassable(state, district, nextPosition)) {
-    const lock = district.locks.find((entry) => isSamePosition(entry.position, nextPosition));
-    return withMessage(state, lock?.blockedMessage ?? 'That path is walled off by towers and traffic.', `🧱 ${lock?.blockedMessage ?? 'Blocked.'}`);
-  }
-
-  let nextState = {
+  const burst = state.vehicleBoostTurns > 0
+    ? state.vehicleId === 'tram-runner' ? 3 : 2
+    : 1;
+  let nextState: LucidAvenueState = {
     ...state,
-    player: nextPosition,
     turn: state.turn + 1,
-    message: `${district.name}: move carefully and keep the patrol rhythm in your head.`,
+    message: `${getLucidAvenueDistrict(state.districtId).name}: move carefully and keep the patrol rhythm in your head.`,
   };
 
-  const directContact = getLucidAvenuePatrolPositions(nextState).some((patrol) => isSamePosition(patrol.position, nextPosition));
-  if (directContact) {
-    nextState = resolvePatrolContact(nextState, 'You walked straight into a patrol lane.');
-    if (nextState.outcome !== 'playing') return nextState;
+  for (let step = 0; step < burst; step += 1) {
+    const district = getLucidAvenueDistrict(nextState.districtId);
+    const nextPosition = { x: nextState.player.x + dx, y: nextState.player.y + dy };
+
+    if (!isPassable(nextState, district, nextPosition)) {
+      if (step === 0) {
+        const lock = district.locks.find((entry) => isSamePosition(entry.position, nextPosition));
+        return withMessage(nextState, lock?.blockedMessage ?? 'That path is walled off by towers and traffic.', `🧱 ${lock?.blockedMessage ?? 'Blocked.'}`);
+      }
+      break;
+    }
+
+    nextState = {
+      ...nextState,
+      player: nextPosition,
+      vehicleMoves: nextState.vehicleMoves + (nextState.vehicleBoostTurns > 0 ? 1 : 0),
+      message: nextState.vehicleBoostTurns > 0
+        ? `${district.name}: ${nextState.vehicleId === 'tram-runner' ? 'Tram-runner' : 'Hoverbike'} run active.`
+        : `${district.name}: move carefully and keep the patrol rhythm in your head.`,
+    };
+
+    const directContact = getLucidAvenuePatrolPositions(nextState).some((patrol) => isSamePosition(patrol.position, nextPosition));
+    if (directContact) {
+      if (nextState.vehicleBoostTurns > 0) {
+        nextState = appendLog({
+          ...nextState,
+          heat: Math.max(0, nextState.heat - 1),
+          message: `${nextState.vehicleId === 'tram-runner' ? 'Tram-runner' : 'Hoverbike'} burst ghosted a patrol lane before it locked on.`,
+        }, '🏍️ Vehicle burst slipped the patrol lane.');
+      } else {
+        nextState = resolvePatrolContact(nextState, 'You walked straight into a patrol lane.');
+        if (nextState.outcome !== 'playing') return syncContracts(nextState);
+      }
+    }
+
+    const previousDistrictId = nextState.districtId;
+    nextState = collectAtCurrentPosition(nextState);
+    nextState = warpIfStandingOnExit(nextState);
+    if (nextState.districtId !== previousDistrictId) break;
   }
 
-  nextState = collectAtCurrentPosition(nextState);
-  nextState = warpIfStandingOnExit(nextState);
-  nextState = advancePatrols(nextState);
-  return nextState;
+  if (nextState.vehicleBoostTurns > 0) {
+    const nextBoostTurns = nextState.vehicleBoostTurns - 1;
+    nextState = appendLog({
+      ...nextState,
+      vehicleBoostTurns: nextBoostTurns,
+      vehicleId: nextBoostTurns <= 0 ? 'foot' : nextState.vehicleId,
+      message: nextBoostTurns <= 0
+        ? 'Vehicle run spent. Your runner drops back to foot control.'
+        : nextState.message,
+    }, nextBoostTurns <= 0 ? '🦶 Vehicle run finished.' : `🏍️ ${nextState.vehicleId} boost held.`);
+  }
+
+  nextState = advancePatrols(syncContracts(nextState));
+  return syncContracts(nextState);
 }
 
 export function waitLucidAvenueTurn(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
-  return advancePatrols(appendLog({
+  return syncContracts(advancePatrols(appendLog({
     ...state,
     turn: state.turn + 1,
     message: 'You hold position and let the patrol pattern reveal itself.',
-  }, '⏱️ Waited one beat.'));
+  }, '⏱️ Waited one beat.')));
 }
 
 export function scanLucidAvenue(state: LucidAvenueState) {
@@ -1212,14 +1359,14 @@ export function scanLucidAvenue(state: LucidAvenueState) {
     return withMessage(state, 'Battery dry. You need another cache before running a city scan.', '🔋 No battery left for scan.');
   }
 
-  return advancePatrols(appendLog({
+  return syncContracts(advancePatrols(appendLog({
     ...state,
     turn: state.turn + 1,
     battery: state.battery - 1,
     heat: Math.max(0, state.heat - 1),
     scanTurns: 3,
     message: 'Pulse scan active. Patrol routes flare in your visor and the heat drops a notch.',
-  }, '📡 Scan pulse fired.'));
+  }, '📡 Scan pulse fired.')));
 }
 
 export function jamLucidAvenueGrid(state: LucidAvenueState) {
@@ -1231,18 +1378,75 @@ export function jamLucidAvenueGrid(state: LucidAvenueState) {
     return withMessage(state, 'You need 20 credits to flood the district net with a GameEngin jam.', '💸 Not enough credits for jam.');
   }
 
-  return advancePatrols(appendLog({
+  return syncContracts(advancePatrols(appendLog({
     ...state,
     turn: state.turn + 1,
     battery: state.battery - 1,
     credits: state.credits - 20,
     heat: Math.max(0, state.heat - 2),
     jamTurns: Math.max(state.jamTurns, 2),
+    jamActivations: state.jamActivations + 1,
     message: 'GameEngin uplink floods the district grid. Patrol timing desyncs and the city goes quiet for a moment.',
-  }, '🛰️ District patrol grid jammed.'));
+  }, '🛰️ District patrol grid jammed.')));
+}
+
+export function deployLucidAvenueVehicle(state: LucidAvenueState, vehicleId: Exclude<LucidVehicleId, 'foot'>) {
+  if (state.outcome !== 'playing') return state;
+  if (state.battery <= 0) {
+    return withMessage(state, 'Battery too low to deploy a city vehicle.', '🔋 No battery left for vehicle deployment.');
+  }
+
+  if (vehicleId === 'tram-runner' && !state.flags.tramPass && state.mode !== 'sandbox') {
+    return withMessage(state, 'The tram-runner refuses to sync until Mika clears your badge.', '🚋 Tram-runner: transit clearance missing.');
+  }
+
+  const cost = vehicleId === 'tram-runner' ? 30 : 20;
+  if (state.credits < cost) {
+    return withMessage(state, `You need ${cost} credits to deploy the ${vehicleId === 'tram-runner' ? 'tram-runner' : 'hoverbike'}.`, '💸 Vehicle deployment denied.');
+  }
+
+  return syncContracts(appendLog({
+    ...state,
+    credits: state.credits - cost,
+    battery: state.battery - 1,
+    vehicleId,
+    vehicleBoostTurns: vehicleId === 'tram-runner' ? 3 : 4,
+    message: `${vehicleId === 'tram-runner' ? 'Tram-runner' : 'Hoverbike'} deployed. Your next route inputs burst across the city grid.`,
+  }, `🏍️ ${vehicleId === 'tram-runner' ? 'Tram-runner' : 'Hoverbike'} deployed.`));
+}
+
+export function fastTravelLucidAvenue(state: LucidAvenueState, districtId: DistrictId) {
+  if (state.outcome !== 'playing') return state;
+  if (districtId === state.districtId) {
+    return withMessage(state, `${getLucidAvenueDistrict(districtId).name} already loaded.`, '🗺️ Already in that district.');
+  }
+  if (state.mode !== 'sandbox' && !state.visitedDistrictIds.includes(districtId)) {
+    return withMessage(state, 'Atlas jump locks to districts you have already reached in story mode.', '🗺️ Story atlas cannot jump there yet.');
+  }
+  const travelCost = state.mode === 'sandbox' ? 0 : 10;
+  if (travelCost > 0 && state.credits < travelCost) {
+    return withMessage(state, 'You need 10 credits to atlas-jump in story mode.', '💸 Not enough credits for atlas jump.');
+  }
+
+  const target = getLucidAvenueDistrict(districtId);
+  return syncContracts(appendLog({
+    ...state,
+    districtId,
+    player: { ...target.spawn },
+    turn: state.turn + 1,
+    credits: state.credits - travelCost,
+    heat: Math.max(0, state.heat - 1),
+    visitedDistrictIds: state.visitedDistrictIds.includes(districtId)
+      ? state.visitedDistrictIds
+      : [...state.visitedDistrictIds, districtId],
+    message: `Atlas jump complete. ${target.name} is live on the GameEngin uplink.`,
+  }, `🗺️ Atlas jumped to ${target.name}.`));
 }
 
 export function getLucidAvenueHint(state: LucidAvenueState) {
+  if (state.mode === 'sandbox' && state.completedContractIds.length < LUCID_AVENUE_TOTAL_CONTRACTS) {
+    return 'AI sandbox hint: jump districts from the atlas, deploy a vehicle, and clear route contracts in any order.';
+  }
   if (!state.flags.metRook) {
     return 'AI route hint: move along Shoreline and talk to Rook before chasing deeper objectives.';
   }
@@ -1272,7 +1476,7 @@ export function getLucidAvenueHint(state: LucidAvenueState) {
       ? 'AI route hint: align Vera’s Sky Array in Sunset Heights.'
       : 'AI route hint: recover enough remaining shards before trying to align the hill relay.';
   }
-    if (state.shards.length < LUCID_AVENUE_TOTAL_SHARDS) {
+  if (state.shards.length < LUCID_AVENUE_TOTAL_SHARDS) {
     return 'AI route hint: the summit can wait — finish recovering every remaining shard first.';
   }
   if (state.districtId !== 'observatory') {
@@ -1284,19 +1488,19 @@ export function getLucidAvenueHint(state: LucidAvenueState) {
 export function requestLucidAvenueHint(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
   const hint = getLucidAvenueHint(state);
-  return appendLog({
+  return syncContracts(appendLog({
     ...state,
     message: hint,
-  }, `🧠 ${hint}`);
+  }, `🧠 ${hint}`));
 }
 
 export function interactInLucidAvenue(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
   const npc = findNearbyNpc(state);
-  if (npc) return handleNpcInteraction(state, npc);
+  if (npc) return syncContracts(handleNpcInteraction(state, npc));
 
   const terminal = findNearbyTerminal(state);
-  if (terminal) return handleTerminalInteraction(state, terminal);
+  if (terminal) return syncContracts(handleTerminalInteraction(state, terminal));
 
   return withMessage(state, 'No terminal handshake and no one close enough to talk to.', '… Nothing to interact with here.');
 }

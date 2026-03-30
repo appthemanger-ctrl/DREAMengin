@@ -5,10 +5,13 @@ import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 import {
   LUCID_AVENUE_DISTRICTS,
   LUCID_AVENUE_6900_TARGET,
+  LUCID_AVENUE_TOTAL_CONTRACTS,
   LUCID_AVENUE_TOTAL_FLAGS,
   LUCID_AVENUE_TOTAL_SHARDS,
   calculateLucidAvenueScore,
   createInitialLucidAvenueState,
+  deployLucidAvenueVehicle,
+  fastTravelLucidAvenue,
   getLucidAvenueCompletionPercent,
   getLucidAvenueDistrict,
   getLucidAvenueHint,
@@ -16,6 +19,7 @@ import {
   getLucidAvenueObjectiveKeys,
   getLucidAvenuePatrolPathKeys,
   getLucidAvenuePatrolPositions,
+  getLucidAvenueRouteContracts,
   getLucidAvenueStoryBeat,
   interactInLucidAvenue,
   jamLucidAvenueGrid,
@@ -25,6 +29,7 @@ import {
   scanLucidAvenue,
   waitLucidAvenueTurn,
   type LucidAvenueState,
+  type LucidAvenueMode,
   type Position,
 } from '@/lib/games/lucid-avenue-world';
 
@@ -80,15 +85,16 @@ export default function LucidAvenue() {
   const patrolPathKeys = useMemo(() => getLucidAvenuePatrolPathKeys(state.districtId), [state.districtId]);
   const objectiveKeys = useMemo(() => getLucidAvenueObjectiveKeys(state), [state]);
   const missions = useMemo(() => getLucidAvenueMissionChecklist(state), [state]);
+  const routeContracts = useMemo(() => getLucidAvenueRouteContracts(state), [state]);
   const score = useMemo(() => calculateLucidAvenueScore(state), [state]);
   const completion = useMemo(() => getLucidAvenueCompletionPercent(state), [state]);
 
-  const startGame = useCallback(() => {
-    setState(createInitialLucidAvenueState());
+  const startGame = useCallback((mode: LucidAvenueMode = 'story') => {
+    setState(createInitialLucidAvenueState({ mode }));
     setPhase('playing');
   }, []);
 
-  useGameAutoStart(phase === 'menu' ? startGame : null);
+  useGameAutoStart(phase === 'menu' ? (() => startGame('story')) : null);
 
   useEffect(() => {
     const updateViewport = () => setViewportWidth(window.innerWidth);
@@ -157,6 +163,21 @@ export default function LucidAvenue() {
     runStateAction((current) => jamLucidAvenueGrid(current));
   }, [phase, runStateAction]);
 
+  const deployHoverbike = useCallback(() => {
+    if (phase !== 'playing') return;
+    runStateAction((current) => deployLucidAvenueVehicle(current, 'hoverbike'));
+  }, [phase, runStateAction]);
+
+  const deployTramRunner = useCallback(() => {
+    if (phase !== 'playing') return;
+    runStateAction((current) => deployLucidAvenueVehicle(current, 'tram-runner'));
+  }, [phase, runStateAction]);
+
+  const atlasJump = useCallback((districtId: keyof typeof LUCID_AVENUE_DISTRICTS) => {
+    if (phase !== 'playing') return;
+    runStateAction((current) => fastTravelLucidAvenue(current, districtId));
+  }, [phase, runStateAction]);
+
   useEffect(() => {
     if (phase !== 'playing') return undefined;
 
@@ -198,12 +219,18 @@ export default function LucidAvenue() {
           const index = PLAYER_OUTFITS.findIndex((entry) => entry.id === current);
           return PLAYER_OUTFITS[(index + 1) % PLAYER_OUTFITS.length]?.id ?? PLAYER_OUTFITS[0].id;
         });
+      } else if (key === 'f') {
+        event.preventDefault();
+        deployHoverbike();
+      } else if (key === 'x') {
+        event.preventDefault();
+        deployTramRunner();
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [askAi, interact, jamGrid, move, phase, scan, startGame, wait]);
+  }, [askAi, deployHoverbike, deployTramRunner, interact, jamGrid, move, phase, scan, startGame, wait]);
 
   const districtVisitedCount = state.visitedDistrictIds.length;
   const scanActive = state.scanTurns > 0;
@@ -226,6 +253,7 @@ export default function LucidAvenue() {
   const trainerCamCellSize = isPhoneLayout ? 28 : isMobileLayout ? 34 : TRAINER_CAM_CELL_SIZE;
   const selectedOutfit = PLAYER_OUTFITS.find((entry) => entry.id === selectedOutfitId) ?? PLAYER_OUTFITS[0];
   const in6900Club = score >= LUCID_AVENUE_6900_TARGET;
+  const sandboxMode = state.mode === 'sandbox';
 
   if (phase === 'menu') {
     return (
@@ -242,7 +270,7 @@ export default function LucidAvenue() {
           <div style={{ maxWidth: 760, color: 'rgba(226,232,240,0.84)', fontSize: 13, lineHeight: 1.8 }}>
             This is an original LA-inspired retro city quest, expanded far beyond the tiny earlier slice:
             eight connected districts, multiple west-side routes, expanded shard recovery, NPC-gated progression, relay terminals,
-            civic clearances, observatory finale, classic handheld-style sprite animation, triple outfit loadouts, GameEngin-linked jam tech, AI route hints, and a much larger mission loop built for DREAMengin.
+            civic clearances, observatory finale, classic handheld-style sprite animation, triple outfit loadouts, GameEngin-linked jam tech, AI route hints, free-roam sandbox jumps, deployable vehicles, and persistent multi-route contracts built for DREAMengin.
             It is not a copy of the archive’s copyrighted content.
           </div>
         </div>
@@ -252,12 +280,14 @@ export default function LucidAvenue() {
             `${totalDistricts} connected districts`,
             `${LUCID_AVENUE_TOTAL_SHARDS} signal shards`,
             `${LUCID_AVENUE_TOTAL_FLAGS} quest flags`,
+            `${LUCID_AVENUE_TOTAL_CONTRACTS} route contracts`,
             'Patrol rhythm stealth',
             'Sprite animation + trainer cam',
             '3 runner outfits',
             'GameEngin grid jam',
             'AI route hints',
-            'NPC + terminal mission chain',
+            'Free-roam atlas jump',
+            'Vehicle systems',
             '6900 Club score target',
             'Dedicated observatory finale',
           ].map((item) => (
@@ -315,11 +345,14 @@ export default function LucidAvenue() {
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-          <button onClick={startGame} style={primaryButtonStyle}>
-            ▶ Start the full Lucid run
+          <button onClick={() => startGame('story')} style={primaryButtonStyle}>
+            ▶ Start story run
+          </button>
+          <button onClick={() => startGame('sandbox')} style={secondaryButtonStyle}>
+            ⛶ Start free-roam sandbox
           </button>
           <div style={{ ...chipStyle, minHeight: 46, alignItems: 'center', display: 'flex' }}>
-            Keyboard / remote: move · Space interact · Q scan · E wait · G jam · H AI hint · T cycle outfit
+            Keyboard / remote: move · Space interact · Q scan · E wait · G jam · F hoverbike · X tram-runner · H AI hint · T cycle outfit
           </div>
         </div>
       </div>
@@ -341,8 +374,9 @@ export default function LucidAvenue() {
           <StatChip label="Score" value={score.toLocaleString()} accent="#f59e0b" />
           <StatChip label="Completion" value={`${completion}%`} accent="#22c55e" />
           <StatChip label="Districts" value={`${districtVisitedCount}/${totalDistricts}`} accent="#38bdf8" />
+          <StatChip label="Mode" value={sandboxMode ? 'Sandbox' : 'Story'} accent={sandboxMode ? '#22d3ee' : '#f472b6'} />
           <StatChip label="Club" value={in6900Club ? '6900 ✓' : `6900 · ${Math.max(0, LUCID_AVENUE_6900_TARGET - score)}`} accent={in6900Club ? '#f59e0b' : '#a78bfa'} />
-          <button onClick={startGame} style={secondaryButtonStyle}>Restart</button>
+          <button onClick={() => startGame(sandboxMode ? 'sandbox' : 'story')} style={secondaryButtonStyle}>Restart</button>
         </div>
       </div>
 
@@ -356,6 +390,7 @@ export default function LucidAvenue() {
               <MiniChip text={`Battery ${state.battery}`} />
               <MiniChip text={`Heat ${state.heat}/${6}`} tone={state.heat >= 4 ? '#f87171' : '#facc15'} />
               <MiniChip text={scanActive ? `Scan +${state.scanTurns}` : 'Scan idle'} tone={scanActive ? '#67e8f9' : '#94a3b8'} />
+              <MiniChip text={state.vehicleBoostTurns > 0 ? `${state.vehicleId} +${state.vehicleBoostTurns}` : 'On foot'} tone={state.vehicleBoostTurns > 0 ? '#67e8f9' : '#94a3b8'} />
             </div>
           </div>
 
@@ -414,6 +449,8 @@ export default function LucidAvenue() {
                   <MiniMetric label="Caches cracked" value={`${districtCacheCount}/${district.caches.length || 0}`} />
                   <MiniMetric label="Patrols" value={`${district.patrols.length}`} />
                   <MiniMetric label="Jam turns" value={`${state.jamTurns}`} />
+                  <MiniMetric label="Contracts" value={`${state.completedContractIds.length}/${LUCID_AVENUE_TOTAL_CONTRACTS}`} />
+                  <MiniMetric label="Vehicle blocks" value={`${state.vehicleMoves}`} />
                 </div>
               </div>
 
@@ -506,6 +543,33 @@ export default function LucidAvenue() {
           </div>
 
           <div style={panelStyle}>
+            <div style={sectionHeadingStyle}>Route contracts</div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {routeContracts.map((contract) => (
+                <div
+                  key={contract.id}
+                  style={{
+                    borderRadius: 12,
+                    padding: '10px 12px',
+                    background: contract.completed ? 'rgba(20,83,45,0.5)' : 'rgba(15,23,42,0.72)',
+                    border: `1px solid ${contract.completed ? 'rgba(74,222,128,0.35)' : 'rgba(148,163,184,0.12)'}`,
+                    display: 'grid',
+                    gap: 4,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
+                    <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{contract.title}</div>
+                    <div style={{ fontSize: 10, color: contract.completed ? '#86efac' : '#94a3b8', fontWeight: 800 }}>
+                      {contract.completed ? 'BANKED' : 'LIVE'}
+                    </div>
+                  </div>
+                  <div style={{ color: 'rgba(226,232,240,0.68)', fontSize: 11, lineHeight: 1.55 }}>{contract.description}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={panelStyle}>
             <div style={sectionHeadingStyle}>Outfit deck</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {PLAYER_OUTFITS.map((outfit) => (
@@ -532,9 +596,13 @@ export default function LucidAvenue() {
               {featuredDistricts.map((entry, index) => {
                 const active = entry.id === district.id;
                 const visited = state.visitedDistrictIds.includes(entry.id);
+                const jumpable = sandboxMode || visited;
                 return (
-                  <div
+                  <button
                     key={entry.id}
+                    type="button"
+                    onClick={() => atlasJump(entry.id)}
+                    disabled={phase !== 'playing' || !jumpable}
                     style={{
                       borderRadius: 12,
                       padding: '10px 12px',
@@ -542,18 +610,21 @@ export default function LucidAvenue() {
                       border: `1px solid ${active ? `${entry.color}55` : 'rgba(148,163,184,0.12)'}`,
                       display: 'grid',
                       gap: 4,
+                      cursor: jumpable ? 'pointer' : 'not-allowed',
+                      textAlign: 'left',
+                      opacity: jumpable ? 1 : 0.7,
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
                       <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>
                         {index + 1}. {entry.name}
                       </div>
-                      <div style={{ fontSize: 10, color: active ? '#fde68a' : visited ? '#86efac' : '#94a3b8', fontWeight: 800 }}>
-                        {active ? 'ACTIVE' : visited ? 'VISITED' : 'UNVISITED'}
+                      <div style={{ fontSize: 10, color: active ? '#fde68a' : jumpable ? '#86efac' : '#94a3b8', fontWeight: 800 }}>
+                        {active ? 'ACTIVE' : jumpable ? (sandboxMode && !visited ? 'SANDBOX JUMP' : 'JUMP READY') : 'UNVISITED'}
                       </div>
                     </div>
                     <div style={{ color: 'rgba(226,232,240,0.62)', fontSize: 11, lineHeight: 1.55 }}>{entry.subtitle}</div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -572,6 +643,7 @@ export default function LucidAvenue() {
                 <MiniMetric label="Flags" value={`${Object.values(state.flags).filter(Boolean).length}/${LUCID_AVENUE_TOTAL_FLAGS}`} />
                 <MiniMetric label="State" value={phase === 'playing' ? 'Active' : phase === 'win' ? 'Won' : 'Burned'} />
                 <MiniMetric label="Jam" value={state.jamTurns > 0 ? `Live +${state.jamTurns}` : 'Idle'} />
+                <MiniMetric label="Vehicle" value={state.vehicleBoostTurns > 0 ? `${state.vehicleId} +${state.vehicleBoostTurns}` : 'Foot'} />
                 <MiniMetric label="Club target" value={`${LUCID_AVENUE_6900_TARGET}`} />
               </div>
           </div>
@@ -590,11 +662,17 @@ export default function LucidAvenue() {
                 <button onClick={scan} disabled={phase !== 'playing'} style={actionButtonStyle}>Scan</button>
                 <button onClick={wait} disabled={phase !== 'playing'} style={actionButtonStyle}>Wait</button>
               </div>
-              <button onClick={jamGrid} disabled={phase !== 'playing'} style={actionButtonStyle}>Jam Grid</button>
-              <button onClick={askAi} disabled={phase !== 'playing'} style={actionButtonStyle}>AI Hint</button>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, width: '100%' }}>
+                <button onClick={jamGrid} disabled={phase !== 'playing'} style={actionButtonStyle}>Jam Grid</button>
+                <button onClick={askAi} disabled={phase !== 'playing'} style={actionButtonStyle}>AI Hint</button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, width: '100%' }}>
+                <button onClick={deployHoverbike} disabled={phase !== 'playing'} style={actionButtonStyle}>Deploy hoverbike</button>
+                <button onClick={deployTramRunner} disabled={phase !== 'playing'} style={actionButtonStyle}>Deploy tram-runner</button>
+              </div>
               <div style={{ fontSize: 11, color: 'rgba(226,232,240,0.6)', textAlign: 'center' }}>
                 Shared GameRemote directions work in the dedicated play session.
-                Keyboard extras: Space / Enter interact, Q scan, E wait, G jam, H AI hint, T cycle outfit, R restart.
+                Keyboard extras: Space / Enter interact, Q scan, E wait, G jam, F hoverbike, X tram-runner, H AI hint, T cycle outfit, R restart.
               </div>
             </div>
           </div>
@@ -634,7 +712,7 @@ export default function LucidAvenue() {
               : `Heat capped out after ${state.turn} turns. Reset the run, route cleaner through the patrol rhythm, and try again.`}
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <button onClick={startGame} style={primaryButtonStyle}>
+            <button onClick={() => startGame(sandboxMode ? 'sandbox' : 'story')} style={primaryButtonStyle}>
               {phase === 'win' ? '▶ Run it again' : '↺ Retry route'}
             </button>
           </div>

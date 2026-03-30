@@ -32,6 +32,9 @@ describe('Lucid Avenue game slice', () => {
     expect(src).toContain('original LA-inspired retro city quest');
     expect(src).toContain('not a copy of the archive’s copyrighted content');
     expect(src).toContain('eight connected districts, multiple west-side routes');
+    expect(src).toContain('free-roam sandbox jumps');
+    expect(src).toContain('deployable vehicles');
+    expect(src).toContain('persistent multi-route contracts');
     expect(src).toContain('classic handheld-style sprite animation');
     expect(src).toContain('Trainer cam');
     expect(src).toContain('AI Hint');
@@ -147,5 +150,51 @@ describe('Lucid Avenue game slice', () => {
     };
 
     expect(getLucidAvenueHint(state)).toContain('River Gates');
+  });
+
+  it('can boot a free-roam sandbox run with expanded systemic tools', async () => {
+    const world = await import('@/lib/games/lucid-avenue-world');
+    const state = world.createInitialLucidAvenueState({ mode: 'sandbox' });
+    const checklist = world.getLucidAvenueMissionChecklist(state);
+
+    expect(state.mode).toBe('sandbox');
+    expect(state.credits).toBeGreaterThanOrEqual(80);
+    expect(state.battery).toBeGreaterThanOrEqual(4);
+    expect(checklist[0]).toContain('Free-roam sandbox');
+  });
+
+  it('supports vehicle deployment and sandbox atlas jumps for freer city traversal', async () => {
+    const world = await import('@/lib/games/lucid-avenue-world');
+    let state = world.createInitialLucidAvenueState({ mode: 'sandbox' });
+
+    state = world.deployLucidAvenueVehicle(state, 'hoverbike');
+    expect(state.vehicleId).toBe('hoverbike');
+    expect(state.vehicleBoostTurns).toBeGreaterThan(0);
+
+    state = world.moveLucidAvenuePlayer(state, 1, 0);
+    expect(state.player.x).toBeGreaterThan(2);
+    expect(state.vehicleMoves).toBeGreaterThan(0);
+
+    state = world.fastTravelLucidAvenue(state, 'civic-center');
+    expect(state.districtId).toBe('civic-center');
+  });
+
+  it('banks persistent route contracts when their systemic conditions are met', async () => {
+    const world = await import('@/lib/games/lucid-avenue-world');
+    let state = world.createInitialLucidAvenueState({ mode: 'sandbox' });
+
+    state = {
+      ...state,
+      flags: {
+        ...state.flags,
+        junctionPowered: true,
+      },
+      shards: ['shoreline-signal', 'arts-signal', 'midcity-signal-east', 'midcity-signal-south'],
+    };
+
+    state = world.requestLucidAvenueHint(state);
+
+    expect(state.completedContractIds).toContain('signal-cartography');
+    expect(world.getLucidAvenueRouteContracts(state).some((contract) => contract.id === 'signal-cartography' && contract.completed)).toBe(true);
   });
 });

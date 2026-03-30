@@ -129,7 +129,7 @@ export const GAMES: GameDef[] = [
   { id: 'maze',          emoji: '🌀', label: 'Maze Runner',      category: 'Adventure',   color: '#38bdf8', component: MazeGame,
     desc: 'Procedurally generated maze — navigate from start to the ★ exit' },
   { id: 'lucid-avenue',  emoji: '🌴', label: 'Lucid Avenue',     category: 'Adventure',   color: '#f59e0b', component: LucidAvenue,
-    desc: 'Original LA-inspired retro city quest — expanded 8-district GameEngin-linked city run with new west-side missions, AI route hints, grid jams, triple outfits, and an observatory skyline finale' },
+    desc: 'Original LA-inspired retro city quest — expanded 8-district GameEngin-linked city run with free-roam sandbox jumps, vehicle systems, persistent route contracts, west-side missions, and an observatory skyline finale' },
   // ── Dream Universe games ──────────────────────────────────────────────────
   { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',         category: 'Strategy',    color: '#7c3aed', component: DREAMwars,
     desc: 'Nightmares vs Dreamers RTS — build base, harvest Dream Energy, crush the enemy HQ' },
