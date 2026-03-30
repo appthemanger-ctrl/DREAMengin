@@ -1,7 +1,7 @@
 /**
  * lib/gameengin/core.ts
  *
- * ELITE GAME ENGINE CORE — 2026
+ * ELITE GAME ENGINE CORE — 2026+
  *
  * DREAMengin's web-native game runtime combining:
  *  • WebGPU-first rendering with Babylon.js 8+
@@ -10,6 +10,12 @@
  *  • Built-in post-processing pipeline (bloom, motion blur, chromatic aberration)
  *  • Real-time telemetry and thermal throttling detection
  *  • Physics-ready (Babylon.js HavokPlugin + Ammo.js fallback)
+ *  • 20 integrated power systems: rollback netcode, GPU compute, advanced physics,
+ *    BVH spatial partitioning, worker job system, procedural generation,
+ *    spatial audio DSP, deterministic replay, behavior trees, GPU profiler,
+ *    typed event bus, animation state machine, LOD, client-side prediction,
+ *    resource pools, WGSL shader manager, terrain engine, GI probes,
+ *    asset streaming, and physics materials.
  *  • Designed to be a drop-in engine beneath any game component.
  *
  * Usage:
@@ -22,6 +28,28 @@
  */
 
 import type { AbstractEngine, Scene } from '@babylonjs/core';
+import {
+  RollbackNetcode,
+  ComputeShaderPipeline,
+  AdvancedPhysicsWorld,
+  OctreeBVH,
+  WorkerJobSystem,
+  ProceduralWorldGen,
+  SpatialAudioDSP,
+  ReplayBuffer,
+  BehaviorTreeEngine,
+  GPUProfiler,
+  TypedEventBus,
+  AnimationStateMachine,
+  LODSystem,
+  ClientSidePrediction,
+  ResourcePool,
+  WGSLShaderManager,
+  TerrainEngine,
+  GlobalIllumProbes,
+  AssetStreamManager,
+  PhysicsMaterialSystem,
+} from './power-systems';
 
 // ─── ECS Types ────────────────────────────────────────────────────────────────
 
@@ -182,6 +210,48 @@ export type QualityChangeCallback = (budget: PerformanceBudget) => void;
 export class EliteGameEngine {
   readonly world = new ECSWorld();
 
+  // ── 20 Power Systems ─────────────────────────────────────────────────────
+  /** System 1: Deterministic rollback netcode for lag-free multiplayer. */
+  readonly netcode = new RollbackNetcode({ maxRollbackFrames: 8, tickRateHz: 60 });
+  /** System 2: WebGPU compute shader pipeline (physics/particles on GPU). */
+  readonly gpuCompute = new ComputeShaderPipeline();
+  /** System 3: Advanced rigid-body physics with continuous collision detection. */
+  readonly physics = new AdvancedPhysicsWorld();
+  /** System 4: Octree/BVH spatial partitioning — sub-ms broad-phase queries. */
+  readonly spatialIndex = new OctreeBVH({ min: [-2048, -512, -2048], max: [2048, 512, 2048] });
+  /** System 5: Parallel job scheduler — offloads AI/pathfinding from main thread. */
+  readonly jobs = new WorkerJobSystem(4);
+  /** System 6: Seeded Simplex-noise procedural world generation. */
+  readonly worldGen = new ProceduralWorldGen({ seed: 0xDEADB33F, width: 64, depth: 64 });
+  /** System 7: HRTF spatial audio DSP with convolution reverb + Doppler. */
+  readonly audioDSP = new SpatialAudioDSP();
+  /** System 8: Deterministic input replay buffer (ghost/anti-cheat). */
+  readonly replay = new ReplayBuffer();
+  /** System 9: Behavior tree engine for advanced NPC AI. */
+  readonly behaviorTrees = new BehaviorTreeEngine();
+  /** System 10: GPU/CPU profiler with flame-graph ring buffer. */
+  readonly profiler = new GPUProfiler(120);
+  /** System 11: Strongly-typed event bus with history replay. */
+  readonly events = new TypedEventBus(512);
+  /** System 12: Animation state machine with blend-tree + IK interface. */
+  readonly animSM = new AnimationStateMachine();
+  /** System 13: Distance-based LOD manager with hysteresis. */
+  readonly lod = new LODSystem();
+  /** System 14: Client-side prediction with server reconciliation. */
+  readonly prediction = new ClientSidePrediction(64);
+  /** System 15: Zero-allocation resource pools (bullets, particles, fx). */
+  readonly pools: Map<string, ResourcePool<object>> = new Map();
+  /** System 16: WGSL shader hot-reload and variant compilation cache. */
+  readonly shaders = new WGSLShaderManager();
+  /** System 17: Heightmap clipmap LOD terrain engine. */
+  readonly terrain = new TerrainEngine(9, 6);
+  /** System 18: Spherical-harmonics GI light probes. */
+  readonly giProbes = new GlobalIllumProbes();
+  /** System 19: Priority-queue progressive LOD asset streaming. */
+  readonly assets = new AssetStreamManager(4, 256);
+  /** System 20: Physics surface material table (friction/restitution/sound). */
+  readonly materials = new PhysicsMaterialSystem();
+
   private canvas: HTMLCanvasElement;
   private engine: AbstractEngine | null = null;
   private scene: Scene | null = null;
@@ -333,6 +403,32 @@ export class EliteGameEngine {
   start(): void {
     // Engine runs render loop from init(); start() is a no-op hook
     // for future hot-reload / pause-resume cycles.
+    // Initialise async power systems (GPU compute + audio) non-blocking.
+    this.gpuCompute.init().catch(() => { /* graceful no-op */ });
+    this.terrain.attachGenerator(this.worldGen);
+  }
+
+  /** Aggregate telemetry from all power systems. */
+  get powerSystemStats() {
+    return {
+      netcode:    this.netcode.stats,
+      gpuCompute: this.gpuCompute.stats,
+      physics:    this.physics.stats,
+      jobs:       this.jobs.stats,
+      profiler:   this.profiler.stats,
+      events:     this.events.stats,
+      lod:        this.lod.stats,
+      prediction: this.prediction.stats,
+      shaders:    this.shaders.stats,
+      terrain:    this.terrain.stats,
+      giProbes:   this.giProbes.stats,
+      assets:     this.assets.stats,
+      materials:  this.materials.stats,
+      audioDSP:   this.audioDSP.stats,
+      animSM:     this.animSM.stats,
+      replay:     { frameCount: this.replay.frameCount, isRecording: this.replay.isRecording },
+      behaviorTrees: { trees: this.behaviorTrees.registeredTrees.length },
+    };
   }
 
   dispose(): void {
@@ -340,6 +436,13 @@ export class EliteGameEngine {
     this.frameCallbacks = [];
     this.qualityCallbacks = [];
     this.world.clear();
+    // Dispose power systems
+    this.gpuCompute.dispose();
+    this.physics.dispose();
+    this.audioDSP.dispose();
+    this.events.dispose();
+    this.shaders.dispose();
+    this.terrain.dispose();
     this.scene?.dispose();
     this.engine?.dispose();
     this.engine = null;
