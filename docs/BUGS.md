@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-30 06:16 UTC  
-**Triggered by commit:** `75726d0` on `claude/enhance-dm-bar-functionality` by Claude  
-**Commit message:** feat: enhance DM bar with auto-expanding textarea and media attachments
+**Last updated:** 2026-03-30 15:42 UTC  
+**Triggered by commit:** `71227fc` on `copilot/update-music-starmakerengine` by Copilot  
+**Commit message:** fix: recorded audio playback + full DAW sample editor with click-to-edit and send-to-editor
 
 ---
 
