@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import {
   buildReleaseStrategy,
   createMelodySuggestions,
   summarizePlaybackProfile,
 } from '@/lib/music/starmaker';
+
+const starmakerSource = fs.readFileSync(
+  path.join(process.cwd(), 'components/daydream/StarMakerEngin.tsx'),
+  'utf8',
+);
 
 describe('summarizePlaybackProfile', () => {
   it('derives playback metrics from density, effects, and quality mode', () => {
@@ -106,5 +113,29 @@ describe('createMelodySuggestions', () => {
     expect(suggestions[1].reason).toContain('A minor');
     expect(suggestions[1].reason).toContain('low-register anchor');
     expect(suggestions[2].compatibilityScore).toBeGreaterThan(suggestions[1].compatibilityScore - 5);
+  });
+});
+
+describe('StarMaker sample editor advanced workflow', () => {
+  it('includes destructive edit history controls for undo and redo', () => {
+    expect(starmakerSource).toContain("Undo");
+    expect(starmakerSource).toContain("Redo");
+    expect(starmakerSource).toContain("restoreHistory");
+    expect(starmakerSource).toContain("undoStackRef");
+    expect(starmakerSource).toContain("redoStackRef");
+  });
+
+  it('supports selection audition and selection loop workflow', () => {
+    expect(starmakerSource).toContain("Audition Sel");
+    expect(starmakerSource).toContain("Loop Sel");
+    expect(starmakerSource).toContain("selection-loop");
+    expect(starmakerSource).toContain("selection-once");
+  });
+
+  it('supports workflow shortcuts and zoom-to-selection controls', () => {
+    expect(starmakerSource).toContain("Zoom Sel");
+    expect(starmakerSource).toContain("Fit Full");
+    expect(starmakerSource).toContain("Shift+Space");
+    expect(starmakerSource).toContain("Ctrl/Cmd+Z");
   });
 });

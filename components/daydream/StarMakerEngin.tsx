@@ -2445,6 +2445,50 @@ function buildWaveform(buffer: AudioBuffer, bars: number): number[] {
   });
 }
 
+interface AudioStats {
+  peakDb: number;
+  rmsDb: number;
+  crestDb: number;
+  zeroCrossRate: number;
+}
+
+interface HistoryEntry {
+  blob: Blob;
+  name: string;
+}
+
+function computeAudioStats(buffer: AudioBuffer): AudioStats {
+  let peak = 0;
+  let sumSquares = 0;
+  let samples = 0;
+  let zeroCrossings = 0;
+
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+    const data = buffer.getChannelData(ch);
+    let prev = data[0] ?? 0;
+    for (let i = 0; i < data.length; i++) {
+      const sample = data[i] ?? 0;
+      peak = Math.max(peak, Math.abs(sample));
+      sumSquares += sample * sample;
+      samples += 1;
+      if ((sample >= 0 && prev < 0) || (sample < 0 && prev >= 0)) zeroCrossings += 1;
+      prev = sample;
+    }
+  }
+
+  const rms = samples > 0 ? Math.sqrt(sumSquares / samples) : 0;
+  const peakDb = peak > 0 ? 20 * Math.log10(peak) : -Infinity;
+  const rmsDb = rms > 0 ? 20 * Math.log10(rms) : -Infinity;
+  const crestDb = Number.isFinite(peakDb - rmsDb) ? peakDb - rmsDb : 0;
+
+  return {
+    peakDb,
+    rmsDb,
+    crestDb,
+    zeroCrossRate: samples > 0 ? zeroCrossings / samples : 0,
+  };
+}
+
 function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed }: DAWFileIOPanelProps) {
   // ── Audio state ──
   const [fileName,      setFileName]      = useState<string | null>(null);
@@ -2453,12 +2497,14 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
   const [sampleRate,    setSampleRate]     = useState(0);
   const [numChannels,   setNumChannels]    = useState(0);
   const [waveform,      setWaveform]       = useState<number[]>([]);
+  const [audioStats,    setAudioStats]     = useState<AudioStats | null>(null);
   const [isImporting,   setIsImporting]    = useState(false);
   const [importErr,     setImportErr]      = useState<string | null>(null);
 
   // ── Playback state ──
   const [isPlaying,     setIsPlaying]      = useState(false);
   const [isLooping,     setIsLooping]      = useState(false);
+  const [selectionLoop, setSelectionLoop]  = useState(false);
   const [volume,        setVolume]         = useState(0.85);
   const [playPos,       setPlayPos]        = useState(0);   // 0-1
 
@@ -2475,15 +2521,20 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
   // ── Operation feedback ──
   const [opMsg,         setOpMsg]          = useState<string | null>(null);
   const [opPending,     setOpPending]      = useState(false);
+  const [historyTick,   setHistoryTick]    = useState(0);
+  const [playbackMode,  setPlaybackMode]   = useState<'full' | 'selection-once' | 'selection-loop'>('full');
 
   // ── Refs ──
   const fileInputRef    = useRef<HTMLInputElement | null>(null);
+  const waveformScrollRef = useRef<HTMLDivElement | null>(null);
   const audioRef        = useRef<HTMLAudioElement | null>(null);
   const audioBufRef     = useRef<AudioBuffer | null>(null);
   const audioBlobRef    = useRef<Blob | null>(null);
   const blobUrlRef      = useRef<string | null>(null);
   const playRafRef      = useRef<number>(0);
   const audioCtxRef     = useRef<AudioContext | null>(null);
+  const undoStackRef    = useRef<HistoryEntry[]>([]);
+  const redoStackRef    = useRef<HistoryEntry[]>([]);
 
   // ── Helper: get/create OfflineAudioContext for processing ──
   function getOfflineCtx(length: number, sr: number, ch: number) {
@@ -2504,11 +2555,47 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
     URL.revokeObjectURL(url);
   }
 
+  function clampZoom(next: number) {
+    return Math.max(0.5, Math.min(4, Math.round(next * 4) / 4));
+  }
+
+  function getCurrentHistoryEntry(): HistoryEntry | null {
+    if (!audioBlobRef.current || !fileName) return null;
+    return { blob: audioBlobRef.current, name: fileName };
+  }
+
+  function syncHistoryTick() {
+    setHistoryTick(v => v + 1);
+  }
+
+  function pushHistory(ref: React.MutableRefObject<HistoryEntry[]>, entry: HistoryEntry) {
+    ref.current.push(entry);
+    if (ref.current.length > 24) ref.current.shift();
+    syncHistoryTick();
+  }
+
+  function clearRedoStack() {
+    if (redoStackRef.current.length > 0) {
+      redoStackRef.current = [];
+      syncHistoryTick();
+    }
+  }
+
+  function syncWaveformViewport(targetBar: number, explicitZoom?: number) {
+    const scroller = waveformScrollRef.current;
+    if (!scroller || waveform.length === 0) return;
+    const activeBarWidth = Math.max(3, Math.round(4 * (explicitZoom ?? zoomLevel))) + 1;
+    const targetLeft = Math.max(0, targetBar * activeBarWidth - scroller.clientWidth * 0.2);
+    scroller.scrollTo({ left: targetLeft, behavior: 'smooth' });
+  }
+
   // ── Load blob (from file input or external recording) ──
   const loadBlob = useCallback(async (blob: Blob, name: string) => {
     setImportErr(null);
     setIsImporting(true);
     setIsPlaying(false);
+    setPlaybackMode('full');
+    setSelectionLoop(false);
     setPlayPos(0);
     setSelStart(null); setSelEnd(null);
 
@@ -2537,6 +2624,7 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
         setSampleRate(audioBuf.sampleRate);
         setNumChannels(audioBuf.numberOfChannels);
         setWaveform(buildWaveform(audioBuf, FIO_BARS));
+        setAudioStats(computeAudioStats(audioBuf));
       } else {
         // Fallback: use HTML Audio for duration only, fake waveform
         audioBufRef.current = null;
@@ -2547,6 +2635,7 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
         });
         setWaveform(Array.from({ length: FIO_BARS }, (_, i) => Math.abs(Math.sin(i * 0.38)) * 0.6 + 0.12));
         setSampleRate(44100); setNumChannels(1);
+        setAudioStats(null);
       }
 
       setFileName(name);
@@ -2567,6 +2656,42 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
     setIsImporting(false);
   }, [isLooping, volume]);
 
+  const restoreHistory = useCallback(async (direction: 'undo' | 'redo') => {
+    const source = direction === 'undo' ? undoStackRef : redoStackRef;
+    const target = direction === 'undo' ? redoStackRef : undoStackRef;
+    const entry = source.current.pop();
+    if (!entry) {
+      showOpMsg(direction === 'undo' ? '⚠ Nothing to undo' : '⚠ Nothing to redo');
+      return;
+    }
+
+    const current = getCurrentHistoryEntry();
+    if (current) pushHistory(target, current);
+    await loadBlob(entry.blob, entry.name);
+    showOpMsg(direction === 'undo' ? `↺ Undo restored ${entry.name}` : `↻ Redo restored ${entry.name}`);
+    syncHistoryTick();
+  }, [loadBlob]);
+
+  const applyProcessedBuffer = useCallback(async (
+    nextBuffer: AudioBuffer,
+    nextName: string,
+    successMessage: string,
+    options?: { download?: boolean; clearSelection?: boolean },
+  ) => {
+    const current = getCurrentHistoryEntry();
+    if (current) pushHistory(undoStackRef, current);
+    clearRedoStack();
+
+    const wav = encodeWav(nextBuffer);
+    if (options?.download !== false) downloadBlob(wav, nextName);
+    await loadBlob(wav, nextName);
+    if (options?.clearSelection !== false) {
+      setSelStart(null);
+      setSelEnd(null);
+    }
+    showOpMsg(successMessage);
+  }, [loadBlob]);
+
   // ── React to external load (from SoundRecorder "Send to Editor") ──
   useEffect(() => {
     if (!externalLoad) return;
@@ -2577,8 +2702,8 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
 
   // ── Sync loop/volume to audio element ──
   useEffect(() => {
-    if (audioRef.current) { audioRef.current.loop = isLooping; }
-  }, [isLooping]);
+    if (audioRef.current) { audioRef.current.loop = isLooping && playbackMode === 'full'; }
+  }, [isLooping, playbackMode]);
   useEffect(() => {
     if (audioRef.current) { audioRef.current.volume = volume; }
   }, [volume]);
@@ -2587,9 +2712,117 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
   const animatePlayback = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || audio.paused) return;
+    if (audio.duration && selStart !== null && selEnd !== null && playbackMode !== 'full') {
+      const regionStart = (selStart / waveform.length) * audio.duration;
+      const regionEnd = ((selEnd + 1) / waveform.length) * audio.duration;
+      if (audio.currentTime >= regionEnd) {
+        if (playbackMode === 'selection-loop') {
+          audio.currentTime = regionStart;
+        } else {
+          audio.pause();
+          setIsPlaying(false);
+          setPlaybackMode('full');
+          setPlayPos(regionEnd / audio.duration);
+          cancelAnimationFrame(playRafRef.current);
+          return;
+        }
+      }
+    }
     if (audio.duration) setPlayPos(audio.currentTime / audio.duration);
     playRafRef.current = requestAnimationFrame(animatePlayback);
+  }, [playbackMode, selEnd, selStart, waveform.length]);
+
+  const clearSelection = useCallback(() => {
+    setSelStart(null);
+    setSelEnd(null);
+    setSelectionLoop(false);
+    if (playbackMode !== 'full') setPlaybackMode('full');
+  }, [playbackMode]);
+
+  const zoomToSelection = useCallback(() => {
+    if (selStart === null || selEnd === null) return;
+    const selectionBars = Math.max(1, selEnd - selStart + 1);
+    const targetZoom = clampZoom(FIO_BARS / Math.max(selectionBars, 12));
+    setZoomLevel(targetZoom);
+    syncWaveformViewport(selStart, targetZoom);
+  }, [selEnd, selStart]);
+
+  const fitFullWaveform = useCallback(() => {
+    setZoomLevel(1);
+    waveformScrollRef.current?.scrollTo({ left: 0, behavior: 'smooth' });
   }, []);
+
+  const auditionSelection = useCallback((loop = false) => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration || selStart === null || selEnd === null) {
+      showOpMsg('⚠ Select a region first');
+      return;
+    }
+    const regionStart = (selStart / waveform.length) * audio.duration;
+    audio.currentTime = regionStart;
+    setPlaybackMode(loop ? 'selection-loop' : 'selection-once');
+    audio.play().then(() => {
+      setIsPlaying(true);
+      animatePlayback();
+    }).catch((err: Error) => {
+      setImportErr(`Playback failed: ${err?.message || 'Try tapping play again after any user gesture.'}`);
+    });
+  }, [animatePlayback, selEnd, selStart, waveform.length]);
+
+  // ── Keyboard shortcuts for faster DAW workflow ──
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable) return;
+
+      if (e.key === ' ' && !!fileName) {
+        e.preventDefault();
+        if (e.shiftKey && selStart !== null && selEnd !== null) {
+          auditionSelection(selectionLoop);
+          return;
+        }
+        togglePlay();
+        return;
+      }
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        void restoreHistory(e.shiftKey ? 'redo' : 'undo');
+        return;
+      }
+
+      if (e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        fitFullWaveform();
+        return;
+      }
+
+      if (e.key.toLowerCase() === 'z' && !e.metaKey && !e.ctrlKey && selStart !== null && selEnd !== null) {
+        e.preventDefault();
+        zoomToSelection();
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        clearSelection();
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [
+    auditionSelection,
+    clearSelection,
+    fileName,
+    fitFullWaveform,
+    restoreHistory,
+    selEnd,
+    selStart,
+    selectionLoop,
+    zoomToSelection,
+  ]);
 
   // ── Transport: Play / Pause ──
   function togglePlay() {
@@ -2598,12 +2831,14 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
+      setPlaybackMode('full');
       cancelAnimationFrame(playRafRef.current);
     } else {
       // If there's a selection and no current seek, start from selection start
       if (selStart !== null && audio.currentTime === 0 && audio.duration) {
         audio.currentTime = (selStart / waveform.length) * audio.duration;
       }
+      setPlaybackMode('full');
       audio.play().then(() => {
         setIsPlaying(true);
         animatePlayback();
@@ -2620,6 +2855,7 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
     audio.pause();
     audio.currentTime = 0;
     setIsPlaying(false);
+    setPlaybackMode('full');
     setPlayPos(0);
     cancelAnimationFrame(playRafRef.current);
   }
@@ -2686,16 +2922,16 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
     const trimBuf = getSelectionBuffer();
     if (!trimBuf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
-    const wav = encodeWav(trimBuf);
     const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
-    downloadBlob(wav, `${baseName}-trimmed.wav`);
-    // Also reload trimmed version as the active file
-    await loadBlob(wav, `${baseName}-trimmed.wav`);
-    showOpMsg('✓ Trimmed to selection — now editing trimmed clip');
+    await applyProcessedBuffer(
+      trimBuf,
+      `${baseName}-trimmed.wav`,
+      '✓ Trimmed to selection — now editing trimmed clip',
+    );
     setOpPending(false);
   }
 
-  function handleFadeIn() {
+  async function handleFadeIn() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -2715,16 +2951,12 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
         }
       }
     }
-    audioBufRef.current = newBuf;
-    setWaveform(buildWaveform(newBuf, FIO_BARS));
-    const wav = encodeWav(newBuf);
     const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
-    downloadBlob(wav, `${baseName}-fadein.wav`);
-    showOpMsg('✓ Fade In applied + downloaded');
+    await applyProcessedBuffer(newBuf, `${baseName}-fadein.wav`, '✓ Fade In applied + downloaded');
     setOpPending(false);
   }
 
-  function handleFadeOut() {
+  async function handleFadeOut() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -2744,16 +2976,12 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
         }
       }
     }
-    audioBufRef.current = newBuf;
-    setWaveform(buildWaveform(newBuf, FIO_BARS));
-    const wav = encodeWav(newBuf);
     const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
-    downloadBlob(wav, `${baseName}-fadeout.wav`);
-    showOpMsg('✓ Fade Out applied + downloaded');
+    await applyProcessedBuffer(newBuf, `${baseName}-fadeout.wav`, '✓ Fade Out applied + downloaded');
     setOpPending(false);
   }
 
-  function handleNormalize() {
+  async function handleNormalize() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -2770,17 +2998,13 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
       const dst = newBuf.getChannelData(ch);
       for (let i = 0; i < buf.length; i++) dst[i] = src[i] * gain;
     }
-    audioBufRef.current = newBuf;
-    setWaveform(buildWaveform(newBuf, FIO_BARS));
-    const wav = encodeWav(newBuf);
     const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
-    downloadBlob(wav, `${baseName}-normalized.wav`);
     const gainDb = (20 * Math.log10(gain)).toFixed(1);
-    showOpMsg(`✓ Normalized +${gainDb} dB — downloaded as WAV`);
+    await applyProcessedBuffer(newBuf, `${baseName}-normalized.wav`, `✓ Normalized +${gainDb} dB — downloaded as WAV`);
     setOpPending(false);
   }
 
-  function handleReverse() {
+  async function handleReverse() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -2797,16 +3021,12 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
         [dst[lo], dst[hi]] = [dst[hi], dst[lo]];
       }
     }
-    audioBufRef.current = newBuf;
-    setWaveform(buildWaveform(newBuf, FIO_BARS));
-    const wav = encodeWav(newBuf);
     const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
-    downloadBlob(wav, `${baseName}-reversed.wav`);
-    showOpMsg('✓ Reversed — downloaded as WAV');
+    await applyProcessedBuffer(newBuf, `${baseName}-reversed.wav`, '✓ Reversed — downloaded as WAV');
     setOpPending(false);
   }
 
-  function handleSilence() {
+  async function handleSilence() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     if (selStart === null) { showOpMsg('⚠ Select a region first (drag on waveform)'); return; }
@@ -2821,12 +3041,8 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
       dst.set(src);
       for (let i = start; i < end; i++) dst[i] = 0;
     }
-    audioBufRef.current = newBuf;
-    setWaveform(buildWaveform(newBuf, FIO_BARS));
-    const wav = encodeWav(newBuf);
     const baseName = (fileName ?? 'audio').replace(/\.[^.]+$/, '');
-    downloadBlob(wav, `${baseName}-silenced.wav`);
-    showOpMsg('✓ Region silenced — downloaded as WAV');
+    await applyProcessedBuffer(newBuf, `${baseName}-silenced.wav`, '✓ Region silenced — downloaded as WAV');
     setOpPending(false);
   }
 
@@ -2860,7 +3076,11 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
     return () => {
       cancelAnimationFrame(playRafRef.current);
       if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
-      if (audioCtxRef.current) void audioCtxRef.current.close().catch(() => undefined);
+      if (audioCtxRef.current) {
+        void audioCtxRef.current.close().catch((err) => {
+          console.warn('Sample editor audio context close skipped:', err);
+        });
+      }
     };
   }, []);
 
@@ -2873,12 +3093,16 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
     ? ((selEnd! - selStart! + 1) / waveform.length) * duration
     : 0;
   const selStartSec = hasSelection ? (selStart! / waveform.length) * duration : 0;
+  const selEndSec = hasSelection ? selStartSec + selDuration : 0;
+  const selectionCoveragePct = hasSelection ? ((selEnd! - selStart! + 1) / waveform.length) * 100 : 0;
 
   const hoveredTime = hoveredBar !== null
     ? (hoveredBar / waveform.length) * duration
     : null;
 
   const hasAudio = !!fileName;
+  const undoDepth = undoStackRef.current.length;
+  const redoDepth = redoStackRef.current.length;
 
   return (
     <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}
@@ -2986,6 +3210,26 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
           </div>
         )}
 
+        {/* ── Production stats ── */}
+        {hasAudio && audioStats && (
+          <div style={{
+            padding: '8px 12px', borderRadius: 8,
+            background: 'rgba(0,0,0,0.16)', border: `1px solid ${DAW.border}`,
+            display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+          }}>
+            <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.08em', color: DAW.dim }}>
+              MASTER READOUT
+            </span>
+            <span style={{ ...dawPill(DAW.red), fontSize: 9 }}>Peak {audioStats.peakDb.toFixed(1)} dBFS</span>
+            <span style={{ ...dawPill(DAW.accent), fontSize: 9 }}>RMS {audioStats.rmsDb.toFixed(1)} dBFS</span>
+            <span style={{ ...dawPill(DAW.purple), fontSize: 9 }}>Crest {audioStats.crestDb.toFixed(1)} dB</span>
+            <span style={{ ...dawPill(DAW.orange), fontSize: 9 }}>Zero-cross {(audioStats.zeroCrossRate * 100).toFixed(2)}%</span>
+            {hasSelection && (
+              <span style={{ ...dawPill(DAW.green), fontSize: 9 }}>Selection {selectionCoveragePct.toFixed(1)}%</span>
+            )}
+          </div>
+        )}
+
         {/* ── Transport controls ── */}
         {hasAudio && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -3049,6 +3293,86 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
                   {Math.round(volume * 100)}%
                 </span>
               </div>
+            </div>
+
+            {/* Workflow row */}
+            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }} data-history-tick={historyTick}>
+              {[
+                {
+                  label: `Undo ${undoDepth ? `(${undoDepth})` : ''}`.trim(),
+                  action: () => void restoreHistory('undo'),
+                  enabled: undoDepth > 0,
+                  color: DAW.orange,
+                  title: 'Undo last destructive audio edit (Ctrl/Cmd+Z)',
+                },
+                {
+                  label: `Redo ${redoDepth ? `(${redoDepth})` : ''}`.trim(),
+                  action: () => void restoreHistory('redo'),
+                  enabled: redoDepth > 0,
+                  color: DAW.orange,
+                  title: 'Redo reverted audio edit (Shift+Ctrl/Cmd+Z)',
+                },
+                {
+                  label: 'Audition Sel',
+                  action: () => auditionSelection(false),
+                  enabled: hasSelection,
+                  color: DAW.accent,
+                  title: 'Play just the selected region once (Shift+Space)',
+                },
+                {
+                  label: selectionLoop ? 'Loop Sel On' : 'Loop Sel',
+                  action: () => {
+                    const next = !selectionLoop;
+                    setSelectionLoop(next);
+                    if (hasSelection && next) auditionSelection(true);
+                    if (!next && playbackMode === 'selection-loop') setPlaybackMode('full');
+                  },
+                  enabled: hasSelection,
+                  color: DAW.purple,
+                  title: 'Loop the selected region while auditioning',
+                },
+                {
+                  label: 'Zoom Sel',
+                  action: zoomToSelection,
+                  enabled: hasSelection,
+                  color: DAW.green,
+                  title: 'Zoom into the selected region (Z)',
+                },
+                {
+                  label: 'Fit Full',
+                  action: fitFullWaveform,
+                  enabled: true,
+                  color: DAW.dim,
+                  title: 'Reset zoom and fit the whole clip (F)',
+                },
+                {
+                  label: 'Clear Sel',
+                  action: clearSelection,
+                  enabled: hasSelection,
+                  color: DAW.red,
+                  title: 'Clear selected region (Esc)',
+                },
+              ].map(control => (
+                <button
+                  key={control.label}
+                  type="button"
+                  onClick={control.action}
+                  disabled={!control.enabled}
+                  title={control.title}
+                  style={{
+                    padding: '6px 10px', borderRadius: 8,
+                    cursor: control.enabled ? 'pointer' : 'not-allowed',
+                    border: `1px solid ${control.color}35`,
+                    background: `${control.color}${control.enabled ? '12' : '08'}`,
+                    color: control.enabled ? control.color : DAW.dim,
+                    fontSize: 10, fontWeight: 700,
+                    opacity: control.enabled ? 1 : 0.45,
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {control.label}
+                </button>
+              ))}
             </div>
 
             {/* Progress bar (scrubable) */}
@@ -3132,7 +3456,7 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
           </div>
 
           {/* Scrollable waveform */}
-          <div style={{ overflowX: 'auto' }}>
+          <div ref={waveformScrollRef} style={{ overflowX: 'auto' }}>
             <div
               style={{
                 display: 'flex', alignItems: 'center', gap: 1,
@@ -3214,11 +3538,11 @@ function DAWFileIOPanel({ externalLoad, projectSnapshot, onExternalLoadConsumed 
           <span>
             {hoveredTime !== null
               ? `🕐 ${fmtSec(hoveredTime)} — click to seek · drag to select`
-              : hasAudio ? 'Click bar to seek · Drag to select region' : 'Zoom: ' + zoomLevel + '×'}
+              : hasAudio ? 'Click bar to seek · Drag to select region · Shift+Space audition · Ctrl/Cmd+Z undo' : 'Zoom: ' + zoomLevel + '×'}
           </span>
           {hasSelection && (
             <span style={{ color: DAW.purple, fontWeight: 700 }}>
-              ◀ {fmtSec(selStartSec)} → {fmtSec(selStartSec + selDuration)} ({fmtSec(selDuration)}) ▶
+              ◀ {fmtSec(selStartSec)} → {fmtSec(selEndSec)} ({fmtSec(selDuration)}) ▶
             </span>
           )}
         </div>
