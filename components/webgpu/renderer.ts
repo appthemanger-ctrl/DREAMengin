@@ -89,7 +89,7 @@ export class WebGPURenderer {
     const adapter = await gpu.requestAdapter({ powerPreference: 'high-performance' });
     if (!adapter) throw new Error('no WebGPU adapter');
 
-    this.dev = await adapter.requestDevice();
+    this.dev = (await adapter.requestDevice()) as unknown as GPUDevice;
 
     this.ctx = canvas.getContext('webgpu') as GPUCanvasContext;
     this.fmt = gpu.getPreferredCanvasFormat();
@@ -268,7 +268,7 @@ export class WebGPURenderer {
   private _rebuildBGs() {
     const d = this.dev;
     const bg = (pipe: GPUComputePipeline | GPURenderPipeline, entries: GPUBindGroupEntry[]) =>
-      d.createBindGroup({ layout: (pipe as GPURenderPipeline).getBindGroupLayout(0), entries });
+      d.createBindGroup({ layout: (pipe as GPURenderPipeline).getBindGroupLayout(0) as unknown as GPUBindGroupLayout, entries });
 
     this.cpBG = bg(this.cpPipe, [
       { binding: 0, resource: { buffer: this.pBuf } },
