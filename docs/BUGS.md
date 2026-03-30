@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-30 04:39 UTC  
-**Triggered by commit:** `4cf7a7c` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #353 from appthemanger-ctrl/copilot/update-website-appearance
+**Last updated:** 2026-03-30 05:34 UTC  
+**Triggered by commit:** `0662e7d` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #355 from appthemanger-ctrl/copilot/update-ui-ux-for-visuals
 
 ---
 
@@ -48,7 +48,7 @@ It is not defined as a conventional page-based website. It is a **personal opera
 ### UI design system
 
 - **Gold / light blue / white** premium palette throughout.
-- **Glossy glass** surfaces (`.de-surface`, `.de-widget`).
+- **Frosted glass** surfaces (`.de-surface`, `.de-widget`).
 - **Space Grotesk** font.
 - Consistent radius family (6 / 10 / 14 / 18 / 24 / 32 / 9999 px).
 - Surfaces should feel calm, premium, spatial, and uncluttered.
