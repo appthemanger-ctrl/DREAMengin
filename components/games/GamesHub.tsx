@@ -34,19 +34,11 @@ const SnakeGame       = dynamicImport(() => import('@/components/games/SnakeGame
 const BreakoutGame    = dynamicImport(() => import('@/components/games/BreakoutGame'),    { ssr: false, loading: Loading });
 const TetrisGame      = dynamicImport(() => import('@/components/games/TetrisGame'),      { ssr: false, loading: Loading });
 const FlappyGame      = dynamicImport(() => import('@/components/games/FlappyGame'),      { ssr: false, loading: Loading });
-const PongGame        = dynamicImport(() => import('@/components/games/PongGame'),        { ssr: false, loading: Loading });
-const MinesweeperGame = dynamicImport(() => import('@/components/games/MinesweeperGame'), { ssr: false, loading: Loading });
 const ChessGame       = dynamicImport(() => import('@/components/games/ChessGame'),       { ssr: false, loading: Loading });
 const RacingGame      = dynamicImport(() => import('@/components/games/RacingGame'),      { ssr: false, loading: Loading });
-const TriviaGame      = dynamicImport(() => import('@/components/games/TriviaGame'),      { ssr: false, loading: Loading });
 const RPGGame         = dynamicImport(() => import('@/components/games/RPGGame'),         { ssr: false, loading: Loading });
 const RhythmGame      = dynamicImport(() => import('@/components/games/RhythmGame'),      { ssr: false, loading: Loading });
 const MazeGame        = dynamicImport(() => import('@/components/games/MazeGame'),        { ssr: false, loading: Loading });
-const SolitaireGame   = dynamicImport(() => import('@/components/games/SolitaireGame'),   { ssr: false, loading: Loading });
-// Pre-existing inline games — wired here so every finished game is accessible
-const WordSprint         = dynamicImport(() => import('@/components/games/WordSprint'),         { ssr: false, loading: Loading });
-const MemoryGrid         = dynamicImport(() => import('@/components/games/MemoryGrid'),         { ssr: false, loading: Loading });
-const SpeedTap           = dynamicImport(() => import('@/components/games/SpeedTap'),           { ssr: false, loading: Loading });
 // Babylon.js side-scroller — replaces old Dr. Eams Canvas 2D platformer
 const BabylonSideScroller = dynamicImport(() => import('@/components/games/BabylonSideScroller'), { ssr: false, loading: Loading });
 // New Dream-universe games
@@ -65,6 +57,7 @@ export interface GameDef {
   desc: string;
   category: string;
   color: string;
+  subtitle?: string;
   /** Render inline inside the hub. Mutually exclusive with `href`. */
   component?: React.ComponentType;
   /** Navigate to a full page instead of rendering inline. */
@@ -76,75 +69,67 @@ export interface GameDef {
 export const GAMES: GameDef[] = [
   // ── MADMAXI — Babylon.js 3-D side-scroller (default game) ─────────────────
   { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', component: BabylonSideScroller,
+    subtitle: 'MADMAXI · Babylon.js 3-D',
     desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js 3-D side-scroller' },
   // ── Strategy ──────────────────────────────────────────────────────────────
-  { id: 'rts',           emoji: '⚔️', label: 'Red Alert RTS',    category: 'Strategy',    color: '#ef4444', component: RTSGame,
-    desc: 'C&C Red Alert 2 style — build base, harvest ore, train units, destroy enemy HQ' },
-  { id: 'tower-defense', emoji: '🏰', label: 'Tower Defense',    category: 'Strategy',    color: '#22c55e', component: TowerDefense,
+  { id: 'rts',           emoji: '⚔️', label: 'DREAM FORCE',       category: 'Strategy',    color: '#ef4444', component: RTSGame,
+    subtitle: 'Command the Vanguard · Crush the Nightmare',
+    desc: 'Build your Dream base, harvest Dream Energy, command Vanguard units — crush the Nightmare HQ' },
+  { id: 'tower-defense', emoji: '🏰', label: 'Tower Defense',     category: 'Strategy',    color: '#22c55e', component: TowerDefense,
     desc: 'Place arrow, cannon & freeze towers to stop 10 waves of enemies' },
   // ── Arcade ────────────────────────────────────────────────────────────────
-  { id: 'space-shooter', emoji: '🚀', label: 'Space Shooter',    category: 'Arcade',      color: '#60a5fa', component: SpaceShooter,
-    desc: 'Top-down shoot-em-up — auto-fire, dodge enemy bullets, survive endless waves' },
-  { id: 'snake',         emoji: '🐍', label: 'Snake',            category: 'Arcade',      color: '#4ade80', component: SnakeGame,
-    desc: 'Classic snake — eat apples, grow longer, don\'t hit the walls' },
-  { id: 'breakout',      emoji: '🧱', label: 'Breakout',         category: 'Arcade',      color: '#3b82f6', component: BreakoutGame,
-    desc: 'Arkanoid-style brick breaker — mouse/touch to control the paddle' },
-  { id: 'flappy',        emoji: '🐦', label: 'Flappy Bird',      category: 'Casual',      color: '#fbbf24', component: FlappyGame,
-    desc: 'Tap or press Space to flap — dodge the pipes, beat your high score' },
-  { id: 'speed-tap',     emoji: '⚡', label: 'Speed Tap',        category: 'Casual',      color: '#f59e0b', component: SpeedTap,
-    desc: 'Tap as fast as you can — 10-second reaction speed challenge' },
+  { id: 'space-shooter', emoji: '🚀', label: 'VOID STRIKE',       category: 'Arcade',      color: '#60a5fa', component: SpaceShooter,
+    subtitle: 'Defend the Dream Realm',
+    desc: 'Defend the Dream Realm from Void-spawn invaders — auto-fire, dodge plasma bolts, survive endless waves' },
+  { id: 'snake',         emoji: '🐍', label: 'SHADOW SERPENT',    category: 'Arcade',      color: '#4ade80', component: SnakeGame,
+    desc: 'Guide the Shadow Serpent through the Dream Grid — consume Dream Sparks, grow longer, never cross your own tail' },
+  { id: 'breakout',      emoji: '💎', label: 'DREAM BREAKER',     category: 'Arcade',      color: '#3b82f6', component: BreakoutGame,
+    desc: 'Launch the Orb of Light — shatter the Nightmare Wall, recover the Dream Fragments' },
+  { id: 'flappy',        emoji: '✨', label: 'NITE FLYER',        category: 'Casual',      color: '#a78bfa', component: FlappyGame,
+    desc: 'Dr. Eams soars through the neon Dream-scape — tap to flap, dodge the Nightmare gates' },
   // ── Puzzle ────────────────────────────────────────────────────────────────
-  { id: 'match3',        emoji: '💎', label: 'Match-3 Gems',     category: 'Puzzle',      color: '#a78bfa', component: Match3Game,
-    desc: 'Swap adjacent gems to match 3 or more — 30 moves, aim for chains' },
-  { id: 'tetris',        emoji: '🟦', label: 'Tetris',           category: 'Puzzle',      color: '#06b6d4', component: TetrisGame,
-    desc: 'Classic falling blocks — rotate, drop, clear lines, level up' },
-  { id: 'minesweeper',   emoji: '💣', label: 'Minesweeper',      category: 'Puzzle',      color: '#dc2626', component: MinesweeperGame,
-    desc: 'Reveal safe squares, flag mines — classic 16×12 grid, 28 mines' },
-  { id: 'memory-grid',   emoji: '🧩', label: 'Memory Grid',      category: 'Puzzle',      color: '#6366f1', component: MemoryGrid,
-    desc: 'Flip cards and match all pairs — the classic concentration game' },
-  // ── Word ──────────────────────────────────────────────────────────────────
-  { id: 'word-sprint',   emoji: '📝', label: 'Word Sprint',      category: 'Word',        color: '#10b981', component: WordSprint,
-    desc: '60-second typing challenge — type the falling words before time runs out' },
+  { id: 'match3',        emoji: '💎', label: 'DREAM GEMS',        category: 'Puzzle',      color: '#a78bfa', component: Match3Game,
+    desc: 'Swap Dream shards to match 3 or more — chain combos, collect Dream Energy, 30 moves to master it' },
+  { id: 'tetris',        emoji: '🟦', label: 'BLOCK STACK',       category: 'Puzzle',      color: '#06b6d4', component: TetrisGame,
+    desc: 'Dream shards rain from the sky — stack them perfectly, clear layers, defy the collapse' },
   // ── Sports ────────────────────────────────────────────────────────────────
-  { id: 'pong',          emoji: '🏓', label: 'Pong',             category: 'Sports',      color: '#f1f5f9', component: PongGame,
-    desc: 'Classic table tennis — play vs AI or 2 players local, first to 11 wins' },
-  { id: 'racing',        emoji: '🏎️', label: 'Racing',          category: 'Sports',      color: '#3b82f6', component: RacingGame,
-    desc: 'Top-down track racing — 3 laps vs 2 AI cars, WASD/arrows to drive' },
+  { id: 'racing',        emoji: '🏎️', label: 'DREAM CIRCUIT',    category: 'Sports',      color: '#3b82f6', component: RacingGame,
+    desc: '3-lap Dream Circuit sprint — race 2 rival Engin AIs around neon canyon tracks, WASD/arrows' },
   // ── Board ─────────────────────────────────────────────────────────────────
-  { id: 'chess',         emoji: '♛',  label: 'Chess',            category: 'Board',       color: '#f5f5f4', component: ChessGame,
+  { id: 'chess',         emoji: '♛',  label: 'ENGIN CHESS',       category: 'Board',       color: '#f5f5f4', component: ChessGame,
     desc: '2-player local chess — full piece movement rules, click to select & move' },
-  // ── Card ──────────────────────────────────────────────────────────────────
-  { id: 'solitaire',     emoji: '🃏', label: 'Solitaire',        category: 'Card',        color: '#22c55e', component: SolitaireGame,
-    desc: 'Klondike solitaire — build four foundation piles from Ace to King' },
-  // ── Educational ───────────────────────────────────────────────────────────
-  { id: 'trivia',        emoji: '🧠', label: 'Trivia Quiz',      category: 'Educational', color: '#818cf8', component: TriviaGame,
-    desc: '10 questions across science, history, tech & more — streak bonuses' },
   // ── RPG ───────────────────────────────────────────────────────────────────
-  { id: 'rpg',           emoji: '🗡️', label: 'RPG Adventure',   category: 'RPG',         color: '#c084fc', component: RPGGame,
-    desc: 'Turn-based adventure — explore, battle monsters, level up, defeat 10 to win' },
+  { id: 'rpg',           emoji: '🗡️', label: 'DREAM REALM QUEST', category: 'RPG',         color: '#c084fc', component: RPGGame,
+    subtitle: '5 Dream Realms · Turn-Based Combat',
+    desc: 'Turn-based adventure through 5 Dream Realms — battle Nightmare creatures, level up abilities, defeat the Dream Destroyer' },
   // ── Music ─────────────────────────────────────────────────────────────────
-  { id: 'rhythm',        emoji: '🎵', label: 'Rhythm Master',    category: 'Music',       color: '#a78bfa', component: RhythmGame,
-    desc: 'Hit notes as they fall — A S K L keys or on-screen buttons' },
+  { id: 'rhythm',        emoji: '🎵', label: 'BEAT ENGINE',       category: 'Music',       color: '#a78bfa', component: RhythmGame,
+    desc: 'Hit the Dream beats as they fall — ASDK keys or on-screen pads, chain combos to awaken the Dream' },
   // ── Adventure / Platformer ────────────────────────────────────────────────
-  { id: 'maze',          emoji: '🌀', label: 'Maze Runner',      category: 'Adventure',   color: '#38bdf8', component: MazeGame,
-    desc: 'Procedurally generated maze — navigate from start to the ★ exit' },
-  { id: 'lucid-avenue',  emoji: '🌴', label: 'Lucid Avenue',     category: 'Adventure',   color: '#f59e0b', component: LucidAvenue,
+  { id: 'maze',          emoji: '🌀', label: 'LABYRINTH ZERO',    category: 'Adventure',   color: '#38bdf8', component: MazeGame,
+    desc: 'Navigate the procedural Dream Labyrinth — escape before the Nightmare closes in' },
+  { id: 'lucid-avenue',  emoji: '🌴', label: 'Lucid Avenue',      category: 'Adventure',   color: '#f59e0b', component: LucidAvenue,
     desc: 'Original LA-inspired retro city quest — expanded 8-district GameEngin-linked city run with free-roam sandbox jumps, vehicle systems, persistent route contracts, west-side missions, and an observatory skyline finale' },
   // ── Dream Universe games ──────────────────────────────────────────────────
-  { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',         category: 'Strategy',    color: '#7c3aed', component: DREAMwars,
+  { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',          category: 'Strategy',    color: '#7c3aed', component: DREAMwars,
+    subtitle: 'Nightmares vs Dreamers',
     desc: 'Nightmares vs Dreamers RTS — build base, harvest Dream Energy, crush the enemy HQ' },
-  { id: 'engin-battle',  emoji: '⚙️', label: 'ENGIN Battle',      category: 'Strategy',    color: '#38bdf8', component: ENGINBattle,
+  { id: 'engin-battle',  emoji: '⚙️', label: 'ENGIN Battle',       category: 'Strategy',    color: '#38bdf8', component: ENGINBattle,
+    subtitle: 'Dr. Eams · IDARi · Boogie',
     desc: 'Age of Empires style — pick Dr. Eams, IDARi or Boogie; tech tree upgrades, 3-faction war' },
-  { id: 'dreamquest',    emoji: '✨', label: 'DREAMquest',         category: 'RPG',         color: '#a78bfa', component: DREAMquest,
+  { id: 'dreamquest',    emoji: '✨', label: 'DREAMquest',          category: 'RPG',         color: '#a78bfa', component: DREAMquest,
+    subtitle: 'FF-style · 5 Dream Layers',
     desc: 'FF7 + Chrono Trigger RPG — traverse 5 dream layers, unlock dream abilities, defeat the Dream Destroyer' },
   // ── WebGPU-Powered Games ──────────────────────────────────────────────
-  { id: 'neon-drift',    emoji: '🏎️', label: 'Neon Drift',        category: 'Racing',      color: '#0ff',    component: NeonDrift,
+  { id: 'neon-drift',    emoji: '🏎️', label: 'Neon Drift',         category: 'Racing',      color: '#0ff',    component: NeonDrift,
+    subtitle: 'WebGPU · DualSense Ready',
     desc: 'WebGPU cyberpunk racer — DualSense gyro steering, haptic feedback, high-performance 3D rendering' },
-  { id: 'echo-arena',    emoji: '🎯', label: 'Echo Arena',        category: 'Shooter',     color: '#a78bfa', component: EchoArena,
+  { id: 'echo-arena',    emoji: '🎯', label: 'Echo Arena',          category: 'Shooter',     color: '#a78bfa', component: EchoArena,
+    subtitle: 'WebGPU · DualSense Ready',
     desc: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
 ];
 
-const FEATURED_GAME_IDS = ['platformer', 'lucid-avenue', 'dreamquest', 'dreamwars'] as const;
+const FEATURED_GAME_IDS = ['platformer', 'neon-drift', 'dreamquest', 'dreamwars'] as const;
 const QUICK_RESUME_FALLBACK_COUNT = 3;
 const ENGINE_CAPABILITY_CHIPS = [
   'Fullscreen boot',
@@ -457,35 +442,53 @@ export default function GamesHub() {
 
           const cardContent = (
             <>
-              <div style={{ fontSize: 28, lineHeight: 1 }}>{game.emoji}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.2 }}>
-                {game.label}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', lineHeight: 1.4 }}>
-                {game.desc}
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {/* Cover Art Banner */}
+              <div style={{
+                borderRadius: '12px 12px 0 0',
+                background: `linear-gradient(135deg, ${game.color}55 0%, ${game.color}22 60%, rgba(15,23,42,0.6) 100%)`,
+                height: 100,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                margin: '-14px -12px 8px -12px',
+                boxShadow: `0 4px 18px ${game.color}28`,
+                overflow: 'hidden',
+              }}>
+                {/* Background glow pulse */}
                 <div style={{
-                  fontSize: 9, padding: '2px 6px', borderRadius: 999,
-                  background: `${game.color}18`, color: game.color, border: `1px solid ${game.color}30`,
-                  fontWeight: 700, alignSelf: 'flex-start',
+                  position: 'absolute', inset: 0,
+                  background: `radial-gradient(ellipse at 50% 70%, ${game.color}30 0%, transparent 70%)`,
+                }} />
+                {/* Emoji */}
+                <span style={{ fontSize: 36, lineHeight: 1, position: 'relative', zIndex: 1, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.4))' }}>{game.emoji}</span>
+                {/* Category chip — top right */}
+                <div style={{
+                  position: 'absolute', top: 8, right: 8,
+                  fontSize: 8, fontWeight: 800, letterSpacing: '0.12em',
+                  padding: '3px 8px', borderRadius: 999, textTransform: 'uppercase',
+                  background: `${game.color}33`, color: game.color,
+                  border: `1px solid ${game.color}55`,
+                  backdropFilter: 'blur(4px)',
                 }}>
                   {game.category}
                 </div>
-                <div style={{
-                  fontSize: 9, padding: '2px 6px', borderRadius: 999,
-                  background: 'rgba(42,138,184,0.08)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.16)',
-                  fontWeight: 700, alignSelf: 'flex-start',
-                }}>
-                  Fullscreen boot
-                </div>
-                <div style={{
-                  fontSize: 9, padding: '2px 6px', borderRadius: 999,
-                  background: 'rgba(124,58,237,0.08)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.16)',
-                  fontWeight: 700, alignSelf: 'flex-start',
-                }}>
-                  Remote ready
-                </div>
+                {/* Subtitle — bottom left */}
+                {game.subtitle && (
+                  <div style={{
+                    position: 'absolute', bottom: 6, left: 8,
+                    fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.72)',
+                    letterSpacing: '0.06em',
+                  }}>
+                    {game.subtitle}
+                  </div>
+                )}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.2 }}>
+                {game.label}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                {game.desc}
               </div>
               <div style={{
                 marginTop: 4,
@@ -515,6 +518,7 @@ export default function GamesHub() {
             gap: 6,
             textDecoration: 'none',
             width: '100%',
+            overflow: 'hidden',
           };
 
           // GSAP hover: smooth lift + background brighten via gsap.to

@@ -19,7 +19,7 @@ const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { open
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'platformer', emoji: '🏎',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: immersiveGameHref('platformer') },
-  { id: 'all-games',  emoji: '🎮', label: 'All 23 Games', desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
+  { id: 'all-games',  emoji: '🎮', label: 'All Games',    desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
   { id: 'sprint',     emoji: '📝', label: 'Word Sprint',  desc: '60-second typing challenge',    color: '#10b981', href: immersiveGameHref('word-sprint') },
   { id: 'memory',     emoji: '🧩', label: 'Memory Grid',  desc: 'Flip cards, match all pairs',   color: '#6366f1', href: immersiveGameHref('memory-grid') },
   { id: 'tap',        emoji: '⚡', label: 'Speed Tap',    desc: 'Tap as fast as you can',        color: '#f59e0b', href: immersiveGameHref('speed-tap') },
@@ -87,7 +87,7 @@ export default async function GamesDaydreamPage() {
                     Play + remote happen on the GameEngin side.
                   </h2>
                   <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.7, maxWidth: 700, marginTop: 10 }}>
-                    Browse all 23 games here, then flip over to GameEngin to play. The remote controller sits directly under the game screen in GameEngin — right where it should be.
+                    Browse all games here, then flip over to GameEngin to play. The remote controller sits directly under the game screen in GameEngin — right where it should be.
                   </p>
                   <div className="flex flex-wrap gap-2" style={{ marginTop: 12 }}>
                     {GAME_QUALITY_PILLARS.slice(0, 4).map((pillar) => (
@@ -101,7 +101,7 @@ export default async function GamesDaydreamPage() {
                 <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
                   <div style={{ borderRadius: 18, padding: 14, background: 'rgba(255,255,255,0.62)', border: '1px solid rgba(42,138,184,0.16)' }}>
                     <div className="text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ color: 'var(--de-accent)' }}>Library Side</div>
-                    <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', marginTop: 8 }}>23</div>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', marginTop: 8 }}>16+</div>
                     <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 4 }}>Arcade, strategy, puzzle, and challenge games on one shelf.</div>
                   </div>
                   <div style={{ borderRadius: 18, padding: 14, background: 'rgba(14,25,48,0.88)', border: '1px solid rgba(74,175,255,0.22)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}>

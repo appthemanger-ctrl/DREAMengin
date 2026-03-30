@@ -1,6 +1,6 @@
 'use client';
 /**
- * BreakoutGame — Breakout / Arkanoid brick-breaking game.
+ * BreakoutGame — DREAM BREAKER: DREAMengin original brick-shattering game.
  * Category: arcade / classic
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -141,8 +141,8 @@ export default function BreakoutGame() {
 
   if (phase === 'menu') return (
     <div style={{ background: '#0a0a1a', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
-      <div style={{ fontSize: 26, fontWeight: 900, color: '#3b82f6' }}>🧱 BREAKOUT</div>
-      <div style={{ fontSize: 12, color: '#93c5fd' }}>Move mouse / touch to control paddle. Click to launch ball. Break all bricks!</div>
+      <div style={{ fontSize: 26, fontWeight: 900, color: '#3b82f6' }}>💎 DREAM BREAKER</div>
+      <div style={{ fontSize: 12, color: '#93c5fd' }}>Launch the Dream Orb — shatter the Nightmare Wall, recover the Dream Fragments!</div>
       <button onClick={startGame} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>▶ Play</button>
     </div>
   );

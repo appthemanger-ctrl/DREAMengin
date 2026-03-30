@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * RTSGame — Command & Conquer: Red Alert 2 style real-time strategy game.
+ * RTSGame — DREAM FORCE — original DREAMengin RTS.
  * Canvas-based, runs entirely in the browser with no server dependencies.
  * Supports: base building, unit production, resource gathering, combat, AI opponent.
  */
@@ -15,7 +15,7 @@ const TILE = 40;
 const COLS = Math.floor(CANVAS_W / TILE);
 const ROWS = Math.floor(CANVAS_H / TILE);
 
-type Faction = 'allies' | 'soviet';
+type Faction = 'vanguard' | 'nightmare';
 type UnitType = 'soldier' | 'tank' | 'harvester';
 type BuildingType = 'base' | 'barracks' | 'factory' | 'refinery' | 'powerplant';
 type Phase = 'menu' | 'playing' | 'victory' | 'defeat';
@@ -66,8 +66,8 @@ const BUILDING_STATS: Record<BuildingType, { hp: number; cost: number; label: st
 };
 
 const COLORS: Record<Faction, { primary: string; secondary: string; unit: string }> = {
-  allies: { primary: '#3b82f6', secondary: '#1d4ed8', unit: '#60a5fa' },
-  soviet: { primary: '#dc2626', secondary: '#991b1b', unit: '#f87171' },
+  vanguard: { primary: '#3b82f6', secondary: '#1d4ed8', unit: '#60a5fa' },
+  nightmare: { primary: '#dc2626', secondary: '#991b1b', unit: '#f87171' },
 };
 
 const TERRAIN_COLOR: Record<number, string> = {
@@ -116,25 +116,25 @@ function createInitialState() {
   }
 
   const buildings: Building[] = [
-    { id: uid(), type: 'base', faction: 'allies', pos: { x: 1, y: 1 }, hp: 500, maxHp: 500, buildTimer: 0, buildCost: 0 },
-    { id: uid(), type: 'powerplant', faction: 'allies', pos: { x: 3, y: 1 }, hp: 150, maxHp: 150, buildTimer: 0, buildCost: 0 },
-    { id: uid(), type: 'barracks', faction: 'allies', pos: { x: 1, y: 3 }, hp: 200, maxHp: 200, buildTimer: 0, buildCost: 0 },
-    { id: uid(), type: 'refinery', faction: 'allies', pos: { x: 3, y: 3 }, hp: 250, maxHp: 250, buildTimer: 0, buildCost: 0 },
+    { id: uid(), type: 'base', faction: 'vanguard', pos: { x: 1, y: 1 }, hp: 500, maxHp: 500, buildTimer: 0, buildCost: 0 },
+    { id: uid(), type: 'powerplant', faction: 'vanguard', pos: { x: 3, y: 1 }, hp: 150, maxHp: 150, buildTimer: 0, buildCost: 0 },
+    { id: uid(), type: 'barracks', faction: 'vanguard', pos: { x: 1, y: 3 }, hp: 200, maxHp: 200, buildTimer: 0, buildCost: 0 },
+    { id: uid(), type: 'refinery', faction: 'vanguard', pos: { x: 3, y: 3 }, hp: 250, maxHp: 250, buildTimer: 0, buildCost: 0 },
 
-    { id: uid(), type: 'base', faction: 'soviet', pos: { x: COLS - 3, y: ROWS - 3 }, hp: 500, maxHp: 500, buildTimer: 0, buildCost: 0 },
-    { id: uid(), type: 'powerplant', faction: 'soviet', pos: { x: COLS - 5, y: ROWS - 3 }, hp: 150, maxHp: 150, buildTimer: 0, buildCost: 0 },
-    { id: uid(), type: 'barracks', faction: 'soviet', pos: { x: COLS - 3, y: ROWS - 5 }, hp: 200, maxHp: 200, buildTimer: 0, buildCost: 0 },
-    { id: uid(), type: 'refinery', faction: 'soviet', pos: { x: COLS - 5, y: ROWS - 5 }, hp: 250, maxHp: 250, buildTimer: 0, buildCost: 0 },
+    { id: uid(), type: 'base', faction: 'nightmare', pos: { x: COLS - 3, y: ROWS - 3 }, hp: 500, maxHp: 500, buildTimer: 0, buildCost: 0 },
+    { id: uid(), type: 'powerplant', faction: 'nightmare', pos: { x: COLS - 5, y: ROWS - 3 }, hp: 150, maxHp: 150, buildTimer: 0, buildCost: 0 },
+    { id: uid(), type: 'barracks', faction: 'nightmare', pos: { x: COLS - 3, y: ROWS - 5 }, hp: 200, maxHp: 200, buildTimer: 0, buildCost: 0 },
+    { id: uid(), type: 'refinery', faction: 'nightmare', pos: { x: COLS - 5, y: ROWS - 5 }, hp: 250, maxHp: 250, buildTimer: 0, buildCost: 0 },
   ];
 
   const units: Unit[] = [
-    { id: uid(), type: 'soldier', faction: 'allies', pos: { x: 2, y: 2 }, hp: 50, maxHp: 50, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
-    { id: uid(), type: 'soldier', faction: 'allies', pos: { x: 2, y: 3 }, hp: 50, maxHp: 50, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
-    { id: uid(), type: 'harvester', faction: 'allies', pos: { x: 4, y: 4 }, hp: 100, maxHp: 100, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
+    { id: uid(), type: 'soldier', faction: 'vanguard', pos: { x: 2, y: 2 }, hp: 50, maxHp: 50, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
+    { id: uid(), type: 'soldier', faction: 'vanguard', pos: { x: 2, y: 3 }, hp: 50, maxHp: 50, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
+    { id: uid(), type: 'harvester', faction: 'vanguard', pos: { x: 4, y: 4 }, hp: 100, maxHp: 100, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
 
-    { id: uid(), type: 'soldier', faction: 'soviet', pos: { x: COLS - 3, y: ROWS - 4 }, hp: 50, maxHp: 50, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
-    { id: uid(), type: 'soldier', faction: 'soviet', pos: { x: COLS - 4, y: ROWS - 3 }, hp: 50, maxHp: 50, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
-    { id: uid(), type: 'harvester', faction: 'soviet', pos: { x: COLS - 5, y: ROWS - 6 }, hp: 100, maxHp: 100, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
+    { id: uid(), type: 'soldier', faction: 'nightmare', pos: { x: COLS - 3, y: ROWS - 4 }, hp: 50, maxHp: 50, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
+    { id: uid(), type: 'soldier', faction: 'nightmare', pos: { x: COLS - 4, y: ROWS - 3 }, hp: 50, maxHp: 50, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
+    { id: uid(), type: 'harvester', faction: 'nightmare', pos: { x: COLS - 5, y: ROWS - 6 }, hp: 100, maxHp: 100, moveTarget: null, attackTargetId: null, attackCooldown: 0, harvesting: false, carryOre: 0 },
   ];
 
   return {
@@ -142,9 +142,9 @@ function createInitialState() {
     ore,
     buildings,
     units,
-    credits: { allies: 1500, soviet: 1500 },
+    credits: { vanguard: 1500, nightmare: 1500 },
     selected: [] as number[],
-    buildQueue: { allies: null as null | { type: BuildingType; timer: number; maxTimer: number }, soviet: null as null | { type: BuildingType; timer: number; maxTimer: number } },
+    buildQueue: { vanguard: null as null | { type: BuildingType; timer: number; maxTimer: number }, nightmare: null as null | { type: BuildingType; timer: number; maxTimer: number } },
     aiTimer: 0,
     tick: 0,
     explosions: [] as { x: number; y: number; r: number; maxR: number; alpha: number }[],
@@ -236,7 +236,7 @@ function stepGame(state: GameState, dt: number) {
       }
     } else {
       // Idle — auto-attack nearby enemies
-      const enemyFaction: Faction = unit.faction === 'allies' ? 'soviet' : 'allies';
+      const enemyFaction: Faction = unit.faction === 'vanguard' ? 'nightmare' : 'vanguard';
       const nearby = state.units.find(u => u.faction === enemyFaction && dist(u.pos, unit.pos) < 4);
       if (nearby) unit.attackTargetId = nearby.id;
     }
@@ -257,7 +257,7 @@ function stepGame(state: GameState, dt: number) {
   state.buildings = state.buildings.filter(b => b.hp > 0);
 
   // Build queue
-  for (const faction of ['allies', 'soviet'] as Faction[]) {
+  for (const faction of ['vanguard', 'nightmare'] as Faction[]) {
     const q = state.buildQueue[faction];
     if (q) {
       q.timer -= dt;
@@ -265,8 +265,8 @@ function stepGame(state: GameState, dt: number) {
         const stats = BUILDING_STATS[q.type];
         const base = state.buildings.find(b => b.faction === faction && b.type === 'base');
         if (base) {
-          const offsetX = faction === 'allies' ? 5 : COLS - 8;
-          const offsetY = faction === 'allies' ? 1 : ROWS - 8;
+          const offsetX = faction === 'vanguard' ? 5 : COLS - 8;
+          const offsetY = faction === 'vanguard' ? 1 : ROWS - 8;
           // Produce unit if it's a unit-producing building type
           if (stats.produces) {
             state.units.push({
@@ -289,30 +289,30 @@ function stepGame(state: GameState, dt: number) {
     }
   }
 
-  // Simple AI for soviet
+  // Simple AI for the nightmare faction
   state.aiTimer -= dt;
   if (state.aiTimer <= 0) {
     state.aiTimer = 3 + Math.random() * 4;
-    const alliesBase = state.buildings.find(b => b.faction === 'allies' && b.type === 'base');
-    const sovietUnits = state.units.filter(u => u.faction === 'soviet' && (u.type === 'soldier' || u.type === 'tank'));
+    const vanguardBase = state.buildings.find(b => b.faction === 'vanguard' && b.type === 'base');
+    const nightmareUnits = state.units.filter(u => u.faction === 'nightmare' && (u.type === 'soldier' || u.type === 'tank'));
 
-    for (const u of sovietUnits) {
-      if (alliesBase && u.attackTargetId === null) {
-        u.attackTargetId = alliesBase.id;
+    for (const u of nightmareUnits) {
+      if (vanguardBase && u.attackTargetId === null) {
+        u.attackTargetId = vanguardBase.id;
       }
     }
 
-    // Soviet build logic
-    if (!state.buildQueue.soviet && state.credits.soviet >= 300 && sovietUnits.length < 12) {
+    // Nightmare build logic
+    if (!state.buildQueue.nightmare && state.credits.nightmare >= 300 && nightmareUnits.length < 12) {
       const queue = Math.random() < 0.4 ? 'tank' : 'soldier';
       const queueBuilding = queue === 'tank' ? 'factory' : 'barracks';
-      const hasBuilding = state.buildings.find(b => b.faction === 'soviet' && b.type === queueBuilding);
+      const hasBuilding = state.buildings.find(b => b.faction === 'nightmare' && b.type === queueBuilding);
       if (hasBuilding) {
         const cost = UNIT_STATS[queue as UnitType].cost;
-        if (state.credits.soviet >= cost) {
-          state.credits.soviet -= cost;
+        if (state.credits.nightmare >= cost) {
+          state.credits.nightmare -= cost;
           const stats = BUILDING_STATS[queueBuilding];
-          state.buildQueue.soviet = { type: queueBuilding, timer: stats.buildTime, maxTimer: stats.buildTime };
+          state.buildQueue.nightmare = { type: queueBuilding, timer: stats.buildTime, maxTimer: stats.buildTime };
         }
       }
     }
@@ -444,7 +444,7 @@ export default function RTSGame() {
   const lastTimeRef = useRef<number>(0);
   const [phase, setPhase] = useState<Phase>('menu');
   const [credits, setCredits] = useState(1500);
-  const [unitsCount, setUnitsCount] = useState({ allies: 0, enemies: 0 });
+  const [unitsCount, setUnitsCount] = useState({ vanguard: 0, enemies: 0 });
   const [buildQueue, setBuildQueue] = useState<{ type: BuildingType; timer: number; maxTimer: number } | null>(null);
   const submitScore = useSubmitScore('rts');
   useEffect(() => {
@@ -455,14 +455,14 @@ export default function RTSGame() {
   const queueUnit = useCallback((type: UnitType) => {
     const state = stateRef.current;
     const cost = UNIT_STATS[type].cost;
-    if (state.credits.allies < cost) return;
+    if (state.credits.vanguard < cost) return;
     const buildingType: BuildingType = type === 'tank' ? 'factory' : type === 'harvester' ? 'refinery' : 'barracks';
-    const hasBuilding = state.buildings.find(b => b.faction === 'allies' && b.type === buildingType);
+    const hasBuilding = state.buildings.find(b => b.faction === 'vanguard' && b.type === buildingType);
     if (!hasBuilding) return;
-    if (state.buildQueue.allies) return;
-    state.credits.allies -= cost;
+    if (state.buildQueue.vanguard) return;
+    state.credits.vanguard -= cost;
     const stats = BUILDING_STATS[buildingType];
-    state.buildQueue.allies = { type: buildingType, timer: stats.buildTime, maxTimer: stats.buildTime };
+    state.buildQueue.vanguard = { type: buildingType, timer: stats.buildTime, maxTimer: stats.buildTime };
   }, []);
 
   const startGame = useCallback(() => {
@@ -493,18 +493,18 @@ export default function RTSGame() {
 
       // Tick UI every 30 frames
       if (stateRef.current.tick % 30 === 0) {
-        setCredits(stateRef.current.credits.allies);
+        setCredits(stateRef.current.credits.vanguard);
         setUnitsCount({
-          allies: stateRef.current.units.filter(u => u.faction === 'allies').length,
-          enemies: stateRef.current.units.filter(u => u.faction === 'soviet').length,
+          vanguard: stateRef.current.units.filter(u => u.faction === 'vanguard').length,
+          enemies: stateRef.current.units.filter(u => u.faction === 'nightmare').length,
         });
-        setBuildQueue(stateRef.current.buildQueue.allies);
+        setBuildQueue(stateRef.current.buildQueue.vanguard);
 
         // Win/lose check
-        const alliesBase = stateRef.current.buildings.find(b => b.faction === 'allies' && b.type === 'base');
-        const sovietBase = stateRef.current.buildings.find(b => b.faction === 'soviet' && b.type === 'base');
-        if (!sovietBase) { running = false; setPhase('victory'); }
-        else if (!alliesBase) { running = false; setPhase('defeat'); }
+        const vanguardBase = stateRef.current.buildings.find(b => b.faction === 'vanguard' && b.type === 'base');
+        const nightmareBase = stateRef.current.buildings.find(b => b.faction === 'nightmare' && b.type === 'base');
+        if (!nightmareBase) { running = false; setPhase('victory'); }
+        else if (!vanguardBase) { running = false; setPhase('defeat'); }
       }
 
       rafRef.current = requestAnimationFrame(loop);
@@ -526,7 +526,7 @@ export default function RTSGame() {
 
     // Check if clicking on allied unit (select)
     const clickedUnit = state.units.find(u =>
-      u.faction === 'allies' && Math.abs(u.pos.x - gx) < 1 && Math.abs(u.pos.y - gy) < 1
+      u.faction === 'vanguard' && Math.abs(u.pos.x - gx) < 1 && Math.abs(u.pos.y - gy) < 1
     );
 
     if (clickedUnit) {
@@ -537,10 +537,10 @@ export default function RTSGame() {
     // If units selected, move/attack
     if (state.selected.length > 0) {
       const clickedEnemy = state.units.find(u =>
-        u.faction === 'soviet' && Math.abs(u.pos.x - gx) < 1 && Math.abs(u.pos.y - gy) < 1
+        u.faction === 'nightmare' && Math.abs(u.pos.x - gx) < 1 && Math.abs(u.pos.y - gy) < 1
       );
       const clickedEnemyBuilding = state.buildings.find(b =>
-        b.faction === 'soviet' && gx >= b.pos.x && gx < b.pos.x + 2 && gy >= b.pos.y && gy < b.pos.y + 2
+        b.faction === 'nightmare' && gx >= b.pos.x && gx < b.pos.x + 2 && gy >= b.pos.y && gy < b.pos.y + 2
       );
 
       for (const selId of state.selected) {
@@ -564,9 +564,9 @@ export default function RTSGame() {
   if (phase === 'menu') {
     return (
       <div style={{ background: '#1a2a1a', minHeight: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, borderRadius: 12, padding: 32 }}>
-        <div style={{ fontSize: 28, fontWeight: 900, color: '#ef4444', textShadow: '0 0 20px #ef444488', letterSpacing: '0.04em' }}>⚔ RED ALERT: DREAMENGIN</div>
+        <div style={{ fontSize: 28, fontWeight: 900, color: '#ef4444', textShadow: '0 0 20px #ef444488', letterSpacing: '0.04em' }}>⚔ DREAM FORCE</div>
         <div style={{ fontSize: 13, color: '#86efac', maxWidth: 400, textAlign: 'center', lineHeight: 1.6 }}>
-          Command your Allied forces against the Soviet threat. Build bases, train units, harvest ore, and destroy the enemy Construction Yard to win.
+          Command your Vanguard forces against the Nightmare threat. Build bases, train units, harvest Dream Energy, and destroy the enemy Construction Yard to win.
         </div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', fontSize: 11, color: '#6b7280' }}>
           {['Click unit to select', 'Click ground to move', 'Click enemy to attack', 'Build units below', 'Destroy enemy base to win'].map(t => (
@@ -590,7 +590,7 @@ export default function RTSGame() {
           {phase === 'victory' ? '🏆 VICTORY!' : '💀 DEFEAT'}
         </div>
         <div style={{ fontSize: 14, color: '#d1d5db' }}>
-          {phase === 'victory' ? 'Soviet forces have been eliminated. Allied Command is victorious!' : 'Your Construction Yard has been destroyed. The Soviets prevail.'}
+          {phase === 'victory' ? 'Nightmare forces have been eliminated. Vanguard Command is victorious!' : 'Your Construction Yard has been destroyed. The Nightmare prevails.'}
         </div>
         <button onClick={startGame} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
           Play Again
@@ -603,10 +603,10 @@ export default function RTSGame() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {/* HUD */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#1a2a1a', borderRadius: 8, flexWrap: 'wrap' }}>
-        <span style={{ color: '#facc15', fontWeight: 700, fontSize: 13 }}>💰 {credits.toLocaleString()}</span>
+        <span style={{ color: '#facc15', fontWeight: 700, fontSize: 13 }}>⚡ {credits.toLocaleString()} Dream Energy</span>
         <span style={{ color: '#6b7280', fontSize: 11 }}>|</span>
         <span style={{ color: '#86efac', fontSize: 11 }}>
-          Units: {unitsCount.allies}
+          Units: {unitsCount.vanguard}
         </span>
         <span style={{ color: '#6b7280', fontSize: 11 }}>|</span>
         <span style={{ color: '#f87171', fontSize: 11 }}>
