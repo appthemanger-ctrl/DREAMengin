@@ -17,7 +17,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import GameHUD from '@/components/games/GameHUD';
 import { GAMES } from '@/components/games/GamesHub';
 import {
@@ -68,6 +68,7 @@ const BOOT_KEYFRAMES = `
 `;
 
 export default function ImmersiveGameShell() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -158,6 +159,10 @@ export default function ImmersiveGameShell() {
     window.setTimeout(() => setBootDone(true), 500);
   }, [fadingOut, bootDone]);
 
+  const handleExit = useCallback(() => {
+    router.push('/daydream/games');
+  }, [router]);
+
   // Skip is allowed immediately; "press any key" listens from phase 4
   useEffect(() => {
     if (bootPhase < 4 || bootDone || fadingOut) return undefined;
@@ -183,7 +188,7 @@ export default function ImmersiveGameShell() {
       }}
     >
       {/* ── Game viewport — always mounted so assets begin loading immediately ── */}
-      <div style={{ position: 'absolute', inset: 0 }}>
+      <div className="de-immersive-game-stage" style={{ position: 'absolute', inset: 0 }}>
         {game.component ? (
           <ActiveGameComponent />
         ) : (
@@ -418,15 +423,16 @@ export default function ImmersiveGameShell() {
         </div>
       )}
 
-      {/* ── Floating HUD — mounted only after boot is done ── */}
+      {/* ── Universal in-game HUD — mounted only after boot is done ── */}
       {bootDone && (
         <GameHUD
           gameLabel={game.label}
           gameEmoji={game.emoji}
           playHref={buildGameLaunchHref(game.id, { play: true })}
+          mode={game.mobileHudMode ?? 'buttons'}
+          onExit={handleExit}
         />
       )}
     </div>
   );
 }
-

@@ -5,6 +5,12 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
+import {
+  getImmersiveCanvasStyle,
+  getImmersiveOverlayStyle,
+  getImmersiveStageStyle,
+  useImmersiveGameLayout,
+} from '@/lib/games/useImmersiveGameLayout';
 
 const CW = 400; const CH = 560;
 type Phase = 'menu' | 'playing' | 'gameover';
@@ -18,6 +24,7 @@ interface Star { x: number; y: number; vy: number; r: number; }
 let gId = 1;
 
 export default function SpaceShooter() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -194,6 +201,12 @@ export default function SpaceShooter() {
       <div style={{ fontSize: 26, fontWeight: 900, color: '#f87171' }}>💥 GAME OVER</div>
       <div style={{ fontSize: 20, color: '#facc15', fontWeight: 700 }}>Score: {score}</div>
       <button onClick={startGame} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Try Again</button>
+    </div>
+  );
+  if (immersive) return (
+    <div style={getImmersiveStageStyle()}>
+      <div style={getImmersiveOverlayStyle()}>Score: {score} · Lives: {lives}</div>
+      <canvas ref={canvasRef} width={CW} height={CH} style={getImmersiveCanvasStyle()} />
     </div>
   );
   return (

@@ -5,6 +5,12 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import {
+  getImmersiveCanvasStyle,
+  getImmersiveOverlayStyle,
+  getImmersiveStageStyle,
+  useImmersiveGameLayout,
+} from '@/lib/games/useImmersiveGameLayout';
 
 const COLS = 10; const ROWS = 20; const CELL = 26;
 const CW = COLS * CELL; const CH = ROWS * CELL;
@@ -59,6 +65,7 @@ const SCORE_TABLE = [0, 100, 300, 500, 800];
 const SPEEDS = [800, 700, 600, 500, 400, 350, 300, 250, 200, 150];
 
 export default function TetrisGame() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [lines, setLines] = useState(0);
@@ -198,6 +205,12 @@ export default function TetrisGame() {
       <div style={{ fontSize: 18, color: '#facc15', fontWeight: 700 }}>Score: {score} · Lines: {lines} · Level: {level}</div>
       <div style={{ fontSize: 13, color: '#9ca3af' }}>Best: {best}</div>
       <button onClick={startGame} style={{ background: '#0e7490', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>Play Again</button>
+    </div>
+  );
+  if (immersive) return (
+    <div style={getImmersiveStageStyle()}>
+      <div style={getImmersiveOverlayStyle()}>Score: {score} · Lines: {lines} · Lv {level}</div>
+      <canvas ref={canvasRef} width={CW} height={CH} tabIndex={0} style={getImmersiveCanvasStyle()} />
     </div>
   );
   return (

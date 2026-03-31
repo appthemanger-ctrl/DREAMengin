@@ -5,16 +5,16 @@ import { describe, expect, it } from 'vitest';
 const REPO_ROOT = process.cwd();
 
 describe('existing PS5 remote usage', () => {
-  it('keeps GameEngin wired to the shared GameRemote component', () => {
+  it('keeps GameEngin wired to the universal HUD while the legacy remote stays archived', () => {
     const src = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
 
-    expect(src).toContain("import GameRemote from '@/components/games/GameRemote'");
-    expect(src).toContain('<GameRemote embedded');
-    expect(src).toContain('if (showRemote) return <GameRemote onBack={() => setShowRemote(false)} />;');
+    expect(src).toContain("import GameHUD from '@/components/games/GameHUD'");
+    expect(src).toContain('<GameHUD');
+    expect(src).not.toContain('GameRemote');
   });
 
   it('keeps the embedded shared remote generic instead of a MADMAXI controller deck', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/GameRemote.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'components/games/LegacyGameRemote.tsx'), 'utf8');
 
     expect(src).toContain('Shared Remote');
     expect(src).toContain("Inline game controls");
@@ -23,7 +23,7 @@ describe('existing PS5 remote usage', () => {
   });
 
   it('keeps the original remote layout with a larger right analog and wrapped action buttons', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/GameRemote.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'components/games/LegacyGameRemote.tsx'), 'utf8');
 
     expect(src).toContain('const RIGHT_PAD_R   = 70');
     expect(src).toContain('const LEFT_PAD_R    = 52');
@@ -43,6 +43,15 @@ describe('existing PS5 remote usage', () => {
 
     expect(src).not.toContain('function UniversalDPad');
     expect(src).not.toContain('interface DPadState');
+  });
+
+  it('keeps immersive sessions on the universal GameHUD instead of the legacy expandable remote', () => {
+    const shellSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
+
+    expect(shellSrc).toContain('mode={expandedPlayable.mobileHudMode ?? \'buttons\'}');
+    expect(hudSrc).toContain('<MobileGameHUD');
+    expect(hudSrc).not.toContain('<GameRemote');
   });
 
   it('removes per-game on-screen remote pads in favor of the shared GameRemote', () => {

@@ -5,6 +5,12 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import {
+  getImmersiveCanvasStyle,
+  getImmersiveOverlayStyle,
+  getImmersiveStageStyle,
+  useImmersiveGameLayout,
+} from '@/lib/games/useImmersiveGameLayout';
 
 const CW = 420; const CH = 520;
 const LANES = 4;
@@ -40,6 +46,7 @@ const PATTERN: [number, number][] = [
 let noteId = 0;
 
 export default function RhythmGame() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -202,6 +209,12 @@ export default function RhythmGame() {
       <div style={{ fontSize: 22, color: '#facc15', fontWeight: 700 }}>Score: {score}</div>
       <div style={{ fontSize: 13, color: '#9ca3af' }}>Best: {best}</div>
       <button onClick={startGame} style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>Play Again</button>
+    </div>
+  );
+  if (immersive) return (
+    <div style={getImmersiveStageStyle()}>
+      <div style={getImmersiveOverlayStyle()}>Score: {score} · Best: {best}</div>
+      <canvas ref={canvasRef} width={CW} height={CH} style={getImmersiveCanvasStyle()} />
     </div>
   );
   return (

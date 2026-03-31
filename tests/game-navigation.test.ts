@@ -12,14 +12,14 @@ describe('game launch navigation', () => {
     expect(buildGameLaunchHref()).toBe(`/daydream/games?game=${DEFAULT_GAME_ID}`);
   });
 
-  it('builds a remote launch href for a selected game', () => {
+  it('builds an engine-routed remote launch href for a selected game', () => {
     expect(buildGameLaunchHref('snake', { openEngin: true, remote: true, play: true }))
-      .toBe('/daydream/game?game=snake&openEngin=1&remote=1&play=1');
+      .toBe('/engines/games?game=snake&openEngin=1&remote=1&play=1');
   });
 
   it('can request fullscreen play when the route should boot straight into the expanded game view', () => {
     expect(buildGameLaunchHref('platformer', { play: true, expand: true }))
-      .toBe('/daydream/game?game=platformer&play=1&expand=1');
+      .toBe('/engines/games?game=platformer&play=1&expand=1');
   });
 
   it('keeps valid requested game ids and falls back invalid ones', () => {
@@ -34,24 +34,17 @@ describe('game launch navigation', () => {
     expect(isLaunchFlagEnabled(null)).toBe(false);
   });
 
-  it('keeps dedicated game sessions on a true full-screen page with a floating HUD controller', () => {
+  it('keeps compatibility game routes redirected into the standalone GameEngin app', () => {
     const pageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/page.tsx'), 'utf8');
-    const shellSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/ImmersiveGameShell.tsx'), 'utf8');
+    const enginePageSrc = readFileSync(join(REPO_ROOT, 'app/engines/games/page.tsx'), 'utf8');
+    const enginSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
 
-    // Page wraps the shell
-    expect(pageSrc).toContain('return <ImmersiveGameShell />;');
-    // Shell is a true full-screen fixed container with overflow hidden
-    expect(shellSrc).toContain("position: 'fixed'");
-    expect(shellSrc).toContain("height: '100dvh'");
-    expect(shellSrc).toContain("overflow: 'hidden'");
-    // Shell mounts the floating HUD (not GameRemote directly)
-    expect(shellSrc).toContain('<GameHUD');
-    // Footer is still hidden during gameplay
-    expect(shellSrc).toContain("document.querySelector('footer')");
-    // HUD contains GameRemote and EXIT navigation back to games daydream
-    expect(hudSrc).toContain('<GameRemote');
-    expect(hudSrc).toContain('/daydream/games');
+    expect(pageSrc).toContain("redirect(`/engines/games");
+    expect(pageSrc).not.toContain('ImmersiveGameShell');
+    expect(enginePageSrc).toContain('GameEnginApp');
+    expect(enginSrc).toContain('<GameHUD');
+    expect(hudSrc).toContain('<MobileGameHUD');
   });
 
   it('lets the games daydream launch spotlight titles directly into immersive full-screen engine sessions', () => {

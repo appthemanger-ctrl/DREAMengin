@@ -17,7 +17,7 @@ export function buildGameLaunchHref(
   if (options.remote) params.set('remote', '1');
   if (options.play) params.set('play', '1');
   if (options.expand) params.set('expand', '1');
-  const pathname = (options.play || options.expand) ? '/daydream/game' : '/daydream/games';
+  const pathname = (options.play || options.expand) ? '/engines/games' : '/daydream/games';
   return `${pathname}?${params.toString()}`;
 }
 

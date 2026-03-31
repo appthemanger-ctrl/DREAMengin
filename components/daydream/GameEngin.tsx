@@ -7,7 +7,7 @@
  *   - Show the user's personal best scores per game (from `game_scores` table).
  *   - Allow one-tap publish of high scores to the leaderboard (real Supabase write).
  *   - Surface the "Play Now" entry points for all live games.
- *   - Provide a GameRemote controller shortcut.
+ *   - Run games through the GameEngin session shell and universal HUD.
  *   - DualSense controller support: Bluetooth pairing (Android 12+, iOS 14.5+), haptic feedback, gyro steering.
  *   - Functional World Builder: 5×5 tile-grid editor, save to state, bridge emit on save.
  *   - Achievement System: 8 achievements, score-driven unlock logic.
@@ -31,7 +31,7 @@ import {
   ArrowLeft, Gamepad2, Trophy, Play, Share2,
   Map, Award, Sliders, FileCode, Radio, Lock, Unlock,
 } from 'lucide-react';
-import GameRemote from '@/components/games/GameRemote';
+import GameHUD from '@/components/games/GameHUD';
 import { GAMES } from '@/components/games/GamesHub';
 import {
   GAME_LIBRARY_SELECTION_STORAGE_KEY,
@@ -255,7 +255,6 @@ export default function GameEngin({ onBack }: Props) {
   const [scores,     setScores]     = useState<GameScore[]>([]);
   const [loading,    setLoading]    = useState(true);
   const [sharing,    setSharing]    = useState<string | null>(null);
-  const [showRemote, setShowRemote] = useState(false);
   const [controlProfile, setControlProfile] = useState('couch');
   const [savedLaunches, setSavedLaunches] = useState<SavedGameSession[]>([]);
   const [selectedPlayableGame, setSelectedPlayableGame] = useState<string>(GAMES[0]?.id ?? 'platformer');
@@ -568,7 +567,7 @@ export default function GameEngin({ onBack }: Props) {
    
   }, [worldGrid, worldName, physicsConfig, scriptState, gameRestoring]);
 
-  // Restore controller profile preference and optional auto-open remote intent.
+  // Restore controller profile preference and saved GameEngin sessions.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const savedControlProfile = window.localStorage.getItem('de:games:control-profile');
@@ -580,10 +579,6 @@ export default function GameEngin({ onBack }: Props) {
       if (Array.isArray(parsed)) setSavedLaunches(parsed as SavedGameSession[]);
     } catch {
       setSavedLaunches([]);
-    }
-    if (window.sessionStorage.getItem('de:games:auto-open-remote') === '1') {
-      window.sessionStorage.removeItem('de:games:auto-open-remote');
-      setShowRemote(true);
     }
   }, []);
 
@@ -669,6 +664,25 @@ export default function GameEngin({ onBack }: Props) {
   }, [expandedPlayableGame]);
 
   useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    const prevImmersive = document.body.dataset.deGameImmersive;
+    if (expandedPlayableGame) {
+      document.body.dataset.deGameImmersive = '1';
+    } else {
+      delete document.body.dataset.deGameImmersive;
+    }
+    window.dispatchEvent(new Event('de-game-layout-change'));
+    return () => {
+      if (prevImmersive) {
+        document.body.dataset.deGameImmersive = prevImmersive;
+      } else {
+        delete document.body.dataset.deGameImmersive;
+      }
+      window.dispatchEvent(new Event('de-game-layout-change'));
+    };
+  }, [expandedPlayableGame]);
+
+  useEffect(() => {
     if (!expandedPlayableGame) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -707,9 +721,7 @@ export default function GameEngin({ onBack }: Props) {
           position: 'fixed',
           inset: 0,
           zIndex: 9999,
-          background: 'linear-gradient(160deg, #07101e 0%, #0b1a30 55%, #07101e 100%)',
-          display: 'flex',
-          flexDirection: 'column',
+          background: '#000',
           overflow: 'hidden',
         }}
       >
@@ -721,51 +733,44 @@ export default function GameEngin({ onBack }: Props) {
           />
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '10px 14px', background: 'rgba(0,0,0,0.30)', borderBottom: '1px solid rgba(160,195,240,0.10)', flexShrink: 0 }}>
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <ExpandedGameComponent />
+        </div>
+
+        <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 55, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', maxWidth: 'calc(100vw - 28px)' }}>
           <button
             type="button"
             onClick={() => setExpandedPlayableGame(null)}
-            style={{ background: 'rgba(160,195,240,0.12)', border: '1px solid rgba(160,195,240,0.20)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', color: 'rgba(220,235,255,0.85)', fontSize: 12, fontWeight: 700 }}
+            style={{ background: 'rgba(3, 7, 18, 0.72)', border: '1px solid rgba(160,195,240,0.20)', borderRadius: 999, padding: '8px 14px', cursor: 'pointer', color: 'rgba(220,235,255,0.92)', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
           >
             ← Back to GameEngin
           </button>
-          <span style={{ fontSize: 20 }}>{expandedPlayable.emoji}</span>
-          <span style={{ fontWeight: 800, color: '#fff', fontSize: 15, letterSpacing: '-0.01em' }}>{expandedPlayable.label}</span>
-          <span style={{ fontSize: 10, padding: '2px 9px', borderRadius: 999, background: `${expandedPlayable.color}22`, color: expandedPlayable.color, border: `1px solid ${expandedPlayable.color}44`, fontWeight: 700 }}>
-            {expandedPlayable.category}
-          </span>
-          <span style={{ fontSize: 9, padding: '2px 8px', borderRadius: 999, background: 'rgba(42,138,184,0.14)', color: '#7dd3fc', border: '1px solid rgba(42,138,184,0.28)', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Powered by DREAMengin
+          <span style={{ fontSize: 10, padding: '5px 10px', borderRadius: 999, background: 'rgba(3,7,18,0.72)', color: '#7dd3fc', border: '1px solid rgba(125,211,252,0.22)', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
+            {expandedPlayable.emoji} {expandedPlayable.label} · GameEngin session
           </span>
           <button
             type="button"
             onClick={() => savePlayableGame(expandedPlayable.id, 'fullscreen')}
-            style={{ background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.24)', borderRadius: 999, padding: '5px 12px', cursor: 'pointer', color: '#4ade80', fontSize: 11, fontWeight: 700 }}
+            style={{ background: 'rgba(3,7,18,0.72)', border: '1px solid rgba(74,222,128,0.24)', borderRadius: 999, padding: '8px 14px', cursor: 'pointer', color: '#4ade80', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
           >
-            Save to GameEngin
+            Save session
           </button>
           <span
             title={gpConnected ? gamepadName : 'Press any button on your controller to connect'}
-            style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', padding: '3px 9px', borderRadius: 999, background: gpConnected ? 'rgba(74,222,128,0.14)' : 'rgba(160,195,240,0.07)', color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.35)', border: gpConnected ? '1px solid rgba(74,222,128,0.35)' : '1px solid rgba(160,195,240,0.12)' }}
+            style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', padding: '5px 10px', borderRadius: 999, background: 'rgba(3,7,18,0.72)', color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.65)', border: gpConnected ? '1px solid rgba(74,222,128,0.35)' : '1px solid rgba(160,195,240,0.18)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
           >
             {gpConnected ? (isDualSense ? '🎮 DualSense' : '🕹 Controller') : '🎮 No Controller'}
           </span>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: '12px 12px 0', flexShrink: 0 }}>
-            <ExpandedGameComponent />
-          </div>
-          <div style={{ padding: '10px 12px', borderTop: '1px solid rgba(160,195,240,0.08)', marginTop: 8, background: 'rgba(0,0,0,0.20)', flexShrink: 0 }}>
-            <GameRemote embedded gameLabel={expandedPlayable.label} playHref={buildGameLaunchHref(expandedPlayable.id, { openEngin: true, play: true })} />
-          </div>
-        </div>
+        <GameHUD
+          gameLabel={expandedPlayable.label}
+          mode={expandedPlayable.mobileHudMode ?? 'buttons'}
+          onExit={() => setExpandedPlayableGame(null)}
+        />
       </div>
     );
   }
-
-  // ── Early return: GameRemote overlay ─────────────────────────────────────────
-  if (showRemote) return <GameRemote onBack={() => setShowRemote(false)} />;
 
   // ── Lobby handlers ───────────────────────────────────────────────────────────
   function handleCreateRoom() {
@@ -835,7 +840,7 @@ export default function GameEngin({ onBack }: Props) {
   const selectedPlayableUsesEliteRuntime = selectedPlayable.id === 'neon-drift' || selectedPlayable.id === 'echo-arena';
   const selectedPlayableCapabilities = [
     'Fullscreen boot',
-    'Remote dock',
+    'Universal HUD',
     'Quick resume',
     `${activeControlProfile.label} controls`,
     ...(selectedPlayableUsesEliteRuntime ? ['Elite engine telemetry', 'Adaptive quality'] : []),
@@ -1083,15 +1088,22 @@ export default function GameEngin({ onBack }: Props) {
               </div>
             </div>
 
-            {/* Remote lives directly under the game screen, as requested */}
-            <GameRemote embedded gameLabel={selectedPlayable.label} playHref={buildGameLaunchHref(selectedPlayable.id, { play: true })} onPlay={() => openPlayableGamePage(selectedPlayable.id)} />
+            <div style={{ marginTop: 14, borderRadius: 18, padding: '14px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(125,211,252,0.14)' }}>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc', marginBottom: 8 }}>
+                Side B session contract
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(220,235,255,0.82)', lineHeight: 1.7 }}>
+                This game runs inside <span style={{ color: '#fff', fontWeight: 800 }}>GameEngin</span> with the universal HUD over the session.
+                The engine owns fullscreen, input, resume, and controller handoff — not a separate remote dock under the canvas.
+              </div>
+            </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14, marginBottom: 12 }}>
               <button type="button" onClick={() => openPlayableGamePage(selectedPlayable.id, { expand: true })} className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
                 ⤢ Play fullscreen
               </button>
               <button type="button" onClick={() => openPlayableGamePage(selectedPlayable.id)} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(125,211,252,0.22)', color: '#7dd3fc' }}>
-                ▶ Launch game page
+                ▶ Run in GameEngin
               </button>
               <button type="button" onClick={() => savePlayableGame(selectedPlayable.id, 'library-screen')} className="de-btn de-btn-ghost text-xs" style={{ gap: 6, borderColor: 'rgba(74,222,128,0.22)', color: '#4ade80' }}>
                 💾 Save state
@@ -1415,21 +1427,21 @@ export default function GameEngin({ onBack }: Props) {
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
-            <span className="de-widget-title ml-2">Controller Deck</span>
+            <span className="de-widget-title ml-2">Universal HUD</span>
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 4 }}>
-              Open the GameRemote — dual analog sticks, PS5-compatible, touch-enabled.
+              Game inputs now live inside the GameEngin session. Launch a game and the universal HUD overlays the full-screen runtime instead of opening a separate remote deck.
             </p>
           </div>
           <div className="de-widget-actions">
             <button
               type="button"
-              onClick={() => setShowRemote(true)}
+              onClick={() => openPlayableGamePage(selectedPlayable.id, { expand: true })}
               className="de-btn de-btn-primary text-xs"
               style={{ gap: 6 }}
             >
-              <Gamepad2 className="w-3 h-3" /> Open Controller
+              <Gamepad2 className="w-3 h-3" /> Launch current session
             </button>
           </div>
         </div>

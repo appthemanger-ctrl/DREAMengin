@@ -25,6 +25,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
+import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
 import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import {
   DreamEngineGodTierSystem,
@@ -80,6 +81,7 @@ const SESSION_SEED: number =
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function BabylonSideScroller() {
+  const immersive = useImmersiveGameLayout();
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const gameRef    = useRef<GameCore | null>(null);
   const [status, setStatus]   = useState<'title'|'playing'|'dead'|'complete'|'win'>('title');
@@ -303,14 +305,14 @@ export default function BabylonSideScroller() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: immersive ? 0 : 8, alignItems: 'center', width: '100%', height: immersive ? '100%' : undefined }}>
       {/* ── Canvas ── */}
-      <div style={{ position: 'relative', width: '100%', maxWidth: GW }}>
+      <div style={{ position: 'relative', width: '100%', maxWidth: immersive ? 'none' : GW, height: immersive ? '100%' : undefined }}>
         <canvas
           ref={canvasRef}
           width={GW}
           height={GH}
-          style={{ width: '100%', borderRadius: 12, display: 'block',
+          style={{ width: '100%', height: immersive ? '100%' : undefined, borderRadius: immersive ? 0 : 12, display: 'block',
                    background: '#0a0a1a', cursor: 'default' }}
           onClick={() => { if (status === 'title') startGame(1, 0, 3); }}
         />

@@ -5,6 +5,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { getImmersiveCanvasStyle, getImmersiveStageStyle, useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
 
 const CW = 700; const CH = 480;
 const CELL = 40; const COLS = Math.floor(CW / CELL); const ROWS = Math.floor(CH / CELL);
@@ -34,6 +35,7 @@ function spawnEnemy(wave: number): Enemy {
 }
 
 export default function TowerDefense() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [gold, setGold] = useState(200);
   const [lives, setLives] = useState(20);
@@ -220,15 +222,28 @@ export default function TowerDefense() {
     </div>
   );
 
+  const towerButtons = (
+    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      {(Object.entries(TOWER_STATS) as [TowerType, typeof TOWER_STATS[TowerType]][]).map(([type, stats]) => (
+        <button key={type} onClick={() => setSelectedTower(type)} style={{ background: selectedTower === type ? stats.color : '#374151', color: '#fff', border: `2px solid ${selectedTower === type ? '#fff' : 'transparent'}`, padding: '6px 14px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+          {stats.label} (${stats.cost})
+        </button>
+      ))}
+    </div>
+  );
+  if (immersive) {
+    return (
+      <div style={getImmersiveStageStyle()}>
+        <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 2 }}>
+          {towerButtons}
+        </div>
+        <canvas ref={canvasRef} width={CW} height={CH} onClick={handleClick} style={getImmersiveCanvasStyle()} />
+      </div>
+    );
+  }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <div style={{ display: 'flex', gap: 8 }}>
-        {(Object.entries(TOWER_STATS) as [TowerType, typeof TOWER_STATS[TowerType]][]).map(([type, stats]) => (
-          <button key={type} onClick={() => setSelectedTower(type)} style={{ background: selectedTower === type ? stats.color : '#374151', color: '#fff', border: `2px solid ${selectedTower === type ? '#fff' : 'transparent'}`, padding: '6px 14px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-            {stats.label} (${stats.cost})
-          </button>
-        ))}
-      </div>
+      {towerButtons}
       <canvas ref={canvasRef} width={CW} height={CH} onClick={handleClick} style={{ width: '100%', borderRadius: 8, cursor: 'crosshair', border: '2px solid rgba(74,222,128,0.3)' }} />
     </div>
   );

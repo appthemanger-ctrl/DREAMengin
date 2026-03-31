@@ -5,6 +5,11 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
+import {
+  getImmersiveCanvasStyle,
+  getImmersiveStageStyle,
+  useImmersiveGameLayout,
+} from '@/lib/games/useImmersiveGameLayout';
 
 const CW = 500; const CH = 500;
 type Phase = 'menu' | 'playing' | 'done';
@@ -34,6 +39,7 @@ function makeCar(startAngle: number, offset: number): Car {
 }
 
 export default function RacingGame() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [best, setBest] = useState<number | null>(null);
   const [pos, setPos] = useState(1);
@@ -192,6 +198,11 @@ export default function RacingGame() {
       <div style={{ fontSize: 14, color: '#9ca3af' }}>Time: {totalTime.toFixed(1)}s</div>
       {best !== null && <div style={{ fontSize: 13, color: '#facc15' }}>Best: {best.toFixed(1)}s</div>}
       <button onClick={startGame} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>Race Again</button>
+    </div>
+  );
+  if (immersive) return (
+    <div style={getImmersiveStageStyle()}>
+      <canvas ref={canvasRef} width={CW} height={CH} tabIndex={0} style={getImmersiveCanvasStyle()} />
     </div>
   );
   return (

@@ -35,14 +35,14 @@ const LIBRARY_SPOTLIGHT = [
 
 const CONSOLE_MODULES = [
   { title: 'Saved Runs', detail: 'GameEngin keeps your saved launches and quick resume slots.' },
-  { title: 'Remote Dock', detail: 'The remote lives directly under the game screen in GameEngin — always there when you play.' },
+  { title: 'Universal HUD', detail: 'GameEngin overlays the universal HUD on top of the full-screen session so the engine owns the runtime.' },
 ];
 
 /**
  * Games Daydream page.
  *
  * Side A = game library browser.
- * Side B (GameEngin) = big-screen play surface + remote directly under the game screen.
+ * Side B (GameEngin) = the console/runtime that loads games and owns the HUD.
  */
 export default async function GamesDaydreamPage() {
   const supabase = await createServerClient();
@@ -84,10 +84,10 @@ export default async function GamesDaydreamPage() {
                   <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1.05, marginTop: 12 }}>
                     All the games live here.
                     <br />
-                    Play + remote happen on the GameEngin side.
+                    The runtime lives on the GameEngin side.
                   </h2>
                   <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.7, maxWidth: 700, marginTop: 10 }}>
-                    Browse all games here, then flip over to GameEngin to play. The remote controller sits directly under the game screen in GameEngin — right where it should be.
+                    Browse all games here, then hand them off to GameEngin. Full-screen play, controller input, and the universal HUD all belong to the engine session.
                   </p>
                   <div className="flex flex-wrap gap-2" style={{ marginTop: 12 }}>
                     {GAME_QUALITY_PILLARS.slice(0, 4).map((pillar) => (

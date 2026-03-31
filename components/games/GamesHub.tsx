@@ -15,6 +15,7 @@ import {
   type SavedGameSession,
   upsertSavedGameSession,
 } from '@/lib/games/library-state';
+import type { MobileHudMode } from '@/lib/games/mobileControls';
 import { buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
 import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
 import { getGsap } from '@/lib/gsap/gsap';
@@ -58,6 +59,7 @@ export interface GameDef {
   category: string;
   color: string;
   subtitle?: string;
+  mobileHudMode?: MobileHudMode;
   /** Render inline inside the hub. Mutually exclusive with `href`. */
   component?: React.ComponentType;
   /** Navigate to a full page instead of rendering inline. */
@@ -69,6 +71,7 @@ export interface GameDef {
 export const GAMES: GameDef[] = [
   // ── MADMAXI — Babylon.js 3-D side-scroller (default game) ─────────────────
   { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', component: BabylonSideScroller,
+    mobileHudMode: 'buttons',
     subtitle: 'MADMAXI · Babylon.js 3-D',
     desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js 3-D side-scroller' },
   // ── Strategy ──────────────────────────────────────────────────────────────
@@ -125,6 +128,7 @@ export const GAMES: GameDef[] = [
     subtitle: 'WebGPU · DualSense Ready',
     desc: 'WebGPU cyberpunk racer — DualSense gyro steering, haptic feedback, high-performance 3D rendering' },
   { id: 'echo-arena',    emoji: '🎯', label: 'Echo Arena',          category: 'Shooter',     color: '#a78bfa', component: EchoArena,
+    mobileHudMode: 'joystick',
     subtitle: 'WebGPU · DualSense Ready',
     desc: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
 ];

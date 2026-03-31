@@ -10,6 +10,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useRegisterMobileGameControls } from '@/lib/games/mobileControls';
 import { createClient } from '@/lib/supabase/client';
 import * as BABYLON from '@babylonjs/core';
 import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager';
@@ -26,6 +27,8 @@ export default function EchoArena() {
   const dualSenseRef = useRef<DualSenseManager | null>(null);
   const scoreRef = useRef(0);
   const lastShotRef = useRef(0);
+  const mobileMoveRef = useRef({ x: 0, y: 0 });
+  const mobileLookRef = useRef({ x: 0, y: 0 });
   const submitScore = useSubmitScore('echo-arena');
   const supabase = useRef(createClient()).current;
 
@@ -41,6 +44,15 @@ export default function EchoArena() {
   }, [setPhase]);
 
   useGameAutoStart(phase === 'menu' ? startGame : null);
+
+  useRegisterMobileGameControls({
+    onMove: (vector) => {
+      mobileMoveRef.current = vector;
+    },
+    onLook: (vector) => {
+      mobileLookRef.current = vector;
+    },
+  });
 
   // Listen for game input events (GameRemote + keyboard)
   useEffect(() => {
@@ -138,26 +150,34 @@ export default function EchoArena() {
 
           // Movement with left stick
           const moveSpeed = 0.15;
-          player.position.x += input.leftStick.x * moveSpeed;
-          player.position.z += input.leftStick.y * moveSpeed;
+          const moveX = Math.max(-1, Math.min(1, input.leftStick.x + mobileMoveRef.current.x));
+          const moveY = Math.max(-1, Math.min(1, input.leftStick.y + mobileMoveRef.current.y));
+          player.position.x += moveX * moveSpeed;
+          player.position.z += moveY * moveSpeed;
 
           // Keep player in bounds
           player.position.x = Math.max(-23, Math.min(23, player.position.x));
           player.position.z = Math.max(-23, Math.min(23, player.position.z));
 
-          // Aim with right stick + gyro
-          const aimX = input.rightStick.x + input.gyro.x;
-          if (Math.abs(aimX) > 0.1) {
-            player.rotation.y += aimX * 0.15;
+          // Aim with right stick + gyro + shared mobile look joystick
+          const mobileLook = mobileLookRef.current;
+          const aimX = input.rightStick.x + input.gyro.x + mobileLook.x;
+          const aimY = input.rightStick.y + mobileLook.y;
+          const lookMagnitude = Math.hypot(mobileLook.x, mobileLook.y);
+          if (Math.abs(aimX) > 0.1 || Math.abs(aimY) > 0.1) {
+            player.rotation.y = Math.atan2(aimX, aimY === 0 ? 0.0001 : aimY);
           }
 
-          // Shoot with R2 trigger (with cooldown)
+          // Shoot with R2 trigger or strong mobile aim hold (with cooldown)
           const now = Date.now();
-          if (input.triggers.r2 > 0.6 && now - lastShotRef.current > 300) {
+          if ((input.triggers.r2 > 0.6 || lookMagnitude > 0.72) && now - lastShotRef.current > 300) {
             dualSense.rumble(0.5, 40);
             lastShotRef.current = now;
             scoreRef.current += 10;
             setScore(scoreRef.current);
+            if (lookMagnitude > 0.72) {
+              setStatus('Mobile aim burst');
+            }
             // In full version: spawn projectile
           }
 

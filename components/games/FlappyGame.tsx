@@ -5,6 +5,12 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import {
+  getImmersiveCanvasStyle,
+  getImmersiveOverlayStyle,
+  getImmersiveStageStyle,
+  useImmersiveGameLayout,
+} from '@/lib/games/useImmersiveGameLayout';
 
 const CW = 360; const CH = 540;
 const BIRD_X = 80; const BIRD_R = 14;
@@ -14,6 +20,7 @@ type Phase = 'menu' | 'playing' | 'dead';
 interface Pipe { x: number; top: number; scored: boolean; }
 
 export default function NiteFlyer() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
@@ -187,6 +194,12 @@ export default function NiteFlyer() {
       <div style={{ fontSize: 24, fontWeight: 700, color: '#fbbf24' }}>Score: {score}</div>
       <div style={{ fontSize: 14, color: '#a78bfa' }}>Best: {best}</div>
       <div style={{ background: 'linear-gradient(135deg,#7c3aed,#0ff4)', color: '#fff', padding: '10px 28px', borderRadius: 999, fontWeight: 700, marginTop: 8, border: '1px solid #0ff6' }}>Fly Again</div>
+    </div>
+  );
+  if (immersive) return (
+    <div style={getImmersiveStageStyle()}>
+      <div style={getImmersiveOverlayStyle()}>Score: {score} · Best: {best}</div>
+      <canvas ref={canvasRef} width={CW} height={CH} onClick={flap} style={getImmersiveCanvasStyle()} />
     </div>
   );
   return (
