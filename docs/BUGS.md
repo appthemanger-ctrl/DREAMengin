@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-31 08:24 UTC  
-**Triggered by commit:** `2eceaf1` on `copilot/add-overscroll-behavior-to-chat-feed` by Copilot  
-**Commit message:** fix: homepage feed scrolls independently with overscroll-behavior contain
+**Last updated:** 2026-03-31 05:21 UTC  
+**Triggered by commit:** `36998db` on `copilot/adjust-joystick-sizes-and-hide-dm-bar` by Copilot  
+**Commit message:** test: cover immersive hud pill behavior
 
 ---
 
