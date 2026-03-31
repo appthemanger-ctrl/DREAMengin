@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-31 02:24 UTC  
-**Triggered by commit:** `5bf49b2` on `copilot/add-mobile-control-layer` by Copilot  
-**Commit message:** refactor: make immersive hud universal
+**Last updated:** 2026-03-31 02:29 UTC  
+**Triggered by commit:** `db17815` on `copilot/add-mobile-control-layer` by Copilot  
+**Commit message:** fix: refine universal hud follow-up
 
 ---
 
