@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-31 04:05 UTC  
-**Triggered by commit:** `aa1588a` on `copilot/add-mobile-control-layer` by Copilot  
-**Commit message:** Route Side A game launches into GameEngin and make Side B own the fullscreen HUD session
+**Last updated:** 2026-03-30 23:45 UTC  
+**Triggered by commit:** `12b21e8` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #366 from appthemanger-ctrl/copilot/update-dm-bar-functionality
 
 ---
 

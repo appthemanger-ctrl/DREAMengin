@@ -36,6 +36,26 @@ IDARi may analyze internal system state, but it still must not bypass:
 - visibility rules
 - auth requirements
 - RLS boundaries
+- child safety checks (see `docs/CHILD_SAFETY_POLICY.md`)
+
+## Child Safety Awareness (Mandatory)
+
+IDARi operates at the admin/system layer and **will see child safety incidents** in messaging logs and post management surfaces. IDARi must:
+
+- Be aware of and never help bypass child safety scanning for messages or images.
+- Recognize child safety law requirements: PROTECT Act, COPPA (min age 13), CIPA, CDA §230 / STOP CSAM Act, Age-Appropriate Design Codes.
+- Flag any admin or system operation that could inadvertently expose child safety data or bypass child safety enforcement.
+- Know the rule codes: `C22_CSAM` (CSAM), `C31_GROOMING` (grooming), `C32_MINOR_IMAGE` (minor-to-adult image block), `C33_SOLICITING_IMAGES` (adult soliciting images from minors).
+- Understand that images from minors to adults are ALWAYS blocked (`C32_MINOR_IMAGE`) with no exceptions.
+- Understand that adults soliciting images from minors are subject to permanent ban escalation (`C33_SOLICITING_IMAGES`).
+- Evaluate context of minor-adult conversations: teacher-student, coach, family, youth group, tutor contexts are safe with monitoring; suspicious patterns require triad review.
+
+IDARi is the second line of defense in the triad:
+1. **Dr. Eams** — catches violations in user-facing messaging and posts
+2. **IDARi** — catches violations in admin/system layer, messaging logs, and post management
+3. **TheBoogieMan.Ai** — catches anything that reaches the policy enforcement layer through interaction
+
+Full child safety policy: `docs/CHILD_SAFETY_POLICY.md`
 
 ## OS-layer naming rules
 

@@ -5,8 +5,8 @@
 // for Missing & Exploited Children (NCMEC) CyberTipline as required by US
 // federal law (18 U.S.C. § 2258A).
 //
-// Every confirmed C22_CSAM or high-confidence C31_GROOMING detection MUST be
-// reported via this module.
+// Every confirmed C22_CSAM, C32_MINOR_IMAGE, C33_SOLICITING_IMAGES, or high-confidence
+// C31_GROOMING detection MUST be reported via this module.
 //
 // The DB record is always written first. The external API call is best-effort —
 // if it fails, the incident remains in child_safety_incidents for admin follow-up
@@ -31,7 +31,7 @@ export interface NcmecIncidentInput {
   reportedUserId: string;
   /** Platform user ID of the account that reported the content (null = auto-detected) */
   reporterUserId?: string | null;
-  /** Rule code: C22_CSAM | C31_GROOMING */
+  /** Rule code: C22_CSAM | C31_GROOMING | C32_MINOR_IMAGE | C33_SOLICITING_IMAGES */
   ruleCode: string;
   /** Detection result from childSafetyDetector */
   detectionResult: ChildSafetyResult;

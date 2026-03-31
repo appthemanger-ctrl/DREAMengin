@@ -1666,6 +1666,18 @@ body, .dreamnav-surface, .controls {
   }
 }
 
+/* ── Infinity symbol glow pulse ── */
+@keyframes sicc-infinity-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(255,240,180,0.70)) drop-shadow(0 0 10px rgba(200,152,26,0.50)) drop-shadow(0 1px 2px rgba(0,0,0,0.18));
+    opacity: 0.88;
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(255,248,200,1.00)) drop-shadow(0 0 22px rgba(200,152,26,0.90)) drop-shadow(0 0 40px rgba(232,184,48,0.55)) drop-shadow(0 1px 2px rgba(0,0,0,0.18));
+    opacity: 1;
+  }
+}
+
 
 
 .sicc-gold-breathe {

@@ -435,6 +435,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const [commentSending, setCommentSending] = useState(false);
   const [quickDraftFiles, setQuickDraftFiles] = useState<File[]>([]);
   const [quickDraftPreviews, setQuickDraftPreviews] = useState<string[]>([]);
+  const [lightboxUrl,    setLightboxUrl]    = useState<string | null>(null);
   const quickFileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   // Measured height of a single empty line — captured on first resize
@@ -505,9 +506,18 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     setQuickDraftFiles(prev => [...prev, ...newFiles]);
     setQuickDraftPreviews(prev => [...prev, ...newPreviews]);
 
+    // Auto-expand the bar when files are attached so user can see the thumbnail
+    if (typeof splitRatio !== 'number' || typeof onSplitChange !== 'function') {
+      const expandH = Math.min(screenH * 0.55, Math.max(BAR_H, 280));
+      setDragH(expandH);
+      setIsTop(false);
+      setIsTopExpanded(false);
+      setSlideDown(0);
+    }
+
     // Reset input
     if (quickFileInputRef.current) quickFileInputRef.current.value = '';
-  }, [quickDraftFiles.length]);
+  }, [quickDraftFiles.length, splitRatio, onSplitChange, screenH]);
 
   const handleRemoveQuickFile = useCallback((index: number) => {
     setQuickDraftFiles(prev => prev.filter((_, i) => i !== index));
@@ -982,7 +992,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               }} />
             )}
             <svg width="24" height="12" viewBox="0 0 80 36"
-              style={{ opacity: 0.90, flexShrink: 0, position: 'relative', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))' }} aria-hidden>
+              style={{ opacity: 0.90, flexShrink: 0, position: 'relative', filter: 'drop-shadow(0 0 6px rgba(255,240,180,0.90)) drop-shadow(0 0 14px rgba(200,152,26,0.75)) drop-shadow(0 1px 2px rgba(0,0,0,0.18))', animation: 'sicc-infinity-glow 2.4s ease-in-out infinite' }} aria-hidden>
               <path d="M12 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
               <path d="M12 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
             </svg>
@@ -1059,6 +1069,32 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           {showFull ? (
             /* Expanded panel — Messages */
             <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              {/* Minimize header */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '6px 12px 4px', flexShrink: 0,
+                borderBottom: '1px solid rgba(180,185,200,0.15)',
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', letterSpacing: '-0.01em' }}>
+                  Messages
+                </span>
+                <button
+                  type="button"
+                  aria-label="Minimize DreamDM bar"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => { setDragH(BAR_H); setIsTop(false); setIsTopExpanded(false); setSlideDown(0); }}
+                  style={{
+                    background: 'rgba(180,185,200,0.15)', border: 'none', borderRadius: 8,
+                    width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', color: 'var(--de-text-dim)',
+                    transition: 'background 0.18s',
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                    <path d="M3 7h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
               <DreamSpaceMessaging
                 conversations={conversations} selectedConv={selectedConv}
                 onSelectConv={(c) => { setSelectedConv(c); markAllRead(); }}
@@ -1180,25 +1216,42 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 }}>
                   {quickDraftFiles.map((file, idx) => (
                     <div key={idx} style={{
-                      position: 'relative', minWidth: 60, height: 60,
-                      borderRadius: 8, overflow: 'hidden',
+                      position: 'relative', minWidth: 72, height: 72,
+                      borderRadius: 10, overflow: 'hidden',
                       background: 'rgba(180,185,200,0.15)',
                       flexShrink: 0,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
                     }}>
                       {file.type.startsWith('image/') && quickDraftPreviews[idx] && (
-                        <Image
-                          src={quickDraftPreviews[idx]}
-                          alt="Preview"
-                          width={60}
-                          height={60}
-                          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                        />
+                        <button
+                          type="button"
+                          aria-label="Expand image preview"
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={() => setLightboxUrl(quickDraftPreviews[idx])}
+                          style={{ display: 'block', width: '100%', height: '100%', border: 'none', padding: 0, background: 'none', cursor: 'zoom-in' }}
+                        >
+                          <Image
+                            src={quickDraftPreviews[idx]}
+                            alt="Preview"
+                            width={72}
+                            height={72}
+                            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                          />
+                        </button>
                       )}
                       {file.type.startsWith('video/') && quickDraftPreviews[idx] && (
-                        <video
-                          src={quickDraftPreviews[idx]}
-                          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                        />
+                        <button
+                          type="button"
+                          aria-label="Expand video preview"
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={() => setLightboxUrl(quickDraftPreviews[idx])}
+                          style={{ display: 'block', width: '100%', height: '100%', border: 'none', padding: 0, background: 'none', cursor: 'zoom-in' }}
+                        >
+                          <video
+                            src={quickDraftPreviews[idx]}
+                            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                          />
+                        </button>
                       )}
                       {!file.type.startsWith('image/') && !file.type.startsWith('video/') && (
                         <div style={{
@@ -1287,7 +1340,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                   aria-label={barCtx.actionAriaLabel}
                   rows={1}
                   style={{
-                    flex: 1, minWidth: 0, resize: 'none', overflow: 'hidden',
+                    flex: 1, minWidth: 0, width: '100%', resize: 'none', overflow: 'hidden',
                     background: composeFocused
                       ? 'rgba(255,255,255,0.88)'
                       : 'rgba(255,255,255,0.52)',
@@ -1298,8 +1351,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                         : '1px solid rgba(180,185,200,0.35)',
                     // Pill when single-line; relax to speech-bubble radius as it grows
                     borderRadius: composeExtraH > 20 ? 20 : 999,
-                    padding: isCompactViewport ? '9px 14px' : '8px 14px',
-                    fontSize: isCompactViewport ? 16 : 13,
+                    padding: isCompactViewport ? '9px 16px' : '8px 16px',
+                    fontSize: isCompactViewport ? 16 : 14,
                     color: 'var(--de-text)', outline: 'none', cursor: 'text',
                     transition: 'background 0.22s ease, border 0.22s ease, box-shadow 0.22s ease, border-radius 0.22s ease',
                     WebkitAppearance: 'none',
@@ -1308,6 +1361,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                       : 'inset 0 1px 0 rgba(255,255,255,0.35)',
                     lineHeight: 1.4,
                     fontFamily: 'inherit',
+                    // Truncate placeholder on single line
+                    textOverflow: composeExtraH > 0 ? 'unset' : 'ellipsis',
+                    whiteSpace: composeExtraH > 0 ? 'pre-wrap' : 'nowrap',
                   }}
                 />
 
@@ -1344,6 +1400,50 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           )}
         </div>
       </div>
+
+      {/* ── Media lightbox overlay ─────────────────────────────────────────── */}
+      {lightboxUrl && (
+        <div
+          role="dialog"
+          aria-label="Media preview"
+          aria-modal="true"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(0,0,0,0.88)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            type="button"
+            aria-label="Close preview"
+            onClick={() => setLightboxUrl(null)}
+            style={{
+              position: 'absolute', top: 18, right: 18,
+              background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%',
+              width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'white',
+            }}
+          >
+            <X size={20} />
+          </button>
+          {lightboxUrl.startsWith('blob:') || /\.(jpg|jpeg|png|gif|webp|avif)/i.test(lightboxUrl) || !lightboxUrl.includes('.mp4') ? (
+            <img
+              src={lightboxUrl}
+              alt="Full size preview"
+              style={{ maxWidth: '92vw', maxHeight: '84vh', objectFit: 'contain', borderRadius: 12, boxShadow: '0 8px 48px rgba(0,0,0,0.6)' }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <video
+              src={lightboxUrl}
+              controls
+              style={{ maxWidth: '92vw', maxHeight: '84vh', borderRadius: 12, boxShadow: '0 8px 48px rgba(0,0,0,0.6)' }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
+      )}
     </>
   );
 }

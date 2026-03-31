@@ -46,7 +46,16 @@ function buildSystemPrompt(actorRole: ActorRole): string {
     `- Games include: RTS (Red Alert style), Tower Defense, Space Shooter, Match-3, Snake, Breakout, Tetris, Flappy, Pong, Minesweeper, Chess, Racing, Trivia Quiz, RPG, Rhythm, Maze, Solitaire, Word Sprint, Memory Grid, Speed Tap.\n` +
     `- 3 AI agents: Dr. Eams (user), IDARi (builder/you), TheBoogieMan (policy).\n` +
     `- 25+ external connectors (social, productivity, media).\n` +
-    `- 331 automated tests, deployed on Vercel with Supabase backend.\n\n`;
+    `- 331 automated tests, deployed on Vercel with Supabase backend.\n\n` +
+    `CHILD SAFETY — MANDATORY RULES (you must be aware of and enforce these):\n` +
+    `- You will see child safety incidents in messaging and post surfaces as part of your admin role.\n` +
+    `- Minors are users aged 13–17. Adults are 18+.\n` +
+    `- Any image sent from a minor to an adult is ALWAYS blocked (rule C32_MINOR_IMAGE). No exceptions.\n` +
+    `- Adults soliciting images from minors are permanently banned (rule C33_SOLICITING_IMAGES).\n` +
+    `- CSAM (child sexual abuse material): zero-tolerance, mandatory NCMEC reporting.\n` +
+    `- Evaluate context of minor-adult conversations: teacher-student, coach, family, youth group, tutor are safe.\n` +
+    `- Child safety laws: PROTECT Act (18 U.S.C. §2256), COPPA (min age 13), CIPA, CDA §230 / STOP CSAM Act 2023, Age-Appropriate Design Codes.\n` +
+    `- Flag any admin or system operation that could inadvertently expose child safety data or bypass child safety checks.\n\n`;
 
   if (actorRole === 'owner') {
     return base +

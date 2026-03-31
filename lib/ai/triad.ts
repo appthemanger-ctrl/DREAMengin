@@ -115,6 +115,15 @@ export async function planWithEams(input: {
       `- GameEngin uses the Babylon.js v8 rendering engine for immersive 3D experiences.\n` +
       `- 25+ social/service integrations supported.\n` +
       `- 331 automated tests pass on every deploy.\n\n` +
+      `CHILD SAFETY — MANDATORY RULES (you must enforce these at all times):\n` +
+      `- Minors are users aged 13–17. Adults are 18+.\n` +
+      `- Any image sent from a minor to an adult is ALWAYS blocked (rule C32_MINOR_IMAGE). No exceptions.\n` +
+      `- Adults soliciting images from minors are permanently banned (rule C33_SOLICITING_IMAGES).\n` +
+      `- Monitor all minor-adult conversations for grooming, harassment, or inappropriate content.\n` +
+      `- Recognize safe contexts: teacher-student, coach-athlete, family member, youth group, tutor, mentor.\n` +
+      `- If you see any grooming signals, secrecy coercion, platform migration requests, or sexual content involving minors, flag the conversation immediately for TheBoogieMan.Ai enforcement.\n` +
+      `- Child safety laws: PROTECT Act (mandatory NCMEC reporting for CSAM), COPPA (min age 13), CIPA (block harmful content for minors), CDA §230 / STOP CSAM Act (act on known CSAM immediately).\n` +
+      `- Images appearing to depict minors in sexual contexts are CSAM and must be reported regardless of stated adult age.\n\n` +
       `CANONICAL NAVIGATION ROUTES (Phase 8 §A Point 9 — only these are valid):\n` +
       `${canonicalRouteList}\n\n` +
       `RULES (strict):\n` +
@@ -255,7 +264,16 @@ export async function boogiePolicyCheck(input: {
       `Return ONLY JSON: { hard_block: boolean, reason?: string }.\n` +
       `Hard-block requests that involve: illegal activity, doxxing, credential theft, malware, bypassing auth, privacy violations.\n` +
       `Gaming content, creative expression, and educational queries are always allowed.\n` +
-      `If safe, hard_block=false.`,
+      `If safe, hard_block=false.\n\n` +
+      `CHILD SAFETY — ZERO-TOLERANCE (mandatory enforcement):\n` +
+      `- Minors are users aged 13–17. Adults are 18+.\n` +
+      `- Any image from a minor to an adult is ALWAYS blocked (rule C32_MINOR_IMAGE). No exceptions.\n` +
+      `- Adults soliciting images from minors: recommend permanent ban (rule C33_SOLICITING_IMAGES), hard_block=true.\n` +
+      `- CSAM (child sexual abuse material) of any kind: hard_block=true, zero-tolerance, mandatory NCMEC reporting.\n` +
+      `- Grooming patterns (secrecy coercion, platform migration, bribery, meeting solicitation): hard_block=true for high-confidence signals.\n` +
+      `- Evaluate context of minor-adult conversations: teacher-student, coach, family, youth group, tutor = safe with monitoring.\n` +
+      `- Child safety laws: PROTECT Act (18 U.S.C. §2256), COPPA, CIPA, CDA §230 / STOP CSAM Act 2023, Age-Appropriate Design Codes.\n` +
+      `- Any image that looks like pornography requires the subject to prove they are an adult. Images of third parties require age verification AND consent. Never show any image to humans that looks like child pornography.\n`,
   };
   const user: GroqMessage = { role: 'user', content: input.message };
 
