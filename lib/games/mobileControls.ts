@@ -8,7 +8,7 @@ export interface MobileControlVector {
   y: number;
 }
 
-export type MobileHudMode = 'buttons' | 'joystick';
+export type MobileHudMode = 'buttons' | 'joystick' | 'controller';
 export type MobileHudButton = 'jump' | 'dash' | 'action' | 'pause';
 
 type LegacyMoveAction =
@@ -26,6 +26,7 @@ type LegacyGameInputAction = LegacyMoveAction | 'move-stop' | 'jump' | 'r1' | 's
 export interface MobileGameControlHandlers {
   onMove?: (directionVector: MobileControlVector) => void;
   onLook?: (lookVector: MobileControlVector) => void;
+  onLookDelta?: (delta: { dx: number; dy: number }) => void;
   onJump?: () => void;
   onDash?: () => void;
   onAction?: () => void;
@@ -121,6 +122,21 @@ export function emitMobileButton(button: MobileHudButton) {
   });
 }
 
+export function emitMobileLookDelta(dx: number, dy: number) {
+  emitWindowEvent('de-mobile-look-delta', { dx, dy });
+  MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onLookDelta?.({ dx, dy }));
+}
+
+export function emitMobileJump(vector: { x: number; y: number }) {
+  emitWindowEvent('de-mobile-jump', vector);
+  MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onJump?.());
+}
+
+export function emitMobileShoot() {
+  emitWindowEvent('de-mobile-shoot', {});
+  MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onAction?.());
+}
+
 export function getLegacyActionForMobileButton(button: Exclude<MobileHudButton, 'pause'>) {
   return LEGACY_BUTTON_MAP[button];
 }
@@ -134,6 +150,7 @@ export function useRegisterMobileGameControls(handlers: MobileGameControlHandler
     const listener: MobileGameControlHandlers = {
       onMove: (vector) => handlersRef.current?.onMove?.(vector),
       onLook: (vector) => handlersRef.current?.onLook?.(vector),
+      onLookDelta: (delta) => handlersRef.current?.onLookDelta?.(delta),
       onJump: () => handlersRef.current?.onJump?.(),
       onDash: () => handlersRef.current?.onDash?.(),
       onAction: () => handlersRef.current?.onAction?.(),
