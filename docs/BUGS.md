@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-31 04:22 UTC  
-**Triggered by commit:** `f106345` on `copilot/add-mobile-control-layer` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/add-mobile-control-layer
+**Last updated:** 2026-03-31 05:21 UTC  
+**Triggered by commit:** `36998db` on `copilot/adjust-joystick-sizes-and-hide-dm-bar` by Copilot  
+**Commit message:** test: cover immersive hud pill behavior
 
 ---
 
