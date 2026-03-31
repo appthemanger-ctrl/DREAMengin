@@ -34,10 +34,11 @@ describe('game launch navigation', () => {
     expect(isLaunchFlagEnabled(null)).toBe(false);
   });
 
-  it('keeps dedicated game sessions on a true full-screen page with a floating HUD controller', () => {
+  it('keeps dedicated game sessions on a true full-screen page with the universal overlay HUD', () => {
     const pageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/page.tsx'), 'utf8');
     const shellSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/ImmersiveGameShell.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
+    const legacyHudSrc = readFileSync(join(REPO_ROOT, 'components/games/LegacyGameHUD.tsx'), 'utf8');
 
     // Page wraps the shell
     expect(pageSrc).toContain('return <ImmersiveGameShell />;');
@@ -45,13 +46,13 @@ describe('game launch navigation', () => {
     expect(shellSrc).toContain("position: 'fixed'");
     expect(shellSrc).toContain("height: '100dvh'");
     expect(shellSrc).toContain("overflow: 'hidden'");
-    // Shell mounts the floating HUD (not GameRemote directly)
+    // Shell mounts the universal HUD overlay
     expect(shellSrc).toContain('<GameHUD');
     // Footer is still hidden during gameplay
     expect(shellSrc).toContain("document.querySelector('footer')");
-    // HUD contains GameRemote and EXIT navigation back to games daydream
-    expect(hudSrc).toContain('<GameRemote');
-    expect(hudSrc).toContain('/daydream/games');
+    // GameHUD wraps the universal mobile overlay; old expandable remote is legacy-only
+    expect(hudSrc).toContain('<MobileGameHUD');
+    expect(legacyHudSrc).toContain('<GameRemote');
   });
 
   it('lets the games daydream launch spotlight titles directly into immersive full-screen engine sessions', () => {

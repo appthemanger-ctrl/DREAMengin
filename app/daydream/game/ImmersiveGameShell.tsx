@@ -19,7 +19,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import GameHUD from '@/components/games/GameHUD';
-import MobileGameHUD from '@/components/games/MobileGameHUD';
 import { GAMES } from '@/components/games/GamesHub';
 import {
   buildGameLaunchHref,
@@ -72,7 +71,6 @@ export default function ImmersiveGameShell() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rootRef = useRef<HTMLDivElement>(null);
-  const [useMobileHud, setUseMobileHud] = useState(false);
 
   // ── Resolve game ──────────────────────────────────────────────────────────
   const gameId = resolveGameLaunchId(
@@ -172,15 +170,6 @@ export default function ImmersiveGameShell() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [bootPhase, bootDone, fadingOut, dismissBoot]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const mediaQuery = window.matchMedia('(max-width: 900px) and (orientation: portrait) and (pointer: coarse)');
-    const sync = () => setUseMobileHud(mediaQuery.matches);
-    sync();
-    mediaQuery.addEventListener('change', sync);
-    return () => mediaQuery.removeEventListener('change', sync);
-  }, []);
 
   // ── Render ────────────────────────────────────────────────────────────────
   const ActiveGameComponent = game.component ?? (() => null);
@@ -434,21 +423,15 @@ export default function ImmersiveGameShell() {
         </div>
       )}
 
-      {/* ── Floating HUD — mounted only after boot is done ── */}
+      {/* ── Universal in-game HUD — mounted only after boot is done ── */}
       {bootDone && (
-        useMobileHud ? (
-          <MobileGameHUD
-            gameLabel={game.label}
-            mode={game.mobileHudMode ?? 'buttons'}
-            onExit={handleExit}
-          />
-        ) : (
-          <GameHUD
-            gameLabel={game.label}
-            gameEmoji={game.emoji}
-            playHref={buildGameLaunchHref(game.id, { play: true })}
-          />
-        )
+        <GameHUD
+          gameLabel={game.label}
+          gameEmoji={game.emoji}
+          playHref={buildGameLaunchHref(game.id, { play: true })}
+          mode={game.mobileHudMode ?? 'buttons'}
+          onExit={handleExit}
+        />
       )}
     </div>
   );

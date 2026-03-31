@@ -5,6 +5,12 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
+import {
+  getImmersiveCanvasStyle,
+  getImmersiveOverlayStyle,
+  getImmersiveStageStyle,
+  useImmersiveGameLayout,
+} from '@/lib/games/useImmersiveGameLayout';
 
 const CW = 600; const CH = 400;
 const PAD_W = 10; const PAD_H = 70; const PAD_SPEED = 5;
@@ -13,6 +19,7 @@ type Phase = 'menu' | 'playing' | 'done';
 type Mode = 'ai' | '2p';
 
 export default function PongGame() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [mode, setMode] = useState<Mode>('ai');
   const [scores, setScores] = useState([0, 0]);
@@ -118,6 +125,12 @@ export default function PongGame() {
       <div style={{ fontSize: 26, color: '#facc15', fontWeight: 900 }}>🏆 {scores[0] >= 11 ? (mode === 'ai' ? 'You Win!' : 'Player 1 Wins!') : (mode === 'ai' ? 'AI Wins!' : 'Player 2 Wins!')}</div>
       <div style={{ fontSize: 18, color: '#fff' }}>{scores[0]} — {scores[1]}</div>
       <button onClick={() => startGame(mode)} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>Play Again</button>
+    </div>
+  );
+  if (immersive) return (
+    <div style={getImmersiveStageStyle()}>
+      <div style={getImmersiveOverlayStyle()}>P1 {scores[0]} · {scores[1]} {mode === '2p' ? 'P2' : 'AI'}</div>
+      <canvas ref={canvasRef} width={CW} height={CH} style={getImmersiveCanvasStyle()} />
     </div>
   );
   return (

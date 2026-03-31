@@ -14,7 +14,7 @@ describe('existing PS5 remote usage', () => {
   });
 
   it('keeps the embedded shared remote generic instead of a MADMAXI controller deck', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/GameRemote.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'components/games/LegacyGameRemote.tsx'), 'utf8');
 
     expect(src).toContain('Shared Remote');
     expect(src).toContain("Inline game controls");
@@ -23,7 +23,7 @@ describe('existing PS5 remote usage', () => {
   });
 
   it('keeps the original remote layout with a larger right analog and wrapped action buttons', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/GameRemote.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'components/games/LegacyGameRemote.tsx'), 'utf8');
 
     expect(src).toContain('const RIGHT_PAD_R   = 70');
     expect(src).toContain('const LEFT_PAD_R    = 52');
@@ -43,6 +43,15 @@ describe('existing PS5 remote usage', () => {
 
     expect(src).not.toContain('function UniversalDPad');
     expect(src).not.toContain('interface DPadState');
+  });
+
+  it('keeps immersive sessions on the universal GameHUD instead of the legacy expandable remote', () => {
+    const shellSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/ImmersiveGameShell.tsx'), 'utf8');
+    const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
+
+    expect(shellSrc).not.toContain('useMobileHud');
+    expect(hudSrc).toContain('<MobileGameHUD');
+    expect(hudSrc).not.toContain('<GameRemote');
   });
 
   it('removes per-game on-screen remote pads in favor of the shared GameRemote', () => {

@@ -5,6 +5,7 @@
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { getImmersiveCanvasStyle, getImmersiveStageStyle, useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
 
 const CW = 480; const CH = 520;
 const PAD_W = 80; const PAD_H = 12; const PAD_Y = CH - 40;
@@ -27,6 +28,7 @@ function makeBricks(): Brick[] {
 }
 
 export default function BreakoutGame() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -160,5 +162,12 @@ export default function BreakoutGame() {
       <button onClick={startGame} style={{ marginTop: 16, background: '#2563eb', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>Try Again</button>
     </div>
   );
+  if (immersive) {
+    return (
+      <div style={getImmersiveStageStyle()}>
+        <canvas ref={canvasRef} width={CW} height={CH} style={getImmersiveCanvasStyle()} />
+      </div>
+    );
+  }
   return <canvas ref={canvasRef} width={CW} height={CH} style={{ width: '100%', maxWidth: CW, borderRadius: 8, display: 'block', cursor: 'none', border: '2px solid rgba(59,130,246,0.3)', margin: '0 auto' }} />;
 }

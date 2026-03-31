@@ -5,6 +5,12 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useKeySet, useSubmitScore } from '@/lib/games/hooks';
+import {
+  getImmersiveCanvasStyle,
+  getImmersiveOverlayStyle,
+  getImmersiveStageStyle,
+  useImmersiveGameLayout,
+} from '@/lib/games/useImmersiveGameLayout';
 
 const CELL = 36; const MAZE_W = 15; const MAZE_H = 12;
 const CW = MAZE_W * CELL; const CH = MAZE_H * CELL;
@@ -39,6 +45,7 @@ function generateMaze(w: number, h: number): Cell[][] {
 }
 
 export default function MazeGame() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [time, setTime] = useState(0);
   const [best, setBest] = useState<number | null>(null);
@@ -136,6 +143,12 @@ export default function MazeGame() {
       <div style={{ fontSize: 26, color: '#4ade80', fontWeight: 900 }}>🏆 Escaped!</div>
       <div style={{ fontSize: 16, color: '#9ca3af' }}>Time: {time}s · Best: {best}s</div>
       <button onClick={startGame} style={{ background: '#1d4ed8', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>New Maze</button>
+    </div>
+  );
+  if (immersive) return (
+    <div style={getImmersiveStageStyle()}>
+      <div style={getImmersiveOverlayStyle()}>Time: {time}s · reach ★</div>
+      <canvas ref={canvasRef} width={CW} height={CH} tabIndex={0} style={getImmersiveCanvasStyle()} />
     </div>
   );
   return (

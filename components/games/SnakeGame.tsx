@@ -5,6 +5,12 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import {
+  getImmersiveCanvasStyle,
+  getImmersiveOverlayStyle,
+  getImmersiveStageStyle,
+  useImmersiveGameLayout,
+} from '@/lib/games/useImmersiveGameLayout';
 
 const CELL = 18; const COLS = 24; const ROWS = 22;
 const CW = COLS * CELL; const CH = ROWS * CELL;
@@ -14,6 +20,7 @@ type Phase = 'menu' | 'playing' | 'gameover';
 interface Pt { x: number; y: number; }
 
 export default function SnakeGame() {
+  const immersive = useImmersiveGameLayout();
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
@@ -138,6 +145,12 @@ export default function SnakeGame() {
       <div style={{ fontSize: 20, color: '#4ade80', fontWeight: 700 }}>Score: {score}</div>
       <div style={{ fontSize: 14, color: '#facc15' }}>Best: {best}</div>
       <button onClick={startGame} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>Play Again</button>
+    </div>
+  );
+  if (immersive) return (
+    <div style={getImmersiveStageStyle()}>
+      <div style={getImmersiveOverlayStyle()}>Score: {score} · Best: {best}</div>
+      <canvas ref={canvasRef} width={CW} height={CH} tabIndex={0} style={getImmersiveCanvasStyle()} />
     </div>
   );
   return (
