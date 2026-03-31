@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-31 05:21 UTC  
-**Triggered by commit:** `36998db` on `copilot/adjust-joystick-sizes-and-hide-dm-bar` by Copilot  
-**Commit message:** test: cover immersive hud pill behavior
+**Last updated:** 2026-03-31 20:22 UTC  
+**Triggered by commit:** `cfa324b` on `copilot/final-spec-game-controller` by appthemanger-ctrl  
+**Commit message:** Merge branch 'completedream' into copilot/final-spec-game-controller
 
 ---
 
