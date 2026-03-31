@@ -1,11 +1,27 @@
 'use client';
 
-import type { CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { usePathname } from 'next/navigation';
 
 export function useImmersiveGameLayout() {
   const pathname = usePathname();
-  return pathname === '/daydream/game';
+  const [immersive, setImmersive] = useState(() => {
+    if (pathname === '/daydream/game') return true;
+    if (typeof document === 'undefined') return false;
+    return document.body.dataset.deGameImmersive === '1';
+  });
+
+  useEffect(() => {
+    const sync = () => {
+      setImmersive(pathname === '/daydream/game' || document.body.dataset.deGameImmersive === '1');
+    };
+
+    sync();
+    window.addEventListener('de-game-layout-change', sync);
+    return () => window.removeEventListener('de-game-layout-change', sync);
+  }, [pathname]);
+
+  return immersive;
 }
 
 export function getImmersiveCanvasStyle(border = 'none'): CSSProperties {

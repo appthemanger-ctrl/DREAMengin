@@ -5,12 +5,12 @@ import { describe, expect, it } from 'vitest';
 const REPO_ROOT = process.cwd();
 
 describe('existing PS5 remote usage', () => {
-  it('keeps GameEngin wired to the shared GameRemote component', () => {
+  it('keeps GameEngin wired to the universal HUD while the legacy remote stays archived', () => {
     const src = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
 
-    expect(src).toContain("import GameRemote from '@/components/games/GameRemote'");
-    expect(src).toContain('<GameRemote embedded');
-    expect(src).toContain('if (showRemote) return <GameRemote onBack={() => setShowRemote(false)} />;');
+    expect(src).toContain("import GameHUD from '@/components/games/GameHUD'");
+    expect(src).toContain('<GameHUD');
+    expect(src).not.toContain('GameRemote');
   });
 
   it('keeps the embedded shared remote generic instead of a MADMAXI controller deck', () => {
@@ -46,10 +46,10 @@ describe('existing PS5 remote usage', () => {
   });
 
   it('keeps immersive sessions on the universal GameHUD instead of the legacy expandable remote', () => {
-    const shellSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/ImmersiveGameShell.tsx'), 'utf8');
+    const shellSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
 
-    expect(shellSrc).not.toContain('useMobileHud');
+    expect(shellSrc).toContain('mode={expandedPlayable.mobileHudMode ?? \'buttons\'}');
     expect(hudSrc).toContain('<MobileGameHUD');
     expect(hudSrc).not.toContain('<GameRemote');
   });
