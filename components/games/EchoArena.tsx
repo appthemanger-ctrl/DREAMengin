@@ -165,7 +165,7 @@ export default function EchoArena() {
           const aimY = input.rightStick.y + mobileLook.y;
           const lookMagnitude = Math.hypot(mobileLook.x, mobileLook.y);
           if (Math.abs(aimX) > 0.1 || Math.abs(aimY) > 0.1) {
-            player.rotation.y = Math.atan2(aimX, aimY || 0.0001);
+            player.rotation.y = Math.atan2(aimX, aimY === 0 ? 0.0001 : aimY);
           }
 
           // Shoot with R2 trigger or strong mobile aim hold (with cooldown)
