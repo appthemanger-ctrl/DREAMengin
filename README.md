@@ -8,6 +8,8 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `36998db` | 2026-03-31 05:21 UTC | copilot/adjust-joystick-sizes-and-hide-dm-bar | Copilot | ~3 | test: cover immersive hud pill behavior |
+| `f6936e4` | 2026-03-31 05:07 UTC | copilot/adjust-joystick-sizes-and-hide-dm-bar | Copilot | ~4 | feat: tune mobile game hud overlay |
 | `e3b1e77` | 2026-03-31 04:27 UTC | completedream | appthemanger-ctrl | — | Merge pull request #367 from appthemanger-ctrl/copilot/add-mobile-control-layer |
 | `f106345` | 2026-03-31 04:22 UTC | copilot/add-mobile-control-layer | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/add-mobile-control-layer |
 | `d7747bb` | 2026-03-31 03:38 UTC | completedream | appthemanger-ctrl | — | Merge pull request #368 from appthemanger-ctrl/copilot/update-messaging-rules-minors-adults |
@@ -16,14 +18,12 @@ Date: March 24, 2026
 | `7f46e66` | 2026-03-30 23:04 UTC | copilot/update-dm-bar-functionality | Copilot | ~10 | feat: complete DM bar, feed, profile, landing, and Policy pill changes |
 | `9cb65dd` | 2026-03-30 21:56 UTC | completedream | appthemanger-ctrl | — | Merge pull request #365 from appthemanger-ctrl/copilot/wire-games-to-new-game-engine-again |
 | `881b20c` | 2026-03-30 20:50 UTC | copilot/wire-games-to-new-game-engine-again | Copilot | ~1 | fix: cast getPreferredCanvasFormat() return to GPUTextureFormat in WebGPURenderer |
-| `6105687` | 2026-03-30 20:43 UTC | completedream | appthemanger-ctrl | — | Merge pull request #360 from appthemanger-ctrl/copilot/wire-games-to-new-game-engine |
-| `e0b7550` | 2026-03-30 20:42 UTC | copilot/wire-games-to-new-game-engine | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/wire-games-to-new-game-engine |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-31 04:27 UTC — `e3b1e77` by appthemanger-ctrl
+Last updated: 2026-03-31 05:21 UTC — `36998db` by Copilot
 Last updated: 2026-03-30 20:35 UTC — `e798b6a` by appthemanger-ctrl
 Last updated: 2026-03-29 08:51 UTC — `5f13cf5` by appthemanger-ctrl
 Last updated: 2026-03-29 07:09 UTC — `1abd71b` by appthemanger-ctrl
