@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-31 04:22 UTC  
-**Triggered by commit:** `f106345` on `copilot/add-mobile-control-layer` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/add-mobile-control-layer
+**Last updated:** 2026-03-31 08:24 UTC  
+**Triggered by commit:** `2eceaf1` on `copilot/add-overscroll-behavior-to-chat-feed` by Copilot  
+**Commit message:** fix: homepage feed scrolls independently with overscroll-behavior contain
 
 ---
 
