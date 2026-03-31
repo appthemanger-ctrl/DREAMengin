@@ -96,6 +96,8 @@ interface AchievementDef {
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 const ACCENT = '#2a8ab8';
+const SESSION_BAR_HIDE_COVER_HEIGHT = 122;
+const SESSION_BAR_REVEAL_GAP = 24;
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
 const MultiplayerLobby = 'game-feature';
@@ -260,7 +262,7 @@ export default function GameEngin({ onBack }: Props) {
   const [selectedPlayableGame, setSelectedPlayableGame] = useState<string>(GAMES[0]?.id ?? 'platformer');
   const [activePlayableGame, setActivePlayableGame] = useState<string | null>(null);
   const [expandedPlayableGame, setExpandedPlayableGame] = useState<string | null>(null);
-  const [showSessionUtilityBar, setShowSessionUtilityBar] = useState(false);
+  const [sessionUtilityBarRevealed, setSessionUtilityBarRevealed] = useState(false);
   /** Controls "DREAMengin powered by…" boot splash shown when entering fullscreen */
   const [showEnginSplash, setShowEnginSplash] = useState(false);
 
@@ -699,7 +701,7 @@ export default function GameEngin({ onBack }: Props) {
 
   useEffect(() => {
     if (expandedPlayableGame) {
-      setShowSessionUtilityBar(false);
+      setSessionUtilityBarRevealed(false);
     }
   }, [expandedPlayableGame]);
 
@@ -745,16 +747,16 @@ export default function GameEngin({ onBack }: Props) {
         </div>
 
         <div
-          aria-hidden={!showSessionUtilityBar}
+          aria-hidden={sessionUtilityBarRevealed}
           style={{
             position: 'absolute',
             left: 0,
             right: 0,
             bottom: 0,
-            height: `calc(env(safe-area-inset-bottom, 0px) + ${showSessionUtilityBar ? 24 : 122}px)`,
+            height: `calc(env(safe-area-inset-bottom, 0px) + ${sessionUtilityBarRevealed ? SESSION_BAR_REVEAL_GAP : SESSION_BAR_HIDE_COVER_HEIGHT}px)`,
             zIndex: 54,
-            pointerEvents: showSessionUtilityBar ? 'none' : 'auto',
-            background: showSessionUtilityBar
+            pointerEvents: sessionUtilityBarRevealed ? 'none' : 'auto',
+            background: sessionUtilityBarRevealed
               ? 'transparent'
               : 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(2, 6, 23, 0.84) 44%, rgba(2, 6, 23, 0.98) 100%)',
             transition: 'height 180ms ease, background 180ms ease',
@@ -773,18 +775,18 @@ export default function GameEngin({ onBack }: Props) {
         >
           <button
             type="button"
-            aria-label={showSessionUtilityBar ? 'Hide game chat bar' : 'Open game chat bar'}
-            title={showSessionUtilityBar ? 'Hide game chat bar' : 'Open game chat bar'}
-            onClick={() => setShowSessionUtilityBar((prev) => !prev)}
+            aria-label={sessionUtilityBarRevealed ? 'Hide game chat bar' : 'Open game chat bar'}
+            title={sessionUtilityBarRevealed ? 'Hide game chat bar' : 'Open game chat bar'}
+            onClick={() => setSessionUtilityBarRevealed((prev) => !prev)}
             style={{
-              width: showSessionUtilityBar ? 58 : 44,
-              height: showSessionUtilityBar ? 12 : 8,
+              width: sessionUtilityBarRevealed ? 58 : 44,
+              height: sessionUtilityBarRevealed ? 12 : 8,
               borderRadius: 999,
-              border: `1px solid ${showSessionUtilityBar ? 'rgba(125,211,252,0.34)' : 'rgba(226,232,240,0.12)'}`,
-              background: showSessionUtilityBar
+              border: `1px solid ${sessionUtilityBarRevealed ? 'rgba(125,211,252,0.34)' : 'rgba(226,232,240,0.12)'}`,
+              background: sessionUtilityBarRevealed
                 ? 'rgba(8, 16, 30, 0.82)'
                 : 'rgba(226, 232, 240, 0.32)',
-              boxShadow: showSessionUtilityBar
+              boxShadow: sessionUtilityBarRevealed
                 ? '0 8px 18px rgba(15, 23, 42, 0.3)'
                 : '0 6px 16px rgba(2, 6, 23, 0.28)',
               cursor: 'pointer',

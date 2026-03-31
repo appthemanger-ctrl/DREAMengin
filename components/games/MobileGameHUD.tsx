@@ -26,6 +26,17 @@ interface MobileGameHUDProps {
 const ZERO_VECTOR: MobileControlVector = { x: 0, y: 0 };
 type TouchPoint = { clientX: number; clientY: number };
 
+function getStickTransform(vector: MobileControlVector) {
+  return `translate(calc(-50% + ${vector.x * 34}% ), calc(-50% + ${vector.y * 34}% ))`;
+}
+
+function keepPreviousVectorIfUnchanged(
+  previous: MobileControlVector,
+  next: MobileControlVector,
+) {
+  return previous.x === next.x && previous.y === next.y ? previous : next;
+}
+
 function formatVectorLabel(vector: MobileControlVector, idleLabel: string) {
   const magnitude = Math.hypot(vector.x, vector.y);
   if (magnitude < 0.08) return idleLabel;
@@ -59,7 +70,7 @@ export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUD
 
   const syncStickCap = useCallback((cap: HTMLDivElement | null, vector: MobileControlVector) => {
     if (!cap) return;
-    cap.style.transform = `translate(calc(-50% + ${vector.x * 34}% ), calc(-50% + ${vector.y * 34}% ))`;
+    cap.style.transform = getStickTransform(vector);
   }, []);
 
   const syncLegacyMove = useCallback((vector: MobileControlVector) => {
@@ -79,14 +90,14 @@ export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUD
 
   const updateLeftVector = useCallback((nextVector: MobileControlVector) => {
     syncStickCap(leftCapRef.current, nextVector);
-    setLeftVector((prev) => (prev.x === nextVector.x && prev.y === nextVector.y ? prev : nextVector));
+    setLeftVector((prev) => keepPreviousVectorIfUnchanged(prev, nextVector));
     emitMobileMove(nextVector);
     syncLegacyMove(nextVector);
   }, [syncLegacyMove, syncStickCap]);
 
   const updateRightVector = useCallback((nextVector: MobileControlVector) => {
     syncStickCap(rightCapRef.current, nextVector);
-    setRightVector((prev) => (prev.x === nextVector.x && prev.y === nextVector.y ? prev : nextVector));
+    setRightVector((prev) => keepPreviousVectorIfUnchanged(prev, nextVector));
     emitMobileLook(nextVector);
   }, [syncStickCap]);
 
@@ -269,7 +280,7 @@ export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUD
             ref={leftCapRef}
             className={clsx(styles.joystickCap, leftTouchIdRef.current === null && styles.joystickCapReset)}
             style={{
-              transform: `translate(calc(-50% + ${leftVector.x * 34}% ), calc(-50% + ${leftVector.y * 34}% ))`,
+              transform: getStickTransform(leftVector),
             }}
           />
         </div>
@@ -320,7 +331,7 @@ export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUD
               ref={rightCapRef}
               className={clsx(styles.joystickCap, rightTouchIdRef.current === null && styles.joystickCapReset)}
               style={{
-                transform: `translate(calc(-50% + ${rightVector.x * 34}% ), calc(-50% + ${rightVector.y * 34}% ))`,
+                transform: getStickTransform(rightVector),
               }}
             />
           </div>

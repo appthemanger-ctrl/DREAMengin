@@ -46,6 +46,7 @@ describe('shared mobile game controls', () => {
 
     expect(hudSrc).toContain('leftCapRef.current');
     expect(hudSrc).toContain('rightCapRef.current');
+    expect(hudSrc).toContain('function getStickTransform(vector: MobileControlVector)');
     expect(hudCss).toContain('--dock-size: clamp(102px, 27vw, 136px);');
     expect(hudCss).toContain('--dock-size: clamp(168px, 41vw, 228px);');
     expect(hudCss).toContain('will-change: transform;');
@@ -55,8 +56,9 @@ describe('shared mobile game controls', () => {
   it('keeps fullscreen game sessions able to hide the messaging bar behind a tiny reopen pill', () => {
     const shellSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
 
-    expect(shellSrc).toContain('const [showSessionUtilityBar, setShowSessionUtilityBar] = useState(false);');
-    expect(shellSrc).toContain("aria-label={showSessionUtilityBar ? 'Hide game chat bar' : 'Open game chat bar'}");
-    expect(shellSrc).toContain("pointerEvents: showSessionUtilityBar ? 'none' : 'auto'");
+    expect(shellSrc).toContain('const [sessionUtilityBarRevealed, setSessionUtilityBarRevealed] = useState(false);');
+    expect(shellSrc).toContain("const SESSION_BAR_HIDE_COVER_HEIGHT = 122;");
+    expect(shellSrc).toContain("aria-label={sessionUtilityBarRevealed ? 'Hide game chat bar' : 'Open game chat bar'}");
+    expect(shellSrc).toContain("pointerEvents: sessionUtilityBarRevealed ? 'none' : 'auto'");
   });
 });
