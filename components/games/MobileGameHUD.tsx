@@ -24,6 +24,7 @@ interface MobileGameHUDProps {
 }
 
 const ZERO_VECTOR: MobileControlVector = { x: 0, y: 0 };
+type TouchPoint = { clientX: number; clientY: number };
 
 function formatVectorLabel(vector: MobileControlVector, idleLabel: string) {
   const magnitude = Math.hypot(vector.x, vector.y);
@@ -115,7 +116,7 @@ export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUD
   }, [interactiveButtons]);
 
   const updateStickFromTouch = useCallback((
-    touch: Touch,
+    touch: TouchPoint,
     dock: HTMLDivElement | null,
     setVector: (vector: MobileControlVector) => void,
   ) => {
