@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-30 20:34 UTC  
-**Triggered by commit:** `94de5e2` on `copilot/create-independent-engine-structures` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/create-independent-engine-structures
+**Last updated:** 2026-03-31 00:03 UTC  
+**Triggered by commit:** `0943f15` on `copilot/add-mobile-control-layer` by Copilot  
+**Commit message:** fix: tighten mobile hud touch typing
 
 ---
 
