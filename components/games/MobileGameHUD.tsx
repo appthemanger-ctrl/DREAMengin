@@ -37,6 +37,8 @@ function formatVectorLabel(vector: MobileControlVector, idleLabel: string) {
 export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUDProps) {
   const leftDockRef = useRef<HTMLDivElement>(null);
   const rightDockRef = useRef<HTMLDivElement>(null);
+  const leftCapRef = useRef<HTMLDivElement>(null);
+  const rightCapRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const leftTouchIdRef = useRef<number | null>(null);
   const rightTouchIdRef = useRef<number | null>(null);
@@ -55,6 +57,11 @@ export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUD
     [],
   );
 
+  const syncStickCap = useCallback((cap: HTMLDivElement | null, vector: MobileControlVector) => {
+    if (!cap) return;
+    cap.style.transform = `translate(calc(-50% + ${vector.x * 34}% ), calc(-50% + ${vector.y * 34}% ))`;
+  }, []);
+
   const syncLegacyMove = useCallback((vector: MobileControlVector) => {
     const nextAction = getLegacyMoveAction(vector);
     if (activeMoveActionRef.current && activeMoveActionRef.current !== nextAction) {
@@ -71,15 +78,17 @@ export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUD
   }, []);
 
   const updateLeftVector = useCallback((nextVector: MobileControlVector) => {
-    setLeftVector(nextVector);
+    syncStickCap(leftCapRef.current, nextVector);
+    setLeftVector((prev) => (prev.x === nextVector.x && prev.y === nextVector.y ? prev : nextVector));
     emitMobileMove(nextVector);
     syncLegacyMove(nextVector);
-  }, [syncLegacyMove]);
+  }, [syncLegacyMove, syncStickCap]);
 
   const updateRightVector = useCallback((nextVector: MobileControlVector) => {
-    setRightVector(nextVector);
+    syncStickCap(rightCapRef.current, nextVector);
+    setRightVector((prev) => (prev.x === nextVector.x && prev.y === nextVector.y ? prev : nextVector));
     emitMobileLook(nextVector);
-  }, []);
+  }, [syncStickCap]);
 
   const updateButtonPressedState = useCallback((buttonId: string, active: boolean) => {
     setPressedButtons((prev) => {
@@ -257,6 +266,7 @@ export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUD
           <div className={styles.joystickRing} />
           <div className={styles.joystickCore} />
           <div
+            ref={leftCapRef}
             className={clsx(styles.joystickCap, leftTouchIdRef.current === null && styles.joystickCapReset)}
             style={{
               transform: `translate(calc(-50% + ${leftVector.x * 34}% ), calc(-50% + ${leftVector.y * 34}% ))`,
@@ -307,6 +317,7 @@ export default function MobileGameHUD({ gameLabel, mode, onExit }: MobileGameHUD
             <div className={styles.joystickRing} />
             <div className={styles.joystickCore} />
             <div
+              ref={rightCapRef}
               className={clsx(styles.joystickCap, rightTouchIdRef.current === null && styles.joystickCapReset)}
               style={{
                 transform: `translate(calc(-50% + ${rightVector.x * 34}% ), calc(-50% + ${rightVector.y * 34}% ))`,

@@ -39,4 +39,24 @@ describe('shared mobile game controls', () => {
     expect(gamesSrc).toContain("mobileHudMode: 'joystick'");
     expect(echoSrc).toContain('useRegisterMobileGameControls');
   });
+
+  it('keeps the immersive mobile HUD tuned for faster thumb response and asymmetric stick sizes', () => {
+    const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/MobileGameHUD.tsx'), 'utf8');
+    const hudCss = readFileSync(join(REPO_ROOT, 'components/games/MobileGameHUD.module.css'), 'utf8');
+
+    expect(hudSrc).toContain('leftCapRef.current');
+    expect(hudSrc).toContain('rightCapRef.current');
+    expect(hudCss).toContain('--dock-size: clamp(102px, 27vw, 136px);');
+    expect(hudCss).toContain('--dock-size: clamp(168px, 41vw, 228px);');
+    expect(hudCss).toContain('will-change: transform;');
+    expect(hudCss).toContain('transition: none;');
+  });
+
+  it('keeps fullscreen game sessions able to hide the messaging bar behind a tiny reopen pill', () => {
+    const shellSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+
+    expect(shellSrc).toContain('const [showSessionUtilityBar, setShowSessionUtilityBar] = useState(false);');
+    expect(shellSrc).toContain("aria-label={showSessionUtilityBar ? 'Hide game chat bar' : 'Open game chat bar'}");
+    expect(shellSrc).toContain("pointerEvents: showSessionUtilityBar ? 'none' : 'auto'");
+  });
 });

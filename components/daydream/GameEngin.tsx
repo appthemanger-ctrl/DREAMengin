@@ -260,6 +260,7 @@ export default function GameEngin({ onBack }: Props) {
   const [selectedPlayableGame, setSelectedPlayableGame] = useState<string>(GAMES[0]?.id ?? 'platformer');
   const [activePlayableGame, setActivePlayableGame] = useState<string | null>(null);
   const [expandedPlayableGame, setExpandedPlayableGame] = useState<string | null>(null);
+  const [showSessionUtilityBar, setShowSessionUtilityBar] = useState(false);
   /** Controls "DREAMengin powered by…" boot splash shown when entering fullscreen */
   const [showEnginSplash, setShowEnginSplash] = useState(false);
 
@@ -696,6 +697,12 @@ export default function GameEngin({ onBack }: Props) {
     };
   }, [expandedPlayableGame]);
 
+  useEffect(() => {
+    if (expandedPlayableGame) {
+      setShowSessionUtilityBar(false);
+    }
+  }, [expandedPlayableGame]);
+
   // ── Achievement computation ───────────────────────────────────────────────────
   const selectedPlayable = GAMES.find((game) => game.id === selectedPlayableGame) ?? GAMES[0];
   const activePlayable = activePlayableGame ? GAMES.find((game) => game.id === activePlayableGame) ?? null : null;
@@ -735,6 +742,56 @@ export default function GameEngin({ onBack }: Props) {
 
         <div style={{ position: 'absolute', inset: 0 }}>
           <ExpandedGameComponent />
+        </div>
+
+        <div
+          aria-hidden={!showSessionUtilityBar}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: `calc(env(safe-area-inset-bottom, 0px) + ${showSessionUtilityBar ? 24 : 122}px)`,
+            zIndex: 54,
+            pointerEvents: showSessionUtilityBar ? 'none' : 'auto',
+            background: showSessionUtilityBar
+              ? 'transparent'
+              : 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(2, 6, 23, 0.84) 44%, rgba(2, 6, 23, 0.98) 100%)',
+            transition: 'height 180ms ease, background 180ms ease',
+          }}
+        />
+
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
+            transform: 'translateX(-50%)',
+            zIndex: 56,
+            pointerEvents: 'auto',
+          }}
+        >
+          <button
+            type="button"
+            aria-label={showSessionUtilityBar ? 'Hide game chat bar' : 'Open game chat bar'}
+            title={showSessionUtilityBar ? 'Hide game chat bar' : 'Open game chat bar'}
+            onClick={() => setShowSessionUtilityBar((prev) => !prev)}
+            style={{
+              width: showSessionUtilityBar ? 58 : 44,
+              height: showSessionUtilityBar ? 12 : 8,
+              borderRadius: 999,
+              border: `1px solid ${showSessionUtilityBar ? 'rgba(125,211,252,0.34)' : 'rgba(226,232,240,0.12)'}`,
+              background: showSessionUtilityBar
+                ? 'rgba(8, 16, 30, 0.82)'
+                : 'rgba(226, 232, 240, 0.32)',
+              boxShadow: showSessionUtilityBar
+                ? '0 8px 18px rgba(15, 23, 42, 0.3)'
+                : '0 6px 16px rgba(2, 6, 23, 0.28)',
+              cursor: 'pointer',
+              transition: 'all 160ms ease',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          />
         </div>
 
         <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 55, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', maxWidth: 'calc(100vw - 28px)' }}>
