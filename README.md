@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `aa1588a` | 2026-03-31 04:05 UTC | copilot/add-mobile-control-layer | Copilot | ~11 | Route Side A game launches into GameEngin and make Side B own the fullscreen HUD session |
 | `db17815` | 2026-03-31 02:29 UTC | copilot/add-mobile-control-layer | Copilot | ~1 | fix: refine universal hud follow-up |
 | `5bf49b2` | 2026-03-31 02:24 UTC | copilot/add-mobile-control-layer | Copilot | +3 ~17 | refactor: make immersive hud universal |
 | `0943f15` | 2026-03-31 00:03 UTC | copilot/add-mobile-control-layer | Copilot | ~1 | fix: tighten mobile hud touch typing |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `6105687` | 2026-03-30 20:43 UTC | completedream | appthemanger-ctrl | — | Merge pull request #360 from appthemanger-ctrl/copilot/wire-games-to-new-game-engine |
 | `e0b7550` | 2026-03-30 20:42 UTC | copilot/wire-games-to-new-game-engine | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/wire-games-to-new-game-engine |
 | `a684f16` | 2026-03-30 18:22 UTC | copilot/wire-games-to-new-game-engine | Copilot | +6 ~3 | feat: add authored MADMAXI zone starter packs |
-| `61ce5a9` | 2026-03-30 17:38 UTC | copilot/wire-games-to-new-game-engine | Copilot | +2 ~2 | refactor: move MADMAXI into its own module folder |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-03-31 02:29 UTC — `db17815` by Copilot
+Last updated: 2026-03-31 04:05 UTC — `aa1588a` by Copilot
 Last updated: 2026-03-30 20:35 UTC — `e798b6a` by appthemanger-ctrl
 Last updated: 2026-03-29 08:51 UTC — `5f13cf5` by appthemanger-ctrl
 Last updated: 2026-03-29 07:09 UTC — `1abd71b` by appthemanger-ctrl
