@@ -313,11 +313,14 @@ export default function HomeFeed({
 
   return (
     <>
-    <div className={embedded ? 'h-full' : 'min-h-screen de-sky-bg'}>
-      <div className={embedded ? (isCompactEmbedded ? 'h-full px-3 pt-3 pb-6' : 'h-full px-4 pt-4 pb-4') : 'max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8'}>
+    <div className={embedded ? 'h-full' : 'min-h-screen de-sky-bg'} style={embedded ? { display: 'flex', flexDirection: 'column' } : undefined}>
+      <div
+        className={embedded ? (isCompactEmbedded ? 'px-3 pt-3 pb-3' : 'px-4 pt-4 pb-4') : 'max-w-3xl mx-auto px-4 pt-4 pb-24 md:pb-8'}
+        style={embedded ? { display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 } : undefined}
+      >
 
         {/* Tabs + live indicator */}
-        <div className="flex items-center gap-1 mb-6 bg-card rounded-2xl border border-border p-1">
+        <div className="flex items-center gap-1 mb-6 bg-card rounded-2xl border border-border p-1" style={embedded ? { flexShrink: 0 } : undefined}>
           {[
             { id: 'feed'      as const, label: 'For You',   icon: Sparkles },
             { id: 'trending'  as const, label: 'Trending',  icon: TrendingUp },
@@ -361,7 +364,7 @@ export default function HomeFeed({
             aria-live="polite"
             aria-label={`${newCount} new post${newCount === 1 ? '' : 's'} — tap to show`}
             className="w-full mb-4 flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-semibold"
-            style={{ background: 'linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.07))', border: '1px solid rgba(34,197,94,0.30)', color: '#16a34a', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', WebkitTapHighlightColor: 'transparent', cursor: 'pointer' }}
+            style={{ background: 'linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.07))', border: '1px solid rgba(34,197,94,0.30)', color: '#16a34a', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', WebkitTapHighlightColor: 'transparent', cursor: 'pointer', ...(embedded ? { flexShrink: 0 } : {}) }}
           >
             <ArrowUp size={14} />
             {newCount} new post{newCount === 1 ? '' : 's'} — tap to show
@@ -369,7 +372,7 @@ export default function HomeFeed({
         )}
 
         {/* Composer */}
-        <div className="bg-card rounded-2xl border border-border p-4 mb-6">
+        <div className="bg-card rounded-2xl border border-border p-4 mb-6" style={embedded ? { flexShrink: 0 } : undefined}>
           {!showComposer ? (
             <button onClick={() => setShowComposer(true)} className="w-full flex items-center gap-3 text-left">
               <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
@@ -428,15 +431,18 @@ export default function HomeFeed({
             border: '1px solid var(--de-border, rgba(180,185,200,0.22))',
             boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
             overflow: 'hidden',
+            ...(embedded ? { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' } : {}),
           }}
         >
           <div
             style={{
               overflowY: 'auto',
-              maxHeight: isCompactEmbedded ? '60vh' : 'min(560px, 70vh)',
               overscrollBehavior: 'contain',
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'thin',
+              ...(embedded
+                ? { flex: 1, minHeight: 0 }
+                : { maxHeight: 'calc(100vh - 280px)' }),
             }}
           >
           {posts.length === 0 ? (
