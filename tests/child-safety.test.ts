@@ -473,3 +473,272 @@ describe('isImageUrl', () => {
   it('returns false for .mp3 url', () => expect(isImageUrl('https://cdn.example.com/a/b.mp3')).toBe(false));
   it('returns false for malformed url', () => expect(isImageUrl('not-a-url')).toBe(false));
 });
+
+// ============================================================================
+// C32_MINOR_IMAGE — Layer 0: minor-to-adult image blocking
+// ============================================================================
+
+describe('childSafetyDetector — C32_MINOR_IMAGE (minor-to-adult image blocking)', () => {
+  it('blocks image from 15-year-old to 25-year-old adult', () => {
+    const result = scanContent({
+      text: 'Here is the photo you wanted',
+      hasImageAttachment: true,
+      senderAge: 15,
+      recipientAge: 25,
+    });
+    expect(result.flagged).toBe(true);
+    expect(result.rule_code).toBe('C32_MINOR_IMAGE');
+    expect(result.category).toBe('MINOR_IMAGE');
+    expect(result.severity).toBe(1.0);
+    expect(result.confidence).toBe(1.0);
+    expect(result._audit.signals).toContain('minor_to_adult_image');
+  });
+
+  it('blocks image from 13-year-old to 18-year-old adult', () => {
+    const result = scanContent({
+      hasImageAttachment: true,
+      senderAge: 13,
+      recipientAge: 18,
+    });
+    expect(result.flagged).toBe(true);
+    expect(result.rule_code).toBe('C32_MINOR_IMAGE');
+  });
+
+  it('blocks image from 17-year-old to 30-year-old adult', () => {
+    const result = scanContent({
+      hasImageAttachment: true,
+      senderAge: 17,
+      recipientAge: 30,
+    });
+    expect(result.flagged).toBe(true);
+    expect(result.rule_code).toBe('C32_MINOR_IMAGE');
+  });
+
+  it('does NOT block image between two adults', () => {
+    const result = scanContent({
+      text: 'Here is my photo',
+      hasImageAttachment: true,
+      senderAge: 21,
+      recipientAge: 25,
+    });
+    expect(result.flagged).toBe(false);
+    expect(result.rule_code).toBeNull();
+  });
+
+  it('does NOT block image between two minors', () => {
+    const result = scanContent({
+      text: 'Here is my photo',
+      hasImageAttachment: true,
+      senderAge: 16,
+      recipientAge: 15,
+    });
+    expect(result.flagged).toBe(false);
+  });
+
+  it('does NOT block text-only message from minor to adult', () => {
+    const result = scanContent({
+      text: 'Hello! How was your day?',
+      hasImageAttachment: false,
+      senderAge: 15,
+      recipientAge: 25,
+    });
+    expect(result.flagged).toBe(false);
+  });
+
+  it('blocks even when text is clean — image alone triggers block', () => {
+    const result = scanContent({
+      text: 'Nice photo right?',
+      hasImageAttachment: true,
+      senderAge: 14,
+      recipientAge: 20,
+    });
+    expect(result.flagged).toBe(true);
+    expect(result.rule_code).toBe('C32_MINOR_IMAGE');
+  });
+
+  it('Layer 0 (minor image) takes precedence over all other layers', () => {
+    // Even if the text also has CSAM signals, Layer 0 fires first
+    const knownBadHashes = new Set(['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']);
+    const result = scanContent({
+      text: 'I have csam to share',
+      hasImageAttachment: true,
+      senderAge: 16,
+      recipientAge: 22,
+      mediaHashes: ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'],
+      knownBadHashes,
+    });
+    // Layer 0 fires first
+    expect(result.rule_code).toBe('C32_MINOR_IMAGE');
+    expect(result.category).toBe('MINOR_IMAGE');
+  });
+
+  it('C32_MINOR_IMAGE is zero-tolerance', () => {
+    const result = scanContent({
+      hasImageAttachment: true,
+      senderAge: 15,
+      recipientAge: 25,
+    });
+    expect(isZeroTolerance(result)).toBe(true);
+  });
+
+  it('does NOT block when ages are not provided', () => {
+    const result = scanContent({
+      text: 'Here is my photo',
+      hasImageAttachment: true,
+      // no senderAge or recipientAge
+    });
+    // Without age info, cannot block on age grounds
+    expect(result.flagged).toBe(false);
+  });
+});
+
+// ============================================================================
+// messageContextChecker — minor-adult conversation context evaluation
+// ============================================================================
+
+import { evaluateMessageContext } from '@/lib/child-safety/messageContextChecker';
+
+describe('messageContextChecker — safe contexts (no action)', () => {
+  it('returns safe for teacher-student context', () => {
+    const result = evaluateMessageContext({
+      minorAge: 15,
+      adultAge: 32,
+      recentMessages: [
+        { senderIsMinor: false, text: 'Please submit your essay by Friday. Review the homework assignment.' },
+        { senderIsMinor: true, text: 'Yes sir, I will submit the assignment before the due date.' },
+      ],
+    });
+    expect(result.verdict).toBe('safe');
+    expect(result.blockMessages).toBe(false);
+    expect(result.adultPermanentBanRecommended).toBe(false);
+  });
+
+  it('returns safe for coach-athlete context', () => {
+    const result = evaluateMessageContext({
+      minorAge: 16,
+      adultAge: 35,
+      recentMessages: [
+        { senderIsMinor: false, text: 'Practice is at 4pm tomorrow. We have a tournament this weekend.' },
+        { senderIsMinor: true, text: 'Got it coach, I will be there for training.' },
+      ],
+    });
+    expect(result.verdict).toBe('safe');
+    expect(result.blockMessages).toBe(false);
+  });
+
+  it('returns safe for family context with declared relationship', () => {
+    const result = evaluateMessageContext({
+      minorAge: 14,
+      adultAge: 40,
+      recentMessages: [
+        { senderIsMinor: false, text: 'Dinner is at 6. Dad said he will be home late.' },
+        { senderIsMinor: true, text: 'OK mom, I will be home by then.' },
+      ],
+      declaredRelationship: 'parent',
+    });
+    expect(result.verdict).toBe('safe');
+  });
+});
+
+describe('messageContextChecker — suspicious / inappropriate contexts', () => {
+  it('blocks and escalates secrecy coercion from adult', () => {
+    const result = evaluateMessageContext({
+      minorAge: 15,
+      adultAge: 30,
+      recentMessages: [
+        { senderIsMinor: false, text: "Don't tell your parents about our little secret." },
+        { senderIsMinor: true, text: 'Why not?' },
+      ],
+    });
+    expect(['flag', 'block']).toContain(result.verdict);
+    expect(result.blockMessages).toBe(true);
+    expect(result.escalate).toBe(true);
+  });
+
+  it('blocks and recommends permanent ban for image solicitation', () => {
+    const result = evaluateMessageContext({
+      minorAge: 15,
+      adultAge: 28,
+      recentMessages: [
+        { senderIsMinor: false, text: 'Send me a pic of yourself.' },
+        { senderIsMinor: true, text: 'I am not sure.' },
+      ],
+      adultSolicitedImages: true,
+    });
+    expect(result.verdict).toBe('block');
+    expect(result.adultPermanentBanRecommended).toBe(true);
+    expect(result.blockMessages).toBe(true);
+    expect(result.minorWarning).toBe(true);
+  });
+
+  it('flags platform migration attempt', () => {
+    const result = evaluateMessageContext({
+      minorAge: 16,
+      adultAge: 29,
+      recentMessages: [
+        { senderIsMinor: false, text: 'Add me on Snapchat, we can talk there.' },
+        { senderIsMinor: true, text: 'Sure.' },
+      ],
+    });
+    expect(['flag', 'block']).toContain(result.verdict);
+    expect(result.blockMessages).toBe(true);
+  });
+
+  it('returns safe when suspicious signal present but strong safe context', () => {
+    // A coach saying "just between us" about team strategy is monitored, not blocked
+    const result = evaluateMessageContext({
+      minorAge: 16,
+      adultAge: 35,
+      recentMessages: [
+        { senderIsMinor: false, text: 'This is just between us — the team strategy for the tournament game.' },
+        { senderIsMinor: false, text: 'Practice tomorrow at the stadium. Good luck with your training workout.' },
+        { senderIsMinor: true, text: 'Got it coach, thanks for the tip.' },
+      ],
+    });
+    // Should be monitor (context is safe — coach + minor suspicious signal)
+    expect(['safe', 'monitor']).toContain(result.verdict);
+    expect(result.adultPermanentBanRecommended).toBe(false);
+  });
+
+  it('returns safe when context is not a minor-adult pair', () => {
+    const result = evaluateMessageContext({
+      minorAge: 25, // Not a minor
+      adultAge: 30,
+      recentMessages: [{ senderIsMinor: false, text: 'Hello' }],
+    });
+    expect(result.verdict).toBe('safe');
+    expect(result.blockMessages).toBe(false);
+  });
+});
+
+describe('messageContextChecker — repeat adult offender stricter treatment', () => {
+  it('escalates faster for adult with prior flags', () => {
+    const noFlagsResult = evaluateMessageContext({
+      minorAge: 15,
+      adultAge: 30,
+      adultPriorFlags: 0,
+      recentMessages: [
+        { senderIsMinor: false, text: 'You look young. How old are you?' },
+        { senderIsMinor: true, text: 'I am 15.' },
+      ],
+    });
+
+    const priorFlagsResult = evaluateMessageContext({
+      minorAge: 15,
+      adultAge: 30,
+      adultPriorFlags: 3,
+      recentMessages: [
+        { senderIsMinor: false, text: 'You look young. How old are you?' },
+        { senderIsMinor: true, text: 'I am 15.' },
+      ],
+    });
+
+    // With prior flags, should be more severe or equal
+    const verdictSeverity = (v: string) =>
+      v === 'block' ? 3 : v === 'flag' ? 2 : v === 'monitor' ? 1 : 0;
+    expect(verdictSeverity(priorFlagsResult.verdict)).toBeGreaterThanOrEqual(
+      verdictSeverity(noFlagsResult.verdict),
+    );
+  });
+});
+

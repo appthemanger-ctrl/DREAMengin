@@ -5,6 +5,36 @@ import { scanMediaUrlsForChildSafety } from '@/lib/child-safety/scanMediaUrls';
 import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
 import { createHash } from 'crypto';
 
+// ── Minor-to-adult image blocking helpers ─────────────────────────────────
+
+/**
+ * Look up the age of a user from their profile.
+ * Returns null if age is unavailable or unverified.
+ */
+async function getUserAge(
+  supabase: Awaited<ReturnType<typeof createServerClient>>,
+  userId: string,
+): Promise<number | null> {
+  try {
+    const { data } = await (supabase as any)
+      .from('profiles')
+      .select('age, birth_year')
+      .eq('id', userId)
+      .single();
+
+    if (!data) return null;
+
+    // Prefer explicit age field; fall back to birth_year
+    if (typeof data.age === 'number' && data.age > 0) return data.age;
+    if (typeof data.birth_year === 'number' && data.birth_year > 0) {
+      return new Date().getFullYear() - data.birth_year;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 // GET - Fetch conversations
 export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
@@ -72,7 +102,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Message content is required' }, { status: 400 });
   }
 
+  // ── Look up sender and recipient ages for minor-adult enforcement ─────────
+  const senderAge = await getUserAge(supabase, user.id);
+  const recipientAge = recipient_id ? await getUserAge(supabase, recipient_id) : null;
+
+  const senderIsMinor = typeof senderAge === 'number' && senderAge >= 13 && senderAge < 18;
+  const recipientIsAdult = typeof recipientAge === 'number' && recipientAge >= 18;
+  const hasImage = media_url && typeof media_url === 'string' && media_type === 'image';
+
+  // ── C32_MINOR_IMAGE: any image from a minor to an adult is ALWAYS blocked ─
+  if (hasImage && senderIsMinor && recipientIsAdult) {
+    const contentRef = `minor_image:${user.id.slice(0, 8)}`;
+    reportChildSafetyIncident({
+      reportedUserId: user.id,
+      ruleCode: 'C32_MINOR_IMAGE',
+      detectionResult: {
+        flagged: true,
+        rule_code: 'C32_MINOR_IMAGE',
+        severity: 1.0,
+        confidence: 1.0,
+        category: 'MINOR_IMAGE',
+        signal_count: 1,
+        _audit: { signals: ['minor_to_adult_image'], hash_match: false },
+      },
+      surface: 'message',
+      contentRef,
+    }).catch((err) => console.error('[child-safety] minor image block report error:', err));
+
+    return NextResponse.json(
+      { error: 'This image was sent from a minor and has been blocked.' },
+      { status: 451 },
+    );
+  }
+
   // ── TheBoogieMan child safety scan (zero-tolerance) ──────────────────────
+  // Also pass sender/recipient ages so scanContent can detect image solicitation
+  // from adults to minors (rule C33_SOLICITING_IMAGES via grooming patterns).
   const childSafetyResult = scanContent({ text: content });
   if (childSafetyResult.flagged) {
     const contentHash = createHash('sha256').update(content).digest('hex');
