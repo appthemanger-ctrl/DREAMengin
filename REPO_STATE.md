@@ -3,10 +3,10 @@
 > **Comprehensive analysis of the entire codebase**
 > Generated automatically - DO NOT EDIT MANUALLY
 
-**Last Updated:** 3/30/2026, 10:25:26 AM
+**Last Updated:** 3/31/2026, 4:26:07 AM
 **Branch:** completedream
-**Commit:** 1387bd47 - docs: auto-update README [2467dd3] [skip ci]
-**Total Commits:** 2592
+**Commit:** cc899398 - docs: auto-update README [d7747bb] [skip ci]
+**Total Commits:** 2685
 
 ---
 
@@ -41,13 +41,13 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 498
-- 📝 Total Lines of Code: 116,416
-- 📦 Size: 4.37 MB
-- 🧪 Tests: 78 files, 71 passing
+- 📁 Total Code Files: 564
+- 📝 Total Lines of Code: 128,694
+- 📦 Size: 4.86 MB
+- 🧪 Tests: 81 files, 74 passing
 - 📄 API Routes: 71
-- 🎨 Components: 33 categories
-- 📖 Documentation: 47 files
+- 🎨 Components: 34 categories
+- 📖 Documentation: 48 files
 - ⚙️ GitHub Actions: 51 workflows
 
 ## Tech Stack
@@ -115,13 +115,13 @@ vitest@^4.0.18
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 164 | .tsx(90), .ts(72), .css(2) |
-| `components/` | 220 | .tsx(211), .ts(8), .md(1) |
-| `lib/` | 199 | .ts(194), .tsx(3), .md(2) |
-| `tests/` | 80 | .ts(79), .md(1) |
+| `app/` | 196 | .tsx(122), .ts(72), .css(2) |
+| `components/` | 264 | .tsx(241), .ts(22), .md(1) |
+| `lib/` | 203 | .ts(198), .tsx(3), .md(2) |
+| `tests/` | 83 | .ts(82), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 45 | .png(18), .PNG(11), .jpeg(6) |
-| `docs/` | 43 | .md(43) |
+| `docs/` | 44 | .md(44) |
 | `scripts/` | 22 | .mjs(12), .sh(3), .cjs(3) |
 | `supabase/` | 40 | .sql(39), .toml(1) |
 
@@ -129,15 +129,15 @@ vitest@^4.0.18
 
 ### File Distribution
 
-- **App Routes (TSX):** 90
-- **Component Files:** 211
-- **Library Files:** 197
-- **Test Files:** 72
+- **App Routes (TSX):** 122
+- **Component Files:** 241
+- **Library Files:** 201
+- **Test Files:** 75
 
 ### Code Volume
 
-- **Total Lines:** 116,416
-- **Total Size:** 4.37 MB
+- **Total Lines:** 128,694
+- **Total Size:** 4.86 MB
 
 ## API Routes
 
@@ -201,7 +201,7 @@ vitest@^4.0.18
 
 ## Pages & Routes
 
-**Total Pages:** 74
+**Total Pages:** 99
 
 ### All Pages
 
@@ -239,29 +239,29 @@ vitest@^4.0.18
 | `/dreamengin` | /app/dreamengin/page.tsx |
 | `/edit-profile` | /app/edit-profile/page.tsx |
 | `/edit-profiledream` | /app/edit-profiledream/page.tsx |
-| `/feed-settings` | /app/feed-settings/page.tsx |
-| `/homedream` | /app/homedream/page.tsx |
-| `/join` | /app/join/page.tsx |
-| `/lab/[id]/codespace` | /app/lab/[id]/codespace/page.tsx |
-| `/lab/[id]` | /app/lab/[id]/page.tsx |
-| `/lab/new` | /app/lab/new/page.tsx |
-| `/lab` | /app/lab/page.tsx |
-| `/login` | /app/login/page.tsx |
-| `/marketplace/[id]` | /app/marketplace/[id]/page.tsx |
-| `/marketplace` | /app/marketplace/page.tsx |
-| `/marketplace/sell` | /app/marketplace/sell/page.tsx |
-| `/messages/boards/[id]` | /app/messages/boards/[id]/page.tsx |
-| `/messages/boards/new` | /app/messages/boards/new/page.tsx |
-| `/messages/boards` | /app/messages/boards/page.tsx |
-| `/messages` | /app/messages/page.tsx |
-| `/music` | /app/music/page.tsx |
-| `/music/upload` | /app/music/upload/page.tsx |
-| `/notes` | /app/notes/page.tsx |
-| ... | ... and 24 more pages |
+| `/engines/brand/analytics` | /app/engines/brand/analytics/page.tsx |
+| `/engines/brand/campaigns` | /app/engines/brand/campaigns/page.tsx |
+| `/engines/brand/identity` | /app/engines/brand/identity/page.tsx |
+| `/engines/brand` | /app/engines/brand/page.tsx |
+| `/engines/code/ai` | /app/engines/code/ai/page.tsx |
+| `/engines/code/notebook` | /app/engines/code/notebook/page.tsx |
+| `/engines/code` | /app/engines/code/page.tsx |
+| `/engines/code/projects` | /app/engines/code/projects/page.tsx |
+| `/engines/create/calendar` | /app/engines/create/calendar/page.tsx |
+| `/engines/create/editor` | /app/engines/create/editor/page.tsx |
+| `/engines/create` | /app/engines/create/page.tsx |
+| `/engines/create/queue` | /app/engines/create/queue/page.tsx |
+| `/engines/games/builder` | /app/engines/games/builder/page.tsx |
+| `/engines/games/library` | /app/engines/games/library/page.tsx |
+| `/engines/games` | /app/engines/games/page.tsx |
+| `/engines/games/scores` | /app/engines/games/scores/page.tsx |
+| `/engines/lab/data` | /app/engines/lab/data/page.tsx |
+| `/engines/lab/experiments` | /app/engines/lab/experiments/page.tsx |
+| ... | ... and 49 more pages |
 
 ## Components
 
-**Total Component Categories:** 33
+**Total Component Categories:** 34
 
 ### Component Organization
 
@@ -272,14 +272,15 @@ vitest@^4.0.18
 | `controls/` | 1 |
 | `core/` | 1 |
 | `customize/` | 7 |
-| `daydream/` | 16 |
+| `daydream/` | 17 |
 | `dreamengin/` | 16 |
 | `dreamnav/` | 2 |
 | `dreams/` | 7 |
+| `engines/` | 35 |
 | `feed/` | 4 |
 | `feeds/` | 1 |
 | `gameengin/` | 1 |
-| `games/` | 30 |
+| `games/` | 38 |
 | `home/` | 9 |
 | `landing/` | 2 |
 | `marketplace/` | 2 |
@@ -324,8 +325,8 @@ vitest@^4.0.18
 
 ## Tests
 
-**Test Files:** 78
-**Tests Passing:** 71
+**Test Files:** 81
+**Tests Passing:** 74
 **Tests Failing:** 1
 
 ### Test Files
@@ -350,11 +351,11 @@ vitest@^4.0.18
 - /tests/diff-viewer.test.ts
 - /tests/dr-eams-search-bar.test.ts
 - /tests/dream-bar-context.test.ts
-- ... and 58 more test files
+- ... and 61 more test files
 
 ## Documentation
 
-**Total Documentation Files:** 47
+**Total Documentation Files:** 48
 
 ### Documentation Files
 
@@ -371,6 +372,7 @@ vitest@^4.0.18
 - [AXIOMS.md](/docs/AXIOMS.md)
 - [BOOGIEMAN_POLICY.md](/docs/BOOGIEMAN_POLICY.md)
 - [BUGS.md](/docs/BUGS.md)
+- [CHILD_SAFETY_POLICY.md](/docs/CHILD_SAFETY_POLICY.md)
 - [CONNECTORS.md](/docs/CONNECTORS.md)
 - [CONNECTOR_MATRIX.md](/docs/CONNECTOR_MATRIX.md)
 - [CONSTITUTION.md](/docs/CONSTITUTION.md)
@@ -387,8 +389,7 @@ vitest@^4.0.18
 - [IDARI_CONTRACT.md](/docs/IDARI_CONTRACT.md)
 - [LAW.md](/docs/LAW.md)
 - [NAMING_AUTHORITY.md](/docs/NAMING_AUTHORITY.md)
-- [POLICY_TESTS.md](/docs/POLICY_TESTS.md)
-- ... and 17 more docs
+- ... and 18 more docs
 
 ## CI/CD Workflows
 
@@ -470,7 +471,7 @@ vitest@^4.0.18
 
 ### Next.js App Router Architecture
 
-61 Server Components, 29 Client Components
+93 Server Components, 29 Client Components
 
 ### Supabase Backend
 
@@ -478,7 +479,7 @@ Using Supabase for database, auth, and storage
 
 ### React Context for State Management
 
-3 context providers found
+4 context providers found
 
 ## Code Quality
 
@@ -496,6 +497,11 @@ Using Supabase for database, auth, and storage
 - TypeScript 5.5+ is good for 2026
 
 ## Redundancies & Technical Debt
+
+### Duplicate component name
+
+- /components/AnalyticsPanel.tsx
+- /components/engines/brand/panels/AnalyticsPanel.tsx
 
 ### Duplicate component name
 
@@ -530,7 +536,6 @@ Using Supabase for database, auth, and storage
 - react-dnd-html5-backend
 - tailwindcss
 - tailwindcss-animate
-- vitest
 
 ## 2026 Standards Compliance
 
@@ -562,4 +567,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 3/30/2026, 10:25:26 AM*
+*Last updated: 3/31/2026, 4:26:07 AM*
