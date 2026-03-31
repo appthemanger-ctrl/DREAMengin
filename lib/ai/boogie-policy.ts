@@ -136,6 +136,8 @@ export const RULE_CODES = {
   C29_PRIVACY:         'C29_PRIVACY',
   C30_MALWARE:         'C30_MALWARE',
   C31_GROOMING:        'C31_GROOMING',  // child predator grooming / solicitation of minors
+  C32_MINOR_IMAGE:     'C32_MINOR_IMAGE',        // image sent from minor to adult — always blocked, no exceptions
+  C33_SOLICITING_IMAGES: 'C33_SOLICITING_IMAGES', // adult soliciting images from a minor — permanent ban escalation
 
   // E — Enforcement ladder
   E36_LADDER:          'E36_LADDER',
@@ -219,7 +221,9 @@ export const CATEGORY_SEVERITY: Record<string, StrikeSeverityLevel> = {
   C28_SPAM:       'LOW',
   C29_PRIVACY:    'MEDIUM',
   C30_MALWARE:    'CRITICAL',
-  C31_GROOMING:   'CRITICAL',  // zero-tolerance: child predator grooming
+  C31_GROOMING:        'CRITICAL',  // zero-tolerance: child predator grooming
+  C32_MINOR_IMAGE:     'CRITICAL',  // zero-tolerance: any image from minor to adult is always blocked
+  C33_SOLICITING_IMAGES: 'CRITICAL', // zero-tolerance: adult soliciting images from minors
 };
 
 // ============================================================================
@@ -239,6 +243,8 @@ export const USER_REASON_MESSAGES: Partial<Record<string, string>> = {
   C29_PRIVACY:    'Content flagged for sharing private information without consent.',
   C30_MALWARE:    'A potentially harmful link or file was detected.',
   C31_GROOMING:   'Your activity has been flagged for child safety concerns. This requires immediate review.',
+  C32_MINOR_IMAGE: 'An image sent from a minor was blocked. Images may never be sent from a minor to an adult.',
+  C33_SOLICITING_IMAGES: 'Your account has been flagged for soliciting images from a minor. This is a permanent-ban-level violation requiring immediate review.',
   ADMIN_REQUIRED: 'This action requires admin access.',
   HIGH_RISK:      'This action requires your confirmation before proceeding.',
   LOW_CONFIDENCE: 'This request could not be processed with sufficient confidence.',

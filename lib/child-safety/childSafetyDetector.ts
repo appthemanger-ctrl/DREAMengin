@@ -19,7 +19,7 @@
 // TYPES
 // ============================================================================
 
-export type ChildSafetyRuleCode = 'C22_CSAM' | 'C31_GROOMING';
+export type ChildSafetyRuleCode = 'C22_CSAM' | 'C31_GROOMING' | 'C32_MINOR_IMAGE' | 'C33_SOLICITING_IMAGES';
 
 export interface ChildSafetySignal {
   /** Internal signal label — must not be returned to end users */
@@ -38,7 +38,7 @@ export interface ChildSafetyResult {
   /** Detection confidence 0–1 */
   confidence: number;
   /** Human-readable category label (user-safe — no internal signal detail) */
-  category: 'CSAM' | 'GROOMING' | 'CLEAN';
+  category: 'CSAM' | 'GROOMING' | 'MINOR_IMAGE' | 'SOLICITING_IMAGES' | 'CLEAN';
   /** Number of independent signals that contributed to this result */
   signal_count: number;
   /** Internal audit payload — for DB logging only, never returned to clients */
@@ -62,6 +62,20 @@ export interface ScanInput {
    * synchronous and testable without network access.
    */
   imageClassification?: import('./imageClassifier').ImageClassificationResult;
+  /**
+   * Sender age in years. Used for minor-to-adult image blocking (rule C32_MINOR_IMAGE).
+   * 13–17 = minor. 18+ = adult. Omit when age is unknown.
+   */
+  senderAge?: number;
+  /**
+   * Recipient age in years. Used for minor-to-adult image blocking (rule C32_MINOR_IMAGE).
+   */
+  recipientAge?: number;
+  /**
+   * Whether the message contains an image attachment.
+   * When true AND senderAge < 18 AND recipientAge >= 18, C32_MINOR_IMAGE is triggered.
+   */
+  hasImageAttachment?: boolean;
 }
 
 // ============================================================================
@@ -170,7 +184,8 @@ function estimateConfidence(signalCount: number): number {
  * a single ChildSafetyResult. CSAM takes precedence over GROOMING when both
  * are detected. Side-effect-free — callers decide enforcement.
  *
- * Layer 1: Hash-based CSAM (highest priority)
+ * Layer 0: Minor-to-adult image block (highest priority — always blocked, no exceptions)
+ * Layer 1: Hash-based CSAM (second highest priority)
  * Layer 2: CSAM text signals
  * Layer 3: Grooming / predator behaviour signals
  * Layer 4: LLM image classification (pre-computed by caller, passed via imageClassification)
@@ -179,6 +194,28 @@ export function scanContent(input: ScanInput): ChildSafetyResult {
   const text = (input.text ?? '').normalize('NFKC');
   const mediaHashes = input.mediaHashes ?? [];
   const knownBadHashes = input.knownBadHashes ?? new Set<string>();
+
+  // ── Layer 0: Minor-to-adult image block (rule C32_MINOR_IMAGE) ──────────
+  // Any image sent from a minor (age 13–17) to an adult (age 18+) is ALWAYS
+  // blocked. No exceptions. This check runs before all other layers.
+  if (
+    input.hasImageAttachment === true &&
+    typeof input.senderAge === 'number' &&
+    typeof input.recipientAge === 'number' &&
+    input.senderAge >= 13 &&
+    input.senderAge < 18 &&
+    input.recipientAge >= 18
+  ) {
+    return {
+      flagged: true,
+      rule_code: 'C32_MINOR_IMAGE',
+      severity: 1.0,
+      confidence: 1.0,
+      category: 'MINOR_IMAGE',
+      signal_count: 1,
+      _audit: { signals: ['minor_to_adult_image'], hash_match: false },
+    };
+  }
 
   // ── Layer 1: Hash-based CSAM check (highest priority) ───────────────────
   const hashMatch = mediaHashes.length > 0 && checkHashes(mediaHashes, knownBadHashes);
@@ -256,13 +293,24 @@ export function scanContent(input: ScanInput): ChildSafetyResult {
  * isZeroTolerance — returns true when the result warrants immediate account
  * suspension and NCMEC reporting without any further escalation ladder.
  * Both CSAM and confirmed grooming are zero-tolerance.
+ * Minor-to-adult image blocking and image solicitation are also zero-tolerance.
  */
 export function isZeroTolerance(result: ChildSafetyResult): boolean {
   if (!result.flagged) return false;
   if (result.rule_code === 'C22_CSAM') return true;
+  if (result.rule_code === 'C32_MINOR_IMAGE') return true;
+  if (result.rule_code === 'C33_SOLICITING_IMAGES') return true;
   // Grooming is zero-tolerance when confidence ≥ 0.85 or hash match
   if (result.rule_code === 'C31_GROOMING' && (result.confidence >= 0.85 || result._audit.hash_match)) {
     return true;
   }
   return false;
+}
+
+/**
+ * isMinorToAdultImageBlock — returns true when a C32_MINOR_IMAGE rule was triggered.
+ * Callers use this to show the specific message: "This image was sent from a minor and has been blocked."
+ */
+export function isMinorToAdultImageBlock(result: ChildSafetyResult): boolean {
+  return result.flagged && result.rule_code === 'C32_MINOR_IMAGE';
 }
