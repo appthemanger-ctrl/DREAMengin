@@ -70,11 +70,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-01 10:05 UTC | `f564383` | copilot/implement-dreamdmbar-features | Copilot | ~1 modified<br>feat(DreamDMBar): transparent until touched, X close to gold orb, keyboard float, snap-only drag, comment photos — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/506b3f50-024b-43ef-8c43-396fc64ad910  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/messaging/DreamDMBar.tsx` |
 | **auto** | 2026-04-01 06:51 UTC | `8383bd9` | copilot/add-youtube-api-video-matching | Copilot | +2 added  ~3 modified<br>feat: YouTube live feed populates HomeFeed every 15s (weed, world news, Neil deGrasse Tyson) — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/addab9db-68e6-4251-9927-63529d398fd3  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `app/api/youtube/live-feed/route.ts`, `lib/feed/useYouTubeLiveFeed.ts`<br>✏️: `components/HomeFeed.tsx`, `lib/feed/useLiveFeed.ts`, `tests/youtube-provider.test.ts` |
 | **auto** | 2026-04-01 05:16 UTC | `f5cd58b` | copilot/sync-build-memory-on-push | Copilot | ~1 modified<br>fix(ci): trigger Sync Build Memory on every push to completedream — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/10ec902e-11b2-4cb4-94b1-eb31b26966e5  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/sync-build-memory.yml` |
 | **auto** | 2026-04-01 00:36 UTC | `1bf40f6` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #372 from appthemanger-ctrl/copilot/update-mission-statement-link — Replace landing hero stats with mission statement CTA<br> |
 | **auto** | 2026-03-31 20:12 UTC | `1482fc9` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #371 from appthemanger-ctrl/copilot/add-overscroll-behavior-to-chat-feed — fix: homepage feed scrolls independently — overscroll-behavior contain + flex fill<br> |
-| **auto** | 2026-03-31 08:18 UTC | `7302114` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #369 from appthemanger-ctrl/copilot/adjust-joystick-sizes-and-hide-dm-bar — Tune mobile game HUD geometry and hide fullscreen session utility bar behind a pill<br> |
 
 ## What changed in this alignment pass
 
