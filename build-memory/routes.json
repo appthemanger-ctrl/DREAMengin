@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-26T09:49:03.467Z",
+  "generated_at": "2026-04-01T05:11:59.567Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 69,
+  "count": 71,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -159,8 +159,7 @@
       "path": "/api/connectors/[provider]/connect",
       "file": "app/api/connectors/[provider]/connect/route.ts",
       "methods": [
-        "POST",
-        "DELETE"
+        "POST"
       ]
     },
     {
@@ -224,6 +223,13 @@
       "file": "app/api/connectors/youtube/oauth/start/route.ts",
       "methods": [
         "GET"
+      ]
+    },
+    {
+      "path": "/api/content/intelligence",
+      "file": "app/api/content/intelligence/route.ts",
+      "methods": [
+        "POST"
       ]
     },
     {
@@ -326,6 +332,13 @@
       "file": "app/api/journey/route.ts",
       "methods": [
         "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/lab/benchmarks",
+      "file": "app/api/lab/benchmarks/route.ts",
+      "methods": [
         "POST"
       ]
     },

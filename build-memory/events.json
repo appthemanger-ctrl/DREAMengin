@@ -1,13 +1,37 @@
 {
-  "generated_at": "2026-03-26T09:49:03.467Z",
+  "generated_at": "2026-04-01T05:11:59.567Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 8,
+  "count": 15,
   "events": [
+    {
+      "event": "de-ctrl-button",
+      "payload_type": "ButtonInteractionEvent",
+      "files": [
+        "lib/games/gameControllerButtons.ts"
+      ]
+    },
     {
       "event": "de-game-input",
       "payload_type": null,
       "files": [
-        "components/games/BabylonSideScroller.tsx"
+        "components/games/EchoArena.tsx",
+        "components/games/NeonDrift.tsx",
+        "components/games/madmaxi/MadmaxiGame.tsx",
+        "lib/games/useGameInputKeyboardBridge.ts"
+      ]
+    },
+    {
+      "event": "de-game-layout-change",
+      "payload_type": null,
+      "files": [
+        "lib/games/useImmersiveGameLayout.ts"
+      ]
+    },
+    {
+      "event": "de-game-start",
+      "payload_type": null,
+      "files": [
+        "lib/games/hooks.ts"
       ]
     },
     {
@@ -15,6 +39,28 @@
       "payload_type": null,
       "files": [
         "components/ThemeApplicator.tsx"
+      ]
+    },
+    {
+      "event": "de-theme-mode-changed",
+      "payload_type": null,
+      "files": [
+        "app/settings/appearance/page.tsx",
+        "components/VoidThemeToggle.tsx"
+      ]
+    },
+    {
+      "event": "de:game-telemetry",
+      "payload_type": null,
+      "files": [
+        "components/daydream/AnalyticsEngin.tsx"
+      ]
+    },
+    {
+      "event": "de:open-side-b",
+      "payload_type": null,
+      "files": [
+        "components/daydream/DaydreamShell.tsx"
       ]
     },
     {
@@ -35,6 +81,8 @@
       "event": "gamepadconnected",
       "payload_type": null,
       "files": [
+        "components/gameengin/input/DualSenseManager.ts",
+        "lib/games/DualSenseManager.ts",
         "lib/games/useGamepad.ts"
       ]
     },
@@ -42,6 +90,8 @@
       "event": "gamepaddisconnected",
       "payload_type": null,
       "files": [
+        "components/gameengin/input/DualSenseManager.ts",
+        "lib/games/DualSenseManager.ts",
         "lib/games/useGamepad.ts"
       ]
     },
@@ -49,7 +99,11 @@
       "event": "orientationchange",
       "payload_type": null,
       "files": [
-        "components/AnchorWidget.tsx"
+        "components/AnchorWidget.tsx",
+        "components/HomeFeed.tsx",
+        "components/home/WorkspaceDashboard.tsx",
+        "components/messaging/DreamDMBar.tsx",
+        "components/runtime/RuntimeShell.tsx"
       ]
     },
     {
@@ -57,6 +111,13 @@
       "payload_type": null,
       "files": [
         "lib/god-tier/useGodTier.ts"
+      ]
+    },
+    {
+      "event": "starmaker:load-recording",
+      "payload_type": null,
+      "files": [
+        "components/daydream/StarMakerEngin.tsx"
       ]
     }
   ]
