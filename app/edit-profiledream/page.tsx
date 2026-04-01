@@ -268,14 +268,16 @@ export default function EditProfileDreamPage() {
     );
   }
 
+  // Info tab renders on light glass cards (#fff at 70% opacity), so inputs need
+  // dark text to be readable against that background.
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '12px 14px', borderRadius: 12,
-    background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-    color: 'rgba(220,235,255,0.95)', fontSize: 14, outline: 'none',
+    background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.12)',
+    color: '#1a1a2e', fontSize: 14, outline: 'none',
     boxSizing: 'border-box',
   };
   const labelStyle: React.CSSProperties = {
-    fontSize: 11, fontWeight: 700, color: 'rgba(140,170,220,0.70)',
+    fontSize: 11, fontWeight: 700, color: 'rgba(20,40,80,0.55)',
     marginBottom: 6, display: 'block', letterSpacing: '0.05em', textTransform: 'uppercase',
   };
 
@@ -295,16 +297,19 @@ export default function EditProfileDreamPage() {
         padding: '0 16px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 56 }}>
-          <Link href="/view-profile"
+          <button
+            onClick={() => router.back()}
+            type="button"
+            aria-label="Go back"
             style={{
               width: 36, height: 36, borderRadius: 10,
               background: 'rgba(255,255,255,0.08)',
               border: '1px solid rgba(255,255,255,0.15)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              textDecoration: 'none',
+              cursor: 'pointer',
             }}>
             <ArrowLeft size={16} style={{ color: 'rgba(200,220,255,0.85)' }} />
-          </Link>
+          </button>
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 18, fontWeight: 800, color: 'rgba(220,235,255,0.97)', margin: 0, lineHeight: 1.1 }}>
               Edit Profile<DreamWord />
@@ -446,7 +451,7 @@ export default function EditProfileDreamPage() {
           }}>
             <button onClick={pickAvatar} style={{
               width: 72, height: 72, borderRadius: '50%', flexShrink: 0,
-              overflow: 'hidden', cursor: isSaving || !isDirty ? 'default' : 'pointer', border: 'none', padding: 0,
+              overflow: 'hidden', cursor: 'pointer', border: 'none', padding: 0,
               background: profile.avatar_url ? undefined : 'linear-gradient(135deg, #c8981a, #4A9ED6)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 26, fontWeight: 800, color: '#fff',

@@ -67,7 +67,46 @@ export default async function ViewProfilePage() {
     // Supabase unavailable
   }
 
-  if (!rawProfile?.handle) redirect('/edit-profiledream');
+  // If the user exists but has no handle yet, render a setup prompt instead of
+  // redirecting to /edit-profiledream — that creates an infinite redirect loop
+  // because edit-profiledream's back button goes to /view-profile.
+  if (!rawProfile?.handle) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(160deg, #dce8f8 0%, #c8d8f0 40%, #f5e8c4 100%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: '24px 16px',
+      }}>
+        <div style={{
+          background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)',
+          borderRadius: 24, padding: '36px 28px', maxWidth: 400, width: '100%',
+          textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+        }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>✏️</div>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1a1a2e', marginBottom: 8 }}>
+            Set up your profile
+          </h2>
+          <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6, marginBottom: 24 }}>
+            You haven&apos;t set a handle yet. Finish setting up your profile so others can find you.
+          </p>
+          <Link
+            href="/edit-profiledream"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '12px 28px', borderRadius: 9999,
+              background: 'linear-gradient(135deg, #c8981a, #e0b830)',
+              color: '#fff', fontWeight: 700, fontSize: 14,
+              textDecoration: 'none',
+              boxShadow: '0 4px 16px rgba(200,152,26,0.3)',
+            }}
+          >
+            Edit Profile
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const profile = rawProfile as unknown as Profile;
 
