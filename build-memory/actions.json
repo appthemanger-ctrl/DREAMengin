@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-01T05:11:59.567Z",
+  "generated_at": "2026-04-01T09:26:52.708Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 71,
+  "count": 72,
   "actions": [
     {
       "file": "app/api/account/delete-data/route.ts",
@@ -675,6 +675,14 @@
     },
     {
       "file": "app/api/youtube/discovery/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/youtube/live-feed/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
         "GET"
