@@ -8,22 +8,22 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
-| `ff0bf30` | 2026-04-01 11:50 UTC | copilot/add-adjustable-remote-size | Copilot | ~3 | fix: right dock = button ring + embedded joystick simultaneously, larger dock, keep all features |
-| `8b66b05` | 2026-04-01 11:45 UTC | copilot/add-adjustable-remote-size | Copilot | ~1 | plan: right dock = button ring + embedded joystick simultaneously (never either/or) |
-| `5ef46dc` | 2026-04-01 10:09 UTC | copilot/add-adjustable-remote-size | Copilot | ~4 | feat: upgrade game remote - dual joystick, face buttons, size control, transparency, reposition, game stage lift |
+| `70b5b4d` | 2026-04-01 11:32 UTC | completedream | appthemanger-ctrl | — | Merge pull request #377 from appthemanger-ctrl/copilot/implement-dreamdmbar-features n |
+| `c4c92be` | 2026-04-01 11:31 UTC | copilot/implement-dreamdmbar-features | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/implement-dreamdmbar-features |
+| `9b6d3ef` | 2026-04-01 09:57 UTC | completedream | appthemanger-ctrl | — | Merge pull request #373 from appthemanger-ctrl/copilot/fix-profile-edit-issues |
+| `5bd0ecf` | 2026-04-01 09:48 UTC | copilot/fix-profile-edit-issues | Copilot | ~2 | fix: profile edit — invisible text inputs, back-nav redirect loop, avatar cursor |
+| `2242e03` | 2026-04-01 09:29 UTC | copilot/fix-profile-edit-issues | Copilot | ~6 | fix: resolve CI failures — remove SUPABASE_SERVICE_ROLE from client component, sync build-memory, merge live-feed route |
 | `19cd3cb` | 2026-04-01 07:32 UTC | completedream | appthemanger-ctrl | — | Merge pull request #376 from appthemanger-ctrl/copilot/add-youtube-api-video-matching |
 | `8383bd9` | 2026-04-01 06:51 UTC | copilot/add-youtube-api-video-matching | Copilot | +2 ~3 | feat: YouTube live feed populates HomeFeed every 15s (weed, world news, Neil deGrasse Tyson) |
 | `9041610` | 2026-04-01 06:41 UTC | copilot/add-youtube-api-video-matching | Copilot | ~2 | wip: outline plan for YouTube live feed in HomeFeed |
 | `1dbee59` | 2026-04-01 06:04 UTC | completedream | appthemanger-ctrl | — | Merge pull request #375 from appthemanger-ctrl/copilot/sync-build-memory-on-push |
 | `2451425` | 2026-04-01 06:03 UTC | copilot/sync-build-memory-on-push | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/sync-build-memory-on-push |
-| `40aa536` | 2026-04-01 06:02 UTC | completedream | appthemanger-ctrl | — | Merge pull request #374 from appthemanger-ctrl/copilot/remove-comment-text-box |
-| `ac63c04` | 2026-04-01 04:40 UTC | copilot/remove-comment-text-box | Copilot | ~6 | feat: remove comment text boxes, make DM bar transparent when resting, fix profile page errors |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-04-01 11:50 UTC — `ff0bf30` by Copilot
+Last updated: 2026-04-01 11:32 UTC — `70b5b4d` by appthemanger-ctrl
 Last updated: 2026-03-30 20:35 UTC — `e798b6a` by appthemanger-ctrl
 Last updated: 2026-03-29 08:51 UTC — `5f13cf5` by appthemanger-ctrl
 Last updated: 2026-03-29 07:09 UTC — `1abd71b` by appthemanger-ctrl
