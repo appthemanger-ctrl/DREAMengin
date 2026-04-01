@@ -6,9 +6,9 @@
  */
 
 import dynamicImport from 'next/dynamic';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   GAME_LIBRARY_SELECTION_STORAGE_KEY,
   GAME_LIBRARY_SESSION_STORAGE_KEY,
@@ -18,7 +18,8 @@ import {
 import type { MobileHudMode } from '@/lib/games/mobileControls';
 import { buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
 import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
-import { getGsap } from '@/lib/gsap/gsap';
+import { useGsapScrollReveal } from '@/lib/gsap/useGsapScrollReveal';
+import { useMotionTilt } from '@/lib/hooks/useMotionTilt';
 
 const Loading = () => (
   <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 13 }}>
@@ -142,6 +143,135 @@ const ENGINE_CAPABILITY_CHIPS = [
   'Powered by DREAMengin',
 ] as const;
 
+// ── Tilt-enabled game card ────────────────────────────────────────────────────
+// Extracted as a proper component so `useMotionTilt` (a hook) can be called
+// once per card — hooks cannot be called inside a .map() callback.
+
+interface TiltGameCardProps {
+  game: GameDef;
+  isSaved: boolean;
+  onPlay: (id: string) => void;
+}
+
+function TiltGameCard({ game, isSaved, onPlay }: TiltGameCardProps) {
+  const { motionProps, glareStyle } = useMotionTilt({ maxTilt: 8, scale: 1.04, glare: true });
+
+  const cardContent = (
+    <>
+      {/* Glare overlay — moves with the cursor */}
+      <motion.div style={{ ...glareStyle }} aria-hidden="true" />
+      {/* Cover Art Banner */}
+      <div style={{
+        borderRadius: '12px 12px 0 0',
+        background: `linear-gradient(135deg, ${game.color}55 0%, ${game.color}22 60%, rgba(15,23,42,0.6) 100%)`,
+        height: 100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        margin: '-14px -12px 8px -12px',
+        boxShadow: `0 4px 18px ${game.color}28`,
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `radial-gradient(ellipse at 50% 70%, ${game.color}30 0%, transparent 70%)`,
+        }} />
+        <span style={{ fontSize: 36, lineHeight: 1, position: 'relative', zIndex: 1, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.4))' }}>{game.emoji}</span>
+        <div style={{
+          position: 'absolute', top: 8, right: 8,
+          fontSize: 8, fontWeight: 800, letterSpacing: '0.12em',
+          padding: '3px 8px', borderRadius: 999, textTransform: 'uppercase',
+          background: `${game.color}33`, color: game.color,
+          border: `1px solid ${game.color}55`,
+          backdropFilter: 'blur(4px)',
+        }}>
+          {game.category}
+        </div>
+        {game.subtitle && (
+          <div style={{
+            position: 'absolute', bottom: 6, left: 8,
+            fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.72)',
+            letterSpacing: '0.06em',
+          }}>
+            {game.subtitle}
+          </div>
+        )}
+      </div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.2 }}>
+        {game.label}
+      </div>
+      <div style={{ fontSize: 10, color: 'var(--de-text-dim)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        {game.desc}
+      </div>
+      <div style={{
+        marginTop: 4,
+        padding: '5px 10px',
+        borderRadius: 8,
+        background: `${game.color}22`,
+        border: `1px solid ${game.color}55`,
+        fontSize: 10, fontWeight: 800,
+        color: game.color,
+        textAlign: 'center',
+        letterSpacing: '0.06em',
+      }}>
+        {isSaved ? '▶ Quick resume' : '▶ Boot in GameEngin'}
+      </div>
+    </>
+  );
+
+  const baseStyle: React.CSSProperties = {
+    background: 'rgba(255,255,255,0.45)',
+    border: `1.5px solid ${game.color}30`,
+    borderRadius: 12,
+    padding: '14px 12px',
+    cursor: 'pointer',
+    textAlign: 'left',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+    textDecoration: 'none',
+    width: '100%',
+    overflow: 'hidden',
+    position: 'relative',
+  };
+
+  if (game.href) {
+    return (
+      <motion.a
+        layout
+        layoutId={`game-card-${game.id}`}
+        href={game.href}
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+        {...motionProps}
+        style={{ ...baseStyle, ...motionProps.style }}
+      >
+        {cardContent}
+      </motion.a>
+    );
+  }
+
+  return (
+    <motion.button
+      layout
+      layoutId={`game-card-${game.id}`}
+      type="button"
+      onClick={() => onPlay(game.id)}
+      initial={{ opacity: 0, scale: 0.94 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+      {...motionProps}
+      style={{ ...baseStyle, ...motionProps.style }}
+    >
+      {cardContent}
+    </motion.button>
+  );
+}
+
 export default function GamesHub() {
   const [savedSessions, setSavedSessions] = useState<SavedGameSession[]>([]);
   const [filter, setFilter] = useState<string>('All');
@@ -152,6 +282,10 @@ export default function GamesHub() {
   // GSAP stagger entrance for the game card grid — replays on every filter change
   const gridRef = useRef<HTMLDivElement>(null);
   useGsapEntrance(gridRef, [filter, query], { stagger: 0.035, y: 18, duration: 0.32 });
+
+  // Scroll-reveal for the featured section and category strip
+  const featuredRef = useGsapScrollReveal<HTMLDivElement>({ direction: 'up', stagger: 0.07, duration: 0.42 });
+  const categoryRef = useGsapScrollReveal<HTMLDivElement>({ direction: 'left', stagger: 0.03, duration: 0.3, threshold: 0.05 });
 
   const categories = ['All', ...Array.from(new Set(GAMES.map(g => g.category))).sort()];
   const normalizedQuery = query.trim().toLowerCase();
@@ -300,7 +434,7 @@ export default function GamesHub() {
           ))}
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
+        <div ref={featuredRef} className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
           <div style={{ display: 'grid', gap: 8 }}>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--de-text-dim)' }}>
               Featured Launch Deck
@@ -419,8 +553,8 @@ export default function GamesHub() {
         </div>
       </div>
 
-      {/* Category filter pills */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      {/* Category filter pills — GSAP scroll-reveal on first viewport entry */}
+      <div ref={categoryRef} style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
         {categories.map(cat => (
           <button
             key={cat}
@@ -439,124 +573,21 @@ export default function GamesHub() {
         ))}
       </div>
 
-      {/* Game card grid — ref'd for GSAP stagger entrance */}
+      {/* Game card grid — AnimatePresence for smooth filter transitions + 3-D tilt cards */}
       <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
-        {filtered.map(game => {
-          const isSaved = savedSessions.some((s) => s.gameId === game.id);
-
-          const cardContent = (
-            <>
-              {/* Cover Art Banner */}
-              <div style={{
-                borderRadius: '12px 12px 0 0',
-                background: `linear-gradient(135deg, ${game.color}55 0%, ${game.color}22 60%, rgba(15,23,42,0.6) 100%)`,
-                height: 100,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                margin: '-14px -12px 8px -12px',
-                boxShadow: `0 4px 18px ${game.color}28`,
-                overflow: 'hidden',
-              }}>
-                {/* Background glow pulse */}
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: `radial-gradient(ellipse at 50% 70%, ${game.color}30 0%, transparent 70%)`,
-                }} />
-                {/* Emoji */}
-                <span style={{ fontSize: 36, lineHeight: 1, position: 'relative', zIndex: 1, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.4))' }}>{game.emoji}</span>
-                {/* Category chip — top right */}
-                <div style={{
-                  position: 'absolute', top: 8, right: 8,
-                  fontSize: 8, fontWeight: 800, letterSpacing: '0.12em',
-                  padding: '3px 8px', borderRadius: 999, textTransform: 'uppercase',
-                  background: `${game.color}33`, color: game.color,
-                  border: `1px solid ${game.color}55`,
-                  backdropFilter: 'blur(4px)',
-                }}>
-                  {game.category}
-                </div>
-                {/* Subtitle — bottom left */}
-                {game.subtitle && (
-                  <div style={{
-                    position: 'absolute', bottom: 6, left: 8,
-                    fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.72)',
-                    letterSpacing: '0.06em',
-                  }}>
-                    {game.subtitle}
-                  </div>
-                )}
-              </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.2 }}>
-                {game.label}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                {game.desc}
-              </div>
-              <div style={{
-                marginTop: 4,
-                padding: '5px 10px',
-                borderRadius: 8,
-                background: `${game.color}22`,
-                border: `1px solid ${game.color}55`,
-                fontSize: 10, fontWeight: 800,
-                color: game.color,
-                textAlign: 'center',
-                letterSpacing: '0.06em',
-              }}>
-                {isSaved ? '▶ Quick resume' : '▶ Boot in GameEngin'}
-              </div>
-            </>
-          );
-
-          const cardStyle: React.CSSProperties = {
-            background: 'rgba(255,255,255,0.45)',
-            border: `1.5px solid ${game.color}30`,
-            borderRadius: 12,
-            padding: '14px 12px',
-            cursor: 'pointer',
-            textAlign: 'left',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6,
-            textDecoration: 'none',
-            width: '100%',
-            overflow: 'hidden',
-          };
-
-          // GSAP hover: smooth lift + background brighten via gsap.to
-          const hoverIn  = (e: React.MouseEvent<HTMLElement>) => {
-            const el = e.currentTarget;
-            getGsap().then(gsap => gsap.to(el, { y: -3, background: 'rgba(255,255,255,0.68)', duration: 0.18, ease: 'power2.out', overwrite: 'auto' }));
-          };
-          const hoverOut = (e: React.MouseEvent<HTMLElement>) => {
-            const el = e.currentTarget;
-            getGsap().then(gsap => gsap.to(el, { y: 0, background: 'rgba(255,255,255,0.45)', duration: 0.22, ease: 'power2.out', overwrite: 'auto' }));
-          };
-
-          // Link-out games open a full page; inline games launch via GameEngin
-          if (game.href) {
+        <AnimatePresence mode="popLayout">
+          {filtered.map(game => {
+            const isSaved = savedSessions.some((s) => s.gameId === game.id);
             return (
-              <Link key={game.id} href={game.href} style={cardStyle} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
-                {cardContent}
-              </Link>
+              <TiltGameCard
+                key={game.id}
+                game={game}
+                isSaved={isSaved}
+                onPlay={playGame}
+              />
             );
-          }
-
-          return (
-            <button
-              key={game.id}
-              type="button"
-              onClick={() => playGame(game.id)}
-              style={cardStyle}
-              onMouseEnter={hoverIn}
-              onMouseLeave={hoverOut}
-            >
-              {cardContent}
-            </button>
-          );
-        })}
+          })}
+        </AnimatePresence>
       </div>
 
       <div style={{ textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 11, paddingTop: 4 }}>
