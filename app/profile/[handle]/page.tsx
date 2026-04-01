@@ -41,13 +41,26 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const { handle } = await params;
   const supabase = await createServerClient();
 
-  const { data: { user: currentUser } } = await supabase.auth.getUser();
+  // Gracefully handle Supabase being unavailable (no configured env vars)
+  let currentUser: { id: string } | null = null;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    currentUser = user;
+  } catch {
+    // Supabase not configured — treat as anonymous visitor
+  }
 
-  const { data: rawProfile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('handle', handle)
-    .single();
+  let rawProfile: Record<string, unknown> | null = null;
+  try {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('handle', handle)
+      .single();
+    rawProfile = data;
+  } catch {
+    // Supabase unavailable
+  }
 
   if (!rawProfile) notFound();
 
@@ -59,26 +72,29 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   // Non-owners ONLY receive records with visibility = 'shared' or 'public'.
   // The query never includes 'private' records for non-owners.
   // RLS policies on dream_windows enforce this at the DB layer as well.
-   
-  const dreamWindowQuery = (supabase as any)
-    .from('dream_windows')
-    .select('id, type, config, size, position, visibility, active_state')
-    .eq('owner_id', profile.id);
+  let dreamWindowRecords: Array<{
+    id: string;
+    type: string;
+    config: Record<string, unknown>;
+    visibility: string;
+    active_state: string;
+  }> | null = null;
+  try {
+    const dreamWindowQuery = (supabase as any)
+      .from('dream_windows')
+      .select('id, type, config, size, position, visibility, active_state')
+      .eq('owner_id', profile.id);
 
-  // Owner sees all their dream_windows; visitors only see shared/public
-  const { data: dreamWindowRecords } = await (
-    isOwner
-      ? dreamWindowQuery
-      : dreamWindowQuery.in('visibility', ['shared', 'public'])
-  ) as {
-    data: Array<{
-      id: string;
-      type: string;
-      config: Record<string, unknown>;
-      visibility: string;
-      active_state: string;
-    }> | null
-  };
+    // Owner sees all their dream_windows; visitors only see shared/public
+    const { data } = await (
+      isOwner
+        ? dreamWindowQuery
+        : dreamWindowQuery.in('visibility', ['shared', 'public'])
+    );
+    dreamWindowRecords = data;
+  } catch {
+    // dream_windows table may not exist yet — fall back to profile_dream_widgets
+  }
 
   // Log dream_windows count for observability (non-blocking)
   const dreamWindowCount = dreamWindowRecords?.length ?? 0;

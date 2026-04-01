@@ -856,6 +856,12 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const goldCenterY = goldTopPx + GOLD_R;
   const minCapsuleTop = goldCenterY - GOLD_MIN_H / 2;
 
+  // ── Resting state: bar is nearly transparent until interacted with ────────
+  // Bar is "resting" when: at bottom (not top), not dragging, not composeFocused,
+  // at default height (BAR_H), not in divider mode, and no active intent.
+  const isResting = !isDividerMode && !isTop && !isDragging && !composeFocused
+    && dragH <= BAR_H && barIntent.mode === 'default';
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
@@ -1012,26 +1018,32 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           zIndex: 100,
           pointerEvents: 'auto',
           overflow: 'hidden',
-          transition,
+          transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, opacity 0.6s ease, background 0.6s ease`,
           willChange: isDragging ? 'top, height' : undefined,
           display: 'flex',
           // Divider mode: handle always at top; legacy: handle position depends on snap state
           flexDirection: isDividerMode ? 'column' : (isTop ? 'column-reverse' : 'column'),
           background: isDividerMode
             ? 'linear-gradient(180deg, rgba(245,246,250,0.98) 0%, rgba(240,242,247,0.99) 100%)'
-            : 'linear-gradient(180deg, rgba(248,249,253,0.97) 0%, rgba(242,244,249,0.99) 100%)',
-          backdropFilter: 'blur(32px) saturate(160%)', WebkitBackdropFilter: 'blur(32px) saturate(160%)',
+            : isResting
+              ? 'rgba(248,249,253,0.06)'
+              : 'linear-gradient(180deg, rgba(248,249,253,0.97) 0%, rgba(242,244,249,0.99) 100%)',
+          backdropFilter: isResting ? 'none' : 'blur(32px) saturate(160%)',
+          WebkitBackdropFilter: isResting ? 'none' : 'blur(32px) saturate(160%)',
+          opacity: isResting ? 0.18 : 1,
           borderTop: isDividerMode ? 'none' : (isTop ? 'none' : 'none'),
           borderBottom: isDividerMode ? 'none' : (isTop ? 'none' : 'none'),
-          boxShadow: isDividerMode
-            ? `0 4px 24px rgba(0,0,0,0.08), 0 -4px 24px rgba(0,0,0,0.06),
-               0 1px 0 rgba(200,152,26,0.18), 0 -1px 0 rgba(200,152,26,0.12),
-               inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(255,255,255,0.25)`
-            : (isTop
-              ? `0 6px 32px rgba(0,0,0,0.12), 0 1px 0 rgba(200,152,26,0.15),
-                 inset 0 -1px 0 rgba(255,255,255,0.35)`
-              : `0 -6px 32px rgba(0,0,0,0.10), 0 -1px 0 rgba(200,152,26,0.15),
-                 inset 0 1px 0 rgba(255,255,255,0.45)`),
+          boxShadow: isResting
+            ? 'none'
+            : (isDividerMode
+              ? `0 4px 24px rgba(0,0,0,0.08), 0 -4px 24px rgba(0,0,0,0.06),
+                 0 1px 0 rgba(200,152,26,0.18), 0 -1px 0 rgba(200,152,26,0.12),
+                 inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(255,255,255,0.25)`
+              : (isTop
+                ? `0 6px 32px rgba(0,0,0,0.12), 0 1px 0 rgba(200,152,26,0.15),
+                   inset 0 -1px 0 rgba(255,255,255,0.35)`
+                : `0 -6px 32px rgba(0,0,0,0.10), 0 -1px 0 rgba(200,152,26,0.15),
+                   inset 0 1px 0 rgba(255,255,255,0.45)`)),
         }}
       >
         {/* ── Drag handle ──────────────────────────────────────────────────── */}
