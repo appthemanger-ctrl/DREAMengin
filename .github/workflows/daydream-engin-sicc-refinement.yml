@@ -225,7 +225,7 @@ jobs:
             echo "No SICC fixes to commit."
           else
             git add -A
-            git commit -m "refine(${{ matrix.daydream }}): SICC polish pass [skip ci]"
+            git commit -m "refine(${{ matrix.daydream }}): SICC polish pass [skip ci] [skip vercel]"
             git push || true
           fi
 

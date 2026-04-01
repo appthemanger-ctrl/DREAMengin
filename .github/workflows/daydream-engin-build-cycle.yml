@@ -241,7 +241,7 @@ jobs:
             echo "No fixes to commit."
           else
             git add -A
-            git commit -m "fix(${{ matrix.domain }}-engin): auto-fix from Build Cycle [skip ci]"
+            git commit -m "fix(${{ matrix.domain }}-engin): auto-fix from Build Cycle [skip ci] [skip vercel]"
             git push || true
           fi
 
@@ -303,7 +303,7 @@ jobs:
             echo "No refinements to commit."
           else
             git add -A
-            git commit -m "refine(${{ matrix.domain }}-engin): SICC UI refinement pass [skip ci]"
+            git commit -m "refine(${{ matrix.domain }}-engin): SICC UI refinement pass [skip ci] [skip vercel]"
             git push || true
           fi
 

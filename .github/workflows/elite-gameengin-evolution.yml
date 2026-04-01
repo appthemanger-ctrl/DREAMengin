@@ -392,7 +392,7 @@ jobs:
             echo "✅ No fixes needed"
           else
             git add -A
-            git commit -m "fix(elite-gameengin): ESLint auto-fix — engine scope [skip ci]"
+            git commit -m "fix(elite-gameengin): ESLint auto-fix — engine scope [skip ci] [skip vercel]"
             git push || true
           fi
 

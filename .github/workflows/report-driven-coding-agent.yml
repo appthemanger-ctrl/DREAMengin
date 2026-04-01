@@ -147,7 +147,7 @@ jobs:
           git config user.email "github-coding-agent@users.noreply.github.com"
           if ! git diff --quiet || ! git diff --cached --quiet; then
             git add -A
-            git commit -m "AI: implement report-driven repo changes [skip ci]"
+            git commit -m "AI: implement report-driven repo changes [skip ci] [skip vercel]"
           else
             echo "Nothing to commit."
           fi
