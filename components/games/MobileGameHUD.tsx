@@ -4,27 +4,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import styles from '@/components/games/MobileGameHUD.module.css';
 import {
-  emitMobileButton,
   emitMobileLook,
   emitMobileMove,
+  emitMobileButton,
   fireLegacyGameInput,
-  getLegacyActionForMobileButton,
   getLegacyMoveAction,
   normalizeStickVector,
   type MobileControlVector,
-  type MobileHudButton,
   type MobileHudMode,
 } from '@/lib/games/mobileControls';
-
-// PS-style face buttons arranged as a diamond (top/right/bottom/left)
-const FACE_BUTTONS = [
-  { id: 'jump',   symbol: '△', label: 'Jump',   pos: 'top'    as const, interactive: true  },
-  { id: 'action', symbol: '○', label: 'Action', pos: 'right'  as const, interactive: true  },
-  { id: 'x',      symbol: '×', label: 'Face',   pos: 'bottom' as const, interactive: false },
-  { id: 'dash',   symbol: '□', label: 'Dash',   pos: 'left'   as const, interactive: true  },
-] as const;
-
-const INTERACTIVE_FACE = new Set<string>(['jump', 'dash', 'action']);
 
 const SCALE_MIN = 0.55;
 const SCALE_MAX = 1.45;
@@ -53,13 +41,6 @@ interface MobileGameHUDProps {
 const ZERO_VECTOR: MobileControlVector = { x: 0, y: 0 };
 type TouchPoint = { clientX: number; clientY: number };
 
-const FACE_POS_CLASS: Record<'top' | 'right' | 'bottom' | 'left', string> = {
-  top:    styles.faceBtnPosTop,
-  right:  styles.faceBtnPosRight,
-  bottom: styles.faceBtnPosBottom,
-  left:   styles.faceBtnPosLeft,
-};
-
 function getStickTransform(vector: MobileControlVector) {
   return `translate(calc(-50% + ${vector.x * 34}%), calc(-50% + ${vector.y * 34}%))`;
 }
@@ -84,18 +65,14 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   const rightDockRef = useRef<HTMLDivElement>(null);
   const leftCapRef = useRef<HTMLDivElement>(null);
   const rightCapRef = useRef<HTMLDivElement>(null);
-  const faceButtonRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const leftTouchIdRef = useRef<number | null>(null);
   const rightTouchIdRef = useRef<number | null>(null);
   const activeMoveActionRef = useRef<ReturnType<typeof getLegacyMoveAction>>(null);
-  const faceTouchMapRef = useRef<Map<number, string | null>>(new Map());
-  const activeButtonCountsRef = useRef<Record<string, number>>({});
   const touchFadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragStartRef = useRef<{ y: number; baseOffsetY: number } | null>(null);
 
   const [leftVector, setLeftVector] = useState(ZERO_VECTOR);
   const [rightVector, setRightVector] = useState(ZERO_VECTOR);
-  const [pressedButtons, setPressedButtons] = useState<Record<string, boolean>>({});
   const [pausePressed, setPausePressed] = useState(false);
   const [exitPressed, setExitPressed] = useState(false);
   const [remoteScale, setRemoteScale] = useState(() => loadPersisted('de:hud:scale', 1.0, SCALE_MIN, SCALE_MAX));
@@ -104,8 +81,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
 
   // ── Emit CSS var so game stage can clear the remote ───────────────────────
   useEffect(() => {
-    // Approximate dock height (px) at scale 1 + readout above
-    const dockH = 130;
+    const dockH = 155;
     const readoutH = 40;
     const baseBottom = 18 + (dockH + readoutH) * remoteScale + offsetY;
     const clamped = Math.max(0, Math.min(480, Math.round(baseBottom)));
@@ -163,41 +139,6 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
     setRightVector((prev) => keepPreviousVectorIfUnchanged(prev, nextVector));
     emitMobileLook(nextVector);
   }, [syncStickCap]);
-
-  const updateButtonPressedState = useCallback((buttonId: string, active: boolean) => {
-    setPressedButtons((prev) => {
-      if ((prev[buttonId] ?? false) === active) return prev;
-      return { ...prev, [buttonId]: active };
-    });
-  }, []);
-
-  const setButtonActive = useCallback((buttonId: string, active: boolean) => {
-    if (!INTERACTIVE_FACE.has(buttonId)) return;
-    const counts = activeButtonCountsRef.current;
-    const current = counts[buttonId] ?? 0;
-    const next = active ? current + 1 : Math.max(0, current - 1);
-    counts[buttonId] = next;
-    updateButtonPressedState(buttonId, next > 0);
-    if (active && current === 0) {
-      emitMobileButton(buttonId as MobileHudButton);
-      fireLegacyGameInput(getLegacyActionForMobileButton(buttonId as 'jump' | 'dash' | 'action'), true);
-    }
-    if (!active && current > 0 && next === 0) {
-      fireLegacyGameInput(getLegacyActionForMobileButton(buttonId as 'jump' | 'dash' | 'action'), false);
-    }
-  }, [updateButtonPressedState]);
-
-  const findFaceButtonAtPoint = useCallback((clientX: number, clientY: number) => {
-    for (const btn of FACE_BUTTONS) {
-      if (!btn.interactive) continue;
-      const rect = faceButtonRefs.current[btn.id]?.getBoundingClientRect();
-      if (!rect) continue;
-      if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
-        return btn.id;
-      }
-    }
-    return null;
-  }, []);
 
   const updateStickFromTouch = useCallback((
     touch: TouchPoint,
@@ -273,40 +214,6 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
     if (released) releaseRightStick();
   }, [releaseRightStick]);
 
-  // ── Face buttons ──────────────────────────────────────────────────────────
-  const handleFaceButtonStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    Array.from(event.changedTouches).forEach((touch) => {
-      const buttonId = findFaceButtonAtPoint(touch.clientX, touch.clientY);
-      faceTouchMapRef.current.set(touch.identifier, buttonId);
-      if (buttonId) { markTouchStart(); setButtonActive(buttonId, true); }
-    });
-  }, [findFaceButtonAtPoint, markTouchStart, setButtonActive]);
-
-  const handleFaceButtonMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    Array.from(event.changedTouches).forEach((touch) => {
-      if (!faceTouchMapRef.current.has(touch.identifier)) return;
-      const prev = faceTouchMapRef.current.get(touch.identifier) ?? null;
-      const next = findFaceButtonAtPoint(touch.clientX, touch.clientY);
-      if (prev === next) return;
-      if (prev) setButtonActive(prev, false);
-      if (next) setButtonActive(next, true);
-      faceTouchMapRef.current.set(touch.identifier, next);
-    });
-  }, [findFaceButtonAtPoint, setButtonActive]);
-
-  const releaseFaceTouch = useCallback((touchId: number) => {
-    const buttonId = faceTouchMapRef.current.get(touchId);
-    if (buttonId) { setButtonActive(buttonId, false); markTouchEnd(); }
-    faceTouchMapRef.current.delete(touchId);
-  }, [markTouchEnd, setButtonActive]);
-
-  const handleFaceButtonEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    Array.from(event.changedTouches).forEach((t) => releaseFaceTouch(t.identifier));
-  }, [releaseFaceTouch]);
-
   // ── Pause / Exit ──────────────────────────────────────────────────────────
   const handlePausePress = useCallback(() => {
     setPausePressed(true);
@@ -357,10 +264,6 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
     if (activeMoveActionRef.current) fireLegacyGameInput(activeMoveActionRef.current, false);
     fireLegacyGameInput('move-stop', true);
     fireLegacyGameInput('move-stop', false);
-    Object.entries(activeButtonCountsRef.current).forEach(([buttonId, count]) => {
-      if (!count || !INTERACTIVE_FACE.has(buttonId)) return;
-      fireLegacyGameInput(getLegacyActionForMobileButton(buttonId as 'jump' | 'dash' | 'action'), false);
-    });
     fireLegacyGameInput('pause', false);
   }, []);
 
@@ -465,52 +368,24 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
         </div>
       </div>
 
-      {/* ── Right area: face buttons diamond + right joystick (LOOK) ── */}
-      <div className={styles.rightArea}>
-        {/* Face buttons (△/○/×/□ diamond) */}
-        <div
-          className={styles.faceButtonCluster}
-          onTouchStart={handleFaceButtonStart}
-          onTouchMove={handleFaceButtonMove}
-          onTouchEnd={handleFaceButtonEnd}
-          onTouchCancel={handleFaceButtonEnd}
-        >
-          {FACE_BUTTONS.map((btn) => (
-            <div
-              key={btn.id}
-              ref={(node) => { faceButtonRefs.current[btn.id] = node; }}
-              className={clsx(
-                styles.faceBtn,
-                FACE_POS_CLASS[btn.pos],
-                btn.interactive ? styles.faceBtnInteractive : styles.faceBtnDecorative,
-                pressedButtons[btn.id] && styles.faceBtnPressed,
-              )}
-            >
-              {btn.symbol}
-            </div>
-          ))}
-          <div className={styles.faceBtnHub} />
-        </div>
-
-        {/* Right joystick */}
-        <div
-          ref={rightDockRef}
-          className={clsx(styles.joystickDock, styles.rightDock)}
-          onTouchStart={handleRightStickStart}
-          onTouchMove={handleRightStickMove}
-          onTouchEnd={handleRightStickEnd}
-          onTouchCancel={handleRightStickEnd}
-        >
-          <div className={styles.readout}>{formatVectorLabel(rightVector, 'LOOK')}</div>
-          <div className={styles.joystickShell}>
-            <div className={styles.joystickRing} />
-            <div className={styles.joystickCore} />
-            <div
-              ref={rightCapRef}
-              className={clsx(styles.joystickCap, rightTouchIdRef.current === null && styles.joystickCapReset)}
-              style={{ transform: getStickTransform(rightVector) }}
-            />
-          </div>
+      {/* ── Right joystick (LOOK) — larger than left ── */}
+      <div
+        ref={rightDockRef}
+        className={clsx(styles.joystickDock, styles.rightDock)}
+        onTouchStart={handleRightStickStart}
+        onTouchMove={handleRightStickMove}
+        onTouchEnd={handleRightStickEnd}
+        onTouchCancel={handleRightStickEnd}
+      >
+        <div className={styles.readout}>{formatVectorLabel(rightVector, 'LOOK')}</div>
+        <div className={styles.joystickShell}>
+          <div className={styles.joystickRing} />
+          <div className={styles.joystickCore} />
+          <div
+            ref={rightCapRef}
+            className={clsx(styles.joystickCap, rightTouchIdRef.current === null && styles.joystickCapReset)}
+            style={{ transform: getStickTransform(rightVector) }}
+          />
         </div>
       </div>
     </div>
