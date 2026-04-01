@@ -189,3 +189,65 @@ The `lib/ai/rate-limiter.ts` file is a separate higher-level service that also
 uses `check_ai_rate_limit` + `ai_rate_limits` and is not a replacement for
 `rateLimit.ts` — both must stay consistent with the canonical table/RPC above.
 
+## 12. Runtime Memory Architecture (SharedArrayBuffer + EnginDispatcher)
+
+The Engine uses a **zero-copy shared memory model** powered by `SharedArrayBuffer` to
+keep Surface Space and DreamSpace runtimes in sync without main-thread round-trips.
+
+### Memory map (`lib/runtime/memory.ts`)
+
+A single 16 MB `SharedArrayBuffer` is allocated once and partitioned into:
+
+| Region | Offset | Size | Purpose |
+|--------|--------|------|---------|
+| Control | 0 – 63 | 64 B | Atomics flags; `BAR_SEAM_ATOMICS_INDEX` (slot 0) — DreamDM Bar split ratio × 1000 |
+| PosX SoA | 64 – 40,063 | ~39 KB | Float32 x-positions for 10,000 entities |
+| PosY SoA | 40,064 – 80,063 | ~39 KB | Float32 y-positions for 10,000 entities |
+| VelX SoA | 80,064 – 120,063 | ~39 KB | Float32 x-velocities for 10,000 entities |
+| VelY SoA | 120,064 – 160,063 | ~39 KB | Float32 y-velocities for 10,000 entities |
+| HomeDream private | 160,064 – end | ~16 MB | Private region — access enforced by `boogieMemoryGuard()` |
+
+**Privacy boundary:** `PUBLIC_VIEW_LIMIT` prevents the public View Profile pointer from
+ever reaching the HomeDream private region. `boogieMemoryGuard()` enforces rule
+`C29_PRIVACY` (see `docs/BOOGIEMAN_POLICY.md`).
+
+### EnginDispatcher (`lib/runtime/EnginDispatcher.ts`)
+
+`EnginDispatcher` is the process-wide singleton that orchestrates the shader worker pool:
+
+1. Allocates the `SharedArrayBuffer` via `createEnginSAB()`.
+2. Spawns `navigator.hardwareConcurrency − 1` shader workers (min 1, max `MAX_WORKERS`).
+3. Partitions 10,000 entities into non-overlapping `Workgroup` slices and posts each
+   worker its SAB + range via `postMessage` (zero-copy transfer).
+4. Relays DreamDM Bar y-offset writes from Surface Space into the SAB so workers can
+   reposition Dream Windows in DreamSpace without a main-thread round-trip.
+5. Exposes per-worker µs/tick telemetry read directly from the SAB Telemetry Zone.
+6. Enforces the IDARi/TheBoogieMan audit: any `bounds_violation` message from a worker
+   is logged with full context and increments the violation counter.
+
+**SSR safety:** all browser-only APIs (`Worker`, `navigator`, `SharedArrayBuffer`) are
+guarded behind `typeof` checks so this module is safe to import server-side.
+
+**Usage:**
+```ts
+const dispatcher = EnginDispatcher.getInstance();
+dispatcher.init();                       // allocate SAB, spawn workers
+dispatcher.setDreamDMBarY(barYpx);       // relay bar seam position to workers
+const stats = dispatcher.stats;          // { workerCount, microsecondsPerTick, boundsViolations }
+dispatcher.dispose();                    // terminate workers, release SAB
+```
+
+**Shader worker:** `public/workers/engin-shader.worker.ts` — each worker receives its
+`Workgroup` slice and runs its own `Atomics.wait` / `requestAnimationFrame` loop so the
+main thread is never blocked by physics ticks.
+
+### Key files
+
+| File | Purpose |
+|------|---------|
+| `lib/runtime/memory.ts` | SAB layout constants, `createEnginSAB()`, `buildWorkgroups()`, typed view helpers |
+| `lib/runtime/EnginDispatcher.ts` | Singleton dispatcher — lifecycle, SAB writes, telemetry, bounds audit |
+| `public/workers/engin-shader.worker.ts` | Per-worker tick loop — reads SAB, enforces workgroup bounds |
+| `tests/engin-dispatcher.test.ts` | Unit tests for dispatcher lifecycle and bounds enforcement |
+| `tests/conform-memory-map.test.ts` | Conformance tests for the 16 MB memory map layout |
+

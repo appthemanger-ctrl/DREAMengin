@@ -19,7 +19,7 @@ name: Spec-Engin AI Agent
 on:
   workflow_dispatch:
   push:
-    branches: [main, develop]
+    branches: [main, develop, completedream]
     paths:
       - 'app/**'
       - 'components/**'
