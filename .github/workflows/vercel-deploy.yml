@@ -1,12 +1,13 @@
-name: Deploy to Vercel
+name: Deploy to Vercel (Manual)
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Single reusable deployer — all other workflows CALL this instead of running
-# their own Vercel build.  This ensures exactly one Vercel build fires per
-# qualifying event.
+# Manual-only emergency deployer.  Normal production deployments are handled
+# by the Vercel GitHub integration — Vercel watches the `completedream` branch
+# and auto-deploys on every push, so no VERCEL_TOKEN or CLI steps are needed
+# in the regular CI pipeline.
 #
-# Callers:
-#   github-actions.yml  (main CI/CD pipeline)
+# Use this workflow only when you need to force a deployment outside the normal
+# GitHub → Vercel integration flow (e.g. to redeploy without a new commit).
 #
 # Inputs (all optional, for traceability):
 #   caller    — name of the calling workflow
@@ -14,6 +15,16 @@ name: Deploy to Vercel
 # ──────────────────────────────────────────────────────────────────────────────
 
 on:
+  workflow_dispatch:
+    inputs:
+      caller:
+        description: "Name of the calling workflow"
+        type: string
+        default: "manual"
+      reason:
+        description: "Reason for this deployment"
+        type: string
+        default: "manual emergency deploy"
   workflow_call:
     inputs:
       caller:

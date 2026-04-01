@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-01 22:08 UTC  
-**Triggered by commit:** `d908df7` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #387 from appthemanger-ctrl/copilot/replace-javascript-physics-stub
+**Last updated:** 2026-04-01 22:52 UTC  
+**Triggered by commit:** `96f34c2` on `copilot/update-repo-for-vercel-deployment` by Copilot  
+**Commit message:** chore: switch Vercel deployment to GitHub integration (remove token-based CLI deploy)
 
 ---
 
