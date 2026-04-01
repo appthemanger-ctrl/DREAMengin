@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Send, MessageCircle, Loader2, AlertCircle } from 'lucide-react';
+import { MessageCircle, Loader2, AlertCircle } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/utils';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
 interface CommentProfile {
   display_name: string | null;
@@ -62,10 +63,7 @@ export default function CommentSection({ postId }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [input, setInput] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { setBarIntent } = useDreamSystem();
 
   // Skip fetching for demo posts
   const isDemo = postId.startsWith('demo-');
@@ -91,36 +89,6 @@ export default function CommentSection({ postId }: Props) {
       .catch(() => setError('Failed to load comments'))
       .finally(() => setLoading(false));
   }, [postId, isDemo]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const text = input.trim();
-    if (!text || submitting) return;
-
-    setSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const res = await fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, content: text }),
-      });
-      const { data, error: err } = await res.json();
-
-      if (!res.ok || err) {
-        setSubmitError(err || 'Failed to post comment');
-      } else if (data) {
-        setComments((prev) => [...prev, data as Comment]);
-        setInput('');
-        inputRef.current?.focus();
-      }
-    } catch {
-      setSubmitError('Network error — try again');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const handleDelete = async (commentId: string) => {
     try {
@@ -211,55 +179,34 @@ export default function CommentSection({ postId }: Props) {
           ))}
       </div>
 
-      {/* Input form */}
-      <form
-        onSubmit={handleSubmit}
-        className="px-4 pb-4 pt-2 border-t flex gap-2 items-end"
+      {/* DreamBar comment prompt — all text input flows through the DreamBar */}
+      <div
+        className="px-4 pb-4 pt-2 border-t"
         style={{ borderColor: 'rgba(160,195,240,0.2)' }}
       >
-        <textarea
-          ref={inputRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              handleSubmit(e as unknown as React.FormEvent);
-            }
-          }}
-          placeholder={isDemo ? 'Comments disabled on demo posts' : 'Add a comment…'}
-          disabled={isDemo || submitting}
-          rows={1}
-          maxLength={1000}
-          className="flex-1 resize-none text-xs rounded-xl px-3 py-2 outline-none transition-colors"
-          style={{
-            background: 'rgba(160,195,240,0.12)',
-            border: '1px solid rgba(160,195,240,0.3)',
-            color: 'var(--de-text)',
-            minHeight: 36,
-            maxHeight: 100,
-          }}
-        />
-        <button
-          type="submit"
-          disabled={isDemo || submitting || !input.trim()}
-          className="de-btn de-btn-primary flex-shrink-0"
-          style={{ padding: '7px 12px', opacity: (!input.trim() || isDemo) ? 0.5 : 1 }}
-          aria-label="Post comment"
-        >
-          {submitting ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <Send className="w-3.5 h-3.5" />
-          )}
-        </button>
-      </form>
+        {isDemo ? (
+          <p className="text-xs text-center" style={{ color: 'var(--de-text-dim)', padding: '4px 0' }}>
+            Comments disabled on demo posts
+          </p>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setBarIntent({ mode: 'comment', targetPostId: postId })}
+            className="w-full flex items-center gap-2 rounded-xl px-3 py-2 text-xs transition-colors"
+            style={{
+              background: 'rgba(160,195,240,0.10)',
+              border: '1px solid rgba(160,195,240,0.22)',
+              color: 'var(--de-text-dim)',
+              cursor: 'pointer',
+              textAlign: 'left',
+            }}
+          >
+            <MessageCircle size={13} aria-hidden style={{ flexShrink: 0, color: 'var(--de-accent)' }} />
+            <span>Add a comment via DreamBar ↑</span>
+          </button>
+        )}
+      </div>
 
-      {submitError && (
-        <p className="px-4 pb-3 text-xs" style={{ color: '#e05d5d' }}>
-          {submitError}
-        </p>
-      )}
     </div>
   );
 }
