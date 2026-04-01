@@ -57,7 +57,7 @@ export default function HomeFeed({
   const { posts, newCount, flushNew, isLive, replacePosts, prependPost, updatePost } =
     useLiveFeed(userId, initialPosts);
 
-  const { ytPosts, isRefreshing: isYtRefreshing, nextRefreshIn, refresh: refreshYt } =
+  const { ytPosts, isRefreshing: isYtRefreshing, refresh: refreshYt } =
     useYouTubeLiveFeed();
 
   const { setBarIntent } = useDreamSystem();
@@ -350,51 +350,27 @@ export default function HomeFeed({
           </div>
         </div>
 
-        {/* ── YouTube Live Feed status bar ──────────────────────────── */}
-        <div
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            padding: '5px 10px', marginBottom: 8,
-            borderRadius: 10,
-            background: 'rgba(255,30,30,0.06)',
-            border: '1px solid rgba(255,60,60,0.18)',
-            fontSize: 10, flexShrink: 0,
-          }}
-        >
-          <Youtube size={11} style={{ color: '#ef4444', flexShrink: 0 }} aria-hidden />
-          <span
-            aria-hidden="true"
-            style={{
-              width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
-              background: isYtRefreshing ? '#facc15' : '#ef4444',
-              boxShadow: isYtRefreshing ? '0 0 5px rgba(250,204,21,0.8)' : '0 0 5px rgba(239,68,68,0.7)',
-              animation: 'de-live-blink 2s ease-in-out infinite',
-            }}
-          />
-          <span style={{ color: '#ef4444', fontWeight: 700, letterSpacing: '0.06em' }}>LIVE</span>
-          <span style={{ color: 'var(--de-text-dim)' }}>weed · world news · Neil deGrasse Tyson</span>
-          <span style={{ marginLeft: 'auto', color: 'var(--de-text-dim)', fontVariantNumeric: 'tabular-nums', minWidth: 40, textAlign: 'right' }}>
-            {isYtRefreshing ? '…' : `${nextRefreshIn}s`}
-          </span>
+        {/* ── YouTube feed refresh button ───────────────────────── */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8, flexShrink: 0 }}>
           <button
             type="button"
             onClick={refreshYt}
             disabled={isYtRefreshing}
-            aria-label="Refresh YouTube feed now"
+            aria-label="Refresh video feed"
             style={{
-              display: 'inline-flex', alignItems: 'center', gap: 3,
-              padding: '2px 7px', borderRadius: 6,
-              border: '1px solid rgba(239,68,68,0.25)',
-              background: 'transparent', color: '#ef4444',
-              fontSize: 10, fontWeight: 600, cursor: isYtRefreshing ? 'not-allowed' : 'pointer',
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              padding: '5px 12px', borderRadius: 8,
+              border: '1px solid rgba(160,195,240,0.25)',
+              background: 'transparent', color: 'var(--de-text-dim)',
+              fontSize: 12, fontWeight: 600, cursor: isYtRefreshing ? 'not-allowed' : 'pointer',
               opacity: isYtRefreshing ? 0.5 : 1,
             }}
           >
             <RefreshCw
-              size={9}
+              size={12}
               style={{ animation: isYtRefreshing ? 'de-spin 1s linear infinite' : 'none' }}
             />
-            Refresh
+            Refresh feed
           </button>
         </div>
 

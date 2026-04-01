@@ -25,12 +25,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import type { UnifiedFeedItem } from '@/types/connector';
+import { ALL_TOPICS, DEFAULT_TOPIC_IDS, loadActiveTopicIds, topicIdsToQueries } from '@/lib/feed/feedTopics';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const QUERIES = ['weed', 'world news', 'neil degrasse tyson'] as const;
-const FEED_MAX = 20;
-const REFRESH_INTERVAL_S = 15;
+const FEED_MAX = 30;
+const REFRESH_INTERVAL_DEFAULT_S = 15;
+const REFRESH_INTERVAL_ALL_S = 10;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -90,14 +91,26 @@ export interface UseYouTubeLiveFeedReturn {
 export function useYouTubeLiveFeed(): UseYouTubeLiveFeedReturn {
   const [ytPosts, setYtPosts] = useState<FeedPost[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [nextRefreshIn, setNextRefreshIn] = useState(REFRESH_INTERVAL_S);
+
+  // Read active topic queries from localStorage on mount; re-read on each cycle
+  // so settings changes propagate without a full page reload.
+  const getQueries = useCallback((): string[] => {
+    const ids = loadActiveTopicIds();
+    const queries = topicIdsToQueries(ids);
+    return queries.length > 0 ? queries : topicIdsToQueries(DEFAULT_TOPIC_IDS);
+  }, []);
+
+  const getRefreshInterval = useCallback((): number => {
+    const ids = loadActiveTopicIds();
+    return ids.length >= ALL_TOPICS.length ? REFRESH_INTERVAL_ALL_S : REFRESH_INTERVAL_DEFAULT_S;
+  }, []);
 
   const queryIndexRef = useRef(0);
   const seenIdsRef    = useRef<Set<string>>(new Set());
   const refreshingRef = useRef(false);
   const mountedRef    = useRef(true);
 
-  // ── Initial load: all 3 queries in parallel ───────────────────────────────
+  // ── Initial load: all active queries in parallel ──────────────────────────
 
   useEffect(() => {
     mountedRef.current = true;
@@ -106,8 +119,9 @@ export function useYouTubeLiveFeed(): UseYouTubeLiveFeedReturn {
     async function init() {
       setIsRefreshing(true);
       try {
+        const queries = getQueries();
         const results = await Promise.all(
-          QUERIES.map((q) => fetchYtQuery(q, 7, ctrl.signal)),
+          queries.map((q) => fetchYtQuery(q, 7, ctrl.signal)),
         );
         if (!mountedRef.current) return;
 
@@ -144,7 +158,7 @@ export function useYouTubeLiveFeed(): UseYouTubeLiveFeedReturn {
       mountedRef.current = false;
       ctrl.abort();
     };
-  }, []);
+  }, [getQueries]);
 
   // ── Slide in one new item, drop the oldest ────────────────────────────────
 
@@ -154,7 +168,8 @@ export function useYouTubeLiveFeed(): UseYouTubeLiveFeedReturn {
     if (mountedRef.current) setIsRefreshing(true);
 
     try {
-      const query = QUERIES[queryIndexRef.current % QUERIES.length]!;
+      const queries = getQueries();
+      const query = queries[queryIndexRef.current % queries.length]!;
       queryIndexRef.current += 1;
 
       const items = await fetchYtQuery(query, 3);
@@ -182,33 +197,22 @@ export function useYouTubeLiveFeed(): UseYouTubeLiveFeedReturn {
       // Silent
     } finally {
       refreshingRef.current = false;
-      if (mountedRef.current) {
-        setIsRefreshing(false);
-        setNextRefreshIn(REFRESH_INTERVAL_S);
-      }
+      if (mountedRef.current) setIsRefreshing(false);
     }
-  }, []);
+  }, [getQueries]);
 
-  // ── Countdown: 1-second tick ──────────────────────────────────────────────
-
-  useEffect(() => {
-    const tick = setInterval(() => {
-      setNextRefreshIn((n) => (n <= 1 ? REFRESH_INTERVAL_S : n - 1));
-    }, 1_000);
-    return () => clearInterval(tick);
-  }, []);
-
-  // ── Auto-refresh every 15 s ───────────────────────────────────────────────
+  // ── Auto-refresh: interval depends on how many topics are active ──────────
 
   useEffect(() => {
-    const timer = setInterval(() => { void slideOne(); }, REFRESH_INTERVAL_S * 1_000);
+    const intervalMs = getRefreshInterval() * 1_000;
+    const timer = setInterval(() => { void slideOne(); }, intervalMs);
     return () => clearInterval(timer);
-  }, [slideOne]);
+  }, [slideOne, getRefreshInterval]);
 
   return {
     ytPosts,
     isRefreshing,
-    nextRefreshIn,
+    nextRefreshIn: getRefreshInterval(),
     refresh: () => { void slideOne(); },
   };
 }
