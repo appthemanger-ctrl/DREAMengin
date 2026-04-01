@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-26T09:49:03.467Z",
+  "generated_at": "2026-04-01T05:11:59.567Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 69,
+  "count": 71,
   "actions": [
     {
       "file": "app/api/account/delete-data/route.ts",
@@ -185,6 +185,7 @@
         "GET"
       ],
       "exports": [
+        "getOAuthProvidersResponse",
         "dynamic"
       ]
     },
@@ -214,8 +215,7 @@
       "file": "app/api/connectors/[provider]/connect/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
-        "POST",
-        "DELETE"
+        "POST"
       ],
       "exports": []
     },
@@ -294,6 +294,16 @@
         "GET"
       ],
       "exports": []
+    },
+    {
+      "file": "app/api/content/intelligence/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": [
+        "dynamic"
+      ]
     },
     {
       "file": "app/api/dr-eams/hf/route.ts",
@@ -415,6 +425,16 @@
       "type": "api-route-handler",
       "http_handlers": [
         "GET",
+        "POST"
+      ],
+      "exports": [
+        "dynamic"
+      ]
+    },
+    {
+      "file": "app/api/lab/benchmarks/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
         "POST"
       ],
       "exports": [

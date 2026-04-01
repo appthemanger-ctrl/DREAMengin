@@ -14,16 +14,17 @@
  *   - Like/comment counts sync via UPDATE events (no re-fetch)
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
   Send, Loader2, Globe, Lock, ArrowUp, Wifi, X,
-  FileText, Radio, RefreshCw, ChevronDown, ChevronUp,
+  FileText, Radio, RefreshCw, ChevronDown, ChevronUp, Youtube,
 } from 'lucide-react';
 import { useLiveFeed, type FeedPost } from '@/lib/feed/useLiveFeed';
+import { useYouTubeLiveFeed } from '@/lib/feed/useYouTubeLiveFeed';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { createClient } from '@/lib/supabase/client';
@@ -56,6 +57,9 @@ export default function HomeFeed({
   const { posts, newCount, flushNew, isLive, replacePosts, prependPost, updatePost } =
     useLiveFeed(userId, initialPosts);
 
+  const { ytPosts, isRefreshing: isYtRefreshing, nextRefreshIn, refresh: refreshYt } =
+    useYouTubeLiveFeed();
+
   const { setBarIntent } = useDreamSystem();
 
   const [tabLoading, setTabLoading] = useState(false);
@@ -75,8 +79,6 @@ export default function HomeFeed({
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
   const [commentLoadingSet, setCommentLoadingSet] = useState<Set<string>>(new Set());
-  const [commentDraftMap, setCommentDraftMap] = useState<Record<string, string>>({});
-  const [commentSendingSet, setCommentSendingSet] = useState<Set<string>>(new Set());
 
   const handleCommentFromBar = useCallback((post: FeedPost) => {
     setBarIntent({
@@ -112,32 +114,6 @@ export default function HomeFeed({
       return next;
     });
   }, [loadComments]);
-
-  const submitComment = useCallback(async (postId: string) => {
-    const content = (commentDraftMap[postId] ?? '').trim();
-    if (!content) return;
-    setCommentSendingSet(prev => new Set(prev).add(postId));
-    try {
-      const res = await fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, content }),
-      });
-      if (res.ok) {
-        const data = await res.json() as { data?: Comment };
-        setCommentDraftMap(prev => ({ ...prev, [postId]: '' }));
-        if (data.data) {
-          setCommentsMap(prev => ({
-            ...prev,
-            [postId]: [...(prev[postId] ?? []), data.data!],
-          }));
-        }
-        updatePost(postId, { comments_count: (posts.find(p => p.id === postId)?.comments_count ?? 0) + 1 });
-      }
-    } catch { /* silent */ } finally {
-      setCommentSendingSet(prev => { const s = new Set(prev); s.delete(postId); return s; });
-    }
-  }, [commentDraftMap, posts, updatePost]);
 
   const prevInitialRef = useRef(initialPosts);
   useEffect(() => {
@@ -311,6 +287,24 @@ export default function HomeFeed({
 
   const isCompactEmbedded = embedded && isCompactRuntimeViewport(viewportWidth);
 
+  // ── Merge platform posts with YouTube live items ───────────────────────────
+  // Insert 1 YouTube card after every 3 platform posts; remaining yt items
+  // append at the end. YouTube items are stable across renders — only
+  // ytPosts reference changes when the sliding window updates.
+  const displayPosts = useMemo<FeedPost[]>(() => {
+    if (ytPosts.length === 0) return posts;
+    const result: FeedPost[] = [];
+    let ytIdx = 0;
+    for (let i = 0; i < posts.length; i++) {
+      result.push(posts[i]!);
+      if ((i + 1) % 3 === 0 && ytIdx < ytPosts.length) {
+        result.push(ytPosts[ytIdx++]!);
+      }
+    }
+    while (ytIdx < ytPosts.length) result.push(ytPosts[ytIdx++]!);
+    return result;
+  }, [posts, ytPosts]);
+
   return (
     <>
     <div className={embedded ? 'h-full' : 'min-h-screen de-sky-bg'} style={embedded ? { display: 'flex', flexDirection: 'column' } : undefined}>
@@ -354,6 +348,54 @@ export default function HomeFeed({
             />
             <Wifi size={11} />
           </div>
+        </div>
+
+        {/* ── YouTube Live Feed status bar ──────────────────────────── */}
+        <div
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '5px 10px', marginBottom: 8,
+            borderRadius: 10,
+            background: 'rgba(255,30,30,0.06)',
+            border: '1px solid rgba(255,60,60,0.18)',
+            fontSize: 10, flexShrink: 0,
+          }}
+        >
+          <Youtube size={11} style={{ color: '#ef4444', flexShrink: 0 }} aria-hidden />
+          <span
+            aria-hidden="true"
+            style={{
+              width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+              background: isYtRefreshing ? '#facc15' : '#ef4444',
+              boxShadow: isYtRefreshing ? '0 0 5px rgba(250,204,21,0.8)' : '0 0 5px rgba(239,68,68,0.7)',
+              animation: 'de-live-blink 2s ease-in-out infinite',
+            }}
+          />
+          <span style={{ color: '#ef4444', fontWeight: 700, letterSpacing: '0.06em' }}>LIVE</span>
+          <span style={{ color: 'var(--de-text-dim)' }}>weed · world news · Neil deGrasse Tyson</span>
+          <span style={{ marginLeft: 'auto', color: 'var(--de-text-dim)', fontVariantNumeric: 'tabular-nums', minWidth: 40, textAlign: 'right' }}>
+            {isYtRefreshing ? '…' : `${nextRefreshIn}s`}
+          </span>
+          <button
+            type="button"
+            onClick={refreshYt}
+            disabled={isYtRefreshing}
+            aria-label="Refresh YouTube feed now"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 3,
+              padding: '2px 7px', borderRadius: 6,
+              border: '1px solid rgba(239,68,68,0.25)',
+              background: 'transparent', color: '#ef4444',
+              fontSize: 10, fontWeight: 600, cursor: isYtRefreshing ? 'not-allowed' : 'pointer',
+              opacity: isYtRefreshing ? 0.5 : 1,
+            }}
+          >
+            <RefreshCw
+              size={9}
+              style={{ animation: isYtRefreshing ? 'de-spin 1s linear infinite' : 'none' }}
+            />
+            Refresh
+          </button>
         </div>
 
         {/* New-posts banner */}
@@ -445,7 +487,7 @@ export default function HomeFeed({
                 : { maxHeight: 'calc(100vh - 280px)' }),
             }}
           >
-          {posts.length === 0 ? (
+          {posts.length === 0 && ytPosts.length === 0 ? (
             <div className="bg-card rounded-2xl border border-border p-12 text-center">
               <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
@@ -453,12 +495,12 @@ export default function HomeFeed({
               <button onClick={() => setShowComposer(true)} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors min-h-[48px]">Create a Post</button>
             </div>
           ) : (
-            posts.map((post, postIdx) => (
+            displayPosts.map((post, postIdx) => (
               <article
                 key={post.id}
                 className="bg-card hover:border-primary/20 transition-colors"
                 style={{
-                  borderBottom: postIdx < posts.length - 1 ? '1px solid var(--de-border, rgba(180,185,200,0.15))' : 'none',
+                  borderBottom: postIdx < displayPosts.length - 1 ? '1px solid var(--de-border, rgba(180,185,200,0.15))' : 'none',
                   padding: '16px',
                 }}
               >
@@ -507,11 +549,55 @@ export default function HomeFeed({
                   <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
                 </div>
                 <p className="text-foreground leading-relaxed mb-4 whitespace-pre-wrap" style={{ display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.content}</p>
-                {post.media_url && (
+                {post.provider === 'youtube' && post.media_url ? (
+                  /* YouTube thumbnail card with play-button overlay */
+                  <a
+                    href={post.permalink || `https://www.youtube.com/results?search_query=${encodeURIComponent(post.content)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block rounded-xl overflow-hidden mb-4 border border-border"
+                    style={{ position: 'relative', background: '#000' }}
+                    aria-label={`Watch on YouTube: ${post.content}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={post.media_url}
+                      alt={post.content}
+                      loading="lazy"
+                      style={{ width: '100%', maxHeight: 200, objectFit: 'cover', display: 'block', opacity: 0.9 }}
+                    />
+                    {/* Play button overlay */}
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <div style={{
+                        width: 48, height: 48, borderRadius: '50%',
+                        background: 'rgba(239,68,68,0.92)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+                      }}>
+                        <svg viewBox="0 0 24 24" fill="white" width={20} height={20} aria-hidden>
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                    {/* YouTube logo badge */}
+                    <div style={{
+                      position: 'absolute', top: 8, right: 8,
+                      display: 'flex', alignItems: 'center', gap: 4,
+                      padding: '2px 6px', borderRadius: 4,
+                      background: 'rgba(0,0,0,0.7)',
+                      fontSize: 9, fontWeight: 700, color: '#fff',
+                    }}>
+                      <Youtube size={9} style={{ color: '#ef4444' }} aria-hidden /> YouTube
+                    </div>
+                  </a>
+                ) : post.media_url ? (
                   <div className="rounded-xl overflow-hidden mb-4 border border-border">
                     <Image src={post.media_url} alt="Post media" width={600} height={400} className="w-full h-auto object-cover" style={{ maxHeight: 240, objectFit: 'cover' }} />
                   </div>
-                )}
+                ) : null}
                 {post.source !== 'connector' && (
                   <div className="flex items-center justify-between pt-2 border-t border-border/50">
                     <button onClick={() => void toggleLike(post.id)} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${likedPosts.has(post.id) ? 'text-red-500 bg-red-500/10' : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/10'}`} aria-label={likedPosts.has(post.id) ? 'Unlike post' : 'Like post'}>
@@ -519,7 +605,7 @@ export default function HomeFeed({
                       <span>{post.likes_count ?? 0}</span>
                     </button>
                     <button
-                      onClick={() => void toggleComments(post.id)}
+                      onClick={() => { void toggleComments(post.id); handleCommentFromBar(post); }}
                       className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${expandedComments.has(post.id) ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-primary/10'}`}
                       aria-label={expandedComments.has(post.id) ? 'Hide comments' : 'Show comments'}
                     >
@@ -566,42 +652,28 @@ export default function HomeFeed({
                             ))
                           )}
                         </div>
-                        {/* Comment composer */}
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-                          <input
-                            type="text"
-                            value={commentDraftMap[post.id] ?? ''}
-                            onChange={(e) => setCommentDraftMap(prev => ({ ...prev, [post.id]: e.target.value }))}
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void submitComment(post.id); } }}
-                            placeholder="Add a comment…"
-                            style={{
-                              flex: 1, minWidth: 0, padding: '7px 12px',
-                              borderRadius: 999, fontSize: 13, border: '1px solid rgba(180,185,200,0.35)',
-                              background: 'rgba(255,255,255,0.72)', color: 'var(--de-text)', outline: 'none',
-                            }}
-                          />
-                          <button
-                            type="button"
-                            disabled={!(commentDraftMap[post.id] ?? '').trim() || commentSendingSet.has(post.id)}
-                            onClick={() => void submitComment(post.id)}
-                            style={{
-                              flexShrink: 0, background: 'linear-gradient(135deg, var(--de-gold,#c8981a), var(--de-blue,#2a8ab8))',
-                              border: 'none', borderRadius: '50%', width: 32, height: 32,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              cursor: 'pointer', color: 'white', opacity: !(commentDraftMap[post.id] ?? '').trim() ? 0.45 : 1,
-                            }}
-                            aria-label="Post comment"
-                          >
-                            {commentSendingSet.has(post.id) ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
-                          </button>
-                        </div>
+                        {/* DreamBar comment prompt */}
+                        <button
+                          type="button"
+                          onClick={() => handleCommentFromBar(post)}
+                          style={{
+                            width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '7px 12px', borderRadius: 999,
+                            border: '1px solid rgba(180,185,200,0.28)',
+                            background: 'rgba(255,255,255,0.55)', color: 'var(--de-text-dim)',
+                            fontSize: 13, cursor: 'pointer', textAlign: 'left',
+                          }}
+                        >
+                          <MessageCircle size={13} style={{ flexShrink: 0, color: 'var(--de-accent)' }} aria-hidden />
+                          <span>Comment via DreamBar ↑</span>
+                        </button>
                       </>
                     )}
                   </div>
                 )}
-                {post.source === 'connector' && (post as FeedPost & { permalink?: string }).permalink && (
+                {post.source === 'connector' && post.permalink && (
                   <div style={{ paddingTop: 8, borderTop: '1px solid rgba(180,185,200,0.12)' }}>
-                    <a href={(post as FeedPost & { permalink?: string }).permalink} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#4A9ED6', fontWeight: 600 }}>View original ↗</a>
+                    <a href={post.permalink} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#4A9ED6', fontWeight: 600 }}>View original ↗</a>
                   </div>
                 )}
               </article>

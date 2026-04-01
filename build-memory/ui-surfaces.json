@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-26T09:49:03.467Z",
+  "generated_at": "2026-04-01T05:11:59.567Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 75,
+  "count": 116,
   "surfaces": [
     {
       "type": "page",
@@ -117,6 +117,10 @@
         {
           "name": "AnalyticsEngin",
           "from": "@/components/daydream/AnalyticsEngin"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
     },
@@ -129,8 +133,19 @@
         {
           "name": "BrandingEngin",
           "from": "@/components/daydream/BrandingEngin"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
+    },
+    {
+      "type": "page",
+      "path": "/daydream/brand/engin",
+      "file": "app/daydream/brand/engin/page.tsx",
+      "component": "BrandEnginRedirectPage",
+      "imports": []
     },
     {
       "type": "page",
@@ -141,6 +156,29 @@
         {
           "name": "CodeEngin",
           "from": "@/components/daydream/CodeEngin"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/daydream/code/engin",
+      "file": "app/daydream/code/engin/page.tsx",
+      "component": "CodeEnginRedirectPage",
+      "imports": []
+    },
+    {
+      "type": "page",
+      "path": "/daydream/constellation",
+      "file": "app/daydream/constellation/page.tsx",
+      "component": "ConstellationPage",
+      "imports": [
+        {
+          "name": "ConstellationClient",
+          "from": "./ConstellationClient"
         }
       ]
     },
@@ -153,20 +191,26 @@
         {
           "name": "ContentEngin",
           "from": "@/components/daydream/ContentEngin"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
+    },
+    {
+      "type": "page",
+      "path": "/daydream/create/engin",
+      "file": "app/daydream/create/engin/page.tsx",
+      "component": "CreateEnginRedirectPage",
+      "imports": []
     },
     {
       "type": "page",
       "path": "/daydream/game",
       "file": "app/daydream/game/page.tsx",
       "component": "GamePage",
-      "imports": [
-        {
-          "name": "GamePageClient",
-          "from": "./GamePageClient"
-        }
-      ]
+      "imports": []
     },
     {
       "type": "page",
@@ -175,30 +219,33 @@
       "component": "GamesDaydreamPage",
       "imports": [
         {
-          "name": "WordSprint",
-          "from": "@/components/games/WordSprint"
-        },
-        {
-          "name": "MemoryGrid",
-          "from": "@/components/games/MemoryGrid"
-        },
-        {
-          "name": "SpeedTap",
-          "from": "@/components/games/SpeedTap"
-        },
-        {
-          "name": "Leaderboard",
-          "from": "@/components/games/Leaderboard"
-        },
-        {
           "name": "GamesHub",
           "from": "@/components/games/GamesHub"
         },
         {
           "name": "GameEngin",
           "from": "@/components/daydream/GameEngin"
+        },
+        {
+          "name": "OpenDaydreamSideBButton",
+          "from": "@/components/daydream/OpenDaydreamSideBButton"
+        },
+        {
+          "name": "AutoOpenGameEngin",
+          "from": "@/components/daydream/AutoOpenGameEngin"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
+    },
+    {
+      "type": "page",
+      "path": "/daydream/games/engin",
+      "file": "app/daydream/games/engin/page.tsx",
+      "component": "GamesEnginRedirectPage",
+      "imports": []
     },
     {
       "type": "page",
@@ -209,8 +256,19 @@
         {
           "name": "LabEngin",
           "from": "@/components/daydream/LabEngin"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
+    },
+    {
+      "type": "page",
+      "path": "/daydream/lab/engin",
+      "file": "app/daydream/lab/engin/page.tsx",
+      "component": "LabEnginRedirectPage",
+      "imports": []
     },
     {
       "type": "page",
@@ -235,7 +293,7 @@
       "type": "page",
       "path": "/daydream/music",
       "file": "app/daydream/music/page.tsx",
-      "component": "MusicDaydreamPage",
+      "component": "MusicArtistHubPage",
       "imports": [
         {
           "name": "SoundRecorder",
@@ -244,8 +302,19 @@
         {
           "name": "StarMakerEngin",
           "from": "@/components/daydream/StarMakerEngin"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
+    },
+    {
+      "type": "page",
+      "path": "/daydream/music/engin",
+      "file": "app/daydream/music/engin/page.tsx",
+      "component": "MusicEnginRedirectPage",
+      "imports": []
     },
     {
       "type": "page",
@@ -296,6 +365,415 @@
     },
     {
       "type": "page",
+      "path": "/engines",
+      "file": "app/engines/page.tsx",
+      "component": "EnginesHubPage",
+      "imports": []
+    },
+    {
+      "type": "layout",
+      "path": "/engines",
+      "file": "app/engines/layout.tsx",
+      "component": "EnginesRootLayout"
+    },
+    {
+      "type": "page",
+      "path": "/engines/brand",
+      "file": "app/engines/brand/page.tsx",
+      "component": "BrandEnginAppPage",
+      "imports": [
+        {
+          "name": "BrandEnginApp",
+          "from": "@/components/engines/brand/BrandEnginApp"
+        }
+      ]
+    },
+    {
+      "type": "layout",
+      "path": "/engines/brand",
+      "file": "app/engines/brand/layout.tsx",
+      "component": "BrandEnginLayout"
+    },
+    {
+      "type": "page",
+      "path": "/engines/brand/analytics",
+      "file": "app/engines/brand/analytics/page.tsx",
+      "component": "BrandAnalyticsPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "AnalyticsPanel",
+          "from": "@/components/engines/brand/panels/AnalyticsPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/brand/campaigns",
+      "file": "app/engines/brand/campaigns/page.tsx",
+      "component": "BrandCampaignsPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "CampaignsPanel",
+          "from": "@/components/engines/brand/panels/CampaignsPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/brand/identity",
+      "file": "app/engines/brand/identity/page.tsx",
+      "component": "BrandIdentityPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "IdentityPanel",
+          "from": "@/components/engines/brand/panels/IdentityPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/code",
+      "file": "app/engines/code/page.tsx",
+      "component": "CodeEnginAppPage",
+      "imports": [
+        {
+          "name": "CodeEnginApp",
+          "from": "@/components/engines/code/CodeEnginApp"
+        }
+      ]
+    },
+    {
+      "type": "layout",
+      "path": "/engines/code",
+      "file": "app/engines/code/layout.tsx",
+      "component": "CodeEnginLayout"
+    },
+    {
+      "type": "page",
+      "path": "/engines/code/ai",
+      "file": "app/engines/code/ai/page.tsx",
+      "component": "CodeAIPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "AIPanel",
+          "from": "@/components/engines/code/panels/AIPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/code/notebook",
+      "file": "app/engines/code/notebook/page.tsx",
+      "component": "CodeNotebookPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "NotebookPanel",
+          "from": "@/components/engines/code/panels/NotebookPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/code/projects",
+      "file": "app/engines/code/projects/page.tsx",
+      "component": "CodeProjectsPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "ProjectsPanel",
+          "from": "@/components/engines/code/panels/ProjectsPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/create",
+      "file": "app/engines/create/page.tsx",
+      "component": "CreateEnginAppPage",
+      "imports": [
+        {
+          "name": "CreateEnginApp",
+          "from": "@/components/engines/create/CreateEnginApp"
+        }
+      ]
+    },
+    {
+      "type": "layout",
+      "path": "/engines/create",
+      "file": "app/engines/create/layout.tsx",
+      "component": "CreateEnginLayout"
+    },
+    {
+      "type": "page",
+      "path": "/engines/create/calendar",
+      "file": "app/engines/create/calendar/page.tsx",
+      "component": "CreateCalendarPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "CalendarPanel",
+          "from": "@/components/engines/create/panels/CalendarPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/create/editor",
+      "file": "app/engines/create/editor/page.tsx",
+      "component": "CreateEditorPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "EditorPanel",
+          "from": "@/components/engines/create/panels/EditorPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/create/queue",
+      "file": "app/engines/create/queue/page.tsx",
+      "component": "CreateQueuePage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "QueuePanel",
+          "from": "@/components/engines/create/panels/QueuePanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/games",
+      "file": "app/engines/games/page.tsx",
+      "component": "GamesEnginAppPage",
+      "imports": [
+        {
+          "name": "GameEnginApp",
+          "from": "@/components/engines/games/GameEnginApp"
+        }
+      ]
+    },
+    {
+      "type": "layout",
+      "path": "/engines/games",
+      "file": "app/engines/games/layout.tsx",
+      "component": "GamesEnginLayout"
+    },
+    {
+      "type": "page",
+      "path": "/engines/games/builder",
+      "file": "app/engines/games/builder/page.tsx",
+      "component": "GamesBuilderPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "BuilderPanel",
+          "from": "@/components/engines/games/panels/BuilderPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/games/library",
+      "file": "app/engines/games/library/page.tsx",
+      "component": "GamesLibraryPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "LibraryPanel",
+          "from": "@/components/engines/games/panels/LibraryPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/games/scores",
+      "file": "app/engines/games/scores/page.tsx",
+      "component": "GamesScoresPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "ScoresPanel",
+          "from": "@/components/engines/games/panels/ScoresPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/lab",
+      "file": "app/engines/lab/page.tsx",
+      "component": "LabEnginAppPage",
+      "imports": [
+        {
+          "name": "LabEnginApp",
+          "from": "@/components/engines/lab/LabEnginApp"
+        }
+      ]
+    },
+    {
+      "type": "layout",
+      "path": "/engines/lab",
+      "file": "app/engines/lab/layout.tsx",
+      "component": "LabEnginLayout"
+    },
+    {
+      "type": "page",
+      "path": "/engines/lab/data",
+      "file": "app/engines/lab/data/page.tsx",
+      "component": "LabDataPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "DataVizPanel",
+          "from": "@/components/engines/lab/panels/DataVizPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/lab/experiments",
+      "file": "app/engines/lab/experiments/page.tsx",
+      "component": "LabExperimentsPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "ExperimentsPanel",
+          "from": "@/components/engines/lab/panels/ExperimentsPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/lab/quantum",
+      "file": "app/engines/lab/quantum/page.tsx",
+      "component": "LabQuantumPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "QuantumPanel",
+          "from": "@/components/engines/lab/panels/QuantumPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/music",
+      "file": "app/engines/music/page.tsx",
+      "component": "MusicEnginAppPage",
+      "imports": [
+        {
+          "name": "MusicEnginApp",
+          "from": "@/components/engines/music/MusicEnginApp"
+        }
+      ]
+    },
+    {
+      "type": "layout",
+      "path": "/engines/music",
+      "file": "app/engines/music/layout.tsx",
+      "component": "MusicEnginLayout"
+    },
+    {
+      "type": "page",
+      "path": "/engines/music/arrange",
+      "file": "app/engines/music/arrange/page.tsx",
+      "component": "MusicArrangePage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "ArrangePanel",
+          "from": "@/components/engines/music/panels/ArrangePanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/music/library",
+      "file": "app/engines/music/library/page.tsx",
+      "component": "MusicLibraryPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "MusicLibraryPanel",
+          "from": "@/components/engines/music/panels/MusicLibraryPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/music/studio",
+      "file": "app/engines/music/studio/page.tsx",
+      "component": "MusicStudioPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "StudioPanel",
+          "from": "@/components/engines/music/panels/StudioPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
       "path": "/feed-settings",
       "file": "app/feed-settings/page.tsx",
       "component": "FeedSettingsPage",
@@ -327,10 +805,6 @@
         {
           "name": "PasswordField",
           "from": "@/components/auth/PasswordField"
-        },
-        {
-          "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
         }
       ]
     },
@@ -369,10 +843,6 @@
       "component": "LoginPage",
       "imports": [
         {
-          "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
-        },
-        {
           "name": "PasswordField",
           "from": "@/components/auth/PasswordField"
         }
@@ -391,6 +861,10 @@
         {
           "name": "DreamWord",
           "from": "@/components/ui/DreamWord"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
     },
@@ -457,6 +931,13 @@
     },
     {
       "type": "page",
+      "path": "/mission",
+      "file": "app/mission/page.tsx",
+      "component": "MissionPage",
+      "imports": []
+    },
+    {
+      "type": "page",
       "path": "/music",
       "file": "app/music/page.tsx",
       "component": "MusicLegacyPage",
@@ -481,12 +962,7 @@
       "path": "/onboarding",
       "file": "app/onboarding/page.tsx",
       "component": "OnboardingPage",
-      "imports": [
-        {
-          "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
-        }
-      ]
+      "imports": []
     },
     {
       "type": "page",
@@ -565,6 +1041,10 @@
         {
           "name": "AlgorithmEngine",
           "from": "@/components/feed/AlgorithmEngine"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
     },
@@ -579,7 +1059,7 @@
           "from": "@/components/providers/ThemeProvider"
         },
         {
-          "name": "THEME_PRESETS as GRADIENT_PRESETS, applyTheme, type DeTheme",
+          "name": "THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidThemeActive, type DeTheme",
           "from": "@/components/ThemeApplicator"
         }
       ]
@@ -620,14 +1100,24 @@
       "path": "/settings/help",
       "file": "app/settings/help/page.tsx",
       "component": "HelpPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
+        }
+      ]
     },
     {
       "type": "page",
       "path": "/settings/notifications",
       "file": "app/settings/notifications/page.tsx",
       "component": "NotificationSettingsPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
+        }
+      ]
     },
     {
       "type": "page",
@@ -646,14 +1136,24 @@
       "path": "/settings/safety",
       "file": "app/settings/safety/page.tsx",
       "component": "SafetySettingsPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
+        }
+      ]
     },
     {
       "type": "page",
       "path": "/settings/security",
       "file": "app/settings/security/page.tsx",
       "component": "SecuritySettingsPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
+        }
+      ]
     },
     {
       "type": "page",
@@ -664,6 +1164,10 @@
         {
           "name": "DreamWord",
           "from": "@/components/ui/DreamWord"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
     },
@@ -706,6 +1210,18 @@
         {
           "name": "DreamWord",
           "from": "@/components/ui/DreamWord"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/webgpu",
+      "file": "app/webgpu/page.tsx",
+      "component": "WebGPUPage",
+      "imports": [
+        {
+          "name": "WebGPUShowcase",
+          "from": "@/components/webgpu/WebGPUShowcase"
         }
       ]
     },

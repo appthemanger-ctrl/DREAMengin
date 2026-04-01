@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-03-31 21:59 UTC  
-**Triggered by commit:** `9ef2d6f` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #370 from appthemanger-ctrl/copilot/final-spec-game-controller
+**Last updated:** 2026-04-01 06:02 UTC  
+**Triggered by commit:** `40aa536` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #374 from appthemanger-ctrl/copilot/remove-comment-text-box
 
 ---
 

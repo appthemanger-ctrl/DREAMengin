@@ -41,36 +41,41 @@ export default function EditProfileDreamPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push('/login'); return; }
-      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-      const loadedProfile = {
-        display_name: data?.display_name || '',
-        handle: data?.handle || '',
-        bio: data?.bio || '',
-        avatar_url: data?.avatar_url || null,
-        banner_url: data?.banner_url || null,
-        location: data?.location || '',
-        website: data?.website || '',
-      };
-      setProfile(loadedProfile);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { router.push('/login'); return; }
+        const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        const loadedProfile = {
+          display_name: data?.display_name || '',
+          handle: data?.handle || '',
+          bio: data?.bio || '',
+          avatar_url: data?.avatar_url || null,
+          banner_url: data?.banner_url || null,
+          location: data?.location || '',
+          website: data?.website || '',
+        };
+        setProfile(loadedProfile);
 
-      // Load Dream projection from Supabase (server-persisted projection state)
-      // Fall back to localStorage for migration compatibility, then DEFAULT_DREAMS
-      let loadedDreams: ProfileDream[] = DEFAULT_DREAMS;
-      if (data?.profile_dream_widgets && Array.isArray(data.profile_dream_widgets) && data.profile_dream_widgets.length > 0) {
-        loadedDreams = data.profile_dream_widgets as ProfileDream[];
-      } else {
-        try {
-          const saved = localStorage.getItem('de-profile-widget-order');
-          if (saved) loadedDreams = JSON.parse(saved);
-        } catch { /* noop */ }
+        // Load Dream projection from Supabase (server-persisted projection state)
+        // Fall back to localStorage for migration compatibility, then DEFAULT_DREAMS
+        let loadedDreams: ProfileDream[] = DEFAULT_DREAMS;
+        if (data?.profile_dream_widgets && Array.isArray(data.profile_dream_widgets) && data.profile_dream_widgets.length > 0) {
+          loadedDreams = data.profile_dream_widgets as ProfileDream[];
+        } else {
+          try {
+            const saved = localStorage.getItem('de-profile-widget-order');
+            if (saved) loadedDreams = JSON.parse(saved);
+          } catch { /* noop */ }
+        }
+
+        setWidgets(loadedDreams);
+        setInitialProfile(loadedProfile);
+        setInitialWidgets(loadedDreams);
+        setIsLoading(false);
+      } catch {
+        // Supabase unavailable or auth error — redirect to login
+        router.push('/login');
       }
-
-      setWidgets(loadedDreams);
-      setInitialProfile(loadedProfile);
-      setInitialWidgets(loadedDreams);
-      setIsLoading(false);
     })();
    
   }, []);

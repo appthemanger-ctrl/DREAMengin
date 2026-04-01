@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-03-26T09:49:03.467Z",
+  "generated_at": "2026-04-01T05:11:59.567Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 115,
+  "count": 116,
   "tables": [
     {
       "table": "ad_campaigns",
@@ -2110,6 +2110,12 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "images",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
     },
     {
       "table": "intent_cache",

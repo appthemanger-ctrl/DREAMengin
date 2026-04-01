@@ -49,6 +49,7 @@ const REQUIRED_TAGS    = (process.env.FEED_REQUIRED_TAGS ?? '')
 const SOURCES          = (process.env.FEED_SOURCES ?? 'youtube')
   .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 const YOUTUBE_API_KEY  = process.env.YOUTUBE_API_KEY  ?? '';
+const FEED_QUERY       = process.env.FEED_QUERY ?? '';
 const IG_ACCESS_TOKEN  = process.env.INSTAGRAM_ACCESS_TOKEN ?? '';
 const SUPABASE_URL     = process.env.SUPABASE_URL ?? '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
@@ -92,6 +93,39 @@ async function fetchYouTubeVideos(apiKey, maxResults = 50) {
   }
   const data = await res.json();
   return data.items ?? [];
+}
+
+/**
+ * Searches YouTube for videos matching a query string using the Data API v3.
+ * Uses an API key (no OAuth required — public data only).
+ * Falls back to the mostPopular chart when query is empty.
+ */
+async function fetchYouTubeSearchVideos(apiKey, query, maxResults = 50) {
+  if (!query) return fetchYouTubeVideos(apiKey, maxResults);
+
+  const url =
+    `${YT_API}/search` +
+    `?part=snippet` +
+    `&q=${encodeURIComponent(query)}` +
+    `&type=video` +
+    `&order=date` +
+    `&relevanceLanguage=en` +
+    `&maxResults=${maxResults}` +
+    `&key=${encodeURIComponent(apiKey)}`;
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`YouTube search API error ${res.status}: ${await res.text()}`);
+  }
+  const data = await res.json();
+  // Search results use a different shape (id.videoId) than the videos list
+  // endpoint (id = string). Normalise to the same structure normaliseYouTubeItem
+  // expects so the pipeline is uniform.
+  return (data.items ?? []).map(item => ({
+    id: item.id?.videoId ?? '',
+    snippet: item.snippet ?? {},
+    statistics: {},
+  }));
 }
 
 /** Maps a raw YouTube video object → EmbedItem. */
