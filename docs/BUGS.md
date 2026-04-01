@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-01 06:02 UTC  
-**Triggered by commit:** `40aa536` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #374 from appthemanger-ctrl/copilot/remove-comment-text-box
+**Last updated:** 2026-04-01 10:09 UTC  
+**Triggered by commit:** `5ef46dc` on `copilot/add-adjustable-remote-size` by Copilot  
+**Commit message:** feat: upgrade game remote - dual joystick, face buttons, size control, transparency, reposition, game stage lift
 
 ---
 
