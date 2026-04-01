@@ -3,10 +3,12 @@ name: GameEngin AI Agent
 on:
   workflow_dispatch:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, completedream ]
     paths:
-      - 'engine/**'
-      - 'games/**'
+      - 'components/games/**'
+      - 'components/daydream/GameEngin.tsx'
+      - 'app/daydream/games/**'
+      - 'app/daydream/game/**'
       - '.github/workflows/gameengin-ai-agent.yml'
 
 jobs:
@@ -23,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
