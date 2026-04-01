@@ -1493,35 +1493,38 @@ The bar itself must always remain interactive for:
 
 When released, the DreamDM Bar snaps to the nearest canonical position.
 
+Four snap points are defined (split ratio = fraction of viewport given to Surface Space):
+
+| Snap | Split Ratio | Description |
+|------|-------------|-------------|
+| Surface Only | 1.0 | **Default rest state.** Dream Space hidden; bar sits as a thick rail at the bottom. Drag up to reveal Dream Space. |
+| Surface Focus | 0.9 | Surface Space ~90 %, Dream Space ~10 %. Notification strip and compose affordance visible. |
+| Balanced | 0.5 | Surface Space and Dream Space share the viewport equally. |
+| Dream Focus | 0.1 | Dream Space ~90 %, Surface Space reduced to a thin awareness strip. |
+
+#### Surface Only *(default)*
+- Dream Space is fully hidden; the bar rests as a thick 80 px rail at the screen bottom
+- Surface Space occupies the entire viewport
+- this is the initial state on every session
+- drag the bar upward to reveal Dream Space
+
 #### Surface Focus
 - Surface Space occupies approximately 90% of viewport height
 - Dream Space is reduced to a thin strip of approximately 10%
 - the strip shows the DreamDM Bar collapsed state
 - notification indicators and compose affordance remain visible
 
-This corresponds to the original collapsed emphasis state.
-
 #### Balanced
 - Surface Space and Dream Space occupy approximately 50% / 50%
 - both are given equal prominence
 - the user can work fluidly across both sides
-
-This corresponds to the expanded emphasis state.
 
 #### Dream Focus
 - Dream Space occupies approximately 90% of viewport height
 - Surface Space is reduced to a thin awareness strip of approximately 10%
 - Surface Space may show a minimal header, frozen frame, or content peek
 
-This is the full Dream-focused state.
-
-#### Pinned
-An additional pinned mode may be triggered by long press, double tap, or another defined gesture.
-
-Pinned mode may:
-- lock the bar to the top or bottom edge
-- preserve the size ratio
-- support multitasking where one side needs constant visibility
+A fling gesture (fast upward or downward swipe) jumps one full snap step in the throw direction.
 
 ### 29.7 Snap Animation
 
@@ -1652,41 +1655,30 @@ This behavior must preserve user trust and working continuity.
 
 ### 29.15 Gold Button Navigation and DreamDM Bar Integration
 
-The Gold Button serves as the primary navigation control with a dynamic spatial relationship to the DreamDM Bar.
+The Gold Button serves as the primary navigation control permanently attached to the DreamDM Bar.
 
 #### Default Anchoring
-- the Gold Button is anchored to the top edge of the DreamDM Bar in Surface Focus and Balanced modes
-- this creates a visual tether: the button lives at the boundary between Surface Space and Dream Space
+- the Gold Button is attached to the **top edge** of the DreamDM Bar at all times
+- it stays attached whenever the bar is visible and the button’s position is on screen
 - single tap opens dual menus
 - double tap goes Home
 
-#### Composition Mode (Floating)
-- when the user taps the compose field in the DreamDM Bar, the Gold Button floats upward approximately 40–60px
-- this clears the keyboard and composition area so typing is unobstructed
-- the button remains one-thumb reachable but moves out of the way
-- when composition ends (message sent, dismissed, or keyboard closed), the button animates back down to its anchored position at the top of the bar
+#### Detach Rule (screen lock)
+The Gold Button detaches from the bar **only** when dragging the bar upward causes the button’s attached position to go off the top of the screen.
 
-#### Pull-Down Gesture (Locking)
-- from any position, pulling down on the DreamDM Bar reveals and summons the Gold Button
-- the button slides down from its anchored position toward the bar
-- if the user continues dragging the bar down while the button is visible, the button locks to the bar and moves with it
-- in locked state, dragging the bar repositions both elements as a single unit
+When detached:
+- the button locks to the viewport top (screen-fixed, not bar-fixed)
+- it does not scroll with page content
+- **it does not float or detach for keyboard, compose, or typing interactions**
 
-#### Unlock Triggers
-The Gold Button unlocks from the bar when:
-- the user taps the button
-- the user performs an upward flick gesture on the bar
-- the bar snaps to a new position without the button following
-
-After unlocking, the button returns to its default anchored position at the top of the bar.
+When the bar is dragged back down to where the button’s attached position is on screen, the button automatically reattaches to the top of the bar.
 
 #### Dream Focus Mode Behavior
-- when the bar is in Dream Focus and the Gold Button is locked to the bar:
+- when the bar is in Dream Focus and the button is screen-locked:
   - dragging the bar further up compresses Surface Space to nearly nothing
-  - the Gold Button remains attached to the bar at the very top edge of the screen
-  - the user sees only Dream Space with the Gold Button sitting at the top boundary
-- this creates a “Gold Button as horizon” effect where the button becomes the visual separator between compressed Surface Space and expanded Dream Space below
-- Home access is maintained even in full Dream mode, with the button positioned at the absolute top of the viewport
+  - the Gold Button sits at the very top of the viewport as the visual horizon
+  - the user sees only Dream Space with the Gold Button at the top boundary
+- Home access is maintained even in full Dream mode
 
 ### 29.16 Home Reset Rule
 
@@ -1717,3 +1709,174 @@ Users should not need to leave their current activity simply to:
 - shift attention between two active spaces
 
 The DreamDM Bar is a continuous interaction channel across the entire system. Its physical behavior—dragging, snapping, resizing, and preserving two active spaces—must make multitasking feel natural, direct, and spatially coherent.
+
+---
+
+## 30. Games Catalog
+
+DREAMengin ships with 20 fully playable games accessible through the Games Daydream (`/daydream/games`) and launchable from the ImmersiveGameShell (`/daydream/game`). All game titles are DREAMengin originals.
+
+| ID | Emoji | Title | Category | Engine |
+|----|-------|-------|----------|--------|
+| `platformer` | 🏎 | **MADMAXI** | Platformer | Babylon.js 3-D side-scroller |
+| `rts` | ⚔️ | **DREAM FORCE** | Strategy | RTSGame |
+| `tower-defense` | 🏰 | **Tower Defense** | Strategy | TowerDefense |
+| `space-shooter` | 🚀 | **VOID STRIKE** | Arcade | SpaceShooter |
+| `snake` | 🐍 | **SHADOW SERPENT** | Arcade | SnakeGame |
+| `breakout` | 💎 | **DREAM BREAKER** | Arcade | BreakoutGame |
+| `flappy` | ✨ | **NITE FLYER** | Casual | FlappyGame |
+| `match3` | 💎 | **DREAM GEMS** | Puzzle | Match3Game |
+| `tetris` | 🟦 | **BLOCK STACK** | Puzzle | TetrisGame |
+| `racing` | 🏎️ | **DREAM CIRCUIT** | Sports | RacingGame |
+| `chess` | ♛ | **ENGIN CHESS** | Board | ChessGame |
+| `rpg` | 🗡️ | **DREAM REALM QUEST** | RPG | RPGGame |
+| `rhythm` | 🎵 | **BEAT ENGINE** | Music | RhythmGame |
+| `maze` | 🌀 | **LABYRINTH ZERO** | Adventure | MazeGame |
+| `lucid-avenue` | 🌴 | **Lucid Avenue** | Adventure | LucidAvenue |
+| `dreamwars` | 🌙 | **DREAMwars** | Strategy | DREAMwars |
+| `engin-battle` | ⚙️ | **ENGIN Battle** | Strategy | ENGINBattle |
+| `dreamquest` | ✨ | **DREAMquest** | RPG | DREAMquest |
+| `neon-drift` | 🏎️ | **Neon Drift** | Racing | NeonDrift (EliteGameEngine) |
+| `echo-arena` | 🎯 | **Echo Arena** | Shooter | EchoArena (EliteGameEngine) |
+
+### 30.1 Elite-Runtime Games
+
+Neon Drift and Echo Arena are designated **elite-runtime** titles. They instantiate `EliteGameEngine` directly and surface live runtime telemetry (fps, draw calls, memory) in the in-game HUD.
+
+### 30.2 MADMAXI (Featured Game)
+
+MADMAXI is the default game launched from the Games Daydream.
+
+Features:
+- Babylon.js 3-D side-scroller
+- Animated robot character (body, head, visor, arms, legs)
+- 150 levels across 15 zones; boss every 10 levels
+- 10-coin mechanic: 9 silver coins + 1 gold Dream Star per level
+- Coin-counter HUD; camera zoom on collecting the 9th coin
+- Level-selection screen; authored zone starter packs
+- Synthesized in-game audio (`components/games/madmaxi/audio.ts`)
+
+Module layout:
+
+```
+components/games/madmaxi/
+  MadmaxiGame.tsx        — main game component
+  config.ts              — game constants and tuning
+  types.ts               — shared TypeScript types
+  authoredZonePacks.ts   — zone and level definitions
+  levels.ts              — procedural level generation
+  audio.ts               — Web Audio synth engine
+  index.ts               — public re-export
+components/games/BabylonSideScroller.tsx  — compatibility re-export wrapper
+```
+
+⸻
+
+## 31. Game Shell Architecture
+
+### 31.1 ImmersiveGameShell
+
+**Route:** `/daydream/game`  
+**File:** `app/daydream/game/ImmersiveGameShell.tsx`
+
+Full-screen game launcher with a PS5-style 4-phase boot sequence.
+
+Boot phases:
+
+| Phase | Timing | Description |
+|-------|--------|-------------|
+| 1 | 0 – 800 ms | Black screen · pulsing ⬡ hex logo in game accent colour |
+| 2 | 800 – 2200 ms | "GAMEENGIN" sweeps in from the right · "by DREAMengin" · game emoji |
+| 3 | 2200 – 3400 ms | Game title card · category badge · "Press any button to start" |
+| 4 | 3400 ms+ | Waiting for user input → fade-out → game revealed |
+
+A skip button is available from phase 1. After boot: the game fills 100 vw × 100 dvh; GameHUD floats at the bottom.
+
+### 31.2 GameHUD
+
+**File:** `components/games/GameHUD.tsx`
+
+Universal floating HUD overlay for all immersive game sessions.
+
+- wraps MobileGameHUD
+- provides EXIT button that navigates to `/daydream/games`
+- floats at the bottom of the full-screen game view
+- replaces the legacy expandable remote surface (LegacyGameHUD / LegacyGameRemote)
+
+### 31.3 MobileGameHUD (Adjustable-Scale Controller)
+
+**File:** `components/games/MobileGameHUD.tsx`
+
+Touch-native game controller overlay with adjustable scale.
+
+- dual analogue sticks (left + right joystick zones)
+- action button ring (jump, dash, action)
+- L3 and R3 stick-click buttons
+- `+` / `-` size controls persist scale across sessions (55 % – 145 %, step 10 %)
+- scale stored in `localStorage` key `de:hud:scale`
+- drag handle and pause/exit controls in the centre dock
+
+### 31.4 GameRemote and Legacy Layer
+
+`components/games/GameRemote.tsx` is a compatibility re-export of `LegacyGameRemote`. Immersive full-screen sessions use GameHUD/MobileGameHUD. The legacy dual-stick panel remains available for Daydream Side-B remote workflows.
+
+### 31.5 Standalone Engin Surface
+
+**File:** `components/daydream/StandaloneEnginSurface.tsx`
+
+All `/daydream/*/engin` routes render through `StandaloneEnginSurface` instead of redirecting with `?openEngin=1`. This provides a consistent full-surface Engin experience without page navigation.
+
+⸻
+
+## 32. StarMakerEngin DAW Features
+
+**File:** `components/daydream/StarMakerEngin.tsx`
+
+StarMakerEngin is the music creation engine for the Music Daydream. It includes a full browser-based DAW with the following subsystems.
+
+### 32.1 Step Sequencer + Beat Engine
+
+- 4-channel × 8-step boolean grid (Kick, Snare, Hi-Hat, Synth)
+- real-time Web Audio playback
+- BPM control, key / key-mode selection
+
+### 32.2 Multitrack Arrangement
+
+**File:** `components/daydream/starmaker/MultitrackArrangementPanel.tsx`  
+**State:** `lib/music/starmakerArrangement.ts`
+
+- Source Rack for capturing active loops and recordings
+- 4 track lanes with clip placement and editing
+- per-track mute / solo / volume controls
+- Web Audio arrangement preview
+- clip drag-to-position, clip resize, and clip delete
+
+### 32.3 DAWFileIOPanel
+
+- undo / redo history
+- selection audition and loop
+- zoom-to-selection and fit-full view
+- keyboard shortcuts
+- MASTER READOUT: live audio stats (peak, RMS, clipping indicator)
+
+### 32.4 Sound Recorder
+
+**File:** `components/music/SoundRecorder.tsx`
+
+- `getBestMimeType()` helper selects `audio/mp4` (AAC) on Safari, `audio/webm` elsewhere
+- each completed recording dispatches a `starmaker:load-recording` CustomEvent
+- StarMakerEngin listens for the event and auto-loads the recording into DAWFileIOPanel
+
+### 32.5 Preset Library
+
+**File:** `lib/music/presets.ts`
+
+| Collection | Count |
+|-----------|-------|
+| BeatPresets (genre packs) | 12 |
+| InstrumentPresets | 10 |
+| ProjectTemplates | 5 |
+
+Preset types: `BeatPreset`, `InstrumentPreset`, `ProjectTemplate`.
+
+⸻
