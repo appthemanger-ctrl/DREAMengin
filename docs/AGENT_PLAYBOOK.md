@@ -1,7 +1,7 @@
 # DREAMengin — Agent Session Playbook
 
 **Read this at the start of every session.**  
-Last updated: 2026-03-10
+Last updated: 2026-04-01
 
 This is the single document an AI agent or developer reads before touching code in this repo. It covers orientation, all runnable commands, the key file map, how to verify changes don't break anything, how to see the UI, and a session state tracker.
 
@@ -101,6 +101,14 @@ Always use these names — not old/legacy variations:
 | Linter | ESLint 9 + next/lint | ^9.0.0 |
 | Container | Docker + Docker Compose | — |
 | Deployment | Vercel (primary) | — |
+| Runtime memory | `SharedArrayBuffer` + shader `Worker` pool | Browser-native |
+
+> **Runtime memory model:** The Engine uses a 16 MB `SharedArrayBuffer` partitioned into
+> control, entity SoA, and HomeDream private regions. `EnginDispatcher` (singleton,
+> `lib/runtime/EnginDispatcher.ts`) allocates the SAB, spawns `hardwareConcurrency − 1`
+> shader workers, and relays DreamDM Bar seam writes into the SAB so Dream Windows
+> reposition without a main-thread round-trip. See `docs/ARCHITECTURE.md` §12 for the
+> full memory map and worker protocol.
 
 ---
 
@@ -230,6 +238,9 @@ This section maps the most important files and what they do. Read this before se
 | `lib/supabase/env.ts` | Env var resolution — reads NEXT_PUBLIC_ vars safely |
 | `lib/agents/` | AI agent helpers (Dr. Eams, IDARi, TheBoogieMan) |
 | `lib/navigation/` | τ-navigation system (deterministic state machine) |
+| `lib/navigation/StructureLedger.ts` | Precomputed O(1) navigation state/transition ledger (13 nodes × 78 transitions) |
+| `lib/runtime/memory.ts` | 16 MB `SharedArrayBuffer` layout — entity SoA arrays, DreamDM Bar seam slot, HomeDream privacy boundary |
+| `lib/runtime/EnginDispatcher.ts` | Singleton shader-worker dispatcher — allocates SAB, spawns workers, relays bar seam writes, exposes µs/tick telemetry |
 | `hooks/` | Custom React hooks |
 | `types/widget-system-v2.ts` | Core Dream/widget type definitions |
 | `utils/` | General utility functions |

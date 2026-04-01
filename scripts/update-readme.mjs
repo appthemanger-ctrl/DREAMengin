@@ -10,7 +10,7 @@
  *  3. Prepends a new row into the "## Recent Changes" table (created if absent).
  *  4. Keeps exactly MAX_ROWS recent entries; older ones are trimmed.
  *
- * Called by .github/workflows/update-readme.yml on every push.
+ * Called by Idari[bot] via .github/workflows/update-readme.yml on every push and merge.
  * Can also be run locally: node scripts/update-readme.mjs
  */
 

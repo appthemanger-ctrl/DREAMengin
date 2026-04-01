@@ -2,9 +2,9 @@ name: DREAMengin CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, completedream]
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, completedream]
 
 # Prevent parallel pipeline runs on the same ref.
 # CI jobs can run concurrently; the deploy job is serialised by vercel-deploy.yml.
