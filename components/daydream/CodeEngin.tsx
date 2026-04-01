@@ -3341,7 +3341,7 @@ export default function CodeEngin({ onBack }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {[
                 { key: 'NEXT_PUBLIC_SUPABASE_URL',       masked: true,  set: true },
-                { key: 'SUPABASE_SERVICE_ROLE_KEY',      masked: true,  set: true },
+                { key: 'SUPABASE_ADMIN_KEY',             masked: true,  set: true },
                 { key: 'OPENAI_API_KEY',                 masked: true,  set: false },
                 { key: 'DEV_BYPASS_AUTH',                masked: false, set: true, val: 'false' },
               ].map(v => (
