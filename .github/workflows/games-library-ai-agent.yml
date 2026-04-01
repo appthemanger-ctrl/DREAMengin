@@ -22,6 +22,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: completedream
 
       # 1. Catalog existing games with brief metadata
       - name: Catalog games
@@ -93,7 +94,7 @@ jobs:
             git config user.name "Games Library AI Agent"
             git config user.email "games-library-ai@users.noreply.github.com"
             git commit -am "AI: evolve games library with genre fusion"
-            git push
+            git push origin completedream
           fi
 
       # Disc-only sandbox rule also applies to evolved games
