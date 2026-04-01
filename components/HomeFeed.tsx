@@ -75,8 +75,6 @@ export default function HomeFeed({
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
   const [commentLoadingSet, setCommentLoadingSet] = useState<Set<string>>(new Set());
-  const [commentDraftMap, setCommentDraftMap] = useState<Record<string, string>>({});
-  const [commentSendingSet, setCommentSendingSet] = useState<Set<string>>(new Set());
 
   const handleCommentFromBar = useCallback((post: FeedPost) => {
     setBarIntent({
@@ -112,32 +110,6 @@ export default function HomeFeed({
       return next;
     });
   }, [loadComments]);
-
-  const submitComment = useCallback(async (postId: string) => {
-    const content = (commentDraftMap[postId] ?? '').trim();
-    if (!content) return;
-    setCommentSendingSet(prev => new Set(prev).add(postId));
-    try {
-      const res = await fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, content }),
-      });
-      if (res.ok) {
-        const data = await res.json() as { data?: Comment };
-        setCommentDraftMap(prev => ({ ...prev, [postId]: '' }));
-        if (data.data) {
-          setCommentsMap(prev => ({
-            ...prev,
-            [postId]: [...(prev[postId] ?? []), data.data!],
-          }));
-        }
-        updatePost(postId, { comments_count: (posts.find(p => p.id === postId)?.comments_count ?? 0) + 1 });
-      }
-    } catch { /* silent */ } finally {
-      setCommentSendingSet(prev => { const s = new Set(prev); s.delete(postId); return s; });
-    }
-  }, [commentDraftMap, posts, updatePost]);
 
   const prevInitialRef = useRef(initialPosts);
   useEffect(() => {
@@ -519,7 +491,7 @@ export default function HomeFeed({
                       <span>{post.likes_count ?? 0}</span>
                     </button>
                     <button
-                      onClick={() => void toggleComments(post.id)}
+                      onClick={() => { void toggleComments(post.id); handleCommentFromBar(post); }}
                       className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors min-h-[40px] ${expandedComments.has(post.id) ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-primary/10'}`}
                       aria-label={expandedComments.has(post.id) ? 'Hide comments' : 'Show comments'}
                     >
@@ -566,35 +538,21 @@ export default function HomeFeed({
                             ))
                           )}
                         </div>
-                        {/* Comment composer */}
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-                          <input
-                            type="text"
-                            value={commentDraftMap[post.id] ?? ''}
-                            onChange={(e) => setCommentDraftMap(prev => ({ ...prev, [post.id]: e.target.value }))}
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void submitComment(post.id); } }}
-                            placeholder="Add a comment…"
-                            style={{
-                              flex: 1, minWidth: 0, padding: '7px 12px',
-                              borderRadius: 999, fontSize: 13, border: '1px solid rgba(180,185,200,0.35)',
-                              background: 'rgba(255,255,255,0.72)', color: 'var(--de-text)', outline: 'none',
-                            }}
-                          />
-                          <button
-                            type="button"
-                            disabled={!(commentDraftMap[post.id] ?? '').trim() || commentSendingSet.has(post.id)}
-                            onClick={() => void submitComment(post.id)}
-                            style={{
-                              flexShrink: 0, background: 'linear-gradient(135deg, var(--de-gold,#c8981a), var(--de-blue,#2a8ab8))',
-                              border: 'none', borderRadius: '50%', width: 32, height: 32,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              cursor: 'pointer', color: 'white', opacity: !(commentDraftMap[post.id] ?? '').trim() ? 0.45 : 1,
-                            }}
-                            aria-label="Post comment"
-                          >
-                            {commentSendingSet.has(post.id) ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={14} />}
-                          </button>
-                        </div>
+                        {/* DreamBar comment prompt */}
+                        <button
+                          type="button"
+                          onClick={() => handleCommentFromBar(post)}
+                          style={{
+                            width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '7px 12px', borderRadius: 999,
+                            border: '1px solid rgba(180,185,200,0.28)',
+                            background: 'rgba(255,255,255,0.55)', color: 'var(--de-text-dim)',
+                            fontSize: 13, cursor: 'pointer', textAlign: 'left',
+                          }}
+                        >
+                          <MessageCircle size={13} style={{ flexShrink: 0, color: 'var(--de-accent)' }} aria-hidden />
+                          <span>Comment via DreamBar ↑</span>
+                        </button>
                       </>
                     )}
                   </div>

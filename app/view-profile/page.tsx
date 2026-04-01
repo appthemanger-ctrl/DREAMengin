@@ -43,15 +43,29 @@ type Profile = {
  */
 export default async function ViewProfilePage() {
   const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+
+  // Gracefully handle Supabase being unavailable (no configured env vars)
+  let user: { id: string } | null = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    // Supabase not configured — redirect to login
+  }
 
   if (!user) redirect('/login');
 
-  const { data: rawProfile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
+  let rawProfile: Record<string, unknown> | null = null;
+  try {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    rawProfile = data;
+  } catch {
+    // Supabase unavailable
+  }
 
   if (!rawProfile?.handle) redirect('/edit-profiledream');
 
@@ -60,22 +74,21 @@ export default async function ViewProfilePage() {
   // ── Phase 8 §B Point 21: Query dream_windows with explicit visibility filter ──
   // Only shared/public records are fetched. The query NEVER includes private records.
   // RLS policies on dream_windows enforce this at the DB layer as well.
-   
-  const { data: dreamWindowRecords } = await (supabase as any)
-    .from('dream_windows')
-    .select('id, type, config, size, position, visibility, active_state')
-    .eq('owner_id', user.id)
-    .in('visibility', ['shared', 'public']) as {
-      data: Array<{
-        id: string;
-        type: string;
-        config: Record<string, unknown>;
-        size: { width: number; height: number };
-        position: { x: number; y: number };
-        visibility: string;
-        active_state: string;
-      }> | null
-    };
+  let dreamWindowRecords: Array<{
+    id: string; type: string; config: Record<string, unknown>;
+    size: { width: number; height: number }; position: { x: number; y: number };
+    visibility: string; active_state: string;
+  }> | null = null;
+  try {
+    const { data } = await (supabase as any)
+      .from('dream_windows')
+      .select('id, type, config, size, position, visibility, active_state')
+      .eq('owner_id', user.id)
+      .in('visibility', ['shared', 'public']);
+    dreamWindowRecords = data;
+  } catch {
+    // dream_windows table may not exist yet
+  }
 
   // ── Phase 6 item 8: Consult visibility_mappings as authoritative source ──
   // Per dreamengin_phase6.md point 13: the visibility_mappings table must be
@@ -84,11 +97,16 @@ export default async function ViewProfilePage() {
   // visibility field. If no mapping exists for a widget, fall back to the
   // widget's own visibility (private by default — LAW.md §2).
   type VisibilityMappingRow = { content_id: string; visibility: string };
-   
-  const { data: mappingsData } = await (supabase as any)
-    .from('visibility_mappings')
-    .select('content_id, visibility')
-    .eq('user_id', user.id) as { data: VisibilityMappingRow[] | null };
+  let mappingsData: VisibilityMappingRow[] | null = null;
+  try {
+    const { data } = await (supabase as any)
+      .from('visibility_mappings')
+      .select('content_id, visibility')
+      .eq('user_id', user.id);
+    mappingsData = data;
+  } catch {
+    // visibility_mappings table may not exist yet
+  }
 
   // Build a lookup: content_id → visibility
   const mappingLookup = new Map<string, string>(
