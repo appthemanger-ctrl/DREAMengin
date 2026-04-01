@@ -341,35 +341,39 @@ export default function LandingHero() {
             </Link>
           </motion.div>
 
-          {/* Stats strip */}
+          {/* Mission statement link */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.48, duration: 0.45 }}
-            className="mt-10 flex items-center gap-7 md:gap-10"
-            aria-label="Platform statistics"
+            className="mt-10 w-full max-w-2xl"
           >
-            {[
-              { val: '6',   label: 'Daydreams'    },
-              { val: '20+', label: 'Games'         },
-              { val: '11',  label: 'Engin Paths'   },
-              { val: '∞',   label: 'Possibilities' },
-            ].map((s) => (
-              <div key={s.val} className="flex flex-col items-center lg:items-start gap-0.5">
-                <span
-                  className="font-extrabold leading-none"
-                  style={{ fontSize: '1.55rem', color: 'rgba(220,235,255,0.95)' }}
-                >
-                  {s.val}
-                </span>
-                <span
-                  className="text-xs tracking-wide font-medium"
-                  style={{ color: 'rgba(140,170,220,0.55)' }}
-                >
-                  {s.label}
-                </span>
-              </div>
-            ))}
+            <Link
+              href="/mission"
+              className="group block rounded-3xl border px-5 py-4 transition-all duration-200 hover:shadow-[0_0_28px_rgba(232,208,144,0.12)] md:px-6 md:py-5"
+              style={{
+                borderColor: 'rgba(200,152,26,0.26)',
+                background: 'linear-gradient(135deg, rgba(200,152,26,0.10) 0%, rgba(56,189,248,0.07) 100%)',
+                boxShadow: '0 14px 40px rgba(7,14,28,0.24)',
+              }}
+              aria-label="Read the DREAMengin mission statement"
+            >
+              <span
+                className="block text-lg font-semibold leading-relaxed underline decoration-transparent underline-offset-4 transition-all duration-200 group-hover:decoration-current md:text-xl lg:text-2xl"
+                style={{
+                  color: '#e8d090',
+                  textShadow: '0 0 0 rgba(232,208,144,0)',
+                }}
+              >
+                “A social platform where your individuality is the algorithm. Where creativity—not likes—gets you seen. →”
+              </span>
+              <span
+                className="mt-2 block text-xs font-medium uppercase tracking-[0.18em] md:text-sm"
+                style={{ color: 'rgba(140,170,220,0.72)' }}
+              >
+                Read the mission statement
+              </span>
+            </Link>
           </motion.div>
         </div>
 
