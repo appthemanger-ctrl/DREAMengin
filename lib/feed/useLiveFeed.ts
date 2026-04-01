@@ -52,6 +52,8 @@ export interface FeedPost {
   source?: 'post' | 'connector' | 'share';
   /** Connector provider id (mastodon, github, bluesky, …) */
   provider?: string;
+  /** Original post URL for connector items (mastodon, youtube, …) */
+  permalink?: string;
 }
 
 export interface UseLiveFeedReturn {

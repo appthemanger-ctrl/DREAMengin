@@ -124,4 +124,60 @@ describe('youtube provider discovery helpers', () => {
       'YouTube request failed: 500 Internal Server Error — boom',
     );
   });
+
+  it('youtubeSearchByQuery returns normalised feed items for a keyword', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      new Response(JSON.stringify({
+        items: [
+          {
+            id: { videoId: 'weed-1' },
+            snippet: {
+              title: 'Top 10 Weed Strains',
+              channelTitle: 'Cannabis Daily',
+              publishedAt: '2026-03-28T10:00:00.000Z',
+              thumbnails: { high: { url: 'https://img.example/weed-1.jpg' } },
+            },
+          },
+        ],
+      }), { status: 200 }),
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+    const { youtubeSearchByQuery } = await import('@/lib/connectors/providers/youtube');
+
+    const items = await youtubeSearchByQuery('youtube-key', 'weed', 5);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('/search?part=snippet&q=weed');
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('type=video');
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('key=youtube-key');
+    expect(items).toHaveLength(1);
+    expect(items[0]?.external_id).toBe('subs:weed-1');
+    expect(items[0]?.content_text).toBe('Top 10 Weed Strains');
+    expect(items[0]?.author_name).toBe('Cannabis Daily');
+    expect(items[0]?.provider).toBe('youtube');
+    expect(items[0]?.media[0]?.type).toBe('video');
+  });
+
+  it('youtubeSearchByQuery caps max at 50', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      new Response(JSON.stringify({ items: [] }), { status: 200 }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const { youtubeSearchByQuery } = await import('@/lib/connectors/providers/youtube');
+
+    await youtubeSearchByQuery('youtube-key', 'neil degrasse tyson', 999);
+
+    // max should be clamped to 50
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('maxResults=50');
+  });
+
+  it('youtubeSearchByQuery rejects when API key is missing', async () => {
+    vi.stubGlobal('fetch', vi.fn());
+    const { youtubeSearchByQuery } = await import('@/lib/connectors/providers/youtube');
+
+    await expect(youtubeSearchByQuery('', 'world news', 5)).rejects.toThrow(
+      'YouTube API key is required.',
+    );
+  });
 });
