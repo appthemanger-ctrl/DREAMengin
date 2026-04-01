@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-01 09:57 UTC  
-**Triggered by commit:** `9b6d3ef` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #373 from appthemanger-ctrl/copilot/fix-profile-edit-issues
+**Last updated:** 2026-04-01 12:52 UTC  
+**Triggered by commit:** `ccfcdee` on `copilot/update-readme-first-half` by Copilot  
+**Commit message:** docs: update README first half with accurate build stats, clean up stale entries
 
 ---
 
