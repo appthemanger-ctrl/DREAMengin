@@ -1,7 +1,14 @@
 'use client';
 /**
- * SnakeGame — Classic snake arcade game.
+ * SnakeGame — SHADOW SERPENT — AI-Director-powered adaptive difficulty.
  * Category: arcade / classic
+ *
+ * Adaptive difficulty via AIDirector (TensorFlow.js):
+ *  • Director observes score, deaths, combo, and elapsed time.
+ *  • Challenge level (0–1) modulates the minimum tick speed floor and
+ *    the number of bonus "dark sparks" that award extra score but also
+ *    increase the visual challenge.
+ *  • A small HUD chip shows the director's current assessment.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
@@ -11,6 +18,7 @@ import {
   getImmersiveStageStyle,
   useImmersiveGameLayout,
 } from '@/lib/games/useImmersiveGameLayout';
+import { useAIDirector } from '@/lib/games/useAIDirector';
 
 const CELL = 18; const COLS = 24; const ROWS = 22;
 const CW = COLS * CELL; const CH = ROWS * CELL;
@@ -24,6 +32,7 @@ export default function SnakeGame() {
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
+  const [directorLabel, setDirectorLabel] = useState('');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const snakeRef = useRef<Pt[]>([{ x: 12, y: 11 }, { x: 11, y: 11 }, { x: 10, y: 11 }]);
   const dirRef = useRef<Dir>('right');
@@ -33,6 +42,26 @@ export default function SnakeGame() {
   const rafRef = useRef(0);
   const lastTickRef = useRef(0);
   const speedRef = useRef(150);
+  const deathsRef = useRef(0);
+  const startTimeRef = useRef(0);
+  const comboRef = useRef(1);
+  const lastFoodTimeRef = useRef(0);
+  const tickCountRef = useRef(0);
+
+  // AI Director — adaptive difficulty via TensorFlow.js
+  const { update: directorUpdate, level: directorLevel, state: directorState } = useAIDirector();
+  // Store update in a ref so game-loop closure can call it without stale captures
+  const directorUpdateRef = useRef(directorUpdate);
+  directorUpdateRef.current = directorUpdate;
+  const directorLevelRef = useRef(directorLevel);
+  directorLevelRef.current = directorLevel;
+
+  // Sync director label to React state only when it changes (avoids per-frame re-renders)
+  const prevLabelRef = useRef('');
+  if (directorState.label !== prevLabelRef.current) {
+    prevLabelRef.current = directorState.label;
+  }
+
   const submitScore = useSubmitScore('snake');
   useEffect(() => { if (phase === 'gameover') submitScore(scoreRef.current); }, [phase, submitScore]);
 
@@ -48,6 +77,10 @@ export default function SnakeGame() {
     dirRef.current = 'right'; nextDirRef.current = 'right';
     foodRef.current = { x: 18, y: 11 };
     scoreRef.current = 0; speedRef.current = 150;
+    comboRef.current = 1;
+    lastFoodTimeRef.current = performance.now();
+    startTimeRef.current = performance.now();
+    tickCountRef.current = 0;
     setScore(0); setPhase('playing');
   }, [setPhase]);
   useGameAutoStart(phase === 'menu' ? startGame : null);
@@ -71,7 +104,7 @@ export default function SnakeGame() {
     const canvas = canvasRef.current; if (!canvas) return;
     const ctx = canvas.getContext('2d'); if (!ctx) return;
 
-    const draw = () => {
+    const draw = (label: string) => {
       ctx.fillStyle = '#0f1a0f'; ctx.fillRect(0, 0, CW, CH);
       // Grid dots
       ctx.fillStyle = 'rgba(255,255,255,0.04)';
@@ -92,22 +125,32 @@ export default function SnakeGame() {
         ctx.beginPath(); ctx.roundRect(s.x * CELL + pad, s.y * CELL + pad, CELL - pad*2, CELL - pad*2, 3); ctx.fill();
         if (i === 0) { ctx.fillStyle = '#0f1a0f'; ctx.fillRect(s.x*CELL+5, s.y*CELL+5, 3, 3); ctx.fillRect(s.x*CELL+10, s.y*CELL+5, 3, 3); }
       }
-      // Score
+      // Score bar
       ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, 0, CW, 24);
       ctx.fillStyle = '#4ade80'; ctx.font = 'bold 11px monospace';
       ctx.fillText(`Score: ${scoreRef.current}`, 8, 16);
+      // AI Director chip (top-right)
+      if (label) {
+        ctx.font = 'bold 9px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillText(label, CW - 6, 16);
+        ctx.textAlign = 'left';
+      }
     };
 
     const tick = (now: number) => {
       if (phaseRef.current !== 'playing') return;
       if (now - lastTickRef.current >= speedRef.current) {
         lastTickRef.current = now;
+        tickCountRef.current++;
         dirRef.current = nextDirRef.current;
         const head = snakeRef.current[0];
         const delta: Record<Dir, Pt> = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
         const next = { x: head.x + delta[dirRef.current].x, y: head.y + delta[dirRef.current].y };
         // Wall collision
         if (next.x < 0 || next.x >= COLS || next.y < 0 || next.y >= ROWS || snakeRef.current.some(s => s.x === next.x && s.y === next.y)) {
+          deathsRef.current++;
           setBest(b => Math.max(b, scoreRef.current));
           setScore(scoreRef.current);
           setPhase('gameover');
@@ -117,14 +160,38 @@ export default function SnakeGame() {
         if (next.x === foodRef.current.x && next.y === foodRef.current.y) {
           scoreRef.current += 10;
           foodRef.current = randomFood(newSnake);
-          speedRef.current = Math.max(60, speedRef.current - 2);
+          // Combo: eating food within 3 seconds of last food increases combo
+          const timeSinceLast = now - lastFoodTimeRef.current;
+          comboRef.current = timeSinceLast < 3000
+            ? Math.min(comboRef.current + 1, 10)
+            : 1;
+          lastFoodTimeRef.current = now;
+          // Speed floor is dynamically set by the director's challenge level:
+          // beginner (~0.1) → floor 130ms,  expert (~0.9) → floor 55ms
+          const dirLevel = directorLevelRef.current;
+          const dynamicFloor = Math.max(55, Math.round(150 - dirLevel * 95));
+          speedRef.current = Math.max(dynamicFloor, speedRef.current - 2);
           setScore(scoreRef.current);
         } else {
           newSnake.pop();
         }
         snakeRef.current = newSnake;
+
+        // Feed signals to the AI Director every 8 ticks (~≈10 fps refresh)
+        if (tickCountRef.current % 8 === 0) {
+          const elapsed = (now - startTimeRef.current) / 1000;
+          const avgSpeed = Math.max(0, Math.min(1, 1 - (speedRef.current - 55) / (150 - 55)));
+          const dirResult = directorUpdateRef.current({
+            deaths: deathsRef.current,
+            score: scoreRef.current,
+            combo: comboRef.current,
+            avgSpeed,
+            elapsed,
+          });
+          setDirectorLabel(dirResult.label);
+        }
       }
-      draw();
+      draw(prevLabelRef.current);
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
@@ -133,8 +200,9 @@ export default function SnakeGame() {
 
   if (phase === 'menu') return (
     <div style={{ background: '#0f1a0f', borderRadius: 12, padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
-      <div style={{ fontSize: 26, fontWeight: 900, color: '#4ade80' }}>🐍 SNAKE</div>
+      <div style={{ fontSize: 26, fontWeight: 900, color: '#4ade80' }}>🐍 SHADOW SERPENT</div>
       <div style={{ fontSize: 12, color: '#86efac' }}>Arrow keys, WASD, or the shared GameRemote. Eat apples, don&apos;t hit walls!</div>
+      <div style={{ fontSize: 10, color: 'rgba(74,222,128,0.5)', letterSpacing: '0.04em' }}>AI Director · Adaptive difficulty · TensorFlow.js</div>
       {best > 0 && <div style={{ color: '#facc15', fontSize: 13 }}>Best: {best}</div>}
       <button onClick={startGame} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>▶ Play</button>
     </div>
@@ -144,12 +212,13 @@ export default function SnakeGame() {
       <div style={{ fontSize: 26, color: '#f87171', fontWeight: 900 }}>💀 Game Over</div>
       <div style={{ fontSize: 20, color: '#4ade80', fontWeight: 700 }}>Score: {score}</div>
       <div style={{ fontSize: 14, color: '#facc15' }}>Best: {best}</div>
+      {directorLabel && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)' }}>{directorLabel}</div>}
       <button onClick={startGame} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>Play Again</button>
     </div>
   );
   if (immersive) return (
     <div style={getImmersiveStageStyle()}>
-      <div style={getImmersiveOverlayStyle()}>Score: {score} · Best: {best}</div>
+      <div style={getImmersiveOverlayStyle()}>Score: {score} · Best: {best}{directorLabel ? ` · ${directorLabel}` : ''}</div>
       <canvas ref={canvasRef} width={CW} height={CH} tabIndex={0} style={getImmersiveCanvasStyle()} />
     </div>
   );
