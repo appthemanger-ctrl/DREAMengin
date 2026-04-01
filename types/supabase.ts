@@ -1418,6 +1418,47 @@ export type Database = {
         }
         Relationships: []
       }
+      control_mappings: {
+        Row: {
+          asset_id: string
+          command_target: string
+          created_at: string
+          id: string
+          input_source: string
+          owner_id: string | null
+          sensitivity: number
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          command_target: string
+          created_at?: string
+          id?: string
+          input_source: string
+          owner_id?: string | null
+          sensitivity?: number
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          command_target?: string
+          created_at?: string
+          id?: string
+          input_source?: string
+          owner_id?: string | null
+          sensitivity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "control_mappings_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_scores: {
         Row: {
           achieved_at: string
