@@ -78,7 +78,7 @@ jobs:
 
     steps:
       - name: Checkout completedream
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 0
@@ -290,7 +290,7 @@ jobs:
       # 1. Checkout completedream with full history
       # ────────────────────────────────────────────────────────────────────────
       - name: Checkout completedream
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 0
@@ -542,7 +542,7 @@ jobs:
 
     steps:
       - name: Checkout completedream (post-cycle state)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 1

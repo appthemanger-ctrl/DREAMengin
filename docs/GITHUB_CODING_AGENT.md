@@ -6,7 +6,7 @@ This repo includes a **report-driven GitHub coding agent** at:
 
 It is for **repo automation**, not an in-app help widget.
 
-It also now has a **hard requirement**: every run must include **at least one advanced GameEngin or game upgrade**, not just a simple tap-game tweak.
+It also has a **hard requirement**: every run must include **at least one advanced GameEngin or game upgrade**, not just a simple tap-game tweak.
 
 ## What it does
 
@@ -49,9 +49,30 @@ The issue body becomes the report text. The workflow comments back with the resu
 - `.github/scripts/ai_implement.py`
 - `config/advanced-game-targets.json`
 
+## Other automated workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `update-bugs.yml` | push (all branches) | Regenerates `docs/BUGS.md` from source TODOs + FEATURE_STATUS |
+| `update-handoff.yml` | push (all branches) | Prepends a changelog row to `docs/HANDOFF.md` |
+| `update-repo-state.yml` | push to main/develop/completedream + schedule | Analyses and updates `REPO_STATE.md` |
+| `sync-build-memory.yml` | push to main/develop/completedream | Syncs `build-memory/` artefacts |
+| `check-build-memory-drift.yml` | PR + push to main/develop/completedream | Detects drift in build memory |
+| `bouncer.yml` | push + PR to main/develop/completedream | Enforces naming and privacy hard rules |
+| `garbageman.yml` | push to main/completedream | Removes `.DS_Store`, `*.log`, `*.tmp` |
+| `idari-daily.yml` | daily midnight UTC | Idari improvement cycle |
+| `elite-gameengin-evolution.yml` | push to `components/games/**` + daily | WebGPU validation + AI game proposals |
+| `gameengin-ai-agent.yml` | push to game files on main/develop/completedream | Proposes + generates new SICC games |
+| `games-library-ai-agent.yml` | nightly 04:00 UTC | Genre-fusion evolution of existing games |
+| `dreamengin-preflight.yml` | push to main/develop/completedream + PR | Full build + test gate |
+| `github-actions.yml` | push + PR to main/develop | CI/CD quality, build, security, deploy |
+| `db-extension-audit.yml` | push to `supabase/migrations/**` + weekly Mon | DB extension audit |
+| `db-extension-check.yml` | push to `supabase/migrations/**` + weekly Mon | Required-extension check |
+
 ## Notes
 
 - Requires `OPENAI_API_KEY`
-- Uses Node 24 + pnpm 10.30.0
+- Uses Node 24 + pnpm 10.30.0 (see `.github/actions/setup-node`)
 - Reuses existing DREAMengin scan/patch infrastructure instead of inventing a parallel automation system
 - Advanced targets currently prioritize `BabylonSideScroller`, `ENGINBattle`, and `DREAMquest`
+- All action versions pinned to `@v4` — see `docs/ADD_WORKFLOW.md`

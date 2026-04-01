@@ -4,7 +4,11 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - "supabase/migrations/**"
+      - "supabase/config.toml"
       - ".github/workflows/db-extension-audit.yml"
+  schedule:
+    - cron: '0 3 * * 1'   # weekly Monday 03:00 UTC
 
 jobs:
   audit-db-extensions:
@@ -17,7 +21,7 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Validate DATABASE_URL
         run: |
