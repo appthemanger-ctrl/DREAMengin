@@ -1,10 +1,12 @@
 name: Update Repository State
 
 on:
-  # Run on pushes to completedream branch
+  # Run on pushes to main branches
   push:
     branches:
       - completedream
+      - main
+      - develop
     # Skip if only REPO_STATE.md changed (avoid infinite loops)
     paths-ignore:
       - 'REPO_STATE.md'
@@ -14,6 +16,8 @@ on:
     types: [closed]
     branches:
       - completedream
+      - main
+      - develop
 
   # Allow manual trigger
   workflow_dispatch:
