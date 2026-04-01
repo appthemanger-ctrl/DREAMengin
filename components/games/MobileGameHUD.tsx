@@ -4,13 +4,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import styles from '@/components/games/MobileGameHUD.module.css';
 import {
+  emitMobileButton,
   emitMobileLook,
   emitMobileMove,
-  emitMobileButton,
   fireLegacyGameInput,
+  getLegacyActionForMobileButton,
   getLegacyMoveAction,
+  MOBILE_HUD_BUTTON_RING,
   normalizeStickVector,
   type MobileControlVector,
+  type MobileHudButton,
   type MobileHudMode,
 } from '@/lib/games/mobileControls';
 
@@ -18,7 +21,10 @@ const SCALE_MIN = 0.55;
 const SCALE_MAX = 1.45;
 const SCALE_STEP = 0.1;
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// Fraction of dock radius within which a touch claims the right joystick
+const RIGHT_JOY_ZONE = 0.40;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function loadPersisted(key: string, fallback: number, min?: number, max?: number): number {
   try {
@@ -60,28 +66,47 @@ function formatVectorLabel(vector: MobileControlVector, idleLabel: string) {
   return `${x}${y}`;
 }
 
+function isInJoystickZone(touch: TouchPoint, dock: HTMLDivElement | null): boolean {
+  if (!dock) return false;
+  const rect = dock.getBoundingClientRect();
+  const dist = Math.hypot(
+    touch.clientX - (rect.left + rect.width / 2),
+    touch.clientY - (rect.top + rect.height / 2),
+  );
+  return dist < (rect.width / 2) * RIGHT_JOY_ZONE;
+}
+
+const INTERACTIVE_BUTTONS = new Set(['jump', 'dash', 'action']);
+
 export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: MobileGameHUDProps) {
   const leftDockRef = useRef<HTMLDivElement>(null);
   const rightDockRef = useRef<HTMLDivElement>(null);
   const leftCapRef = useRef<HTMLDivElement>(null);
   const rightCapRef = useRef<HTMLDivElement>(null);
+  const ringButtonRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const leftTouchIdRef = useRef<number | null>(null);
-  const rightTouchIdRef = useRef<number | null>(null);
+  const rightJoyTouchIdRef = useRef<number | null>(null);
+  const rightBtnTouchesRef = useRef<Map<number, string | null>>(new Map());
+  const activeBtnCountsRef = useRef<Record<string, number>>({});
   const activeMoveActionRef = useRef<ReturnType<typeof getLegacyMoveAction>>(null);
   const touchFadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragStartRef = useRef<{ y: number; baseOffsetY: number } | null>(null);
 
   const [leftVector, setLeftVector] = useState(ZERO_VECTOR);
   const [rightVector, setRightVector] = useState(ZERO_VECTOR);
+  const [pressedButtons, setPressedButtons] = useState<Record<string, boolean>>({});
   const [pausePressed, setPausePressed] = useState(false);
   const [exitPressed, setExitPressed] = useState(false);
   const [remoteScale, setRemoteScale] = useState(() => loadPersisted('de:hud:scale', 1.0, SCALE_MIN, SCALE_MAX));
   const [offsetY, setOffsetY] = useState(() => loadPersisted('de:hud:offsetY', 0, -80, 200));
   const [isTouching, setIsTouching] = useState(false);
 
-  // ── Emit CSS var so game stage can clear the remote ───────────────────────
+  const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter((b) => b.interactive);
+
+  // ── Emit CSS var so game stage clears the remote ──────────────────────────
   useEffect(() => {
-    const dockH = 155;
+    const dockH = 170;
     const readoutH = 40;
     const baseBottom = 18 + (dockH + readoutH) * remoteScale + offsetY;
     const clamped = Math.max(0, Math.min(480, Math.round(baseBottom)));
@@ -143,14 +168,16 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   const updateStickFromTouch = useCallback((
     touch: TouchPoint,
     dock: HTMLDivElement | null,
-    setVector: (vector: MobileControlVector) => void,
+    setVector: (v: MobileControlVector) => void,
   ) => {
     if (!dock) return;
     const rect = dock.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
     const radius = rect.width * 0.3;
-    setVector(normalizeStickVector(touch.clientX - centerX, touch.clientY - centerY, radius));
+    setVector(normalizeStickVector(
+      touch.clientX - (rect.left + rect.width / 2),
+      touch.clientY - (rect.top + rect.height / 2),
+      radius,
+    ));
   }, []);
 
   // ── Left stick ────────────────────────────────────────────────────────────
@@ -180,39 +207,95 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
 
   const handleLeftTouchEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const released = Array.from(event.changedTouches).some((t) => t.identifier === leftTouchIdRef.current);
-    if (released) releaseLeftStick();
+    if (Array.from(event.changedTouches).some((t) => t.identifier === leftTouchIdRef.current)) {
+      releaseLeftStick();
+    }
   }, [releaseLeftStick]);
 
-  // ── Right stick ───────────────────────────────────────────────────────────
-  const handleRightStickStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    if (rightTouchIdRef.current !== null) return;
-    const touch = event.changedTouches[0];
-    if (!touch) return;
-    rightTouchIdRef.current = touch.identifier;
-    markTouchStart();
-    updateStickFromTouch(touch, rightDockRef.current, updateRightVector);
-  }, [markTouchStart, updateRightVector, updateStickFromTouch]);
+  // ── Button helpers ────────────────────────────────────────────────────────
+  const updateButtonPressed = useCallback((buttonId: string, active: boolean) => {
+    setPressedButtons((prev) => {
+      if ((prev[buttonId] ?? false) === active) return prev;
+      return { ...prev, [buttonId]: active };
+    });
+  }, []);
 
-  const handleRightStickMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const touch = Array.from(event.changedTouches).find((t) => t.identifier === rightTouchIdRef.current);
-    if (!touch) return;
-    updateStickFromTouch(touch, rightDockRef.current, updateRightVector);
-  }, [updateRightVector, updateStickFromTouch]);
+  const setButtonActive = useCallback((buttonId: string, active: boolean) => {
+    if (!INTERACTIVE_BUTTONS.has(buttonId)) return;
+    const counts = activeBtnCountsRef.current;
+    const current = counts[buttonId] ?? 0;
+    const next = active ? current + 1 : Math.max(0, current - 1);
+    counts[buttonId] = next;
+    updateButtonPressed(buttonId, next > 0);
+    if (active && current === 0) {
+      emitMobileButton(buttonId as MobileHudButton);
+      fireLegacyGameInput(getLegacyActionForMobileButton(buttonId as 'jump' | 'dash' | 'action'), true);
+    }
+    if (!active && current > 0 && next === 0) {
+      fireLegacyGameInput(getLegacyActionForMobileButton(buttonId as 'jump' | 'dash' | 'action'), false);
+    }
+  }, [updateButtonPressed]);
 
-  const releaseRightStick = useCallback(() => {
-    rightTouchIdRef.current = null;
+  const findButtonAtPoint = useCallback((clientX: number, clientY: number): string | null => {
+    for (const btn of interactiveButtons) {
+      const rect = ringButtonRefs.current[btn.id]?.getBoundingClientRect();
+      if (!rect) continue;
+      if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+        return btn.id;
+      }
+    }
+    return null;
+  }, [interactiveButtons]);
+
+  // ── Right dock — combined joystick + buttons ──────────────────────────────
+  const handleRightDockTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    Array.from(event.changedTouches).forEach((touch) => {
+      markTouchStart();
+      if (rightJoyTouchIdRef.current === null && isInJoystickZone(touch, rightDockRef.current)) {
+        rightJoyTouchIdRef.current = touch.identifier;
+        updateStickFromTouch(touch, rightDockRef.current, updateRightVector);
+      } else {
+        const buttonId = findButtonAtPoint(touch.clientX, touch.clientY);
+        rightBtnTouchesRef.current.set(touch.identifier, buttonId);
+        if (buttonId) setButtonActive(buttonId, true);
+      }
+    });
+  }, [findButtonAtPoint, markTouchStart, setButtonActive, updateRightVector, updateStickFromTouch]);
+
+  const handleRightDockTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    Array.from(event.changedTouches).forEach((touch) => {
+      if (touch.identifier === rightJoyTouchIdRef.current) {
+        updateStickFromTouch(touch, rightDockRef.current, updateRightVector);
+      } else if (rightBtnTouchesRef.current.has(touch.identifier)) {
+        const prev = rightBtnTouchesRef.current.get(touch.identifier) ?? null;
+        const next = findButtonAtPoint(touch.clientX, touch.clientY);
+        if (prev !== next) {
+          if (prev) setButtonActive(prev, false);
+          if (next) setButtonActive(next, true);
+          rightBtnTouchesRef.current.set(touch.identifier, next);
+        }
+      }
+    });
+  }, [findButtonAtPoint, setButtonActive, updateRightVector, updateStickFromTouch]);
+
+  const releaseRightDockTouch = useCallback((touchId: number) => {
+    if (touchId === rightJoyTouchIdRef.current) {
+      rightJoyTouchIdRef.current = null;
+      updateRightVector(ZERO_VECTOR);
+    } else if (rightBtnTouchesRef.current.has(touchId)) {
+      const buttonId = rightBtnTouchesRef.current.get(touchId);
+      if (buttonId) setButtonActive(buttonId, false);
+      rightBtnTouchesRef.current.delete(touchId);
+    }
     markTouchEnd();
-    updateRightVector(ZERO_VECTOR);
-  }, [markTouchEnd, updateRightVector]);
+  }, [markTouchEnd, setButtonActive, updateRightVector]);
 
-  const handleRightStickEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
+  const handleRightDockTouchEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const released = Array.from(event.changedTouches).some((t) => t.identifier === rightTouchIdRef.current);
-    if (released) releaseRightStick();
-  }, [releaseRightStick]);
+    Array.from(event.changedTouches).forEach((t) => releaseRightDockTouch(t.identifier));
+  }, [releaseRightDockTouch]);
 
   // ── Pause / Exit ──────────────────────────────────────────────────────────
   const handlePausePress = useCallback(() => {
@@ -264,6 +347,10 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
     if (activeMoveActionRef.current) fireLegacyGameInput(activeMoveActionRef.current, false);
     fireLegacyGameInput('move-stop', true);
     fireLegacyGameInput('move-stop', false);
+    Object.entries(activeBtnCountsRef.current).forEach(([buttonId, count]) => {
+      if (!count || !INTERACTIVE_BUTTONS.has(buttonId)) return;
+      fireLegacyGameInput(getLegacyActionForMobileButton(buttonId as 'jump' | 'dash' | 'action'), false);
+    });
     fireLegacyGameInput('pause', false);
   }, []);
 
@@ -368,24 +455,41 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
         </div>
       </div>
 
-      {/* ── Right joystick (LOOK) — larger than left ── */}
+      {/* ── Right dock — button ring around an embedded joystick (LOOK) ── */}
       <div
         ref={rightDockRef}
         className={clsx(styles.joystickDock, styles.rightDock)}
-        onTouchStart={handleRightStickStart}
-        onTouchMove={handleRightStickMove}
-        onTouchEnd={handleRightStickEnd}
-        onTouchCancel={handleRightStickEnd}
+        onTouchStart={handleRightDockTouchStart}
+        onTouchMove={handleRightDockTouchMove}
+        onTouchEnd={handleRightDockTouchEnd}
+        onTouchCancel={handleRightDockTouchEnd}
       >
         <div className={styles.readout}>{formatVectorLabel(rightVector, 'LOOK')}</div>
-        <div className={styles.joystickShell}>
-          <div className={styles.joystickRing} />
-          <div className={styles.joystickCore} />
+        <div className={styles.buttonCluster}>
+          <div className={styles.clusterRing} />
+          {/* Central joystick embedded in the hub */}
+          <div className={styles.clusterHub} />
           <div
             ref={rightCapRef}
-            className={clsx(styles.joystickCap, rightTouchIdRef.current === null && styles.joystickCapReset)}
+            className={clsx(styles.joystickCap, styles.rightJoyCap, rightJoyTouchIdRef.current === null && styles.joystickCapReset)}
             style={{ transform: getStickTransform(rightVector) }}
           />
+          {/* Ring buttons */}
+          {MOBILE_HUD_BUTTON_RING.map((button) => (
+            <div
+              key={button.id}
+              ref={(node) => { ringButtonRefs.current[button.id] = node; }}
+              className={clsx(
+                styles.ringButton,
+                styles[button.slotClassName as keyof typeof styles],
+                button.interactive ? styles.interactive : styles.decorative,
+                pressedButtons[button.id] && styles.buttonPressed,
+              )}
+            >
+              <span className={styles.buttonSymbol}>{button.symbol}</span>
+              <span className={styles.buttonLabel}>{button.label}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

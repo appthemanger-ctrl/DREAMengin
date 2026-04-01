@@ -40,17 +40,19 @@ describe('shared mobile game controls', () => {
     expect(echoSrc).toContain('useRegisterMobileGameControls');
   });
 
-  it('keeps the immersive mobile HUD tuned for faster thumb response and symmetric dual-stick layout', () => {
+  it('keeps the immersive mobile HUD with right dock combining button ring and embedded joystick', () => {
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/MobileGameHUD.tsx'), 'utf8');
     const hudCss = readFileSync(join(REPO_ROOT, 'components/games/MobileGameHUD.module.css'), 'utf8');
 
     expect(hudSrc).toContain('leftCapRef.current');
     expect(hudSrc).toContain('rightCapRef.current');
     expect(hudSrc).toContain('function getStickTransform(vector: MobileControlVector)');
-    // Both sticks are now the same size (symmetric dual-joystick layout)
+    // Left dock is smaller; right dock is larger to fit button ring + joystick
     expect(hudCss).toContain('--dock-size: clamp(102px, 27vw, 136px);');
-    // Face buttons live in a separate cluster, not the dock
-    expect(hudCss).toContain('faceButtonCluster');
+    expect(hudCss).toContain('--dock-size: clamp(180px, 46vw, 252px);');
+    // Right dock has both button ring slots and embedded joystick cap
+    expect(hudCss).toContain('buttonCluster');
+    expect(hudCss).toContain('rightJoyCap');
     expect(hudCss).toContain('will-change: transform;');
     expect(hudCss).toContain('transition: none;');
   });
