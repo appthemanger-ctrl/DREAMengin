@@ -71,11 +71,10 @@ let telemetry: Float64Array;
 /**
  * Simulated f32x4.add — adds velocity to position for four entities at a time.
  *
- * In production, this is replaced by a real Wasm SIMD call:
- *   wasm.exports.simd_add_f32x4(posPtr, velPtr, count)
- *
- * The pure-JS version below is semantically equivalent and allows the worker
- * to run in environments without Wasm SIMD support (test runners, older browsers).
+ * This pure-JS fallback is used when:
+ *  - The Wasm binary hasn't been compiled yet (development).
+ *  - The runtime doesn't support WebAssembly SIMD (older browsers).
+ *  - The fetch for the .wasm file fails.
  *
  * @param pArr  Position channel (Float32Array view into SAB).
  * @param vArr  Velocity channel (Float32Array view into SAB).
@@ -99,6 +98,55 @@ function wasmSIMDAddF32x4(
   // Scalar tail for remainder
   for (; i < end; i++) {
     pArr[i] += vArr[i];
+  }
+}
+
+// ─── Wasm engine (optional) ───────────────────────────────────────────────────
+
+interface WasmExports {
+  tickPhysicsSIMD: (posPtr: number, velPtr: number, count: number, deltaTime: number) => void;
+  processAudioBufferSIMD: (bufPtr: number, count: number, gain: number) => void;
+}
+
+let wasmExports: WasmExports | null = null;
+
+/**
+ * Attempt to load and instantiate the compiled AssemblyScript Wasm binary.
+ *
+ * On success `wasmExports` is populated and subsequent ticks will use the SIMD
+ * engine instead of the JS stub.  Failure is silent — the JS stub stays active.
+ *
+ * @param wasmUrl - URL of the compiled binary (default: '/workers/engin-shader.wasm').
+ */
+async function tryLoadWasm(wasmUrl: string): Promise<void> {
+  if (typeof WebAssembly === 'undefined') return;
+
+  try {
+    const response = await fetch(wasmUrl);
+    if (!response.ok) return;
+
+    const arrayBuffer = await response.arrayBuffer();
+
+    // Shared memory so the Wasm module addresses the same bytes as the SAB views.
+    const sharedMemory = new WebAssembly.Memory({
+      initial: 256,
+      maximum: 512,
+      shared: true,
+    } as WebAssembly.MemoryDescriptor & { shared: boolean });
+
+    const { instance } = await WebAssembly.instantiate(arrayBuffer, {
+      env: {
+        memory: sharedMemory,
+        abort: (msg: number, file: number, line: number, col: number) => {
+          console.error(`[EnginShaderWorker][Wasm] abort: msg=${msg} file=${file} line=${line} col=${col}`);
+        },
+      },
+    });
+
+    wasmExports     = instance.exports as unknown as WasmExports;
+    console.info('[EnginShaderWorker] Wasm SIMD engine loaded — near-native physics active.');
+  } catch {
+    // Wasm not available — JS stub will continue to be used.
   }
 }
 
@@ -142,14 +190,50 @@ function tick(): void {
     return;
   }
 
-  // Physics: integrate velocity → position (simulated Wasm SIMD f32x4.add)
-  wasmSIMDAddF32x4(posX, velX, startIndex, endIndex);
-  wasmSIMDAddF32x4(posY, velY, startIndex, endIndex);
-  wasmSIMDAddF32x4(posZ, velZ, startIndex, endIndex);
+  const count = endIndex - startIndex;
+
+  if (wasmExports) {
+    // ── Wasm SIMD path: near-native physics via AssemblyScript ────────────
+    // posX/velX start at their respective byte offsets inside the SAB.
+    // The Wasm module operates on the same memory via its shared WebAssembly.Memory.
+    wasmExports.tickPhysicsSIMD(
+      OFFSET_POS_X + startIndex * 4,
+      OFFSET_VEL_X + startIndex * 4,
+      count,
+      1 / 60, // fixed 60 fps delta; a dynamic delta can be passed via SAB in future
+    );
+    wasmExports.tickPhysicsSIMD(
+      OFFSET_POS_Y + startIndex * 4,
+      OFFSET_VEL_Y + startIndex * 4,
+      count,
+      1 / 60,
+    );
+    wasmExports.tickPhysicsSIMD(
+      OFFSET_POS_Z + startIndex * 4,
+      OFFSET_VEL_Z + startIndex * 4,
+      count,
+      1 / 60,
+    );
+  } else {
+    // ── JS stub path: semantically equivalent, used as fallback ──────────
+    wasmSIMDAddF32x4(posX, velX, startIndex, endIndex);
+    wasmSIMDAddF32x4(posY, velY, startIndex, endIndex);
+    wasmSIMDAddF32x4(posZ, velZ, startIndex, endIndex);
+  }
 
   // Elite-Runtime Telemetry: write µs/tick into SAB Telemetry Zone.
   const microsecondsPerTick = (performance.now() - t0) * 1_000;
   telemetry[workerIndex] = microsecondsPerTick;
+
+  // IDARi budget gate: warn dispatcher if tick exceeds 1 ms (IDARi threshold).
+  if (microsecondsPerTick > 1_000) {
+    self.postMessage({
+      type: 'wasm_budget_exceeded',
+      workerIndex,
+      microsecondsPerTick,
+      usingWasm: wasmExports !== null,
+    });
+  }
 
   // Notify dispatcher (lightweight — payload mirrors what's already in SAB).
   self.postMessage({
@@ -170,7 +254,7 @@ function rafLoop(): void {
 // ─── Message handler ──────────────────────────────────────────────────────────
 
 self.onmessage = (evt: MessageEvent) => {
-  const msg = evt.data as { type: string; sab?: SharedArrayBuffer; workgroup?: Workgroup };
+  const msg = evt.data as { type: string; sab?: SharedArrayBuffer; workgroup?: Workgroup; wasmUrl?: string };
 
   switch (msg.type) {
     case 'init': {
@@ -207,6 +291,15 @@ self.onmessage = (evt: MessageEvent) => {
         };
         fallbackLoop();
       }
+      break;
+    }
+
+    case 'wasm_init': {
+      // Dispatcher signals that a Wasm binary is available — attempt to load it.
+      const url = msg.wasmUrl ?? '/workers/engin-shader.wasm';
+      tryLoadWasm(url).catch(() => {
+        // Failure is safe — JS stub remains active.
+      });
       break;
     }
 

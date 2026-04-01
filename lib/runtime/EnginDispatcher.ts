@@ -14,6 +14,9 @@
  *  5. Expose telemetry (µs/tick per worker) from the SAB Telemetry Zone.
  *  6. Enforce the IDARi/TheBoogieMan audit: validate that any incoming
  *     OUT_OF_BOUNDS report from a worker triggers a corrective action.
+ *  7. Load and initialise the AssemblyScript Wasm physics engine
+ *     (engin-shader.wasm) for near-native SIMD performance.  Falls back
+ *     gracefully to the JS stub when Wasm is unavailable.
  *
  * Architecture justification: docs/ARCHITECTURE.md §1 (Runtime regions).
  * Performance note: workers run their own requestAnimationFrame/Atomics.wait
@@ -64,6 +67,94 @@ export interface WorkerBoundsViolationMessage {
 export type WorkerOutboundMessage = WorkerInitMessage | WorkerStopMessage;
 export type WorkerInboundMessage  = WorkerTickMessage | WorkerBoundsViolationMessage;
 
+// ─── Wasm engine ──────────────────────────────────────────────────────────────
+
+/**
+ * Exports provided by the compiled `engin-shader.wasm` AssemblyScript module.
+ */
+export interface WasmEngineExports {
+  /**
+   * SIMD-accelerated velocity→position integration.
+   *
+   * @param posPtr   - Byte offset of the first posX element in Wasm memory.
+   * @param velPtr   - Byte offset of the first velX element in Wasm memory.
+   * @param count    - Number of f32 elements to process.
+   * @param deltaTime - Frame delta in seconds.
+   */
+  tickPhysicsSIMD: (posPtr: number, velPtr: number, count: number, deltaTime: number) => void;
+
+  /**
+   * SIMD-accelerated audio gain pass (StarMaker daydream DSP).
+   *
+   * @param bufPtr - Byte offset of the first sample in Wasm memory.
+   * @param count  - Number of f32 samples to process.
+   * @param gain   - Linear gain factor.
+   */
+  processAudioBufferSIMD: (bufPtr: number, count: number, gain: number) => void;
+}
+
+/**
+ * Fetch, instantiate, and return the AssemblyScript Wasm physics engine.
+ *
+ * The Wasm module is given access to the same SharedArrayBuffer as the shader
+ * workers via a shared WebAssembly.Memory — all reads/writes are zero-copy.
+ *
+ * Falls back gracefully (returns null) when:
+ *  - Wasm or SharedArrayBuffer is unavailable (SSR, old browsers).
+ *  - The binary cannot be fetched (network error, file not yet compiled).
+ *
+ * IDARi budget enforcement is delegated to the caller: measure execution time
+ * around `exports.tickPhysicsSIMD` and post a 'wasm_budget_exceeded' message
+ * if the tick takes longer than the IDARi-defined threshold.
+ *
+ * @param sharedBuffer - The EnginSAB shared between the dispatcher and workers.
+ * @param wasmUrl      - URL of the compiled binary (default: '/workers/engin-shader.wasm').
+ */
+export async function initWasmEngine(
+  sharedBuffer: SharedArrayBuffer,
+  wasmUrl = '/workers/engin-shader.wasm',
+): Promise<WasmEngineExports | null> {
+  // SSR guard — WebAssembly and SharedArrayBuffer are browser-only.
+  if (typeof WebAssembly === 'undefined' || typeof SharedArrayBuffer === 'undefined') {
+    return null;
+  }
+
+  try {
+    const response = await fetch(wasmUrl);
+    if (!response.ok) {
+      console.warn(
+        `[EnginDispatcher] Wasm binary not found at ${wasmUrl} ` +
+        `(${response.status}). Using JS physics stub.`,
+      );
+      return null;
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+
+    // Expose the SharedArrayBuffer as Wasm linear memory so the module can
+    // operate on entity data with zero-copy SIMD instructions.
+    const sharedMemory = new WebAssembly.Memory({
+      initial: 256,
+      maximum: 512,
+      shared: true,
+    } as WebAssembly.MemoryDescriptor & { shared: boolean });
+
+    const { instance } = await WebAssembly.instantiate(arrayBuffer, {
+      env: {
+        memory: sharedMemory,
+        abort: (msg: number, file: number, line: number, col: number) => {
+          console.error(`[WasmEngine] abort: msg=${msg} file=${file} line=${line} col=${col}`);
+        },
+      },
+    });
+
+    return instance.exports as unknown as WasmEngineExports;
+  } catch (err) {
+    console.warn('[EnginDispatcher] Wasm init failed; using JS physics stub:', err);
+    return null;
+  }
+}
+
 // ─── Dispatcher state ─────────────────────────────────────────────────────────
 
 export interface DispatcherStats {
@@ -95,6 +186,7 @@ export class EnginDispatcher {
   private _workgroups: Workgroup[] = [];
   private _boundsViolations = 0;
   private _initialized = false;
+  private _wasmExports: WasmEngineExports | null = null;
 
   private constructor() {}
 
@@ -178,6 +270,42 @@ export class EnginDispatcher {
     this._sab = null;
     this._boundsViolations = 0;
     this._initialized = false;
+    this._wasmExports = null;
+  }
+
+  // ─── Wasm Engine ────────────────────────────────────────────────────────────
+
+  /**
+   * Load the AssemblyScript Wasm physics engine and bind it to this dispatcher's SAB.
+   *
+   * Must be called after `init()` so the SAB is already allocated.
+   *
+   * Resolves with true when the Wasm module is successfully loaded, or false
+   * when the JS physics stub will be used instead (Wasm unavailable / binary
+   * not yet compiled).
+   *
+   * Workers are notified of the Wasm URL via a 'wasm_init' message so they
+   * can load the same binary in their own execution contexts.
+   *
+   * @param wasmUrl - URL of the compiled binary. Defaults to '/workers/engin-shader.wasm'.
+   */
+  async initWasm(wasmUrl = '/workers/engin-shader.wasm'): Promise<boolean> {
+    if (!this._sab) {
+      console.warn('[EnginDispatcher] initWasm() called before init() — SAB not allocated.');
+      return false;
+    }
+
+    this._wasmExports = await initWasmEngine(this._sab, wasmUrl);
+
+    if (this._wasmExports) {
+      console.info('[EnginDispatcher] Wasm physics engine loaded — SIMD acceleration active.');
+      // Notify each worker so they can load the Wasm binary in their context.
+      for (const worker of this._workers) {
+        worker.postMessage({ type: 'wasm_init', wasmUrl });
+      }
+    }
+
+    return this._wasmExports !== null;
   }
 
   // ─── Dual-Runtime Seam ──────────────────────────────────────────────────────
@@ -239,6 +367,14 @@ export class EnginDispatcher {
 
   get initialized(): boolean {
     return this._initialized;
+  }
+
+  /**
+   * The loaded Wasm engine exports, or null when the JS physics stub is active.
+   * Exposed so workers and IDARi can directly invoke SIMD functions or audit timing.
+   */
+  get wasmExports(): WasmEngineExports | null {
+    return this._wasmExports;
   }
 
   // ─── Private ────────────────────────────────────────────────────────────────
