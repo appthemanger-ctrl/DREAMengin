@@ -179,22 +179,32 @@ interface DreamDMBarProps {
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange }: DreamDMBarProps) {
-  // ── Screen geometry ────────────────────────────────────────────────────────
+  // ── Screen geometry + keyboard tracking ───────────────────────────────────
   const [screenH, setScreenH] = useState(900);
   const [screenW, setScreenW] = useState(1440);
+  /** px the keyboard pushes the visual viewport up from the bottom (0 when hidden) */
+  const [keyboardOffsetPx, setKeyboardOffsetPx] = useState(0);
   useEffect(() => {
     const update = () => {
-      setScreenH(getPreferredViewportHeight(window.innerHeight, window.visualViewport?.height));
+      const innerH = window.innerHeight;
+      const vvH    = window.visualViewport?.height ?? innerH;
+      const vvOff  = window.visualViewport?.offsetTop ?? 0;
+      setScreenH(getPreferredViewportHeight(innerH, vvH));
       setScreenW(window.visualViewport?.width ?? window.innerWidth);
+      // Keyboard offset = layout height minus (visual height + viewport scrolled-up amount)
+      const kbOffset = Math.max(0, innerH - vvH - vvOff);
+      setKeyboardOffsetPx(kbOffset);
     };
     update();
     window.addEventListener('resize', update);
     window.addEventListener('orientationchange', update);
     window.visualViewport?.addEventListener('resize', update);
+    window.visualViewport?.addEventListener('scroll', update);
     return () => {
       window.removeEventListener('resize', update);
       window.removeEventListener('orientationchange', update);
       window.visualViewport?.removeEventListener('resize', update);
+      window.visualViewport?.removeEventListener('scroll', update);
     };
   }, []);
 
@@ -211,6 +221,26 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   /** How far bar has slid down from the top during a top-expanded→bottom drag (px) */
   const [slideDown, setSlideDown] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+
+  // ── Minimized / collapsed state ───────────────────────────────────────────
+  /**
+   * When minimized, the bar disappears and a gold glowing orb appears at
+   * the bottom-right corner. Tap the orb to restore the bar.
+   */
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  // ── Touch-reveal transparency ─────────────────────────────────────────────
+  /**
+   * The bar is fully transparent when not in use. It becomes opaque when the
+   * user touches it and fades back after 3 seconds of inactivity.
+   */
+  const [barTouched, setBarTouched] = useState(false);
+  const barTouchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const revealBar = useCallback(() => {
+    setBarTouched(true);
+    if (barTouchTimerRef.current) clearTimeout(barTouchTimerRef.current);
+    barTouchTimerRef.current = setTimeout(() => { setBarTouched(false); }, 3000);
+  }, []);
 
   const dragRef = useRef({
     active: false, startY: 0,
@@ -291,6 +321,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const handleDragStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault(); e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
+    revealBar();
     const now = performance.now();
     dragRef.current = {
       active: true, startY: e.clientY,
@@ -302,7 +333,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
       velocity: 0,
     };
     setIsDragging(true);
-  }, [dragH, isTop, isTopExpanded, slideDown]);
+  }, [revealBar, dragH, isTop, isTopExpanded, slideDown]);
 
   const handleDragMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.active) return;
@@ -339,11 +370,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     setIsDragging(false);
 
     if (!dragRef.current.fromTop) {
-      // Expanding from bottom: snap to top-compact if reached near the top.
+      // Expanding from bottom: snap to top if reached near top OR flung up fast.
+      // Otherwise snap back to the default bottom height (no arbitrary in-between).
       if (shouldSnapBottomDragToTop({ screenH, dragH, barH: BAR_H, velocityPxPerMs: velocity })) {
         setIsTop(true); setIsTopExpanded(false); setDragH(NAV_H); setSlideDown(0);
       } else {
-        setDragH(Math.max(BAR_H, Math.min(screenH * 0.85, dragH)));
+        // Snap back to bottom — no in-between positions allowed
+        setDragH(BAR_H);
       }
     } else if (!dragRef.current.fromTopExpanded) {
       // Top-compact: decide whether to expand to full panel or snap back to compact
@@ -557,13 +590,35 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     if (barIntent.mode === 'comment' && barIntent.targetPostId) {
       setCommentSending(true);
       try {
+        // Upload any attached media files first
+        const mediaUrls: string[] = [];
+        if (quickDraftFiles.length > 0) {
+          const { createClient } = await import('@/lib/supabase/client');
+          const supabase = createClient();
+          for (const file of quickDraftFiles) {
+            const bucket = file.type.startsWith('image/') ? 'images'
+                         : file.type.startsWith('video/') ? 'videos'
+                         : 'files';
+            const ext = file.name.split('.').pop();
+            const filename = `${userId}/comments/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+            const { error: uploadError } = await supabase.storage
+              .from(bucket).upload(filename, file, { cacheControl: '3600', upsert: false });
+            if (!uploadError) {
+              const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filename);
+              mediaUrls.push(publicUrl);
+            }
+          }
+        }
         const res = await fetch('/api/comments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ post_id: barIntent.targetPostId, content: text }),
+          body: JSON.stringify({ post_id: barIntent.targetPostId, content: text, media_urls: mediaUrls }),
         });
         if (res.ok) {
           setQuickDraft('');
+          quickDraftPreviews.forEach(url => URL.revokeObjectURL(url));
+          setQuickDraftFiles([]);
+          setQuickDraftPreviews([]);
           clearBarIntent();
         } else {
           const { error } = await res.json().catch(() => ({})) as { error?: string };
@@ -856,13 +911,74 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const goldCenterY = goldTopPx + GOLD_R;
   const minCapsuleTop = goldCenterY - GOLD_MIN_H / 2;
 
-  // ── Resting state: bar is nearly transparent until interacted with ────────
+  // ── Resting state: bar is fully transparent until touched ────────────────
   // Bar is "resting" when: at bottom (not top), not dragging, not composeFocused,
-  // at default height (BAR_H), not in divider mode, and no active intent.
+  // at default height (BAR_H), not in divider mode, and no active intent,
+  // and the user has not recently touched it.
   const isResting = !isDividerMode && !isTop && !isDragging && !composeFocused
-    && dragH <= BAR_H && barIntent.mode === 'default';
+    && dragH <= BAR_H && barIntent.mode === 'default' && !barTouched;
+
+  // ── Keyboard-aware bottom offset ─────────────────────────────────────────
+  // When the user is composing and the keyboard is visible, translate the bar
+  // upward so it floats just above the keyboard instead of being hidden behind it.
+  const keyboardTranslateY = composeFocused && keyboardOffsetPx > 0
+    ? -keyboardOffsetPx
+    : 0;
 
   // ── Render ────────────────────────────────────────────────────────────────
+
+  // ── Minimized state: gold orb at bottom-right ────────────────────────────
+  if (isMinimized) {
+    return (
+      <button
+        type="button"
+        aria-label="DreamDM Bar — tap to restore"
+        onClick={() => {
+          setIsMinimized(false);
+          setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
+          revealBar();
+        }}
+        style={{
+          position: 'fixed',
+          bottom: 20,
+          right: 20,
+          width: 48,
+          height: 48,
+          borderRadius: '50%',
+          border: 'none',
+          cursor: 'pointer',
+          zIndex: 200,
+          background: 'radial-gradient(circle at 36% 32%, #fffde0 0%, #f7e07a 10%, #e8c040 22%, #d4a843 38%, #a16207 65%, #6b3c03 100%)',
+          boxShadow: `
+            inset 0 2px 5px rgba(255,255,220,0.90),
+            inset -3px -3px 12px rgba(80,40,0,0.42),
+            0 8px 32px rgba(100,58,4,0.55),
+            0 2px 12px rgba(212,168,67,0.60),
+            0 0 0 1.5px rgba(180,120,20,0.45),
+            0 0 28px rgba(200,152,26,0.80),
+            0 0 56px rgba(200,152,26,0.40)
+          `,
+          animation: 'sicc-gold-breathe 2s cubic-bezier(0.45,0.05,0.55,0.95) infinite',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          WebkitTapHighlightColor: 'transparent',
+          touchAction: 'manipulation',
+        }}
+      >
+        {/* Specular highlight */}
+        <span aria-hidden style={{
+          position: 'absolute', top: '10%', left: '15%',
+          width: '40%', height: '24%', borderRadius: '50%',
+          background: 'linear-gradient(135deg, rgba(255,255,245,0.72) 0%, rgba(255,255,220,0.22) 100%)',
+          filter: 'blur(2.5px)', pointerEvents: 'none',
+        }} />
+        <svg width="20" height="10" viewBox="0 0 80 36" style={{ opacity: 0.90, position: 'relative', filter: 'drop-shadow(0 0 6px rgba(255,240,180,0.90))' }} aria-hidden>
+          <path d="M12 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
+          <path d="M12 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
+        </svg>
+      </button>
+    );
+  }
+
   return (
     <>
       {/* ── Gold sphere / capsule button ────────────────────────────────────── */}
@@ -1010,6 +1126,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
       <div
         aria-label="DreamDM Bar"
         className="sicc-bar-edge"
+        onPointerDown={revealBar}
         style={{
           position: 'fixed',
           top: barTop,
@@ -1018,19 +1135,20 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           zIndex: 100,
           pointerEvents: 'auto',
           overflow: 'hidden',
-          transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, opacity 0.6s ease, background 0.6s ease`,
+          transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease`,
           willChange: isDragging ? 'top, height' : undefined,
+          transform: keyboardTranslateY !== 0 ? `translateY(${keyboardTranslateY}px)` : undefined,
           display: 'flex',
           // Divider mode: handle always at top; legacy: handle position depends on snap state
           flexDirection: isDividerMode ? 'column' : (isTop ? 'column-reverse' : 'column'),
           background: isDividerMode
             ? 'linear-gradient(180deg, rgba(245,246,250,0.98) 0%, rgba(240,242,247,0.99) 100%)'
             : isResting
-              ? 'rgba(248,249,253,0.06)'
+              ? 'transparent'
               : 'linear-gradient(180deg, rgba(248,249,253,0.97) 0%, rgba(242,244,249,0.99) 100%)',
           backdropFilter: isResting ? 'none' : 'blur(32px) saturate(160%)',
           WebkitBackdropFilter: isResting ? 'none' : 'blur(32px) saturate(160%)',
-          opacity: isResting ? 0.18 : 1,
+          opacity: isResting ? 0 : 1,
           borderTop: isDividerMode ? 'none' : (isTop ? 'none' : 'none'),
           borderBottom: isDividerMode ? 'none' : (isTop ? 'none' : 'none'),
           boxShadow: isResting
@@ -1090,22 +1208,38 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', letterSpacing: '-0.01em' }}>
                   Messages
                 </span>
-                <button
-                  type="button"
-                  aria-label="Minimize DreamDM bar"
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={() => { setDragH(BAR_H); setIsTop(false); setIsTopExpanded(false); setSlideDown(0); }}
-                  style={{
-                    background: 'rgba(180,185,200,0.15)', border: 'none', borderRadius: 8,
-                    width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: 'var(--de-text-dim)',
-                    transition: 'background 0.18s',
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-                    <path d="M3 7h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button
+                    type="button"
+                    aria-label="Minimize DreamDM bar"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={() => { setDragH(BAR_H); setIsTop(false); setIsTopExpanded(false); setSlideDown(0); }}
+                    style={{
+                      background: 'rgba(180,185,200,0.15)', border: 'none', borderRadius: 8,
+                      width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', color: 'var(--de-text-dim)',
+                      transition: 'background 0.18s',
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                      <path d="M3 7h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Close DreamDM Bar"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={() => setIsMinimized(true)}
+                    style={{
+                      background: 'rgba(180,185,200,0.15)', border: 'none', borderRadius: 8,
+                      width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', color: 'var(--de-text-dim)',
+                      transition: 'background 0.18s',
+                    }}
+                  >
+                    <X size={13} aria-hidden />
+                  </button>
+                </div>
               </div>
               <DreamSpaceMessaging
                 conversations={conversations} selectedConv={selectedConv}
@@ -1218,6 +1352,29 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                   label="Dr. Eams"
                   compact={isCompactViewport}
                 />
+
+                {/* Close (X) button — collapses bar into a gold orb */}
+                <button
+                  type="button"
+                  aria-label="Close DreamDM Bar"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => setIsMinimized(true)}
+                  style={{
+                    flexShrink: 0,
+                    background: 'rgba(180,185,200,0.15)',
+                    border: '1px solid rgba(180,185,200,0.22)',
+                    borderRadius: '50%',
+                    width: isCompactViewport ? 36 : 32,
+                    height: isCompactViewport ? 36 : 32,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'var(--de-text-dim)',
+                    transition: 'all 0.18s',
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  <X size={13} aria-hidden />
+                </button>
               </div>
 
               {/* Media previews - shown when files are selected */}
