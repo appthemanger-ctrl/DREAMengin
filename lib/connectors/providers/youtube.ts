@@ -237,6 +237,31 @@ function shuffleItems<T>(items: T[]): T[] {
   return shuffled;
 }
 
+/**
+ * Searches YouTube for videos matching the given query string.
+ * Uses an API key (no OAuth required — public data only).
+ * Results are normalised to UnifiedFeedItem and can be used to populate
+ * any connector feed surface.
+ *
+ * @param apiKey  YouTube Data API v3 key
+ * @param query   Free-text search query (e.g. "lo-fi beats", "game dev tips")
+ * @param max     Maximum number of results to return (1–50, default 20)
+ */
+export async function youtubeSearchByQuery(
+  apiKey: string,
+  query: string,
+  max = 20,
+): Promise<UnifiedFeedItem[]> {
+  const safeMax = Math.min(Math.max(1, Number.isFinite(max) ? Math.trunc(max) : 20), 50);
+
+  const data = await fetchYouTubePublicJson<SearchResponse>(
+    `${YT_API}/search?part=snippet&q=${encodeURIComponent(query)}&type=video&order=date&relevanceLanguage=en&maxResults=${safeMax}&key=${encodeURIComponent(apiKey)}`,
+    apiKey,
+  );
+
+  return (data.items ?? []).map(normaliseYouTubeSearchResult);
+}
+
 export async function youtubeDiscovery(apiKey: string, max: number): Promise<UnifiedFeedItem[]> {
   const safeMax = Math.min(Math.max(1, Number.isFinite(max) ? Math.trunc(max) : 30), 50);
   const fetchMax = Math.min(Math.max(safeMax, 12), 50);
