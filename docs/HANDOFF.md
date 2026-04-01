@@ -1,10 +1,51 @@
 # DREAMengin Handoff
 
-Last updated: 2026-03-16
+Last updated: 2026-04-01
 
 ## What changed in this alignment pass
 
-This handoff reflects the canonical OS-Layer Naming Migration — upgrading the product description from a page-based app model to the dual-runtime, spatial operating environment model.
+This handoff reflects the **Deployment & Memory Audit** — ensuring all GitHub Actions
+that handle document updates, memory syncing, and handoffs trigger on every push to
+`completedream`, and aligning docs to the new Engine architecture.
+
+### Primary outcome
+
+- `github-actions.yml` (main CI/CD pipeline) now includes `completedream` in both
+  `push` and `pull_request` branch triggers.
+- `spec-engin-ai-agent.yml` (doc/code AI scanner) now includes `completedream` in its
+  `push` branch triggers.
+- All other document-update, memory-sync, and handoff workflows already covered
+  `completedream` (`update-handoff.yml`, `update-readme.yml`, `update-bugs.yml`,
+  `update-repo-state.yml`, `sync-build-memory.yml`, `check-build-memory-drift.yml`).
+- `docs/ARCHITECTURE.md` gains **§12 Runtime Memory Architecture** — full documented
+  spec for `SharedArrayBuffer` memory map (16 MB, entity SoA, HomeDream private region,
+  DreamDM Bar seam slot) and `EnginDispatcher` singleton (worker pool, SAB allocation,
+  zero-copy seam relay, µs/tick telemetry, bounds audit).
+- `docs/AGENT_PLAYBOOK.md` Key File Map now lists `lib/runtime/memory.ts`,
+  `lib/runtime/EnginDispatcher.ts`, and `lib/navigation/StructureLedger.ts`; tech-stack
+  table includes the `SharedArrayBuffer` + shader `Worker` pool row with a pointer to
+  the new ARCHITECTURE §12.
+
+### Key files introduced in this architecture (already in repo, now documented)
+
+| File | Role |
+|------|------|
+| `lib/runtime/memory.ts` | 16 MB SAB layout — entity SoA arrays, bar seam slot, HomeDream privacy boundary |
+| `lib/runtime/EnginDispatcher.ts` | Singleton dispatcher — SAB lifecycle, worker pool, telemetry, BoogieMan audit |
+| `public/workers/engin-shader.worker.ts` | Per-worker Atomics.wait / rAF tick loop |
+| `tests/engin-dispatcher.test.ts` | Dispatcher lifecycle and bounds-enforcement unit tests |
+| `tests/conform-memory-map.test.ts` | Memory map conformance tests |
+| `lib/navigation/StructureLedger.ts` | Precomputed O(1) navigation state/transition ledger |
+
+### What has NOT changed
+
+The underlying `lib/runtime/` implementation was already in place. This pass only
+ensures the documentation catches up to the existing code reality so agents and
+developers find accurate orientation from the start of every session.
+
+---
+
+
 
 ### Primary outcome
 
@@ -70,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-01 21:47 UTC | `4a35b4a` | copilot/audit-github-actions-workflows | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/audit-github-actions-workflows<br> |
 | **auto** | 2026-04-01 21:45 UTC | `b96fd71` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #385 from appthemanger-ctrl/copilot/update-readme-on-push-and-merge — chore: attribute README auto-updates to Idari[bot]<br> |
 | **auto** | 2026-04-01 21:15 UTC | `9157337` | copilot/update-readme-on-push-and-merge | Copilot | ~2 modified<br>chore: attribute README auto-updates to Idari[bot] — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/3412ad48-ce86-45db-9f8d-4178f0de1128  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/update-readme.yml`, `scripts/update-readme.mjs` |
 | **auto** | 2026-04-01 21:10 UTC | `f075135` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #384 from appthemanger-ctrl/copilot/improve-dependencies-usage — feat: unleash GSAP scroll-reveal, framer-motion 3D tilt, AI Director hook, and Drei orbital sparkles<br> |
 | **auto** | 2026-04-01 13:08 UTC | `582e6ba` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #381 from appthemanger-ctrl/copilot/update-readme-second-half — docs: update README second half — correct DreamDM Bar spec, add Games/Shell/DAW sections<br> |
-| **auto** | 2026-04-01 13:00 UTC | `580a527` | copilot/update-readme-second-half | Copilot | ~1 modified<br>docs: update README second half — fix Gold Button spec, add snap points table, add sections 30-32 — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/f7d231b0-4596-4f25-89d2-d40ae6d614ce  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `README.md` |
 
 ## What changed in this alignment pass
 
