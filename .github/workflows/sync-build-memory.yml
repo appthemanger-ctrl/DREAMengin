@@ -11,13 +11,6 @@ on:
       - main
       - completedream
       - develop
-    paths:
-      - 'app/api/**'
-      - 'types/supabase.ts'
-      - 'supabase/migrations/**'
-      - 'lib/**'
-      - 'components/**'
-      - 'scripts/sync-build-memory.mjs'
 
 jobs:
   sync:
