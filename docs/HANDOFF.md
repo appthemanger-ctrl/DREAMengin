@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-01 21:17 UTC | `f316897` | copilot/audit-github-actions-workflows | Copilot | ~5 modified<br>chore(ci): add completedream push trigger to github-actions and spec-engin workflows; document SharedArrayBuffer/EnginDispatcher architecture in ARCHITECTURE.md, AGENT_PLAYBOOK.md, and HANDOFF.md — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/eb2e8133-653a-4ced-ae53-8818a0443c5b  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/github-actions.yml`, `.github/workflows/spec-engin-ai-agent.yml`, `docs/AGENT_PLAYBOOK.md`, `docs/ARCHITECTURE.md`, `docs/HANDOFF.md` |
 | **auto** | 2026-04-01 21:10 UTC | `f075135` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #384 from appthemanger-ctrl/copilot/improve-dependencies-usage — feat: unleash GSAP scroll-reveal, framer-motion 3D tilt, AI Director hook, and Drei orbital sparkles<br> |
 | **auto** | 2026-04-01 13:08 UTC | `582e6ba` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #381 from appthemanger-ctrl/copilot/update-readme-second-half — docs: update README second half — correct DreamDM Bar spec, add Games/Shell/DAW sections<br> |
 | **auto** | 2026-04-01 13:00 UTC | `580a527` | copilot/update-readme-second-half | Copilot | ~1 modified<br>docs: update README second half — fix Gold Button spec, add snap points table, add sections 30-32 — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/f7d231b0-4596-4f25-89d2-d40ae6d614ce  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `README.md` |
 | **auto** | 2026-04-01 12:32 UTC | `07bcff2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #378 from appthemanger-ctrl/copilot/add-adjustable-remote-size — fix(game-hud): right dock combines button ring + embedded joystick; larger dock; keep transparency/size/reposition<br> |
-| **auto** | 2026-04-01 11:32 UTC | `70b5b4d` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #377 from appthemanger-ctrl/copilot/implement-dreamdmbar-features n — DreamDMBar: transparent idle state, X-to-orb close, keyboard float, snap-only drag, comment photo uploads<br> |
 
 ## What changed in this alignment pass
 
