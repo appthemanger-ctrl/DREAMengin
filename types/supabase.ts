@@ -360,21 +360,36 @@ export type Database = {
           ad_listing_id: string
           buyer_id: string
           created_at: string
+          creator_payout: number | null
+          creator_share: number | null
+          gross_revenue: number | null
           id: string
+          platform_payout: number | null
+          platform_share: number | null
           status: string
         }
         Insert: {
           ad_listing_id: string
           buyer_id: string
           created_at?: string
+          creator_payout?: number | null
+          creator_share?: number | null
+          gross_revenue?: number | null
           id?: string
+          platform_payout?: number | null
+          platform_share?: number | null
           status?: string
         }
         Update: {
           ad_listing_id?: string
           buyer_id?: string
           created_at?: string
+          creator_payout?: number | null
+          creator_share?: number | null
+          gross_revenue?: number | null
           id?: string
+          platform_payout?: number | null
+          platform_share?: number | null
           status?: string
         }
         Relationships: [
@@ -1438,6 +1453,41 @@ export type Database = {
           },
         ]
       }
+      global_registry: {
+        Row: {
+          created_at: string
+          id: string
+          internal_id: string
+          label: string
+          object_type: string
+          owner_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          internal_id: string
+          label: string
+          object_type: string
+          owner_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          internal_id?: string
+          label?: string
+          object_type?: string
+          owner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "global_registry_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idempotency_keys: {
         Row: {
           created_at: string
@@ -1984,6 +2034,59 @@ export type Database = {
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      physics_experiments: {
+        Row: {
+          created_at: string
+          creator_id: string | null
+          description: string | null
+          hypothesis: string | null
+          id: string
+          methodology: Json | null
+          parameters: Json | null
+          performance_metrics: Json | null
+          status: string
+          title: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id?: string | null
+          description?: string | null
+          hypothesis?: string | null
+          id?: string
+          methodology?: Json | null
+          parameters?: Json | null
+          performance_metrics?: Json | null
+          status?: string
+          title: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string | null
+          description?: string | null
+          hypothesis?: string | null
+          id?: string
+          methodology?: Json | null
+          parameters?: Json | null
+          performance_metrics?: Json | null
+          status?: string
+          title?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "physics_experiments_creator_id_fkey"
+            columns: ["creator_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
