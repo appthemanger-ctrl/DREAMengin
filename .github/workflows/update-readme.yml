@@ -1,12 +1,12 @@
-name: Update README
+name: Idari — Update README
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Runs after every push to any branch.
+# Idari runs after every push (including PR merges) to any branch.
 # Calls scripts/update-readme.mjs to:
 #   • Refresh the "Last updated" line in "## Current Implementation Status"
 #   • Prepend a new row in the "## Recent Changes" table (keeps last 10)
 #
-# The commit is made by github-actions[bot] and tagged [skip ci] so it
+# The commit is made by Idari[bot] and tagged [skip ci] so it
 # does not re-trigger this workflow.
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -19,7 +19,7 @@ on:
 
 jobs:
   update-readme:
-    name: Refresh README.md with latest changes
+    name: Idari refreshes README.md with latest changes
     runs-on: ubuntu-latest
 
     permissions:
@@ -45,8 +45,8 @@ jobs:
 
       - name: Commit updated README.md
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "Idari[bot]"
+          git config user.email "idari-bot@users.noreply.github.com"
 
           git add README.md
 
@@ -57,7 +57,7 @@ jobs:
 
           SHORT="${{ github.sha }}"
           SHORT="${SHORT:0:7}"
-          git commit -m "docs: auto-update README [${SHORT}] [skip ci]"
+          git commit -m "idari: auto-update README [${SHORT}] [skip ci]"
 
           # Retry push up to 3 times, rebasing on the remote each time to
           # handle concurrent pushes to the same branch (race condition).
