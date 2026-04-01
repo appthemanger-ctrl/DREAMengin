@@ -8,6 +8,7 @@ Date: March 24, 2026
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
+| `96f34c2` | 2026-04-01 22:52 UTC | copilot/update-repo-for-vercel-deployment | Copilot | ~2 | chore: switch Vercel deployment to GitHub integration (remove token-based CLI deploy) |
 | `b69a0ce` | 2026-04-01 22:42 UTC | completedream | appthemanger-ctrl | — | Merge pull request #388 from appthemanger-ctrl/copilot/remove-red-box-and-add-refresh-button |
 | `e2b200b` | 2026-04-01 22:29 UTC | copilot/remove-red-box-and-add-refresh-button | Copilot | +1 ~4 | feat(feed): remove red LIVE box, add feed topics settings, update workflows |
 | `d908df7` | 2026-04-01 22:08 UTC | completedream | appthemanger-ctrl | — | Merge pull request #387 from appthemanger-ctrl/copilot/replace-javascript-physics-stub |
@@ -17,13 +18,12 @@ Date: March 24, 2026
 | `b96fd71` | 2026-04-01 21:45 UTC | completedream | appthemanger-ctrl | — | Merge pull request #385 from appthemanger-ctrl/copilot/update-readme-on-push-and-merge |
 | `9157337` | 2026-04-01 21:15 UTC | copilot/update-readme-on-push-and-merge | Copilot | ~2 | chore: attribute README auto-updates to Idari[bot] |
 | `f075135` | 2026-04-01 21:10 UTC | completedream | appthemanger-ctrl | — | Merge pull request #384 from appthemanger-ctrl/copilot/improve-dependencies-usage |
-| `cd01ed5` | 2026-04-01 21:08 UTC | copilot/improve-dependencies-usage | appthemanger-ctrl | — | Merge branch 'completedream' into copilot/improve-dependencies-usage |
 
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-04-01 22:42 UTC — `b69a0ce` by appthemanger-ctrl
+Last updated: 2026-04-01 22:52 UTC — `96f34c2` by Copilot
 Last updated: 2026-04-01 21:48 UTC — `fdac26b` by appthemanger-ctrl
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
