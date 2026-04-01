@@ -1,198 +1,243 @@
 /**
- * lib/runtime/memory.ts
+ * DREAMengin Shared Memory Map — Conform Mode
  *
- * DREAMengin Shared-Memory Map — Pass 1 (SoA layout)
+ * Implements a 16 MB SharedArrayBuffer partitioned into:
+ *   1. Control region (64 bytes, one cache line) — Atomics-accessible flags and seam state
+ *   2. Entity SoA arrays — PosX, PosY, VelX, VelY for 10,000 entities
+ *   3. HomeDream private region — protected from the Public View pointer
  *
- * Defines a SharedArrayBuffer layout for 10,000 entities using a
- * Structure-of-Arrays (SoA) format.  All workers receive the same SAB and
- * operate on non-overlapping index ranges to avoid data races.
+ * DreamDM Bar Seam Logic:
+ *   The bar's split ratio (0.0–1.0, stored as ratio × BAR_SEAM_SCALE) is written
+ *   atomically to BAR_SEAM_ATOMICS_INDEX so both Surface Space and DreamSpace
+ *   runtimes can read the current spatial split with zero latency.
  *
- * Memory map (all offsets in bytes):
- * ┌─────────────────────────────────────────────────────────────┐
- * │ Zone            │ Offset       │ Size (bytes) │ Type        │
- * ├─────────────────┼──────────────┼──────────────┼─────────────┤
- * │ POS_X           │          0   │       40 000 │ f32 × 10k   │
- * │ POS_Y           │     40 000   │       40 000 │ f32 × 10k   │
- * │ POS_Z           │     80 000   │       40 000 │ f32 × 10k   │
- * │ VEL_X           │    120 000   │       40 000 │ f32 × 10k   │
- * │ VEL_Y           │    160 000   │       40 000 │ f32 × 10k   │
- * │ VEL_Z           │    200 000   │       40 000 │ f32 × 10k   │
- * │ DAYDREAM_TYPE   │    240 000   │       10 000 │ u8  × 10k   │
- * │ (pad to 4B)     │    250 000   │            4 │ —           │
- * │ DREAMDM_BAR_Y   │    250 000   │            4 │ f32         │
- * │ (pad to 8B)     │    250 004   │            4 │ —           │
- * │ TELEMETRY       │    250 008   │          512 │ f64 × 64    │
- * └─────────────────┴──────────────┴──────────────┴─────────────┘
- * Total: 250 520 bytes (~245 KiB)
+ * TheBoogieMan.Ai policy (C29_PRIVACY):
+ *   The HomeDream private memory region starts at HOMEDREAM_PRIVATE_OFFSET.
+ *   The Public View pointer must never reach or exceed PUBLIC_VIEW_LIMIT.
+ *   boogieMemoryGuard() enforces this boundary — any access into the private region
+ *   by a non-owner is denied with rule code C29_PRIVACY.
  *
- * Architecture justification: docs/ARCHITECTURE.md §1 (Runtime regions).
- * Workers must stay inside their assigned [startIndex, endIndex) range.
- * The DREAMDM_BAR_Y slot is written exclusively by the Surface Space
- * main-thread code so all Dream Windows can reposition without a
- * main-thread round-trip (Dual-Runtime Seam requirement).
+ * Memory layout (all SoA arrays are 64-byte cache-line aligned):
+ *
+ *   [0 – 63]         Control region (Int32, 16 slots)
+ *                      slot 0 = BAR_SEAM_ATOMICS_INDEX (bar split ratio × 1000)
+ *   [64 – 40,063]    PosX[10,000] Float32
+ *   [40,064 – 80,063] PosY[10,000] Float32
+ *   [80,064 – 120,063] VelX[10,000] Float32
+ *   [120,064 – 160,063] VelY[10,000] Float32
+ *   [160,064 – 16,777,215] HomeDream private region
+ *
+ * Architecture: docs/ARCHITECTURE.md §1 (Runtime regions), §5 (Privacy boundaries)
+ * Policy: docs/BOOGIEMAN_POLICY.md C29_PRIVACY
  */
 
-// ─── Entity / worker constants ────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 
-/** Number of entities managed by the runtime. */
+/** Total shared memory size: 16 MB */
+export const MEMORY_SIZE = 16 * 1024 * 1024; // 16,777,216 bytes
+
+/** Cache line size used for all SoA array alignment */
+export const CACHE_LINE = 64; // bytes
+
+/** Number of entities in the SoA layout */
 export const ENTITY_COUNT = 10_000;
 
-/** Maximum number of concurrent shader workers. */
-export const MAX_WORKERS = 64;
+/** Bytes per Float32 element */
+const FLOAT32_BYTES = 4;
 
-// ─── SoA channel sizes ────────────────────────────────────────────────────────
-
-const F32_BYTES = 4;
-const F64_BYTES = 8;
-const F32_CHANNEL_BYTES = ENTITY_COUNT * F32_BYTES; // 40 000 per channel
-
-// ─── Zone offsets (bytes) ─────────────────────────────────────────────────────
-
-/** f32 channel: entity position X */
-export const OFFSET_POS_X = 0;
-/** f32 channel: entity position Y */
-export const OFFSET_POS_Y = OFFSET_POS_X + F32_CHANNEL_BYTES;
-/** f32 channel: entity position Z */
-export const OFFSET_POS_Z = OFFSET_POS_Y + F32_CHANNEL_BYTES;
-/** f32 channel: entity velocity X */
-export const OFFSET_VEL_X = OFFSET_POS_Z + F32_CHANNEL_BYTES;
-/** f32 channel: entity velocity Y */
-export const OFFSET_VEL_Y = OFFSET_VEL_X + F32_CHANNEL_BYTES;
-/** f32 channel: entity velocity Z */
-export const OFFSET_VEL_Z = OFFSET_VEL_Y + F32_CHANNEL_BYTES;
+// ── Control region ────────────────────────────────────────────────────────────
 
 /**
- * u8 channel: Daydream type tag per entity.
- * 0 = unassigned, 1 = Music, 2 = Games, 3 = Lab, 4 = Code, 5 = Brand, 6 = Create.
+ * Atomics index (Int32) for the DreamDM Bar seam y-offset.
+ *
+ * Value is the bar split ratio × BAR_SEAM_SCALE stored as a signed integer.
+ * Example: split ratio 0.9 → stored as 900.
+ *
+ * Both Surface Space and DreamSpace runtimes read this via Atomics.load() for
+ * zero-latency access to the current spatial split.
  */
-export const OFFSET_DAYDREAM_TYPE = OFFSET_VEL_Z + F32_CHANNEL_BYTES; // 240 000
+export const BAR_SEAM_ATOMICS_INDEX = 0;
+
+/** Fixed-point scale factor: ratio × BAR_SEAM_SCALE = stored integer */
+export const BAR_SEAM_SCALE = 1_000;
+
+// ── SoA array byte offsets (each array is 64-byte aligned) ───────────────────
+
+/** Byte offset of the PosX array (entity position X) */
+export const SOA_POSX_OFFSET = CACHE_LINE; // 64
+
+/** Byte offset of the PosY array (entity position Y) */
+export const SOA_POSY_OFFSET = SOA_POSX_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 40,064
+
+/** Byte offset of the VelX array (entity velocity X) */
+export const SOA_VELX_OFFSET = SOA_POSY_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 80,064
+
+/** Byte offset of the VelY array (entity velocity Y) */
+export const SOA_VELY_OFFSET = SOA_VELX_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 120,064
+
+/** Byte offset one past the last entity byte */
+const SOA_END_OFFSET = SOA_VELY_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 160,064
+
+// ── Privacy boundary ──────────────────────────────────────────────────────────
 
 /**
- * f32 scalar: DreamDM Bar y-offset in CSS pixels.
- * Written by Surface Space; read by shader workers to reposition Dream Windows
- * without a main-thread round-trip (Dual-Runtime Seam).
+ * Byte offset where the HomeDream private memory region begins.
+ * Rounded up to the next 64-byte cache-line boundary.
  *
- * Aligned to 4-byte boundary (250 000 % 4 === 0).
+ * Everything at or above this offset is private to the authenticated HomeDream owner.
+ * Public View consumers must not access bytes >= HOMEDREAM_PRIVATE_OFFSET.
  */
-export const OFFSET_DREAMDM_BAR_Y = OFFSET_DAYDREAM_TYPE + ENTITY_COUNT; // 250 000
+export const HOMEDREAM_PRIVATE_OFFSET: number =
+  Math.ceil(SOA_END_OFFSET / CACHE_LINE) * CACHE_LINE; // 160,064
 
 /**
- * f64 array: Elite-Runtime Telemetry — microseconds-per-tick per worker.
- * Index i corresponds to worker slot i (0-indexed).
- * Each slot is 8 bytes (f64). Max slots = MAX_WORKERS.
- *
- * Aligned to 8-byte boundary: 250 004 → rounded up → 250 008.
+ * The exclusive upper bound for Public View pointer access.
+ * Identical to HOMEDREAM_PRIVATE_OFFSET — the boundary where private memory begins.
  */
-export const OFFSET_TELEMETRY = 250_008;
+export const PUBLIC_VIEW_LIMIT = HOMEDREAM_PRIVATE_OFFSET;
 
-/** Total size of the SharedArrayBuffer in bytes. */
-export const SAB_BYTES = OFFSET_TELEMETRY + MAX_WORKERS * F64_BYTES; // 250 520
-
-// ─── Daydream type constants ──────────────────────────────────────────────────
-
-export const DAYDREAM_TYPE_UNASSIGNED = 0;
-export const DAYDREAM_TYPE_MUSIC      = 1;
-export const DAYDREAM_TYPE_GAMES      = 2;
-export const DAYDREAM_TYPE_LAB        = 3;
-export const DAYDREAM_TYPE_CODE       = 4;
-export const DAYDREAM_TYPE_BRAND      = 5;
-export const DAYDREAM_TYPE_CREATE     = 6;
-
-// ─── SAB factory ─────────────────────────────────────────────────────────────
+// ── Conform Mode memory map ───────────────────────────────────────────────────
 
 /**
- * Allocate and zero-initialise the SharedArrayBuffer for the full entity pool.
+ * The DREAMengin Shared Memory Map for Conform Mode.
  *
- * Must be called on the main thread.  The returned SAB is transferable to
- * shader workers via `postMessage`.
- *
- * @returns A fresh, zeroed SharedArrayBuffer sized to SAB_BYTES.
- * @throws  If SharedArrayBuffer is not available in this context.
+ * Allocated once per runtime context and shared between Surface Space and
+ * DreamSpace via Worker postMessage transfer or direct SharedArrayBuffer access.
  */
-export function createEnginSAB(): SharedArrayBuffer {
-  if (typeof SharedArrayBuffer === 'undefined') {
-    throw new Error(
-      '[EnginMemory] SharedArrayBuffer is not available. ' +
-      'Ensure the page is served with Cross-Origin-Opener-Policy: same-origin ' +
-      'and Cross-Origin-Embedder-Policy: require-corp headers.',
-    );
+export interface ConformMemoryMap {
+  /** The raw 16 MB shared buffer */
+  readonly buffer: SharedArrayBuffer;
+  /** Int32 view over the control region — use with Atomics */
+  readonly control: Int32Array;
+  /** Float32 views for each SoA entity array */
+  readonly posX: Float32Array;
+  readonly posY: Float32Array;
+  readonly velX: Float32Array;
+  readonly velY: Float32Array;
+}
+
+/** Singleton instance — allocated once per runtime context */
+let _memoryMap: ConformMemoryMap | null = null;
+
+/**
+ * Returns (or allocates) the singleton Conform Mode shared memory map.
+ *
+ * Safe to call from both Surface Space and DreamSpace — always returns the
+ * same SharedArrayBuffer instance within a single runtime context.
+ */
+export function getConformMemoryMap(): ConformMemoryMap {
+  if (_memoryMap) return _memoryMap;
+
+  const buffer = new SharedArrayBuffer(MEMORY_SIZE);
+
+  _memoryMap = {
+    buffer,
+    // Control region: first 64 bytes → 16 Int32 slots (CACHE_LINE / 4)
+    control: new Int32Array(buffer, 0, CACHE_LINE / 4),
+    posX: new Float32Array(buffer, SOA_POSX_OFFSET, ENTITY_COUNT),
+    posY: new Float32Array(buffer, SOA_POSY_OFFSET, ENTITY_COUNT),
+    velX: new Float32Array(buffer, SOA_VELX_OFFSET, ENTITY_COUNT),
+    velY: new Float32Array(buffer, SOA_VELY_OFFSET, ENTITY_COUNT),
+  };
+
+  return _memoryMap;
+}
+
+/**
+ * Resets the singleton for testing purposes.
+ * @internal — never call in production code.
+ */
+export function _resetConformMemoryMap(): void {
+  _memoryMap = null;
+}
+
+// ── DreamDM Bar Seam Logic ────────────────────────────────────────────────────
+
+/**
+ * Writes the current DreamDM Bar split ratio to the shared control region.
+ *
+ * Uses Atomics.store() so both Surface Space and DreamSpace runtimes can read
+ * the current spatial split with zero latency and no lock contention.
+ *
+ * @param splitRatio - Bar split ratio in [0.0, 1.0].
+ *   0.1 = Dream-focus | 0.5 = balanced | 0.9 = Surface-focus | 1.0 = Surface-only.
+ */
+export function writeBarSeam(splitRatio: number): void {
+  const map = getConformMemoryMap();
+  const encoded = Math.round(splitRatio * BAR_SEAM_SCALE);
+  Atomics.store(map.control, BAR_SEAM_ATOMICS_INDEX, encoded);
+}
+
+/**
+ * Reads the current DreamDM Bar split ratio from the shared control region.
+ *
+ * Uses Atomics.load() for a sequentially consistent read visible to all runtimes.
+ *
+ * @returns Current split ratio (0.0–1.0).
+ */
+export function readBarSeam(): number {
+  const map = getConformMemoryMap();
+  const encoded = Atomics.load(map.control, BAR_SEAM_ATOMICS_INDEX);
+  return encoded / BAR_SEAM_SCALE;
+}
+
+// ── TheBoogieMan.Ai memory policy guard ───────────────────────────────────────
+
+/**
+ * Result of a BoogieMan memory access policy check.
+ */
+export interface MemoryPolicyResult {
+  /** Whether the access is permitted */
+  allowed: boolean;
+  /** Policy rule code — 'OK' on success, or the violated rule on denial */
+  ruleCode: 'OK' | 'C29_PRIVACY' | 'MEM_PRIVATE_ACCESS';
+  /** Human-readable denial reason (undefined when allowed) */
+  reason?: string;
+}
+
+/**
+ * TheBoogieMan.Ai memory access guard — Conform Mode policy enforcement.
+ *
+ * Enforces the HomeDream private memory boundary:
+ *   - Accesses within [0, PUBLIC_VIEW_LIMIT) are always permitted.
+ *   - Accesses within [HOMEDREAM_PRIVATE_OFFSET, MEMORY_SIZE) require isOwner === true.
+ *   - Out-of-range accesses are denied unconditionally.
+ *
+ * Policy: C29_PRIVACY (docs/BOOGIEMAN_POLICY.md)
+ * Architecture: docs/ARCHITECTURE.md §5 (Privacy boundaries)
+ *
+ * @param byteOffset - The byte offset being accessed.
+ * @param isOwner    - True when the accessor is the authenticated HomeDream owner.
+ */
+export function boogieMemoryGuard(
+  byteOffset: number,
+  isOwner: boolean,
+): MemoryPolicyResult {
+  // Out-of-range access — deny unconditionally
+  if (byteOffset < 0 || byteOffset >= MEMORY_SIZE) {
+    return {
+      allowed: false,
+      ruleCode: 'MEM_PRIVATE_ACCESS',
+      reason: `Byte offset ${byteOffset} is out of the valid range [0, ${MEMORY_SIZE}).`,
+    };
   }
-  return new SharedArrayBuffer(SAB_BYTES);
-}
 
-// ─── Typed-array view helpers ─────────────────────────────────────────────────
-
-/** Float32 view of a single SoA channel (ENTITY_COUNT elements). */
-export function f32Channel(sab: SharedArrayBuffer, byteOffset: number): Float32Array {
-  return new Float32Array(sab, byteOffset, ENTITY_COUNT);
-}
-
-/** Uint8 view of the DAYDREAM_TYPE channel. */
-export function u8DaydreamType(sab: SharedArrayBuffer): Uint8Array {
-  return new Uint8Array(sab, OFFSET_DAYDREAM_TYPE, ENTITY_COUNT);
-}
-
-/**
- * Float32 scalar view for the DreamDM Bar y-offset slot.
- * Length 1 so callers use index [0].
- */
-export function f32DreamDMBarY(sab: SharedArrayBuffer): Float32Array {
-  return new Float32Array(sab, OFFSET_DREAMDM_BAR_Y, 1);
-}
-
-/**
- * Float64 view of the Telemetry zone.
- * Index i = microseconds-per-tick for worker slot i.
- */
-export function f64Telemetry(sab: SharedArrayBuffer): Float64Array {
-  return new Float64Array(sab, OFFSET_TELEMETRY, MAX_WORKERS);
-}
-
-// ─── Workgroup helpers ────────────────────────────────────────────────────────
-
-/** A contiguous range of entity indices assigned to one worker. */
-export interface Workgroup {
-  /** Zero-based worker slot index. */
-  workerIndex: number;
-  /** First entity index (inclusive). */
-  startIndex: number;
-  /** Last entity index (exclusive). */
-  endIndex: number;
-}
-
-/**
- * Partition ENTITY_COUNT entities into `workerCount` non-overlapping Workgroups.
- *
- * Remainder entities are distributed one-by-one to the first workers so
- * every entity is covered exactly once.
- *
- * @param workerCount  Number of shader workers (must be ≥ 1).
- */
-export function buildWorkgroups(workerCount: number): Workgroup[] {
-  if (workerCount < 1) {
-    throw new RangeError(`[EnginMemory] workerCount must be ≥ 1, got ${workerCount}`);
+  // Public View region — accessible to all consumers
+  if (byteOffset < PUBLIC_VIEW_LIMIT) {
+    return { allowed: true, ruleCode: 'OK' };
   }
-  const clamped = Math.min(workerCount, MAX_WORKERS);
-  const base      = Math.floor(ENTITY_COUNT / clamped);
-  const remainder = ENTITY_COUNT % clamped;
 
-  const groups: Workgroup[] = [];
-  let cursor = 0;
-  for (let i = 0; i < clamped; i++) {
-    const extra = i < remainder ? 1 : 0;
-    const size  = base + extra;
-    groups.push({ workerIndex: i, startIndex: cursor, endIndex: cursor + size });
-    cursor += size;
+  // HomeDream private region — owner-only access
+  if (!isOwner) {
+    return {
+      allowed: false,
+      ruleCode: 'C29_PRIVACY',
+      reason:
+        `Access denied: offset ${byteOffset} falls within the HomeDream private memory region ` +
+        `(starts at ${HOMEDREAM_PRIVATE_OFFSET}). ` +
+        `The Public View pointer must not reach or exceed ${PUBLIC_VIEW_LIMIT}.`,
+    };
   }
-  return groups;
-}
 
-/**
- * Guard: verify a worker's write index is within its assigned Workgroup.
- * Returns true if the index is safe; false if it would cause data corruption.
- *
- * Used by the shader worker and IDARi/TheBoogieMan audit layer.
- */
-export function isIndexInBounds(index: number, wg: Workgroup): boolean {
-  return index >= wg.startIndex && index < wg.endIndex;
+  return { allowed: true, ruleCode: 'OK' };
 }
