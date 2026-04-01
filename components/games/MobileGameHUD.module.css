@@ -6,7 +6,18 @@
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+  transition: opacity 0.45s ease;
 }
+
+.overlayIdle {
+  opacity: 0.13;
+}
+
+.overlayActive {
+  opacity: 1;
+}
+
+/* ── Joystick dock (shared base) ────────────────────────────────────────── */
 
 .joystickDock {
   position: absolute;
@@ -23,12 +34,19 @@
 .leftDock {
   left: clamp(16px, 5vw, 28px);
   --dock-size: clamp(102px, 27vw, 136px);
+  transform: translateY(calc(-1 * var(--remote-offset-y, 0px))) scale(var(--remote-scale, 1));
+  transform-origin: left bottom;
 }
 
 .rightDock {
   right: clamp(16px, 5vw, 28px);
-  --dock-size: clamp(168px, 41vw, 228px);
+  /* Larger than the left stick so the button ring + joystick fit comfortably */
+  --dock-size: clamp(180px, 46vw, 252px);
+  transform: translateY(calc(-1 * var(--remote-offset-y, 0px))) scale(var(--remote-scale, 1));
+  transform-origin: right bottom;
 }
+
+/* ── Left joystick visuals ───────────────────────────────────────────────── */
 
 .joystickShell {
   position: relative;
@@ -89,43 +107,67 @@
   transition: transform 0.1s ease-out;
 }
 
+/* ── Right joystick cap embedded inside the button cluster hub ───────────── */
+
+.rightJoyCap {
+  /* Override to sit at cluster center (same absolute centering, z on top) */
+  position: absolute;
+  width: 26%;
+  height: 26%;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+}
+
+/* ── Readout label ───────────────────────────────────────────────────────── */
+
 .readout {
   position: absolute;
   left: 50%;
   bottom: calc(100% + 10px);
   transform: translateX(-50%);
-  min-width: 70px;
-  padding: 4px 10px;
+  min-width: 60px;
+  padding: 3px 8px;
   border-radius: 999px;
   background: rgba(2, 6, 23, 0.7);
   border: 1px solid rgba(125, 211, 252, 0.16);
   color: rgba(226, 232, 240, 0.84);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   text-align: center;
   pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ── Center group (pause/exit + size + drag) ─────────────────────────────── */
+
+.centerGroup {
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  transform: translateX(-50%) translateY(calc(-1 * var(--remote-offset-y, 0px)));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto;
 }
 
 .centerPills {
-  position: absolute;
-  left: 50%;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 34px);
-  transform: translateX(-50%);
   display: flex;
-  gap: 10px;
-  pointer-events: auto;
+  gap: 8px;
 }
 
 .pill {
   border: 1px solid rgba(226, 232, 240, 0.16);
   border-radius: 999px;
-  min-width: 70px;
-  padding: 10px 16px;
+  min-width: 62px;
+  padding: 8px 14px;
   background: rgba(4, 8, 18, 0.72);
   color: rgba(248, 250, 252, 0.9);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 900;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -144,8 +186,76 @@
 
 .pillActive {
   background: rgba(15, 23, 42, 0.92);
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
+
+/* +/- size control */
+
+.sizeControl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(4, 8, 18, 0.64);
+  border: 1px solid rgba(226, 232, 240, 0.12);
+  border-radius: 999px;
+  padding: 4px 10px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.sizeBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.sizeBtn:active {
+  background: rgba(125, 211, 252, 0.18);
+  border-color: rgba(125, 211, 252, 0.4);
+}
+
+.sizeLabel {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(226, 232, 240, 0.7);
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Drag handle */
+
+.dragHandle {
+  font-size: 16px;
+  color: rgba(226, 232, 240, 0.32);
+  cursor: grab;
+  touch-action: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(4, 8, 18, 0.42);
+  line-height: 1;
+  user-select: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+  color: rgba(125, 211, 252, 0.8);
+  border-color: rgba(125, 211, 252, 0.22);
+}
+
+/* ── Right dock: button cluster (ring buttons + embedded joystick) ─────── */
 
 .buttonCluster {
   position: relative;
@@ -185,6 +295,7 @@
   height: 23%;
   border-radius: 999px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: rgba(4, 8, 18, 0.76);
@@ -215,7 +326,7 @@
 }
 
 .buttonSymbol {
-  font-size: clamp(18px, 4.6vw, 24px);
+  font-size: clamp(14px, 3.6vw, 20px);
   font-weight: 900;
   line-height: 1;
 }
@@ -232,6 +343,8 @@
   white-space: nowrap;
   color: rgba(226, 232, 240, 0.58);
 }
+
+/* Ring button slot positions */
 
 .slotL1 {
   left: 16%;
@@ -275,12 +388,14 @@
   top: 39%;
 }
 
+/* ── HUD badge ──────────────────────────────────────────────────────────── */
+
 .hudBadge {
   position: absolute;
   top: calc(env(safe-area-inset-top, 0px) + 12px);
   left: 50%;
   transform: translateX(-50%);
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 999px;
   background: rgba(4, 8, 18, 0.52);
   border: 1px solid rgba(226, 232, 240, 0.08);

@@ -188,7 +188,7 @@ export default function ImmersiveGameShell() {
       }}
     >
       {/* ── Game viewport — always mounted so assets begin loading immediately ── */}
-      <div className="de-immersive-game-stage" style={{ position: 'absolute', inset: 0 }}>
+      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 'var(--de-hud-bottom, 175px)' }}>
         {game.component ? (
           <ActiveGameComponent />
         ) : (
