@@ -292,7 +292,7 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
     const src = readSource('app/daydream/games/page.tsx');
     expect(src).toContain('Game Library');
     expect(src).toContain('GameEngin Console');
-    expect(src).toMatch(/Word Sprint|Memory Grid|Speed Tap|GamesHub|GameEngin/);
+    expect(src).toMatch(/GamesHub|GameEngin|System Readout|Launch Paths/);
   });
 
   it('GamesHub exposes an upgraded engine shelf with search and featured launch deck', () => {

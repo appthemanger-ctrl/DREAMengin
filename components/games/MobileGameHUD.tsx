@@ -20,6 +20,7 @@ import {
 const SCALE_MIN = 0.55;
 const SCALE_MAX = 1.45;
 const SCALE_STEP = 0.1;
+const TOUCH_FEEDBACK_DECAY_MS = 160;
 
 // Fraction of dock radius within which a touch claims the right joystick
 const RIGHT_JOY_ZONE = 0.40;
@@ -128,7 +129,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
     touchFadeTimerRef.current = setTimeout(() => {
       setIsTouching(false);
       touchFadeTimerRef.current = null;
-    }, 700);
+    }, TOUCH_FEEDBACK_DECAY_MS);
   }, []);
 
   // ── Stick sync ────────────────────────────────────────────────────────────
@@ -364,7 +365,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
       className={clsx(styles.overlay, isTouching ? styles.overlayActive : styles.overlayIdle)}
       style={remoteVars}
     >
-      <div className={styles.hudBadge}>{gameLabel} · mobile HUD</div>
+      <div className={styles.hudBadge}>{gameLabel} · instant touch HUD</div>
 
       {/* ── Left joystick (MOVE) ── */}
       <div
