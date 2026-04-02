@@ -25,6 +25,7 @@ import {
   DEFAULT_GAME_ID,
   resolveGameLaunchId,
 } from '@/lib/games/navigation';
+import { useGamePerformanceBaseline } from '@/lib/games/hooks';
 
 // ── Boot-sequence keyframe CSS (injected once into the document) ─────────────
 const BOOT_KEYFRAMES = `
@@ -82,6 +83,11 @@ export default function ImmersiveGameShell() {
     () => GAMES.find((entry) => entry.id === gameId) ?? GAMES[0],
     [gameId],
   );
+  const performanceBaseline = useGamePerformanceBaseline({
+    active: true,
+    gameId: game.id,
+    renderMode: game.renderMode,
+  });
 
   // ── Boot sequence state ───────────────────────────────────────────────────
   // phase 1–4 mirrors the spec; 0 = not yet started
@@ -212,6 +218,30 @@ export default function ImmersiveGameShell() {
           </div>
         )}
       </div>
+      {performanceBaseline && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 14,
+            bottom: 'calc(var(--de-hud-bottom, 175px) + 14px)',
+            zIndex: 3,
+            pointerEvents: 'none',
+            background: 'rgba(2,6,23,0.78)',
+            border: '1px solid rgba(148,163,184,0.28)',
+            borderRadius: 999,
+            padding: '6px 10px',
+            fontSize: 11,
+            fontFamily: 'monospace',
+            letterSpacing: '0.04em',
+            color: '#e2e8f0',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          P1 [DONE] · {performanceBaseline.rendererBackend.toUpperCase()} · {performanceBaseline.sampleCount > 0
+            ? `${performanceBaseline.avgFps} FPS · ${performanceBaseline.avgFrameMs.toFixed(1)}ms`
+            : 'warming up'}
+        </div>
+      )}
 
       {/* ── PS5-style boot overlay ── hidden once bootDone ── */}
       {!bootDone && (

@@ -10,6 +10,10 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import {
+  createPerformanceBaselineSampler,
+  publishGamePerformanceBaseline,
+} from '@/lib/games/performance-baseline';
 import { useRegisterMobileGameControls } from '@/lib/games/mobileControls';
 import { createClient } from '@/lib/supabase/client';
 import * as BABYLON from '@babylonjs/core';
@@ -77,6 +81,8 @@ export default function EchoArena() {
     let dualSense: DualSenseManager | null = null;
     let player: BABYLON.Mesh | null = null;
     let floor: BABYLON.Mesh | null = null;
+    const frameSampler = createPerformanceBaselineSampler();
+    let lastPerformancePublish = 0;
 
     const init = async () => {
       if (!canvasRef.current) return;
@@ -144,6 +150,20 @@ export default function EchoArena() {
 
         // Game loop
         scene.onBeforeRenderObservable.add(() => {
+          const now = performance.now();
+          const sample = frameSampler.pushFrame(now);
+          if (sample && now - lastPerformancePublish >= 250) {
+            lastPerformancePublish = now;
+            publishGamePerformanceBaseline({
+              gameId: 'echo-arena',
+              renderMode: 'webgpu',
+              rendererBackend: engine instanceof BABYLON.WebGPUEngine ? 'webgpu' : 'webgl2',
+              webgpuSupported: engine instanceof BABYLON.WebGPUEngine,
+              source: 'runtime',
+              ...sample,
+            });
+          }
+
           if (phaseRef.current !== 'playing' || !player || !dualSense) return;
 
           const input = dualSense.getState();

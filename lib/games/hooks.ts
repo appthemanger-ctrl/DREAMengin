@@ -13,6 +13,14 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { isWebGPUAvailable } from '@/lib/webgpu';
+import {
+  createPerformanceBaselineSampler,
+  DE_GAME_PERFORMANCE_BASELINE,
+  resolveRendererBackend,
+  type GamePerformanceBaseline,
+  type GameRenderMode,
+} from '@/lib/games/performance-baseline';
 
 /**
  * Listens for the global `de-game-start` CustomEvent and calls `startFn`
@@ -114,4 +122,115 @@ export function useSubmitScore(game: string) {
     },
     [game],
   );
+}
+
+interface UseGamePerformanceBaselineOptions {
+  active: boolean;
+  gameId: string;
+  renderMode: GameRenderMode;
+}
+
+export function useGamePerformanceBaseline({
+  active,
+  gameId,
+  renderMode,
+}: UseGamePerformanceBaselineOptions): GamePerformanceBaseline | null {
+  const [baseline, setBaseline] = useState<GamePerformanceBaseline | null>(null);
+  const runtimeSeenAtRef = useRef(0);
+
+  useEffect(() => {
+    if (!active) {
+      setBaseline(null);
+      runtimeSeenAtRef.current = 0;
+      return;
+    }
+
+    setBaseline(null);
+    runtimeSeenAtRef.current = 0;
+
+    let cancelled = false;
+    isWebGPUAvailable().then((webgpuSupported) => {
+      if (cancelled) return;
+      setBaseline((prev) => ({
+        fps: prev?.fps ?? 0,
+        avgFps: prev?.avgFps ?? 0,
+        frameMs: prev?.frameMs ?? 0,
+        avgFrameMs: prev?.avgFrameMs ?? 0,
+        sampleCount: prev?.sampleCount ?? 0,
+        source: prev?.source ?? 'shell',
+        gameId,
+        renderMode,
+        webgpuSupported,
+        rendererBackend: prev?.rendererBackend ?? resolveRendererBackend(renderMode, webgpuSupported),
+      }));
+    }).catch(() => {
+      if (cancelled) return;
+      setBaseline((prev) => ({
+        fps: prev?.fps ?? 0,
+        avgFps: prev?.avgFps ?? 0,
+        frameMs: prev?.frameMs ?? 0,
+        avgFrameMs: prev?.avgFrameMs ?? 0,
+        sampleCount: prev?.sampleCount ?? 0,
+        source: prev?.source ?? 'shell',
+        gameId,
+        renderMode,
+        webgpuSupported: false,
+        rendererBackend: prev?.rendererBackend ?? resolveRendererBackend(renderMode, false),
+      }));
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [active, gameId, renderMode]);
+
+  useEffect(() => {
+    if (!active || typeof window === 'undefined') return;
+
+    const sampler = createPerformanceBaselineSampler();
+    let rafId = 0;
+
+    const tick = (timestamp: number) => {
+      const sample = sampler.pushFrame(timestamp);
+      if (sample) {
+        setBaseline((prev) => {
+          if (prev?.source === 'runtime' && performance.now() - runtimeSeenAtRef.current < 1500) {
+            return prev;
+          }
+
+          return {
+            gameId,
+            renderMode,
+            rendererBackend: prev?.rendererBackend ?? resolveRendererBackend(renderMode, prev?.webgpuSupported ?? false),
+            webgpuSupported: prev?.webgpuSupported ?? false,
+            source: 'shell',
+            ...sample,
+          };
+        });
+      }
+
+      rafId = window.requestAnimationFrame(tick);
+    };
+
+    rafId = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(rafId);
+  }, [active, gameId, renderMode]);
+
+  useEffect(() => {
+    if (!active || typeof window === 'undefined') return;
+
+    const handleBaseline = (event: Event) => {
+      const detail = (event as CustomEvent<GamePerformanceBaseline>).detail;
+      if (!detail || detail.gameId !== gameId) return;
+      runtimeSeenAtRef.current = performance.now();
+      setBaseline(detail);
+    };
+
+    window.addEventListener(DE_GAME_PERFORMANCE_BASELINE, handleBaseline as EventListener);
+    return () => {
+      window.removeEventListener(DE_GAME_PERFORMANCE_BASELINE, handleBaseline as EventListener);
+    };
+  }, [active, gameId]);
+
+  return baseline;
 }
