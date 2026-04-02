@@ -46,6 +46,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
    * The DreamDM Bar occupies DIVIDER_H px in the middle at all times.
    */
   const [splitRatio, setSplitRatio] = useState(DEFAULT_SPLIT_RATIO);
+  const [isBarMinimized, setIsBarMinimized] = useState(false);
 
   // Keep dominantRegion in sync with splitRatio so world-navigation callbacks
   // still work as expected (they read dualRuntime.state.dominantRegion).
@@ -134,12 +135,19 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
 
   // ── Layout geometry ───────────────────────────────────────────────────────
   // Available height for the two runtime regions (viewport minus the fixed divider bar).
-  // We use CSS calc() so the layout adapts to window resize without JS re-render.
+  // When the DreamDM Bar is hidden, the first runtime should reclaim the full viewport.
   const availFraction = splitRatio;          // 0..1
-  const surfaceHeight = `calc(${availFraction} * (100dvh - ${DIVIDER_H}px))`;
-  const dreamHeight   = `calc(${1 - availFraction} * (100dvh - ${DIVIDER_H}px))`;
+  const availableRuntimeHeight = isBarMinimized ? '100dvh' : `(100dvh - ${DIVIDER_H}px)`;
+  const surfaceHeight = isBarMinimized
+    ? '100dvh'
+    : `calc(${availFraction} * ${availableRuntimeHeight})`;
+  const dreamHeight = isBarMinimized
+    ? '0px'
+    : `calc(${1 - availFraction} * ${availableRuntimeHeight})`;
   // Bar sits at the boundary; its top = surfaceHeight (same calc).
-  const barOffsetTop  = `calc(${availFraction} * (100dvh - ${DIVIDER_H}px))`;
+  const barOffsetTop  = isBarMinimized
+    ? '100dvh'
+    : `calc(${availFraction} * ${availableRuntimeHeight})`;
 
   return (
     <>
@@ -194,6 +202,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
             right: 0,
             height: dreamHeight,
             overflow: 'hidden',
+            display: isBarMinimized ? 'none' : 'block',
             zIndex: 1,
           }}
         >
@@ -223,6 +232,7 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
         onHomeDreamSpace={openHomeDreamSpace}
         splitRatio={splitRatio}
         onSplitChange={setSplitRatio}
+        onMinimizedChange={setIsBarMinimized}
       />
     </>
   );

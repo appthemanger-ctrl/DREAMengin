@@ -9,9 +9,19 @@ describe('HomeDream home surface', () => {
     resolve(__dirname, '../components/home/WorkspaceDashboard.tsx'),
     'utf8',
   );
+  const homeSystem = readFileSync(
+    resolve(__dirname, '../components/home/HomeSystem.tsx'),
+    'utf8',
+  );
+  const dreamDmBar = readFileSync(
+    resolve(__dirname, '../components/messaging/DreamDMBar.tsx'),
+    'utf8',
+  );
 
   it('keeps HomeDream feed-first and removes the extra home search surface', () => {
     expect(dashboard).toContain('HomeDream Feed');
+    expect(dashboard.indexOf('HomeDream Feed')).toBeLessThan(dashboard.indexOf('Runtime status'));
+    expect(dashboard.indexOf('HomeDream Feed')).toBeLessThan(dashboard.indexOf('Daydream launch strip'));
     expect(dashboard).not.toContain('DrEamsSearchBar');
     expect(dashboard).not.toContain('Recent Activity');
     expect(dashboard).not.toContain('Telemetry');
@@ -19,6 +29,13 @@ describe('HomeDream home surface', () => {
 
   it('uses the canonical Daydreams label in the home surface', () => {
     expect(dashboard).toContain('Daydreams');
+  });
+
+  it('hides DreamSpace with the DreamDM Bar when the seam is minimized', () => {
+    expect(dreamDmBar).toContain('onMinimizedChange?:');
+    expect(dreamDmBar).toContain('onSplitChange?.(DEFAULT_SPLIT_RATIO);');
+    expect(homeSystem).toContain('display: isBarMinimized ? \'none\' : \'block\'');
+    expect(homeSystem).toContain('onMinimizedChange={setIsBarMinimized}');
   });
 });
 

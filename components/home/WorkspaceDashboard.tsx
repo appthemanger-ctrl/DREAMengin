@@ -295,29 +295,6 @@ export default function WorkspaceDashboard({
           </div>
         </div>
 
-        <div className="de-panel-grid" style={{ marginBottom: 14 }}>
-          {RUNTIME_SIGNALS.map((signal) => (
-            <div key={signal.label} className="de-signal-card">
-              <span className="de-signal-label">{signal.label}</span>
-              <span className="de-signal-value">{signal.value}</span>
-              <span className="de-signal-detail">{signal.detail}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="de-surface" style={{ padding: isCompactViewport ? 12 : 14, marginBottom: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
-            <div>
-              <div className="de-signal-label" style={{ marginBottom: 4 }}>Fast travel</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--de-heading)', letterSpacing: '-0.02em' }}>
-                Daydream launch strip
-              </div>
-            </div>
-            <div className="de-command-chip">6 surfaces · 1 operating shell</div>
-          </div>
-          <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
-        </div>
-
         <div
           className="sicc-glass-in"
           style={{
@@ -379,6 +356,29 @@ export default function WorkspaceDashboard({
             initialPosts={posts as Parameters<typeof HomeFeed>[0]['initialPosts']}
             embedded
           />
+        </div>
+
+        <div className="de-panel-grid" style={{ marginBottom: 14 }}>
+          {RUNTIME_SIGNALS.map((signal) => (
+            <div key={signal.label} className="de-signal-card">
+              <span className="de-signal-label">{signal.label}</span>
+              <span className="de-signal-value">{signal.value}</span>
+              <span className="de-signal-detail">{signal.detail}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="de-surface" style={{ padding: isCompactViewport ? 12 : 14, marginBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
+            <div>
+              <div className="de-signal-label" style={{ marginBottom: 4 }}>Fast travel</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--de-heading)', letterSpacing: '-0.02em' }}>
+                Daydream launch strip
+              </div>
+            </div>
+            <div className="de-command-chip">6 surfaces · 1 operating shell</div>
+          </div>
+          <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
         </div>
       </div>
     </div>
