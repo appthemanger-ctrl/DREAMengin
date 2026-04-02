@@ -21,10 +21,11 @@ import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
   Send, Loader2, Globe, Lock, ArrowUp, Wifi, X,
-  FileText, Radio, RefreshCw, ChevronDown, ChevronUp, Youtube,
+  FileText, Radio, RefreshCw, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { useLiveFeed, type FeedPost } from '@/lib/feed/useLiveFeed';
 import { useYouTubeLiveFeed } from '@/lib/feed/useYouTubeLiveFeed';
+import FeedVideoCard from '@/components/feed/FeedVideoCard';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { createClient } from '@/lib/supabase/client';
@@ -305,6 +306,14 @@ export default function HomeFeed({
     return result;
   }, [posts, ytPosts]);
 
+  // Build a stable id→index map over ytPosts so FeedVideoCard knows where each
+  // video sits in the context for swipe navigation.
+  const ytIndexMap = useMemo<Map<string, number>>(() => {
+    const m = new Map<string, number>();
+    ytPosts.forEach((p, i) => m.set(p.id, i));
+    return m;
+  }, [ytPosts]);
+
   return (
     <>
     <div className={embedded ? 'h-full' : 'min-h-screen de-sky-bg'} style={embedded ? { display: 'flex', flexDirection: 'column' } : undefined}>
@@ -525,50 +534,13 @@ export default function HomeFeed({
                   <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
                 </div>
                 <p className="text-foreground leading-relaxed mb-4 whitespace-pre-wrap" style={{ display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.content}</p>
-                {post.provider === 'youtube' && post.media_url ? (
-                  /* YouTube thumbnail card with play-button overlay */
-                  <a
-                    href={post.permalink || `https://www.youtube.com/results?search_query=${encodeURIComponent(post.content)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block rounded-xl overflow-hidden mb-4 border border-border"
-                    style={{ position: 'relative', background: '#000' }}
-                    aria-label={`Watch on YouTube: ${post.content}`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={post.media_url}
-                      alt={post.content}
-                      loading="lazy"
-                      style={{ width: '100%', maxHeight: 200, objectFit: 'cover', display: 'block', opacity: 0.9 }}
-                    />
-                    {/* Play button overlay */}
-                    <div style={{
-                      position: 'absolute', inset: 0,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <div style={{
-                        width: 48, height: 48, borderRadius: '50%',
-                        background: 'rgba(239,68,68,0.92)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
-                      }}>
-                        <svg viewBox="0 0 24 24" fill="white" width={20} height={20} aria-hidden>
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                    </div>
-                    {/* YouTube logo badge */}
-                    <div style={{
-                      position: 'absolute', top: 8, right: 8,
-                      display: 'flex', alignItems: 'center', gap: 4,
-                      padding: '2px 6px', borderRadius: 4,
-                      background: 'rgba(0,0,0,0.7)',
-                      fontSize: 9, fontWeight: 700, color: '#fff',
-                    }}>
-                      <Youtube size={9} style={{ color: '#ef4444' }} aria-hidden /> YouTube
-                    </div>
-                  </a>
+                {post.provider === 'youtube' || (post.source === 'connector' && post.permalink && (post.permalink.includes('youtube') || post.permalink.includes('youtu.be'))) ? (
+                  /* FeedVideoCard — inline playback + expand + swipe navigation */
+                  <FeedVideoCard
+                    post={post}
+                    allVideos={ytPosts}
+                    videoIndex={ytIndexMap.get(post.id) ?? 0}
+                  />
                 ) : post.media_url ? (
                   <div className="rounded-xl overflow-hidden mb-4 border border-border">
                     <Image src={post.media_url} alt="Post media" width={600} height={400} className="w-full h-auto object-cover" style={{ maxHeight: 240, objectFit: 'cover' }} />

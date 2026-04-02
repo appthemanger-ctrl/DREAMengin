@@ -786,29 +786,27 @@ export default function GameEngin({ onBack }: Props) {
           />
         </div>
 
-        <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 55, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', maxWidth: 'calc(100vw - 28px)' }}>
+        <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 55, display: 'flex', alignItems: 'center', gap: 6 }}>
           <button
             type="button"
             onClick={() => setExpandedPlayableGame(null)}
-            style={{ background: 'rgba(3, 7, 18, 0.72)', border: '1px solid rgba(160,195,240,0.20)', borderRadius: 999, padding: '8px 14px', cursor: 'pointer', color: 'rgba(220,235,255,0.92)', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
+            style={{ background: 'rgba(3, 7, 18, 0.72)', border: '1px solid rgba(160,195,240,0.20)', borderRadius: 999, padding: '6px 12px', cursor: 'pointer', color: 'rgba(220,235,255,0.92)', fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
           >
-            ← Back to GameEngin
+            ← Back
           </button>
-          <span style={{ fontSize: 10, padding: '5px 10px', borderRadius: 999, background: 'rgba(3,7,18,0.72)', color: '#7dd3fc', border: '1px solid rgba(125,211,252,0.22)', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
-            {expandedPlayable.emoji} {expandedPlayable.label} · GameEngin session
-          </span>
           <button
             type="button"
             onClick={() => savePlayableGame(expandedPlayable.id, 'fullscreen')}
-            style={{ background: 'rgba(3,7,18,0.72)', border: '1px solid rgba(74,222,128,0.24)', borderRadius: 999, padding: '8px 14px', cursor: 'pointer', color: '#4ade80', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
+            style={{ background: 'rgba(3,7,18,0.72)', border: '1px solid rgba(74,222,128,0.24)', borderRadius: 999, padding: '6px 10px', cursor: 'pointer', color: '#4ade80', fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
+            title="Save session"
           >
-            Save session
+            Save
           </button>
           <span
             title={gpConnected ? gamepadName : 'Press any button on your controller to connect'}
-            style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', padding: '5px 10px', borderRadius: 999, background: 'rgba(3,7,18,0.72)', color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.65)', border: gpConnected ? '1px solid rgba(74,222,128,0.35)' : '1px solid rgba(160,195,240,0.18)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
+            style={{ fontSize: 9, fontWeight: 800, padding: '4px 8px', borderRadius: 999, background: 'rgba(3,7,18,0.72)', color: gpConnected ? '#4ade80' : 'rgba(160,195,240,0.45)', border: gpConnected ? '1px solid rgba(74,222,128,0.25)' : '1px solid rgba(160,195,240,0.12)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
           >
-            {gpConnected ? (isDualSense ? '🎮 DualSense' : '🕹 Controller') : '🎮 No Controller'}
+            {gpConnected ? (isDualSense ? '🎮' : '🕹') : '🎮'}
           </span>
         </div>
 
