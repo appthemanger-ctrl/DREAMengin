@@ -68,6 +68,9 @@ const BOOT_KEYFRAMES = `
 }
 `;
 
+const DEFAULT_HUD_BOTTOM = '175px';
+const BASELINE_OVERLAY_OFFSET_PX = 14;
+
 export default function ImmersiveGameShell() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -194,7 +197,7 @@ export default function ImmersiveGameShell() {
       }}
     >
       {/* ── Game viewport — always mounted so assets begin loading immediately ── */}
-      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 'var(--de-hud-bottom, 175px)' }}>
+      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM})` }}>
         {game.component ? (
           <ActiveGameComponent />
         ) : (
@@ -222,8 +225,8 @@ export default function ImmersiveGameShell() {
         <div
           style={{
             position: 'absolute',
-            left: 14,
-            bottom: 'calc(var(--de-hud-bottom, 175px) + 14px)',
+            left: BASELINE_OVERLAY_OFFSET_PX,
+            bottom: `calc(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}) + ${BASELINE_OVERLAY_OFFSET_PX}px)`,
             zIndex: 3,
             pointerEvents: 'none',
             background: 'rgba(2,6,23,0.78)',
@@ -237,7 +240,7 @@ export default function ImmersiveGameShell() {
             backdropFilter: 'blur(10px)',
           }}
         >
-          P1 [DONE] · {performanceBaseline.rendererBackend.toUpperCase()} · {performanceBaseline.sampleCount > 0
+          BASELINE [DONE] · {performanceBaseline.rendererBackend.toUpperCase()} · {performanceBaseline.sampleCount > 0
             ? `${performanceBaseline.avgFps} FPS · ${performanceBaseline.avgFrameMs.toFixed(1)}ms`
             : 'warming up'}
         </div>

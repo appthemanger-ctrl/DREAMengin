@@ -44,7 +44,7 @@ describe('createPerformanceBaselineSampler', () => {
     const sample = sampler.pushFrame(80);
 
     expect(sample?.sampleCount).toBe(3);
-    expect(sample?.avgFrameMs).toBeGreaterThan(15);
-    expect(sample?.avgFrameMs).toBeLessThan(18);
+    expect(sample?.avgFrameMs).toBeGreaterThan(21);
+    expect(sample?.avgFrameMs).toBeLessThan(22);
   });
 });

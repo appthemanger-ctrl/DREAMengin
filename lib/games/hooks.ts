@@ -130,6 +130,28 @@ interface UseGamePerformanceBaselineOptions {
   renderMode: GameRenderMode;
 }
 
+const RUNTIME_BASELINE_GRACE_MS = 1500;
+
+function createPendingBaseline(
+  gameId: string,
+  renderMode: GameRenderMode,
+  webgpuSupported: boolean,
+  previous?: GamePerformanceBaseline | null,
+): GamePerformanceBaseline {
+  return {
+    fps: previous?.fps ?? 0,
+    avgFps: previous?.avgFps ?? 0,
+    frameMs: previous?.frameMs ?? 0,
+    avgFrameMs: previous?.avgFrameMs ?? 0,
+    sampleCount: previous?.sampleCount ?? 0,
+    source: previous?.source ?? 'shell',
+    gameId,
+    renderMode,
+    webgpuSupported,
+    rendererBackend: previous?.rendererBackend ?? resolveRendererBackend(renderMode, webgpuSupported),
+  };
+}
+
 export function useGamePerformanceBaseline({
   active,
   gameId,
@@ -151,32 +173,10 @@ export function useGamePerformanceBaseline({
     let cancelled = false;
     isWebGPUAvailable().then((webgpuSupported) => {
       if (cancelled) return;
-      setBaseline((prev) => ({
-        fps: prev?.fps ?? 0,
-        avgFps: prev?.avgFps ?? 0,
-        frameMs: prev?.frameMs ?? 0,
-        avgFrameMs: prev?.avgFrameMs ?? 0,
-        sampleCount: prev?.sampleCount ?? 0,
-        source: prev?.source ?? 'shell',
-        gameId,
-        renderMode,
-        webgpuSupported,
-        rendererBackend: prev?.rendererBackend ?? resolveRendererBackend(renderMode, webgpuSupported),
-      }));
+      setBaseline((prev) => createPendingBaseline(gameId, renderMode, webgpuSupported, prev));
     }).catch(() => {
       if (cancelled) return;
-      setBaseline((prev) => ({
-        fps: prev?.fps ?? 0,
-        avgFps: prev?.avgFps ?? 0,
-        frameMs: prev?.frameMs ?? 0,
-        avgFrameMs: prev?.avgFrameMs ?? 0,
-        sampleCount: prev?.sampleCount ?? 0,
-        source: prev?.source ?? 'shell',
-        gameId,
-        renderMode,
-        webgpuSupported: false,
-        rendererBackend: prev?.rendererBackend ?? resolveRendererBackend(renderMode, false),
-      }));
+      setBaseline((prev) => createPendingBaseline(gameId, renderMode, false, prev));
     });
 
     return () => {
@@ -194,7 +194,9 @@ export function useGamePerformanceBaseline({
       const sample = sampler.pushFrame(timestamp);
       if (sample) {
         setBaseline((prev) => {
-          if (prev?.source === 'runtime' && performance.now() - runtimeSeenAtRef.current < 1500) {
+          // Prefer engine-reported runtime telemetry briefly so WebGPU/Babylon
+          // games can override the generic shell sampler without flicker.
+          if (prev?.source === 'runtime' && performance.now() - runtimeSeenAtRef.current < RUNTIME_BASELINE_GRACE_MS) {
             return prev;
           }
 

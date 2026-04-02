@@ -21,6 +21,8 @@ import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager'
 
 type Phase = 'menu' | 'playing' | 'gameover';
 
+const PERFORMANCE_PUBLISH_INTERVAL_MS = 250;
+
 export default function EchoArena() {
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
@@ -150,10 +152,12 @@ export default function EchoArena() {
 
         // Game loop
         scene.onBeforeRenderObservable.add(() => {
-          const now = performance.now();
-          const sample = frameSampler.pushFrame(now);
-          if (sample && now - lastPerformancePublish >= 250) {
-            lastPerformancePublish = now;
+          const frameNow = performance.now();
+          const sample = frameSampler.pushFrame(frameNow);
+          // Quarter-second publishing keeps the shared shell overlay current
+          // without spamming React/event updates on every rendered frame.
+          if (sample && frameNow - lastPerformancePublish >= PERFORMANCE_PUBLISH_INTERVAL_MS) {
+            lastPerformancePublish = frameNow;
             publishGamePerformanceBaseline({
               gameId: 'echo-arena',
               renderMode: 'webgpu',
@@ -189,10 +193,10 @@ export default function EchoArena() {
           }
 
           // Shoot with R2 trigger or strong mobile aim hold (with cooldown)
-          const now = Date.now();
-          if ((input.triggers.r2 > 0.6 || lookMagnitude > 0.72) && now - lastShotRef.current > 300) {
+          const shotNow = Date.now();
+          if ((input.triggers.r2 > 0.6 || lookMagnitude > 0.72) && shotNow - lastShotRef.current > 300) {
             dualSense.rumble(0.5, 40);
-            lastShotRef.current = now;
+            lastShotRef.current = shotNow;
             scoreRef.current += 10;
             setScore(scoreRef.current);
             if (lookMagnitude > 0.72) {

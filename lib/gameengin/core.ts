@@ -195,6 +195,7 @@ export interface FrameTelemetry {
   fps: number;
   avgFps: number;
   frameMs: number;
+  avgFrameMs: number;
   droppedFrames: number;
   isWebGPU: boolean;
   qualityTier: QualityTier;
@@ -266,6 +267,7 @@ export class EliteGameEngine {
   private droppedFrames = 0;
   private lastFrameTime = 0;
   private fpsHistory: number[] = [];
+  private frameMsHistory: number[] = [];
   private qualityCheckTick = 0;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -336,6 +338,8 @@ export class EliteGameEngine {
       const fps = dt > 0 ? 1000 / dt : 60;
       this.fpsHistory.push(fps);
       if (this.fpsHistory.length > 90) this.fpsHistory.shift();
+      this.frameMsHistory.push(dt);
+      if (this.frameMsHistory.length > 90) this.frameMsHistory.shift();
 
       if (fps < (this.currentBudget.targetFps * 0.75)) {
         this.droppedFrames++;
@@ -387,11 +391,17 @@ export class EliteGameEngine {
     return this.fpsHistory.reduce((a, b) => a + b, 0) / this.fpsHistory.length;
   }
 
+  private avgFrameMs(): number {
+    if (this.frameMsHistory.length === 0) return 16.67;
+    return this.frameMsHistory.reduce((a, b) => a + b, 0) / this.frameMsHistory.length;
+  }
+
   private buildTelemetry(fps: number, frameMs: number): FrameTelemetry {
     return {
       fps: Math.round(fps),
       avgFps: Math.round(this.avgFps()),
       frameMs: Math.round(frameMs * 10) / 10,
+      avgFrameMs: Math.round(this.avgFrameMs() * 10) / 10,
       droppedFrames: this.droppedFrames,
       isWebGPU: this.isWebGPU,
       qualityTier: this.currentBudget.tier,

@@ -51,7 +51,12 @@ export function createPerformanceBaselineSampler(maxSamples = 90) {
         return null;
       }
 
-      const frameMs = Math.max(0.1, timestamp - lastTimestamp);
+      if (timestamp <= lastTimestamp) {
+        lastTimestamp = timestamp;
+        return null;
+      }
+
+      const frameMs = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
 
       frameHistory.push(frameMs);

@@ -366,7 +366,7 @@ export default function NeonDrift() {
             fps: telemetry.fps,
             avgFps: telemetry.avgFps,
             frameMs: telemetry.frameMs,
-            avgFrameMs: Math.round((1000 / Math.max(1, telemetry.avgFps)) * 10) / 10,
+            avgFrameMs: telemetry.avgFrameMs,
             sampleCount: 90,
             source: 'runtime',
           });
