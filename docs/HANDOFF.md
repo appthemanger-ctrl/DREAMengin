@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
-| **auto** | 2026-04-02 14:56 UTC | `c046a2f` | copilot/update-docs-dream-space | Copilot | ~1 modified<br>docs: finish runtime wording cleanup — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/ece3099d-1950-415c-8cfd-b319129e2528  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `README.md` |
+| **auto** | 2026-04-02 14:45 UTC | `a00d46d` | copilot/update-dm-bar-and-runtime-structure | Copilot | ~1 modified<br>test: lock dreamdm hide behavior and feed-first runtime ordering — Reasoning: add regression coverage for the DreamDM Bar owning DreamSpace visibility and for HomeDream surfacing the feed before supporting panels. Architecture justification: docs/ARCHITECTURE.md treats DreamDM Bar as the seam for DreamSpace visibility and keeps HomeDream as the main operating surface. Performance impact: none.  Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/ad7b100c-0a71-428e-b957-283ece37ec6c  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `tests/home-feed-home.test.ts` |
+| **auto** | 2026-04-02 14:42 UTC | `8652832` | copilot/update-dm-bar-and-runtime-structure | Copilot | ~4 modified<br>fix: hide dreamspace with minimized seam and restore feed-first home runtime — Reasoning: the DreamDM Bar must own the second runtime, so minimizing the seam now collapses DreamSpace and lets the first runtime reclaim the full viewport while the HomeDream feed returns to the front of the surface. Architecture justification: docs/ARCHITECTURE.md defines DreamDM Bar as the runtime seam between Surface Space and DreamSpace, and HomeDream remains the main private operating surface. Performance impact: neutral.  Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/ad7b100c-0a71-428e-b957-283ece37ec6c  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/home/HomeSystem.tsx`, `components/home/WorkspaceDashboard.tsx`, `components/messaging/DreamDMBar.tsx`, `tests/home-feed-home.test.ts` |
 | **auto** | 2026-04-02 07:04 UTC | `6811ff2` | copilot/modernize-all-games-graphics-performance | Copilot | ~7 modified<br>fix: finalize point 1 baseline telemetry — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/5e41b7e7-e216-4d4d-852b-79b3014da527  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/daydream/game/ImmersiveGameShell.tsx`, `components/games/EchoArena.tsx`, `components/games/NeonDrift.tsx`, `lib/gameengin/core.ts`, `lib/games/hooks.ts`, `lib/games/performance-baseline.ts`, `tests/game-performance-baseline.test.ts` |
 | **auto** | 2026-04-02 04:59 UTC | `cffc4fa` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #398 from appthemanger-ctrl/copilot/update-joystick-responsiveness — Game mobile UX: right-stick tap→jump, faster joystick activation, compact HUD overlays, smaller gold orb in-game<br> |
 | **auto** | 2026-04-02 03:26 UTC | `04bcd27` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #397 from appthemanger-ctrl/copilot/fix-bot-email-in-idari-daily-yml — fix(ci): idari-daily pushes directly to completedream instead of opening a PR<br> |
-| **auto** | 2026-04-02 03:24 UTC | `ce13e87` | copilot/fix-bot-email-in-idari-daily-yml | Copilot | ~1 modified<br>feat: idari-daily pushes directly to completedream instead of opening a PR — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/8fda6c48-75a8-481d-8065-a5243e48e5ad  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/idari-daily.yml` |
 
 ## What changed in this alignment pass
 
@@ -128,14 +128,17 @@ The docs now treat `README.md` as the authoritative full specification and use s
 - HomeDream
 - EditProfileDream
 - ViewProfile
+- DayDreams
+- Engins
 - Dreams
 - DreamShop
 - DreamMarketplace
 - DreamMenu
 - DreamDM
+- DreamDMBar
 - DreamAds
 - Dr. Eams
-- IDARi
+- iDARI
 - TheBoogieMan.Ai
 
 ## Current repo reality
