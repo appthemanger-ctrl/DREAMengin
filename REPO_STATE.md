@@ -3,10 +3,10 @@
 > **Comprehensive analysis of the entire codebase**
 > Generated automatically - DO NOT EDIT MANUALLY
 
-**Last Updated:** 4/1/2026, 2:47:08 PM
+**Last Updated:** 4/2/2026, 4:17:30 AM
 **Branch:** completedream
-**Commit:** 5c8ea170 - Merge pull request #382 from appthemanger-ctrl/copilot/implement-dreamengin-shared-memory-map
-**Total Commits:** 2826
+**Commit:** b38c50a5 - idari: auto-update README [a4432d1] [skip ci] [skip vercel]
+**Total Commits:** 2956
 
 ---
 
@@ -41,14 +41,14 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 576
-- 📝 Total Lines of Code: 131,526
-- 📦 Size: 4.96 MB
-- 🧪 Tests: 85 files, 79 passing
-- 📄 API Routes: 72
+- 📁 Total Code Files: 586
+- 📝 Total Lines of Code: 133,358
+- 📦 Size: 5.03 MB
+- 🧪 Tests: 87 files, 81 passing
+- 📄 API Routes: 74
 - 🎨 Components: 34 categories
 - 📖 Documentation: 48 files
-- ⚙️ GitHub Actions: 51 workflows
+- ⚙️ GitHub Actions: 52 workflows
 
 ## Tech Stack
 
@@ -89,7 +89,7 @@ uuid@^13.0.0
 ... and 2 more
 ```
 
-**Dev Dependencies:** 16
+**Dev Dependencies:** 17
 ```
 @types/node@^24.0.0
 @types/react@^19.0.0
@@ -107,6 +107,7 @@ tailwindcss@^3.4.19
 tailwindcss-animate@^1.0.7
 typescript@^5.5.0
 vitest@^4.0.18
+assemblyscript@^0.27.0
 ```
 
 ## Repository Structure
@@ -115,15 +116,15 @@ vitest@^4.0.18
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 198 | .tsx(123), .ts(73), .css(2) |
+| `app/` | 200 | .tsx(123), .ts(75), .css(2) |
 | `components/` | 270 | .tsx(245), .ts(22), .css(2) |
-| `lib/` | 210 | .ts(205), .tsx(3), .md(2) |
-| `tests/` | 87 | .ts(86), .md(1) |
+| `lib/` | 220 | .ts(215), .tsx(3), .md(2) |
+| `tests/` | 89 | .ts(88), .md(1) |
 | `styles/` | 3 | .css(3) |
-| `public/` | 45 | .png(18), .PNG(11), .jpeg(6) |
+| `public/` | 47 | .png(18), .PNG(11), .jpeg(6) |
 | `docs/` | 44 | .md(44) |
 | `scripts/` | 22 | .mjs(12), .sh(3), .cjs(3) |
-| `supabase/` | 40 | .sql(39), .toml(1) |
+| `supabase/` | 43 | .sql(42), .toml(1) |
 
 ## Code Metrics
 
@@ -131,17 +132,17 @@ vitest@^4.0.18
 
 - **App Routes (TSX):** 123
 - **Component Files:** 245
-- **Library Files:** 208
-- **Test Files:** 79
+- **Library Files:** 218
+- **Test Files:** 81
 
 ### Code Volume
 
-- **Total Lines:** 131,526
-- **Total Size:** 4.96 MB
+- **Total Lines:** 133,358
+- **Total Size:** 5.03 MB
 
 ## API Routes
 
-**Total API Endpoints:** 72
+**Total API Endpoints:** 74
 
 ### All Routes
 
@@ -155,6 +156,7 @@ vitest@^4.0.18
 | `/api/admin/child-safety` | GET, POST | /app/api/admin/child-safety/route.ts |
 | `/api/admin/code-files` | POST | /app/api/admin/code-files/route.ts |
 | `/api/admin/observability` | GET | /app/api/admin/observability/route.ts |
+| `/api/ads/orders` | POST | /app/api/ads/orders/route.ts |
 | `/api/ai/boogieman/child-safety` | POST | /app/api/ai/boogieman/child-safety/route.ts |
 | `/api/ai/boogieman/privacy-event` | POST | /app/api/ai/boogieman/privacy-event/route.ts |
 | `/api/ai/boogieman` | POST | /app/api/ai/boogieman/route.ts |
@@ -189,15 +191,14 @@ vitest@^4.0.18
 | `/api/favorites` | GET, POST, DELETE | /app/api/favorites/route.ts |
 | `/api/feed` | GET | /app/api/feed/route.ts |
 | `/api/follow` | GET, POST, DELETE | /app/api/follow/route.ts |
+| `/api/gal` | POST | /app/api/gal/route.ts |
 | `/api/game-scores` | GET, POST | /app/api/game-scores/route.ts |
 | `/api/home-layout` | GET, POST | /app/api/home-layout/route.ts |
 | `/api/journey` | GET, POST | /app/api/journey/route.ts |
 | `/api/lab/benchmarks` | POST | /app/api/lab/benchmarks/route.ts |
 | `/api/likes` | GET, POST, DELETE | /app/api/likes/route.ts |
 | `/api/marketplace/request` | POST | /app/api/marketplace/request/route.ts |
-| `/api/marketplace` | GET, POST | /app/api/marketplace/route.ts |
-| `/api/messages/boards` | POST | /app/api/messages/boards/route.ts |
-| ... | ... | ... and 22 more routes |
+| ... | ... | ... and 24 more routes |
 
 ## Pages & Routes
 
@@ -304,16 +305,13 @@ vitest@^4.0.18
 
 ## Database Schema
 
-**Total Migrations:** 37
+**Total Migrations:** 40
 **Schema File:** ✓ Present
 
 ### Migration History
 
 | Migration File |
 |----------------|
-| 20260321000000_ads_platform_promotions.sql |
-| 20260321200000_phase8a_feed_and_layout.sql |
-| 20260322000000_phase8b_dream_windows.sql |
 | 20260322000000_policy_events.sql |
 | 20260322000001_message_boards.sql |
 | 20260323100000_embed_feed_items.sql |
@@ -321,12 +319,15 @@ vitest@^4.0.18
 | 20260324000001_phase8e_shop_marketplace.sql |
 | 20260325000000_phase8f_daydream_network.sql |
 | 20260325100000_child_safety.sql |
-| ... and 27 earlier migrations |
+| 20260401000001_platform_utilities.sql |
+| 20260402000001_control_mappings.sql |
+| 20260402000002_game_assets.sql |
+| ... and 30 earlier migrations |
 
 ## Tests
 
-**Test Files:** 85
-**Tests Passing:** 79
+**Test Files:** 87
+**Tests Passing:** 81
 **Tests Failing:** 0
 
 ### Test Files
@@ -351,7 +352,7 @@ vitest@^4.0.18
 - /tests/dev-bypass.test.ts
 - /tests/diff-viewer.test.ts
 - /tests/dr-eams-search-bar.test.ts
-- ... and 65 more test files
+- ... and 67 more test files
 
 ## Documentation
 
@@ -393,7 +394,7 @@ vitest@^4.0.18
 
 ## CI/CD Workflows
 
-**Total Workflows:** 51
+**Total Workflows:** 52
 
 ### Workflow Files
 
@@ -441,6 +442,7 @@ vitest@^4.0.18
 - repo-snapshot.yml
 - report-driven-coding-agent.yml
 - spec-engin-ai-agent.yml
+- sql-migration-guard.yml
 - sync-build-memory.yml
 - update-bugs.yml
 - update-embed-feed.yml
@@ -536,6 +538,7 @@ Using Supabase for database, auth, and storage
 - react-dnd-html5-backend
 - tailwindcss
 - tailwindcss-animate
+- assemblyscript
 
 ## 2026 Standards Compliance
 
@@ -566,4 +569,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/1/2026, 2:47:08 PM*
+*Last updated: 4/2/2026, 4:17:30 AM*
