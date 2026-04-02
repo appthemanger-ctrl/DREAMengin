@@ -1459,6 +1459,53 @@ export type Database = {
           },
         ]
       }
+      game_assets: {
+        Row: {
+          asset_type: string
+          config_dna: Json | null
+          created_at: string
+          id: string
+          label: string
+          owner_id: string
+          source_image_url: string | null
+          updated_at: string
+          wasm_mesh_data: string | null
+          wasm_rig_data: string | null
+        }
+        Insert: {
+          asset_type?: string
+          config_dna?: Json | null
+          created_at?: string
+          id?: string
+          label: string
+          owner_id: string
+          source_image_url?: string | null
+          updated_at?: string
+          wasm_mesh_data?: string | null
+          wasm_rig_data?: string | null
+        }
+        Update: {
+          asset_type?: string
+          config_dna?: Json | null
+          created_at?: string
+          id?: string
+          label?: string
+          owner_id?: string
+          source_image_url?: string | null
+          updated_at?: string
+          wasm_mesh_data?: string | null
+          wasm_rig_data?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_assets_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_scores: {
         Row: {
           achieved_at: string

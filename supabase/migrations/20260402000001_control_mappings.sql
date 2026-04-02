@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS control_mappings (
   sensitivity    NUMERIC     NOT NULL DEFAULT 1.0,
   owner_id       UUID        REFERENCES profiles(id) ON DELETE CASCADE,
   created_at     TIMESTAMPTZ DEFAULT NOW(),
-  updated_at     TIMESTAMPTZ DEFAULT NOW()
+  updated_at     TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (owner_id, asset_id, input_source)
 );
 
 CREATE INDEX IF NOT EXISTS idx_control_mappings_asset
