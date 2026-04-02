@@ -858,7 +858,7 @@ export default function StarMakerEngin({ onBack }: Props) {
           onChangeBpm={changeBpm}
           onBpmInput={handleBpmInput}
           onKeyChange={setMusicalKey}
-          onModeToggle={() => setKeyMode(m => m === 'major' ? 'minor' : 'major')}
+          onModeChange={setKeyMode}
           onPitchChange={setPitch}
         />
 
@@ -974,6 +974,46 @@ function dawPill(color: string): React.CSSProperties {
     border: `1px solid ${color}30`,
   };
 }
+
+function dawPickerStyle(color: string = DAW.accent): React.CSSProperties {
+  return {
+    width: '100%',
+    padding: '8px 10px',
+    borderRadius: 8,
+    border: `1px solid ${color}35`,
+    background: '#0f1117',
+    color: DAW.text,
+    cursor: 'pointer',
+    fontSize: 12,
+    fontWeight: 700,
+    boxShadow: `inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 20px rgba(0,0,0,0.18)`,
+  };
+}
+
+function dawDisclosureToggleStyle(active: boolean): React.CSSProperties {
+  return {
+    width: '100%',
+    padding: '9px 12px',
+    borderRadius: 10,
+    border: `1px solid ${active ? `${DAW.accent}32` : DAW.border}`,
+    background: active
+      ? 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.18))'
+      : 'linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))',
+    color: active ? DAW.text : DAW.dim,
+    cursor: 'pointer',
+    boxShadow: active
+      ? 'inset 0 2px 6px rgba(0,0,0,0.35)'
+      : '0 10px 20px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.04)',
+  };
+}
+
+const dawDisclosureTrayStyle: React.CSSProperties = {
+  padding: '12px',
+  borderRadius: 12,
+  background: 'linear-gradient(180deg, rgba(8,10,17,0.96), rgba(20,23,32,0.92))',
+  border: `1px solid ${DAW.border}`,
+  boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.32)',
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Track definitions (multi-track timeline)
@@ -1681,6 +1721,9 @@ const DAW_MIXER_STRIPS: Array<{ key: keyof MixerState; label: string; color: str
 ];
 
 function DAWMixerEffectsPanel({ mixer, activeEffects, onMixerChange, onToggleEffect }: DAWMixerEffectsPanelProps) {
+  const [mixExpanded, setMixExpanded] = useState(true);
+  const [fxExpanded, setFxExpanded] = useState(false);
+
   return (
     <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
       <div style={{ ...DAW_STYLES.sectionHeader }}>
@@ -1690,53 +1733,88 @@ function DAWMixerEffectsPanel({ mixer, activeEffects, onMixerChange, onToggleEff
       </div>
 
       <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {/* Fader strips */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-          {DAW_MIXER_STRIPS.map(({ key, label, color }) => (
-            <div key={key} style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              padding: '10px 6px 8px',
-              background: DAW.surfaceHi, border: `1px solid ${DAW.border}`,
-              borderRadius: 10, gap: 5,
-            }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color }}>{mixer[key]}</span>
-              <div style={{ width: 28, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                <input type="range" min={0} max={100} value={mixer[key]}
-                  onChange={e => onMixerChange(key, Number(e.target.value))}
-                  aria-label={`${label} volume`}
-                  style={{ width: 90, accentColor: color, transform: 'rotate(-90deg)', cursor: 'pointer' }}
-                />
-              </div>
-              <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.08em', color, opacity: 0.85 }}>{label}</span>
-              <div style={{ width: '100%', height: 3, borderRadius: 9999, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                <div style={{ height: '100%', borderRadius: 9999, width: `${mixer[key]}%`, background: color, transition: 'width 0.1s' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => setMixExpanded(prev => !prev)}
+            aria-expanded={mixExpanded}
+            style={dawDisclosureToggleStyle(mixExpanded)}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.08em' }}>MIX CHANNELS</span>
+              <span style={{ fontSize: 10, color: DAW.dim }}>Adjust vocals, instruments, bass, and FX levels</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: mixExpanded ? DAW.accent : DAW.dim }}>{mixExpanded ? '▼' : '▶'}</span>
+            </div>
+          </button>
+          {mixExpanded && (
+            <div style={dawDisclosureTrayStyle}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                {DAW_MIXER_STRIPS.map(({ key, label, color }) => (
+                  <div key={key} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    padding: '10px 6px 8px',
+                    background: DAW.surfaceHi, border: `1px solid ${DAW.border}`,
+                    borderRadius: 10, gap: 5,
+                  }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color }}>{mixer[key]}</span>
+                    <div style={{ width: 28, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                      <input type="range" min={0} max={100} value={mixer[key]}
+                        onChange={e => onMixerChange(key, Number(e.target.value))}
+                        aria-label={`${label} volume`}
+                        style={{ width: 90, accentColor: color, transform: 'rotate(-90deg)', cursor: 'pointer' }}
+                      />
+                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.08em', color, opacity: 0.85 }}>{label}</span>
+                    <div style={{ width: '100%', height: 3, borderRadius: 9999, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', borderRadius: 9999, width: `${mixer[key]}%`, background: color, transition: 'width 0.1s' }} />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
+          )}
         </div>
 
-        {/* Effects palette */}
-        <div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em', marginBottom: 8 }}>EFFECTS</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5 }}>
-            {EFFECT_LIST.map(effect => {
-              const on = activeEffects.has(effect);
-              return (
-                <button key={effect} type="button" onClick={() => onToggleEffect(effect)}
-                  aria-pressed={on}
-                  style={{
-                    padding: '8px 4px', borderRadius: 7, cursor: 'pointer',
-                    border: on ? `1.5px solid ${DAW.accent}60` : `1px solid ${DAW.border}`,
-                    background: on ? `${DAW.accent}18` : DAW.surfaceHi,
-                    color: on ? DAW.accent : DAW.dim,
-                    fontSize: 10, fontWeight: 700, letterSpacing: '0.02em',
-                    textAlign: 'center', lineHeight: 1.3, transition: 'all 0.15s',
-                  }}>
-                  {effect}
-                </button>
-              );
-            })}
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => setFxExpanded(prev => !prev)}
+            aria-expanded={fxExpanded}
+            style={dawDisclosureToggleStyle(fxExpanded)}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.08em' }}>FX CHAIN</span>
+              <span style={{ fontSize: 10, color: DAW.dim }}>Expand to enable or disable effect tools</span>
+              <span style={{ ...dawPill(activeEffects.size ? DAW.green : DAW.dim), marginLeft: 'auto', fontSize: 9 }}>
+                {activeEffects.size} active
+              </span>
+              <span style={{ fontSize: 10, color: fxExpanded ? DAW.accent : DAW.dim }}>{fxExpanded ? '▼' : '▶'}</span>
+            </div>
+          </button>
+          {fxExpanded && (
+            <div style={dawDisclosureTrayStyle}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em', marginBottom: 8 }}>EFFECTS</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5 }}>
+                {EFFECT_LIST.map(effect => {
+                  const on = activeEffects.has(effect);
+                  return (
+                    <button key={effect} type="button" onClick={() => onToggleEffect(effect)}
+                      aria-pressed={on}
+                      style={{
+                        padding: '8px 4px', borderRadius: 7, cursor: 'pointer',
+                        border: on ? `1.5px solid ${DAW.accent}60` : `1px solid ${DAW.border}`,
+                        background: on ? `${DAW.accent}18` : DAW.surfaceHi,
+                        color: on ? DAW.accent : DAW.dim,
+                        fontSize: 10, fontWeight: 700, letterSpacing: '0.02em',
+                        textAlign: 'center', lineHeight: 1.3, transition: 'all 0.15s',
+                      }}>
+                      {effect}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1755,13 +1833,13 @@ interface DAWKeyPitchPanelProps {
   onChangeBpm: (delta: number) => void;
   onBpmInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyChange: (key: MusicalKey) => void;
-  onModeToggle: () => void;
+  onModeChange: (mode: 'major' | 'minor') => void;
   onPitchChange: (v: number) => void;
 }
 
 function DAWKeyPitchPanel({
   bpm, musicalKey, keyMode, pitch,
-  onChangeBpm, onBpmInput, onKeyChange, onModeToggle, onPitchChange,
+  onChangeBpm, onBpmInput, onKeyChange, onModeChange, onPitchChange,
 }: DAWKeyPitchPanelProps) {
   const pitchColor = pitch === 0 ? DAW.dim : pitch > 0 ? DAW.green : DAW.red;
   return (
@@ -1804,28 +1882,33 @@ function DAWKeyPitchPanel({
         {/* Key */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>KEY</span>
-            <button type="button" onClick={onModeToggle}
-              style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 99, border: `1.5px solid ${DAW.accent}35`, background: `${DAW.accent}15`, color: DAW.accent, cursor: 'pointer' }}>
-              {keyMode === 'major' ? 'Major' : 'Minor'}
-            </button>
+            <span style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>SCALE PICKER</span>
+            <span style={{ ...dawPill(DAW.accent), fontSize: 10 }}>{musicalKey} {keyMode === 'major' ? 'Major' : 'Minor'}</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 4 }}>
-            {MUSICAL_KEYS.map(k => {
-              const sel = musicalKey === k;
-              return (
-                <button key={k} type="button" onClick={() => onKeyChange(k)} aria-pressed={sel}
-                  style={{
-                    padding: '6px 2px', borderRadius: 7, textAlign: 'center',
-                    border: sel ? `1.5px solid ${DAW.accent}` : `1px solid ${DAW.border}`,
-                    background: sel ? `${DAW.accent}20` : DAW.surfaceHi,
-                    cursor: 'pointer', fontSize: 11, fontWeight: 700,
-                    color: sel ? DAW.accent : DAW.dim, transition: 'all 0.12s',
-                  }}>
-                  {k}
-                </button>
-              );
-            })}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>ROOT NOTE</span>
+              <select
+                value={musicalKey}
+                onChange={(e) => onKeyChange(e.target.value as MusicalKey)}
+                aria-label="Scale root note"
+                style={dawPickerStyle()}
+              >
+                {MUSICAL_KEYS.map(key => <option key={key} value={key}>{key}</option>)}
+              </select>
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>MODE</span>
+              <select
+                value={keyMode}
+                onChange={(e) => onModeChange(e.target.value as 'major' | 'minor')}
+                aria-label="Scale mode"
+                style={dawPickerStyle(DAW.purple)}
+              >
+                <option value="major">Major</option>
+                <option value="minor">Minor</option>
+              </select>
+            </label>
           </div>
         </div>
 
