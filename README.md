@@ -1,6 +1,6 @@
 # DREAMengin — Full System Specification
 
-Next.js 16+ / Supabase / Dual-Runtime / Privacy-First Spatial Operating Environment  
+Next.js 16+ / Supabase / DreamDM-Bar-Led / Privacy-First Spatial Operating Environment  
 Author: José Mancilla  
 Date: March 24, 2026
 
@@ -15,7 +15,7 @@ Date: March 24, 2026
 
 DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+** (App Router),
 **TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 8+**.
-It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
+It is not a traditional social app — it is a modular, DreamDM-Bar-led spatial operating environment.
 Author: José Mancilla · pnpm 10.30.0 · Node 24
 
 ---
@@ -61,7 +61,7 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 | `components/daydream/` | The 6 Daydream surfaces + Engin components |
 | `components/games/` | All game components (MADMAXI, NeonDrift, etc.) |
 | `components/home/` | HomeDream + HomeSystem |
-| `components/messaging/` | DreamDMBar (the dual-runtime divider) |
+| `components/messaging/` | DreamDMBar (the top-layer interaction rail and DreamSpace owner) |
 | `components/music/` | SoundRecorder and music UI |
 | `lib/` | Hooks, utilities, Supabase client, game libs |
 | `docs/` | All governance, law, spec, and policy documents |
@@ -139,7 +139,7 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 Last updated: 2026-04-02 09:30 UTC — `888daf9` by appthemanger-ctrl
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
-Scope: Full dual-runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
+Scope: Full DreamDM Bar runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
 
 Build Status: 173 routes (100 pages + 73 API handlers) · 78 test files
 
@@ -199,6 +199,7 @@ DreamAds              | /ads                   | /ads/create
 ## Daydream Surfaces
 
 Daydreams are the six primary creative environments in DREAMengin.
+HomeDream is a core surface, not a Daydream.
 
 They are not isolated modules and are not bound to a single runtime.  
 Each Daydream can connect to multiple Engins depending on task context.
@@ -262,10 +263,10 @@ Supported work types:
 
 ## Runtime Model
 
-DREAMengin operates as a dual-runtime spatial system.
+DREAMengin operates as a stacked runtime system led by the DreamDM Bar.
 
-The system is not a flat application.  
-It is a spatial operating environment where surfaces and runtimes connect dynamically.
+The system is not a flat application.
+It is a spatial operating environment where HomeDream remains the root surface underneath and the DreamDM Bar reveals the secondary layer only when the user wants it.
 
 Structure:
 
@@ -278,12 +279,12 @@ This establishes:
 
 - consistent naming authority
 - controlled routing
-- runtime separation
+- bar-led runtime reveal
 - spatial organization of features
 
 Requirements:
 - Keep naming consistent unless clarity requires adjustment
-- Maintain identity: dual-runtime, privacy-first, spatial OS
+- Maintain identity: DreamDM-Bar-led, privacy-first, spatial OS
 - Remove repetition
 - Separate facts vs assumptions vs design intent
 - Define clearly:
@@ -292,7 +293,7 @@ Requirements:
   3. Core surfaces
   4. Daydream system
   5. Engin system
-  6. Dual-runtime model
+  6. Stacked runtime model
   7. Naming authority
   8. Privacy model
   9. Runtime boundaries
@@ -306,21 +307,22 @@ Additional constraints:
 Input:
 
 
-- The **Surface Space** runtime is the currently active surface (HomeDream, profile views, DreamDM, etc.)
-- The **DreamSpace** runtime is the lower modular runtime region
+- **HomeDream** is the first runtime and root surface underneath the bar
+- The **DreamDM Bar** is the top layer and the main attraction
+- **DreamSpace** is the second runtime layer owned by the DreamDM Bar, not a standalone runtime
 - DreamSpace contains:
   - Dream Windows (blank or connected)
   - Daydream environments
   - Engin systems
   - route-connected lower-layer experiences
 
-The **DreamDMBar** is the canonical divider and lift control between these two runtimes.
+If the **DreamDM Bar** is hidden, **DreamSpace** is hidden too.
 
 ---
 
 # Key System Components
 
-## DreamDMBar (Runtime Divider)
+## DreamDMBar (Interaction Rail + Runtime Owner)
 
 **Location**
 
@@ -330,19 +332,19 @@ components/messaging/DreamDMBar.tsx
 
 **Role**
 
-The DreamDMBar is the canonical runtime divider and interaction rail in DREAMengin.
+The DreamDMBar is the canonical interaction rail, top layer, and owner of the revealed secondary runtime in DREAMengin.
 
-It is designed to **look like a separate piece** sitting between the main active surface and the lower DreamSpace runtime.
+It should feel like its own distinct object above HomeDream, not like a generic divider between two equal worlds.
 
-Visually, it should feel like its own distinct object.  
-Functionally, it is the **seam between two live runtimes**.
+Visually, it is the main attraction.
+Functionally, it controls when DreamSpace exists on screen at all.
 
 The DreamDMBar is responsible for:
 
 - quick communication and drafting
-- acting as the boundary between the upper runtime and DreamSpace
+- owning and revealing DreamSpace
 - dragging the second runtime upward into view
-- revealing DreamSpace as an operating layer
+- hiding the second runtime when the bar is hidden
 - preserving the OS-like feel of the platform
 
 Dragging the DreamDMBar upward reveals **DreamSpace**, which contains:
@@ -407,7 +409,7 @@ docs/FEATURE_STATUS.md
 
 1. Purpose and Product Definition
 
-DREAMengin is a customizable, privacy-first, dual-runtime spatial operating environment for creating, sharing, organizing, and connecting modular runtime containers across personal, creative, and social spaces. A social modular runtime whose navigation begins as a calm HomeDream and matures into a stacked, state-preserving surface system across the entire product. DREAMengin introduces the DreamDM Bar, connecting you continuously to both sides of your world.
+DREAMengin is a customizable, privacy-first, DreamDM-Bar-led spatial operating environment for creating, sharing, organizing, and connecting modular runtime containers across personal, creative, and social spaces. A social modular runtime whose navigation begins as HomeDream and expands through the DreamDM Bar into a preserved secondary layer when needed. DREAMengin introduces the DreamDM Bar as the top-layer main attraction that keeps your root world and your revealed tools connected.
 
 *This is a real product specification, not a concept sketch.*
 
@@ -1493,43 +1495,43 @@ DREAMengin-specific checks per class and a per-pass audit checklist are in docs/
 ⸻
 
 
-## 29. DreamDM Bar (Persistent Interaction Rail / Persistent Spatial Divider)
+## 29. DreamDM Bar (Persistent Interaction Rail / Runtime Seam)
 
 ### 29.1 Purpose
 
-The DreamDM Bar is a persistent interaction rail and draggable spatial divider that serves as the communication, notification, drafting, and quick-action layer across the DREAMengin system.
+The DreamDM Bar is a persistent interaction rail, draggable runtime seam, and top-layer control surface that serves as the communication, notification, drafting, and quick-action layer across the DREAMengin system.
 
-It exists as the boundary interface between the active surface and the Dream layer, allowing users to interact, compose, respond, and manage notifications without leaving their current context.
+It exists above HomeDream and owns the reveal of DreamSpace, allowing users to interact, compose, respond, and manage notifications without leaving their current context.
 
-Unlike a traditional overlay or rail, the DreamDM Bar is the horizon line between two parallel worlds. It separates two continuously active runtime environments: the Surface Space above and the Dream Space below. Both remain alive, interactive, and independently scrollable.
+Unlike a traditional overlay or rail, the DreamDM Bar is not just a divider between two equal worlds. It is the main attraction and the owner of the secondary layer. HomeDream remains the root runtime underneath; DreamSpace appears only through the bar and disappears with it.
 
 The DreamDM Bar must always preserve the user’s working state.
 
 ### 29.2 Position and Surface Relationship
 
-The DreamDM Bar exists between the top content surface and the bottom Dream layer.
+The DreamDM Bar exists above the HomeDream-rooted primary surface and directly controls the secondary DreamSpace layer.
 
 Structure:
 
 ─────────────────────
-Surface Space
-(HomeDream / Daydream / Engin / Feed / Video / Code / Game / other active content)
-─────────────────────
 DreamDM Bar
-(persistent interaction rail / draggable divider)
+(persistent interaction rail / top-layer main attraction / reveal control)
 ─────────────────────
-Dream Space
-(Dream Windows / DreamSpace / modular access layer)
+DreamSpace
+(Dream Windows / modular access layer / revealed secondary runtime owned by the bar)
+─────────────────────
+HomeDream-rooted primary surface
+(HomeDream feed / active surface context / underlying user world)
 ─────────────────────
 
 This relationship is part of the product’s spatial model and must be visually and behaviorally explicit.
 
-### 29.3 Dual-Space Model
+### 29.3 Runtime Ownership Model
 
-The screen is permanently divided into two stacked runtime regions:
+The screen is organized around one root runtime and one bar-owned secondary layer:
 
-#### Surface Space
-The primary focus area. It hosts any full-surface experience, including:
+#### HomeDream-rooted primary surface
+The underlying focus area. It hosts the feed and any active full-surface experience, including:
 
 - HomeDream feed
 - video player
@@ -1537,10 +1539,10 @@ The primary focus area. It hosts any full-surface experience, including:
 - code editor
 - other active content surfaces
 
-This space may contain its own scrollable content and interactive elements.
+This layer may contain its own scrollable content and interactive elements.
 
 #### Dream Space
-The persistent Dream Window environment. It contains:
+The revealed secondary Dream Window environment. It contains:
 
 - the user’s Dreams
 - Dream Window grid
@@ -1549,14 +1551,14 @@ The persistent Dream Window environment. It contains:
 - Daydream access
 - other modular tools
 
-This space is also independently scrollable and interactive.
+This layer is independently scrollable and interactive when revealed.
 
-Both spaces are always mounted and runtime-active.
+HomeDream remains the root runtime. DreamSpace is not standalone; it is present only while the DreamDM Bar is visible in a revealed state.
 
 Examples:
-- a video continues playing in Surface Space while the user scrolls through Dream Windows in Dream Space
+- a video continues playing in the underlying primary surface while the user scrolls through Dream Windows in Dream Space
 - a game retains state while the user replies through the DreamDM Bar
-- one side may remain active while the other is explored or adjusted
+- the underlying surface may remain active while the revealed layer is explored or adjusted
 
 ### 29.4 Core Functions
 
@@ -1570,7 +1572,7 @@ The DreamDM Bar provides:
 - content routing
 - quick post creation
 - command-surface access
-- physical resizing of the two active spaces
+- physical resizing of the revealed relationship between the bar-owned layer and the underlying primary surface
 
 Users must be able to:
 
@@ -1578,18 +1580,18 @@ Users must be able to:
 - respond to notifications inline
 - save or resume drafts
 - route content into DreamDM, feeds, or Dream Windows
-- resize the visible relationship between Surface Space and Dream Space directly
+- resize the visible relationship between the underlying primary surface and Dream Space directly
 
 ### 29.5 Physical Behavior and Drag Interaction
 
-The DreamDM Bar is a draggable handle that resizes the two spaces in real time.
+The DreamDM Bar is a draggable handle that resizes the revealed relationship in real time.
 
 It responds to direct manipulation through touch or mouse drag.
 
 #### Drag Rules
 
-- dragging up expands Dream Space and compresses Surface Space
-- dragging down expands Surface Space and compresses Dream Space
+- dragging up expands Dream Space and compresses the visible portion of the underlying primary surface
+- dragging down restores the underlying primary surface and reduces Dream Space
 - drag is continuous
 - the divider follows the pointer with smooth visual feedback
 - movement must feel physical, controlled, and premium
@@ -1606,36 +1608,36 @@ The bar itself must always remain interactive for:
 
 When released, the DreamDM Bar snaps to the nearest canonical position.
 
-Four snap points are defined (split ratio = fraction of viewport given to Surface Space):
+Four snap points are defined (split ratio = fraction of viewport given to the underlying primary surface):
 
 | Snap | Split Ratio | Description |
 |------|-------------|-------------|
 | Surface Only | 1.0 | **Default rest state.** Dream Space hidden; bar sits as a thick rail at the bottom. Drag up to reveal Dream Space. |
-| Surface Focus | 0.9 | Surface Space ~90 %, Dream Space ~10 %. Notification strip and compose affordance visible. |
-| Balanced | 0.5 | Surface Space and Dream Space share the viewport equally. |
-| Dream Focus | 0.1 | Dream Space ~90 %, Surface Space reduced to a thin awareness strip. |
+| Surface Focus | 0.9 | Primary surface ~90 %, Dream Space ~10 %. Notification strip and compose affordance visible. |
+| Balanced | 0.5 | Primary surface and Dream Space share the viewport equally. |
+| Dream Focus | 0.1 | Dream Space ~90 %, primary surface reduced to a thin awareness strip. |
 
 #### Surface Only *(default)*
-- Dream Space is fully hidden; the bar rests as a thick 80 px rail at the screen bottom
-- Surface Space occupies the entire viewport
+- Dream Space is fully hidden because the bar is resting closed
+- the primary surface occupies the entire viewport
 - this is the initial state on every session
 - drag the bar upward to reveal Dream Space
 
 #### Surface Focus
-- Surface Space occupies approximately 90% of viewport height
+- the primary surface occupies approximately 90% of viewport height
 - Dream Space is reduced to a thin strip of approximately 10%
 - the strip shows the DreamDM Bar collapsed state
 - notification indicators and compose affordance remain visible
 
 #### Balanced
-- Surface Space and Dream Space occupy approximately 50% / 50%
+- the primary surface and Dream Space occupy approximately 50% / 50%
 - both are given equal prominence
 - the user can work fluidly across both sides
 
 #### Dream Focus
 - Dream Space occupies approximately 90% of viewport height
-- Surface Space is reduced to a thin awareness strip of approximately 10%
-- Surface Space may show a minimal header, frozen frame, or content peek
+- the primary surface is reduced to a thin awareness strip of approximately 10%
+- the primary surface may show a minimal header, frozen frame, or content peek
 
 A fling gesture (fast upward or downward swipe) jumps one full snap step in the throw direction.
 
@@ -1654,7 +1656,7 @@ It must never feel abrupt, disorienting, or page-like.
 
 ### 29.8 Multitasking and Parallel Runtimes
 
-The DreamDM Bar allows simultaneous interaction with both spaces because both remain active.
+The DreamDM Bar allows simultaneous interaction across the root surface and the revealed layer because state is preserved across both.
 
 Examples include:
 
@@ -1662,7 +1664,7 @@ Examples include:
 - coding while referencing a draft
 - browsing feeds while responding to notifications
 - playing a game while opening a conversation
-- writing code in Surface Space while Dream Space hosts a live preview
+- writing code in the underlying primary surface while Dream Space hosts a live preview
 - exploring Dream Windows while media continues uninterrupted above
 
 The bar must never force the user to leave the current activity.
@@ -1673,7 +1675,7 @@ Input routing is determined by the space that received the last tap or click.
 
 Rules:
 
-- if the user taps Surface Space, keyboard and focus events go there
+- if the user taps the underlying primary surface, keyboard and focus events go there
 - if the user taps Dream Space, keyboard and focus events go there
 - the DreamDM Bar always remains interactive regardless of which side currently owns focus
 
@@ -1700,7 +1702,7 @@ The DreamDM Bar supports persistent system states that align with the physical s
 #### Pinned
 - locks to the top or bottom edge where appropriate
 - supports multitasking
-- keeps current surface active underneath
+- keeps the current underlying surface active underneath
 - may preserve current split ratio
 
 ### 29.11 Quick Message Composition
@@ -1711,7 +1713,7 @@ Rules:
 
 - a compose field or compose icon lives directly in the bar
 - tapping compose may expand into a larger field
-- composition must not destroy current Surface Space context
+- composition must not destroy the current underlying surface context
 - a fuller composer may open into Dream Space or a temporary bounded expansion without causing context loss
 
 Users must be able to begin composing without feeling like they entered a different app or page.
@@ -1788,7 +1790,7 @@ When the bar is dragged back down to where the button’s attached position is o
 
 #### Dream Focus Mode Behavior
 - when the bar is in Dream Focus and the button is screen-locked:
-  - dragging the bar further up compresses Surface Space to nearly nothing
+  - dragging the bar further up compresses the primary surface to nearly nothing
   - the Gold Button sits at the very top of the viewport as the visual horizon
   - the user sees only Dream Space with the Gold Button at the top boundary
 - Home access is maintained even in full Dream mode
@@ -1800,7 +1802,7 @@ Double tapping the Gold Button returns the user to HomeDream while preserving me
 Rules:
 
 - if the DreamDM Bar is in any non-default split, double tap returns the system Home without deleting drafts
-- HomeDream feed is revealed in Surface Space
+- HomeDream feed is revealed in the primary surface
 - if the DreamDM Bar is open, returning Home must not delete the draft
 - if the bar is collapsed, Home returns the user to the main HomeDream feed
 - drafts and notifications remain intact unless explicitly dismissed or deleted
@@ -1819,9 +1821,9 @@ Users should not need to leave their current activity simply to:
 - save a thought
 - route content
 - resize their working reality
-- shift attention between two active spaces
+- shift attention between the root surface and the revealed secondary layer
 
-The DreamDM Bar is a continuous interaction channel across the entire system. Its physical behavior—dragging, snapping, resizing, and preserving two active spaces—must make multitasking feel natural, direct, and spatially coherent.
+The DreamDM Bar is a continuous interaction channel across the entire system. Its physical behavior—dragging, snapping, resizing, and preserving the relationship between HomeDream and the revealed secondary layer—must make multitasking feel natural, direct, and spatially coherent.
 
 ---
 

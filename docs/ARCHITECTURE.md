@@ -7,12 +7,12 @@ Last updated: 2026-03-16
 
 ## 1. Product model
 
-DREAMengin is a **privacy-first, dual-runtime spatial operating environment** built around three core surfaces, a six-surface Daydream network connected to six Engin runtimes via 11 named connection paths, Dream Windows, and the AI triad.
+DREAMengin is a **privacy-first, DreamDM-Bar-led spatial operating environment** built around three core surfaces, a six-surface Daydream network connected to six Engin runtimes via 11 named connection paths, Dream Windows, and the AI triad.
 
-### Runtime regions
-- **Surface Space** — upper active runtime region (hosts active surfaces)
-- **DreamSpace** — lower modular runtime region (hosts Dream Windows, launcher)
-- **DreamDM Bar** — Runtime Seam / Persistent Interaction Rail between the two regions
+### Runtime structure
+- **HomeDream Surface** — first runtime / root private operating surface with the feed underneath the bar
+- **DreamDM Bar** — top-layer Runtime Seam / Persistent Interaction Rail and the main reveal/control surface
+- **DreamSpace** — second runtime layer owned by the DreamDM Bar; not standalone and hidden when the bar is hidden
 
 ### Core surfaces
 - **HomeDream Surface** — the main private operating surface (`/homedream`)
@@ -192,7 +192,7 @@ uses `check_ai_rate_limit` + `ai_rate_limits` and is not a replacement for
 ## 12. Runtime Memory Architecture (SharedArrayBuffer + EnginDispatcher)
 
 The Engine uses a **zero-copy shared memory model** powered by `SharedArrayBuffer` to
-keep Surface Space and DreamSpace runtimes in sync without main-thread round-trips.
+keep the HomeDream-rooted primary experience and the DreamDM-Bar-owned DreamSpace layer in sync without main-thread round-trips.
 
 ### Memory map (`lib/runtime/memory.ts`)
 
@@ -219,7 +219,7 @@ ever reaching the HomeDream private region. `boogieMemoryGuard()` enforces rule
 2. Spawns `navigator.hardwareConcurrency − 1` shader workers (min 1, max `MAX_WORKERS`).
 3. Partitions 10,000 entities into non-overlapping `Workgroup` slices and posts each
    worker its SAB + range via `postMessage` (zero-copy transfer).
-4. Relays DreamDM Bar y-offset writes from Surface Space into the SAB so workers can
+4. Relays DreamDM Bar y-offset writes from the primary surface into the SAB so workers can
    reposition Dream Windows in DreamSpace without a main-thread round-trip.
 5. Exposes per-worker µs/tick telemetry read directly from the SAB Telemetry Zone.
 6. Enforces the IDARi/TheBoogieMan audit: any `bounds_violation` message from a worker
@@ -250,4 +250,3 @@ main thread is never blocked by physics ticks.
 | `public/workers/engin-shader.worker.ts` | Per-worker tick loop — reads SAB, enforces workgroup bounds |
 | `tests/engin-dispatcher.test.ts` | Unit tests for dispatcher lifecycle and bounds enforcement |
 | `tests/conform-memory-map.test.ts` | Conformance tests for the 16 MB memory map layout |
-

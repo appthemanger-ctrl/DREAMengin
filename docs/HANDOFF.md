@@ -50,7 +50,7 @@ developers find accurate orientation from the start of every session.
 ### Primary outcome
 
 All docs, canonical name registry, and tests now use the OS-layer naming model:
-- DREAMengin is a **dual-runtime, spatial operating environment**
+- DREAMengin is a **DreamDM-Bar-led spatial operating environment**
 - Surfaces (not pages), Dream Windows (not widgets), DreamSpace (not widget layer)
 - Connection language: bind / mount / activate (not link widget / open page)
 - Multi-surface, multi-engin connection network (not 1-to-1 pairs)
@@ -58,12 +58,12 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 ### Canonical names now documented first
 
 **Product type:**
-- DREAMengin Runtime Environment (dual-runtime, spatial operating environment)
+- DREAMengin Runtime Environment (DreamDM-Bar-led spatial operating environment)
 
 **Runtime regions:**
-- Surface Space (upper active runtime region)
-- DreamSpace (lower modular runtime region)
-- DreamDM Bar / Runtime Seam (Persistent Interaction Rail)
+- HomeDream Surface (root operating surface / underlying feed layer)
+- DreamSpace (revealed secondary layer owned by the bar)
+- DreamDM Bar / Runtime Seam (Persistent Interaction Rail / top-layer main attraction)
 
 **Core surfaces:**
 - HomeDream Surface

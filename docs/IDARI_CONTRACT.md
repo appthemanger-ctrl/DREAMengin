@@ -5,7 +5,7 @@ Last updated: 2026-03-16
 
 IDARi is the admin-only internal operator in the DREAMengin AI triad.
 
-DREAMengin is a **dual-runtime, spatial operating environment**. IDARi operates exclusively at the system/admin layer and never exposes itself to end users.
+DREAMengin is a **DreamDM-Bar-led spatial operating environment**. IDARi operates exclusively at the system/admin layer and never exposes itself to end users.
 
 ## Canonical route
 
@@ -65,7 +65,7 @@ IDARi must use canonical OS-layer vocabulary in all output, recommendations, and
 - Say **runtime**, not app
 - Say **runtime environment**, not platform (when describing the whole system)
 - Say **DreamSpace**, not widget layer
-- Say **Surface Space**, not top area or main area
+- Say **HomeDream Surface** or **primary surface**, not top area or main area
 - Say **DreamDM Bar / Runtime Seam**, not toolbar or bar
 - Say **HomeDream Surface**, not dashboard or home
 - Say **bind / mount / activate**, not link widget / open page / launch card
@@ -83,4 +83,3 @@ Major system-level recommendations should follow the triad consensus model descr
 ## Repo note
 
 Older documentation used broader "autonomous improvement system" language. The canonical product wording is now **IDARi** and should be used first.
-
