@@ -46,6 +46,7 @@ export const ALL_TOPICS: FeedTopic[] = [
   { id: 'finance',             label: 'Finance' },
   { id: 'photography',         label: 'Photography' },
   { id: 'automotive',          label: 'Automotive' },
+  { id: 'popular-videos',      label: 'Popular Videos' },
 ];
 
 export const DEFAULT_TOPIC_IDS: string[] = [
