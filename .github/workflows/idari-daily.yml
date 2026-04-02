@@ -497,7 +497,7 @@ jobs:
           fi
 
           TODAY=$(date -u '+%Y-%m-%d')
-          git commit -m "idari: daily cycle report $TODAY [skip ci]
+          git commit -m "idari: daily cycle report $TODAY [skip ci] [skip vercel]
 
           Architecture justification: cycle report only — no product code changed.
           Performance impact: none — documentation artifact committed.

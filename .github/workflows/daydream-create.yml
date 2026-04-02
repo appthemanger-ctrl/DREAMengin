@@ -162,7 +162,7 @@ jobs:
             echo "No fixes to commit."
           else
             git add -A
-            git commit -m "fix(daydream/create): ESLint auto-fix — Create Daydream standalone [skip ci]"
+            git commit -m "fix(daydream/create): ESLint auto-fix — Create Daydream standalone [skip ci] [skip vercel]"
             git push || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"

@@ -104,6 +104,6 @@ jobs:
 
           git add -A
           git diff --cached --quiet && echo "No asset changes to commit." && exit 0
-          git commit -m "chore: extract zip assets into public/ [skip ci]"
+          git commit -m "chore: extract zip assets into public/ [skip ci] [skip vercel]"
           git push || true
 

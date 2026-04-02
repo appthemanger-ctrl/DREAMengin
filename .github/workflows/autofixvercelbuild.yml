@@ -51,7 +51,7 @@ jobs:
           fi
 
           git add -A
-          git commit -m "chore: autofix vercel build [skip ci]" || exit 0
+          git commit -m "chore: autofix vercel build [skip ci] [skip vercel]" || exit 0
           git push || true
 
 

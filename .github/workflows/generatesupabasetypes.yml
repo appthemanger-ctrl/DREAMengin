@@ -28,7 +28,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add types/supabase.ts
-          git commit -m "chore: regenerate supabase types [skip ci]" || echo "No changes"
+          git commit -m "chore: regenerate supabase types [skip ci] [skip vercel]" || echo "No changes"
           git push || true
 
 

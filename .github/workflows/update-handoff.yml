@@ -58,5 +58,5 @@ jobs:
 
           SHORT="${{ github.sha }}"
           SHORT="${SHORT:0:7}"
-          git commit -m "docs: auto-update HANDOFF timeline [${SHORT}] [skip ci]"
+          git commit -m "docs: auto-update HANDOFF timeline [${SHORT}] [skip ci] [skip vercel]"
           git push origin HEAD:${{ github.ref_name }} || true

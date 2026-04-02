@@ -46,7 +46,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add build-memory/
-          git commit -m "chore: sync build-memory [skip ci]"
+          git commit -m "chore: sync build-memory [skip ci] [skip vercel]"
           git push || true
 
       - name: No changes

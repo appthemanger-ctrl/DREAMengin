@@ -57,7 +57,7 @@ jobs:
 
           SHORT="${{ github.sha }}"
           SHORT="${SHORT:0:7}"
-          git commit -m "idari: auto-update README [${SHORT}] [skip ci]"
+          git commit -m "idari: auto-update README [${SHORT}] [skip ci] [skip vercel]"
 
           # Retry push up to 3 times, rebasing on the remote each time to
           # handle concurrent pushes to the same branch (race condition).

@@ -138,7 +138,7 @@ jobs:
             echo "No fixes to commit — all games code is clean."
           else
             git add -A
-            git commit -m "fix(games): GameEngin patrol auto-fix [skip ci]"
+            git commit -m "fix(games): GameEngin patrol auto-fix [skip ci] [skip vercel]"
             git push || true
       - name: Upload patrol report
         if: always()

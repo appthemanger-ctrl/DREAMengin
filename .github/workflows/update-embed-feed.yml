@@ -137,7 +137,7 @@ jobs:
           git config user.name  "${{ env.BOT_NAME }}"
           git config user.email "${{ env.BOT_EMAIL }}"
           git add "${{ env.OUTPUT_FILE }}"
-          git commit -m "chore(feeds): bake embed codes — ${{ steps.generate.outputs.item_count }} items [skip ci]
+          git commit -m "chore(feeds): bake embed codes — ${{ steps.generate.outputs.item_count }} items [skip ci] [skip vercel]
 
 Reasoning: scheduled embed-feed update; baking avoids live API calls at runtime.
 Architecture justification: render-on-demand rule — docs/ARCHITECTURE.md §10.
