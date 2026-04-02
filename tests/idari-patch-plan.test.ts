@@ -17,6 +17,8 @@ import {
   evaluateSpecRequirements,
   createVercelBuildResult,
   VERCEL_2026_RUNTIME,
+  assessGenerationLawScope,
+  formatGenerationLawLoadCheck,
   type PatchPlan,
   type KnownIssue,
   type SpecRequirement,
@@ -302,5 +304,44 @@ describe('createVercelBuildResult', () => {
     expect(VERCEL_2026_RUNTIME.node).toBe('24');
     expect(VERCEL_2026_RUNTIME.pnpm).toBe('10.30.0');
     expect(VERCEL_2026_RUNTIME.nextjs_minimum).toBe('16');
+  });
+});
+
+// ── Generation Law scope enforcement ──────────────────────────────────────────
+
+describe('assessGenerationLawScope', () => {
+  it('returns CREATE for a small single-task request', () => {
+    const assessment = assessGenerationLawScope('Fix button color.');
+    expect(assessment.mode).toBe('CREATE');
+    expect(assessment.score).toBeLessThan(4);
+  });
+
+  it('returns CONFORM when an existing file is explicitly targeted', () => {
+    const assessment = assessGenerationLawScope(
+      'Update app/api/ai/idari/route.ts to add one guard.',
+    );
+    expect(assessment.mode).toBe('CONFORM');
+    expect(assessment.score).toBeGreaterThanOrEqual(4);
+    expect(assessment.score).toBeLessThan(8);
+    expect(assessment.file_count).toBeGreaterThanOrEqual(1);
+  });
+
+  it('returns PATCH_ONLY for multi-file schema-sensitive core architecture work', () => {
+    const assessment = assessGenerationLawScope(
+      'Implement and refactor DreamDMBar and HomeSystem across app/api/ai/idari/route.ts and lib/agents/idari.ts with Supabase schema and RLS updates.',
+    );
+    expect(assessment.mode).toBe('PATCH_ONLY');
+    expect(assessment.score).toBeGreaterThanOrEqual(8);
+    expect(assessment.structural_change_risk).toBe(true);
+    expect(assessment.core_architecture_hit).toBe(true);
+    expect(assessment.dependency_schema_count).toBeGreaterThan(0);
+  });
+});
+
+describe('formatGenerationLawLoadCheck', () => {
+  it('formats the mandatory pre-flight string', () => {
+    expect(
+      formatGenerationLawLoadCheck({ score: 5.5, mode: 'CONFORM' }),
+    ).toBe('LOAD_CHECK: 5.5 | MODE: CONFORM');
   });
 });
