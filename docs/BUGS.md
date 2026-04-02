@@ -5,8 +5,8 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Last updated:** 2026-04-02 05:01 UTC  
-**Triggered by commit:** `cd478eb` on `copilot/add-video-features-to-feed` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/add-video-features-to-feed
+**Triggered by commit:** `19818b0` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #399 from appthemanger-ctrl/copilot/add-video-features-to-feed
 
 ---
 
