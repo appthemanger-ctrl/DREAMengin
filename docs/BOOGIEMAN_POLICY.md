@@ -5,7 +5,7 @@ Last updated: 2026-03-16
 
 TheBoogieMan.Ai is the conservative policy, auditing, and enforcement member of the DREAMengin AI triad.
 
-DREAMengin is a **dual-runtime, spatial operating environment**. TheBoogieMan.Ai operates at the system policy layer and enforces the product constitution across all runtime surfaces.
+DREAMengin is a **DreamDM-Bar-led spatial operating environment**. TheBoogieMan.Ai operates at the system policy layer and enforces the product constitution across all runtime surfaces.
 
 ## Canonical route
 
@@ -104,4 +104,3 @@ For child safety specifically: **when uncertain, block**. Never optimistically a
 The repo still contains shorter labels such as `boogieman` in file and route names. Those are implementation identifiers, not the preferred product wording.
 
 Full child safety policy: `docs/CHILD_SAFETY_POLICY.md`
-

@@ -12,9 +12,9 @@ This document does not describe features in progress. It describes what DREAMeng
 
 ## 1. What DREAMengin Is
 
-DREAMengin is a **customizable, privacy-first, dual-runtime spatial operating environment** for creating, sharing, organizing, and connecting modular runtime containers across personal, creative, and social spaces.
+DREAMengin is a **customizable, privacy-first, DreamDM-Bar-led spatial operating environment** for creating, sharing, organizing, and connecting modular runtime containers across personal, creative, and social spaces.
 
-It is not described as a conventional page-based app. It is a **dual-runtime, spatial operating environment** — a social modular runtime whose navigation begins as a calm **HomeDream Surface** and matures into a stacked, state-preserving surface system across the entire product.
+It is not described as a conventional page-based app. It is a **stacked-runtime, spatial operating environment** whose navigation begins in **HomeDream Surface** and expands upward through the **DreamDM Bar** into a preserved secondary layer when the user asks for it.
 
 It is one coherent runtime environment — not a collection of unrelated pages. Every surface, module, and system in DREAMengin operates under the same shared rules, the same ownership logic, the same privacy logic, and the same surface continuity model.
 
@@ -44,14 +44,15 @@ Any proposed feature, surface, or module that matches one of the above descripti
 
 ## 3. The Runtime Structure
 
-### 3.1 Dual-Runtime Spatial Model
+### 3.1 Stacked Runtime Model
 
-DREAMengin operates as a **dual-runtime spatial system** with two active runtime regions:
+DREAMengin operates as a **stacked runtime system** with a clear hierarchy:
 
-- **Surface Space** — the upper active runtime region. Hosts the current active surface (HomeDream Surface, Daydream Surfaces, Engin Surfaces, feed views, video surfaces, game surfaces, code surfaces, and other active content surfaces).
-- **DreamSpace** — the lower modular runtime region. Contains Dream Windows, modular runtime containers, launcher behavior, Daydream access, and lower-layer runtime interactions.
+- **HomeDream Surface** — the first runtime and root operating surface. It sits underneath the DreamDM Bar and contains the feed, root navigation state, and the user's private working context.
+- **DreamDM Bar** — the top-layer interaction rail, main attraction, and canonical control surface for messaging, notifications, drafts, quick actions, and runtime reveal behavior.
+- **DreamSpace** — the second runtime layer revealed by the DreamDM Bar. It is part of the DreamDM Bar system, not a standalone surface. When the DreamDM Bar is hidden or collapsed out of view, DreamSpace is hidden with it.
 
-The **DreamDM Bar** is the canonical seam between the two runtimes. It is both a **Persistent Interaction Rail** and a **Persistent Spatial Divider** (also called the **Runtime Seam**). It allows users to compose, reply, manage notifications, preserve drafts, resize the visible relationship between the two runtimes, and move attention between two parallel active spaces.
+The **DreamDM Bar** is the canonical seam and owner of the secondary runtime. It allows users to compose, reply, manage notifications, preserve drafts, resize how much of the secondary layer is visible, and move attention without losing the HomeDream state underneath.
 
 ### 3.2 Root Surface
 
@@ -115,7 +116,7 @@ These are runtime surfaces, not detached runtimes. They share the runtime's priv
 
 ### 3.7 Platform Modules
 
-**DreamDM, DreamDM Bar, DreamMenu, DreamMarketplace, DreamShop, and DreamAds** are platform modules — not detached runtimes, not standalone products, and not cosmetic wrappers.
+**DreamDM, DreamDM Bar, DreamSpace, DreamMenu, DreamMarketplace, DreamShop, and DreamAds** are platform modules — not detached runtimes, not standalone products, and not cosmetic wrappers.
 
 They operate under the same privacy rules, ownership model, and action-honesty requirements as every other part of DREAMengin. No platform module may claim an exemption from the shared product constitution.
 
@@ -125,7 +126,7 @@ They operate under the same privacy rules, ownership model, and action-honesty r
 
 Navigation in DREAMengin must feel like **depth**, not surface switching.
 
-The **DreamDM Bar** continuously connects the user to different sides of their world without forcing context loss.
+The **DreamDM Bar** continuously connects the user to the HomeDream root and its revealed secondary layer without forcing context loss.
 
 If a navigation move feels like:
 - leaving the world
@@ -243,4 +244,3 @@ The README.md remains the master spec for surface structure, technical stack, an
 ---
 
 *This document is complete. Do not add aspirational content, future features, or open-ended speculation. This is a locked definition.*
-

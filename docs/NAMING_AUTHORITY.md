@@ -25,7 +25,8 @@ DREAMengin is not described as a conventional page-based app.
 
 | Canonical | Status |
 |-----------|--------|
-| **dual-runtime, spatial operating environment** | ONLY valid type description |
+| **DreamDM-Bar-led spatial operating environment** | ONLY valid type description |
+| **stacked-runtime spatial operating environment** | Acceptable structural short form |
 | **DREAMengin Runtime** | Acceptable short form for the whole live system |
 | **DREAMengin Runtime Environment** | Acceptable expanded form for system-wide behavior |
 | **Spatial Operating Environment** | Acceptable category form |
@@ -189,18 +190,18 @@ The following are **explicitly rejected** as Engin runtime names:
 
 ## 6. Runtime Regions
 
-DREAMengin operates as a **dual-runtime spatial system** with two distinct runtime regions separated by the DreamDM Bar.
+DREAMengin operates as a **stacked runtime system** rooted in HomeDream and controlled by the DreamDM Bar.
 
 ### 6.1 Canonical Runtime Region Names
 
 | Canonical Name | Description |
 |----------------|-------------|
-| **Surface Space** | The upper active runtime region — hosts the current active surface |
-| **DreamSpace** | The lower modular runtime region — contains Dream Windows and launcher behavior |
+| **HomeDream Surface** | The first runtime and root operating surface — sits underneath the bar and contains the feed |
+| **DreamSpace** | The second runtime layer revealed by the DreamDM Bar — not standalone and hidden with the bar |
 
 ### 6.2 Canonical Runtime Seam Names
 
-The DreamDM Bar is the boundary object between the two runtimes. All four of the following names are canonical for this object in different contexts:
+The DreamDM Bar is the boundary object and owner of the secondary runtime layer. All four of the following names are canonical for this object in different contexts:
 
 | Canonical Name | Context |
 |----------------|---------|
@@ -215,7 +216,8 @@ The DreamDM Bar is the boundary object between the two runtimes. All four of the
 |---------------|-------------|
 | `widget layer` | DreamSpace |
 | `bottom panel` | DreamSpace |
-| `top area` | Surface Space |
+| `Surface Space` | HomeDream Surface or the active primary surface, depending on context |
+| `top area` | DreamDM Bar or HomeDream Surface, depending on context |
 
 ---
 
@@ -335,14 +337,14 @@ For each name, the label category determines where it may appear:
 Before generating any file, route, component name, UI label, or documentation reference, validate against these rules:
 
 1. **Platform name check:** Does the output use `DREAMengin` exactly? Reject any variant.
-2. **Product description check:** Is the system described as a "dual-runtime, spatial operating environment"? Reject "app" or "platform" when the full system is the subject.
+2. **Product description check:** Is the system described as a "DreamDM-Bar-led spatial operating environment" or "stacked-runtime spatial operating environment"? Reject "app" or "platform" when the full system is the subject.
 3. **Core surface name check:** Does the output use `HomeDream`, `EditProfileDream`/`Edit ProfileDream`, `ViewProfile`/`View Profile`? Reject legacy or descriptive variants.
 4. **Engin suffix check:** Does any powered runtime name end in `Engin` (not `Engine`)? Reject Engine, Eng, or variant suffixes.
 5. **Domain name check:** Are the 6 Daydream names Music, Games, Lab, Code, Brand, Create? Are the 6 Engin names exactly StarMakerEngin, GameEngin, LabEngin, CodeEngin, BrandingEngin, ContentEngin?
 6. **Module name check:** Are platform modules named DreamDM, DreamMenu, DreamMarketplace, DreamShop, DreamAds?
 7. **No generic substitution:** Are generic labels (dashboard, sidebar, store, chat, widget, card, page) being used instead of canonical names?
 8. **Suffix drift check:** Does any new name accidentally use `Dreamengin`, `Daydreamengin`, or `DayDreamengin` as a surface name?
-9. **Runtime region check:** Are the two runtime regions referred to as Surface Space (upper) and DreamSpace (lower)?
+9. **Runtime region check:** Are the runtime layers referred to as HomeDream Surface (root layer) and DreamSpace (bar-owned revealed layer)?
 10. **Dream Window check:** Are modular runtime containers called Dream Windows? Are states Unbound / Bound / Mounted / Collapsed?
 11. **Connection verb check:** Are connection actions using bind / mount / activate / attach / route into / open into / connect across?
 12. **Network model check:** Is the system described as a multi-surface, multi-engin connection network (not strict 1-to-1 pairs)?
@@ -355,12 +357,12 @@ If any check fails, the generated output is invalid. Correct the name before pro
 
 ```
 Platform:       DREAMengin
-Type:           dual-runtime, spatial operating environment
+Type:           DreamDM-Bar-led spatial operating environment
 
 Runtime regions:
-  Surface Space          (upper active runtime region)
-  DreamSpace             (lower modular runtime region)
-  DreamDM Bar            (Runtime Seam / Persistent Interaction Rail)
+  HomeDream Surface      (root operating surface / underlying feed layer)
+  DreamSpace             (revealed secondary layer owned by the bar)
+  DreamDM Bar            (Runtime Seam / Persistent Interaction Rail / top-layer main attraction)
 
 Core surfaces:
   HomeDream Surface                /homedream
@@ -401,4 +403,3 @@ AI agents:
 ---
 
 *This document is the canonical naming authority. Names may only be added; existing canonical names may not be altered. Additions require Phase 7 authority review.*
-

@@ -29,7 +29,7 @@ Always in force:
 - Say **surface**, not page
 - Say **Dream Window**, not widget or card
 - Say **DreamSpace**, not widget layer
-- Say **Surface Space**, not top area
+- Say **HomeDream Surface** or **primary surface**, not top area
 - Say **runtime**, not app
 - Say **runtime environment**, not platform
 - Say **surface switching**, not tab navigation
@@ -39,4 +39,3 @@ Always in force:
 ## Alignment rule
 
 When an older doc or code path conflicts with the README naming model or the canonical OS-layer naming model, the canonical naming authority wins.
-

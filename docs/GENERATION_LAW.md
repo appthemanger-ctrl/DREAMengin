@@ -115,7 +115,7 @@ Residuals are not numbers first — they are structured mismatches. Seven classe
 | `Engin` (suffix) | `engine`, `control` |
 | `Dream Window` | `widget`, `card`, `module` (for runtime containers) |
 | `DreamSpace` | `widget layer`, `bottom panel` |
-| `Surface Space` | `top area`, `main area` |
+| `HomeDream Surface` / `primary surface` | `top area`, `main area`, `Surface Space` |
 | `surface` | `page` (when referring to a DREAMengin surface) |
 | `runtime` | `app` (when referring to the live system) |
 | `surface switching` | `tab navigation` |
