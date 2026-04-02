@@ -217,6 +217,7 @@ export default function ImmersiveGameShell() {
       {!bootDone && (
         <div
           role="presentation"
+          onPointerDown={bootPhase >= 3 ? dismissBoot : undefined}
           onClick={bootPhase >= 3 ? dismissBoot : undefined}
           style={{
             position: 'absolute',

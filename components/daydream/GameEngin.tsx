@@ -106,29 +106,19 @@ const GameAnalytics    = 'game-feature';
 const ReplaySystem     = 'game-feature';
 const SocialChallenge  = 'game-feature';
 
-const GAME_LABELS: Record<string, string> = {
-  platformer:      'MADMAXI',
-  'word-sprint':   'Word Sprint',
-  'memory-grid':   'Memory Grid',
-  'speed-tap':     'Speed Tap',
-  rts:             'Red Alert RTS',
-  'tower-defense': 'Tower Defense',
-  'space-shooter': 'Space Shooter',
-  match3:          'Match-3 Gems',
-  snake:           'Snake',
-  breakout:        'Breakout',
-  tetris:          'Tetris',
-  flappy:          'Flappy Bird',
-  pong:            'Pong',
-  minesweeper:     'Minesweeper',
-  chess:           'Chess',
-  racing:          'Racing',
-  trivia:          'Trivia Quiz',
-  rpg:             'RPG Adventure',
-  rhythm:          'Rhythm Master',
-  maze:            'Maze Runner',
-  solitaire:       'Solitaire',
-};
+const GAME_LABELS = Object.fromEntries(GAMES.map((game) => [game.id, game.label])) as Record<string, string>;
+const QUICK_PLAY_GAME_IDS = [
+  'platformer',
+  'rts',
+  'tower-defense',
+  'space-shooter',
+  'tetris',
+  'chess',
+  'rpg',
+  'dreamquest',
+  'neon-drift',
+  'echo-arena',
+] as const;
 
 const TILE_META: Record<TileType, { emoji: string; label: string; bg: string }> = {
   empty:  { emoji: '⬜', label: 'Empty',  bg: 'rgba(255,255,255,0.25)' },
@@ -418,16 +408,16 @@ export default function GameEngin({ onBack }: Props) {
   // ── Replay System state ──────────────────────────────────────────────────────
   const [replayRecording, setReplayRecording] = useState(false);
   const [replays, setReplays] = useState<Array<{ id: string; game: string; duration: string; date: string }>>([
-    { id: 'rp-1', game: 'Dr. Eams Platformer', duration: '4:12', date: '2025-01-10' },
-    { id: 'rp-2', game: 'Chess',               duration: '18:44', date: '2025-01-09' },
-    { id: 'rp-3', game: 'Tetris',              duration: '2:58', date: '2025-01-08' },
+    { id: 'rp-1', game: 'MADMAXI',     duration: '4:12', date: '2025-01-10' },
+    { id: 'rp-2', game: 'ENGIN CHESS', duration: '18:44', date: '2025-01-09' },
+    { id: 'rp-3', game: 'BLOCK STACK', duration: '2:58', date: '2025-01-08' },
   ]);
 
   // ── Social Challenge state ───────────────────────────────────────────────────
   const [challengeSent, setChallengeSent] = useState(false);
   const [activeChallenges, setActiveChallenges] = useState<Array<{ id: string; from: string; game: string; score: number }>>([
-    { id: 'ch-1', from: 'StarPlayer99',  game: 'Speed Tap',  score: 24800 },
-    { id: 'ch-2', from: 'CodeWizard42', game: 'Word Sprint', score: 11200 },
+    { id: 'ch-1', from: 'StarPlayer99', game: 'MADMAXI', score: 24800 },
+    { id: 'ch-2', from: 'CodeWizard42', game: 'Neon Drift', score: 11200 },
   ]);
 
   // ── Speedrun Timer ────────────────────────────────────────────────────────────
@@ -477,10 +467,10 @@ export default function GameEngin({ onBack }: Props) {
 
   // ── Daily Quests ─────────────────────────────────────────────────────────────
   const initialQuests = [
-    { id: 'q1', quest: 'Play 3 games today',          xp: 100, done: false },
-    { id: 'q2', quest: 'Reach 500 pts in Speed Tap',  xp: 200, done: false },
-    { id: 'q3', quest: 'Win a multiplayer match',     xp: 300, done: false },
-    { id: 'q4', quest: 'Post a high score',           xp: 150, done: false },
+    { id: 'q1', quest: 'Play 3 games today', xp: 100, done: false },
+    { id: 'q2', quest: 'Clear a run in MADMAXI', xp: 200, done: false },
+    { id: 'q3', quest: 'Win a multiplayer match', xp: 300, done: false },
+    { id: 'q4', quest: 'Share a verified high score', xp: 150, done: false },
   ];
   const [quests, setQuests] = useState(() => {
     if (typeof window === 'undefined') return initialQuests;
@@ -983,7 +973,7 @@ export default function GameEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-body" style={{ paddingTop: 12 }}>
             <div style={{ fontSize: 12, lineHeight: 1.65, color: 'rgba(226,232,240,0.78)', marginBottom: 14 }}>
-              GameEngin is the actual play surface. Pick a saved game or any library title, boot it on the big screen here, expand fullscreen when you want the browser to disappear, and use the PS-style remote on the game itself. This layer should feel like the actual console OS behind every playable game, not just a launcher. Elite-engine titles surface their runtime directly here in the web app with live telemetry, adaptive quality, and AI-assisted pacing.
+              GameEngin is the actual play surface. Pick a saved game or any library title, boot it on the big screen here, expand fullscreen when you want the browser to disappear, and use the universal HUD directly on the session. This layer should feel like the premium runtime OS behind every playable game, not just a launcher. Elite-engine titles surface their runtime directly here in the web app with live telemetry, adaptive quality, and AI-assisted pacing.
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 14 }}>
@@ -1212,12 +1202,12 @@ export default function GameEngin({ onBack }: Props) {
               className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
               style={{ background: `${ACCENT}18`, color: ACCENT, border: `1px solid ${ACCENT}35` }}
             >
-              PS-style memory deck
+              Premium runtime deck
             </span>
           </div>
           <div className="de-widget-body">
             <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
-              GameEngin is the console home behind the Games shelf: saved launches, quick resume, controller memory, and your personal score deck. It should read more like a PS5 home layer than a dev tools panel.
+              GameEngin is the console home behind the Games shelf: saved launches, quick resume, controller memory, and your personal score deck. It should read like a premium runtime layer instead of a toy control panel.
             </div>
             {savedLaunches[0] && (
               <div
@@ -1317,29 +1307,21 @@ export default function GameEngin({ onBack }: Props) {
               className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
               style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}
             >
-              23 Games
+              {GAMES.length} Games
             </span>
           </div>
           <div className="de-widget-body">
             <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
-              These entries boot a selected game back on the Games Daydream big screen so the library stays the main home for play.
+              These entries boot a selected game back on the Games Daydream big screen so the library stays the calm overview while GameEngin owns the runtime.
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {[
-                { key: 'platformer',    label: 'MADMAXI',             emoji: '🏎',   href: buildGameLaunchHref('platformer', { play: true }) },
-                { key: 'rts',           label: 'Red Alert RTS',       emoji: '⚔️',  href: buildGameLaunchHref('rts', { play: true }) },
-                { key: 'tower-defense', label: 'Tower Defense',       emoji: '🏰',  href: buildGameLaunchHref('tower-defense', { play: true }) },
-                { key: 'space-shooter', label: 'Space Shooter',       emoji: '🚀',  href: buildGameLaunchHref('space-shooter', { play: true }) },
-                { key: 'tetris',        label: 'Tetris',              emoji: '🟦',  href: buildGameLaunchHref('tetris', { play: true }) },
-                { key: 'chess',         label: 'Chess',               emoji: '♛',   href: buildGameLaunchHref('chess', { play: true }) },
-                { key: 'rpg',           label: 'RPG Adventure',       emoji: '🗡️', href: buildGameLaunchHref('rpg', { play: true }) },
-                { key: 'word-sprint',   label: 'Word Sprint',         emoji: '📝',  href: buildGameLaunchHref('word-sprint', { play: true }) },
-                { key: 'memory-grid',   label: 'Memory Grid',         emoji: '🧩',  href: buildGameLaunchHref('memory-grid', { play: true }) },
-                { key: 'speed-tap',     label: 'Speed Tap',           emoji: '⚡',  href: buildGameLaunchHref('speed-tap', { play: true }) },
-              ].map(g => (
+              {QUICK_PLAY_GAME_IDS
+                .map((gameId) => GAMES.find((game) => game.id === gameId))
+                .filter((game): game is (typeof GAMES)[number] => Boolean(game))
+                .map((g) => (
                 <Link
-                  key={g.key}
-                  href={g.href}
+                  key={g.id}
+                  href={buildGameLaunchHref(g.id, { play: true })}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '10px 12px', borderRadius: 10, textDecoration: 'none',
@@ -1359,7 +1341,7 @@ export default function GameEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-actions">
             <Link href="/daydream/games" className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
-              <Gamepad2 className="w-3 h-3" /> View All 23 Games
+              <Gamepad2 className="w-3 h-3" /> View All {GAMES.length} Games
             </Link>
           </div>
         </div>

@@ -18,32 +18,68 @@ export const metadata = { title: 'Games Daydream – DREAMengin', description: '
 const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'platformer',   emoji: '🤖',  label: 'MADMAXI',       desc: 'Babylon.js 3-D side-scroller',  color: '#c8981a', href: immersiveGameHref('platformer') },
-  { id: 'all-games',    emoji: '🎮',  label: 'All Games',     desc: 'Browse all game categories',    color: '#7c3aed', href: '/daydream/games' },
-  { id: 'dreamquest',   emoji: '✨',  label: 'DREAMquest',    desc: 'FF-style RPG · 5 dream layers', color: '#a78bfa', href: immersiveGameHref('dreamquest') },
-  { id: 'dreamwars',    emoji: '🌙',  label: 'DREAMwars',     desc: 'Nightmares vs Dreamers RTS',    color: '#7c3aed', href: immersiveGameHref('dreamwars') },
-  { id: 'neon-drift',   emoji: '🏎️',  label: 'Neon Drift',    desc: 'WebGPU cyberpunk racer',        color: '#0ff',    href: immersiveGameHref('neon-drift') },
-  { id: 'scores',       emoji: '🏆',  label: 'Leaderboard',   desc: 'Your personal bests',           color: '#c8981a', href: '/daydream/games' },
+  { id: 'platformer', emoji: '🤖', label: 'MADMAXI', desc: 'Babylon.js 3-D side-scroller', color: '#c8981a', href: immersiveGameHref('platformer') },
+  { id: 'all-games', emoji: '🎮', label: 'Game Library', desc: 'Browse the live catalog', color: '#7c3aed', href: '/daydream/games' },
+  { id: 'dreamquest', emoji: '✨', label: 'DREAMquest', desc: 'FF-style RPG · 5 dream layers', color: '#a78bfa', href: immersiveGameHref('dreamquest') },
+  { id: 'dreamwars', emoji: '🌙', label: 'DREAMwars', desc: 'Nightmares vs Dreamers RTS', color: '#7c3aed', href: immersiveGameHref('dreamwars') },
+  { id: 'neon-drift', emoji: '🏎️', label: 'Neon Drift', desc: 'WebGPU cyberpunk racer', color: '#0ff', href: immersiveGameHref('neon-drift') },
+  { id: 'echo-arena', emoji: '🚀', label: 'Echo Arena', desc: 'WebGPU arena shooter', color: '#38bdf8', href: immersiveGameHref('echo-arena') },
 ];
 
 const LIBRARY_SPOTLIGHT = [
-  { label: 'MADMAXI',      meta: 'Babylon.js 3-D · 150 levels', emoji: '🤖', href: immersiveGameHref('platformer') },
-  { label: 'DREAMquest',   meta: 'FF-style · 5 Dream Layers',   emoji: '✨', href: immersiveGameHref('dreamquest') },
-  { label: 'DREAMwars',    meta: 'Nightmares vs Dreamers RTS',  emoji: '🌙', href: immersiveGameHref('dreamwars') },
-  { label: 'Neon Drift',   meta: 'WebGPU · DualSense Ready',    emoji: '🏎️', href: immersiveGameHref('neon-drift') },
+  { label: 'MADMAXI', meta: 'Babylon.js 3-D · 150 levels', emoji: '🤖', href: immersiveGameHref('platformer') },
+  { label: 'DREAMquest', meta: 'FF-style · 5 Dream Layers', emoji: '✨', href: immersiveGameHref('dreamquest') },
+  { label: 'DREAMwars', meta: 'Nightmares vs Dreamers RTS', emoji: '🌙', href: immersiveGameHref('dreamwars') },
+  { label: 'Neon Drift', meta: 'WebGPU · DualSense Ready', emoji: '🏎️', href: immersiveGameHref('neon-drift') },
+  { label: 'Echo Arena', meta: 'WebGPU · Touch + controller ready', emoji: '🚀', href: immersiveGameHref('echo-arena') },
 ];
 
 const CONSOLE_MODULES = [
-  { title: 'Saved Runs', detail: 'GameEngin keeps your saved launches and quick resume slots.' },
-  { title: 'Universal HUD', detail: 'GameEngin overlays the universal HUD on top of the full-screen session so the engine owns the runtime.' },
+  { title: 'Saved Runs', detail: 'GameEngin keeps your last launches and quick-resume slots ready for instant re-entry.' },
+  { title: 'Universal HUD', detail: 'Touch, controller, and fullscreen HUD all live in the runtime so input stays attached to the game surface.' },
 ];
 
-/**
- * Games Daydream page.
- *
- * Side A = game library browser.
- * Side B (GameEngin) = the console/runtime that loads games and owns the HUD.
- */
+const SYSTEM_READOUT = [
+  {
+    title: 'Games Daydream',
+    tone: '#7c3aed',
+    detail: 'The discovery surface: browse the library, compare spotlight titles, and decide what to launch.',
+  },
+  {
+    title: 'GameEngin',
+    tone: '#38bdf8',
+    detail: 'The runtime surface: boot the game, own fullscreen, keep saved sessions, and carry the active input layer.',
+  },
+  {
+    title: 'Universal HUD',
+    tone: '#22c55e',
+    detail: 'The control surface: fast touch response, controller handoff, and a modern overlay instead of a toy remote panel.',
+  },
+];
+
+const INPUT_CAPABILITIES = [
+  'Instant touch HUD',
+  'Controller auto-detect',
+  'Fullscreen boot',
+  'Quick resume memory',
+  'Runtime-owned input',
+  'Elite WebGPU titles',
+] as const;
+
+const RUNTIME_PATHS = [
+  { name: 'Launch MADMAXI', emoji: '🤖', desc: 'Default immersive session', href: immersiveGameHref('platformer') },
+  { name: 'Launch DREAMquest', emoji: '✨', desc: 'RPG route into GameEngin', href: immersiveGameHref('dreamquest') },
+  { name: 'Launch DREAMwars', emoji: '🌙', desc: 'RTS route into GameEngin', href: immersiveGameHref('dreamwars') },
+  { name: 'Launch Neon Drift', emoji: '🏎️', desc: 'WebGPU racing session', href: immersiveGameHref('neon-drift') },
+  { name: 'Launch Echo Arena', emoji: '🚀', desc: 'Arena shooter session', href: immersiveGameHref('echo-arena') },
+] as const;
+
+const OFFICIAL_SPEC_NOTES = [
+  'README.md defines Games Daydream as the surface and GameEngin as the runtime.',
+  'The library explains the system before launch so users do not need a tutorial.',
+  'Fullscreen play, saved sessions, and the universal HUD belong to GameEngin.',
+] as const;
+
 export default async function GamesDaydreamPage() {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -63,31 +99,29 @@ export default async function GamesDaydreamPage() {
         <AuthenticatedPageHeader
           backHref="/homedream"
           title="Games"
-          subtitle="Library, launches, and console handoff tuned for mobile play."
+          subtitle="The library explains the system. GameEngin owns the runtime."
           icon={<Gamepad2 className="w-4 h-4" />}
           accentColor="#2a8ab8"
-          badge="Library + Console"
+          badge="Games Daydream + GameEngin"
           containerClassName="max-w-6xl"
         />
 
         <div className="de-auth-content-wide space-y-4">
-          <div
-            className="de-auth-hero"
-          >
+          <div className="de-auth-hero">
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                 <div style={{ flex: 1 }}>
                   <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.56)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.18)' }}>
                     <Sparkles className="w-3.5 h-3.5" />
-                    Game library + engine handoff + console memory
+                    Official surface contract: library on Side A, runtime on Side B
                   </div>
                   <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1.05, marginTop: 12 }}>
-                    All the games live here.
+                    Browse in Games Daydream.
                     <br />
-                    The runtime lives on the GameEngin side.
+                    Play inside GameEngin.
                   </h2>
                   <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.7, maxWidth: 700, marginTop: 10 }}>
-                    Browse all games here, then hand them off to GameEngin. Full-screen play, controller input, and the universal HUD all belong to the engine session.
+                    This surface is the calm overview of the game system. The library explains what each route does, while GameEngin handles fullscreen, saved sessions, controller handoff, and the universal HUD.
                   </p>
                   <div className="flex flex-wrap gap-2" style={{ marginTop: 12 }}>
                     {GAME_QUALITY_PILLARS.slice(0, 4).map((pillar) => (
@@ -100,14 +134,14 @@ export default async function GamesDaydreamPage() {
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
                   <div style={{ borderRadius: 18, padding: 14, background: 'rgba(255,255,255,0.62)', border: '1px solid rgba(42,138,184,0.16)' }}>
-                    <div className="text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ color: 'var(--de-accent)' }}>Library Side</div>
-                    <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', marginTop: 8 }}>16+</div>
-                    <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 4 }}>Arcade, strategy, puzzle, and challenge games on one shelf.</div>
+                    <div className="text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ color: 'var(--de-accent)' }}>Side A</div>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: 'var(--de-heading)', marginTop: 8 }}>Game Library</div>
+                    <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 4 }}>Discovery, spotlight, and launch decisions with no fake scoreboards or toy clutter.</div>
                   </div>
                   <div style={{ borderRadius: 18, padding: 14, background: 'rgba(14,25,48,0.88)', border: '1px solid rgba(74,175,255,0.22)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}>
-                    <div className="text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ color: '#7dd3fc' }}>Console Memory</div>
-                    <div style={{ fontSize: 28, fontWeight: 900, color: '#f8fbff', marginTop: 8 }}>SAVE</div>
-                    <div style={{ fontSize: 12, color: 'rgba(226,232,240,0.72)', marginTop: 4 }}>GameEngin is the big-screen play surface and memory deck behind the library.</div>
+                    <div className="text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ color: '#7dd3fc' }}>Side B</div>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: '#f8fbff', marginTop: 8 }}>GameEngin</div>
+                    <div style={{ fontSize: 12, color: 'rgba(226,232,240,0.72)', marginTop: 4 }}>Runtime-owned control, fullscreen boot, quick resume, and modern HUD response.</div>
                   </div>
                 </div>
               </div>
@@ -121,12 +155,12 @@ export default async function GamesDaydreamPage() {
                   <Gamepad2 className="w-4 h-4" style={{ color: '#7c3aed' }} />
                   <span className="de-widget-title ml-2">Game Library</span>
                   <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}>
-                    Home
+                    Daydream
                   </span>
                 </div>
                 <div className="de-widget-body" style={{ paddingTop: 12 }}>
                   <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
-                    Browse the actual game shelf here. Open GameEngin to play — the controller remote is right there under the game screen.
+                    Browse the live GameEngin shelf here, then hand the chosen title to the runtime when you want to play.
                   </div>
                   <GamesHub />
                 </div>
@@ -139,14 +173,14 @@ export default async function GamesDaydreamPage() {
                   <Zap className="w-4 h-4" style={{ color: '#7dd3fc' }} />
                   <span className="de-widget-title ml-2" style={{ color: '#f8fbff' }}>GameEngin Console</span>
                   <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(125,211,252,0.12)', color: '#7dd3fc', border: '1px solid rgba(125,211,252,0.22)' }}>
-                    PS-style
+                    Runtime-first
                   </span>
                 </div>
                 <div className="de-widget-body" style={{ paddingTop: 12 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc', marginBottom: 8 }}>Console Boot Ready</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#f8fbff', marginBottom: 8 }}>Game screen + remote in one place.</div>
+                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7dd3fc', marginBottom: 8 }}>GameEngin Ready</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#f8fbff', marginBottom: 8 }}>The game, controls, and memory stay on one surface.</div>
                   <div style={{ fontSize: 12, lineHeight: 1.65, color: 'rgba(226,232,240,0.78)', marginBottom: 14 }}>
-                    Open GameEngin to play. The remote controller sits directly under the game screen — you don&apos;t need to go anywhere else to use it.
+                    Open GameEngin when you want the runtime view. The universal HUD, fullscreen shell, and saved-launch state all stay attached to the active session.
                   </div>
                   <div style={{ display: 'grid', gap: 10 }}>
                     {CONSOLE_MODULES.map((module) => (
@@ -159,7 +193,7 @@ export default async function GamesDaydreamPage() {
                 </div>
                 <div className="de-widget-actions">
                   <OpenDaydreamSideBButton label="Open GameEngin" />
-                  <span style={{ fontSize: 11, color: 'rgba(226,232,240,0.65)', marginLeft: 'auto' }}>Choose here, play there</span>
+                  <span style={{ fontSize: 11, color: 'rgba(226,232,240,0.65)', marginLeft: 'auto' }}>Understand here, launch there</span>
                 </div>
               </div>
 
@@ -199,369 +233,94 @@ export default async function GamesDaydreamPage() {
                 </div>
               </div>
 
-              {/* ── Feature 4: Personal Bests ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
+              <div className="de-widget">
                 <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>🏅</span>
-                  <span className="de-widget-title ml-2">Personal Bests</span>
+                  <Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} />
+                  <span className="de-widget-title ml-2">System Readout</span>
                 </div>
-                <div className="de-widget-body">
-                  {[
-                    { game: '⚡ Speed Tap',   score: '4,820', rank: '#12' },
-                    { game: '🧩 Memory Grid', score: '2:14',  rank: '#8'  },
-                    { game: '📝 Word Sprint', score: '112 WPM', rank: '#5' },
-                  ].map(pb => (
-                    <div key={pb.game} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', marginBottom: 5, borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(200,152,26,0.15)' }}>
-                      <span style={{ fontSize: 11, color: 'var(--de-heading)', fontWeight: 600 }}>{pb.game}</span>
-                      <div style={{ display: 'flex', gap: 10 }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#c8981a' }}>{pb.score}</span>
-                        <span style={{ fontSize: 10, color: '#6366f1', fontWeight: 700, background: 'rgba(99,102,241,0.1)', padding: '1px 5px', borderRadius: 4 }}>{pb.rank}</span>
+                <div className="de-widget-body" style={{ display: 'grid', gap: 10 }}>
+                  {SYSTEM_READOUT.map((item) => (
+                    <div key={item.title} style={{ borderRadius: 14, padding: '12px 14px', background: 'rgba(255,255,255,0.44)', border: `1px solid ${item.tone}26` }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: item.tone, marginBottom: 6 }}>
+                        {item.title}
                       </div>
+                      <div style={{ fontSize: 12, lineHeight: 1.65, color: 'var(--de-text-dim)' }}>{item.detail}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* ── Feature 5: Season Pass ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
+              <div className="de-widget">
                 <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>⭐</span>
-                  <span className="de-widget-title ml-2">Season Pass</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#c8981a', background: 'rgba(200,152,26,0.12)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>Season 3</span>
+                  <Gamepad2 className="w-4 h-4" style={{ color: '#22c55e' }} />
+                  <span className="de-widget-title ml-2">Input Readiness</span>
                 </div>
                 <div className="de-widget-body">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, fontSize: 12 }}>
-                    <span style={{ color: 'var(--de-text-dim)' }}>XP Progress</span>
-                    <span style={{ fontWeight: 700, color: 'var(--de-heading)' }}>4,200 / 10,000 XP</span>
+                  <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.65, marginBottom: 12 }}>
+                    The active control surface is tuned to react as soon as you touch it. No detached toy pad, no fake status cards — just a runtime-owned HUD that stays with the game.
                   </div>
-                  <div style={{ height: 8, borderRadius: 4, background: 'rgba(200,152,26,0.12)', marginBottom: 8 }}>
-                    <div style={{ height: '100%', borderRadius: 4, width: '42%', background: 'linear-gradient(90deg, #c8981a, #f59e0b)' }} />
-                  </div>
-                  <div style={{ display: 'flex', gap: 5 }}>
-                    {[
-                      { tier: 1, reward: '💎', unlocked: true },
-                      { tier: 2, reward: '🎮', unlocked: true },
-                      { tier: 3, reward: '🏆', unlocked: true },
-                      { tier: 4, reward: '🌟', unlocked: false },
-                      { tier: 5, reward: '👑', unlocked: false },
-                    ].map(t => (
-                      <div key={t.tier} style={{ flex: 1, textAlign: 'center', padding: '7px 4px', borderRadius: 8, background: t.unlocked ? 'rgba(200,152,26,0.15)' : 'rgba(0,0,0,0.05)', border: `1px solid ${t.unlocked ? 'rgba(200,152,26,0.35)' : 'rgba(0,0,0,0.08)'}`, opacity: t.unlocked ? 1 : 0.5 }}>
-                        <div style={{ fontSize: 16, filter: t.unlocked ? 'none' : 'grayscale(1)' }}>{t.reward}</div>
-                        <div style={{ fontSize: 8, color: 'var(--de-text-dim)', marginTop: 2 }}>T{t.tier}</div>
-                      </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {INPUT_CAPABILITIES.map((capability) => (
+                      <span key={capability} style={{ fontSize: 10, fontWeight: 700, padding: '5px 10px', borderRadius: 999, background: 'rgba(34,197,94,0.08)', color: '#15803d', border: '1px solid rgba(34,197,94,0.2)' }}>
+                        {capability}
+                      </span>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* ── Feature 6: Daily Quests ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
+              <div className="de-widget">
                 <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>📋</span>
-                  <span className="de-widget-title ml-2">Daily Quests</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>2/4 done</span>
+                  <Zap className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />
+                  <span className="de-widget-title ml-2">Launch Paths</span>
                 </div>
-                <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {[
-                    { quest: 'Play 3 games today',         xp: '+100', done: true  },
-                    { quest: 'Reach 500 pts in Speed Tap', xp: '+200', done: true  },
-                    { quest: 'Win a multiplayer match',    xp: '+300', done: false },
-                    { quest: 'Post a high score',          xp: '+150', done: false },
-                  ].map(q => (
-                    <div key={q.quest} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: q.done ? 'rgba(34,197,94,0.07)' : 'rgba(255,255,255,0.5)', border: `1px solid ${q.done ? 'rgba(34,197,94,0.2)' : 'rgba(0,0,0,0.06)'}` }}>
-                      <span style={{ fontSize: 14 }}>{q.done ? '✅' : '⬜'}</span>
-                      <span style={{ flex: 1, fontSize: 11, color: 'var(--de-heading)', fontWeight: 600, textDecoration: q.done ? 'line-through' : 'none', opacity: q.done ? 0.6 : 1 }}>{q.quest}</span>
-                      <span style={{ fontSize: 10, color: '#c8981a', fontWeight: 700 }}>{q.xp} XP</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* ── Feature 7: Dream Economy ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>💰</span>
-                  <span className="de-widget-title ml-2">Dream Economy</span>
-                </div>
-                <div className="de-widget-body">
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 7 }}>
-                    {[
-                      { label: 'DreamCoins', val: '2,840', emoji: '🟡', color: '#c8981a' },
-                      { label: 'Gems',       val: '142',   emoji: '💎', color: '#6366f1' },
-                      { label: 'Tokens',     val: '28',    emoji: '🎫', color: '#ec4899' },
-                    ].map(c => (
-                      <div key={c.label} style={{ padding: '10px 6px', borderRadius: 9, background: `${c.color}0e`, border: `1px solid ${c.color}20`, textAlign: 'center' }}>
-                        <div style={{ fontSize: 18 }}>{c.emoji}</div>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: c.color }}>{c.val}</div>
-                        <div style={{ fontSize: 8, color: 'var(--de-text-dim)', marginTop: 2 }}>{c.label}</div>
+                <div className="de-widget-body" style={{ display: 'grid', gap: 8 }}>
+                  {RUNTIME_PATHS.map((path) => (
+                    <Link
+                      key={path.name}
+                      href={path.href}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: '10px 12px',
+                        borderRadius: 12,
+                        textDecoration: 'none',
+                        background: 'rgba(15,23,42,0.04)',
+                        border: '1px solid rgba(42,138,184,0.16)',
+                      }}
+                    >
+                      <span style={{ width: 34, height: 34, borderRadius: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(42,138,184,0.1)' }}>
+                        {path.emoji}
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{path.name}</div>
+                        <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{path.desc}</div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Feature 8: Multiplayer Lobby ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>👥</span>
-                  <span className="de-widget-title ml-2">Multiplayer Lobby</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', fontWeight: 700, background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 5 }}>8 online</span>
-                </div>
-                <div className="de-widget-body">
-                  {[
-                    { name: '@player1', game: '⚡ Speed Tap', status: 'playing' },
-                    { name: '@creator2', game: '🧩 Memory Grid', status: 'waiting' },
-                    { name: '@dreamer3', game: '📝 Word Sprint', status: 'playing' },
-                  ].map(p => (
-                    <div key={p.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', marginBottom: 5, borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(34,197,94,0.12)' }}>
-                      <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{p.name}</div>
-                        <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{p.game}</div>
-                      </div>
-                      <span style={{ fontSize: 9, fontWeight: 700, color: p.status === 'playing' ? '#22c55e' : '#f59e0b', background: p.status === 'playing' ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)', padding: '2px 6px', borderRadius: 4, alignSelf: 'center' }}>{p.status}</span>
-                    </div>
+                      <Play className="w-3.5 h-3.5" style={{ color: 'var(--de-accent)', flexShrink: 0 }} />
+                    </Link>
                   ))}
-                </div>
-              </div>
-
-              {/* ── Feature 9: Tournament Mode ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>🏆</span>
-                  <span className="de-widget-title ml-2">Tournament Mode</span>
-                </div>
-                <div className="de-widget-body">
-                  <div style={{ padding: '12px 14px', borderRadius: 12, background: 'linear-gradient(135deg, rgba(200,152,26,0.1), rgba(200,152,26,0.03))', border: '1px solid rgba(200,152,26,0.25)' }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#c8981a', marginBottom: 4 }}>Spring Speed Tournament</div>
-                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Starts: Sat Apr 5 · 2PM EST<br />Prize: 1,000 DreamCoins · 24 players</div>
-                  </div>
                 </div>
                 <div className="de-widget-actions">
-                  <Link href="/daydream/games" className="de-btn de-btn-primary text-xs">Register Now →</Link>
+                  <Link href={immersiveGameHref('platformer')} className="de-btn de-btn-primary text-xs">
+                    Launch MADMAXI
+                  </Link>
                 </div>
               </div>
 
-              {/* ── Feature 10: Game Analytics ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
+              <div className="de-widget">
                 <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>📊</span>
-                  <span className="de-widget-title ml-2">Game Analytics</span>
+                  <Sparkles className="w-4 h-4" style={{ color: '#c8981a' }} />
+                  <span className="de-widget-title ml-2">Official Surface Contract</span>
                 </div>
-                <div className="de-widget-body">
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 7 }}>
-                    {[
-                      { label: 'Games Played', val: '48', color: '#6366f1' },
-                      { label: 'Avg Session',  val: '12m', color: '#22c55e' },
-                      { label: 'Win Rate',     val: '68%', color: '#c8981a' },
-                    ].map(m => (
-                      <div key={m.label} style={{ padding: '8px 6px', borderRadius: 9, background: `${m.color}0e`, border: `1px solid ${m.color}20`, textAlign: 'center' }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: m.color }}>{m.val}</div>
-                        <div style={{ fontSize: 8, color: 'var(--de-text-dim)', marginTop: 2 }}>{m.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Feature 11: Replay System ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>▶</span>
-                  <span className="de-widget-title ml-2">Replay System</span>
-                </div>
-                <div className="de-widget-body">
-                  {[
-                    { game: '⚡ Speed Tap',   score: '4,820', date: '2h ago' },
-                    { game: '🧩 Memory Grid', score: '2:14',  date: '1d ago' },
-                  ].map(r => (
-                    <div key={r.game} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', marginBottom: 5, borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(99,102,241,0.12)' }}>
-                      <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{r.game}</div>
-                        <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{r.date}</div>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#c8981a' }}>{r.score}</span>
-                        <span style={{ fontSize: 18 }}>▶</span>
-                      </div>
+                <div className="de-widget-body" style={{ display: 'grid', gap: 8 }}>
+                  {OFFICIAL_SPEC_NOTES.map((note) => (
+                    <div key={note} style={{ borderRadius: 12, padding: '10px 12px', background: 'rgba(255,255,255,0.44)', border: '1px solid rgba(200,152,26,0.18)', fontSize: 12, lineHeight: 1.6, color: 'var(--de-text-dim)' }}>
+                      {note}
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* ── Feature 12: Social Challenge ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>🎯</span>
-                  <span className="de-widget-title ml-2">Social Challenge</span>
-                </div>
-                <div className="de-widget-body">
-                  <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-                    Challenge any creator to a head-to-head score battle. They get a notification and have 24h to beat your score.
-                  </p>
-                </div>
-                <div className="de-widget-actions">
-                  <Link href="/daydream/games" className="de-btn de-btn-primary text-xs">🏆 Challenge a Friend</Link>
-                </div>
-              </div>
-
-              {/* ── Feature 13: Speedrun Timer ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>⏱</span>
-                  <span className="de-widget-title ml-2">Speedrun Timer</span>
-                </div>
-                <div className="de-widget-body">
-                  <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                    <div style={{ fontSize: 36, fontWeight: 900, fontFamily: 'monospace', color: '#2a8ab8', letterSpacing: '0.04em' }}>02:34.817</div>
-                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 4 }}>PB: 02:31.204</div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 7, marginTop: 8 }}>
-                    {['Start', 'Split', 'Reset'].map(a => (
-                      <div key={a} style={{ flex: 1, padding: '7px 4px', borderRadius: 8, background: a === 'Start' ? 'rgba(34,197,94,0.12)' : a === 'Reset' ? 'rgba(239,68,68,0.08)' : 'rgba(42,138,184,0.1)', border: `1px solid ${a === 'Start' ? 'rgba(34,197,94,0.25)' : a === 'Reset' ? 'rgba(239,68,68,0.2)' : 'rgba(42,138,184,0.2)'}`, textAlign: 'center', fontSize: 11, fontWeight: 700, color: a === 'Start' ? '#22c55e' : a === 'Reset' ? '#ef4444' : '#2a8ab8' }}>{a}</div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Feature 14: Achievements ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>🏅</span>
-                  <span className="de-widget-title ml-2">Achievements</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#c8981a', fontWeight: 700, background: 'rgba(200,152,26,0.1)', padding: '2px 7px', borderRadius: 5 }}>3 new</span>
-                </div>
-                <div className="de-widget-body">
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6 }}>
-                    {[
-                      { emoji: '🚀', title: 'First Launch', unlocked: true },
-                      { emoji: '⚡', title: 'Speed Demon', unlocked: true },
-                      { emoji: '🧩', title: 'Memory Master', unlocked: true },
-                      { emoji: '🏆', title: 'Tournament Win', unlocked: false },
-                      { emoji: '👑', title: 'Top 10', unlocked: false },
-                    ].map(a => (
-                      <div key={a.title} title={a.title} style={{ textAlign: 'center', padding: '8px 4px', borderRadius: 9, background: a.unlocked ? 'rgba(200,152,26,0.12)' : 'rgba(0,0,0,0.04)', border: `1px solid ${a.unlocked ? 'rgba(200,152,26,0.3)' : 'rgba(0,0,0,0.06)'}`, opacity: a.unlocked ? 1 : 0.4 }}>
-                        <div style={{ fontSize: 20, filter: a.unlocked ? 'none' : 'grayscale(1)' }}>{a.emoji}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Feature 15: AI Director ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>🤖</span>
-                  <span className="de-widget-title ml-2">AI Director</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>FREE</span>
-                </div>
-                <div className="de-widget-body">
-                  <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-                    Adaptive difficulty AI — dynamically adjusts game challenge based on your skill level in real-time to maximize engagement.
-                  </p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
-                    {[
-                      { label: 'Skill Level',    val: '74',    unit: '/100', color: '#6366f1' },
-                      { label: 'Adaptation',     val: 'ON',    unit: '',     color: '#22c55e' },
-                      { label: 'Engagement',     val: '91%',   unit: '',     color: '#ec4899' },
-                      { label: 'Sessions/week',  val: '6',     unit: '',     color: '#f59e0b' },
-                    ].map(m => (
-                      <div key={m.label} style={{ padding: '8px 10px', borderRadius: 9, background: `${m.color}0e`, border: `1px solid ${m.color}20` }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: m.color }}>{m.val}<span style={{ fontSize: 10 }}>{m.unit}</span></div>
-                        <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>{m.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Feature 16: Game Quality Pillars ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <Sparkles className="w-4 h-4 mr-1" style={{ color: '#c8981a' }} />
-                  <span className="de-widget-title">Quality Pillars</span>
-                </div>
-                <div className="de-widget-body">
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
-                    {GAME_QUALITY_PILLARS.slice(0, 6).map(p => (
-                      <div key={p.id} style={{ padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(200,152,26,0.15)' }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>{p.title}</div>
-                        <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{p.detail}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Feature 17: Controller Deck ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <Gamepad2 className="w-4 h-4 mr-1" style={{ color: '#2a8ab8' }} />
-                  <span className="de-widget-title">Controller Deck</span>
-                </div>
-                <div className="de-widget-body">
-                  <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-                    DualSense (PS5), Xbox, Nintendo Pro, mobile touch — all controller types auto-detected and configured for each game.
-                  </p>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    {['🎮 DualSense', '🕹 Xbox', '📱 Touch'].map(c => (
-                      <div key={c} style={{ flex: 1, padding: '7px 6px', borderRadius: 8, background: 'rgba(42,138,184,0.08)', border: '1px solid rgba(42,138,184,0.2)', textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#2a8ab8' }}>{c}</div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Feature 18: World Builder ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <Zap className="w-4 h-4 mr-1" style={{ color: '#c8981a' }} />
-                  <span className="de-widget-title">World Builder</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>FREE</span>
-                </div>
-                <div className="de-widget-body">
-                  <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-                    Visual ECS world editor — drag-and-drop entities, configure components, test physics, and publish custom game worlds.
-                  </p>
-                </div>
-                <div className="de-widget-actions">
-                  <Link href="/daydream/games" className="de-btn de-btn-primary text-xs">Open GameEngin →</Link>
-                </div>
-              </div>
-
-              {/* ── Feature 19: Neon Drift + Echo Arena ── */}
-              <div className="de-widget" style={{ marginBottom: 14 }}>
-                <div className="de-widget-header">
-                  <span style={{ fontSize: 16 }}>🎮</span>
-                  <span className="de-widget-title ml-2">Elite WebGPU Games</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>FREE</span>
-                </div>
-                <div className="de-widget-body">
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    {[
-                      { name: 'Neon Drift',   emoji: '🏎', desc: 'WebGPU neon racer', href: immersiveGameHref('neon-drift') },
-                      { name: 'Echo Arena',   emoji: '🚀', desc: 'WebGPU space shooter', href: immersiveGameHref('echo-arena') },
-                    ].map(g => (
-                      <Link key={g.name} href={g.href} style={{ flex: 1, textDecoration: 'none' }}>
-                        <div style={{ padding: '12px 10px', borderRadius: 12, background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.22)', textAlign: 'center' }}>
-                          <div style={{ fontSize: 28, marginBottom: 5 }}>{g.emoji}</div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{g.name}</div>
-                          <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 2 }}>{g.desc}</div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Feature 20: GameEngin CTA ── */}
-              <div style={{ background: 'linear-gradient(135deg, rgba(200,152,26,0.08), rgba(139,92,246,0.08))', borderRadius: 18, padding: '16px 18px', border: '1px solid rgba(200,152,26,0.2)', marginBottom: 14 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#c8981a', marginBottom: 4 }}>GameEngin — 20 Features on Side B</div>
-                <p style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5, margin: 0 }}>
-                  Console Home · Launch Bay · Controller Deck · World Builder · Achievements · Physics Config ·
-                  Game Scripts · Cross-Engin Sync · Multiplayer Lobby · Tournament Mode · Game Analytics · Replay System ·
-                  Social Challenge · Season Pass · Daily Quests · Dream Economy · Speedrun Timer · AI Director · World Builder + more.
-                </p>
-              </div>
-
             </div>
           </div>
         </div>
