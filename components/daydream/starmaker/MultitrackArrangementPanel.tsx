@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { Layers3, Pause, Play, Plus } from 'lucide-react';
 
 import {
@@ -158,11 +158,17 @@ export default function MultitrackArrangementPanel({
   onRemoveClip,
   onSelectedClipGainChange,
 }: Props) {
-  const effectiveSelectedSourceId = selectedSourceId ?? sourceLibrary[0]?.id ?? null;
-  const selectedSource = sourceLibrary.find(source => source.id === effectiveSelectedSourceId) ?? null;
+  const selectedSource = sourceLibrary.find(source => source.id === selectedSourceId) ?? null;
   const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
   const arrangementBarsUsed = arrClips.length ? Math.max(...arrClips.map(clip => clip.startBar + clip.barLength)) : 0;
-  const [clipToolsExpanded, setClipToolsExpanded] = useState(true);
+  const [clipToolsExpanded, setClipToolsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (sourceLibrary.length === 0) return;
+    if (!selectedSourceId || !sourceLibrary.some(source => source.id === selectedSourceId)) {
+      onSelectSource(sourceLibrary[0].id);
+    }
+  }, [onSelectSource, selectedSourceId, sourceLibrary]);
 
   return (
     <div style={{
@@ -249,7 +255,7 @@ export default function MultitrackArrangementPanel({
                 SOURCE PICKER
               </span>
               <select
-                value={effectiveSelectedSourceId ?? ''}
+                value={selectedSourceId ?? ''}
                 onChange={(event) => onSelectSource(event.target.value)}
                 aria-label="Arrangement source picker"
                 disabled={sourceLibrary.length === 0}
@@ -274,7 +280,7 @@ export default function MultitrackArrangementPanel({
             <div style={{ fontSize: 10, color: THEME.dim }}>
               {selectedSource
                 ? `Selected source: ${selectedSource.name} · ${formatSeconds(selectedSource.durationSec)}`
-                : 'Use the picker to assign which captured source drops into the next clip slot.'}
+              : 'Use the picker to assign which captured source drops into the next clip slot.'}
             </div>
 
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -284,14 +290,14 @@ export default function MultitrackArrangementPanel({
                 style={{
                   padding: '8px 10px',
                   borderRadius: 8,
-                  border: `1px solid ${effectiveSelectedSourceId === source.id ? source.color : `${source.color}40`}`,
-                  background: effectiveSelectedSourceId === source.id ? `${source.color}22` : `${source.color}10`,
-                  color: effectiveSelectedSourceId === source.id ? '#fff' : source.color,
+                  border: `1px solid ${selectedSourceId === source.id ? `${source.color}55` : THEME.border}`,
+                  background: selectedSourceId === source.id ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
+                  color: source.color,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
                   minWidth: 150,
-                  opacity: effectiveSelectedSourceId === source.id ? 1 : 0.82,
+                  opacity: selectedSourceId === source.id ? 1 : 0.72,
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 20 }}>
@@ -309,12 +315,13 @@ export default function MultitrackArrangementPanel({
                   ))}
                 </div>
                 <div style={{ textAlign: 'left', minWidth: 0 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: effectiveSelectedSourceId === source.id ? '#fff' : THEME.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: THEME.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {source.name}
+                      </div>
+                      {selectedSourceId === source.id && <span style={{ ...pill(source.color), fontSize: 8 }}>ACTIVE</span>}
                     </div>
-                    <div style={{ fontSize: 9, color: effectiveSelectedSourceId === source.id ? '#f5f7fb' : THEME.dim }}>
-                      {formatSeconds(source.durationSec)}
-                    </div>
+                    <div style={{ fontSize: 9, color: THEME.dim }}>{formatSeconds(source.durationSec)}</div>
                 </div>
               </div>
             )) : (
