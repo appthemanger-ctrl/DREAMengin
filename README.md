@@ -35,6 +35,63 @@ Author: José Mancilla · pnpm 10.30.0 · Node 24
 | 🔵 REF  | `docs/HANDOFF.md` | Change timeline — what changed and when |
 | 🔵 REF  | `docs/BUGS.md` | Known bugs and upgrade queue |
 
+"Dreamengin.com is where WhipRev lives inside the HomeDream"
+
+# ⚡ WHIPREV: THE HUMAN MEDIA MANIFESTO
+## [ Powered by DREAMengin ]
+### "The algorithm is a person, not a machine."
+
+---
+
+## 🌎 THE PHILOSOPHY: REAL LIFE, DIGITAL MOTION
+ WhipRev is the death of the "Social Performance" and the birth of Human Media. We are replacing toxic validation with honest visibility.
+
+* SEEN, NOT JUDGED: We prioritize Views over Likes. If you exist, you are seen. Public "Like" and "Dislike" counts are deleted to remove the psychological rot of competition.
+* THE ANTI-STALK PROTOCOL: We are ending the era of digital heartbreak and obsession. 
+    * Screenshot Blocking: What you post isn't a weapon to be used against you.
+    * Natural Discovery: If someone wants to see you, they look. If they don't, they move on. No deep-diving into personal lives unless there is a mutual desire to connect. 
+    * Real-World Circles: If someone lies or posts about you, the truth travels through friend groups naturally—just like real life—not through an amplified hate-algorithm.
+* NO REJECTION, JUST MOTION: Walking past a street performer isn't a "dislike"—it’s just moving forward. Navigation follows this law of physics.
+
+---
+
+## 🕹️ SYSTEM DEFINITIONS (THE VOCABULARY)
+All functions are modeled after high-performance physics to maintain the SICC brand identity:
+
+1. THE NEW (The Content Feed): The primary stream of unseen, original human expression.
+2. WHIPPING (Vertical Scroll): High-speed discovery through The New.
+3. REVVING (Horizontal Swipe): Accelerating in place to dive deeper into a specific creator’s world.
+4. THE WHIP: The Neumorphic Dark UI Surface (Light Blue / White / Gold accents).
+5. THE ENGINE: The DREAMengin Core (The underlying OS and API infrastructure).
+
+---
+
+## 🛠️ ARCHITECTURE: WHIPREV INSIDE THE HOME DREAM
+WhipRev is the heartbeat (the feed) living inside the Home Dream (the console).
+
+### A. THE CONTENT ISOLATION (The "Whip" Fix)
+* The Container: WhipRev lives as an independent surface within the Home Dream.
+* The Physics: Users "Whip" through content inside this box without scrolling the Home Dream dashboard. The console stays locked; the media moves.
+* The View Logic: Once a post enters the viewport (>75% visibility), the Gold View Counter increments. Everyone who posts is guaranteed to be seen.
+
+### B. THE "HUMAN" ALGORITHM
+* Followers Matter: Your inner circle sees you first and most reliably. 
+* Authenticity > Novelty: You aren't punished for trends, but you are rewarded for personality. Whether it’s a kickflip, a painting, or a DREAMengin creation, if it's you doing it, the Engine pushes it.
+* Zero Juice: Likes, shares, and comments exist for connection, but they do not juice the algorithm. No one goes viral for being toxic; they go viral for being interesting.
+
+---
+
+## 🎨 VISUAL SPECIFICATION (NEUMORPHIC DARK)
+* Surface: Deep Matte Charcoal/Black with Neumorphic depth.
+* Lighting: Soft Light Blue and White highlights on buttons and containers.
+* The Crown: GOLD is reserved exclusively for the View Counter—the only metric of success that matters.
+
+---
+
+> THE MISSION: We are building a place of peace, happiness, and real human interaction. No more bullying. No more obsession. Just you, your whip, and the engine.
+
+WhipRev: Rev your whip. Power your dream.
+
 ---
 
 ### 🛠 Build & Test Commands
