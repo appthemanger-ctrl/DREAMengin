@@ -3384,3 +3384,174 @@ main[role="main"] > * {
     animation: none !important;
   }
 }
+
+/* =============================================================================
+   GILDED GHOST OVERHAUL v2.2 — NEUMORPHIC MIDNIGHT DESIGN SYSTEM
+   Applied via [data-theme="midnight"] on :root
+   Palette: #050505 base · #D4AF37 gold · #7DD3FC sky
+   =========================================================================== */
+
+[data-theme="midnight"] {
+  /* ── Core palette ── */
+  --de-navy:        #050505;
+  --de-deep:        #080808;
+  --de-blue:        #7DD3FC;
+  --de-midblue:     #38BDF8;
+  --de-accent:      #7DD3FC;
+  --de-glow:        #7DD3FC;
+  --de-gold:        #D4AF37;
+  --de-gold-bright: #E8CC5A;
+  --de-gold-dim:    #A08B28;
+  --de-white:       #FFFFFF;
+  --de-mist:        rgba(125,211,252,0.06);
+  --de-glass:       rgba(255,255,255,0.03);
+  --de-glass2:      rgba(255,255,255,0.05);
+  --de-border:      rgba(125,211,252,0.12);
+  --de-border-gold: rgba(212,175,55,0.28);
+  --de-text:        rgba(255,255,255,0.80);
+  --de-text-dim:    rgba(255,255,255,0.45);
+  --de-heading:     #FFFFFF;
+  --de-red:         #f87171;
+  --de-bg-start:    #050505;
+  --de-bg-mid:      #080808;
+  --de-bg-end:      #050505;
+  --de-widget-bg:   rgba(255,255,255,0.03);
+  --de-widget-border: rgba(125,211,252,0.10);
+
+  /* ── Neumorphic shadow tokens ── */
+  --neu-light:      1px 1px 10px rgba(125,211,252,0.05);
+  --neu-dark:       -1px -1px 10px rgba(0,0,0,0.8);
+  --neu-raise:      var(--neu-light), var(--neu-dark);
+  --neu-inset:      inset 1px 1px 8px rgba(0,0,0,0.7), inset -1px -1px 6px rgba(125,211,252,0.04);
+  --neu-gold-glow:  0 0 18px rgba(212,175,55,0.22);
+  --bar-underglow:  0 -6px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.25);
+
+  /* Tailwind HSL tokens for shadcn components */
+  --background:   220 6% 3%;
+  --foreground:   0 0% 100%;
+  --card:         220 6% 5%;
+  --card-foreground: 0 0% 100%;
+  --primary:      199 89% 72%;
+  --primary-foreground: 220 30% 5%;
+  --muted:        220 6% 8%;
+  --muted-foreground: 215 20% 50%;
+  --accent:       43 60% 52%;
+  --accent-foreground: 220 30% 5%;
+  --border:       220 6% 10%;
+  --ring:         199 89% 72%;
+
+  /* Gradient theme overrides */
+  --de-theme-from:  #050505;
+  --de-theme-mid:   #070707;
+  --de-theme-to:    #050505;
+  --de-theme-angle: 148deg;
+  --de-theme-btn-from: #D4AF37;
+  --de-theme-btn-to:   #A08B28;
+  --skin-accent-color: #D4AF37;
+}
+
+[data-theme="midnight"] body,
+[data-theme="midnight"] html {
+  background: #050505 !important;
+  color: rgba(255,255,255,0.80);
+}
+
+/* ── Midnight Glass panels (DreamDMBar, Modals) ── */
+.de-midnight-glass,
+[data-theme="midnight"] .de-glass,
+[data-theme="midnight"] .de-surface {
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(125,211,252,0.10);
+  box-shadow: var(--neu-raise, 1px 1px 10px rgba(125,211,252,0.05), -1px -1px 10px rgba(0,0,0,0.8));
+}
+
+/* ── Neumorphic surface utilities ── */
+.de-neu-raise {
+  box-shadow: 1px 1px 10px rgba(125,211,252,0.05), -1px -1px 10px rgba(0,0,0,0.8);
+}
+.de-neu-inset {
+  box-shadow: inset 1px 1px 8px rgba(0,0,0,0.7), inset -1px -1px 6px rgba(125,211,252,0.04);
+}
+.de-neu-gold {
+  box-shadow: 1px 1px 10px rgba(125,211,252,0.05), -1px -1px 10px rgba(0,0,0,0.8), 0 0 16px rgba(212,175,55,0.22);
+}
+
+/* ── DreamDM Bar: midnight sky-glow underglow ── */
+[data-theme="midnight"] .sicc-bar-edge,
+.de-bar-underglow {
+  box-shadow: 0 -6px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.25) !important;
+}
+
+/* ── Midnight widget style ── */
+[data-theme="midnight"] .de-widget {
+  background: rgba(255,255,255,0.03) !important;
+  border-color: rgba(125,211,252,0.10) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 1px 1px 10px rgba(125,211,252,0.05), -1px -1px 10px rgba(0,0,0,0.8);
+}
+
+/* ── Midnight gold accent text ── */
+[data-theme="midnight"] .de-gold,
+.de-midnight-gold {
+  color: #D4AF37 !important;
+}
+
+/* ── System Critical modal (Ghost/Volatile asset prompt) ── */
+.de-system-critical-modal {
+  background: rgba(5,5,5,0.97);
+  border: 1px solid rgba(212,175,55,0.40);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    1px 1px 10px rgba(125,211,252,0.05),
+    -1px -1px 10px rgba(0,0,0,0.9),
+    0 0 32px rgba(212,175,55,0.12),
+    inset 0 0 0 1px rgba(212,175,55,0.08);
+  border-radius: 16px;
+}
+
+.de-system-critical-modal .de-btn-export {
+  background: linear-gradient(135deg, #D4AF37 0%, #A08B28 100%);
+  color: #050505;
+  font-weight: 700;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(212,175,55,0.35), 0 1px 4px rgba(0,0,0,0.25);
+  transition: box-shadow 0.18s ease, transform 0.12s ease;
+}
+.de-system-critical-modal .de-btn-export:hover {
+  box-shadow: 0 6px 24px rgba(212,175,55,0.55), 0 2px 8px rgba(0,0,0,0.30);
+  transform: translateY(-1px);
+}
+
+/* ── Ghost / Volatile asset indicator ── */
+.de-ghost-volatile {
+  position: relative;
+}
+.de-ghost-volatile::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 1px solid rgba(212,175,55,0.35);
+  box-shadow: 0 0 12px rgba(212,175,55,0.20), inset 0 0 12px rgba(212,175,55,0.06);
+  pointer-events: none;
+  animation: ghost-rim-pulse 3s ease-in-out infinite;
+}
+
+@keyframes ghost-rim-pulse {
+  0%, 100% { opacity: 0.60; box-shadow: 0 0 12px rgba(212,175,55,0.20), inset 0 0 12px rgba(212,175,55,0.06); }
+  50%       { opacity: 1.00; box-shadow: 0 0 22px rgba(212,175,55,0.45), inset 0 0 18px rgba(212,175,55,0.12); }
+}
+
+/* ── Respect reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .de-ghost-volatile::after {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,488 @@
+name: SQL Migration Guard
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Scans every PR and push for Supabase table references that lack a migration,
+# scaffolds a migration file when one is missing, applies pending migrations to
+# the remote database on merges to main branches, regenerates TypeScript types,
+# and verifies the Vercel/Next.js build still passes.
+#
+# Secrets required for full functionality (all optional — steps degrade gracefully):
+#   DATABASE_URL       — postgres:// URL used to apply migrations (psql / supabase db push)
+#   SUPABASE_DB_URL    — postgres:// URL used to regenerate types (may be the same as above)
+#   NEXT_PUBLIC_SUPABASE_URL       — passed to the build step
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY  — passed to the build step
+# ──────────────────────────────────────────────────────────────────────────────
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, completedream, develop]
+  workflow_dispatch:
+    inputs:
+      force_apply:
+        description: "Force-apply all pending migrations even without schema changes"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sql-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sql-guard:
+    name: SQL Migration Guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── 2. Setup toolchain ───────────────────────────────────────────────────
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.0
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # ── 3. Resolve changed files ─────────────────────────────────────────────
+      - name: Detect changed files
+        id: changed
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+            HEAD="${{ github.sha }}"
+          fi
+
+          # Fall back to HEAD~1 if BASE is unknown (e.g. first push)
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            BASE="$(git rev-parse HEAD~1 2>/dev/null || echo HEAD)"
+          fi
+
+          CHANGED=$(git diff --name-only "$BASE" "$HEAD" 2>/dev/null || \
+                    git diff --name-only HEAD~1 HEAD 2>/dev/null || \
+                    git ls-files)
+
+          echo "changed_files<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$CHANGED"           >> "$GITHUB_OUTPUT"
+          echo "EOF"                >> "$GITHUB_OUTPUT"
+
+          if echo "$CHANGED" | grep -q "^supabase/migrations/"; then
+            echo "migrations_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "migrations_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if echo "$CHANGED" | grep -qE "\.(ts|tsx)$"; then
+            echo "code_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED"
+
+      # ── 4. Scan code for Supabase table references ───────────────────────────
+      - name: Scan for Supabase table references
+        id: scan
+        shell: bash
+        run: |
+          node - <<'SCAN_EOF'
+          const fs   = require('fs');
+          const path = require('path');
+
+          // ── Collect changed TS/TSX files ────────────────────────────────────
+          const changedRaw = `${{ steps.changed.outputs.changed_files }}`;
+          const changedFiles = changedRaw
+            .split('\n')
+            .map(f => f.trim())
+            .filter(f => /\.(ts|tsx)$/.test(f) && !f.includes('node_modules') && !f.includes('.next'));
+
+          // ── Extract .from('table') references ───────────────────────────────
+          // Detects static string literals (single/double quotes) only.
+          // Template-literal table names (.from(`${var}`)) are dynamic and cannot
+          // be statically detected — those tables will not appear in the scan results.
+          const tableRefs = new Set();
+          const fromPattern = /\.from\(\s*['"]([a-zA-Z_][a-zA-Z0-9_]*)['"\s]*\)/g;
+
+          for (const file of changedFiles) {
+            if (!fs.existsSync(file)) continue;
+            const content = fs.readFileSync(file, 'utf8');
+            let m;
+            while ((m = fromPattern.exec(content)) !== null) {
+              tableRefs.add(m[1]);
+            }
+          }
+
+          // ── Collect table names defined in migrations ────────────────────────
+          // Detects unquoted tables in the public schema.  Quoted identifiers and
+          // non-public schemas are not matched — those tables won't appear as "defined".
+          const definedTables = new Set();
+          const createPattern = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:public\.)?([a-zA-Z_][a-zA-Z0-9_]*)/gi;
+
+          const migDir = 'supabase/migrations';
+          if (fs.existsSync(migDir)) {
+            for (const file of fs.readdirSync(migDir).sort()) {
+              if (!file.endsWith('.sql')) continue;
+              const content = fs.readFileSync(path.join(migDir, file), 'utf8');
+              let m;
+              while ((m = createPattern.exec(content)) !== null) {
+                definedTables.add(m[1].toLowerCase());
+              }
+            }
+          }
+          if (fs.existsSync('supabase/schema-final.sql')) {
+            const content = fs.readFileSync('supabase/schema-final.sql', 'utf8');
+            let m;
+            while ((m = createPattern.exec(content)) !== null) {
+              definedTables.add(m[1].toLowerCase());
+            }
+          }
+
+          // ── Known Supabase built-ins (never need a migration) ────────────────
+          const builtins = new Set([
+            'auth', 'storage', 'users', 'sessions', 'refresh_tokens',
+            'mfa_factors', 'mfa_challenges', 'saml_providers', 'saml_relay_states',
+            'sso_providers', 'sso_domains', 'flow_state', 'identities', 'instances',
+            'audit_log_entries', 'schema_migrations', 'buckets', 'objects',
+            'migrations', 'extensions', 'secrets',
+          ]);
+
+          const missingTables = [...tableRefs].filter(t =>
+            !definedTables.has(t.toLowerCase()) && !builtins.has(t.toLowerCase())
+          );
+
+          // ── Console summary ──────────────────────────────────────────────────
+          console.log('Files scanned   :', changedFiles.length);
+          console.log('Table refs found:', [...tableRefs].join(', ') || 'none');
+          console.log('Tables in migs  :', [...definedTables].size);
+          console.log('Missing migs    :', missingTables.join(', ') || 'none');
+
+          // ── Write GitHub outputs ─────────────────────────────────────────────
+          const out = process.env.GITHUB_OUTPUT || '';
+          if (out) {
+            fs.appendFileSync(out, `missing_tables=${missingTables.join(',')}\n`);
+            fs.appendFileSync(out, `has_missing=${missingTables.length > 0}\n`);
+            fs.appendFileSync(out, `table_refs=${[...tableRefs].join(',')}\n`);
+          }
+
+          // ── Step summary ─────────────────────────────────────────────────────
+          const sum = process.env.GITHUB_STEP_SUMMARY || '';
+          if (sum) {
+            let md = '## 🗄️ SQL Migration Scan\n\n';
+            md += `**Code files scanned:** ${changedFiles.length}\n\n`;
+            if (tableRefs.size > 0) {
+              md += `**Table references:** \`${[...tableRefs].join('`, `')}\`\n\n`;
+            }
+            if (missingTables.length > 0) {
+              md += '### ⚠️ Tables referenced but no migration found\n\n';
+              missingTables.forEach(t => { md += `- \`${t}\`\n`; });
+              md += '\nA scaffold migration has been generated — **review before merging**.\n';
+            } else {
+              md += '### ✅ All referenced tables are covered by existing migrations\n';
+            }
+            fs.appendFileSync(sum, md + '\n');
+          }
+          SCAN_EOF
+
+      # ── 5. Validate existing migration files (syntax + idempotency check) ────
+      - name: Validate migration SQL
+        if: steps.changed.outputs.migrations_changed == 'true'
+        shell: bash
+        run: |
+          echo "=== Changed migration files ==="
+          echo "${{ steps.changed.outputs.changed_files }}" | grep "^supabase/migrations/" || true
+
+          # Ensure every changed migration uses IF NOT EXISTS / OR REPLACE / DROP IF EXISTS
+          # so re-runs are safe.  Emit warnings only — do not block the pipeline.
+          ISSUES=0
+          while IFS= read -r FILE; do
+            [[ "$FILE" == supabase/migrations/*.sql ]] || continue
+            [[ -f "$FILE" ]] || continue
+            if grep -qiE "^\s*CREATE TABLE [^(]" "$FILE" && ! grep -qiE "CREATE TABLE IF NOT EXISTS" "$FILE"; then
+              echo "⚠️  $FILE: plain CREATE TABLE without IF NOT EXISTS"
+              ISSUES=$((ISSUES+1))
+            fi
+            if grep -qiE "^\s*CREATE (UNIQUE )?INDEX [^(]" "$FILE" && ! grep -qiE "CREATE (UNIQUE )?INDEX IF NOT EXISTS" "$FILE"; then
+              echo "⚠️  $FILE: plain CREATE INDEX without IF NOT EXISTS"
+              ISSUES=$((ISSUES+1))
+            fi
+          done < <(echo "${{ steps.changed.outputs.changed_files }}")
+
+          if [ "$ISSUES" -gt 0 ]; then
+            echo ""
+            echo "⚠️  $ISSUES idempotency concern(s) found. These are advisory — not blocking."
+          else
+            echo "✅ Migration idempotency check passed."
+          fi
+
+      # ── 6. Scaffold missing migration ────────────────────────────────────────
+      - name: Scaffold migration for new tables
+        id: scaffold
+        if: steps.scan.outputs.has_missing == 'true'
+        shell: bash
+        run: |
+          MISSING="${{ steps.scan.outputs.missing_tables }}"
+          TIMESTAMP=$(date -u +%Y%m%d%H%M%S)
+          MIGRATION_FILE="supabase/migrations/${TIMESTAMP}_auto_scaffold.sql"
+
+          {
+            echo "-- Auto-scaffolded migration: ${TIMESTAMP}"
+            echo "-- Generated by: SQL Migration Guard workflow"
+            echo "-- Tables detected in code but not found in existing migrations:"
+            echo "--   ${MISSING}"
+            echo "--"
+            echo "-- ⚠️  REVIEW BEFORE MERGING:"
+            echo "--   Add real column definitions, constraints, indexes, and RLS"
+            echo "--   policies that match your application's data model."
+            echo ""
+
+            IFS=',' read -ra TABLES <<< "$MISSING"
+            for TABLE in "${TABLES[@]}"; do
+              TABLE=$(echo "$TABLE" | xargs)   # trim whitespace
+              [[ -z "$TABLE" ]] && continue
+
+              echo "-- ── ${TABLE} ─────────────────────────────────────────────────"
+              echo "CREATE TABLE IF NOT EXISTS public.${TABLE} ("
+              echo "  id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),"
+              echo "  owner_id   UUID        REFERENCES auth.users(id) ON DELETE CASCADE,"
+              echo "  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),"
+              echo "  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()"
+              echo ");"
+              echo ""
+              echo "ALTER TABLE public.${TABLE} ENABLE ROW LEVEL SECURITY;"
+              echo ""
+              echo "DROP POLICY IF EXISTS \"${TABLE}_select_own\" ON public.${TABLE};"
+              echo "DROP POLICY IF EXISTS \"${TABLE}_insert_own\" ON public.${TABLE};"
+              echo "DROP POLICY IF EXISTS \"${TABLE}_update_own\" ON public.${TABLE};"
+              echo "DROP POLICY IF EXISTS \"${TABLE}_delete_own\" ON public.${TABLE};"
+              echo ""
+              echo "CREATE POLICY \"${TABLE}_select_own\" ON public.${TABLE}"
+              echo "  FOR SELECT USING (auth.uid() = owner_id);"
+              echo ""
+              echo "CREATE POLICY \"${TABLE}_insert_own\" ON public.${TABLE}"
+              echo "  FOR INSERT WITH CHECK (auth.uid() = owner_id);"
+              echo ""
+              echo "CREATE POLICY \"${TABLE}_update_own\" ON public.${TABLE}"
+              echo "  FOR UPDATE USING (auth.uid() = owner_id) WITH CHECK (auth.uid() = owner_id);"
+              echo ""
+              echo "CREATE POLICY \"${TABLE}_delete_own\" ON public.${TABLE}"
+              echo "  FOR DELETE USING (auth.uid() = owner_id);"
+              echo ""
+            done
+          } > "$MIGRATION_FILE"
+
+          echo "migration_file=$MIGRATION_FILE" >> "$GITHUB_OUTPUT"
+          echo ""
+          echo "=== Scaffolded: $MIGRATION_FILE ==="
+          cat "$MIGRATION_FILE"
+
+      # ── 7. Commit scaffold to branch ─────────────────────────────────────────
+      - name: Commit scaffold migration
+        if: |
+          steps.scaffold.outputs.migration_file != '' &&
+          (github.event_name != 'pull_request' ||
+           github.event.pull_request.head.repo.full_name == github.repository)
+        shell: bash
+        run: |
+          git config user.name  "sql-migration-guard"
+          git config user.email "sql-migration-guard@users.noreply.github.com"
+
+          git add supabase/migrations/
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+          else
+            git commit -m "chore: scaffold SQL migration for new table references [skip ci]"
+            git push || echo "⚠️ Push failed — branch may require rebase."
+          fi
+
+      # ── 8. Apply pending migrations (main branches only) ─────────────────────
+      - name: Apply pending migrations
+        id: apply
+        if: |
+          github.event_name != 'pull_request' &&
+          (steps.changed.outputs.migrations_changed == 'true' ||
+           inputs.force_apply == true) &&
+          env.DATABASE_URL != ''
+        shell: bash
+        run: |
+          echo "=== Applying migrations via Supabase CLI ==="
+          supabase db push --db-url "$DATABASE_URL" 2>&1 | tee /tmp/migration-output.txt
+          STATUS=${PIPESTATUS[0]}
+
+          if [ "$STATUS" -ne 0 ]; then
+            echo "⚠️ Migration apply exited $STATUS — review output above."
+            echo "apply_status=warning" >> "$GITHUB_OUTPUT"
+          else
+            echo "✅ Migrations applied successfully."
+            echo "apply_status=ok" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Write apply result to step summary
+          {
+            echo "## 🚀 Migration Apply Result"
+            echo ""
+            echo '```'
+            cat /tmp/migration-output.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ── 9. Regenerate Supabase TypeScript types ───────────────────────────────
+      - name: Regenerate Supabase types
+        id: regen
+        if: |
+          github.event_name != 'pull_request' &&
+          steps.changed.outputs.migrations_changed == 'true' &&
+          env.SUPABASE_DB_URL != ''
+        shell: bash
+        run: |
+          echo "Regenerating types/supabase.ts …"
+          supabase gen types typescript \
+            --db-url "$SUPABASE_DB_URL" \
+            --schema public > types/supabase.ts
+          echo "regen_done=true" >> "$GITHUB_OUTPUT"
+          echo "✅ TypeScript types regenerated."
+
+      # ── 10. Commit regenerated types ──────────────────────────────────────────
+      - name: Commit regenerated types
+        if: steps.regen.outputs.regen_done == 'true'
+        shell: bash
+        run: |
+          git config user.name  "sql-migration-guard"
+          git config user.email "sql-migration-guard@users.noreply.github.com"
+
+          git add types/supabase.ts
+          if git diff --cached --quiet; then
+            echo "No type changes to commit."
+          else
+            git commit -m "chore: regenerate supabase types [skip ci] [skip vercel]"
+            git push || echo "⚠️ Push failed."
+          fi
+
+      # ── 11. Build check ───────────────────────────────────────────────────────
+      - name: Build check (pnpm build)
+        shell: bash
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── 12. PR comment ────────────────────────────────────────────────────────
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const missing     = '${{ steps.scan.outputs.missing_tables }}';
+            const tableRefs   = '${{ steps.scan.outputs.table_refs }}';
+            const hasMissing  = '${{ steps.scan.outputs.has_missing }}' === 'true';
+            const migChanged  = '${{ steps.changed.outputs.migrations_changed }}' === 'true';
+            const scaffoldFile = '${{ steps.scaffold.outputs.migration_file }}';
+
+            const lines = ['## 🗄️ SQL Migration Guard', ''];
+
+            if (tableRefs) {
+              lines.push(`**Supabase table references in changed files:** \`${tableRefs.replace(/,/g, '`, `')}\``);
+              lines.push('');
+            }
+
+            if (hasMissing) {
+              lines.push('### ⚠️ Tables referenced but not found in existing migrations');
+              lines.push('');
+              missing.split(',').forEach(t => {
+                if (t.trim()) lines.push(`- \`${t.trim()}\``);
+              });
+              lines.push('');
+              if (scaffoldFile) {
+                lines.push(`**✅ Scaffold migration committed:** \`${scaffoldFile}\``);
+                lines.push('');
+                lines.push('> **Action required:** Open the scaffold file and replace the placeholder');
+                lines.push('> columns with your real schema (columns, types, constraints, indexes).');
+              } else {
+                lines.push('> **Action required:** Add a migration under `supabase/migrations/` for these tables.');
+              }
+            } else if (tableRefs) {
+              lines.push('### ✅ All referenced tables are covered by existing migrations');
+            } else {
+              lines.push('### ✅ No Supabase table references detected in changed files');
+            }
+
+            if (migChanged) {
+              lines.push('');
+              lines.push('**📋 Migration file(s) changed** — pending migrations will be applied to the database on merge.');
+            }
+
+            lines.push('');
+            lines.push('---');
+            lines.push('*SQL Migration Guard · [workflow](.github/workflows/sql-migration-guard.yml)*');
+
+            // Upsert: edit previous bot comment if one exists, otherwise create
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const existing = comments.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('SQL Migration Guard')
+            );
+
+            const body = lines.join('\n');
+            if (existing) {
+              await github.rest.issues.updateComment({
+                comment_id: existing.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            }
+
+      # ── 13. Final step summary ────────────────────────────────────────────────
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## SQL Migration Guard — Final Status"
+            echo ""
+            echo "| Step | Result |"
+            echo "|------|--------|"
+            echo "| Migrations changed | ${{ steps.changed.outputs.migrations_changed }} |"
+            echo "| Tables missing migrations | ${{ steps.scan.outputs.has_missing }} |"
+            echo "| Scaffold generated | ${{ steps.scaffold.outputs.migration_file != '' }} |"
+            echo "| Migration apply status | ${{ steps.apply.outputs.apply_status || 'skipped' }} |"
+            echo "| Types regenerated | ${{ steps.regen.outputs.regen_done || 'skipped' }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
