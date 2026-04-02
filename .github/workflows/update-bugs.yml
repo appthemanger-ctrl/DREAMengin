@@ -15,7 +15,8 @@ name: Update Bugs Doc
 on:
   push:
     branches:
-      - '**'            # every branch
+      - '**'
+      - '!completedream'   # never push back to completedream — Vercel watches that branch
     paths-ignore:
       - 'docs/BUGS.md'  # prevent the bot's own commit from re-triggering
 

@@ -14,6 +14,7 @@ on:
   push:
     branches:
       - '**'
+      - '!completedream'   # never push back to completedream — Vercel watches that branch
     paths-ignore:
       - 'README.md'   # prevent the bot's own commit from re-triggering
 

@@ -1,21 +1,19 @@
 name: Update Repository State
 
 on:
-  # Run on pushes to main branches
+  # Run on pushes to main and develop only — NOT completedream (Vercel watches that branch)
   push:
     branches:
-      - completedream
       - main
       - develop
     # Skip if only REPO_STATE.md changed (avoid infinite loops)
     paths-ignore:
       - 'REPO_STATE.md'
 
-  # Run on PR merge
+  # Run on PR merge to main/develop only
   pull_request:
     types: [closed]
     branches:
-      - completedream
       - main
       - develop
 

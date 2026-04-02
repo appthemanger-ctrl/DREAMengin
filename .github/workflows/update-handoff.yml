@@ -13,7 +13,8 @@ name: Update Handoff Doc
 on:
   push:
     branches:
-      - '**'            # every branch
+      - '**'
+      - '!completedream'   # never push back to completedream — Vercel watches that branch
     paths-ignore:
       - 'docs/HANDOFF.md'   # prevent the bot's own commit from re-triggering
 
