@@ -289,6 +289,7 @@ export default async function ViewProfilePage() {
             displayName={displayName}
             handle={handle}
             avatarUrl={profile.avatar_url ?? null}
+            avatarEditHref="/edit-profiledream"
             bio={profile.bio ?? null}
             coverUrl={profile.cover_url ?? null}
             followers={profile.followers_count ?? 0}
@@ -351,4 +352,3 @@ export default async function ViewProfilePage() {
     </div>
   );
 }
-

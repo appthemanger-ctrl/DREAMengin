@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { Heart, MessageCircle, Share2, Users, X, Check, Plug, ChevronLeft, ChevronRight } from 'lucide-react';
 import ConnectorWidgetPicker, { type PickerConnector, TOP_10_CONNECTORS } from '@/components/connectors/ConnectorWidgetPicker';
+import EditableAvatar from '@/components/profile/EditableAvatar';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -498,6 +499,7 @@ interface WidgetContentProps {
   config: WidgetConfig;
   displayName: string;
   avatarUrl?: string | null;
+  avatarEditHref?: string;
   bio?: string | null;
   coverUrl?: string | null;
   followers: number;
@@ -507,12 +509,33 @@ interface WidgetContentProps {
 }
 
 function WidgetContent(p: WidgetContentProps) {
-  const { type, size, config, displayName, avatarUrl, bio, coverUrl, followers, following = 0, posts, likes } = p;
+  const { type, size, config, displayName, avatarUrl, avatarEditHref, bio, coverUrl, followers, following = 0, posts, likes } = p;
   const accent    = config.accentColor;
   const textColor = getTextColor(config.bgStyle);
   const dimColor  = getDimColor(config.bgStyle);
-  const initials  = (displayName || 'D')[0].toUpperCase();
   const isLarge   = size === 'large';
+  const avatarTitle = avatarEditHref ? 'Edit profile picture' : undefined;
+
+  const renderAvatar = (avatarSize: number, fontSize: number) => (
+    <EditableAvatar
+      src={avatarUrl}
+      name={displayName}
+      size={avatarSize}
+      href={avatarEditHref}
+      title={avatarTitle}
+      ariaLabel={avatarTitle}
+      style={{
+        background: `linear-gradient(135deg, ${accent}, ${accent}99)`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize,
+        fontWeight: 800,
+        color: '#fff',
+      }}
+      imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
+    />
+  );
 
   switch (type) {
 
@@ -522,18 +545,7 @@ function WidgetContent(p: WidgetContentProps) {
         return (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                overflow: 'hidden',
-                background: `linear-gradient(135deg, ${accent}, ${accent}99)`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 14, fontWeight: 800, color: '#fff',
-              }}>
-                {avatarUrl
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={avatarUrl} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : initials}
-              </div>
+              {renderAvatar(36, 14)}
               <div>
                 <div style={{ fontWeight: 700, fontSize: 13, color: textColor, lineHeight: 1.2 }}>{displayName}</div>
                 {bio && (
@@ -563,18 +575,7 @@ function WidgetContent(p: WidgetContentProps) {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
-              overflow: 'hidden',
-              background: `linear-gradient(135deg, ${accent}, ${accent}99)`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 18, fontWeight: 800, color: '#fff',
-            }}>
-              {avatarUrl
-                // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={avatarUrl} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : initials}
-            </div>
+            {renderAvatar(44, 18)}
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 15, color: textColor }}>{displayName}</div>
               {bio && (
@@ -905,6 +906,7 @@ interface ProfileWidgetGridProps {
   displayName: string;
   handle: string;
   avatarUrl?: string | null;
+  avatarEditHref?: string;
   bio?: string | null;
   coverUrl?: string | null;
   followers?: number;
@@ -917,7 +919,7 @@ interface ProfileWidgetGridProps {
 }
 
 export default function ProfileWidgetGrid({
-  displayName, handle: _handle, avatarUrl, bio, coverUrl,
+  displayName, handle: _handle, avatarUrl, avatarEditHref, bio, coverUrl,
   followers = 0, following = 0, posts = 12, likes = 46,
   isEditing = false,
   initialWidgets, onSave,
@@ -1007,7 +1009,7 @@ export default function ProfileWidgetGrid({
 
   const contentProps = (w: Widget): WidgetContentProps => ({
     type: w.type, size: getSize(w), config: getConfig(w),
-    displayName, avatarUrl, bio, coverUrl, followers, following, posts, likes,
+    displayName, avatarUrl, avatarEditHref, bio, coverUrl, followers, following, posts, likes,
   });
 
   // Profile strength
