@@ -15,17 +15,20 @@ const config: Config = {
       // Space-dark palette (HomeDream + dark-UI components).
       // CSS variables in globals.css provide the Dream-Ice light-mode palette.
       colors: {
-        'de-sky':       '#7DD3FC',
-        'de-sky-dark':  '#0EA5E9',
-        'de-gold':      '#F59E0B',
-        'de-gold-light':'#FCD34D',
-        'de-navy':      '#0F172A',
-        'de-sheet':     '#0C1A2E',
-        'de-card':      '#111D30',
-        'de-border':    'rgba(125,211,252,0.15)',
-        'de-heading':   '#F0F9FF',
-        'de-text':      'rgba(255,255,255,0.85)',
-        'de-text-dim':  'rgba(255,255,255,0.45)',
+        'de-sky':         '#7DD3FC',
+        'de-sky-dark':    '#0EA5E9',
+        'de-gold':        '#F59E0B',
+        'de-gold-light':  '#FCD34D',
+        // Gilded Ghost palette (v2.2)
+        'de-gold-true':   '#D4AF37',  // True jeweller's gold
+        'midnight':       '#050505',  // Pure Midnight base surface
+        'de-navy':        '#0F172A',
+        'de-sheet':       '#0C1A2E',
+        'de-card':        '#111D30',
+        'de-border':      'rgba(125,211,252,0.15)',
+        'de-heading':     '#F0F9FF',
+        'de-text':        'rgba(255,255,255,0.85)',
+        'de-text-dim':    'rgba(255,255,255,0.45)',
       },
       fontFamily: {
         sans: ['var(--font-space-grotesk)', 'system-ui', 'sans-serif'],
@@ -54,10 +57,16 @@ const config: Config = {
       boxShadow: {
         'sky-glow':        '0 0 24px rgba(125,211,252,0.25)',
         'gold-glow':       '0 0 24px rgba(245,158,11,0.35)',
+        'gold-true-glow':  '0 0 24px rgba(212,175,55,0.40)',
         'card':            '0 4px 32px rgba(0,0,0,0.4)',
         'glass-elevated':  '0 2px 40px rgba(0,0,0,0.4), 0 0 80px rgba(125,211,252,0.05)',
         'btn-primary':     '0 4px 24px rgba(14,165,233,0.4)',
         'btn-primary-hov': '0 8px 32px rgba(14,165,233,0.6)',
+        // Neumorphic Midnight shadows (Gilded Ghost v2.2)
+        'neu-raise':  '1px 1px 10px rgba(125,211,252,0.05), -1px -1px 10px rgba(0,0,0,0.8)',
+        'neu-inset':  'inset 1px 1px 8px rgba(0,0,0,0.7), inset -1px -1px 6px rgba(125,211,252,0.04)',
+        'neu-gold':   '1px 1px 10px rgba(125,211,252,0.05), -1px -1px 10px rgba(0,0,0,0.8), 0 0 16px rgba(212,175,55,0.20)',
+        'bar-underglow': '0 -6px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.25)',
       },
       animation: {
         'float':      'float 6s ease-in-out infinite',

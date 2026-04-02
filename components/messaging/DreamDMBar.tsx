@@ -1156,12 +1156,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             : (isDividerMode
               ? `0 4px 24px rgba(0,0,0,0.08), 0 -4px 24px rgba(0,0,0,0.06),
                  0 1px 0 rgba(200,152,26,0.18), 0 -1px 0 rgba(200,152,26,0.12),
-                 inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(255,255,255,0.25)`
+                 inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(255,255,255,0.25),
+                 0 -8px 28px rgba(125,211,252,0.14)`
               : (isTop
                 ? `0 6px 32px rgba(0,0,0,0.12), 0 1px 0 rgba(200,152,26,0.15),
-                   inset 0 -1px 0 rgba(255,255,255,0.35)`
+                   inset 0 -1px 0 rgba(255,255,255,0.35),
+                   0 -6px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.22)`
                 : `0 -6px 32px rgba(0,0,0,0.10), 0 -1px 0 rgba(200,152,26,0.15),
-                   inset 0 1px 0 rgba(255,255,255,0.45)`)),
+                   inset 0 1px 0 rgba(255,255,255,0.45),
+                   0 -8px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.25)`)),
         }}
       >
         {/* ── Drag handle ──────────────────────────────────────────────────── */}

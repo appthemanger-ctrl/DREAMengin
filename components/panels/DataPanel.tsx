@@ -59,16 +59,45 @@ export default function DataPanel() {
         </div>
       </header>
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
-        <div className="de-widget">
-          <div className="de-widget-header"><span className="de-widget-title">Export Your Data</span></div>
-          <div className="de-widget-body">
-            <p className="text-sm" style={{ color: 'var(--de-text-dim)', marginBottom: 12 }}>Download a JSON copy of your profile, posts, widgets, and connected services.</p>
-            {exportMsg && <p style={{ fontSize: 12, color: exportMsg.includes('success') ? '#22c55e' : '#dc4444', display: 'flex', alignItems: 'center', gap: 4 }}>{exportMsg.includes('success') ? <Check className="w-3 h-3" /> : null}{exportMsg}</p>}
+        {/* ── System Critical: Volatile Asset Export ── */}
+        <div
+          className="de-system-critical-modal de-ghost-volatile"
+          style={{ padding: '0', overflow: 'hidden' }}
+        >
+          <div
+            style={{
+              padding: '14px 16px',
+              borderBottom: '1px solid rgba(212,175,55,0.18)',
+              background: 'rgba(212,175,55,0.06)',
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}
+          >
+            <Download size={16} style={{ color: '#D4AF37', flexShrink: 0 }} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#D4AF37', letterSpacing: '0.04em' }}>
+              SYSTEM CRITICAL — VOLATILE ASSET EXPORT
+            </span>
           </div>
-          <div className="de-widget-actions">
-            <button type="button" className="de-btn de-btn-ghost text-xs" onClick={handleExport} disabled={exporting} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              {exporting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
-              {exporting ? 'Exporting…' : 'Download Export'}
+          <div style={{ padding: '12px 16px' }}>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', marginBottom: 10, lineHeight: 1.5 }}>
+              Your data is a <strong style={{ color: '#D4AF37' }}>Ghost asset</strong> — download or lose. Export a JSON copy of your profile, posts, widgets, and connected services before it&apos;s gone.
+            </p>
+            {exportMsg && (
+              <p style={{ fontSize: 12, color: exportMsg.includes('success') ? '#4ade80' : '#f87171', display: 'flex', alignItems: 'center', gap: 4 }}>
+                {exportMsg.includes('success') ? <Check className="w-3 h-3" /> : null}
+                {exportMsg}
+              </p>
+            )}
+          </div>
+          <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(212,175,55,0.10)', display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              className="de-btn-export"
+              onClick={handleExport}
+              disabled={exporting}
+              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+            >
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {exporting ? 'Exporting…' : 'Export Data'}
             </button>
           </div>
         </div>

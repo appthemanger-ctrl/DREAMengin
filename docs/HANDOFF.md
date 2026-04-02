@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-02 02:05 UTC | `1f89921` | copilot/update-neumorphic-midnight-visuals | Copilot | ~6 modified<br>feat: Gilded Ghost Overhaul v2.2 — Neumorphic Midnight visual system — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/8c3e9354-ee03-49ec-b134-de0071714b04  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/LandingHero.tsx`, `components/landing/DrEamsBabylonHero.tsx`, `components/messaging/DreamDMBar.tsx`, `components/panels/DataPanel.tsx`, `styles/globals.css`, `tailwind.config.ts` |
 | **auto** | 2026-04-02 01:29 UTC | `0c64acb` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #395 from appthemanger-ctrl/copilot/update-sql-automation — feat: SQL Migration Guard — auto-scan, scaffold, apply, and type-regen on every PR/push<br> |
 | **auto** | 2026-04-02 00:41 UTC | `1b6b92d` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #391 from appthemanger-ctrl/copilot/save-engine-asset-function — feat: add saveEngineAsset — persist Wasm mesh/rig output to Supabase game_assets<br> |
 | **auto** | 2026-04-01 23:12 UTC | `441063e` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #390 from appthemanger-ctrl/copilot/fetch-posts-and-author-profiles — feat(platform): implement platform utility functions with proper DREAMengin patterns<br> |
 | **auto** | 2026-04-01 23:09 UTC | `f391f1b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #389 from appthemanger-ctrl/copilot/update-repo-for-vercel-deployment — chore: switch Vercel deploys to GitHub integration (remove CLI token deploy)<br> |
-| **auto** | 2026-04-01 22:29 UTC | `e2b200b` | copilot/remove-red-box-and-add-refresh-button | Copilot | +1 added  ~4 modified<br>feat(feed): remove red LIVE box, add feed topics settings, update workflows — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/543d59de-86a5-48a9-ba26-f57e1c9b47e8  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `lib/feed/feedTopics.ts`<br>✏️: `.github/workflows/games-library-ai-agent.yml`, `components/HomeFeed.tsx`, `components/panels/FeedSettingsPanel.tsx`, `lib/feed/useYouTubeLiveFeed.ts` |
 
 ## What changed in this alignment pass
 
