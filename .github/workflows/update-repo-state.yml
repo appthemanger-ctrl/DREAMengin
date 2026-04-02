@@ -1,7 +1,7 @@
 name: Update Repository State
 
 on:
-  # Run on pushes to main branches
+  # Run on pushes to main branches (completedream restored — bot commits carry [skip vercel])
   push:
     branches:
       - completedream

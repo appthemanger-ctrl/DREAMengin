@@ -13,7 +13,7 @@ name: Update Handoff Doc
 on:
   push:
     branches:
-      - '**'            # every branch
+      - '**'
     paths-ignore:
       - 'docs/HANDOFF.md'   # prevent the bot's own commit from re-triggering
 
@@ -60,3 +60,18 @@ jobs:
           SHORT="${SHORT:0:7}"
           git commit -m "docs: auto-update HANDOFF timeline [${SHORT}] [skip ci] [skip vercel]"
           git push origin HEAD:${{ github.ref_name }} || true
+
+      - name: Step Summary
+        if: always()
+        run: |
+          echo "## 📋 HANDOFF.md Auto-Update" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Actor  | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "A new row was prepended to the \`docs/HANDOFF.md\` change timeline." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**AI agents:** read \`docs/HANDOFF.md\` to understand what changed and when." >> "$GITHUB_STEP_SUMMARY"

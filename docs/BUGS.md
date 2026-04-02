@@ -5,6 +5,8 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Last updated:** 2026-04-02 00:56 UTC  
+**Triggered by commit:** `eeaee37` on `copilot/stop-pushing-to-vercel` by Copilot  
+**Commit message:** fix(idari-daily): open PR instead of pushing directly to completedream
 **Triggered by commit:** `70458ab` on `copilot/update-sql-automation` by Copilot  
 **Commit message:** feat: add SQL Migration Guard GitHub Action
 

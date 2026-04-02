@@ -2,7 +2,10 @@
   "framework": "nextjs",
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm run vercel-build",
-  "ignoreCommand": "exit 0",
+  "ignoreCommand": "git log -1 --pretty=%B | grep -qF '[skip vercel]' && exit 1 || exit 0",
+  "github": {
+    "silent": true
+  },
   "functions": {
     "app/api/account/delete-dream/route.ts": { "maxDuration": 30 },
     "app/api/account/delete-data/route.ts": { "maxDuration": 30 },

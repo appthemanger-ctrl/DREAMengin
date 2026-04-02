@@ -16,14 +16,16 @@ name: Idari Daily Improvement Cycle
 #     2. Analyse repository state
 #     3. Verify architecture alignment
 #     4. Run improvement agents (battery, scene, UI, Supabase)
-#     5. Commit any approved changes
-#     6. Push to branch: completedream
+#     5. Commit any approved changes to a new branch: idari/daily-YYYY-MM-DD
+#     6. Open a PR against completedream (never push directly)
+#        Vercel auto-deploys only when the PR is merged.
 #
 #   JOB 3 — vercel-build-verify  (like portfolio-optimizer "optimize"):
 #     Runs only after idari-cycle (needs: idari-cycle).
+#     Checks out the PR branch (or completedream if nothing was committed).
 #     Runs `next build` against the 2026 Vercel-compatible runtime:
 #       Node 24 · pnpm 10.30.0 · Next.js 16+  (docs/ARCHITECTURE.md §10)
-#     Ensures every change Idari makes or proposes still compiles on Vercel.
+#     Ensures every change Idari proposes still compiles before the PR is merged.
 #
 # Idari may NOT modify /docs or any governance / policy files.
 # Push is aborted if no architecture-justified changes are found.
@@ -49,12 +51,13 @@ concurrency:
   cancel-in-progress: false   # never cancel a running cycle; queue instead
 
 permissions:
-  contents: write   # needed to push the commit back to completedream
+  contents: write        # needed to push the PR branch
+  pull-requests: write   # needed to open the PR
 
 env:
   TARGET_BRANCH: completedream
-  BOT_NAME: 'Idari[bot]'
-  BOT_EMAIL: 'idari-bot@users.noreply.github.com'
+  BOT_NAME: 'github-actions[bot]'
+  BOT_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com'
   # 2026 Vercel-compatible runtime (docs/ARCHITECTURE.md §10)
   NODE_VERSION: '24'
   PNPM_VERSION: '10.30.0'
@@ -284,6 +287,11 @@ jobs:
     name: Idari Daily Improvement
     runs-on: ubuntu-latest
     needs: spec-check   # only run after spec-check passes
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      pr_branch: ${{ steps.commit-report.outputs.pr_branch }}
 
     steps:
       # ────────────────────────────────────────────────────────────────────────
@@ -481,10 +489,13 @@ jobs:
           echo "Governance guard: clean."
 
       # ────────────────────────────────────────────────────────────────────────
-      # 9. Commit and push (skipped on dry run)
+      # 9. Commit to a new branch and open a PR (skipped on dry run)
       # ────────────────────────────────────────────────────────────────────────
-      - name: Commit cycle report
+      - name: Commit cycle report and open PR
+        id: commit-report
         if: ${{ inputs.dry_run != true }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name  "${{ env.BOT_NAME }}"
           git config user.email "${{ env.BOT_EMAIL }}"
@@ -493,18 +504,45 @@ jobs:
 
           if git diff --cached --quiet; then
             echo "No changes to commit — cycle complete with no modifications."
+            echo "pr_branch=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           TODAY=$(date -u '+%Y-%m-%d')
-          git commit -m "idari: daily cycle report $TODAY [skip ci] [skip vercel]
+          PR_BRANCH="idari/daily-$TODAY"
+
+          # Create the branch off the current completedream HEAD
+          git checkout -b "$PR_BRANCH"
+
+          git commit -m "idari: daily cycle report $TODAY [skip ci]
 
           Architecture justification: cycle report only — no product code changed.
           Performance impact: none — documentation artifact committed.
           Governed by: docs/IDARI_CONTRACT.md"
 
-          git push origin HEAD:${{ env.TARGET_BRANCH }}
-          echo "Idari cycle committed and pushed to ${{ env.TARGET_BRANCH }}."
+          git push origin "$PR_BRANCH"
+
+          # Open a PR targeting completedream (fails gracefully if one already exists)
+          gh pr create \
+            --base "${{ env.TARGET_BRANCH }}" \
+            --head "$PR_BRANCH" \
+            --title "idari: daily cycle report $TODAY" \
+            --body "## Idari Daily Cycle Report
+
+          Automated daily improvement cycle report.
+
+          - Branch: \`${{ env.TARGET_BRANCH }}\`
+          - Date: $TODAY
+          - Trigger: \`${{ github.event_name }}\`
+
+          Review and merge to apply to \`${{ env.TARGET_BRANCH }}\`.
+          Vercel will deploy automatically once merged.
+
+          _Governed by [docs/IDARI_CONTRACT.md](docs/IDARI_CONTRACT.md)_" \
+            || echo "PR may already exist for branch $PR_BRANCH — skipping create."
+
+          echo "pr_branch=$PR_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "Idari cycle committed to $PR_BRANCH and PR opened against ${{ env.TARGET_BRANCH }}."
 
       - name: Dry run summary
         if: ${{ inputs.dry_run == true }}
@@ -541,10 +579,10 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout completedream (post-cycle state)
+      - name: Checkout PR branch (or completedream if no PR was created)
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.TARGET_BRANCH }}
+          ref: ${{ needs.idari-cycle.outputs.pr_branch || env.TARGET_BRANCH }}
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
