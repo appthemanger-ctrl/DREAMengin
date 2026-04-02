@@ -15,7 +15,7 @@ Date: March 24, 2026
 
 DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+** (App Router),
 **TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 8+**.
-It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
+It is not a traditional social app — it is a modular, DreamDM-Bar-led spatial operating environment.
 Author: José Mancilla · pnpm 10.30.0 · Node 24
 
 ---
@@ -61,7 +61,7 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 | `components/daydream/` | The 6 Daydream surfaces + Engin components |
 | `components/games/` | All game components (MADMAXI, NeonDrift, etc.) |
 | `components/home/` | HomeDream + HomeSystem |
-| `components/messaging/` | DreamDMBar (the dual-runtime divider) |
+| `components/messaging/` | DreamDMBar (the top-layer interaction rail and DreamSpace owner) |
 | `components/music/` | SoundRecorder and music UI |
 | `lib/` | Hooks, utilities, Supabase client, game libs |
 | `docs/` | All governance, law, spec, and policy documents |
