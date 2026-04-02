@@ -63,6 +63,7 @@ import {
   shouldCollapseTopExpandedDrag,
   shouldSnapBottomDragToTop,
   shouldTreatGoldReleaseAsTap,
+  DEFAULT_SPLIT_RATIO,
   snapSplitRatioOnRelease,
   DIVIDER_H,
   SPLIT_RATIO_MIN,
@@ -174,12 +175,14 @@ interface DreamDMBarProps {
   splitRatio?: number;
   /** Called continuously while the user drags the divider. Emits the new 0..1 ratio. */
   onSplitChange?: (ratio: number) => void;
+  /** Reports whether the DreamDM Bar is hidden so the host can hide DreamSpace with it. */
+  onMinimizedChange?: (isMinimized: boolean) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange }: DreamDMBarProps) {
+export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange }: DreamDMBarProps) {
   const isGameImmersive = useImmersiveGameLayout();
   /** Gold button diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;
@@ -234,6 +237,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
    */
   const [isMinimized, setIsMinimized] = useState(false);
 
+  useEffect(() => {
+    onMinimizedChange?.(isMinimized);
+  }, [isMinimized, onMinimizedChange]);
+
   // ── Touch-reveal transparency ─────────────────────────────────────────────
   /**
    * The bar is fully transparent when not in use. It becomes opaque when the
@@ -266,6 +273,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
    */
   const [goldMinimized, setGoldMinimized] = useState(true);
   const goldMinTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const minimizeDreamDMBar = useCallback(() => {
+    setIsMinimized(true);
+    setIsTop(false);
+    setIsTopExpanded(false);
+    setDragH(BAR_H);
+    setSlideDown(0);
+    onSplitChange?.(DEFAULT_SPLIT_RATIO);
+  }, [onSplitChange]);
 
   // ── Gold button double-tap ─────────────────────────────────────────────────
   const goldRef = useRef({ lastAt: 0 });
@@ -1237,7 +1253,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                     type="button"
                     aria-label="Close DreamDM Bar"
                     onPointerDown={(e) => e.stopPropagation()}
-                    onClick={() => setIsMinimized(true)}
+                    onClick={minimizeDreamDMBar}
                     style={{
                       background: 'rgba(180,185,200,0.15)', border: 'none', borderRadius: 8,
                       width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1366,7 +1382,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                   type="button"
                   aria-label="Close DreamDM Bar"
                   onPointerDown={(e) => e.stopPropagation()}
-                  onClick={() => setIsMinimized(true)}
+                  onClick={minimizeDreamDMBar}
                   style={{
                     flexShrink: 0,
                     background: 'rgba(180,185,200,0.15)',
