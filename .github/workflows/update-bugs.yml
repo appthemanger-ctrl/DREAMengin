@@ -16,7 +16,6 @@ on:
   push:
     branches:
       - '**'
-      - '!completedream'   # never push back to completedream — Vercel watches that branch
     paths-ignore:
       - 'docs/BUGS.md'  # prevent the bot's own commit from re-triggering
 
@@ -63,3 +62,18 @@ jobs:
           SHORT="${SHORT:0:7}"
           git commit -m "docs: auto-update BUGS.md [${SHORT}] [skip ci] [skip vercel]"
           git push origin HEAD:${{ github.ref_name }} || true
+
+      - name: Step Summary
+        if: always()
+        run: |
+          echo "## 🐛 BUGS.md Auto-Update" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Actor  | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`docs/BUGS.md\` was regenerated from source TODO/FIXME/HACK annotations." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**AI agents:** read \`docs/BUGS.md\` for the current bug list and upgrade queue." >> "$GITHUB_STEP_SUMMARY"

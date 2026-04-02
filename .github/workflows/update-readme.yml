@@ -3,18 +3,20 @@ name: Idari — Update README
 # ──────────────────────────────────────────────────────────────────────────────
 # Idari runs after every push (including PR merges) to any branch.
 # Calls scripts/update-readme.mjs to:
+#   • Regenerate the "AI Agent Quick Reference" block at the top of README.md
 #   • Refresh the "Last updated" line in "## Current Implementation Status"
 #   • Prepend a new row in the "## Recent Changes" table (keeps last 10)
+#   • Write a rich GitHub Actions Step Summary for AI agent visibility
 #
-# The commit is made by Idari[bot] and tagged [skip ci] so it
-# does not re-trigger this workflow.
+# The commit is made by Idari[bot] and tagged [skip ci] [skip vercel] so it
+# does not re-trigger this workflow and does not trigger a Vercel deploy.
+# Vercel's ignoreCommand in vercel.json checks for [skip vercel] and skips.
 # ──────────────────────────────────────────────────────────────────────────────
 
 on:
   push:
     branches:
       - '**'
-      - '!completedream'   # never push back to completedream — Vercel watches that branch
     paths-ignore:
       - 'README.md'   # prevent the bot's own commit from re-triggering
 
@@ -40,9 +42,10 @@ jobs:
       - name: Run update-readme script
         run: node scripts/update-readme.mjs
         env:
-          GITHUB_SHA:       ${{ github.sha }}
-          GITHUB_REF_NAME:  ${{ github.ref_name }}
-          GITHUB_ACTOR:     ${{ github.actor }}
+          GITHUB_SHA:           ${{ github.sha }}
+          GITHUB_REF_NAME:      ${{ github.ref_name }}
+          GITHUB_ACTOR:         ${{ github.actor }}
+          GITHUB_STEP_SUMMARY:  ${{ env.GITHUB_STEP_SUMMARY }}
 
       - name: Commit updated README.md
         run: |
@@ -77,3 +80,18 @@ jobs:
 
           echo "❌ All push attempts failed."
           exit 1
+
+      - name: Step Summary
+        if: always()
+        run: |
+          echo "## 🤖 Idari[bot] — README Auto-Update" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Actor  | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "README.md updated with AI Agent Quick Reference block + Recent Changes row." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Bot commits carry \`[skip vercel]\` — Vercel ignoreCommand skips these deploys.**" >> "$GITHUB_STEP_SUMMARY"
