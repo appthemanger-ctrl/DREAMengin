@@ -20,8 +20,8 @@ describe('HomeDream home surface', () => {
 
   it('keeps HomeDream feed-first and removes the extra home search surface', () => {
     expect(dashboard).toContain('HomeDream Feed');
-    expect(dashboard.indexOf('HomeDream Feed')).toBeLessThan(dashboard.indexOf('Runtime status'));
-    expect(dashboard.indexOf('HomeDream Feed')).toBeLessThan(dashboard.indexOf('Daydream launch strip'));
+    expect(dashboard.indexOf('<HomeFeed')).toBeLessThan(dashboard.indexOf('RUNTIME_SIGNALS.map'));
+    expect(dashboard.indexOf('<HomeFeed')).toBeLessThan(dashboard.indexOf('<DaydreamPulseStrip'));
     expect(dashboard).not.toContain('DrEamsSearchBar');
     expect(dashboard).not.toContain('Recent Activity');
     expect(dashboard).not.toContain('Telemetry');
