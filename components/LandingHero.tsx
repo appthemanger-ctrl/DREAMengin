@@ -93,7 +93,7 @@ export default function LandingHero() {
   return (
     <div
       className="relative flex flex-col overflow-hidden"
-      style={{ minHeight: '100dvh', background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 40%, #0f2244 70%, #0a1628 100%)' }}
+      style={{ minHeight: '100dvh', background: 'linear-gradient(155deg, #050505 0%, #080810 40%, #0a0f1e 70%, #050505 100%)' }}
     >
       {/* ── Atmospheric glow layers ── */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -113,7 +113,7 @@ export default function LandingHero() {
           style={{
             bottom: '-60px', left: '-40px',
             width: '540px', height: '540px',
-            background: 'radial-gradient(circle, rgba(200,152,26,0.13) 0%, rgba(245,158,11,0.05) 50%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(212,175,55,0.16) 0%, rgba(212,175,55,0.06) 50%, transparent 70%)',
             filter: 'blur(72px)',
           }}
         />

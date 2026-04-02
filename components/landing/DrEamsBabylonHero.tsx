@@ -8,6 +8,7 @@ import {
   Color4,
   CubeTexture,
   DirectionalLight,
+  FresnelParameters,
   GlowLayer,
   HemisphericLight,
   Mesh,
@@ -15,6 +16,7 @@ import {
   PBRMaterial,
   PointerEventTypes,
   Scene,
+  StandardMaterial,
   Texture,
   TransformNode,
   Vector3,
@@ -255,6 +257,27 @@ export default function DrEamsBabylonHero({
     );
     dotRMat.metallic = 0;
     dotRMat.roughness = 1;
+
+    // ── Gilded Ghost v2.2: Gold Physical material (roughness 0.3, metalness 1.0) ──
+    const goldMat = new PBRMaterial('gold', scene);
+    goldMat.albedoColor = new Color3(0.83, 0.68, 0.21); // #D4AF37
+    goldMat.metallic = 1.0;
+    goldMat.roughness = 0.3;
+    goldMat.environmentIntensity = 1.6;
+    goldMat.emissiveColor = new Color3(0.18, 0.13, 0.02);
+
+    // Ghost rim-light material — gold Fresnel for volatile / scanned assets
+    const ghostRimMat = new StandardMaterial('ghostRim', scene);
+    ghostRimMat.emissiveColor = new Color3(0.83, 0.68, 0.21);
+    ghostRimMat.alpha = 0.28;
+    const fresnelParams = new FresnelParameters();
+    fresnelParams.leftColor = new Color3(0.83, 0.68, 0.21);
+    fresnelParams.rightColor = Color3.Black();
+    fresnelParams.power = 2.5;
+    fresnelParams.bias = 0.08;
+    ghostRimMat.emissiveFresnelParameters = fresnelParams;
+    ghostRimMat.wireframe = false;
+    ghostRimMat.backFaceCulling = false;
 
     // ── Scene graph / robot hierarchy ─────────────────────────────────────────
 
@@ -862,6 +885,37 @@ export default function DrEamsBabylonHero({
     shadowDisc.position = new Vector3(0, 0.02, 0);
     shadowDisc.parent = root;
 
+    // ── Gilded Ghost v2.2: Rotating gold orbit torus ──────────────────────────
+    // A slowly-rotating gold wireframe torus orbiting the robot — the "Ghost mesh"
+    const orbitTorus = MeshBuilder.CreateTorus(
+      'orbitTorus',
+      { diameter: 3.6, thickness: 0.032, tessellation: 60 },
+      scene,
+    );
+    orbitTorus.material = goldMat;
+    orbitTorus.position = new Vector3(0, 1.1, 0);
+    orbitTorus.rotation.x = Math.PI / 3.5;
+
+    const orbitTorus2 = MeshBuilder.CreateTorus(
+      'orbitTorus2',
+      { diameter: 3.0, thickness: 0.022, tessellation: 48 },
+      scene,
+    );
+    orbitTorus2.material = goldMat;
+    orbitTorus2.position = new Vector3(0, 1.1, 0);
+    orbitTorus2.rotation.x = -Math.PI / 4;
+    orbitTorus2.rotation.z = Math.PI / 5;
+
+    // Ghost rim overlay — wraps the torso with Fresnel gold glow
+    const ghostRimSphere = MeshBuilder.CreateSphere(
+      'ghostRim',
+      { diameter: 1.6, segments: 16 },
+      scene,
+    );
+    ghostRimSphere.material = ghostRimMat;
+    ghostRimSphere.position = new Vector3(0, 1.35, 0);
+    ghostRimSphere.parent = root;
+
     // ── Interaction state ──────────────────────────────────────────────────────
     let isDragging = false;
     let pointerX = 0;
@@ -936,6 +990,11 @@ export default function DrEamsBabylonHero({
       const t = now * 0.001;
       const active = now < interactUntil;
       const idle = makeIdleCursorTarget(t);
+
+      // ── Gilded Ghost orbit torus rotation ──
+      orbitTorus.rotation.y  = t * 0.38;
+      orbitTorus2.rotation.y = -t * 0.26;
+      orbitTorus2.rotation.x = -Math.PI / 4 + Math.sin(t * 0.18) * 0.12;
 
       const desiredY = active ? targetRotY : idle.x;
       const desiredX = active ? targetRotX : idle.y;
