@@ -56,8 +56,8 @@ permissions:
 
 env:
   TARGET_BRANCH: completedream
-  BOT_NAME: 'Idari[bot]'
-  BOT_EMAIL: 'idari-bot@users.noreply.github.com'
+  BOT_NAME: 'github-actions[bot]'
+  BOT_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com'
   # 2026 Vercel-compatible runtime (docs/ARCHITECTURE.md §10)
   NODE_VERSION: '24'
   PNPM_VERSION: '10.30.0'
