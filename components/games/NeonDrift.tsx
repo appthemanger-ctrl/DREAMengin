@@ -17,6 +17,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { publishGamePerformanceBaseline } from '@/lib/games/performance-baseline';
 import * as BABYLON from '@babylonjs/core';
 import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager';
 import { EliteGameEngine } from '@/lib/gameengin';
@@ -357,6 +358,18 @@ export default function NeonDrift() {
           setRenderInfo(
             `${telemetry.isWebGPU ? 'WebGPU' : 'WebGL2'} · ${telemetry.avgFps}fps · ${telemetry.qualityTier} tier`
           );
+          publishGamePerformanceBaseline({
+            gameId: 'neon-drift',
+            renderMode: 'webgpu',
+            rendererBackend: telemetry.isWebGPU ? 'webgpu' : 'webgl2',
+            webgpuSupported: telemetry.isWebGPU,
+            fps: telemetry.fps,
+            avgFps: telemetry.avgFps,
+            frameMs: telemetry.frameMs,
+            avgFrameMs: telemetry.avgFrameMs,
+            sampleCount: 90,
+            source: 'runtime',
+          });
         });
         elite.onQualityChange((budget) => {
           postFx?.applyBudget(budget);
