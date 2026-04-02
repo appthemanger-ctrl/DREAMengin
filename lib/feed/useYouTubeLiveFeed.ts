@@ -33,6 +33,17 @@ const FEED_MAX = 30;
 const REFRESH_INTERVAL_DEFAULT_S = 15;
 const REFRESH_INTERVAL_ALL_S = 10;
 
+/**
+ * These queries are always fetched on init regardless of the user's saved
+ * topic settings, so world news (English), popular videos, and music are
+ * always represented in the feed.
+ */
+const ENRICHMENT_QUERIES: string[] = [
+  'world news today',
+  'popular music videos 2024',
+  'trending videos',
+];
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /** Convert a UnifiedFeedItem (YouTube) → FeedPost so HomeFeed can render it. */
@@ -120,8 +131,14 @@ export function useYouTubeLiveFeed(): UseYouTubeLiveFeedReturn {
       setIsRefreshing(true);
       try {
         const queries = getQueries();
+        // Always include enrichment queries (world news, popular videos, music)
+        // so they appear regardless of user topic settings; dedup later.
+        const allQueries = [
+          ...queries,
+          ...ENRICHMENT_QUERIES.filter((q) => !queries.includes(q)),
+        ];
         const results = await Promise.all(
-          queries.map((q) => fetchYtQuery(q, 7, ctrl.signal)),
+          allQueries.map((q) => fetchYtQuery(q, 7, ctrl.signal)),
         );
         if (!mountedRef.current) return;
 
