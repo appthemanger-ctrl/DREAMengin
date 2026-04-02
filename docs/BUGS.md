@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-02 04:06 UTC  
-**Triggered by commit:** `13dd9f0` on `completedream` by appthemanger-ctrl  
-**Commit message:** Update and rename Gengin.agent.md to gameengin-ai-agent.yml
+**Last updated:** 2026-04-02 04:36 UTC  
+**Triggered by commit:** `b47cf69` on `copilot/update-joystick-responsiveness` by Copilot  
+**Commit message:** feat: game UI cleanup — faster joysticks, right-stick tap=jump, compact HUD, smaller gold orb
 
 ---
 
