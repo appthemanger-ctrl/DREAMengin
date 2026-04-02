@@ -67,6 +67,18 @@ const FEATURES = [
   },
 ];
 
+const PLATFORM_SIGNALS = [
+  'System-wide glass shell',
+  'Fast daydream switching',
+  'Modern command posture',
+];
+
+const PLATFORM_STATS = [
+  { value: '6', label: 'core daydreams' },
+  { value: 'AI triad', label: 'always in reach' },
+  { value: 'Dual runtime', label: 'persistent home system' },
+];
+
 // Precision easing — smooth deceleration, no bounce
 const easeDecel   = { ease: [0, 0, 0.2, 1]    as const, duration: 0.3 };
 const easePrecise = { ease: [0.4, 0, 0.2, 1]  as const, duration: 0.2 };
@@ -227,19 +239,12 @@ export default function LandingHero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...easeDecel, delay: 0.08 }}
-            className="mb-6 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.16em] uppercase select-none"
+            className="de-kicker mb-6"
             style={{
-              background: 'rgba(200,152,26,0.12)',
-              border: '1px solid rgba(200,152,26,0.30)',
               color: '#d4a832',
             }}
             aria-label="DREAMengin — Creative OS"
           >
-            <span
-              className="w-1.5 h-1.5 rounded-full animate-pulse"
-              style={{ background: '#F59E0B' }}
-              aria-hidden="true"
-            />
             Creative Operating Surface
           </motion.div>
 
@@ -341,6 +346,19 @@ export default function LandingHero() {
             </Link>
           </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...easeDecel, delay: 0.34 }}
+            className="mt-5 flex flex-wrap items-center justify-center gap-2 lg:justify-start"
+          >
+            {PLATFORM_SIGNALS.map((signal) => (
+              <span key={signal} className="de-command-chip" style={{ background: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(220,235,255,0.88)' }}>
+                {signal}
+              </span>
+            ))}
+          </motion.div>
+
           {/* Mission statement link */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -374,6 +392,24 @@ export default function LandingHero() {
                 Read the mission statement
               </span>
             </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...easeDecel, delay: 0.40 }}
+            className="mt-6 grid w-full gap-3 md:grid-cols-3"
+          >
+            {PLATFORM_STATS.map((stat) => (
+              <div key={stat.label} className="premium-card" style={{ padding: '16px 18px' }}>
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(140,170,220,0.55)' }}>
+                  {stat.label}
+                </div>
+                <div style={{ marginTop: 8, fontSize: 24, fontWeight: 800, letterSpacing: '-0.04em', color: 'rgba(235,245,255,0.96)' }}>
+                  {stat.value}
+                </div>
+              </div>
+            ))}
           </motion.div>
         </div>
 

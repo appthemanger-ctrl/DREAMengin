@@ -164,22 +164,23 @@ function TiltGameCard({ game, isSaved, onPlay }: TiltGameCardProps) {
       <motion.div style={{ ...glareStyle }} aria-hidden="true" />
       {/* Cover Art Banner */}
       <div style={{
-        borderRadius: '12px 12px 0 0',
-        background: `linear-gradient(135deg, ${game.color}55 0%, ${game.color}22 60%, rgba(15,23,42,0.6) 100%)`,
-        height: 100,
+        borderRadius: '16px 16px 0 0',
+        background: `linear-gradient(145deg, rgba(5,10,24,0.96) 0%, ${game.color}33 56%, rgba(15,23,42,0.88) 100%)`,
+        height: 112,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        margin: '-14px -12px 8px -12px',
-        boxShadow: `0 4px 18px ${game.color}28`,
+        margin: '-14px -12px 10px -12px',
+        boxShadow: `0 14px 32px ${game.color}22`,
         overflow: 'hidden',
       }}>
         <div style={{
           position: 'absolute', inset: 0,
-          background: `radial-gradient(ellipse at 50% 70%, ${game.color}30 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse at 50% 72%, ${game.color}36 0%, transparent 72%)`,
         }} />
-        <span style={{ fontSize: 36, lineHeight: 1, position: 'relative', zIndex: 1, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.4))' }}>{game.emoji}</span>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0.08), transparent 38%)' }} />
+        <span style={{ fontSize: 30, lineHeight: 1, position: 'relative', zIndex: 1, filter: 'drop-shadow(0 8px 18px rgba(0,0,0,0.46))' }}>{game.emoji}</span>
         <div style={{
           position: 'absolute', top: 8, right: 8,
           fontSize: 8, fontWeight: 800, letterSpacing: '0.12em',
@@ -208,24 +209,25 @@ function TiltGameCard({ game, isSaved, onPlay }: TiltGameCardProps) {
       </div>
       <div style={{
         marginTop: 4,
-        padding: '5px 10px',
-        borderRadius: 8,
-        background: `${game.color}22`,
-        border: `1px solid ${game.color}55`,
+        padding: '6px 10px',
+        borderRadius: 999,
+        background: 'rgba(15,23,42,0.06)',
+        border: `1px solid ${game.color}35`,
         fontSize: 10, fontWeight: 800,
-        color: game.color,
+        color: 'var(--de-heading)',
         textAlign: 'center',
-        letterSpacing: '0.06em',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
       }}>
-        {isSaved ? '▶ Quick resume' : '▶ Boot in GameEngin'}
+        {isSaved ? 'Quick resume' : 'Launch in GameEngin'}
       </div>
     </>
   );
 
   const baseStyle: React.CSSProperties = {
-    background: 'rgba(255,255,255,0.45)',
-    border: `1.5px solid ${game.color}30`,
-    borderRadius: 12,
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.72), rgba(247,250,255,0.46))',
+    border: `1px solid ${game.color}24`,
+    borderRadius: 16,
     padding: '14px 12px',
     cursor: 'pointer',
     textAlign: 'left',
@@ -236,6 +238,7 @@ function TiltGameCard({ game, isSaved, onPlay }: TiltGameCardProps) {
     width: '100%',
     overflow: 'hidden',
     position: 'relative',
+    boxShadow: `0 14px 34px ${game.color}12`,
   };
 
   if (game.href) {
