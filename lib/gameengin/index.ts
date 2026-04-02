@@ -11,6 +11,10 @@
  */
 
 export { EliteGameEngine, ECSWorld } from './core';
+export { mapJoystickToAsset } from './control-mappings';
+export type { ControlMapping } from './control-mappings';
+export { DreamEngine } from './dream-engine';
+export type { GameAsset, GlobalRegistryEntry, WasmOutput } from './dream-engine';
 export type {
   EntityId,
   Component,
