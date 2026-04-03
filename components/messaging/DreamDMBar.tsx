@@ -68,6 +68,9 @@ import {
   DIVIDER_H,
   SPLIT_RATIO_MIN,
   SPLIT_RATIO_MAX,
+  ORB_SIZE as ORB_SIZE_CONST,
+  ORB_TAP_SLOP as ORB_TAP_SLOP_CONST,
+  computeOrbDragPosition,
 } from '@/lib/dreamdm/barInteractions';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
@@ -245,6 +248,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     onMinimizedChange?.(isMinimized);
   }, [isMinimized, onMinimizedChange]);
 
+  // ── Minimized orb position + drag (refs/state only — callbacks after revealBar) ──
+  /** Position of the minimized orb (CSS right/bottom offsets from viewport edges) */
+  const [orbPos, setOrbPos] = useState<{ x: number; y: number }>({ x: 20, y: 20 });
+  const orbDragRef = useRef({ active: false, startX: 0, startY: 0, startOrbX: 0, startOrbY: 0, moved: false });
+  const ORB_SIZE = ORB_SIZE_CONST;
+  const ORB_TAP_SLOP = ORB_TAP_SLOP_CONST;
+
   // ── Touch-reveal transparency ─────────────────────────────────────────────
   /**
    * The bar is fully transparent when not in use. It becomes opaque when the
@@ -257,6 +267,44 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     if (barTouchTimerRef.current) clearTimeout(barTouchTimerRef.current);
     barTouchTimerRef.current = setTimeout(() => { setBarTouched(false); }, 3000);
   }, []);
+
+  // ── Minimized orb drag callbacks (must be after revealBar) ──────────────
+  const handleOrbPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    orbDragRef.current = {
+      active: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      startOrbX: orbPos.x,
+      startOrbY: orbPos.y,
+      moved: false,
+    };
+  }, [orbPos]);
+
+  const handleOrbPointerMove = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!orbDragRef.current.active) return;
+    const dx = e.clientX - orbDragRef.current.startX;
+    const dy = e.clientY - orbDragRef.current.startY;
+    if (!orbDragRef.current.moved && Math.abs(dx) < ORB_TAP_SLOP && Math.abs(dy) < ORB_TAP_SLOP) return;
+    orbDragRef.current.moved = true;
+    setOrbPos(computeOrbDragPosition(orbDragRef.current.startOrbX, orbDragRef.current.startOrbY, dx, dy, screenW, screenH));
+  }, [screenW, screenH]);
+
+  const handleOrbPointerUp = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!orbDragRef.current.active) return;
+    const wasDrag = orbDragRef.current.moved;
+    orbDragRef.current.active = false;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    if (!wasDrag) {
+      // Tap — restore bar at the bottom
+      setIsMinimized(false);
+      setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
+      revealBar();
+    }
+  }, [revealBar]);
 
   const dragRef = useRef({
     active: false, startY: 0,
@@ -952,7 +1000,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  // ── Minimized state: gold orb at bottom-right ────────────────────────────
+  // ── Minimized state: draggable gold orb ───────────────────────────────────
   if (isMinimized) {
     const orbX = minOrbPos?.x ?? undefined;
     const orbY = minOrbPos?.y ?? undefined;
