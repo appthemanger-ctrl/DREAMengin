@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-03 07:50 UTC | `e4c2e2f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #414 from appthemanger-ctrl/copilot/update-dependencies-again — fix: resolve Vercel build failures — cookies() prerender crash and tailwind CJS/ESM mismatch<br> |
 | **auto** | 2026-04-03 07:38 UTC | `900ed2c` | copilot/update-dependencies-again | Copilot | ~3 modified<br>fix: resolve Vercel build errors — cookies() prerender crash and tailwind CJS/ESM mismatch — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/1855a147-1a85-4112-8bc7-ab67cfaadbbf  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/widgets/feed/route.ts`, `app/api/widgets/instances/route.ts`, `tailwind.config.ts` |
 | **auto** | 2026-04-03 07:03 UTC | `b54916a` | copilot/find-workaround-for-cachecomponents-break | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/find-workaround-for-cachecomponents-break<br> |
 | **auto** | 2026-04-03 04:49 UTC | `9b4f415` | copilot/forge-everything | Copilot | +1 added<br>test: add 25 ForgeEngin tests — registry, activity pulse, heat decay, integration wiring — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/6624e997-8e56-4648-ac3d-2948a073e263  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `tests/forge-engin.test.ts` |
 | **auto** | 2026-04-03 04:32 UTC | `6af3838` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #409 from appthemanger-ctrl/copilot/fix-git-committer-email — Make owner avatars open EditProfileDream<br> |
-| **auto** | 2026-04-03 04:19 UTC | `c9f370f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #406 from appthemanger-ctrl/copilot/use-picker-for-assignments — Use pickers for StarMaker assignments and a disclosure tray for clip tools<br> |
 
 ## What changed in this alignment pass
 
