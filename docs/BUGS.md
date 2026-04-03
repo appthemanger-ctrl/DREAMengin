@@ -5,8 +5,8 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Last updated:** 2026-04-03 13:07 UTC  
-**Triggered by commit:** `2b28e72` on `copilot/modernize-game-controls-layout` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/modernize-game-controls-layout
+**Triggered by commit:** `f676228` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #420 from appthemanger-ctrl/copilot/modernize-game-controls-layout
 
 ---
 
