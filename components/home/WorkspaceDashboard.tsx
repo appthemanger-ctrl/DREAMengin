@@ -20,24 +20,6 @@ type ProfileLike = {
 
 type Post = Record<string, any>;
 
-const RUNTIME_SIGNALS = [
-  {
-    label: 'Runtime status',
-    value: 'Dual surfaces live',
-    detail: 'Surface Space and DreamSpace stay hot so switching feels instant.',
-  },
-  {
-    label: 'Command access',
-    value: 'Dr. Eams ready',
-    detail: 'Profile, feed, and AI actions stay reachable without breaking flow.',
-  },
-  {
-    label: 'System posture',
-    value: 'Modern shell',
-    detail: 'Glass depth, sticky controls, and focused actions keep the OS legible.',
-  },
-];
-
 const WHIPREV_MANIFESTO = {
   badge: '⚡ WhipRev: The Human Media Manifesto',
   title: 'Dreamengin.com is where WhipRev lives inside the HomeDream.',
@@ -146,6 +128,7 @@ export default function WorkspaceDashboard({
           : 'calc(env(safe-area-inset-bottom, 0px) + 132px)',
       }}
     >
+      {/* ── Sticky header bar ──────────────────────────────────────────────── */}
       <div
         className="de-surface"
         style={{
@@ -158,9 +141,9 @@ export default function WorkspaceDashboard({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'linear-gradient(180deg, rgba(248,251,255,0.92) 0%, rgba(236,244,252,0.80) 100%)',
-          backdropFilter: 'blur(28px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(28px) saturate(160%)',
+          background: 'linear-gradient(180deg, rgba(248,251,255,0.96) 0%, rgba(236,244,252,0.88) 100%)',
+          backdropFilter: 'blur(32px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(180%)',
           borderBottom: '1px solid rgba(160,195,240,0.14)',
           boxShadow: '0 10px 30px rgba(15,30,52,0.08)',
           pointerEvents: 'auto',
@@ -270,57 +253,59 @@ export default function WorkspaceDashboard({
         </div>
       </div>
 
+      {/* ── Main content ───────────────────────────────────────────────────── */}
       <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>
-        <div style={{ marginBottom: 14 }}>
-          <div className="de-auth-hero de-surface" style={{ marginBottom: 12, padding: isCompactViewport ? 16 : 18 }}>
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <div className="de-kicker" style={{ marginBottom: 10 }}>HomeDream</div>
-              <div
-                className="sicc-gradient-text"
-                style={{
-                  fontSize: isCompactViewport ? 26 : 30,
-                  fontWeight: 800,
-                  lineHeight: 1.05,
-                  letterSpacing: '-0.03em',
-                  marginBottom: 10,
-                }}
-              >
-                {name}&rsquo;s feed
-              </div>
-              <div className="de-command-chip" style={{ marginBottom: 10 }}>
-                {WHIPREV_MANIFESTO.badge}
-              </div>
-              <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.65, maxWidth: 680, marginBottom: 12 }}>
-                {WHIPREV_MANIFESTO.title} {WHIPREV_MANIFESTO.detail}
-              </div>
-              <div className="de-toolbar">
-                <QuickLink label="Edit ProfileDream" onClick={() => openPage('/edit-profiledream', 'Edit ProfileDream')} />
-                <QuickLink label="View Profile" onClick={() => openPage('/view-profile', 'View Profile')} />
-                {onOpenDreamSpace && (
-                  <QuickLink label="Daydreams" onClick={onOpenDreamSpace} primary />
-                )}
-                <QuickLink label="Dr. Eams" onClick={onOpenDrEams} />
-              </div>
+
+        {/* ── Hero card ─────────────────────────────────────────────────────── */}
+        <div className="de-auth-hero de-surface" style={{ marginBottom: 16, padding: isCompactViewport ? 16 : 20 }}>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div className="de-kicker" style={{ marginBottom: 10 }}>HomeDream</div>
+            <div
+              className="sicc-gradient-text"
+              style={{
+                fontSize: isCompactViewport ? 26 : 32,
+                fontWeight: 800,
+                lineHeight: 1.05,
+                letterSpacing: '-0.03em',
+                marginBottom: 10,
+              }}
+            >
+              {name}&rsquo;s feed
+            </div>
+            <div className="de-command-chip" style={{ marginBottom: 10 }}>
+              {WHIPREV_MANIFESTO.badge}
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.65, maxWidth: 680, marginBottom: 12 }}>
+              {WHIPREV_MANIFESTO.title} {WHIPREV_MANIFESTO.detail}
+            </div>
+            <div className="de-toolbar">
+              <QuickLink label="Edit ProfileDream" onClick={() => openPage('/edit-profiledream', 'Edit ProfileDream')} />
+              <QuickLink label="View Profile" onClick={() => openPage('/view-profile', 'View Profile')} />
+              {onOpenDreamSpace && (
+                <QuickLink label="Daydreams" onClick={onOpenDreamSpace} primary />
+              )}
+              <QuickLink label="Dr. Eams" onClick={onOpenDrEams} />
             </div>
           </div>
         </div>
 
+        {/* ── Feed — the hero of the page ───────────────────────────────────── */}
         <div
           className="sicc-glass-in"
           style={{
-            background: 'rgba(255,255,255,0.75)',
-            backdropFilter: 'blur(28px) saturate(160%)',
-            WebkitBackdropFilter: 'blur(28px) saturate(160%)',
+            background: 'rgba(255,255,255,0.82)',
+            backdropFilter: 'blur(32px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(180%)',
             borderRadius: isCompactViewport ? 20 : 24,
-            border: '1px solid rgba(255,255,255,0.92)',
-            boxShadow: '0 8px 48px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.60)',
+            border: '1px solid rgba(255,255,255,0.95)',
+            boxShadow: '0 12px 60px rgba(0,0,0,0.10), 0 2px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.70)',
             overflow: 'hidden',
             marginBottom: 16,
           }}
         >
           <div
             style={{
-              padding: isCompactViewport ? '12px 14px 10px' : '14px 18px 12px',
+              padding: isCompactViewport ? '14px 14px 12px' : '16px 20px 14px',
               borderBottom: '1px solid rgba(180,185,200,0.10)',
               display: 'flex',
               alignItems: 'center',
@@ -328,10 +313,10 @@ export default function WorkspaceDashboard({
             }}
           >
             <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)' }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--de-heading)', letterSpacing: '-0.02em' }}>
                 HomeDream Feed
               </div>
-              <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 3, lineHeight: 1.4 }}>
                 WhipRev lives inside HomeDream — feed first, seen not judged.
               </div>
             </div>
@@ -368,28 +353,8 @@ export default function WorkspaceDashboard({
           />
         </div>
 
-        <div className="de-panel-grid" style={{ marginBottom: 14 }}>
-          {RUNTIME_SIGNALS.map((signal) => (
-            <div key={signal.label} className="de-signal-card">
-              <span className="de-signal-label">{signal.label}</span>
-              <span className="de-signal-value">{signal.value}</span>
-              <span className="de-signal-detail">{signal.detail}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="de-surface" style={{ padding: isCompactViewport ? 12 : 14, marginBottom: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
-            <div>
-              <div className="de-signal-label" style={{ marginBottom: 4 }}>Fast travel</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--de-heading)', letterSpacing: '-0.02em' }}>
-                Daydream launch strip
-              </div>
-            </div>
-            <div className="de-command-chip">6 surfaces · 1 operating shell</div>
-          </div>
-          <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
-        </div>
+        {/* ── Daydream navigation ──────────────────────────────────────────── */}
+        <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
       </div>
     </div>
   );

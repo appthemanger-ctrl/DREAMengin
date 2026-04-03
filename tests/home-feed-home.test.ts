@@ -26,11 +26,15 @@ describe('HomeDream home surface', () => {
     expect(dashboard).toContain('HomeDream Feed');
     expect(dashboard).toContain('Dreamengin.com is where WhipRev lives inside the HomeDream.');
     expect(dashboard).toContain('⚡ WhipRev: The Human Media Manifesto');
-    expect(dashboard.indexOf('<HomeFeed')).toBeLessThan(dashboard.indexOf('RUNTIME_SIGNALS.map'));
     expect(dashboard.indexOf('<HomeFeed')).toBeLessThan(dashboard.indexOf('<DaydreamPulseStrip'));
     expect(dashboard).not.toContain('DrEamsSearchBar');
     expect(dashboard).not.toContain('Recent Activity');
     expect(dashboard).not.toContain('Telemetry');
+    // No localStorage-based widgets on the home surface
+    expect(dashboard).not.toContain('ForgeActivityWidget');
+    expect(dashboard).not.toContain('localStorage');
+    // No filler signal cards
+    expect(dashboard).not.toContain('RUNTIME_SIGNALS');
   });
 
   it('uses the canonical Daydreams label in the home surface', () => {
