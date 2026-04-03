@@ -173,25 +173,51 @@ export default function NeonDrift() {
         const camera = new BABYLON.ArcRotateCamera('cam', -Math.PI / 2, Math.PI / 3.5, 28,
           new BABYLON.Vector3(0, 0, -5), scene);
 
-        // ── Lighting ─────────────────────────────────────────────────────────
+        // ── Lighting — realistic multi-source neon setup ───────────────────────
         const ambientLight = new BABYLON.HemisphericLight('ambient',
           new BABYLON.Vector3(0, 1, 0), scene);
-        ambientLight.intensity = 0.3;
-        ambientLight.diffuse = new BABYLON.Color3(0.3, 0.5, 1.0);
+        ambientLight.intensity = 0.2;
+        ambientLight.diffuse = new BABYLON.Color3(0.2, 0.35, 0.8);
+        ambientLight.specular = new BABYLON.Color3(0.05, 0.1, 0.3);
+        ambientLight.groundColor = new BABYLON.Color3(0.02, 0.02, 0.06);
 
-        // Point light inside the car trail area
+        // Point light inside the car trail area — PBR specular bouncing
         const raceLight = new BABYLON.PointLight('raceLight',
           new BABYLON.Vector3(0, 3, -8), scene);
         raceLight.diffuse = new BABYLON.Color3(0, 0.9, 1);
-        raceLight.intensity = 2;
-        raceLight.range = 30;
+        raceLight.specular = new BABYLON.Color3(0, 0.8, 0.95);
+        raceLight.intensity = 3;
+        raceLight.range = 40;
 
-        // ── Track tiles (ring buffer) ─────────────────────────────────────────
-        const trackMat = new BABYLON.StandardMaterial('track', scene);
-        trackMat.emissiveColor = new BABYLON.Color3(0.02, 0.1, 0.15);
-        trackMat.diffuseColor = new BABYLON.Color3(0.02, 0.1, 0.15);
+        // Directional fill light for shadow casting
+        const dirLight = new BABYLON.DirectionalLight('dirLight',
+          new BABYLON.Vector3(0.2, -1, 0.5), scene);
+        dirLight.intensity = 0.6;
+        dirLight.diffuse = new BABYLON.Color3(0.4, 0.5, 1.0);
+        dirLight.specular = new BABYLON.Color3(0.3, 0.4, 0.8);
 
-        const lineMat = new BABYLON.StandardMaterial('lane', scene);
+        // Shadow generator for directional light
+        const shadowGen = new BABYLON.ShadowGenerator(2048, dirLight);
+        shadowGen.usePercentageCloserFiltering = true;
+        shadowGen.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+        shadowGen.bias = 0.0006;
+        shadowGen.darkness = 0.4;
+
+        // Environment for PBR reflections (dark neon environment)
+        try { scene.createDefaultEnvironment({ createGround: false, createSkybox: false }); } catch { /* graceful */ }
+        scene.environmentIntensity = 0.5;
+
+        // ── Track tiles (ring buffer) — wet road PBR ──────────────────────────
+        const trackMat = new BABYLON.PBRMaterial('track', scene);
+        trackMat.albedoColor = new BABYLON.Color3(0.03, 0.08, 0.12);
+        trackMat.metallic = 0.15;
+        trackMat.roughness = 0.25; // wet-road reflective finish
+        trackMat.emissiveColor = new BABYLON.Color3(0.01, 0.04, 0.06);
+
+        const lineMat = new BABYLON.PBRMaterial('lane', scene);
+        lineMat.albedoColor = new BABYLON.Color3(0, 0.7, 0.85);
+        lineMat.metallic = 0.0;
+        lineMat.roughness = 0.9;
         lineMat.emissiveColor = new BABYLON.Color3(0, 0.9, 1);
 
         for (let i = 0; i < TILE_COUNT; i++) {
@@ -200,6 +226,7 @@ export default function NeonDrift() {
           }, scene);
           tile.position.z = i * TILE_LENGTH - TILE_LENGTH / 2;
           tile.material = trackMat;
+          tile.receiveShadows = true;
           trackTiles.push(tile);
 
           // Lane dividers
@@ -213,8 +240,11 @@ export default function NeonDrift() {
           }
         }
 
-        // Edge barriers
-        const edgeMat = new BABYLON.StandardMaterial('edge', scene);
+        // Edge barriers — PBR metallic neon strips
+        const edgeMat = new BABYLON.PBRMaterial('edge', scene);
+        edgeMat.albedoColor = new BABYLON.Color3(0.8, 0.05, 0.3);
+        edgeMat.metallic = 0.7;
+        edgeMat.roughness = 0.15;
         edgeMat.emissiveColor = new BABYLON.Color3(1, 0.1, 0.4);
         const edgeH = 1.5, edgeD = TOTAL_TILES;
         const edgeL = BABYLON.MeshBuilder.CreateBox('edgeL',
@@ -222,33 +252,46 @@ export default function NeonDrift() {
         edgeL.position.x = -(TRACK_WIDTH / 2 + 0.15);
         edgeL.position.y = edgeH / 2;
         edgeL.material = edgeMat;
+        edgeL.receiveShadows = true;
         const edgeR = BABYLON.MeshBuilder.CreateBox('edgeR',
           { width: 0.3, height: edgeH, depth: edgeD }, scene);
         edgeR.position.x = TRACK_WIDTH / 2 + 0.15;
         edgeR.position.y = edgeH / 2;
         edgeR.material = edgeMat;
+        edgeR.receiveShadows = true;
 
-        // ── Car ───────────────────────────────────────────────────────────────
+        // ── Car — PBR metallic body with clear-coat ──────────────────────────
         car = BABYLON.MeshBuilder.CreateBox('car', { width: 1.8, height: 0.7, depth: 3.2 }, scene);
         car.position.y = 0.5;
-        const carMat = new BABYLON.StandardMaterial('carMat', scene);
-        carMat.emissiveColor = new BABYLON.Color3(1, 0.3, 0.9);
-        carMat.diffuseColor = new BABYLON.Color3(0.6, 0.1, 0.5);
+        const carMat = new BABYLON.PBRMaterial('carMat', scene);
+        carMat.albedoColor = new BABYLON.Color3(0.7, 0.12, 0.55);
+        carMat.metallic = 0.85;
+        carMat.roughness = 0.1;
+        carMat.emissiveColor = new BABYLON.Color3(0.6, 0.15, 0.45);
+        carMat.clearCoat.isEnabled = true;
+        carMat.clearCoat.intensity = 0.8;
+        carMat.clearCoat.roughness = 0.05;
         car.material = carMat;
+        shadowGen.addShadowCaster(car, true);
 
-        // Car cabin
+        // Car cabin — glass-like PBR
         const cabin = BABYLON.MeshBuilder.CreateBox('cabin',
           { width: 1.2, height: 0.5, depth: 1.8 }, scene);
         cabin.position.y = 1.1;
         cabin.parent = car;
-        const cabinMat = new BABYLON.StandardMaterial('cabinMat', scene);
-        cabinMat.emissiveColor = new BABYLON.Color3(0, 0.8, 1);
-        cabinMat.alpha = 0.7;
+        const cabinMat = new BABYLON.PBRMaterial('cabinMat', scene);
+        cabinMat.albedoColor = new BABYLON.Color3(0, 0.6, 0.85);
+        cabinMat.metallic = 0.05;
+        cabinMat.roughness = 0.02;
+        cabinMat.emissiveColor = new BABYLON.Color3(0, 0.6, 0.8);
+        cabinMat.alpha = 0.65;
         cabin.material = cabinMat;
 
-        // Wheels
-        const wheelMat = new BABYLON.StandardMaterial('wheelMat', scene);
-        wheelMat.emissiveColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+        // Wheels — dark rubber PBR
+        const wheelMat = new BABYLON.PBRMaterial('wheelMat', scene);
+        wheelMat.albedoColor = new BABYLON.Color3(0.08, 0.08, 0.08);
+        wheelMat.metallic = 0.1;
+        wheelMat.roughness = 0.9;
         for (const [wx, wz] of [[-1.1, 1.0], [1.1, 1.0], [-1.1, -1.0], [1.1, -1.0]]) {
           const w = BABYLON.MeshBuilder.CreateCylinder('wheel',
             { diameter: 0.6, height: 0.3, tessellation: 12 }, scene);
@@ -258,38 +301,41 @@ export default function NeonDrift() {
           w.material = wheelMat;
         }
 
-        // ── Particle trail ────────────────────────────────────────────────────
-        trailPS = new BABYLON.ParticleSystem('trail', 300, scene);
+        // ── Particle trail — higher-fidelity ──────────────────────────────────
+        trailPS = new BABYLON.ParticleSystem('trail', 500, scene);
         trailPS.emitter = car;
         trailPS.minEmitBox = new BABYLON.Vector3(-0.6, -0.3, -1.6);
         trailPS.maxEmitBox = new BABYLON.Vector3(0.6, 0, -1.6);
         trailPS.color1 = new BABYLON.Color4(0, 0.9, 1, 0.9);
         trailPS.color2 = new BABYLON.Color4(1, 0.2, 0.8, 0.6);
         trailPS.colorDead = new BABYLON.Color4(0.05, 0.05, 0.15, 0);
-        trailPS.minSize = 0.05;
-        trailPS.maxSize = 0.25;
-        trailPS.minLifeTime = 0.25;
-        trailPS.maxLifeTime = 0.5;
+        trailPS.minSize = 0.04;
+        trailPS.maxSize = 0.28;
+        trailPS.minLifeTime = 0.3;
+        trailPS.maxLifeTime = 0.65;
         trailPS.emitRate = 0; // controlled dynamically by speed
         trailPS.minEmitPower = 1;
-        trailPS.maxEmitPower = 4;
+        trailPS.maxEmitPower = 5;
         trailPS.direction1 = new BABYLON.Vector3(-0.5, 0.2, -1);
         trailPS.direction2 = new BABYLON.Vector3(0.5, 0.8, -3);
         trailPS.gravity = new BABYLON.Vector3(0, -2, -3);
         trailPS.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD;
         trailPS.start();
 
-        // ── Obstacle pool ─────────────────────────────────────────────────────
+        // ── Obstacle pool — PBR neon materials ────────────────────────────────
         const obsMat = [
-          (() => { const m = new BABYLON.StandardMaterial('obs0', scene!);
-            m.emissiveColor = new BABYLON.Color3(1, 0.1, 0.1);
-            m.diffuseColor = new BABYLON.Color3(0.8, 0.0, 0.0); return m; })(),
-          (() => { const m = new BABYLON.StandardMaterial('obs1', scene!);
-            m.emissiveColor = new BABYLON.Color3(1, 0.6, 0);
-            m.diffuseColor = new BABYLON.Color3(0.8, 0.4, 0); return m; })(),
-          (() => { const m = new BABYLON.StandardMaterial('obs2', scene!);
-            m.emissiveColor = new BABYLON.Color3(0.3, 1, 0.3);
-            m.diffuseColor = new BABYLON.Color3(0.1, 0.8, 0.1); return m; })(),
+          (() => { const m = new BABYLON.PBRMaterial('obs0', scene!);
+            m.albedoColor = new BABYLON.Color3(0.85, 0.05, 0.05);
+            m.metallic = 0.6; m.roughness = 0.2;
+            m.emissiveColor = new BABYLON.Color3(1, 0.1, 0.1); return m; })(),
+          (() => { const m = new BABYLON.PBRMaterial('obs1', scene!);
+            m.albedoColor = new BABYLON.Color3(0.85, 0.45, 0.02);
+            m.metallic = 0.6; m.roughness = 0.2;
+            m.emissiveColor = new BABYLON.Color3(1, 0.6, 0); return m; })(),
+          (() => { const m = new BABYLON.PBRMaterial('obs2', scene!);
+            m.albedoColor = new BABYLON.Color3(0.15, 0.85, 0.15);
+            m.metallic = 0.6; m.roughness = 0.2;
+            m.emissiveColor = new BABYLON.Color3(0.3, 1, 0.3); return m; })(),
         ];
 
         for (let i = 0; i < OBS_POOL_SIZE; i++) {
@@ -302,12 +348,17 @@ export default function NeonDrift() {
           const mesh = BABYLON.MeshBuilder.CreateBox('obs' + i, dims, scene);
           mesh.position.y = dims.height / 2;
           mesh.material = obsMat[type];
+          mesh.receiveShadows = true;
+          shadowGen.addShadowCaster(mesh, false);
           mesh.setEnabled(false);
           obstacles.push({ mesh, lane: 0, type, active: false, z: 0 });
         }
 
-        // ── Boost gate pool ───────────────────────────────────────────────────
-        const boostMat = new BABYLON.StandardMaterial('boost', scene);
+        // ── Boost gate pool — PBR emissive ────────────────────────────────────
+        const boostMat = new BABYLON.PBRMaterial('boost', scene);
+        boostMat.albedoColor = new BABYLON.Color3(0.15, 0.85, 0.4);
+        boostMat.metallic = 0.3;
+        boostMat.roughness = 0.4;
         boostMat.emissiveColor = new BABYLON.Color3(0.2, 1, 0.5);
         boostMat.alpha = 0.7;
 
@@ -323,12 +374,13 @@ export default function NeonDrift() {
           boostGates.push({ meshL: mL, meshR: mR, active: false, z: 0 });
         }
 
-        // ── Post-processing ───────────────────────────────────────────────────
+        // ── Post-processing — full realistic pipeline ─────────────────────────
         try {
           postFx = new PostFXManager(scene, camera as unknown as BABYLON.Camera);
           postFxRef.current = postFx;
           await postFx.init();
-          await postFx.enableGlow(0.6, 32);
+          await postFx.enableGlow(0.7, 48);
+          await postFx.enableSSAO(1.5, 0.8, 12);
           postFx.applyBudget(elite.budget);
         } catch { /* post-fx optional */ }
 
