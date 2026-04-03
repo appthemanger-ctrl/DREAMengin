@@ -594,7 +594,7 @@ describe('Failure Recovery', () => {
       status: 'failed' as const,
       failureReason: 'Export failed',
     };
-    const workflow = FORGE_WORKFLOWS[0]; // music-video
+    const workflow = FORGE_WORKFLOWS.find(w => w.id === 'music-video')!;
     const recovery = getFailureRecovery(failedStep, workflow);
     expect(recovery.length).toBeGreaterThan(0);
     // Should have retry suggestion

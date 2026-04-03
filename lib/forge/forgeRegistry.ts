@@ -152,18 +152,23 @@ export function recordForgeActivity(enginId: string, label: string): void {
 }
 
 /**
+ * Storage key for forge activity history — shared with forgeIntelligence.ts.
+ * Both files write to this key; this is the single source-of-truth constant.
+ */
+export const FORGE_HISTORY_KEY = 'de:forge:history';
+
+/**
  * Internal: append to the history log inline (avoids circular import with forgeIntelligence).
  */
-const HISTORY_KEY = 'de:forge:history';
 const MAX_HISTORY = 100;
 
 function appendToHistory(enginId: string, label: string): void {
   try {
-    const raw = localStorage.getItem(HISTORY_KEY);
+    const raw = localStorage.getItem(FORGE_HISTORY_KEY);
     const history: Array<{ enginId: string; label: string; timestamp: string }> = raw ? JSON.parse(raw) : [];
     history.push({ enginId, label, timestamp: new Date().toISOString() });
     if (history.length > MAX_HISTORY) history.splice(0, history.length - MAX_HISTORY);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    localStorage.setItem(FORGE_HISTORY_KEY, JSON.stringify(history));
   } catch {
     // silent
   }

@@ -17,6 +17,7 @@ import {
   CREATIVE_ENGINES,
   ENGIN_REGISTRY,
   FORGE_WORKFLOWS,
+  FORGE_HISTORY_KEY,
   type ForgeWorkflow,
   type EnginEntry,
 } from './forgeRegistry';
@@ -32,7 +33,7 @@ export interface ForgeHistoryEntry {
   timestamp: string;
 }
 
-const HISTORY_STORAGE_KEY = 'de:forge:history';
+const HISTORY_STORAGE_KEY = FORGE_HISTORY_KEY;
 const MAX_HISTORY_ENTRIES = 100;
 
 /**
