@@ -3,7 +3,7 @@
 // Resolves feed data for widget instances
 // =====================================================
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, connection } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { resolveFeedHost } from '@/lib/widgets/feed-resolver';
 import { HostKind, type FeedHostConfig, type WidgetDefinition, type WidgetInstance } from '@/types/widget-system-v2';
@@ -62,6 +62,7 @@ async function resolveFeedForInstance(
 
 export async function POST(request: NextRequest) {
   try {
+    await connection();
     const supabase = await createServerClient();
     
     // Get authenticated user
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    await connection();
     const supabase = await createServerClient();
     
     // Get authenticated user
