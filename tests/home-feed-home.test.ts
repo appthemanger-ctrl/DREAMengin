@@ -13,6 +13,10 @@ describe('HomeDream home surface', () => {
     resolve(__dirname, '../components/home/HomeSystem.tsx'),
     'utf8',
   );
+  const runtimeShell = readFileSync(
+    resolve(__dirname, '../components/runtime/RuntimeShell.tsx'),
+    'utf8',
+  );
   const dreamDmBar = readFileSync(
     resolve(__dirname, '../components/messaging/DreamDMBar.tsx'),
     'utf8',
@@ -20,6 +24,8 @@ describe('HomeDream home surface', () => {
 
   it('keeps HomeDream feed-first and removes the extra home search surface', () => {
     expect(dashboard).toContain('HomeDream Feed');
+    expect(dashboard).toContain('Dreamengin.com is where WhipRev lives inside the HomeDream.');
+    expect(dashboard).toContain('⚡ WhipRev: The Human Media Manifesto');
     expect(dashboard.indexOf('<HomeFeed')).toBeLessThan(dashboard.indexOf('RUNTIME_SIGNALS.map'));
     expect(dashboard.indexOf('<HomeFeed')).toBeLessThan(dashboard.indexOf('<DaydreamPulseStrip'));
     expect(dashboard).not.toContain('DrEamsSearchBar');
@@ -36,6 +42,12 @@ describe('HomeDream home surface', () => {
     expect(dreamDmBar).toContain('onSplitChange?.(DEFAULT_SPLIT_RATIO);');
     expect(homeSystem).toContain('display: isBarMinimized ? \'none\' : \'block\'');
     expect(homeSystem).toContain('onMinimizedChange={setIsBarMinimized}');
+  });
+
+  it('keeps feed scrolling native while limiting divider drag capture to the centered seam handle', () => {
+    expect(runtimeShell).toContain("touchAction: 'pan-y'");
+    expect(dreamDmBar).toContain("pointerEvents: 'none'");
+    expect(dreamDmBar).toContain("width: isDividerMode ? 112 : '100%'");
   });
 });
 

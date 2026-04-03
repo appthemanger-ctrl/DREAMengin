@@ -48,7 +48,9 @@ export function isBossLevel(level: number): boolean {
 }
 
 export function getMadmaxiEnemyCount(level: number): number {
-  return 10 + Math.floor((Math.max(1, level) - 1) / 10) * 2;
+  if (isBossLevel(level)) return 1;
+  const bandSlot = ((Math.max(1, level) - 1) % 10) + 1;
+  return Math.min(10, bandSlot + 1);
 }
 
 export function getEnemyKindForIndex(index: number, level: number): MadmaxiEnemyKind {

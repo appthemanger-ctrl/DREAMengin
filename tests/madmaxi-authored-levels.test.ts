@@ -35,6 +35,7 @@ describe('MADMAXI authored zone starter levels', () => {
     expect(level11.audioTheme).toBe(ZONES[1].audioTheme);
     expect(level11.vfxTheme).toBe(ZONES[1].vfxTheme);
     expect(level11.coins).toHaveLength(10);
+    expect(level11.enemies).toHaveLength(2);
     expect(level11.hazards?.length ?? 0).toBeGreaterThan(0);
     expect(level11.powerUps?.length ?? 0).toBeGreaterThan(0);
 
@@ -42,10 +43,12 @@ describe('MADMAXI authored zone starter levels', () => {
     expect(level12.zoneName).toBe(ZONES[1].name);
     expect(level12.encounterName).not.toBe(level11.encounterName);
     expect(level12.zoneStory).toContain('⚡');
+    expect(level12.enemies).toHaveLength(3);
   });
 
-  it('returns to procedural generation after the two authored starters in each zone band', () => {
+  it('returns to procedural generation after the two authored starters in each zone band and keeps the enemy ramp going', () => {
     const level13 = getMadmaxiLevelDefinition(13, 12345);
+    const level19 = getMadmaxiLevelDefinition(19, 12345);
     const level23 = getMadmaxiLevelDefinition(23, 12345);
 
     expect(level13.isAuthored).not.toBe(true);
@@ -53,9 +56,12 @@ describe('MADMAXI authored zone starter levels', () => {
     expect(level13.audioTheme).toBe(ZONES[1].audioTheme);
     expect(level13.vfxTheme).toBe(ZONES[1].vfxTheme);
     expect(level13.worldW).toBeGreaterThan(3000);
+    expect(level13.enemies).toHaveLength(4);
+    expect(level19.enemies).toHaveLength(10);
+    expect(level19.enemies[1]!.x - level19.enemies[0]!.x).toBeGreaterThan(180);
 
     expect(level23.isAuthored).not.toBe(true);
     expect(level23.zoneName).toBe(ZONES[2].name);
-    expect(level23.enemies.length).toBeGreaterThanOrEqual(level13.enemies.length);
+    expect(level23.enemies).toHaveLength(4);
   });
 });

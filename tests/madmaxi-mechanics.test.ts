@@ -6,6 +6,7 @@ import {
   MADMAXI_SUPER_SECONDS,
   MADMAXI_SUPER_STREAK,
   getEnemyKindForIndex,
+  getMadmaxiLevelDefinition,
   getMadmaxiEnemyCount,
   getPowerUpForIndex,
 } from '@/components/games/madmaxi';
@@ -18,12 +19,14 @@ describe('MADMAXI mechanics config', () => {
     expect(MADMAXI_POWERUP_KINDS).toEqual(['shield', 'high-jump', 'laser', 'giant']);
   });
 
-  it('starts at ten enemies and adds two every ten levels', () => {
-    expect(getMadmaxiEnemyCount(1)).toBe(10);
-    expect(getMadmaxiEnemyCount(10)).toBe(10);
-    expect(getMadmaxiEnemyCount(11)).toBe(12);
-    expect(getMadmaxiEnemyCount(21)).toBe(14);
-    expect(getMadmaxiEnemyCount(101)).toBe(30);
+  it('ramps each 10-level band from two enemies up to ten before the boss, then resets', () => {
+    expect(getMadmaxiEnemyCount(1)).toBe(2);
+    expect(getMadmaxiEnemyCount(2)).toBe(3);
+    expect(getMadmaxiEnemyCount(9)).toBe(10);
+    expect(getMadmaxiEnemyCount(10)).toBe(1);
+    expect(getMadmaxiEnemyCount(11)).toBe(2);
+    expect(getMadmaxiEnemyCount(19)).toBe(10);
+    expect(getMadmaxiEnemyCount(20)).toBe(1);
     expect(getMadmaxiEnemyCountFromWrapper(21)).toBe(getMadmaxiEnemyCount(21));
   });
 
@@ -41,5 +44,18 @@ describe('MADMAXI mechanics config', () => {
     expect(getPowerUpForIndex(0, () => 0.3)).toBe('high-jump');
     expect(getPowerUpForIndex(0, () => 0.6)).toBe('laser');
     expect(getPowerUpForIndex(0, () => 0.95)).toBe('giant');
+  });
+
+  it('scales boss fights upward as the run advances', () => {
+    const firstBoss = getMadmaxiLevelDefinition(10, 12345).enemies[0];
+    const secondBoss = getMadmaxiLevelDefinition(20, 12345).enemies[0];
+    const finalBoss = getMadmaxiLevelDefinition(150, 12345).enemies[0];
+
+    expect(firstBoss?.boss).toBe(true);
+    expect(secondBoss?.boss).toBe(true);
+    expect(finalBoss?.boss).toBe(true);
+    expect((secondBoss?.hitsLeft ?? 0)).toBeGreaterThan(firstBoss?.hitsLeft ?? 0);
+    expect((finalBoss?.hitsLeft ?? 0)).toBeGreaterThan(secondBoss?.hitsLeft ?? 0);
+    expect(Math.abs(finalBoss?.vx ?? 0)).toBeGreaterThan(Math.abs(firstBoss?.vx ?? 0));
   });
 });
