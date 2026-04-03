@@ -799,8 +799,8 @@ export default function DrEamsBabylonHero({
       // ─── HANDS (detailed mechanical with segmented fingers) ───────────────
 
       // Helper: build a mechanical hand with palm + 4 fingers (3 segments each) + thumb
+      // Build a detailed mechanical hand — symmetric in local space, mirrored by parent node
       function buildHand(side: 'L' | 'R', parentNode: TransformNode) {
-        const sX = side === 'L' ? 1 : 1; // both symmetric in local space
 
         // Palm — rounded box
         const palm = MeshBuilder.CreateBox(
@@ -853,7 +853,7 @@ export default function DrEamsBabylonHero({
               scene,
             );
             joint.material = jointMat;
-            joint.position = new Vector3(xOff * sX, yPos, 0.02);
+            joint.position = new Vector3(xOff, yPos, 0.02);
             joint.parent = parentNode;
 
             // Finger segment
@@ -863,7 +863,7 @@ export default function DrEamsBabylonHero({
               scene,
             );
             seg.material = darkMetalMat;
-            seg.position = new Vector3(xOff * sX, yPos - segLen * 0.5, 0.02);
+            seg.position = new Vector3(xOff, yPos - segLen * 0.5, 0.02);
             seg.parent = parentNode;
 
             yPos -= segLen;
@@ -876,7 +876,7 @@ export default function DrEamsBabylonHero({
             scene,
           );
           tip.material = darkMetalMat;
-          tip.position = new Vector3(xOff * sX, yPos, 0.02);
+          tip.position = new Vector3(xOff, yPos, 0.02);
           tip.parent = parentNode;
         });
 
