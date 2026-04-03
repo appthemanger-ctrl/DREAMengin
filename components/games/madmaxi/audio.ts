@@ -37,28 +37,79 @@ const CUE_SHAPES: Record<MadmaxiAudioCue, { offset: number; duration: number; sl
   hurt: { offset: -15, duration: 0.16, slide: 0.82, volumeScale: 1.3 },
 };
 
+// ── BGM: procedural looping soundtrack per zone ──────────────────────────────
+// Each zone theme drives a layered synth loop: bass drone, arpeggio, and rhythm.
+// The sequence repeats every 4 bars (≈ 8 s at 120 BPM).
+const BGM_BPM = 120;
+const BGM_BAR_SECONDS = (60 / BGM_BPM) * 4; // 4 beats per bar = 2 s
+const BGM_LOOP_BARS = 4;                     // 4 bars per loop cycle
+const BGM_LOOP_SECONDS = BGM_BAR_SECONDS * BGM_LOOP_BARS; // 8 s
+
+/** Semitone offsets for the arpeggio pattern (minor-feel sequence) */
+const ARP_PATTERN = [0, 3, 7, 12, 7, 3, 0, -5];
+/** Rhythm hits per bar: indices (0-7) within 8 sub-divisions */
+const RHYTHM_HITS = [0, 2, 3, 5, 6];
+
 export class MadmaxiAudioController {
   private theme = 'meadow pulse choir';
   private ctx: AudioContext | null = null;
   private bgmGain: GainNode | null = null;
   private bgmInterval: ReturnType<typeof setInterval> | null = null;
 
+  // BGM state
+  private bgmGain: GainNode | null = null;
+  private bgmTimer: ReturnType<typeof setInterval> | null = null;
+  private bgmActive = false;
+
   setTheme(theme: string | undefined) {
     if (theme && AUDIO_PROFILES[theme]) this.theme = theme;
-    // Re-start BGM with the new theme if already playing
-    if (this.bgmInterval) {
-      this.stopBgm();
-      this.startBgm();
-    }
+    // If BGM is already running, the new theme will take effect on the next loop
   }
 
   dispose() {
-    this.stopBgm();
+    this.stopBGM();
     this.ctx = null;
   }
 
-  /** Start a gentle procedural background loop tied to the current zone theme. */
-  startBgm() {
+  // ── Background music ───────────────────────────────────────────────────────
+
+  startBGM() {
+    if (this.bgmActive) return;
+    this.bgmActive = true;
+    this.ensureCtx();
+    if (!this.ctx) return;
+
+    this.bgmGain = this.ctx.createGain();
+    this.bgmGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+    // Fade in over 1 s
+    this.bgmGain.gain.exponentialRampToValueAtTime(1, this.ctx.currentTime + 1);
+    this.bgmGain.connect(this.ctx.destination);
+
+    // Schedule the first loop immediately, then repeat
+    this.scheduleBGMLoop();
+    this.bgmTimer = setInterval(() => {
+      if (!this.bgmActive) return;
+      this.scheduleBGMLoop();
+    }, BGM_LOOP_SECONDS * 1000);
+  }
+
+  stopBGM() {
+    this.bgmActive = false;
+    if (this.bgmTimer !== null) {
+      clearInterval(this.bgmTimer);
+      this.bgmTimer = null;
+    }
+    if (this.bgmGain && this.ctx) {
+      try {
+        const now = this.ctx.currentTime;
+        this.bgmGain.gain.setValueAtTime(this.bgmGain.gain.value, now);
+        this.bgmGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+      } catch { /* ok */ }
+    }
+    this.bgmGain = null;
+  }
+
+  private ensureCtx() {
     if (typeof window === 'undefined') return;
     const AudioCtor = window.AudioContext ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioCtor) return;
@@ -67,74 +118,90 @@ export class MadmaxiAudioController {
       if (this.ctx.state === 'suspended') {
         void this.ctx.resume().catch(() => undefined);
       }
-    } catch { return; }
-    if (this.bgmInterval) return; // already playing
+    } catch { /* ignore */ }
+  }
 
+  private scheduleBGMLoop() {
+    if (!this.ctx || !this.bgmGain) return;
     const profile = AUDIO_PROFILES[this.theme] ?? AUDIO_PROFILES['meadow pulse choir'];
-    const ctx = this.ctx!;
+    const now = this.ctx.currentTime;
 
-    // Master gain for BGM — kept low so SFX punch through
-    this.bgmGain = ctx.createGain();
-    this.bgmGain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    this.bgmGain.gain.exponentialRampToValueAtTime(0.016, ctx.currentTime + 0.8);
-    this.bgmGain.connect(ctx.destination);
+    // ── Layer 1: Bass drone (sustained low note) ─────────────────────────
+    this.scheduleNote({
+      freq: profile.base * 0.5,
+      waveform: 'triangle',
+      startTime: now,
+      duration: BGM_LOOP_SECONDS - 0.05,
+      volume: profile.volume * 0.55,
+      slide: 1.002,
+    });
 
-    // A simple evolving arpeggio pattern based on the zone's audio profile.
-    // We cycle through spread offsets to create a repeating melodic phrase.
-    const bpm = 110;
-    const noteMs = (60_000 / bpm) / 2; // eighth notes
-    const scaleIntervals = [0, 2, 4, 5, 7, 9, 11, 12]; // major scale
-    let stepIndex = 0;
+    // ── Layer 2: Arpeggio (8th-note pulse) ───────────────────────────────
+    const eighthNote = BGM_BAR_SECONDS / 2; // duration of an 8th note
+    for (let bar = 0; bar < BGM_LOOP_BARS; bar++) {
+      for (let step = 0; step < ARP_PATTERN.length; step++) {
+        const semitone = ARP_PATTERN[step];
+        const freq = profile.base * Math.pow(2, semitone / 12);
+        const t = now + bar * BGM_BAR_SECONDS + step * eighthNote;
+        this.scheduleNote({
+          freq,
+          waveform: profile.waveform,
+          startTime: t,
+          duration: eighthNote * 0.7,
+          volume: profile.volume * 0.35,
+        });
+      }
+    }
 
-    const playNote = () => {
-      if (!this.ctx || !this.bgmGain) return;
-      try {
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const noteGain = this.ctx.createGain();
-
-        // Pick a note from the scale, shifted by the zone's spread offsets
-        const scaleStep = scaleIntervals[stepIndex % scaleIntervals.length];
-        const spreadOffset = profile.spread[(stepIndex >> 3) % profile.spread.length] ?? 0;
-        const freq = profile.base * Math.pow(2, (scaleStep + spreadOffset) / 12);
-
-        osc.type = profile.waveform === 'square' ? 'triangle' : profile.waveform;
-        osc.frequency.setValueAtTime(freq, now);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.002, now + noteMs / 1000);
-
-        const noteDuration = noteMs / 1000 * 0.75;
-        noteGain.gain.setValueAtTime(0.0001, now);
-        noteGain.gain.exponentialRampToValueAtTime(0.022, now + 0.02);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + noteDuration);
-
-        osc.connect(noteGain);
-        noteGain.connect(this.bgmGain!);
-        osc.start(now);
-        osc.stop(now + noteDuration + 0.05);
-
-        stepIndex++;
-      } catch { /* audio context restrictions — ignore */ }
-    };
-
-    // Play the first note immediately, then schedule repeating
-    playNote();
-    this.bgmInterval = setInterval(playNote, noteMs);
+    // ── Layer 3: Rhythmic pulse (kick-like) ──────────────────────────────
+    const subdivDur = BGM_BAR_SECONDS / 8;
+    for (let bar = 0; bar < BGM_LOOP_BARS; bar++) {
+      for (const hit of RHYTHM_HITS) {
+        const t = now + bar * BGM_BAR_SECONDS + hit * subdivDur;
+        this.scheduleNote({
+          freq: profile.base * 0.25,
+          waveform: 'square',
+          startTime: t,
+          duration: subdivDur * 0.4,
+          volume: profile.volume * 0.28,
+          slide: 0.5,
+        });
+      }
+    }
   }
 
-  /** Stop the background music loop. */
-  stopBgm() {
-    if (this.bgmInterval) {
-      clearInterval(this.bgmInterval);
-      this.bgmInterval = null;
-    }
-    if (this.bgmGain && this.ctx) {
-      try {
-        const now = this.ctx.currentTime;
-        this.bgmGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
-      } catch { /* ignore */ }
-    }
-    this.bgmGain = null;
+  private scheduleNote(opts: {
+    freq: number;
+    waveform: OscillatorType;
+    startTime: number;
+    duration: number;
+    volume: number;
+    slide?: number;
+  }) {
+    if (!this.ctx || !this.bgmGain) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = opts.waveform;
+      osc.frequency.setValueAtTime(opts.freq, opts.startTime);
+      if (opts.slide) {
+        osc.frequency.exponentialRampToValueAtTime(
+          Math.max(20, opts.freq * opts.slide),
+          opts.startTime + opts.duration,
+        );
+      }
+      gain.gain.setValueAtTime(0.0001, opts.startTime);
+      gain.gain.exponentialRampToValueAtTime(opts.volume, opts.startTime + 0.015);
+      gain.gain.setValueAtTime(opts.volume, opts.startTime + opts.duration * 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.0001, opts.startTime + opts.duration);
+      osc.connect(gain);
+      gain.connect(this.bgmGain);
+      osc.start(opts.startTime);
+      osc.stop(opts.startTime + opts.duration + 0.02);
+    } catch { /* ignore */ }
   }
+
+  // ── SFX cues ───────────────────────────────────────────────────────────────
 
   playCue(cue: MadmaxiAudioCue) {
     if (typeof window === 'undefined') return;
@@ -142,13 +209,9 @@ export class MadmaxiAudioController {
     const shape = CUE_SHAPES[cue];
     if (!shape) return;
 
-    const AudioCtor = window.AudioContext ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtor) return;
+    this.ensureCtx();
+    if (!this.ctx) return;
     try {
-      this.ctx ??= new AudioCtor();
-      if (this.ctx.state === 'suspended') {
-        void this.ctx.resume().catch(() => undefined);
-      }
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
