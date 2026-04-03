@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-03 04:34 UTC  
-**Triggered by commit:** `b61b263` on `copilot/implement-whiprev-human-media-manifesto` by Copilot  
-**Commit message:** fix: restore HomeDream feed scroll and rebalance immersive MADMAXI controls — reasoning: narrow DreamDM divider drag capture so feed scrolling and swipe navigation work again, reserve more space for the mobile HUD, move the remote higher for Safari, map X to jump, and reset MADMAXI enemy ramps from 2→10 before each boss with wider spacing; architecture justification: docs/ARCHITECTURE.md §1 keeps runtime regions and in-game controls legible without fake overlays while HomeDream remains feed-first; performance impact: neutral
+**Last updated:** 2026-04-03 04:31 UTC  
+**Triggered by commit:** `d904dff` on `copilot/fix-git-committer-email` by appthemanger-ctrl  
+**Commit message:** Merge branch 'completedream' into copilot/fix-git-committer-email
 
 ---
 
