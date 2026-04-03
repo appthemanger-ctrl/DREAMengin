@@ -1,7 +1,7 @@
 // app/api/widgets/instances/route.ts
 // Widget System V2 — surface instance listing
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, connection } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { Surface } from '@/types/widget-system-v2';
@@ -33,6 +33,7 @@ function toSurface(name: SurfaceName): Surface {
 
 export async function GET(req: NextRequest) {
   try {
+    await connection();
     const supabase = await createServerClient();
     const {
       data: { user },
