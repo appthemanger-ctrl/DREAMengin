@@ -22,7 +22,7 @@
 
 .joystickDock {
   position: absolute;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 26px);
   width: var(--dock-size);
   height: var(--dock-size);
   display: flex;
@@ -148,7 +148,7 @@
 .centerGroup {
   position: absolute;
   left: 50%;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
   transform: translateX(-50%) translateY(calc(-1 * var(--remote-offset-y, 0px)));
   display: flex;
   flex-direction: column;

@@ -51,11 +51,11 @@ const LEGACY_BUTTON_MAP: Record<Exclude<MobileHudButton, 'pause'>, LegacyGameInp
 
 export const MOBILE_HUD_BUTTON_RING: readonly MobileHudRingButtonDefinition[] = [
   { id: 'l1', symbol: 'L1', label: 'Guard', interactive: false, slotClassName: 'slotL1' },
-  { id: 'jump', symbol: '△', label: 'Jump', interactive: true, slotClassName: 'slotJump' },
+  { id: 'triangle', symbol: '△', label: 'Look', interactive: false, slotClassName: 'slotJump' },
   { id: 'dash', symbol: 'R1', label: 'Dash', interactive: true, slotClassName: 'slotR1' },
   { id: 'action', symbol: '⭕️', label: 'Action', interactive: true, slotClassName: 'slotCircle' },
   { id: 'r2', symbol: 'R2', label: 'Boost', interactive: false, slotClassName: 'slotR2' },
-  { id: 'x', symbol: '×', label: 'Face', interactive: false, slotClassName: 'slotX' },
+  { id: 'jump', symbol: '×', label: 'Jump', interactive: true, slotClassName: 'slotX' },
   { id: 'l2', symbol: 'L2', label: 'Hold', interactive: false, slotClassName: 'slotL2' },
   { id: 'square', symbol: '□', label: 'Tech', interactive: false, slotClassName: 'slotSquare' },
 ] as const;
