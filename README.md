@@ -13,9 +13,7 @@ Date: March 24, 2026
 
 ### What This Repo Is
 
-DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+** (App Router),
-**TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 8+**.
-It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
+DREAMengin is a spatial, privacy‑first creative OS built with Next.js 16+ (App Router), TypeScript, Supabase, Tailwind CSS, and a WebGPU‑first rendering pipeline (Babylon.js 9.0). Core physics and game logic run via WebAssembly (WASM) for near‑native performance. It is not a traditional social app — it is a modular, dual‑runtime spatial operating environment.
 Author: José Mancilla · pnpm 10.30.0 · Node 24
 
 ---
