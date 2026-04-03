@@ -45,6 +45,7 @@ import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBrid
 import { useRemoteChannel } from '@/lib/games/useRemoteChannel';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
@@ -324,6 +325,7 @@ export default function GameEngin({ onBack }: Props) {
   // ── Share to Leaderboard ─────────────────────────────────────────────────────
   async function handleShare(scoreId: string) {
     setSharing(scoreId);
+    forgeRecord('Shared game score');
     const supabase = createClient();
     const { error } = await supabase
       .from('game_scores')
@@ -360,6 +362,8 @@ export default function GameEngin({ onBack }: Props) {
     if (!worldName.trim()) return;
     const snapshot = worldGrid.map(r => [...r]);
     setSavedWorld({ name: worldName.trim(), grid: snapshot });
+    forgeRecord('Saved world: ' + worldName.trim());
+    recordForgeTransfer('games', 'create', 'level', 'GameEngin world → ContentEngin');
     // Real bridge event: world level exported — Create/Brand Engins may consume it.
     bridge.emit('games', 'games:asset-exported', {
       assetId:   `world-${Date.now()}`,
@@ -376,6 +380,7 @@ export default function GameEngin({ onBack }: Props) {
   // ── Game Scripts ──────────────────────────────────────────────────────────────
   function handleSaveScript() {
     setSavedScript(scriptState.code);
+    forgeRecord('Saved game script');
     // Task requirement: emit 'games:score-shared' on Save Script.
     // 'games:score-shared' is a planned addition to GamesChannelEvents; cast used
     // until the bridge type map is formally extended.
@@ -827,6 +832,7 @@ export default function GameEngin({ onBack }: Props) {
     setLobbyCode(code);
     setLobbyPlayers(['You']);
     setLobbyActive(true);
+    forgeRecord('Created lobby room');
   }
 
   function handleStartLobbyGame() {
@@ -848,6 +854,7 @@ export default function GameEngin({ onBack }: Props) {
   function handleReplayToggle() {
     const next = !replayRecording;
     setReplayRecording(next);
+    forgeRecord(next ? 'Started recording replay' : 'Stopped recording replay');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:replay-record', { recording: next },
     );
@@ -865,6 +872,7 @@ export default function GameEngin({ onBack }: Props) {
   // ── Social Challenge handlers ────────────────────────────────────────────────
   function handleSendChallenge() {
     setChallengeSent(true);
+    forgeRecord('Sent game challenge');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:challenge-send', {},
     );

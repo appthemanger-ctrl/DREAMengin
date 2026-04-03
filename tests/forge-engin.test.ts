@@ -607,3 +607,187 @@ describe('Failure Recovery', () => {
     }
   });
 });
+
+// ── Cross-Engine Transfer Integration Tests ──────────────────────────────────
+
+describe('Cross-Engine Transfer System', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('recordForgeTransfer creates entries with all required fields', () => {
+    const entry = recordForgeTransfer('music', 'games', 'audio-stems', 'StarMaker stems → GameEngin');
+    expect(entry.id).toMatch(/^xfer-/);
+    expect(entry.fromEnginId).toBe('music');
+    expect(entry.toEnginId).toBe('games');
+    expect(entry.assetType).toBe('audio-stems');
+    expect(entry.label).toBe('StarMaker stems → GameEngin');
+    expect(entry.status).toBe('complete');
+    expect(entry.timestamp).toBeTruthy();
+  });
+
+  it('brand → create transfer is stored correctly', () => {
+    recordForgeTransfer('brand', 'create', 'voice-draft', 'Brand voice → ContentEngin draft');
+    const transfers = readForgeTransfers();
+    expect(transfers).toHaveLength(1);
+    expect(transfers[0].fromEnginId).toBe('brand');
+    expect(transfers[0].toEnginId).toBe('create');
+    expect(transfers[0].assetType).toBe('voice-draft');
+  });
+
+  it('lab → code transfer is stored correctly', () => {
+    recordForgeTransfer('lab', 'code', 'dataset', 'Lab data export → CodeEngin');
+    const transfers = readForgeTransfers();
+    expect(transfers).toHaveLength(1);
+    expect(transfers[0].fromEnginId).toBe('lab');
+    expect(transfers[0].toEnginId).toBe('code');
+  });
+
+  it('music → games transfer is stored correctly', () => {
+    recordForgeTransfer('music', 'games', 'audio-stems', 'StarMaker stems → GameEngin');
+    const transfers = readForgeTransfers();
+    expect(transfers).toHaveLength(1);
+    expect(transfers[0].fromEnginId).toBe('music');
+    expect(transfers[0].toEnginId).toBe('games');
+  });
+
+  it('games → create transfer is stored correctly', () => {
+    recordForgeTransfer('games', 'create', 'level', 'GameEngin world → ContentEngin');
+    const transfers = readForgeTransfers();
+    expect(transfers).toHaveLength(1);
+    expect(transfers[0].fromEnginId).toBe('games');
+    expect(transfers[0].toEnginId).toBe('create');
+  });
+
+  it('all four cross-engine transfers coexist', () => {
+    recordForgeTransfer('brand', 'create', 'voice-draft', 'Brand → Content');
+    recordForgeTransfer('lab', 'code', 'dataset', 'Lab → Code');
+    recordForgeTransfer('music', 'games', 'audio-stems', 'Music → Games');
+    recordForgeTransfer('games', 'create', 'level', 'Games → Content');
+    const transfers = readForgeTransfers();
+    expect(transfers).toHaveLength(4);
+    const pairs = transfers.map(t => `${t.fromEnginId}→${t.toEnginId}`);
+    expect(pairs).toContain('brand→create');
+    expect(pairs).toContain('lab→code');
+    expect(pairs).toContain('music→games');
+    expect(pairs).toContain('games→create');
+  });
+
+  it('transfers reference valid engine ids', () => {
+    const validIds = new Set(ENGIN_REGISTRY.map(e => e.id));
+    recordForgeTransfer('music', 'games', 'audio', 'test');
+    recordForgeTransfer('brand', 'create', 'draft', 'test');
+    recordForgeTransfer('lab', 'code', 'data', 'test');
+    recordForgeTransfer('games', 'create', 'level', 'test');
+    const transfers = readForgeTransfers();
+    for (const t of transfers) {
+      expect(validIds.has(t.fromEnginId)).toBe(true);
+      expect(validIds.has(t.toEnginId)).toBe(true);
+    }
+  });
+
+  it('transfer with metadata preserves it', () => {
+    const entry = recordForgeTransfer('music', 'games', 'audio', 'BGM', { bpm: 120, key: 'C' });
+    expect(entry.metadata).toEqual({ bpm: 120, key: 'C' });
+    const stored = readForgeTransfers();
+    expect(stored[0].metadata).toEqual({ bpm: 120, key: 'C' });
+  });
+});
+
+// ── Forge Activity Coverage Tests ─────────────────────────────────────────────
+
+describe('Forge Activity Coverage — all engines record activity', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('recordForgeActivity works for every creative engine', () => {
+    for (const engine of CREATIVE_ENGINES) {
+      recordForgeActivity(engine.id, `Test action in ${engine.name}`);
+    }
+    const activity = readForgeActivity();
+    expect(activity).toHaveLength(CREATIVE_ENGINES.length);
+    const ids = activity.map(a => a.enginId);
+    for (const engine of CREATIVE_ENGINES) {
+      expect(ids).toContain(engine.id);
+    }
+  });
+
+  it('multiple actions from same engine keep only latest in pulse (but all in history)', () => {
+    recordForgeActivity('games', 'Saved world');
+    recordForgeActivity('games', 'Saved script');
+    recordForgeActivity('games', 'Shared score');
+    recordForgeActivity('games', 'Created room');
+    // Pulse: only latest
+    const pulse = readForgeActivity();
+    expect(pulse).toHaveLength(1);
+    expect(pulse[0].label).toBe('Created room');
+    // History: all 4
+    const history = readForgeHistory();
+    expect(history.length).toBe(4);
+    expect(history.map(h => h.label)).toEqual([
+      'Saved world', 'Saved script', 'Shared score', 'Created room',
+    ]);
+  });
+
+  it('GameEngin actions feed into forge history', () => {
+    const gameActions = [
+      'Saved world: TestLevel',
+      'Saved game script',
+      'Shared game score',
+      'Created lobby room',
+      'Started lobby game',
+      'Sent game challenge',
+      'Started recording replay',
+    ];
+    for (const action of gameActions) {
+      recordForgeActivity('games', action);
+    }
+    const history = readForgeHistory();
+    expect(history.length).toBe(gameActions.length);
+    for (const action of gameActions) {
+      expect(history.some(h => h.label === action)).toBe(true);
+    }
+  });
+
+  it('StarMakerEngin actions feed into forge history', () => {
+    const musicActions = ['Published release', 'Exported stems', 'Saved playlist'];
+    for (const action of musicActions) {
+      recordForgeActivity('music', action);
+    }
+    const history = readForgeHistory();
+    expect(history.length).toBe(musicActions.length);
+    for (const action of musicActions) {
+      expect(history.some(h => h.label === action)).toBe(true);
+    }
+  });
+
+  it('cross-engine flow: music export → game usage appears in suggestions', () => {
+    // Simulate music→games flow
+    recordForgeActivity('music', 'Exported stems');
+    recordForgeActivity('games', 'Started lobby game');
+    recordForgeActivity('music', 'Exported stems');
+    recordForgeActivity('games', 'Started lobby game');
+    recordForgeActivity('music', 'Exported stems');
+
+    const history = readForgeHistory();
+    const predicted = predictNextEngines('music', history);
+    expect(predicted.length).toBeGreaterThan(0);
+    expect(predicted[0].engine.id).toBe('games');
+    expect(predicted[0].confidence).toBe(1); // 100% music→games
+  });
+
+  it('cross-engine flow: lab export → code appears in predictions', () => {
+    recordForgeActivity('lab', 'Exported data');
+    recordForgeActivity('code', 'Ran TypeScript cell');
+    recordForgeActivity('lab', 'Exported data');
+    recordForgeActivity('code', 'Ran TypeScript cell');
+
+    const history = readForgeHistory();
+    const predicted = predictNextEngines('lab', history);
+    expect(predicted.length).toBeGreaterThan(0);
+    expect(predicted[0].engine.id).toBe('code');
+  });
+
+  it('export-related suggestions trigger for stem actions', () => {
+    const suggestions = generateSuggestions({ enginId: 'music', label: 'Exported stems' });
+    const exportSug = suggestions.find(s => s.title === 'Use in another engine');
+    expect(exportSug).toBeDefined();
+  });
+});
