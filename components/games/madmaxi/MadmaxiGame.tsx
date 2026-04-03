@@ -891,13 +891,7 @@ class GameCore {
 
     // ── Environment texture for PBR reflections ──────────────────────────────
     // Create a procedural environment for metallic/reflective surfaces
-    try {
-      const envTex = new BJS.CubeTexture('', scene, undefined, undefined, undefined, undefined, undefined, undefined, undefined, '.env');
-      scene.environmentTexture = envTex;
-    } catch {
-      // Fallback: create environment from hemispheric colours
-      scene.createDefaultEnvironment({ createGround: false, createSkybox: false });
-    }
+    scene.createDefaultEnvironment({ createGround: false, createSkybox: false });
     scene.environmentIntensity = 0.8;
 
     // ── Glow layer ───────────────────────────────────────────────────────────
