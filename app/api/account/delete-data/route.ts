@@ -10,7 +10,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { writeAuditLog } from '@/lib/ai/audit';
 
-export const dynamic = 'force-dynamic';
 
 const DeleteDataBodySchema = z.object({
   confirm: z.literal('DELETE_MY_DATA'),

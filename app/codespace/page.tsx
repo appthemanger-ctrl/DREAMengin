@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 /**
  * Legacy /codespace route — archived in v2.0.0.
@@ -11,8 +12,8 @@ import { redirect } from 'next/navigation';
  * The ?snippet= query param is not forwarded — CodeEngin manages its own
  * session state via useDaydreamState.
  */
-export const dynamic = 'force-dynamic';
 
-export default function CodeSpaceLegacyPage() {
+export default async function CodeSpaceLegacyPage() {
+  await connection();
   redirect('/daydream/code');
 }

@@ -8,7 +8,6 @@ import Link from 'next/link';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
 import DreamWord from '@/components/ui/DreamWord';
 
-export const dynamic = 'force-dynamic';
 
 type Profile = {
   display_name: string;

@@ -18,7 +18,6 @@ import { Lock, Smartphone, Key, Shield, AlertTriangle, Check, Loader2 } from 'lu
 import { createClient } from '@/lib/supabase/client';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
-export const dynamic = 'force-dynamic';
 
 export default function SecuritySettingsPage() {
   const [pwLoading, setPwLoading] = useState(false);

@@ -9,8 +9,7 @@ import {
   isDomainBlocked,
 } from '@/lib/admin/lockout';
 
-// fs/path require Node.js runtime — this route must NOT run on the Edge runtime.
-export const runtime = 'nodejs';
+// fs/path require Node.js runtime (the default in Next.js 16+).
 
 // ── File-tree builder ────────────────────────────────────────────────────────
 const ALLOWED_TOP_DIRS = ['app', 'components', 'lib', 'hooks', 'types', 'styles'];

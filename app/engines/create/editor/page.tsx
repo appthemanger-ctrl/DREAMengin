@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import EditorPanel from '@/components/engines/create/panels/EditorPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Editor – ContentEngin', description: 'Rich content editor.' };
 
 const ACCENT = '#fb923c';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function CreateEditorPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

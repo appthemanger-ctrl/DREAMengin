@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 /**
  * Legacy /physics-lab route — archived in v2.0.0.
@@ -8,8 +9,8 @@ import { redirect } from 'next/navigation';
  *
  * Per docs/ARCHITECTURE.md §3 (Daydream Surface Network) and docs/LAW.md §Route law.
  */
-export const dynamic = 'force-dynamic';
 
-export default function PhysicsLabLegacyPage() {
+export default async function PhysicsLabLegacyPage() {
+  await connection();
   redirect('/daydream/lab');
 }

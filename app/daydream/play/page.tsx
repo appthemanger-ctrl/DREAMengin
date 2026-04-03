@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { buildGameLaunchHref, DEFAULT_GAME_ID } from '@/lib/games/navigation';
+import { connection } from 'next/server';
 
 /**
  * Legacy play daydream route — repurposed to the Games Daydream.
@@ -9,8 +10,8 @@ import { buildGameLaunchHref, DEFAULT_GAME_ID } from '@/lib/games/navigation';
  * "Rename and repurpose before rebuilding." This route now forwards traffic
  * to the canonical Games Daydream at /daydream/games.
  */
-export const dynamic = 'force-dynamic';
 
-export default function PlayDaydreamLegacyPage() {
+export default async function PlayDaydreamLegacyPage() {
+  await connection();
   redirect(buildGameLaunchHref(DEFAULT_GAME_ID));
 }

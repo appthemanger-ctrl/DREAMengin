@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import BuilderPanel from '@/components/engines/games/panels/BuilderPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'World Builder – GameEngin', description: 'Paint your game world.' };
 
 const ACCENT = '#c8981a';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function GamesBuilderPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

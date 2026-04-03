@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import AnalyticsPanel from '@/components/engines/brand/panels/AnalyticsPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Analytics – BrandingEngin', description: 'Brand analytics and A/B tests.' };
 
 const ACCENT = '#f472b6';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function BrandAnalyticsPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

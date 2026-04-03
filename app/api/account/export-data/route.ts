@@ -15,7 +15,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 
-export const dynamic = 'force-dynamic';
 
 // Tables to export, each with the column name that identifies the owner.
 const EXPORT_TARGETS: Array<{ table: string; ownerCol: string }> = [

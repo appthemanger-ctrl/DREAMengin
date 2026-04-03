@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, DollarSign, Loader2, LayoutGrid, Info } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
 
 export default function CreateAdSlotPage() {
   const [placement, setPlacement] = useState('sidebar_banner');

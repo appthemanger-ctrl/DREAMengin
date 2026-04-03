@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import MusicLibraryPanel from '@/components/engines/music/panels/MusicLibraryPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Preset Library – StarMakerEngin', description: 'Browse presets and templates.' };
 
 const ACCENT = '#a855f7';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function MusicLibraryPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

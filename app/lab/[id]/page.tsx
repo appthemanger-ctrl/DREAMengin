@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, FlaskConical, Download, Code, FileText, Terminal } from 'lucide-react';
+import { connection } from 'next/server';
 
 interface LabProjectPageProps {
   params: Promise<{ id: string }>;
@@ -31,9 +32,9 @@ type Project = {
   attachments: Attachment[] | null;
 };
 
-export const dynamic = 'force-dynamic';
 
 export default async function LabProjectPage({ params }: LabProjectPageProps) {
+  await connection();
   const { id } = await params;
   const supabase = await createServerClient();
   const {

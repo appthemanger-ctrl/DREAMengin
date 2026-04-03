@@ -1,14 +1,15 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import MessagesClient from '@/components/MessagesClient';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 interface MessagesPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export default async function MessagesPage({ searchParams }: MessagesPageProps) {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

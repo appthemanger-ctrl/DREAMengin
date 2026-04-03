@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ShoppingBag, Loader2, DollarSign, Tag } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
 
 const CATEGORIES = [
   { value: 'widget',    label: '🧩 Widget',    desc: 'Add-on module for HomeDream' },

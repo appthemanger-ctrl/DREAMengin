@@ -6,7 +6,6 @@ import { createServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { Surface } from '@/types/widget-system-v2';
 
-export const dynamic = 'force-dynamic';
 
 type SurfaceName = 'HOME' | 'FACE' | 'PROFILE' | 'DOCK';
 

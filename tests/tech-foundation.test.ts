@@ -44,10 +44,10 @@ describe('Next.js 16+ with PPR', () => {
     expect(nextVersion).toMatch(/16/);
   });
 
-  it('documents PPR configuration in next.config.mjs', () => {
+  it('has PPR enabled via cacheComponents in next.config.mjs', () => {
     const config = readFile('next.config.mjs');
-    // Next.js 16+ uses cacheComponents (successor to experimental.ppr).
-    // Currently commented out pending route migration from dynamic = 'force-dynamic'.
+    // Next.js 16+ uses cacheComponents: true for PPR.
+    // Routes use connection() from next/server instead of dynamic = 'force-dynamic'.
     expect(config).toContain('cacheComponents');
     expect(config).toContain('Partial Prerendering');
   });

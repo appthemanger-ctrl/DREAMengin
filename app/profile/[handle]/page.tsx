@@ -8,6 +8,7 @@ import DreamWord from '@/components/ui/DreamWord';
 import ProfileShareButton from '@/components/ProfileShareButton';
 import ProfileCustomizeButton from '@/components/profile/ProfileCustomizeButton';
 import InfinityIcon from '@/components/ui/InfinityIcon';
+import { connection } from 'next/server';
 
 // Extended profile type
 type Profile = {
@@ -27,7 +28,6 @@ interface ProfilePageProps {
   params: Promise<{ handle: string }>;
 }
 
-export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: ProfilePageProps) {
   const { handle } = await params;
@@ -38,6 +38,7 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
+  await connection();
   const { handle } = await params;
   const supabase = await createServerClient();
 

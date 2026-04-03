@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Bell, MessageSquare, Heart, Users, DollarSign, Sparkles, Check, Loader2 } from 'lucide-react';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 
-export const dynamic = 'force-dynamic';
 
 const STORAGE_KEY = 'de-notification-settings';
 

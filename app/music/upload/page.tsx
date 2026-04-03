@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Music, Upload, Loader2, Youtube, Info } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
 
 export default function UploadMusicPage() {
   const [title, setTitle] = useState('');

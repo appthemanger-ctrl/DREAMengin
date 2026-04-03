@@ -19,7 +19,6 @@ import { getSnapshot, getBufferStats } from '@/lib/observability/collector';
 import { correlate } from '@/lib/observability/correlator';
 import { inferRootCause } from '@/lib/observability/rootCauseAnalyzer';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   // Service availability guard — matches /api/ai/idari

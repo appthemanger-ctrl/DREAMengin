@@ -2,13 +2,14 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, FileText, Plus } from 'lucide-react';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Notes – Dreamengin', description: 'Your personal notes and ideas.' };
 
 type Note = { id: number; title: string | null };
 
 export default async function NotesPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

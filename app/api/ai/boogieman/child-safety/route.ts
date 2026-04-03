@@ -29,9 +29,6 @@ import { checkRateLimit } from '@/lib/ai/rateLimit';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { createHash } from 'crypto';
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 // ============================================================================
 // REQUEST SCHEMA
 // ============================================================================

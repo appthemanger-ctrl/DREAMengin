@@ -5,8 +5,8 @@ import { FlaskConical } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import LabEngin from '@/components/daydream/LabEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Lab Daydream – Dreamengin', description: 'Experiments, prototypes, simulations, and models.' };
 
 const WIDGETS: DaydreamWidget[] = [
@@ -21,6 +21,7 @@ const WIDGETS: DaydreamWidget[] = [
 ];
 
 export default async function LabDaydreamPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

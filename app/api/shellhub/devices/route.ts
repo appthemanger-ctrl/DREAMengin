@@ -23,7 +23,6 @@ import {
   type ShellHubDevice,
 } from '@/lib/connectors/providers/shellhub';
 
-export const dynamic = 'force-dynamic';
 
 export interface ShellHubDevicesResponse {
   ok: boolean;

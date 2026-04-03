@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import CampaignsPanel from '@/components/engines/brand/panels/CampaignsPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Campaigns – BrandingEngin', description: 'Campaign ROI calculator and manager.' };
 
 const ACCENT = '#f472b6';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function BrandCampaignsPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

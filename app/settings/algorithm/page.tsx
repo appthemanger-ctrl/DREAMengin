@@ -3,14 +3,15 @@ import { redirect } from 'next/navigation';
 import { Cpu } from 'lucide-react';
 import AlgorithmEngine from '@/components/feed/AlgorithmEngine';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'My Algorithm – Dreamengin',
   description: 'Build your own feed. Your rules, your presets, your order.',
 };
 
 export default async function AlgorithmPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

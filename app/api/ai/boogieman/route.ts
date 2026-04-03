@@ -38,7 +38,6 @@ import { writeAuditLog } from '@/lib/ai/audit';
 import { checkRateLimit } from '@/lib/ai/rateLimit';
 import { boogiePolicyCheck, isOwnerEmail } from '@/lib/ai/triad';
 
-export const dynamic = 'force-dynamic';
 
 const BoogieRequestSchema = z.object({
   message: z.string().min(1).max(4000),

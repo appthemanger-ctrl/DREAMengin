@@ -24,7 +24,6 @@ import { NextRequest, NextResponse } from 'next/server';
  * "change" values are percentage change vs. the preceding equivalent period.
  */
 
-export const dynamic = 'force-dynamic';
 
 // Parse range param to a number of days
 function parseDays(range: string | null): number {

@@ -28,7 +28,6 @@ import {
   type GenerationLawAssessment,
 } from '@/lib/agents/idari';
 
-export const dynamic = 'force-dynamic';
 
 type ActorRole = 'admin' | 'owner';
 

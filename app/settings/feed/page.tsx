@@ -1,11 +1,12 @@
 import { permanentRedirect } from 'next/navigation';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 /**
  * Canonical feed wiring settings URL: /settings/feed
  * Redirects to /feed-settings where the full feed configuration UI lives.
  */
-export default function FeedSettingsRedirect() {
+export default async function FeedSettingsRedirect() {
+  await connection();
   permanentRedirect('/feed-settings');
 }

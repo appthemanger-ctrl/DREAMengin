@@ -3,12 +3,13 @@ import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Pin } from 'lucide-react';
 import BoardComposer from '@/components/messaging/BoardComposer';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 interface Props { params: Promise<{ id: string }> }
 
 export default async function BoardDetailPage({ params }: Props) {
+  await connection();
   const { id } = await params;
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

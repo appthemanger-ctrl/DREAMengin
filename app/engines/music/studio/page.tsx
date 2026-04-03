@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import StudioPanel from '@/components/engines/music/panels/StudioPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Studio – StarMakerEngin', description: 'Recording studio.' };
 
 const ACCENT = '#a855f7';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function MusicStudioPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

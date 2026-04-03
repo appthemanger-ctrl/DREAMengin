@@ -8,8 +8,8 @@ import Link from 'next/link';
 import { Shield, AlertTriangle, Download, FileText, ChevronRight } from 'lucide-react';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Policy & Safety – Dreamengin Settings' };
 
 interface PolicyEvent {
@@ -23,6 +23,7 @@ interface PolicyEvent {
 }
 
 export default async function SafetySettingsPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

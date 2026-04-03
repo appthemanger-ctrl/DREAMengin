@@ -20,7 +20,6 @@ import {
   isOwner,
 } from '@/lib/admin/lockout';
 
-export const dynamic = 'force-dynamic';
 
 function deny(msg: string, status: number) {
   return NextResponse.json({ error: msg }, { status });

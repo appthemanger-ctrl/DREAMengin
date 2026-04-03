@@ -2,8 +2,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FlaskConical, Plus, Lock, Globe } from 'lucide-react';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 // No demo projects - users see their actual projects only
 const DEMO_PROJECTS: never[] = [];
@@ -83,6 +83,7 @@ function ProjectCard({ project, showIframe = true }: { project: ProjectCard; sho
 }
 
 export default async function LabPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

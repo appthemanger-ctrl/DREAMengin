@@ -18,8 +18,8 @@ import Link from 'next/link';
 import { ArrowLeft, ShoppingBag, Tag, User, Calendar } from 'lucide-react';
 import DreamWord from '@/components/ui/DreamWord';
 import MarketplaceRequestButton from '@/components/marketplace/MarketplaceRequestButton';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 const CATEGORY_EMOJI: Record<string, string> = {
   theme: '🎨', themes: '🎨',
@@ -33,6 +33,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
 type Params = { id: string };
 
 export default async function MarketplaceItemPage({ params }: { params: Promise<Params> }) {
+  await connection();
   const { id } = await params;
 
   const supabase = await createServerClient();

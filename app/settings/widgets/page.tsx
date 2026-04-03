@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { LayoutGrid, Pin, Eye, EyeOff, Plus } from 'lucide-react';
 import DreamWord from '@/components/ui/DreamWord';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Dreams – DREAMengin Settings' };
 
 export default async function WidgetsSettingsPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

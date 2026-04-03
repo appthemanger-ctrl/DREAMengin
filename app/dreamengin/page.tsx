@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 /**
  * Legacy /dreamengin orbit-shell route — archived in v2.0.0.
@@ -13,8 +14,8 @@ import { redirect } from 'next/navigation';
  * Any query params (e.g. ?q=) are intentionally dropped — Dr. Eams chat is now
  * handled inside HomeDream via the DrEamsSearchBar and DrEamsPanel overlay.
  */
-export const dynamic = 'force-dynamic';
 
-export default function DreamenginLegacyPage() {
+export default async function DreamenginLegacyPage() {
+  await connection();
   redirect('/homedream');
 }

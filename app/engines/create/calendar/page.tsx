@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import CalendarPanel from '@/components/engines/create/panels/CalendarPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Content Calendar – ContentEngin', description: 'Plan your content week.' };
 
 const ACCENT = '#fb923c';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function CreateCalendarPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

@@ -20,7 +20,6 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
 
-export const dynamic = 'force-dynamic';
 
 export interface ConnectorStatusEntry {
   status: ConnectorStatus;

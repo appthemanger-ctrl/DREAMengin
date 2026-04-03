@@ -12,7 +12,6 @@ import { checkRateLimit } from '@/lib/ai/rateLimit';
 import { validateWithIdari } from '@/lib/ai/triad';
 import type { Json } from '@/types/supabase';
 
-export const dynamic = 'force-dynamic';
 
 // ---------------------------------------------------------------------------
 // Intent dispatch table

@@ -3,11 +3,12 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { HelpCircle, BookOpen, Wand2, MessageCircle } from 'lucide-react';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Help – Dreamengin Settings' };
 
 export default async function HelpPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

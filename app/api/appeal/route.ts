@@ -14,7 +14,6 @@ import { AppealRequestSchema } from '@/lib/ai/schemas';
 import { BOOGIE_POLICY_VERSION, RULE_CODES } from '@/lib/ai/boogie-policy';
 import { writeAuditLog } from '@/lib/ai/audit';
 
-export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   const requestStart = Date.now();
