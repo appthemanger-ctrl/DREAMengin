@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-03 04:17 UTC  
-**Triggered by commit:** `5255c99` on `completedream` by appthemanger-ctrl  
-**Commit message:** Update README.md
+**Last updated:** 2026-04-03 04:28 UTC  
+**Triggered by commit:** `9ffb16a` on `copilot/explain-repository-structure` by appthemanger-ctrl  
+**Commit message:** Merge branch 'completedream' into copilot/explain-repository-structure
 
 ---
 
