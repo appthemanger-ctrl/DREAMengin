@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from 'react';
-import { Layers3, Pause, Play, Plus } from 'lucide-react';
+import { useState, type CSSProperties } from 'react';
+import { ChevronDown, ChevronRight, Layers3, Pause, Play, Plus } from 'lucide-react';
 
 import {
   ARRANGEMENT_BARS,
@@ -158,7 +158,9 @@ export default function MultitrackArrangementPanel({
   onRemoveClip,
   onSelectedClipGainChange,
 }: Props) {
-  const selectedSource = sourceLibrary.find(source => source.id === selectedSourceId) ?? null;
+  const [toolsExpanded, setToolsExpanded] = useState(false);
+  const activeSourceId = selectedSourceId ?? sourceLibrary[0]?.id ?? null;
+  const selectedSource = sourceLibrary.find(source => source.id === activeSourceId) ?? null;
   const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
   const arrangementBarsUsed = arrClips.length ? Math.max(...arrClips.map(clip => clip.startBar + clip.barLength)) : 0;
   const [clipToolsExpanded, setClipToolsExpanded] = useState(false);
@@ -241,13 +243,63 @@ export default function MultitrackArrangementPanel({
             {arrLooping ? 'Loop On' : 'Loop Off'}
           </button>
           <span style={{ fontSize: 10, color: THEME.dim, alignSelf: 'center' }}>
-            Click a bar cell to place the selected source on a track lane.
+            Use the source picker, then click a bar cell to place that source on a track lane.
           </span>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 240px' }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: THEME.dim, letterSpacing: '0.08em', marginBottom: 6 }}>
+                SOURCE PICKER
+              </div>
+              <select
+                value={activeSourceId ?? ''}
+                onChange={(event) => {
+                  if (event.target.value) onSelectSource(event.target.value);
+                }}
+                disabled={!sourceLibrary.length}
+                aria-label="Arrangement source picker"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: 9,
+                  border: `1px solid ${selectedSource ? `${selectedSource.color}55` : THEME.border}`,
+                  background: '#111420',
+                  color: selectedSource ? '#f8fafc' : THEME.dim,
+                  cursor: sourceLibrary.length ? 'pointer' : 'not-allowed',
+                  fontSize: 11,
+                  fontWeight: 700,
+                }}
+              >
+                {sourceLibrary.length ? sourceLibrary.map(source => (
+                  <option key={source.id} value={source.id}>
+                    {source.name} · {formatSeconds(source.durationSec)}
+                  </option>
+                )) : (
+                  <option value="">Capture a source to start arranging</option>
+                )}
+              </select>
+            </div>
+            <div style={{ minWidth: 160, textAlign: 'right' }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: THEME.dim, letterSpacing: '0.08em', marginBottom: 6 }}>
+                ACTIVE ASSIGNMENT
+              </div>
+              <div style={{
+                padding: '10px 12px',
+                borderRadius: 9,
+                border: `1px solid ${selectedSource ? `${selectedSource.color}40` : THEME.border}`,
+                background: selectedSource ? `${selectedSource.color}12` : THEME.surfaceHi,
+                color: selectedSource ? selectedSource.color : THEME.dim,
+                fontSize: 11,
+                fontWeight: 700,
+              }}>
+                {selectedSource ? `${selectedSource.name} · ${formatSeconds(selectedSource.durationSec)}` : 'No source selected'}
+              </div>
+            </div>
+          </div>
           <div style={{ fontSize: 9, fontWeight: 700, color: THEME.dim, letterSpacing: '0.08em' }}>
-            SOURCE RACK
+            SOURCE RACK PREVIEW
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -290,9 +342,9 @@ export default function MultitrackArrangementPanel({
                 style={{
                   padding: '8px 10px',
                   borderRadius: 8,
-                  border: `1px solid ${selectedSourceId === source.id ? `${source.color}55` : THEME.border}`,
-                  background: selectedSourceId === source.id ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
-                  color: source.color,
+                  border: `1px solid ${activeSourceId === source.id ? source.color : `${source.color}40`}`,
+                  background: activeSourceId === source.id ? `${source.color}22` : `${source.color}10`,
+                  color: activeSourceId === source.id ? '#fff' : source.color,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
@@ -315,14 +367,16 @@ export default function MultitrackArrangementPanel({
                   ))}
                 </div>
                 <div style={{ textAlign: 'left', minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: THEME.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {source.name}
-                      </div>
-                      {selectedSourceId === source.id && <span style={{ ...pill(source.color), fontSize: 8 }}>ACTIVE</span>}
-                    </div>
-                    <div style={{ fontSize: 9, color: THEME.dim }}>{formatSeconds(source.durationSec)}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: activeSourceId === source.id ? '#fff' : THEME.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {source.name}
+                  </div>
+                  <div style={{ fontSize: 9, color: activeSourceId === source.id ? '#f5f7fb' : THEME.dim }}>
+                    {formatSeconds(source.durationSec)}
+                  </div>
                 </div>
+                {activeSourceId === source.id && (
+                  <span style={{ ...pill(source.color), fontSize: 8, marginLeft: 'auto' }}>ACTIVE</span>
+                )}
               </div>
             )) : (
               <div style={{
@@ -507,69 +561,112 @@ export default function MultitrackArrangementPanel({
             </div>
           </button>
 
-          {clipToolsExpanded && (
-            <div style={disclosureTrayStyle}>
+          <button
+            type="button"
+            onClick={() => setToolsExpanded(expanded => !expanded)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 10,
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: 12,
+              border: `1px solid ${selectedClip ? `${selectedClip.color}30` : THEME.borderBright}`,
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03))',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 18px rgba(0,0,0,0.24)',
+              color: selectedClip ? '#f8fafc' : THEME.text,
+              cursor: 'pointer',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
+                width: 28,
+                height: 28,
+                borderRadius: 999,
+                background: selectedClip ? `${selectedClip.color}18` : 'rgba(255,255,255,0.06)',
+                border: `1px solid ${selectedClip ? `${selectedClip.color}40` : THEME.border}`,
                 display: 'flex',
-                flexDirection: 'column',
-                gap: 8,
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: selectedClip ? selectedClip.color : THEME.dim,
               }}>
-                <div style={{ fontSize: 10, color: THEME.dim }}>
-                  {selectedClip
-                    ? `Selected clip: ${selectedClip.label} on ${arrTracks.find(track => track.id === selectedClip.trackId)?.label ?? selectedClip.trackId}`
-                    : 'Select an arrangement clip to edit it'}
-                </div>
-
-                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                  {[
-                    { label: '← Nudge', action: onNudgeClipLeft },
-                    { label: 'Nudge →', action: onNudgeClipRight },
-                    { label: 'Shorter', action: onShortenClip },
-                    { label: 'Longer', action: onLengthenClip },
-                    { label: 'Duplicate', action: onDuplicateClip },
-                    { label: 'Remove', action: onRemoveClip },
-                  ].map(control => (
-                    <button
-                      key={control.label}
-                      type="button"
-                      onClick={control.action}
-                      disabled={!selectedClip}
-                      style={{
-                        padding: '7px 10px',
-                        borderRadius: 8,
-                        border: `1px solid ${selectedClip ? THEME.borderBright : THEME.border}`,
-                        background: selectedClip ? THEME.surfaceHi : 'rgba(255,255,255,0.03)',
-                        color: selectedClip ? THEME.text : THEME.dim,
-                        cursor: selectedClip ? 'pointer' : 'not-allowed',
-                        fontSize: 10,
-                        fontWeight: 700,
-                        opacity: selectedClip ? 1 : 0.45,
-                      }}
-                    >
-                      {control.label}
-                    </button>
-                  ))}
-                </div>
-
-                {selectedClip && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 9, color: THEME.dim, fontWeight: 700 }}>CLIP GAIN</span>
-                    <input
-                      type="range"
-                      min={0}
-                      max={1.2}
-                      step={0.01}
-                      value={selectedClip.gain}
-                      onChange={(e) => onSelectedClipGainChange(Number(e.target.value))}
-                      aria-label="Selected arrangement clip gain"
-                      style={{ flex: 1, accentColor: selectedClip.color }}
-                    />
-                    <span style={{ fontSize: 9, color: THEME.dim, fontFamily: 'monospace', width: 34 }}>
-                      {Math.round(selectedClip.gain * 100)}%
-                    </span>
-                  </div>
-                )}
+                {toolsExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Clip Tools
+                </div>
+                <div style={{ fontSize: 10, color: THEME.dim }}>
+                  {selectedClip ? 'Open the recessed tray to nudge, resize, duplicate, or rebalance the clip.' : 'Pick a clip, then open this tray to tweak it.'}
+                </div>
+              </div>
+            </div>
+            <span style={{ ...pill(selectedClip ? selectedClip.color : THEME.dim), fontSize: 8 }}>
+              {toolsExpanded ? 'OPEN' : 'CLOSED'}
+            </span>
+          </button>
+
+          {toolsExpanded && (
+            <div style={{
+              padding: '12px',
+              borderRadius: 12,
+              background: 'rgba(8,11,18,0.82)',
+              border: `1px solid ${selectedClip ? `${selectedClip.color}26` : THEME.border}`,
+              boxShadow: 'inset 0 10px 18px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.04)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+            }}>
+              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                {[
+                  { label: '← Nudge', action: onNudgeClipLeft },
+                  { label: 'Nudge →', action: onNudgeClipRight },
+                  { label: 'Shorter', action: onShortenClip },
+                  { label: 'Longer', action: onLengthenClip },
+                  { label: 'Duplicate', action: onDuplicateClip },
+                  { label: 'Remove', action: onRemoveClip },
+                ].map(control => (
+                  <button
+                    key={control.label}
+                    type="button"
+                    onClick={control.action}
+                    disabled={!selectedClip}
+                    style={{
+                      padding: '7px 10px',
+                      borderRadius: 8,
+                      border: `1px solid ${selectedClip ? THEME.borderBright : THEME.border}`,
+                      background: selectedClip ? THEME.surfaceHi : 'rgba(255,255,255,0.03)',
+                      color: selectedClip ? THEME.text : THEME.dim,
+                      cursor: selectedClip ? 'pointer' : 'not-allowed',
+                      fontSize: 10,
+                      fontWeight: 700,
+                      opacity: selectedClip ? 1 : 0.45,
+                    }}
+                  >
+                    {control.label}
+                  </button>
+                ))}
+              </div>
+
+              {selectedClip && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 9, color: THEME.dim, fontWeight: 700 }}>CLIP GAIN</span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1.2}
+                    step={0.01}
+                    value={selectedClip.gain}
+                    onChange={(e) => onSelectedClipGainChange(Number(e.target.value))}
+                    aria-label="Selected arrangement clip gain"
+                    style={{ flex: 1, accentColor: selectedClip.color }}
+                  />
+                  <span style={{ fontSize: 9, color: THEME.dim, fontFamily: 'monospace', width: 34 }}>
+                    {Math.round(selectedClip.gain * 100)}%
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -81,6 +81,110 @@ export function createPatchPlan(
 }
 
 // ---------------------------------------------------------------------------
+// Generation Law — Phase 8 runtime-complete scope enforcement.
+// Provides deterministic pre-flight scoring used by IDARi system instructions.
+// ---------------------------------------------------------------------------
+
+export type GenerationLawMode = "CREATE" | "CONFORM" | "PATCH_ONLY";
+
+export interface GenerationLawAssessment {
+  score: number;
+  mode: GenerationLawMode;
+  task_count: number;
+  file_count: number;
+  dependency_schema_count: number;
+  vague_term_count: number;
+  core_architecture_hit: boolean;
+  structural_change_risk: boolean;
+}
+
+export const GENERATION_LAW_WEIGHTS = {
+  w1_task: 2.0,
+  w2_file: 0.5,
+  w3_dependency_db: 4.0,
+  w4_architecture: 3.0,
+  w5_ambiguity: 1.5,
+} as const;
+
+const TASK_PATTERNS = [
+  /\b(add|build|change|create|delete|emit|enforce|fix|generate|implement|improve|introduce|modify|move|optimi[sz]e|patch|propose|refactor|remove|rename|replace|update|wire)\b/gi,
+  /\b(and|then)\b/gi,
+] as const;
+
+const FILE_PATTERNS = [
+  /\b[a-z0-9_./-]+\.[a-z0-9]+\b/gi,
+  /\b(app|components|lib|types|utils|tests|scripts|supabase)\/[a-z0-9_./-]+\b/gi,
+] as const;
+
+const DEPENDENCY_SCHEMA_PATTERN =
+  /\b(database|dependency|dependencies|deps|install|migration|package|pnpm|npm|schema|schemas|supabase|table|tables|column|columns|rls|policy|policies|rpc)\b/gi;
+
+const CORE_ARCHITECTURE_PATTERN = /\b(DreamDMBar|DreamDM Bar|HomeSystem|RLS)\b/i;
+
+const VAGUE_TERMS_PATTERN =
+  /\b(around|etc|eventually|kind of|maybe|possibly|roughly|some|somehow|something|stuff|things|whatever)\b/gi;
+
+function countMatches(source: string, pattern: RegExp): number {
+  const matches = source.match(pattern);
+  return matches ? matches.length : 0;
+}
+
+function countUniqueMatches(source: string, pattern: RegExp): number {
+  const matches = source.match(pattern);
+  return matches ? new Set(matches.map((match) => match.toLowerCase())).size : 0;
+}
+
+export function assessGenerationLawScope(message: string): GenerationLawAssessment {
+  const source = message.trim();
+  const task_count = Math.max(
+    1,
+    TASK_PATTERNS.reduce((total, pattern) => total + countMatches(source, pattern), 0),
+  );
+  const file_count = Math.max(
+    0,
+    FILE_PATTERNS.reduce((max, pattern) => Math.max(max, countUniqueMatches(source, pattern)), 0),
+  );
+  const dependency_schema_count = countUniqueMatches(source, DEPENDENCY_SCHEMA_PATTERN);
+  const vague_term_count = countMatches(source, VAGUE_TERMS_PATTERN);
+  const core_architecture_hit = CORE_ARCHITECTURE_PATTERN.test(source);
+
+  const score =
+    (GENERATION_LAW_WEIGHTS.w1_task * task_count) +
+    (GENERATION_LAW_WEIGHTS.w2_file * file_count) +
+    (GENERATION_LAW_WEIGHTS.w3_dependency_db * dependency_schema_count) +
+    (GENERATION_LAW_WEIGHTS.w4_architecture * (core_architecture_hit ? 1 : 0)) +
+    (GENERATION_LAW_WEIGHTS.w5_ambiguity * vague_term_count);
+
+  const mode: GenerationLawMode =
+    score < 4
+      ? "CREATE"
+      : score < 8
+        ? "CONFORM"
+        : "PATCH_ONLY";
+
+  return {
+    score,
+    mode,
+    task_count,
+    file_count,
+    dependency_schema_count,
+    vague_term_count,
+    core_architecture_hit,
+    structural_change_risk:
+      file_count > 1 ||
+      dependency_schema_count > 0 ||
+      core_architecture_hit ||
+      task_count > 1,
+  };
+}
+
+export function formatGenerationLawLoadCheck(
+  assessment: Pick<GenerationLawAssessment, "score" | "mode">,
+): string {
+  return `LOAD_CHECK: ${assessment.score.toFixed(1)} | MODE: ${assessment.mode}`;
+}
+
+// ---------------------------------------------------------------------------
 // KnownIssue — IDARi's "known issues" log (req #23).
 // Issues that are identified but not yet patched are tracked here so nothing
 // gets silently dropped.

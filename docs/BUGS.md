@@ -4,15 +4,15 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-02 07:40 UTC  
-**Triggered by commit:** `a2ba14c` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #401 from appthemanger-ctrl/copilot/system-wide-ui-ux-upgrade
+**Last updated:** 2026-04-03 04:17 UTC  
+**Triggered by commit:** `5255c99` on `completedream` by appthemanger-ctrl  
+**Commit message:** Update README.md
 
 ---
 
 ## 🏆 Final Vision — What DREAMengin Is Supposed to Be
 
-DREAMengin is a **DreamDM-Bar-led spatial creative operating environment** built on Next.js (App Router) + Supabase.
+DREAMengin is a **dual-runtime, spatial creative operating environment** built on Next.js (App Router) + Supabase.
 
 It is not defined as a conventional page-based website. It is a **personal operating surface** where users move through connected live surfaces, modular runtime containers, and powered Engin layers while preserving context.
 
@@ -28,10 +28,10 @@ It is not defined as a conventional page-based website. It is a **personal opera
 
 ### Runtime model
 
-- DREAMengin operates as a **stacked runtime system**.
-- **HomeDream Surface** is the root operating surface underneath the bar.
-- **DreamSpace** is the revealed secondary runtime layer owned by the DreamDM Bar.
-- The **DreamDM Bar** is the persistent interaction rail, runtime seam, top-layer main attraction, and draggable reveal control.
+- DREAMengin operates as a **dual-runtime spatial system**.
+- **Surface Space** is the upper active runtime region.
+- **DreamSpace** is the lower modular runtime region.
+- The **DreamDM Bar** is the persistent interaction rail, runtime seam, and draggable divider between the two active spaces.
 - The **Gold Button** is the primary travel control for returning home and opening system navigation.
 - Navigation must feel like depth, continuity, and state-preserving movement — not page loss or world reset.
 
