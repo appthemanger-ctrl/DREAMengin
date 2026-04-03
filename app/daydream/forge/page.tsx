@@ -8,7 +8,6 @@ import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { CREATIVE_ENGINES } from '@/lib/forge/forgeRegistry';
 
-export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Forge Daydream – DREAMengin',
   description: 'Orchestrate all engines from one meta-creation surface.',
