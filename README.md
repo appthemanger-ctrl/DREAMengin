@@ -13,9 +13,7 @@ Date: March 24, 2026
 
 ### What This Repo Is
 
-DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+** (App Router),
-**TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 8+**.
-It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
+DREAMengin is a spatial, privacy‑first creative OS built with Next.js 16+ (App Router), TypeScript, Supabase, Tailwind CSS, and a WebGPU‑first rendering pipeline (Babylon.js 9.0). Core physics and game logic run via WebAssembly (WASM) for near‑native performance. It is not a traditional social app — it is a modular, dual‑runtime spatial operating environment.
 Author: José Mancilla · pnpm 10.30.0 · Node 24
 
 ---
@@ -221,7 +219,7 @@ The system uses a multi-connection model:
 
 - 6 Daydream surfaces
 - 6 Engin runtimes
-- Up to 11 connection paths depending on workflow
+- Multiple connection paths depending on workflow
 
 Definitions:
 
@@ -482,14 +480,20 @@ Platform Modules
 
 2. Technical Foundation
 
-2.1 Frontend
-	•	Framework: Next.js 16+
-	•	Architecture: App Router
-	•	Language: TypeScript
-	•	Styling: tokenized design system with Tailwind CSS or equivalent
-	•	Animation: Framer Motion or equivalent UI motion layer
-	•	Component Model: modular, Dream Window–driven, reusable surfaces
-	•	Rendering Strategy: client-heavy interactive surfaces with controlled server rendering where appropriate
+2.1 Technical Foundation
+ * Framework: Next.js 16+ using App Router for high-performance server components and Partial Prerendering (PPR).
+ * Architecture: Dual-runtime spatial environment with state-preserving depth and iOS Photos-style continuity.
+ * Language: TypeScript 5.8+ (Strict Mode) for type-safe interaction logic across all 174 routes.
+ * Styling: Tokenized design system built with Tailwind CSS 4.0—optimized for the Neumorphic Dark aesthetic.
+ * Animation: Framer Motion for physics-based DreamDM Bar dragging and smooth snap-point transitions.
+ * 3D / Graphics: Babylon.js 9.0 (WebGPU-Native) using WGSL shaders. This enables complex lighting, gold/light-blue gradients, and Neural Post-Processing without hardware lag.
+ * Performance Layer: WebAssembly (WASM) used for core physics, math, and StarMakerEngin DAW logic to achieve near-native execution speeds.
+ * Component Model: Modular, Dream Window-driven architecture with Unbound, Bound, Mounted, and Collapsed lifecycle states.
+ * Backend (Supabase):
+   * Postgres: Hardened with strict Row Level Security (RLS).
+   * Realtime: Powering the WhipRev human media pulse and live messaging.
+   * Vector: pgvector implementation for Dr. Eams discovery and AI Triad consensus routing.
+ * Rendering Strategy: Client-heavy interactive surfaces; WebGPU/WASM contexts run exclusively on the client to preserve the "Virtual Console" feel
 
 2.2 Backend (Supabase)
 	•	Database: Supabase Postgres
@@ -1438,11 +1442,11 @@ Everything must feel owned by the user.
 
 ⸻
 
-26. Generation Law (AI Build Constraint)
+29. Generation Law (AI Build Constraint)
 
 Every AI agent working on DREAMengin — Dr. Eams, IDARi, TheBoogieMan.Ai, or any external Copilot — must follow the Generation Law defined in docs/GENERATION_LAW.md.
 
-26.1 Allowed-Output Formula
+29.1 Allowed-Output Formula
 
 For each generation pass, compute:
 
@@ -1454,7 +1458,7 @@ For each generation pass, compute:
 
 A pass whose scope would exceed the allowed output must be split into smaller passes or down-graded to patch-only mode.
 
-26.2 App-Build Load (χ)
+29.2 App-Build Load (χ)
 
 Before writing a single line, compute:
 
@@ -1474,7 +1478,7 @@ Mode thresholds:
 
 If a planned pass yields χ ≥ 8, the agent must decompose it into sub-passes before proceeding.
 
-26.3 Residual Classes
+29.3 Residual Classes
 
 Residuals are structured mismatches between actual output and spec-intended output:
 
@@ -1495,9 +1499,9 @@ DREAMengin-specific checks per class and a per-pass audit checklist are in docs/
 ⸻
 
 
-## 29. DreamDM Bar (Persistent Interaction Rail / Runtime Seam)
+## 30. DreamDM Bar (Persistent Interaction Rail / Runtime Seam)
 
-### 29.1 Purpose
+### 30.1 Purpose
 
 The DreamDM Bar is a persistent interaction rail, draggable runtime seam, and top-layer control surface that serves as the communication, notification, drafting, and quick-action layer across the DREAMengin system.
 
@@ -1507,7 +1511,7 @@ Unlike a traditional overlay or rail, the DreamDM Bar is not just a divider betw
 
 The DreamDM Bar must always preserve the user’s working state.
 
-### 29.2 Position and Surface Relationship
+### 30.2 Position and Surface Relationship
 
 The DreamDM Bar exists above the HomeDream-rooted primary surface and directly controls the secondary DreamSpace layer.
 
@@ -1526,7 +1530,7 @@ HomeDream-rooted primary surface
 
 This relationship is part of the product’s spatial model and must be visually and behaviorally explicit.
 
-### 29.3 Runtime Ownership Model
+### 30.3 Runtime Ownership Model
 
 The screen is organized around one root runtime and one bar-owned secondary layer:
 
@@ -1560,7 +1564,7 @@ Examples:
 - a game retains state while the user replies through the DreamDM Bar
 - the underlying surface may remain active while the revealed layer is explored or adjusted
 
-### 29.4 Core Functions
+### 30.4 Core Functions
 
 The DreamDM Bar provides:
 
@@ -1604,7 +1608,7 @@ The bar itself must always remain interactive for:
 - notification interaction
 - compose access
 
-### 29.6 Snap Points and Interaction States
+### 30.6 Snap Points and Interaction States
 
 When released, the DreamDM Bar snaps to the nearest canonical position.
 
@@ -1641,7 +1645,7 @@ Four snap points are defined (split ratio = fraction of viewport given to the un
 
 A fling gesture (fast upward or downward swipe) jumps one full snap step in the throw direction.
 
-### 29.7 Snap Animation
+### 30.7 Snap Animation
 
 Snapping must be accompanied by a subtle spring animation.
 
@@ -1654,7 +1658,7 @@ The animation should communicate:
 
 It must never feel abrupt, disorienting, or page-like.
 
-### 29.8 Multitasking and Parallel Runtimes
+### 30.8 Multitasking and Parallel Runtimes
 
 The DreamDM Bar allows simultaneous interaction across the root surface and the revealed layer because state is preserved across both.
 
@@ -1669,7 +1673,7 @@ Examples include:
 
 The bar must never force the user to leave the current activity.
 
-### 29.9 Focus and Input Routing
+### 30.9 Focus and Input Routing
 
 Input routing is determined by the space that received the last tap or click.
 
@@ -1681,7 +1685,7 @@ Rules:
 
 This allows users to fluidly move focus without destroying state.
 
-### 29.10 Interaction States
+### 30.10 Interaction States
 
 The DreamDM Bar supports persistent system states that align with the physical split model.
 
@@ -1705,7 +1709,7 @@ The DreamDM Bar supports persistent system states that align with the physical s
 - keeps the current underlying surface active underneath
 - may preserve current split ratio
 
-### 29.11 Quick Message Composition
+### 30.11 Quick Message Composition
 
 The DreamDM Bar contains quick composition behavior accessible in any split configuration.
 
@@ -1718,7 +1722,7 @@ Rules:
 
 Users must be able to begin composing without feeling like they entered a different app or page.
 
-### 29.12 Persistent Draft Memory
+### 30.12 Persistent Draft Memory
 
 Messages written in the DreamDM Bar must persist until the user deletes or sends them.
 
@@ -1733,7 +1737,7 @@ The system must restore the last draft automatically when the bar is reopened.
 
 Draft persistence is mandatory.
 
-### 29.13 Notification Aggregation
+### 30.13 Notification Aggregation
 
 The DreamDM Bar functions as the platform notification center.
 
@@ -1756,7 +1760,7 @@ Notifications may originate from:
 
 When space is limited, notifications should remain compact but actionable.
 
-### 29.14 Offline and Queue Behavior
+### 30.14 Offline and Queue Behavior
 
 If the user performs message-related actions while offline:
 
@@ -1768,7 +1772,7 @@ If the user performs message-related actions while offline:
 
 This behavior must preserve user trust and working continuity.
 
-### 29.15 Gold Button Navigation and DreamDM Bar Integration
+### 30.15 Gold Button Navigation and DreamDM Bar Integration
 
 The Gold Button serves as the primary navigation control permanently attached to the DreamDM Bar.
 
@@ -1795,7 +1799,7 @@ When the bar is dragged back down to where the button’s attached position is o
   - the user sees only Dream Space with the Gold Button at the top boundary
 - Home access is maintained even in full Dream mode
 
-### 29.16 Home Reset Rule
+### 30.16 Home Reset Rule
 
 Double tapping the Gold Button returns the user to HomeDream while preserving message state.
 
@@ -1810,7 +1814,7 @@ Rules:
 
 Navigation must never clear working communication state.
 
-### 29.17 Design Principle
+### 30.17 Design Principle
 
 The DreamDM Bar exists to eliminate unnecessary context switching.
 
@@ -1854,11 +1858,11 @@ DREAMengin ships with 20 fully playable games accessible through the Games Daydr
 | `neon-drift` | 🏎️ | **Neon Drift** | Racing | NeonDrift (EliteGameEngine) |
 | `echo-arena` | 🎯 | **Echo Arena** | Shooter | EchoArena (EliteGameEngine) |
 
-### 30.1 Elite-Runtime Games
+### 31.1 Elite-Runtime Games
 
 Neon Drift and Echo Arena are designated **elite-runtime** titles. They instantiate `EliteGameEngine` directly and surface live runtime telemetry (fps, draw calls, memory) in the in-game HUD.
 
-### 30.2 MADMAXI (Featured Game)
+### 31.2 MADMAXI (Featured Game)
 
 MADMAXI is the default game launched from the Games Daydream.
 
@@ -1887,9 +1891,9 @@ components/games/BabylonSideScroller.tsx  — compatibility re-export wrapper
 
 ⸻
 
-## 31. Game Shell Architecture
+## 32. Game Shell Architecture
 
-### 31.1 ImmersiveGameShell
+### 32.1 ImmersiveGameShell
 
 **Route:** `/daydream/game`  
 **File:** `app/daydream/game/ImmersiveGameShell.tsx`
@@ -1907,7 +1911,7 @@ Boot phases:
 
 A skip button is available from phase 1. After boot: the game fills 100 vw × 100 dvh; GameHUD floats at the bottom.
 
-### 31.2 GameHUD
+### 32.2 GameHUD
 
 **File:** `components/games/GameHUD.tsx`
 
@@ -1931,11 +1935,11 @@ Touch-native game controller overlay with adjustable scale.
 - scale stored in `localStorage` key `de:hud:scale`
 - drag handle and pause/exit controls in the centre dock
 
-### 31.4 GameRemote and Legacy Layer
+### 32.4 GameRemote and Legacy Layer
 
 `components/games/GameRemote.tsx` is a compatibility re-export of `LegacyGameRemote`. Immersive full-screen sessions use GameHUD/MobileGameHUD. The legacy dual-stick panel remains available for Daydream Side-B remote workflows.
 
-### 31.5 Standalone Engin Surface
+### 32.5 Standalone Engin Surface
 
 **File:** `components/daydream/StandaloneEnginSurface.tsx`
 
@@ -1943,19 +1947,19 @@ All `/daydream/*/engin` routes render through `StandaloneEnginSurface` instead o
 
 ⸻
 
-## 32. StarMakerEngin DAW Features
+## 33. StarMakerEngin DAW Features
 
 **File:** `components/daydream/StarMakerEngin.tsx`
 
 StarMakerEngin is the music creation engine for the Music Daydream. It includes a full browser-based DAW with the following subsystems.
 
-### 32.1 Step Sequencer + Beat Engine
+### 33.1 Step Sequencer + Beat Engine
 
 - 4-channel × 8-step boolean grid (Kick, Snare, Hi-Hat, Synth)
 - real-time Web Audio playback
 - BPM control, key / key-mode selection
 
-### 32.2 Multitrack Arrangement
+### 33.2 Multitrack Arrangement
 
 **File:** `components/daydream/starmaker/MultitrackArrangementPanel.tsx`  
 **State:** `lib/music/starmakerArrangement.ts`
@@ -1966,7 +1970,7 @@ StarMakerEngin is the music creation engine for the Music Daydream. It includes 
 - Web Audio arrangement preview
 - clip drag-to-position, clip resize, and clip delete
 
-### 32.3 DAWFileIOPanel
+### 33.3 DAWFileIOPanel
 
 - undo / redo history
 - selection audition and loop
@@ -1982,7 +1986,7 @@ StarMakerEngin is the music creation engine for the Music Daydream. It includes 
 - each completed recording dispatches a `starmaker:load-recording` CustomEvent
 - StarMakerEngin listens for the event and auto-loads the recording into DAWFileIOPanel
 
-### 32.5 Preset Library
+### 33.5 Preset Library
 
 **File:** `lib/music/presets.ts`
 
