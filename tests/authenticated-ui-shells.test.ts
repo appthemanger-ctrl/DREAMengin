@@ -56,7 +56,7 @@ describe('authenticated UI shell upgrade rollout', () => {
     expect(dashboard).toContain('BrandLogo');
     expect(dashboard).toContain('DaydreamPulseStrip');
     expect(dashboard).toContain('onOpenDaydream');
-    expect(pulseStrip).toContain('6 live daydreams + analytics');
+    expect(pulseStrip).toContain('6 daydreams + analytics + forge');
     expect(pulseStrip).toContain('onOpenDaydream');
     expect(dreamsPanel).toContain('Pinned apps + feeds across the dual runtime');
   });

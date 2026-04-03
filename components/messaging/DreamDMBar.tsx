@@ -95,6 +95,8 @@ const SNAP_DOWN_PX = 88;
 const EXPAND_THRESHOLD = 80;
 /** Spring animation string */
 const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
+/** Minimum pointer movement (px) to switch from tap to drag on minimized orb */
+const ORB_DRAG_SLOP = 6;
 
 function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
   if (url) {
@@ -232,10 +234,12 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   // ── Minimized / collapsed state ───────────────────────────────────────────
   /**
-   * When minimized, the bar disappears and a gold glowing orb appears at
-   * the bottom-right corner. Tap the orb to restore the bar.
+   * When minimized, the bar disappears and a gold glowing orb appears.
+   * Tap the orb to restore the bar. Drag it to reposition out of the way.
    */
   const [isMinimized, setIsMinimized] = useState(false);
+  const [minOrbPos, setMinOrbPos] = useState<{ x: number; y: number } | null>(null);
+  const minOrbDragRef = useRef<{ active: boolean; startX: number; startY: number; startPosX: number; startPosY: number; moved: boolean } | null>(null);
 
   useEffect(() => {
     onMinimizedChange?.(isMinimized);
@@ -950,24 +954,55 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   // ── Minimized state: gold orb at bottom-right ────────────────────────────
   if (isMinimized) {
+    const orbX = minOrbPos?.x ?? undefined;
+    const orbY = minOrbPos?.y ?? undefined;
+    const posStyle: React.CSSProperties = orbX !== undefined && orbY !== undefined
+      ? { left: orbX, top: orbY, right: undefined, bottom: undefined }
+      : { right: 20, bottom: 20 };
     return (
       <button
         type="button"
-        aria-label="DreamDM Bar — tap to restore"
-        onClick={() => {
-          setIsMinimized(false);
-          setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
-          revealBar();
+        aria-label="DreamDM Bar — tap to restore, drag to reposition"
+        onPointerDown={(e) => {
+          e.preventDefault();
+          (e.currentTarget as HTMLButtonElement).setPointerCapture(e.pointerId);
+          const rect = e.currentTarget.getBoundingClientRect();
+          const curX = rect.left;
+          const curY = rect.top;
+          minOrbDragRef.current = { active: true, startX: e.clientX, startY: e.clientY, startPosX: curX, startPosY: curY, moved: false };
         }}
+        onPointerMove={(e) => {
+          const drag = minOrbDragRef.current;
+          if (!drag?.active) return;
+          const dx = e.clientX - drag.startX;
+          const dy = e.clientY - drag.startY;
+          if (Math.abs(dx) > ORB_DRAG_SLOP || Math.abs(dy) > ORB_DRAG_SLOP) drag.moved = true;
+          if (drag.moved) {
+            const nx = Math.max(0, Math.min(window.innerWidth - 48, drag.startPosX + dx));
+            const ny = Math.max(0, Math.min(window.innerHeight - 48, drag.startPosY + dy));
+            setMinOrbPos({ x: nx, y: ny });
+          }
+        }}
+        onPointerUp={() => {
+          const drag = minOrbDragRef.current;
+          if (!drag?.active) return;
+          const wasDragged = drag.moved;
+          minOrbDragRef.current = null;
+          if (!wasDragged) {
+            setIsMinimized(false);
+            setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
+            revealBar();
+          }
+        }}
+        onPointerCancel={() => { minOrbDragRef.current = null; }}
         style={{
           position: 'fixed',
-          bottom: 20,
-          right: 20,
+          ...posStyle,
           width: 48,
           height: 48,
           borderRadius: '50%',
           border: 'none',
-          cursor: 'pointer',
+          cursor: 'grab',
           zIndex: 200,
           background: 'radial-gradient(circle at 36% 32%, #fffde0 0%, #f7e07a 10%, #e8c040 22%, #d4a843 38%, #a16207 65%, #6b3c03 100%)',
           boxShadow: `
@@ -982,7 +1017,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           animation: 'sicc-gold-breathe 2s cubic-bezier(0.45,0.05,0.55,0.95) infinite',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           WebkitTapHighlightColor: 'transparent',
-          touchAction: 'manipulation',
+          touchAction: 'none',
         }}
       >
         {/* Specular highlight */}
