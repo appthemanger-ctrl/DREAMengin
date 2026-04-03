@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-03 04:32 UTC | `6af3838` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #409 from appthemanger-ctrl/copilot/fix-git-committer-email — Make owner avatars open EditProfileDream<br> |
 | **auto** | 2026-04-03 04:19 UTC | `c9f370f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #406 from appthemanger-ctrl/copilot/use-picker-for-assignments — Use pickers for StarMaker assignments and a disclosure tray for clip tools<br> |
 | **auto** | 2026-04-03 04:18 UTC | `c14b0b4` | copilot/use-picker-for-assignments | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/use-picker-for-assignments<br> |
 | **auto** | 2026-04-03 04:10 UTC | `f0b032d` | completedream | appthemanger-ctrl | ~1 modified<br>Revise README to include updated tech stack — Updated project description to reflect new technologies and versions.<br>✏️: `README.md` |
 | **auto** | 2026-04-03 04:04 UTC | `c69529b` | completedream | appthemanger-ctrl | ~1 modified<br>Revise section numbers and formatting in README — Updated section numbers and improved formatting in README.<br>✏️: `README.md` |
-| **auto** | 2026-04-02 16:24 UTC | `6ca7d4f` | copilot/implement-phase-8-logic | Copilot | ~3 modified<br>feat: add IDARi generation law load-check enforcement — Reasoning: add deterministic Phase 8 Generation Law scoring so IDARi system instructions emit LOAD_CHECK pre-flight output and constrain responses by scope. Architecture justification: docs/ARCHITECTURE.md requires stable admin AI/runtime rules and docs/LAW.md says to repurpose existing systems before adding new ones. Performance impact: neutral.  Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/61202bba-c698-4fec-ab5b-bdd88f25c024  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/ai/idari/route.ts`, `lib/agents/idari.ts`, `tests/idari-patch-plan.test.ts` |
 
 ## What changed in this alignment pass
 
