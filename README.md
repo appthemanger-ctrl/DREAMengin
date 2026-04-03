@@ -537,16 +537,20 @@ Platform Modules
 
 2. Technical Foundation
 
-2.1 Frontend
-	•Framework: Next.js 16+
-•Architecture: App Router
-•Language: TypeScript
-•Styling: tokenized design system with Tailwind CSS
-•Animation: Framer Motion
-3D / Graphics: WebGPU‑first (Babylon.js 8+ or raw WebGPU) – enables neumorphic dark aesthetics, complex lighting, gold/light‑blue gradients without lag
-•Performance Layer: WebAssembly (WASM) – core physics, math, and game logic compiled to near‑native speed
-•Component Model: modular, Dream Window–driven, reusable surfaces
-•Rendering Strategy: client‑heavy interactive surfaces with controlled server rendering; WebGPU/WASM contexts run exclusively on the client
+2.1 Technical Foundation
+ * Framework: Next.js 16+ using App Router for high-performance server components and Partial Prerendering (PPR).
+ * Architecture: Dual-runtime spatial environment with state-preserving depth and iOS Photos-style continuity.
+ * Language: TypeScript 5.8+ (Strict Mode) for type-safe interaction logic across all 174 routes.
+ * Styling: Tokenized design system built with Tailwind CSS 4.0—optimized for the Neumorphic Dark aesthetic.
+ * Animation: Framer Motion for physics-based DreamDM Bar dragging and smooth snap-point transitions.
+ * 3D / Graphics: Babylon.js 9.0 (WebGPU-Native) using WGSL shaders. This enables complex lighting, gold/light-blue gradients, and Neural Post-Processing without hardware lag.
+ * Performance Layer: WebAssembly (WASM) used for core physics, math, and StarMakerEngin DAW logic to achieve near-native execution speeds.
+ * Component Model: Modular, Dream Window-driven architecture with Unbound, Bound, Mounted, and Collapsed lifecycle states.
+ * Backend (Supabase):
+   * Postgres: Hardened with strict Row Level Security (RLS).
+   * Realtime: Powering the WhipRev human media pulse and live messaging.
+   * Vector: pgvector implementation for Dr. Eams discovery and AI Triad consensus routing.
+ * Rendering Strategy: Client-heavy interactive surfaces; WebGPU/WASM contexts run exclusively on the client to preserve the "Virtual Console" feel
 
 2.2 Backend (Supabase)
 	•	Database: Supabase Postgres
