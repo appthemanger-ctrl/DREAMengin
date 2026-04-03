@@ -148,7 +148,7 @@ Tech Stack:
 - React 19
 - TypeScript
 - Tailwind CSS
-- Babylon.js 8+ (WebGPU-first 3D rendering)
+- Babylon.js 9+ (WebGPU-first 3D rendering)
 - Supabase (Auth, PostgreSQL, Realtime, Storage)
 - Vitest (test framework)
 - pnpm 10.30.0
