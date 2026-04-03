@@ -25,6 +25,7 @@ import {
   DEFAULT_GAME_ID,
   resolveGameLaunchId,
 } from '@/lib/games/navigation';
+import { useGamePerformanceBaseline } from '@/lib/games/hooks';
 
 // ── Boot-sequence keyframe CSS (injected once into the document) ─────────────
 const BOOT_KEYFRAMES = `
@@ -67,6 +68,9 @@ const BOOT_KEYFRAMES = `
 }
 `;
 
+const DEFAULT_HUD_BOTTOM = '175px';
+const BASELINE_OVERLAY_OFFSET_PX = 14;
+
 export default function ImmersiveGameShell() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -82,6 +86,11 @@ export default function ImmersiveGameShell() {
     () => GAMES.find((entry) => entry.id === gameId) ?? GAMES[0],
     [gameId],
   );
+  const performanceBaseline = useGamePerformanceBaseline({
+    active: true,
+    gameId: game.id,
+    renderMode: game.renderMode,
+  });
 
   // ── Boot sequence state ───────────────────────────────────────────────────
   // phase 1–4 mirrors the spec; 0 = not yet started
@@ -188,7 +197,7 @@ export default function ImmersiveGameShell() {
       }}
     >
       {/* ── Game viewport — always mounted so assets begin loading immediately ── */}
-      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 'var(--de-hud-bottom, 175px)' }}>
+      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM})` }}>
         {game.component ? (
           <ActiveGameComponent />
         ) : (
@@ -212,11 +221,36 @@ export default function ImmersiveGameShell() {
           </div>
         )}
       </div>
+      {performanceBaseline && (
+        <div
+          style={{
+            position: 'absolute',
+            left: BASELINE_OVERLAY_OFFSET_PX,
+            bottom: `calc(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}) + ${BASELINE_OVERLAY_OFFSET_PX}px)`,
+            zIndex: 3,
+            pointerEvents: 'none',
+            background: 'rgba(2,6,23,0.78)',
+            border: '1px solid rgba(148,163,184,0.28)',
+            borderRadius: 999,
+            padding: '6px 10px',
+            fontSize: 11,
+            fontFamily: 'monospace',
+            letterSpacing: '0.04em',
+            color: '#e2e8f0',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          BASELINE [DONE] · {performanceBaseline.rendererBackend.toUpperCase()} · {performanceBaseline.sampleCount > 0
+            ? `${performanceBaseline.avgFps} FPS · ${performanceBaseline.avgFrameMs.toFixed(1)}ms`
+            : 'warming up'}
+        </div>
+      )}
 
       {/* ── PS5-style boot overlay ── hidden once bootDone ── */}
       {!bootDone && (
         <div
           role="presentation"
+          onPointerDown={bootPhase >= 3 ? dismissBoot : undefined}
           onClick={bootPhase >= 3 ? dismissBoot : undefined}
           style={{
             position: 'absolute',

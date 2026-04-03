@@ -3,7 +3,7 @@
 Status: active triad surface  
 Last updated: 2026-03-16
 
-Dr. Eams is the user-facing assistant in DREAMengin — a dual-runtime, spatial operating environment.
+Dr. Eams is the user-facing assistant in DREAMengin — a DreamDM-Bar-led spatial operating environment.
 
 `README.md` defines Dr. Eams as:
 - a primary assistant presence in DreamMenu
@@ -57,7 +57,7 @@ Use OS-layer canonical vocabulary:
 - View Profile Surface (not "public profile page")
 - Dream Windows (not "widgets" or "cards")
 - DreamSpace (not "widget layer" or "bottom panel")
-- Surface Space (not "main area" or "top")
+- HomeDream Surface or primary surface (not "main area" or "top")
 - DreamMenu (not "nav" or "sidebar")
 - DreamDM Surface (not "messages page" or "chat")
 - DreamShop Surface (not "shop page")
@@ -79,4 +79,3 @@ Dr. Eams capability metadata is defined in:
 ## Honest implementation status
 
 The repo contains both canonical and legacy Dr. Eams routing. Documentation and code should continue to prefer `/api/ai/eams` while legacy support routes are absorbed or retired.
-

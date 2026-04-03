@@ -15,6 +15,7 @@ import {
   type SavedGameSession,
   upsertSavedGameSession,
 } from '@/lib/games/library-state';
+import type { GameRenderMode } from '@/lib/games/performance-baseline';
 import type { MobileHudMode } from '@/lib/games/mobileControls';
 import { buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
 import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
@@ -59,6 +60,7 @@ export interface GameDef {
   desc: string;
   category: string;
   color: string;
+  renderMode: GameRenderMode;
   subtitle?: string;
   mobileHudMode?: MobileHudMode;
   /** Render inline inside the hub. Mutually exclusive with `href`. */
@@ -71,64 +73,64 @@ export interface GameDef {
 // Each entry is wired immediately after the game was finished.
 export const GAMES: GameDef[] = [
   // ── MADMAXI — Babylon.js 3-D side-scroller (default game) ─────────────────
-  { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', component: BabylonSideScroller,
+  { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', renderMode: 'babylon', component: BabylonSideScroller,
     mobileHudMode: 'buttons',
     subtitle: 'MADMAXI · Babylon.js 3-D',
     desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js 3-D side-scroller' },
   // ── Strategy ──────────────────────────────────────────────────────────────
-  { id: 'rts',           emoji: '⚔️', label: 'DREAM FORCE',       category: 'Strategy',    color: '#ef4444', component: RTSGame,
+  { id: 'rts',           emoji: '⚔️', label: 'DREAM FORCE',       category: 'Strategy',    color: '#ef4444', renderMode: 'canvas', component: RTSGame,
     subtitle: 'Command the Vanguard · Crush the Nightmare',
     desc: 'Build your Dream base, harvest Dream Energy, command Vanguard units — crush the Nightmare HQ' },
-  { id: 'tower-defense', emoji: '🏰', label: 'Tower Defense',     category: 'Strategy',    color: '#22c55e', component: TowerDefense,
+  { id: 'tower-defense', emoji: '🏰', label: 'Tower Defense',     category: 'Strategy',    color: '#22c55e', renderMode: 'canvas', component: TowerDefense,
     desc: 'Place arrow, cannon & freeze towers to stop 10 waves of enemies' },
   // ── Arcade ────────────────────────────────────────────────────────────────
-  { id: 'space-shooter', emoji: '🚀', label: 'VOID STRIKE',       category: 'Arcade',      color: '#60a5fa', component: SpaceShooter,
+  { id: 'space-shooter', emoji: '🚀', label: 'VOID STRIKE',       category: 'Arcade',      color: '#60a5fa', renderMode: 'canvas', component: SpaceShooter,
     subtitle: 'Defend the Dream Realm',
     desc: 'Defend the Dream Realm from Void-spawn invaders — auto-fire, dodge plasma bolts, survive endless waves' },
-  { id: 'snake',         emoji: '🐍', label: 'SHADOW SERPENT',    category: 'Arcade',      color: '#4ade80', component: SnakeGame,
+  { id: 'snake',         emoji: '🐍', label: 'SHADOW SERPENT',    category: 'Arcade',      color: '#4ade80', renderMode: 'canvas', component: SnakeGame,
     desc: 'Guide the Shadow Serpent through the Dream Grid — consume Dream Sparks, grow longer, never cross your own tail' },
-  { id: 'breakout',      emoji: '💎', label: 'DREAM BREAKER',     category: 'Arcade',      color: '#3b82f6', component: BreakoutGame,
+  { id: 'breakout',      emoji: '💎', label: 'DREAM BREAKER',     category: 'Arcade',      color: '#3b82f6', renderMode: 'canvas', component: BreakoutGame,
     desc: 'Launch the Orb of Light — shatter the Nightmare Wall, recover the Dream Fragments' },
-  { id: 'flappy',        emoji: '✨', label: 'NITE FLYER',        category: 'Casual',      color: '#a78bfa', component: FlappyGame,
+  { id: 'flappy',        emoji: '✨', label: 'NITE FLYER',        category: 'Casual',      color: '#a78bfa', renderMode: 'canvas', component: FlappyGame,
     desc: 'Dr. Eams soars through the neon Dream-scape — tap to flap, dodge the Nightmare gates' },
   // ── Puzzle ────────────────────────────────────────────────────────────────
-  { id: 'match3',        emoji: '💎', label: 'DREAM GEMS',        category: 'Puzzle',      color: '#a78bfa', component: Match3Game,
+  { id: 'match3',        emoji: '💎', label: 'DREAM GEMS',        category: 'Puzzle',      color: '#a78bfa', renderMode: 'dom', component: Match3Game,
     desc: 'Swap Dream shards to match 3 or more — chain combos, collect Dream Energy, 30 moves to master it' },
-  { id: 'tetris',        emoji: '🟦', label: 'BLOCK STACK',       category: 'Puzzle',      color: '#06b6d4', component: TetrisGame,
+  { id: 'tetris',        emoji: '🟦', label: 'BLOCK STACK',       category: 'Puzzle',      color: '#06b6d4', renderMode: 'canvas', component: TetrisGame,
     desc: 'Dream shards rain from the sky — stack them perfectly, clear layers, defy the collapse' },
   // ── Sports ────────────────────────────────────────────────────────────────
-  { id: 'racing',        emoji: '🏎️', label: 'DREAM CIRCUIT',    category: 'Sports',      color: '#3b82f6', component: RacingGame,
+  { id: 'racing',        emoji: '🏎️', label: 'DREAM CIRCUIT',    category: 'Sports',      color: '#3b82f6', renderMode: 'canvas', component: RacingGame,
     desc: '3-lap Dream Circuit sprint — race 2 rival Engin AIs around neon canyon tracks, WASD/arrows' },
   // ── Board ─────────────────────────────────────────────────────────────────
-  { id: 'chess',         emoji: '♛',  label: 'ENGIN CHESS',       category: 'Board',       color: '#f5f5f4', component: ChessGame,
+  { id: 'chess',         emoji: '♛',  label: 'ENGIN CHESS',       category: 'Board',       color: '#f5f5f4', renderMode: 'dom', component: ChessGame,
     desc: '2-player local chess — full piece movement rules, click to select & move' },
   // ── RPG ───────────────────────────────────────────────────────────────────
-  { id: 'rpg',           emoji: '🗡️', label: 'DREAM REALM QUEST', category: 'RPG',         color: '#c084fc', component: RPGGame,
+  { id: 'rpg',           emoji: '🗡️', label: 'DREAM REALM QUEST', category: 'RPG',         color: '#c084fc', renderMode: 'dom', component: RPGGame,
     subtitle: '5 Dream Realms · Turn-Based Combat',
     desc: 'Turn-based adventure through 5 Dream Realms — battle Nightmare creatures, level up abilities, defeat the Dream Destroyer' },
   // ── Music ─────────────────────────────────────────────────────────────────
-  { id: 'rhythm',        emoji: '🎵', label: 'BEAT ENGINE',       category: 'Music',       color: '#a78bfa', component: RhythmGame,
+  { id: 'rhythm',        emoji: '🎵', label: 'BEAT ENGINE',       category: 'Music',       color: '#a78bfa', renderMode: 'canvas', component: RhythmGame,
     desc: 'Hit the Dream beats as they fall — ASDK keys or on-screen pads, chain combos to awaken the Dream' },
   // ── Adventure / Platformer ────────────────────────────────────────────────
-  { id: 'maze',          emoji: '🌀', label: 'LABYRINTH ZERO',    category: 'Adventure',   color: '#38bdf8', component: MazeGame,
+  { id: 'maze',          emoji: '🌀', label: 'LABYRINTH ZERO',    category: 'Adventure',   color: '#38bdf8', renderMode: 'canvas', component: MazeGame,
     desc: 'Navigate the procedural Dream Labyrinth — escape before the Nightmare closes in' },
-  { id: 'lucid-avenue',  emoji: '🌴', label: 'Lucid Avenue',      category: 'Adventure',   color: '#f59e0b', component: LucidAvenue,
+  { id: 'lucid-avenue',  emoji: '🌴', label: 'Lucid Avenue',      category: 'Adventure',   color: '#f59e0b', renderMode: 'dom', component: LucidAvenue,
     desc: 'Original LA-inspired retro city quest — expanded 8-district GameEngin-linked city run with free-roam sandbox jumps, vehicle systems, persistent route contracts, west-side missions, and an observatory skyline finale' },
   // ── Dream Universe games ──────────────────────────────────────────────────
-  { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',          category: 'Strategy',    color: '#7c3aed', component: DREAMwars,
+  { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',          category: 'Strategy',    color: '#7c3aed', renderMode: 'canvas', component: DREAMwars,
     subtitle: 'Nightmares vs Dreamers',
     desc: 'Nightmares vs Dreamers RTS — build base, harvest Dream Energy, crush the enemy HQ' },
-  { id: 'engin-battle',  emoji: '⚙️', label: 'ENGIN Battle',       category: 'Strategy',    color: '#38bdf8', component: ENGINBattle,
+  { id: 'engin-battle',  emoji: '⚙️', label: 'ENGIN Battle',       category: 'Strategy',    color: '#38bdf8', renderMode: 'canvas', component: ENGINBattle,
     subtitle: 'Dr. Eams · IDARi · Boogie',
     desc: 'Age of Empires style — pick Dr. Eams, IDARi or Boogie; tech tree upgrades, 3-faction war' },
-  { id: 'dreamquest',    emoji: '✨', label: 'DREAMquest',          category: 'RPG',         color: '#a78bfa', component: DREAMquest,
+  { id: 'dreamquest',    emoji: '✨', label: 'DREAMquest',          category: 'RPG',         color: '#a78bfa', renderMode: 'canvas', component: DREAMquest,
     subtitle: 'FF-style · 5 Dream Layers',
     desc: 'FF7 + Chrono Trigger RPG — traverse 5 dream layers, unlock dream abilities, defeat the Dream Destroyer' },
   // ── WebGPU-Powered Games ──────────────────────────────────────────────
-  { id: 'neon-drift',    emoji: '🏎️', label: 'Neon Drift',         category: 'Racing',      color: '#0ff',    component: NeonDrift,
+  { id: 'neon-drift',    emoji: '🏎️', label: 'Neon Drift',         category: 'Racing',      color: '#0ff',    renderMode: 'webgpu', component: NeonDrift,
     subtitle: 'WebGPU · DualSense Ready',
     desc: 'WebGPU cyberpunk racer — DualSense gyro steering, haptic feedback, high-performance 3D rendering' },
-  { id: 'echo-arena',    emoji: '🎯', label: 'Echo Arena',          category: 'Shooter',     color: '#a78bfa', component: EchoArena,
+  { id: 'echo-arena',    emoji: '🎯', label: 'Echo Arena',          category: 'Shooter',     color: '#a78bfa', renderMode: 'webgpu', component: EchoArena,
     mobileHudMode: 'joystick',
     subtitle: 'WebGPU · DualSense Ready',
     desc: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
@@ -162,22 +164,23 @@ function TiltGameCard({ game, isSaved, onPlay }: TiltGameCardProps) {
       <motion.div style={{ ...glareStyle }} aria-hidden="true" />
       {/* Cover Art Banner */}
       <div style={{
-        borderRadius: '12px 12px 0 0',
-        background: `linear-gradient(135deg, ${game.color}55 0%, ${game.color}22 60%, rgba(15,23,42,0.6) 100%)`,
-        height: 100,
+        borderRadius: '16px 16px 0 0',
+        background: `linear-gradient(145deg, rgba(5,10,24,0.96) 0%, ${game.color}33 56%, rgba(15,23,42,0.88) 100%)`,
+        height: 112,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        margin: '-14px -12px 8px -12px',
-        boxShadow: `0 4px 18px ${game.color}28`,
+        margin: '-14px -12px 10px -12px',
+        boxShadow: `0 14px 32px ${game.color}22`,
         overflow: 'hidden',
       }}>
         <div style={{
           position: 'absolute', inset: 0,
-          background: `radial-gradient(ellipse at 50% 70%, ${game.color}30 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse at 50% 72%, ${game.color}36 0%, transparent 72%)`,
         }} />
-        <span style={{ fontSize: 36, lineHeight: 1, position: 'relative', zIndex: 1, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.4))' }}>{game.emoji}</span>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0.08), transparent 38%)' }} />
+        <span style={{ fontSize: 30, lineHeight: 1, position: 'relative', zIndex: 1, filter: 'drop-shadow(0 8px 18px rgba(0,0,0,0.46))' }}>{game.emoji}</span>
         <div style={{
           position: 'absolute', top: 8, right: 8,
           fontSize: 8, fontWeight: 800, letterSpacing: '0.12em',
@@ -206,24 +209,25 @@ function TiltGameCard({ game, isSaved, onPlay }: TiltGameCardProps) {
       </div>
       <div style={{
         marginTop: 4,
-        padding: '5px 10px',
-        borderRadius: 8,
-        background: `${game.color}22`,
-        border: `1px solid ${game.color}55`,
+        padding: '6px 10px',
+        borderRadius: 999,
+        background: 'rgba(15,23,42,0.06)',
+        border: `1px solid ${game.color}35`,
         fontSize: 10, fontWeight: 800,
-        color: game.color,
+        color: 'var(--de-heading)',
         textAlign: 'center',
-        letterSpacing: '0.06em',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
       }}>
-        {isSaved ? '▶ Quick resume' : '▶ Boot in GameEngin'}
+        {isSaved ? 'Quick resume' : 'Launch in GameEngin'}
       </div>
     </>
   );
 
   const baseStyle: React.CSSProperties = {
-    background: 'rgba(255,255,255,0.45)',
-    border: `1.5px solid ${game.color}30`,
-    borderRadius: 12,
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.72), rgba(247,250,255,0.46))',
+    border: `1px solid ${game.color}24`,
+    borderRadius: 16,
     padding: '14px 12px',
     cursor: 'pointer',
     textAlign: 'left',
@@ -234,6 +238,7 @@ function TiltGameCard({ game, isSaved, onPlay }: TiltGameCardProps) {
     width: '100%',
     overflow: 'hidden',
     position: 'relative',
+    boxShadow: `0 14px 34px ${game.color}12`,
   };
 
   if (game.href) {

@@ -79,19 +79,20 @@ function PanelItem({
         gap: 12,
         width: '100%',
         padding: '12px 16px',
-        background: 'none',
+        background: 'rgba(255,255,255,0.32)',
         border: 'none',
         cursor: 'pointer',
         textAlign: 'left',
         borderRadius: 14,
         WebkitTapHighlightColor: 'transparent',
-        transition: 'background 0.12s, transform 0.08s',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.45)',
+        transition: 'background 0.12s, transform 0.08s, box-shadow 0.12s',
         minHeight: 52,
         touchAction: 'manipulation',
       }}
-      onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(42,138,184,0.07)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.975)'; }}
-      onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
-      onPointerLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+      onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(42,138,184,0.10)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.975)'; }}
+      onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.32)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+      onPointerLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.32)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
     >
       <span style={{ fontSize: 18, width: 26, textAlign: 'center', flexShrink: 0, filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.08))' }}>{icon}</span>
       <span style={{ fontSize: 15, fontWeight: 600, color: accent ?? 'var(--de-heading)', lineHeight: 1.2, letterSpacing: '-0.01em' }}>{label}</span>
@@ -101,23 +102,20 @@ function PanelItem({
 
 function Panel({
   title,
+  subtitle,
   accent,
   children,
 }: {
   title: string;
+  subtitle: string;
   accent?: string;
   children: React.ReactNode;
 }) {
   return (
     <div
+      className="de-sheet"
       style={{
         flex: 1,
-        background: 'rgba(255,255,255,0.88)',
-        backdropFilter: 'blur(36px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(36px) saturate(180%)',
-        borderRadius: 24,
-        border: '1px solid rgba(200,215,240,0.45)',
-        boxShadow: '0 12px 48px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.7) inset',
         overflow: 'hidden',
       }}
       onPointerDown={(e) => e.stopPropagation()}
@@ -137,6 +135,9 @@ function Panel({
         }}>
           {title}
         </span>
+        <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.5, marginTop: 4 }}>
+          {subtitle}
+        </div>
       </div>
 
       {/* Items */}
@@ -187,14 +188,18 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
       <div
         style={{
           display: 'flex',
-          gap: 12,
+          gap: 14,
           width: '100%',
-          maxWidth: 600,
+          maxWidth: 720,
           animation: 'de-dual-menu-up 0.30s cubic-bezier(0.34,1.22,0.64,1)',
         }}
       >
         {/* Daydreams panel — LEFT (spec §17.2 / §4.2) */}
-        <Panel title="Daydreams" accent="42,138,184">
+        <Panel
+          title="Daydreams"
+          subtitle="Launch the creative surfaces without leaving the system shell."
+          accent="42,138,184"
+        >
           {DAYDREAM_ITEMS.map((item) => (
             <PanelItem
               key={item.route}
@@ -206,7 +211,11 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
         </Panel>
 
         {/* System panel — RIGHT with Dr. Eams at top (spec §17.3 / §4.2) */}
-        <Panel title="DreamMenu" accent="200,152,26">
+        <Panel
+          title="DreamMenu"
+          subtitle="Profile, settings, AI, and platform controls stay one move away."
+          accent="200,152,26"
+        >
           {SYSTEM_ITEMS.map((item) => (
             <PanelItem
               key={item.id}

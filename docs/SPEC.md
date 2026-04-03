@@ -20,7 +20,7 @@ Do not use this file to override the README.
 ## 2. Canonical product names
 
 ### Product type
-- DREAMengin is a **dual-runtime, spatial operating environment**
+- DREAMengin is a **DreamDM-Bar-led spatial operating environment**
 
 ### Core surfaces
 - HomeDream Surface (`HomeDream` in code)
@@ -28,9 +28,9 @@ Do not use this file to override the README.
 - View Profile Surface (`ViewProfile` in code)
 
 ### Runtime regions
-- Surface Space (upper active runtime region)
-- DreamSpace (lower modular runtime region)
-- DreamDM Bar / Runtime Seam (boundary between the two regions)
+- HomeDream Surface (root operating surface / underlying feed layer)
+- DreamSpace (revealed secondary layer owned by the DreamDM Bar)
+- DreamDM Bar / Runtime Seam (boundary owner and reveal control for the secondary layer)
 
 ### Daydream Surface Network
 - Music Daydream Surface

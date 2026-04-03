@@ -20,6 +20,7 @@ import {
 const SCALE_MIN = 0.55;
 const SCALE_MAX = 1.45;
 const SCALE_STEP = 0.1;
+const TOUCH_FEEDBACK_DECAY_MS = 160;
 
 // Fraction of dock radius within which a touch claims the right joystick
 const RIGHT_JOY_ZONE = 0.40;
@@ -92,6 +93,8 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   const activeMoveActionRef = useRef<ReturnType<typeof getLegacyMoveAction>>(null);
   const touchFadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragStartRef = useRef<{ y: number; baseOffsetY: number } | null>(null);
+  /** Tracks start position of the right joystick touch for tap detection */
+  const rightJoyTapRef = useRef<{ startX: number; startY: number; startAt: number } | null>(null);
 
   const [leftVector, setLeftVector] = useState(ZERO_VECTOR);
   const [rightVector, setRightVector] = useState(ZERO_VECTOR);
@@ -99,7 +102,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   const [pausePressed, setPausePressed] = useState(false);
   const [exitPressed, setExitPressed] = useState(false);
   const [remoteScale, setRemoteScale] = useState(() => loadPersisted('de:hud:scale', 1.0, SCALE_MIN, SCALE_MAX));
-  const [offsetY, setOffsetY] = useState(() => loadPersisted('de:hud:offsetY', 0, -80, 200));
+  const [offsetY, setOffsetY] = useState(() => loadPersisted('de:hud:offsetY', -36, -80, 200));
   const [isTouching, setIsTouching] = useState(false);
 
   const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter((b) => b.interactive);
@@ -128,7 +131,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
     touchFadeTimerRef.current = setTimeout(() => {
       setIsTouching(false);
       touchFadeTimerRef.current = null;
-    }, 700);
+    }, TOUCH_FEEDBACK_DECAY_MS);
   }, []);
 
   // ── Stick sync ────────────────────────────────────────────────────────────
@@ -254,6 +257,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
       markTouchStart();
       if (rightJoyTouchIdRef.current === null && isInJoystickZone(touch, rightDockRef.current)) {
         rightJoyTouchIdRef.current = touch.identifier;
+        rightJoyTapRef.current = { startX: touch.clientX, startY: touch.clientY, startAt: Date.now() };
         updateStickFromTouch(touch, rightDockRef.current, updateRightVector);
       } else {
         const buttonId = findButtonAtPoint(touch.clientX, touch.clientY);
@@ -280,10 +284,21 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
     });
   }, [findButtonAtPoint, setButtonActive, updateRightVector, updateStickFromTouch]);
 
-  const releaseRightDockTouch = useCallback((touchId: number) => {
+  const releaseRightDockTouch = useCallback((touchId: number, clientX?: number, clientY?: number) => {
     if (touchId === rightJoyTouchIdRef.current) {
       rightJoyTouchIdRef.current = null;
       updateRightVector(ZERO_VECTOR);
+      // Tap detection: short touch (< 280ms) with minimal movement (< 12px) = jump
+      const tap = rightJoyTapRef.current;
+      if (tap && clientX !== undefined && clientY !== undefined) {
+        const moved = Math.hypot(clientX - tap.startX, clientY - tap.startY);
+        const elapsed = Date.now() - tap.startAt;
+        if (elapsed < 280 && moved < 12) {
+          setButtonActive('jump', true);
+          setTimeout(() => setButtonActive('jump', false), 80);
+        }
+      }
+      rightJoyTapRef.current = null;
     } else if (rightBtnTouchesRef.current.has(touchId)) {
       const buttonId = rightBtnTouchesRef.current.get(touchId);
       if (buttonId) setButtonActive(buttonId, false);
@@ -294,7 +309,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
 
   const handleRightDockTouchEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    Array.from(event.changedTouches).forEach((t) => releaseRightDockTouch(t.identifier));
+    Array.from(event.changedTouches).forEach((t) => releaseRightDockTouch(t.identifier, t.clientX, t.clientY));
   }, [releaseRightDockTouch]);
 
   // ── Pause / Exit ──────────────────────────────────────────────────────────
@@ -364,7 +379,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
       className={clsx(styles.overlay, isTouching ? styles.overlayActive : styles.overlayIdle)}
       style={remoteVars}
     >
-      <div className={styles.hudBadge}>{gameLabel} · mobile HUD</div>
+      <div className={styles.hudBadge}>{gameLabel} · instant touch HUD</div>
 
       {/* ── Left joystick (MOVE) ── */}
       <div

@@ -20,6 +20,24 @@ type ProfileLike = {
 
 type Post = Record<string, any>;
 
+const RUNTIME_SIGNALS = [
+  {
+    label: 'Runtime status',
+    value: 'Dual surfaces live',
+    detail: 'Surface Space and DreamSpace stay hot so switching feels instant.',
+  },
+  {
+    label: 'Command access',
+    value: 'Dr. Eams ready',
+    detail: 'Profile, feed, and AI actions stay reachable without breaking flow.',
+  },
+  {
+    label: 'System posture',
+    value: 'Modern shell',
+    detail: 'Glass depth, sticky controls, and focused actions keep the OS legible.',
+  },
+];
+
 interface WorkspaceDashboardProps {
   profile: ProfileLike | null;
   posts: Post[];
@@ -111,6 +129,7 @@ export default function WorkspaceDashboard({
 
   return (
     <div
+      className="de-shell"
       data-scroll
       style={{
         minHeight: '100%',
@@ -121,6 +140,7 @@ export default function WorkspaceDashboard({
       }}
     >
       <div
+        className="de-surface"
         style={{
           position: 'sticky',
           top: 0,
@@ -131,11 +151,13 @@ export default function WorkspaceDashboard({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'rgba(var(--de-bg-start-rgb, 2,8,24),0.78)',
+          background: 'linear-gradient(180deg, rgba(248,251,255,0.92) 0%, rgba(236,244,252,0.80) 100%)',
           backdropFilter: 'blur(28px) saturate(160%)',
           WebkitBackdropFilter: 'blur(28px) saturate(160%)',
-          borderBottom: '1px solid rgba(200,152,26,0.08)',
+          borderBottom: '1px solid rgba(160,195,240,0.14)',
+          boxShadow: '0 10px 30px rgba(15,30,52,0.08)',
           pointerEvents: 'auto',
+          borderRadius: 0,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -243,21 +265,9 @@ export default function WorkspaceDashboard({
 
       <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>
         <div style={{ marginBottom: 14 }}>
-          <div className="de-auth-hero" style={{ marginBottom: 12 }}>
+          <div className="de-auth-hero de-surface" style={{ marginBottom: 12, padding: isCompactViewport ? 16 : 18 }}>
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: 'var(--de-gold)',
-                  fontWeight: 700,
-                  marginBottom: 4,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  opacity: 0.8,
-                }}
-              >
-                HomeDream
-              </div>
+              <div className="de-kicker" style={{ marginBottom: 10 }}>HomeDream</div>
               <div
                 className="sicc-gradient-text"
                 style={{
@@ -273,7 +283,7 @@ export default function WorkspaceDashboard({
               <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.65, maxWidth: 680, marginBottom: 12 }}>
                 Your runtime home is now framed like an operating surface: profile, dreamspace, Dr. Eams, and feed actions stay visible without breaking immersion.
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div className="de-toolbar">
                 <QuickLink label="Edit ProfileDream" onClick={() => openPage('/edit-profiledream', 'Edit ProfileDream')} />
                 <QuickLink label="View Profile" onClick={() => openPage('/view-profile', 'View Profile')} />
                 {onOpenDreamSpace && (
@@ -284,8 +294,6 @@ export default function WorkspaceDashboard({
             </div>
           </div>
         </div>
-
-        <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
 
         <div
           className="sicc-glass-in"
@@ -348,6 +356,29 @@ export default function WorkspaceDashboard({
             initialPosts={posts as Parameters<typeof HomeFeed>[0]['initialPosts']}
             embedded
           />
+        </div>
+
+        <div className="de-panel-grid" style={{ marginBottom: 14 }}>
+          {RUNTIME_SIGNALS.map((signal) => (
+            <div key={signal.label} className="de-signal-card">
+              <span className="de-signal-label">{signal.label}</span>
+              <span className="de-signal-value">{signal.value}</span>
+              <span className="de-signal-detail">{signal.detail}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="de-surface" style={{ padding: isCompactViewport ? 12 : 14, marginBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
+            <div>
+              <div className="de-signal-label" style={{ marginBottom: 4 }}>Fast travel</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--de-heading)', letterSpacing: '-0.02em' }}>
+                Daydream launch strip
+              </div>
+            </div>
+            <div className="de-command-chip">6 surfaces · 1 operating shell</div>
+          </div>
+          <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
         </div>
       </div>
     </div>

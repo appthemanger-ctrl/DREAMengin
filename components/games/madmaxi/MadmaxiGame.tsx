@@ -478,19 +478,6 @@ export default function BabylonSideScroller() {
                             borderRadius: 6, padding: '3px 10px' }}>
                 ⭐ {score}
               </div>
-              {bestScore > 0 && (
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#fa0',
-                              textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
-                              borderRadius: 6, padding: '3px 8px' }}>
-                  🏆 {bestScore}
-                </div>
-              )}
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#4af',
-                            textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
-                            borderRadius: 6, padding: '3px 8px', maxWidth: 110,
-                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {zoneName || ZONES[getZoneIdx(level)].name}
-              </div>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#fff',
                             textShadow: '0 1px 6px #000', background: 'rgba(0,0,0,0.35)',
                             borderRadius: 6, padding: '3px 10px' }}>
@@ -502,28 +489,11 @@ export default function BabylonSideScroller() {
                 {'❤️'.repeat(Math.max(0, lives))}
               </div>
             </div>
-            <div style={{ position: 'absolute', top: bossMaxHp > 0 ? 80 : 42, left: 12, display: 'flex', gap: 6, pointerEvents: 'none', flexWrap: 'wrap', maxWidth: 360 }}>
-              {encounterName && (
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#dbeafe', background: 'rgba(15,23,42,0.58)', border: '1px solid rgba(125,211,252,0.3)', borderRadius: 999, padding: '2px 8px' }}>
-                  {isAuthoredStage ? '✍' : '∞'} {encounterName}
-                </div>
-              )}
-              {audioTheme && (
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#fde68a', background: 'rgba(32,18,4,0.62)', border: '1px solid rgba(250,204,21,0.34)', borderRadius: 999, padding: '2px 8px' }}>
-                  🎵 {audioTheme}
-                </div>
-              )}
-              {vfxTheme && (
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#bfdbfe', background: 'rgba(8,20,40,0.62)', border: '1px solid rgba(96,165,250,0.34)', borderRadius: 999, padding: '2px 8px' }}>
-                  ✨ {vfxTheme}
-                </div>
-              )}
-            </div>
 
             {/* ── Coin counter HUD (9 silver + 1 gold Dream Star) ── */}
             {bossMaxHp === 0 && (
               <div style={{
-                position: 'absolute', top: encounterName || audioTheme || vfxTheme ? (bossMaxHp > 0 ? 116 : 78) : 42, left: 12, pointerEvents: 'none',
+                position: 'absolute', top: 42, left: 12, pointerEvents: 'none',
                 display: 'flex', alignItems: 'center', gap: 4,
                 background: 'rgba(0,0,0,0.42)', borderRadius: 6, padding: '3px 9px',
               }}>
@@ -570,7 +540,7 @@ export default function BabylonSideScroller() {
 
             {/* Combo + Dash indicators */}
             <div style={{
-              position: 'absolute', top: encounterName || audioTheme || vfxTheme ? (bossMaxHp > 0 ? 154 : 116) : (bossMaxHp > 0 ? 80 : 42),
+              position: 'absolute', top: bossMaxHp > 0 ? 80 : 42,
               right: 12, pointerEvents: 'none',
               display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4,
             }}>

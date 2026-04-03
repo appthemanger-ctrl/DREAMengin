@@ -22,6 +22,11 @@ import { writeAuditLog } from '@/lib/ai/audit';
 import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
 import { isOwnerEmail, validateWithIdari, AI_MODELS } from '@/lib/ai/triad';
 import { groqChat, type GroqMessage } from '@/lib/ai/groq';
+import {
+  assessGenerationLawScope,
+  formatGenerationLawLoadCheck,
+  type GenerationLawAssessment,
+} from '@/lib/agents/idari';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,16 +39,33 @@ const RATE_LIMITS: Record<ActorRole, number> = {
   owner: 60,
 };
 
-function buildSystemPrompt(actorRole: ActorRole): string {
+function buildSystemPrompt(
+  actorRole: ActorRole,
+  assessment: GenerationLawAssessment,
+): string {
+  const loadCheck = formatGenerationLawLoadCheck(assessment);
+  const modeCapability =
+    assessment.mode === 'CREATE'
+      ? 'Full system/route generation allowed.'
+      : assessment.mode === 'CONFORM'
+        ? 'Modify existing files only. No new top-level directories. Follow NAMING_AUTHORITY.md strictly.'
+        : 'Single-function fixes only. If structural changes are required, reject the task and request decomposition.';
   const base =
-    `You are IDARi, the AI companion inside Dreamengin — a creative platform where users build personalised digital spaces.\n` +
+    `You are IDARi, the AI companion inside DREAMengin — a dual-runtime spatial operating environment where users build personalised digital spaces.\n` +
     `Your personality: warm, precise, proactive. You speak in plain language — no jargon unless asked.\n` +
     `Always respond with ONLY valid JSON. No markdown wrapping.\n` +
     `Output shape: { response_text: string, intents: Intent[] }\n` +
+    `response_text MUST begin with "${loadCheck}".\n` +
     `Intent types allowed for this session are listed below. Max 3 intents. If unsure, return intents: [].\n\n` +
+    `GENERATION LAW ENFORCEMENT (Phase 8.0-RUNTIME_COMPLETE):\n` +
+    `- Mandatory pre-flight: ${loadCheck}\n` +
+    `- Mode capability: ${modeCapability}\n` +
+    `- Score inputs: tasks=${assessment.task_count}, files=${assessment.file_count}, deps_or_schema=${assessment.dependency_schema_count}, core_architecture=${assessment.core_architecture_hit ? 1 : 0}, vague_terms=${assessment.vague_term_count}\n` +
+    `- In CONFORM mode, never invent new top-level directories.\n` +
+    `- In PATCH_ONLY mode, only allow a single-function/localized fix. If the request needs structural work, say so and ask for a smaller decomposition. Return intents: [].\n\n` +
     `PLATFORM CAPABILITIES (v2):\n` +
     `- GameEngin powered by Babylon.js v8 — runs 20 original games across every major category.\n` +
-    `- Games include: RTS (Red Alert style), Tower Defense, Space Shooter, Match-3, Snake, Breakout, Tetris, Flappy, Pong, Minesweeper, Chess, Racing, Trivia Quiz, RPG, Rhythm, Maze, Solitaire, Word Sprint, Memory Grid, Speed Tap.\n` +
+    `- Games include: MADMAXI, DREAM FORCE, Tower Defense, VOID STRIKE, SHADOW SERPENT, DREAM BREAKER, BLOCK STACK, NITE FLYER, ENGIN CHESS, DREAM CIRCUIT, DREAM REALM QUEST, BEAT ENGINE, LABYRINTH ZERO, DREAMwars, ENGIN Battle, DREAMquest, Neon Drift, Echo Arena, Lucid Avenue, and DREAM GEMS.\n` +
     `- 3 AI agents: Dr. Eams (user), IDARi (builder/you), TheBoogieMan (policy).\n` +
     `- 25+ external connectors (social, productivity, media).\n` +
     `- 331 automated tests, deployed on Vercel with Supabase backend.\n\n` +
@@ -77,12 +99,21 @@ async function idariPlanner(
   message: string,
   actorRole: ActorRole
 ): Promise<{ response_text: string; intents: Intent[] }> {
+  const assessment = assessGenerationLawScope(message);
+  const loadCheck = formatGenerationLawLoadCheck(assessment);
   const system: GroqMessage = {
     role: 'system',
-    content: buildSystemPrompt(actorRole),
+    content: buildSystemPrompt(actorRole, assessment),
   };
 
-  const userMsg: GroqMessage = { role: 'user', content: message };
+  const userMsg: GroqMessage = {
+    role: 'user',
+    content:
+      `${message}\n\n` +
+      `Deterministic pre-flight: ${loadCheck}\n` +
+      `Scope mode: ${assessment.mode}\n` +
+      `Structural change risk: ${assessment.structural_change_risk ? 'yes' : 'no'}`,
+  };
 
   try {
     const raw = await groqChat({
@@ -103,10 +134,14 @@ async function idariPlanner(
     }
 
     if (!parsed || typeof parsed !== 'object') {
-      return { response_text: raw.length > 8 ? raw : `IDARi is here! Ask me anything about Dreamengin.`, intents: [] };
+      const fallback = raw.length > 8 ? raw : `IDARi is here! Ask me anything about Dreamengin.`;
+      return { response_text: `${loadCheck}\n${fallback}`, intents: [] };
     }
 
-    const response_text = String(parsed.response_text || `IDARi is here! How can I help?`).trim();
+    const rawResponseText = String(parsed.response_text || `IDARi is here! How can I help?`).trim();
+    const response_text = rawResponseText.startsWith(loadCheck)
+      ? rawResponseText
+      : `${loadCheck}\n${rawResponseText}`;
     const rawIntents = Array.isArray(parsed.intents) ? parsed.intents : [];
     const intents: Intent[] = rawIntents
       .slice(0, 3)
@@ -119,9 +154,12 @@ async function idariPlanner(
         idempotency_key: typeof x?.idempotency_key === 'string' ? x.idempotency_key : `idari-${Date.now()}`,
         payload: (x?.payload && typeof x.payload === 'object') ? x.payload as Record<string, unknown> : {},
       }));
-    return { response_text, intents };
+    return {
+      response_text,
+      intents: assessment.mode === 'PATCH_ONLY' && assessment.structural_change_risk ? [] : intents,
+    };
   } catch {
-    return { response_text: `IDARi is here! What can I help you with?`, intents: [] };
+    return { response_text: `${loadCheck}\nIDARi is here! What can I help you with?`, intents: [] };
   }
 }
 

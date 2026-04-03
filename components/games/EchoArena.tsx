@@ -10,12 +10,18 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import {
+  createPerformanceBaselineSampler,
+  publishGamePerformanceBaseline,
+} from '@/lib/games/performance-baseline';
 import { useRegisterMobileGameControls } from '@/lib/games/mobileControls';
 import { createClient } from '@/lib/supabase/client';
 import * as BABYLON from '@babylonjs/core';
 import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager';
 
 type Phase = 'menu' | 'playing' | 'gameover';
+
+const PERFORMANCE_PUBLISH_INTERVAL_MS = 250;
 
 export default function EchoArena() {
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
@@ -77,6 +83,8 @@ export default function EchoArena() {
     let dualSense: DualSenseManager | null = null;
     let player: BABYLON.Mesh | null = null;
     let floor: BABYLON.Mesh | null = null;
+    const frameSampler = createPerformanceBaselineSampler();
+    let lastPerformancePublish = 0;
 
     const init = async () => {
       if (!canvasRef.current) return;
@@ -144,6 +152,22 @@ export default function EchoArena() {
 
         // Game loop
         scene.onBeforeRenderObservable.add(() => {
+          const frameNow = performance.now();
+          const sample = frameSampler.pushFrame(frameNow);
+          // Quarter-second publishing keeps the shared shell overlay current
+          // without spamming React/event updates on every rendered frame.
+          if (sample && frameNow - lastPerformancePublish >= PERFORMANCE_PUBLISH_INTERVAL_MS) {
+            lastPerformancePublish = frameNow;
+            publishGamePerformanceBaseline({
+              gameId: 'echo-arena',
+              renderMode: 'webgpu',
+              rendererBackend: engine instanceof BABYLON.WebGPUEngine ? 'webgpu' : 'webgl2',
+              webgpuSupported: engine instanceof BABYLON.WebGPUEngine,
+              source: 'runtime',
+              ...sample,
+            });
+          }
+
           if (phaseRef.current !== 'playing' || !player || !dualSense) return;
 
           const input = dualSense.getState();
@@ -169,10 +193,10 @@ export default function EchoArena() {
           }
 
           // Shoot with R2 trigger or strong mobile aim hold (with cooldown)
-          const now = Date.now();
-          if ((input.triggers.r2 > 0.6 || lookMagnitude > 0.72) && now - lastShotRef.current > 300) {
+          const shotNow = Date.now();
+          if ((input.triggers.r2 > 0.6 || lookMagnitude > 0.72) && shotNow - lastShotRef.current > 300) {
             dualSense.rumble(0.5, 40);
-            lastShotRef.current = now;
+            lastShotRef.current = shotNow;
             scoreRef.current += 10;
             setScore(scoreRef.current);
             if (lookMagnitude > 0.72) {

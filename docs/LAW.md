@@ -44,10 +44,9 @@ Always use canonical OS-layer vocabulary:
 - Say **surface**, not page
 - Say **Dream Window**, not widget or card
 - Say **DreamSpace**, not widget layer
-- Say **Surface Space**, not top area
+- Say **HomeDream Surface** or **primary surface**, not top area
 - Say **runtime**, not app
 - Say **runtime environment**, not platform (whole system)
 - Say **surface switching**, not tab navigation
 - Say **bind / mount / activate**, not link widget / open page / launch card
 - Say **connection path**, not pair
-

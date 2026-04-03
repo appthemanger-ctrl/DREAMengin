@@ -71,13 +71,14 @@ export default function RuntimeShell({
   const ctrlBtn = (disabled: boolean): React.CSSProperties => ({
     width: 30, height: 30, borderRadius: '50%',
     border: 'none',
-    background: disabled ? 'transparent' : 'rgba(255,255,255,0.10)',
-    color: disabled ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.92)',
+    background: disabled ? 'transparent' : 'rgba(255,255,255,0.16)',
+    color: disabled ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.96)',
     fontSize: 18, fontWeight: 700,
     cursor: disabled ? 'default' : 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     lineHeight: 1,
-    transition: 'background 0.12s, color 0.12s',
+    boxShadow: disabled ? 'none' : 'inset 0 1px 0 rgba(255,255,255,0.18)',
+    transition: 'background 0.12s, color 0.12s, transform 0.12s ease',
     WebkitTapHighlightColor: 'transparent',
     flexShrink: 0,
   });
@@ -97,24 +98,27 @@ export default function RuntimeShell({
       {/* ── Zoom controls — top-right of the region, never zoomed ───────── */}
       {showZoomControls && (
         <div
+          className="premium-card"
           style={{
             position: 'absolute',
             top: 10,
-            right: 52, // leave room for other controls
+            right: 16,
             zIndex: 200,
             display: 'flex',
             alignItems: 'center',
-            gap: 2,
-            background: 'rgba(6,14,34,0.78)',
-            backdropFilter: 'blur(16px) saturate(160%)',
-            WebkitBackdropFilter: 'blur(16px) saturate(160%)',
-            borderRadius: 999,
-            padding: '4px 6px',
-            border: '1px solid rgba(200,152,26,0.18)',
-            boxShadow: '0 6px 18px rgba(0,0,0,0.24)',
+            gap: 6,
+            padding: '8px 8px 8px 10px',
             userSelect: 'none',
           }}
         >
+          <div style={{ display: 'flex', flexDirection: 'column', padding: '0 6px 0 2px' }}>
+            <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)' }}>
+              Runtime
+            </span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.88)' }}>
+              Viewport
+            </span>
+          </div>
           <button
             type="button"
             onClick={zoomOut}
@@ -129,20 +133,21 @@ export default function RuntimeShell({
             onClick={resetZoom}
             aria-label={`Reset zoom — currently ${pct}%`}
             style={{
-              minWidth: 34,
-              height: 24,
-              borderRadius: 999,
-              border: 'none',
-              background: isDefault ? 'transparent' : 'rgba(200,152,26,0.18)',
-              color: isDefault ? 'rgba(255,255,255,0.40)' : '#d4a843',
-              fontSize: 11,
-              fontWeight: 700,
-              cursor: 'pointer',
-              letterSpacing: '0.02em',
-              transition: 'background 0.12s, color 0.12s',
-              WebkitTapHighlightColor: 'transparent',
-              padding: '0 8px',
-              flexShrink: 0,
+                minWidth: 34,
+                height: 24,
+                borderRadius: 999,
+                border: 'none',
+                background: isDefault ? 'rgba(255,255,255,0.06)' : 'rgba(200,152,26,0.18)',
+                color: isDefault ? 'rgba(255,255,255,0.64)' : '#f6d27b',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+                letterSpacing: '0.02em',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)',
+                transition: 'background 0.12s, color 0.12s',
+                WebkitTapHighlightColor: 'transparent',
+                padding: '0 8px',
+                flexShrink: 0,
             }}
           >
             {pct}%
@@ -165,6 +170,7 @@ export default function RuntimeShell({
         <>
           {/* Chrome bar with back button */}
           <div
+            className="premium-card"
             style={{
               position: 'absolute',
               top: 0,
@@ -174,13 +180,10 @@ export default function RuntimeShell({
               zIndex: 199,
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
-              padding: '0 8px',
-              background: 'rgba(6,14,34,0.92)',
-              backdropFilter: 'blur(18px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(18px) saturate(180%)',
-              borderBottom: '1px solid rgba(200,152,26,0.20)',
-              boxShadow: '0 2px 14px rgba(0,0,0,0.28)',
+              gap: 10,
+              padding: '0 10px',
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
             }}
           >
             <button
@@ -192,10 +195,11 @@ export default function RuntimeShell({
                 padding: '6px 13px 6px 10px',
                 border: 'none',
                 borderRadius: 999,
-                background: 'rgba(255,255,255,0.10)',
-                color: 'rgba(255,255,255,0.92)',
+                background: 'rgba(255,255,255,0.12)',
+                color: 'rgba(255,255,255,0.96)',
                 fontSize: 12, fontWeight: 700,
                 cursor: 'pointer',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18)',
                 WebkitTapHighlightColor: 'transparent',
                 flexShrink: 0,
               }}
@@ -204,17 +208,22 @@ export default function RuntimeShell({
               Back
             </button>
             {iframeTitle && (
-              <span
-                style={{
-                  fontSize: 12, fontWeight: 700,
-                  color: 'rgba(255,255,255,0.50)',
-                  flex: 1, overflow: 'hidden',
-                  textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  minWidth: 0,
-                }}
-              >
-                {iframeTitle}
-              </span>
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.40)' }}>
+                  In-region page
+                </span>
+                <span
+                  style={{
+                    fontSize: 12, fontWeight: 700,
+                    color: 'rgba(255,255,255,0.78)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    minWidth: 0,
+                  }}
+                >
+                  {iframeTitle}
+                </span>
+              </div>
             )}
           </div>
 

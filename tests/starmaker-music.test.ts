@@ -151,8 +151,18 @@ describe('StarMaker sample editor advanced workflow', () => {
     expect(starmakerSource).toContain('MultitrackArrangementPanel');
     expect(arrangementPanelSource).toContain('Multitrack Arrangement');
     expect(arrangementPanelSource).toContain('SOURCE RACK');
+    expect(arrangementPanelSource).toContain('SOURCE PICKER');
+    expect(arrangementPanelSource).toContain('CLIP TOOLS');
     expect(arrangementPanelSource).toContain('Capture Current to Rack');
     expect(arrangementPanelSource).toContain('Play Arrangement');
+  });
+
+  it('uses pickers for assignment flows and disclosure for tweak-heavy controls', () => {
+    expect(starmakerSource).toContain('SCALE PICKER');
+    expect(starmakerSource).toContain('ROOT NOTE');
+    expect(starmakerSource).toContain('FX CHAIN');
+    expect(starmakerSource).toContain('MIX CHANNELS');
+    expect(arrangementPanelSource).toContain('Use the picker to assign which captured source drops into the next clip slot.');
   });
 
   it('exports arrangement state with tracks, sources, and clips', () => {

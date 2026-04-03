@@ -63,6 +63,7 @@ import {
   shouldCollapseTopExpandedDrag,
   shouldSnapBottomDragToTop,
   shouldTreatGoldReleaseAsTap,
+  DEFAULT_SPLIT_RATIO,
   snapSplitRatioOnRelease,
   DIVIDER_H,
   SPLIT_RATIO_MIN,
@@ -73,6 +74,7 @@ import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDream
 import { useDreamSystem, type BarIntentMode } from '@/lib/dreamdm/DreamSystemContext';
 import DreamWord from '@/components/ui/DreamWord';
 import { getPreferredViewportHeight, isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
+import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
 /** Thick bar height when locked at the bottom */
@@ -173,12 +175,18 @@ interface DreamDMBarProps {
   splitRatio?: number;
   /** Called continuously while the user drags the divider. Emits the new 0..1 ratio. */
   onSplitChange?: (ratio: number) => void;
+  /** Reports whether the DreamDM Bar is hidden so the host can hide DreamSpace with it. */
+  onMinimizedChange?: (isMinimized: boolean) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange }: DreamDMBarProps) {
+export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange }: DreamDMBarProps) {
+  const isGameImmersive = useImmersiveGameLayout();
+  /** Gold button diameter — shrinks when a game overlay is active so it stays out of the way */
+  const goldSz = isGameImmersive ? 36 : GOLD_SZ;
+  const goldR  = goldSz / 2;
   // ── Screen geometry + keyboard tracking ───────────────────────────────────
   const [screenH, setScreenH] = useState(900);
   const [screenW, setScreenW] = useState(1440);
@@ -229,6 +237,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
    */
   const [isMinimized, setIsMinimized] = useState(false);
 
+  useEffect(() => {
+    onMinimizedChange?.(isMinimized);
+  }, [isMinimized, onMinimizedChange]);
+
   // ── Touch-reveal transparency ─────────────────────────────────────────────
   /**
    * The bar is fully transparent when not in use. It becomes opaque when the
@@ -261,6 +273,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
    */
   const [goldMinimized, setGoldMinimized] = useState(true);
   const goldMinTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const minimizeDreamDMBar = useCallback(() => {
+    setIsMinimized(true);
+    setIsTop(false);
+    setIsTopExpanded(false);
+    setDragH(BAR_H);
+    setSlideDown(0);
+    onSplitChange?.(DEFAULT_SPLIT_RATIO);
+  }, [onSplitChange]);
 
   // ── Gold button double-tap ─────────────────────────────────────────────────
   const goldRef = useRef({ lastAt: 0 });
@@ -893,11 +914,11 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // - Bottom mode: gold sits on the BAR's top edge  (center = barTop)
   // - Top modes:   gold hangs from the BAR's bottom edge (center = barTop + barH)
   const attachedGoldTop: number = isDividerMode
-    ? (barTop + DIVIDER_H / 2 - GOLD_R)  // centered on the divider
+    ? (barTop + DIVIDER_H / 2 - goldR)  // centered on the divider
     : (isTop
-      ? (barTop + barH - GOLD_R)  // bottom edge of the top bar / panel
-      : (barTop - GOLD_R));       // top edge of the bottom bar
-  const isGoldOffScreen: boolean = !isDividerMode && !isTop && (barTop - GOLD_R < 0);
+      ? (barTop + barH - goldR)  // bottom edge of the top bar / panel
+      : (barTop - goldR));       // top edge of the bottom bar
+  const isGoldOffScreen: boolean = !isDividerMode && !isTop && (barTop - goldR < 0);
   const goldTopPx: number = isGoldOffScreen ? 10 : attachedGoldTop;
 
   // Track if button is in screen-locked mode (for styling/behavior)
@@ -907,8 +928,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // ── Minimized-mode geometry ───────────────────────────────────────────────
   // When minimized, the capsule is centered on the same Y axis as the full button
   // but only GOLD_MIN_H tall and GOLD_MIN_W wide (a subtle gold pill indicator).
-  // The "top" for the capsule should align its center with goldTopPx + GOLD_R.
-  const goldCenterY = goldTopPx + GOLD_R;
+  // The "top" for the capsule should align its center with goldTopPx + goldR.
+  const goldCenterY = goldTopPx + goldR;
   const minCapsuleTop = goldCenterY - GOLD_MIN_H / 2;
 
   // ── Resting state: bar is fully transparent until touched ────────────────
@@ -992,8 +1013,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             top: goldTopPx - 6,
             left: '50%',
             transform: 'translateX(-50%)',
-            width: GOLD_SZ + 12,
-            height: GOLD_SZ + 12,
+            width: goldSz + 12,
+            height: goldSz + 12,
             borderRadius: '50%',
             zIndex: 101,
             pointerEvents: 'none',
@@ -1017,8 +1038,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             top: goldTopPx - 4,
             left: '50%',
             transform: 'translateX(-50%)',
-            width: GOLD_SZ + 8,
-            height: GOLD_SZ + 8,
+            width: goldSz + 8,
+            height: goldSz + 8,
             borderRadius: '50%',
             zIndex: 101,
             pointerEvents: 'none',
@@ -1047,8 +1068,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           transform: goldMinimized
             ? 'translateX(-50%)'
             : `translateX(-50%) scale(${goldPressed ? 0.88 : 1})`,
-          width:  goldMinimized ? GOLD_MIN_W : GOLD_SZ,
-          height: goldMinimized ? GOLD_MIN_H : GOLD_SZ,
+          width:  goldMinimized ? GOLD_MIN_W : goldSz,
+          height: goldMinimized ? GOLD_MIN_H : goldSz,
           borderRadius: goldMinimized ? 99 : '50%',
           border: 'none',
           cursor: 'pointer',
@@ -1232,7 +1253,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                     type="button"
                     aria-label="Close DreamDM Bar"
                     onPointerDown={(e) => e.stopPropagation()}
-                    onClick={() => setIsMinimized(true)}
+                    onClick={minimizeDreamDMBar}
                     style={{
                       background: 'rgba(180,185,200,0.15)', border: 'none', borderRadius: 8,
                       width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1361,7 +1382,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                   type="button"
                   aria-label="Close DreamDM Bar"
                   onPointerDown={(e) => e.stopPropagation()}
-                  onClick={() => setIsMinimized(true)}
+                  onClick={minimizeDreamDMBar}
                   style={{
                     flexShrink: 0,
                     background: 'rgba(180,185,200,0.15)',

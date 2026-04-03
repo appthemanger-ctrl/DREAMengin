@@ -50,7 +50,7 @@ developers find accurate orientation from the start of every session.
 ### Primary outcome
 
 All docs, canonical name registry, and tests now use the OS-layer naming model:
-- DREAMengin is a **dual-runtime, spatial operating environment**
+- DREAMengin is a **DreamDM-Bar-led spatial operating environment**
 - Surfaces (not pages), Dream Windows (not widgets), DreamSpace (not widget layer)
 - Connection language: bind / mount / activate (not link widget / open page)
 - Multi-surface, multi-engin connection network (not 1-to-1 pairs)
@@ -58,12 +58,12 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 ### Canonical names now documented first
 
 **Product type:**
-- DREAMengin Runtime Environment (dual-runtime, spatial operating environment)
+- DREAMengin Runtime Environment (DreamDM-Bar-led spatial operating environment)
 
 **Runtime regions:**
-- Surface Space (upper active runtime region)
-- DreamSpace (lower modular runtime region)
-- DreamDM Bar / Runtime Seam (Persistent Interaction Rail)
+- HomeDream Surface (root operating surface / underlying feed layer)
+- DreamSpace (revealed secondary layer owned by the bar)
+- DreamDM Bar / Runtime Seam (Persistent Interaction Rail / top-layer main attraction)
 
 **Core surfaces:**
 - HomeDream Surface
@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
-| **auto** | 2026-04-02 03:26 UTC | `04bcd27` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #397 from appthemanger-ctrl/copilot/fix-bot-email-in-idari-daily-yml — fix(ci): idari-daily pushes directly to completedream instead of opening a PR<br> |
-| **auto** | 2026-04-02 03:24 UTC | `ce13e87` | copilot/fix-bot-email-in-idari-daily-yml | Copilot | ~1 modified<br>feat: idari-daily pushes directly to completedream instead of opening a PR — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/8fda6c48-75a8-481d-8065-a5243e48e5ad  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/idari-daily.yml` |
-| **auto** | 2026-04-02 02:07 UTC | `589d931` | copilot/stop-pushing-to-vercel | Copilot | ~1 modified<br>fix(idari): use verified github-actions[bot] identity instead of fake idari-bot email — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/ee751b8c-9bb1-4390-9277-da51d7f13c23  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/idari-daily.yml` |
-| **auto** | 2026-04-02 01:57 UTC | `74bea4c` | copilot/stop-pushing-to-vercel | Copilot | ~1 modified<br>fix(vercel): silence PR preview bot comments with github.silent=true — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/af2640be-f0f3-47d1-bcd2-b8febe1f0763  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `vercel.json` |
-| **auto** | 2026-04-02 01:36 UTC | `5c152c5` | copilot/stop-pushing-to-vercel | Copilot | ~8 modified<br>fix(vercel+workflows): proper ignoreCommand + AI context block in README + step summaries — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/af6ff3bd-2187-4bbb-bae4-a631cd2aec0d  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/sync-build-memory.yml`, `.github/workflows/update-bugs.yml`, `.github/workflows/update-handoff.yml`, `.github/workflows/update-readme.yml`, `.github/workflows/update-repo-state.yml`, `README.md`, `scripts/update-readme.mjs`, `vercel.json` |
+| **auto** | 2026-04-03 04:19 UTC | `c9f370f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #406 from appthemanger-ctrl/copilot/use-picker-for-assignments — Use pickers for StarMaker assignments and a disclosure tray for clip tools<br> |
+| **auto** | 2026-04-03 04:18 UTC | `c14b0b4` | copilot/use-picker-for-assignments | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/use-picker-for-assignments<br> |
+| **auto** | 2026-04-03 04:10 UTC | `f0b032d` | completedream | appthemanger-ctrl | ~1 modified<br>Revise README to include updated tech stack — Updated project description to reflect new technologies and versions.<br>✏️: `README.md` |
+| **auto** | 2026-04-03 04:04 UTC | `c69529b` | completedream | appthemanger-ctrl | ~1 modified<br>Revise section numbers and formatting in README — Updated section numbers and improved formatting in README.<br>✏️: `README.md` |
+| **auto** | 2026-04-02 16:24 UTC | `6ca7d4f` | copilot/implement-phase-8-logic | Copilot | ~3 modified<br>feat: add IDARi generation law load-check enforcement — Reasoning: add deterministic Phase 8 Generation Law scoring so IDARi system instructions emit LOAD_CHECK pre-flight output and constrain responses by scope. Architecture justification: docs/ARCHITECTURE.md requires stable admin AI/runtime rules and docs/LAW.md says to repurpose existing systems before adding new ones. Performance impact: neutral.  Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/61202bba-c698-4fec-ab5b-bdd88f25c024  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/ai/idari/route.ts`, `lib/agents/idari.ts`, `tests/idari-patch-plan.test.ts` |
 
 ## What changed in this alignment pass
 
@@ -128,14 +128,17 @@ The docs now treat `README.md` as the authoritative full specification and use s
 - HomeDream
 - EditProfileDream
 - ViewProfile
+- DayDreams
+- Engins
 - Dreams
 - DreamShop
 - DreamMarketplace
 - DreamMenu
 - DreamDM
+- DreamDMBar
 - DreamAds
 - Dr. Eams
-- IDARi
+- iDARI
 - TheBoogieMan.Ai
 
 ## Current repo reality

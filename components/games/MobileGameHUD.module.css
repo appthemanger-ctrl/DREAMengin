@@ -6,15 +6,16 @@
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  transition: opacity 0.45s ease;
 }
 
 .overlayIdle {
   opacity: 0.13;
+  transition: opacity 0.45s ease;
 }
 
 .overlayActive {
   opacity: 1;
+  transition: opacity 0.08s ease;
 }
 
 /* ── Joystick dock (shared base) ────────────────────────────────────────── */
@@ -58,10 +59,11 @@
     rgba(5, 10, 24, 0.55);
   border: 1px solid rgba(226, 232, 240, 0.18);
   box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.42),
+    0 20px 44px rgba(0, 0, 0, 0.46),
+    0 0 0 1px rgba(125, 211, 252, 0.08),
     inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
 }
 
 .joystickRing {
@@ -165,7 +167,7 @@
   border-radius: 999px;
   min-width: 62px;
   padding: 8px 14px;
-  background: rgba(4, 8, 18, 0.72);
+  background: linear-gradient(180deg, rgba(10, 18, 34, 0.9), rgba(4, 8, 18, 0.78));
   color: rgba(248, 250, 252, 0.9);
   font-size: 9px;
   font-weight: 900;
@@ -173,7 +175,8 @@
   text-transform: uppercase;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.32);
+  transition: transform 0.08s ease-out, border-color 0.12s ease-out, box-shadow 0.12s ease-out;
 }
 
 .pillPause {
@@ -298,14 +301,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(4, 8, 18, 0.76);
+  background: linear-gradient(180deg, rgba(10, 18, 34, 0.92), rgba(4, 8, 18, 0.78));
   border: 1px solid rgba(226, 232, 240, 0.16);
   box-shadow:
-    0 12px 26px rgba(0, 0, 0, 0.32),
+    0 14px 28px rgba(0, 0, 0, 0.36),
     inset 0 1px 6px rgba(255, 255, 255, 0.06);
   color: rgba(226, 232, 240, 0.82);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.08s ease-out, border-color 0.12s ease-out, box-shadow 0.12s ease-out;
 }
 
 .interactive {
@@ -323,6 +327,7 @@
   box-shadow:
     0 0 0 2px rgba(125, 211, 252, 0.22),
     0 18px 30px rgba(14, 165, 233, 0.22);
+  transform: scale(0.96);
 }
 
 .buttonSymbol {
