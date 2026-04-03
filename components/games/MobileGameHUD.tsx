@@ -26,6 +26,8 @@ const DEFAULT_REMOTE_OFFSET_Y = 26;
 
 // Fraction of dock radius within which a touch claims the right joystick
 const RIGHT_JOY_ZONE = 0.40;
+// Fraction of dock width used as the joystick travel radius (how far stick can move)
+const JOYSTICK_TRAVEL_RATIO = 0.45;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -178,7 +180,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   ) => {
     if (!dock) return;
     const rect = dock.getBoundingClientRect();
-    const radius = rect.width * 0.45;
+    const radius = rect.width * JOYSTICK_TRAVEL_RATIO;
     setVector(normalizeStickVector(
       touch.clientX - (rect.left + rect.width / 2),
       touch.clientY - (rect.top + rect.height / 2),

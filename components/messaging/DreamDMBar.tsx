@@ -95,6 +95,8 @@ const SNAP_DOWN_PX = 88;
 const EXPAND_THRESHOLD = 80;
 /** Spring animation string */
 const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
+/** Minimum pointer movement (px) to switch from tap to drag on minimized orb */
+const ORB_DRAG_SLOP = 6;
 
 function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
   if (url) {
@@ -974,7 +976,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           if (!drag?.active) return;
           const dx = e.clientX - drag.startX;
           const dy = e.clientY - drag.startY;
-          if (Math.abs(dx) > 6 || Math.abs(dy) > 6) drag.moved = true;
+          if (Math.abs(dx) > ORB_DRAG_SLOP || Math.abs(dy) > ORB_DRAG_SLOP) drag.moved = true;
           if (drag.moved) {
             const nx = Math.max(0, Math.min(window.innerWidth - 48, drag.startPosX + dx));
             const ny = Math.max(0, Math.min(window.innerHeight - 48, drag.startPosY + dy));
