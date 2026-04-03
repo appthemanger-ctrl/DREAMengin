@@ -38,6 +38,13 @@ const RUNTIME_SIGNALS = [
   },
 ];
 
+const WHIPREV_MANIFESTO = {
+  badge: '⚡ WhipRev: The Human Media Manifesto',
+  title: 'Dreamengin.com is where WhipRev lives inside the HomeDream.',
+  detail:
+    'Seen, not judged: the HomeDream feed stays grounded while human media moves through it.',
+};
+
 interface WorkspaceDashboardProps {
   profile: ProfileLike | null;
   posts: Post[];
@@ -280,8 +287,11 @@ export default function WorkspaceDashboard({
               >
                 {name}&rsquo;s feed
               </div>
+              <div className="de-command-chip" style={{ marginBottom: 10 }}>
+                {WHIPREV_MANIFESTO.badge}
+              </div>
               <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.65, maxWidth: 680, marginBottom: 12 }}>
-                Your runtime home is now framed like an operating surface: profile, dreamspace, Dr. Eams, and feed actions stay visible without breaking immersion.
+                {WHIPREV_MANIFESTO.title} {WHIPREV_MANIFESTO.detail}
               </div>
               <div className="de-toolbar">
                 <QuickLink label="Edit ProfileDream" onClick={() => openPage('/edit-profiledream', 'Edit ProfileDream')} />
@@ -322,7 +332,7 @@ export default function WorkspaceDashboard({
                 HomeDream Feed
               </div>
               <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 2 }}>
-                Feed first. No extra search surface.
+                WhipRev lives inside HomeDream — feed first, seen not judged.
               </div>
             </div>
             {onOpenDreamSpace && (
