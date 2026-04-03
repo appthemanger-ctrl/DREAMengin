@@ -1,16 +1,16 @@
 /**
- * Integration Tests — Cross-engine wiring, Command Palette, ForgeActivityWidget.
+ * Integration Tests — Cross-engine wiring, Command Palette, DaydreamPulseStrip.
  *
  * Verifies that the integration layer properly connects:
  *   1. CommandPalette is mounted globally and contains all engines
- *   2. ForgeActivityWidget reads from ForgeRegistry
- *   3. DaydreamPulseStrip includes Forge surface
- *   4. Root layout mounts CommandPalette
+ *   2. DaydreamPulseStrip includes Forge surface
+ *   3. Root layout mounts CommandPalette
+ *   4. HomeDream surface does NOT use localStorage
  */
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 // ── Mock localStorage ────────────────────────────────────────────────────────
 const localStorageStore: Record<string, string> = {};
@@ -26,8 +26,6 @@ vi.stubGlobal('window', { localStorage: localStorageMock });
 import {
   ENGIN_REGISTRY,
   CREATIVE_ENGINES,
-  recordForgeActivity,
-  readForgeActivity,
 } from '@/lib/forge/forgeRegistry';
 
 // ── Source file reads for structural assertions ─────────────────────────────
@@ -44,11 +42,6 @@ const rootLayoutSrc = readFileSync(
 
 const daydreamPulseStripSrc = readFileSync(
   resolve(__dirname, '../components/home/DaydreamPulseStrip.tsx'),
-  'utf8',
-);
-
-const forgeActivityWidgetSrc = readFileSync(
-  resolve(__dirname, '../components/home/ForgeActivityWidget.tsx'),
   'utf8',
 );
 
@@ -107,39 +100,35 @@ describe('Global Integration — DaydreamPulseStrip', () => {
     expect(daydreamPulseStripSrc).toContain("label: 'Forge'");
     expect(daydreamPulseStripSrc).toContain("emoji: '🔥'");
   });
+
+  it('DaydreamPulseStrip does not use localStorage', () => {
+    expect(daydreamPulseStripSrc).not.toContain('localStorage');
+  });
+
+  it('DaydreamPulseStrip does not use DreamBeatCanvas', () => {
+    expect(daydreamPulseStripSrc).not.toContain('DreamBeatCanvas');
+  });
 });
 
-describe('Global Integration — ForgeActivityWidget', () => {
-  it('widget source imports and reads from ForgeRegistry', () => {
-    expect(forgeActivityWidgetSrc).toContain('readForgeActivity');
-    expect(forgeActivityWidgetSrc).toContain('CREATIVE_ENGINES');
-    expect(forgeActivityWidgetSrc).toContain('formatRelativeTime');
+describe('Global Integration — HomeDream surface', () => {
+  it('WorkspaceDashboard does NOT import or render ForgeActivityWidget', () => {
+    expect(workspaceDashboardSrc).not.toContain('ForgeActivityWidget');
   });
 
-  it('widget links to the Forge Daydream surface', () => {
-    expect(forgeActivityWidgetSrc).toContain('/daydream/forge');
+  it('WorkspaceDashboard does NOT use localStorage', () => {
+    expect(workspaceDashboardSrc).not.toContain('localStorage');
   });
 
-  it('WorkspaceDashboard imports and renders ForgeActivityWidget', () => {
-    expect(workspaceDashboardSrc).toContain("import ForgeActivityWidget from '@/components/home/ForgeActivityWidget'");
-    expect(workspaceDashboardSrc).toContain('<ForgeActivityWidget />');
+  it('WorkspaceDashboard does NOT have filler RUNTIME_SIGNALS cards', () => {
+    expect(workspaceDashboardSrc).not.toContain('RUNTIME_SIGNALS');
   });
 
-  it('ForgeActivity reads pulses for all 6 creative engines', () => {
-    localStorage.clear();
-    // Record activity for a few engines
-    recordForgeActivity('games', 'Launched MADMAXI');
-    recordForgeActivity('music', 'Opened DAW');
-
-    const pulses = readForgeActivity();
-    expect(pulses.length).toBe(2);
-
-    const gamesPulse = pulses.find(p => p.enginId === 'games');
-    const musicPulse = pulses.find(p => p.enginId === 'music');
-    expect(gamesPulse).toBeDefined();
-    expect(musicPulse).toBeDefined();
-    expect(gamesPulse!.heat).toBeGreaterThan(0);
-    expect(musicPulse!.heat).toBeGreaterThan(0);
+  it('WorkspaceDashboard renders HomeFeed before DaydreamPulseStrip', () => {
+    const feedIdx = workspaceDashboardSrc.indexOf('<HomeFeed');
+    const stripIdx = workspaceDashboardSrc.indexOf('<DaydreamPulseStrip');
+    expect(feedIdx).toBeGreaterThan(-1);
+    expect(stripIdx).toBeGreaterThan(-1);
+    expect(feedIdx).toBeLessThan(stripIdx);
   });
 });
 
@@ -152,7 +141,6 @@ describe('Global Integration — ENGIN_REGISTRY consistency', () => {
   });
 
   it('CREATIVE_ENGINES count matches CommandPalette engine entries', () => {
-    // CommandPalette has engine-games through engine-create = 6 entries
     const engineEntryCount = (commandPaletteSrc.match(/id: 'engine-/g) || []).length;
     expect(engineEntryCount).toBe(CREATIVE_ENGINES.length);
   });
