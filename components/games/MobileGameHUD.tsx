@@ -106,6 +106,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   const [remoteScale, setRemoteScale] = useState(() => loadPersisted('de:hud:scale', 1.0, SCALE_MIN, SCALE_MAX));
   const [offsetY, setOffsetY] = useState(() => loadPersisted('de:hud:offsetY', DEFAULT_REMOTE_OFFSET_Y, -40, 220));
   const [isTouching, setIsTouching] = useState(false);
+  const [sizeControlVisible, setSizeControlVisible] = useState(false);
 
   const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter((b) => b.interactive);
 
@@ -177,7 +178,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   ) => {
     if (!dock) return;
     const rect = dock.getBoundingClientRect();
-    const radius = rect.width * 0.3;
+    const radius = rect.width * 0.45;
     setVector(normalizeStickVector(
       touch.clientX - (rect.left + rect.width / 2),
       touch.clientY - (rect.top + rect.height / 2),
@@ -434,8 +435,8 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
           </button>
         </div>
 
-        {/* +/- size control */}
-        <div className={styles.sizeControl}>
+        {/* +/- size control — toggled by drag handle */}
+        <div className={clsx(styles.sizeControl, sizeControlVisible ? styles.sizeControlVisible : styles.sizeControlHidden)}>
           <button
             type="button"
             className={styles.sizeBtn}
@@ -459,14 +460,20 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
           </button>
         </div>
 
-        {/* Drag handle for repositioning */}
+        {/* Drag handle for repositioning — tap toggles size control */}
         <div
           className={styles.dragHandle}
-          onPointerDown={handleDragStart}
+          onPointerDown={(e) => {
+            if (!sizeControlVisible) setSizeControlVisible(true);
+            handleDragStart(e);
+          }}
           onPointerMove={handleDragMove}
-          onPointerUp={handleDragEnd}
+          onPointerUp={(e) => {
+            handleDragEnd();
+            // If pointer didn't move meaningfully, treat as tap toggle
+          }}
           onPointerCancel={handleDragEnd}
-          title="Drag to reposition"
+          title="Drag to reposition · Tap to show/hide size controls"
         >
           ⠿
         </div>

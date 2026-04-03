@@ -70,6 +70,7 @@ const BOOT_KEYFRAMES = `
 
 const DEFAULT_HUD_BOTTOM = '175px';
 const MIN_STAGE_BOTTOM_CLEARANCE = '38dvh';
+const LANDSCAPE_MIN_STAGE_BOTTOM_CLEARANCE = '22dvh';
 const BASELINE_OVERLAY_OFFSET_PX = 14;
 
 export default function ImmersiveGameShell() {
@@ -98,6 +99,18 @@ export default function ImmersiveGameShell() {
   const [bootPhase, setBootPhase] = useState<1 | 2 | 3 | 4>(1);
   const [fadingOut, setFadingOut] = useState(false);
   const [bootDone, setBootDone] = useState(false);
+
+  // ── Landscape detection ───────────────────────────────────────────────────
+  const [isLandscape, setIsLandscape] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth > window.innerHeight,
+  );
+  useEffect(() => {
+    const mql = window.matchMedia('(orientation: landscape)');
+    const handler = (e: MediaQueryListEvent) => setIsLandscape(e.matches);
+    mql.addEventListener('change', handler);
+    setIsLandscape(mql.matches);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   // ── Suppress layout chrome ────────────────────────────────────────────────
   useEffect(() => {
@@ -198,7 +211,7 @@ export default function ImmersiveGameShell() {
       }}
     >
       {/* ── Game viewport — always mounted so assets begin loading immediately ── */}
-      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `max(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}), ${MIN_STAGE_BOTTOM_CLEARANCE})` }}>
+      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `max(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}), ${isLandscape ? LANDSCAPE_MIN_STAGE_BOTTOM_CLEARANCE : MIN_STAGE_BOTTOM_CLEARANCE})` }}>
         {game.component ? (
           <ActiveGameComponent />
         ) : (
@@ -227,7 +240,7 @@ export default function ImmersiveGameShell() {
           style={{
             position: 'absolute',
             left: BASELINE_OVERLAY_OFFSET_PX,
-            bottom: `calc(max(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}), ${MIN_STAGE_BOTTOM_CLEARANCE}) + ${BASELINE_OVERLAY_OFFSET_PX}px)`,
+            bottom: `calc(max(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}), ${isLandscape ? LANDSCAPE_MIN_STAGE_BOTTOM_CLEARANCE : MIN_STAGE_BOTTOM_CLEARANCE}) + ${BASELINE_OVERLAY_OFFSET_PX}px)`,
             zIndex: 3,
             pointerEvents: 'none',
             background: 'rgba(2,6,23,0.78)',
