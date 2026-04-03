@@ -44,6 +44,7 @@ import { isLaunchFlagEnabled, buildGameLaunchHref, resolveGameLaunchId } from '@
 import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBridge';
 import { useRemoteChannel } from '@/lib/games/useRemoteChannel';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
@@ -216,6 +217,7 @@ function makeEmptyGrid(): TileType[][] {
 // ── Component ──────────────────────────────────────────────────────────────────
 
 export default function GameEngin({ onBack }: Props) {
+  const { record: forgeRecord } = useForgeActivity({ enginId: 'games' });
   const searchParams = useSearchParams();
   const { connected: gpConnected, gamepadName, isDualSense, rumble } = useGamepad();
   const playOverlayRef = useRef<HTMLDivElement>(null);
@@ -828,6 +830,7 @@ export default function GameEngin({ onBack }: Props) {
   }
 
   function handleStartLobbyGame() {
+    forgeRecord('Started lobby game');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:lobby-start', { code: lobbyCode, players: lobbyPlayers },
     );

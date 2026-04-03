@@ -23,6 +23,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 
 interface Props {
   onBack: () => void;
@@ -88,6 +89,7 @@ const btnBase: React.CSSProperties = {
 };
 
 export default function ContentEngin({ onBack }: Props) {
+  const { record: forgeRecord } = useForgeActivity({ enginId: 'create' });
   // ── Existing: Recent Drafts ──
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
@@ -272,6 +274,7 @@ export default function ContentEngin({ onBack }: Props) {
         throw new Error((err as { error?: string }).error ?? 'Failed to save draft');
       }
       setDraftSaveMsg(draftScheduledAt ? '✅ Draft scheduled!' : '✅ Draft saved!');
+      forgeRecord(draftScheduledAt ? 'Scheduled draft' : 'Saved draft');
     } catch (err) {
       setDraftSaveMsg(`⚠️ ${err instanceof Error ? err.message : 'Save failed'}`);
     }

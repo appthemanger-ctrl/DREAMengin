@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
@@ -102,6 +103,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
 };
 
 export default function LabEngin({ onBack }: Props) {
+  const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
   // ── Existing state ─────────────────────────────────────────────────────────
   const [experiments, setExperiments] = useState<Experiment[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -139,6 +141,7 @@ export default function LabEngin({ onBack }: Props) {
   // ── Simulation runner ──────────────────────────────────────────────────────
   function runSim(id: string) {
     setSimStates(prev => ({ ...prev, [id]: 'running' }));
+    forgeRecord(`Ran simulation ${id}`);
     setTimeout(() => {
       setSimStates(prev => ({ ...prev, [id]: 'complete' }));
     }, 1200);
@@ -147,6 +150,7 @@ export default function LabEngin({ onBack }: Props) {
   // ── Export handler ─────────────────────────────────────────────────────────
   function handleExportData() {
     bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });
+    forgeRecord('Exported data');
     setExportFlash(true);
     setTimeout(() => setExportFlash(false), 1800);
   }

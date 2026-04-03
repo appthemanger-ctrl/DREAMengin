@@ -19,16 +19,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
   ArrowLeft, Flame, Zap, Activity, Layers,
-  ExternalLink, Clock, BarChart3,
+  ExternalLink, Clock, BarChart3, Workflow, ChevronRight,
 } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
 import {
   CREATIVE_ENGINES,
   ENGIN_REGISTRY,
+  FORGE_WORKFLOWS,
   readForgeActivity,
   formatRelativeTime,
   type ForgeActivityPulse,
   type EnginEntry,
+  type ForgeWorkflow,
 } from '@/lib/forge/forgeRegistry';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -237,6 +239,87 @@ export default function ForgeEngin({ onBack }: Props) {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* ── Workflow Launcher ── */}
+        <div style={{ marginTop: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <Workflow className="w-4 h-4" style={{ color: FORGE.gold }} />
+            <span style={{ fontSize: 13, fontWeight: 800, color: FORGE.text }}>Workflow Launcher</span>
+            <span style={{
+              marginLeft: 'auto',
+              fontSize: 10, fontWeight: 700,
+              padding: '3px 10px', borderRadius: 999,
+              background: `${FORGE.gold}18`, color: FORGE.gold,
+              border: `1px solid ${FORGE.gold}30`,
+            }}>
+              {FORGE_WORKFLOWS.length} workflows
+            </span>
+          </div>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {FORGE_WORKFLOWS.map(wf => (
+              <WorkflowCard key={wf.id} workflow={wf} />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Activity Timeline ── */}
+        <div style={{ marginTop: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <Clock className="w-4 h-4" style={{ color: '#38bdf8' }} />
+            <span style={{ fontSize: 13, fontWeight: 800, color: FORGE.text }}>Activity Timeline</span>
+          </div>
+          {activity.length === 0 ? (
+            <div style={{
+              padding: '24px 16px',
+              textAlign: 'center',
+              borderRadius: 14,
+              background: FORGE.panel,
+              border: `1px solid ${FORGE.border}`,
+              fontSize: 12,
+              color: FORGE.dim,
+            }}>
+              No activity yet — open any engine to start tracking.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: 6 }}>
+              {[...activity]
+                .sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
+                .map(pulse => {
+                  const eng = ENGIN_REGISTRY.find(e => e.id === pulse.enginId);
+                  if (!eng) return null;
+                  return (
+                    <div
+                      key={pulse.enginId}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '10px 14px',
+                        borderRadius: 12,
+                        background: FORGE.panel,
+                        border: `1px solid ${FORGE.border}`,
+                      }}
+                    >
+                      <span style={{
+                        width: 28, height: 28, borderRadius: 8,
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        background: `${eng.accent}18`, fontSize: 14,
+                      }}>
+                        {eng.emoji}
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: eng.accent }}>{eng.name}</div>
+                        <div style={{ fontSize: 11, color: FORGE.dim }}>{pulse.label}</div>
+                      </div>
+                      <div style={{ fontSize: 10, color: FORGE.dim, whiteSpace: 'nowrap' }}>
+                        {formatRelativeTime(pulse.lastActive)}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </div>
 
         {/* ── Forge Philosophy ── */}
@@ -479,3 +562,121 @@ const LINKAGES = [
     desc: 'StarMaker stems and mixes embed directly into ContentEngin posts.',
   },
 ] as const;
+
+// ── Workflow Card ─────────────────────────────────────────────────────────────
+
+function WorkflowCard({ workflow }: { workflow: ForgeWorkflow }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div
+      style={{
+        borderRadius: 16,
+        background: FORGE.panel,
+        border: `1px solid ${workflow.accent}20`,
+        overflow: 'hidden',
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          all: 'unset',
+          cursor: 'pointer',
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          padding: '14px 16px',
+        }}
+      >
+        <span style={{
+          width: 36, height: 36, borderRadius: 10,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          background: `${workflow.accent}18`, fontSize: 18,
+        }}>
+          {workflow.emoji}
+        </span>
+        <div style={{ flex: 1, textAlign: 'left' }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: workflow.accent }}>{workflow.title}</div>
+          <div style={{ fontSize: 11, color: FORGE.dim }}>{workflow.desc}</div>
+        </div>
+        <div style={{ display: 'flex', gap: 3 }}>
+          {workflow.engines.map(eid => {
+            const eng = ENGIN_REGISTRY.find(e => e.id === eid);
+            return eng ? (
+              <span key={eid} style={{
+                width: 22, height: 22, borderRadius: 6,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                background: `${eng.accent}18`, fontSize: 11,
+              }} title={eng.name}>
+                {eng.emoji}
+              </span>
+            ) : null;
+          })}
+        </div>
+        <ChevronRight
+          className="w-4 h-4"
+          style={{
+            color: FORGE.dim,
+            transition: 'transform 0.2s',
+            transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+          }}
+        />
+      </button>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div style={{ padding: '0 16px 16px', display: 'grid', gap: 8 }}>
+              {workflow.steps.map((step, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 10,
+                    padding: '10px 12px',
+                    borderRadius: 12,
+                    background: 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${FORGE.border}`,
+                  }}
+                >
+                  <span style={{
+                    width: 22, height: 22, borderRadius: 999,
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    background: `${workflow.accent}18`, color: workflow.accent,
+                    fontSize: 10, fontWeight: 800, flexShrink: 0,
+                  }}>
+                    {i + 1}
+                  </span>
+                  <span style={{ fontSize: 12, lineHeight: 1.6, color: FORGE.dim }}>{step}</span>
+                </div>
+              ))}
+
+              {/* Launch first engine */}
+              <Link
+                href={ENGIN_REGISTRY.find(e => e.id === workflow.engines[0])?.daydreamHref ?? '/daydream/forge'}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '10px 18px', borderRadius: 999, marginTop: 4,
+                  background: workflow.accent, color: '#fff',
+                  fontSize: 12, fontWeight: 700, textDecoration: 'none',
+                  alignSelf: 'flex-start',
+                }}
+              >
+                Start Workflow <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

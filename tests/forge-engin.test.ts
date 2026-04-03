@@ -221,3 +221,78 @@ describe('ForgeEngin integration wiring', () => {
     }
   });
 });
+
+// ── FORGE_WORKFLOWS tests ─────────────────────────────────────────────────────
+
+describe('FORGE_WORKFLOWS', () => {
+  // Re-import after mocks are set
+  let FORGE_WORKFLOWS: typeof import('@/lib/forge/forgeRegistry').FORGE_WORKFLOWS;
+
+  beforeAll(async () => {
+    const mod = await import('@/lib/forge/forgeRegistry');
+    FORGE_WORKFLOWS = mod.FORGE_WORKFLOWS;
+  });
+
+  it('has at least 3 workflows', () => {
+    expect(FORGE_WORKFLOWS.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('every workflow has unique id', () => {
+    const ids = FORGE_WORKFLOWS.map(w => w.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('every workflow references valid engine ids', () => {
+    const validIds = new Set(ENGIN_REGISTRY.map(e => e.id));
+    for (const wf of FORGE_WORKFLOWS) {
+      for (const eid of wf.engines) {
+        expect(validIds.has(eid)).toBe(true);
+      }
+    }
+  });
+
+  it('every workflow has at least one step', () => {
+    for (const wf of FORGE_WORKFLOWS) {
+      expect(wf.steps.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('every workflow has a valid accent hex colour', () => {
+    for (const wf of FORGE_WORKFLOWS) {
+      expect(wf.accent).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+
+  it('every workflow engines list is non-empty', () => {
+    for (const wf of FORGE_WORKFLOWS) {
+      expect(wf.engines.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+// ── useForgeActivity hook unit test (non-React) ───────────────────────────────
+
+describe('useForgeActivity integration', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('recordForgeActivity from multiple engines produces combined timeline', () => {
+    recordForgeActivity('games', 'Launched MADMAXI');
+    recordForgeActivity('music', 'Published release');
+    recordForgeActivity('code', 'Ran CI');
+    const timeline = readForgeActivity();
+    expect(timeline).toHaveLength(3);
+    const ids = timeline.map(p => p.enginId);
+    expect(ids).toContain('games');
+    expect(ids).toContain('music');
+    expect(ids).toContain('code');
+  });
+
+  it('each engine pulse has a label matching the recorded action', () => {
+    recordForgeActivity('lab', 'Ran simulation');
+    const pulse = readForgeActivity().find(p => p.enginId === 'lab');
+    expect(pulse).toBeDefined();
+    expect(pulse!.label).toBe('Ran simulation');
+  });
+});

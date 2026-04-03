@@ -23,6 +23,7 @@ import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import Link from 'next/link';
 import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
 
 interface Props {
@@ -63,6 +64,7 @@ const AssetLibrary        = 'brand-feature';
 const ContentCalendarLink = 'brand-feature';
 
 export default function BrandingEngin({ onBack }: Props) {
+  const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
   // ── Daydream state persistence (Phase 8 §F Point 55) ──
   const { persistState } = useDaydreamState({ daydreamType: 'brand', side: 'B' });
 
@@ -290,6 +292,7 @@ export default function BrandingEngin({ onBack }: Props) {
   // ── Asset handler — inserts to brand_kit_items with optimistic update ────────
   async function handleSaveAsset() {
     if (!newAssetName.trim() || !newAssetValue.trim()) return;
+    forgeRecord('Saved brand asset');
     const optimisticId = `as-${Date.now()}`;
     const optimisticAsset = {
       id: optimisticId,
@@ -325,6 +328,7 @@ export default function BrandingEngin({ onBack }: Props) {
   // multi-connection path: Brand → ContentEngin via /api/drafts + bridge event
   async function handleSendToContentEngin() {
     if (!voiceSuggestion.trim()) return;
+    forgeRecord('Sent to ContentEngin');
     setContentBridgeSending(true);
     try {
       await fetch('/api/drafts', {

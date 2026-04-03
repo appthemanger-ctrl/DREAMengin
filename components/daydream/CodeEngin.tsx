@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import {
   parseAiInstruction,
   buildEditPreview,
@@ -221,6 +222,7 @@ const SHELLHUB_DEFAULT_URL = 'https://cloud.shellhub.io';
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function CodeEngin({ onBack }: Props) {
+  const { record: forgeRecord } = useForgeActivity({ enginId: 'code' });
 
   // ── Daydream state persistence (Phase 8 §F Point 54) ──
   const { persistState } = useDaydreamState({ daydreamType: 'code', side: 'B' });
@@ -627,6 +629,7 @@ export default function CodeEngin({ onBack }: Props) {
     setCells(prev =>
       prev.map(c => c.id === cellId ? { ...c, status: 'running', output: null } : c)
     );
+    forgeRecord(`Ran ${language} cell`);
     setTimeout(() => {
       const output = getMockOutput(language);
       setCells(prev =>
@@ -639,7 +642,7 @@ export default function CodeEngin({ onBack }: Props) {
         outputType: 'text',
       });
     }, 800);
-  }, []);
+  }, [forgeRecord]);
 
   const addCell = useCallback(() => {
     setCells(prev => [
@@ -676,6 +679,7 @@ export default function CodeEngin({ onBack }: Props) {
     setCiRunning(true);
     setCiOverallStatus('running');
     setCiStages(prev => prev.map(s => ({ ...s, status: 'running' as const })));
+    forgeRecord('Started CI pipeline');
 
     const total = INITIAL_CI_STAGES.length;
     for (let i = 0; i < total; i++) {
@@ -696,7 +700,7 @@ export default function CodeEngin({ onBack }: Props) {
         }
       }, 600 * (idx + 1));
     }
-  }, [ciRunning]);
+  }, [ciRunning, forgeRecord]);
 
   // ── Project Manager actions ─────────────────────────────────────────────────
 
