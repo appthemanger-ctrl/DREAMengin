@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { ChevronDown, ChevronRight, Layers3, Pause, Play, Plus } from 'lucide-react';
 
 import {

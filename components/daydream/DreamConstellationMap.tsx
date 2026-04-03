@@ -24,6 +24,7 @@ const NODES = [
   { id: 'brand',     emoji: '🎨', label: 'Brand',     href: '/daydream/brand',     r: 249, g: 115, b:  22, cx: 0.50, cy: 0.78 },
   { id: 'create',    emoji: '✍️', label: 'Create',    href: '/daydream/create',    r: 236, g:  72, b: 153, cx: 0.20, cy: 0.68 },
   { id: 'analytics', emoji: '📊', label: 'Analytics', href: '/daydream/analytics', r:  99, g: 102, b: 241, cx: 0.50, cy: 0.50 },
+  { id: 'forge',     emoji: '🔥', label: 'Forge',     href: '/daydream/forge',     r: 239, g:  68, b:  68, cx: 0.50, cy: 0.95 },
 ] as const;
 
 type NodeId = typeof NODES[number]['id'];
@@ -36,12 +37,15 @@ const EDGES: [NodeId, NodeId][] = [
   ['analytics', 'code'],
   ['analytics', 'brand'],
   ['analytics', 'create'],
+  ['analytics', 'forge'],
   ['music',  'games'],
   ['games',  'lab'],
   ['lab',    'code'],
   ['code',   'brand'],
   ['brand',  'create'],
   ['create', 'music'],
+  ['forge',  'music'],
+  ['forge',  'games'],
 ];
 
 // ── Ambient particle layer ────────────────────────────────────────────────────

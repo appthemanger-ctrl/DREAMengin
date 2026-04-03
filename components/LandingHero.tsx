@@ -74,7 +74,7 @@ const PLATFORM_SIGNALS = [
 ];
 
 const PLATFORM_STATS = [
-  { value: '6', label: 'core daydreams' },
+  { value: '7', label: 'core daydreams' },
   { value: 'AI triad', label: 'always in reach' },
   { value: 'Dual runtime', label: 'persistent home system' },
 ];
@@ -294,7 +294,7 @@ export default function LandingHero() {
             className="text-base md:text-lg leading-relaxed mb-8 max-w-md"
             style={{ color: 'rgba(165,195,235,0.72)' }}
           >
-            A spatial, privacy-first creative OS. Six Daydream surfaces. Real AI tools. Your world — layered, connected, and entirely yours.
+            A spatial, privacy-first creative OS. Seven Daydream surfaces. Real AI tools. Your world — layered, connected, and entirely yours.
           </motion.p>
 
           {/* CTA row */}
@@ -452,7 +452,7 @@ export default function LandingHero() {
           className="mb-4 text-center text-xs font-bold tracking-[0.16em] uppercase"
           style={{ color: 'rgba(140,170,220,0.45)' }}
         >
-          Six Daydream Surfaces
+          Seven Daydream Surfaces
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
