@@ -130,6 +130,7 @@ const FORGE_STORAGE_KEY = 'de:forge:activity';
 /**
  * Record an activity pulse for a given engin.
  * Persists to localStorage so the forge dashboard survives page reload.
+ * Also appends to the intelligence history log for pattern detection.
  */
 export function recordForgeActivity(enginId: string, label: string): void {
   if (typeof window === 'undefined') return;
@@ -143,8 +144,28 @@ export function recordForgeActivity(enginId: string, label: string): void {
       label,
     };
     localStorage.setItem(FORGE_STORAGE_KEY, JSON.stringify(data));
+    // Also feed the history log for intelligence pattern detection
+    appendToHistory(enginId, label);
   } catch {
     // localStorage unavailable — silent
+  }
+}
+
+/**
+ * Internal: append to the history log inline (avoids circular import with forgeIntelligence).
+ */
+const HISTORY_KEY = 'de:forge:history';
+const MAX_HISTORY = 100;
+
+function appendToHistory(enginId: string, label: string): void {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    const history: Array<{ enginId: string; label: string; timestamp: string }> = raw ? JSON.parse(raw) : [];
+    history.push({ enginId, label, timestamp: new Date().toISOString() });
+    if (history.length > MAX_HISTORY) history.splice(0, history.length - MAX_HISTORY);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch {
+    // silent
   }
 }
 
