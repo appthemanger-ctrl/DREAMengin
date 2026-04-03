@@ -129,21 +129,96 @@ export default function EchoArena() {
         const camera = new BABYLON.ArcRotateCamera('cam', 0, 0.5, 40, BABYLON.Vector3.Zero(), scene);
         camera.attachControl(canvasRef.current, true);
 
-        // Lighting
-        new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
+        // ── Lighting — realistic multi-source setup ─────────────────────────
+        const hemiLight = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
+        hemiLight.intensity = 0.35;
+        hemiLight.diffuse = new BABYLON.Color3(0.4, 0.5, 0.9);
+        hemiLight.specular = new BABYLON.Color3(0.1, 0.15, 0.3);
+        hemiLight.groundColor = new BABYLON.Color3(0.05, 0.05, 0.12);
 
-        // Arena floor
+        // Directional light for shadows
+        const dirLight = new BABYLON.DirectionalLight('dirLight',
+          new BABYLON.Vector3(0.3, -1, 0.4), scene);
+        dirLight.intensity = 0.8;
+        dirLight.diffuse = new BABYLON.Color3(0.6, 0.7, 1.0);
+        dirLight.specular = new BABYLON.Color3(0.5, 0.6, 0.9);
+
+        // Shadow generator
+        const shadowGen = new BABYLON.ShadowGenerator(2048, dirLight);
+        shadowGen.usePercentageCloserFiltering = true;
+        shadowGen.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+        shadowGen.bias = 0.0006;
+        shadowGen.darkness = 0.35;
+
+        // Point light for arena center accent
+        const centerLight = new BABYLON.PointLight('center',
+          new BABYLON.Vector3(0, 8, 0), scene);
+        centerLight.diffuse = new BABYLON.Color3(0.3, 0.9, 0.7);
+        centerLight.intensity = 1.5;
+        centerLight.range = 35;
+
+        // Environment for PBR reflections
+        try { scene.createDefaultEnvironment({ createGround: false, createSkybox: false }); } catch { /* graceful */ }
+        scene.environmentIntensity = 0.6;
+
+        // ── Arena floor — PBR metallic reflective ───────────────────────────
         floor = BABYLON.MeshBuilder.CreateGround('arena', { width: 50, height: 50 }, scene);
-        const floorMat = new BABYLON.StandardMaterial('floor', scene);
-        floorMat.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.4);
+        const floorMat = new BABYLON.PBRMaterial('floor', scene);
+        floorMat.albedoColor = new BABYLON.Color3(0.06, 0.06, 0.28);
+        floorMat.metallic = 0.4;
+        floorMat.roughness = 0.35;
+        floorMat.emissiveColor = new BABYLON.Color3(0.01, 0.01, 0.06);
         floor.material = floorMat;
+        floor.receiveShadows = true;
 
-        // Player
+        // Player — PBR with clear-coat for glass-like surface
         player = BABYLON.MeshBuilder.CreateSphere('player', { diameter: 2.5 }, scene);
         player.position.y = 1.5;
-        const playerMat = new BABYLON.StandardMaterial('playerMat', scene);
-        playerMat.emissiveColor = new BABYLON.Color3(0.3, 1, 0.8);
+        const playerMat = new BABYLON.PBRMaterial('playerMat', scene);
+        playerMat.albedoColor = new BABYLON.Color3(0.2, 0.85, 0.65);
+        playerMat.metallic = 0.7;
+        playerMat.roughness = 0.15;
+        playerMat.emissiveColor = new BABYLON.Color3(0.15, 0.5, 0.4);
+        playerMat.clearCoat.isEnabled = true;
+        playerMat.clearCoat.intensity = 0.6;
+        playerMat.clearCoat.roughness = 0.08;
         player.material = playerMat;
+        shadowGen.addShadowCaster(player, true);
+
+        // ── Post-processing pipeline ────────────────────────────────────────
+        try {
+          const pipeline = new BABYLON.DefaultRenderingPipeline('echo-pipeline', true, scene, [camera]);
+          pipeline.samples = 4;
+          pipeline.fxaaEnabled = true;
+          pipeline.imageProcessingEnabled = true;
+          pipeline.imageProcessing.toneMappingEnabled = true;
+          pipeline.imageProcessing.toneMappingType = 1; // ACES
+          pipeline.imageProcessing.contrast = 1.1;
+          pipeline.imageProcessing.exposure = 1.05;
+          pipeline.imageProcessing.vignetteEnabled = true;
+          pipeline.imageProcessing.vignetteWeight = 3;
+          pipeline.bloomEnabled = true;
+          pipeline.bloomThreshold = 0.5;
+          pipeline.bloomWeight = 0.35;
+          pipeline.bloomKernel = 64;
+          pipeline.sharpenEnabled = true;
+          pipeline.sharpen.edgeAmount = 0.2;
+
+          // Glow layer for emissive objects
+          const glow = new BABYLON.GlowLayer('echoGlow', scene, { mainTextureFixedSize: 256, blurKernelSize: 32 });
+          glow.intensity = 0.65;
+        } catch { /* post-fx optional */ }
+
+        // ── SSAO for depth ──────────────────────────────────────────────────
+        try {
+          const ssao = new BABYLON.SSAO2RenderingPipeline('echo-ssao', scene, { ssaoRatio: 0.5, blurRatio: 1.0 });
+          ssao.radius = 1.5;
+          ssao.totalStrength = 0.8;
+          ssao.samples = 12;
+          ssao.maxZ = 60;
+          ssao.expensiveBlur = true;
+          scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('echo-ssao', camera);
+        } catch { /* SSAO graceful fallback */ }
 
         // DualSense controller
         dualSense = new DualSenseManager(scene, engine, setStatus);
