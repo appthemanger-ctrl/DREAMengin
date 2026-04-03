@@ -53,6 +53,8 @@ const RHYTHM_HITS = [0, 2, 3, 5, 6];
 export class MadmaxiAudioController {
   private theme = 'meadow pulse choir';
   private ctx: AudioContext | null = null;
+  private bgmGain: GainNode | null = null;
+  private bgmInterval: ReturnType<typeof setInterval> | null = null;
 
   // BGM state
   private bgmGain: GainNode | null = null;
