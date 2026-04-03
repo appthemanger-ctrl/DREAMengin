@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Search, Home, Compass, Settings, User, MessageSquare,
   TrendingUp, ShoppingBag, Music, Gamepad2, FlaskConical,
-  Code2, Palette, PenLine, Stars, ArrowRight, Zap,
+  Code2, Palette, PenLine, Stars, ArrowRight, Zap, Flame,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -129,6 +129,17 @@ export default function CommandPalette() {
       iconBg: 'rgba(167,139,250,0.12)',
       keywords: ['create', 'write', 'compose', 'post', 'content'],
       action: () => router.push('/daydream/create'),
+      category: 'Daydreams',
+    },
+    {
+      id: 'forge',
+      label: 'Forge Daydream',
+      description: 'Orchestrate all engines from one surface',
+      icon: Flame,
+      iconColor: '#ef4444',
+      iconBg: 'rgba(239,68,68,0.12)',
+      keywords: ['forge', 'meta', 'orchestrate', 'engines', 'status', 'matrix'],
+      action: () => router.push('/daydream/forge'),
       category: 'Daydreams',
     },
     {

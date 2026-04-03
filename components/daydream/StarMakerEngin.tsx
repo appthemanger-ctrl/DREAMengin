@@ -1919,7 +1919,7 @@ function DAWKeyPitchPanel({
               <select
                 value={keyMode}
                 onChange={event => {
-                  if (event.target.value !== keyMode) onModeToggle();
+                  if (event.target.value !== keyMode) onModeChange(event.target.value as 'major' | 'minor');
                 }}
                 aria-label="Scale mode"
                 style={pickerStyle}
