@@ -1,5 +1,6 @@
 import '@/styles/globals.css';
 import type { Metadata, Viewport } from 'next';
+import { Suspense } from 'react';
 import { Space_Grotesk, Cormorant_Garamond } from 'next/font/google';
 import ThemeProvider from '@/components/providers/ThemeProvider';
 import ThemeApplicator from '@/components/ThemeApplicator';
@@ -63,12 +64,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <ThemeProvider>
           <ThemeApplicator />
-          <GodTierProvider />
+          <Suspense><GodTierProvider /></Suspense>
           <WarpCanvas effect="flow" maxParticles={200} spawnRate={25} opacity={0.35} />
           <CustomizeModeProvider>
             <DreamSystemProvider>
               <main role="main" aria-label="Main content">{children}</main>
-              <GlobalDreamBar />
+              <Suspense><GlobalDreamBar /></Suspense>
               <GlobalCustomizeUI />
               <KonamiDream />
             </DreamSystemProvider>
