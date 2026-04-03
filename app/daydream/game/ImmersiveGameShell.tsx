@@ -69,6 +69,7 @@ const BOOT_KEYFRAMES = `
 `;
 
 const DEFAULT_HUD_BOTTOM = '175px';
+const MIN_STAGE_BOTTOM_CLEARANCE = '38dvh';
 const BASELINE_OVERLAY_OFFSET_PX = 14;
 
 export default function ImmersiveGameShell() {
@@ -197,7 +198,7 @@ export default function ImmersiveGameShell() {
       }}
     >
       {/* ── Game viewport — always mounted so assets begin loading immediately ── */}
-      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM})` }}>
+      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `max(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}), ${MIN_STAGE_BOTTOM_CLEARANCE})` }}>
         {game.component ? (
           <ActiveGameComponent />
         ) : (
@@ -226,7 +227,7 @@ export default function ImmersiveGameShell() {
           style={{
             position: 'absolute',
             left: BASELINE_OVERLAY_OFFSET_PX,
-            bottom: `calc(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}) + ${BASELINE_OVERLAY_OFFSET_PX}px)`,
+            bottom: `calc(max(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}), ${MIN_STAGE_BOTTOM_CLEARANCE}) + ${BASELINE_OVERLAY_OFFSET_PX}px)`,
             zIndex: 3,
             pointerEvents: 'none',
             background: 'rgba(2,6,23,0.78)',

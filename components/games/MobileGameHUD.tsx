@@ -21,6 +21,8 @@ const SCALE_MIN = 0.55;
 const SCALE_MAX = 1.45;
 const SCALE_STEP = 0.1;
 const TOUCH_FEEDBACK_DECAY_MS = 160;
+const HUD_CLEARANCE_BASE = 28;
+const DEFAULT_REMOTE_OFFSET_Y = 26;
 
 // Fraction of dock radius within which a touch claims the right joystick
 const RIGHT_JOY_ZONE = 0.40;
@@ -102,7 +104,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   const [pausePressed, setPausePressed] = useState(false);
   const [exitPressed, setExitPressed] = useState(false);
   const [remoteScale, setRemoteScale] = useState(() => loadPersisted('de:hud:scale', 1.0, SCALE_MIN, SCALE_MAX));
-  const [offsetY, setOffsetY] = useState(() => loadPersisted('de:hud:offsetY', -36, -80, 200));
+  const [offsetY, setOffsetY] = useState(() => loadPersisted('de:hud:offsetY', DEFAULT_REMOTE_OFFSET_Y, -40, 220));
   const [isTouching, setIsTouching] = useState(false);
 
   const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter((b) => b.interactive);
@@ -111,7 +113,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   useEffect(() => {
     const dockH = 170;
     const readoutH = 40;
-    const baseBottom = 18 + (dockH + readoutH) * remoteScale + offsetY;
+    const baseBottom = HUD_CLEARANCE_BASE + (dockH + readoutH) * remoteScale + Math.max(0, offsetY);
     const clamped = Math.max(0, Math.min(480, Math.round(baseBottom)));
     document.documentElement.style.setProperty('--de-hud-bottom', `${clamped}px`);
     return () => { document.documentElement.style.removeProperty('--de-hud-bottom'); };
@@ -346,7 +348,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   const handleDragMove = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     if (!dragStartRef.current) return;
     const dy = dragStartRef.current.y - event.clientY;
-    const next = Math.max(-80, Math.min(200, dragStartRef.current.baseOffsetY + dy));
+    const next = Math.max(-40, Math.min(220, dragStartRef.current.baseOffsetY + dy));
     setOffsetY(next);
     savePersisted('de:hud:offsetY', next);
   }, []);

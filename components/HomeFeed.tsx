@@ -17,6 +17,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
@@ -56,6 +57,7 @@ export default function HomeFeed({
   initialPosts,
   embedded = false,
 }: HomeFeedProps) {
+  const router = useRouter();
   const { posts, newCount, flushNew, isLive, replacePosts, prependPost, updatePost } =
     useLiveFeed(userId, initialPosts);
 
@@ -82,6 +84,7 @@ export default function HomeFeed({
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
   const [commentLoadingSet, setCommentLoadingSet] = useState<Set<string>>(new Set());
+  const postSwipeStartRef = useRef<Record<string, { x: number; y: number; at: number }>>({});
 
   const handleCommentFromBar = useCallback((post: FeedPost) => {
     setBarIntent({
@@ -90,6 +93,33 @@ export default function HomeFeed({
       targetLabel: post.profiles?.display_name || post.profiles?.handle || undefined,
     });
   }, [setBarIntent]);
+
+  const handlePostTouchStart = useCallback((postId: string, event: React.TouchEvent<HTMLElement>) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    postSwipeStartRef.current[postId] = { x: touch.clientX, y: touch.clientY, at: Date.now() };
+  }, []);
+
+  const handlePostTouchEnd = useCallback((post: FeedPost, event: React.TouchEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button,a,input,textarea,[role="button"]')) return;
+
+    const touch = event.changedTouches[0];
+    const start = postSwipeStartRef.current[post.id];
+    delete postSwipeStartRef.current[post.id];
+    if (!touch || !start || !post.profiles?.handle) return;
+
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    const elapsed = Date.now() - start.at;
+    const isHorizontalRev = elapsed < 500
+      && Math.abs(dx) >= 84
+      && Math.abs(dx) > Math.abs(dy) * 1.35;
+
+    if (isHorizontalRev) {
+      router.push(`/profile/${post.profiles.handle}`);
+    }
+  }, [router]);
 
   const loadComments = useCallback(async (postId: string) => {
     if (commentsMap[postId]) return; // already loaded
@@ -486,7 +516,9 @@ export default function HomeFeed({
               overflowY: 'auto',
               overscrollBehavior: 'contain',
               WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
               scrollbarWidth: 'thin',
+              scrollSnapType: isCompactEmbedded ? 'y proximity' : undefined,
               ...(embedded
                 ? { flex: 1, minHeight: 0 }
                 : { maxHeight: 'calc(100vh - 280px)' }),
@@ -504,9 +536,14 @@ export default function HomeFeed({
               <article
                 key={post.id}
                 className="bg-card hover:border-primary/20 transition-colors"
+                onTouchStart={(event) => handlePostTouchStart(post.id, event)}
+                onTouchEnd={(event) => handlePostTouchEnd(post, event)}
+                onTouchCancel={() => { delete postSwipeStartRef.current[post.id]; }}
                 style={{
                   borderBottom: postIdx < displayPosts.length - 1 ? '1px solid var(--de-border, rgba(180,185,200,0.15))' : 'none',
                   padding: '16px',
+                  touchAction: 'pan-y',
+                  scrollSnapAlign: isCompactEmbedded ? 'start' : undefined,
                 }}
               >
                 {/* Content type badge — always visible */}

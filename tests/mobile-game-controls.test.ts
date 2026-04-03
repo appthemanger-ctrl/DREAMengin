@@ -27,6 +27,13 @@ describe('shared mobile game controls', () => {
     expect(MOBILE_HUD_BUTTON_RING.find((button) => button.id === 'action')?.symbol).toBe('⭕️');
   });
 
+  it('maps jump to the X face button in the mobile HUD ring', () => {
+    const jumpButton = MOBILE_HUD_BUTTON_RING.find((button) => button.id === 'jump');
+
+    expect(jumpButton?.symbol).toBe('×');
+    expect(jumpButton?.slotClassName).toBe('slotX');
+  });
+
   it('wires the immersive shell to the shared mobile HUD modes for example games', () => {
     const shellSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
@@ -43,18 +50,22 @@ describe('shared mobile game controls', () => {
   it('keeps the immersive mobile HUD with right dock combining button ring and embedded joystick', () => {
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/MobileGameHUD.tsx'), 'utf8');
     const hudCss = readFileSync(join(REPO_ROOT, 'components/games/MobileGameHUD.module.css'), 'utf8');
+    const immersiveShellSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/ImmersiveGameShell.tsx'), 'utf8');
 
     expect(hudSrc).toContain('leftCapRef.current');
     expect(hudSrc).toContain('rightCapRef.current');
     expect(hudSrc).toContain('function getStickTransform(vector: MobileControlVector)');
+    expect(hudSrc).toContain("loadPersisted('de:hud:offsetY', DEFAULT_REMOTE_OFFSET_Y");
     // Left dock is smaller; right dock is larger to fit button ring + joystick
     expect(hudCss).toContain('--dock-size: clamp(102px, 27vw, 136px);');
     expect(hudCss).toContain('--dock-size: clamp(180px, 46vw, 252px);');
+    expect(hudCss).toContain("bottom: calc(env(safe-area-inset-bottom, 0px) + 26px);");
     // Right dock has both button ring slots and embedded joystick cap
     expect(hudCss).toContain('buttonCluster');
     expect(hudCss).toContain('rightJoyCap');
     expect(hudCss).toContain('will-change: transform;');
     expect(hudCss).toContain('transition: none;');
+    expect(immersiveShellSrc).toContain('max(var(--de-hud-bottom');
   });
 
   it('keeps fullscreen game sessions able to hide the messaging bar behind a tiny reopen pill', () => {
