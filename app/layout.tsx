@@ -12,6 +12,7 @@ import GlobalCustomizeUI from '@/components/customize/GlobalCustomizeUI';
 import WarpCanvas from '@/components/warp/WarpCanvas';
 import GodTierProvider from '@/components/providers/GodTierProvider';
 import KonamiDream from '@/components/KonamiDream';
+import CommandPalette from '@/components/CommandPalette';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Suspense><GlobalDreamBar /></Suspense>
               <GlobalCustomizeUI />
               <KonamiDream />
+              <Suspense><CommandPalette /></Suspense>
             </DreamSystemProvider>
           </CustomizeModeProvider>
 

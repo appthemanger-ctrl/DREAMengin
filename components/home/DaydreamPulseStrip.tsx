@@ -90,6 +90,15 @@ const DAYDREAMS = [
     glow: 'rgba(99,102,241,0.45)',
     delay: '2.10s',
   },
+  {
+    id: 'forge',
+    emoji: '🔥',
+    label: 'Forge',
+    href: '/daydream/forge',
+    color: '#ef4444',
+    glow: 'rgba(239,68,68,0.45)',
+    delay: '2.45s',
+  },
 ] as const;
 
 // ── Framer-motion entrance variants ───────────────────────────────────────────
@@ -272,7 +281,7 @@ export default function DaydreamPulseStrip({ onOpenDaydream }: DaydreamPulseStri
                 marginTop: 1,
               }}
             >
-              6 live daydreams + analytics
+              6 daydreams + analytics + forge
             </div>
           </div>
 
