@@ -41,7 +41,6 @@ export class MadmaxiAudioController {
   private theme = 'meadow pulse choir';
   private ctx: AudioContext | null = null;
   private bgmGain: GainNode | null = null;
-  private bgmOscillators: OscillatorNode[] = [];
   private bgmInterval: ReturnType<typeof setInterval> | null = null;
 
   setTheme(theme: string | undefined) {
@@ -134,8 +133,6 @@ export class MadmaxiAudioController {
         this.bgmGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
       } catch { /* ignore */ }
     }
-    this.bgmOscillators.forEach((o) => { try { o.stop(); } catch { /* already stopped */ } });
-    this.bgmOscillators = [];
     this.bgmGain = null;
   }
 

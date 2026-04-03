@@ -464,13 +464,18 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
         <div
           className={styles.dragHandle}
           onPointerDown={(e) => {
-            if (!sizeControlVisible) setSizeControlVisible(true);
-            handleDragStart(e);
+            dragStartRef.current = { y: e.clientY, baseOffsetY: offsetY };
+            (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+            markTouchStart();
           }}
           onPointerMove={handleDragMove}
           onPointerUp={(e) => {
-            handleDragEnd();
-            // If pointer didn't move meaningfully, treat as tap toggle
+            const start = dragStartRef.current;
+            const moved = start ? Math.abs(e.clientY - start.y) : 0;
+            dragStartRef.current = null;
+            markTouchEnd();
+            // If pointer barely moved, treat as a tap → toggle size control
+            if (moved < 6) setSizeControlVisible((v) => !v);
           }}
           onPointerCancel={handleDragEnd}
           title="Drag to reposition · Tap to show/hide size controls"
