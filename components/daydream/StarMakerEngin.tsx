@@ -1764,6 +1764,17 @@ function DAWKeyPitchPanel({
   onChangeBpm, onBpmInput, onKeyChange, onModeToggle, onPitchChange,
 }: DAWKeyPitchPanelProps) {
   const pitchColor = pitch === 0 ? DAW.dim : pitch > 0 ? DAW.green : DAW.red;
+  const pickerStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '10px 12px',
+    borderRadius: 9,
+    border: `1px solid ${DAW.border}`,
+    background: '#0f1117',
+    color: DAW.text,
+    cursor: 'pointer',
+    fontSize: 13,
+    fontWeight: 700,
+  };
   return (
     <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
       <div style={{ ...DAW_STYLES.sectionHeader }}>
@@ -1803,29 +1814,42 @@ function DAWKeyPitchPanel({
 
         {/* Key */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>KEY</span>
-            <button type="button" onClick={onModeToggle}
-              style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 99, border: `1.5px solid ${DAW.accent}35`, background: `${DAW.accent}15`, color: DAW.accent, cursor: 'pointer' }}>
-              {keyMode === 'major' ? 'Major' : 'Minor'}
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7, gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>KEY / SCALE PICKER</span>
+            <span style={{ ...dawPill(DAW.accent), fontSize: 10 }}>
+              {musicalKey} {keyMode}
+            </span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 4 }}>
-            {MUSICAL_KEYS.map(k => {
-              const sel = musicalKey === k;
-              return (
-                <button key={k} type="button" onClick={() => onKeyChange(k)} aria-pressed={sel}
-                  style={{
-                    padding: '6px 2px', borderRadius: 7, textAlign: 'center',
-                    border: sel ? `1.5px solid ${DAW.accent}` : `1px solid ${DAW.border}`,
-                    background: sel ? `${DAW.accent}20` : DAW.surfaceHi,
-                    cursor: 'pointer', fontSize: 11, fontWeight: 700,
-                    color: sel ? DAW.accent : DAW.dim, transition: 'all 0.12s',
-                  }}>
-                  {k}
-                </button>
-              );
-            })}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 8 }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>ROOT NOTE</span>
+              <select
+                value={musicalKey}
+                onChange={event => onKeyChange(event.target.value as MusicalKey)}
+                aria-label="Musical key"
+                style={pickerStyle}
+              >
+                {MUSICAL_KEYS.map(keyOption => (
+                  <option key={keyOption} value={keyOption}>
+                    {keyOption}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em' }}>SCALE</span>
+              <select
+                value={keyMode}
+                onChange={event => {
+                  if (event.target.value !== keyMode) onModeToggle();
+                }}
+                aria-label="Scale mode"
+                style={pickerStyle}
+              >
+                <option value="major">Major</option>
+                <option value="minor">Minor</option>
+              </select>
+            </label>
           </div>
         </div>
 
