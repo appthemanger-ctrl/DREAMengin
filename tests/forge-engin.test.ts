@@ -21,6 +21,7 @@ vi.stubGlobal('window', { localStorage: localStorageMock });
 import {
   ENGIN_REGISTRY,
   CREATIVE_ENGINES,
+  FORGE_WORKFLOWS,
   recordForgeActivity,
   readForgeActivity,
   getForgeHeat,
@@ -218,6 +219,391 @@ describe('ForgeEngin integration wiring', () => {
   it('all engine accents are valid hex colors', () => {
     for (const engine of ENGIN_REGISTRY) {
       expect(engine.accent).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+});
+
+// ── FORGE_WORKFLOWS tests ─────────────────────────────────────────────────────
+
+describe('FORGE_WORKFLOWS', () => {
+  it('has at least 3 workflows', () => {
+    expect(FORGE_WORKFLOWS.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('every workflow has unique id', () => {
+    const ids = FORGE_WORKFLOWS.map(w => w.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('every workflow references valid engine ids', () => {
+    const validIds = new Set(ENGIN_REGISTRY.map(e => e.id));
+    for (const wf of FORGE_WORKFLOWS) {
+      for (const eid of wf.engines) {
+        expect(validIds.has(eid)).toBe(true);
+      }
+    }
+  });
+
+  it('every workflow has at least one step', () => {
+    for (const wf of FORGE_WORKFLOWS) {
+      expect(wf.steps.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('every workflow has a valid accent hex colour', () => {
+    for (const wf of FORGE_WORKFLOWS) {
+      expect(wf.accent).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+
+  it('every workflow engines list is non-empty', () => {
+    for (const wf of FORGE_WORKFLOWS) {
+      expect(wf.engines.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+// ── useForgeActivity hook unit test (non-React) ───────────────────────────────
+
+describe('useForgeActivity integration', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('recordForgeActivity from multiple engines produces combined timeline', () => {
+    recordForgeActivity('games', 'Launched MADMAXI');
+    recordForgeActivity('music', 'Published release');
+    recordForgeActivity('code', 'Ran CI');
+    const timeline = readForgeActivity();
+    expect(timeline).toHaveLength(3);
+    const ids = timeline.map(p => p.enginId);
+    expect(ids).toContain('games');
+    expect(ids).toContain('music');
+    expect(ids).toContain('code');
+  });
+
+  it('each engine pulse has a label matching the recorded action', () => {
+    recordForgeActivity('lab', 'Ran simulation');
+    const pulse = readForgeActivity().find(p => p.enginId === 'lab');
+    expect(pulse).toBeDefined();
+    expect(pulse!.label).toBe('Ran simulation');
+  });
+});
+
+// ── Forge Intelligence Tests ──────────────────────────────────────────────────
+
+import {
+  appendForgeHistory,
+  readForgeHistory,
+  clearForgeHistory,
+  predictNextEngines,
+  generateSuggestions,
+  parseGoalToWorkflow,
+  recordForgeTransfer,
+  readForgeTransfers,
+  clearForgeTransfers,
+  saveCustomWorkflow,
+  readCustomWorkflows,
+  deleteCustomWorkflow,
+  clearCustomWorkflows,
+  startWorkflowRun,
+  updateWorkflowStep,
+  getActiveWorkflowRun,
+  clearWorkflowRun,
+  getFailureRecovery,
+  type ForgeHistoryEntry,
+} from '@/lib/forge/forgeIntelligence';
+
+describe('Forge History', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('appendForgeHistory stores entries', () => {
+    appendForgeHistory('games', 'Played');
+    appendForgeHistory('music', 'Mixed');
+    const h = readForgeHistory();
+    expect(h).toHaveLength(2);
+    expect(h[0].enginId).toBe('games');
+    expect(h[1].enginId).toBe('music');
+  });
+
+  it('readForgeHistory returns empty array when no data', () => {
+    expect(readForgeHistory()).toEqual([]);
+  });
+
+  it('clearForgeHistory removes all entries', () => {
+    appendForgeHistory('code', 'Coded');
+    clearForgeHistory();
+    expect(readForgeHistory()).toEqual([]);
+  });
+
+  it('recordForgeActivity also feeds history', () => {
+    recordForgeActivity('brand', 'Built logo');
+    const h = readForgeHistory();
+    expect(h.length).toBeGreaterThan(0);
+    expect(h[h.length - 1].enginId).toBe('brand');
+  });
+
+  it('preserves full history (not just last per engine)', () => {
+    appendForgeHistory('games', 'Action 1');
+    appendForgeHistory('games', 'Action 2');
+    appendForgeHistory('games', 'Action 3');
+    const h = readForgeHistory();
+    expect(h).toHaveLength(3);
+    expect(h[0].label).toBe('Action 1');
+    expect(h[2].label).toBe('Action 3');
+  });
+});
+
+describe('Pattern Prediction', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('predictNextEngines returns empty for empty history', () => {
+    expect(predictNextEngines('games', [])).toEqual([]);
+  });
+
+  it('predictNextEngines detects A→B patterns', () => {
+    const history: ForgeHistoryEntry[] = [
+      { enginId: 'music', label: 'Mix', timestamp: new Date().toISOString() },
+      { enginId: 'create', label: 'Post', timestamp: new Date().toISOString() },
+      { enginId: 'music', label: 'Mix2', timestamp: new Date().toISOString() },
+      { enginId: 'create', label: 'Post2', timestamp: new Date().toISOString() },
+    ];
+    const predicted = predictNextEngines('music', history);
+    expect(predicted.length).toBeGreaterThan(0);
+    expect(predicted[0].engine.id).toBe('create');
+    expect(predicted[0].confidence).toBe(1); // 100% music→create
+  });
+
+  it('predictNextEngines ranks by frequency', () => {
+    const history: ForgeHistoryEntry[] = [
+      { enginId: 'code', label: 'A', timestamp: '' },
+      { enginId: 'games', label: 'B', timestamp: '' },
+      { enginId: 'code', label: 'C', timestamp: '' },
+      { enginId: 'games', label: 'D', timestamp: '' },
+      { enginId: 'code', label: 'E', timestamp: '' },
+      { enginId: 'lab', label: 'F', timestamp: '' },
+    ];
+    const predicted = predictNextEngines('code', history);
+    expect(predicted[0].engine.id).toBe('games');
+    expect(predicted[0].confidence).toBeGreaterThan(0.5);
+  });
+});
+
+describe('Contextual Suggestions', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('returns empty for null action', () => {
+    expect(generateSuggestions(null)).toEqual([]);
+  });
+
+  it('suggests workflows matching current engine', () => {
+    const suggestions = generateSuggestions({ enginId: 'music', label: 'Mixed a track' });
+    expect(suggestions.length).toBeGreaterThan(0);
+  });
+
+  it('suggests content creation after publish action', () => {
+    const suggestions = generateSuggestions({ enginId: 'music', label: 'Published release' });
+    const contentSuggestion = suggestions.find(s => s.title === 'Create a post about it');
+    expect(contentSuggestion).toBeDefined();
+  });
+
+  it('suggests GameEngin for audio-related actions', () => {
+    const suggestions = generateSuggestions({ enginId: 'music', label: 'Created a beat' });
+    const gameSug = suggestions.find(s => s.title === 'Wire into GameEngin');
+    expect(gameSug).toBeDefined();
+  });
+});
+
+describe('Goal → Workflow Parser', () => {
+  it('returns null for empty string', () => {
+    expect(parseGoalToWorkflow('')).toBeNull();
+    expect(parseGoalToWorkflow('   ')).toBeNull();
+  });
+
+  it('returns null when no engines match', () => {
+    expect(parseGoalToWorkflow('do something random xyz')).toBeNull();
+  });
+
+  it('parses "make a game with music" into games + music', () => {
+    const wf = parseGoalToWorkflow('make a game with music');
+    expect(wf).not.toBeNull();
+    expect(wf!.engines).toContain('games');
+    expect(wf!.engines).toContain('music');
+  });
+
+  it('adds content engine when "publish" is mentioned', () => {
+    const wf = parseGoalToWorkflow('build a game and publish it');
+    expect(wf).not.toBeNull();
+    expect(wf!.engines).toContain('create');
+  });
+
+  it('generates steps for each engine', () => {
+    const wf = parseGoalToWorkflow('experiment with data and code it');
+    expect(wf).not.toBeNull();
+    expect(wf!.steps.length).toBe(wf!.engines.length);
+  });
+
+  it('uses primary engine accent and emoji', () => {
+    const wf = parseGoalToWorkflow('produce music');
+    expect(wf).not.toBeNull();
+    expect(wf!.emoji).toBe('🎵');
+    expect(wf!.accent).toBe('#a855f7');
+  });
+
+  it('truncates long goals', () => {
+    const longGoal = 'I want to create a game that has amazing music and publish it with a brand campaign and analytics';
+    const wf = parseGoalToWorkflow(longGoal);
+    expect(wf).not.toBeNull();
+    expect(wf!.title.length).toBeLessThanOrEqual(50);
+  });
+});
+
+describe('Cross-Engine Transfers', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('recordForgeTransfer stores a transfer', () => {
+    recordForgeTransfer('music', 'create', 'stem', 'Exported drums stem');
+    const transfers = readForgeTransfers();
+    expect(transfers).toHaveLength(1);
+    expect(transfers[0].fromEnginId).toBe('music');
+    expect(transfers[0].toEnginId).toBe('create');
+  });
+
+  it('stores multiple transfers', () => {
+    recordForgeTransfer('music', 'games', 'audio', 'BGM track');
+    recordForgeTransfer('code', 'games', 'script', 'AI logic');
+    expect(readForgeTransfers()).toHaveLength(2);
+  });
+
+  it('clearForgeTransfers removes all', () => {
+    recordForgeTransfer('lab', 'code', 'data', 'Dataset');
+    clearForgeTransfers();
+    expect(readForgeTransfers()).toEqual([]);
+  });
+
+  it('transfer entry has correct structure', () => {
+    const entry = recordForgeTransfer('brand', 'create', 'logo', 'Brand logo', { format: 'svg' });
+    expect(entry.id).toMatch(/^xfer-/);
+    expect(entry.status).toBe('complete');
+    expect(entry.metadata).toEqual({ format: 'svg' });
+  });
+});
+
+describe('Custom Workflows', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('saveCustomWorkflow stores a workflow', () => {
+    const wf: import('@/lib/forge/forgeRegistry').ForgeWorkflow = {
+      id: 'test-1', title: 'Test', emoji: '⚡', accent: '#ef4444',
+      desc: 'test', engines: ['music', 'games'], steps: ['Step A', 'Step B'],
+    };
+    saveCustomWorkflow(wf);
+    const customs = readCustomWorkflows();
+    expect(customs).toHaveLength(1);
+    expect(customs[0].id).toBe('test-1');
+  });
+
+  it('deleteCustomWorkflow removes by id', () => {
+    const wf: import('@/lib/forge/forgeRegistry').ForgeWorkflow = {
+      id: 'del-me', title: 'Del', emoji: '⚡', accent: '#ef4444',
+      desc: 'test', engines: ['code'], steps: ['Step'],
+    };
+    saveCustomWorkflow(wf);
+    deleteCustomWorkflow('del-me');
+    expect(readCustomWorkflows()).toHaveLength(0);
+  });
+
+  it('clearCustomWorkflows removes all', () => {
+    saveCustomWorkflow({
+      id: 'a', title: 'A', emoji: '⚡', accent: '#ef4444',
+      desc: 'test', engines: ['lab'], steps: ['S'],
+    });
+    clearCustomWorkflows();
+    expect(readCustomWorkflows()).toEqual([]);
+  });
+
+  it('replaces workflow with same id', () => {
+    saveCustomWorkflow({
+      id: 'same', title: 'V1', emoji: '⚡', accent: '#ef4444',
+      desc: 'v1', engines: ['lab'], steps: ['S1'],
+    });
+    saveCustomWorkflow({
+      id: 'same', title: 'V2', emoji: '⚡', accent: '#ef4444',
+      desc: 'v2', engines: ['lab', 'code'], steps: ['S1', 'S2'],
+    });
+    const customs = readCustomWorkflows();
+    expect(customs).toHaveLength(1);
+    expect(customs[0].title).toBe('V2');
+  });
+});
+
+describe('Workflow Run Tracking', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('startWorkflowRun creates a run with pending steps', () => {
+    const run = startWorkflowRun('music-video', 3);
+    expect(run.workflowId).toBe('music-video');
+    expect(run.status).toBe('running');
+    expect(run.steps).toHaveLength(3);
+    expect(run.steps[0].status).toBe('active');
+    expect(run.steps[1].status).toBe('pending');
+  });
+
+  it('updateWorkflowStep completes a step and activates next', () => {
+    startWorkflowRun('test-wf', 3);
+    const run = updateWorkflowStep(0, 'complete');
+    expect(run).not.toBeNull();
+    expect(run!.steps[0].status).toBe('complete');
+    expect(run!.steps[1].status).toBe('active');
+  });
+
+  it('completing all steps marks run as complete', () => {
+    startWorkflowRun('test-wf', 2);
+    updateWorkflowStep(0, 'complete');
+    const run = updateWorkflowStep(1, 'complete');
+    expect(run!.status).toBe('complete');
+  });
+
+  it('failing a step marks run as failed when all done', () => {
+    startWorkflowRun('test-wf', 2);
+    updateWorkflowStep(0, 'complete');
+    const run = updateWorkflowStep(1, 'failed', 'Export error');
+    expect(run!.status).toBe('failed');
+    expect(run!.steps[1].failureReason).toBe('Export error');
+  });
+
+  it('getActiveWorkflowRun returns the run', () => {
+    startWorkflowRun('abc', 2);
+    const run = getActiveWorkflowRun();
+    expect(run).not.toBeNull();
+    expect(run!.workflowId).toBe('abc');
+  });
+
+  it('clearWorkflowRun removes the run', () => {
+    startWorkflowRun('abc', 2);
+    clearWorkflowRun();
+    expect(getActiveWorkflowRun()).toBeNull();
+  });
+});
+
+describe('Failure Recovery', () => {
+  it('suggests retry and skip for failed step', () => {
+    const failedStep = {
+      workflowId: 'music-video',
+      stepIndex: 0,
+      status: 'failed' as const,
+      failureReason: 'Export failed',
+    };
+    const workflow = FORGE_WORKFLOWS.find(w => w.id === 'music-video')!;
+    const recovery = getFailureRecovery(failedStep, workflow);
+    expect(recovery.length).toBeGreaterThan(0);
+    // Should have retry suggestion
+    const retry = recovery.find(s => s.title.includes('Retry'));
+    expect(retry).toBeDefined();
+    // Should have skip suggestion (if not last step)
+    if (workflow.steps.length > 1) {
+      const skip = recovery.find(s => s.title.includes('Skip'));
+      expect(skip).toBeDefined();
     }
   });
 });

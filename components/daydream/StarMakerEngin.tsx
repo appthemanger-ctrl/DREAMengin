@@ -55,6 +55,7 @@ import {
   type ProjectTemplate,
 } from '@/lib/music/presets';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import MultitrackArrangementPanel from '@/components/daydream/starmaker/MultitrackArrangementPanel';
 import Link from 'next/link';
 import {
@@ -229,6 +230,7 @@ const bpmBtnStyle: React.CSSProperties = {
 // ─── Root component ────────────────────────────────────────────────────────────
 
 export default function StarMakerEngin({ onBack }: Props) {
+  const { record: forgeRecord } = useForgeActivity({ enginId: 'music' });
 
   // ── Daydream state persistence (Phase 8 §F Point 51) ──
   const { persistState } = useDaydreamState({ daydreamType: 'music', side: 'B' });
@@ -319,6 +321,7 @@ export default function StarMakerEngin({ onBack }: Props) {
   // ── Supabase: publish draft ──
   async function handlePublish(releaseId: string) {
     setPublishing(releaseId);
+    forgeRecord('Published release');
     const supabase = createClient();
     const { error } = await supabase
       .from('music_releases')

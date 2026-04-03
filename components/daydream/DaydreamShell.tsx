@@ -10,6 +10,7 @@ import { logJourneyDot, hasJourneyDot } from '@/lib/journey/journeyDots';
 import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useGsapFlip } from '@/lib/gsap/useGsapFlip';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { useSearchParams } from 'next/navigation';
 
 export type DaydreamWidget = {
@@ -64,9 +65,18 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
     side,
   });
 
+  // Record Forge activity pulse when entering this Daydream surface
+  const resolvedEnginId = daydreamType ?? title.split(' ')[0].toLowerCase();
+  const { record: recordForge } = useForgeActivity({ enginId: resolvedEnginId });
+
   const flip = useCallback(() => {
-    gsapFlip(() => setSide(s => s === 'A' ? 'B' : 'A'));
-  }, [gsapFlip]);
+    gsapFlip(() => setSide(s => {
+      const next = s === 'A' ? 'B' : 'A';
+      // Record forge pulse on Side B (Engin) activation
+      if (next === 'B') recordForge(`Activated ${enginName}`);
+      return next;
+    }));
+  }, [gsapFlip, recordForge, enginName]);
 
   // Alt + F = flip (keyboard shortcut)
   useEffect(() => {

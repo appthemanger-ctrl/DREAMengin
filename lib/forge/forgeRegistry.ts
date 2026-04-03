@@ -130,6 +130,7 @@ const FORGE_STORAGE_KEY = 'de:forge:activity';
 /**
  * Record an activity pulse for a given engin.
  * Persists to localStorage so the forge dashboard survives page reload.
+ * Also appends to the intelligence history log for pattern detection.
  */
 export function recordForgeActivity(enginId: string, label: string): void {
   if (typeof window === 'undefined') return;
@@ -143,8 +144,33 @@ export function recordForgeActivity(enginId: string, label: string): void {
       label,
     };
     localStorage.setItem(FORGE_STORAGE_KEY, JSON.stringify(data));
+    // Also feed the history log for intelligence pattern detection
+    appendToHistory(enginId, label);
   } catch {
     // localStorage unavailable — silent
+  }
+}
+
+/**
+ * Storage key for forge activity history — shared with forgeIntelligence.ts.
+ * Both files write to this key; this is the single source-of-truth constant.
+ */
+export const FORGE_HISTORY_KEY = 'de:forge:history';
+
+/**
+ * Internal: append to the history log inline (avoids circular import with forgeIntelligence).
+ */
+const MAX_HISTORY = 100;
+
+function appendToHistory(enginId: string, label: string): void {
+  try {
+    const raw = localStorage.getItem(FORGE_HISTORY_KEY);
+    const history: Array<{ enginId: string; label: string; timestamp: string }> = raw ? JSON.parse(raw) : [];
+    history.push({ enginId, label, timestamp: new Date().toISOString() });
+    if (history.length > MAX_HISTORY) history.splice(0, history.length - MAX_HISTORY);
+    localStorage.setItem(FORGE_HISTORY_KEY, JSON.stringify(history));
+  } catch {
+    // silent
   }
 }
 
@@ -187,3 +213,92 @@ export function formatRelativeTime(isoStr: string): string {
   if (elapsed < 86400_000) return `${Math.floor(elapsed / 3600_000)}h ago`;
   return `${Math.floor(elapsed / 86400_000)}d ago`;
 }
+
+// ── Cross-Engine Workflows ────────────────────────────────────────────────────
+
+export interface ForgeWorkflow {
+  /** Unique workflow id */
+  id: string;
+  /** Display title */
+  title: string;
+  /** Emoji icon */
+  emoji: string;
+  /** Accent colour */
+  accent: string;
+  /** Short description */
+  desc: string;
+  /** Ordered engine ids used in this workflow */
+  engines: readonly string[];
+  /** Steps the user walks through */
+  steps: readonly string[];
+}
+
+/**
+ * Pre-built cross-engine workflow templates.  Each describes a multi-engine
+ * creative pipeline the user can launch from the Forge dashboard.
+ */
+export const FORGE_WORKFLOWS: readonly ForgeWorkflow[] = [
+  {
+    id: 'music-video',
+    title: 'Music Video Pipeline',
+    emoji: '🎬',
+    accent: '#a855f7',
+    desc: 'Record a track, build visual content, publish everywhere.',
+    engines: ['music', 'create', 'brand'],
+    steps: [
+      'Open StarMakerEngin → compose & mix a track',
+      'Open ContentEngin → draft a video post with the stem',
+      'Open BrandingEngin → apply brand kit to thumbnails',
+    ],
+  },
+  {
+    id: 'game-soundtrack',
+    title: 'Game Soundtrack Flow',
+    emoji: '🎮',
+    accent: '#c8981a',
+    desc: 'Produce beats, wire them into a game world.',
+    engines: ['music', 'games'],
+    steps: [
+      'Open StarMakerEngin → create a beat or SFX patch',
+      'Open GameEngin → attach audio to a scene or event',
+    ],
+  },
+  {
+    id: 'data-story',
+    title: 'Data Story',
+    emoji: '📊',
+    accent: '#10b981',
+    desc: 'Run an experiment, analyse with code, publish the narrative.',
+    engines: ['lab', 'code', 'create'],
+    steps: [
+      'Open LabEngin → run a simulation & export data',
+      'Open CodeEngin → write an analysis notebook',
+      'Open ContentEngin → publish the write-up',
+    ],
+  },
+  {
+    id: 'brand-campaign',
+    title: 'Brand Campaign',
+    emoji: '📣',
+    accent: '#f472b6',
+    desc: 'Build brand identity, craft content, schedule the launch.',
+    engines: ['brand', 'create'],
+    steps: [
+      'Open BrandingEngin → set palette, logo, voice',
+      'Open ContentEngin → write posts & schedule queue',
+    ],
+  },
+  {
+    id: 'full-stack-game',
+    title: 'Full-Stack Game Dev',
+    emoji: '🚀',
+    accent: '#22d3ee',
+    desc: 'Code the logic, build the world, playtest & share.',
+    engines: ['code', 'games', 'create'],
+    steps: [
+      'Open CodeEngin → write game scripts & AI logic',
+      'Open GameEngin → world-build & playtest',
+      'Open ContentEngin → create a launch post',
+    ],
+  },
+] as const;
