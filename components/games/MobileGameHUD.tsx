@@ -26,6 +26,8 @@ const DEFAULT_REMOTE_OFFSET_Y = 26;
 
 // Fraction of dock radius within which a touch claims the right joystick
 const RIGHT_JOY_ZONE = 0.40;
+// Fraction of dock width used as the joystick travel radius (how far stick can move)
+const JOYSTICK_TRAVEL_RATIO = 0.45;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -51,7 +53,7 @@ const ZERO_VECTOR: MobileControlVector = { x: 0, y: 0 };
 type TouchPoint = { clientX: number; clientY: number };
 
 function getStickTransform(vector: MobileControlVector) {
-  return `translate(calc(-50% + ${vector.x * 34}%), calc(-50% + ${vector.y * 34}%))`;
+  return `translate(calc(-50% + ${vector.x * 50}%), calc(-50% + ${vector.y * 50}%))`;
 }
 
 function keepPreviousVectorIfUnchanged(
@@ -106,7 +108,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   const [remoteScale, setRemoteScale] = useState(() => loadPersisted('de:hud:scale', 1.0, SCALE_MIN, SCALE_MAX));
   const [offsetY, setOffsetY] = useState(() => loadPersisted('de:hud:offsetY', DEFAULT_REMOTE_OFFSET_Y, -40, 220));
   const [isTouching, setIsTouching] = useState(false);
-  const [sizeControlVisible, setSizeControlVisible] = useState(false);
+  const [sizeControlHidden, setSizeControlHidden] = useState(false);
 
   const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter((b) => b.interactive);
 
@@ -178,7 +180,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
   ) => {
     if (!dock) return;
     const rect = dock.getBoundingClientRect();
-    const radius = rect.width * 0.45;
+    const radius = rect.width * JOYSTICK_TRAVEL_RATIO;
     setVector(normalizeStickVector(
       touch.clientX - (rect.left + rect.width / 2),
       touch.clientY - (rect.top + rect.height / 2),
@@ -435,30 +437,54 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
           </button>
         </div>
 
-        {/* +/- size control — toggled by drag handle */}
-        <div className={clsx(styles.sizeControl, sizeControlVisible ? styles.sizeControlVisible : styles.sizeControlHidden)}>
+        {/* +/- size control — dismissable */}
+        {!sizeControlHidden ? (
+          <div className={styles.sizeControl}>
+            <button
+              type="button"
+              className={styles.sizeBtn}
+              onPointerDown={() => { adjustScale(-SCALE_STEP); markTouchStart(); }}
+              onPointerUp={markTouchEnd}
+              onPointerCancel={markTouchEnd}
+              aria-label="Shrink remote"
+            >
+              −
+            </button>
+            <span className={styles.sizeLabel}>{Math.round(remoteScale * 100)}%</span>
+            <button
+              type="button"
+              className={styles.sizeBtn}
+              onPointerDown={() => { adjustScale(+SCALE_STEP); markTouchStart(); }}
+              onPointerUp={markTouchEnd}
+              onPointerCancel={markTouchEnd}
+              aria-label="Grow remote"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className={styles.sizeBtn}
+              onPointerDown={() => { setSizeControlHidden(true); markTouchStart(); }}
+              onPointerUp={markTouchEnd}
+              onPointerCancel={markTouchEnd}
+              aria-label="Hide size control"
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
           <button
             type="button"
             className={styles.sizeBtn}
-            onPointerDown={() => { adjustScale(-SCALE_STEP); markTouchStart(); }}
+            onPointerDown={() => { setSizeControlHidden(false); markTouchStart(); }}
             onPointerUp={markTouchEnd}
             onPointerCancel={markTouchEnd}
-            aria-label="Shrink remote"
+            aria-label="Show size control"
+            style={{ opacity: 0.4, fontSize: 8 }}
           >
-            −
+            ⊕
           </button>
-          <span className={styles.sizeLabel}>{Math.round(remoteScale * 100)}%</span>
-          <button
-            type="button"
-            className={styles.sizeBtn}
-            onPointerDown={() => { adjustScale(+SCALE_STEP); markTouchStart(); }}
-            onPointerUp={markTouchEnd}
-            onPointerCancel={markTouchEnd}
-            aria-label="Grow remote"
-          >
-            +
-          </button>
-        </div>
+        )}
 
         {/* Drag handle for repositioning — tap toggles size control */}
         <div

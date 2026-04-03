@@ -98,6 +98,8 @@ const SNAP_DOWN_PX = 88;
 const EXPAND_THRESHOLD = 80;
 /** Spring animation string */
 const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
+/** Minimum pointer movement (px) to switch from tap to drag on minimized orb */
+const ORB_DRAG_SLOP = 6;
 
 function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
   if (url) {
@@ -236,10 +238,11 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // ── Minimized / collapsed state ───────────────────────────────────────────
   /**
    * When minimized, the bar disappears and a gold glowing orb appears.
-   * The orb can be dragged anywhere on the screen. Tapping it restores
-   * the full bar at the bottom.
+   * Tap the orb to restore the bar. Drag it to reposition out of the way.
    */
   const [isMinimized, setIsMinimized] = useState(false);
+  const [minOrbPos, setMinOrbPos] = useState<{ x: number; y: number } | null>(null);
+  const minOrbDragRef = useRef<{ active: boolean; startX: number; startY: number; startPosX: number; startPosY: number; moved: boolean } | null>(null);
 
   useEffect(() => {
     onMinimizedChange?.(isMinimized);
@@ -999,20 +1002,52 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   // ── Minimized state: draggable gold orb ───────────────────────────────────
   if (isMinimized) {
+    const orbX = minOrbPos?.x ?? undefined;
+    const orbY = minOrbPos?.y ?? undefined;
+    const posStyle: React.CSSProperties = orbX !== undefined && orbY !== undefined
+      ? { left: orbX, top: orbY, right: undefined, bottom: undefined }
+      : { right: 20, bottom: 20 };
     return (
       <button
         type="button"
-        aria-label="DreamDM Bar — tap to restore, drag to move"
-        onPointerDown={handleOrbPointerDown}
-        onPointerMove={handleOrbPointerMove}
-        onPointerUp={handleOrbPointerUp}
-        onPointerCancel={() => { orbDragRef.current.active = false; }}
+        aria-label="DreamDM Bar — tap to restore, drag to reposition"
+        onPointerDown={(e) => {
+          e.preventDefault();
+          (e.currentTarget as HTMLButtonElement).setPointerCapture(e.pointerId);
+          const rect = e.currentTarget.getBoundingClientRect();
+          const curX = rect.left;
+          const curY = rect.top;
+          minOrbDragRef.current = { active: true, startX: e.clientX, startY: e.clientY, startPosX: curX, startPosY: curY, moved: false };
+        }}
+        onPointerMove={(e) => {
+          const drag = minOrbDragRef.current;
+          if (!drag?.active) return;
+          const dx = e.clientX - drag.startX;
+          const dy = e.clientY - drag.startY;
+          if (Math.abs(dx) > ORB_DRAG_SLOP || Math.abs(dy) > ORB_DRAG_SLOP) drag.moved = true;
+          if (drag.moved) {
+            const nx = Math.max(0, Math.min(window.innerWidth - 48, drag.startPosX + dx));
+            const ny = Math.max(0, Math.min(window.innerHeight - 48, drag.startPosY + dy));
+            setMinOrbPos({ x: nx, y: ny });
+          }
+        }}
+        onPointerUp={() => {
+          const drag = minOrbDragRef.current;
+          if (!drag?.active) return;
+          const wasDragged = drag.moved;
+          minOrbDragRef.current = null;
+          if (!wasDragged) {
+            setIsMinimized(false);
+            setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
+            revealBar();
+          }
+        }}
+        onPointerCancel={() => { minOrbDragRef.current = null; }}
         style={{
           position: 'fixed',
-          bottom: orbPos.y,
-          right: orbPos.x,
-          width: ORB_SIZE,
-          height: ORB_SIZE,
+          ...posStyle,
+          width: 48,
+          height: 48,
           borderRadius: '50%',
           border: 'none',
           cursor: 'grab',
@@ -1031,7 +1066,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           WebkitTapHighlightColor: 'transparent',
           touchAction: 'none',
-          transition: orbDragRef.current.active ? 'none' : 'bottom 0.2s ease, right 0.2s ease',
         }}
       >
         {/* Specular highlight */}
