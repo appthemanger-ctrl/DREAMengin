@@ -3,10 +3,11 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, LayoutGrid, DollarSign, ToggleLeft, Hash } from 'lucide-react';
 import type { AdSlot } from '@/types/ads';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 export default async function AdSlotPage({ params }: { params: { id: string } }) {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

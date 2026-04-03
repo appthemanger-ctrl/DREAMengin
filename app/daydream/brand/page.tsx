@@ -5,8 +5,8 @@ import { Palette, Share2, ImageIcon, BarChart2, Users, TrendingUp } from 'lucide
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import BrandingEngin from '@/components/daydream/BrandingEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Brand Daydream – Dreamengin', description: 'Build and manage your personal brand identity.' };
 
 const ACCENT = '#ec4899';
@@ -23,6 +23,7 @@ const WIDGETS: DaydreamWidget[] = [
 ];
 
 export default async function BrandDaydreamPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

@@ -3,10 +3,11 @@ import { redirect } from 'next/navigation';
 import HomeSystem from '@/components/home/HomeSystem';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { isDevBypassActive } from '@/lib/dev-bypass';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 export default async function Home() {
+  await connection();
   let user = null;
   let profile = null;
    

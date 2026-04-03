@@ -5,8 +5,8 @@ import { ShoppingBag, PlusCircle } from 'lucide-react';
 import MarketplaceListingCard from '@/components/marketplace/MarketplaceListingCard';
 import DreamWord from '@/components/ui/DreamWord';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'DreamMarketplace – Dreamengin', description: 'Discover themes, widgets, and tools from the community.' };
 
 type MarketplaceListing = {
@@ -27,6 +27,7 @@ const FALLBACK_CATEGORIES = [
 ];
 
 export default async function MarketplacePage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

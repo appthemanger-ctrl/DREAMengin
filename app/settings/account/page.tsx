@@ -3,10 +3,11 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import DangerZoneActions from './DangerZoneActions';
 import { ArrowLeft, User, Mail, Calendar, Shield, Trash2 } from 'lucide-react';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 export default async function AccountSettingsPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

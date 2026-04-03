@@ -11,8 +11,8 @@ import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildGameLaunchHref } from '@/lib/games/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
 
 const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });
@@ -81,6 +81,7 @@ const OFFICIAL_SPEC_NOTES = [
 ] as const;
 
 export default async function GamesDaydreamPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

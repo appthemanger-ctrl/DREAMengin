@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import ScoresPanel from '@/components/engines/games/panels/ScoresPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Scores – GameEngin', description: 'Your personal best scores.' };
 
 const ACCENT = '#c8981a';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function GamesScoresPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

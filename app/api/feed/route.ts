@@ -24,7 +24,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
-export const dynamic = 'force-dynamic';
 
 // Unified feed item shape returned by this route.
 export interface UnifiedFeedEntry {

@@ -13,7 +13,6 @@ import { createServerClient } from '@/lib/supabase/server';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { z } from 'zod';
 
-export const dynamic = 'force-dynamic';
 
 const VALID_STATUSES = [
   'PENDING_REVIEW',

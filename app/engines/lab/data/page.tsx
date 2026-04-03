@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import DataVizPanel from '@/components/engines/lab/panels/DataVizPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Data Viz – LabEngin', description: 'Visualize experiment data.' };
 
 const ACCENT = '#10b981';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function LabDataPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

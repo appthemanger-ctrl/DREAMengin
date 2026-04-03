@@ -27,7 +27,6 @@ import { z } from 'zod';
 import { writeAuditLog } from '@/lib/ai/audit';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogieman';
 
-export const dynamic = 'force-dynamic';
 
 // ── Request schema ───────────────────────────────────────────────────────────
 

@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import AIPanel from '@/components/engines/code/panels/AIPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'AI Assistant – CodeEngin', description: 'AI-powered code assistant.' };
 
 const ACCENT = '#22d3ee';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function CodeAIPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

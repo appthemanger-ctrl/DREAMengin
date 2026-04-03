@@ -21,8 +21,8 @@ import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/Daydre
 import StarMakerEngin from '@/components/daydream/StarMakerEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { isDevBypassActive } from '@/lib/dev-bypass';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Artist Hub – DREAMengin',
   description: 'Your artist command center — release pipeline, distribution, audience, and monetization.',
@@ -86,6 +86,7 @@ const PROMO_TIMELINE = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default async function MusicArtistHubPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

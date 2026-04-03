@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 /** Redirect to the standalone StarMakerEngin app. */
-export default function MusicEnginRedirectPage() {
+export default async function MusicEnginRedirectPage() {
+  await connection();
   redirect('/engines/music');
 }

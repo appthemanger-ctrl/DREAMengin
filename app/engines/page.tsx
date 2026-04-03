@@ -2,8 +2,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { isDevBypassActive } from '@/lib/dev-bypass';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Engines – DREAMengin',
   description: 'All six DREAMengin creative engine apps.',
@@ -67,6 +67,7 @@ const ENGINES = [
 ] as const;
 
 export default async function EnginesHubPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

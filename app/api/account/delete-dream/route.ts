@@ -17,7 +17,6 @@ import { z } from 'zod';
 import { writeAuditLog } from '@/lib/ai/audit';
 import { runTriadConsensus } from '@/lib/agents/agentBus';
 
-export const dynamic = 'force-dynamic';
 
 const DeleteDreamBodySchema = z.object({
   confirm: z.literal('DELETE_MY_DREAM'),

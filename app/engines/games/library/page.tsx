@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import LibraryPanel from '@/components/engines/games/panels/LibraryPanel';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Game Library – GameEngin', description: 'Browse all available games.' };
 
 const ACCENT = '#c8981a';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default async function GamesLibraryPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user && !isDevBypassActive()) redirect('/login');

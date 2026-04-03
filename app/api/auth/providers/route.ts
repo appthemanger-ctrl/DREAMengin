@@ -10,8 +10,6 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/env";
  * Used by the login and join pages to disable OAuth buttons before
  * attempting a redirect that Google/GitHub would reject with invalid_client.
  */
-export const dynamic = "force-dynamic";
-
 interface SupabaseAuthSettings {
   external?: Record<string, boolean>;
 }

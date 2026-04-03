@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { ArrowLeft, DollarSign, ShoppingCart, BarChart3, Plus, LayoutGrid, Sparkles } from 'lucide-react';
 import type { AdSlot, AdListing, AdOrder } from '@/types/ads';
 import DreamWord from '@/components/ui/DreamWord';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 export default async function AdsPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

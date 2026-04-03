@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import PortfolioEngin from '@/components/daydream/PortfolioEngin';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Optimizero – DREAMengin',
   description: 'Markowitz portfolio optimization powered by quantum algorithms (VQE / QAOA).',
@@ -24,6 +24,7 @@ const WIDGETS: DaydreamWidget[] = [
 const ACCENT = '#2a8ab8';
 
 export default async function OptimizeroPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

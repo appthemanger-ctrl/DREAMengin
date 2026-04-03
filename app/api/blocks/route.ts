@@ -8,7 +8,6 @@ import { createServerClient } from '@/lib/supabase/server';
 import { jsonApiError } from '@/lib/api/route';
 import { z } from 'zod';
 
-export const dynamic = 'force-dynamic';
 
 const BlockBodySchema = z.object({
   blocked_id: z.string().uuid(),

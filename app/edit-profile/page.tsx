@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
-export default function EditProfileLegacyRoutePage() {
+export default async function EditProfileLegacyRoutePage() {
+  await connection();
   redirect('/edit-profiledream');
 }

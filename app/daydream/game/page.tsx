@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'GameEngin Session – DREAMengin',
   description: 'Compatibility handoff into the GameEngin full-screen game session.',
@@ -11,6 +11,7 @@ type GamePageProps = {
 };
 
 export default async function GamePage({ searchParams }: GamePageProps) {
+  await connection();
   const params = new URLSearchParams();
   const resolved = await searchParams;
   Object.entries(resolved).forEach(([key, value]) => {

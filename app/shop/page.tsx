@@ -3,11 +3,12 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Store, PlusCircle, Package } from 'lucide-react';
 import DreamWord from '@/components/ui/DreamWord';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'DreamShop – Dreamengin', description: 'Sell and discover digital products.' };
 
 export default async function ShopPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

@@ -3,11 +3,12 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Plug } from 'lucide-react';
 import ConnectorsClient from './ConnectorsClient';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'System Integrations – Dreamengin', description: 'Connect and configure your system integrations.' };
 
 export default async function ConnectorsPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 /**
  * Legacy /u/[handle] route — redirects to canonical /profile/[handle].
@@ -7,11 +8,11 @@ import { redirect } from 'next/navigation';
  * public profile route is /profile/[handle].
  * This route redirects to maintain backward compatibility.
  */
-export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ handle: string }>;
 
 export default async function UHandleLegacyPage({ params }: { params: Params }) {
+  await connection();
   const { handle } = await params;
   redirect(`/profile/${handle}`);
 }

@@ -29,7 +29,6 @@ import { createServerClient } from '@/lib/supabase/server';
 
 const PLATFORM_SHARE_PERCENT = 0.10; // 10% DREAMengin platform cut
 
-export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient();

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 /**
  * Legacy music route — redirects to canonical Music Daydream.
@@ -7,8 +8,8 @@ import { redirect } from 'next/navigation';
  * Music surface is the Music Daydream / StarMakerEngin pair at /daydream/music.
  * This route redirects to maintain backward compatibility.
  */
-export const dynamic = 'force-dynamic';
 
-export default function MusicLegacyPage() {
+export default async function MusicLegacyPage() {
+  await connection();
   redirect('/daydream/music');
 }

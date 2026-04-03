@@ -5,8 +5,8 @@ import {
   ArrowLeft, User, Rss, LayoutGrid, Palette, Plug, Sliders,
   Shield, Database, Bot, Crown, ChevronRight, HelpCircle, LogOut, Cpu
 } from 'lucide-react';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Settings – Dreamengin' };
 
 const NAV_GROUPS = [
@@ -44,6 +44,7 @@ const NAV_GROUPS = [
 ];
 
 export default async function SettingsPage() {
+  await connection();
   let isAdmin = false;
   try {
     const supabase = await createServerClient();

@@ -2,8 +2,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Search, Users } from 'lucide-react';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Discover – DREAMengin',
   description: 'Explore Daydream surfaces, find people, and discover what DREAMengin has to offer.',
@@ -71,6 +71,7 @@ const DAYDREAMS = [
 type Profile = { id: string; handle: string; display_name: string | null; bio: string | null; avatar_url: string | null };
 
 export default async function DiscoverPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

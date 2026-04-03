@@ -5,6 +5,7 @@ import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle, 
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import ContentEngin from '@/components/daydream/ContentEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'note',      emoji: '📝', label: 'Quick Note',  desc: 'Capture a thought instantly',  color: '#f59e0b', href: '/daydream/create' },
@@ -17,12 +18,12 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'connectors',emoji: '🔌', label: 'Connectors',  desc: 'Link your tools',              color: '#c8981a', href: '/connectors' },
 ];
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Create – Dreamengin', description: 'Ideas, tasks, calendar, projects, and media.' };
 
 const ACCENT = '#f59e0b';
 
 export default async function CreateDaydreamPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

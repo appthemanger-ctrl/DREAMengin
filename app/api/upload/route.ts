@@ -4,8 +4,6 @@ import { gunzipSync, gzipSync } from 'zlib';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
-export const runtime = 'nodejs';
-
 const MAX_PAYLOAD_BYTES = 2_000_000;
 
 type UploadPayload = {

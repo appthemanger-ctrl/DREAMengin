@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 /**
  * Legacy profile route — redirects to canonical EditProfileDream.
@@ -7,8 +8,8 @@ import { redirect } from 'next/navigation';
  * profile editor is EditProfileDream at /edit-profiledream.
  * This route redirects to maintain backward compatibility.
  */
-export const dynamic = 'force-dynamic';
 
-export default function ProfileLegacyPage() {
+export default async function ProfileLegacyPage() {
+  await connection();
   redirect('/edit-profiledream');
 }

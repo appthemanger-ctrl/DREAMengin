@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 /** Redirect to the standalone LabEngin app. */
-export default function LabEnginRedirectPage() {
+export default async function LabEnginRedirectPage() {
+  await connection();
   redirect('/engines/lab');
 }

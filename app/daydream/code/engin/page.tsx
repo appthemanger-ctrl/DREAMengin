@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 /** Redirect to the standalone CodeEngin app. */
-export default function CodeEnginRedirectPage() {
+export default async function CodeEnginRedirectPage() {
+  await connection();
   redirect('/engines/code');
 }

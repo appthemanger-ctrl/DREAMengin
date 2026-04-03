@@ -11,11 +11,12 @@ import type { LucideIcon } from 'lucide-react';
 import { isDevAdminBypassActive } from '@/lib/dev-bypass';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { createUpgradeReadinessSnapshot } from '@/lib/admin/upgrade-readiness';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Admin – Dreamengin' };
 
 export default async function AdminPage() {
+  await connection();
   let user = null;
   let profile = null;
   let isAdmin = false;

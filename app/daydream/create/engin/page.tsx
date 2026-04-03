@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 /** Redirect to the standalone ContentEngin app. */
-export default function CreateEnginRedirectPage() {
+export default async function CreateEnginRedirectPage() {
+  await connection();
   redirect('/engines/create');
 }

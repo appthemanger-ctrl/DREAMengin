@@ -5,8 +5,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
 import ProfileShareButton from '@/components/ProfileShareButton';
 import DreamWord from '@/components/ui/DreamWord';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'ViewProfile – DREAMengin',
@@ -42,6 +42,7 @@ type Profile = {
  * (explicit filter) and the RLS level (dream_windows table policies).
  */
 export default async function ViewProfilePage() {
+  await connection();
   const supabase = await createServerClient();
 
   // Gracefully handle Supabase being unavailable (no configured env vars)

@@ -1,15 +1,7 @@
-import type { Config } from 'tailwindcss'
+// Tailwind 4 legacy config — loaded via @config in globals.css.
+// Content paths are auto-detected in TW4; the content array is unused.
 
-const config: Config = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/lib/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx}',
-    './app/**/*.{js,ts,jsx,tsx}',
-    './lib/**/*.{js,ts,jsx,tsx}',
-  ],
+const config = {
   theme: {
     extend: {
       // Space-dark palette (HomeDream + dark-UI components).

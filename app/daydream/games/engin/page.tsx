@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 
 /** Redirect to the standalone GameEngin app. */
-export default function GamesEnginRedirectPage() {
+export default async function GamesEnginRedirectPage() {
+  await connection();
   redirect('/engines/games');
 }

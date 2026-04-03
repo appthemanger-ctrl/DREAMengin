@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, FlaskConical, Loader2, Globe, Lock, Sparkles } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
 
 export default function NewProjectPage() {
   const [title, setTitle] = useState('');

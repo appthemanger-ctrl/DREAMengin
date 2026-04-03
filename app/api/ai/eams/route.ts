@@ -13,7 +13,6 @@ import { writeAuditLog } from '@/lib/ai/audit';
 import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
 import { boogiePolicyCheck, isOwnerEmail, planWithEams, validateWithIdari } from '@/lib/ai/triad';
 
-export const dynamic = 'force-dynamic';
 
 
 export async function POST(req: NextRequest) {

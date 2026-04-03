@@ -5,8 +5,8 @@ import { BarChart2, TrendingUp, Bell, Target, Users, Calendar, DollarSign, Downl
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import AnalyticsEngin from '@/components/daydream/AnalyticsEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Analytics Daydream – Dreamengin', description: 'Collect and review your social media analytics for branding.' };
 
 const WIDGETS: DaydreamWidget[] = [
@@ -21,6 +21,7 @@ const WIDGETS: DaydreamWidget[] = [
 const ACCENT = '#6366f1';
 
 export default async function AnalyticsDaydreamPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

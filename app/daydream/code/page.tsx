@@ -5,8 +5,8 @@ import { Code2 } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import CodeEngin from '@/components/daydream/CodeEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Code Daydream – Dreamengin', description: 'Code projects, snippets, files, and deployments.' };
 
 const WIDGETS: DaydreamWidget[] = [
@@ -21,6 +21,7 @@ const WIDGETS: DaydreamWidget[] = [
 ];
 
 export default async function CodeDaydreamPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

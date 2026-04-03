@@ -6,7 +6,6 @@
 import { NextResponse } from 'next/server';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const simulationMode = process.env.BOOGIE_SIMULATION_MODE === 'true';
