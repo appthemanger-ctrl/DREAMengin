@@ -20,9 +20,9 @@ type ProfileLike = {
 
 type Post = Record<string, any>;
 
-const WHIPREV_MANIFESTO = {
-  badge: '⚡ WhipRev: The Human Media Manifesto',
-  title: 'Dreamengin.com is where WhipRev lives inside the HomeDream.',
+const DREAMR_MANIFESTO = {
+  badge: '⚡ DreamR: The Human Media Manifesto',
+  title: 'Dreamengin.com is where DreamR lives inside the HomeDream.',
   detail:
     'Seen, not judged: the HomeDream feed stays grounded while human media moves through it.',
 };
@@ -273,10 +273,10 @@ export default function WorkspaceDashboard({
               {name}&rsquo;s feed
             </div>
             <div className="de-command-chip" style={{ marginBottom: 10 }}>
-              {WHIPREV_MANIFESTO.badge}
+              {DREAMR_MANIFESTO.badge}
             </div>
             <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.65, maxWidth: 680, marginBottom: 12 }}>
-              {WHIPREV_MANIFESTO.title} {WHIPREV_MANIFESTO.detail}
+              {DREAMR_MANIFESTO.title} {DREAMR_MANIFESTO.detail}
             </div>
             <div className="de-toolbar">
               <QuickLink label="Edit ProfileDream" onClick={() => openPage('/edit-profiledream', 'Edit ProfileDream')} />
@@ -317,7 +317,7 @@ export default function WorkspaceDashboard({
                 HomeDream Feed
               </div>
               <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginTop: 3, lineHeight: 1.4 }}>
-                WhipRev lives inside HomeDream — feed first, seen not judged.
+                DreamR lives inside HomeDream — feed first, seen not judged.
               </div>
             </div>
             {onOpenDreamSpace && (

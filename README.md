@@ -493,7 +493,7 @@ Platform Modules
  * Component Model: Modular, Dream Window-driven architecture with Unbound, Bound, Mounted, and Collapsed lifecycle states.
  * Backend (Supabase):
    * Postgres: Hardened with strict Row Level Security (RLS).
-   * Realtime: Powering the WhipRev human media pulse and live messaging.
+   * Realtime: Powering the DreamR human media pulse and live messaging.
    * Vector: pgvector implementation for Dr. Eams discovery and AI Triad consensus routing.
  * Rendering Strategy: Client-heavy interactive surfaces; WebGPU/WASM contexts run exclusively on the client to preserve the "Virtual Console" feel
 
