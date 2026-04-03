@@ -61,8 +61,8 @@ async function resolveFeedForInstance(
 }
 
 export async function POST(request: NextRequest) {
+  await connection();
   try {
-    await connection();
     const supabase = await createServerClient();
     
     // Get authenticated user
@@ -108,8 +108,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  await connection();
   try {
-    await connection();
     const supabase = await createServerClient();
     
     // Get authenticated user
