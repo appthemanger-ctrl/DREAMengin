@@ -86,9 +86,13 @@ function makeProceduralLevel(level: number, sessionSeed: number): LevelDef {
   platforms.push({ x: goalX, y: goalY, w: 110, h: 20, type: 'goal' });
   coins.push({ x: goalX + 35, y: goalY - 40, isGoal: true });
 
-  const spacing = Math.round(worldW / (enemyCnt + 1));
+  const spawnStart = 260;
+  const spawnEnd = Math.max(spawnStart + 120, worldW - 320);
+  const spacing = enemyCnt <= 1 ? 0 : (spawnEnd - spawnStart) / Math.max(1, enemyCnt - 1);
+  const jitter = Math.max(0, Math.min(36, Math.round(spacing * 0.12)));
   for (let i = 0; i < enemyCnt; i++) {
-    const ex = Math.max(150, Math.min(worldW - 150, Math.round(spacing * (i + 1) + (rng() - 0.5) * 120)));
+    const baseX = enemyCnt <= 1 ? Math.round((spawnStart + spawnEnd) / 2) : spawnStart + spacing * i;
+    const ex = Math.max(spawnStart, Math.min(spawnEnd, Math.round(baseX + (rng() - 0.5) * jitter)));
     const spd = parseFloat((enemySpd * (0.6 + rng() * 0.8)).toFixed(2));
     const kind = getEnemyKindForIndex(i, level);
     const anchorY = kind === 'flyer'
@@ -163,6 +167,9 @@ function makeProceduralLevel(level: number, sessionSeed: number): LevelDef {
 function makeBossLevel(level: number): LevelDef {
   const boss = getBossForLevel(level);
   const zone = ZONES[getZoneIdx(level)];
+  const bossRank = Math.max(0, Math.floor(level / 10) - 1);
+  const bossHp = Math.max(boss.hp, 3 + bossRank);
+  const bossSpd = Math.max(boss.spd, parseFloat((1.8 + bossRank * 0.12).toFixed(2)));
 
   const worldW = 1100;
   const platforms: PlatDef[] = [
@@ -185,9 +192,9 @@ function makeBossLevel(level: number): LevelDef {
     enemies: [{
       x: 450,
       y: 355,
-      vx: boss.spd,
+      vx: bossSpd,
       boss: true,
-      hitsLeft: boss.hp,
+      hitsLeft: bossHp,
       size: boss.size,
       bossColor: boss.col,
       bossEmissive: boss.em,

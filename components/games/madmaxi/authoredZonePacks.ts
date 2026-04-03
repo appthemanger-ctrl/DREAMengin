@@ -1087,8 +1087,13 @@ function buildEnemies(level: number, zoneIdx: number, template: StarterTemplate,
   }
 
   return enemyKinds.slice(0, requiredCount).map((kind, index) => {
-    const platform = routePlatforms[(index * 2 + zoneIdx) % routePlatforms.length];
-    const x = Math.max(150, Math.min(template.worldW - 150, platform.x + Math.round(platform.w * (0.25 + ((index + zoneIdx) % 3) * 0.22))));
+    const safeStart = Math.min(routePlatforms.length - 1, 1);
+    const safeEnd = Math.max(safeStart, routePlatforms.length - 2);
+    const span = Math.max(0, safeEnd - safeStart);
+    const fraction = requiredCount <= 1 ? 0.5 : index / Math.max(1, requiredCount - 1);
+    const platformIndex = safeStart + Math.round(span * fraction);
+    const platform = routePlatforms[Math.min(routePlatforms.length - 1, Math.max(0, platformIndex))];
+    const x = Math.max(180, Math.min(template.worldW - 180, platform.x + Math.round(platform.w * 0.5)));
     const speedBase = 1.4 + zoneIdx * 0.1 + Math.floor((level - 1) / 10) * 0.05;
     const vx = (index % 2 === 0 ? 1 : -1) * Number((speedBase + (index % 4) * 0.18).toFixed(2));
     return {

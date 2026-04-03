@@ -17,6 +17,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
@@ -30,6 +31,7 @@ import SocialShareSheet from '@/components/ui/SocialShareSheet';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { createClient } from '@/lib/supabase/client';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
+import EditableAvatar from '@/components/profile/EditableAvatar';
 
 interface Comment {
   id: string;
@@ -55,6 +57,7 @@ export default function HomeFeed({
   initialPosts,
   embedded = false,
 }: HomeFeedProps) {
+  const router = useRouter();
   const { posts, newCount, flushNew, isLive, replacePosts, prependPost, updatePost } =
     useLiveFeed(userId, initialPosts);
 
@@ -62,6 +65,7 @@ export default function HomeFeed({
     useYouTubeLiveFeed();
 
   const { setBarIntent } = useDreamSystem();
+  const editProfileHref = '/edit-profiledream';
 
   const [tabLoading, setTabLoading] = useState(false);
   const [newPostContent, setNewPostContent] = useState('');
@@ -80,6 +84,7 @@ export default function HomeFeed({
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
   const [commentLoadingSet, setCommentLoadingSet] = useState<Set<string>>(new Set());
+  const postSwipeStartRef = useRef<Record<string, { x: number; y: number; at: number }>>({});
 
   const handleCommentFromBar = useCallback((post: FeedPost) => {
     setBarIntent({
@@ -88,6 +93,33 @@ export default function HomeFeed({
       targetLabel: post.profiles?.display_name || post.profiles?.handle || undefined,
     });
   }, [setBarIntent]);
+
+  const handlePostTouchStart = useCallback((postId: string, event: React.TouchEvent<HTMLElement>) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    postSwipeStartRef.current[postId] = { x: touch.clientX, y: touch.clientY, at: Date.now() };
+  }, []);
+
+  const handlePostTouchEnd = useCallback((post: FeedPost, event: React.TouchEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button,a,input,textarea,[role="button"]')) return;
+
+    const touch = event.changedTouches[0];
+    const start = postSwipeStartRef.current[post.id];
+    delete postSwipeStartRef.current[post.id];
+    if (!touch || !start || !post.profiles?.handle) return;
+
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    const elapsed = Date.now() - start.at;
+    const isHorizontalRev = elapsed < 500
+      && Math.abs(dx) >= 84
+      && Math.abs(dx) > Math.abs(dy) * 1.35;
+
+    if (isHorizontalRev) {
+      router.push(`/profile/${post.profiles.handle}`);
+    }
+  }, [router]);
 
   const loadComments = useCallback(async (postId: string) => {
     if (commentsMap[postId]) return; // already loaded
@@ -401,19 +433,37 @@ export default function HomeFeed({
         {/* Composer */}
         <div className="bg-card rounded-2xl border border-border p-4 mb-6" style={embedded ? { flexShrink: 0 } : undefined}>
           {!showComposer ? (
-            <button onClick={() => setShowComposer(true)} className="w-full flex items-center gap-3 text-left">
-              <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-                {userAvatar ? <Image src={userAvatar} alt={userHandle} width={40} height={40} className="rounded-full object-cover" /> : <span className="text-sm font-bold text-muted-foreground">{(userDisplayName || '?')[0].toUpperCase()}</span>}
-              </div>
-              <span className="text-muted-foreground flex-1">What&apos;s on your mind?</span>
-              <div className="flex items-center gap-2"><ImageIcon className="w-5 h-5 text-primary" /><Plus className="w-5 h-5 text-primary" /></div>
-            </button>
+            <div className="w-full flex items-center gap-3">
+              <EditableAvatar
+                src={userAvatar}
+                name={userDisplayName || userHandle || 'You'}
+                size={40}
+                href={editProfileHref}
+                className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0"
+                imageClassName="w-full h-full rounded-full object-cover"
+                fallbackClassName="text-sm font-bold text-muted-foreground"
+                title="Edit profile picture"
+                ariaLabel="Edit your profile picture"
+              />
+              <button type="button" onClick={() => setShowComposer(true)} className="flex flex-1 items-center gap-3 text-left">
+                <span className="text-muted-foreground flex-1">What&apos;s on your mind?</span>
+                <div className="flex items-center gap-2"><ImageIcon className="w-5 h-5 text-primary" /><Plus className="w-5 h-5 text-primary" /></div>
+              </button>
+            </div>
           ) : (
             <div className="space-y-3">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-                  {userAvatar ? <Image src={userAvatar} alt={userHandle} width={40} height={40} className="rounded-full object-cover" /> : <span className="text-sm font-bold text-muted-foreground">{(userDisplayName || '?')[0].toUpperCase()}</span>}
-                </div>
+                <EditableAvatar
+                  src={userAvatar}
+                  name={userDisplayName || userHandle || 'You'}
+                  size={40}
+                  href={editProfileHref}
+                  className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0"
+                  imageClassName="w-full h-full rounded-full object-cover"
+                  fallbackClassName="text-sm font-bold text-muted-foreground"
+                  title="Edit profile picture"
+                  ariaLabel="Edit your profile picture"
+                />
                 <div className="flex-1">
                   <textarea value={newPostContent} onChange={(e) => setNewPostContent(e.target.value)} placeholder="Share something with the community..." className="w-full bg-transparent text-foreground placeholder:text-muted-foreground resize-none focus:outline-none text-base min-h-[80px]" autoFocus />
                 </div>
@@ -466,7 +516,9 @@ export default function HomeFeed({
               overflowY: 'auto',
               overscrollBehavior: 'contain',
               WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
               scrollbarWidth: 'thin',
+              scrollSnapType: isCompactEmbedded ? 'y proximity' : undefined,
               ...(embedded
                 ? { flex: 1, minHeight: 0 }
                 : { maxHeight: 'calc(100vh - 280px)' }),
@@ -484,9 +536,14 @@ export default function HomeFeed({
               <article
                 key={post.id}
                 className="bg-card hover:border-primary/20 transition-colors"
+                onTouchStart={(event) => handlePostTouchStart(post.id, event)}
+                onTouchEnd={(event) => handlePostTouchEnd(post, event)}
+                onTouchCancel={() => { delete postSwipeStartRef.current[post.id]; }}
                 style={{
                   borderBottom: postIdx < displayPosts.length - 1 ? '1px solid var(--de-border, rgba(180,185,200,0.15))' : 'none',
                   padding: '16px',
+                  touchAction: 'pan-y',
+                  scrollSnapAlign: isCompactEmbedded ? 'start' : undefined,
                 }}
               >
                 {/* Content type badge — always visible */}
@@ -515,15 +572,29 @@ export default function HomeFeed({
                   )}
                 </div>
                 <div className="flex items-start gap-3 mb-3">
-                  <Link href={`/profile/${post.profiles?.handle}`} className="flex-shrink-0">
-                    {post.profiles?.avatar_url ? (
-                      <Image src={post.profiles.avatar_url} alt={post.profiles.display_name || post.profiles.handle} width={44} height={44} className="rounded-full object-cover ring-2 ring-border" />
-                    ) : (
-                      <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border">
-                        <span className="text-sm font-bold text-muted-foreground">{(post.profiles?.display_name || post.profiles?.handle)?.[0]?.toUpperCase()}</span>
-                      </div>
-                    )}
-                  </Link>
+                  {post.profiles?.handle === userHandle ? (
+                    <EditableAvatar
+                      src={post.profiles?.avatar_url}
+                      name={post.profiles?.display_name || post.profiles?.handle || 'You'}
+                      size={44}
+                      href={editProfileHref}
+                      className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border"
+                      imageClassName="w-full h-full rounded-full object-cover"
+                      fallbackClassName="text-sm font-bold text-muted-foreground"
+                      title="Edit profile picture"
+                      ariaLabel="Edit your profile picture"
+                    />
+                  ) : (
+                    <Link href={`/profile/${post.profiles?.handle}`} className="flex-shrink-0">
+                      {post.profiles?.avatar_url ? (
+                        <Image src={post.profiles.avatar_url} alt={post.profiles.display_name || post.profiles.handle} width={44} height={44} className="rounded-full object-cover ring-2 ring-border" />
+                      ) : (
+                        <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border">
+                          <span className="text-sm font-bold text-muted-foreground">{(post.profiles?.display_name || post.profiles?.handle)?.[0]?.toUpperCase()}</span>
+                        </div>
+                      )}
+                    </Link>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Link href={`/profile/${post.profiles?.handle}`} className="font-semibold text-foreground hover:text-primary transition-colors text-sm">{post.profiles?.display_name || post.profiles?.handle}</Link>
@@ -582,13 +653,17 @@ export default function HomeFeed({
                           ) : (
                             (commentsMap[post.id] ?? []).map(c => (
                               <div key={c.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(42,138,184,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, fontWeight: 700, color: 'var(--de-accent)' }}>
-                                  {c.profile?.avatar_url ? (
-                                    <Image src={c.profile.avatar_url} alt={c.profile.handle} width={28} height={28} style={{ borderRadius: '50%', objectFit: 'cover' }} />
-                                  ) : (
-                                    (c.profile?.display_name || c.profile?.handle)?.[0]?.toUpperCase()
-                                  )}
-                                </div>
+                                <EditableAvatar
+                                  src={c.profile?.avatar_url}
+                                  name={c.profile?.display_name || c.profile?.handle || 'You'}
+                                  size={28}
+                                  href={c.profile?.handle === userHandle ? editProfileHref : undefined}
+                                  className="flex items-center justify-center"
+                                  style={{ background: 'rgba(42,138,184,0.15)', fontSize: 11, fontWeight: 700, color: 'var(--de-accent)' }}
+                                  imageStyle={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                                  title={c.profile?.handle === userHandle ? 'Edit profile picture' : undefined}
+                                  ariaLabel={c.profile?.handle === userHandle ? 'Edit your profile picture' : undefined}
+                                />
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>
                                     {c.profile?.display_name || c.profile?.handle}

@@ -260,22 +260,23 @@ export default function RuntimeShell({
          *   zoom=1.5 → 66.7% × 66.7% → scale(1.5) → fills parent exactly
          *   zoom=0.75 → 133% × 133% → scale(0.75) → fills parent exactly
          */
-        <div
-          style={{
-            position: 'relative',
-            width: `${(100 / zoom).toFixed(4)}%`,
-            height: `${(100 / zoom).toFixed(4)}%`,
+         <div
+           style={{
+             position: 'relative',
+             width: `${(100 / zoom).toFixed(4)}%`,
+             height: `${(100 / zoom).toFixed(4)}%`,
             minHeight: '100%',
             transform: `scale(${zoom})`,
             transformOrigin: 'top left',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            WebkitOverflowScrolling: 'touch',
-            overscrollBehavior: 'contain',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
+             overflowY: 'auto',
+             overflowX: 'hidden',
+             WebkitOverflowScrolling: 'touch',
+             overscrollBehavior: 'contain',
+             touchAction: 'pan-y',
+             display: 'flex',
+             flexDirection: 'column',
+           }}
+         >
           {children}
         </div>
       )}

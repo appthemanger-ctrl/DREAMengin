@@ -1191,30 +1191,53 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         {/* ── Drag handle ──────────────────────────────────────────────────── */}
         <div
           role="separator" aria-label="Drag to resize DreamDM"
-          onPointerDown={isDividerMode ? handleDividerDragStart : handleDragStart}
-          onPointerMove={isDividerMode ? handleDividerDragMove : handleDragMove}
-          onPointerUp={isDividerMode ? handleDividerDragEnd : handleDragEnd}
-          onPointerCancel={isDividerMode ? handleDividerDragEnd : handleDragEnd}
           style={{
             height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, cursor: isDragging ? 'grabbing' : 'grab',
-            touchAction: 'none', userSelect: 'none',
+            flexShrink: 0, cursor: 'default',
+            pointerEvents: 'none',
+            userSelect: 'none',
             position: 'relative',
           }}
         >
-          {/* SICC drag handle — refined dual-line with gold center */}
           <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            width: isDividerMode ? 112 : '100%',
+            maxWidth: isDividerMode ? 112 : 164,
+            height: '100%',
+            pointerEvents: 'auto',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            touchAction: 'none',
           }}>
-            <div style={{
-              width: 44, height: 3, borderRadius: 99,
-              background: 'linear-gradient(90deg, rgba(200,152,26,0.15), rgba(200,152,26,0.55), rgba(200,152,26,0.15))',
-              boxShadow: '0 0 4px rgba(200,152,26,0.15)',
-            }} />
-            <div style={{
-              width: 28, height: 2, borderRadius: 99,
-              background: 'linear-gradient(90deg, rgba(42,138,184,0.08), rgba(42,138,184,0.25), rgba(42,138,184,0.08))',
-            }} />
+            <div
+              onPointerDown={isDividerMode ? handleDividerDragStart : handleDragStart}
+              onPointerMove={isDividerMode ? handleDividerDragMove : handleDragMove}
+              onPointerUp={isDividerMode ? handleDividerDragEnd : handleDragEnd}
+              onPointerCancel={isDividerMode ? handleDividerDragEnd : handleDragEnd}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 2,
+                width: '100%',
+                height: '100%',
+              }}
+            >
+              {/* SICC drag handle — refined dual-line with gold center */}
+              <div style={{
+                width: 44, height: 3, borderRadius: 99,
+                background: 'linear-gradient(90deg, rgba(200,152,26,0.15), rgba(200,152,26,0.55), rgba(200,152,26,0.15))',
+                boxShadow: '0 0 4px rgba(200,152,26,0.15)',
+              }} />
+              <div style={{
+                width: 28, height: 2, borderRadius: 99,
+                background: 'linear-gradient(90deg, rgba(42,138,184,0.08), rgba(42,138,184,0.25), rgba(42,138,184,0.08))',
+              }} />
+            </div>
           </div>
         </div>
 
