@@ -858,38 +858,100 @@ class GameCore {
     cam.setTarget(new BJS.Vector3(0, 4.8, 0));
     this.camMesh = cam;
 
-    // ── Lighting ─────────────────────────────────────────────────────────────
+    // ── Lighting — realistic multi-source setup ─────────────────────────────
     const ambient = new BJS.HemisphericLight('amb', new BJS.Vector3(0, 1, 0), scene);
-    ambient.intensity  = 0.82;
-    ambient.diffuse    = new BJS.Color3(0.85, 0.90, 1.0);
-    ambient.groundColor= new BJS.Color3(0.1, 0.1, 0.25);
+    ambient.intensity  = 0.55;
+    ambient.diffuse    = new BJS.Color3(0.82, 0.88, 1.0);
+    ambient.specular   = new BJS.Color3(0.1, 0.1, 0.15);
+    ambient.groundColor= new BJS.Color3(0.08, 0.08, 0.2);
 
     const sun = new BJS.DirectionalLight('sun', new BJS.Vector3(0.35, -1, 0.45), scene);
-    sun.intensity = 0.95;
-    sun.diffuse   = new BJS.Color3(1.0, 0.95, 0.8);
-    sun.shadowMinZ = 1;
-    sun.shadowMaxZ = 70;
-    const shadowGen = new BJS.ShadowGenerator(2048, sun);
+    sun.intensity = 1.15;
+    sun.diffuse   = new BJS.Color3(1.0, 0.95, 0.82);
+    sun.specular  = new BJS.Color3(1.0, 0.92, 0.78);
+    sun.shadowMinZ = 0.5;
+    sun.shadowMaxZ = 80;
+
+    // Rim/back light for depth separation
+    const rimLight = new BJS.DirectionalLight('rim', new BJS.Vector3(-0.5, -0.3, -0.8), scene);
+    rimLight.intensity = 0.35;
+    rimLight.diffuse = new BJS.Color3(0.4, 0.5, 0.9);
+    rimLight.specular = new BJS.Color3(0.2, 0.3, 0.6);
+
+    // ── Shadows — high-res PCF with contact hardening ────────────────────────
+    const shadowGen = new BJS.ShadowGenerator(4096, sun);
     shadowGen.usePercentageCloserFiltering = true;
     shadowGen.filteringQuality = BJS.ShadowGenerator.QUALITY_HIGH;
-    shadowGen.bias = 0.0008;
+    shadowGen.bias = 0.0005;
+    shadowGen.normalBias = 0.02;
+    shadowGen.contactHardeningLightSizeUVRatio = 0.05;
+    shadowGen.darkness = 0.35;
+    shadowGen.transparencyShadow = true;
     this.shadowGen = shadowGen;
 
-    // ── Glow layer ───────────────────────────────────────────────────────────
-    const glow = new BJS.GlowLayer('glow', scene);
-    glow.intensity = 0.9;
+    // ── Environment texture for PBR reflections ──────────────────────────────
+    // Create a procedural environment for metallic/reflective surfaces
+    try {
+      const envTex = new BJS.CubeTexture('', scene, undefined, undefined, undefined, undefined, undefined, undefined, undefined, '.env');
+      scene.environmentTexture = envTex;
+    } catch {
+      // Fallback: create environment from hemispheric colours
+      scene.createDefaultEnvironment({ createGround: false, createSkybox: false });
+    }
+    scene.environmentIntensity = 0.8;
 
-    // MADMAXI graphics upgrade: lightweight post-processing for clearer highlights
-    // and smoother edges without changing gameplay physics.
+    // ── Glow layer ───────────────────────────────────────────────────────────
+    const glow = new BJS.GlowLayer('glow', scene, { mainTextureFixedSize: 512, blurKernelSize: 32 });
+    glow.intensity = 0.85;
+
+    // ── Post-processing pipeline — realistic graphics upgrade ────────────────
     const pipeline = new BJS.DefaultRenderingPipeline('madmaxi-pipeline', true, scene, [cam]);
-    pipeline.samples = 2;
+    pipeline.samples = 4;
     pipeline.fxaaEnabled = true;
     pipeline.imageProcessingEnabled = true;
+
+    // Tone mapping — ACES filmic for realistic HDR to LDR
+    pipeline.imageProcessing.toneMappingEnabled = true;
+    pipeline.imageProcessing.toneMappingType = 1; // ACES
+    pipeline.imageProcessing.contrast = 1.12;
+    pipeline.imageProcessing.exposure = 1.08;
+
+    // Vignette
+    pipeline.imageProcessing.vignetteEnabled = true;
+    pipeline.imageProcessing.vignetteWeight = 3;
+    pipeline.imageProcessing.vignetteCameraFov = 0.5;
+
+    // Bloom — tuned for PBR metallic highlights
     pipeline.bloomEnabled = true;
-    pipeline.bloomThreshold = 0.72;
-    pipeline.bloomWeight = 0.34;
-    pipeline.bloomKernel = 62;
-    pipeline.bloomScale = 0.76;
+    pipeline.bloomThreshold = 0.6;
+    pipeline.bloomWeight = 0.38;
+    pipeline.bloomKernel = 72;
+    pipeline.bloomScale = 0.7;
+
+    // Sharpen — recover detail after anti-aliasing
+    pipeline.sharpenEnabled = true;
+    pipeline.sharpen.edgeAmount = 0.22;
+    pipeline.sharpen.colorAmount = 1.0;
+
+    // Chromatic aberration — subtle lens distortion
+    pipeline.chromaticAberrationEnabled = true;
+    pipeline.chromaticAberration.aberrationAmount = 8;
+
+    // Film grain — very subtle cinematic texture
+    pipeline.grainEnabled = true;
+    pipeline.grain.intensity = 4;
+    pipeline.grain.animated = true;
+
+    // ── SSAO — screen-space ambient occlusion for realistic depth ────────────
+    try {
+      const ssao = new BJS.SSAO2RenderingPipeline('madmaxi-ssao', scene, { ssaoRatio: 0.5, blurRatio: 1.0 });
+      ssao.radius = 1.8;
+      ssao.totalStrength = 1.0;
+      ssao.samples = 16;
+      ssao.maxZ = 80;
+      ssao.expensiveBlur = true;
+      scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('madmaxi-ssao', cam);
+    } catch { /* SSAO graceful fallback */ }
 
     // ── Background plane (starfield / gradient) ──────────────────────────────
     const bg = BJS.MeshBuilder.CreatePlane('bg', { width: 120, height: 40 }, scene);
@@ -943,40 +1005,46 @@ class GameCore {
       }
     }
 
-    // ── Platform meshes ───────────────────────────────────────────────────────
+    // ── Platform meshes — PBR materials for realistic surfaces ─────────────
     for (const p of this.platforms) {
       const bw = p.w / PX_PER_BU;
       const bh = p.h / PX_PER_BU;
       const mesh = BJS.MeshBuilder.CreateBox(`plat_${p.x}`, { width: bw, height: bh, depth: 1.2 }, scene);
-      const mat  = new BJS.StandardMaterial(`pmat_${p.x}`, scene);
+      const mat  = new BJS.PBRMaterial(`pmat_${p.x}`, scene);
 
       if (p.type === 'goal') {
-        mat.diffuseColor  = new BJS.Color3(0.9, 0.7, 0.1);
+        mat.albedoColor  = new BJS.Color3(0.95, 0.78, 0.12);
+        mat.metallic = 0.9;
+        mat.roughness = 0.15;
         mat.emissiveColor = new BJS.Color3(0.5, 0.35, 0.0);
         glow.addIncludedOnlyMesh(mesh);
       } else if (p.type === 'moving') {
-        mat.diffuseColor  = new BJS.Color3(0.2, 0.55, 0.85);
+        mat.albedoColor  = new BJS.Color3(0.2, 0.55, 0.85);
+        mat.metallic = 0.6;
+        mat.roughness = 0.3;
         mat.emissiveColor = new BJS.Color3(0.05, 0.15, 0.3);
       } else {
         const isGround = p.y === 400;
-        mat.diffuseColor  = isGround
+        mat.albedoColor  = isGround
           ? new BJS.Color3(zone.gnd[0], zone.gnd[1], zone.gnd[2])
           : new BJS.Color3(zone.plt[0], zone.plt[1], zone.plt[2]);
+        mat.metallic = isGround ? 0.1 : 0.35;
+        mat.roughness = isGround ? 0.85 : 0.55;
         mat.emissiveColor = new BJS.Color3(zone.em[0], zone.em[1], zone.em[2]);
       }
-      mat.specularColor = new BJS.Color3(0.15, 0.2, 0.4);
       mesh.material = mat;
       mesh.receiveShadows = true;
       shadowGen.addShadowCaster(mesh, false);
       this.platMeshes.push(mesh);
     }
 
-    // ── Coin meshes ───────────────────────────────────────────────────────────
+    // ── Coin meshes — PBR metallic materials ─────────────────────────────────
     // Goal coin is special: rendered as an animated star (sphere + torus ring).
-    const goalMat = new BJS.StandardMaterial('goalMat', scene);
-    goalMat.diffuseColor  = new BJS.Color3(1.0, 0.85, 0.10);
+    const goalMat = new BJS.PBRMaterial('goalMat', scene);
+    goalMat.albedoColor  = new BJS.Color3(1.0, 0.85, 0.10);
+    goalMat.metallic = 1.0;
+    goalMat.roughness = 0.08;
     goalMat.emissiveColor = new BJS.Color3(0.70, 0.42, 0.00);
-    goalMat.specularColor = new BJS.Color3(1.0, 0.9, 0.3);
 
     for (let i = 0; i < this.coins.length; i++) {
       const c = this.coins[i];
@@ -999,12 +1067,12 @@ class GameCore {
       } else {
         const mesh = BJS.MeshBuilder.CreateSphere(`coin_${c.x}_${c.y}`,
           { diameter: 0.42, segments: 14 }, scene);
-        const mat  = new BJS.StandardMaterial(`cmat_${c.x}`, scene);
-        // SILVER coins (regular) — flat metallic look
-        mat.diffuseColor  = new BJS.Color3(0.80, 0.82, 0.88);
-        mat.emissiveColor = new BJS.Color3(0.18, 0.20, 0.26);
-        mat.specularColor = new BJS.Color3(1.0, 1.0, 1.0);
-        mat.specularPower = 96;
+        const mat  = new BJS.PBRMaterial(`cmat_${c.x}`, scene);
+        // SILVER coins (regular) — polished metallic PBR look
+        mat.albedoColor  = new BJS.Color3(0.85, 0.87, 0.92);
+        mat.metallic = 1.0;
+        mat.roughness = 0.12;
+        mat.emissiveColor = new BJS.Color3(0.08, 0.09, 0.12);
         mesh.material = mat;
         shadowGen.addShadowCaster(mesh, false);
         glow.addIncludedOnlyMesh(mesh);
@@ -1012,7 +1080,7 @@ class GameCore {
       }
     }
 
-    // ── Hazard meshes ─────────────────────────────────────────────────────────
+    // ── Hazard meshes — PBR ──────────────────────────────────────────────────
     for (let hi = 0; hi < this.hazards.length; hi++) {
       const hz = this.hazards[hi];
       let mesh: import('@babylonjs/core').Mesh;
@@ -1026,15 +1094,18 @@ class GameCore {
       } else {
         mesh = BJS.MeshBuilder.CreateBox(`haz_${hi}`, { width: 0.46, height: 0.46, depth: 0.46 }, scene);
       }
-      const mat = new BJS.StandardMaterial(`haz_mat_${hi}`, scene);
-      mat.diffuseColor = hz.type === 'spike' ? new BJS.Color3(0.75, 0.08, 0.18) : new BJS.Color3(0.56, 0.24, 0.08);
+      const mat = new BJS.PBRMaterial(`haz_mat_${hi}`, scene);
+      mat.albedoColor = hz.type === 'spike' ? new BJS.Color3(0.75, 0.08, 0.18) : new BJS.Color3(0.56, 0.24, 0.08);
+      mat.metallic = hz.type === 'spike' ? 0.8 : 0.4;
+      mat.roughness = hz.type === 'spike' ? 0.2 : 0.6;
       mat.emissiveColor = hz.type === 'spike' ? new BJS.Color3(0.22, 0.01, 0.05) : new BJS.Color3(0.12, 0.05, 0.01);
       mesh.material = mat;
+      mesh.receiveShadows = true;
       glow.addIncludedOnlyMesh(mesh);
       this.hazardMeshes.push(mesh);
     }
 
-    // ── Power-up meshes ───────────────────────────────────────────────────────
+    // ── Power-up meshes — PBR with high emissive ─────────────────────────────
     for (let pi = 0; pi < this.powerUps.length; pi++) {
       const p = this.powerUps[pi];
       const mesh = BJS.MeshBuilder.CreateTorus(`power_${pi}`, {
@@ -1042,12 +1113,14 @@ class GameCore {
         thickness: 0.14,
         tessellation: 18,
       }, scene);
-      const mat = new BJS.StandardMaterial(`power_mat_${pi}`, scene);
+      const mat = new BJS.PBRMaterial(`power_mat_${pi}`, scene);
       if (p.type === 'shield') mat.emissiveColor = new BJS.Color3(0.15, 0.8, 1.0);
       if (p.type === 'high-jump') mat.emissiveColor = new BJS.Color3(0.4, 1.0, 0.4);
       if (p.type === 'laser') mat.emissiveColor = new BJS.Color3(1.0, 0.25, 0.4);
       if (p.type === 'giant') mat.emissiveColor = new BJS.Color3(0.95, 0.72, 0.12);
-      mat.diffuseColor = mat.emissiveColor.scale(0.8);
+      mat.albedoColor = mat.emissiveColor.scale(0.8);
+      mat.metallic = 0.7;
+      mat.roughness = 0.2;
       mesh.material = mat;
       glow.addIncludedOnlyMesh(mesh);
       this.powerUpMeshes.push(mesh);
@@ -1094,13 +1167,14 @@ class GameCore {
             break;
         }
       }
-      const mat  = new BJS.StandardMaterial(`emat_${ei}`, scene);
+      const mat  = new BJS.PBRMaterial(`emat_${ei}`, scene);
       if (isBoss && en.bossColor) {
         const [r,g,b] = en.bossColor;
         const [er,eg,eb] = en.bossEmissive ?? [r*0.4,g*0.4,b*0.4];
-        mat.diffuseColor  = new BJS.Color3(r, g, b);
+        mat.albedoColor  = new BJS.Color3(r, g, b);
         mat.emissiveColor = new BJS.Color3(er, eg, eb);
-        mat.specularColor = new BJS.Color3(0.8, 0.7, 0.4);
+        mat.metallic = 0.85;
+        mat.roughness = 0.15;
       } else {
         const colorMap: Record<MadmaxiEnemyKind, [number, number, number]> = {
           runner: [0.90, 0.28, 0.18],
@@ -1116,9 +1190,10 @@ class GameCore {
         };
         const kind = en.kind ?? 'runner';
         const [r, g, b] = colorMap[kind];
-        mat.diffuseColor  = new BJS.Color3(r, g, b);
+        mat.albedoColor  = new BJS.Color3(r, g, b);
         mat.emissiveColor = new BJS.Color3(r * 0.28, g * 0.18, b * 0.28);
-        mat.specularColor = new BJS.Color3(0.6, 0.6, 0.7);
+        mat.metallic = 0.5;
+        mat.roughness = 0.35;
       }
       mesh.material = mat;
       shadowGen.addShadowCaster(mesh, false);
@@ -1133,24 +1208,28 @@ class GameCore {
     //  Arms → thin boxes on either side, swing when walking
     //  Legs → box legs, step animation
 
-    // Shared robot gold material
-    const robotBodyMat = new BJS.StandardMaterial('robotBodyMat', scene);
-    robotBodyMat.diffuseColor  = new BJS.Color3(0.76, 0.60, 0.14); // gold body
-    robotBodyMat.emissiveColor = new BJS.Color3(0.28, 0.20, 0.04);
-    robotBodyMat.specularColor = new BJS.Color3(1.0, 0.88, 0.40);
-    robotBodyMat.specularPower = 120;
+    // Shared robot gold PBR material — physically accurate metallic finish
+    const robotBodyMat = new BJS.PBRMaterial('robotBodyMat', scene);
+    robotBodyMat.albedoColor  = new BJS.Color3(0.78, 0.62, 0.16); // gold body
+    robotBodyMat.metallic = 0.95;
+    robotBodyMat.roughness = 0.12;
+    robotBodyMat.emissiveColor = new BJS.Color3(0.15, 0.10, 0.02);
 
-    const robotDarkMat = new BJS.StandardMaterial('robotDarkMat', scene);
-    robotDarkMat.diffuseColor  = new BJS.Color3(0.22, 0.20, 0.24); // dark silver joints
-    robotDarkMat.emissiveColor = new BJS.Color3(0.06, 0.06, 0.08);
-    robotDarkMat.specularColor = new BJS.Color3(0.6, 0.6, 0.7);
-    robotDarkMat.specularPower = 80;
+    const robotDarkMat = new BJS.PBRMaterial('robotDarkMat', scene);
+    robotDarkMat.albedoColor  = new BJS.Color3(0.22, 0.20, 0.24); // dark silver joints
+    robotDarkMat.metallic = 0.9;
+    robotDarkMat.roughness = 0.25;
+    robotDarkMat.emissiveColor = new BJS.Color3(0.03, 0.03, 0.04);
 
-    const robotVisorMat = new BJS.StandardMaterial('robotVisorMat', scene);
-    robotVisorMat.diffuseColor  = new BJS.Color3(0.0, 0.7, 1.0);  // cyan visor
+    const robotVisorMat = new BJS.PBRMaterial('robotVisorMat', scene);
+    robotVisorMat.albedoColor  = new BJS.Color3(0.0, 0.7, 1.0);  // cyan visor
+    robotVisorMat.metallic = 0.1;
+    robotVisorMat.roughness = 0.05;
     robotVisorMat.emissiveColor = new BJS.Color3(0.0, 0.5, 0.9);
-    robotVisorMat.specularColor = new BJS.Color3(0.4, 0.9, 1.0);
-    robotVisorMat.specularPower = 200;
+    robotVisorMat.alpha = 0.92;
+    robotVisorMat.clearCoat.isEnabled = true;
+    robotVisorMat.clearCoat.intensity = 1.0;
+    robotVisorMat.clearCoat.roughness = 0.02;
 
     // Body (torso)
     const robotBody = BJS.MeshBuilder.CreateBox('robot_body',
@@ -1320,10 +1399,12 @@ class GameCore {
       tessellation: 8,
     }, this.scene);
     mesh.rotation.z = Math.PI / 2;
-    const mat = new BJS.StandardMaterial(`player_laser_mat_${Date.now()}`, this.scene);
+    const mat = new BJS.PBRMaterial(`player_laser_mat_${Date.now()}`, this.scene);
     mat.emissiveColor = this.superFrames > 0
       ? new BJS.Color3(1.0, 0.85, 0.18)
       : new BJS.Color3(0.0, 0.85, 1.0);
+    mat.metallic = 0.0;
+    mat.roughness = 1.0;
     mesh.material = mat;
     this.audio.playCue('laser');
     this.projectiles.push({

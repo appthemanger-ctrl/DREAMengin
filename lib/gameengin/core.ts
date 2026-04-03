@@ -148,6 +148,24 @@ export interface PerformanceBudget {
   postFxEnabled: boolean;
   maxParticles: number;
   lodBias: number;
+  /** Shadow map resolution (px). Default 2048. */
+  shadowMapSize?: number;
+  /** MSAA sample count for the DefaultRenderingPipeline. */
+  msaaSamples?: number;
+  /** Enable Screen-Space Ambient Occlusion. */
+  ssaoEnabled?: boolean;
+  /** SSAO sample radius. */
+  ssaoRadius?: number;
+  /** Enable Depth-of-Field (bokeh). */
+  dofEnabled?: boolean;
+  /** Enable Screen-Space Reflections. */
+  ssrEnabled?: boolean;
+  /** Enable image-sharpening post-process pass. */
+  sharpenEnabled?: boolean;
+  /** PBR environment reflection intensity multiplier. */
+  environmentIntensity?: number;
+  /** Enable physically-based materials (PBR) when available. */
+  pbrEnabled?: boolean;
 }
 
 const QUALITY_PRESETS: Record<QualityTier, PerformanceBudget> = {
@@ -159,6 +177,15 @@ const QUALITY_PRESETS: Record<QualityTier, PerformanceBudget> = {
     postFxEnabled: true,
     maxParticles: 5000,
     lodBias: 1.0,
+    shadowMapSize: 4096,
+    msaaSamples: 4,
+    ssaoEnabled: true,
+    ssaoRadius: 2.0,
+    dofEnabled: true,
+    ssrEnabled: true,
+    sharpenEnabled: true,
+    environmentIntensity: 1.2,
+    pbrEnabled: true,
   },
   high: {
     tier: 'high',
@@ -168,6 +195,15 @@ const QUALITY_PRESETS: Record<QualityTier, PerformanceBudget> = {
     postFxEnabled: true,
     maxParticles: 2000,
     lodBias: 0.85,
+    shadowMapSize: 2048,
+    msaaSamples: 4,
+    ssaoEnabled: true,
+    ssaoRadius: 1.5,
+    dofEnabled: false,
+    ssrEnabled: false,
+    sharpenEnabled: true,
+    environmentIntensity: 1.0,
+    pbrEnabled: true,
   },
   medium: {
     tier: 'medium',
@@ -177,6 +213,14 @@ const QUALITY_PRESETS: Record<QualityTier, PerformanceBudget> = {
     postFxEnabled: true,
     maxParticles: 800,
     lodBias: 0.7,
+    shadowMapSize: 1024,
+    msaaSamples: 2,
+    ssaoEnabled: false,
+    dofEnabled: false,
+    ssrEnabled: false,
+    sharpenEnabled: false,
+    environmentIntensity: 0.6,
+    pbrEnabled: false,
   },
   low: {
     tier: 'low',
@@ -186,6 +230,14 @@ const QUALITY_PRESETS: Record<QualityTier, PerformanceBudget> = {
     postFxEnabled: false,
     maxParticles: 200,
     lodBias: 0.5,
+    shadowMapSize: 512,
+    msaaSamples: 1,
+    ssaoEnabled: false,
+    dofEnabled: false,
+    ssrEnabled: false,
+    sharpenEnabled: false,
+    environmentIntensity: 0.3,
+    pbrEnabled: false,
   },
 };
 
