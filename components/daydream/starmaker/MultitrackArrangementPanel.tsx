@@ -61,6 +61,46 @@ function pill(color: string): CSSProperties {
   };
 }
 
+function pickerStyle(color: string = THEME.accent): CSSProperties {
+  return {
+    width: '100%',
+    padding: '9px 10px',
+    borderRadius: 8,
+    border: `1px solid ${color}35`,
+    background: '#0f1118',
+    color: THEME.text,
+    cursor: 'pointer',
+    fontSize: 12,
+    fontWeight: 700,
+    boxShadow: `inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 20px rgba(0,0,0,0.18)`,
+  };
+}
+
+function disclosureToggleStyle(active: boolean): CSSProperties {
+  return {
+    width: '100%',
+    padding: '9px 12px',
+    borderRadius: 10,
+    border: `1px solid ${active ? `${THEME.accent}32` : THEME.border}`,
+    background: active
+      ? 'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.18))'
+      : 'linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))',
+    color: active ? THEME.text : THEME.dim,
+    cursor: 'pointer',
+    boxShadow: active
+      ? 'inset 0 2px 6px rgba(0,0,0,0.35)'
+      : '0 10px 20px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.04)',
+  };
+}
+
+const disclosureTrayStyle: CSSProperties = {
+  padding: '12px',
+  borderRadius: 12,
+  background: 'linear-gradient(180deg, rgba(8,10,17,0.96), rgba(20,23,32,0.92))',
+  border: `1px solid ${THEME.border}`,
+  boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.32)',
+};
+
 interface Props {
   hasAudio: boolean;
   sourceLibrary: ArrangementSource[];
@@ -123,6 +163,14 @@ export default function MultitrackArrangementPanel({
   const selectedSource = sourceLibrary.find(source => source.id === activeSourceId) ?? null;
   const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
   const arrangementBarsUsed = arrClips.length ? Math.max(...arrClips.map(clip => clip.startBar + clip.barLength)) : 0;
+  const [clipToolsExpanded, setClipToolsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (sourceLibrary.length === 0) return;
+    if (!selectedSourceId || !sourceLibrary.some(source => source.id === selectedSourceId)) {
+      onSelectSource(sourceLibrary[0].id);
+    }
+  }, [onSelectSource, selectedSourceId, sourceLibrary]);
 
   return (
     <div style={{
@@ -253,7 +301,41 @@ export default function MultitrackArrangementPanel({
           <div style={{ fontSize: 9, fontWeight: 700, color: THEME.dim, letterSpacing: '0.08em' }}>
             SOURCE RACK PREVIEW
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: THEME.dim, letterSpacing: '0.08em' }}>
+                SOURCE PICKER
+              </span>
+              <select
+                value={selectedSourceId ?? ''}
+                onChange={(event) => onSelectSource(event.target.value)}
+                aria-label="Arrangement source picker"
+                disabled={sourceLibrary.length === 0}
+                style={{
+                  ...pickerStyle(THEME.purple),
+                  opacity: sourceLibrary.length === 0 ? 0.6 : 1,
+                  cursor: sourceLibrary.length === 0 ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {sourceLibrary.length === 0 ? (
+                  <option value="">Capture a source first</option>
+                ) : (
+                  sourceLibrary.map(source => (
+                    <option key={source.id} value={source.id}>
+                      {source.name} · {formatSeconds(source.durationSec)}
+                    </option>
+                  ))
+                )}
+              </select>
+            </label>
+
+            <div style={{ fontSize: 10, color: THEME.dim }}>
+              {selectedSource
+                ? `Selected source: ${selectedSource.name} · ${formatSeconds(selectedSource.durationSec)}`
+              : 'Use the picker to assign which captured source drops into the next clip slot.'}
+            </div>
+
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {sourceLibrary.length > 0 ? sourceLibrary.map(source => (
               <div
                 key={source.id}
@@ -267,6 +349,7 @@ export default function MultitrackArrangementPanel({
                   alignItems: 'center',
                   gap: 8,
                   minWidth: 150,
+                  opacity: selectedSourceId === source.id ? 1 : 0.72,
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 20 }}>
@@ -308,6 +391,7 @@ export default function MultitrackArrangementPanel({
                 Capture the current edited sample into the Source Rack, then click a bar cell in a lane to place clips.
               </div>
             )}
+            </div>
           </div>
         </div>
 
@@ -454,27 +538,28 @@ export default function MultitrackArrangementPanel({
           })}
         </div>
 
-        <div style={{
-          padding: '10px 12px',
-          borderRadius: 8,
-          background: 'rgba(255,255,255,0.03)',
-          border: `1px solid ${THEME.border}`,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 8,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: 10, color: THEME.dim }}>
-              {selectedClip
-                ? `Selected clip: ${selectedClip.label} on ${arrTracks.find(track => track.id === selectedClip.trackId)?.label ?? selectedClip.trackId}`
-                : 'Select an arrangement clip to edit it'}
-            </div>
-            {selectedClip && (
-              <span style={{ ...pill(selectedClip.color), fontSize: 9 }}>
-                Bars {selectedClip.startBar + 1}-{selectedClip.startBar + selectedClip.barLength}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => setClipToolsExpanded(prev => !prev)}
+            aria-expanded={clipToolsExpanded}
+            style={disclosureToggleStyle(clipToolsExpanded)}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.08em' }}>CLIP TOOLS</span>
+              <span style={{ fontSize: 10, color: THEME.dim }}>
+                {selectedClip
+                  ? `Tweaking ${selectedClip.label} on ${arrTracks.find(track => track.id === selectedClip.trackId)?.label ?? selectedClip.trackId}`
+                  : 'Select a clip to reveal edit parameters'}
               </span>
-            )}
-          </div>
+              {selectedClip && (
+                <span style={{ ...pill(selectedClip.color), fontSize: 9, marginLeft: 'auto' }}>
+                  Bars {selectedClip.startBar + 1}-{selectedClip.startBar + selectedClip.barLength}
+                </span>
+              )}
+              <span style={{ fontSize: 10, color: clipToolsExpanded ? THEME.accent : THEME.dim }}>{clipToolsExpanded ? '▼' : '▶'}</span>
+            </div>
+          </button>
 
           <button
             type="button"
