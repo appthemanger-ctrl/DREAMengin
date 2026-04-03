@@ -16,6 +16,10 @@ import {
   SPLIT_FLING_VELOCITY_PX_PER_MS,
   DEFAULT_SPLIT_RATIO,
   DIVIDER_H,
+  ORB_SIZE,
+  ORB_TAP_SLOP,
+  clampOrbOffset,
+  computeOrbDragPosition,
 } from '@/lib/dreamdm/barInteractions';
 
 describe('resolveGoldTapAction', () => {
@@ -184,5 +188,70 @@ describe('split-screen divider constants', () => {
 
   it('exports a positive DIVIDER_H', () => {
     expect(DIVIDER_H).toBeGreaterThan(0);
+  });
+});
+
+// ── Minimized orb drag helpers ──────────────────────────────────────────────
+
+describe('minimized orb constants', () => {
+  it('exports a positive ORB_SIZE', () => {
+    expect(ORB_SIZE).toBe(48);
+  });
+
+  it('exports a positive ORB_TAP_SLOP', () => {
+    expect(ORB_TAP_SLOP).toBe(8);
+  });
+});
+
+describe('clampOrbOffset', () => {
+  it('clamps negative offset to 0', () => {
+    expect(clampOrbOffset(-10, 1440)).toBe(0);
+  });
+
+  it('clamps offset that would push the orb off-screen to max', () => {
+    expect(clampOrbOffset(1440, 1440)).toBe(1440 - ORB_SIZE);
+  });
+
+  it('keeps a valid offset unchanged', () => {
+    expect(clampOrbOffset(100, 1440)).toBe(100);
+  });
+
+  it('handles zero viewport extent by clamping to 0', () => {
+    expect(clampOrbOffset(20, ORB_SIZE)).toBe(0);
+  });
+});
+
+describe('computeOrbDragPosition', () => {
+  const W = 1440;
+  const H = 900;
+
+  it('returns start position when drag delta is zero', () => {
+    expect(computeOrbDragPosition(20, 20, 0, 0, W, H)).toEqual({ x: 20, y: 20 });
+  });
+
+  it('moves the orb to the left when dragging right (positive dx)', () => {
+    // "right" offset decreases by dx
+    const result = computeOrbDragPosition(200, 100, 50, 0, W, H);
+    expect(result.x).toBe(150);
+    expect(result.y).toBe(100);
+  });
+
+  it('moves the orb upward when dragging down (positive dy)', () => {
+    // "bottom" offset decreases by dy
+    const result = computeOrbDragPosition(100, 200, 0, 80, W, H);
+    expect(result.x).toBe(100);
+    expect(result.y).toBe(120);
+  });
+
+  it('clamps to 0 when dragged past the right/bottom edge', () => {
+    const result = computeOrbDragPosition(20, 20, 100, 100, W, H);
+    expect(result.x).toBe(0);
+    expect(result.y).toBe(0);
+  });
+
+  it('clamps to the far edge when dragged past the left/top edge', () => {
+    const result = computeOrbDragPosition(20, 20, -2000, -2000, W, H);
+    expect(result.x).toBe(W - ORB_SIZE);
+    expect(result.y).toBe(H - ORB_SIZE);
   });
 });

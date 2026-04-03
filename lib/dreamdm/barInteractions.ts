@@ -144,3 +144,36 @@ export function shouldCollapseTopExpandedDrag({
     velocityPxPerMs >= BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS
   );
 }
+
+// ── Minimized orb position helpers ───────────────────────────────────────────
+/** Size of the minimized gold orb (px). */
+export const ORB_SIZE = 48;
+/** Tap slop for the minimized orb — movement below this threshold is treated as a tap. */
+export const ORB_TAP_SLOP = 8;
+
+/**
+ * Clamps a minimized-orb CSS offset (right/bottom) so the orb stays fully
+ * on-screen. `viewportExtent` is the viewport dimension (width for x, height for y).
+ */
+export function clampOrbOffset(offset: number, viewportExtent: number): number {
+  return Math.max(0, Math.min(viewportExtent - ORB_SIZE, offset));
+}
+
+/**
+ * Returns the new right/bottom offsets after a pointer drag of (dx, dy) pixels.
+ * Positive dx = pointer moved right → "right" offset decreases.
+ * Positive dy = pointer moved down  → "bottom" offset decreases.
+ */
+export function computeOrbDragPosition(
+  startRight: number,
+  startBottom: number,
+  dx: number,
+  dy: number,
+  screenW: number,
+  screenH: number,
+): { x: number; y: number } {
+  return {
+    x: clampOrbOffset(startRight - dx, screenW),
+    y: clampOrbOffset(startBottom - dy, screenH),
+  };
+}
