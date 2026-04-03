@@ -64,6 +64,15 @@ const ENGINES = [
     accent: '#fb923c',
     subroutes: ['Editor', 'Calendar', 'Queue'],
   },
+  {
+    id: 'forge',
+    name: 'ForgeEngin',
+    emoji: '🔥',
+    description: 'Meta-creation · orchestrate all engines',
+    href: '/daydream/forge',
+    accent: '#ef4444',
+    subroutes: ['Status Matrix', 'Cross-Engine', 'Activity'],
+  },
 ] as const;
 
 export default async function EnginesHubPage() {

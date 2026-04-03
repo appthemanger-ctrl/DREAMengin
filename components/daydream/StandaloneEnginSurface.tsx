@@ -7,6 +7,7 @@ import LabEngin from '@/components/daydream/LabEngin';
 import CodeEngin from '@/components/daydream/CodeEngin';
 import BrandingEngin from '@/components/daydream/BrandingEngin';
 import ContentEngin from '@/components/daydream/ContentEngin';
+import ForgeEngin from '@/components/daydream/ForgeEngin';
 
 const ENGIN_COMPONENTS = {
   StarMakerEngin,
@@ -15,6 +16,7 @@ const ENGIN_COMPONENTS = {
   CodeEngin,
   BrandingEngin,
   ContentEngin,
+  ForgeEngin,
 } as const;
 
 export type StandaloneEnginName = keyof typeof ENGIN_COMPONENTS;
