@@ -56,6 +56,7 @@ import {
 } from '@/lib/music/presets';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import MultitrackArrangementPanel from '@/components/daydream/starmaker/MultitrackArrangementPanel';
 import Link from 'next/link';
 import {
@@ -421,6 +422,8 @@ export default function StarMakerEngin({ onBack }: Props) {
       setExportPending(false);
       setExportDone(true);
     }, 800);
+    forgeRecord('Exported stems');
+    recordForgeTransfer('music', 'games', 'audio-stems', 'StarMaker stems → GameEngin');
   }, [stemReady, beatGrid, bpm, musicalKey, keyMode, mixer]);
 
   // ── Waveform Visualizer state ──
@@ -724,6 +727,7 @@ export default function StarMakerEngin({ onBack }: Props) {
   }
 
   function handleSavePlaylist() {
+    forgeRecord('Saved playlist');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'music', 'music:playlist-save', { order: playlist.map(p => p.id) },
     );

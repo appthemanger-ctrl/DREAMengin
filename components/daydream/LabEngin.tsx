@@ -20,6 +20,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
@@ -151,6 +152,7 @@ export default function LabEngin({ onBack }: Props) {
   function handleExportData() {
     bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });
     forgeRecord('Exported data');
+    recordForgeTransfer('lab', 'code', 'dataset', 'Lab data export → CodeEngin');
     setExportFlash(true);
     setTimeout(() => setExportFlash(false), 1800);
   }

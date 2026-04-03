@@ -24,6 +24,7 @@ import Link from 'next/link';
 import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
 
 interface Props {
@@ -329,6 +330,7 @@ export default function BrandingEngin({ onBack }: Props) {
   async function handleSendToContentEngin() {
     if (!voiceSuggestion.trim()) return;
     forgeRecord('Sent to ContentEngin');
+    recordForgeTransfer('brand', 'create', 'voice-draft', 'Brand voice → ContentEngin draft');
     setContentBridgeSending(true);
     try {
       await fetch('/api/drafts', {
