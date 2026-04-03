@@ -410,3 +410,49 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
+
+/* ── Landscape overrides ────────────────────────────────────────────────── */
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .joystickDock {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  }
+
+  .leftDock {
+    --dock-size: clamp(72px, 20vw, 110px);
+    left: calc(env(safe-area-inset-left, 0px) + clamp(8px, 2vw, 16px));
+  }
+
+  .rightDock {
+    --dock-size: clamp(130px, 34vw, 200px);
+    right: calc(env(safe-area-inset-right, 0px) + clamp(8px, 2vw, 16px));
+  }
+
+  .centerGroup {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+    gap: 3px;
+  }
+
+  .pill {
+    min-width: 48px;
+    padding: 5px 10px;
+    font-size: 8px;
+  }
+
+  .sizeControl {
+    padding: 2px 6px;
+  }
+
+  .hudBadge {
+    display: none;
+  }
+
+  .readout {
+    display: none;
+  }
+
+  .ringButton {
+    width: 20%;
+    height: 20%;
+  }
+}
