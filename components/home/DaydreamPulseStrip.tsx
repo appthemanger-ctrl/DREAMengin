@@ -102,7 +102,7 @@ export default function DaydreamPulseStrip({ onOpenDaydream }: DaydreamPulseStri
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))',
           gap: 8,
           padding: '14px 14px 16px',
         }}
