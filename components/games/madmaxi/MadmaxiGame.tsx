@@ -58,11 +58,11 @@ const GW = 800; // logical canvas width
 const GH = 480; // logical canvas height
 const GRAV       = 0.048;   // units / frame²
 const MAX_FALL   = 0.95;    // terminal velocity (positive = down in BJS Y-up is handled)
-const JUMP_VY    = 0.68;    // initial jump Y velocity
-const WALK_SPD   = 0.115;   // horizontal speed
+const JUMP_VY    = 0.578;   // initial jump Y velocity (reduced ~15% for tighter control)
+const WALK_SPD   = 0.098;   // horizontal speed (reduced ~15% for precise platforming)
 const COYOTE_MS  = 8;       // extra frames to jump after leaving ledge
 const JBUF_MS    = 6;       // frames to buffer a jump before landing
-const DASH_SPD   = 0.42;    // player dash speed (≈ 3.7× walk)
+const DASH_SPD   = 0.357;   // player dash speed (reduced ~15%, still ≈ 3.6× walk)
 const DASH_DUR   = 10;      // dash duration in frames
 const DASH_COOL  = 45;      // frames between dashes
 const PROJ_SPD   = 4.5;     // boss projectile speed (px/frame)
@@ -779,6 +779,7 @@ class GameCore {
     this.isBossLevel = def.isBossLevel ?? false;
     this.audio.setTheme(def.audioTheme);
     this.audio.playCue('zone-start');
+    this.audio.startBGM();
     this.platforms   = def.platforms.map(p => ({ ...p, curX: p.x, moveDir: 1 }));
     this.coins       = def.coins.map(c => ({ ...c, collected: false }));
     this.enemies     = def.enemies.map(e => ({
@@ -1378,6 +1379,7 @@ class GameCore {
     this.invincible = 90;
     this.lives--;
     this.audio.playCue('hurt');
+    this.audio.stopBGM();
     this.cbs.onDie(this.lives);
   }
 
@@ -1561,6 +1563,7 @@ class GameCore {
     if (this.py > GH + 60) {
       this.dying = true;
       this.lives--;
+      this.audio.stopBGM();
       this.cbs.onDie(this.lives);
       return;
     }
@@ -1587,6 +1590,7 @@ class GameCore {
           this.score += 500;
           this.cbs.onScore(this.score);
           this.audio.playCue('goal');
+          this.audio.stopBGM();
           this.cbs.onComplete(this.level + 1);
           return;
         } else {

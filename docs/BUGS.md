@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-03 12:55 UTC  
-**Triggered by commit:** `c751843` on `copilot/add-born-a-soldier-game` by Copilot  
-**Commit message:** feat: upgrade NeonDrift and EchoArena to PBR materials, shadows, SSAO, ACES tone mapping
+**Last updated:** 2026-04-03 13:07 UTC  
+**Triggered by commit:** `f676228` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #420 from appthemanger-ctrl/copilot/modernize-game-controls-layout
 
 ---
 
