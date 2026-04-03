@@ -410,3 +410,55 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
+
+/* ── Size control: collapsed by default, revealed on drag-handle tap ──── */
+
+.sizeControlHidden {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+  transition: max-height 0.22s ease, opacity 0.18s ease;
+}
+
+.sizeControlVisible {
+  max-height: 40px;
+  opacity: 1;
+  overflow: visible;
+  pointer-events: auto;
+  transition: max-height 0.22s ease, opacity 0.18s ease;
+}
+
+/* ── Landscape overrides ────────────────────────────────────────────────── */
+
+@media (orientation: landscape) {
+  .joystickDock {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  }
+
+  .leftDock {
+    left: calc(env(safe-area-inset-left, 0px) + clamp(12px, 3vw, 22px));
+    --dock-size: clamp(90px, 18vh, 130px);
+  }
+
+  .rightDock {
+    right: calc(env(safe-area-inset-right, 0px) + clamp(12px, 3vw, 22px));
+    --dock-size: clamp(150px, 36vh, 230px);
+  }
+
+  .centerGroup {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  }
+
+  .hudBadge {
+    top: calc(env(safe-area-inset-top, 0px) + 6px);
+    font-size: 8px;
+  }
+
+  .ringButton {
+    width: 21%;
+    height: 21%;
+  }
+}
