@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-03 13:14 UTC  
-**Triggered by commit:** `9cd3e91` on `copilot/add-born-a-soldier-game` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/add-born-a-soldier-game
+**Last updated:** 2026-04-03 14:15 UTC  
+**Triggered by commit:** `fdc1b63` on `completedream` by appthemanger-ctrl  
+**Commit message:** Update Babylon.js version to 9
 
 ---
 
