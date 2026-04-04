@@ -1,7 +1,7 @@
 import '@/styles/globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
-import { Space_Grotesk, Cormorant_Garamond } from 'next/font/google';
+import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
 import ThemeProvider from '@/components/providers/ThemeProvider';
 import ThemeApplicator from '@/components/ThemeApplicator';
 import Link from 'next/link';
@@ -26,6 +26,13 @@ const cormorant = Cormorant_Garamond({
   weight: ['300', '400', '500', '600', '700'],
   style: ['normal', 'italic'],
   variable: '--font-cormorant',
+  display: 'swap',
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-dreamr',
   display: 'swap',
 });
 
@@ -55,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`scroll-smooth ${spaceGrotesk.variable} ${cormorant.variable}`}
+      className={`scroll-smooth ${spaceGrotesk.variable} ${cormorant.variable} ${plusJakarta.variable}`}
       data-theme="dream-ice"
       suppressHydrationWarning
     >

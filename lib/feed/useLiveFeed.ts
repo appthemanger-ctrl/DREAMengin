@@ -46,7 +46,15 @@ export interface FeedPost {
     display_name: string | null;
     avatar_url: string | null;
   };
+  /**
+   * View count — the ONLY public metric on DreamR.
+   * Displayed on feed cards in place of a like count.
+   * Will be populated once a views table/column is added to the DB.
+   */
+  views_count?: number;
+  /** Private — never rendered publicly. Creator-only Signal tab only. */
   likes_count?: number;
+  /** Private — never rendered publicly. Creator-only Signal tab only. */
   comments_count?: number;
   /** 'post' = platform post | 'connector' = external feed item | 'share' = reshared content */
   source?: 'post' | 'connector' | 'share';
