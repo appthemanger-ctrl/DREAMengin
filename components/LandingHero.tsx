@@ -462,13 +462,20 @@ export default function LandingHero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.58 + i * 0.06, duration: 0.35, ease: [0, 0, 0.2, 1] }}
-              className="rounded-2xl p-4 flex flex-col gap-2"
+              className="rounded-2xl p-4 flex flex-col gap-2 transition-all duration-200"
               style={{
                 background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                border: `1px solid ${f.border}`,
                 backdropFilter: 'blur(14px)',
                 WebkitBackdropFilter: 'blur(14px)',
+                cursor: 'default',
               }}
+              whileHover={{
+                scale: 1.03,
+                borderColor: f.color,
+                boxShadow: `0 8px 32px ${f.bg}`,
+              }}
+              whileTap={{ scale: 0.97 }}
             >
               <span
                 className="text-2xl"
@@ -507,10 +514,14 @@ export default function LandingHero() {
           ].map((item) => (
             <div
               key={item.text}
-              className="flex items-center gap-2 text-xs"
-              style={{ color: 'rgba(140,170,220,0.45)' }}
+              className="flex items-center gap-2 text-xs select-none"
+              style={{
+                color: 'rgba(140,170,220,0.50)',
+                padding: '4px 0',
+                transition: 'color 0.15s',
+              }}
             >
-              <span aria-hidden="true" style={{ fontSize: 11 }}>{item.icon}</span>
+              <span aria-hidden="true" style={{ fontSize: 12, filter: 'drop-shadow(0 0 4px rgba(200,152,26,0.2))' }}>{item.icon}</span>
               {item.text}
             </div>
           ))}

@@ -85,7 +85,7 @@ export default function DreamWidget({
       onKeyDown={onOpen ? (e) => e.key === 'Enter' && onOpen() : undefined}
     >
       {/* Hover gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-de-sky/5 via-transparent to-de-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+      <div className="absolute inset-0 bg-gradient-to-br from-de-sky/5 via-transparent to-de-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl" />
 
       {/* Main content */}
       <div className="relative z-10">

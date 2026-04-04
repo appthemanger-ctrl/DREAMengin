@@ -3,10 +3,10 @@
 > **Comprehensive analysis of the entire codebase**
 > Generated automatically - DO NOT EDIT MANUALLY
 
-**Last Updated:** 4/2/2026, 4:17:30 AM
+**Last Updated:** 4/4/2026, 4:05:59 AM
 **Branch:** completedream
-**Commit:** b38c50a5 - idari: auto-update README [a4432d1] [skip ci] [skip vercel]
-**Total Commits:** 2956
+**Commit:** 3541dab7 - docs: auto-update BUGS.md [0203ad3] [skip ci] [skip vercel]
+**Total Commits:** 3213
 
 ---
 
@@ -41,13 +41,13 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 586
-- 📝 Total Lines of Code: 133,358
-- 📦 Size: 5.03 MB
-- 🧪 Tests: 87 files, 81 passing
+- 📁 Total Code Files: 600
+- 📝 Total Lines of Code: 140,291
+- 📦 Size: 5.27 MB
+- 🧪 Tests: 94 files, 88 passing
 - 📄 API Routes: 74
 - 🎨 Components: 34 categories
-- 📖 Documentation: 48 files
+- 📖 Documentation: 47 files
 - ⚙️ GitHub Actions: 52 workflows
 
 ## Tech Stack
@@ -64,9 +64,10 @@
 
 ### All Dependencies
 
-**Production Dependencies:** 22
+**Production Dependencies:** 23
 ```
-@babylonjs/core@^8.54.3
+@babylonjs/core@^9.1.0
+@babylonjs/havok@^1.3.12
 @react-three/drei@^10.7.7
 @react-three/fiber@^9.5.0
 @supabase/ssr@^0.9.0
@@ -85,29 +86,28 @@ rss-parser@^3.13.0
 swr@^2.4.1
 tailwind-merge@^3.5.0
 three@^0.167.0
-uuid@^13.0.0
-... and 2 more
+... and 3 more
 ```
 
 **Dev Dependencies:** 17
 ```
+@tailwindcss/postcss@^4.2.2
 @types/node@^24.0.0
 @types/react@^19.0.0
 @types/react-dnd@^3.0.2
 @types/react-dom@^19.0.0
 @types/three@^0.183.1
-autoprefixer@^10.4.27
+assemblyscript@^0.27.0
 eslint@^9.0.0
 eslint-config-next@^16.1.0
 pixi-viewport@^6.0.3
 pixi.js@^8.17.0
 react-dnd@^16.0.1
 react-dnd-html5-backend@^16.0.1
-tailwindcss@^3.4.19
+tailwindcss@^4.2.2
 tailwindcss-animate@^1.0.7
 typescript@^5.5.0
 vitest@^4.0.18
-assemblyscript@^0.27.0
 ```
 
 ## Repository Structure
@@ -116,29 +116,29 @@ assemblyscript@^0.27.0
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 200 | .tsx(123), .ts(75), .css(2) |
-| `components/` | 270 | .tsx(245), .ts(22), .css(2) |
-| `lib/` | 220 | .ts(215), .tsx(3), .md(2) |
-| `tests/` | 89 | .ts(88), .md(1) |
+| `app/` | 202 | .tsx(125), .ts(75), .css(2) |
+| `components/` | 276 | .tsx(250), .ts(23), .css(2) |
+| `lib/` | 227 | .ts(222), .tsx(3), .md(2) |
+| `tests/` | 96 | .ts(95), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 47 | .png(18), .PNG(11), .jpeg(6) |
 | `docs/` | 44 | .md(44) |
 | `scripts/` | 22 | .mjs(12), .sh(3), .cjs(3) |
-| `supabase/` | 43 | .sql(42), .toml(1) |
+| `supabase/` | 45 | .sql(44), .toml(1) |
 
 ## Code Metrics
 
 ### File Distribution
 
-- **App Routes (TSX):** 123
-- **Component Files:** 245
-- **Library Files:** 218
-- **Test Files:** 81
+- **App Routes (TSX):** 125
+- **Component Files:** 250
+- **Library Files:** 225
+- **Test Files:** 88
 
 ### Code Volume
 
-- **Total Lines:** 133,358
-- **Total Size:** 5.03 MB
+- **Total Lines:** 140,291
+- **Total Size:** 5.27 MB
 
 ## API Routes
 
@@ -202,7 +202,7 @@ assemblyscript@^0.27.0
 
 ## Pages & Routes
 
-**Total Pages:** 100
+**Total Pages:** 101
 
 ### All Pages
 
@@ -225,6 +225,7 @@ assemblyscript@^0.27.0
 | `/daydream/constellation` | /app/daydream/constellation/page.tsx |
 | `/daydream/create/engin` | /app/daydream/create/engin/page.tsx |
 | `/daydream/create` | /app/daydream/create/page.tsx |
+| `/daydream/forge` | /app/daydream/forge/page.tsx |
 | `/daydream/game` | /app/daydream/game/page.tsx |
 | `/daydream/games/engin` | /app/daydream/games/engin/page.tsx |
 | `/daydream/games` | /app/daydream/games/page.tsx |
@@ -257,8 +258,7 @@ assemblyscript@^0.27.0
 | `/engines/games` | /app/engines/games/page.tsx |
 | `/engines/games/scores` | /app/engines/games/scores/page.tsx |
 | `/engines/lab/data` | /app/engines/lab/data/page.tsx |
-| `/engines/lab/experiments` | /app/engines/lab/experiments/page.tsx |
-| ... | ... and 50 more pages |
+| ... | ... and 51 more pages |
 
 ## Components
 
@@ -273,12 +273,12 @@ assemblyscript@^0.27.0
 | `controls/` | 1 |
 | `core/` | 1 |
 | `customize/` | 7 |
-| `daydream/` | 17 |
-| `dreamengin/` | 16 |
+| `daydream/` | 18 |
+| `dreamengin/` | 17 |
 | `dreamnav/` | 2 |
 | `dreams/` | 7 |
 | `engines/` | 35 |
-| `feed/` | 4 |
+| `feed/` | 5 |
 | `feeds/` | 1 |
 | `gameengin/` | 1 |
 | `games/` | 42 |
@@ -291,7 +291,7 @@ assemblyscript@^0.27.0
 | `onboarding/` | 1 |
 | `optimizer/` | 1 |
 | `panels/` | 14 |
-| `profile/` | 3 |
+| `profile/` | 4 |
 | `providers/` | 2 |
 | `runtime/` | 3 |
 | `shaders/` | 4 |
@@ -300,20 +300,18 @@ assemblyscript@^0.27.0
 | `ui/` | 7 |
 | `universe/` | 6 |
 | `warp/` | 1 |
-| `webgpu/` | 3 |
+| `webgpu/` | 4 |
 | `widgets/` | 12 |
 
 ## Database Schema
 
-**Total Migrations:** 40
+**Total Migrations:** 42
 **Schema File:** ✓ Present
 
 ### Migration History
 
 | Migration File |
 |----------------|
-| 20260322000000_policy_events.sql |
-| 20260322000001_message_boards.sql |
 | 20260323100000_embed_feed_items.sql |
 | 20260324000000_phase8e_orders.sql |
 | 20260324000001_phase8e_shop_marketplace.sql |
@@ -322,12 +320,14 @@ assemblyscript@^0.27.0
 | 20260401000001_platform_utilities.sql |
 | 20260402000001_control_mappings.sql |
 | 20260402000002_game_assets.sql |
-| ... and 30 earlier migrations |
+| 20260403000001_pgvector_embeddings.sql |
+| 20260403000002_pgvector_search_rpc.sql |
+| ... and 32 earlier migrations |
 
 ## Tests
 
-**Test Files:** 87
-**Tests Passing:** 81
+**Test Files:** 94
+**Tests Passing:** 88
 **Tests Failing:** 0
 
 ### Test Files
@@ -352,15 +352,14 @@ assemblyscript@^0.27.0
 - /tests/dev-bypass.test.ts
 - /tests/diff-viewer.test.ts
 - /tests/dr-eams-search-bar.test.ts
-- ... and 67 more test files
+- ... and 74 more test files
 
 ## Documentation
 
-**Total Documentation Files:** 48
+**Total Documentation Files:** 47
 
 ### Documentation Files
 
-- [README.md](/README.md)
 - [CHANGELOG.md](/CHANGELOG.md)
 - [LICENSE](/LICENSE)
 - [IMPLEMENTATION_NOTES.md](/IMPLEMENTATION_NOTES.md)
@@ -390,7 +389,8 @@ assemblyscript@^0.27.0
 - [IDARI_CONTRACT.md](/docs/IDARI_CONTRACT.md)
 - [LAW.md](/docs/LAW.md)
 - [NAMING_AUTHORITY.md](/docs/NAMING_AUTHORITY.md)
-- ... and 18 more docs
+- [POLICY_TESTS.md](/docs/POLICY_TESTS.md)
+- ... and 17 more docs
 
 ## CI/CD Workflows
 
@@ -473,7 +473,7 @@ assemblyscript@^0.27.0
 
 ### Next.js App Router Architecture
 
-94 Server Components, 29 Client Components
+96 Server Components, 29 Client Components
 
 ### Supabase Backend
 
@@ -522,23 +522,24 @@ Using Supabase for database, auth, and storage
 
 ### Potentially unused dependencies
 
+- @babylonjs/havok
 - @tensorflow/tfjs
 - @tensorflow/tfjs-backend-webgpu
 - axios
 - swr
 - yaml
+- @tailwindcss/postcss
 - @types/node
 - @types/react
 - @types/react-dnd
 - @types/react-dom
 - @types/three
-- autoprefixer
+- assemblyscript
 - eslint
 - eslint-config-next
 - react-dnd-html5-backend
 - tailwindcss
 - tailwindcss-animate
-- assemblyscript
 
 ## 2026 Standards Compliance
 
@@ -569,4 +570,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/2/2026, 4:17:30 AM*
+*Last updated: 4/4/2026, 4:05:59 AM*

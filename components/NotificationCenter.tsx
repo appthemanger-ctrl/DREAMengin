@@ -22,6 +22,7 @@ import {
   Bell,
   Check,
   DollarSign,
+  GitBranch,
   Heart,
   Loader2,
   MessageCircle,
@@ -47,6 +48,7 @@ function NotifIcon({ type }: { type: UiNotificationType }) {
     case 'trending': return <TrendingUp size={14} style={{ color: '#f97316', flexShrink: 0 }} />;
     case 'revenue':  return <DollarSign size={14} style={{ color: '#10b981', flexShrink: 0 }} />;
     case 'message':  return <MessageCircle size={14} style={{ color: '#4A90D9', flexShrink: 0 }} />;
+    case 'remix':    return <GitBranch size={14} style={{ color: '#c8981a', flexShrink: 0 }} />;
     default:         return <Bell size={14} style={{ color: 'var(--de-text-dim)', flexShrink: 0 }} />;
   }
 }

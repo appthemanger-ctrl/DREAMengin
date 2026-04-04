@@ -49,6 +49,7 @@ export type UiNotificationType =
   | 'revenue'
   | 'mention'
   | 'message'
+  | 'remix'
   | 'other';
 
 export interface UiNotification {
@@ -75,6 +76,7 @@ export function mapNotificationType(dbType: string): UiNotificationType {
   if (t === 'revenue')   return 'revenue';
   if (t === 'mention')   return 'mention';
   if (t === 'message')   return 'message';
+  if (t === 'remix')     return 'remix';
   return 'other';
 }
 
@@ -92,6 +94,7 @@ export function getNotificationTitle(type: UiNotificationType): string {
     case 'revenue':  return 'Revenue Update';
     case 'mention':  return 'You were mentioned';
     case 'message':  return 'New Message';
+    case 'remix':    return 'Your Dream was Remixed';
     case 'other':    return 'Notification';
   }
 }
@@ -138,6 +141,19 @@ export function getNotificationActionUrl(
       }
       return undefined;
     }
+    case 'remix': {
+      // Phase 9 §22: asset-aware notification — link to the remix in its Engin
+      const enginName = content.engin_name ?? content.engin;
+      const assetId = content.asset_id ?? content.remix_id;
+      if (typeof enginName === 'string' && enginName.trim() && typeof assetId === 'string' && assetId.trim()) {
+        return `/daydream/${encodeURIComponent(enginName.trim())}?asset=${encodeURIComponent(assetId.trim())}`;
+      }
+      const postId = content.post_id ?? content.content_id;
+      if (typeof postId === 'string' && postId.trim()) {
+        return `/post/${encodeURIComponent(postId.trim())}`;
+      }
+      return undefined;
+    }
     case 'trending': {
       const postId = content.post_id;
       if (typeof postId === 'string' && postId.trim()) {
@@ -177,6 +193,7 @@ export function extractNotificationMessage(
       case 'follow':  return `${actorStr} started following you.`;
       case 'mention': return `${actorStr} mentioned you.`;
       case 'message': return `${actorStr} sent you a message.`;
+      case 'remix':   return `${actorStr} remixed your Dream.`;
       case 'trending':return 'Your post is trending!';
       case 'revenue': return 'You have a new revenue update.';
       default:        return 'You have a new notification.';
