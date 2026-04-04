@@ -110,7 +110,7 @@ export default function ForgeEngin({ onBack }: Props) {
   const [builderTitle, setBuilderTitle] = useState('');
 
   // Forge activity pulse — record when this engine is used
-  const forge = useForgeActivity({ enginId: 'forge' });
+  const { record: forgeRecord } = useForgeActivity({ enginId: 'forge' });
 
   // Subscribe to ALL 6 channels for the live Pulse Monitor event feed.
   // Uses a cast because ForgeEngin is the meta-layer that monitors every channel
@@ -181,8 +181,8 @@ export default function ForgeEngin({ onBack }: Props) {
     if (!goalInput.trim()) return;
     const wf = parseGoalToWorkflow(goalInput);
     setGeneratedWorkflow(wf);
-    forge.record('Generated workflow suggestion');
-  }, [goalInput, forge]);
+    forgeRecord('Generated workflow suggestion');
+  }, [goalInput]);
 
   // Save generated or custom workflow
   const handleSaveWorkflow = useCallback((wf: ForgeWorkflow) => {
@@ -202,14 +202,14 @@ export default function ForgeEngin({ onBack }: Props) {
   const handleStartRun = useCallback((wf: ForgeWorkflow) => {
     const run = startWorkflowRun(wf.id, wf.steps.length);
     setWorkflowRun(run);
-    forge.record('Started workflow run');
-  }, [forge]);
+    forgeRecord('Started workflow run');
+  }, []);
 
   // Complete a workflow step
   const handleCompleteStep = useCallback((stepIndex: number) => {
     const run = updateWorkflowStep(stepIndex, 'complete');
     setWorkflowRun(run);
-    forge.record('Completed workflow step');
+    forgeRecord('Completed workflow step');
 
     // Emit to the relevant engine's channel when a step completes.
     // Map step index → engine id from the active workflow, then emit
@@ -228,7 +228,7 @@ export default function ForgeEngin({ onBack }: Props) {
         }
       }
     }
-  }, [forge, allWorkflows]);
+  }, [allWorkflows]);
 
   // Fail a workflow step
   const handleFailStep = useCallback((stepIndex: number) => {
