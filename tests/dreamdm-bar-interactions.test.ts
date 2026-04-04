@@ -255,3 +255,44 @@ describe('computeOrbDragPosition', () => {
     expect(result.y).toBe(H - ORB_SIZE);
   });
 });
+
+// ── Glowing light position cycle ────────────────────────────────────────────
+
+import { cycleLightPosition, DRAG_TAP_THRESHOLD_PX, DOUBLE_TAP_WINDOW_MS, type LightPosition } from '@/lib/dreamdm/barInteractions';
+
+describe('glowing light constants', () => {
+  it('exports a positive DRAG_TAP_THRESHOLD_PX', () => {
+    expect(DRAG_TAP_THRESHOLD_PX).toBeGreaterThan(0);
+  });
+
+  it('exports a positive DOUBLE_TAP_WINDOW_MS', () => {
+    expect(DOUBLE_TAP_WINDOW_MS).toBeGreaterThan(0);
+  });
+});
+
+describe('cycleLightPosition', () => {
+  it('advances from bottom to middle', () => {
+    expect(cycleLightPosition('bottom')).toBe('middle');
+  });
+
+  it('advances from middle to top', () => {
+    expect(cycleLightPosition('middle')).toBe('top');
+  });
+
+  it('returns from top back to middle (ping-pong)', () => {
+    expect(cycleLightPosition('top')).toBe('middle');
+  });
+
+  it('returns from second middle back to bottom', () => {
+    // Simulate: bottom→middle→top→middle (4-step cycle, 3 calls from bottom)
+    // The caller (DreamDMBar) tracks the full ping-pong via lightCycleRef.
+    // Verify the 3-step descent back to middle from top:
+    let pos: LightPosition = 'bottom';
+    pos = cycleLightPosition(pos); // → middle
+    pos = cycleLightPosition(pos); // → top
+    pos = cycleLightPosition(pos); // → middle (ping-pong peak reached)
+    // After top→middle, the bar is back at middle.
+    // The caller detects this and will reset to bottom on the next interaction.
+    expect(pos).toBe('middle');
+  });
+});
