@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-04 06:44 UTC  
-**Triggered by commit:** `3427372` on `copilot/forge-user-facing-ui-ux` by Copilot  
-**Commit message:** forge: design system CSS polish, branded loading/404/error pages, skeleton loaders, toast system
+**Last updated:** 2026-04-04 06:53 UTC  
+**Triggered by commit:** `bcd96a2` on `copilot/forge-user-facing-ui-ux` by Copilot  
+**Commit message:** forge: LandingHero feature cards with interactive hover, trust line polish
 
 ---
 
