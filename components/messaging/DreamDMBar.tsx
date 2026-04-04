@@ -30,11 +30,16 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   Bell,
   Bot,
   Code2,
+  Compass,
   FileText,
+  Flame,
+  Gamepad2,
+  Home,
   Loader2,
   MessageCircle,
   Music,
@@ -42,7 +47,10 @@ import {
   PenLine,
   Search,
   Send,
+  Settings,
+  ShoppingBag,
   Sparkles,
+  User,
   X,
   ImageIcon,
 } from 'lucide-react';
@@ -71,6 +79,26 @@ import {
   ORB_SIZE as ORB_SIZE_CONST,
   ORB_TAP_SLOP as ORB_TAP_SLOP_CONST,
   computeOrbDragPosition,
+  getMoodPeriod,
+  MOOD_AURA_GRADIENTS,
+  MOOD_EDGE_COLORS,
+  SURFACE_ACCENT_COLORS,
+  filterSlashCommands,
+  SLASH_COMMANDS,
+  computeTypingRhythm,
+  rhythmToHandleScale,
+  resolveStreak,
+  getStreakTier,
+  STREAK_STORAGE_KEY,
+  QUICK_REACTIONS,
+  GOLD_LONG_PRESS_MS,
+  generateParticles,
+  type SlashCommand,
+  type Particle,
+  type MoodPeriod,
+  type SurfaceAccent,
+  type StreakData,
+  type StreakTier,
 } from '@/lib/dreamdm/barInteractions';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
@@ -143,6 +171,97 @@ function ContextIcon({ ctx, size }: { ctx: DreamBarContext; size: number }) {
     case 'sparkles':
     default:               return <Sparkles      {...props} />;
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SlashCommandIcon — maps slash command icon hints to Lucide icons
+// ─────────────────────────────────────────────────────────────────────────────
+function SlashCommandIcon({ icon, size }: { icon: string; size: number }) {
+  const props = { size, 'aria-hidden': true as const };
+  switch (icon) {
+    case 'home':         return <Home        {...props} />;
+    case 'gamepad-2':    return <Gamepad2    {...props} />;
+    case 'music':        return <Music       {...props} />;
+    case 'code-2':       return <Code2       {...props} />;
+    case 'sparkles':     return <Sparkles    {...props} />;
+    case 'send':         return <Send        {...props} />;
+    case 'compass':      return <Compass     {...props} />;
+    case 'settings':     return <Settings    {...props} />;
+    case 'user':         return <User        {...props} />;
+    case 'search':       return <Search      {...props} />;
+    case 'bot':          return <Bot         {...props} />;
+    case 'shopping-bag': return <ShoppingBag {...props} />;
+    default:             return <Sparkles    {...props} />;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// StreakFlame — renders the dream streak flame icon with tier-appropriate style
+// ─────────────────────────────────────────────────────────────────────────────
+function StreakFlame({ count, tier }: { count: number; tier: StreakTier }) {
+  if (tier === 'none') return null;
+  const colors: Record<StreakTier, string> = {
+    none: 'transparent',
+    ember: '#ff9800',
+    fire: '#ff5722',
+    inferno: 'linear-gradient(135deg, #ff5722, #e91e63, #9c27b0, #2196f3)',
+    legend: 'linear-gradient(135deg, #ffd700, #ff8c00, #ff5722, #e91e63, #9c27b0)',
+  };
+  const isGradient = tier === 'inferno' || tier === 'legend';
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+      <span
+        className="sicc-flame"
+        style={{
+          display: 'inline-flex', fontSize: 14, lineHeight: 1,
+          filter: tier === 'legend' ? 'drop-shadow(0 0 6px rgba(255,215,0,0.7))' : tier === 'inferno' ? 'drop-shadow(0 0 4px rgba(233,30,99,0.5))' : 'none',
+        }}
+        aria-hidden
+      >
+        🔥
+      </span>
+      <span style={{
+        fontSize: 10, fontWeight: 800, lineHeight: 1,
+        ...(isGradient ? {
+          background: colors[tier],
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        } : {
+          color: colors[tier],
+        }),
+      }}>
+        {count}
+      </span>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ParticleFountain — renders animated particles from gold button long-press
+// ─────────────────────────────────────────────────────────────────────────────
+function ParticleFountain({ particles, centerX, centerY }: { particles: Particle[]; centerX: number; centerY: number }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200, pointerEvents: 'none' }} aria-hidden>
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="sicc-particle"
+          style={{
+            left: centerX,
+            top: centerY,
+            width: p.size,
+            height: p.size,
+            background: p.color,
+            '--particle-dx': `${p.vx * 40}px`,
+            '--particle-dy': `${p.vy * 40}px`,
+            animationDuration: `${0.8 + Math.random() * 0.6}s`,
+            boxShadow: `0 0 ${p.size}px ${p.color}`,
+          } as React.CSSProperties}
+        />
+      ))}
+    </div>
+  );
 }
 
 // ── Props
@@ -268,6 +387,84 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     barTouchTimerRef.current = setTimeout(() => { setBarTouched(false); }, 3000);
   }, []);
 
+  // ── 🌈 Mood Aura System ──────────────────────────────────────────────────
+  const [moodPeriod, setMoodPeriod] = useState<MoodPeriod>(() => getMoodPeriod(new Date().getHours()));
+  useEffect(() => {
+    const updateMood = () => setMoodPeriod(getMoodPeriod(new Date().getHours()));
+    // Check every 5 minutes for time-of-day shift
+    const interval = setInterval(updateMood, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // ── ⌨️ Slash Command Palette ──────────────────────────────────────────────
+  const [slashOpen, setSlashOpen] = useState(false);
+  const [slashQuery, setSlashQuery] = useState('');
+  const [slashSelectedIdx, setSlashSelectedIdx] = useState(0);
+  const slashResults = slashOpen ? filterSlashCommands(slashQuery) : [];
+  const router = useRouter();
+
+  // ── 🎹 Typing Rhythm Visualizer ──────────────────────────────────────────
+  const keystrokeTimesRef = useRef<number[]>([]);
+  const [typingRhythm, setTypingRhythm] = useState(0);
+
+  const recordKeystroke = useCallback(() => {
+    const now = Date.now();
+    keystrokeTimesRef.current.push(now);
+    // Keep only last 20 keystrokes
+    if (keystrokeTimesRef.current.length > 20) {
+      keystrokeTimesRef.current = keystrokeTimesRef.current.slice(-20);
+    }
+    setTypingRhythm(computeTypingRhythm(keystrokeTimesRef.current, now));
+  }, []);
+
+  // Decay rhythm when idle
+  useEffect(() => {
+    if (typingRhythm <= 0) return;
+    const decay = setInterval(() => {
+      const now = Date.now();
+      const newRhythm = computeTypingRhythm(keystrokeTimesRef.current, now);
+      setTypingRhythm(newRhythm);
+      if (newRhythm <= 0) clearInterval(decay);
+    }, 300);
+    return () => clearInterval(decay);
+  }, [typingRhythm]);
+
+  // ── 🔥 Dream Streak Counter ──────────────────────────────────────────────
+  const [streakData, setStreakData] = useState<StreakData>({ count: 0, lastActiveDate: '' });
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STREAK_STORAGE_KEY);
+      const stored: StreakData | null = raw ? JSON.parse(raw) : null;
+      const updated = resolveStreak(stored);
+      setStreakData(updated);
+      localStorage.setItem(STREAK_STORAGE_KEY, JSON.stringify(updated));
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, []);
+  const streakTier = getStreakTier(streakData.count);
+
+  // ── ✨ Gold Button Long-Press Particle Fountain ───────────────────────────
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const goldLongPressRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const goldButtonRef = useRef<HTMLButtonElement>(null);
+
+  const triggerParticleFountain = useCallback(() => {
+    if (!goldButtonRef.current) return;
+    const rect = goldButtonRef.current.getBoundingClientRect();
+    const newParticles = generateParticles(24);
+    // Center the fountain on the gold button
+    setParticles(newParticles.map(p => ({
+      ...p,
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    })));
+    // Haptic burst
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([10, 30, 10, 30, 10]);
+    // Clear particles after animation completes
+    setTimeout(() => setParticles([]), 1500);
+  }, []);
+
   // ── Minimized orb drag callbacks (must be after revealBar) ──────────────
   const handleOrbPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -373,10 +570,18 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     // Reveal: cancel any pending minimize timer and expand to full sphere
     if (goldMinTimerRef.current) { clearTimeout(goldMinTimerRef.current); goldMinTimerRef.current = null; }
     setGoldMinimized(false);
-  }, []);
+    // Start long-press timer for particle fountain
+    if (goldLongPressRef.current) clearTimeout(goldLongPressRef.current);
+    goldLongPressRef.current = setTimeout(() => {
+      triggerParticleFountain();
+      goldLongPressRef.current = null;
+    }, GOLD_LONG_PRESS_MS);
+  }, [triggerParticleFountain]);
   const handleGoldPointerUp = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     setGoldPressed(false);
+    // Cancel long-press if released early
+    if (goldLongPressRef.current) { clearTimeout(goldLongPressRef.current); goldLongPressRef.current = null; }
     if (!goldDragRef.current.active) return;
     goldDragRef.current.active = false;
     const dy = e.clientY - goldDragRef.current.startY;
@@ -998,6 +1203,12 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     ? -keyboardOffsetPx
     : 0;
 
+  // ── Mood aura + surface accent derived values ─────────────────────────────
+  const moodAuraGradient = MOOD_AURA_GRADIENTS[moodPeriod];
+  const moodEdgeColor = MOOD_EDGE_COLORS[moodPeriod];
+  const surfaceAccent = SURFACE_ACCENT_COLORS[(barCtx.surface as SurfaceAccent)] ?? SURFACE_ACCENT_COLORS.general;
+  const handleScale = rhythmToHandleScale(typingRhythm);
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   // ── Minimized state: draggable gold orb ───────────────────────────────────
@@ -1134,12 +1345,14 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
       <button
         type="button"
-        aria-label="Gold button — tap for menus, double-tap to open HomeDream"
+        ref={goldButtonRef}
+        aria-label="Gold button — tap for menus, double-tap to open HomeDream, long-press for particle burst"
         onPointerDown={handleGoldPointerDown}
         onPointerUp={handleGoldPointerUp}
         onPointerCancel={() => {
           goldDragRef.current.active = false;
           setGoldPressed(false);
+          if (goldLongPressRef.current) { clearTimeout(goldLongPressRef.current); goldLongPressRef.current = null; }
           // auto-minimize after cancel too
           goldMinTimerRef.current = setTimeout(() => { setGoldMinimized(true); goldMinTimerRef.current = null; }, 2000);
         }}
@@ -1271,6 +1484,32 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                    0 -8px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.25)`)),
         }}
       >
+        {/* ── 🌈 Mood Aura overlay — ambient glow shifts with time-of-day + surface ── */}
+        {!isResting && (
+          <div
+            className="sicc-mood-aura"
+            aria-hidden
+            style={{
+              position: 'absolute', inset: 0, zIndex: 0,
+              background: moodAuraGradient,
+              pointerEvents: 'none',
+              borderRadius: 'inherit',
+              mixBlendMode: 'soft-light',
+            }}
+          />
+        )}
+        {!isResting && (
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute', inset: 0, zIndex: 0,
+              background: surfaceAccent,
+              pointerEvents: 'none',
+              borderRadius: 'inherit',
+            }}
+          />
+        )}
+
         {/* ── Drag handle ──────────────────────────────────────────────────── */}
         <div
           role="separator" aria-label="Drag to resize DreamDM"
@@ -1310,15 +1549,27 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 height: '100%',
               }}
             >
-              {/* SICC drag handle — refined dual-line with gold center */}
+              {/* SICC drag handle — refined dual-line with gold center + typing rhythm */}
+              <div
+                className={typingRhythm > 0.1 ? 'sicc-rhythm-handle' : undefined}
+                style={{
+                  width: 44 * handleScale, height: 3, borderRadius: 99,
+                  background: typingRhythm > 0.3
+                    ? `linear-gradient(90deg, ${moodEdgeColor.replace('0.55', '0.25')}, ${moodEdgeColor}, ${moodEdgeColor.replace('0.55', '0.25')})`
+                    : 'linear-gradient(90deg, rgba(200,152,26,0.15), rgba(200,152,26,0.55), rgba(200,152,26,0.15))',
+                  boxShadow: typingRhythm > 0.3
+                    ? `0 0 ${6 + typingRhythm * 10}px ${moodEdgeColor}`
+                    : '0 0 4px rgba(200,152,26,0.15)',
+                  transition: 'width 0.15s ease, background 0.3s ease, box-shadow 0.3s ease',
+                  '--rhythm-scale': `${handleScale}`,
+                } as React.CSSProperties}
+              />
               <div style={{
-                width: 44, height: 3, borderRadius: 99,
-                background: 'linear-gradient(90deg, rgba(200,152,26,0.15), rgba(200,152,26,0.55), rgba(200,152,26,0.15))',
-                boxShadow: '0 0 4px rgba(200,152,26,0.15)',
-              }} />
-              <div style={{
-                width: 28, height: 2, borderRadius: 99,
-                background: 'linear-gradient(90deg, rgba(42,138,184,0.08), rgba(42,138,184,0.25), rgba(42,138,184,0.08))',
+                width: 28 * (1 + typingRhythm * 0.8), height: 2, borderRadius: 99,
+                background: typingRhythm > 0.3
+                  ? `linear-gradient(90deg, rgba(42,138,184,0.08), rgba(42,138,184,${0.25 + typingRhythm * 0.35}), rgba(42,138,184,0.08))`
+                  : 'linear-gradient(90deg, rgba(42,138,184,0.08), rgba(42,138,184,0.25), rgba(42,138,184,0.08))',
+                transition: 'width 0.15s ease, background 0.3s ease',
               }} />
             </div>
           </div>
@@ -1431,6 +1682,11 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                   )}
                 </div>
 
+                {/* 🔥 Dream Streak counter */}
+                {streakData.count > 0 && (
+                  <StreakFlame count={streakData.count} tier={streakTier} />
+                )}
+
                 {/* Comment mode indicator */}
                 {barIntent.mode === 'comment' && (
                   <div style={{
@@ -1506,6 +1762,48 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                   <X size={13} aria-hidden />
                 </button>
               </div>
+
+              {/* 😀 Quick React emoji row — appears in comment mode */}
+              {barIntent.mode === 'comment' && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: isCompactViewport ? 6 : 4,
+                  padding: '2px 0',
+                  overflow: 'hidden',
+                  maxHeight: 32,
+                }}>
+                  {QUICK_REACTIONS.map((reaction, idx) => (
+                    <button
+                      key={reaction.emoji}
+                      type="button"
+                      aria-label={`React with ${reaction.label}`}
+                      className="sicc-react-pop"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={() => {
+                        // Insert emoji into the quick draft
+                        setQuickDraft(prev => prev + reaction.emoji);
+                        // Haptic feedback
+                        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(3);
+                      }}
+                      style={{
+                        background: 'rgba(255,255,255,0.65)',
+                        border: '1px solid rgba(180,185,200,0.25)',
+                        borderRadius: 999,
+                        width: isCompactViewport ? 36 : 30,
+                        height: isCompactViewport ? 36 : 30,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', fontSize: isCompactViewport ? 16 : 14,
+                        animationDelay: `${idx * 0.04}s`,
+                        transition: 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), background 0.18s',
+                        WebkitTapHighlightColor: 'transparent',
+                      }}
+                      onMouseEnter={(e) => { (e.target as HTMLElement).style.transform = 'scale(1.25)'; }}
+                      onMouseLeave={(e) => { (e.target as HTMLElement).style.transform = 'scale(1)'; }}
+                    >
+                      {reaction.emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Media previews - shown when files are selected */}
               {quickDraftFiles.length > 0 && (
@@ -1624,10 +1922,40 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 <textarea
                   ref={textareaRef}
                   value={quickDraft}
-                  onChange={(e) => setQuickDraft(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setQuickDraft(val);
+                    recordKeystroke();
+                    // Slash command detection
+                    if (val === '/') {
+                      setSlashOpen(true);
+                      setSlashQuery('');
+                      setSlashSelectedIdx(0);
+                    } else if (val.startsWith('/') && slashOpen) {
+                      setSlashQuery(val.slice(1));
+                      setSlashSelectedIdx(0);
+                    } else if (!val.startsWith('/') && slashOpen) {
+                      setSlashOpen(false);
+                    }
+                  }}
                   onFocus={() => setComposeFocused(true)}
-                  onBlur={() => setComposeFocused(false)}
+                  onBlur={() => { setComposeFocused(false); /* delay close so click can register */ setTimeout(() => setSlashOpen(false), 200); }}
                   onKeyDown={(e) => {
+                    if (slashOpen) {
+                      if (e.key === 'ArrowDown') { e.preventDefault(); setSlashSelectedIdx(i => Math.min(i + 1, slashResults.length - 1)); return; }
+                      if (e.key === 'ArrowUp') { e.preventDefault(); setSlashSelectedIdx(i => Math.max(i - 1, 0)); return; }
+                      if (e.key === 'Enter' && slashResults[slashSelectedIdx]) {
+                        e.preventDefault();
+                        const cmd = slashResults[slashSelectedIdx];
+                        setSlashOpen(false);
+                        setQuickDraft('');
+                        if (cmd.href) router.push(cmd.href);
+                        else if (cmd.action === 'search-mode') setBarIntent({ mode: 'search' });
+                        else if (cmd.action === 'dreams-mode') setBarIntent({ mode: 'dreams' });
+                        return;
+                      }
+                      if (e.key === 'Escape') { e.preventDefault(); setSlashOpen(false); setQuickDraft(''); return; }
+                    }
                     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleQuickSend(); }
                   }}
                   onPointerDown={(e) => e.stopPropagation()}
@@ -1699,6 +2027,97 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           )}
         </div>
       </div>
+
+      {/* ── ⌨️ Slash Command Palette ─────────────────────────────────────── */}
+      {slashOpen && slashResults.length > 0 && (
+        <div
+          role="listbox"
+          aria-label="Slash commands"
+          className="sicc-slash-palette"
+          style={{
+            position: 'fixed',
+            bottom: isDividerMode ? (screenH - barTop + 8) : (screenH - barTop + 8),
+            left: isCompactViewport ? 12 : 24,
+            right: isCompactViewport ? 12 : 24,
+            maxHeight: 320,
+            overflowY: 'auto',
+            zIndex: 150,
+            background: 'rgba(255,255,255,0.96)',
+            backdropFilter: 'blur(24px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(140%)',
+            borderRadius: 16,
+            border: '1px solid rgba(200,152,26,0.25)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.15), 0 2px 12px rgba(200,152,26,0.12), inset 0 1px 0 rgba(255,255,255,0.5)',
+            padding: '8px 0',
+          }}
+        >
+          <div style={{ padding: '4px 14px 8px', fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+            Quick Commands
+          </div>
+          {slashResults.map((cmd, idx) => (
+            <button
+              key={cmd.id}
+              type="button"
+              role="option"
+              aria-selected={idx === slashSelectedIdx}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={() => {
+                setSlashOpen(false);
+                setQuickDraft('');
+                if (cmd.href) router.push(cmd.href);
+                else if (cmd.action === 'search-mode') setBarIntent({ mode: 'search' });
+                else if (cmd.action === 'dreams-mode') setBarIntent({ mode: 'dreams' });
+              }}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                padding: '10px 14px',
+                background: idx === slashSelectedIdx ? 'rgba(200,152,26,0.10)' : 'transparent',
+                border: 'none', cursor: 'pointer', textAlign: 'left',
+                borderRadius: 0,
+                transition: 'background 0.12s',
+              }}
+              onMouseEnter={() => setSlashSelectedIdx(idx)}
+            >
+              <div style={{
+                width: 32, height: 32, borderRadius: 10,
+                background: idx === slashSelectedIdx
+                  ? 'linear-gradient(135deg, var(--de-gold), #e0b020)'
+                  : 'rgba(180,185,200,0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: idx === slashSelectedIdx ? 'white' : 'var(--de-text-dim)',
+                transition: 'all 0.18s',
+                flexShrink: 0,
+              }}>
+                <SlashCommandIcon icon={cmd.icon} size={15} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', lineHeight: 1.2 }}>
+                  {cmd.label}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.3, marginTop: 1 }}>
+                  {cmd.description}
+                </div>
+              </div>
+              <span style={{
+                fontSize: 9, color: 'var(--de-text-dim)', opacity: 0.5,
+                padding: '2px 6px', borderRadius: 4,
+                background: 'rgba(180,185,200,0.10)',
+                flexShrink: 0,
+              }}>
+                {cmd.category}
+              </span>
+            </button>
+          ))}
+          <div style={{ padding: '6px 14px 4px', fontSize: 9, color: 'var(--de-text-dim)', opacity: 0.6, textAlign: 'center' }}>
+            Type to filter · ↑↓ to navigate · Enter to select · Esc to close
+          </div>
+        </div>
+      )}
+
+      {/* ── ✨ Gold Button Particle Fountain ──────────────────────────────── */}
+      {particles.length > 0 && (
+        <ParticleFountain particles={particles} centerX={screenW / 2} centerY={goldTopPx + goldR} />
+      )}
 
       {/* ── Media lightbox overlay ─────────────────────────────────────────── */}
       {lightboxUrl && (
