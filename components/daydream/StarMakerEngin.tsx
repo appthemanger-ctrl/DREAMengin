@@ -57,6 +57,7 @@ import {
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import JourneyTrail from '@/components/daydream/JourneyTrail';
 import MultitrackArrangementPanel from '@/components/daydream/starmaker/MultitrackArrangementPanel';
 import Link from 'next/link';
 import {
@@ -332,6 +333,7 @@ export default function StarMakerEngin({ onBack }: Props) {
       setReleases(prev =>
         prev.map(r => r.id === releaseId ? { ...r, visibility: 'public' } : r),
       );
+      recordForgeTransfer('music', 'brand', 'release-publish', 'StarMaker release → BrandEngin');
     }
     setPublishing(null);
   }
@@ -424,6 +426,7 @@ export default function StarMakerEngin({ onBack }: Props) {
     }, 800);
     forgeRecord('Exported stems');
     recordForgeTransfer('music', 'games', 'audio-stems', 'StarMaker stems → GameEngin');
+    recordForgeTransfer('music', 'create', 'audio-stems', 'StarMaker stems → CreateEngin');
   }, [stemReady, beatGrid, bpm, musicalKey, keyMode, mixer]);
 
   // ── Waveform Visualizer state ──
@@ -920,6 +923,17 @@ export default function StarMakerEngin({ onBack }: Props) {
           projectSnapshot={projectSnapshot}
           onExternalLoadConsumed={() => setExternalLoadRequest(null)}
         />
+
+        {/* ── Journey Trail ── */}
+        <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
+          <div style={{ ...DAW_STYLES.sectionHeader }}>
+            <Sparkles className="w-3 h-3" style={{ color: DAW.accent }} />
+            <span style={DAW_STYLES.sectionTitle}>Journey</span>
+          </div>
+          <div style={{ padding: '12px 16px' }}>
+            <JourneyTrail compact />
+          </div>
+        </div>
 
       </div>
     </div>
@@ -3376,6 +3390,7 @@ function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadCons
     const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
     downloadBlob(blob, `starmaker-project-${Date.now()}.json`);
     showOpMsg('✓ Project JSON exported');
+    recordForgeTransfer('music', 'games', 'beat-pattern', 'StarMaker beat pattern → GameEngin');
   }
 
   // ── Cleanup ──

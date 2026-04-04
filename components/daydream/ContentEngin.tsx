@@ -24,6 +24,8 @@ import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import JourneyTrail from '@/components/daydream/JourneyTrail';
 
 interface Props {
   onBack: () => void;
@@ -275,6 +277,7 @@ export default function ContentEngin({ onBack }: Props) {
       }
       setDraftSaveMsg(draftScheduledAt ? '✅ Draft scheduled!' : '✅ Draft saved!');
       forgeRecord(draftScheduledAt ? 'Scheduled draft' : 'Saved draft');
+      recordForgeTransfer('create', 'create', 'draft', draftScheduledAt ? 'Draft scheduled internally' : 'Draft saved internally');
     } catch (err) {
       setDraftSaveMsg(`⚠️ ${err instanceof Error ? err.message : 'Save failed'}`);
     }
@@ -300,6 +303,7 @@ export default function ContentEngin({ onBack }: Props) {
       contentId: 'draft-' + Date.now(),
       platform: [...selectedPlatforms].join(','),
     });
+    recordForgeTransfer('create', 'brand', 'published-content', `Content published → ${[...selectedPlatforms].join(', ')}`);
     setBroadcastMsg(`Broadcast sent to ${selectedPlatforms.size} platform${selectedPlatforms.size > 1 ? 's' : ''}`);
     setTimeout(() => setBroadcastMsg(''), 3000);
   }
@@ -491,6 +495,7 @@ export default function ContentEngin({ onBack }: Props) {
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'create', 'content:video-prepare', { title: videoTitle, duration: videoDuration, captions: videoCaptions },
     );
+    recordForgeTransfer('create', 'brand', 'video-asset', `Video export → BrandEngin (${videoTitle})`);
   }
 
   // ── Hashtag optimizer handler ────────────────────────────────────────────────
@@ -1532,10 +1537,24 @@ export default function ContentEngin({ onBack }: Props) {
                 (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
                   'content', 'content:cinematic-render', { template: 'neon-burst' },
                 );
+                recordForgeTransfer('create', 'games', 'cinematic-template', 'Cinematic render → GameEngin (neon-burst)');
               }}
               style={{ marginTop: 8, padding: '8px 14px', borderRadius: 9, fontSize: 11, fontWeight: 700, background: 'rgba(139,92,246,0.14)', border: '1px solid rgba(139,92,246,0.3)', color: '#8b5cf6', cursor: 'pointer', width: '100%' }}>
               🎬 Render Neon Burst Intro
             </button>
+          </div>
+        </div>
+
+        {/* ── Journey Trail ── */}
+        <div className="de-widget" style={{ margin: '14px 0' }}>
+          <div className="de-widget-header">
+            <span className="de-widget-title">Journey</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--de-text-dim)', fontStyle: 'italic' }}>
+              The dots only connect looking backwards
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <JourneyTrail compact />
           </div>
         </div>
 

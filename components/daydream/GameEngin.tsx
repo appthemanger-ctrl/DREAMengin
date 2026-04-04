@@ -47,6 +47,7 @@ import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
+import JourneyTrail from '@/components/daydream/JourneyTrail';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -333,6 +334,7 @@ export default function GameEngin({ onBack }: Props) {
       .eq('id', scoreId);
     if (!error) {
       setScores(prev => prev.map(s => s.id === scoreId ? { ...s, shared: true } : s));
+      recordForgeTransfer('games', 'brand', 'asset', 'Score published to leaderboard');
     }
     setSharing(null);
   }
@@ -389,6 +391,7 @@ export default function GameEngin({ onBack }: Props) {
       'games:score-shared',
       { scriptSavedAt: Date.now() },
     );
+    recordForgeTransfer('games', 'code', 'asset', 'Game script saved → CodeEngin');
   }
 
   // ── Multiplayer Lobby state ──────────────────────────────────────────────────
@@ -2465,6 +2468,17 @@ export default function GameEngin({ onBack }: Props) {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* ── Journey Trail ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Map className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Journey</span>
+          </div>
+          <div className="de-widget-body">
+            <JourneyTrail compact />
           </div>
         </div>
 

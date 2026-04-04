@@ -25,6 +25,9 @@ import {
   Save, X,
 } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
+import { bridge, type DualRuntimeChannel } from '@/lib/runtime/dualRuntimeBridge';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import JourneyTrail from '@/components/daydream/JourneyTrail';
 import {
   CREATIVE_ENGINES,
   ENGIN_REGISTRY,
@@ -66,6 +69,29 @@ const FORGE = {
   glow:   'rgba(239,68,68,0.18)',
 } as const;
 
+// ── Pulse Monitor — channel color-coding for cross-engine event feed ──────────
+const CHANNEL_COLORS: Record<string, string> = {
+  music: '#ec4899', games: '#22c55e', lab: '#8b5cf6',
+  code: '#38bdf8', brand: '#f59e0b', create: '#6366f1',
+};
+
+// All typed events per channel — used for exhaustive bridge subscription.
+// ForgeEngin is the meta-layer; it watches every event on every channel.
+const ALL_CHANNEL_EVENTS: Record<DualRuntimeChannel, string[]> = {
+  music:  ['music:track-released', 'music:bpm-changed', 'music:stem-ready', 'music:upload-complete'],
+  games:  ['games:score-submitted', 'games:session-started', 'games:session-ended', 'games:achievement-unlocked', 'games:asset-exported'],
+  lab:    ['lab:result-ready', 'lab:simulation-started', 'lab:simulation-complete', 'lab:quantum-measured', 'lab:data-exported'],
+  code:   ['code:cell-executed', 'code:deploy-to-game', 'code:build-success', 'code:build-failed', 'code:notebook-exported'],
+  brand:  ['brand:campaign-launched', 'brand:campaign-paused', 'brand:asset-updated', 'brand:analytics-snapshot', 'brand:segment-created'],
+  create: ['create:draft-saved', 'create:published', 'create:export-asset', 'create:queue-updated', 'create:calendar-event'],
+};
+
+interface BridgeEvent {
+  channel: string;
+  event: string;
+  timestamp: number;
+}
+
 type Props = { onBack: () => void };
 
 export default function ForgeEngin({ onBack }: Props) {
@@ -78,9 +104,38 @@ export default function ForgeEngin({ onBack }: Props) {
   const [workflowRun, setWorkflowRun] = useState<WorkflowRunState | null>(null);
   const [goalInput, setGoalInput] = useState('');
   const [generatedWorkflow, setGeneratedWorkflow] = useState<ForgeWorkflow | null>(null);
+  const [bridgeEvents, setBridgeEvents] = useState<BridgeEvent[]>([]);
   const [showWorkflowBuilder, setShowWorkflowBuilder] = useState(false);
   const [builderEngines, setBuilderEngines] = useState<string[]>([]);
   const [builderTitle, setBuilderTitle] = useState('');
+
+  // Forge activity pulse — record when this engine is used
+  const forge = useForgeActivity({ enginId: 'forge' });
+
+  // Subscribe to ALL 6 channels for the live Pulse Monitor event feed.
+  // Uses a cast because ForgeEngin is the meta-layer that monitors every channel
+  // generically — it doesn't need the typed payloads, only channel + event name.
+  useEffect(() => {
+    const unsubs: (() => void)[] = [];
+    const castSubscribe = bridge.subscribe as unknown as (
+      ch: string, ev: string, handler: (payload: unknown) => void,
+    ) => () => void;
+
+    for (const [channel, events] of Object.entries(ALL_CHANNEL_EVENTS)) {
+      for (const event of events) {
+        unsubs.push(
+          castSubscribe(channel, event, () => {
+            setBridgeEvents(prev => {
+              const next = [{ channel, event, timestamp: Date.now() }, ...prev];
+              return next.slice(0, 20); // keep last 20
+            });
+          }),
+        );
+      }
+    }
+
+    return () => { unsubs.forEach(fn => fn()); };
+  }, []);
 
   // Refresh all forge data every 10s
   useEffect(() => {
@@ -126,7 +181,8 @@ export default function ForgeEngin({ onBack }: Props) {
     if (!goalInput.trim()) return;
     const wf = parseGoalToWorkflow(goalInput);
     setGeneratedWorkflow(wf);
-  }, [goalInput]);
+    forge.record('Generated workflow suggestion');
+  }, [goalInput, forge]);
 
   // Save generated or custom workflow
   const handleSaveWorkflow = useCallback((wf: ForgeWorkflow) => {
@@ -146,13 +202,33 @@ export default function ForgeEngin({ onBack }: Props) {
   const handleStartRun = useCallback((wf: ForgeWorkflow) => {
     const run = startWorkflowRun(wf.id, wf.steps.length);
     setWorkflowRun(run);
-  }, []);
+    forge.record('Started workflow run');
+  }, [forge]);
 
   // Complete a workflow step
   const handleCompleteStep = useCallback((stepIndex: number) => {
     const run = updateWorkflowStep(stepIndex, 'complete');
     setWorkflowRun(run);
-  }, []);
+    forge.record('Completed workflow step');
+
+    // Emit to the relevant engine's channel when a step completes.
+    // Map step index → engine id from the active workflow, then emit
+    // on that channel. Uses cast because 'forge' is not a typed channel.
+    if (run) {
+      const wf = allWorkflows.find(w => w.id === run.workflowId);
+      const engineId = wf?.engines[stepIndex];
+      if (engineId) {
+        const validChannels: string[] = ['music', 'games', 'lab', 'code', 'brand', 'create'];
+        if (validChannels.includes(engineId)) {
+          (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+            engineId,
+            `${engineId}:forge-step-complete`,
+            { workflowId: run.workflowId, stepIndex, engineId },
+          );
+        }
+      }
+    }
+  }, [forge, allWorkflows]);
 
   // Fail a workflow step
   const handleFailStep = useCallback((stepIndex: number) => {
@@ -864,6 +940,77 @@ export default function ForgeEngin({ onBack }: Props) {
           )}
         </div>
 
+        {/* ── Pulse Monitor — Live Cross-Engine Event Feed ── */}
+        <div style={{ marginTop: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <Zap className="w-4 h-4" style={{ color: '#22d3ee' }} />
+            <span style={{ fontSize: 13, fontWeight: 800, color: FORGE.text }}>Pulse Monitor</span>
+            <span style={{
+              marginLeft: 'auto',
+              fontSize: 10, fontWeight: 700,
+              padding: '3px 10px', borderRadius: 999,
+              background: 'rgba(34,211,238,0.1)', color: '#22d3ee',
+              border: '1px solid rgba(34,211,238,0.2)',
+            }}>
+              {bridgeEvents.length} events
+            </span>
+          </div>
+          {bridgeEvents.length === 0 ? (
+            <div style={{
+              padding: '16px',
+              borderRadius: 14,
+              background: FORGE.panel,
+              border: `1px solid ${FORGE.border}`,
+              fontSize: 12,
+              color: FORGE.dim,
+              textAlign: 'center',
+            }}>
+              Listening on all 6 channels… no cross-engine events yet.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: 4 }}>
+              {bridgeEvents.map((ev, i) => {
+                const color = CHANNEL_COLORS[ev.channel] ?? FORGE.dim;
+                const shortEvent = ev.event.replace(`${ev.channel}:`, '');
+                const ago = Math.max(0, Math.round((Date.now() - ev.timestamp) / 1000));
+                const agoLabel = ago < 60 ? `${ago}s ago` : `${Math.round(ago / 60)}m ago`;
+                return (
+                  <div
+                    key={`${ev.timestamp}-${i}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '8px 12px',
+                      borderRadius: 10,
+                      background: FORGE.panel,
+                      border: `1px solid ${FORGE.border}`,
+                    }}
+                  >
+                    <span style={{
+                      width: 8, height: 8, borderRadius: '50%',
+                      background: color, flexShrink: 0,
+                      boxShadow: `0 0 6px ${color}60`,
+                    }} />
+                    <span style={{
+                      fontSize: 10, fontWeight: 800, textTransform: 'uppercase',
+                      letterSpacing: '0.08em', color, minWidth: 48,
+                    }}>
+                      {ev.channel}
+                    </span>
+                    <span style={{ fontSize: 11, color: FORGE.text, flex: 1 }}>
+                      {shortEvent}
+                    </span>
+                    <span style={{ fontSize: 10, color: FORGE.dim, whiteSpace: 'nowrap' }}>
+                      {agoLabel}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* ── Forge Philosophy ── */}
         <div style={{
           marginTop: 24,
@@ -880,6 +1027,11 @@ export default function ForgeEngin({ onBack }: Props) {
             it watches them all, shows their pulse, and helps you orchestrate cross-engine workflows.
             The Forge never replaces an engine. It connects them.
           </div>
+        </div>
+
+        {/* ── Journey Trail ── */}
+        <div style={{ marginTop: 24 }}>
+          <JourneyTrail compact />
         </div>
       </div>
     </div>
