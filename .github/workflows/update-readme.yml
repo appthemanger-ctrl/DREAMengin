@@ -37,7 +37,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Run update-readme script
         run: node scripts/update-readme.mjs
@@ -63,9 +63,9 @@ jobs:
           SHORT="${SHORT:0:7}"
           git commit -m "idari: auto-update README [${SHORT}] [skip ci] [skip vercel]"
 
-          # Retry push up to 3 times, rebasing on the remote each time to
+          # Retry push up to 5 times, rebasing on the remote each time to
           # handle concurrent pushes to the same branch (race condition).
-          for attempt in 1 2 3; do
+          for attempt in 1 2 3 4 5; do
             if git push origin HEAD:${{ github.ref_name }}; then
               echo "✅ Push succeeded on attempt ${attempt}."
               exit 0
@@ -73,7 +73,7 @@ jobs:
             echo "⚠️  Push attempt ${attempt} failed — pulling and rebasing."
             git pull --rebase origin ${{ github.ref_name }} || {
               echo "❌ Rebase failed. Aborting."
-              git rebase --abort 2>/dev/null || true
+              git rebase --abort 5>/dev/null || true
               exit 1
             }
           done
