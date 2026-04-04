@@ -1,74 +1,76 @@
 'use client';
 
+/**
+ * SkeletonLoaders — branded shimmer skeletons matching DREAMengin glass design system.
+ *
+ * Uses CSS-only shimmer via the de-skeleton class defined in styles/globals.css.
+ * Architecture: THEME.md (Gold=action · Sky-blue=connected · White=clarity)
+ */
+
 export function FeedCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-800 animate-pulse">
-      <div className="p-6">
-        {/* Header skeleton */}
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 shimmer" />
-          <div className="flex-1">
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32 mb-2 shimmer" />
-            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24 shimmer" />
+    <div
+      style={{
+        background: 'var(--de-glass, rgba(255,255,255,0.60))',
+        backdropFilter: 'blur(20px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+        border: '1px solid var(--de-border, rgba(180,185,200,0.35))',
+        borderRadius: 'var(--de-radius-xl, 24px)',
+        overflow: 'hidden',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+      }}
+    >
+      <div style={{ padding: '20px' }}>
+        {/* Author row skeleton */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div
+            className="de-skeleton"
+            style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0 }}
+          />
+          <div style={{ flex: 1 }}>
+            <div
+              className="de-skeleton"
+              style={{ width: 120, height: 12, borderRadius: 6, marginBottom: 8 }}
+            />
+            <div
+              className="de-skeleton"
+              style={{ width: 80, height: 10, borderRadius: 5 }}
+            />
           </div>
         </div>
 
         {/* Content skeleton */}
-        <div className="space-y-3 mb-4">
-          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full shimmer" />
-          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6 shimmer" />
-          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-4/6 shimmer" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+          <div className="de-skeleton" style={{ width: '100%', height: 12, borderRadius: 6 }} />
+          <div className="de-skeleton" style={{ width: '85%', height: 12, borderRadius: 6 }} />
+          <div className="de-skeleton" style={{ width: '65%', height: 12, borderRadius: 6 }} />
         </div>
 
         {/* Image skeleton */}
-        <div className="h-64 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 rounded-xl mb-4 shimmer" />
+        <div
+          className="de-skeleton"
+          style={{
+            width: '100%',
+            height: 180,
+            borderRadius: 'var(--de-radius-md, 14px)',
+            marginBottom: 16,
+          }}
+        />
 
         {/* Action buttons skeleton */}
-        <div className="flex items-center space-x-4">
-          <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded-full w-24 shimmer" />
-          <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded-full w-24 shimmer" />
-          <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded-full w-10 shimmer" />
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div className="de-skeleton" style={{ width: 72, height: 32, borderRadius: 999 }} />
+          <div className="de-skeleton" style={{ width: 72, height: 32, borderRadius: 999 }} />
+          <div className="de-skeleton" style={{ width: 36, height: 32, borderRadius: 999 }} />
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            background-position: -1000px 0;
-          }
-          100% {
-            background-position: 1000px 0;
-          }
-        }
-
-        .shimmer {
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.6) 50%,
-            transparent 100%
-          );
-          background-size: 1000px 100%;
-          animation: shimmer 2s infinite;
-        }
-
-        .dark .shimmer {
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.1) 50%,
-            transparent 100%
-          );
-          background-size: 1000px 100%;
-        }
-      `}</style>
     </div>
   );
 }
 
 export function GridSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <div className="space-y-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {Array.from({ length: count }).map((_, i) => (
         <FeedCardSkeleton key={i} />
       ))}
@@ -78,44 +80,22 @@ export function GridSkeleton({ count = 3 }: { count?: number }) {
 
 export function WidgetSkeleton() {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm p-4 animate-pulse">
-      <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded w-2/3 mb-3 shimmer" />
-      <div className="space-y-2">
-        <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded shimmer" />
-        <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6 shimmer" />
+    <div
+      style={{
+        background: 'var(--de-glass, rgba(255,255,255,0.60))',
+        backdropFilter: 'blur(18px) saturate(155%)',
+        WebkitBackdropFilter: 'blur(18px) saturate(155%)',
+        border: '1px solid var(--de-border, rgba(180,185,200,0.35))',
+        borderRadius: 'var(--de-radius-lg, 18px)',
+        padding: 16,
+        boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
+      }}
+    >
+      <div className="de-skeleton" style={{ width: '60%', height: 14, borderRadius: 7, marginBottom: 14 }} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="de-skeleton" style={{ width: '100%', height: 10, borderRadius: 5 }} />
+        <div className="de-skeleton" style={{ width: '80%', height: 10, borderRadius: 5 }} />
       </div>
-      
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            background-position: -1000px 0;
-          }
-          100% {
-            background-position: 1000px 0;
-          }
-        }
-
-        .shimmer {
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.6) 50%,
-            transparent 100%
-          );
-          background-size: 1000px 100%;
-          animation: shimmer 2s infinite;
-        }
-
-        .dark .shimmer {
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.1) 50%,
-            transparent 100%
-          );
-          background-size: 1000px 100%;
-        }
-      `}</style>
     </div>
   );
 }

@@ -1,6 +1,13 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+/**
+ * ToastSystem — glass-surface toasts matching DREAMengin design language.
+ *
+ * Architecture: THEME.md (Gold=action · Sky-blue=connected · White=clarity)
+ * Uses inline styles for self-contained rendering with zero CSS class deps.
+ */
+
+import { useState, createContext, useContext } from 'react';
 import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -32,7 +39,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const addToast = (type: ToastType, message: string, duration: number = 5000) => {
     const id = Math.random().toString(36).substring(7);
     const newToast: Toast = { id, type, message, duration };
-    
+
     setToasts(prev => [...prev, newToast]);
 
     if (duration > 0) {
@@ -56,11 +63,23 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
 function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: string) => void }) {
   return (
-    <div className="fixed top-20 right-4 z-50 space-y-2 max-w-md">
+    <div
+      style={{
+        position: 'fixed',
+        top: 20,
+        right: 16,
+        zIndex: 9999,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 8,
+        maxWidth: 380,
+        pointerEvents: 'none',
+      }}
+    >
       {toasts.map((toast, index) => (
-        <ToastItem 
-          key={toast.id} 
-          toast={toast} 
+        <ToastItem
+          key={toast.id}
+          toast={toast}
           onRemove={() => onRemove(toast.id)}
           index={index}
         />
@@ -69,64 +88,131 @@ function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: 
   );
 }
 
+const TOAST_CONFIG: Record<ToastType, { color: string; bg: string; border: string; accent: string }> = {
+  success: {
+    color: '#16a34a',
+    bg: 'rgba(22,163,74,0.08)',
+    border: 'rgba(22,163,74,0.22)',
+    accent: 'rgba(22,163,74,0.5)',
+  },
+  error: {
+    color: '#dc2626',
+    bg: 'rgba(220,38,38,0.08)',
+    border: 'rgba(220,38,38,0.22)',
+    accent: 'rgba(220,38,38,0.5)',
+  },
+  warning: {
+    color: '#c8981a',
+    bg: 'rgba(200,152,26,0.08)',
+    border: 'rgba(200,152,26,0.22)',
+    accent: 'rgba(200,152,26,0.5)',
+  },
+  info: {
+    color: '#2a8ab8',
+    bg: 'rgba(42,138,184,0.08)',
+    border: 'rgba(42,138,184,0.22)',
+    accent: 'rgba(42,138,184,0.5)',
+  },
+};
+
 function ToastItem({ toast, onRemove, index }: { toast: Toast; onRemove: () => void; index: number }) {
   const [isExiting, setIsExiting] = useState(false);
+  const config = TOAST_CONFIG[toast.type];
 
   const handleRemove = () => {
     setIsExiting(true);
-    setTimeout(onRemove, 300);
+    setTimeout(onRemove, 250);
   };
 
   const getIcon = () => {
+    const style = { width: 18, height: 18, color: config.color, flexShrink: 0 as const };
     switch (toast.type) {
-      case 'success': return <CheckCircle className="w-5 h-5" />;
-      case 'error': return <XCircle className="w-5 h-5" />;
-      case 'warning': return <AlertCircle className="w-5 h-5" />;
-      case 'info': return <Info className="w-5 h-5" />;
-    }
-  };
-
-  const getStyles = () => {
-    switch (toast.type) {
-      case 'success':
-        return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200';
-      case 'error':
-        return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200';
-      case 'warning':
-        return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200';
-      case 'info':
-        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200';
+      case 'success': return <CheckCircle style={style} />;
+      case 'error':   return <XCircle style={style} />;
+      case 'warning': return <AlertCircle style={style} />;
+      case 'info':    return <Info style={style} />;
     }
   };
 
   return (
     <div
-      className={`flex items-start p-4 rounded-lg border shadow-lg backdrop-blur-sm transition-all duration-300 ${getStyles()} ${
-        isExiting ? 'opacity-0 translate-x-full' : 'opacity-100 translate-x-0'
-      }`}
       style={{
-        animation: isExiting ? 'none' : 'slideInRight 0.3s ease',
-        transform: `translateY(${index * 4}px)`
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 10,
+        padding: '12px 14px',
+        borderRadius: 16,
+        pointerEvents: 'auto',
+        background: 'var(--de-glass, rgba(255,255,255,0.60))',
+        backdropFilter: 'blur(28px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(160%)',
+        border: `1px solid ${config.border}`,
+        boxShadow: `0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.06) inset, 0 0 12px ${config.bg}`,
+        transform: isExiting
+          ? 'translateX(110%) scale(0.95)'
+          : `translateX(0) translateY(${index * 2}px)`,
+        opacity: isExiting ? 0 : 1,
+        transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease',
+        animation: isExiting ? 'none' : 'de-toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <div className="flex-shrink-0 mt-0.5">{getIcon()}</div>
-      <p className="flex-1 mx-3 text-sm font-medium">{toast.message}</p>
+      {/* Top accent line */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, transparent, ${config.accent}, transparent)`,
+        }}
+        aria-hidden="true"
+      />
+
+      <div style={{ marginTop: 1 }}>{getIcon()}</div>
+      <p
+        style={{
+          flex: 1,
+          fontSize: 13,
+          fontWeight: 600,
+          color: 'var(--de-heading, #0f1e34)',
+          lineHeight: 1.5,
+          margin: 0,
+        }}
+      >
+        {toast.message}
+      </p>
       <button
         onClick={handleRemove}
-        className="flex-shrink-0 hover:opacity-70 transition-opacity"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 24,
+          height: 24,
+          borderRadius: 8,
+          border: 'none',
+          background: 'rgba(0,0,0,0.04)',
+          cursor: 'pointer',
+          color: 'var(--de-text-dim)',
+          flexShrink: 0,
+          transition: 'background 0.12s',
+          padding: 0,
+        }}
+        aria-label="Dismiss notification"
       >
-        <X className="w-4 h-4" />
+        <X style={{ width: 14, height: 14 }} />
       </button>
 
-      <style jsx>{`
-        @keyframes slideInRight {
+      <style>{`
+        @keyframes de-toast-in {
           from {
             opacity: 0;
-            transform: translateX(100%);
+            transform: translateX(80px) scale(0.92);
           }
           to {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateX(0) scale(1);
           }
         }
       `}</style>
