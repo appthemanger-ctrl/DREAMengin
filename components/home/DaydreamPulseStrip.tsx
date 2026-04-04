@@ -113,6 +113,7 @@ export default function DaydreamPulseStrip({ onOpenDaydream }: DaydreamPulseStri
             type="button"
             onClick={() => openDaydream(d.href, d.label)}
             aria-label={`Open ${d.label} Daydream Surface`}
+            className="de-pressable"
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -126,7 +127,7 @@ export default function DaydreamPulseStrip({ onOpenDaydream }: DaydreamPulseStri
               cursor: 'pointer',
               WebkitTapHighlightColor: 'transparent',
               touchAction: 'manipulation',
-              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+              transition: 'transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease',
             }}
           >
             <span aria-hidden="true" style={{ fontSize: 26, lineHeight: 1 }}>{d.emoji}</span>
