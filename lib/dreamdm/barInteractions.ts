@@ -460,3 +460,39 @@ export function generateParticles(count: number): Particle[] {
   }
   return particles;
 }
+
+// ── Glowing light position cycle ─────────────────────────────────────────────
+
+/** Minimum vertical movement (px) to treat a touch as a drag instead of a tap. */
+export const DRAG_TAP_THRESHOLD_PX = 5;
+
+/** Maximum delay (ms) between two taps to register as a double-tap. */
+export const DOUBLE_TAP_WINDOW_MS = 300;
+
+/** The three named positions the bar can snap to. */
+export type LightPosition = 'bottom' | 'middle' | 'top';
+
+/** Ordered cycle: bottom → middle → top → middle → bottom → … */
+export const LIGHT_POSITION_CYCLE: LightPosition[] = ['bottom', 'middle', 'top'];
+
+/**
+ * Returns the next position in the light tap cycle.
+ * Cycle: bottom→middle→top→middle→bottom (ping-pong).
+ */
+export function cycleLightPosition(
+  current: LightPosition,
+  direction: 'forward' | 'backward' = 'forward',
+): LightPosition {
+  // We use a ping-pong: bottom→middle→top→middle→bottom
+  // Tracked via a separate index, but for pure stateless cycling we always
+  // go forward: bottom→middle→top→middle (ping-pong handled by caller state).
+  // This function returns the next step in the forward direction.
+  const fwd: LightPosition[] = ['bottom', 'middle', 'top', 'middle'];
+  if (direction === 'backward') {
+    const bwd: LightPosition[] = ['middle', 'top', 'middle', 'bottom'];
+    const idx = bwd.indexOf(current);
+    return idx >= 0 ? bwd[(idx + 1) % bwd.length] : 'bottom';
+  }
+  const idx = fwd.indexOf(current);
+  return idx >= 0 ? fwd[(idx + 1) % fwd.length] : 'middle';
+}

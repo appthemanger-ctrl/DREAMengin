@@ -93,12 +93,17 @@ import {
   QUICK_REACTIONS,
   GOLD_LONG_PRESS_MS,
   generateParticles,
+  DRAG_TAP_THRESHOLD_PX,
+  DOUBLE_TAP_WINDOW_MS,
+  LIGHT_POSITION_CYCLE,
+  cycleLightPosition,
   type SlashCommand,
   type Particle,
   type MoodPeriod,
   type SurfaceAccent,
   type StreakData,
   type StreakTier,
+  type LightPosition,
 } from '@/lib/dreamdm/barInteractions';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
@@ -128,6 +133,113 @@ const EXPAND_THRESHOLD = 80;
 const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
 /** Minimum pointer movement (px) to switch from tap to drag on minimized orb */
 const ORB_DRAG_SLOP = 6;
+
+/**
+ * GlowingLight — the ambient indicator that replaces the geometric gold button.
+ *
+ * Appearance: a tiny soft glow with NO hard edges, NO circle border-radius.
+ * Implemented exclusively with CSS radial-gradient and box-shadow + blur.
+ * The visible light is ~10px; the touch target wrapper is 44×44px (invisible).
+ *
+ * Props:
+ *   isDragging  — glow brightens while the bar is being dragged
+ *   isCollapsed — slightly larger glow when bar is collapsed (it's the only element)
+ *   firstTime   — subtle pulse animation for first-time discovery
+ *   tooltip     — tooltip string (shown for 1s then hidden)
+ */
+interface GlowingLightProps {
+  isDragging?: boolean;
+  isCollapsed?: boolean;
+  firstTime?: boolean;
+  tooltip?: string | null;
+  onTouchStart?: (e: React.TouchEvent<HTMLSpanElement>) => void;
+  onTouchEnd?: (e: React.TouchEvent<HTMLSpanElement>) => void;
+  style?: React.CSSProperties;
+  'aria-label'?: string;
+}
+
+function GlowingLight({
+  isDragging,
+  isCollapsed,
+  firstTime,
+  tooltip,
+  onTouchStart,
+  onTouchEnd,
+  style,
+  'aria-label': ariaLabel,
+}: GlowingLightProps) {
+  const glowSize = isCollapsed ? 14 : 10;
+  const glowOpacity = isDragging ? 1.0 : 0.85;
+  const spreadPx = isDragging ? 18 : (isCollapsed ? 14 : 10);
+
+  return (
+    <span
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel ?? 'DreamDM light — tap to cycle position, double-tap to go home'}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      style={{
+        // 44×44 invisible touch target
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 44,
+        height: 44,
+        position: 'relative',
+        cursor: 'pointer',
+        WebkitTapHighlightColor: 'transparent',
+        touchAction: 'none',
+        flexShrink: 0,
+        ...style,
+      }}
+    >
+      {/* The actual glow — no border-radius, no geometric shape */}
+      <span
+        aria-hidden
+        style={{
+          display: 'block',
+          width: glowSize,
+          height: glowSize,
+          // Radial gradient fading to transparent — no hard edge
+          background: `radial-gradient(ellipse at center, rgba(255,215,64,${glowOpacity}) 0%, rgba(232,184,48,${glowOpacity * 0.55}) 35%, rgba(200,152,26,${glowOpacity * 0.2}) 65%, transparent 100%)`,
+          // Layered box-shadows for depth — the light effect
+          boxShadow: isDragging
+            ? `0 0 ${spreadPx * 2}px ${spreadPx}px rgba(255,215,64,0.85), 0 0 ${spreadPx * 4}px ${spreadPx * 2}px rgba(200,152,26,0.45), 0 0 2px rgba(255,245,180,0.90)`
+            : `0 0 ${spreadPx}px ${spreadPx / 2}px rgba(255,215,64,${glowOpacity * 0.7}), 0 0 ${spreadPx * 2}px ${spreadPx}px rgba(200,152,26,0.35), 0 0 2px rgba(255,245,180,0.80)`,
+          filter: `blur(${isDragging ? 1.5 : 2}px)`,
+          borderRadius: '50%', // Only used to soften the box-shadow, the actual shape is defined by radial-gradient fading to transparent
+          transition: 'box-shadow 0.25s ease, filter 0.25s ease, width 0.25s ease, height 0.25s ease',
+          animation: firstTime ? 'sicc-gold-breathe 1.4s cubic-bezier(0.45,0.05,0.55,0.95) 3' : undefined,
+        }}
+      />
+      {/* First-time tooltip */}
+      {tooltip && (
+        <span
+          aria-live="polite"
+          style={{
+            position: 'absolute',
+            bottom: '100%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'rgba(30,30,30,0.88)',
+            color: 'rgba(255,255,255,0.92)',
+            fontSize: 11,
+            fontWeight: 600,
+            padding: '5px 10px',
+            borderRadius: 8,
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            marginBottom: 6,
+            boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
+          }}
+        >
+          {tooltip}
+        </span>
+      )}
+    </span>
+  );
+}
 
 function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
   if (url) {
@@ -354,6 +466,31 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const [slideDown, setSlideDown] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
+  // ── Glowing light position cycle ─────────────────────────────────────────
+  const [lightPos, setLightPos] = useState<LightPosition>('bottom');
+  const lightCycleRef = useRef<{ stepsSinceBottom: number }>({ stepsSinceBottom: 0 });
+
+  // ── Light tap state machine ───────────────────────────────────────────────
+  // Whole-bar touch drag: startY, startTarget, didDrag, tapCount, tapTimer
+  const barTouchRef = useRef<{
+    active: boolean;
+    startY: number;
+    startTarget: EventTarget | null;
+    didDrag: boolean;
+    lastTapAt: number;
+    tapTimer: ReturnType<typeof setTimeout> | null;
+    textareaFocused: boolean;
+    touchStartedInTextarea: boolean;
+  }>({
+    active: false, startY: 0, startTarget: null, didDrag: false,
+    lastTapAt: 0, tapTimer: null, textareaFocused: false, touchStartedInTextarea: false,
+  });
+
+  // ── First-time discovery ─────────────────────────────────────────────────
+  const [firstTimeLight, setFirstTimeLight] = useState(false);
+  const [lightTooltip, setLightTooltip] = useState<string | null>(null);
+  const lightTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // ── Minimized / collapsed state ───────────────────────────────────────────
   /**
    * When minimized, the bar disappears and a gold glowing orb appears.
@@ -446,24 +583,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   // ── ✨ Gold Button Long-Press Particle Fountain ───────────────────────────
   const [particles, setParticles] = useState<Particle[]>([]);
-  const goldLongPressRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const goldButtonRef = useRef<HTMLButtonElement>(null);
-
-  const triggerParticleFountain = useCallback(() => {
-    if (!goldButtonRef.current) return;
-    const rect = goldButtonRef.current.getBoundingClientRect();
-    const newParticles = generateParticles(24);
-    // Center the fountain on the gold button
-    setParticles(newParticles.map(p => ({
-      ...p,
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    })));
-    // Haptic burst
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([10, 30, 10, 30, 10]);
-    // Clear particles after animation completes
-    setTimeout(() => setParticles([]), 1500);
-  }, []);
 
   // ── Minimized orb drag callbacks (must be after revealBar) ──────────────
   const handleOrbPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
@@ -513,16 +632,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     velocity: 0,
   });
 
-  // ── Gold button press state (iOS-like feedback) ────────────────────────────
-  const [goldPressed, setGoldPressed] = useState(false);
-  /**
-   * goldMinimized — button rests as a thin gold capsule by default.
-   * Expands to the full sphere on first touch, auto-minimizes back after
-   * the interaction settles (2 s after pointer-up with no new interaction).
-   */
-  const [goldMinimized, setGoldMinimized] = useState(true);
-  const goldMinTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const minimizeDreamDMBar = useCallback(() => {
     setIsMinimized(true);
     setIsTop(false);
@@ -531,69 +640,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     setSlideDown(0);
     onSplitChange?.(DEFAULT_SPLIT_RATIO);
   }, [onSplitChange]);
-
-  // ── Gold button double-tap ─────────────────────────────────────────────────
-  const goldRef = useRef({ lastAt: 0 });
-  const handleGoldTap = useCallback(() => {
-    const { action, nextLastTapAt } = resolveGoldTapAction({
-      now: Date.now(),
-      lastTapAt: goldRef.current.lastAt,
-      isTop,
-    });
-    goldRef.current.lastAt = nextLastTapAt;
-    if (action === 'home' || action === 'home-dreamspace') {
-      // Haptic: double-tap = strong feedback
-      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 40, 6]);
-      if (action === 'home-dreamspace') {
-        // Bar is locked at top → open HomeDream in DreamSpace region (dual-home).
-        // Keep the bar at the top so both HomeDream views are active simultaneously.
-        onHomeDreamSpace?.();
-      } else {
-        // Bar is at the bottom → return home in Surface Space (standard).
-        onHome();
-      }
-      return;
-    }
-
-    // Haptic: single tap = light feedback
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
-    // Single tap → open dual menus immediately
-    onBothMenus();
-  }, [isTop, onHome, onHomeDreamSpace, onBothMenus]);
-
-  // Also handle gold swipe-down (pointer drag down > tap slop)
-  const goldDragRef = useRef({ active: false, startY: 0 });
-  const handleGoldPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    goldDragRef.current = { active: true, startY: e.clientY };
-    setGoldPressed(true);
-    // Reveal: cancel any pending minimize timer and expand to full sphere
-    if (goldMinTimerRef.current) { clearTimeout(goldMinTimerRef.current); goldMinTimerRef.current = null; }
-    setGoldMinimized(false);
-    // Start long-press timer for particle fountain
-    if (goldLongPressRef.current) clearTimeout(goldLongPressRef.current);
-    goldLongPressRef.current = setTimeout(() => {
-      triggerParticleFountain();
-      goldLongPressRef.current = null;
-    }, GOLD_LONG_PRESS_MS);
-  }, [triggerParticleFountain]);
-  const handleGoldPointerUp = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    setGoldPressed(false);
-    // Cancel long-press if released early
-    if (goldLongPressRef.current) { clearTimeout(goldLongPressRef.current); goldLongPressRef.current = null; }
-    if (!goldDragRef.current.active) return;
-    goldDragRef.current.active = false;
-    const dy = e.clientY - goldDragRef.current.startY;
-    if (shouldCollapseGoldSwipe({ dy, isTop })) {
-      // Swiping down on gold while bar is at the top → collapse bar to bottom.
-      setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
-    } else if (shouldTreatGoldReleaseAsTap(dy)) {
-      handleGoldTap();
-    }
-    // Auto-minimize after 2 s of inactivity
-    goldMinTimerRef.current = setTimeout(() => { setGoldMinimized(true); goldMinTimerRef.current = null; }, 2000);
-  }, [handleGoldTap, isTop]);
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
   const handleDragStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -740,6 +786,157 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // ── Messaging state ────────────────────────────────────────────────────────
   const [mounted,        setMounted]        = useState(false);
   const [composeFocused, setComposeFocused] = useState(false);
+
+  // ── First-time light discovery useEffect ─────────────────────────────────
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem('de-light-discovered')) {
+        setFirstTimeLight(true);
+        setLightTooltip('drag to move, tap to open');
+        localStorage.setItem('de-light-discovered', '1');
+        lightTooltipTimerRef.current = setTimeout(() => {
+          setLightTooltip(null);
+          setFirstTimeLight(false);
+        }, 3000);
+      }
+    } catch { /* ignore */ }
+    return () => {
+      if (lightTooltipTimerRef.current) clearTimeout(lightTooltipTimerRef.current);
+    };
+  }, []);
+
+  const showExpandedLightTooltip = useCallback(() => {
+    try {
+      const key = 'de-expanded-light-tip';
+      if (!localStorage.getItem(key)) {
+        setLightTooltip('drag to resize, tap to switch runtime');
+        localStorage.setItem(key, '1');
+        if (lightTooltipTimerRef.current) clearTimeout(lightTooltipTimerRef.current);
+        lightTooltipTimerRef.current = setTimeout(() => setLightTooltip(null), 1000);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // ── Whole-bar touch drag system ──────────────────────────────────────────
+  // The entire bar surface is draggable.
+  // Exception: when textarea is focused AND touch started inside the textarea.
+
+  const handleBarTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    revealBar();
+    const touch = e.touches[0];
+    if (!touch) return;
+    const target = e.target as HTMLElement;
+    const isInTextarea = target.tagName === 'TEXTAREA' || target.closest('textarea') !== null;
+    const ref = barTouchRef.current;
+    ref.active = true;
+    ref.startY = touch.clientY;
+    ref.startTarget = e.target;
+    ref.didDrag = false;
+    ref.textareaFocused = composeFocused;
+    ref.touchStartedInTextarea = isInTextarea;
+  }, [revealBar, composeFocused]);
+
+  const handleBarTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    const ref = barTouchRef.current;
+    if (!ref.active) return;
+    // Block drag if user started touch inside focused textarea
+    if (ref.textareaFocused && ref.touchStartedInTextarea) return;
+
+    const touch = e.touches[0];
+    if (!touch) return;
+    const dy = touch.clientY - ref.startY;
+    if (Math.abs(dy) >= DRAG_TAP_THRESHOLD_PX) {
+      ref.didDrag = true;
+    }
+    if (!ref.didDrag) return;
+
+    // Prevent page scroll while dragging bar
+    e.preventDefault();
+
+    // Compute new drag height from touch position (bar grows up from bottom)
+    const newDragH = Math.max(BAR_H, Math.min(screenH * 0.85, screenH - touch.clientY + BAR_H / 2));
+    setDragH(newDragH);
+    setIsTop(false);
+    setIsTopExpanded(false);
+    setSlideDown(0);
+    setIsDragging(true);
+  }, [composeFocused, screenH]);
+
+  const handleBarTouchEnd = useCallback((_e: React.TouchEvent<HTMLDivElement>) => {
+    const ref = barTouchRef.current;
+    if (!ref.active) return;
+    ref.active = false;
+    setIsDragging(false);
+
+    if (ref.didDrag) {
+      // Snap to bottom
+      setDragH(BAR_H);
+      return;
+    }
+
+    // It was a tap — the light's touch handlers manage tap/double-tap separately
+  }, []);
+
+  // ── Glowing light tap / double-tap actions ────────────────────────────────
+  const lightTapRef = useRef<{ lastTapAt: number; timer: ReturnType<typeof setTimeout> | null }>({
+    lastTapAt: 0, timer: null,
+  });
+
+  const handleLightSingleTap = useCallback(() => {
+    // Cycle position: bottom→middle→top→middle→bottom
+    setLightPos((prev) => {
+      const next = cycleLightPosition(prev);
+      // Map position to bar state
+      if (next === 'bottom') {
+        setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
+      } else if (next === 'middle') {
+        setIsTop(false); setIsTopExpanded(false); setDragH(Math.round(screenH * 0.5)); setSlideDown(0);
+      } else {
+        // top
+        setIsTop(true); setIsTopExpanded(false); setDragH(NAV_H); setSlideDown(0);
+      }
+      return next;
+    });
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
+    showExpandedLightTooltip();
+  }, [screenH, showExpandedLightTooltip]);
+
+  const handleLightDoubleTap = useCallback(() => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 40, 6]);
+    onHome();
+    // Collapse to bottom
+    setLightPos('bottom');
+    setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
+  }, [onHome]);
+
+  const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {
+    // Will be resolved on touchend
+  }, []);
+
+  const handleLightTouchEnd = useCallback((e: React.TouchEvent<HTMLSpanElement>) => {
+    e.stopPropagation();
+    const ref = barTouchRef.current;
+    // If bar drag was active, don't fire tap
+    if (ref.didDrag) return;
+
+    const now = Date.now();
+    const tapRef = lightTapRef.current;
+
+    if (tapRef.timer !== null) {
+      // Second tap within window → double-tap
+      clearTimeout(tapRef.timer);
+      tapRef.timer = null;
+      tapRef.lastTapAt = 0;
+      handleLightDoubleTap();
+    } else {
+      // First tap — wait to see if double-tap follows
+      tapRef.lastTapAt = now;
+      tapRef.timer = setTimeout(() => {
+        tapRef.timer = null;
+        handleLightSingleTap();
+      }, DOUBLE_TAP_WINDOW_MS);
+    }
+  }, [handleLightDoubleTap, handleLightSingleTap]);
   const [userId,         setUserId]         = useState('');
   const [selectedConv,   setSelectedConv]   = useState<DMConversation | null>(null);
   const [quickDraft,     setQuickDraft]     = useState('');
@@ -1211,24 +1408,30 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  // ── Minimized state: draggable gold orb ───────────────────────────────────
+  // ── Minimized state: draggable glowing light ─────────────────────────────
   if (isMinimized) {
-    const orbX = minOrbPos?.x ?? undefined;
-    const orbY = minOrbPos?.y ?? undefined;
-    const posStyle: React.CSSProperties = orbX !== undefined && orbY !== undefined
-      ? { left: orbX, top: orbY, right: undefined, bottom: undefined }
-      : { right: 20, bottom: 20 };
+    const posStyle: React.CSSProperties = minOrbPos !== null
+      ? { left: minOrbPos.x, top: minOrbPos.y, right: undefined, bottom: undefined }
+      : { right: 20, bottom: 20 + keyboardOffsetPx };
     return (
-      <button
-        type="button"
-        aria-label="DreamDM Bar — tap to restore, drag to reposition"
+      <div
+        aria-label="DreamDM — tap to expand, drag to reposition"
+        style={{
+          position: 'fixed',
+          ...posStyle,
+          width: 44,
+          height: 44,
+          zIndex: 200,
+          touchAction: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
         onPointerDown={(e) => {
           e.preventDefault();
-          (e.currentTarget as HTMLButtonElement).setPointerCapture(e.pointerId);
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
           const rect = e.currentTarget.getBoundingClientRect();
-          const curX = rect.left;
-          const curY = rect.top;
-          minOrbDragRef.current = { active: true, startX: e.clientX, startY: e.clientY, startPosX: curX, startPosY: curY, moved: false };
+          minOrbDragRef.current = { active: true, startX: e.clientX, startY: e.clientY, startPosX: rect.left, startPosY: rect.top, moved: false };
         }}
         onPointerMove={(e) => {
           const drag = minOrbDragRef.current;
@@ -1254,196 +1457,27 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           }
         }}
         onPointerCancel={() => { minOrbDragRef.current = null; }}
-        style={{
-          position: 'fixed',
-          ...posStyle,
-          width: 48,
-          height: 48,
-          borderRadius: '50%',
-          border: 'none',
-          cursor: 'grab',
-          zIndex: 200,
-          background: 'radial-gradient(circle at 36% 32%, #fffde0 0%, #f7e07a 10%, #e8c040 22%, #d4a843 38%, #a16207 65%, #6b3c03 100%)',
-          boxShadow: `
-            inset 0 2px 5px rgba(255,255,220,0.90),
-            inset -3px -3px 12px rgba(80,40,0,0.42),
-            0 8px 32px rgba(100,58,4,0.55),
-            0 2px 12px rgba(212,168,67,0.60),
-            0 0 0 1.5px rgba(180,120,20,0.45),
-            0 0 28px rgba(200,152,26,0.80),
-            0 0 56px rgba(200,152,26,0.40)
-          `,
-          animation: 'sicc-gold-breathe 2s cubic-bezier(0.45,0.05,0.55,0.95) infinite',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          WebkitTapHighlightColor: 'transparent',
-          touchAction: 'none',
-        }}
       >
-        {/* Specular highlight */}
-        <span aria-hidden style={{
-          position: 'absolute', top: '10%', left: '15%',
-          width: '40%', height: '24%', borderRadius: '50%',
-          background: 'linear-gradient(135deg, rgba(255,255,245,0.72) 0%, rgba(255,255,220,0.22) 100%)',
-          filter: 'blur(2.5px)', pointerEvents: 'none',
-        }} />
-        <svg width="20" height="10" viewBox="0 0 80 36" style={{ opacity: 0.90, position: 'relative', filter: 'drop-shadow(0 0 6px rgba(255,240,180,0.90))' }} aria-hidden>
-          <path d="M12 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
-          <path d="M12 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
-        </svg>
-      </button>
+        <GlowingLight
+          isCollapsed
+          firstTime={firstTimeLight}
+          tooltip={lightTooltip}
+          aria-label="DreamDM — tap to expand"
+        />
+      </div>
     );
   }
 
   return (
     <>
-      {/* ── Gold sphere / capsule button ────────────────────────────────────── */}
-
-      {/* SICC outer glow ring — only when revealed */}
-      {!goldMinimized && (
-        <div
-          aria-hidden
-          style={{
-            position: 'fixed',
-            top: goldTopPx - 6,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: goldSz + 12,
-            height: goldSz + 12,
-            borderRadius: '50%',
-            zIndex: 101,
-            pointerEvents: 'none',
-            transition: isDragging ? 'none' : `top ${SPRING}, opacity 0.4s ease, width 0.38s cubic-bezier(0.34,1.22,0.64,1), height 0.38s cubic-bezier(0.34,1.22,0.64,1)`,
-            background: 'transparent',
-            border: goldPressed
-              ? '2px solid rgba(42,138,184,0.55)'  // Blue ring on press
-              : '1.5px solid rgba(200,152,26,0.22)',
-            animation: goldPressed ? 'none' : 'sicc-gold-breathe 3.2s cubic-bezier(0.45,0.05,0.55,0.95) infinite',
-            opacity: isScreenLocked ? 0.9 : 0.72,
-          }}
-        />
-      )}
-
-      {/* SICC gold/blue burst ring on press */}
-      {goldPressed && !goldMinimized && (
-        <div
-          aria-hidden
-          style={{
-            position: 'fixed',
-            top: goldTopPx - 4,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: goldSz + 8,
-            height: goldSz + 8,
-            borderRadius: '50%',
-            zIndex: 101,
-            pointerEvents: 'none',
-            border: '2.5px solid rgba(42,138,184,0.65)',
-            animation: 'sicc-gold-burst 0.55s ease-out forwards',
-          }}
-        />
-      )}
-
-      <button
-        type="button"
-        ref={goldButtonRef}
-        aria-label="Gold button — tap for menus, double-tap to open HomeDream, long-press for particle burst"
-        onPointerDown={handleGoldPointerDown}
-        onPointerUp={handleGoldPointerUp}
-        onPointerCancel={() => {
-          goldDragRef.current.active = false;
-          setGoldPressed(false);
-          if (goldLongPressRef.current) { clearTimeout(goldLongPressRef.current); goldLongPressRef.current = null; }
-          // auto-minimize after cancel too
-          goldMinTimerRef.current = setTimeout(() => { setGoldMinimized(true); goldMinTimerRef.current = null; }, 2000);
-        }}
-        style={{
-          position: 'fixed',
-          // When minimized: center the capsule pill; when revealed: full sphere position
-          top: goldMinimized ? minCapsuleTop : goldTopPx,
-          left: '50%',
-          transform: goldMinimized
-            ? 'translateX(-50%)'
-            : `translateX(-50%) scale(${goldPressed ? 0.88 : 1})`,
-          width:  goldMinimized ? GOLD_MIN_W : goldSz,
-          height: goldMinimized ? GOLD_MIN_H : goldSz,
-          borderRadius: goldMinimized ? 99 : '50%',
-          border: 'none',
-          cursor: 'pointer',
-          zIndex: 102,
-          pointerEvents: 'auto',
-          touchAction: 'manipulation',
-          WebkitTapHighlightColor: 'transparent',
-          outline: 'none',
-          transition: goldMinimized
-            ? (isDragging ? 'none' : `top ${SPRING}, width 0.42s cubic-bezier(0.34,1.22,0.64,1), height 0.42s cubic-bezier(0.34,1.22,0.64,1), border-radius 0.42s ease, opacity 0.3s ease, box-shadow 0.3s ease`)
-            : goldPressed
-              ? 'transform 0.08s ease, box-shadow 0.1s ease, border 0.08s ease'
-              : isDragging
-                ? 'none'
-                : `top ${SPRING}, transform 0.26s cubic-bezier(0.34,1.6,0.64,1), box-shadow 0.3s ease, width 0.42s cubic-bezier(0.34,1.22,0.64,1), height 0.42s cubic-bezier(0.34,1.22,0.64,1), border-radius 0.42s ease`,
-          willChange: 'transform, width, height',
-          // Minimized: subtle translucent gold pill
-          background: goldMinimized
-            ? 'linear-gradient(90deg, rgba(200,152,26,0.45), rgba(232,184,48,0.65), rgba(200,152,26,0.45))'
-            : `radial-gradient(circle at 36% 32%,
-                #fffde0 0%, #f7e07a 10%, #e8c040 22%, #d4a843 38%, #a16207 65%, #6b3c03 100%)`,
-          boxShadow: goldMinimized
-            ? '0 1px 6px rgba(200,152,26,0.28)'
-            : goldPressed
-              ? `inset 0 3px 8px rgba(80,40,0,0.55),
-                 inset -2px -2px 10px rgba(80,40,0,0.35),
-                 0 2px 8px rgba(100,58,4,0.40),
-                 0 0 0 3px rgba(42,138,184,0.55),
-                 0 0 20px rgba(42,138,184,0.35)`
-              : `inset 0 2px 5px rgba(255,255,220,0.90),
-                 inset -3px -3px 12px rgba(80,40,0,0.42),
-                 0 8px 32px rgba(100,58,4,0.55),
-                 0 2px 12px rgba(212,168,67,0.60),
-                 0 0 0 1.5px rgba(180,120,20,0.45),
-                 0 0 ${isScreenLocked ? '28px' : '16px'} rgba(200,152,26,${isScreenLocked ? '0.60' : '0.30'})`,
-          overflow: 'hidden',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-      >
-        {/* Contents only shown when revealed */}
-        {!goldMinimized && (
-          <>
-            {/* SICC specular highlight */}
-            <span aria-hidden style={{
-              position: 'absolute', top: '10%', left: '15%',
-              width: '40%', height: '24%', borderRadius: '50%',
-              background: 'linear-gradient(135deg, rgba(255,255,245,0.72) 0%, rgba(255,255,220,0.22) 100%)',
-              filter: 'blur(2.5px)', pointerEvents: 'none',
-            }} />
-            {/* SICC secondary edge highlight */}
-            <span aria-hidden style={{
-              position: 'absolute', bottom: '12%', right: '16%',
-              width: '22%', height: '14%', borderRadius: '50%',
-              background: 'rgba(255,240,180,0.25)',
-              filter: 'blur(3px)', pointerEvents: 'none',
-            }} />
-            {/* Blue inner glow on press */}
-            {goldPressed && (
-              <span aria-hidden style={{
-                position: 'absolute', inset: 0, borderRadius: '50%',
-                background: 'radial-gradient(circle at 50% 50%, rgba(42,138,184,0.22) 0%, transparent 70%)',
-                pointerEvents: 'none',
-              }} />
-            )}
-            <svg width="24" height="12" viewBox="0 0 80 36"
-              style={{ opacity: 0.90, flexShrink: 0, position: 'relative', filter: 'drop-shadow(0 0 6px rgba(255,240,180,0.90)) drop-shadow(0 0 14px rgba(200,152,26,0.75)) drop-shadow(0 1px 2px rgba(0,0,0,0.18))', animation: 'sicc-infinity-glow 2.4s ease-in-out infinite' }} aria-hidden>
-              <path d="M12 18c8-10 18-10 28 0s20 10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
-              <path d="M12 18c8 10 18 10 28 0s20-10 28 0" fill="none" stroke="#fffde0" strokeWidth="6" strokeLinecap="round" />
-            </svg>
-          </>
-        )}
-      </button>
-
       {/* ── DreamDM window ───────────────────────────────────────────────────── */}
       <div
         aria-label="DreamDM Bar"
         className="sicc-bar-edge"
         onPointerDown={revealBar}
+        onTouchStart={handleBarTouchStart}
+        onTouchMove={handleBarTouchMove}
+        onTouchEnd={handleBarTouchEnd}
         style={{
           position: 'fixed',
           top: barTop,
@@ -1452,6 +1486,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           zIndex: 100,
           pointerEvents: 'auto',
           overflow: 'hidden',
+          touchAction: 'pan-y',
           transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease`,
           willChange: isDragging ? 'top, height' : undefined,
           transform: keyboardTranslateY !== 0 ? `translateY(${keyboardTranslateY}px)` : undefined,
@@ -1510,7 +1545,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           />
         )}
 
-        {/* ── Drag handle ──────────────────────────────────────────────────── */}
+        {/* ── Drag handle / Glowing Light ──────────────────────────────────── */}
         <div
           role="separator" aria-label="Drag to resize DreamDM"
           style={{
@@ -1541,36 +1576,18 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               onPointerCancel={isDividerMode ? handleDividerDragEnd : handleDragEnd}
               style={{
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 2,
                 width: '100%',
                 height: '100%',
               }}
             >
-              {/* SICC drag handle — refined dual-line with gold center + typing rhythm */}
-              <div
-                className={typingRhythm > 0.1 ? 'sicc-rhythm-handle' : undefined}
-                style={{
-                  width: 44 * handleScale, height: 3, borderRadius: 99,
-                  background: typingRhythm > 0.3
-                    ? `linear-gradient(90deg, ${moodEdgeColor.replace('0.55', '0.25')}, ${moodEdgeColor}, ${moodEdgeColor.replace('0.55', '0.25')})`
-                    : 'linear-gradient(90deg, rgba(200,152,26,0.15), rgba(200,152,26,0.55), rgba(200,152,26,0.15))',
-                  boxShadow: typingRhythm > 0.3
-                    ? `0 0 ${6 + typingRhythm * 10}px ${moodEdgeColor}`
-                    : '0 0 4px rgba(200,152,26,0.15)',
-                  transition: 'width 0.15s ease, background 0.3s ease, box-shadow 0.3s ease',
-                  '--rhythm-scale': `${handleScale}`,
-                } as React.CSSProperties}
+              <GlowingLight
+                isDragging={isDragging}
+                tooltip={lightTooltip}
+                onTouchStart={handleLightTouchStart}
+                onTouchEnd={handleLightTouchEnd}
               />
-              <div style={{
-                width: 28 * (1 + typingRhythm * 0.8), height: 2, borderRadius: 99,
-                background: typingRhythm > 0.3
-                  ? `linear-gradient(90deg, rgba(42,138,184,0.08), rgba(42,138,184,${0.25 + typingRhythm * 0.35}), rgba(42,138,184,0.08))`
-                  : 'linear-gradient(90deg, rgba(42,138,184,0.08), rgba(42,138,184,0.25), rgba(42,138,184,0.08))',
-                transition: 'width 0.15s ease, background 0.3s ease',
-              }} />
             </div>
           </div>
         </div>
@@ -2112,11 +2129,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             Type to filter · ↑↓ to navigate · Enter to select · Esc to close
           </div>
         </div>
-      )}
-
-      {/* ── ✨ Gold Button Particle Fountain ──────────────────────────────── */}
-      {particles.length > 0 && (
-        <ParticleFountain particles={particles} centerX={screenW / 2} centerY={goldTopPx + goldR} />
       )}
 
       {/* ── Media lightbox overlay ─────────────────────────────────────────── */}
