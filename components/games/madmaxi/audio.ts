@@ -55,9 +55,6 @@ export class MadmaxiAudioController {
   private ctx: AudioContext | null = null;
   private bgmGain: GainNode | null = null;
   private bgmInterval: ReturnType<typeof setInterval> | null = null;
-
-  // BGM state
-  private bgmGain: GainNode | null = null;
   private bgmTimer: ReturnType<typeof setInterval> | null = null;
   private bgmActive = false;
 

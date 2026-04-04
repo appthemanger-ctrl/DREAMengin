@@ -1,9 +1,10 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Flame, Zap, Layers, Activity } from 'lucide-react';
+import { Flame, Zap, Layers, Activity, TrendingUp } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import ForgeEngin from '@/components/daydream/ForgeEngin';
+import ForgeMomentumWidget from '@/components/forge/ForgeMomentumWidget';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { CREATIVE_ENGINES } from '@/lib/forge/forgeRegistry';
@@ -63,6 +64,17 @@ export default async function ForgeDaydreamPage() {
               <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.7, maxWidth: 600, marginTop: 10 }}>
                 The Forge doesn&apos;t replace any engine. It watches all of them — activity heat, last actions, cross-engine data flows — and gives you a single command surface to orchestrate your creative workflow.
               </p>
+            </div>
+          </div>
+
+          {/* Momentum Widget */}
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <TrendingUp className="w-4 h-4" style={{ color: '#ef4444' }} />
+              <span className="de-widget-title ml-2">Creative Momentum</span>
+            </div>
+            <div className="de-widget-body" style={{ paddingTop: 12 }}>
+              <ForgeMomentumWidget />
             </div>
           </div>
 

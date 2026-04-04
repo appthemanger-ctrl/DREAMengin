@@ -8,6 +8,7 @@ import NotificationCenter from '@/components/NotificationCenter';
 import HomeFeed from '@/components/HomeFeed';
 import BrandLogo from '@/components/BrandLogo';
 import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
+import DreamRSection from '@/components/dreamr/DreamRSection';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 
@@ -85,8 +86,9 @@ export default function WorkspaceDashboard({
   onOpenUrl,
 }: WorkspaceDashboardProps) {
   const router = useRouter();
-  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifOpen,    setNotifOpen]    = useState(false);
   const [viewportWidth, setViewportWidth] = useState(1280);
+  const [showDreamR,   setShowDreamR]   = useState(false);
   const { unreadCount } = useNotifications();
 
   const name = profile?.display_name || profile?.handle || 'Dreamer';
@@ -229,6 +231,30 @@ export default function WorkspaceDashboard({
             )}
           </div>
 
+          {/* DreamR toggle pill */}
+          <button
+            type="button"
+            onClick={() => setShowDreamR(v => !v)}
+            aria-label={showDreamR ? 'Back to HomeDream' : 'Open DreamR'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '7px 13px', borderRadius: 99, border: 'none',
+              cursor: 'pointer', flexShrink: 0,
+              fontFamily: 'var(--font-dreamr,"Plus Jakarta Sans",system-ui,sans-serif)',
+              fontSize: 12, fontWeight: 800, letterSpacing: '-0.01em',
+              background: showDreamR
+                ? 'linear-gradient(135deg,#87CEEB 0%,#5ba8d4 55%,#c8981a 100%)'
+                : 'rgba(91,168,212,0.10)',
+              color: showDreamR ? '#fff' : '#5ba8d4',
+              boxShadow: showDreamR ? '0 4px 14px rgba(91,168,212,0.35)' : 'none',
+              transition: 'all 200ms',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            <span style={{ fontSize: 13 }}>D</span>
+            <span>DreamR</span>
+          </button>
+
           <button
             type="button"
             onClick={() => openPage('/edit-profiledream', 'DreamProfile')}
@@ -252,6 +278,25 @@ export default function WorkspaceDashboard({
           </button>
         </div>
       </div>
+
+      {/* ── DreamR Station — full-height when active ───────────────────────── */}
+      {showDreamR && (
+        <div
+          style={{
+            position: 'absolute',
+            top: isCompactViewport ? 'calc(env(safe-area-inset-top,0px) + 56px)' : '68px',
+            left: 0, right: 0, bottom: 0,
+            zIndex: 20,
+            overflow: 'hidden',
+          }}
+        >
+          <DreamRSection
+            profile={profile}
+            initialPosts={posts as Parameters<typeof DreamRSection>[0]['initialPosts']}
+            onOpenUrl={onOpenUrl}
+          />
+        </div>
+      )}
 
       {/* ── Main content ───────────────────────────────────────────────────── */}
       <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>

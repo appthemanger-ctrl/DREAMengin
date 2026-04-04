@@ -53,6 +53,20 @@ import {
   type ForgeTransferEntry,
   type WorkflowRunState,
 } from '@/lib/forge/forgeIntelligence';
+import {
+  computeMomentum,
+  getLevelColor,
+  getLevelEmoji,
+  type MomentumSnapshot,
+} from '@/lib/forge/forgeMomentum';
+import {
+  computeNexus,
+  type NexusSnapshot,
+} from '@/lib/forge/forgeNexus';
+import {
+  computeRituals,
+  type RitualSnapshot,
+} from '@/lib/forge/forgeRituals';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const FORGE = {
@@ -81,6 +95,9 @@ export default function ForgeEngin({ onBack }: Props) {
   const [showWorkflowBuilder, setShowWorkflowBuilder] = useState(false);
   const [builderEngines, setBuilderEngines] = useState<string[]>([]);
   const [builderTitle, setBuilderTitle] = useState('');
+  const [momentum, setMomentum] = useState<MomentumSnapshot | null>(null);
+  const [nexus, setNexus] = useState<NexusSnapshot | null>(null);
+  const [rituals, setRituals] = useState<RitualSnapshot | null>(null);
 
   // Refresh all forge data every 10s
   useEffect(() => {
@@ -100,6 +117,11 @@ export default function ForgeEngin({ onBack }: Props) {
       if (last) {
         setSuggestions(generateSuggestions({ enginId: last.enginId, label: last.label }));
       }
+
+      // Compute Forge evolution systems
+      setMomentum(computeMomentum());
+      setNexus(computeNexus());
+      setRituals(computeRituals());
     };
     refresh();
     const timer = setInterval(refresh, 10_000);
@@ -284,6 +306,90 @@ export default function ForgeEngin({ onBack }: Props) {
           </div>
         </div>
 
+        {/* ── 🚀 Creative Momentum ── */}
+        {momentum && (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Sparkles className="w-4 h-4" style={{ color: getLevelColor(momentum.level) }} />
+              <span style={{ fontSize: 13, fontWeight: 800, color: FORGE.text }}>Creative Momentum</span>
+              <span style={{
+                marginLeft: 'auto',
+                fontSize: 10, fontWeight: 700,
+                padding: '3px 10px', borderRadius: 999,
+                background: `${getLevelColor(momentum.level)}18`,
+                color: getLevelColor(momentum.level),
+                border: `1px solid ${getLevelColor(momentum.level)}30`,
+              }}>
+                {getLevelEmoji(momentum.level)} {momentum.level}
+              </span>
+            </div>
+
+            {/* Composite score ring */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 20,
+              padding: '20px',
+              borderRadius: 18,
+              background: `linear-gradient(135deg, ${getLevelColor(momentum.level)}08, ${FORGE.panel})`,
+              border: `1px solid ${getLevelColor(momentum.level)}25`,
+              marginBottom: 12,
+            }}>
+              <div style={{ position: 'relative', width: 80, height: 80, flexShrink: 0 }}>
+                <svg viewBox="0 0 80 80" style={{ width: 80, height: 80, transform: 'rotate(-90deg)' }}>
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                  <motion.circle
+                    cx="40" cy="40" r="34"
+                    fill="none"
+                    stroke={getLevelColor(momentum.level)}
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 34}`}
+                    initial={{ strokeDashoffset: 2 * Math.PI * 34 }}
+                    animate={{ strokeDashoffset: 2 * Math.PI * 34 * (1 - momentum.composite / 100) }}
+                    transition={{ duration: 1.2, ease: [0, 0, 0.2, 1] }}
+                  />
+                </svg>
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: getLevelColor(momentum.level) }}>
+                    {momentum.composite}
+                  </span>
+                </div>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 11, color: FORGE.dim, marginBottom: 8 }}>
+                  {momentum.actionsToday} actions today · {momentum.actionsWeek} this week · {momentum.streakDays}d streak
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                  {momentum.dimensions.map(dim => (
+                    <div key={dim.name} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 12 }}>{dim.emoji}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: FORGE.dim }}>{dim.name}</span>
+                          <span style={{ fontSize: 10, fontWeight: 800, color: dim.accent }}>{dim.score}</span>
+                        </div>
+                        <div style={{ width: '100%', height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)' }}>
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${dim.score}%` }}
+                            transition={{ duration: 0.8, ease: [0, 0, 0.2, 1] }}
+                            style={{ height: '100%', borderRadius: 2, background: dim.accent }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── Engine Status Matrix ── */}
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -316,6 +422,193 @@ export default function ForgeEngin({ onBack }: Props) {
             />
           )}
         </AnimatePresence>
+
+        {/* ── 🕸️ Engine Nexus (Connection Graph) ── */}
+        {nexus && nexus.totalTransitions > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Zap className="w-4 h-4" style={{ color: '#a855f7' }} />
+              <span style={{ fontSize: 13, fontWeight: 800, color: FORGE.text }}>Engine Nexus</span>
+              <span style={{
+                marginLeft: 'auto',
+                fontSize: 10, fontWeight: 700,
+                padding: '3px 10px', borderRadius: 999,
+                background: '#a855f718', color: '#a855f7',
+                border: '1px solid #a855f730',
+              }}>
+                {nexus.totalTransitions} flows
+              </span>
+            </div>
+
+            {/* Connection strength grid */}
+            <div style={{
+              padding: '16px',
+              borderRadius: 16,
+              background: FORGE.panel,
+              border: `1px solid ${FORGE.border}`,
+              marginBottom: 10,
+            }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: FORGE.dim, marginBottom: 10 }}>
+                FLOW STRENGTHS
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                {nexus.edges.slice(0, 6).map(edge => {
+                  const fromEng = ENGIN_REGISTRY.find(e => e.id === edge.from);
+                  const toEng = ENGIN_REGISTRY.find(e => e.id === edge.to);
+                  if (!fromEng || !toEng) return null;
+                  return (
+                    <div
+                      key={`${edge.from}-${edge.to}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '8px 10px',
+                        borderRadius: 10,
+                        background: 'rgba(255,255,255,0.02)',
+                        border: `1px solid ${FORGE.border}`,
+                      }}
+                    >
+                      <span style={{ fontSize: 14 }}>{fromEng.emoji}</span>
+                      <span style={{ fontSize: 10, color: FORGE.dim }}>→</span>
+                      <span style={{ fontSize: 14 }}>{toEng.emoji}</span>
+                      <div style={{ flex: 1, minWidth: 0, marginLeft: 4 }}>
+                        <div style={{ width: '100%', height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)' }}>
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.max(edge.strength * 100, 5)}%` }}
+                            transition={{ duration: 0.6, ease: [0, 0, 0.2, 1] }}
+                            style={{ height: '100%', borderRadius: 2, background: fromEng.accent }}
+                          />
+                        </div>
+                      </div>
+                      <span style={{
+                        fontSize: 10, fontWeight: 800, color: fromEng.accent,
+                        minWidth: 24, textAlign: 'right',
+                      }}>
+                        {edge.weight}×
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Engine centrality */}
+            <div style={{
+              padding: '16px',
+              borderRadius: 16,
+              background: FORGE.panel,
+              border: `1px solid ${FORGE.border}`,
+              marginBottom: 10,
+            }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: FORGE.dim, marginBottom: 10 }}>
+                ENGINE CENTRALITY
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {[...nexus.nodes]
+                  .sort((a, b) => b.centrality - a.centrality)
+                  .map(node => (
+                    <div
+                      key={node.id}
+                      style={{
+                        padding: '10px',
+                        borderRadius: 12,
+                        background: node.isolated ? 'rgba(255,255,255,0.01)' : `${node.accent}06`,
+                        border: `1px solid ${node.isolated ? FORGE.border : `${node.accent}20`}`,
+                        textAlign: 'center',
+                        opacity: node.isolated ? 0.5 : 1,
+                      }}
+                    >
+                      <span style={{ fontSize: 16 }}>{node.emoji}</span>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: node.isolated ? FORGE.dim : node.accent, marginTop: 4 }}>
+                        {node.isolated ? 'ISOLATED' : `${Math.round(node.centrality * 100)}%`}
+                      </div>
+                      <div style={{ fontSize: 8, color: FORGE.dim, marginTop: 2 }}>
+                        ↓{node.inbound} ↑{node.outbound}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Dominant pipeline */}
+            {nexus.dominantPipeline.length >= 2 && (
+              <div style={{
+                padding: '14px 16px',
+                borderRadius: 14,
+                background: `linear-gradient(135deg, ${FORGE.accent}08, ${FORGE.gold}06)`,
+                border: `1px solid ${FORGE.accent}20`,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 10,
+              }}>
+                <Workflow className="w-4 h-4" style={{ color: FORGE.gold, flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: FORGE.gold, marginBottom: 4 }}>
+                    DOMINANT PIPELINE
+                  </div>
+                  <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
+                    {nexus.dominantPipeline.map((eid, i) => {
+                      const eng = ENGIN_REGISTRY.find(e => e.id === eid);
+                      return eng ? (
+                        <span key={eid} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
+                          <span style={{
+                            width: 24, height: 24, borderRadius: 6,
+                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                            background: `${eng.accent}18`, fontSize: 12,
+                          }}>
+                            {eng.emoji}
+                          </span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: eng.accent }}>{eng.name}</span>
+                          {i < nexus.dominantPipeline.length - 1 && (
+                            <ChevronRight className="w-3 h-3" style={{ color: FORGE.dim }} />
+                          )}
+                        </span>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Affinity clusters */}
+            {nexus.clusters.length > 0 && (
+              <div style={{
+                padding: '14px 16px',
+                borderRadius: 14,
+                background: FORGE.panel,
+                border: `1px solid ${FORGE.border}`,
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: FORGE.dim, marginBottom: 8 }}>
+                  AFFINITY CLUSTERS
+                </div>
+                <div style={{ display: 'grid', gap: 6 }}>
+                  {nexus.clusters.map(cluster => (
+                    <div
+                      key={cluster.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '8px 10px',
+                        borderRadius: 10,
+                        background: `${cluster.accent}06`,
+                        border: `1px solid ${cluster.accent}15`,
+                      }}
+                    >
+                      <span style={{ fontSize: 13 }}>{cluster.label}</span>
+                      <span style={{ fontSize: 10, color: FORGE.dim, marginLeft: 'auto' }}>
+                        {cluster.internalWeight} mutual flows
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── 🧠 Predictive Suggestions (Intelligence Layer) ── */}
         {suggestions.length > 0 && (
@@ -863,6 +1156,68 @@ export default function ForgeEngin({ onBack }: Props) {
             </div>
           )}
         </div>
+
+        {/* ── 🔮 Forge Rituals (Auto-Detected Patterns) ── */}
+        {rituals && rituals.rituals.length > 0 && (
+          <div style={{ marginTop: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Sparkles className="w-4 h-4" style={{ color: '#fb923c' }} />
+              <span style={{ fontSize: 13, fontWeight: 800, color: FORGE.text }}>Forge Rituals</span>
+              <span style={{
+                marginLeft: 'auto',
+                fontSize: 10, fontWeight: 700,
+                padding: '3px 10px', borderRadius: 999,
+                background: '#fb923c18', color: '#fb923c',
+                border: '1px solid #fb923c30',
+              }}>
+                {rituals.rituals.length} patterns detected
+              </span>
+            </div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {rituals.rituals.slice(0, 8).map(ritual => (
+                <div
+                  key={ritual.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '12px 14px',
+                    borderRadius: 14,
+                    background: `${ritual.accent}06`,
+                    border: `1px solid ${ritual.accent}18`,
+                  }}
+                >
+                  <span style={{
+                    width: 32, height: 32, borderRadius: 8,
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    background: `${ritual.accent}18`, fontSize: 16,
+                  }}>
+                    {ritual.emoji}
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: ritual.accent }}>{ritual.title}</div>
+                    <div style={{ fontSize: 11, color: FORGE.dim, lineHeight: 1.5 }}>{ritual.description}</div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                    <span style={{
+                      fontSize: 9, fontWeight: 700,
+                      padding: '2px 8px', borderRadius: 999,
+                      background: `${ritual.accent}12`, color: ritual.accent,
+                      textTransform: 'uppercase', letterSpacing: '0.08em',
+                    }}>
+                      {ritual.type.replace('-', ' ')}
+                    </span>
+                    {ritual.occurrences > 0 && (
+                      <span style={{ fontSize: 9, color: FORGE.dim }}>
+                        {ritual.occurrences}× observed
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Forge Philosophy ── */}
         <div style={{
