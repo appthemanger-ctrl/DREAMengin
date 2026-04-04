@@ -71,6 +71,7 @@ const BOOT_KEYFRAMES = `
 const DEFAULT_HUD_BOTTOM = '175px';
 /** Portrait: reserve space for HUD. Landscape: reduce so the game fills more of the short screen. */
 const MIN_STAGE_BOTTOM_CLEARANCE = 'clamp(80px, 22dvh, 38dvh)';
+const LANDSCAPE_MIN_STAGE_BOTTOM_CLEARANCE = 'clamp(56px, 14dvh, 24dvh)';
 const BASELINE_OVERLAY_OFFSET_PX = 14;
 
 export default function ImmersiveGameShell() {
