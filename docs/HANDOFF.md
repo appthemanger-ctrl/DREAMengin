@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-04 11:28 UTC | `e1d24c8` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #430 from appthemanger-ctrl/copilot/add-webgpu-compute-shader-pipeline — Phase 9: Offline cache, adaptive quality, touch gestures, drag-drop import, remix notifications, hashtags, cross-post<br> |
 | **auto** | 2026-04-04 11:27 UTC | `4540d84` | copilot/add-webgpu-compute-shader-pipeline | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/add-webgpu-compute-shader-pipeline<br> |
 | **auto** | 2026-04-04 06:50 UTC | `b68a459` | copilot/forge-user-facing-ui-ux | Copilot | ~4 modified<br>forge: global-error page, onboarding tip, DaydreamPulseStrip, DreamWidget polish — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/b2df5470-f749-4172-8e42-1ea9d7adfb40  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/global-error.tsx`, `components/home/DaydreamPulseStrip.tsx`, `components/home/DreamWidget.tsx`, `components/onboarding/OnboardingTip.tsx` |
 | **auto** | 2026-04-04 02:14 UTC | `f5572f3` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #428 from appthemanger-ctrl/copilot/fix-immersion-game-type-error — fix: add missing LANDSCAPE_MIN_STAGE_BOTTOM_CLEARANCE constant<br> |
 | **auto** | 2026-04-03 13:14 UTC | `e50e0a3` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #423 from appthemanger-ctrl/copilot/add-born-a-soldier-game — feat: Upgrade 3D graphics pipeline to PBR, SSAO, 4K shadows, ACES tone mapping<br> |
-| **auto** | 2026-04-03 12:30 UTC | `fff30a9` | copilot/modernize-game-controls-layout | Copilot | ~2 modified<br>refactor: extract magic numbers into named constants per code review — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/a5c8d6b0-cf05-4a90-b4f0-462a8c1240a4  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/games/MobileGameHUD.tsx`, `components/messaging/DreamDMBar.tsx` |
 
 ## What changed in this alignment pass
 
