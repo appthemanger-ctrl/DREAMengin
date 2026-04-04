@@ -138,22 +138,42 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 ## Current Implementation Status
 Last updated: 2026-04-04 02:21 UTC — `5800740` by appthemanger-ctrl
 
-Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
-Scope: Full DreamDM Bar runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
+## Phase 9: DREAMenginOS + DreamR – 25 System‑Evolving Completions 
 
-Build Status: 173 routes (100 pages + 73 API handlers) · 78 test files
+### DREAMenginOS (Core Runtime)
 
-Tech Stack:
-- Next.js 16+ (App Router)
-- React 19
-- TypeScript
-- Tailwind CSS
-- Babylon.js 9+ (WebGPU-first 3D rendering)
-- Supabase (Auth, PostgreSQL, Realtime, Storage)
-- Vitest (test framework)
-- pnpm 10.30.0
-- Node 24
+1. **WebGPU compute shader pipeline** – Offload asset processing (image‑to‑3D, audio isolation) to GPU compute shaders for real‑time performance on mobile.
+2. **Adaptive quality scaling** – Automatically reduces polygon count, texture resolution, and physics ticks based on device battery and frame rate.
+3. **Persistent scene state** – DREAMenginOS saves and restores the entire 3D scene (camera, objects, physics) when you flip between Daydream/Engin or reload the page.
+4. **Multi‑canvas output** – Ability to render the same 3D scene to multiple canvases (e.g., main view + picture‑in‑picture preview for DreamR composition).
+5. **Drag‑and‑drop asset import** – Drag any image, audio, or 3D file from your desktop or phone storage directly onto the DREAMenginOS canvas; it automatically converts to a 3D object or audio visualiser.
+6. **Touch gesture library** – Built‑in support for pinch‑to‑zoom, two‑finger rotate, and three‑finger swipe to switch between Engins, all integrated with the dual‑runtime.
+7. **Offline mode** – DREAMenginOS caches assets and scenes locally (IndexedDB) so you can continue working without internet; changes sync when back online.
 
+8. Real‑time collaborative scene editing– Multiple users can join the same DREAMenginOS scene simultaneously (via WebRTC or Supabase Realtime), see each other's cursors, and manipulate objects together. Each user's avatar appears as a floating mesh. Changes sync in near real‑time, enabling collaborative 3D design, game level editing, or music visualisation jams.
+
+10. **Shader editor** – In‑canvas shader editor (node‑based) that lets users customise the gold/blue glow, bloom, and chromatic aberration in real time.
+
+### DreamR (Social & Sharing Layer)
+
+11. **Asset‑based social graph** – Each asset (Dream) has its own page with comments, remixes, and a "used in" timeline showing where it's been embedded across Engins.
+12. **Permission inheritance** – When you remix someone else's Dream, the original creator's permission level (master/shareable/locked) automatically applies to your derivative work.
+13. **DreamR feed algorithm** – Three modes: chronological, momentum‑boosted (uses Forge Momentum), and "ritual" (suggests assets based on your detected rituals).
+14. **Embeddable player** – Any Dream can be embedded as a 3D widget on external websites (like a YouTube embed), respecting permission locks.
+15. **Live collaboration cursors** – Two users can view the same DreamR post and see each other's cursors/avatars moving in real time (using Supabase Realtime).
+16. **DreamR notifications** – In‑app notification centre (bell icon) shows likes, remixes, follows, and mentions; click to jump directly to the asset.
+17. **Hashtag & topic system** – Users can tag Dreams with #tags; browse by trending tags (momentum‑weighted).
+18. **Momentum leaderboard** – Public leaderboard showing users with the highest Creative Momentum score; weekly reset with badges.
+19. **Asset marketplace preview** – DreamR posts can have a "Buy" button (disabled until Phase 10) that shows price and licensing terms; prepares for economy.
+20. **Cross‑post to external platforms** – One‑click share of a Dream to Twitter/X, Mastodon, or Nostr as a rich link preview (with 3D thumbnail).
+
+### Integration & Polish (OS + Social)
+
+21. **DreamR feed inside DREAMenginOS** – The 3D canvas can display the DreamR feed as floating cards in the background, so you can browse while designing.
+22. **Asset‑aware notifications** – When someone remixes your asset, you get a notification that includes a button to open the remix in the appropriate Engin.
+23. **User profile as a 3D space** – Each user's profile page is a mini DREAMenginOS scene where their posted Dreams float in a customisable gallery.
+24. **One‑tap "Use in Engin"** – From any DreamR post, a single button sends the asset to the corresponding Engin (e.g., music to StarMakerEngin) without downloading.
+25. **ActivityPub bridge** – Dreams can be federated to Mastodon/Pixelfed (optional, high‑value for decentralisation).
 ## Repository State Analysis
 
 For a comprehensive, real-time analysis of the entire codebase, see **[REPO_STATE.md](./REPO_STATE.md)**
