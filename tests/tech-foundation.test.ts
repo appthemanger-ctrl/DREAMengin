@@ -266,15 +266,15 @@ describe('Supabase Postgres with RLS', () => {
   });
 });
 
-describe('Supabase Realtime (WhipRev + live messaging)', () => {
+describe('Supabase Realtime (DreamR + live messaging)', () => {
   it('has realtime module', () => {
     expect(fileExists('lib/supabase/realtime.ts')).toBe(true);
   });
 
-  it('exports WhipRev pulse subscription', () => {
+  it('exports DreamR pulse subscription', () => {
     const rt = readFile('lib/supabase/realtime.ts');
-    expect(rt).toContain('subscribeWhipRev');
-    expect(rt).toContain('WhipRevPulse');
+    expect(rt).toContain('subscribeDreamR');
+    expect(rt).toContain('DreamRPulse');
     expect(rt).toContain('sendPulse');
   });
 
@@ -294,7 +294,7 @@ describe('Supabase Realtime (WhipRev + live messaging)', () => {
 
   it('uses de: namespace prefix for channels', () => {
     const rt = readFile('lib/supabase/realtime.ts');
-    expect(rt).toContain("de:whiprev:");
+    expect(rt).toContain("de:dreamr:");
     expect(rt).toContain("de:dm:");
     expect(rt).toContain("de:presence:");
   });

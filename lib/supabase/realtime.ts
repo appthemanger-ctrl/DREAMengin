@@ -2,7 +2,7 @@
  * lib/supabase/realtime.ts — Supabase Realtime integration for DREAMengin.
  *
  * Provides typed helpers for:
- *  1. **WhipRev Human Media Pulse** — a live presence/activity feed that broadcasts
+ *  1. **DreamR Human Media Pulse** — a live presence/activity feed that broadcasts
  *     user reactions, voice pings, and micro-interactions to followers in real-time.
  *  2. **Live Messaging Channels** — typed wrappers around Supabase Realtime channels
  *     for DreamDM conversations, board threads, and ephemeral rooms.
@@ -20,11 +20,11 @@
 import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 
 // ---------------------------------------------------------------------------
-// WhipRev Pulse — live human media heartbeat
+// DreamR Pulse — live human media heartbeat
 // ---------------------------------------------------------------------------
 
-/** A single WhipRev pulse event broadcast to followers. */
-export interface WhipRevPulse {
+/** A single DreamR pulse event broadcast to followers. */
+export interface DreamRPulse {
   /** Sender user ID */
   userId: string;
   /** Display handle (cached for instant render; authoritative source is `profiles`). */
@@ -37,33 +37,33 @@ export interface WhipRevPulse {
   sentAt: string;
 }
 
-/** Options for subscribing to WhipRev pulses. */
-export interface WhipRevSubscribeOptions {
+/** Options for subscribing to DreamR pulses. */
+export interface DreamRSubscribeOptions {
   /** The Supabase client (must be authenticated). */
   client: SupabaseClient;
   /** Room / topic ID — typically the user's own profile ID or a group ID. */
   roomId: string;
   /** Callback invoked for every incoming pulse. */
-  onPulse: (pulse: WhipRevPulse) => void;
+  onPulse: (pulse: DreamRPulse) => void;
   /** Optional callback when presence state changes (user joined / left). */
   onPresence?: (state: PresenceState[]) => void;
 }
 
 /**
- * Subscribe to the WhipRev pulse channel for a given room.
+ * Subscribe to the DreamR pulse channel for a given room.
  *
  * Returns an object with:
  *  - `channel` — the underlying `RealtimeChannel` for low-level access.
  *  - `sendPulse(pulse)` — broadcast a pulse to the room.
  *  - `unsubscribe()` — cleanly tear down the subscription.
  */
-export function subscribeWhipRev({
+export function subscribeDreamR({
   client,
   roomId,
   onPulse,
   onPresence,
-}: WhipRevSubscribeOptions): WhipRevHandle {
-  const channelName = `de:whiprev:${roomId}`;
+}: DreamRSubscribeOptions): DreamRHandle {
+  const channelName = `de:dreamr:${roomId}`;
 
   const channel = client.channel(channelName, {
     config: { broadcast: { self: false } },
@@ -71,7 +71,7 @@ export function subscribeWhipRev({
 
   // Broadcast listener — incoming pulses from other users.
   channel.on('broadcast', { event: 'pulse' }, ({ payload }) => {
-    onPulse(payload as WhipRevPulse);
+    onPulse(payload as DreamRPulse);
   });
 
   // Presence listener (optional).
@@ -93,7 +93,7 @@ export function subscribeWhipRev({
 
   return {
     channel,
-    sendPulse: (pulse: WhipRevPulse) => {
+    sendPulse: (pulse: DreamRPulse) => {
       channel.send({ type: 'broadcast', event: 'pulse', payload: pulse });
     },
     unsubscribe: () => {
@@ -102,9 +102,9 @@ export function subscribeWhipRev({
   };
 }
 
-export interface WhipRevHandle {
+export interface DreamRHandle {
   channel: RealtimeChannel;
-  sendPulse: (pulse: WhipRevPulse) => void;
+  sendPulse: (pulse: DreamRPulse) => void;
   unsubscribe: () => void;
 }
 

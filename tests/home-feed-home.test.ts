@@ -24,8 +24,8 @@ describe('HomeDream home surface', () => {
 
   it('keeps HomeDream feed-first and removes the extra home search surface', () => {
     expect(dashboard).toContain('HomeDream Feed');
-    expect(dashboard).toContain('Dreamengin.com is where WhipRev lives inside the HomeDream.');
-    expect(dashboard).toContain('⚡ WhipRev: The Human Media Manifesto');
+    expect(dashboard).toContain('Dreamengin.com is where DreamR lives inside the HomeDream.');
+    expect(dashboard).toContain('⚡ DreamR: The Human Media Manifesto');
     expect(dashboard.indexOf('<HomeFeed')).toBeLessThan(dashboard.indexOf('<DaydreamPulseStrip'));
     expect(dashboard).not.toContain('DrEamsSearchBar');
     expect(dashboard).not.toContain('Recent Activity');
