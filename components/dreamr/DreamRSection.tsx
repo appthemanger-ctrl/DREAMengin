@@ -599,6 +599,50 @@ function SignalTab() {
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 0', borderRadius: 12, background: DR.bg, border: 'none', boxShadow: nmRaised(3), cursor: 'pointer', fontFamily: DR.font, fontSize: 12, fontWeight: 600, color: DR.textDim }}>
         <RefreshCw size={13} /> Refresh Signal
       </button>
+
+      {/* ── How DreamR decides what you see ── */}
+      <div style={{ background: DR.bg, borderRadius: 18, boxShadow: nmRaised(6), padding: 18 }}>
+        <div style={{ fontWeight: 800, fontSize: 13, color: DR.text, letterSpacing: '-0.01em', marginBottom: 4 }}>
+          How DreamR decides what you see
+        </div>
+        <p style={{ margin: '0 0 16px', fontSize: 12, color: DR.textDim, lineHeight: 1.6 }}>
+          The feed celebrates humanity — not trends. Scroll shows everyone.
+          Swipe left goes deeper into one creator's world.
+        </p>
+
+        {/* Rewarded signals */}
+        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.10em', textTransform: 'uppercase', color: DR.sky, marginBottom: 8 }}>
+          What the feed rewards
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+          {[
+            { label: 'Crafted, thoughtful writing',         weight: '22%' },
+            { label: 'Original media — your own photos, art, music', weight: '22%' },
+            { label: 'Made with dreamengin tools',           weight: '18%' },
+            { label: 'Genuine language, real expression',    weight: '15%' },
+            { label: 'Freshness — new voices surface naturally', weight: '13%' },
+            { label: 'Resonance — when something moves people', weight: '10%' },
+          ].map(s => (
+            <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 10, background: DR.bg, borderRadius: 10, boxShadow: nmRaised(2), padding: '9px 12px' }}>
+              <div style={{ width: 36, height: 5, borderRadius: 99, background: `linear-gradient(90deg,${DR.skyLight},${DR.sky} ${s.weight},rgba(135,180,220,0.15) ${s.weight})`, flexShrink: 0 }} />
+              <span style={{ fontSize: 12, fontWeight: 500, color: DR.text, flex: 1 }}>{s.label}</span>
+              <span style={{ fontSize: 10, fontWeight: 800, color: DR.sky, flexShrink: 0 }}>{s.weight}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Never ranked on */}
+        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.10em', textTransform: 'uppercase', color: DR.textDim, marginBottom: 8 }}>
+          Never used to rank
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+          {['Follower count', 'Like count', 'Share velocity', 'Political content', 'Viral momentum alone'].map(label => (
+            <span key={label} style={{ fontSize: 11, fontWeight: 600, color: DR.textDim, background: DR.bg, boxShadow: nmInset(2), padding: '5px 11px', borderRadius: 99 }}>
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

@@ -501,7 +501,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
             dragStartRef.current = null;
             markTouchEnd();
             // If pointer barely moved, treat as a tap → toggle size control
-            if (moved < 6) setSizeControlVisible((v) => !v);
+            if (moved < 6) setSizeControlHidden((v) => !v);
           }}
           onPointerCancel={handleDragEnd}
           title="Drag to reposition · Tap to show/hide size controls"
