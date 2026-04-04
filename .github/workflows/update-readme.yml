@@ -1,43 +1,39 @@
 name: Idari — Update README
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Idari runs after every push (including PR merges) to any branch.
-# Calls scripts/update-readme.mjs to:
-#   • Regenerate the "AI Agent Quick Reference" block at the top of README.md
-#   • Refresh the "Last updated" line in "## Current Implementation Status"
-#   • Prepend a new row in the "## Recent Changes" table (keeps last 10)
-#   • Write a rich GitHub Actions Step Summary for AI agent visibility
-#
-# The commit is made by Idari[bot] and tagged [skip ci] [skip vercel] so it
-# does not re-trigger this workflow and does not trigger a Vercel deploy.
-# Vercel's ignoreCommand in vercel.json checks for [skip vercel] and skips.
-# ──────────────────────────────────────────────────────────────────────────────
-
 on:
   push:
     branches:
       - '**'
     paths-ignore:
-      - 'README.md'   # prevent the bot's own commit from re-triggering
+      - 'README.md' 
 
 jobs:
   update-readme:
-    name: Idari refreshes README.md with latest changes
+    name: Idari refreshes README.md
     runs-on: ubuntu-latest
-
     permissions:
-      contents: write   # needed to push the commit back
+      contents: write
 
     steps:
-      - name: Checkout (full history)
+      - name: Checkout (Full History for Changelog)
         uses: actions/checkout@v5
         with:
-          fetch-depth: 2   # need parent commit for diff-tree
+          fetch-depth: 0 # Changed to 0 to ensure the script can read the last 10 commits
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '20'
+
+      - name: Pre-Flight: Ensure README exists
+        run: |
+          if [ ! -f README.md ]; then
+            echo "⚠️ README.md missing! Creating baseline template..."
+            echo "# DREAMenginOS" > README.md
+            echo "\n" >> README.md
+            echo "## Current Implementation Status" >> README.md
+            echo "## Recent Changes" >> README.md
+          fi
 
       - name: Run update-readme script
         run: node scripts/update-readme.mjs
@@ -47,13 +43,19 @@ jobs:
           GITHUB_ACTOR:         ${{ github.actor }}
           GITHUB_STEP_SUMMARY:  ${{ env.GITHUB_STEP_SUMMARY }}
 
-      - name: Commit updated README.md
+      - name: Commit & Push with Rebase Logic
         run: |
           git config user.name  "Idari[bot]"
           git config user.email "idari-bot@users.noreply.github.com"
+          
+          # Check if the file is empty before adding
+          if [ ! -s README.md ]; then
+            echo "❌ README.md is empty! Script failed to generate content. Aborting commit."
+            exit 1
+          fi
 
           git add README.md
-
+          
           if git diff --cached --quiet; then
             echo "No changes to README.md — skipping commit."
             exit 0
@@ -63,35 +65,23 @@ jobs:
           SHORT="${SHORT:0:7}"
           git commit -m "idari: auto-update README [${SHORT}] [skip ci] [skip vercel]"
 
-          # Retry push up to 5 times, rebasing on the remote each time to
-          # handle concurrent pushes to the same branch (race condition).
-          for attempt in 1 2 3 4 5; do
+          # Robust Push Loop
+          for attempt in 1 2 3; do
+            echo "Push attempt ${attempt}..."
             if git push origin HEAD:${{ github.ref_name }}; then
-              echo "✅ Push succeeded on attempt ${attempt}."
+              echo "✅ README updated successfully."
               exit 0
             fi
-            echo "⚠️  Push attempt ${attempt} failed — pulling and rebasing."
-            git pull --rebase origin ${{ github.ref_name }} || {
-              echo "❌ Rebase failed. Aborting."
-              git rebase --abort 5>/dev/null || true
-              exit 1
-            }
+            git pull --rebase origin ${{ github.ref_name }}
           done
-
-          echo "❌ All push attempts failed."
+          echo "❌ Failed to push after 3 attempts."
           exit 1
 
       - name: Step Summary
         if: always()
         run: |
-          echo "## 🤖 Idari[bot] — README Auto-Update" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
+          echo "## 🤖 Idari[bot] — Session Log" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Actor  | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "README.md updated with AI Agent Quick Reference block + Recent Changes row." >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Bot commits carry \`[skip vercel]\` — Vercel ignoreCommand skips these deploys.**" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Status | ${{ job.status }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engine | Babylon.js 9.0 |" >> "$GITHUB_STEP_SUMMARY"
