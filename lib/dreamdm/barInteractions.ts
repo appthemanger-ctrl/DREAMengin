@@ -50,7 +50,9 @@ export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number):
 export const GOLD_SECOND_TAP_WINDOW_MS = 280;
 export const GOLD_TAP_SLOP_PX = 14;
 export const BAR_SNAP_TO_TOP_THRESHOLD_PX = 8;
-export const BAR_SNAP_TO_TOP_HEIGHT_RATIO = 0.84;
+// Raised above the 0.85 drag cap so a slow full-height drag never accidentally
+// snaps the bar to the top. Only velocity flings can trigger snap-to-top now.
+export const BAR_SNAP_TO_TOP_HEIGHT_RATIO = 0.96;
 export const BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS = -0.9;
 export const BAR_FLING_TO_TOP_MIN_DRAG_PX = 44;
 export const BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS = 0.9;
