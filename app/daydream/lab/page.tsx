@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FlaskConical } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import LabEngin from '@/components/daydream/LabEngin';
+import LabDreamIDE from '@/components/daydream/LabDreamIDE';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
@@ -49,13 +50,16 @@ export default async function LabDaydreamPage() {
           {/* Intro */}
           <div className="de-auth-hero">
             <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Lab</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Lab Dream</h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
-              Your experimental workspace. Run experiments, build prototypes, test models, and explore simulations.
-              Flip to LabEngin for 20 industry-grade research and engineering tools.
+              Your scientific IDE. Write Python, JavaScript, or Bash on the left — see results stream on the right. Route code into any simulation engine (Particle, Fluid, Quantum, Neural) and watch three live visualizations update in real time.
+              Flip to LabEngin (Side B) for the full research and engineering control layer.
             </p>
             </div>
           </div>
+
+          {/* ── Lab Dream Split IDE ── */}
+          <LabDreamIDE />
 
           {/* ── Feature 1: Quick Action Cards ── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>

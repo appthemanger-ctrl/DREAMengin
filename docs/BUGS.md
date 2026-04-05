@@ -103,7 +103,11 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-No TODO / FIXME / HACK annotations found in source files.
+### 📝 TODO (1)
+
+| Location | Description |
+|----------|-------------|
+| `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
 
 ---
 

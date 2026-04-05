@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Code2 } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import CodeEngin from '@/components/daydream/CodeEngin';
+import CodeDreamIDE from '@/components/daydream/CodeDreamIDE';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
@@ -49,12 +50,15 @@ export default async function CodeDaydreamPage() {
           {/* Intro */}
           <div className="de-auth-hero">
             <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Code</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Code Dream</h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
-              Your engineering workspace. 20 industry-grade coding features — from live notebooks and CI pipelines to AI assist, security scanner, and game engine integration. Flip to CodeEngin for the full control layer.
+              Your live coding environment. Write code on the left, see the output on the right. Connect to any DREAMengin engine — GameEngin, LabEngin, SimEngin, or AssetEngin — and your code runs inside it. Flip to CodeEngin (Side B) for the full control layer.
             </p>
             </div>
           </div>
+
+          {/* ── Live IDE Split ── */}
+          <CodeDreamIDE />
 
           {/* ── Feature 1: Quick Links ── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
