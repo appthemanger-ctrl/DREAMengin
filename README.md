@@ -1,4 +1,4 @@
-no my readme md is gone from repo now. can you take this and send me the updated version pleaseOk so this is the newest i could find it’s out dated will this action update it # DREAMengin — Full System Specification
+# DREAMengin — Full System Specification
 
 Next.js 16+ / Supabase / DreamDM-Bar-Led / Privacy-First Spatial Operating Environment  
 Author: José Mancilla  

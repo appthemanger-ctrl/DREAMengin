@@ -69,7 +69,7 @@ export default function EnginAppShell({
       />
 
       {/* Top bar */}
-      <header className="relative z-10 flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#0e0e18]/90 backdrop-blur-sm">
+      <header className="de-engin-shell-header relative z-10 flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#0e0e18]/90 backdrop-blur-sm">
         <Link
           href={backHref}
           className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 transition-colors"

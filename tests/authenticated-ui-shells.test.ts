@@ -50,8 +50,9 @@ describe('authenticated UI shell upgrade rollout', () => {
     const pulseStrip = readFileSync(join(root, 'components/home/DaydreamPulseStrip.tsx'), 'utf-8');
     const dreamsPanel = readFileSync(join(root, 'components/dreams/DreamsSpacePanel.tsx'), 'utf-8');
 
-    expect(daydreamShell).toContain('de-auth-hero');
     expect(daydreamShell).toContain('BrandLogo');
+    expect(daydreamShell).toContain('accentColor');
+    // EnginSurface now uses a dark premium hero block (no longer de-auth-hero)
     expect(dashboard).toContain('de-auth-hero');
     expect(dashboard).toContain('BrandLogo');
     expect(dashboard).toContain('DaydreamPulseStrip');

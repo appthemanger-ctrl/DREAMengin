@@ -226,6 +226,35 @@ export default function HomeSpace({ userId, onSwitchToProfile }: HomeSpaceProps)
         </div>
       </header>
 
+      {/* ── Mobile albums: horizontal pill scroll (md:hidden) ── */}
+      <div className="de-albums-mobile-row md:hidden">
+        <button
+          onClick={() => setShowAlbumModal(true)}
+          className="de-album-pill"
+          style={{ background: 'rgba(56,189,248,0.10)', borderColor: 'rgba(56,189,248,0.22)', color: 'var(--de-accent)' }}
+          aria-label="New album"
+        >
+          <FolderPlus style={{ width: 13, height: 13, marginRight: 5, flexShrink: 0 }} />
+          New
+        </button>
+        <button
+          onClick={() => setActiveAlbumId(null)}
+          className={cn('de-album-pill', activeAlbumId === null ? 'active' : '')}
+        >
+          All
+        </button>
+        {albums.map((album: Album) => (
+          <button
+            key={album.id}
+            onClick={() => setActiveAlbumId(album.id)}
+            className={cn('de-album-pill', activeAlbumId === album.id ? 'active' : '')}
+          >
+            {album.title}
+            {album.is_shared && <Eye style={{ width: 10, height: 10, marginLeft: 5, opacity: 0.65 }} />}
+          </button>
+        ))}
+      </div>
+
       <div className="flex-1 flex overflow-hidden">
         <aside className="hidden md:flex flex-col w-64 border-r border-border bg-muted/30 p-4">
           <div className="flex items-center justify-between mb-4">
