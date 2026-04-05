@@ -8,8 +8,9 @@ import { createHash } from 'crypto';
 // GET - Fetch posts for feed
 // Query params:
 //   feed   — 'following' to show only posts from users the caller follows
+//             (hard cap: last 500 posts across all followed users)
 //   sort   — 'trending' to order by likes_count DESC (fallback: created_at DESC)
-//   limit  — number of posts to return (default 20, max 50)
+//   limit  — number of posts to return (default 20, max 500 for following, max 50 otherwise)
 //   offset — pagination offset
 export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
@@ -20,13 +21,16 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const limit  = Math.min(parseInt(searchParams.get('limit')  ?? '20'), 50);
-  const offset = parseInt(searchParams.get('offset') ?? '0');
   const feed   = searchParams.get('feed');   // 'following' | null
   const sort   = searchParams.get('sort');   // 'trending'  | null
 
   // ── Following feed: restrict to users the caller follows ─────────────────
+  // Hard limit: last 500 posts total across all followed users (spec §1).
   if (feed === 'following') {
+    const requestedLimit = parseInt(searchParams.get('limit') ?? '20', 10);
+    const limit  = Math.min(requestedLimit, 500); // hard cap per spec
+    const offset = parseInt(searchParams.get('offset') ?? '0', 10);
+
     // Get the list of user IDs the caller follows
     const { data: followRows } = await supabase
       .from('follows')
@@ -39,20 +43,42 @@ export async function GET(req: NextRequest) {
     // Always include the caller's own posts
     followedIds.push(user.id);
 
-    const { data: posts, error } = await supabase
+    // Resolve close-friends list so we can filter visibility correctly.
+    const { data: cfRows } = await (supabase as any)
+      .from('close_friends')
+      .select('user_id')
+      .eq('friend_id', user.id);
+    const closeFriendPosters = new Set<string>(
+      (cfRows ?? []).map((r: { user_id: string }) => r.user_id),
+    );
+
+    const { data: rawPosts, error } = await (supabase as any)
       .from('app_posts')
       .select('*, profiles!inner(id, handle, display_name, avatar_url)')
       .in('user_id', followedIds)
-      .or(`visibility.eq.public,user_id.eq.${user.id}`)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .limit(500) // always fetch at most 500 regardless of requested page size
+      .range(offset, offset + 499);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ posts });
+
+    // Filter out close_friends posts where the viewer is not in the poster's list.
+    const posts = (rawPosts ?? [])
+      .filter((p: any) => {
+        if (p.post_visibility === 'close_friends') {
+          return closeFriendPosters.has(p.user_id) || p.user_id === user.id;
+        }
+        return true;
+      })
+      .slice(0, limit);
+
+    return NextResponse.json({ posts, total_cap: 500 });
   }
 
   // ── Trending feed: order by likes_count DESC, then recent ─────────────────
   if (sort === 'trending') {
+    const limit  = Math.min(parseInt(searchParams.get('limit')  ?? '20', 10), 50);
+    const offset = parseInt(searchParams.get('offset') ?? '0', 10);
     const { data: posts, error } = await supabase
       .from('app_posts')
       .select('*, profiles!inner(id, handle, display_name, avatar_url)')
@@ -66,6 +92,8 @@ export async function GET(req: NextRequest) {
   }
 
   // ── Default feed: public posts ordered by recency ─────────────────────────
+  const limit  = Math.min(parseInt(searchParams.get('limit')  ?? '20', 10), 50);
+  const offset = parseInt(searchParams.get('offset') ?? '0', 10);
   const { data: posts, error } = await supabase
     .from('app_posts')
     .select('*, profiles!inner(id, handle, display_name, avatar_url)')
@@ -90,11 +118,34 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { content, visibility = 'public', media_urls = [] } = body;
+  const { content, visibility = 'public', media_urls = [], post_visibility = 'public', original_post_id } = body;
 
   if (!content || content.trim().length === 0) {
     return NextResponse.json({ error: 'Content is required' }, { status: 400 });
   }
+
+  // ── Rate limiting (spec §4) ───────────────────────────────────────────────
+  // Close-friends posts: 50 per 5 minutes.
+  // Public posts: 10 per 5 minutes.
+  const isCloseFriendsPost = post_visibility === 'close_friends';
+  const rateLimit = isCloseFriendsPost ? 50 : 10;
+  const windowMs = 5 * 60 * 1000;
+  const windowStart = new Date(Date.now() - windowMs).toISOString();
+
+  const { count: recentCount, error: rateError } = await (supabase as any)
+    .from('app_posts')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('post_visibility', post_visibility)
+    .gte('created_at', windowStart);
+
+  if (!rateError && typeof recentCount === 'number' && recentCount >= rateLimit) {
+    return NextResponse.json(
+      { error: "You're posting too fast. Wait a moment." },
+      { status: 429 },
+    );
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   // ── TheBoogieMan child safety scan (zero-tolerance) ──────────────────────
   const childSafetyResult = scanContent({ text: content });
@@ -149,6 +200,8 @@ export async function POST(req: NextRequest) {
       content: content.trim(),
       visibility,
       media_urls,
+      post_visibility,
+      ...(original_post_id ? { original_post_id } : {}),
     })
     .select(`
       *,
