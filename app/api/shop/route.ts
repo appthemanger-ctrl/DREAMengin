@@ -13,7 +13,6 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const sellerId = searchParams.get('seller_id');
-  const category = searchParams.get('category');
 
   let query = supabase
     .from('merch')
@@ -25,10 +24,6 @@ export async function GET(req: NextRequest) {
 
   if (sellerId) {
     query = query.eq('user_id', sellerId);
-  }
-
-  if (category) {
-    query = query.eq('category', category);
   }
 
   const { data: items, error } = await query;
