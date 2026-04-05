@@ -21,7 +21,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar } from 'lucide-react';
+import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar, Wrench } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
@@ -89,6 +89,45 @@ const btnBase: React.CSSProperties = {
   border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700,
   fontSize: 12, padding: '5px 12px', transition: 'opacity 0.12s',
 };
+
+// ── Pre-Edit constants ────────────────────────────────────────────────────────
+const BRIEF_CONTENT_TYPES = ['Reel', 'Carousel', 'Static Post', 'YouTube Video', 'YouTube Short', 'Blog Post', 'Email', 'Podcast Episode', 'Story'] as const;
+type BriefContentType = typeof BRIEF_CONTENT_TYPES[number];
+
+const BRIEF_PLATFORM_LIST = ['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest', 'Email', 'Blog', 'Snapchat'];
+
+const ASSET_CATEGORIES = ['📹 Footage', '🎵 Audio', '📸 Photo', '🎨 Graphic', '📝 Copy'] as const;
+type AssetCategory = typeof ASSET_CATEGORIES[number];
+const ASSET_STATUSES = ['Needed', 'Sourcing', 'Ready', 'Approved'] as const;
+type AssetStatus = typeof ASSET_STATUSES[number];
+const ASSET_STATUS_NEXT: Record<AssetStatus, AssetStatus> = { Needed: 'Sourcing', Sourcing: 'Ready', Ready: 'Approved', Approved: 'Needed' };
+const ASSET_STATUS_COLOR: Record<AssetStatus, string> = { Needed: '#ef4444', Sourcing: '#f59e0b', Ready: '#0ea5e9', Approved: '#22c55e' };
+
+const AUDIO_MOODS = ['Energetic', 'Calm', 'Inspirational', 'Cinematic', 'Playful', 'Dark', 'Hype'] as const;
+type AudioMood = typeof AUDIO_MOODS[number];
+
+const PIPELINE_STAGES = ['Concept', 'Briefed', 'Assets Ready', 'In Edit', 'Review', 'Approved', 'Live'] as const;
+type PipelineStage = typeof PIPELINE_STAGES[number];
+const PIPELINE_STAGE_COLOR: Record<PipelineStage, string> = {
+  Concept: '#94a3b8', Briefed: '#f59e0b', 'Assets Ready': '#0ea5e9',
+  'In Edit': '#8b5cf6', Review: '#ec4899', Approved: '#22c55e', Live: '#16a34a',
+};
+
+const PLATFORM_SPECS = [
+  { name: 'Instagram Reel',  emoji: '📸', ratio: '9:16',  res: '1080×1920', dur: '15 – 90s',   fmt: 'MP4 / MOV',  caption: '2,200 chars', tags: '3 – 5',  audio: '−14 LUFS' },
+  { name: 'Instagram Post',  emoji: '📸', ratio: '1:1',   res: '1080×1080', dur: 'N/A',         fmt: 'JPEG / PNG', caption: '2,200 chars', tags: '3 – 5',  audio: 'N/A'      },
+  { name: 'Instagram Story', emoji: '📸', ratio: '9:16',  res: '1080×1920', dur: 'Max 15s',     fmt: 'MP4 / PNG',  caption: 'Text sticker', tags: '1 – 2', audio: '−14 LUFS' },
+  { name: 'TikTok',          emoji: '🎵', ratio: '9:16',  res: '1080×1920', dur: '7s – 10min',  fmt: 'MP4 / MOV',  caption: '2,200 chars', tags: '3 – 5',  audio: '−14 LUFS' },
+  { name: 'YouTube Short',   emoji: '▶️', ratio: '9:16',  res: '1080×1920', dur: 'Max 60s',     fmt: 'MP4',        caption: '100 chars',   tags: '3',      audio: '−14 LUFS' },
+  { name: 'YouTube Video',   emoji: '▶️', ratio: '16:9',  res: '1920×1080', dur: 'Any',         fmt: 'MP4',        caption: '5,000 chars', tags: '3 – 5',  audio: '−14 LUFS' },
+  { name: 'Twitter / X',     emoji: '🐦', ratio: '16:9',  res: '1280×720',  dur: 'Max 2m 20s',  fmt: 'MP4',        caption: '280 chars',   tags: '1 – 2',  audio: '−14 LUFS' },
+  { name: 'LinkedIn',        emoji: '💼', ratio: '1:1',   res: '1080×1080', dur: 'Max 10 min',  fmt: 'MP4',        caption: '3,000 chars', tags: '3 – 5',  audio: '−14 LUFS' },
+  { name: 'Pinterest',       emoji: '📌', ratio: '2:3',   res: '1000×1500', dur: 'Max 60s',     fmt: 'MP4 / JPEG', caption: '500 chars',   tags: '2 – 5',  audio: 'N/A'      },
+  { name: 'Snapchat',        emoji: '👻', ratio: '9:16',  res: '1080×1920', dur: 'Max 60s',     fmt: 'MP4',        caption: 'Overlay text', tags: 'N/A',   audio: '−14 LUFS' },
+];
+
+interface CollectedAsset { id: string; name: string; category: AssetCategory; status: AssetStatus; }
+interface PipelineItem   { id: string; title: string; type: string; platform: string; stage: PipelineStage; }
 
 export default function ContentEngin({ onBack }: Props) {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'create' });
@@ -370,6 +409,147 @@ export default function ContentEngin({ onBack }: Props) {
   // ── Multi-Platform Scheduler countdown ───────────────────────────────────────
   const [schedulerNow] = useState(() => new Date());
 
+  // ── Workflow Brain state ──────────────────────────────────────────────────────
+  const [wfbProject, setWfbProject] = useState('');
+  const [wfbTagSearch, setWfbTagSearch] = useState('');
+  const [wfbAssets] = useState([
+    { name: 'Brand Kit v3.fig',         tags: ['brand', 'logo', 'figma'],        type: '🎨' },
+    { name: 'Q2 Campaign Brief.pdf',    tags: ['strategy', 'campaign', 'Q2'],    type: '📋' },
+    { name: 'Hero Reel Raw.mp4',        tags: ['video', 'hero', 'raw'],          type: '🎬' },
+    { name: 'Product Photos Drop2.zip', tags: ['photos', 'product', 'drop'],     type: '🖼' },
+    { name: 'Hook Scripts Q2.docx',     tags: ['script', 'hooks', 'writing'],    type: '📝' },
+    { name: 'Logo Variants 2026.ai',    tags: ['brand', 'logo', 'illustrator'],  type: '✏️' },
+  ]);
+  const [wfbContextThread] = useState([
+    { phase: '📐 Strategy',    item: 'Q2 Growth Plan',       status: 'done'    },
+    { phase: '💡 Ideation',    item: '12 Content Concepts',  status: 'done'    },
+    { phase: '✍️ Production',  item: 'Reel #4 Script',       status: 'active'  },
+    { phase: '📤 Publish',     item: '3 Posts Queued',       status: 'pending' },
+  ]);
+
+  // ── Auto Content Repurposer state ────────────────────────────────────────────
+  const [repurposeInput, setRepurposeInput]   = useState('');
+  const [repurposeLoading, setRepurposeLoading] = useState(false);
+  const [repurposeOutputs, setRepurposeOutputs] = useState<Array<{ platform: string; format: string; text: string }>>([]);
+  const [repurseCopied, setRepurseCopied]     = useState<number | null>(null);
+  const [repurposeMsg, setRepurposeMsg]       = useState('');
+
+  // ── AI Predictive Scheduler state ────────────────────────────────────────────
+  const [predictLoading, setPredictLoading]   = useState(false);
+  const [predictLoaded, setPredictLoaded]     = useState(false);
+  const [predictSuggestions, setPredictSuggestions] = useState<Array<{
+    type: string; title: string; reason: string; platform: string; bestTime: string;
+  }>>([]);
+  const [predictGaps, setPredictGaps]         = useState<string[]>([]);
+
+  // ── Brand Voice Guard state ───────────────────────────────────────────────────
+  const [bvContent, setBvContent]           = useState('');
+  const [bvProfile, setBvProfile]           = useState('bold, direct, Gen-Z');
+  const [bvLoading, setBvLoading]           = useState(false);
+  const [bvResult, setBvResult]             = useState<{
+    score: number;
+    onBrand: string[];
+    flags: Array<{ word: string; issue: string; suggestion: string }>;
+    rewrite: string;
+  } | null>(null);
+
+  // ── Pre-Edit: Creative Brief Builder ─────────────────────────────────────────
+  const [briefProject, setBriefProject]       = useState('');
+  const [briefType, setBriefType]             = useState<BriefContentType>('Reel');
+  const [briefPlatforms, setBriefPlatforms]   = useState<Set<string>>(new Set(['Instagram']));
+  const [briefMessage, setBriefMessage]       = useState('');
+  const [briefAudience, setBriefAudience]     = useState('');
+  const [briefVoice, setBriefVoice]           = useState('');
+  const [briefVisual, setBriefVisual]         = useState('');
+  const [briefDeadline, setBriefDeadline]     = useState('');
+  const [briefSaving, setBriefSaving]         = useState(false);
+  const [briefSaveMsg, setBriefSaveMsg]       = useState('');
+
+  // ── Pre-Edit: Asset Collector ─────────────────────────────────────────────────
+  const [assets, setAssets] = useState<CollectedAsset[]>([
+    { id: '1', name: 'Hero footage — 60s raw',   category: '📹 Footage', status: 'Needed'   },
+    { id: '2', name: 'Background music track',    category: '🎵 Audio',   status: 'Sourcing' },
+    { id: '3', name: 'Product photos (×5)',       category: '📸 Photo',   status: 'Ready'    },
+    { id: '4', name: 'Logo — transparent PNG',    category: '🎨 Graphic', status: 'Approved' },
+    { id: '5', name: 'Caption copy + hashtags',   category: '📝 Copy',    status: 'Needed'   },
+  ]);
+  const [assetNewName, setAssetNewName]       = useState('');
+  const [assetNewCat, setAssetNewCat]         = useState<AssetCategory>('📹 Footage');
+
+  // ── Pre-Edit: Audio Prep Station ──────────────────────────────────────────────
+  const [audioBpm, setAudioBpm]               = useState(120);
+  const [audioMood, setAudioMood]             = useState<AudioMood>('Energetic');
+  const [audioVoBrief, setAudioVoBrief]       = useState('');
+  const [audioSfxList, setAudioSfxList]       = useState<string[]>(['Whoosh transition', 'Bass drop hit']);
+  const [audioSfxInput, setAudioSfxInput]     = useState('');
+  const [audioSpecPlatform, setAudioSpecPlatform] = useState('Instagram Reel');
+
+  // ── Pre-Edit: Content Pipeline ────────────────────────────────────────────────
+  const [pipelineItems, setPipelineItems] = useState<PipelineItem[]>([
+    { id: '1', title: 'Q2 Launch Reel',       type: '📱', platform: 'Instagram', stage: 'Briefed'      },
+    { id: '2', title: 'Product Demo Video',    type: '🎬', platform: 'YouTube',   stage: 'Assets Ready' },
+    { id: '3', title: 'Brand Story Carousel',  type: '📸', platform: 'Instagram', stage: 'Concept'      },
+    { id: '4', title: 'Tutorial Thread',       type: '🧵', platform: 'Twitter/X', stage: 'Review'       },
+  ]);
+  const [pipeNewTitle, setPipeNewTitle]       = useState('');
+  const [pipeNewType, setPipeNewType]         = useState('📱');
+  const [pipeNewPlatform, setPipeNewPlatform] = useState('Instagram');
+
+  // ── Pre-Edit: Platform Specs filter ──────────────────────────────────────────
+  const [specsFilter, setSpecsFilter]         = useState('');
+
+  // ── Pre-Edit: Character Brief Builder ────────────────────────────────────────
+  const CHAR_ANIM_TYPES  = ['3D (Maya/ZBrush)', '2D Frame-by-Frame (TVPaint)', '2D Cut-Out (Toon Boom)', 'Stop Motion', 'Live Action + VFX'] as const;
+  const CHAR_RIG_LEVELS  = ['Simple (basic skeleton)', 'Medium (facial + cloth)', 'Complex (full facial rig + sim)', 'Hero Rig (film-quality)'] as const;
+  const CHAR_ROLES       = ['Protagonist', 'Antagonist', 'Supporting', 'Background', 'Creature/Non-Human'] as const;
+  const [charName, setCharName]               = useState('');
+  const [charRole, setCharRole]               = useState<typeof CHAR_ROLES[number]>('Protagonist');
+  const [charAnimType, setCharAnimType]       = useState<typeof CHAR_ANIM_TYPES[number]>('3D (Maya/ZBrush)');
+  const [charRigLevel, setCharRigLevel]       = useState<typeof CHAR_RIG_LEVELS[number]>('Medium (facial + cloth)');
+  const [charPhysical, setCharPhysical]       = useState('');
+  const [charPersonality, setCharPersonality] = useState('');
+  const [charSims, setCharSims]               = useState<Set<string>>(new Set());
+  const [charColorNotes, setCharColorNotes]   = useState('');
+  const [charRefs, setCharRefs]               = useState('');
+  const [charSaving, setCharSaving]           = useState(false);
+  const [charSaveMsg, setCharSaveMsg]         = useState('');
+
+  // ── Pre-Edit: Scene & Set Design Brief ───────────────────────────────────────
+  const SCENE_TYPES   = ['Interior', 'Exterior', 'LED Virtual Set (Unreal)', '2D Painted Background', 'Abstract / Stylised', 'Miniature / Practical'] as const;
+  const LIGHTING_TYPES = ['Day – Natural', 'Night – Artificial', 'Golden Hour', 'Overcast', 'Interior – Warm', 'Interior – Cool', 'Neon / Cyberpunk', 'Horror / Low-Key'] as const;
+  const [sceneName, setSceneName]             = useState('');
+  const [sceneType, setSceneType]             = useState<typeof SCENE_TYPES[number]>('Interior');
+  const [sceneLighting, setSceneLighting]     = useState<typeof LIGHTING_TYPES[number]>('Day – Natural');
+  const [sceneMood, setSceneMood]             = useState('');
+  const [sceneElements, setSceneElements]     = useState('');
+  const [sceneUnrealNotes, setSceneUnrealNotes] = useState('');
+  const [sceneColorPalette, setSceneColorPalette] = useState('');
+  const [sceneSaving, setSceneSaving]         = useState(false);
+  const [sceneSaveMsg, setSceneSaveMsg]       = useState('');
+
+  // ── Pre-Edit: Storyboard Builder ─────────────────────────────────────────────
+  const [sbTitle, setSbTitle]                 = useState('');
+  const [sbFrames, setSbFrames]               = useState([
+    { id: '1', scene: 'Opening', shot: 'Wide',     action: '',  audio: '', duration: 3  },
+    { id: '2', scene: 'Hook',    shot: 'Close-up',  action: '',  audio: '', duration: 5  },
+    { id: '3', scene: 'CTA',     shot: 'Medium',    action: '',  audio: '', duration: 5  },
+  ]);
+  const [sbCopied, setSbCopied]               = useState(false);
+
+  // ── Pre-Edit: AI Production Plan ─────────────────────────────────────────────
+  const [planIdea, setPlanIdea]               = useState('');
+  const [planType, setPlanType]               = useState('Reel');
+  const [planPlatform, setPlanPlatform]       = useState('Instagram');
+  const [planLoading, setPlanLoading]         = useState(false);
+  const [planResult, setPlanResult]           = useState<{
+    title: string;
+    preProd: string[];
+    production: string[];
+    postProd: string[];
+    distribution: string[];
+  } | null>(null);
+  const [planSaveMsg, setPlanSaveMsg]         = useState('');
+
   async function handleGenerateHooks() {
     if (!hookTopic.trim()) return;
     setHookLoading(true);
@@ -529,6 +709,300 @@ export default function ContentEngin({ onBack }: Props) {
     );
   }
 
+  // ── Auto Repurposer handler ───────────────────────────────────────────────────
+  async function handleRepurpose() {
+    if (!repurposeInput.trim()) return;
+    setRepurposeLoading(true);
+    setRepurposeOutputs([]);
+    setRepurposeMsg('');
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'repurpose', content: repurposeInput.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Repurpose failed');
+      setRepurposeOutputs(json.outputs ?? []);
+      setRepurposeMsg(json.draft?.id ? '✅ All formats saved to Drafts.' : '');
+    } catch (error) {
+      setRepurposeMsg(error instanceof Error ? error.message : 'Repurpose failed');
+    } finally {
+      setRepurposeLoading(false);
+    }
+  }
+
+  function copyRepurposeOutput(text: string, idx: number) {
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setRepurseCopied(idx);
+    setTimeout(() => setRepurseCopied(null), 1400);
+  }
+
+  // ── Predictive Scheduling handler ─────────────────────────────────────────────
+  async function handlePredictSchedule() {
+    setPredictLoading(true);
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'predict-schedule' }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Prediction failed');
+      setPredictSuggestions(json.suggestions ?? []);
+      setPredictGaps(json.gaps ?? []);
+      setPredictLoaded(true);
+    } catch {
+      setPredictLoaded(true);
+    } finally {
+      setPredictLoading(false);
+    }
+  }
+
+  // ── Creative Brief: save handler ─────────────────────────────────────────────
+  async function handleSaveBrief() {
+    if (!briefProject.trim()) return;
+    setBriefSaving(true);
+    setBriefSaveMsg('');
+    const text = [
+      `# Creative Brief: ${briefProject}`,
+      `**Content Type:** ${briefType}`,
+      `**Platform(s):** ${[...briefPlatforms].join(', ')}`,
+      briefAudience ? `**Target Audience:** ${briefAudience}` : null,
+      briefMessage  ? `\n**Core Message / Hook:**\n${briefMessage}` : null,
+      briefVoice    ? `\n**Brand Voice & Tone:**\n${briefVoice}` : null,
+      briefVisual   ? `\n**Visual Direction:**\n${briefVisual}` : null,
+      briefDeadline ? `\n**Deadline:** ${new Date(briefDeadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : null,
+      `\n**Asset Status:** ${assets.filter(a => a.status === 'Approved').length}/${assets.length} approved`,
+      `\n**Status:** Ready for Editor →`,
+    ].filter(Boolean).join('\n');
+    try {
+      const res = await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text, content_type: 'brief', title: `Brief: ${briefProject}` }),
+      });
+      setBriefSaveMsg(res.ok ? '✅ Brief saved — ready to send to editor' : '⚠️ Save failed');
+    } catch { setBriefSaveMsg('⚠️ Save failed'); }
+    setBriefSaving(false);
+    setTimeout(() => setBriefSaveMsg(''), 5000);
+  }
+
+  // ── Asset Collector handlers ──────────────────────────────────────────────────
+  function addAsset() {
+    if (!assetNewName.trim()) return;
+    setAssets(prev => [...prev, { id: Date.now().toString(), name: assetNewName.trim(), category: assetNewCat, status: 'Needed' }]);
+    setAssetNewName('');
+  }
+  function cycleAssetStatus(id: string) {
+    setAssets(prev => prev.map(a => a.id === id ? { ...a, status: ASSET_STATUS_NEXT[a.status] } : a));
+  }
+  function removeAsset(id: string) {
+    setAssets(prev => prev.filter(a => a.id !== id));
+  }
+
+  // ── Audio Prep handlers ───────────────────────────────────────────────────────
+  function addSfx() {
+    if (!audioSfxInput.trim()) return;
+    setAudioSfxList(prev => [...prev, audioSfxInput.trim()]);
+    setAudioSfxInput('');
+  }
+  function removeSfx(i: number) { setAudioSfxList(prev => prev.filter((_, idx) => idx !== i)); }
+
+  // ── Content Pipeline handlers ─────────────────────────────────────────────────
+  function addPipelineItem() {
+    if (!pipeNewTitle.trim()) return;
+    setPipelineItems(prev => [...prev, { id: Date.now().toString(), title: pipeNewTitle.trim(), type: pipeNewType, platform: pipeNewPlatform, stage: 'Concept' }]);
+    setPipeNewTitle('');
+  }
+  function advancePipeline(id: string) {
+    setPipelineItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const i = PIPELINE_STAGES.indexOf(item.stage);
+      return { ...item, stage: PIPELINE_STAGES[Math.min(i + 1, PIPELINE_STAGES.length - 1)] };
+    }));
+  }
+  function removePipelineItem(id: string) { setPipelineItems(prev => prev.filter(p => p.id !== id)); }
+
+  // ── Character Brief Builder handler ──────────────────────────────────────────
+  const CHAR_SIM_OPTIONS = ['Cloth / Fabric Simulation', 'Hair / Fur Simulation', 'Facial Blend Shapes / Morphs', 'Muscle Simulation', 'Fluid / VFX Layer', 'Crowd / Instanced Version'];
+  async function handleSaveCharBrief() {
+    if (!charName.trim()) return;
+    setCharSaving(true);
+    setCharSaveMsg('');
+    const text = [
+      `# Character Brief: ${charName}`,
+      `**Role:** ${charRole}`,
+      `**Animation Type:** ${charAnimType}`,
+      `**Rig Complexity:** ${charRigLevel}`,
+      charPhysical    ? `\n**Physical Description:**\n${charPhysical}` : null,
+      charPersonality ? `\n**Personality & Performance Notes:**\n${charPersonality}` : null,
+      charSims.size   ? `\n**Special Simulations Required:**\n${[...charSims].map(s => `- ${s}`).join('\n')}` : null,
+      charColorNotes  ? `\n**Colour Palette & Style Notes:**\n${charColorNotes}` : null,
+      charRefs        ? `\n**Reference Materials:**\n${charRefs}` : null,
+      `\n**Status:** Ready for ${charAnimType.includes('Maya') || charAnimType.includes('ZBrush') ? 'Maya / ZBrush' : charAnimType.includes('Toon Boom') ? 'Toon Boom Harmony' : charAnimType.includes('TVPaint') ? 'TVPaint Animation' : 'Engine'}`,
+    ].filter(Boolean).join('\n');
+    try {
+      const res = await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text, content_type: 'character_brief', title: `Character Brief: ${charName}` }),
+      });
+      setCharSaveMsg(res.ok ? '✅ Brief saved — ready for engine' : '⚠️ Save failed');
+    } catch { setCharSaveMsg('⚠️ Save failed'); }
+    setCharSaving(false);
+    setTimeout(() => setCharSaveMsg(''), 4000);
+  }
+
+  // ── Scene & Set Design Brief handler ─────────────────────────────────────────
+  async function handleSaveSceneBrief() {
+    if (!sceneName.trim()) return;
+    setSceneSaving(true);
+    setSceneSaveMsg('');
+    const text = [
+      `# Scene / Set Design Brief: ${sceneName}`,
+      `**Set Type:** ${sceneType}`,
+      `**Lighting Condition:** ${sceneLighting}`,
+      sceneMood      ? `\n**Mood & Atmosphere:**\n${sceneMood}` : null,
+      sceneElements  ? `\n**Key Visual Elements:**\n${sceneElements}` : null,
+      sceneType.includes('Unreal') ? `\n**Unreal Engine / Virtual Production Notes:**\n${sceneUnrealNotes || 'Camera tracking markers required. Confirm parallax movement range with DoP. LED wall brightness target: >1000 nits.'}` : null,
+      sceneColorPalette ? `\n**Colour Palette:**\n${sceneColorPalette}` : null,
+      `\n**Destination:** ${sceneType.includes('Unreal') ? 'Unreal Engine — Virtual Production' : sceneType.includes('2D') ? 'TVPaint / Toon Boom Background Dept.' : 'Art Department / Engine'}`,
+    ].filter(Boolean).join('\n');
+    try {
+      const res = await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text, content_type: 'scene_brief', title: `Scene Brief: ${sceneName}` }),
+      });
+      setSceneSaveMsg(res.ok ? '✅ Brief saved — ready for engine' : '⚠️ Save failed');
+    } catch { setSceneSaveMsg('⚠️ Save failed'); }
+    setSceneSaving(false);
+    setTimeout(() => setSceneSaveMsg(''), 4000);
+  }
+
+  // ── Storyboard Builder handlers ───────────────────────────────────────────────
+  const SB_SHOT_TYPES = ['Wide', 'Medium', 'Close-up', 'Extreme Close-up', 'Over Shoulder', 'POV', 'Overhead', 'Low Angle', 'Drone'];
+  function addSbFrame() {
+    setSbFrames(prev => [...prev, { id: Date.now().toString(), scene: `Scene ${prev.length + 1}`, shot: 'Medium', action: '', audio: '', duration: 5 }]);
+  }
+  function updateSbFrame(id: string, field: string, value: string | number) {
+    setSbFrames(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
+  }
+  function removeSbFrame(id: string) { setSbFrames(prev => prev.filter(f => f.id !== id)); }
+  function copySbText() {
+    const total = sbFrames.reduce((a, f) => a + f.duration, 0);
+    const text = `STORYBOARD: ${sbTitle || 'Untitled'}\nTotal: ${total}s\n\n` +
+      sbFrames.map((f, i) =>
+        `[Frame ${i + 1}] ${f.scene} | ${f.shot} shot | ${f.duration}s\nACTION: ${f.action || '—'}\nAUDIO: ${f.audio || '—'}`
+      ).join('\n\n');
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setSbCopied(true);
+    setTimeout(() => setSbCopied(false), 2000);
+  }
+
+  // ── AI Production Plan handlers ───────────────────────────────────────────────
+  function buildProductionPlan(idea: string, type: string, platform: string) {
+    const t = idea.trim() || 'your content idea';
+    return {
+      title: `Production Plan: ${t.slice(0, 50)}`,
+      preProd: [
+        `Define goal: what action should viewers take after watching "${t}"?`,
+        `Write Creative Brief — message, audience, brand voice, visual direction`,
+        `Build Storyboard — map every scene, shot type, and timing`,
+        `Collect all assets: footage needed, photos, graphics, logo files`,
+        `Prep audio: select music mood (${['Energetic','Cinematic','Hype'][Math.floor(Math.random()*3)]}), write VO brief, list SFX`,
+        `Check Platform Specs — ${platform} ${type}: confirm resolution, duration, and format`,
+        `Pre-flight asset check: all items Approved before handing off to engine`,
+        `Set deadline and create pipeline item in Content Pipeline`,
+      ],
+      production: [
+        `Open Engine — all brief, specs, and assets ready`,
+        `Import all pre-approved assets`,
+        type === '3D Animation' ? `Set up scene in Maya — import character rigs, verify all sims (cloth/hair/facial)` :
+        type === 'YouTube Video' || type === 'YouTube Short' ? `Set up 16:9 canvas (${type === 'YouTube Short' ? '1080×1920 vertical' : '1920×1080'})` :
+        `Set canvas to correct dimensions per Platform Specs`,
+        type === '3D Animation' ? `Animate scene-by-scene following storyboard — match timing from brief` :
+        type === 'Reel' || type === 'Social Ad' ? `Follow storyboard frame by frame — no improvising, every cut is planned` :
+        `Follow storyboard / content outline`,
+        `Layer audio: music at correct BPM/mood (${audioMood}), apply VO per brief, place SFX at marked timecodes`,
+        `Add captions/text overlays per brand voice guidelines`,
+        type === '3D Animation' ? `Render scenes — verify lighting, shadow quality, and camera angles match scene brief` :
+        type === 'Podcast' ? `Record and edit audio, apply EQ, set level to −${platform === 'Email' ? '16' : '14'} LUFS` :
+        `Apply colour grade and transitions`,
+        `Export at correct spec: format, bitrate, loudness (−14 LUFS)`,
+      ],
+      postProd: [
+        `Review exported file against Creative Brief — does it match the core message?`,
+        `Brand Voice check — tone, pacing, and visual direction aligned?`,
+        `Run SEO Title Optimizer on the caption/title`,
+        `Generate hashtags with Hashtag Optimizer`,
+        `Repurpose: run Auto Content Repurposer to get 10 platform formats`,
+        `Set optimal post time using AI Post Intelligence`,
+        `Add to Publishing Queue on correct platform(s): ${platform}`,
+      ],
+      distribution: [
+        `Post at AI-recommended optimal time on ${platform}`,
+        type !== 'Email' ? `Cross-post repurposed formats to secondary platforms` : `Send to email list with SEO-optimised subject line`,
+        `Monitor first 24h engagement — track in Content Analytics`,
+        `Respond to comments within 2h for algorithm boost`,
+        `Update Content Pipeline stage → Live`,
+        `Log performance data for next AI Post Intelligence cycle`,
+      ],
+    };
+  }
+
+  async function handleGeneratePlan() {
+    if (!planIdea.trim()) return;
+    setPlanLoading(true);
+    setPlanResult(null);
+    setPlanSaveMsg('');
+    await new Promise(r => setTimeout(r, 700));
+    setPlanResult(buildProductionPlan(planIdea, planType, planPlatform));
+    setPlanLoading(false);
+  }
+
+  async function handleSavePlan() {
+    if (!planResult) return;
+    const text = [
+      `# ${planResult.title}`,
+      '\n## Pre-Production', ...planResult.preProd.map((s, i) => `${i + 1}. ${s}`),
+      '\n## Production (Engine)', ...planResult.production.map((s, i) => `${i + 1}. ${s}`),
+      '\n## Post-Production', ...planResult.postProd.map((s, i) => `${i + 1}. ${s}`),
+      '\n## Distribution', ...planResult.distribution.map((s, i) => `${i + 1}. ${s}`),
+    ].join('\n');
+    try {
+      const res = await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text, content_type: 'plan', title: planResult.title }),
+      });
+      setPlanSaveMsg(res.ok ? '✅ Plan saved to Drafts' : '⚠️ Save failed');
+    } catch { setPlanSaveMsg('⚠️ Save failed'); }
+    setTimeout(() => setPlanSaveMsg(''), 4000);
+  }
+
+  // ── Brand Voice Guard handler ─────────────────────────────────────────────────
+  async function handleBrandVoiceCheck() {
+    if (!bvContent.trim() || !bvProfile.trim()) return;
+    setBvLoading(true);
+    setBvResult(null);
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'brand-voice', content: bvContent.trim(), voiceProfile: bvProfile.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Brand voice check failed');
+      setBvResult(json);
+    } catch {
+      /* silently surface no result */
+    } finally {
+      setBvLoading(false);
+    }
+  }
+
   return (
     <div className="de-sky-bg min-h-screen">
 
@@ -592,6 +1066,817 @@ export default function ContentEngin({ onBack }: Props) {
             </div>
           </div>
         )}
+
+        {/* ═══════════════════════════════════════════════════════════════
+            PRE-EDIT — Everything before the editor opens
+            Brief · Assets · Audio · Specs · Pipeline
+        ═══════════════════════════════════════════════════════════════ */}
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', color: ACCENT, textTransform: 'uppercase' }}>🗂️ Pre-Edit</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+          </div>
+
+          {/* ── 1. Creative Brief Builder ─────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>📋</span>
+              <span className="de-widget-title ml-2">Creative Brief Builder</span>
+              {briefProject.trim() && assets.filter(a => a.status === 'Approved').length === assets.length && (
+                <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 4 }}>Editor-Ready ✓</span>
+              )}
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+              {/* Project name */}
+              <input
+                type="text" value={briefProject} onChange={e => setBriefProject(e.target.value)}
+                placeholder="Project name (e.g. Q2 Launch Reel)…"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: `1px solid ${ACCENT}30`, background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+              />
+              {/* Content type + deadline row */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 2 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Content Type</label>
+                  <select value={briefType} onChange={e => setBriefType(e.target.value as BriefContentType)}
+                    style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {BRIEF_CONTENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 2 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Deadline</label>
+                  <input type="date" value={briefDeadline} onChange={e => setBriefDeadline(e.target.value)}
+                    style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              {/* Platform targets */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Target Platforms</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {BRIEF_PLATFORM_LIST.map(p => {
+                    const on = briefPlatforms.has(p);
+                    return (
+                      <button key={p} type="button" onClick={() => setBriefPlatforms(prev => { const n = new Set(prev); on ? n.delete(p) : n.add(p); return n; })}
+                        style={{ padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                          background: on ? `${ACCENT}18` : 'rgba(255,255,255,0.5)',
+                          border: `1.5px solid ${on ? ACCENT : 'rgba(160,195,240,0.25)'}`,
+                          color: on ? ACCENT : 'var(--de-text-dim)' }}>
+                        {p}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              {/* Core message */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Core Message / Hook</label>
+                <textarea value={briefMessage} onChange={e => setBriefMessage(e.target.value)} rows={2}
+                  placeholder="What is the single most important thing this content must communicate?"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Audience + voice row */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Target Audience</label>
+                  <input value={briefAudience} onChange={e => setBriefAudience(e.target.value)} placeholder="e.g. Gen-Z creators, 18–25…"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Brand Voice & Tone</label>
+                  <input value={briefVoice} onChange={e => setBriefVoice(e.target.value)} placeholder="e.g. bold, casual, Gen-Z…"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              {/* Visual direction */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Visual Direction (for editor)</label>
+                <textarea value={briefVisual} onChange={e => setBriefVisual(e.target.value)} rows={2}
+                  placeholder="Describe aesthetic, pacing, colour palette, references (e.g. fast cuts, warm tones, Nike-style energy)…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Asset readiness summary */}
+              {assets.length > 0 && (
+                <div style={{ padding: '8px 12px', borderRadius: 9, background: 'rgba(255,255,255,0.45)', border: `1px solid ${ACCENT}15` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)' }}>Asset Readiness</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: assets.filter(a => a.status === 'Approved').length === assets.length ? '#22c55e' : ACCENT, marginLeft: 'auto' }}>
+                      {assets.filter(a => a.status === 'Approved').length}/{assets.length} approved
+                    </span>
+                  </div>
+                  <div style={{ height: 5, borderRadius: 4, background: 'rgba(0,0,0,0.06)' }}>
+                    <div style={{ height: '100%', borderRadius: 4, transition: 'width 0.4s', background: '#22c55e',
+                      width: `${Math.round(assets.filter(a => a.status === 'Approved').length / assets.length * 100)}%` }} />
+                  </div>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button type="button" onClick={handleSaveBrief} disabled={briefSaving || !briefProject.trim()}
+                  style={{ ...btnBase, background: ACCENT, color: 'white', padding: '9px 20px', fontSize: 13, opacity: briefSaving || !briefProject.trim() ? 0.6 : 1 }}>
+                  {briefSaving ? '⏳ Saving…' : '📋 Save Brief → Drafts'}
+                </button>
+                {briefSaveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: briefSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{briefSaveMsg}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* ── 2. Asset Collector ────────────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🗂️</span>
+              <span className="de-widget-title ml-2">Asset Collector</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700,
+                color: assets.every(a => a.status === 'Approved') ? '#22c55e' : ACCENT,
+                background: assets.every(a => a.status === 'Approved') ? 'rgba(34,197,94,0.1)' : `${ACCENT}12`,
+                padding: '2px 8px', borderRadius: 4 }}>
+                {assets.filter(a => a.status === 'Approved').length}/{assets.length} ready
+              </span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Collect and confirm every raw asset before the editor opens a single file.</p>
+              {/* Asset list */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {assets.map(asset => (
+                  <div key={asset.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 10,
+                    background: asset.status === 'Approved' ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.55)',
+                    border: `1px solid ${ASSET_STATUS_COLOR[asset.status]}25` }}>
+                    <span style={{ fontSize: 14, flexShrink: 0 }}>{asset.category.split(' ')[0]}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{asset.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{asset.category}</div>
+                    </div>
+                    <button type="button" onClick={() => cycleAssetStatus(asset.id)}
+                      style={{ ...btnBase, fontSize: 10, padding: '3px 9px', borderRadius: 20,
+                        background: `${ASSET_STATUS_COLOR[asset.status]}15`,
+                        color: ASSET_STATUS_COLOR[asset.status],
+                        border: `1.5px solid ${ASSET_STATUS_COLOR[asset.status]}40` }}>
+                      {asset.status}
+                    </button>
+                    <button type="button" onClick={() => removeAsset(asset.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'rgba(239,68,68,0.45)', padding: 0, flexShrink: 0 }}>✕</button>
+                  </div>
+                ))}
+              </div>
+              {/* Add new asset */}
+              <div style={{ display: 'flex', gap: 6 }}>
+                <select value={assetNewCat} onChange={e => setAssetNewCat(e.target.value as AssetCategory)}
+                  style={{ fontSize: 11, borderRadius: 8, padding: '6px 8px', border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', flexShrink: 0 }}>
+                  {ASSET_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <input value={assetNewName} onChange={e => setAssetNewName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addAsset()}
+                  placeholder="Asset name…"
+                  style={{ flex: 1, padding: '6px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }} />
+                <button type="button" onClick={addAsset} disabled={!assetNewName.trim()}
+                  style={{ ...btnBase, background: ACCENT, color: 'white', padding: '6px 14px', opacity: !assetNewName.trim() ? 0.5 : 1 }}>
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── 3. Audio Prep Station ─────────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🎵</span>
+              <span className="de-widget-title ml-2">Audio Prep Station</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Define every audio element before the editor starts — music mood, BPM, VO direction, SFX list, and platform loudness specs.</p>
+              {/* Music mood + BPM */}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                <div style={{ flex: 2 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Music Mood</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {AUDIO_MOODS.map(m => (
+                      <button key={m} type="button" onClick={() => setAudioMood(m)}
+                        style={{ padding: '4px 9px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                          background: audioMood === m ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.55)',
+                          border: `1.5px solid ${audioMood === m ? '#8b5cf6' : 'rgba(160,195,240,0.25)'}`,
+                          color: audioMood === m ? '#8b5cf6' : 'var(--de-text-dim)' }}>
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>BPM Target</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <input type="range" min={60} max={180} value={audioBpm} onChange={e => setAudioBpm(parseInt(e.target.value))}
+                      style={{ flex: 1, accentColor: '#8b5cf6' }} />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#8b5cf6', minWidth: 36, textAlign: 'right' }}>{audioBpm}</span>
+                  </div>
+                </div>
+              </div>
+              {/* VO brief */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Voiceover Brief</label>
+                <textarea value={audioVoBrief} onChange={e => setAudioVoBrief(e.target.value)} rows={2}
+                  placeholder="Tone, pace, key phrases, accent preference — tell the editor exactly how VO should sound…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* SFX checklist */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>SFX Checklist</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 7 }}>
+                  {audioSfxList.map((sfx, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(139,92,246,0.15)' }}>
+                      <span style={{ fontSize: 12 }}>🔊</span>
+                      <span style={{ flex: 1, fontSize: 12, color: 'var(--de-heading)' }}>{sfx}</span>
+                      <button type="button" onClick={() => removeSfx(i)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'rgba(239,68,68,0.45)', padding: 0 }}>✕</button>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input value={audioSfxInput} onChange={e => setAudioSfxInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && addSfx()}
+                    placeholder="Add SFX (e.g. Notification ping)…"
+                    style={{ flex: 1, padding: '6px 10px', borderRadius: 8, fontSize: 12, border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }} />
+                  <button type="button" onClick={addSfx} disabled={!audioSfxInput.trim()}
+                    style={{ ...btnBase, background: 'rgba(139,92,246,0.12)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.3)', opacity: !audioSfxInput.trim() ? 0.5 : 1 }}>
+                    Add
+                  </button>
+                </div>
+              </div>
+              {/* Platform loudness spec */}
+              <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.15)' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#8b5cf6', marginBottom: 6 }}>📻 Platform Audio Standard</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
+                  {['Instagram Reel', 'TikTok', 'YouTube', 'Twitter/X', 'Podcast'].map(p => (
+                    <button key={p} type="button" onClick={() => setAudioSpecPlatform(p)}
+                      style={{ padding: '3px 9px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                        background: audioSpecPlatform === p ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.5)',
+                        border: `1.5px solid ${audioSpecPlatform === p ? '#8b5cf6' : 'rgba(160,195,240,0.2)'}`,
+                        color: audioSpecPlatform === p ? '#8b5cf6' : 'var(--de-text-dim)' }}>
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                {(() => {
+                  const specs: Record<string, { lufs: string; format: string; channels: string; note: string }> = {
+                    'Instagram Reel': { lufs: '−14 LUFS', format: 'AAC 128kbps', channels: 'Stereo', note: 'Loud master sounds distorted in feed. Keep peaks at −1 dBTP.' },
+                    'TikTok':         { lufs: '−14 LUFS', format: 'AAC 128kbps', channels: 'Stereo', note: 'Avoid bass-heavy mixes — phone speakers are tiny.' },
+                    'YouTube':        { lufs: '−14 LUFS', format: 'AAC 192kbps', channels: 'Stereo', note: 'YouTube normalises to −14 LUFS. Deliver at −14 to avoid pumping.' },
+                    'Twitter/X':      { lufs: '−14 LUFS', format: 'AAC 128kbps', channels: 'Stereo', note: 'Compression artefacts at high volumes. Export clean.' },
+                    'Podcast':        { lufs: '−16 LUFS', format: 'MP3 128kbps', channels: 'Mono',   note: 'Apple Podcasts standard. −16 LUFS for spoken word clarity.' },
+                  };
+                  const s = specs[audioSpecPlatform] ?? specs['Instagram Reel'];
+                  return (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
+                      {[{ label: 'Loudness', val: s.lufs }, { label: 'Format', val: s.format }, { label: 'Channels', val: s.channels }].map(r => (
+                        <div key={r.label} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(139,92,246,0.12)' }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 2 }}>{r.label}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#8b5cf6' }}>{r.val}</div>
+                        </div>
+                      ))}
+                      <div style={{ gridColumn: '1 / -1', fontSize: 10, color: 'var(--de-text-dim)', padding: '5px 0 0' }}>💡 {s.note}</div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+
+          {/* ── 4. Platform Specs Master ─────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>📐</span>
+              <span className="de-widget-title ml-2">Platform Specs Master</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', background: 'rgba(160,195,240,0.2)', padding: '2px 7px', borderRadius: 4 }}>10 platforms</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Hand the editor exact tech specs so nothing gets rejected at upload. Every dimension, format, duration, and caption limit in one place.</p>
+              <input type="text" value={specsFilter} onChange={e => setSpecsFilter(e.target.value)}
+                placeholder="Filter platform…"
+                style={{ width: '100%', padding: '7px 11px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {PLATFORM_SPECS.filter(p => !specsFilter || p.name.toLowerCase().includes(specsFilter.toLowerCase())).map(p => (
+                  <div key={p.name} style={{ borderRadius: 10, background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}12`, overflow: 'hidden' }}>
+                    {/* Platform header */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: `1px solid ${ACCENT}10`, background: `${ACCENT}06` }}>
+                      <span style={{ fontSize: 16 }}>{p.emoji}</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)', flex: 1 }}>{p.name}</span>
+                      <button type="button"
+                        onClick={() => navigator.clipboard?.writeText(`${p.name}: ${p.ratio} · ${p.res} · ${p.dur} · ${p.fmt} · Caption: ${p.caption} · Audio: ${p.audio}`).catch(() => {})}
+                        style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5, border: `1px solid ${ACCENT}25`, background: `${ACCENT}10`, color: ACCENT, cursor: 'pointer' }}>
+                        Copy Spec
+                      </button>
+                    </div>
+                    {/* Specs grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0 }}>
+                      {[
+                        { label: 'Ratio',    val: p.ratio   },
+                        { label: 'Resolution', val: p.res   },
+                        { label: 'Duration', val: p.dur     },
+                        { label: 'Format',   val: p.fmt     },
+                        { label: 'Caption',  val: p.caption },
+                        { label: 'Audio',    val: p.audio   },
+                      ].map(spec => (
+                        <div key={spec.label} style={{ padding: '7px 10px', borderRight: '1px solid rgba(160,195,240,0.1)', borderBottom: '1px solid rgba(160,195,240,0.1)' }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 2 }}>{spec.label}</div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)' }}>{spec.val}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── 5. Content Pipeline ─────────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🚀</span>
+              <span className="de-widget-title ml-2">Content Pipeline</span>
+              {pipelineItems.filter(p => p.stage === 'Live').length > 0 && (
+                <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 8px', borderRadius: 4 }}>
+                  {pipelineItems.filter(p => p.stage === 'Live').length} Live
+                </span>
+              )}
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Track every piece of content from concept through to live. Tap <strong>Advance</strong> when a stage is complete.</p>
+              {/* Stage legend */}
+              <div style={{ display: 'flex', overflowX: 'auto', gap: 4, paddingBottom: 2 }}>
+                {PIPELINE_STAGES.map((stage, i) => (
+                  <div key={stage} style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: `${PIPELINE_STAGE_COLOR[stage]}18`, color: PIPELINE_STAGE_COLOR[stage], border: `1px solid ${PIPELINE_STAGE_COLOR[stage]}30`, whiteSpace: 'nowrap' }}>{stage}</span>
+                    {i < PIPELINE_STAGES.length - 1 && <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>›</span>}
+                  </div>
+                ))}
+              </div>
+              {/* Pipeline items */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {pipelineItems.map(item => (
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', borderRadius: 10,
+                    background: item.stage === 'Live' ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.55)',
+                    border: `1.5px solid ${PIPELINE_STAGE_COLOR[item.stage]}25` }}>
+                    <span style={{ fontSize: 16, flexShrink: 0 }}>{item.type}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{item.platform}</div>
+                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, flexShrink: 0,
+                      background: `${PIPELINE_STAGE_COLOR[item.stage]}15`,
+                      color: PIPELINE_STAGE_COLOR[item.stage],
+                      border: `1px solid ${PIPELINE_STAGE_COLOR[item.stage]}30` }}>
+                      {item.stage}
+                    </span>
+                    {item.stage !== 'Live' && (
+                      <button type="button" onClick={() => advancePipeline(item.id)}
+                        style={{ ...btnBase, fontSize: 9, padding: '3px 8px', background: `${PIPELINE_STAGE_COLOR[item.stage]}12`, color: PIPELINE_STAGE_COLOR[item.stage], border: `1px solid ${PIPELINE_STAGE_COLOR[item.stage]}30`, flexShrink: 0 }}>
+                        Advance →
+                      </button>
+                    )}
+                    <button type="button" onClick={() => removePipelineItem(item.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'rgba(239,68,68,0.4)', padding: 0, flexShrink: 0 }}>✕</button>
+                  </div>
+                ))}
+              </div>
+              {/* Add new item */}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <select value={pipeNewType} onChange={e => setPipeNewType(e.target.value)}
+                  style={{ fontSize: 13, borderRadius: 8, padding: '6px 8px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                  {['📱', '🎬', '📸', '🧵', '📧', '▶️'].map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <input value={pipeNewTitle} onChange={e => setPipeNewTitle(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addPipelineItem()}
+                  placeholder="Content title…"
+                  style={{ flex: 2, padding: '6px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', minWidth: 0 }} />
+                <select value={pipeNewPlatform} onChange={e => setPipeNewPlatform(e.target.value)}
+                  style={{ fontSize: 11, borderRadius: 8, padding: '6px 8px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                  {['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest'].map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+                <button type="button" onClick={addPipelineItem} disabled={!pipeNewTitle.trim()}
+                  style={{ ...btnBase, background: ACCENT, color: 'white', padding: '6px 16px', opacity: !pipeNewTitle.trim() ? 0.5 : 1 }}>
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── 5b. Storyboard Builder ────────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🎞️</span>
+              <span className="de-widget-title ml-2">Storyboard Builder</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--de-text-dim)' }}>
+                {sbFrames.reduce((a, f) => a + f.duration, 0)}s total
+              </span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Plan every scene and shot before the engine opens. The editor follows this — no guesswork, no missed shots.</p>
+              <input type="text" value={sbTitle} onChange={e => setSbTitle(e.target.value)}
+                placeholder="Project title (e.g. Q2 Launch Reel)…"
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+              {/* Frame cards */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {sbFrames.map((frame, i) => (
+                  <div key={frame.id} style={{ borderRadius: 12, background: 'rgba(255,255,255,0.6)', border: `1px solid ${ACCENT}15`, overflow: 'hidden' }}>
+                    {/* Frame header bar */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', background: `${ACCENT}08`, borderBottom: `1px solid ${ACCENT}10` }}>
+                      <span style={{ fontSize: 9, fontWeight: 800, color: 'white', background: ACCENT, padding: '1px 7px', borderRadius: 10 }}>#{i + 1}</span>
+                      <input value={frame.scene} onChange={e => updateSbFrame(frame.id, 'scene', e.target.value)}
+                        placeholder="Scene name"
+                        style={{ flex: 1, fontSize: 11, fontWeight: 700, background: 'none', border: 'none', outline: 'none', color: 'var(--de-heading)' }} />
+                      <select value={frame.shot} onChange={e => updateSbFrame(frame.id, 'shot', e.target.value)}
+                        style={{ fontSize: 10, borderRadius: 6, padding: '2px 6px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                        {SB_SHOT_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <input type="number" value={frame.duration} min={1} max={600}
+                          onChange={e => updateSbFrame(frame.id, 'duration', parseInt(e.target.value) || 1)}
+                          style={{ width: 40, fontSize: 11, fontWeight: 700, textAlign: 'center', borderRadius: 5, padding: '2px 4px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: ACCENT, outline: 'none' }} />
+                        <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>s</span>
+                      </div>
+                      {sbFrames.length > 1 && (
+                        <button type="button" onClick={() => removeSbFrame(frame.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'rgba(239,68,68,0.45)', padding: 0 }}>✕</button>
+                      )}
+                    </div>
+                    {/* Action + Audio */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+                      <div style={{ padding: '8px 10px', borderRight: `1px solid ${ACCENT}08` }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 3 }}>🎬 ACTION</div>
+                        <textarea value={frame.action} onChange={e => updateSbFrame(frame.id, 'action', e.target.value)}
+                          rows={2} placeholder="What happens on screen…"
+                          style={{ width: '100%', fontSize: 11, border: 'none', background: 'transparent', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.4, outline: 'none', boxSizing: 'border-box' }} />
+                      </div>
+                      <div style={{ padding: '8px 10px' }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 3 }}>🎵 AUDIO</div>
+                        <textarea value={frame.audio} onChange={e => updateSbFrame(frame.id, 'audio', e.target.value)}
+                          rows={2} placeholder="Music, VO, SFX…"
+                          style={{ width: '100%', fontSize: 11, border: 'none', background: 'transparent', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.4, outline: 'none', boxSizing: 'border-box' }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 7 }}>
+                <button type="button" onClick={addSbFrame}
+                  style={{ ...btnBase, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}25`, flex: 1, padding: '8px 0' }}>
+                  + Add Frame
+                </button>
+                <button type="button" onClick={copySbText}
+                  style={{ ...btnBase, background: sbCopied ? 'rgba(34,197,94,0.1)' : `${ACCENT}12`, color: sbCopied ? '#16a34a' : ACCENT, border: `1px solid ${sbCopied ? 'rgba(34,197,94,0.3)' : `${ACCENT}25`}`, flex: 1, padding: '8px 0' }}>
+                  {sbCopied ? '✅ Copied' : '📋 Copy Storyboard'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── 5c. AI Production Plan Builder ───────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🤖</span>
+              <span className="de-widget-title ml-2">AI Production Plan</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 7px', borderRadius: 4 }}>Pre → Engine → Post</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+                Describe your content idea. AI builds a full production plan — pre-production, what the engine needs to do, post-production, and distribution — so nothing gets missed.
+              </p>
+              {/* Idea input */}
+              <textarea value={planIdea} onChange={e => { setPlanIdea(e.target.value); setPlanResult(null); }} rows={3}
+                placeholder="Describe your content idea (e.g. 'A 30s reel showing behind-the-scenes of our product launch with fast cuts and trending audio')…"
+                style={{ width: '100%', borderRadius: 10, padding: '10px 12px', fontSize: 12, border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Content Type</label>
+                  <select value={planType} onChange={e => setPlanType(e.target.value)}
+                    style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {['Reel', 'YouTube Video', 'YouTube Short', '3D Animated Short', '3D Feature Film Scene', '2D Animation (Toon Boom)', '2D Animation (TVPaint)', 'Virtual Production (Unreal)', 'Feature Film Scene', 'Podcast', 'Blog Post', 'Email Campaign', 'Social Ad', 'Story'].map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Platform</label>
+                  <select value={planPlatform} onChange={e => setPlanPlatform(e.target.value)}
+                    style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest', 'Email'].map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+              <button type="button" onClick={handleGeneratePlan} disabled={planLoading || !planIdea.trim()}
+                style={{ ...btnBase, background: '#6366f1', color: 'white', padding: '10px 0', width: '100%', fontSize: 13, opacity: planLoading || !planIdea.trim() ? 0.6 : 1 }}>
+                {planLoading ? '🤖 Building plan…' : '🤖 Generate Full Production Plan'}
+              </button>
+              {/* Plan result */}
+              {planResult && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)', padding: '8px 0 4px' }}>{planResult.title}</div>
+                  {([
+                    { phase: '📋 Pre-Production',       color: '#f59e0b', items: planResult.preProd        },
+                    { phase: '🎬 Production (Engine)',   color: '#ec4899', items: planResult.production     },
+                    { phase: '✂️ Post-Production',       color: '#8b5cf6', items: planResult.postProd       },
+                    { phase: '🚀 Distribution',          color: '#22c55e', items: planResult.distribution   },
+                  ] as const).map(section => (
+                    <div key={section.phase} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${section.color}20` }}>
+                      <div style={{ padding: '7px 12px', background: `${section.color}10`, borderBottom: `1px solid ${section.color}15` }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: section.color }}>{section.phase}</span>
+                      </div>
+                      <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                        {section.items.map((item, i) => (
+                          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                            <span style={{ fontSize: 10, fontWeight: 800, color: section.color, flexShrink: 0, marginTop: 1 }}>{i + 1}.</span>
+                            <span style={{ fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.5 }}>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
+                    <button type="button" onClick={handleSavePlan}
+                      style={{ ...btnBase, background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.25)', padding: '8px 18px', fontSize: 13 }}>
+                      💾 Save Plan to Drafts
+                    </button>
+                    {planSaveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: planSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{planSaveMsg}</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── 5c. Character Brief Builder ──────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🎭</span>
+              <span className="de-widget-title ml-2">Character Brief Builder</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#ec4899', background: 'rgba(236,72,153,0.1)', padding: '2px 7px', borderRadius: 4 }}>Maya · ZBrush · Toon Boom · TVPaint</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Define every character before the engine opens. Riggers and animators get a complete spec — no guessing on design, rig complexity, or simulation requirements.</p>
+              {/* Name + Role */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input value={charName} onChange={e => setCharName(e.target.value)} placeholder="Character name…"
+                  style={{ flex: 2, padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(236,72,153,0.25)', background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none' }} />
+                <select value={charRole} onChange={e => setCharRole(e.target.value as typeof charRole)}
+                  style={{ flex: 1, fontSize: 11, borderRadius: 9, padding: '8px 10px', border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                  {CHAR_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              {/* Animation type + Rig level */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Animation Pipeline</label>
+                  <select value={charAnimType} onChange={e => setCharAnimType(e.target.value as typeof charAnimType)}
+                    style={{ width: '100%', fontSize: 11, borderRadius: 8, padding: '7px 9px', border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {CHAR_ANIM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Rig Complexity</label>
+                  <select value={charRigLevel} onChange={e => setCharRigLevel(e.target.value as typeof charRigLevel)}
+                    style={{ width: '100%', fontSize: 11, borderRadius: 8, padding: '7px 9px', border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {CHAR_RIG_LEVELS.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+              </div>
+              {/* Physical + Personality */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Physical Description</label>
+                <textarea value={charPhysical} onChange={e => setCharPhysical(e.target.value)} rows={2}
+                  placeholder="Height, build, skin tone, hair, distinctive features, proportions — everything the rigger and sculptor needs to know…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(236,72,153,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Personality & Performance Notes</label>
+                <textarea value={charPersonality} onChange={e => setCharPersonality(e.target.value)} rows={2}
+                  placeholder="How does this character move? What emotions do they express most? Performance style (subtle / broad / comedic)…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(236,72,153,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Special simulations */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Special Simulations Required</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {CHAR_SIM_OPTIONS.map(sim => {
+                    const on = charSims.has(sim);
+                    return (
+                      <button key={sim} type="button"
+                        onClick={() => setCharSims(prev => { const n = new Set(prev); on ? n.delete(sim) : n.add(sim); return n; })}
+                        style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                          background: on ? 'rgba(236,72,153,0.14)' : 'rgba(255,255,255,0.55)',
+                          border: `1.5px solid ${on ? '#ec4899' : 'rgba(160,195,240,0.25)'}`,
+                          color: on ? '#ec4899' : 'var(--de-text-dim)' }}>
+                        {sim}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              {/* Colour + References */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Colour Palette & Style</label>
+                  <input value={charColorNotes} onChange={e => setCharColorNotes(e.target.value)} placeholder="e.g. desaturated blues, warm skin tone…"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, border: '1px solid rgba(236,72,153,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Reference Materials</label>
+                  <input value={charRefs} onChange={e => setCharRefs(e.target.value)} placeholder="e.g. Spider-Man: Into the Spider-Verse…"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, border: '1px solid rgba(236,72,153,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button type="button" onClick={handleSaveCharBrief} disabled={charSaving || !charName.trim()}
+                  style={{ ...btnBase, background: '#ec4899', color: 'white', padding: '9px 20px', fontSize: 13, opacity: charSaving || !charName.trim() ? 0.6 : 1 }}>
+                  {charSaving ? '⏳ Saving…' : '🎭 Save Character Brief → Drafts'}
+                </button>
+                {charSaveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: charSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{charSaveMsg}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* ── 5d. Scene & Set Design Brief ─────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🏗️</span>
+              <span className="de-widget-title ml-2">Scene & Set Design Brief</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 4 }}>Unreal · TVPaint · Toon Boom BG</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Every background, set, and virtual environment designed before the engine opens. Art directors and Unreal VPs get the complete spec upfront.</p>
+              {/* Scene name + type */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input value={sceneName} onChange={e => setSceneName(e.target.value)} placeholder="Scene name (e.g. Rooftop – Night)…"
+                  style={{ flex: 2, padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(139,92,246,0.25)', background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none' }} />
+                <select value={sceneType} onChange={e => setSceneType(e.target.value as typeof sceneType)}
+                  style={{ flex: 1, fontSize: 11, borderRadius: 9, padding: '8px 9px', border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                  {SCENE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              {/* Lighting */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Lighting Condition</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {LIGHTING_TYPES.map(l => (
+                    <button key={l} type="button" onClick={() => setSceneLighting(l as typeof sceneLighting)}
+                      style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                        background: sceneLighting === l ? 'rgba(139,92,246,0.14)' : 'rgba(255,255,255,0.55)',
+                        border: `1.5px solid ${sceneLighting === l ? '#8b5cf6' : 'rgba(160,195,240,0.25)'}`,
+                        color: sceneLighting === l ? '#8b5cf6' : 'var(--de-text-dim)' }}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Mood */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Mood & Atmosphere</label>
+                <textarea value={sceneMood} onChange={e => setSceneMood(e.target.value)} rows={2}
+                  placeholder="Describe the feeling — tense, peaceful, oppressive, magical, nostalgic… Include references (films, paintings, photography)…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(139,92,246,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Key elements */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Key Visual Elements</label>
+                <textarea value={sceneElements} onChange={e => setSceneElements(e.target.value)} rows={2}
+                  placeholder="What must be visible / prominent? What props, landmarks, or environmental details does the scene require?…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(139,92,246,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Unreal Engine notes (conditional) */}
+              {sceneType.includes('Unreal') && (
+                <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#8b5cf6', marginBottom: 6 }}>⚡ Unreal Engine / Virtual Production Notes</div>
+                  <textarea value={sceneUnrealNotes} onChange={e => setSceneUnrealNotes(e.target.value)} rows={3}
+                    placeholder="Camera tracking requirements, LED wall brightness (target >1000 nits), parallax movement range, actor blocking zones, nDisplay setup notes, real-time asset optimisation targets…"
+                    style={{ width: '100%', borderRadius: 8, padding: '8px 10px', fontSize: 12, border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+                    {[
+                      { label: 'LED Wall Target',       val: '≥ 1,000 nits'         },
+                      { label: 'Frame Rate',             val: '24fps (film) / 60fps (VFX)' },
+                      { label: 'Tracking System',        val: 'Define: Vicon / OptiTrack / Stype' },
+                      { label: 'Asset LOD Budget',       val: 'Confirm with Tech Art'  },
+                    ].map(r => (
+                      <div key={r.label} style={{ display: 'flex', gap: 8, fontSize: 10 }}>
+                        <span style={{ fontWeight: 700, color: '#8b5cf6', minWidth: 110 }}>{r.label}:</span>
+                        <span style={{ color: 'var(--de-text-dim)' }}>{r.val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Colour palette */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Colour Palette</label>
+                <input value={sceneColorPalette} onChange={e => setSceneColorPalette(e.target.value)}
+                  placeholder="e.g. muted earth tones, electric blue accents, high contrast noir…"
+                  style={{ width: '100%', padding: '7px 12px', borderRadius: 8, fontSize: 12, border: '1px solid rgba(139,92,246,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button type="button" onClick={handleSaveSceneBrief} disabled={sceneSaving || !sceneName.trim()}
+                  style={{ ...btnBase, background: '#8b5cf6', color: 'white', padding: '9px 20px', fontSize: 13, opacity: sceneSaving || !sceneName.trim() ? 0.6 : 1 }}>
+                  {sceneSaving ? '⏳ Saving…' : '🏗️ Save Scene Brief → Drafts'}
+                </button>
+                {sceneSaveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: sceneSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{sceneSaveMsg}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* ── 6. Industry Tools Hub ──────────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <Wrench className="w-4 h-4" style={{ color: ACCENT }} />
+              <span className="de-widget-title ml-2">Industry Tools Hub</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', background: 'rgba(160,195,240,0.2)', padding: '2px 7px', borderRadius: 4 }}>2026 Standards</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Every major industry tool — and the DREAMengin pre-edit feature that replaces the overhead of using it separately.</p>
+              {([
+                {
+                  category: '🎬 Video & Social',
+                  color: '#ec4899',
+                  tools: [
+                    { name: 'CapCut',   desc: 'All-in-one AI video editing',         de: 'Brief Builder → hands editor a complete spec before they open CapCut' },
+                    { name: 'Descript', desc: 'Text-based video & audio editing',     de: 'Audio Prep Station → VO brief, SFX list, and loudness target prepared in advance' },
+                  ],
+                },
+                {
+                  category: '🎨 Visual Design',
+                  color: '#10b981',
+                  tools: [
+                    { name: 'Canva Pro',     desc: 'Fast design & brand assets',            de: 'Platform Specs Master → editor gets exact dimensions before opening Canva' },
+                    { name: 'Adobe Firefly', desc: 'Generative AI in Photoshop/Illustrator', de: 'Asset Collector → graphic assets sourced & approved before AI generation begins' },
+                  ],
+                },
+                {
+                  category: '✍️ Writing & Strategy',
+                  color: '#6366f1',
+                  tools: [
+                    { name: 'ChatGPT',  desc: 'Custom GPTs for content strategy', de: 'AI Post Intelligence → what to create next, based on your engagement gaps' },
+                    { name: 'Claude',   desc: 'Long-form drafting & brand voice', de: 'Brand Voice Guard → brand voice defined pre-production so drafts stay on-brand' },
+                    { name: 'Jasper',   desc: 'Brand voice & campaign copy',      de: 'Creative Brief → message, tone, audience locked in before a word is written' },
+                  ],
+                },
+                {
+                  category: '📊 SEO & Optimization',
+                  color: '#0ea5e9',
+                  tools: [
+                    { name: 'Surfer SEO', desc: 'Content scoring & keyword optimization', de: 'SEO Title Optimizer → titles scored & optimised before the editor adds them' },
+                    { name: 'Semrush',    desc: 'Competitive content analysis',           de: 'Content Pipeline → competitive gaps spotted, strategy set before production' },
+                  ],
+                },
+                {
+                  category: '📋 Organization',
+                  color: '#f59e0b',
+                  tools: [
+                    { name: 'Notion', desc: 'Docs, wikis & project management',   de: 'Workflow Brain + Creative Brief → project context lives in one place' },
+                    { name: 'Trello', desc: 'Kanban content production boards',    de: 'Content Pipeline → 7-stage kanban from Concept to Live, no separate app needed' },
+                  ],
+                },
+                {
+                  category: '🎭 3D Animation & Rigging',
+                  color: '#ec4899',
+                  tools: [
+                    { name: 'Autodesk Maya', desc: '3D character rigging & primary animation',      de: 'Character Brief Builder → rig complexity, sim requirements, design direction packaged before Maya opens' },
+                    { name: 'ZBrush',        desc: 'High-detail digital sculpting of characters',   de: 'Character Brief Builder → poly budget targets, sculpt reference list, colour palette notes sent to sculpt team' },
+                  ],
+                },
+                {
+                  category: '✏️ 2D Animation',
+                  color: '#10b981',
+                  tools: [
+                    { name: 'Toon Boom Harmony', desc: 'Frame-by-frame 2D animation & cut-out rigging', de: 'Character Brief + Storyboard Builder → cut-out rig spec, exposure sheet structure, scene-by-scene breakdowns' },
+                    { name: 'TVPaint Animation',  desc: 'Hand-drawn digital animation',                  de: 'Scene & Set Design Brief + Storyboard → background design direction, frame-by-frame action notes per scene' },
+                  ],
+                },
+                {
+                  category: '🎬 Live-Action & Virtual Production',
+                  color: '#8b5cf6',
+                  tools: [
+                    { name: 'Unreal Engine', desc: 'Virtual Production — digital LED wall backgrounds for live actors', de: 'Scene & Set Design Brief → LED wall brightness spec, tracking requirements, actor blocking, nDisplay notes pre-configured' },
+                    { name: 'Final Draft',   desc: 'Industry-standard scriptwriting & dialogue management',             de: 'AI Production Plan → full story outline, scene structure, character arc, and dialogue direction delivered before Final Draft opens' },
+                  ],
+                },
+              ]).map(group => (
+                <div key={group.category}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: group.color, marginBottom: 5 }}>{group.category}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {group.tools.map(tool => (
+                      <div key={tool.name} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', border: `1px solid ${group.color}15` }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 2 }}>{tool.name}</div>
+                          <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 3 }}>{tool.desc}</div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: group.color }}>→ {tool.de}</div>
+                        </div>
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: `${group.color}12`, color: group.color, flexShrink: 0, marginTop: 1, whiteSpace: 'nowrap' }}>Pre-Edit ✓</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* ═══════════════════════════════════════════════════════════════
+            MANAGEMENT — Calendar · Queue · Drafts · Analytics
+        ═══════════════════════════════════════════════════════════════ */}
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', color: 'var(--de-text-dim)', textTransform: 'uppercase' }}>📋 Management</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+          </div>
 
         {/* ── Recent Drafts ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
@@ -1545,6 +2830,208 @@ export default function ContentEngin({ onBack }: Props) {
           </div>
         </div>
 
+        {/* ── Workflow Brain (DAM + PM Hub) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>🧠</span>
+            <span className="de-widget-title ml-2">Workflow Brain</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>DAM · PM</span>
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Active project context */}
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Active Campaign / Project</label>
+              <input
+                type="text"
+                value={wfbProject}
+                onChange={e => setWfbProject(e.target.value)}
+                placeholder="e.g. Q2 Growth Sprint…"
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, border: `1px solid rgba(99,102,241,0.25)`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+            {/* Context Thread — strategy → production flow */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 6 }}>Context Thread</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 0, overflowX: 'auto' }}>
+                {wfbContextThread.map((step, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                    <div style={{
+                      padding: '7px 10px', borderRadius: 9, fontSize: 10, fontWeight: 700,
+                      background: step.status === 'done' ? 'rgba(34,197,94,0.1)' : step.status === 'active' ? `rgba(99,102,241,0.14)` : 'rgba(255,255,255,0.5)',
+                      border: `1.5px solid ${step.status === 'done' ? 'rgba(34,197,94,0.3)' : step.status === 'active' ? 'rgba(99,102,241,0.35)' : 'rgba(160,195,240,0.2)'}`,
+                      color: step.status === 'done' ? '#16a34a' : step.status === 'active' ? '#6366f1' : 'var(--de-text-dim)',
+                      minWidth: 76, textAlign: 'center',
+                    }}>
+                      <div>{step.phase}</div>
+                      <div style={{ fontSize: 9, fontWeight: 600, marginTop: 2, color: 'var(--de-text-dim)' }}>{step.item}</div>
+                    </div>
+                    {i < wfbContextThread.length - 1 && (
+                      <div style={{ width: 18, textAlign: 'center', fontSize: 11, color: 'var(--de-text-dim)', flexShrink: 0 }}>→</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* AI-tagged asset hub */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)' }}>Asset Hub</div>
+                <input
+                  type="text"
+                  value={wfbTagSearch}
+                  onChange={e => setWfbTagSearch(e.target.value)}
+                  placeholder="Search by AI tag…"
+                  style={{ flex: 1, padding: '5px 10px', borderRadius: 7, fontSize: 11, border: `1px solid rgba(99,102,241,0.2)`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {wfbAssets
+                  .filter(a => !wfbTagSearch.trim() || a.tags.some(t => t.includes(wfbTagSearch.toLowerCase())) || a.name.toLowerCase().includes(wfbTagSearch.toLowerCase()))
+                  .map((asset, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(99,102,241,0.12)' }}>
+                      <span style={{ fontSize: 16, flexShrink: 0 }}>{asset.type}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{asset.name}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>
+                          {asset.tags.map(tag => (
+                            <span key={tag} style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 999, background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.2)' }}>#{tag}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => setWfbTagSearch('')}
+                        style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.08)', color: '#6366f1', cursor: 'pointer', fontWeight: 700 }}>
+                        Use
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Auto Content Repurposer (10 platforms) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>♻️</span>
+            <span className="de-widget-title ml-2">Auto Content Repurposer</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT, background: `${ACCENT}15`, padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>10 formats</span>
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+              Paste any long-form content — blog, podcast transcript, script — and get 10 platform-ready formats instantly.
+            </p>
+            <textarea
+              value={repurposeInput}
+              onChange={e => { setRepurposeInput(e.target.value); setRepurposeOutputs([]); setRepurposeMsg(''); }}
+              placeholder="Paste your blog post, script, podcast transcript, or thread here…"
+              rows={4}
+              style={{ width: '100%', borderRadius: 10, padding: '10px 12px', fontSize: 12, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }}
+            />
+            <button
+              type="button"
+              onClick={handleRepurpose}
+              disabled={repurposeLoading || !repurposeInput.trim()}
+              className="de-btn de-btn-primary"
+              style={{ opacity: repurposeLoading || !repurposeInput.trim() ? 0.6 : 1, transition: 'all 0.15s' }}
+            >
+              {repurposeLoading ? '⚙️ Repurposing…' : '♻️ Repurpose to 10 Platforms'}
+            </button>
+            {repurposeMsg && (
+              <div style={{ fontSize: 11, fontWeight: 600, color: repurposeMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{repurposeMsg}</div>
+            )}
+            {repurposeOutputs.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {repurposeOutputs.map((out, i) => (
+                  <div key={i} style={{ padding: '10px 12px', borderRadius: 10, background: repurseCopied === i ? 'rgba(34,197,94,0.06)' : `${ACCENT}06`, border: `1px solid ${repurseCopied === i ? 'rgba(34,197,94,0.3)' : `${ACCENT}18`}`, transition: 'all 0.2s' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: `${ACCENT}15`, color: ACCENT }}>{out.platform}</span>
+                      <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{out.format}</span>
+                      <button type="button" onClick={() => copyRepurposeOutput(out.text, i)}
+                        style={{ marginLeft: 'auto', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', opacity: repurseCopied === i ? 1 : 0.6 }}>
+                        {repurseCopied === i ? '✅' : '📋'}
+                      </button>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{out.text}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── AI Post Intelligence / Predictive Scheduler ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>🔮</span>
+            <span className="de-widget-title ml-2">AI Post Intelligence</span>
+            {predictLoaded && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>Live</span>
+            )}
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+              AI analyzes your engagement patterns to recommend what to create next, when to post it, and what gaps to fill.
+            </p>
+            {!predictLoaded ? (
+              <button
+                type="button"
+                onClick={handlePredictSchedule}
+                disabled={predictLoading}
+                className="de-btn de-btn-primary"
+                style={{ opacity: predictLoading ? 0.7 : 1 }}
+              >
+                {predictLoading ? '🔮 Analysing…' : '🔮 Run AI Prediction'}
+              </button>
+            ) : (
+              <>
+                {/* Gap alerts */}
+                {predictGaps.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', marginBottom: 5 }}>⚠️ Content Gaps Detected</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      {predictGaps.map((gap, i) => (
+                        <div key={i} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', fontSize: 11, color: 'var(--de-heading)' }}>
+                          {gap}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* What to create next */}
+                {predictSuggestions.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', marginBottom: 5 }}>✨ What to Create Next</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {predictSuggestions.map((s, i) => (
+                        <div key={i} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                            <span style={{ fontSize: 13 }}>{s.type}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', flex: 1 }}>{s.title}</span>
+                            <span style={{ fontSize: 9, fontWeight: 700, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 6px', borderRadius: 4, flexShrink: 0 }}>{s.platform}</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 4 }}>💡 {s.reason}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>📅 Best time: {s.bestTime}</span>
+                            <button type="button"
+                              onClick={() => { setFormTitle(s.title); setFormType('Post'); }}
+                              style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, border: `1px solid ${ACCENT}30`, background: `${ACCENT}10`, color: ACCENT, cursor: 'pointer', fontWeight: 700 }}>
+                              Add to Calendar
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <button type="button" onClick={handlePredictSchedule} disabled={predictLoading}
+                  style={{ ...btnBase, background: 'rgba(160,195,240,0.15)', color: 'var(--de-text-dim)', fontSize: 11 }}>
+                  {predictLoading ? '…' : '↻ Refresh Predictions'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* ── Journey Trail ── */}
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header">
@@ -1557,6 +3044,8 @@ export default function ContentEngin({ onBack }: Props) {
             <JourneyTrail compact />
           </div>
         </div>
+
+        </div>{/* end Management section */}
 
       </div>
     </div>
