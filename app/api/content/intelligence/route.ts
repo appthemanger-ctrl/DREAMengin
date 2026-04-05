@@ -26,6 +26,10 @@ const IntelligenceSchema = z.discriminatedUnion('type', [
     /** Comma-separated brand keywords / tone descriptors e.g. "bold, playful, Gen-Z" */
     voiceProfile: z.string().min(2).max(300),
   }),
+  z.object({
+    type: z.literal('seo-outline'),
+    keyword: z.string().min(2).max(200),
+  }),
 ]);
 
 function buildViralHooks(topic: string): string[] {
@@ -178,6 +182,28 @@ function checkBrandVoice(content: string, voiceProfile: string): {
   return { score, onBrand, flags, rewrite };
 }
 
+function buildSeoOutline(keyword: string) {
+  const clean = keyword.trim();
+  const cap   = clean.charAt(0).toUpperCase() + clean.slice(1);
+  return {
+    title:      `The Complete Guide to ${cap} in 2026`,
+    wordTarget: 1800,
+    sections: [
+      { heading: `What Is ${cap}?`,                     keywords: [clean, `${clean} definition`, `${clean} meaning`],                      note: 'Define in first 100 words — featured snippet eligibility.' },
+      { heading: `Why ${cap} Matters for Creators`,     keywords: [`${clean} benefits`, `${clean} for creators`, `why ${clean}`],           note: 'Use stats. 150–200 words.' },
+      { heading: `How to Get Started with ${cap}`,      keywords: [`${clean} how to`, `${clean} tutorial`, `${clean} beginners`],           note: 'Numbered steps. 300–400 words.' },
+      { heading: `Best ${cap} Tools in 2026`,           keywords: [`best ${clean} tools`, `${clean} software`, `${clean} apps`],            note: 'Table or list. 5+ tools.' },
+      { heading: `${cap} Mistakes to Avoid`,            keywords: [`${clean} mistakes`, `${clean} errors`, `${clean} tips`],                note: 'Bullet list. 200 words.' },
+      { heading: `Your ${cap} Action Plan`,             keywords: [`${clean} strategy`, `${clean} plan`, `${clean} checklist`],             note: 'CTA + summary. Under 150 words.' },
+    ],
+    relatedTerms: [
+      `${clean} strategy`, `${clean} tips 2026`, `${clean} for beginners`,
+      `best ${clean}`, `${clean} guide`, `${clean} examples`,
+      `how to ${clean}`, `${clean} tutorial`,
+    ],
+  };
+}
+
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -251,6 +277,10 @@ export async function POST(req: NextRequest) {
   if (parsed.data.type === 'brand-voice') {
     const result = checkBrandVoice(parsed.data.content, parsed.data.voiceProfile);
     return NextResponse.json(result);
+  }
+
+  if (parsed.data.type === 'seo-outline') {
+    return NextResponse.json(buildSeoOutline(parsed.data.keyword));
   }
 
   const result = scoreSeoTitle(parsed.data.title);

@@ -90,6 +90,41 @@ const btnBase: React.CSSProperties = {
   fontSize: 12, padding: '5px 12px', transition: 'opacity 0.12s',
 };
 
+// ── Studio constants ───────────────────────────────────────────────────────────
+const WRITER_MODES = ['Caption', 'Blog Intro', 'Video Script', 'Email', 'Thread', 'Ad Copy'] as const;
+type WriterMode = typeof WRITER_MODES[number];
+
+const CARD_TEMPLATES = ['Announcement', 'Quote', 'Product Drop', 'Tip of Day', 'Thread Hook'] as const;
+type CardTemplate = typeof CARD_TEMPLATES[number];
+
+const CARD_COLORS = ['#f59e0b', '#6366f1', '#ec4899', '#10b981', '#0ea5e9', '#ef4444'];
+
+interface ScriptScene {
+  id: string;
+  title: string;
+  speaker: string;
+  content: string;
+  duration: number;
+}
+
+function generateWriterDraft(mode: WriterMode, prompt: string): string {
+  const t = prompt.trim() || 'your topic';
+  switch (mode) {
+    case 'Caption':
+      return `✨ ${t}\n\nThis is what nobody tells you about ${t}.\n\nDrop a 🔥 if you've felt this too.\n\n#${t.replace(/\s+/g, '').slice(0, 18)} #DREAMengin #ContentCreator`;
+    case 'Blog Intro':
+      return `## ${t}: Everything You Need to Know in 2026\n\nIf you've been wondering about ${t}, you're not alone. Creators who master ${t} are seeing 3× the engagement of those who don't.\n\nIn this guide I'll break down exactly how to make ${t} work for you — no fluff.\n\n**What you'll learn:**\n- The fundamentals of ${t}\n- Why most people get ${t} wrong\n- A step-by-step framework you can use today`;
+    case 'Video Script':
+      return `[HOOK — 0–5s]\n"${t} is changing everything. Here's what you need to know."\n\n[SETUP — 5–15s]\nMost creators miss this: ${t} isn't about [misconception] — it's about [real insight].\n\n[VALUE — 15–45s]\nHere's the 3-step framework:\n1. [First step]\n2. [Second step]\n3. [Third step]\n\n[CTA — 45–60s]\nIf this helped, follow for daily ${t} content. 🔥`;
+    case 'Email':
+      return `Subject: ${t} — Issue #[N]\n\nHey [First Name],\n\nThis week I've been deep in ${t}, and found something worth sharing.\n\n→ [Key insight]\n→ [Tool or tip]\n→ [What to do next]\n\nUntil next week 🚀\n[Your Name]`;
+    case 'Thread':
+      return `1/ ${t} changed how I create. Here's the full breakdown 🧵\n\n2/ First, understand this: ${t} is NOT about [misconception]. It's about [truth].\n\n3/ The biggest mistake? [Common error]. Here's why:\n\n4/ What actually works:\n• [Tactic 1]\n• [Tactic 2]\n• [Tactic 3]\n\n5/ The step-by-step:\n→ Start with [first step]\n→ Then [second step]\n→ Finally [third step]\n\n6/ Bottom line: ${t} gives you [benefit]. Start today.\n\nRT if this helped 🔁 Follow for more.`;
+    case 'Ad Copy':
+      return `[AWARENESS]\nStop struggling with ${t}.\nDREAMengin gives you AI tools, scheduling & analytics in one place.\nCreators using DREAMengin grow 2× faster.\nStart free →\n\n[CONVERSION]\nStill thinking about ${t}? 50,000+ creators chose DREAMengin.\n[Proof point] → Join them today →`;
+  }
+}
+
 export default function ContentEngin({ onBack }: Props) {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'create' });
   // ── Existing: Recent Drafts ──
@@ -414,6 +449,44 @@ export default function ContentEngin({ onBack }: Props) {
     rewrite: string;
   } | null>(null);
 
+  // ── Studio: active tool ───────────────────────────────────────────────────────
+  const [studioTool, setStudioTool] = useState<'writer' | 'script' | 'card' | 'seo' | null>(null);
+
+  // ── AI Writing Studio (ChatGPT / Claude / Jasper equivalent) ─────────────────
+  const [writerMode, setWriterMode]       = useState<WriterMode>('Caption');
+  const [writerPrompt, setWriterPrompt]   = useState('');
+  const [writerOutput, setWriterOutput]   = useState('');
+  const [writerLoading, setWriterLoading] = useState(false);
+  const [writerCopied, setWriterCopied]   = useState(false);
+  const [writerSaveMsg, setWriterSaveMsg] = useState('');
+
+  // ── Video Script Editor (Descript equivalent) ────────────────────────────────
+  const [scriptTitle, setScriptTitle]   = useState('');
+  const [scriptScenes, setScriptScenes] = useState<ScriptScene[]>([
+    { id: '1', title: 'Hook',       speaker: 'Host', content: '', duration: 5  },
+    { id: '2', title: 'Main Point', speaker: 'Host', content: '', duration: 20 },
+    { id: '3', title: 'CTA',        speaker: 'Host', content: '', duration: 5  },
+  ]);
+  const [scriptCopied, setScriptCopied] = useState(false);
+
+  // ── Social Card Builder (Canva equivalent) ────────────────────────────────────
+  const [cardTemplate, setCardTemplate] = useState<CardTemplate>('Announcement');
+  const [cardHeadline, setCardHeadline] = useState('');
+  const [cardSubtitle, setCardSubtitle] = useState('');
+  const [cardTag, setCardTag]           = useState('');
+  const [cardAccent, setCardAccent]     = useState(ACCENT);
+  const [cardCopied, setCardCopied]     = useState(false);
+
+  // ── SEO Content Planner (Surfer SEO / Semrush equivalent) ────────────────────
+  const [seoKeyword, setSeoKeyword]             = useState('');
+  const [seoOutlineLoading, setSeoOutlineLoading] = useState(false);
+  const [seoOutline, setSeoOutline]             = useState<{
+    title: string;
+    wordTarget: number;
+    sections: Array<{ heading: string; keywords: string[]; note: string }>;
+    relatedTerms: string[];
+  } | null>(null);
+
   async function handleGenerateHooks() {
     if (!hookTopic.trim()) return;
     setHookLoading(true);
@@ -623,6 +696,85 @@ export default function ContentEngin({ onBack }: Props) {
     }
   }
 
+  // ── AI Writing Studio handler ─────────────────────────────────────────────────
+  async function handleWriterGenerate() {
+    if (!writerPrompt.trim()) return;
+    setWriterLoading(true);
+    setWriterOutput('');
+    setWriterCopied(false);
+    setWriterSaveMsg('');
+    await new Promise(r => setTimeout(r, 700));
+    setWriterOutput(generateWriterDraft(writerMode, writerPrompt));
+    setWriterLoading(false);
+  }
+
+  async function handleWriterSave() {
+    if (!writerOutput.trim()) return;
+    try {
+      const res = await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: writerOutput,
+          content_type: writerMode.toLowerCase().replace(/\s+/g, '_'),
+          title: `${writerMode}: ${writerPrompt.slice(0, 50)}`,
+        }),
+      });
+      setWriterSaveMsg(res.ok ? '✅ Saved to Drafts' : '⚠️ Save failed');
+    } catch {
+      setWriterSaveMsg('⚠️ Save failed');
+    }
+    setTimeout(() => setWriterSaveMsg(''), 3000);
+  }
+
+  // ── Video Script Editor handlers ──────────────────────────────────────────────
+  function addScriptScene() {
+    setScriptScenes(prev => [
+      ...prev,
+      { id: Date.now().toString(), title: `Scene ${prev.length + 1}`, speaker: 'Host', content: '', duration: 10 },
+    ]);
+  }
+  function updateScriptScene(id: string, field: keyof ScriptScene, value: string | number) {
+    setScriptScenes(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
+  }
+  function removeScriptScene(id: string) {
+    setScriptScenes(prev => prev.filter(s => s.id !== id));
+  }
+  function copyScript() {
+    const total = scriptScenes.reduce((a, s) => a + s.duration, 0);
+    const text = `📹 ${scriptTitle || 'Video Script'}\nTotal: ${total}s\n\n` +
+      scriptScenes.map((s, i) => `[${i + 1}] ${s.title} (${s.duration}s)\n${s.speaker}: ${s.content || '[add content]'}`).join('\n\n');
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setScriptCopied(true);
+    setTimeout(() => setScriptCopied(false), 2000);
+  }
+
+  // ── Social Card Builder handler ───────────────────────────────────────────────
+  function copyCard() {
+    const text = `[${cardTemplate.toUpperCase()}]\n${cardHeadline || 'Your headline here'}\n${cardSubtitle || ''}\n${cardTag ? `#${cardTag}` : ''}`.trim();
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setCardCopied(true);
+    setTimeout(() => setCardCopied(false), 2000);
+  }
+
+  // ── SEO Content Planner handler ───────────────────────────────────────────────
+  async function handleSeoOutline() {
+    if (!seoKeyword.trim()) return;
+    setSeoOutlineLoading(true);
+    setSeoOutline(null);
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'seo-outline', keyword: seoKeyword.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Outline failed');
+      setSeoOutline(json);
+    } catch { /* fail silently */ }
+    finally { setSeoOutlineLoading(false); }
+  }
+
   // ── Brand Voice Guard handler ─────────────────────────────────────────────────
   async function handleBrandVoiceCheck() {
     if (!bvContent.trim() || !bvProfile.trim()) return;
@@ -707,6 +859,385 @@ export default function ContentEngin({ onBack }: Props) {
             </div>
           </div>
         )}
+
+        {/* ═══════════════════════════════════════════════════════════════
+            STUDIO — Creative Editing Tools
+            (AI Writer · Video Script · Social Card · SEO Planner)
+        ═══════════════════════════════════════════════════════════════ */}
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', color: ACCENT, textTransform: 'uppercase' }}>🎬 Studio</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+          </div>
+
+          {/* Studio tool picker */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
+            {([
+              { id: 'writer', emoji: '✍️', label: 'AI Writer',       sub: 'Jasper / ChatGPT',  color: '#6366f1' },
+              { id: 'script', emoji: '🎬', label: 'Script Editor',   sub: 'Descript-style',    color: '#ec4899' },
+              { id: 'card',   emoji: '🎨', label: 'Card Builder',    sub: 'Canva-style',       color: '#10b981' },
+              { id: 'seo',    emoji: '📊', label: 'SEO Planner',     sub: 'Surfer / Semrush',  color: '#0ea5e9' },
+            ] as const).map(tool => {
+              const active = studioTool === tool.id;
+              return (
+                <button
+                  key={tool.id}
+                  type="button"
+                  onClick={() => setStudioTool(active ? null : tool.id as typeof studioTool)}
+                  style={{
+                    padding: '12px 10px', borderRadius: 12, textAlign: 'left',
+                    background: active ? `${tool.color}14` : 'rgba(255,255,255,0.55)',
+                    border: `1.5px solid ${active ? tool.color : 'rgba(160,195,240,0.2)'}`,
+                    cursor: 'pointer', transition: 'all 0.15s',
+                  }}
+                >
+                  <div style={{ fontSize: 20, marginBottom: 5 }}>{tool.emoji}</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: active ? tool.color : 'var(--de-heading)' }}>{tool.label}</div>
+                  <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1 }}>{tool.sub}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── AI Writing Studio ── */}
+          {studioTool === 'writer' && (
+            <div className="de-widget" style={{ marginBottom: 14, border: '1.5px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.03)' }}>
+              <div className="de-widget-header">
+                <span style={{ fontSize: 14 }}>✍️</span>
+                <span className="de-widget-title ml-2">AI Writing Studio</span>
+                <span style={{ marginLeft: 'auto', fontSize: 9, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>Jasper · ChatGPT · Claude</span>
+              </div>
+              <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {/* Mode selector */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {WRITER_MODES.map(m => (
+                    <button key={m} type="button" onClick={() => { setWriterMode(m); setWriterOutput(''); }}
+                      style={{ padding: '5px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                        background: writerMode === m ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.55)',
+                        border: `1.5px solid ${writerMode === m ? 'rgba(99,102,241,0.4)' : 'rgba(160,195,240,0.2)'}`,
+                        color: writerMode === m ? '#6366f1' : 'var(--de-text-dim)' }}>
+                      {m}
+                    </button>
+                  ))}
+                </div>
+                {/* Topic / prompt input */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    type="text"
+                    value={writerPrompt}
+                    onChange={e => { setWriterPrompt(e.target.value); setWriterOutput(''); }}
+                    onKeyDown={e => e.key === 'Enter' && handleWriterGenerate()}
+                    placeholder={`Topic or prompt for ${writerMode}…`}
+                    style={{ flex: 1, padding: '9px 12px', borderRadius: 9, fontSize: 12, border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }}
+                  />
+                  <button type="button" onClick={handleWriterGenerate}
+                    disabled={writerLoading || !writerPrompt.trim()}
+                    style={{ ...btnBase, background: '#6366f1', color: 'white', padding: '9px 18px', fontSize: 13, opacity: writerLoading || !writerPrompt.trim() ? 0.6 : 1 }}>
+                    {writerLoading ? '…' : 'Write'}
+                  </button>
+                </div>
+                {/* Editable output */}
+                {writerOutput && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <textarea
+                      value={writerOutput}
+                      onChange={e => setWriterOutput(e.target.value)}
+                      rows={8}
+                      style={{ width: '100%', borderRadius: 10, padding: '10px 12px', fontSize: 12, border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(255,255,255,0.8)', color: 'var(--de-heading)', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box', outline: 'none' }}
+                    />
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>
+                      {writerOutput.split(/\s+/).filter(Boolean).length} words · {Math.ceil(writerOutput.split(/\s+/).filter(Boolean).length / 200)} min read
+                    </div>
+                    <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+                      <button type="button"
+                        onClick={() => { navigator.clipboard?.writeText(writerOutput).catch(() => {}); setWriterCopied(true); setTimeout(() => setWriterCopied(false), 2000); }}
+                        style={{ ...btnBase, background: writerCopied ? 'rgba(34,197,94,0.12)' : 'rgba(99,102,241,0.1)', color: writerCopied ? '#16a34a' : '#6366f1', padding: '7px 14px' }}>
+                        {writerCopied ? '✅ Copied' : '📋 Copy'}
+                      </button>
+                      <button type="button" onClick={handleWriterSave}
+                        style={{ ...btnBase, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30`, padding: '7px 14px' }}>
+                        💾 Save to Drafts
+                      </button>
+                      {writerSaveMsg && <span style={{ fontSize: 11, fontWeight: 600, color: writerSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444', alignSelf: 'center' }}>{writerSaveMsg}</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── Video Script Editor (Descript-style) ── */}
+          {studioTool === 'script' && (
+            <div className="de-widget" style={{ marginBottom: 14, border: '1.5px solid rgba(236,72,153,0.3)', background: 'rgba(236,72,153,0.03)' }}>
+              <div className="de-widget-header">
+                <span style={{ fontSize: 14 }}>🎬</span>
+                <span className="de-widget-title ml-2">Video Script Editor</span>
+                <span style={{ marginLeft: 'auto', fontSize: 9, color: '#ec4899', background: 'rgba(236,72,153,0.1)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>Descript-style</span>
+              </div>
+              <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <input
+                  type="text"
+                  value={scriptTitle}
+                  onChange={e => setScriptTitle(e.target.value)}
+                  placeholder="Script title…"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+                />
+                {/* Total duration bar */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: 'rgba(236,72,153,0.06)', border: '1px solid rgba(236,72,153,0.15)' }}>
+                  <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Total runtime:</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#ec4899' }}>{scriptScenes.reduce((a, s) => a + s.duration, 0)}s</span>
+                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>/ {scriptScenes.length} scenes</span>
+                </div>
+                {/* Scene cards */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {scriptScenes.map((scene, i) => (
+                    <div key={scene.id} style={{ borderRadius: 10, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(236,72,153,0.15)', overflow: 'hidden' }}>
+                      {/* Scene header */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderBottom: '1px solid rgba(236,72,153,0.1)', background: 'rgba(236,72,153,0.04)' }}>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: '#ec4899', background: 'rgba(236,72,153,0.12)', padding: '1px 6px', borderRadius: 4 }}>#{i + 1}</span>
+                        <input
+                          value={scene.title}
+                          onChange={e => updateScriptScene(scene.id, 'title', e.target.value)}
+                          placeholder="Scene title"
+                          style={{ flex: 1, fontSize: 11, fontWeight: 700, background: 'none', border: 'none', outline: 'none', color: 'var(--de-heading)' }}
+                        />
+                        <input
+                          value={scene.speaker}
+                          onChange={e => updateScriptScene(scene.id, 'speaker', e.target.value)}
+                          placeholder="Speaker"
+                          style={{ width: 70, fontSize: 10, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(236,72,153,0.15)', borderRadius: 5, padding: '2px 6px', outline: 'none', color: 'var(--de-text-dim)' }}
+                        />
+                        <input
+                          type="number"
+                          value={scene.duration}
+                          onChange={e => updateScriptScene(scene.id, 'duration', parseInt(e.target.value) || 0)}
+                          min={1} max={300}
+                          style={{ width: 48, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(236,72,153,0.15)', borderRadius: 5, padding: '2px 5px', outline: 'none', color: '#ec4899', textAlign: 'center' }}
+                        />
+                        <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>s</span>
+                        {scriptScenes.length > 1 && (
+                          <button type="button" onClick={() => removeScriptScene(scene.id)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'rgba(239,68,68,0.5)', padding: 0 }}>✕</button>
+                        )}
+                      </div>
+                      {/* Scene content */}
+                      <textarea
+                        value={scene.content}
+                        onChange={e => updateScriptScene(scene.id, 'content', e.target.value)}
+                        placeholder="Write scene content, dialogue, or directions…"
+                        rows={2}
+                        style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: 'none', background: 'transparent', color: 'var(--de-heading)', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.55, outline: 'none', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 7 }}>
+                  <button type="button" onClick={addScriptScene}
+                    style={{ ...btnBase, background: 'rgba(236,72,153,0.1)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.25)', flex: 1 }}>
+                    + Add Scene
+                  </button>
+                  <button type="button" onClick={copyScript}
+                    style={{ ...btnBase, background: scriptCopied ? 'rgba(34,197,94,0.1)' : 'rgba(236,72,153,0.1)', color: scriptCopied ? '#16a34a' : '#ec4899', border: `1px solid ${scriptCopied ? 'rgba(34,197,94,0.3)' : 'rgba(236,72,153,0.25)'}`, flex: 1 }}>
+                    {scriptCopied ? '✅ Copied' : '📋 Copy Script'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Social Card Builder (Canva-style) ── */}
+          {studioTool === 'card' && (
+            <div className="de-widget" style={{ marginBottom: 14, border: '1.5px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.03)' }}>
+              <div className="de-widget-header">
+                <span style={{ fontSize: 14 }}>🎨</span>
+                <span className="de-widget-title ml-2">Social Card Builder</span>
+                <span style={{ marginLeft: 'auto', fontSize: 9, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>Canva-style</span>
+              </div>
+              <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {/* Template picker */}
+                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                  {CARD_TEMPLATES.map(t => (
+                    <button key={t} type="button" onClick={() => setCardTemplate(t)}
+                      style={{ padding: '5px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                        background: cardTemplate === t ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.55)',
+                        border: `1.5px solid ${cardTemplate === t ? 'rgba(16,185,129,0.4)' : 'rgba(160,195,240,0.2)'}`,
+                        color: cardTemplate === t ? '#10b981' : 'var(--de-text-dim)' }}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+                {/* Text fields */}
+                <input type="text" value={cardHeadline} onChange={e => setCardHeadline(e.target.value)} placeholder="Headline…"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(16,185,129,0.25)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                <input type="text" value={cardSubtitle} onChange={e => setCardSubtitle(e.target.value)} placeholder="Subtitle or body text…"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, border: '1px solid rgba(16,185,129,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                <input type="text" value={cardTag} onChange={e => setCardTag(e.target.value)} placeholder="Tag or CTA (no #)…"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, border: '1px solid rgba(16,185,129,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                {/* Accent color picker */}
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5 }}>Accent Color</div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {CARD_COLORS.map(c => (
+                      <button key={c} type="button" onClick={() => setCardAccent(c)}
+                        style={{ width: 24, height: 24, borderRadius: '50%', background: c, border: `2.5px solid ${cardAccent === c ? 'white' : 'transparent'}`,
+                          outline: cardAccent === c ? `2px solid ${c}` : 'none', cursor: 'pointer' }} />
+                    ))}
+                  </div>
+                </div>
+                {/* Live card preview */}
+                <div style={{ borderRadius: 14, padding: '20px 18px', background: `linear-gradient(135deg, ${cardAccent}18 0%, ${cardAccent}08 100%)`, border: `2px solid ${cardAccent}30`, minHeight: 100 }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: cardAccent, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{cardTemplate}</div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1.2, marginBottom: cardSubtitle ? 8 : 0 }}>{cardHeadline || 'Your headline here'}</div>
+                  {cardSubtitle && <div style={{ fontSize: 12, color: 'var(--de-text)', lineHeight: 1.5 }}>{cardSubtitle}</div>}
+                  {cardTag && <div style={{ marginTop: 10, fontSize: 11, fontWeight: 700, color: cardAccent }}>#{cardTag}</div>}
+                </div>
+                <button type="button" onClick={copyCard}
+                  style={{ ...btnBase, background: cardCopied ? 'rgba(34,197,94,0.1)' : 'rgba(16,185,129,0.1)', color: cardCopied ? '#16a34a' : '#10b981', border: `1px solid ${cardCopied ? 'rgba(34,197,94,0.3)' : 'rgba(16,185,129,0.3)'}`, padding: '9px 0', width: '100%', fontSize: 13 }}>
+                  {cardCopied ? '✅ Copied to Clipboard' : '📋 Copy Card Text'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── SEO Content Planner (Surfer SEO / Semrush-style) ── */}
+          {studioTool === 'seo' && (
+            <div className="de-widget" style={{ marginBottom: 14, border: '1.5px solid rgba(14,165,233,0.3)', background: 'rgba(14,165,233,0.03)' }}>
+              <div className="de-widget-header">
+                <span style={{ fontSize: 14 }}>📊</span>
+                <span className="de-widget-title ml-2">SEO Content Planner</span>
+                <span style={{ marginLeft: 'auto', fontSize: 9, color: '#0ea5e9', background: 'rgba(14,165,233,0.1)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>Surfer · Semrush</span>
+              </div>
+              <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Enter a target keyword and get a full SEO content outline with topic clusters, word targets, and related search terms.</p>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input type="text" value={seoKeyword} onChange={e => { setSeoKeyword(e.target.value); setSeoOutline(null); }}
+                    onKeyDown={e => e.key === 'Enter' && handleSeoOutline()}
+                    placeholder="Target keyword (e.g. content strategy)…"
+                    style={{ flex: 1, padding: '9px 12px', borderRadius: 9, fontSize: 12, border: '1px solid rgba(14,165,233,0.25)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }} />
+                  <button type="button" onClick={handleSeoOutline} disabled={seoOutlineLoading || !seoKeyword.trim()}
+                    style={{ ...btnBase, background: '#0ea5e9', color: 'white', padding: '9px 16px', opacity: seoOutlineLoading || !seoKeyword.trim() ? 0.6 : 1 }}>
+                    {seoOutlineLoading ? '…' : 'Plan'}
+                  </button>
+                </div>
+                {seoOutline && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {/* Title + target */}
+                    <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.18)' }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>{seoOutline.title}</div>
+                      <div style={{ fontSize: 10, color: '#0ea5e9', fontWeight: 700 }}>🎯 Target: ~{seoOutline.wordTarget.toLocaleString()} words</div>
+                    </div>
+                    {/* Content sections */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {seoOutline.sections.map((sec, i) => (
+                        <div key={i} style={{ padding: '9px 12px', borderRadius: 9, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(14,165,233,0.12)' }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>H2: {sec.heading}</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 4 }}>
+                            {sec.keywords.map(k => (
+                              <span key={k} style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 999, background: 'rgba(14,165,233,0.1)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.2)' }}>{k}</span>
+                            ))}
+                          </div>
+                          <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>💡 {sec.note}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Related terms */}
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5 }}>Related Terms to Include</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                        {seoOutline.relatedTerms.map(t => (
+                          <span key={t} style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(14,165,233,0.08)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.18)' }}>{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── Industry Tools Hub ── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <Wrench className="w-4 h-4" style={{ color: ACCENT }} />
+              <span className="de-widget-title ml-2">Industry Tools Hub</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', background: 'rgba(160,195,240,0.2)', padding: '2px 7px', borderRadius: 4 }}>2026 Standards</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {([
+                {
+                  category: '🎬 Video & Social',
+                  color: '#ec4899',
+                  tools: [
+                    { name: 'CapCut',    desc: 'All-in-one AI video editing',          de: '🎬 Script Editor + Short Video Editor' },
+                    { name: 'Descript',  desc: 'Text-based video & audio editing',     de: '✍️ Script Editor (scene-by-scene)' },
+                  ],
+                },
+                {
+                  category: '🎨 Visual Design',
+                  color: '#10b981',
+                  tools: [
+                    { name: 'Canva Pro',      desc: 'Fast design & brand assets',            de: '🎨 Social Card Builder' },
+                    { name: 'Adobe Firefly',  desc: 'Generative AI in Photoshop/Illustrator', de: '🎨 Card Builder + Brand Templates' },
+                  ],
+                },
+                {
+                  category: '✍️ Writing & Strategy',
+                  color: '#6366f1',
+                  tools: [
+                    { name: 'ChatGPT',  desc: 'Custom GPTs for content strategy', de: '✍️ AI Writing Studio' },
+                    { name: 'Claude',   desc: 'Long-form drafting & brand voice', de: '✍️ AI Writer + Brand Voice Guard' },
+                    { name: 'Jasper',   desc: 'Brand voice & campaign copy',      de: '✍️ AI Writer + Brand Voice Guard' },
+                  ],
+                },
+                {
+                  category: '📊 SEO & Optimization',
+                  color: '#0ea5e9',
+                  tools: [
+                    { name: 'Surfer SEO', desc: 'Content scoring & optimization', de: '📊 SEO Content Planner + Title Optimizer' },
+                    { name: 'Semrush',    desc: 'Competitive content analysis',   de: '📊 SEO Planner + Topic Clusters' },
+                  ],
+                },
+                {
+                  category: '📋 Organization',
+                  color: '#f59e0b',
+                  tools: [
+                    { name: 'Notion', desc: 'Docs & content wikis',       de: '🧠 Workflow Brain + Context Thread' },
+                    { name: 'Trello', desc: 'Kanban content production',   de: '📋 Content Calendar + Publishing Queue' },
+                  ],
+                },
+              ]).map(group => (
+                <div key={group.category}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: group.color, marginBottom: 5 }}>{group.category}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {group.tools.map(tool => (
+                      <div key={tool.name} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${group.color}15` }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)' }}>{tool.name}</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 3 }}>{tool.desc}</div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: group.color }}>DREAMengin: {tool.de}</div>
+                        </div>
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: `${group.color}12`, color: group.color, flexShrink: 0, marginTop: 1 }}>Built-in</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════
+            MANAGEMENT — Calendar · Queue · Drafts · Analytics
+        ═══════════════════════════════════════════════════════════════ */}
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', color: 'var(--de-text-dim)', textTransform: 'uppercase' }}>📋 Management</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
+          </div>
 
         {/* ── Recent Drafts ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
