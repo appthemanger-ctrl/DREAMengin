@@ -90,40 +90,44 @@ const btnBase: React.CSSProperties = {
   fontSize: 12, padding: '5px 12px', transition: 'opacity 0.12s',
 };
 
-// ── Studio constants ───────────────────────────────────────────────────────────
-const WRITER_MODES = ['Caption', 'Blog Intro', 'Video Script', 'Email', 'Thread', 'Ad Copy'] as const;
-type WriterMode = typeof WRITER_MODES[number];
+// ── Pre-Edit constants ────────────────────────────────────────────────────────
+const BRIEF_CONTENT_TYPES = ['Reel', 'Carousel', 'Static Post', 'YouTube Video', 'YouTube Short', 'Blog Post', 'Email', 'Podcast Episode', 'Story'] as const;
+type BriefContentType = typeof BRIEF_CONTENT_TYPES[number];
 
-const CARD_TEMPLATES = ['Announcement', 'Quote', 'Product Drop', 'Tip of Day', 'Thread Hook'] as const;
-type CardTemplate = typeof CARD_TEMPLATES[number];
+const BRIEF_PLATFORM_LIST = ['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest', 'Email', 'Blog', 'Snapchat'];
 
-const CARD_COLORS = ['#f59e0b', '#6366f1', '#ec4899', '#10b981', '#0ea5e9', '#ef4444'];
+const ASSET_CATEGORIES = ['📹 Footage', '🎵 Audio', '📸 Photo', '🎨 Graphic', '📝 Copy'] as const;
+type AssetCategory = typeof ASSET_CATEGORIES[number];
+const ASSET_STATUSES = ['Needed', 'Sourcing', 'Ready', 'Approved'] as const;
+type AssetStatus = typeof ASSET_STATUSES[number];
+const ASSET_STATUS_NEXT: Record<AssetStatus, AssetStatus> = { Needed: 'Sourcing', Sourcing: 'Ready', Ready: 'Approved', Approved: 'Needed' };
+const ASSET_STATUS_COLOR: Record<AssetStatus, string> = { Needed: '#ef4444', Sourcing: '#f59e0b', Ready: '#0ea5e9', Approved: '#22c55e' };
 
-interface ScriptScene {
-  id: string;
-  title: string;
-  speaker: string;
-  content: string;
-  duration: number;
-}
+const AUDIO_MOODS = ['Energetic', 'Calm', 'Inspirational', 'Cinematic', 'Playful', 'Dark', 'Hype'] as const;
+type AudioMood = typeof AUDIO_MOODS[number];
 
-function generateWriterDraft(mode: WriterMode, prompt: string): string {
-  const t = prompt.trim() || 'your topic';
-  switch (mode) {
-    case 'Caption':
-      return `✨ ${t}\n\nThis is what nobody tells you about ${t}.\n\nDrop a 🔥 if you've felt this too.\n\n#${t.replace(/\s+/g, '').slice(0, 18)} #DREAMengin #ContentCreator`;
-    case 'Blog Intro':
-      return `## ${t}: Everything You Need to Know in 2026\n\nIf you've been wondering about ${t}, you're not alone. Creators who master ${t} are seeing 3× the engagement of those who don't.\n\nIn this guide I'll break down exactly how to make ${t} work for you — no fluff.\n\n**What you'll learn:**\n- The fundamentals of ${t}\n- Why most people get ${t} wrong\n- A step-by-step framework you can use today`;
-    case 'Video Script':
-      return `[HOOK — 0–5s]\n"${t} is changing everything. Here's what you need to know."\n\n[SETUP — 5–15s]\nMost creators miss this: ${t} isn't about [misconception] — it's about [real insight].\n\n[VALUE — 15–45s]\nHere's the 3-step framework:\n1. [First step]\n2. [Second step]\n3. [Third step]\n\n[CTA — 45–60s]\nIf this helped, follow for daily ${t} content. 🔥`;
-    case 'Email':
-      return `Subject: ${t} — Issue #[N]\n\nHey [First Name],\n\nThis week I've been deep in ${t}, and found something worth sharing.\n\n→ [Key insight]\n→ [Tool or tip]\n→ [What to do next]\n\nUntil next week 🚀\n[Your Name]`;
-    case 'Thread':
-      return `1/ ${t} changed how I create. Here's the full breakdown 🧵\n\n2/ First, understand this: ${t} is NOT about [misconception]. It's about [truth].\n\n3/ The biggest mistake? [Common error]. Here's why:\n\n4/ What actually works:\n• [Tactic 1]\n• [Tactic 2]\n• [Tactic 3]\n\n5/ The step-by-step:\n→ Start with [first step]\n→ Then [second step]\n→ Finally [third step]\n\n6/ Bottom line: ${t} gives you [benefit]. Start today.\n\nRT if this helped 🔁 Follow for more.`;
-    case 'Ad Copy':
-      return `[AWARENESS]\nStop struggling with ${t}.\nDREAMengin gives you AI tools, scheduling & analytics in one place.\nCreators using DREAMengin grow 2× faster.\nStart free →\n\n[CONVERSION]\nStill thinking about ${t}? 50,000+ creators chose DREAMengin.\n[Proof point] → Join them today →`;
-  }
-}
+const PIPELINE_STAGES = ['Concept', 'Briefed', 'Assets Ready', 'In Edit', 'Review', 'Approved', 'Live'] as const;
+type PipelineStage = typeof PIPELINE_STAGES[number];
+const PIPELINE_STAGE_COLOR: Record<PipelineStage, string> = {
+  Concept: '#94a3b8', Briefed: '#f59e0b', 'Assets Ready': '#0ea5e9',
+  'In Edit': '#8b5cf6', Review: '#ec4899', Approved: '#22c55e', Live: '#16a34a',
+};
+
+const PLATFORM_SPECS = [
+  { name: 'Instagram Reel',  emoji: '📸', ratio: '9:16',  res: '1080×1920', dur: '15 – 90s',   fmt: 'MP4 / MOV',  caption: '2,200 chars', tags: '3 – 5',  audio: '−14 LUFS' },
+  { name: 'Instagram Post',  emoji: '📸', ratio: '1:1',   res: '1080×1080', dur: 'N/A',         fmt: 'JPEG / PNG', caption: '2,200 chars', tags: '3 – 5',  audio: 'N/A'      },
+  { name: 'Instagram Story', emoji: '📸', ratio: '9:16',  res: '1080×1920', dur: 'Max 15s',     fmt: 'MP4 / PNG',  caption: 'Text sticker', tags: '1 – 2', audio: '−14 LUFS' },
+  { name: 'TikTok',          emoji: '🎵', ratio: '9:16',  res: '1080×1920', dur: '7s – 10min',  fmt: 'MP4 / MOV',  caption: '2,200 chars', tags: '3 – 5',  audio: '−14 LUFS' },
+  { name: 'YouTube Short',   emoji: '▶️', ratio: '9:16',  res: '1080×1920', dur: 'Max 60s',     fmt: 'MP4',        caption: '100 chars',   tags: '3',      audio: '−14 LUFS' },
+  { name: 'YouTube Video',   emoji: '▶️', ratio: '16:9',  res: '1920×1080', dur: 'Any',         fmt: 'MP4',        caption: '5,000 chars', tags: '3 – 5',  audio: '−14 LUFS' },
+  { name: 'Twitter / X',     emoji: '🐦', ratio: '16:9',  res: '1280×720',  dur: 'Max 2m 20s',  fmt: 'MP4',        caption: '280 chars',   tags: '1 – 2',  audio: '−14 LUFS' },
+  { name: 'LinkedIn',        emoji: '💼', ratio: '1:1',   res: '1080×1080', dur: 'Max 10 min',  fmt: 'MP4',        caption: '3,000 chars', tags: '3 – 5',  audio: '−14 LUFS' },
+  { name: 'Pinterest',       emoji: '📌', ratio: '2:3',   res: '1000×1500', dur: 'Max 60s',     fmt: 'MP4 / JPEG', caption: '500 chars',   tags: '2 – 5',  audio: 'N/A'      },
+  { name: 'Snapchat',        emoji: '👻', ratio: '9:16',  res: '1080×1920', dur: 'Max 60s',     fmt: 'MP4',        caption: 'Overlay text', tags: 'N/A',   audio: '−14 LUFS' },
+];
+
+interface CollectedAsset { id: string; name: string; category: AssetCategory; status: AssetStatus; }
+interface PipelineItem   { id: string; title: string; type: string; platform: string; stage: PipelineStage; }
 
 export default function ContentEngin({ onBack }: Props) {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'create' });
@@ -449,43 +453,73 @@ export default function ContentEngin({ onBack }: Props) {
     rewrite: string;
   } | null>(null);
 
-  // ── Studio: active tool ───────────────────────────────────────────────────────
-  const [studioTool, setStudioTool] = useState<'writer' | 'script' | 'card' | 'seo' | null>(null);
+  // ── Pre-Edit: Creative Brief Builder ─────────────────────────────────────────
+  const [briefProject, setBriefProject]       = useState('');
+  const [briefType, setBriefType]             = useState<BriefContentType>('Reel');
+  const [briefPlatforms, setBriefPlatforms]   = useState<Set<string>>(new Set(['Instagram']));
+  const [briefMessage, setBriefMessage]       = useState('');
+  const [briefAudience, setBriefAudience]     = useState('');
+  const [briefVoice, setBriefVoice]           = useState('');
+  const [briefVisual, setBriefVisual]         = useState('');
+  const [briefDeadline, setBriefDeadline]     = useState('');
+  const [briefSaving, setBriefSaving]         = useState(false);
+  const [briefSaveMsg, setBriefSaveMsg]       = useState('');
 
-  // ── AI Writing Studio (ChatGPT / Claude / Jasper equivalent) ─────────────────
-  const [writerMode, setWriterMode]       = useState<WriterMode>('Caption');
-  const [writerPrompt, setWriterPrompt]   = useState('');
-  const [writerOutput, setWriterOutput]   = useState('');
-  const [writerLoading, setWriterLoading] = useState(false);
-  const [writerCopied, setWriterCopied]   = useState(false);
-  const [writerSaveMsg, setWriterSaveMsg] = useState('');
-
-  // ── Video Script Editor (Descript equivalent) ────────────────────────────────
-  const [scriptTitle, setScriptTitle]   = useState('');
-  const [scriptScenes, setScriptScenes] = useState<ScriptScene[]>([
-    { id: '1', title: 'Hook',       speaker: 'Host', content: '', duration: 5  },
-    { id: '2', title: 'Main Point', speaker: 'Host', content: '', duration: 20 },
-    { id: '3', title: 'CTA',        speaker: 'Host', content: '', duration: 5  },
+  // ── Pre-Edit: Asset Collector ─────────────────────────────────────────────────
+  const [assets, setAssets] = useState<CollectedAsset[]>([
+    { id: '1', name: 'Hero footage — 60s raw',   category: '📹 Footage', status: 'Needed'   },
+    { id: '2', name: 'Background music track',    category: '🎵 Audio',   status: 'Sourcing' },
+    { id: '3', name: 'Product photos (×5)',       category: '📸 Photo',   status: 'Ready'    },
+    { id: '4', name: 'Logo — transparent PNG',    category: '🎨 Graphic', status: 'Approved' },
+    { id: '5', name: 'Caption copy + hashtags',   category: '📝 Copy',    status: 'Needed'   },
   ]);
-  const [scriptCopied, setScriptCopied] = useState(false);
+  const [assetNewName, setAssetNewName]       = useState('');
+  const [assetNewCat, setAssetNewCat]         = useState<AssetCategory>('📹 Footage');
 
-  // ── Social Card Builder (Canva equivalent) ────────────────────────────────────
-  const [cardTemplate, setCardTemplate] = useState<CardTemplate>('Announcement');
-  const [cardHeadline, setCardHeadline] = useState('');
-  const [cardSubtitle, setCardSubtitle] = useState('');
-  const [cardTag, setCardTag]           = useState('');
-  const [cardAccent, setCardAccent]     = useState(ACCENT);
-  const [cardCopied, setCardCopied]     = useState(false);
+  // ── Pre-Edit: Audio Prep Station ──────────────────────────────────────────────
+  const [audioBpm, setAudioBpm]               = useState(120);
+  const [audioMood, setAudioMood]             = useState<AudioMood>('Energetic');
+  const [audioVoBrief, setAudioVoBrief]       = useState('');
+  const [audioSfxList, setAudioSfxList]       = useState<string[]>(['Whoosh transition', 'Bass drop hit']);
+  const [audioSfxInput, setAudioSfxInput]     = useState('');
+  const [audioSpecPlatform, setAudioSpecPlatform] = useState('Instagram Reel');
 
-  // ── SEO Content Planner (Surfer SEO / Semrush equivalent) ────────────────────
-  const [seoKeyword, setSeoKeyword]             = useState('');
-  const [seoOutlineLoading, setSeoOutlineLoading] = useState(false);
-  const [seoOutline, setSeoOutline]             = useState<{
+  // ── Pre-Edit: Content Pipeline ────────────────────────────────────────────────
+  const [pipelineItems, setPipelineItems] = useState<PipelineItem[]>([
+    { id: '1', title: 'Q2 Launch Reel',       type: '📱', platform: 'Instagram', stage: 'Briefed'      },
+    { id: '2', title: 'Product Demo Video',    type: '🎬', platform: 'YouTube',   stage: 'Assets Ready' },
+    { id: '3', title: 'Brand Story Carousel',  type: '📸', platform: 'Instagram', stage: 'Concept'      },
+    { id: '4', title: 'Tutorial Thread',       type: '🧵', platform: 'Twitter/X', stage: 'Review'       },
+  ]);
+  const [pipeNewTitle, setPipeNewTitle]       = useState('');
+  const [pipeNewType, setPipeNewType]         = useState('📱');
+  const [pipeNewPlatform, setPipeNewPlatform] = useState('Instagram');
+
+  // ── Pre-Edit: Platform Specs filter ──────────────────────────────────────────
+  const [specsFilter, setSpecsFilter]         = useState('');
+
+  // ── Pre-Edit: Storyboard Builder ─────────────────────────────────────────────
+  const [sbTitle, setSbTitle]                 = useState('');
+  const [sbFrames, setSbFrames]               = useState([
+    { id: '1', scene: 'Opening', shot: 'Wide',     action: '',  audio: '', duration: 3  },
+    { id: '2', scene: 'Hook',    shot: 'Close-up',  action: '',  audio: '', duration: 5  },
+    { id: '3', scene: 'CTA',     shot: 'Medium',    action: '',  audio: '', duration: 5  },
+  ]);
+  const [sbCopied, setSbCopied]               = useState(false);
+
+  // ── Pre-Edit: AI Production Plan ─────────────────────────────────────────────
+  const [planIdea, setPlanIdea]               = useState('');
+  const [planType, setPlanType]               = useState('Reel');
+  const [planPlatform, setPlanPlatform]       = useState('Instagram');
+  const [planLoading, setPlanLoading]         = useState(false);
+  const [planResult, setPlanResult]           = useState<{
     title: string;
-    wordTarget: number;
-    sections: Array<{ heading: string; keywords: string[]; note: string }>;
-    relatedTerms: string[];
+    preProd: string[];
+    production: string[];
+    postProd: string[];
+    distribution: string[];
   } | null>(null);
+  const [planSaveMsg, setPlanSaveMsg]         = useState('');
 
   async function handleGenerateHooks() {
     if (!hookTopic.trim()) return;
@@ -696,83 +730,164 @@ export default function ContentEngin({ onBack }: Props) {
     }
   }
 
-  // ── AI Writing Studio handler ─────────────────────────────────────────────────
-  async function handleWriterGenerate() {
-    if (!writerPrompt.trim()) return;
-    setWriterLoading(true);
-    setWriterOutput('');
-    setWriterCopied(false);
-    setWriterSaveMsg('');
-    await new Promise(r => setTimeout(r, 700));
-    setWriterOutput(generateWriterDraft(writerMode, writerPrompt));
-    setWriterLoading(false);
-  }
-
-  async function handleWriterSave() {
-    if (!writerOutput.trim()) return;
+  // ── Creative Brief: save handler ─────────────────────────────────────────────
+  async function handleSaveBrief() {
+    if (!briefProject.trim()) return;
+    setBriefSaving(true);
+    setBriefSaveMsg('');
+    const text = [
+      `# Creative Brief: ${briefProject}`,
+      `**Content Type:** ${briefType}`,
+      `**Platform(s):** ${[...briefPlatforms].join(', ')}`,
+      briefAudience ? `**Target Audience:** ${briefAudience}` : null,
+      briefMessage  ? `\n**Core Message / Hook:**\n${briefMessage}` : null,
+      briefVoice    ? `\n**Brand Voice & Tone:**\n${briefVoice}` : null,
+      briefVisual   ? `\n**Visual Direction:**\n${briefVisual}` : null,
+      briefDeadline ? `\n**Deadline:** ${new Date(briefDeadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : null,
+      `\n**Asset Status:** ${assets.filter(a => a.status === 'Approved').length}/${assets.length} approved`,
+      `\n**Status:** Ready for Editor →`,
+    ].filter(Boolean).join('\n');
     try {
       const res = await fetch('/api/drafts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: writerOutput,
-          content_type: writerMode.toLowerCase().replace(/\s+/g, '_'),
-          title: `${writerMode}: ${writerPrompt.slice(0, 50)}`,
-        }),
+        body: JSON.stringify({ content: text, content_type: 'brief', title: `Brief: ${briefProject}` }),
       });
-      setWriterSaveMsg(res.ok ? '✅ Saved to Drafts' : '⚠️ Save failed');
-    } catch {
-      setWriterSaveMsg('⚠️ Save failed');
-    }
-    setTimeout(() => setWriterSaveMsg(''), 3000);
+      setBriefSaveMsg(res.ok ? '✅ Brief saved — ready to send to editor' : '⚠️ Save failed');
+    } catch { setBriefSaveMsg('⚠️ Save failed'); }
+    setBriefSaving(false);
+    setTimeout(() => setBriefSaveMsg(''), 5000);
   }
 
-  // ── Video Script Editor handlers ──────────────────────────────────────────────
-  function addScriptScene() {
-    setScriptScenes(prev => [
-      ...prev,
-      { id: Date.now().toString(), title: `Scene ${prev.length + 1}`, speaker: 'Host', content: '', duration: 10 },
-    ]);
+  // ── Asset Collector handlers ──────────────────────────────────────────────────
+  function addAsset() {
+    if (!assetNewName.trim()) return;
+    setAssets(prev => [...prev, { id: Date.now().toString(), name: assetNewName.trim(), category: assetNewCat, status: 'Needed' }]);
+    setAssetNewName('');
   }
-  function updateScriptScene(id: string, field: keyof ScriptScene, value: string | number) {
-    setScriptScenes(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
+  function cycleAssetStatus(id: string) {
+    setAssets(prev => prev.map(a => a.id === id ? { ...a, status: ASSET_STATUS_NEXT[a.status] } : a));
   }
-  function removeScriptScene(id: string) {
-    setScriptScenes(prev => prev.filter(s => s.id !== id));
+  function removeAsset(id: string) {
+    setAssets(prev => prev.filter(a => a.id !== id));
   }
-  function copyScript() {
-    const total = scriptScenes.reduce((a, s) => a + s.duration, 0);
-    const text = `📹 ${scriptTitle || 'Video Script'}\nTotal: ${total}s\n\n` +
-      scriptScenes.map((s, i) => `[${i + 1}] ${s.title} (${s.duration}s)\n${s.speaker}: ${s.content || '[add content]'}`).join('\n\n');
+
+  // ── Audio Prep handlers ───────────────────────────────────────────────────────
+  function addSfx() {
+    if (!audioSfxInput.trim()) return;
+    setAudioSfxList(prev => [...prev, audioSfxInput.trim()]);
+    setAudioSfxInput('');
+  }
+  function removeSfx(i: number) { setAudioSfxList(prev => prev.filter((_, idx) => idx !== i)); }
+
+  // ── Content Pipeline handlers ─────────────────────────────────────────────────
+  function addPipelineItem() {
+    if (!pipeNewTitle.trim()) return;
+    setPipelineItems(prev => [...prev, { id: Date.now().toString(), title: pipeNewTitle.trim(), type: pipeNewType, platform: pipeNewPlatform, stage: 'Concept' }]);
+    setPipeNewTitle('');
+  }
+  function advancePipeline(id: string) {
+    setPipelineItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const i = PIPELINE_STAGES.indexOf(item.stage);
+      return { ...item, stage: PIPELINE_STAGES[Math.min(i + 1, PIPELINE_STAGES.length - 1)] };
+    }));
+  }
+  function removePipelineItem(id: string) { setPipelineItems(prev => prev.filter(p => p.id !== id)); }
+
+  // ── Storyboard Builder handlers ───────────────────────────────────────────────
+  const SB_SHOT_TYPES = ['Wide', 'Medium', 'Close-up', 'Extreme Close-up', 'Over Shoulder', 'POV', 'Overhead', 'Low Angle', 'Drone'];
+  function addSbFrame() {
+    setSbFrames(prev => [...prev, { id: Date.now().toString(), scene: `Scene ${prev.length + 1}`, shot: 'Medium', action: '', audio: '', duration: 5 }]);
+  }
+  function updateSbFrame(id: string, field: string, value: string | number) {
+    setSbFrames(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
+  }
+  function removeSbFrame(id: string) { setSbFrames(prev => prev.filter(f => f.id !== id)); }
+  function copySbText() {
+    const total = sbFrames.reduce((a, f) => a + f.duration, 0);
+    const text = `STORYBOARD: ${sbTitle || 'Untitled'}\nTotal: ${total}s\n\n` +
+      sbFrames.map((f, i) =>
+        `[Frame ${i + 1}] ${f.scene} | ${f.shot} shot | ${f.duration}s\nACTION: ${f.action || '—'}\nAUDIO: ${f.audio || '—'}`
+      ).join('\n\n');
     navigator.clipboard?.writeText(text).catch(() => {});
-    setScriptCopied(true);
-    setTimeout(() => setScriptCopied(false), 2000);
+    setSbCopied(true);
+    setTimeout(() => setSbCopied(false), 2000);
   }
 
-  // ── Social Card Builder handler ───────────────────────────────────────────────
-  function copyCard() {
-    const text = `[${cardTemplate.toUpperCase()}]\n${cardHeadline || 'Your headline here'}\n${cardSubtitle || ''}\n${cardTag ? `#${cardTag}` : ''}`.trim();
-    navigator.clipboard?.writeText(text).catch(() => {});
-    setCardCopied(true);
-    setTimeout(() => setCardCopied(false), 2000);
+  // ── AI Production Plan handlers ───────────────────────────────────────────────
+  function buildProductionPlan(idea: string, type: string, platform: string) {
+    const t = idea.trim() || 'your content idea';
+    return {
+      title: `Production Plan: ${t.slice(0, 50)}`,
+      preProd: [
+        `Define goal: what action should viewers take after watching "${t}"?`,
+        `Write Creative Brief — message, audience, brand voice, visual direction`,
+        `Build Storyboard — map every scene, shot type, and timing`,
+        `Collect all assets: footage needed, photos, graphics, logo files`,
+        `Prep audio: select music mood (${['Energetic','Cinematic','Hype'][Math.floor(Math.random()*3)]}), write VO brief, list SFX`,
+        `Check Platform Specs — ${platform} ${type}: confirm resolution, duration, and format`,
+        `Pre-flight asset check: all items Approved before handing off to engine`,
+        `Set deadline and create pipeline item in Content Pipeline`,
+      ],
+      production: [
+        `Open Engine — all brief, specs, and assets ready`,
+        `Import all pre-approved assets`,
+        type === 'Reel' || type === '3D Animation' ? `Set up 9:16 canvas, ${platform === 'YouTube' ? '1080×1920' : '1080×1920'} px` : `Set canvas to correct dimensions per Platform Specs`,
+        `Follow storyboard frame by frame — no improvising`,
+        `Layer audio: music at correct BPM/mood, apply VO, place SFX at marked timecodes`,
+        `Add captions/text overlays per brand voice guidelines`,
+        type === '3D Animation' ? `Render scenes — check lighting, shadows, and camera angles per brief` : `Apply colour grade and transitions`,
+        `Export at correct spec: format, bitrate, loudness (−14 LUFS)`,
+      ],
+      postProd: [
+        `Review exported file against Creative Brief — does it match the core message?`,
+        `Brand Voice check — tone, pacing, and visual direction aligned?`,
+        `Run SEO Title Optimizer on the caption/title`,
+        `Generate hashtags with Hashtag Optimizer`,
+        `Repurpose: run Auto Content Repurposer to get 10 platform formats`,
+        `Set optimal post time using AI Post Intelligence`,
+        `Add to Publishing Queue on correct platform(s): ${platform}`,
+      ],
+      distribution: [
+        `Post at AI-recommended optimal time on ${platform}`,
+        type !== 'Email' ? `Cross-post repurposed formats to secondary platforms` : `Send to email list with SEO-optimised subject line`,
+        `Monitor first 24h engagement — track in Content Analytics`,
+        `Respond to comments within 2h for algorithm boost`,
+        `Update Content Pipeline stage → Live`,
+        `Log performance data for next AI Post Intelligence cycle`,
+      ],
+    };
   }
 
-  // ── SEO Content Planner handler ───────────────────────────────────────────────
-  async function handleSeoOutline() {
-    if (!seoKeyword.trim()) return;
-    setSeoOutlineLoading(true);
-    setSeoOutline(null);
+  async function handleGeneratePlan() {
+    if (!planIdea.trim()) return;
+    setPlanLoading(true);
+    setPlanResult(null);
+    setPlanSaveMsg('');
+    await new Promise(r => setTimeout(r, 700));
+    setPlanResult(buildProductionPlan(planIdea, planType, planPlatform));
+    setPlanLoading(false);
+  }
+
+  async function handleSavePlan() {
+    if (!planResult) return;
+    const text = [
+      `# ${planResult.title}`,
+      '\n## Pre-Production', ...planResult.preProd.map((s, i) => `${i + 1}. ${s}`),
+      '\n## Production (Engine)', ...planResult.production.map((s, i) => `${i + 1}. ${s}`),
+      '\n## Post-Production', ...planResult.postProd.map((s, i) => `${i + 1}. ${s}`),
+      '\n## Distribution', ...planResult.distribution.map((s, i) => `${i + 1}. ${s}`),
+    ].join('\n');
     try {
-      const res = await fetch('/api/content/intelligence', {
+      const res = await fetch('/api/drafts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'seo-outline', keyword: seoKeyword.trim() }),
+        body: JSON.stringify({ content: text, content_type: 'plan', title: planResult.title }),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? 'Outline failed');
-      setSeoOutline(json);
-    } catch { /* fail silently */ }
-    finally { setSeoOutlineLoading(false); }
+      setPlanSaveMsg(res.ok ? '✅ Plan saved to Drafts' : '⚠️ Save failed');
+    } catch { setPlanSaveMsg('⚠️ Save failed'); }
+    setTimeout(() => setPlanSaveMsg(''), 4000);
   }
 
   // ── Brand Voice Guard handler ─────────────────────────────────────────────────
@@ -861,302 +976,536 @@ export default function ContentEngin({ onBack }: Props) {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════
-            STUDIO — Creative Editing Tools
-            (AI Writer · Video Script · Social Card · SEO Planner)
+            PRE-EDIT — Everything before the editor opens
+            Brief · Assets · Audio · Specs · Pipeline
         ═══════════════════════════════════════════════════════════════ */}
         <div style={{ marginBottom: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
-            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', color: ACCENT, textTransform: 'uppercase' }}>🎬 Studio</span>
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', color: ACCENT, textTransform: 'uppercase' }}>🗂️ Pre-Edit</span>
             <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
           </div>
 
-          {/* Studio tool picker */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
-            {([
-              { id: 'writer', emoji: '✍️', label: 'AI Writer',       sub: 'Jasper / ChatGPT',  color: '#6366f1' },
-              { id: 'script', emoji: '🎬', label: 'Script Editor',   sub: 'Descript-style',    color: '#ec4899' },
-              { id: 'card',   emoji: '🎨', label: 'Card Builder',    sub: 'Canva-style',       color: '#10b981' },
-              { id: 'seo',    emoji: '📊', label: 'SEO Planner',     sub: 'Surfer / Semrush',  color: '#0ea5e9' },
-            ] as const).map(tool => {
-              const active = studioTool === tool.id;
-              return (
-                <button
-                  key={tool.id}
-                  type="button"
-                  onClick={() => setStudioTool(active ? null : tool.id as typeof studioTool)}
-                  style={{
-                    padding: '12px 10px', borderRadius: 12, textAlign: 'left',
-                    background: active ? `${tool.color}14` : 'rgba(255,255,255,0.55)',
-                    border: `1.5px solid ${active ? tool.color : 'rgba(160,195,240,0.2)'}`,
-                    cursor: 'pointer', transition: 'all 0.15s',
-                  }}
-                >
-                  <div style={{ fontSize: 20, marginBottom: 5 }}>{tool.emoji}</div>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: active ? tool.color : 'var(--de-heading)' }}>{tool.label}</div>
-                  <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 1 }}>{tool.sub}</div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* ── AI Writing Studio ── */}
-          {studioTool === 'writer' && (
-            <div className="de-widget" style={{ marginBottom: 14, border: '1.5px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.03)' }}>
-              <div className="de-widget-header">
-                <span style={{ fontSize: 14 }}>✍️</span>
-                <span className="de-widget-title ml-2">AI Writing Studio</span>
-                <span style={{ marginLeft: 'auto', fontSize: 9, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>Jasper · ChatGPT · Claude</span>
+          {/* ── 1. Creative Brief Builder ─────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>📋</span>
+              <span className="de-widget-title ml-2">Creative Brief Builder</span>
+              {briefProject.trim() && assets.filter(a => a.status === 'Approved').length === assets.length && (
+                <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 4 }}>Editor-Ready ✓</span>
+              )}
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+              {/* Project name */}
+              <input
+                type="text" value={briefProject} onChange={e => setBriefProject(e.target.value)}
+                placeholder="Project name (e.g. Q2 Launch Reel)…"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: `1px solid ${ACCENT}30`, background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+              />
+              {/* Content type + deadline row */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 2 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Content Type</label>
+                  <select value={briefType} onChange={e => setBriefType(e.target.value as BriefContentType)}
+                    style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {BRIEF_CONTENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 2 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Deadline</label>
+                  <input type="date" value={briefDeadline} onChange={e => setBriefDeadline(e.target.value)}
+                    style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', boxSizing: 'border-box' }} />
+                </div>
               </div>
-              <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {/* Mode selector */}
+              {/* Platform targets */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Target Platforms</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                  {WRITER_MODES.map(m => (
-                    <button key={m} type="button" onClick={() => { setWriterMode(m); setWriterOutput(''); }}
-                      style={{ padding: '5px 11px', borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                        background: writerMode === m ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.55)',
-                        border: `1.5px solid ${writerMode === m ? 'rgba(99,102,241,0.4)' : 'rgba(160,195,240,0.2)'}`,
-                        color: writerMode === m ? '#6366f1' : 'var(--de-text-dim)' }}>
-                      {m}
-                    </button>
-                  ))}
-                </div>
-                {/* Topic / prompt input */}
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <input
-                    type="text"
-                    value={writerPrompt}
-                    onChange={e => { setWriterPrompt(e.target.value); setWriterOutput(''); }}
-                    onKeyDown={e => e.key === 'Enter' && handleWriterGenerate()}
-                    placeholder={`Topic or prompt for ${writerMode}…`}
-                    style={{ flex: 1, padding: '9px 12px', borderRadius: 9, fontSize: 12, border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }}
-                  />
-                  <button type="button" onClick={handleWriterGenerate}
-                    disabled={writerLoading || !writerPrompt.trim()}
-                    style={{ ...btnBase, background: '#6366f1', color: 'white', padding: '9px 18px', fontSize: 13, opacity: writerLoading || !writerPrompt.trim() ? 0.6 : 1 }}>
-                    {writerLoading ? '…' : 'Write'}
-                  </button>
-                </div>
-                {/* Editable output */}
-                {writerOutput && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <textarea
-                      value={writerOutput}
-                      onChange={e => setWriterOutput(e.target.value)}
-                      rows={8}
-                      style={{ width: '100%', borderRadius: 10, padding: '10px 12px', fontSize: 12, border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(255,255,255,0.8)', color: 'var(--de-heading)', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box', outline: 'none' }}
-                    />
-                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>
-                      {writerOutput.split(/\s+/).filter(Boolean).length} words · {Math.ceil(writerOutput.split(/\s+/).filter(Boolean).length / 200)} min read
-                    </div>
-                    <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
-                      <button type="button"
-                        onClick={() => { navigator.clipboard?.writeText(writerOutput).catch(() => {}); setWriterCopied(true); setTimeout(() => setWriterCopied(false), 2000); }}
-                        style={{ ...btnBase, background: writerCopied ? 'rgba(34,197,94,0.12)' : 'rgba(99,102,241,0.1)', color: writerCopied ? '#16a34a' : '#6366f1', padding: '7px 14px' }}>
-                        {writerCopied ? '✅ Copied' : '📋 Copy'}
+                  {BRIEF_PLATFORM_LIST.map(p => {
+                    const on = briefPlatforms.has(p);
+                    return (
+                      <button key={p} type="button" onClick={() => setBriefPlatforms(prev => { const n = new Set(prev); on ? n.delete(p) : n.add(p); return n; })}
+                        style={{ padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                          background: on ? `${ACCENT}18` : 'rgba(255,255,255,0.5)',
+                          border: `1.5px solid ${on ? ACCENT : 'rgba(160,195,240,0.25)'}`,
+                          color: on ? ACCENT : 'var(--de-text-dim)' }}>
+                        {p}
                       </button>
-                      <button type="button" onClick={handleWriterSave}
-                        style={{ ...btnBase, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}30`, padding: '7px 14px' }}>
-                        💾 Save to Drafts
-                      </button>
-                      {writerSaveMsg && <span style={{ fontSize: 11, fontWeight: 600, color: writerSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444', alignSelf: 'center' }}>{writerSaveMsg}</span>}
-                    </div>
+                    );
+                  })}
+                </div>
+              </div>
+              {/* Core message */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Core Message / Hook</label>
+                <textarea value={briefMessage} onChange={e => setBriefMessage(e.target.value)} rows={2}
+                  placeholder="What is the single most important thing this content must communicate?"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Audience + voice row */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Target Audience</label>
+                  <input value={briefAudience} onChange={e => setBriefAudience(e.target.value)} placeholder="e.g. Gen-Z creators, 18–25…"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Brand Voice & Tone</label>
+                  <input value={briefVoice} onChange={e => setBriefVoice(e.target.value)} placeholder="e.g. bold, casual, Gen-Z…"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              {/* Visual direction */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Visual Direction (for editor)</label>
+                <textarea value={briefVisual} onChange={e => setBriefVisual(e.target.value)} rows={2}
+                  placeholder="Describe aesthetic, pacing, colour palette, references (e.g. fast cuts, warm tones, Nike-style energy)…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Asset readiness summary */}
+              {assets.length > 0 && (
+                <div style={{ padding: '8px 12px', borderRadius: 9, background: 'rgba(255,255,255,0.45)', border: `1px solid ${ACCENT}15` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)' }}>Asset Readiness</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: assets.filter(a => a.status === 'Approved').length === assets.length ? '#22c55e' : ACCENT, marginLeft: 'auto' }}>
+                      {assets.filter(a => a.status === 'Approved').length}/{assets.length} approved
+                    </span>
                   </div>
-                )}
+                  <div style={{ height: 5, borderRadius: 4, background: 'rgba(0,0,0,0.06)' }}>
+                    <div style={{ height: '100%', borderRadius: 4, transition: 'width 0.4s', background: '#22c55e',
+                      width: `${Math.round(assets.filter(a => a.status === 'Approved').length / assets.length * 100)}%` }} />
+                  </div>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button type="button" onClick={handleSaveBrief} disabled={briefSaving || !briefProject.trim()}
+                  style={{ ...btnBase, background: ACCENT, color: 'white', padding: '9px 20px', fontSize: 13, opacity: briefSaving || !briefProject.trim() ? 0.6 : 1 }}>
+                  {briefSaving ? '⏳ Saving…' : '📋 Save Brief → Drafts'}
+                </button>
+                {briefSaveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: briefSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{briefSaveMsg}</span>}
               </div>
             </div>
-          )}
+          </div>
 
-          {/* ── Video Script Editor (Descript-style) ── */}
-          {studioTool === 'script' && (
-            <div className="de-widget" style={{ marginBottom: 14, border: '1.5px solid rgba(236,72,153,0.3)', background: 'rgba(236,72,153,0.03)' }}>
-              <div className="de-widget-header">
-                <span style={{ fontSize: 14 }}>🎬</span>
-                <span className="de-widget-title ml-2">Video Script Editor</span>
-                <span style={{ marginLeft: 'auto', fontSize: 9, color: '#ec4899', background: 'rgba(236,72,153,0.1)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>Descript-style</span>
-              </div>
-              <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <input
-                  type="text"
-                  value={scriptTitle}
-                  onChange={e => setScriptTitle(e.target.value)}
-                  placeholder="Script title…"
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
-                />
-                {/* Total duration bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: 'rgba(236,72,153,0.06)', border: '1px solid rgba(236,72,153,0.15)' }}>
-                  <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Total runtime:</span>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#ec4899' }}>{scriptScenes.reduce((a, s) => a + s.duration, 0)}s</span>
-                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>/ {scriptScenes.length} scenes</span>
-                </div>
-                {/* Scene cards */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {scriptScenes.map((scene, i) => (
-                    <div key={scene.id} style={{ borderRadius: 10, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(236,72,153,0.15)', overflow: 'hidden' }}>
-                      {/* Scene header */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderBottom: '1px solid rgba(236,72,153,0.1)', background: 'rgba(236,72,153,0.04)' }}>
-                        <span style={{ fontSize: 10, fontWeight: 800, color: '#ec4899', background: 'rgba(236,72,153,0.12)', padding: '1px 6px', borderRadius: 4 }}>#{i + 1}</span>
-                        <input
-                          value={scene.title}
-                          onChange={e => updateScriptScene(scene.id, 'title', e.target.value)}
-                          placeholder="Scene title"
-                          style={{ flex: 1, fontSize: 11, fontWeight: 700, background: 'none', border: 'none', outline: 'none', color: 'var(--de-heading)' }}
-                        />
-                        <input
-                          value={scene.speaker}
-                          onChange={e => updateScriptScene(scene.id, 'speaker', e.target.value)}
-                          placeholder="Speaker"
-                          style={{ width: 70, fontSize: 10, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(236,72,153,0.15)', borderRadius: 5, padding: '2px 6px', outline: 'none', color: 'var(--de-text-dim)' }}
-                        />
-                        <input
-                          type="number"
-                          value={scene.duration}
-                          onChange={e => updateScriptScene(scene.id, 'duration', parseInt(e.target.value) || 0)}
-                          min={1} max={300}
-                          style={{ width: 48, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(236,72,153,0.15)', borderRadius: 5, padding: '2px 5px', outline: 'none', color: '#ec4899', textAlign: 'center' }}
-                        />
-                        <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>s</span>
-                        {scriptScenes.length > 1 && (
-                          <button type="button" onClick={() => removeScriptScene(scene.id)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'rgba(239,68,68,0.5)', padding: 0 }}>✕</button>
-                        )}
-                      </div>
-                      {/* Scene content */}
-                      <textarea
-                        value={scene.content}
-                        onChange={e => updateScriptScene(scene.id, 'content', e.target.value)}
-                        placeholder="Write scene content, dialogue, or directions…"
-                        rows={2}
-                        style={{ width: '100%', padding: '8px 10px', fontSize: 12, border: 'none', background: 'transparent', color: 'var(--de-heading)', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.55, outline: 'none', boxSizing: 'border-box' }}
-                      />
+          {/* ── 2. Asset Collector ────────────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🗂️</span>
+              <span className="de-widget-title ml-2">Asset Collector</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700,
+                color: assets.every(a => a.status === 'Approved') ? '#22c55e' : ACCENT,
+                background: assets.every(a => a.status === 'Approved') ? 'rgba(34,197,94,0.1)' : `${ACCENT}12`,
+                padding: '2px 8px', borderRadius: 4 }}>
+                {assets.filter(a => a.status === 'Approved').length}/{assets.length} ready
+              </span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Collect and confirm every raw asset before the editor opens a single file.</p>
+              {/* Asset list */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {assets.map(asset => (
+                  <div key={asset.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 10,
+                    background: asset.status === 'Approved' ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.55)',
+                    border: `1px solid ${ASSET_STATUS_COLOR[asset.status]}25` }}>
+                    <span style={{ fontSize: 14, flexShrink: 0 }}>{asset.category.split(' ')[0]}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{asset.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{asset.category}</div>
                     </div>
-                  ))}
-                </div>
-                <div style={{ display: 'flex', gap: 7 }}>
-                  <button type="button" onClick={addScriptScene}
-                    style={{ ...btnBase, background: 'rgba(236,72,153,0.1)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.25)', flex: 1 }}>
-                    + Add Scene
-                  </button>
-                  <button type="button" onClick={copyScript}
-                    style={{ ...btnBase, background: scriptCopied ? 'rgba(34,197,94,0.1)' : 'rgba(236,72,153,0.1)', color: scriptCopied ? '#16a34a' : '#ec4899', border: `1px solid ${scriptCopied ? 'rgba(34,197,94,0.3)' : 'rgba(236,72,153,0.25)'}`, flex: 1 }}>
-                    {scriptCopied ? '✅ Copied' : '📋 Copy Script'}
-                  </button>
-                </div>
+                    <button type="button" onClick={() => cycleAssetStatus(asset.id)}
+                      style={{ ...btnBase, fontSize: 10, padding: '3px 9px', borderRadius: 20,
+                        background: `${ASSET_STATUS_COLOR[asset.status]}15`,
+                        color: ASSET_STATUS_COLOR[asset.status],
+                        border: `1.5px solid ${ASSET_STATUS_COLOR[asset.status]}40` }}>
+                      {asset.status}
+                    </button>
+                    <button type="button" onClick={() => removeAsset(asset.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'rgba(239,68,68,0.45)', padding: 0, flexShrink: 0 }}>✕</button>
+                  </div>
+                ))}
+              </div>
+              {/* Add new asset */}
+              <div style={{ display: 'flex', gap: 6 }}>
+                <select value={assetNewCat} onChange={e => setAssetNewCat(e.target.value as AssetCategory)}
+                  style={{ fontSize: 11, borderRadius: 8, padding: '6px 8px', border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', flexShrink: 0 }}>
+                  {ASSET_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <input value={assetNewName} onChange={e => setAssetNewName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addAsset()}
+                  placeholder="Asset name…"
+                  style={{ flex: 1, padding: '6px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }} />
+                <button type="button" onClick={addAsset} disabled={!assetNewName.trim()}
+                  style={{ ...btnBase, background: ACCENT, color: 'white', padding: '6px 14px', opacity: !assetNewName.trim() ? 0.5 : 1 }}>
+                  Add
+                </button>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* ── Social Card Builder (Canva-style) ── */}
-          {studioTool === 'card' && (
-            <div className="de-widget" style={{ marginBottom: 14, border: '1.5px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.03)' }}>
-              <div className="de-widget-header">
-                <span style={{ fontSize: 14 }}>🎨</span>
-                <span className="de-widget-title ml-2">Social Card Builder</span>
-                <span style={{ marginLeft: 'auto', fontSize: 9, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>Canva-style</span>
-              </div>
-              <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {/* Template picker */}
-                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                  {CARD_TEMPLATES.map(t => (
-                    <button key={t} type="button" onClick={() => setCardTemplate(t)}
-                      style={{ padding: '5px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
-                        background: cardTemplate === t ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.55)',
-                        border: `1.5px solid ${cardTemplate === t ? 'rgba(16,185,129,0.4)' : 'rgba(160,195,240,0.2)'}`,
-                        color: cardTemplate === t ? '#10b981' : 'var(--de-text-dim)' }}>
-                      {t}
-                    </button>
-                  ))}
-                </div>
-                {/* Text fields */}
-                <input type="text" value={cardHeadline} onChange={e => setCardHeadline(e.target.value)} placeholder="Headline…"
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(16,185,129,0.25)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
-                <input type="text" value={cardSubtitle} onChange={e => setCardSubtitle(e.target.value)} placeholder="Subtitle or body text…"
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, border: '1px solid rgba(16,185,129,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
-                <input type="text" value={cardTag} onChange={e => setCardTag(e.target.value)} placeholder="Tag or CTA (no #)…"
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, border: '1px solid rgba(16,185,129,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
-                {/* Accent color picker */}
-                <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5 }}>Accent Color</div>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    {CARD_COLORS.map(c => (
-                      <button key={c} type="button" onClick={() => setCardAccent(c)}
-                        style={{ width: 24, height: 24, borderRadius: '50%', background: c, border: `2.5px solid ${cardAccent === c ? 'white' : 'transparent'}`,
-                          outline: cardAccent === c ? `2px solid ${c}` : 'none', cursor: 'pointer' }} />
+          {/* ── 3. Audio Prep Station ─────────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🎵</span>
+              <span className="de-widget-title ml-2">Audio Prep Station</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Define every audio element before the editor starts — music mood, BPM, VO direction, SFX list, and platform loudness specs.</p>
+              {/* Music mood + BPM */}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                <div style={{ flex: 2 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Music Mood</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {AUDIO_MOODS.map(m => (
+                      <button key={m} type="button" onClick={() => setAudioMood(m)}
+                        style={{ padding: '4px 9px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                          background: audioMood === m ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.55)',
+                          border: `1.5px solid ${audioMood === m ? '#8b5cf6' : 'rgba(160,195,240,0.25)'}`,
+                          color: audioMood === m ? '#8b5cf6' : 'var(--de-text-dim)' }}>
+                        {m}
+                      </button>
                     ))}
                   </div>
                 </div>
-                {/* Live card preview */}
-                <div style={{ borderRadius: 14, padding: '20px 18px', background: `linear-gradient(135deg, ${cardAccent}18 0%, ${cardAccent}08 100%)`, border: `2px solid ${cardAccent}30`, minHeight: 100 }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: cardAccent, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{cardTemplate}</div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1.2, marginBottom: cardSubtitle ? 8 : 0 }}>{cardHeadline || 'Your headline here'}</div>
-                  {cardSubtitle && <div style={{ fontSize: 12, color: 'var(--de-text)', lineHeight: 1.5 }}>{cardSubtitle}</div>}
-                  {cardTag && <div style={{ marginTop: 10, fontSize: 11, fontWeight: 700, color: cardAccent }}>#{cardTag}</div>}
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>BPM Target</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <input type="range" min={60} max={180} value={audioBpm} onChange={e => setAudioBpm(parseInt(e.target.value))}
+                      style={{ flex: 1, accentColor: '#8b5cf6' }} />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#8b5cf6', minWidth: 36, textAlign: 'right' }}>{audioBpm}</span>
+                  </div>
                 </div>
-                <button type="button" onClick={copyCard}
-                  style={{ ...btnBase, background: cardCopied ? 'rgba(34,197,94,0.1)' : 'rgba(16,185,129,0.1)', color: cardCopied ? '#16a34a' : '#10b981', border: `1px solid ${cardCopied ? 'rgba(34,197,94,0.3)' : 'rgba(16,185,129,0.3)'}`, padding: '9px 0', width: '100%', fontSize: 13 }}>
-                  {cardCopied ? '✅ Copied to Clipboard' : '📋 Copy Card Text'}
-                </button>
               </div>
-            </div>
-          )}
-
-          {/* ── SEO Content Planner (Surfer SEO / Semrush-style) ── */}
-          {studioTool === 'seo' && (
-            <div className="de-widget" style={{ marginBottom: 14, border: '1.5px solid rgba(14,165,233,0.3)', background: 'rgba(14,165,233,0.03)' }}>
-              <div className="de-widget-header">
-                <span style={{ fontSize: 14 }}>📊</span>
-                <span className="de-widget-title ml-2">SEO Content Planner</span>
-                <span style={{ marginLeft: 'auto', fontSize: 9, color: '#0ea5e9', background: 'rgba(14,165,233,0.1)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>Surfer · Semrush</span>
+              {/* VO brief */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Voiceover Brief</label>
+                <textarea value={audioVoBrief} onChange={e => setAudioVoBrief(e.target.value)} rows={2}
+                  placeholder="Tone, pace, key phrases, accent preference — tell the editor exactly how VO should sound…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
               </div>
-              <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Enter a target keyword and get a full SEO content outline with topic clusters, word targets, and related search terms.</p>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <input type="text" value={seoKeyword} onChange={e => { setSeoKeyword(e.target.value); setSeoOutline(null); }}
-                    onKeyDown={e => e.key === 'Enter' && handleSeoOutline()}
-                    placeholder="Target keyword (e.g. content strategy)…"
-                    style={{ flex: 1, padding: '9px 12px', borderRadius: 9, fontSize: 12, border: '1px solid rgba(14,165,233,0.25)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }} />
-                  <button type="button" onClick={handleSeoOutline} disabled={seoOutlineLoading || !seoKeyword.trim()}
-                    style={{ ...btnBase, background: '#0ea5e9', color: 'white', padding: '9px 16px', opacity: seoOutlineLoading || !seoKeyword.trim() ? 0.6 : 1 }}>
-                    {seoOutlineLoading ? '…' : 'Plan'}
+              {/* SFX checklist */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>SFX Checklist</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 7 }}>
+                  {audioSfxList.map((sfx, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(139,92,246,0.15)' }}>
+                      <span style={{ fontSize: 12 }}>🔊</span>
+                      <span style={{ flex: 1, fontSize: 12, color: 'var(--de-heading)' }}>{sfx}</span>
+                      <button type="button" onClick={() => removeSfx(i)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'rgba(239,68,68,0.45)', padding: 0 }}>✕</button>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input value={audioSfxInput} onChange={e => setAudioSfxInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && addSfx()}
+                    placeholder="Add SFX (e.g. Notification ping)…"
+                    style={{ flex: 1, padding: '6px 10px', borderRadius: 8, fontSize: 12, border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }} />
+                  <button type="button" onClick={addSfx} disabled={!audioSfxInput.trim()}
+                    style={{ ...btnBase, background: 'rgba(139,92,246,0.12)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.3)', opacity: !audioSfxInput.trim() ? 0.5 : 1 }}>
+                    Add
                   </button>
                 </div>
-                {seoOutline && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {/* Title + target */}
-                    <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.18)' }}>
-                      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}>{seoOutline.title}</div>
-                      <div style={{ fontSize: 10, color: '#0ea5e9', fontWeight: 700 }}>🎯 Target: ~{seoOutline.wordTarget.toLocaleString()} words</div>
+              </div>
+              {/* Platform loudness spec */}
+              <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.15)' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#8b5cf6', marginBottom: 6 }}>📻 Platform Audio Standard</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
+                  {['Instagram Reel', 'TikTok', 'YouTube', 'Twitter/X', 'Podcast'].map(p => (
+                    <button key={p} type="button" onClick={() => setAudioSpecPlatform(p)}
+                      style={{ padding: '3px 9px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                        background: audioSpecPlatform === p ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.5)',
+                        border: `1.5px solid ${audioSpecPlatform === p ? '#8b5cf6' : 'rgba(160,195,240,0.2)'}`,
+                        color: audioSpecPlatform === p ? '#8b5cf6' : 'var(--de-text-dim)' }}>
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                {(() => {
+                  const specs: Record<string, { lufs: string; format: string; channels: string; note: string }> = {
+                    'Instagram Reel': { lufs: '−14 LUFS', format: 'AAC 128kbps', channels: 'Stereo', note: 'Loud master sounds distorted in feed. Keep peaks at −1 dBTP.' },
+                    'TikTok':         { lufs: '−14 LUFS', format: 'AAC 128kbps', channels: 'Stereo', note: 'Avoid bass-heavy mixes — phone speakers are tiny.' },
+                    'YouTube':        { lufs: '−14 LUFS', format: 'AAC 192kbps', channels: 'Stereo', note: 'YouTube normalises to −14 LUFS. Deliver at −14 to avoid pumping.' },
+                    'Twitter/X':      { lufs: '−14 LUFS', format: 'AAC 128kbps', channels: 'Stereo', note: 'Compression artefacts at high volumes. Export clean.' },
+                    'Podcast':        { lufs: '−16 LUFS', format: 'MP3 128kbps', channels: 'Mono',   note: 'Apple Podcasts standard. −16 LUFS for spoken word clarity.' },
+                  };
+                  const s = specs[audioSpecPlatform] ?? specs['Instagram Reel'];
+                  return (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
+                      {[{ label: 'Loudness', val: s.lufs }, { label: 'Format', val: s.format }, { label: 'Channels', val: s.channels }].map(r => (
+                        <div key={r.label} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(139,92,246,0.12)' }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 2 }}>{r.label}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#8b5cf6' }}>{r.val}</div>
+                        </div>
+                      ))}
+                      <div style={{ gridColumn: '1 / -1', fontSize: 10, color: 'var(--de-text-dim)', padding: '5px 0 0' }}>💡 {s.note}</div>
                     </div>
-                    {/* Content sections */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {seoOutline.sections.map((sec, i) => (
-                        <div key={i} style={{ padding: '9px 12px', borderRadius: 9, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(14,165,233,0.12)' }}>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>H2: {sec.heading}</div>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 4 }}>
-                            {sec.keywords.map(k => (
-                              <span key={k} style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 999, background: 'rgba(14,165,233,0.1)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.2)' }}>{k}</span>
-                            ))}
-                          </div>
-                          <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>💡 {sec.note}</div>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+
+          {/* ── 4. Platform Specs Master ─────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>📐</span>
+              <span className="de-widget-title ml-2">Platform Specs Master</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', background: 'rgba(160,195,240,0.2)', padding: '2px 7px', borderRadius: 4 }}>10 platforms</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Hand the editor exact tech specs so nothing gets rejected at upload. Every dimension, format, duration, and caption limit in one place.</p>
+              <input type="text" value={specsFilter} onChange={e => setSpecsFilter(e.target.value)}
+                placeholder="Filter platform…"
+                style={{ width: '100%', padding: '7px 11px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {PLATFORM_SPECS.filter(p => !specsFilter || p.name.toLowerCase().includes(specsFilter.toLowerCase())).map(p => (
+                  <div key={p.name} style={{ borderRadius: 10, background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}12`, overflow: 'hidden' }}>
+                    {/* Platform header */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: `1px solid ${ACCENT}10`, background: `${ACCENT}06` }}>
+                      <span style={{ fontSize: 16 }}>{p.emoji}</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)', flex: 1 }}>{p.name}</span>
+                      <button type="button"
+                        onClick={() => navigator.clipboard?.writeText(`${p.name}: ${p.ratio} · ${p.res} · ${p.dur} · ${p.fmt} · Caption: ${p.caption} · Audio: ${p.audio}`).catch(() => {})}
+                        style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5, border: `1px solid ${ACCENT}25`, background: `${ACCENT}10`, color: ACCENT, cursor: 'pointer' }}>
+                        Copy Spec
+                      </button>
+                    </div>
+                    {/* Specs grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0 }}>
+                      {[
+                        { label: 'Ratio',    val: p.ratio   },
+                        { label: 'Resolution', val: p.res   },
+                        { label: 'Duration', val: p.dur     },
+                        { label: 'Format',   val: p.fmt     },
+                        { label: 'Caption',  val: p.caption },
+                        { label: 'Audio',    val: p.audio   },
+                      ].map(spec => (
+                        <div key={spec.label} style={{ padding: '7px 10px', borderRight: '1px solid rgba(160,195,240,0.1)', borderBottom: '1px solid rgba(160,195,240,0.1)' }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 2 }}>{spec.label}</div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)' }}>{spec.val}</div>
                         </div>
                       ))}
                     </div>
-                    {/* Related terms */}
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5 }}>Related Terms to Include</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                        {seoOutline.relatedTerms.map(t => (
-                          <span key={t} style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(14,165,233,0.08)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.18)' }}>{t}</span>
-                        ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── 5. Content Pipeline ─────────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🚀</span>
+              <span className="de-widget-title ml-2">Content Pipeline</span>
+              {pipelineItems.filter(p => p.stage === 'Live').length > 0 && (
+                <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 8px', borderRadius: 4 }}>
+                  {pipelineItems.filter(p => p.stage === 'Live').length} Live
+                </span>
+              )}
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Track every piece of content from concept through to live. Tap <strong>Advance</strong> when a stage is complete.</p>
+              {/* Stage legend */}
+              <div style={{ display: 'flex', overflowX: 'auto', gap: 4, paddingBottom: 2 }}>
+                {PIPELINE_STAGES.map((stage, i) => (
+                  <div key={stage} style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: `${PIPELINE_STAGE_COLOR[stage]}18`, color: PIPELINE_STAGE_COLOR[stage], border: `1px solid ${PIPELINE_STAGE_COLOR[stage]}30`, whiteSpace: 'nowrap' }}>{stage}</span>
+                    {i < PIPELINE_STAGES.length - 1 && <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>›</span>}
+                  </div>
+                ))}
+              </div>
+              {/* Pipeline items */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {pipelineItems.map(item => (
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', borderRadius: 10,
+                    background: item.stage === 'Live' ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.55)',
+                    border: `1.5px solid ${PIPELINE_STAGE_COLOR[item.stage]}25` }}>
+                    <span style={{ fontSize: 16, flexShrink: 0 }}>{item.type}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{item.platform}</div>
+                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, flexShrink: 0,
+                      background: `${PIPELINE_STAGE_COLOR[item.stage]}15`,
+                      color: PIPELINE_STAGE_COLOR[item.stage],
+                      border: `1px solid ${PIPELINE_STAGE_COLOR[item.stage]}30` }}>
+                      {item.stage}
+                    </span>
+                    {item.stage !== 'Live' && (
+                      <button type="button" onClick={() => advancePipeline(item.id)}
+                        style={{ ...btnBase, fontSize: 9, padding: '3px 8px', background: `${PIPELINE_STAGE_COLOR[item.stage]}12`, color: PIPELINE_STAGE_COLOR[item.stage], border: `1px solid ${PIPELINE_STAGE_COLOR[item.stage]}30`, flexShrink: 0 }}>
+                        Advance →
+                      </button>
+                    )}
+                    <button type="button" onClick={() => removePipelineItem(item.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'rgba(239,68,68,0.4)', padding: 0, flexShrink: 0 }}>✕</button>
+                  </div>
+                ))}
+              </div>
+              {/* Add new item */}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <select value={pipeNewType} onChange={e => setPipeNewType(e.target.value)}
+                  style={{ fontSize: 13, borderRadius: 8, padding: '6px 8px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                  {['📱', '🎬', '📸', '🧵', '📧', '▶️'].map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <input value={pipeNewTitle} onChange={e => setPipeNewTitle(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addPipelineItem()}
+                  placeholder="Content title…"
+                  style={{ flex: 2, padding: '6px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', minWidth: 0 }} />
+                <select value={pipeNewPlatform} onChange={e => setPipeNewPlatform(e.target.value)}
+                  style={{ fontSize: 11, borderRadius: 8, padding: '6px 8px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                  {['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest'].map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+                <button type="button" onClick={addPipelineItem} disabled={!pipeNewTitle.trim()}
+                  style={{ ...btnBase, background: ACCENT, color: 'white', padding: '6px 16px', opacity: !pipeNewTitle.trim() ? 0.5 : 1 }}>
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── 5b. Storyboard Builder ────────────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🎞️</span>
+              <span className="de-widget-title ml-2">Storyboard Builder</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--de-text-dim)' }}>
+                {sbFrames.reduce((a, f) => a + f.duration, 0)}s total
+              </span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Plan every scene and shot before the engine opens. The editor follows this — no guesswork, no missed shots.</p>
+              <input type="text" value={sbTitle} onChange={e => setSbTitle(e.target.value)}
+                placeholder="Project title (e.g. Q2 Launch Reel)…"
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+              {/* Frame cards */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {sbFrames.map((frame, i) => (
+                  <div key={frame.id} style={{ borderRadius: 12, background: 'rgba(255,255,255,0.6)', border: `1px solid ${ACCENT}15`, overflow: 'hidden' }}>
+                    {/* Frame header bar */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', background: `${ACCENT}08`, borderBottom: `1px solid ${ACCENT}10` }}>
+                      <span style={{ fontSize: 9, fontWeight: 800, color: 'white', background: ACCENT, padding: '1px 7px', borderRadius: 10 }}>#{i + 1}</span>
+                      <input value={frame.scene} onChange={e => updateSbFrame(frame.id, 'scene', e.target.value)}
+                        placeholder="Scene name"
+                        style={{ flex: 1, fontSize: 11, fontWeight: 700, background: 'none', border: 'none', outline: 'none', color: 'var(--de-heading)' }} />
+                      <select value={frame.shot} onChange={e => updateSbFrame(frame.id, 'shot', e.target.value)}
+                        style={{ fontSize: 10, borderRadius: 6, padding: '2px 6px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                        {SB_SHOT_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <input type="number" value={frame.duration} min={1} max={600}
+                          onChange={e => updateSbFrame(frame.id, 'duration', parseInt(e.target.value) || 1)}
+                          style={{ width: 40, fontSize: 11, fontWeight: 700, textAlign: 'center', borderRadius: 5, padding: '2px 4px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: ACCENT, outline: 'none' }} />
+                        <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>s</span>
+                      </div>
+                      {sbFrames.length > 1 && (
+                        <button type="button" onClick={() => removeSbFrame(frame.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'rgba(239,68,68,0.45)', padding: 0 }}>✕</button>
+                      )}
+                    </div>
+                    {/* Action + Audio */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+                      <div style={{ padding: '8px 10px', borderRight: `1px solid ${ACCENT}08` }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 3 }}>🎬 ACTION</div>
+                        <textarea value={frame.action} onChange={e => updateSbFrame(frame.id, 'action', e.target.value)}
+                          rows={2} placeholder="What happens on screen…"
+                          style={{ width: '100%', fontSize: 11, border: 'none', background: 'transparent', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.4, outline: 'none', boxSizing: 'border-box' }} />
+                      </div>
+                      <div style={{ padding: '8px 10px' }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 3 }}>🎵 AUDIO</div>
+                        <textarea value={frame.audio} onChange={e => updateSbFrame(frame.id, 'audio', e.target.value)}
+                          rows={2} placeholder="Music, VO, SFX…"
+                          style={{ width: '100%', fontSize: 11, border: 'none', background: 'transparent', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.4, outline: 'none', boxSizing: 'border-box' }} />
                       </div>
                     </div>
                   </div>
-                )}
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 7 }}>
+                <button type="button" onClick={addSbFrame}
+                  style={{ ...btnBase, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}25`, flex: 1, padding: '8px 0' }}>
+                  + Add Frame
+                </button>
+                <button type="button" onClick={copySbText}
+                  style={{ ...btnBase, background: sbCopied ? 'rgba(34,197,94,0.1)' : `${ACCENT}12`, color: sbCopied ? '#16a34a' : ACCENT, border: `1px solid ${sbCopied ? 'rgba(34,197,94,0.3)' : `${ACCENT}25`}`, flex: 1, padding: '8px 0' }}>
+                  {sbCopied ? '✅ Copied' : '📋 Copy Storyboard'}
+                </button>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* ── Industry Tools Hub ── */}
+          {/* ── 5c. AI Production Plan Builder ───────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🤖</span>
+              <span className="de-widget-title ml-2">AI Production Plan</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 7px', borderRadius: 4 }}>Pre → Engine → Post</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+                Describe your content idea. AI builds a full production plan — pre-production, what the engine needs to do, post-production, and distribution — so nothing gets missed.
+              </p>
+              {/* Idea input */}
+              <textarea value={planIdea} onChange={e => { setPlanIdea(e.target.value); setPlanResult(null); }} rows={3}
+                placeholder="Describe your content idea (e.g. 'A 30s reel showing behind-the-scenes of our product launch with fast cuts and trending audio')…"
+                style={{ width: '100%', borderRadius: 10, padding: '10px 12px', fontSize: 12, border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Content Type</label>
+                  <select value={planType} onChange={e => setPlanType(e.target.value)}
+                    style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {['Reel', 'YouTube Video', 'YouTube Short', '3D Animation', 'Podcast', 'Blog Post', 'Email Campaign', 'Social Ad', 'Story'].map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Platform</label>
+                  <select value={planPlatform} onChange={e => setPlanPlatform(e.target.value)}
+                    style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest', 'Email'].map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+              <button type="button" onClick={handleGeneratePlan} disabled={planLoading || !planIdea.trim()}
+                style={{ ...btnBase, background: '#6366f1', color: 'white', padding: '10px 0', width: '100%', fontSize: 13, opacity: planLoading || !planIdea.trim() ? 0.6 : 1 }}>
+                {planLoading ? '🤖 Building plan…' : '🤖 Generate Full Production Plan'}
+              </button>
+              {/* Plan result */}
+              {planResult && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)', padding: '8px 0 4px' }}>{planResult.title}</div>
+                  {([
+                    { phase: '📋 Pre-Production',       color: '#f59e0b', items: planResult.preProd        },
+                    { phase: '🎬 Production (Engine)',   color: '#ec4899', items: planResult.production     },
+                    { phase: '✂️ Post-Production',       color: '#8b5cf6', items: planResult.postProd       },
+                    { phase: '🚀 Distribution',          color: '#22c55e', items: planResult.distribution   },
+                  ] as const).map(section => (
+                    <div key={section.phase} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${section.color}20` }}>
+                      <div style={{ padding: '7px 12px', background: `${section.color}10`, borderBottom: `1px solid ${section.color}15` }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: section.color }}>{section.phase}</span>
+                      </div>
+                      <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                        {section.items.map((item, i) => (
+                          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                            <span style={{ fontSize: 10, fontWeight: 800, color: section.color, flexShrink: 0, marginTop: 1 }}>{i + 1}.</span>
+                            <span style={{ fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.5 }}>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
+                    <button type="button" onClick={handleSavePlan}
+                      style={{ ...btnBase, background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.25)', padding: '8px 18px', fontSize: 13 }}>
+                      💾 Save Plan to Drafts
+                    </button>
+                    {planSaveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: planSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{planSaveMsg}</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── 6. Industry Tools Hub ──────────────────────────────────────────── */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <Wrench className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1164,46 +1513,47 @@ export default function ContentEngin({ onBack }: Props) {
               <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', background: 'rgba(160,195,240,0.2)', padding: '2px 7px', borderRadius: 4 }}>2026 Standards</span>
             </div>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Every major industry tool — and the DREAMengin pre-edit feature that replaces the overhead of using it separately.</p>
               {([
                 {
                   category: '🎬 Video & Social',
                   color: '#ec4899',
                   tools: [
-                    { name: 'CapCut',    desc: 'All-in-one AI video editing',          de: '🎬 Script Editor + Short Video Editor' },
-                    { name: 'Descript',  desc: 'Text-based video & audio editing',     de: '✍️ Script Editor (scene-by-scene)' },
+                    { name: 'CapCut',   desc: 'All-in-one AI video editing',         de: 'Brief Builder → hands editor a complete spec before they open CapCut' },
+                    { name: 'Descript', desc: 'Text-based video & audio editing',     de: 'Audio Prep Station → VO brief, SFX list, and loudness target prepared in advance' },
                   ],
                 },
                 {
                   category: '🎨 Visual Design',
                   color: '#10b981',
                   tools: [
-                    { name: 'Canva Pro',      desc: 'Fast design & brand assets',            de: '🎨 Social Card Builder' },
-                    { name: 'Adobe Firefly',  desc: 'Generative AI in Photoshop/Illustrator', de: '🎨 Card Builder + Brand Templates' },
+                    { name: 'Canva Pro',     desc: 'Fast design & brand assets',            de: 'Platform Specs Master → editor gets exact dimensions before opening Canva' },
+                    { name: 'Adobe Firefly', desc: 'Generative AI in Photoshop/Illustrator', de: 'Asset Collector → graphic assets sourced & approved before AI generation begins' },
                   ],
                 },
                 {
                   category: '✍️ Writing & Strategy',
                   color: '#6366f1',
                   tools: [
-                    { name: 'ChatGPT',  desc: 'Custom GPTs for content strategy', de: '✍️ AI Writing Studio' },
-                    { name: 'Claude',   desc: 'Long-form drafting & brand voice', de: '✍️ AI Writer + Brand Voice Guard' },
-                    { name: 'Jasper',   desc: 'Brand voice & campaign copy',      de: '✍️ AI Writer + Brand Voice Guard' },
+                    { name: 'ChatGPT',  desc: 'Custom GPTs for content strategy', de: 'AI Post Intelligence → what to create next, based on your engagement gaps' },
+                    { name: 'Claude',   desc: 'Long-form drafting & brand voice', de: 'Brand Voice Guard → brand voice defined pre-production so drafts stay on-brand' },
+                    { name: 'Jasper',   desc: 'Brand voice & campaign copy',      de: 'Creative Brief → message, tone, audience locked in before a word is written' },
                   ],
                 },
                 {
                   category: '📊 SEO & Optimization',
                   color: '#0ea5e9',
                   tools: [
-                    { name: 'Surfer SEO', desc: 'Content scoring & optimization', de: '📊 SEO Content Planner + Title Optimizer' },
-                    { name: 'Semrush',    desc: 'Competitive content analysis',   de: '📊 SEO Planner + Topic Clusters' },
+                    { name: 'Surfer SEO', desc: 'Content scoring & keyword optimization', de: 'SEO Title Optimizer → titles scored & optimised before the editor adds them' },
+                    { name: 'Semrush',    desc: 'Competitive content analysis',           de: 'Content Pipeline → competitive gaps spotted, strategy set before production' },
                   ],
                 },
                 {
                   category: '📋 Organization',
                   color: '#f59e0b',
                   tools: [
-                    { name: 'Notion', desc: 'Docs & content wikis',       de: '🧠 Workflow Brain + Context Thread' },
-                    { name: 'Trello', desc: 'Kanban content production',   de: '📋 Content Calendar + Publishing Queue' },
+                    { name: 'Notion', desc: 'Docs, wikis & project management',   de: 'Workflow Brain + Creative Brief → project context lives in one place' },
+                    { name: 'Trello', desc: 'Kanban content production boards',    de: 'Content Pipeline → 7-stage kanban from Concept to Live, no separate app needed' },
                   ],
                 },
               ]).map(group => (
@@ -1211,15 +1561,13 @@ export default function ContentEngin({ onBack }: Props) {
                   <div style={{ fontSize: 11, fontWeight: 800, color: group.color, marginBottom: 5 }}>{group.category}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                     {group.tools.map(tool => (
-                      <div key={tool.name} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${group.color}15` }}>
+                      <div key={tool.name} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', border: `1px solid ${group.color}15` }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                            <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)' }}>{tool.name}</span>
-                          </div>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 2 }}>{tool.name}</div>
                           <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 3 }}>{tool.desc}</div>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: group.color }}>DREAMengin: {tool.de}</div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: group.color }}>→ {tool.de}</div>
                         </div>
-                        <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: `${group.color}12`, color: group.color, flexShrink: 0, marginTop: 1 }}>Built-in</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: `${group.color}12`, color: group.color, flexShrink: 0, marginTop: 1, whiteSpace: 'nowrap' }}>Pre-Edit ✓</span>
                       </div>
                     ))}
                   </div>
@@ -1228,7 +1576,6 @@ export default function ContentEngin({ onBack }: Props) {
             </div>
           </div>
         </div>
-
         {/* ═══════════════════════════════════════════════════════════════
             MANAGEMENT — Calendar · Queue · Drafts · Analytics
         ═══════════════════════════════════════════════════════════════ */}
@@ -2405,6 +2752,8 @@ export default function ContentEngin({ onBack }: Props) {
             <JourneyTrail compact />
           </div>
         </div>
+
+        </div>{/* end Management section */}
 
       </div>
     </div>
