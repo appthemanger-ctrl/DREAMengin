@@ -17,7 +17,6 @@ import {
   PointerEventTypes,
   Scene,
   StandardMaterial,
-  Texture,
   TransformNode,
   Vector3,
 } from '@babylonjs/core';
@@ -120,35 +119,35 @@ export default function DrEamsBabylonHero({
 
       // ── Lights ──────────────────────────────────────────────────────────────
       const hemi = new HemisphericLight('hemi', new Vector3(0, 1, 0), scene);
-      hemi.intensity = 1.0;
-      hemi.groundColor = new Color3(0.03, 0.04, 0.08);
-      hemi.diffuse = new Color3(0.70, 0.90, 1.0);
+      hemi.intensity = 1.08;
+      hemi.groundColor = new Color3(0.04, 0.05, 0.09);
+      hemi.diffuse = new Color3(0.74, 0.92, 1.0);
 
       const key = new DirectionalLight('key', new Vector3(-0.3, -0.8, 0.5), scene);
       key.position = new Vector3(3, 6, -4);
-      key.intensity = 2.4;
-      key.diffuse = new Color3(0.85, 0.92, 1.0);
+      key.intensity = 2.7;
+      key.diffuse = new Color3(0.92, 0.96, 1.0);
 
       const fill = new DirectionalLight('fill', new Vector3(0.6, -0.25, -0.5), scene);
       fill.position = new Vector3(-4, 3, 2);
-      fill.intensity = 1.2;
-      fill.diffuse = new Color3(0.40, 0.75, 1.0);
+      fill.intensity = 1.45;
+      fill.diffuse = new Color3(0.44, 0.80, 1.0);
 
       const rim = new DirectionalLight('rim', new Vector3(0, -0.15, -1), scene);
       rim.position = new Vector3(0, 3, 5);
-      rim.intensity = 0.8;
-      rim.diffuse = new Color3(0.20, 0.60, 1.0);
+      rim.intensity = 1.05;
+      rim.diffuse = new Color3(0.28, 0.70, 1.0);
 
       // ── Glow ────────────────────────────────────────────────────────────────
       const glow = new GlowLayer('glow', scene, { blurKernelSize: 24 });
-      glow.intensity = 0.65;
+      glow.intensity = 0.72;
 
       // ── Environment (IBL) ───────────────────────────────────────────────────
       scene.environmentTexture = CubeTexture.CreateFromPrefilteredData(
         'https://assets.babylonjs.com/environments/Studio.env',
         scene,
       );
-      scene.environmentIntensity = 1.4;
+      scene.environmentIntensity = 1.55;
 
       // ══════════════════════════════════════════════════════════════════════════
       // ── MATERIALS — Premium PBR matching reference screenshot ──────────────
@@ -156,54 +155,58 @@ export default function DrEamsBabylonHero({
 
       // Dark glossy helmet — near-black with high metallic sheen
       const helmetMat = new PBRMaterial('helmet', scene);
-      helmetMat.albedoColor = new Color3(0.04, 0.04, 0.06);
-      helmetMat.metallic = 0.95;
-      helmetMat.roughness = 0.12;
-      helmetMat.environmentIntensity = 2.2;
+      helmetMat.albedoColor = new Color3(0.08, 0.10, 0.14);
+      helmetMat.metallic = 0.86;
+      helmetMat.roughness = 0.18;
+      helmetMat.environmentIntensity = 2.35;
       helmetMat.clearCoat.isEnabled = true;
-      helmetMat.clearCoat.intensity = 0.9;
-      helmetMat.clearCoat.roughness = 0.06;
-      helmetMat.emissiveColor = new Color3(0.01, 0.02, 0.03);
+      helmetMat.clearCoat.intensity = 1.0;
+      helmetMat.clearCoat.roughness = 0.03;
+      helmetMat.emissiveColor = new Color3(0.02, 0.03, 0.05);
 
       // Dark mechanical body metal — glossy near-black for arms, legs, body
       const darkMetalMat = new PBRMaterial('darkMetal', scene);
-      darkMetalMat.albedoColor = new Color3(0.06, 0.06, 0.08);
-      darkMetalMat.metallic = 0.92;
-      darkMetalMat.roughness = 0.15;
-      darkMetalMat.environmentIntensity = 1.8;
+      darkMetalMat.albedoColor = new Color3(0.13, 0.15, 0.19);
+      darkMetalMat.metallic = 0.72;
+      darkMetalMat.roughness = 0.22;
+      darkMetalMat.environmentIntensity = 1.95;
       darkMetalMat.clearCoat.isEnabled = true;
-      darkMetalMat.clearCoat.intensity = 0.7;
-      darkMetalMat.clearCoat.roughness = 0.10;
+      darkMetalMat.clearCoat.intensity = 0.55;
+      darkMetalMat.clearCoat.roughness = 0.12;
 
       // Joint/segment accent — slightly lighter dark metal for visible seams
       const jointMat = new PBRMaterial('joint', scene);
-      jointMat.albedoColor = new Color3(0.10, 0.10, 0.12);
-      jointMat.metallic = 0.85;
-      jointMat.roughness = 0.25;
-      jointMat.environmentIntensity = 1.4;
+      jointMat.albedoColor = new Color3(0.20, 0.22, 0.28);
+      jointMat.metallic = 0.78;
+      jointMat.roughness = 0.34;
+      jointMat.environmentIntensity = 1.5;
 
       // White lab coat — clean medical white with fabric feel
       const coatMat = new PBRMaterial('coat', scene);
-      coatMat.albedoColor = new Color3(0.92, 0.92, 0.94);
-      coatMat.metallic = 0.0;
-      coatMat.roughness = 0.55;
-      coatMat.environmentIntensity = 0.5;
+      coatMat.albedoColor = new Color3(0.94, 0.97, 1.0);
+      coatMat.metallic = 0.05;
+      coatMat.roughness = 0.26;
+      coatMat.environmentIntensity = 1.1;
+      coatMat.clearCoat.isEnabled = true;
+      coatMat.clearCoat.intensity = 0.62;
+      coatMat.clearCoat.roughness = 0.14;
+      coatMat.emissiveColor = new Color3(0.01, 0.02, 0.03);
 
       // Blue undershirt (V-neck visible beneath coat)
       const shirtMat = new PBRMaterial('shirt', scene);
-      shirtMat.albedoColor = new Color3(0.25, 0.45, 0.65);
+      shirtMat.albedoColor = new Color3(0.16, 0.33, 0.60);
       shirtMat.metallic = 0.0;
-      shirtMat.roughness = 0.60;
-      shirtMat.environmentIntensity = 0.4;
+      shirtMat.roughness = 0.38;
+      shirtMat.environmentIntensity = 0.65;
 
       // Visor / face screen — dark glass with deep internal glow
       const visorMat = new PBRMaterial('visor', scene);
-      visorMat.albedoColor = new Color3(0.02, 0.04, 0.06);
-      visorMat.alpha = 0.88;
+      visorMat.albedoColor = new Color3(0.03, 0.06, 0.10);
+      visorMat.alpha = 0.82;
       visorMat.metallic = 0.0;
       visorMat.roughness = 0.02;
-      visorMat.environmentIntensity = 2.0;
-      visorMat.emissiveColor = new Color3(0.08, 0.30, 0.40);
+      visorMat.environmentIntensity = 2.6;
+      visorMat.emissiveColor = new Color3(0.10, 0.34, 0.48);
       visorMat.clearCoat.isEnabled = true;
       visorMat.clearCoat.intensity = 1.0;
       visorMat.clearCoat.roughness = 0.01;
@@ -211,8 +214,8 @@ export default function DrEamsBabylonHero({
 
       // Screen inner glow
       const screenMat = new PBRMaterial('screen', scene);
-      screenMat.albedoColor = new Color3(0.02, 0.15, 0.22);
-      screenMat.emissiveColor = new Color3(0.10, 0.55, 0.70);
+      screenMat.albedoColor = new Color3(0.03, 0.18, 0.28);
+      screenMat.emissiveColor = new Color3(0.12, 0.64, 0.82);
       screenMat.metallic = 0;
       screenMat.roughness = 1;
 
@@ -232,34 +235,34 @@ export default function DrEamsBabylonHero({
 
       // Boot material — chunky dark glossy
       const bootMat = new PBRMaterial('boot', scene);
-      bootMat.albedoColor = new Color3(0.05, 0.05, 0.07);
-      bootMat.metallic = 0.88;
-      bootMat.roughness = 0.18;
-      bootMat.environmentIntensity = 1.6;
+      bootMat.albedoColor = new Color3(0.08, 0.10, 0.13);
+      bootMat.metallic = 0.74;
+      bootMat.roughness = 0.24;
+      bootMat.environmentIntensity = 1.85;
       bootMat.clearCoat.isEnabled = true;
       bootMat.clearCoat.intensity = 0.8;
       bootMat.clearCoat.roughness = 0.08;
 
       // Badge plate — silver metallic
       const badgeMat = new PBRMaterial('badge', scene);
-      badgeMat.albedoColor = new Color3(0.80, 0.82, 0.85);
-      badgeMat.metallic = 0.9;
-      badgeMat.roughness = 0.2;
-      badgeMat.environmentIntensity = 1.2;
+      badgeMat.albedoColor = new Color3(0.84, 0.86, 0.92);
+      badgeMat.metallic = 0.92;
+      badgeMat.roughness = 0.14;
+      badgeMat.environmentIntensity = 1.45;
 
       // Chest emblem — subtle dark circle
       const emblemMat = new PBRMaterial('emblem', scene);
-      emblemMat.albedoColor = new Color3(0.20, 0.35, 0.50);
-      emblemMat.metallic = 0.5;
-      emblemMat.roughness = 0.3;
+      emblemMat.albedoColor = new Color3(0.18, 0.40, 0.58);
+      emblemMat.metallic = 0.42;
+      emblemMat.roughness = 0.24;
 
       // Gold orbit material
       const goldMat = new PBRMaterial('gold', scene);
-      goldMat.albedoColor = new Color3(0.83, 0.68, 0.21);
+      goldMat.albedoColor = new Color3(0.88, 0.72, 0.24);
       goldMat.metallic = 1.0;
-      goldMat.roughness = 0.3;
-      goldMat.environmentIntensity = 1.6;
-      goldMat.emissiveColor = new Color3(0.18, 0.13, 0.02);
+      goldMat.roughness = 0.18;
+      goldMat.environmentIntensity = 1.85;
+      goldMat.emissiveColor = new Color3(0.22, 0.16, 0.03);
 
       // Fresnel ghost rim
       const ghostRimMat = new StandardMaterial('ghostRim', scene);
@@ -377,6 +380,47 @@ export default function DrEamsBabylonHero({
       chestEmblem.rotation.x = Math.PI / 2;
       chestEmblem.position = new Vector3(0, 1.48, 0.36);
       chestEmblem.parent = root;
+
+      const chestHalo = MeshBuilder.CreateTorus(
+        'chestHalo',
+        { diameter: 0.22, thickness: 0.018, tessellation: 28 },
+        scene,
+      );
+      chestHalo.material = eyeCyanMat;
+      chestHalo.rotation.x = Math.PI / 2;
+      chestHalo.position = new Vector3(0, 1.48, 0.39);
+      chestHalo.parent = root;
+      glow.addIncludedOnlyMesh(chestHalo as Mesh);
+
+      const chestCore = MeshBuilder.CreateSphere(
+        'chestCore',
+        { diameter: 0.06, segments: 18 },
+        scene,
+      );
+      chestCore.material = eyeGoldMat;
+      chestCore.position = new Vector3(0, 1.48, 0.395);
+      chestCore.parent = root;
+      glow.addIncludedOnlyMesh(chestCore as Mesh);
+
+      const torsoTrimL = MeshBuilder.CreateBox(
+        'torsoTrimL',
+        { width: 0.08, height: 0.62, depth: 0.035 },
+        scene,
+      );
+      torsoTrimL.material = badgeMat;
+      torsoTrimL.position = new Vector3(-0.26, 1.18, 0.30);
+      torsoTrimL.rotation.z = 0.16;
+      torsoTrimL.parent = root;
+
+      const torsoTrimR = MeshBuilder.CreateBox(
+        'torsoTrimR',
+        { width: 0.08, height: 0.62, depth: 0.035 },
+        scene,
+      );
+      torsoTrimR.material = badgeMat;
+      torsoTrimR.position = new Vector3(0.26, 1.18, 0.30);
+      torsoTrimR.rotation.z = -0.16;
+      torsoTrimR.parent = root;
 
       // Center button line
       const buttonLine = MeshBuilder.CreateCylinder(
@@ -506,6 +550,36 @@ export default function DrEamsBabylonHero({
       helmetChin.material = helmetMat;
       helmetChin.position = new Vector3(0, -0.22, 0.02);
       helmetChin.parent = headNode;
+
+      const visorBrow = MeshBuilder.CreateBox(
+        'visorBrow',
+        { width: 0.62, height: 0.08, depth: 0.14 },
+        scene,
+      );
+      visorBrow.material = jointMat;
+      visorBrow.position = new Vector3(0, 0.26, 0.20);
+      visorBrow.rotation.x = -0.08;
+      visorBrow.parent = headNode;
+
+      const jawPanel = MeshBuilder.CreateBox(
+        'jawPanel',
+        { width: 0.44, height: 0.12, depth: 0.12 },
+        scene,
+      );
+      jawPanel.material = jointMat;
+      jawPanel.position = new Vector3(0, -0.18, 0.24);
+      jawPanel.rotation.x = 0.12;
+      jawPanel.parent = headNode;
+
+      const headCrest = MeshBuilder.CreateBox(
+        'headCrest',
+        { width: 0.12, height: 0.18, depth: 0.40 },
+        scene,
+      );
+      headCrest.material = badgeMat;
+      headCrest.position = new Vector3(0, 0.46, -0.02);
+      headCrest.rotation.x = -0.12;
+      headCrest.parent = headNode;
 
       // ─── EAR PADS (headphone-style) ───────────────────────────────────────
 
@@ -749,6 +823,16 @@ export default function DrEamsBabylonHero({
       forearmL.position.y = -0.22;
       forearmL.parent = elbowNodeL;
 
+      const forearmGuardL = MeshBuilder.CreateBox(
+        'forearmGuardL',
+        { width: 0.18, height: 0.12, depth: 0.10 },
+        scene,
+      );
+      forearmGuardL.material = jointMat;
+      forearmGuardL.position = new Vector3(0, -0.22, 0.04);
+      forearmGuardL.rotation.x = 0.12;
+      forearmGuardL.parent = elbowNodeL;
+
       const forearmR = MeshBuilder.CreateCylinder(
         'forearmR',
         { height: 0.36, diameterTop: 0.12, diameterBottom: 0.10, tessellation: 20 },
@@ -757,6 +841,16 @@ export default function DrEamsBabylonHero({
       forearmR.material = darkMetalMat;
       forearmR.position.y = -0.22;
       forearmR.parent = elbowNodeR;
+
+      const forearmGuardR = MeshBuilder.CreateBox(
+        'forearmGuardR',
+        { width: 0.18, height: 0.12, depth: 0.10 },
+        scene,
+      );
+      forearmGuardR.material = jointMat;
+      forearmGuardR.position = new Vector3(0, -0.22, 0.04);
+      forearmGuardR.rotation.x = 0.12;
+      forearmGuardR.parent = elbowNodeR;
 
       // Forearm segment rings
       const foreRingL = MeshBuilder.CreateTorus(
@@ -1053,6 +1147,16 @@ export default function DrEamsBabylonHero({
       lowerLegL.position.y = -0.18;
       lowerLegL.parent = kneeNodeL;
 
+      const shinPanelL = MeshBuilder.CreateBox(
+        'shinPanelL',
+        { width: 0.12, height: 0.18, depth: 0.05 },
+        scene,
+      );
+      shinPanelL.material = badgeMat;
+      shinPanelL.position = new Vector3(0, -0.20, 0.08);
+      shinPanelL.rotation.x = 0.1;
+      shinPanelL.parent = kneeNodeL;
+
       const lowerLegR = MeshBuilder.CreateCylinder(
         'lowerLegR',
         { height: 0.30, diameterTop: 0.11, diameterBottom: 0.10, tessellation: 20 },
@@ -1061,6 +1165,16 @@ export default function DrEamsBabylonHero({
       lowerLegR.material = darkMetalMat;
       lowerLegR.position.y = -0.18;
       lowerLegR.parent = kneeNodeR;
+
+      const shinPanelR = MeshBuilder.CreateBox(
+        'shinPanelR',
+        { width: 0.12, height: 0.18, depth: 0.05 },
+        scene,
+      );
+      shinPanelR.material = badgeMat;
+      shinPanelR.position = new Vector3(0, -0.20, 0.08);
+      shinPanelR.rotation.x = 0.1;
+      shinPanelR.parent = kneeNodeR;
 
       // Leg segment ring accents
       const legRingL = MeshBuilder.CreateTorus(
@@ -1285,8 +1399,10 @@ export default function DrEamsBabylonHero({
 
         // Orbit torus rotation
         orbitTorus.rotation.y  = t * 0.38;
+        orbitTorus.position.y = 1.2 + Math.sin(t * 0.52) * 0.05;
         orbitTorus2.rotation.y = -t * 0.26;
         orbitTorus2.rotation.x = -Math.PI / 4 + Math.sin(t * 0.18) * 0.12;
+        orbitTorus2.position.y = 1.2 - Math.sin(t * 0.44) * 0.04;
 
         const desiredY = active ? targetRotY : idle.x;
         const desiredX = active ? targetRotX : idle.y;
@@ -1300,18 +1416,26 @@ export default function DrEamsBabylonHero({
               Math.max(0, 1 - (now - reactionStart) / REACT_MS)
             : 0;
         root.position.y = idleBodyBob + reactionBob;
+        root.position.z = Math.sin(t * 0.72) * 0.035;
 
         const blend = active ? 0.13 : 0.048;
         const idleBodyY = Math.sin(t * 0.55) * 0.065;
         const idleBodyX = Math.cos(t * 0.8) * 0.015;
+        const idleBodyZ = Math.sin(t * 0.64) * 0.05;
         root.rotation.y += (desiredY + idleBodyY - root.rotation.y) * blend;
         root.rotation.x += (desiredX * 0.32 + idleBodyX - root.rotation.x) * blend;
+        root.rotation.z += (idleBodyZ - root.rotation.z) * (active ? 0.11 : 0.04);
 
         // Head tracking
         const headAimY = desiredY * 0.62 + Math.sin(t * 0.42) * 0.045;
         const headAimX = desiredX * 0.42 + Math.cos(t * 0.31) * 0.018;
         headNode.rotation.y += (headAimY - headNode.rotation.y) * (active ? 0.17 : 0.062);
         headNode.rotation.x += (headAimX - headNode.rotation.x) * (active ? 0.14 : 0.055);
+
+        const reactorPulse = 1 + Math.sin(t * 2.2 + touchPulse * 2.8) * 0.08;
+        chestHalo.rotation.z = t * 0.95;
+        chestCore.scaling.setAll(reactorPulse + touchPulse * 0.12);
+        chestHalo.scaling.setAll(reactorPulse * 0.98 + 0.02);
 
         // Reaction zone animations
         const reactionElapsed = now - reactionStart;

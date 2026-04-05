@@ -10,6 +10,7 @@ import { connection } from 'next/server';
 export default async function AdsPage() {
   await connection();
   const supabase = await createServerClient();
+  const db = supabase as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -17,7 +18,7 @@ export default async function AdsPage() {
   }
 
   // Fetch user's ad slots
-  const { data: mySlotsData } = await supabase
+  const { data: mySlotsData } = await db
     .from('ad_slots')
     .select('*')
     .eq('owner_id', user.id)
@@ -25,7 +26,7 @@ export default async function AdsPage() {
 
   // Fetch available listings — split into user DreamAds vs platform promotions.
   // Per Phase 6 item 11 / ARCHITECTURE.md §7: these must remain separate.
-  const { data: marketplaceData } = await supabase
+  const { data: marketplaceData } = await db
     .from('ad_listings')
     .select(`
       *,
@@ -34,7 +35,7 @@ export default async function AdsPage() {
     .eq('status', 'available');
 
   // Fetch user's orders
-  const { data: myOrdersData } = await supabase
+  const { data: myOrdersData } = await db
     .from('ad_orders')
     .select(`
       *,

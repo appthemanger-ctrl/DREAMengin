@@ -40,6 +40,7 @@ function pctChange(current: number, previous: number): number {
 
 export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
+  const db = supabase as any;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -132,7 +133,7 @@ export async function GET(req: NextRequest) {
 
   // Revenue: count of ad_orders where buyer indirectly funded this user
   // (ad_slots owned by user → ad_listings → ad_orders)
-  const { data: mySlots } = await supabase
+  const { data: mySlots } = await db
     .from('ad_slots')
     .select('id')
     .eq('owner_id', user.id);
@@ -142,20 +143,20 @@ export async function GET(req: NextRequest) {
   let revenuePrev  = 0;
 
   if (mySlotIds.length > 0) {
-    const { data: myListings } = await supabase
+    const { data: myListings } = await db
       .from('ad_listings')
       .select('id')
       .in('slot_id', mySlotIds);
     const myListingIds = (myListings ?? []).map((l: { id: string }) => l.id);
 
     if (myListingIds.length > 0) {
-      const { count: rtTotal } = await supabase
+      const { count: rtTotal } = await db
         .from('ad_orders')
         .select('*', { count: 'exact', head: true })
         .in('listing_id', myListingIds)
         .eq('payment_status', 'paid')
         .gte('created_at', periodStart);
-      const { count: rtPrev } = await supabase
+      const { count: rtPrev } = await db
         .from('ad_orders')
         .select('*', { count: 'exact', head: true })
         .in('listing_id', myListingIds)
