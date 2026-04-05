@@ -68,7 +68,7 @@ export default function SettingsPanel() {
   async function handleSignOut() {
     const sb = createClient();
     await sb.auth.signOut();
-    window.location.href = '/login';
+    (window.top ?? window).location.href = '/login';
   }
 
   return (
