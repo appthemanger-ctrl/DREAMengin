@@ -287,7 +287,7 @@ export default function DREAMenginOS({ audioSource, onReady, subsystems }: DREAM
             opacity: 0.6 + pulseIntensity,
           }}
         />
-        {systemStatus} // {hudMode}
+        {systemStatus} · {hudMode}
       </div>
       <div
         style={{
