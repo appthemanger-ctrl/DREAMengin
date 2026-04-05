@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-05 02:59 UTC | `bb41e42` | copilot/fix-profile-page-error | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-profile-page-error<br> |
 | **auto** | 2026-04-05 02:33 UTC | `753d9aa` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #435 from appthemanger-ctrl/copilot/fix-button-size-and-video-screen — fix: game engine server crash, iPad button sizing, landscape controls blackout<br> |
 | **auto** | 2026-04-05 01:11 UTC | `02d784a` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #434 from appthemanger-ctrl/copilot/forge-six-daydreams-and-engins — feat: forge all 9 Engins — full cross-engine connectivity, Pulse Monitor, JourneyTrail<br> |
 | **auto** | 2026-04-05 01:11 UTC | `e82f079` | copilot/forge-six-daydreams-and-engins | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/forge-six-daydreams-and-engins<br> |
 | **auto** | 2026-04-05 00:25 UTC | `bcac9f0` | completedream | appthemanger-ctrl | +1 added<br>Update print statement from 'Hello' to 'Goodbye'<br>➕: `README.md` |
-| **auto** | 2026-04-04 21:15 UTC | `60c6e7d` | copilot/go-nuts-with-dreamdmbar | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/go-nuts-with-dreamdmbar<br> |
 
 ## What changed in this alignment pass
 
