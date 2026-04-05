@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-05 05:42 UTC | `666671f` | copilot/create-code-dream-engine | Copilot | +2 added  ~4 modified<br>feat: Code Dream IDE + Lab Dream IDE + CodeEngin preview/viz tabs + Dr. Eams upgrade + LabEngin split/viz tabs — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/8a177462-aea5-4b98-882c-fe39571ff597  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `components/daydream/CodeDreamIDE.tsx`, `components/daydream/LabDreamIDE.tsx`<br>✏️: `app/daydream/code/page.tsx`, `app/daydream/lab/page.tsx`, `components/daydream/CodeEngin.tsx`, `components/daydream/LabEngin.tsx` |
 | **auto** | 2026-04-05 04:33 UTC | `6f215b9` | copilot/fix-high-resolution-audio-engine | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-high-resolution-audio-engine<br> |
 | **auto** | 2026-04-05 03:17 UTC | `3f521df` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #440 from appthemanger-ctrl/copilot/add-floating-light-glow-effect — feat(DreamDMBar): animate floating light gold → light-blue → gold<br> |
 | **auto** | 2026-04-05 03:01 UTC | `697a9ad` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #436 from appthemanger-ctrl/copilot/fix-app-logout-behavior — fix: whole-app shutdown on any runtime logout or crash<br> |
 | **auto** | 2026-04-05 03:01 UTC | `76bafc4` | copilot/fix-app-logout-behavior | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-app-logout-behavior<br> |
-| **auto** | 2026-04-05 02:59 UTC | `fa1a33f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #438 from appthemanger-ctrl/copilot/fix-profile-page-error — fix: Server Component crash when navigating home from profile/edit-profile pages<br> |
 
 ## What changed in this alignment pass
 
