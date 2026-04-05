@@ -225,7 +225,12 @@ export function useForgeBuild(): UseForgeBuildReturn {
         setState('error');
       }
     })();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Intentionally empty: `submit` is a stable function closure that captures the
+  // latest `prompt` and `state` values at call time via functional setState patterns.
+  // Adding them as dependencies would cause an infinite re-render loop because
+  // `submit` is also declared via useCallback in this same hook.
+  }, []);
 
   return { state, logs, result, submit, reset, rateLimitError };
 }
