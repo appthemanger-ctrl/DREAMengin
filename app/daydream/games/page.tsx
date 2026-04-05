@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Gamepad2, Play, Sparkles, Zap } from 'lucide-react';
 import GamesHub from '@/components/games/GamesHub';
+import AvatarMaker from '@/components/games/AvatarMaker';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import GameEngin from '@/components/daydream/GameEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
@@ -169,6 +170,19 @@ export default async function GamesDaydreamPage() {
             </div>
 
             <div className="space-y-4">
+              <div className="de-widget" style={{ borderColor: 'rgba(124,58,237,0.24)' }}>
+                <div className="de-widget-header">
+                  <Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} />
+                  <span className="de-widget-title ml-2">Play as Yourself</span>
+                  <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}>
+                    Avatar Studio
+                  </span>
+                </div>
+                <div className="de-widget-body" style={{ paddingTop: 12 }}>
+                  <AvatarMaker />
+                </div>
+              </div>
+
               <div className="de-widget" style={{ borderColor: 'rgba(42,138,184,0.28)', background: 'linear-gradient(180deg, rgba(11,23,45,0.96), rgba(22,37,72,0.9))', color: '#f8fbff' }}>
                 <div className="de-widget-header" style={{ borderBottomColor: 'rgba(125,211,252,0.18)' }}>
                   <Zap className="w-4 h-4" style={{ color: '#7dd3fc' }} />

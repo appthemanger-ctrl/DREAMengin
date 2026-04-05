@@ -152,6 +152,7 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
             whileHover={{ width: 80, height: 80 }}
             whileTap={{ scale: 0.92 }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+            className="de-daydream-engin-fold de-desktop-only"
             style={{
               position: 'fixed',
               bottom: 0,
@@ -169,26 +170,65 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
               padding: 0,
             }}
           />
-          <div style={{
-            position: 'fixed',
-            bottom: 20,
-            right: 84,
-            zIndex: 48,
-            fontSize: 10,
-            fontWeight: 800,
-            letterSpacing: '0.12em',
-            color: 'rgba(255,255,255,0.92)',
-            textShadow: '0 1px 8px rgba(0,0,0,0.45)',
-            pointerEvents: 'none',
-            padding: '8px 12px',
-            borderRadius: 999,
-            background: 'rgba(8,16,36,0.42)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.12)',
-          }}>
+          <div
+            className="de-desktop-only"
+            style={{
+              position: 'fixed',
+              bottom: 20,
+              right: 84,
+              zIndex: 48,
+              fontSize: 10,
+              fontWeight: 800,
+              letterSpacing: '0.12em',
+              color: 'rgba(255,255,255,0.92)',
+              textShadow: '0 1px 8px rgba(0,0,0,0.45)',
+              pointerEvents: 'none',
+              padding: '8px 12px',
+              borderRadius: 999,
+              background: 'rgba(8,16,36,0.42)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+            }}>
             ENGIN →
           </div>
+
+          {/* ── Mobile: prominent bottom-center ENGIN pill button ── */}
+          <motion.button
+            type="button"
+            onClick={flip}
+            aria-label={`Open ${enginName}`}
+            whileTap={{ scale: 0.93 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+            className="de-mobile-engin-pill"
+            style={{
+              position: 'fixed',
+              bottom: `max(100px, calc(92px + env(safe-area-inset-bottom, 0px)))`,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 48,
+              alignItems: 'center',
+              gap: 8,
+              padding: '11px 22px',
+              borderRadius: 9999,
+              cursor: 'pointer',
+              border: `1.5px solid ${accentColor}55`,
+              background: `linear-gradient(135deg, rgba(8,16,36,0.88), rgba(8,16,36,0.72))`,
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: `0 6px 28px rgba(0,0,0,0.30), 0 0 20px ${accentColor}28`,
+              fontSize: 12,
+              fontWeight: 800,
+              letterSpacing: '0.12em',
+              color: 'rgba(255,255,255,0.92)',
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation',
+            }}
+          >
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: accentColor, flexShrink: 0, boxShadow: `0 0 8px ${accentColor}` }} />
+            {enginName.toUpperCase()}
+            <span style={{ opacity: 0.55, fontSize: 11 }}>→</span>
+          </motion.button>
         </>
       )}
     </>
@@ -204,11 +244,33 @@ function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
   onBack: () => void;
 }) {
   return (
-    <div className="de-sky-bg min-h-screen">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(155deg, #050508 0%, #08101e 45%, #0a0f1c 75%, #050508 100%)', position: 'relative', overflow: 'hidden' }}>
+      {/* Accent glow halo */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: '-80px', left: '50%', transform: 'translateX(-50%)',
+          width: '600px', height: '400px',
+          background: `radial-gradient(ellipse, ${accentColor}22 0%, transparent 65%)`,
+          filter: 'blur(40px)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
       <header
-        className="sticky top-0 z-30 backdrop-blur-xl"
-        style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
+        className="sticky top-0 z-30"
+        style={{
+          background: 'rgba(6,10,22,0.88)',
+          backdropFilter: 'blur(24px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(160%)',
+          borderBottom: `1px solid ${accentColor}28`,
+          boxShadow: `0 1px 0 ${accentColor}18`,
+        }}
       >
+        {/* Accent top stripe */}
+        <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${accentColor}90, rgba(200,152,26,0.6), transparent)` }} />
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <motion.button
             type="button"
@@ -216,43 +278,58 @@ function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
             whileTap={{ scale: 0.92 }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
             className="p-2 -ml-2 rounded-full"
-            style={{ background: 'rgba(160,195,240,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.10)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             aria-label={`Back to ${title}`}
           >
-            <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
+            <ArrowLeft className="w-4 h-4" style={{ color: 'rgba(200,220,255,0.80)' }} />
           </motion.button>
           <div
             style={{
-              width: 20, height: 20, borderRadius: 6, flexShrink: 0,
+              width: 22, height: 22, borderRadius: 7, flexShrink: 0,
               background: `linear-gradient(135deg, ${accentColor}, rgba(200,152,26,0.8))`,
+              boxShadow: `0 2px 10px ${accentColor}55`,
             }}
           />
           <div>
-            <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1.1 }}>{enginName}</div>
-            <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{title} · Control Layer</div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: 'rgba(225,240,255,0.96)', lineHeight: 1.1, letterSpacing: '-0.01em' }}>{enginName}</div>
+            <div style={{ fontSize: 11, color: 'rgba(140,170,220,0.55)', letterSpacing: '0.04em' }}>{title} · Control Layer</div>
           </div>
           <div className="ml-auto" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <BrandLogo width={24} height={24} alt="DREAMengin" />
-          <span
-            className="text-xs font-semibold px-2 py-1 rounded-full"
-            style={{ background: `${accentColor}18`, color: accentColor, border: `1px solid ${accentColor}35` }}
-          >
-            Side B
-          </span>
+            <span
+              className="text-xs font-semibold px-2 py-1 rounded-full"
+              style={{ background: `${accentColor}20`, color: accentColor, border: `1px solid ${accentColor}40` }}
+            >
+              Side B
+            </span>
           </div>
         </div>
       </header>
 
-      <div className="de-auth-content" style={{ paddingTop: 20 }}>
-        <div className="de-auth-hero" style={{ marginBottom: 16 }}>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 680, margin: '0 auto', padding: '24px 16px 80px' }}>
+        {/* Hero block */}
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: `1px solid ${accentColor}22`,
+            borderRadius: 20,
+            padding: '20px 20px 20px',
+            marginBottom: 20,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at top left, ${accentColor}12 0%, transparent 55%)`, pointerEvents: 'none' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: accentColor, marginBottom: 8 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: accentColor, marginBottom: 10 }}>
               {title} · Engin Side
             </div>
-            <div style={{ fontSize: 24, fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.03em', color: 'var(--de-heading)', marginBottom: 8 }}>
+            <div style={{ fontSize: 22, fontWeight: 900, lineHeight: 1.10, letterSpacing: '-0.03em', color: 'rgba(225,240,255,0.96)', marginBottom: 10 }}>
               {enginName} is the powered control layer behind {title}.
             </div>
-            <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.65, margin: 0 }}>
+            <p style={{ fontSize: 13, color: 'rgba(140,170,220,0.65)', lineHeight: 1.65, margin: 0 }}>
               Use Side B like the operational deck: faster launch paths, clearer tool groups, and a more premium control surface that still keeps the daydream context anchored.
             </p>
           </div>
@@ -281,12 +358,12 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
       display: 'inline-flex',
       alignItems: 'center',
       gap: 0,
-      background: 'rgba(255,255,255,0.75)',
-      backdropFilter: 'blur(24px) saturate(200%)',
-      WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+      background: 'rgba(255,255,255,0.08)',
+      backdropFilter: 'blur(24px) saturate(160%)',
+      WebkitBackdropFilter: 'blur(24px) saturate(160%)',
       borderRadius: 999,
-      border: `1.5px solid ${accentColor}30`,
-      boxShadow: `0 4px 20px ${accentColor}25, inset 0 1px 0 rgba(255,255,255,0.6)`,
+      border: `1.5px solid ${accentColor}35`,
+      boxShadow: `0 4px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.10)`,
       overflow: 'hidden',
       fontSize: 12,
       fontWeight: 700,
@@ -321,7 +398,7 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
           background: 'none',
           border: 'none',
           cursor: 'pointer',
-          color: 'var(--de-heading)',
+          color: 'rgba(200,220,255,0.85)',
           fontWeight: 700,
           fontSize: 12,
           letterSpacing: '0.04em',
@@ -383,10 +460,10 @@ function MarbleWidget({ w }: { w: DaydreamWidget }) {
       }} />
 
       <div style={{ fontSize: 34, lineHeight: 1, position: 'relative', zIndex: 1 }}>{w.emoji}</div>
-      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)', textAlign: 'center', lineHeight: 1.2, position: 'relative', zIndex: 1 }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: 'rgba(225,240,255,0.95)', textAlign: 'center', lineHeight: 1.2, position: 'relative', zIndex: 1 }}>
         {w.label}
       </div>
-      <div style={{ fontSize: 10, color: 'var(--de-text-dim)', textAlign: 'center', lineHeight: 1.35, position: 'relative', zIndex: 1 }}>
+      <div style={{ fontSize: 10, color: 'rgba(160,190,230,0.70)', textAlign: 'center', lineHeight: 1.35, position: 'relative', zIndex: 1 }}>
         {w.desc}
       </div>
     </div>

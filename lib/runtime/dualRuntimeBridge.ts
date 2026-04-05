@@ -82,6 +82,10 @@ export interface LabChannelEvents {
   'lab:quantum-measured': { circuitId: string; qubits: number; results: Record<string, number> };
   /** Data exported from lab — Create Engin can publish it */
   'lab:data-exported': { exportId: string; format: 'csv' | 'json' | 'pdf'; url: string };
+  /** User triggered a lab script run — LabEngin preview listens to render */
+  'lab:run': { language: string; code: string; simId: string };
+  /** Lab script output ready — preview panel receives streamed lines */
+  'lab:result': { lines: string[]; status: 'done' | 'error' };
 }
 
 /** Events emitted by Code Daydream / CodeEngin */
@@ -96,6 +100,10 @@ export interface CodeChannelEvents {
   'code:build-failed': { projectId: string; buildId: string; error: string };
   /** Notebook exported — Create Engin can publish it */
   'code:notebook-exported': { notebookId: string; format: 'html' | 'pdf' | 'ipynb'; url: string };
+  /** User triggered a code run — CodeEngin preview listens to render */
+  'code:run': { language: string; code: string; engine: string };
+  /** Code execution output ready — preview panel receives streamed lines */
+  'code:output': { lines: string[]; status: 'done' | 'error' };
 }
 
 /** Events emitted by Brand Daydream / BrandingEngin */

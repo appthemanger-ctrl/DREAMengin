@@ -41,6 +41,7 @@ import {
 } from '@/lib/games/library-state';
 import { useGamepad } from '@/lib/games/useGamepad';
 import { isLaunchFlagEnabled, buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
+import { consumePlayAsMe, getAvatarDataUrl } from '@/lib/games/avatar';
 import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBridge';
 import { useRemoteChannel } from '@/lib/games/useRemoteChannel';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
@@ -259,6 +260,8 @@ export default function GameEngin({ onBack }: Props) {
   const [sessionUtilityBarRevealed, setSessionUtilityBarRevealed] = useState(false);
   /** Controls "DREAMengin powered by…" boot splash shown when entering fullscreen */
   const [showEnginSplash, setShowEnginSplash] = useState(false);
+  /** Avatar image data URL — set when the user chose "Play as Yourself" */
+  const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
 
   /**
    * Active GPU rendering backend for this session.
@@ -641,6 +644,11 @@ export default function GameEngin({ onBack }: Props) {
       if (isLaunchFlagEnabled(searchParams.get('expand'))) {
         setShowEnginSplash(true);
         setExpandedPlayableGame(requestedGame);
+        // Consume the play-as-me flag and load the avatar if set
+        if (consumePlayAsMe()) {
+          const url = getAvatarDataUrl();
+          if (url) setAvatarDataUrl(url);
+        }
       }
       queuePlayableGameStart();
     }
@@ -823,8 +831,54 @@ export default function GameEngin({ onBack }: Props) {
         <GameHUD
           gameLabel={expandedPlayable.label}
           mode={expandedPlayable.mobileHudMode ?? 'buttons'}
-          onExit={() => setExpandedPlayableGame(null)}
+          onExit={() => { setExpandedPlayableGame(null); setAvatarDataUrl(null); }}
         />
+
+        {/* ── Avatar overlay — shown when user chose "Play as Yourself" ── */}
+        {avatarDataUrl && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 14,
+              right: 14,
+              zIndex: 56,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: 'rgba(3,7,18,0.80)',
+              border: '1px solid rgba(124,58,237,0.40)',
+              borderRadius: 999,
+              padding: '5px 12px 5px 5px',
+              backdropFilter: 'blur(14px)',
+              WebkitBackdropFilter: 'blur(14px)',
+              boxShadow: '0 4px 16px rgba(124,58,237,0.18)',
+            }}
+          >
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: '50%',
+                border: '2px solid #a78bfa',
+                overflow: 'hidden',
+                flexShrink: 0,
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={avatarDataUrl}
+                alt="Your avatar"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+            <div>
+              <div style={{ fontSize: 8, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a78bfa' }}>
+                Playing as
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#f8fbff' }}>You</div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

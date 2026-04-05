@@ -94,6 +94,21 @@ export const CANONICAL_NAV_ROUTES: ReadonlySet<string> = new Set([
 // Dr. Eams: create a concise reply + up to 3 JSON intents.
 // ---------------------------------------------------------------------------
 
+// Subset of CODE_VOCABULARY terms inlined so triad.ts remains self-contained.
+// Full vocabulary lives in lib/code/drEamsCodeAssist.ts.
+const CODE_VOCAB_SNAPSHOT = [
+  'variable, constant, function, class, loop, recursion, closure, async/await, callback, promise',
+  'inheritance, polymorphism, encapsulation, abstraction, singleton, decorator',
+  'array, dictionary, linked list, stack, queue, hash table, tree, graph',
+  'binary search, BFS, DFS, dynamic programming, sorting',
+  'map, filter, reduce, immutable, pure function',
+  'REST, GraphQL, WebSocket, JWT, CORS',
+  'Docker, CI/CD, Kubernetes',
+  'encryption, OAuth2, SQL injection, XSS',
+  'neural network, gradient descent, overfitting, transformer, embedding, RAG',
+  'shader, mesh, quaternion, physics, particle system',
+].join('; ');
+
 export async function planWithEams(input: {
   message: string;
   actorEmail?: string | null;
@@ -101,8 +116,36 @@ export async function planWithEams(input: {
   uiRoute?: string;
   /** Optional: real content context fetched from Supabase (Phase 8 §A Point 10) */
   contentContext?: string;
+  /**
+   * When provided, Dr. Eams operates in code-assist mode: vocabulary lookup,
+   * NL→code generation, explain/refactor/debug flows.
+   * Privacy: only selected_code (≤ 2 000 chars) is ever included.
+   */
+  codeContext?: {
+    language: 'python' | 'javascript' | 'typescript' | 'bash';
+    selected_code: string;
+    cursor_line?: number;
+  };
 }): Promise<EamsPlan> {
   const canonicalRouteList = Array.from(CANONICAL_NAV_ROUTES).join(', ');
+
+  // Build the code-assist section of the system prompt when codeContext present.
+  const codeAssistSection = input.codeContext
+    ? `\nCODE ASSIST MODE — ACTIVE:\n` +
+      `Language: ${input.codeContext.language}\n` +
+      `Key coding vocabulary you must recognise: ${CODE_VOCAB_SNAPSHOT}\n` +
+      `When the user mentions any of these terms, give a clear definition and a ${input.codeContext.language} code example.\n` +
+      `When the user says "write a function that…", "create a class…", "add a loop", etc., generate working ${input.codeContext.language} code wrapped in a fenced block.\n` +
+      `When the user says "explain this", analyse the snippet.\n` +
+      `Privacy: do NOT reference code beyond the snippet provided below.\n` +
+      (input.codeContext.selected_code.trim()
+        ? `\nACTIVE CODE SNIPPET (${input.codeContext.language}):\n\`\`\`${input.codeContext.language}\n${input.codeContext.selected_code.slice(0, 2000)}\n\`\`\`\n`
+        : `No code snippet provided.\n`) +
+      `\nIn code-assist mode:\n` +
+      `- Return { response_text: "<explanation or code>", intents: [] }\n` +
+      `- response_text may contain fenced code blocks\n` +
+      `- Do NOT propose navigation intents\n`
+    : '';
 
   const system: GroqMessage = {
     role: 'system',
@@ -136,6 +179,7 @@ export async function planWithEams(input: {
       `7) If real content context is provided below, use it to answer content questions accurately.\n\n` +
       `The user's role is ${input.actorRole}. Current route: ${input.uiRoute || 'unknown'}.\n` +
       (input.contentContext ? `\nREAL CONTENT CONTEXT (from database):\n${input.contentContext}\n` : '') +
+      codeAssistSection +
       `Be concise, confident, and action-oriented.`,
   };
 

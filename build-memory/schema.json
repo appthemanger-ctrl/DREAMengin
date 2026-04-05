@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-01T09:26:52.708Z",
+  "generated_at": "2026-04-05T07:51:04.128Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 116,
+  "count": 125,
   "tables": [
     {
       "table": "ad_campaigns",
@@ -175,8 +175,28 @@
           "type": "string"
         },
         {
+          "name": "creator_payout",
+          "type": "number | null"
+        },
+        {
+          "name": "creator_share",
+          "type": "number | null"
+        },
+        {
+          "name": "gross_revenue",
+          "type": "number | null"
+        },
+        {
           "name": "id",
           "type": "string"
+        },
+        {
+          "name": "platform_payout",
+          "type": "number | null"
+        },
+        {
+          "name": "platform_share",
+          "type": "number | null"
         },
         {
           "name": "status",
@@ -534,6 +554,48 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "ai_triad_consensus_log",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "request_id",
+          "type": "UUID NOT NULL"
+        },
+        {
+          "name": "user_id",
+          "type": "UUID REFERENCES auth"
+        },
+        {
+          "name": "eams_vote",
+          "type": "TEXT NOT NULL CHECK (eams_vote IN ("
+        },
+        {
+          "name": "idari_vote",
+          "type": "TEXT NOT NULL CHECK (idari_vote IN ("
+        },
+        {
+          "name": "boogie_vote",
+          "type": "TEXT NOT NULL CHECK (boogie_vote IN ("
+        },
+        {
+          "name": "outcome",
+          "type": "TEXT NOT NULL CHECK (outcome IN ("
+        },
+        {
+          "name": "reasoning",
+          "type": "JSONB DEFAULT"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260403000001_pgvector_embeddings.sql"
     },
     {
       "table": "album_content",
@@ -968,6 +1030,24 @@
       "source": "20260325100000_child_safety.sql"
     },
     {
+      "table": "close_friends",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "UUID NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "friend_id",
+          "type": "UUID NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "added_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260405000001_dreamr_feed_registry.sql"
+    },
+    {
       "table": "collection_items",
       "columns": [
         {
@@ -1270,6 +1350,40 @@
       "source": "types/supabase.ts"
     },
     {
+      "table": "content_embeddings",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "content_id",
+          "type": "UUID NOT NULL"
+        },
+        {
+          "name": "content_type",
+          "type": "TEXT NOT NULL CHECK (content_type IN ("
+        },
+        {
+          "name": "embedding",
+          "type": "vector(1536) NOT NULL"
+        },
+        {
+          "name": "owner_id",
+          "type": "UUID NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260403000001_pgvector_embeddings.sql"
+    },
+    {
       "table": "content_engagement",
       "columns": [
         {
@@ -1408,6 +1522,44 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "control_mappings",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID        PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "asset_id",
+          "type": "UUID        NOT NULL"
+        },
+        {
+          "name": "input_source",
+          "type": "TEXT        NOT NULL"
+        },
+        {
+          "name": "command_target",
+          "type": "TEXT        NOT NULL"
+        },
+        {
+          "name": "sensitivity",
+          "type": "NUMERIC     NOT NULL DEFAULT 1"
+        },
+        {
+          "name": "owner_id",
+          "type": "UUID        REFERENCES profiles(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ DEFAULT NOW()"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMPTZ DEFAULT NOW()"
+        }
+      ],
+      "source": "20260402000001_control_mappings.sql"
     },
     {
       "table": "conversation_participants",
@@ -2056,6 +2208,48 @@
       "source": "types/supabase.ts"
     },
     {
+      "table": "game_assets",
+      "columns": [
+        {
+          "name": "asset_type",
+          "type": "string"
+        },
+        {
+          "name": "config_dna",
+          "type": "Json | null"
+        },
+        {
+          "name": "created_at",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "owner_id",
+          "type": "string"
+        },
+        {
+          "name": "source_image_url",
+          "type": "string | null"
+        },
+        {
+          "name": "wasm_mesh_data",
+          "type": "string | null"
+        },
+        {
+          "name": "wasm_rig_data",
+          "type": "string | null"
+        }
+      ],
+      "source": "types/supabase.ts"
+    },
+    {
       "table": "game_scores",
       "columns": [
         {
@@ -2081,6 +2275,36 @@
         {
           "name": "user_id",
           "type": "string"
+        }
+      ],
+      "source": "types/supabase.ts"
+    },
+    {
+      "table": "global_registry",
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "internal_id",
+          "type": "string"
+        },
+        {
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "name": "object_type",
+          "type": "string"
+        },
+        {
+          "name": "owner_id",
+          "type": "string | null"
         }
       ],
       "source": "types/supabase.ts"
@@ -2973,51 +3197,55 @@
       "table": "physics_experiments",
       "columns": [
         {
-          "name": "id",
-          "type": "UUID PRIMARY KEY DEFAULT gen_random_uuid()"
+          "name": "created_at",
+          "type": "string"
         },
         {
           "name": "creator_id",
-          "type": "UUID REFERENCES profiles(id) ON DELETE CASCADE"
-        },
-        {
-          "name": "title",
-          "type": "TEXT NOT NULL"
+          "type": "string | null"
         },
         {
           "name": "description",
-          "type": "TEXT"
+          "type": "string | null"
         },
         {
           "name": "hypothesis",
-          "type": "TEXT"
+          "type": "string | null"
+        },
+        {
+          "name": "id",
+          "type": "string"
         },
         {
           "name": "methodology",
-          "type": "JSONB"
+          "type": "Json | null"
         },
         {
           "name": "parameters",
-          "type": "JSONB"
+          "type": "Json | null"
         },
         {
-          "name": "visibility",
-          "type": "TEXT DEFAULT"
+          "name": "performance_metrics",
+          "type": "Json | null"
         },
         {
           "name": "status",
-          "type": "TEXT DEFAULT"
+          "type": "string"
         },
         {
-          "name": "created_at",
-          "type": "TIMESTAMPTZ DEFAULT NOW()"
+          "name": "title",
+          "type": "string"
         },
         {
           "name": "updated_at",
-          "type": "TIMESTAMPTZ DEFAULT NOW()"
+          "type": "string"
+        },
+        {
+          "name": "visibility",
+          "type": "string"
         }
       ],
-      "source": "20260129000000_upgrade_schema.sql"
+      "source": "types/supabase.ts"
     },
     {
       "table": "physics_frameworks",
@@ -3132,6 +3360,24 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "post_views",
+      "columns": [
+        {
+          "name": "root_post_id",
+          "type": "UUID        NOT NULL REFERENCES public"
+        },
+        {
+          "name": "viewer_id",
+          "type": "UUID        NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "viewed_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260405000001_dreamr_feed_registry.sql"
     },
     {
       "table": "posts",
@@ -3314,6 +3560,28 @@
         }
       ],
       "source": "20260129000000_upgrade_schema.sql"
+    },
+    {
+      "table": "saved_posts",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID        PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "UUID        NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "post_id",
+          "type": "UUID        NOT NULL REFERENCES public"
+        },
+        {
+          "name": "saved_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260405000001_dreamr_feed_registry.sql"
     },
     {
       "table": "scheduled_posts",
@@ -3764,6 +4032,12 @@
         }
       ],
       "source": "20260316000000_visibility_mappings.sql"
+    },
+    {
+      "table": "voice_profiles",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
     },
     {
       "table": "widget_content",

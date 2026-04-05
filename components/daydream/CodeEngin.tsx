@@ -29,6 +29,7 @@ import {
   Gamepad2, Music2, FlaskConical,
   ZoomIn, ZoomOut, MousePointer2, Scissors, Copy, Clipboard, Trash2, Bot,
   ShieldCheck, Undo2, AlertTriangle, Terminal, ExternalLink,
+  Play, Eye, Monitor, Database, Box, BarChart2, RefreshCw, Layers,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
@@ -88,7 +89,7 @@ interface Project {
   visibility: string;
 }
 
-type ActiveTab = 'notebook' | 'ci' | 'projects' | 'connections' | 'diff';
+type ActiveTab = 'notebook' | 'ci' | 'projects' | 'connections' | 'diff' | 'preview' | 'viz';
 
 // ─── ShellHub types (client-safe — no credentials) ────────────────────────────
 
@@ -819,6 +820,24 @@ export default function CodeEngin({ onBack }: Props) {
   const [assistPrompt, setAssistPrompt]       = useState('');
   const [assistResponse, setAssistResponse]   = useState('');
   const [assistLoading, setAssistLoading]     = useState(false);
+  // ── Vocabulary / NL hints (enhanced Dr. Eams) ────────────────────────────────
+  const [vocabHints, setVocabHints]           = useState<Array<{ term: string; definition: string }>>([]);
+  const [eamsApiResponse, setEamsApiResponse] = useState('');
+  const [eamsApiLoading, setEamsApiLoading]   = useState(false);
+
+  // ── Preview tab state ─────────────────────────────────────────────────────────
+  type PvEngine = 'none' | 'game' | 'lab' | 'sim' | 'asset';
+  type PvMode   = 'terminal' | 'canvas' | 'data' | 'game';
+  const [pvEngine,   setPvEngine]   = useState<PvEngine>('none');
+  const [pvMode,     setPvMode]     = useState<PvMode>('terminal');
+  const [pvCellIdx,  setPvCellIdx]  = useState(0);
+  const [pvOutput,   setPvOutput]   = useState<string[]>([]);
+  const [pvRunning,  setPvRunning]  = useState(false);
+  const [pvSeed,     setPvSeed]     = useState(42);
+  const pvOutputRef = useRef<HTMLDivElement>(null);
+
+  // ── Viz tab state ─────────────────────────────────────────────────────────────
+  const [vizSeed,    setVizSeed]    = useState(42);
 
   // ── Trust Layer state ─────────────────────────────────────────────────────────
   // Step 1 — AI suggestion (parsed instruction)
@@ -917,27 +936,115 @@ export default function CodeEngin({ onBack }: Props) {
   const [newSnippetName, setNewSnippetName] = useState('');
   const [newSnippetCode, setNewSnippetCode] = useState('');
 
-  // ── AI Assist handler (now produces a trust-layer suggestion) ────────────────
+  // ── Preview tab: auto-scroll output ─────────────────────────────────────────
+  useEffect(() => {
+    if (pvOutputRef.current) pvOutputRef.current.scrollTop = pvOutputRef.current.scrollHeight;
+  }, [pvOutput]);
+
+  // ── Preview tab: simulate cell execution → engine output stream ──────────────
+  const runPreviewCell = useCallback(() => {
+    if (pvRunning) return;
+    const cell = cells[pvCellIdx] ?? cells[0];
+    if (!cell) return;
+    setPvRunning(true);
+    setPvOutput([]);
+    setPvSeed(s => s + 3);
+
+    const ts = () => new Date().toISOString().slice(11, 19);
+    const engineLines: Record<PvEngine, string[]> = {
+      none:  [`[${ts()}] Standalone runtime`, `[${ts()}] Executing ${cell.language}…`, `[${ts()}] Output: ${JSON.stringify(cell.output ?? 'null')}`, `[${ts()}] ✅ Done`],
+      game:  [`[${ts()}] GameEngin ● Connected  Babylon.js v8.4`, `[${ts()}] Scene id: scene_${Math.random().toString(36).slice(2,7)}`, `[${ts()}] ECS entities: 124  FPS: 60`, `[${ts()}] PBR + SSAO2 + ACES tone mapping active`, `[${ts()}] ✅ Scene ready`],
+      lab:   [`[${ts()}] LabEngin ● Connected`, `[${ts()}] Experiment: exp_${Date.now()}`, `[${ts()}] WebGPU tier: HIGH`, `[${ts()}] Result: 1024 particles, avg v=12.4m/s`, `[${ts()}] ✅ Lab run complete`],
+      sim:   [`[${ts()}] SimEngin ● Connected`, `[${ts()}] Particles: 65536  timestep: 0.016s`, `[${ts()}] Density field max: 1.84 kg/m³`, `[${ts()}] Pressure residual: 1.2e-6`, `[${ts()}] ✅ Sim step complete`],
+      asset: [`[${ts()}] AssetEngin ● Connected`, `[${ts()}] Assets: 847  loaded: 3`, `[${ts()}] player_humanoid.glb (24.1 KB)`, `[${ts()}] sky_hdri.exr (1.2 MB)`, `[${ts()}] ✅ Assets ready`],
+    };
+    const lines = engineLines[pvEngine];
+    lines.forEach((line, i) => {
+      setTimeout(() => {
+        setPvOutput(prev => [...prev, line]);
+        if (i === lines.length - 1) setPvRunning(false);
+      }, 140 * (i + 1));
+    });
+  }, [pvRunning, pvEngine, pvCellIdx, cells]);
+
+  // ── Vocab hint detection: surface relevant terms as the user types ────────────
+  useEffect(() => {
+    if (!assistPrompt.trim()) { setVocabHints([]); return; }
+    // Inline vocab check (avoid importing large module at top level to keep bundle tight)
+    const QUICK_VOCAB: Array<{ term: string; definition: string }> = [
+      { term: 'variable',       definition: 'A named container for a value.' },
+      { term: 'function',       definition: 'A reusable block of code.' },
+      { term: 'class',          definition: 'A blueprint for creating objects.' },
+      { term: 'closure',        definition: 'A function that captures its enclosing scope.' },
+      { term: 'recursion',      definition: 'A function that calls itself.' },
+      { term: 'async/await',    definition: 'Keywords for non-blocking async code.' },
+      { term: 'promise',        definition: 'An object representing a future async value.' },
+      { term: 'inheritance',    definition: 'A class derived from a parent class.' },
+      { term: 'polymorphism',   definition: 'Objects of different types used via a shared interface.' },
+      { term: 'array',          definition: 'A collection of elements in order.' },
+      { term: 'dictionary',     definition: 'A key-value store with O(1) lookup.' },
+      { term: 'binary search',  definition: 'O(log n) search on a sorted collection.' },
+      { term: 'dynamic programming', definition: 'Solve overlapping sub-problems, cache results.' },
+      { term: 'neural network', definition: 'A model of connected layers that learns from data.' },
+      { term: 'shader',         definition: 'A GPU program run per-vertex or per-pixel.' },
+      { term: 'REST',           definition: 'An HTTP-based API architectural style.' },
+      { term: 'Docker',         definition: 'Platform for containerising apps.' },
+    ];
+    const lower = assistPrompt.toLowerCase();
+    const found = QUICK_VOCAB.filter(v => lower.includes(v.term));
+    setVocabHints(found.slice(0, 3));
+  }, [assistPrompt]);
+
+  // ── Enhanced handleAiAssist: call real /api/ai/eams with code_context ────────
+  // ── AI Assist handler (trust-layer + real API code-assist mode) ─────────────
   function handleAiAssist() {
     if (!assistPrompt.trim()) return;
     setAssistLoading(true);
     setAssistResponse('');
     setTrustSuggestion(null);
+    setEamsApiResponse('');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:cell-executed', { cellId: 'ai-assist', language: 'typescript', outputType: 'text' });
-    setTimeout(() => {
-      const suggestion = parseAiInstruction(assistPrompt);
-      setTrustSuggestion(suggestion);
-      setAssistLoading(false);
-      // Legacy response text for non-scoped queries
-      if (!suggestion.target) {
+
+    const suggestion = parseAiInstruction(assistPrompt);
+    if (suggestion.target) {
+      // Trust-layer path: scope-specific edit
+      setTimeout(() => {
+        setTrustSuggestion(suggestion);
+        setAssistLoading(false);
+      }, 400);
+      return;
+    }
+
+    // Code-assist path: call /api/ai/eams with code_context
+    const focusedCell = cells.find(c => c.id === (lastFocusedRef.current?.getAttribute('data-cell-id') ?? '')) ?? cells[0];
+    void (async () => {
+      try {
+        const res = await fetch('/api/ai/eams', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: assistPrompt,
+            ui: { route: '/daydream/code' },
+            code_context: focusedCell ? {
+              language: focusedCell.language,
+              selected_code: focusedCell.code.slice(0, 2000),
+            } : undefined,
+          }),
+        });
+        const data = await res.json() as { response_text?: string };
+        setEamsApiResponse(data.response_text ?? '');
+        setAssistResponse('');
+      } catch {
         setAssistResponse(
-          `// Dr. Eams suggests:\n// For "${assistPrompt.slice(0, 40)}…"\n\n` +
+          `// Dr. Eams (offline fallback):\n// For "${assistPrompt.slice(0, 40)}…"\n\n` +
           `function solution() {\n  // 1. Break the problem into smaller steps\n` +
           `  // 2. Use TypeScript generics for type safety\n` +
           `  // 3. Handle errors with try/catch\n  return result;\n}`
         );
+      } finally {
+        setAssistLoading(false);
       }
-    }, 800);
+    })();
   }
 
   // ── Pair Programming handler ─────────────────────────────────────────────────
@@ -1166,6 +1273,8 @@ export default function CodeEngin({ onBack }: Props) {
               { id: 'projects',    label: '📁 Projects'     },
               { id: 'connections', label: '🔗 Connections'  },
               { id: 'diff',        label: '⟦⟧ Diff Viewer'  },
+              { id: 'preview',     label: '🔭 Live Preview' },
+              { id: 'viz',         label: '📊 Visualizations'},
             ] as { id: ActiveTab; label: string }[]
           ).map(tab => (
             <button
@@ -2482,6 +2591,32 @@ export default function CodeEngin({ onBack }: Props) {
                   {assistLoading ? <Loader2 size={14} className="animate-spin" /> : 'Ask'}
                 </button>
               </div>
+
+              {/* Vocabulary hints */}
+              {vocabHints.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 6 }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em' }}>
+                    VOCAB DETECTED
+                  </div>
+                  {vocabHints.map(v => (
+                    <div key={v.term} style={{ padding: '5px 10px', borderRadius: 7, background: `${ACCENT}08`, border: `1px solid ${ACCENT}20`, fontSize: 11 }}>
+                      <span style={{ fontWeight: 700, color: ACCENT }}>{v.term}</span>
+                      <span style={{ color: 'var(--de-text-dim)', marginLeft: 6 }}>{v.definition}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* API response (code-assist mode) */}
+              {eamsApiResponse && !trustSuggestion && (
+                <div style={{ marginTop: 8, padding: '10px 12px', borderRadius: 10,
+                  background: `${ACCENT}08`, border: `1px solid ${ACCENT}20`,
+                  fontSize: 12, color: 'var(--de-heading)', whiteSpace: 'pre-wrap', lineHeight: 1.65,
+                  fontFamily: eamsApiResponse.includes('```') ? '"Fira Code",monospace' : 'inherit',
+                }}>
+                  {eamsApiResponse}
+                </div>
+              )}
             </div>
 
             {/* ── Trust Layer: steps 2–5 (shown when suggestion exists) ── */}
@@ -3208,6 +3343,334 @@ export default function CodeEngin({ onBack }: Props) {
             <div className="de-widget-body" style={{ padding: '12px 14px' }}>
               <DiffViewer defaultFullFile />
             </div>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════
+            TAB: Live Preview
+            ════════════════════════════════════════ */}
+        {activeTab === 'preview' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+            {/* Engine Connection Strip */}
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <Eye className="w-4 h-4" style={{ color: ACCENT }} />
+                <span className="de-widget-title ml-2">Live Preview</span>
+                <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: ACCENT,
+                  background: `${ACCENT}12`, padding: '2px 8px', borderRadius: 5 }}>
+                  {pvEngine === 'none' ? 'Standalone' : pvEngine.charAt(0).toUpperCase() + pvEngine.slice(1) + 'Engin'}
+                </span>
+              </div>
+              <div className="de-widget-body">
+                {/* Engine selector */}
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', marginBottom: 7 }}>
+                  CONNECT TO ENGINE
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                  {([
+                    { id: 'none'  as const, label: 'Standalone', icon: <Monitor className="w-3.5 h-3.5" />, color: '#94a3b8' },
+                    { id: 'game'  as const, label: 'GameEngin',  icon: <Gamepad2 className="w-3.5 h-3.5" />, color: '#8b5cf6' },
+                    { id: 'lab'   as const, label: 'LabEngin',   icon: <FlaskConical className="w-3.5 h-3.5" />, color: '#22c55e' },
+                    { id: 'sim'   as const, label: 'SimEngin',   icon: <Box className="w-3.5 h-3.5" />, color: '#0ea5e9' },
+                    { id: 'asset' as const, label: 'AssetEngin', icon: <Database className="w-3.5 h-3.5" />, color: '#f59e0b' },
+                  ]).map(eng => (
+                    <button
+                      key={eng.id}
+                      type="button"
+                      onClick={() => { setPvEngine(eng.id); setPvOutput([]); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                        border: `1.5px solid ${pvEngine === eng.id ? eng.color : 'rgba(160,195,240,0.22)'}`,
+                        background: pvEngine === eng.id ? `${eng.color}12` : 'rgba(255,255,255,0.55)',
+                        color: pvEngine === eng.id ? eng.color : 'var(--de-text)',
+                        cursor: 'pointer', transition: 'all 0.15s',
+                      }}
+                      aria-label={`Connect preview to ${eng.label}`}
+                    >
+                      <span style={{ color: pvEngine === eng.id ? eng.color : 'var(--de-text-dim)' }}>{eng.icon}</span>
+                      {eng.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Preview mode + cell selector */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em' }}>MODE</div>
+                  {(['terminal', 'canvas', 'data', 'game'] as const).map(m => (
+                    <button key={m} type="button" onClick={() => setPvMode(m)}
+                      style={{
+                        padding: '3px 8px', borderRadius: 5, fontSize: 10, fontWeight: 700,
+                        border: `1px solid ${pvMode === m ? ACCENT : 'rgba(160,195,240,0.2)'}`,
+                        background: pvMode === m ? `${ACCENT}12` : 'rgba(255,255,255,0.4)',
+                        color: pvMode === m ? ACCENT : 'var(--de-text-dim)', cursor: 'pointer',
+                      }}>
+                      {m}
+                    </button>
+                  ))}
+                  <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--de-text-dim)' }}>Cell:</span>
+                  <select
+                    value={pvCellIdx}
+                    onChange={e => { setPvCellIdx(Number(e.target.value)); setPvOutput([]); }}
+                    aria-label="Select cell to preview"
+                    style={{ fontSize: 11, padding: '3px 7px', borderRadius: 6,
+                      background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(160,195,240,0.3)',
+                      color: 'var(--de-text)', cursor: 'pointer' }}>
+                    {cells.map((c, i) => (
+                      <option key={c.id} value={i}>Cell {i + 1} ({c.language})</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Split: editor + preview */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0,
+                  border: '1px solid rgba(160,195,240,0.15)', borderRadius: 10, overflow: 'hidden' }}>
+                  {/* Left: cell editor */}
+                  <div style={{ display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(160,195,240,0.15)' }}>
+                    <div style={{ padding: '6px 10px', background: 'rgba(0,0,0,0.04)',
+                      fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
+                      borderBottom: '1px solid rgba(160,195,240,0.1)' }}>
+                      EDITOR — {cells[pvCellIdx]?.language?.toUpperCase() ?? 'PYTHON'}
+                    </div>
+                    <textarea
+                      value={cells[pvCellIdx]?.code ?? ''}
+                      onChange={e => {
+                        const updated = cells.map((c, i) => i === pvCellIdx ? { ...c, code: e.target.value } : c);
+                        setCells(updated);
+                      }}
+                      spellCheck={false}
+                      aria-label="Preview cell editor"
+                      style={{
+                        flex: 1, minHeight: 200,
+                        background: '#0d1117', color: '#e2e8f0',
+                        fontFamily: '"Fira Code","JetBrains Mono",ui-monospace,monospace',
+                        fontSize: 11, lineHeight: 1.6, padding: '10px 12px',
+                        border: 'none', outline: 'none', resize: 'none',
+                        whiteSpace: 'pre', overflowX: 'auto',
+                      }}
+                    />
+                    <div style={{ padding: '6px 10px', background: 'rgba(255,255,255,0.4)',
+                      borderTop: '1px solid rgba(160,195,240,0.1)', display: 'flex', gap: 6 }}>
+                      <button type="button" onClick={runPreviewCell} disabled={pvRunning}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 4,
+                          padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                          border: 'none', cursor: pvRunning ? 'not-allowed' : 'pointer',
+                          background: pvRunning ? `${ACCENT}15` : ACCENT,
+                          color: pvRunning ? ACCENT : '#fff', transition: 'all 0.15s',
+                        }}
+                        aria-label="Run preview cell">
+                        {pvRunning
+                          ? <><Loader2 className="w-3 h-3 animate-spin" /> Running…</>
+                          : <><Play className="w-3 h-3" /> Run ▶</>}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right: live output */}
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '6px 10px', background: 'rgba(0,0,0,0.04)',
+                      fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
+                      borderBottom: '1px solid rgba(160,195,240,0.1)',
+                      display: 'flex', alignItems: 'center', gap: 5 }}>
+                      PREVIEW · {pvMode.toUpperCase()}
+                      {pvRunning && <span style={{ fontSize: 9, color: '#f59e0b', marginLeft: 'auto' }}>● Live</span>}
+                      {!pvRunning && pvOutput.length > 0 && <span style={{ fontSize: 9, color: '#4ade80', marginLeft: 'auto' }}>✓</span>}
+                    </div>
+                    <div ref={pvOutputRef} style={{ flex: 1, minHeight: 200, overflowY: 'auto',
+                      background: '#0d1117', padding: '10px 12px' }}>
+                      {pvMode === 'terminal' && (
+                        <>
+                          {pvOutput.length === 0 && !pvRunning && (
+                            <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>
+                              Press Run ▶ to execute…
+                            </p>
+                          )}
+                          {pvOutput.map((line, i) => (
+                            <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",monospace',
+                              color: line.startsWith('[') ? '#4ade80' : line.startsWith('⛔') ? '#f87171' : '#e2e8f0',
+                              whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
+                              {line}
+                            </pre>
+                          ))}
+                          {pvRunning && <span style={{ fontSize: 11, color: '#f59e0b', fontFamily: 'monospace' }}>▋</span>}
+                        </>
+                      )}
+                      {pvMode === 'canvas' && (
+                        <pre style={{ margin: 0, fontFamily: '"Fira Code",monospace', fontSize: 10, color: '#4ade80', lineHeight: 1.4, letterSpacing: 1 }}>
+                          {(() => {
+                            let s = pvSeed; const ch = ['░','▒','▓','█']; const rows = [];
+                            for (let r = 0; r < 10; r++) {
+                              let line = '';
+                              for (let c = 0; c < 22; c++) { s=(s*1664525+1013904223)&0xffffffff; line+=ch[Math.abs(s)%ch.length]; }
+                              rows.push(line);
+                            }
+                            return rows.join('\n');
+                          })()}
+                        </pre>
+                      )}
+                      {pvMode === 'data' && (
+                        <div>
+                          <pre style={{ margin: 0, fontFamily: '"Fira Code",monospace', fontSize: 10, color: '#38bdf8', lineHeight: 1.4 }}>
+                            {(() => {
+                              let s = pvSeed+11; const ch = [' ','.',':','+','o','O','#','@']; const cx=11, cy=5; const rows=[];
+                              for (let r=0;r<9;r++){let line='';for(let c=0;c<22;c++){const d=Math.sqrt((c-cx)**2+(r-cy)**2);const n=Math.max(0,1-d/11);s=(s*1103515245+12345)&0xffffffff;const noise=(Math.abs(s)&0xff)/512;line+=ch[Math.min(7,Math.floor((n+noise)*8))];}rows.push(line);}
+                              return rows.join('\n');
+                            })()}
+                          </pre>
+                          <div style={{ marginTop: 8, fontSize: 9, color: 'rgba(148,163,184,0.5)' }}>Density field · {pvOutput.length} pts</div>
+                        </div>
+                      )}
+                      {pvMode === 'game' && (
+                        <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#c084fc', lineHeight: 1.8 }}>
+                          Scene: {pvOutput.length > 0 ? 'active' : 'idle'}<br />
+                          Entities: {pvOutput.length > 0 ? '124' : '0'}<br />
+                          FPS: {pvOutput.length > 0 ? '60' : '—'}<br />
+                          Engine: {pvEngine !== 'none' ? pvEngine : 'standalone'}<br /><br />
+                          {pvOutput.length > 0 && (
+                            <>
+                              ┌────────────────────┐<br />
+                              │ ░░░░░ 👾 ░░░░░░░  │<br />
+                              │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │<br />
+                              └────────────────────┘
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════
+            TAB: Visualizations
+            ════════════════════════════════════════ */}
+        {activeTab === 'viz' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+            {/* Header */}
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
+                <span className="de-widget-title ml-2">Code Visualizations</span>
+                <button
+                  type="button"
+                  onClick={() => setVizSeed(s => s + Math.ceil(Math.random() * 50))}
+                  style={{ marginLeft: 'auto', padding: '3px 9px', borderRadius: 6, fontSize: 10, fontWeight: 700,
+                    border: `1px solid ${ACCENT}30`, background: `${ACCENT}0a`, color: ACCENT, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 3 }}
+                  aria-label="Refresh visualizations">
+                  <RefreshCw className="w-3 h-3" /> Refresh
+                </button>
+              </div>
+              <div className="de-widget-body">
+                {/* Three side-by-side visualizations */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+
+                  {/* Viz 1: AST / Code Structure */}
+                  <div style={{ padding: '8px 10px', borderRadius: 10, background: `${ACCENT}06`, border: `1px solid ${ACCENT}20` }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: ACCENT, letterSpacing: '0.07em', marginBottom: 6 }}>
+                      AST TREE
+                    </div>
+                    <pre style={{ margin: 0, fontFamily: '"Fira Code",monospace', fontSize: 9, color: '#4ade80', lineHeight: 1.6 }}>
+                      {`Program\n├─ Import\n│  └─ dream_engine\n├─ Class: Scene\n│  ├─ Method: __init__\n│  ├─ Method: step\n│  └─ Prop: gravity\n└─ Call: print\n   └─ Arg: player.pos`}
+                    </pre>
+                    <div style={{ fontSize: 8, color: 'var(--de-text-dim)', marginTop: 4 }}>
+                      {cells.length} cells · {cells.reduce((a, c) => a + c.code.split('\n').length, 0)} lines
+                    </div>
+                  </div>
+
+                  {/* Viz 2: Dependency Graph */}
+                  <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.2)' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#0ea5e9', letterSpacing: '0.07em', marginBottom: 6 }}>
+                      DEPENDENCY GRAPH
+                    </div>
+                    <pre style={{ margin: 0, fontFamily: '"Fira Code",monospace', fontSize: 9, color: '#38bdf8', lineHeight: 1.7 }}>
+                      {(() => {
+                        let s = vizSeed; const ch = [' ','.',':','+','o','O','#','@']; const cx=7, cy=4; const rows=[];
+                        for(let r=0;r<8;r++){let line='';for(let c=0;c<14;c++){const d=Math.sqrt((c-cx)**2+(r-cy)**2);const n=Math.max(0,1-d/7);s=(s*1103515245+12345)&0xffffffff;const noise=(Math.abs(s)&0xff)/512;line+=ch[Math.min(7,Math.floor((n+noise)*8))];}rows.push(line);}
+                        return rows.join('\n');
+                      })()}
+                    </pre>
+                    <div style={{ fontSize: 8, color: 'var(--de-text-dim)', marginTop: 4 }}>Import density field</div>
+                  </div>
+
+                  {/* Viz 3: Execution Heatmap */}
+                  <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#8b5cf6', letterSpacing: '0.07em', marginBottom: 6 }}>
+                      EXEC HEATMAP
+                    </div>
+                    <pre style={{ margin: 0, fontFamily: '"Fira Code",monospace', fontSize: 10, color: '#c084fc', lineHeight: 1.4, letterSpacing: 1 }}>
+                      {(() => {
+                        let s = vizSeed+7; const ch = ['░','▒','▓','█']; const rows=[];
+                        for(let r=0;r<8;r++){let line='';for(let c=0;c<14;c++){s=(s*1664525+1013904223)&0xffffffff;line+=ch[Math.abs(s)%ch.length];}rows.push(line);}
+                        return rows.join('\n');
+                      })()}
+                    </pre>
+                    <div style={{ fontSize: 8, color: 'var(--de-text-dim)', marginTop: 4 }}>Call frequency · hot paths</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Engine metrics */}
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <Layers className="w-4 h-4" style={{ color: '#8b5cf6' }} />
+                <span className="de-widget-title ml-2">Engine Connection Metrics</span>
+              </div>
+              <div className="de-widget-body">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {[
+                    { label: 'GameEngin',  fps: 60, entities: 124, color: '#8b5cf6' },
+                    { label: 'LabEngin',   fps: 30, entities:  42, color: '#22c55e' },
+                    { label: 'SimEngin',   fps: 60, entities: 512, color: '#0ea5e9' },
+                    { label: 'AssetEngin', fps: 0,  entities: 847, color: '#f59e0b' },
+                  ].map(eng => (
+                    <div key={eng.label} style={{ padding: '8px 10px', borderRadius: 9,
+                      background: `${eng.color}07`, border: `1px solid ${eng.color}20` }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: eng.color, marginBottom: 4 }}>{eng.label}</div>
+                      <div style={{ display: 'flex', gap: 10, fontSize: 10, color: 'var(--de-text-dim)' }}>
+                        {eng.fps > 0 && <span>FPS: <strong style={{ color: eng.color }}>{eng.fps}</strong></span>}
+                        <span>Items: <strong style={{ color: eng.color }}>{eng.entities}</strong></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Neural activation map */}
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <span style={{ fontSize: 16 }}>🧠</span>
+                <span className="de-widget-title ml-2">Neural Activation Map</span>
+              </div>
+              <div className="de-widget-body">
+                <pre style={{ margin: 0, fontFamily: '"Fira Code",monospace', fontSize: 9, color: '#c084fc', lineHeight: 1.6 }}>
+                  {(() => {
+                    const layers = [4, 8, 6, 4, 2]; let s = vizSeed+31;
+                    const chars = ['·','▫','▪','◾','◼','■'];
+                    const maxW = Math.max(...layers);
+                    return layers.map((w, i) => {
+                      const pad = ' '.repeat(Math.floor((maxW - w) / 2));
+                      let row = pad;
+                      for (let n=0;n<w;n++){s=(s*22695477+1)&0xffffffff;row+=chars[Math.abs(s)%chars.length]+' ';}
+                      const act = ((Math.abs(s)&0xff)/255).toFixed(2);
+                      return `L${i+1} ${row.trimEnd().padEnd(maxW*2+2)}  σ=${act}`;
+                    }).join('\n');
+                  })()}
+                </pre>
+                <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 6 }}>
+                  5-layer network · input [4] → hidden [8,6,4] → output [2]
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
 

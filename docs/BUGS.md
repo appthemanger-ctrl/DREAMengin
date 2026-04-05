@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-05 03:02 UTC  
-**Triggered by commit:** `ea71dda` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #437 from appthemanger-ctrl/copilot/update-dreamr-feed-limits
+**Last updated:** 2026-04-05 07:49 UTC  
+**Triggered by commit:** `4d867a1` on `copilot/upgrade-contentengin-editor` by appthemanger-ctrl  
+**Commit message:** Merge branch 'completedream' into copilot/upgrade-contentengin-editor
 
 ---
 
@@ -103,7 +103,11 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-No TODO / FIXME / HACK annotations found in source files.
+### 📝 TODO (1)
+
+| Location | Description |
+|----------|-------------|
+| `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
 
 ---
 
