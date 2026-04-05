@@ -191,6 +191,7 @@ function GlowingLight({
         WebkitTapHighlightColor: 'transparent',
         touchAction: 'none',
         flexShrink: 0,
+        animation: 'sicc-gold-blue-breathe 4s ease-in-out infinite',
         ...style,
       }}
     >
