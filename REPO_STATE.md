@@ -3,10 +3,10 @@
 > **Comprehensive analysis of the entire codebase**
 > Generated automatically - DO NOT EDIT MANUALLY
 
-**Last Updated:** 4/4/2026, 4:05:59 AM
+**Last Updated:** 4/5/2026, 4:27:08 AM
 **Branch:** completedream
-**Commit:** 3541dab7 - docs: auto-update BUGS.md [0203ad3] [skip ci] [skip vercel]
-**Total Commits:** 3213
+**Commit:** 11c2b3f4 - docs: auto-update BUGS.md [dfb3676] [skip ci] [skip vercel]
+**Total Commits:** 3314
 
 ---
 
@@ -41,13 +41,13 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 600
-- 📝 Total Lines of Code: 140,291
-- 📦 Size: 5.27 MB
-- 🧪 Tests: 94 files, 88 passing
-- 📄 API Routes: 74
-- 🎨 Components: 34 categories
-- 📖 Documentation: 47 files
+- 📁 Total Code Files: 623
+- 📝 Total Lines of Code: 149,184
+- 📦 Size: 5.60 MB
+- 🧪 Tests: 112 files, 106 passing
+- 📄 API Routes: 81
+- 🎨 Components: 36 categories
+- 📖 Documentation: 48 files
 - ⚙️ GitHub Actions: 52 workflows
 
 ## Tech Stack
@@ -116,33 +116,33 @@ vitest@^4.0.18
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 202 | .tsx(125), .ts(75), .css(2) |
-| `components/` | 276 | .tsx(250), .ts(23), .css(2) |
-| `lib/` | 227 | .ts(222), .tsx(3), .md(2) |
-| `tests/` | 96 | .ts(95), .md(1) |
+| `app/` | 209 | .tsx(125), .ts(82), .css(2) |
+| `components/` | 284 | .tsx(258), .ts(23), .css(2) |
+| `lib/` | 242 | .ts(237), .tsx(3), .md(2) |
+| `tests/` | 114 | .ts(113), .md(1) |
 | `styles/` | 3 | .css(3) |
-| `public/` | 47 | .png(18), .PNG(11), .jpeg(6) |
+| `public/` | 48 | .png(18), .PNG(11), .jpeg(6) |
 | `docs/` | 44 | .md(44) |
 | `scripts/` | 22 | .mjs(12), .sh(3), .cjs(3) |
-| `supabase/` | 45 | .sql(44), .toml(1) |
+| `supabase/` | 46 | .sql(45), .toml(1) |
 
 ## Code Metrics
 
 ### File Distribution
 
 - **App Routes (TSX):** 125
-- **Component Files:** 250
-- **Library Files:** 225
-- **Test Files:** 88
+- **Component Files:** 258
+- **Library Files:** 240
+- **Test Files:** 106
 
 ### Code Volume
 
-- **Total Lines:** 140,291
-- **Total Size:** 5.27 MB
+- **Total Lines:** 149,184
+- **Total Size:** 5.60 MB
 
 ## API Routes
 
-**Total API Endpoints:** 74
+**Total API Endpoints:** 81
 
 ### All Routes
 
@@ -169,6 +169,7 @@ vitest@^4.0.18
 | `/api/auth/logout` | GET | /app/api/auth/logout/route.ts |
 | `/api/auth/providers` | GET | /app/api/auth/providers/route.ts |
 | `/api/blocks` | GET, POST, DELETE | /app/api/blocks/route.ts |
+| `/api/close-friends` | GET, POST, DELETE | /app/api/close-friends/route.ts |
 | `/api/comments` | GET, POST, DELETE | /app/api/comments/route.ts |
 | `/api/connectors/[provider]/connect` | POST | /app/api/connectors/[provider]/connect/route.ts |
 | `/api/connectors/[provider]/disconnect` | DELETE | /app/api/connectors/[provider]/disconnect/route.ts |
@@ -187,6 +188,8 @@ vitest@^4.0.18
 | `/api/drafts` | GET, POST | /app/api/drafts/route.ts |
 | `/api/dream-windows/[id]` | GET, PATCH, DELETE | /app/api/dream-windows/[id]/route.ts |
 | `/api/dream-windows` | GET, POST | /app/api/dream-windows/route.ts |
+| `/api/dreamr/feed` | GET | /app/api/dreamr/feed/route.ts |
+| `/api/dreamr/suggested` | GET | /app/api/dreamr/suggested/route.ts |
 | `/api/embed-feed` | GET | /app/api/embed-feed/route.ts |
 | `/api/favorites` | GET, POST, DELETE | /app/api/favorites/route.ts |
 | `/api/feed` | GET | /app/api/feed/route.ts |
@@ -195,10 +198,7 @@ vitest@^4.0.18
 | `/api/game-scores` | GET, POST | /app/api/game-scores/route.ts |
 | `/api/home-layout` | GET, POST | /app/api/home-layout/route.ts |
 | `/api/journey` | GET, POST | /app/api/journey/route.ts |
-| `/api/lab/benchmarks` | POST | /app/api/lab/benchmarks/route.ts |
-| `/api/likes` | GET, POST, DELETE | /app/api/likes/route.ts |
-| `/api/marketplace/request` | POST | /app/api/marketplace/request/route.ts |
-| ... | ... | ... and 24 more routes |
+| ... | ... | ... and 31 more routes |
 
 ## Pages & Routes
 
@@ -262,7 +262,7 @@ vitest@^4.0.18
 
 ## Components
 
-**Total Component Categories:** 34
+**Total Component Categories:** 36
 
 ### Component Organization
 
@@ -274,14 +274,16 @@ vitest@^4.0.18
 | `core/` | 1 |
 | `customize/` | 7 |
 | `daydream/` | 18 |
-| `dreamengin/` | 17 |
+| `dreamengin/` | 18 |
 | `dreamnav/` | 2 |
+| `dreamr/` | 5 |
 | `dreams/` | 7 |
 | `engines/` | 35 |
 | `feed/` | 5 |
 | `feeds/` | 1 |
+| `forge/` | 1 |
 | `gameengin/` | 1 |
-| `games/` | 42 |
+| `games/` | 43 |
 | `home/` | 9 |
 | `landing/` | 2 |
 | `marketplace/` | 2 |
@@ -305,14 +307,13 @@ vitest@^4.0.18
 
 ## Database Schema
 
-**Total Migrations:** 42
+**Total Migrations:** 43
 **Schema File:** ✓ Present
 
 ### Migration History
 
 | Migration File |
 |----------------|
-| 20260323100000_embed_feed_items.sql |
 | 20260324000000_phase8e_orders.sql |
 | 20260324000001_phase8e_shop_marketplace.sql |
 | 20260325000000_phase8f_daydream_network.sql |
@@ -322,12 +323,13 @@ vitest@^4.0.18
 | 20260402000002_game_assets.sql |
 | 20260403000001_pgvector_embeddings.sql |
 | 20260403000002_pgvector_search_rpc.sql |
-| ... and 32 earlier migrations |
+| 20260405000001_dreamr_feed_registry.sql |
+| ... and 33 earlier migrations |
 
 ## Tests
 
-**Test Files:** 94
-**Tests Passing:** 88
+**Test Files:** 112
+**Tests Passing:** 106
 **Tests Failing:** 0
 
 ### Test Files
@@ -336,6 +338,7 @@ vitest@^4.0.18
 - /tests/admin-upgrade-readiness.test.ts
 - /tests/ai-edit-engine.test.ts
 - /tests/analytics-scheduled.test.ts
+- /tests/asset-optimizer.test.ts
 - /tests/auth-providers-route.test.ts
 - /tests/authenticated-ui-shells.test.ts
 - /tests/babylon-optimizero.test.ts
@@ -351,15 +354,15 @@ vitest@^4.0.18
 - /tests/daydream-engin-routes.test.ts
 - /tests/dev-bypass.test.ts
 - /tests/diff-viewer.test.ts
-- /tests/dr-eams-search-bar.test.ts
-- ... and 74 more test files
+- ... and 92 more test files
 
 ## Documentation
 
-**Total Documentation Files:** 47
+**Total Documentation Files:** 48
 
 ### Documentation Files
 
+- [README.md](/README.md)
 - [CHANGELOG.md](/CHANGELOG.md)
 - [LICENSE](/LICENSE)
 - [IMPLEMENTATION_NOTES.md](/IMPLEMENTATION_NOTES.md)
@@ -389,8 +392,7 @@ vitest@^4.0.18
 - [IDARI_CONTRACT.md](/docs/IDARI_CONTRACT.md)
 - [LAW.md](/docs/LAW.md)
 - [NAMING_AUTHORITY.md](/docs/NAMING_AUTHORITY.md)
-- [POLICY_TESTS.md](/docs/POLICY_TESTS.md)
-- ... and 17 more docs
+- ... and 18 more docs
 
 ## CI/CD Workflows
 
@@ -570,4 +572,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/4/2026, 4:05:59 AM*
+*Last updated: 4/5/2026, 4:27:08 AM*
