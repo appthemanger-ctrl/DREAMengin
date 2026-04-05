@@ -3042,7 +3042,7 @@ function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadCons
     if (!externalLoad) return;
     loadBlob(externalLoad.blob, externalLoad.name);
     onExternalLoadConsumed();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [externalLoad]);
 
   // ── Sync loop/volume to audio element ──
@@ -3445,7 +3445,7 @@ function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadCons
         });
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   // ── Computed display values ──
