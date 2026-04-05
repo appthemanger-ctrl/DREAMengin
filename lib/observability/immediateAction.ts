@@ -25,7 +25,7 @@ export interface ImmediateRemediationAction {
   can_auto_apply: boolean;
 }
 
-const FILE_HINT_PATTERN = /(?:^|[\s(])([A-Za-z0-9_./\-[\]]+\.(?:tsx|ts|jsx|js|mjs|cjs|json|yaml|yml|css|sql))(?:[:(]\d+)?/g;
+const FILE_HINT_PATTERN = /(?:^|[\s(])([A-Za-z0-9_./[\]-]+\.(?:tsx|ts|jsx|js|mjs|cjs|json|yaml|yml|css|sql))(?:[:(]\d+)?/g;
 
 function unique(items: string[]): string[] {
   return [...new Set(items.filter(Boolean))];
