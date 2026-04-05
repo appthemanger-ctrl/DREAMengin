@@ -22,9 +22,10 @@ import {
   ExternalLink, Clock, BarChart3, Workflow, ChevronRight,
   Brain, ArrowRightLeft, Sparkles, Plus, Trash2, AlertTriangle,
   CheckCircle2, XCircle, SkipForward, RefreshCw, Wand2,
-  Save, X,
+  Save, X, ChevronDown,
 } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
+import AIBuilderPanel from '@/components/forge/AIBuilderPanel';
 import { bridge, type DualRuntimeChannel } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
@@ -109,6 +110,7 @@ interface BridgeEvent {
 type Props = { onBack: () => void };
 
 export default function ForgeEngin({ onBack }: Props) {
+  const [showAIBuilder, setShowAIBuilder] = useState(false);
   const [activity, setActivity] = useState<ForgeActivityPulse[]>([]);
   const [selectedEngine, setSelectedEngine] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<ForgeSuggestion[]>([]);
@@ -354,6 +356,61 @@ export default function ForgeEngin({ onBack }: Props) {
       </header>
 
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 16px 40px' }}>
+
+        {/* ── ⚡ AI Anything Builder Banner ── */}
+        <div style={{ marginBottom: 20 }}>
+          <motion.button
+            type="button"
+            onClick={() => setShowAIBuilder(v => !v)}
+            whileTap={{ scale: 0.98 }}
+            style={{
+              width: '100%',
+              padding: '14px 20px',
+              borderRadius: 14,
+              background: showAIBuilder
+                ? `linear-gradient(135deg, rgba(239,68,68,0.18), rgba(200,152,26,0.12))`
+                : `linear-gradient(135deg, rgba(239,68,68,0.10), rgba(200,152,26,0.06))`,
+              border: `1px solid ${showAIBuilder ? 'rgba(239,68,68,0.45)' : 'rgba(239,68,68,0.25)'}`,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              textAlign: 'left',
+              transition: 'background 0.2s, border-color 0.2s',
+            }}
+          >
+            <span style={{ fontSize: 22, flexShrink: 0 }}>⚡</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: FORGE.text, letterSpacing: '-0.01em' }}>
+                AI Anything Builder
+              </div>
+              <div style={{ fontSize: 11, color: FORGE.dim, marginTop: 2 }}>
+                Build games, music, code &amp; more with one prompt — orchestrated by the AI Triad
+              </div>
+            </div>
+            <motion.div
+              animate={{ rotate: showAIBuilder ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              style={{ flexShrink: 0 }}
+            >
+              <ChevronDown className="w-4 h-4" style={{ color: FORGE.dim }} />
+            </motion.div>
+          </motion.button>
+
+          <AnimatePresence>
+            {showAIBuilder && (
+              <motion.div
+                key="ai-builder"
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 10 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <AIBuilderPanel />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* ── System Pulse Overview ── */}
         <div style={{ marginBottom: 24 }}>
