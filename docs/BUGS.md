@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-05 06:19 UTC  
-**Triggered by commit:** `dc57413` on `copilot/upgrade-contentengin-editor` by Copilot  
-**Commit message:** feat: ContentEngin industry-standard upgrade – transcript editor, generative fill, voice clone, real-time SEO scorer, human review, brand memory, creativity slider, quick compose
+**Last updated:** 2026-04-05 07:13 UTC  
+**Triggered by commit:** `0fe27ad` on `copilot/upgrade-contentengin-editor` by Copilot  
+**Commit message:** feat: double ContentEngin quality – transcript export/search/syllable-timing, SEO engagement+accessibility+report, voice profile list/delete, fill mask validation+ETag, 55 tests
 
 ---
 
