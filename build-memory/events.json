@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-01T09:26:52.708Z",
+  "generated_at": "2026-04-05T07:51:04.128Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 15,
+  "count": 18,
   "events": [
     {
       "event": "de-ctrl-button",
@@ -50,6 +50,13 @@
       ]
     },
     {
+      "event": "de:avatar:updated",
+      "payload_type": null,
+      "files": [
+        "components/games/GamesHub.tsx"
+      ]
+    },
+    {
       "event": "de:game-telemetry",
       "payload_type": null,
       "files": [
@@ -93,6 +100,20 @@
         "components/gameengin/input/DualSenseManager.ts",
         "lib/games/DualSenseManager.ts",
         "lib/games/useGamepad.ts"
+      ]
+    },
+    {
+      "event": "offline",
+      "payload_type": null,
+      "files": [
+        "lib/offline/offlineCache.ts"
+      ]
+    },
+    {
+      "event": "online",
+      "payload_type": null,
+      "files": [
+        "lib/offline/offlineCache.ts"
       ]
     },
     {

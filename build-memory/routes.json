@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-01T09:26:52.708Z",
+  "generated_at": "2026-04-05T07:51:04.128Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 72,
+  "count": 84,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -58,6 +58,13 @@
       "file": "app/api/admin/observability/route.ts",
       "methods": [
         "GET"
+      ]
+    },
+    {
+      "path": "/api/ads/orders",
+      "file": "app/api/ads/orders/route.ts",
+      "methods": [
+        "POST"
       ]
     },
     {
@@ -147,6 +154,15 @@
       ]
     },
     {
+      "path": "/api/close-friends",
+      "file": "app/api/close-friends/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
       "path": "/api/comments",
       "file": "app/api/comments/route.ts",
       "methods": [
@@ -226,8 +242,29 @@
       ]
     },
     {
+      "path": "/api/content/generative-fill",
+      "file": "app/api/content/generative-fill/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
       "path": "/api/content/intelligence",
       "file": "app/api/content/intelligence/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/content/transcribe",
+      "file": "app/api/content/transcribe/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/content/voice-clone",
+      "file": "app/api/content/voice-clone/route.ts",
       "methods": [
         "POST"
       ]
@@ -280,6 +317,20 @@
       ]
     },
     {
+      "path": "/api/dreamr/feed",
+      "file": "app/api/dreamr/feed/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/dreamr/suggested",
+      "file": "app/api/dreamr/suggested/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
       "path": "/api/embed-feed",
       "file": "app/api/embed-feed/route.ts",
       "methods": [
@@ -309,6 +360,13 @@
         "GET",
         "POST",
         "DELETE"
+      ]
+    },
+    {
+      "path": "/api/gal",
+      "file": "app/api/gal/route.ts",
+      "methods": [
+        "POST"
       ]
     },
     {
@@ -412,6 +470,28 @@
       "file": "app/api/posts/[id]/route.ts",
       "methods": [
         "DELETE"
+      ]
+    },
+    {
+      "path": "/api/posts/[id]/save",
+      "file": "app/api/posts/[id]/save/route.ts",
+      "methods": [
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "path": "/api/posts/[id]/view",
+      "file": "app/api/posts/[id]/view/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/posts/profile/[userId]",
+      "file": "app/api/posts/profile/[userId]/route.ts",
+      "methods": [
+        "GET"
       ]
     },
     {
@@ -530,6 +610,13 @@
     {
       "path": "/api/widgets/instances",
       "file": "app/api/widgets/instances/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/youtube/channel",
+      "file": "app/api/youtube/channel/route.ts",
       "methods": [
         "GET"
       ]

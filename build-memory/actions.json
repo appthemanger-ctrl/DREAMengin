@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-01T09:26:52.708Z",
+  "generated_at": "2026-04-05T07:51:04.128Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 72,
+  "count": 84,
   "actions": [
     {
       "file": "app/api/account/delete-data/route.ts",
@@ -9,9 +9,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/account/delete-dream/route.ts",
@@ -19,9 +17,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/account/export-data/route.ts",
@@ -29,9 +25,7 @@
       "http_handlers": [
         "GET"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/admin/ai-chat/route.ts",
@@ -39,9 +33,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/admin/ai-request/route.ts",
@@ -58,9 +50,7 @@
         "GET",
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/admin/code-files/route.ts",
@@ -76,9 +66,15 @@
       "http_handlers": [
         "GET"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
+    },
+    {
+      "file": "app/api/ads/orders/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
     },
     {
       "file": "app/api/ai/boogieman/child-safety/route.ts",
@@ -86,9 +82,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/ai/boogieman/privacy-event/route.ts",
@@ -96,9 +90,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/ai/boogieman/route.ts",
@@ -106,9 +98,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/ai/boogieman/status/route.ts",
@@ -116,9 +106,7 @@
       "http_handlers": [
         "GET"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/ai/eams/route.ts",
@@ -126,9 +114,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/ai/execute/route.ts",
@@ -136,9 +122,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/ai/idari/route.ts",
@@ -146,9 +130,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/analytics/route.ts",
@@ -156,9 +138,7 @@
       "http_handlers": [
         "GET"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/appeal/route.ts",
@@ -166,9 +146,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/auth/logout/route.ts",
@@ -185,8 +163,7 @@
         "GET"
       ],
       "exports": [
-        "getOAuthProvidersResponse",
-        "dynamic"
+        "getOAuthProvidersResponse"
       ]
     },
     {
@@ -197,9 +174,17 @@
         "POST",
         "DELETE"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
+    },
+    {
+      "file": "app/api/close-friends/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "exports": []
     },
     {
       "file": "app/api/comments/route.ts",
@@ -225,9 +210,7 @@
       "http_handlers": [
         "DELETE"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/connectors/[provider]/items/route.ts",
@@ -275,9 +258,7 @@
       "http_handlers": [
         "GET"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/connectors/youtube/oauth/callback/route.ts",
@@ -296,14 +277,36 @@
       "exports": []
     },
     {
+      "file": "app/api/content/generative-fill/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/content/intelligence/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
+    },
+    {
+      "file": "app/api/content/transcribe/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/content/voice-clone/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
     },
     {
       "file": "app/api/dr-eams/hf/route.ts",
@@ -328,9 +331,7 @@
         "DELETE",
         "PATCH"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/drafts/route.ts",
@@ -339,9 +340,7 @@
         "GET",
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/dream-windows/[id]/route.ts",
@@ -359,6 +358,22 @@
       "http_handlers": [
         "GET",
         "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/dreamr/feed/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/dreamr/suggested/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
       ],
       "exports": []
     },
@@ -386,9 +401,7 @@
       "http_handlers": [
         "GET"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/follow/route.ts",
@@ -397,6 +410,14 @@
         "GET",
         "POST",
         "DELETE"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/gal/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
       ],
       "exports": []
     },
@@ -416,9 +437,7 @@
         "GET",
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/journey/route.ts",
@@ -427,9 +446,7 @@
         "GET",
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/lab/benchmarks/route.ts",
@@ -437,9 +454,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/likes/route.ts",
@@ -474,9 +489,7 @@
       "http_handlers": [
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/messages/route.ts",
@@ -513,9 +526,32 @@
       "http_handlers": [
         "DELETE"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
+    },
+    {
+      "file": "app/api/posts/[id]/save/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST",
+        "DELETE"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/posts/[id]/view/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/posts/profile/[userId]/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
     },
     {
       "file": "app/api/posts/route.ts",
@@ -564,9 +600,7 @@
         "GET",
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/settings/feed/route.ts",
@@ -575,9 +609,7 @@
         "GET",
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/settings/notifications/route.ts",
@@ -586,9 +618,7 @@
         "GET",
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/settings/privacy/route.ts",
@@ -597,9 +627,7 @@
         "GET",
         "POST"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/setup/check/route.ts",
@@ -623,9 +651,7 @@
       "http_handlers": [
         "GET"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
     },
     {
       "file": "app/api/shop/route.ts",
@@ -669,9 +695,15 @@
       "http_handlers": [
         "GET"
       ],
-      "exports": [
-        "dynamic"
-      ]
+      "exports": []
+    },
+    {
+      "file": "app/api/youtube/channel/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
     },
     {
       "file": "app/api/youtube/discovery/route.ts",

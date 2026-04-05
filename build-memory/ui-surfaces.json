@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-01T09:26:52.708Z",
+  "generated_at": "2026-04-05T07:51:04.128Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 116,
+  "count": 117,
   "surfaces": [
     {
       "type": "page",
@@ -135,6 +135,10 @@
           "from": "@/components/daydream/BrandingEngin"
         },
         {
+          "name": "BrandDaydreamDashboard",
+          "from": "@/components/daydream/BrandDaydreamDashboard"
+        },
+        {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/AuthenticatedPageHeader"
         }
@@ -156,6 +160,10 @@
         {
           "name": "CodeEngin",
           "from": "@/components/daydream/CodeEngin"
+        },
+        {
+          "name": "CodeDreamIDE",
+          "from": "@/components/daydream/CodeDreamIDE"
         },
         {
           "name": "AuthenticatedPageHeader",
@@ -207,6 +215,26 @@
     },
     {
       "type": "page",
+      "path": "/daydream/forge",
+      "file": "app/daydream/forge/page.tsx",
+      "component": "ForgeDaydreamPage",
+      "imports": [
+        {
+          "name": "ForgeEngin",
+          "from": "@/components/daydream/ForgeEngin"
+        },
+        {
+          "name": "ForgeMomentumWidget",
+          "from": "@/components/forge/ForgeMomentumWidget"
+        },
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/AuthenticatedPageHeader"
+        }
+      ]
+    },
+    {
+      "type": "page",
       "path": "/daydream/game",
       "file": "app/daydream/game/page.tsx",
       "component": "GamePage",
@@ -221,6 +249,10 @@
         {
           "name": "GamesHub",
           "from": "@/components/games/GamesHub"
+        },
+        {
+          "name": "AvatarMaker",
+          "from": "@/components/games/AvatarMaker"
         },
         {
           "name": "GameEngin",
@@ -256,6 +288,10 @@
         {
           "name": "LabEngin",
           "from": "@/components/daydream/LabEngin"
+        },
+        {
+          "name": "LabDreamIDE",
+          "from": "@/components/daydream/LabDreamIDE"
         },
         {
           "name": "AuthenticatedPageHeader",
