@@ -18,6 +18,7 @@ import { isOwnerEmail } from '@/lib/ai/triad';
 import { getSnapshot, getBufferStats } from '@/lib/observability/collector';
 import { correlate } from '@/lib/observability/correlator';
 import { inferRootCause } from '@/lib/observability/rootCauseAnalyzer';
+import { buildImmediateRemediationAction } from '@/lib/observability/immediateAction';
 
 
 export async function GET(req: NextRequest) {
@@ -67,6 +68,7 @@ export async function GET(req: NextRequest) {
   const snapshot = getSnapshot(windowMs);
   const correlation = correlate(snapshot);
   const root_cause = inferRootCause(correlation.anomalies, snapshot);
+  const immediate_action = buildImmediateRemediationAction(root_cause);
   const buffer_stats = getBufferStats();
 
   return NextResponse.json(
@@ -74,6 +76,7 @@ export async function GET(req: NextRequest) {
       snapshot,
       correlation,
       root_cause,
+      immediate_action,
       buffer_stats,
       window_ms: windowMs,
     },

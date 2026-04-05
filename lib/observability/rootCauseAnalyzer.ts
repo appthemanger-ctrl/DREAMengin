@@ -42,6 +42,26 @@ interface KnownPattern {
 
 const KNOWN_PATTERNS: KnownPattern[] = [
   {
+    pattern: /syntaxerror|unexpected token|parsing error|unterminated|cannot find name|referenceerror/i,
+    cause: 'Syntax / type failure — compiler rejected the current file shape',
+    area: 'Build system',
+    action:
+      'Restore the missing import, state, or symbol in the failing file; ' +
+      'repair the syntax/token mismatch in place; ' +
+      're-run typecheck and build immediately.',
+    risk: 'medium',
+  },
+  {
+    pattern: /tax|platform_share|creator_share|platform payout|creator payout|gross_revenue|10%\s*platform|90%\s*creator|0\.10/i,
+    cause: 'Revenue split mismatch — the platform/creator payout math drifted from the server contract',
+    area: 'Financial layer',
+    action:
+      'Verify the 10% platform and 90% creator split constants at the server source; ' +
+      'recompute payout rounding in the ads order path; ' +
+      'confirm gross_revenue equals platform_payout + creator_payout.',
+    risk: 'high',
+  },
+  {
     pattern: /undefined is not a function|typeerror|cannot read prop|cannot set prop|is not a function/i,
     cause: 'Null/undefined dereference — component received an unexpected prop shape or missing data',
     area: 'UI component layer',

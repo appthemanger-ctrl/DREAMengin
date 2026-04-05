@@ -15,6 +15,10 @@ import { getSnapshot, type TelemetrySnapshot } from '@/lib/observability/collect
 import { correlate, type CorrelationResult } from '@/lib/observability/correlator';
 import { inferRootCause, type RootCauseAnalysis } from '@/lib/observability/rootCauseAnalyzer';
 import { createPatchPlan, type PatchPlan, type PatchRisk } from '@/lib/agents/idari';
+import {
+  buildImmediateRemediationAction,
+  type ImmediateRemediationAction,
+} from '@/lib/observability/immediateAction';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -45,6 +49,7 @@ export interface LoopIteration {
   snapshot_summary: LoopSnapshotSummary;
   correlation: CorrelationResult;
   root_cause: RootCauseAnalysis;
+  immediate_action?: ImmediateRemediationAction;
   /** Patch plan from the AI (or deterministic fallback). */
   patch_plan?: PatchPlan;
   /** Raw AI response text (available when AI was called). */
@@ -146,6 +151,7 @@ export function buildIdariPrompt(
 export function buildFallbackPatchPlan(
   rootCause: RootCauseAnalysis,
   iterationId: string,
+  immediateAction?: ImmediateRemediationAction,
 ): PatchPlan | undefined {
   if (rootCause.affected_area === 'none') return undefined;
 
@@ -157,15 +163,20 @@ export function buildFallbackPatchPlan(
     title: `Auto-detected: ${rootCause.likely_cause.slice(0, 80)}`,
     cause: rootCause.likely_cause,
     impact: `Affects ${rootCause.affected_area}. Pattern-match confidence: ${rootCause.confidence}.`,
-    fix: rootCause.recommended_action,
-    verification:
+    fix: immediateAction?.summary ?? rootCause.recommended_action,
+    verification: immediateAction?.verification.join(' ') ??
       'Re-run the IDARi observability loop after applying the fix — health should return to "healthy".',
-    steps: [
-      {
-        file: 'See IDARi chat for specific file changes',
-        diff: `Apply: ${rootCause.recommended_action}`,
-      },
-    ],
+    steps: (immediateAction?.file_hints.length
+      ? immediateAction.file_hints.slice(0, 3).map((file) => ({
+          file,
+          diff: `Apply: ${immediateAction.summary}`,
+        }))
+      : [
+          {
+            file: 'See IDARi chat for specific file changes',
+            diff: `Apply: ${rootCause.recommended_action}`,
+          },
+        ]),
     risk,
     rollback: needsRollback
       ? 'git revert the change and redeploy; then re-run the observability loop to confirm recovery.'
@@ -215,6 +226,7 @@ export async function runLoopIteration(
         snapshot_summary,
         correlation,
         root_cause: rootCause,
+        immediate_action: undefined,
       };
     }
 
@@ -230,7 +242,8 @@ export async function runLoopIteration(
     // back into the PatchPlan because LLM output is unstructured; the structured
     // patch plan always comes from the deterministic path.
     let ai_response: string | undefined;
-    const patch_plan: PatchPlan | undefined = buildFallbackPatchPlan(rootCause, id);
+    const immediate_action = buildImmediateRemediationAction(rootCause);
+    const patch_plan: PatchPlan | undefined = buildFallbackPatchPlan(rootCause, id, immediate_action);
 
     if (callAi && patch_plan) {
       try {
@@ -252,6 +265,7 @@ export async function runLoopIteration(
       snapshot_summary,
       correlation,
       root_cause: rootCause,
+      immediate_action,
       patch_plan,
       ai_response,
     };
@@ -276,6 +290,7 @@ export async function runLoopIteration(
       },
       correlation,
       root_cause: rootCause,
+      immediate_action: buildImmediateRemediationAction(rootCause),
       error: message,
     };
   }

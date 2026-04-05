@@ -25,6 +25,7 @@ import { runRemediationLoop, type LoopIteration } from '@/lib/agents/idariLoop';
 import { collectLog, collectMetric, collectTrace } from '@/lib/observability/collector';
 import type { CorrelationResult } from '@/lib/observability/correlator';
 import type { RootCauseAnalysis } from '@/lib/observability/rootCauseAnalyzer';
+import type { ImmediateRemediationAction } from '@/lib/observability/immediateAction';
 
 interface IdariLog {
   timestamp: Date;
@@ -77,6 +78,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
   const [loopIterations, setLoopIterations] = useState<LoopIteration[]>([]);
   const [latestCorrelation, setLatestCorrelation] = useState<CorrelationResult | null>(null);
   const [latestRootCause, setLatestRootCause] = useState<RootCauseAnalysis | null>(null);
+  const [latestImmediateAction, setLatestImmediateAction] = useState<ImmediateRemediationAction | null>(null);
   const [obsAutoRun, setObsAutoRun] = useState(false);
 
   /** Inject a synthetic telemetry event for demo/testing purposes */
@@ -107,6 +109,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
           setLoopIterations((prev) => [iter, ...prev.slice(0, 9)]);
           setLatestCorrelation(iter.correlation);
           setLatestRootCause(iter.root_cause);
+          setLatestImmediateAction(iter.immediate_action ?? null);
           emitIdariEvent({
             type: 'idari:result',
             timestamp: iter.started_at,
@@ -555,6 +558,33 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
                 <div><span className="text-slate-500 dark:text-slate-400">Confidence:</span> <span className="text-slate-800 dark:text-slate-200">{latestRootCause.confidence}</span></div>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400"><span className="font-medium">Fix:</span> {latestRootCause.recommended_action}</p>
+            </div>
+          )}
+
+          {latestImmediateAction && (
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Immediate Action</h4>
+                <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
+                  latestImmediateAction.urgency === 'review_now'
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                    : latestImmediateAction.urgency === 'patch_now'
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                      : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                }`}>
+                  {latestImmediateAction.urgency.replace('_', ' ')}
+                </span>
+              </div>
+              <p className="text-xs text-slate-800 dark:text-slate-200 font-medium">{latestImmediateAction.title}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">{latestImmediateAction.summary}</p>
+              {latestImmediateAction.file_hints.length > 0 && (
+                <p className="text-xs text-slate-500 dark:text-slate-500">
+                  <span className="font-medium">Files:</span> {latestImmediateAction.file_hints.slice(0, 3).join(', ')}
+                </p>
+              )}
+              <p className="text-xs text-slate-500 dark:text-slate-500">
+                <span className="font-medium">Mode:</span> {latestImmediateAction.can_auto_apply ? 'safe auto-patch candidate' : 'review before patch'}
+              </p>
             </div>
           )}
 
