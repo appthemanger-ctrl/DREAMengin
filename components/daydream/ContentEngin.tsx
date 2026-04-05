@@ -31,14 +31,17 @@ import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import {
   ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar,
-  Wand2, Mic, MicOff, RotateCcw, Shield, Flag, Dice5, Rocket,
-  Brain, ChevronDown, ChevronUp, CheckCircle,
+  Wand2, Mic, RotateCcw, Shield, Flag, Dice5, Rocket,
+  Brain, ChevronDown, ChevronUp, CheckCircle, Search, Download, Trash2,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
-import { parseSRT, parseVTT, computeCuts } from '@/lib/content/transcriptEditor';
+import {
+  parseSRT, parseVTT, computeCuts, applyEditsToSegments,
+  exportSRT, searchTranscript, annotateSearchMatches,
+} from '@/lib/content/transcriptEditor';
 import { scoreContent } from '@/lib/content/seoScorer';
 
 interface Props {
@@ -392,6 +395,8 @@ export default function ContentEngin({ onBack }: Props) {
   const [transcriptMsg, setTranscriptMsg] = useState('');
   const [deletedWordIdx, setDeletedWordIdx] = useState<Set<number>>(new Set());
   const [pendingCuts, setPendingCuts] = useState<import('@/lib/content/transcriptEditor').TimelineCut[]>([]);
+  const [transcriptSearch, setTranscriptSearch] = useState('');
+  const [transcriptSearchCount, setTranscriptSearchCount] = useState(0);
 
   function handleSubtitleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -411,6 +416,8 @@ export default function ContentEngin({ onBack }: Props) {
         setTranscriptSegments(segs);
         setDeletedWordIdx(new Set());
         setPendingCuts([]);
+        setTranscriptSearch('');
+        setTranscriptSearchCount(0);
         setTranscriptMsg(`✅ Loaded ${segs.length} segments.`);
       } catch {
         setTranscriptMsg('⚠️ Failed to parse subtitle file.');
@@ -436,7 +443,7 @@ export default function ContentEngin({ onBack }: Props) {
   function applyTranscriptEdits() {
     const cuts = computeCuts(transcriptSegments, deletedWordIdx);
     setPendingCuts(cuts);
-    setTranscriptMsg(`✅ ${cuts.length} cut(s) computed. Export timeline to apply.`);
+    setTranscriptMsg(`✅ ${cuts.length} cut(s) computed. Export SRT to apply.`);
   }
 
   function resetTranscriptEdits() {
@@ -444,6 +451,33 @@ export default function ContentEngin({ onBack }: Props) {
     setPendingCuts([]);
     setTranscriptMsg('');
   }
+
+  function handleTranscriptSearch(q: string) {
+    setTranscriptSearch(q);
+    if (!q.trim()) { setTranscriptSearchCount(0); return; }
+    const results = searchTranscript(transcriptSegments, q);
+    setTranscriptSearchCount(results.length);
+  }
+
+  function handleExportSRT() {
+    const edited = deletedWordIdx.size > 0
+      ? applyEditsToSegments(transcriptSegments, deletedWordIdx)
+      : transcriptSegments;
+    const srtText = exportSRT(edited);
+    const blob = new Blob([srtText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'edited-transcript.srt';
+    a.click();
+    URL.revokeObjectURL(url);
+    setTranscriptMsg('✅ SRT exported!');
+  }
+
+  // Compute displayed segments (with search annotations)
+  const displayedSegments: TranscriptSegment[] = transcriptSearch.trim()
+    ? annotateSearchMatches(transcriptSegments, transcriptSearch)
+    : transcriptSegments;
 
   // ── Generative Fill state ─────────────────────────────────────────────────────
   const [fillPrompt, setFillPrompt] = useState('');
@@ -490,14 +524,49 @@ export default function ContentEngin({ onBack }: Props) {
   }
 
   // ── Voice Clone state ─────────────────────────────────────────────────────────
+  type VoiceProfile = { id: string; name: string; createdAt: string };
   const [voiceName, setVoiceName] = useState('');
   const [voiceProfileId, setVoiceProfileId] = useState('');
+  const [voiceProfiles, setVoiceProfiles] = useState<VoiceProfile[]>([]);
+  const [voiceProfilesLoading, setVoiceProfilesLoading] = useState(false);
   const [voiceCloneLoading, setVoiceCloneLoading] = useState(false);
   const [voiceCloneMsg, setVoiceCloneMsg] = useState('');
   const [ttsText, setTtsText] = useState('');
   const [ttsLoading, setTtsLoading] = useState(false);
   const [ttsAudioBase64, setTtsAudioBase64] = useState('');
   const [ttsMsg, setTtsMsg] = useState('');
+
+  async function loadVoiceProfiles() {
+    setVoiceProfilesLoading(true);
+    try {
+      const res = await fetch('/api/content/voice-clone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'list' }),
+      });
+      const json = await res.json() as { profiles?: VoiceProfile[]; error?: string };
+      if (!res.ok) throw new Error(json.error ?? 'List failed');
+      setVoiceProfiles(json.profiles ?? []);
+    } catch {
+      // Non-fatal — list stays empty
+    } finally {
+      setVoiceProfilesLoading(false);
+    }
+  }
+
+  async function deleteVoiceProfile(id: string) {
+    try {
+      await fetch('/api/content/voice-clone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', voiceId: id }),
+      });
+      setVoiceProfiles(prev => prev.filter(p => p.id !== id));
+      if (voiceProfileId === id) setVoiceProfileId('');
+    } catch {
+      // Non-fatal
+    }
+  }
 
   async function handleVoiceClone(file: File) {
     if (!voiceName.trim()) { setVoiceCloneMsg('⚠️ Enter a voice name first.'); return; }
@@ -515,9 +584,12 @@ export default function ContentEngin({ onBack }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'clone', sampleBase64: base64, voiceName: voiceName.trim() }),
       });
-      const json = await res.json() as { profile?: { id: string }; message?: string; error?: string };
+      const json = await res.json() as { profile?: { id: string; name: string; createdAt: string }; message?: string; error?: string };
       if (!res.ok && res.status !== 501) throw new Error(json.error ?? 'Clone failed');
-      if (json.profile?.id) setVoiceProfileId(json.profile.id);
+      if (json.profile?.id) {
+        setVoiceProfileId(json.profile.id);
+        setVoiceProfiles(prev => [{ id: json.profile!.id, name: json.profile!.name, createdAt: json.profile!.createdAt }, ...prev]);
+      }
       setVoiceCloneMsg(json.message ?? '✅ Voice cloned!');
     } catch (err) {
       setVoiceCloneMsg(`⚠️ ${err instanceof Error ? err.message : 'Clone failed'}`);
@@ -568,7 +640,20 @@ export default function ContentEngin({ onBack }: Props) {
     advSeoTimerRef.current = setTimeout(handleAdvSeoScore, 400);
   }, [advSeoTitle, advSeoBody, advSeoKeywords, handleAdvSeoScore]);
 
-  // ── Human Review state ────────────────────────────────────────────────────────
+  function handleExportSeoReport() {
+    if (!advSeoResult) return;
+    const { generateReport } = require('@/lib/content/seoScorer') as typeof import('@/lib/content/seoScorer');
+    const report = generateReport({ title: advSeoTitle, body: advSeoBody, keywords: advSeoKeywords.split(',').map(k => k.trim()).filter(Boolean) });
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `seo-report-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+
   const [humanReviewEnabled, setHumanReviewEnabled] = useState(false);
   const [pendingReviewItems, setPendingReviewItems] = useState<Array<{ id: string; label: string; content: string }>>([]);
 
@@ -1903,7 +1988,7 @@ export default function ContentEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-              Upload an SRT or VTT file. Click words to mark for deletion — the timeline cuts accordingly.
+              Upload an SRT or VTT file. Click words to mark for deletion — the timeline cuts accordingly. Search and export your edits as a new SRT.
             </p>
             <label style={{
               display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 9,
@@ -1921,6 +2006,26 @@ export default function ContentEngin({ onBack }: Props) {
                 style={{ display: 'none' }}
               />
             </label>
+            {/* Search bar — only shown when transcript is loaded */}
+            {transcriptSegments.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <Search className="w-3 h-3" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--de-text-dim)' }} />
+                  <input
+                    type="text"
+                    value={transcriptSearch}
+                    onChange={e => handleTranscriptSearch(e.target.value)}
+                    placeholder="Search transcript…"
+                    style={{ width: '100%', paddingLeft: 26, paddingRight: 10, paddingTop: 6, paddingBottom: 6, borderRadius: 8, border: '1px solid rgba(6,182,212,0.25)', background: 'rgba(255,255,255,0.6)', fontSize: 11, color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+                {transcriptSearch && (
+                  <span style={{ fontSize: 10, color: transcriptSearchCount > 0 ? '#06b6d4' : 'var(--de-text-dim)', fontWeight: 700, flexShrink: 0 }}>
+                    {transcriptSearchCount} match{transcriptSearchCount !== 1 ? 'es' : ''}
+                  </span>
+                )}
+              </div>
+            )}
             {transcriptMsg && (
               <div style={{ fontSize: 11, fontWeight: 600, color: transcriptMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>
                 {transcriptMsg}
@@ -1930,9 +2035,9 @@ export default function ContentEngin({ onBack }: Props) {
               <div style={{ height: 56, borderRadius: 9, background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Waveform view (connect audio source)</span>
               </div>
-            ) : transcriptSegments.length > 0 ? (
+            ) : displayedSegments.length > 0 ? (
               <div style={{ maxHeight: 220, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {transcriptSegments.map(seg => (
+                {displayedSegments.map(seg => (
                   <div key={seg.id} style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(6,182,212,0.15)' }}>
                     <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginBottom: 3, fontFamily: 'monospace' }}>
                       {(seg.startMs / 1000).toFixed(2)}s → {(seg.endMs / 1000).toFixed(2)}s
@@ -1946,9 +2051,14 @@ export default function ContentEngin({ onBack }: Props) {
                           title={`${(w.startMs / 1000).toFixed(2)}s`}
                           style={{
                             fontSize: 12, padding: '2px 5px', borderRadius: 4, border: 'none', cursor: 'pointer',
-                            background: deletedWordIdx.has(w.index) ? 'rgba(239,68,68,0.15)' : 'transparent',
-                            color: deletedWordIdx.has(w.index) ? '#ef4444' : 'var(--de-heading)',
+                            background: deletedWordIdx.has(w.index)
+                              ? 'rgba(239,68,68,0.15)'
+                              : w.isSearchMatch
+                                ? 'rgba(6,182,212,0.18)'
+                                : 'transparent',
+                            color: deletedWordIdx.has(w.index) ? '#ef4444' : w.isSearchMatch ? '#06b6d4' : 'var(--de-heading)',
                             textDecoration: deletedWordIdx.has(w.index) ? 'line-through' : 'none',
+                            fontWeight: w.isSearchMatch ? 700 : 400,
                             transition: 'all 0.12s',
                           }}
                         >
@@ -1972,7 +2082,16 @@ export default function ContentEngin({ onBack }: Props) {
                 </button>
                 <button
                   type="button"
+                  onClick={handleExportSRT}
+                  title="Export edited transcript as SRT"
+                  style={{ ...btnBase, background: 'rgba(6,182,212,0.12)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.3)' }}
+                >
+                  <Download className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
                   onClick={resetTranscriptEdits}
+                  title="Reset all edits"
                   style={{ ...btnBase, background: 'rgba(160,195,240,0.18)', color: 'var(--de-text-dim)' }}
                 >
                   <RotateCcw className="w-3 h-3" />
@@ -2057,17 +2176,59 @@ export default function ContentEngin({ onBack }: Props) {
           <div className="de-widget-header">
             <Mic className="w-4 h-4 mr-1" style={{ color: '#10b981' }} />
             <span className="de-widget-title ml-1">Voice Clone & TTS</span>
-            {voiceProfileId && (
-              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 7px', borderRadius: 5 }}>
-                Voice ready
-              </span>
-            )}
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {voiceProfileId && (
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 7px', borderRadius: 5 }}>
+                  Voice ready
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={loadVoiceProfiles}
+                disabled={voiceProfilesLoading}
+                title="Load saved voice profiles"
+                style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5, border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.07)', color: '#10b981', cursor: 'pointer', opacity: voiceProfilesLoading ? 0.5 : 1 }}
+              >
+                {voiceProfilesLoading ? '…' : '↻ Load'}
+              </button>
+            </div>
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
               Upload a 30s voice sample to clone it, then generate TTS with your voice.
               Wire <code style={{ fontSize: 10 }}>ELEVENLABS_API_KEY</code> for real audio.
             </p>
+            {/* Saved profiles list */}
+            {voiceProfiles.length > 0 && (
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5 }}>SAVED VOICES</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {voiceProfiles.map(p => (
+                    <div key={p.id} style={{
+                      display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8,
+                      background: voiceProfileId === p.id ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.5)',
+                      border: `1px solid ${voiceProfileId === p.id ? 'rgba(16,185,129,0.35)' : 'rgba(0,0,0,0.07)'}`,
+                      cursor: 'pointer',
+                    }}
+                      onClick={() => setVoiceProfileId(p.id)}
+                    >
+                      <Mic className="w-3 h-3" style={{ color: voiceProfileId === p.id ? '#10b981' : 'var(--de-text-dim)', flexShrink: 0 }} />
+                      <span style={{ fontSize: 11, fontWeight: voiceProfileId === p.id ? 700 : 400, color: voiceProfileId === p.id ? '#10b981' : 'var(--de-heading)', flex: 1 }}>
+                        {p.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={e => { e.stopPropagation(); deleteVoiceProfile(p.id); }}
+                        title="Delete voice profile"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: 'var(--de-text-dim)' }}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
               <input
                 type="text"
@@ -2196,9 +2357,21 @@ export default function ContentEngin({ onBack }: Props) {
                     </div>
                   ))}
                 </div>
-                {/* Readability */}
-                <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>
-                  📖 Readability: <strong>{advSeoResult.readabilityGrade}</strong>
+                {/* Readability + engagement + accessibility row */}
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)', padding: '3px 7px', borderRadius: 5, background: 'rgba(0,0,0,0.04)' }}>
+                    📖 {advSeoResult.readabilityGrade}
+                  </span>
+                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)', padding: '3px 7px', borderRadius: 5, background: 'rgba(0,0,0,0.04)' }}>
+                    🎯 {advSeoResult.engagementSignals} signal{advSeoResult.engagementSignals !== 1 ? 's' : ''}
+                  </span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, padding: '3px 7px', borderRadius: 5,
+                    background: advSeoResult.accessibilityLevel === 'High' ? 'rgba(34,197,94,0.1)' : advSeoResult.accessibilityLevel === 'Medium' ? `${ACCENT}12` : 'rgba(239,68,68,0.1)',
+                    color: advSeoResult.accessibilityLevel === 'High' ? '#22c55e' : advSeoResult.accessibilityLevel === 'Medium' ? ACCENT : '#ef4444',
+                  }}>
+                    ♿ {advSeoResult.accessibilityLevel}
+                  </span>
                 </div>
                 {/* Suggestions */}
                 {advSeoResult.topSuggestions.length > 0 && (
@@ -2209,6 +2382,14 @@ export default function ContentEngin({ onBack }: Props) {
                     ))}
                   </div>
                 )}
+                {/* Export report button */}
+                <button
+                  type="button"
+                  onClick={handleExportSeoReport}
+                  style={{ ...btnBase, background: `${ACCENT}10`, color: ACCENT, border: `1px solid ${ACCENT}25`, fontSize: 10, padding: '5px 10px' }}
+                >
+                  <Download className="w-3 h-3 inline mr-1" />Export JSON Report
+                </button>
               </div>
             )}
           </div>

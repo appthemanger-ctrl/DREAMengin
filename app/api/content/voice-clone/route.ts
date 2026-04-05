@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
+import { estimateDurationSeconds } from '@/lib/content/voiceClone';
 
 const CloneSchema = z.object({
   action: z.literal('clone'),
@@ -16,19 +17,51 @@ const TTSSchema = z.object({
   similarityBoost: z.number().min(0).max(1).optional(),
 });
 
-const VoiceCloneSchema = z.discriminatedUnion('action', [CloneSchema, TTSSchema]);
+const ListSchema = z.object({
+  action: z.literal('list'),
+});
+
+const DeleteSchema = z.object({
+  action: z.literal('delete'),
+  voiceId: z.string().min(1).max(200),
+});
+
+const VoiceCloneSchema = z.discriminatedUnion('action', [
+  CloneSchema,
+  TTSSchema,
+  ListSchema,
+  DeleteSchema,
+]);
 
 type VoiceCloneBody = z.infer<typeof VoiceCloneSchema>;
+
+type SupabaseDb = {
+  from: (table: string) => {
+    insert: (row: object) => { select: () => { single: () => Promise<{ data: unknown; error: unknown }> } };
+    select: (cols?: string) => {
+      eq: (col: string, val: string) => {
+        order: (col: string, opts?: object) => Promise<{ data: unknown[]; error: unknown }>;
+      };
+    };
+    delete: () => {
+      eq: (col: string, val: string) => {
+        eq: (col: string, val: string) => Promise<{ error: unknown }>;
+      };
+    };
+  };
+};
 
 /**
  * POST /api/content/voice-clone
  *
- * Supports two actions:
- *  - "clone": upload a voice sample to create a voice profile (stored in Supabase).
- *  - "tts": generate speech from text using a cloned voice profile.
+ * Supports four actions:
+ *  - "clone"  – upload a voice sample to create a voice profile (stored in Supabase).
+ *  - "tts"    – generate speech from text using a cloned voice profile.
+ *  - "list"   – list all voice profiles for the current user.
+ *  - "delete" – delete a voice profile by ID.
  *
  * In production, wire ELEVENLABS_API_KEY to call the ElevenLabs API.
- * Currently returns a graceful stub so the UI flow works without credentials.
+ * Currently returns graceful stubs so the UI flow works without credentials.
  */
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
@@ -53,27 +86,21 @@ export async function POST(req: NextRequest) {
   }
 
   const elevenLabsKey = process.env.ELEVENLABS_API_KEY;
+  const db = supabase as unknown as SupabaseDb;
 
+  // ── clone ────────────────────────────────────────────────────────────────
   if (parsed.data.action === 'clone') {
     const { voiceName } = parsed.data;
 
     if (elevenLabsKey) {
-      // Production: POST to https://api.elevenlabs.io/v1/voices/add
       return NextResponse.json(
         { error: 'ElevenLabs integration not yet wired. Set ELEVENLABS_API_KEY.' },
         { status: 501 }
       );
     }
 
-    // Stub: persist a mock voice profile to Supabase for later TTS.
     const profileId = `voice_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const now = new Date().toISOString();
-
-    const db = supabase as unknown as {
-      from: (table: string) => {
-        insert: (row: object) => { select: () => { single: () => Promise<{ data: unknown; error: unknown }> } }
-      }
-    };
 
     await db
       .from('voice_profiles')
@@ -88,7 +115,44 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // action === 'tts'
+  // ── list ────────────────────────────────────────────────────────────────
+  if (parsed.data.action === 'list') {
+    const result = await db
+      .from('voice_profiles')
+      .select('id, name, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .catch(() => ({ data: [], error: null })) as { data: unknown[]; error: unknown };
+
+    const profiles = (Array.isArray(result.data) ? result.data : []).map((row) => {
+      const r = row as Record<string, unknown>;
+      return {
+        id: String(r.id ?? ''),
+        name: String(r.name ?? ''),
+        createdAt: String(r.created_at ?? ''),
+      };
+    });
+
+    return NextResponse.json({ profiles });
+  }
+
+  // ── delete ───────────────────────────────────────────────────────────────
+  if (parsed.data.action === 'delete') {
+    const { voiceId } = parsed.data;
+
+    await db
+      .from('voice_profiles')
+      .delete()
+      .eq('id', voiceId)
+      .eq('user_id', user.id)
+      .catch(() => null); // soft fail if table doesn't exist
+
+    return NextResponse.json({
+      message: `Voice profile "${voiceId}" deleted.`,
+    });
+  }
+
+  // ── tts ─────────────────────────────────────────────────────────────────
   const { text, voiceId } = parsed.data;
 
   if (elevenLabsKey) {
@@ -98,14 +162,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Stub: return an empty audio response — caller shows "demo mode" message.
-  const wordCount = text.trim().split(/\s+/).length;
-  const estimatedDuration = wordCount / 2.5; // rough 150 wpm / 60
+  const durationSeconds = estimateDurationSeconds(text);
 
   return NextResponse.json({
     audioBase64: '',
-    durationSeconds: estimatedDuration,
+    durationSeconds: +durationSeconds.toFixed(2),
     voiceId,
-    message: `TTS generated for voice "${voiceId}" (mock). Configure ELEVENLABS_API_KEY for real audio.`,
+    message: `TTS generated for voice "${voiceId}" (mock, ~${durationSeconds.toFixed(1)}s). Configure ELEVENLABS_API_KEY for real audio.`,
   });
 }
+

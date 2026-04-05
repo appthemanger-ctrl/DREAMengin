@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
+import { parseSRT, parseVTT, totalDurationMs } from '@/lib/content/transcriptEditor';
 
 const TranscribeSchema = z.object({
   /** Raw SRT or VTT content uploaded by the user */
@@ -17,12 +18,6 @@ const TranscribeSchema = z.object({
 });
 
 type TranscribeBody = z.infer<typeof TranscribeSchema>;
-
-function generateMockTranscript(content: string): string {
-  // If the user uploaded actual SRT/VTT content, echo it back unchanged.
-  if (content.trim()) return content.trim();
-  return '';
-}
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
@@ -48,22 +43,41 @@ export async function POST(req: NextRequest) {
 
   const { subtitleContent, format, audioBase64 } = parsed.data;
 
-  // If subtitle content is provided, parse and return as segments.
   if (subtitleContent) {
+    // Parse the file server-side to return metadata alongside raw content.
+    const detectedFormat = format ?? 'srt';
+    let segments: ReturnType<typeof parseSRT> = [];
+    try {
+      segments = detectedFormat === 'vtt'
+        ? parseVTT(subtitleContent)
+        : parseSRT(subtitleContent);
+    } catch {
+      // Parsing errors are non-fatal — still return raw content
+    }
+
+    const wordCount = segments.flatMap(s => s.words).length;
+    const durationMs = totalDurationMs(segments);
+
     return NextResponse.json({
-      source: format ?? 'srt',
-      rawContent: generateMockTranscript(subtitleContent),
-      message: `Transcript loaded from ${format ?? 'srt'} file.`,
+      source: detectedFormat,
+      rawContent: subtitleContent.trim(),
+      segmentCount: segments.length,
+      wordCount,
+      durationMs,
+      durationSeconds: +(durationMs / 1000).toFixed(2),
+      message: `Transcript loaded from ${detectedFormat} file — ${segments.length} segments, ${wordCount} words.`,
     });
   }
 
-  // If audio is provided, return a stub response (real ML integration wired here).
   if (audioBase64) {
-    // In production: call Whisper / Web Speech API / Deepgram here.
-    // For now, return an empty transcript so the UI can handle it gracefully.
+    // In production: call Whisper / Deepgram here with the decoded audio.
     return NextResponse.json({
       source: 'audio',
       rawContent: '',
+      segmentCount: 0,
+      wordCount: 0,
+      durationMs: 0,
+      durationSeconds: 0,
       message: 'Audio transcription is not yet configured. Upload an SRT or VTT file instead.',
     });
   }
@@ -73,3 +87,4 @@ export async function POST(req: NextRequest) {
     { status: 400 }
   );
 }
+

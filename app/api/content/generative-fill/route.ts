@@ -2,20 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
 
+const MaskSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  width: z.number().min(0).max(1),
+  height: z.number().min(0).max(1),
+}).refine(
+  m => m.x + m.width <= 1.001 && m.y + m.height <= 1.001,
+  { message: 'Mask region extends beyond image bounds (x+width or y+height > 1).' }
+);
+
 const FillSchema = z.object({
   /** Base64-encoded source image or video frame (JPEG/PNG) */
   imageBase64: z.string().min(10).max(10_000_000),
   /** Natural-language fill description */
   prompt: z.string().min(3).max(500),
   /** Optional mask region as fractions of image dimensions (0–1) */
-  mask: z
-    .object({
-      x: z.number().min(0).max(1),
-      y: z.number().min(0).max(1),
-      width: z.number().min(0).max(1),
-      height: z.number().min(0).max(1),
-    })
-    .optional(),
+  mask: MaskSchema.optional(),
   quality: z.enum(['fast', 'hd']).default('fast'),
 });
 
@@ -52,7 +55,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { prompt, quality } = parsed.data;
+  const { prompt, quality, mask } = parsed.data;
 
   // Check for real API credentials.
   const replicateToken = process.env.REPLICATE_API_TOKEN;
@@ -60,8 +63,7 @@ export async function POST(req: NextRequest) {
 
   if (replicateToken || stabilityKey) {
     // Production path — call external provider.
-    // This stub would be replaced with a real Replicate / Stability call.
-    // Returning a 501 here so that caller knows to show "not configured" UI.
+    // Wire Replicate stable-diffusion-inpainting or Stability API here.
     return NextResponse.json(
       {
         error: 'External generative fill provider not yet wired. Set REPLICATE_API_TOKEN.',
@@ -71,10 +73,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Development / demo stub: echo the source image back with a metadata message.
-  return NextResponse.json({
-    resultBase64: parsed.data.imageBase64,
-    message: `Generative fill "${prompt}" (${quality}) queued. Configure REPLICATE_API_TOKEN for real results.`,
-    provider: 'mock',
-  });
+  const maskDescription = mask
+    ? ` [mask: x=${mask.x.toFixed(2)}, y=${mask.y.toFixed(2)}, w=${mask.width.toFixed(2)}, h=${mask.height.toFixed(2)}]`
+    : '';
+
+  // Development / demo stub: echo the source image back with metadata.
+  return NextResponse.json(
+    {
+      resultBase64: parsed.data.imageBase64,
+      message: `Generative fill "${prompt}"${maskDescription} (${quality}) — configure REPLICATE_API_TOKEN for real results.`,
+      provider: 'mock',
+    },
+    {
+      headers: {
+        'Cache-Control': 'no-store',
+        'ETag': `"${Buffer.from(prompt + quality).toString('base64').slice(0, 16)}"`,
+      },
+    }
+  );
 }
+
