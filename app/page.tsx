@@ -9,7 +9,9 @@ import LandingHero from '@/components/LandingHero';
 
 // Resolve the site origin from env so OG image URLs are absolute.
 // Falls back to the production domain when the env var is absent (CI / prod).
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://dreamengin.com';
+// Use || (not ??) so an empty-string env var falls back to the default URL;
+// new URL('') would otherwise throw a TypeError during server-side rendering.
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://dreamengin.com';
 
 export const metadata: Metadata = {
   // metadataBase makes relative OG/Twitter image paths resolve to absolute URLs.
