@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle, FileText, BarChart2, Video } from 'lucide-react';
+import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle, FileText, BarChart2, Video, Brain, RefreshCw, Sparkles } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import ContentEngin from '@/components/daydream/ContentEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
@@ -339,6 +339,87 @@ export default async function CreateDaydreamPage() {
           </div>
           <div className="de-widget-actions">
             <Link href="/daydream/create" className="de-btn de-btn-primary text-xs">Open ContentEngin →</Link>
+          </div>
+        </div>
+
+        {/* ── Workflow Brain ── */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Brain className="w-4 h-4 mr-1" style={{ color: '#6366f1' }} />
+            <span className="de-widget-title">Workflow Brain</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>DAM · PM</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 8 }}>
+              The central hub that connects your assets, strategy, production, and publish pipeline — zero admin overhead.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {[
+                { icon: '📐', label: 'Strategy',   badge: 'done'    },
+                { icon: '💡', label: 'Ideation',   badge: 'done'    },
+                { icon: '✍️', label: 'Production', badge: 'active'  },
+                { icon: '📤', label: 'Publish',    badge: 'pending' },
+              ].map(s => (
+                <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: s.badge === 'active' ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.4)', border: `1px solid ${s.badge === 'active' ? 'rgba(99,102,241,0.25)' : 'rgba(160,195,240,0.15)'}` }}>
+                  <span>{s.icon}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', flex: 1 }}>{s.label}</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: s.badge === 'done' ? 'rgba(34,197,94,0.1)' : s.badge === 'active' ? 'rgba(99,102,241,0.12)' : 'rgba(160,195,240,0.15)', color: s.badge === 'done' ? '#16a34a' : s.badge === 'active' ? '#6366f1' : 'var(--de-text-dim)' }}>{s.badge}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="de-widget-actions">
+            <Link href="/daydream/create" className="de-btn de-btn-primary text-xs">Open Workflow Brain →</Link>
+          </div>
+        </div>
+
+        {/* ── Auto Content Repurposer ── */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <RefreshCw className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Auto Content Repurposer</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT, background: `${ACCENT}15`, padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>10 formats</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 8 }}>
+              Paste one piece of long-form content — get 10 platform-ready formats in seconds. Blog → Tweet, Reel, Newsletter, Short, and more.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              {['Twitter/X', 'Instagram', 'LinkedIn', 'TikTok', 'YouTube Short', 'Newsletter', 'Pinterest', 'Podcast Intro', 'Blog CTA', 'Reel Hook'].map(p => (
+                <div key={p} style={{ padding: '5px 8px', borderRadius: 7, background: `${ACCENT}08`, border: `1px solid ${ACCENT}15`, fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)' }}>{p}</div>
+              ))}
+            </div>
+          </div>
+          <div className="de-widget-actions">
+            <Link href="/daydream/create" className="de-btn de-btn-primary text-xs">Repurpose Content →</Link>
+          </div>
+        </div>
+
+        {/* ── AI Post Intelligence ── */}
+        <div className="de-widget">
+          <div className="de-widget-header">
+            <Sparkles className="w-4 h-4 mr-1" style={{ color: '#6366f1' }} />
+            <span className="de-widget-title">AI Post Intelligence</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 8 }}>
+              AI scans your engagement gaps, suggests what to create next, and recommends when to post it — no more blank-page paralysis.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {[
+                { label: 'Gap Detection',       desc: 'Spot content type gaps before they cost reach' },
+                { label: 'Next Best Content',   desc: 'AI picks the format most likely to perform now' },
+                { label: 'Optimal Post Time',   desc: 'Per-platform schedule based on your engagement' },
+              ].map(f => (
+                <div key={f.label} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.12)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', marginBottom: 1 }}>{f.label}</div>
+                  <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{f.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="de-widget-actions">
+            <Link href="/daydream/create" className="de-btn de-btn-primary text-xs">Run AI Prediction →</Link>
           </div>
         </div>
 

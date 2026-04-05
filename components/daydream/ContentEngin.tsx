@@ -370,6 +370,39 @@ export default function ContentEngin({ onBack }: Props) {
   // ── Multi-Platform Scheduler countdown ───────────────────────────────────────
   const [schedulerNow] = useState(() => new Date());
 
+  // ── Workflow Brain state ──────────────────────────────────────────────────────
+  const [wfbProject, setWfbProject] = useState('');
+  const [wfbTagSearch, setWfbTagSearch] = useState('');
+  const [wfbAssets] = useState([
+    { name: 'Brand Kit v3.fig',         tags: ['brand', 'logo', 'figma'],        type: '🎨' },
+    { name: 'Q2 Campaign Brief.pdf',    tags: ['strategy', 'campaign', 'Q2'],    type: '📋' },
+    { name: 'Hero Reel Raw.mp4',        tags: ['video', 'hero', 'raw'],          type: '🎬' },
+    { name: 'Product Photos Drop2.zip', tags: ['photos', 'product', 'drop'],     type: '🖼' },
+    { name: 'Hook Scripts Q2.docx',     tags: ['script', 'hooks', 'writing'],    type: '📝' },
+    { name: 'Logo Variants 2026.ai',    tags: ['brand', 'logo', 'illustrator'],  type: '✏️' },
+  ]);
+  const [wfbContextThread] = useState([
+    { phase: '📐 Strategy',    item: 'Q2 Growth Plan',       status: 'done'    },
+    { phase: '💡 Ideation',    item: '12 Content Concepts',  status: 'done'    },
+    { phase: '✍️ Production',  item: 'Reel #4 Script',       status: 'active'  },
+    { phase: '📤 Publish',     item: '3 Posts Queued',       status: 'pending' },
+  ]);
+
+  // ── Auto Content Repurposer state ────────────────────────────────────────────
+  const [repurposeInput, setRepurposeInput]   = useState('');
+  const [repurposeLoading, setRepurposeLoading] = useState(false);
+  const [repurposeOutputs, setRepurposeOutputs] = useState<Array<{ platform: string; format: string; text: string }>>([]);
+  const [repurseCopied, setRepurseCopied]     = useState<number | null>(null);
+  const [repurposeMsg, setRepurposeMsg]       = useState('');
+
+  // ── AI Predictive Scheduler state ────────────────────────────────────────────
+  const [predictLoading, setPredictLoading]   = useState(false);
+  const [predictLoaded, setPredictLoaded]     = useState(false);
+  const [predictSuggestions, setPredictSuggestions] = useState<Array<{
+    type: string; title: string; reason: string; platform: string; bestTime: string;
+  }>>([]);
+  const [predictGaps, setPredictGaps]         = useState<string[]>([]);
+
   async function handleGenerateHooks() {
     if (!hookTopic.trim()) return;
     setHookLoading(true);
@@ -527,6 +560,56 @@ export default function ContentEngin({ onBack }: Props) {
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'create', 'content:analytics-refresh', {},
     );
+  }
+
+  // ── Auto Repurposer handler ───────────────────────────────────────────────────
+  async function handleRepurpose() {
+    if (!repurposeInput.trim()) return;
+    setRepurposeLoading(true);
+    setRepurposeOutputs([]);
+    setRepurposeMsg('');
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'repurpose', content: repurposeInput.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Repurpose failed');
+      setRepurposeOutputs(json.outputs ?? []);
+      setRepurposeMsg(json.draft?.id ? '✅ All formats saved to Drafts.' : '');
+    } catch (error) {
+      setRepurposeMsg(error instanceof Error ? error.message : 'Repurpose failed');
+    } finally {
+      setRepurposeLoading(false);
+    }
+  }
+
+  function copyRepurposeOutput(text: string, idx: number) {
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setRepurseCopied(idx);
+    setTimeout(() => setRepurseCopied(null), 1400);
+  }
+
+  // ── Predictive Scheduling handler ─────────────────────────────────────────────
+  async function handlePredictSchedule() {
+    setPredictLoading(true);
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'predict-schedule' }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Prediction failed');
+      setPredictSuggestions(json.suggestions ?? []);
+      setPredictGaps(json.gaps ?? []);
+      setPredictLoaded(true);
+    } catch {
+      setPredictLoaded(true);
+    } finally {
+      setPredictLoading(false);
+    }
   }
 
   return (
@@ -1542,6 +1625,208 @@ export default function ContentEngin({ onBack }: Props) {
               style={{ marginTop: 8, padding: '8px 14px', borderRadius: 9, fontSize: 11, fontWeight: 700, background: 'rgba(139,92,246,0.14)', border: '1px solid rgba(139,92,246,0.3)', color: '#8b5cf6', cursor: 'pointer', width: '100%' }}>
               🎬 Render Neon Burst Intro
             </button>
+          </div>
+        </div>
+
+        {/* ── Workflow Brain (DAM + PM Hub) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>🧠</span>
+            <span className="de-widget-title ml-2">Workflow Brain</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>DAM · PM</span>
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Active project context */}
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Active Campaign / Project</label>
+              <input
+                type="text"
+                value={wfbProject}
+                onChange={e => setWfbProject(e.target.value)}
+                placeholder="e.g. Q2 Growth Sprint…"
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, border: `1px solid rgba(99,102,241,0.25)`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+            {/* Context Thread — strategy → production flow */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 6 }}>Context Thread</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 0, overflowX: 'auto' }}>
+                {wfbContextThread.map((step, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                    <div style={{
+                      padding: '7px 10px', borderRadius: 9, fontSize: 10, fontWeight: 700,
+                      background: step.status === 'done' ? 'rgba(34,197,94,0.1)' : step.status === 'active' ? `rgba(99,102,241,0.14)` : 'rgba(255,255,255,0.5)',
+                      border: `1.5px solid ${step.status === 'done' ? 'rgba(34,197,94,0.3)' : step.status === 'active' ? 'rgba(99,102,241,0.35)' : 'rgba(160,195,240,0.2)'}`,
+                      color: step.status === 'done' ? '#16a34a' : step.status === 'active' ? '#6366f1' : 'var(--de-text-dim)',
+                      minWidth: 76, textAlign: 'center',
+                    }}>
+                      <div>{step.phase}</div>
+                      <div style={{ fontSize: 9, fontWeight: 600, marginTop: 2, color: 'var(--de-text-dim)' }}>{step.item}</div>
+                    </div>
+                    {i < wfbContextThread.length - 1 && (
+                      <div style={{ width: 18, textAlign: 'center', fontSize: 11, color: 'var(--de-text-dim)', flexShrink: 0 }}>→</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* AI-tagged asset hub */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)' }}>Asset Hub</div>
+                <input
+                  type="text"
+                  value={wfbTagSearch}
+                  onChange={e => setWfbTagSearch(e.target.value)}
+                  placeholder="Search by AI tag…"
+                  style={{ flex: 1, padding: '5px 10px', borderRadius: 7, fontSize: 11, border: `1px solid rgba(99,102,241,0.2)`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {wfbAssets
+                  .filter(a => !wfbTagSearch.trim() || a.tags.some(t => t.includes(wfbTagSearch.toLowerCase())) || a.name.toLowerCase().includes(wfbTagSearch.toLowerCase()))
+                  .map((asset, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(99,102,241,0.12)' }}>
+                      <span style={{ fontSize: 16, flexShrink: 0 }}>{asset.type}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{asset.name}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>
+                          {asset.tags.map(tag => (
+                            <span key={tag} style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 999, background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.2)' }}>#{tag}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => setWfbTagSearch('')}
+                        style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.08)', color: '#6366f1', cursor: 'pointer', fontWeight: 700 }}>
+                        Use
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Auto Content Repurposer (10 platforms) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>♻️</span>
+            <span className="de-widget-title ml-2">Auto Content Repurposer</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT, background: `${ACCENT}15`, padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>10 formats</span>
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+              Paste any long-form content — blog, podcast transcript, script — and get 10 platform-ready formats instantly.
+            </p>
+            <textarea
+              value={repurposeInput}
+              onChange={e => { setRepurposeInput(e.target.value); setRepurposeOutputs([]); setRepurposeMsg(''); }}
+              placeholder="Paste your blog post, script, podcast transcript, or thread here…"
+              rows={4}
+              style={{ width: '100%', borderRadius: 10, padding: '10px 12px', fontSize: 12, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }}
+            />
+            <button
+              type="button"
+              onClick={handleRepurpose}
+              disabled={repurposeLoading || !repurposeInput.trim()}
+              className="de-btn de-btn-primary"
+              style={{ opacity: repurposeLoading || !repurposeInput.trim() ? 0.6 : 1, transition: 'all 0.15s' }}
+            >
+              {repurposeLoading ? '⚙️ Repurposing…' : '♻️ Repurpose to 10 Platforms'}
+            </button>
+            {repurposeMsg && (
+              <div style={{ fontSize: 11, fontWeight: 600, color: repurposeMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{repurposeMsg}</div>
+            )}
+            {repurposeOutputs.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {repurposeOutputs.map((out, i) => (
+                  <div key={i} style={{ padding: '10px 12px', borderRadius: 10, background: repurseCopied === i ? 'rgba(34,197,94,0.06)' : `${ACCENT}06`, border: `1px solid ${repurseCopied === i ? 'rgba(34,197,94,0.3)' : `${ACCENT}18`}`, transition: 'all 0.2s' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: `${ACCENT}15`, color: ACCENT }}>{out.platform}</span>
+                      <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{out.format}</span>
+                      <button type="button" onClick={() => copyRepurposeOutput(out.text, i)}
+                        style={{ marginLeft: 'auto', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', opacity: repurseCopied === i ? 1 : 0.6 }}>
+                        {repurseCopied === i ? '✅' : '📋'}
+                      </button>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{out.text}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── AI Post Intelligence / Predictive Scheduler ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span style={{ fontSize: 16 }}>🔮</span>
+            <span className="de-widget-title ml-2">AI Post Intelligence</span>
+            {predictLoaded && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>Live</span>
+            )}
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+              AI analyzes your engagement patterns to recommend what to create next, when to post it, and what gaps to fill.
+            </p>
+            {!predictLoaded ? (
+              <button
+                type="button"
+                onClick={handlePredictSchedule}
+                disabled={predictLoading}
+                className="de-btn de-btn-primary"
+                style={{ opacity: predictLoading ? 0.7 : 1 }}
+              >
+                {predictLoading ? '🔮 Analysing…' : '🔮 Run AI Prediction'}
+              </button>
+            ) : (
+              <>
+                {/* Gap alerts */}
+                {predictGaps.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', marginBottom: 5 }}>⚠️ Content Gaps Detected</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      {predictGaps.map((gap, i) => (
+                        <div key={i} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', fontSize: 11, color: 'var(--de-heading)' }}>
+                          {gap}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* What to create next */}
+                {predictSuggestions.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', marginBottom: 5 }}>✨ What to Create Next</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {predictSuggestions.map((s, i) => (
+                        <div key={i} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                            <span style={{ fontSize: 13 }}>{s.type}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', flex: 1 }}>{s.title}</span>
+                            <span style={{ fontSize: 9, fontWeight: 700, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 6px', borderRadius: 4, flexShrink: 0 }}>{s.platform}</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 4 }}>💡 {s.reason}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>📅 Best time: {s.bestTime}</span>
+                            <button type="button"
+                              onClick={() => { setFormTitle(s.title); setFormType('Post'); }}
+                              style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, border: `1px solid ${ACCENT}30`, background: `${ACCENT}10`, color: ACCENT, cursor: 'pointer', fontWeight: 700 }}>
+                              Add to Calendar
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <button type="button" onClick={handlePredictSchedule} disabled={predictLoading}
+                  style={{ ...btnBase, background: 'rgba(160,195,240,0.15)', color: 'var(--de-text-dim)', fontSize: 11 }}>
+                  {predictLoading ? '…' : '↻ Refresh Predictions'}
+                </button>
+              </>
+            )}
           </div>
         </div>
 
