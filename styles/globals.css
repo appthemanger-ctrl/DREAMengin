@@ -1881,7 +1881,45 @@ body, .dreamnav-surface, .controls {
   }
 }
 
+/* ── Gold particle fountain ── */
+@keyframes sicc-particle-fountain {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  40%  { opacity: 0.9; }
+  100% { transform: translate(var(--particle-dx, 0), var(--particle-dy, 80px)) scale(0.3); opacity: 0; }
+}
 
+/* ── Typing rhythm handle pulse ── */
+@keyframes sicc-rhythm-pulse {
+  0%, 100% { transform: scaleX(1); opacity: 0.55; }
+  50%      { transform: scaleX(var(--rhythm-scale, 1.5)); opacity: 0.85; }
+}
+
+/* ── Quick reaction emoji pop ── */
+@keyframes sicc-react-pop {
+  0%   { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+  50%  { transform: scale(1.25) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* ── Dream streak flame flicker ── */
+@keyframes sicc-flame-flicker {
+  0%, 100% { transform: scaleY(1) rotate(0deg); filter: brightness(1); }
+  25%      { transform: scaleY(1.1) rotate(-3deg); filter: brightness(1.15); }
+  50%      { transform: scaleY(0.95) rotate(2deg); filter: brightness(1.05); }
+  75%      { transform: scaleY(1.08) rotate(-1deg); filter: brightness(1.2); }
+}
+
+/* ── Slash command palette slide-in ── */
+@keyframes sicc-slash-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Mood aura ambient overlay pulse ── */
+@keyframes sicc-mood-aura {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
 
 .sicc-gold-breathe {
   animation: sicc-gold-breathe 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
@@ -1917,6 +1955,42 @@ body, .dreamnav-surface, .controls {
 
 .sicc-soft-float {
   animation: sicc-soft-float 4s ease-in-out infinite;
+}
+
+/* ── Particle fountain particles ── */
+.sicc-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sicc-particle-fountain 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* ── Quick reaction emoji bounce-in ── */
+.sicc-react-pop {
+  animation: sicc-react-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Typing rhythm handle ── */
+.sicc-rhythm-handle {
+  animation: sicc-rhythm-pulse 0.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* ── Dream streak flame ── */
+.sicc-flame {
+  animation: sicc-flame-flicker 0.6s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+/* ── Slash command palette ── */
+.sicc-slash-palette {
+  animation: sicc-slash-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Mood aura overlay ── */
+.sicc-mood-aura {
+  animation: sicc-mood-aura 8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* ── SICC premium gradient text ── */
@@ -3773,6 +3847,335 @@ main[role="main"] > * {
 /* ── Respect reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .de-ghost-volatile::after {
+    animation: none !important;
+  }
+}
+
+/* =============================================================================
+   FORGE — User-Facing UI/UX Polish Layer
+   Precision micro-interactions, focus states, scroll refinements, page
+   transitions, and spatial feedback for every touchable surface.
+   Architecture: THEME.md (Gold=action · Sky-blue=connected · White=clarity)
+   Performance: CSS-only; zero JS overhead.
+   =========================================================================== */
+
+/* ── Enhanced focus rings — accessible + branded ── */
+:focus-visible {
+  outline: 2px solid rgba(42,138,184,0.55);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* Gold focus for primary actions */
+.de-btn-primary:focus-visible,
+.de-btn-gold:focus-visible,
+.premium-btn-gold:focus-visible,
+.premium-btn-primary:focus-visible {
+  outline-color: rgba(200,152,26,0.65);
+  box-shadow: 0 0 0 4px rgba(200,152,26,0.18);
+}
+
+/* ── Smooth page-level transitions ── */
+@keyframes de-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+
+main[role="main"] > * {
+  animation: de-page-enter 0.35s var(--ease-decel, cubic-bezier(0, 0, 0.2, 1)) both;
+}
+
+/* ── Scrollbar refinement — thin, subtle, branded ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(42,138,184,0.20) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(42,138,184,0.22);
+  border-radius: 99px;
+  border: 1px solid transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(42,138,184,0.38);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(200,152,26,0.4);
+}
+
+/* ── Improved selection highlight ── */
+::selection {
+  background: rgba(42,138,184,0.24);
+  color: inherit;
+}
+
+/* ── Loading spinner — branded keyframe ── */
+@keyframes de-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes de-spin-pulse {
+  0%, 100% {
+    border-top-color: var(--de-gold, #c8981a);
+    box-shadow: 0 0 12px rgba(200,152,26,0.3);
+  }
+  50% {
+    border-top-color: var(--de-accent, #2a8ab8);
+    box-shadow: 0 0 18px rgba(42,138,184,0.3);
+  }
+}
+
+.de-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(200,152,26,0.15);
+  border-top-color: var(--de-gold, #c8981a);
+  border-radius: 50%;
+  animation: de-spin 0.8s linear infinite, de-spin-pulse 2.4s ease-in-out infinite;
+}
+
+.de-spinner-sm {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+
+.de-spinner-lg {
+  width: 48px;
+  height: 48px;
+  border-width: 3.5px;
+}
+
+/* ── Feed card premium treatment — enhanced hover + interactions ── */
+.feed-card-premium {
+  border-radius: var(--de-radius-lg, 18px);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.feed-card-premium:hover {
+  box-shadow: 0 4px 24px rgba(42,138,184,0.08);
+}
+
+/* Feed action button — refined press state */
+.feed-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--de-radius-pill, 9999px);
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--de-text-dim);
+  transition: background 0.14s ease, color 0.14s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.feed-action-btn:hover {
+  background: rgba(160,195,240,0.12);
+  color: var(--de-text);
+}
+
+.feed-action-btn:active {
+  transform: scale(0.92);
+}
+
+.feed-action-btn.liked {
+  color: #ef4444;
+}
+
+.feed-action-btn.liked:hover {
+  background: rgba(239,68,68,0.08);
+}
+
+/* ── Avatar ring — subtle gradient border ── */
+.avatar-ring {
+  position: relative;
+  display: inline-flex;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--de-accent, #2a8ab8), var(--de-gold, #c8981a));
+}
+
+/* ── TopBar premium treatment ── */
+.topbar-premium {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  min-height: 52px;
+  background: var(--de-shell-gradient,
+    linear-gradient(180deg, rgba(255,255,255,0.74) 0%, rgba(248,251,255,0.54) 100%)
+  );
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border-bottom: 1px solid rgba(160,195,240,0.24);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset, 0 2px 12px rgba(19,29,44,0.06);
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.topbar-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--de-heading, #0f1e34);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--de-border, rgba(180,185,200,0.35));
+  background: var(--de-mist, rgba(200,205,215,0.18));
+  color: var(--de-text, #1a2840);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.topbar-back-btn:hover {
+  background: rgba(160,195,240,0.18);
+  border-color: rgba(160,195,240,0.35);
+}
+
+.topbar-back-btn:active {
+  transform: scale(0.92);
+}
+
+/* ── Tooltip / hover labels ── */
+.de-tooltip {
+  position: relative;
+}
+
+.de-tooltip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(15,30,52,0.92);
+  color: rgba(220,235,255,0.90);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.de-tooltip:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Empty state — used when content area has no items ── */
+.de-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 12px;
+}
+
+.de-empty-state-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--de-mist, rgba(200,205,215,0.18));
+  border: 1px solid var(--de-border, rgba(180,185,200,0.35));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--de-text-dim);
+  opacity: 0.5;
+}
+
+.de-empty-state-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--de-heading, #0f1e34);
+  letter-spacing: -0.01em;
+}
+
+.de-empty-state-desc {
+  font-size: 13px;
+  color: var(--de-text-dim);
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+/* ── Skeleton loading — branded shimmer ── */
+@keyframes de-skeleton-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.de-skeleton {
+  background: linear-gradient(
+    105deg,
+    var(--de-mist, rgba(200,205,215,0.18)) 0%,
+    rgba(255,255,255,0.35) 45%,
+    rgba(255,255,255,0.55) 50%,
+    rgba(255,255,255,0.35) 55%,
+    var(--de-mist, rgba(200,205,215,0.18)) 100%
+  );
+  background-size: 800px 100%;
+  animation: de-skeleton-shimmer 1.8s linear infinite;
+  border-radius: 8px;
+}
+
+/* ── Improved reduced-motion support ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .de-spinner {
+    animation: de-spin 1.2s linear infinite !important;
+  }
+
+  main[role="main"] > * {
     animation: none !important;
   }
 }

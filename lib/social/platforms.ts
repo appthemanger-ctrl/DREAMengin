@@ -210,6 +210,16 @@ export const SOCIAL_PLATFORMS: SocialPlatform[] = [
     profileUrlPrefix: 'https://soundcloud.com/',
   },
   {
+    id: 'mastodon',
+    label: 'Mastodon',
+    color: '#6364FF',
+    emoji: '🐘',
+    supportsShare: true,
+    urlPatterns: [/mastodon\./i, /mstdn\./i],
+    buildShareUrl: (url, text) =>
+      `https://mastodon.social/share?text=${encodeURIComponent(`${text ? text + ' ' : ''}${url}`)}`,
+  },
+  {
     id: 'website',
     label: 'Website',
     color: '#34d399',
