@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
-| **auto** | 2026-04-05 07:44 UTC | `559ade0` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #449 from appthemanger-ctrl/copilot/daydream-1-industry-leading-tools — feat(create-daydream): World-class pre-edit layer — briefs, assets, audio, storyboards, animation pipeline, AI production plans<br> |
-| **auto** | 2026-04-05 07:44 UTC | `2a33156` | copilot/daydream-1-industry-leading-tools | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/daydream-1-industry-leading-tools<br> |
-| **auto** | 2026-04-05 07:40 UTC | `334fbc7` | completedream | appthemanger-ctrl | ~1 modified<br>Update GitHub Actions workflow for README updates<br>✏️: `.github/workflows/update-readme.yml` |
-| **auto** | 2026-04-05 07:38 UTC | `ae46562` | completedream | appthemanger-ctrl | ~1 modified<br>Update GitHub Actions workflow to use v4 of actions<br>✏️: `.github/workflows/update-readme.yml` |
+| **auto** | 2026-04-05 07:29 UTC | `3bcbffd` | copilot/upgrade-contentengin-editor | Copilot | +4 added  ~1 modified<br>feat: VFX Compositing Department – 6 panels inside ContentEngin (mocap, fx sim, 2.5D comp, rotoscope, node compositor, matchmover) — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/226fffb4-3e42-4337-a3b2-2649a97d3396  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `lib/composite/fxSimulation.ts`, `lib/composite/matchmover.ts`, `lib/composite/rotoscope.ts`, `tests/compositeengin-features.test.ts`<br>✏️: `components/daydream/ContentEngin.tsx` |
+| **auto** | 2026-04-05 07:20 UTC | `0868367` | copilot/upgrade-contentengin-editor | Copilot | +2 added<br>plan: VFX compositing panels inside ContentEngin — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/226fffb4-3e42-4337-a3b2-2649a97d3396  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `lib/composite/compositor.ts`, `lib/composite/motionCapture.ts` |
 | **auto** | 2026-04-05 05:29 UTC | `6c17ceb` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #443 from appthemanger-ctrl/copilot/mobile-optimization-full-features — feat: full mobile optimization — desktop feature parity on all screen sizes<br> |
+| **auto** | 2026-04-05 05:20 UTC | `8005ea0` | copilot/mobile-optimization-full-features | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/mobile-optimization-full-features<br> |
+| **auto** | 2026-04-05 05:16 UTC | `e14682a` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #442 from appthemanger-ctrl/copilot/execute-sicc-to-perfection — feat(sicc): complete 7-daydream landing, dark EnginSurface, menu accent identity<br> |
 
 ## What changed in this alignment pass
 

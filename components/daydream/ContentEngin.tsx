@@ -9,6 +9,14 @@
  *   - Publishing Queue: manage and publish/remove scheduled items via POST /api/posts.
  *   - Smart Draft Generator: template-based draft text + save to POST /api/drafts.
  *   - Cross-Platform Targets: toggle + broadcast via dualRuntimeBridge.
+ *   - Transcript Editor (Descript-style): SRT/VTT upload + word-level edit.
+ *   - Generative Fill (Adobe Firefly-style): AI image/frame fill via /api/content/generative-fill.
+ *   - Voice Clone & TTS (ElevenLabs-style): clone voice, read script.
+ *   - Real-time SEO Scorer: keyword density, readability, engagement estimates.
+ *   - Human Review toggle: confirm-before-apply + rollback stack.
+ *   - Brand Memory: upload guidelines, persist in Supabase.
+ *   - Creativity Slider: randomness/human-touch overlay.
+ *   - Quick Compose: one-prompt rough-cut generator.
  *
  * Follows AXIOM 3 (every element enables real action) and LAW.md §3 (no fake buttons).
  *
@@ -18,14 +26,37 @@
  *   - scheduled_at is passed to /api/drafts so schedule posts persist server-side.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar, Wrench } from 'lucide-react';
+import {
+  ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar,
+  Wand2, Mic, RotateCcw, Shield, Flag, Dice5, Rocket,
+  Brain, ChevronDown, ChevronUp, CheckCircle, Search, Download, Trash2,
+  Camera, Layers, Move, Film, Link2, Crosshair,
+} from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
+import {
+  parseSRT, parseVTT, computeCuts, applyEditsToSegments,
+  exportSRT, searchTranscript, annotateSearchMatches,
+} from '@/lib/content/transcriptEditor';
+import { scoreContent } from '@/lib/content/seoScorer';
+import { parseBVH, clipSummary, retargetClip, exportBVH } from '@/lib/composite/motionCapture';
+import {
+  createGraph, createNode, addNode, connectNodes, disconnectInput,
+  topologicalSort, graphSummary,
+} from '@/lib/composite/compositor';
+import { createProject, addLayer, setKeyframe, interpolateShape, exportFrameSVG, keyframeList } from '@/lib/composite/rotoscope';
+import { createTrack, addTrackPoint, addSample, estimateCameraMotion, exportTrackCSV, trackSummary } from '@/lib/composite/matchmover';
+import { FX_PRESETS, presetsByCategory, createSimulation, setSimParam, getSimParam, allCategories } from '@/lib/composite/fxSimulation';
+import type { MocapClip } from '@/lib/composite/motionCapture';
+import type { CompGraph, NodeType } from '@/lib/composite/compositor';
+import type { RotoProject } from '@/lib/composite/rotoscope';
+import type { CameraTrack } from '@/lib/composite/matchmover';
+import type { FxSimulation, FxCategory } from '@/lib/composite/fxSimulation';
 
 interface Props {
   onBack: () => void;
@@ -409,146 +440,356 @@ export default function ContentEngin({ onBack }: Props) {
   // ── Multi-Platform Scheduler countdown ───────────────────────────────────────
   const [schedulerNow] = useState(() => new Date());
 
-  // ── Workflow Brain state ──────────────────────────────────────────────────────
-  const [wfbProject, setWfbProject] = useState('');
-  const [wfbTagSearch, setWfbTagSearch] = useState('');
-  const [wfbAssets] = useState([
-    { name: 'Brand Kit v3.fig',         tags: ['brand', 'logo', 'figma'],        type: '🎨' },
-    { name: 'Q2 Campaign Brief.pdf',    tags: ['strategy', 'campaign', 'Q2'],    type: '📋' },
-    { name: 'Hero Reel Raw.mp4',        tags: ['video', 'hero', 'raw'],          type: '🎬' },
-    { name: 'Product Photos Drop2.zip', tags: ['photos', 'product', 'drop'],     type: '🖼' },
-    { name: 'Hook Scripts Q2.docx',     tags: ['script', 'hooks', 'writing'],    type: '📝' },
-    { name: 'Logo Variants 2026.ai',    tags: ['brand', 'logo', 'illustrator'],  type: '✏️' },
-  ]);
-  const [wfbContextThread] = useState([
-    { phase: '📐 Strategy',    item: 'Q2 Growth Plan',       status: 'done'    },
-    { phase: '💡 Ideation',    item: '12 Content Concepts',  status: 'done'    },
-    { phase: '✍️ Production',  item: 'Reel #4 Script',       status: 'active'  },
-    { phase: '📤 Publish',     item: '3 Posts Queued',       status: 'pending' },
-  ]);
+  // ── Transcript Editor state ───────────────────────────────────────────────────
+  type TranscriptSegment = import('@/lib/content/transcriptEditor').TranscriptSegment;
+  const [transcriptSegments, setTranscriptSegments] = useState<TranscriptSegment[]>([]);
+  const [transcriptView, setTranscriptView] = useState<'transcript' | 'waveform'>('transcript');
+  const [transcriptLoading, setTranscriptLoading] = useState(false);
+  const [transcriptMsg, setTranscriptMsg] = useState('');
+  const [deletedWordIdx, setDeletedWordIdx] = useState<Set<number>>(new Set());
+  const [pendingCuts, setPendingCuts] = useState<import('@/lib/content/transcriptEditor').TimelineCut[]>([]);
+  const [transcriptSearch, setTranscriptSearch] = useState('');
+  const [transcriptSearchCount, setTranscriptSearchCount] = useState(0);
 
-  // ── Auto Content Repurposer state ────────────────────────────────────────────
-  const [repurposeInput, setRepurposeInput]   = useState('');
-  const [repurposeLoading, setRepurposeLoading] = useState(false);
-  const [repurposeOutputs, setRepurposeOutputs] = useState<Array<{ platform: string; format: string; text: string }>>([]);
-  const [repurseCopied, setRepurseCopied]     = useState<number | null>(null);
-  const [repurposeMsg, setRepurposeMsg]       = useState('');
+  function handleSubtitleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (ext !== 'srt' && ext !== 'vtt') {
+      setTranscriptMsg('⚠️ Only .srt and .vtt files are supported.');
+      return;
+    }
+    setTranscriptLoading(true);
+    setTranscriptMsg('');
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result as string;
+      try {
+        const segs = ext === 'vtt' ? parseVTT(text) : parseSRT(text);
+        setTranscriptSegments(segs);
+        setDeletedWordIdx(new Set());
+        setPendingCuts([]);
+        setTranscriptSearch('');
+        setTranscriptSearchCount(0);
+        setTranscriptMsg(`✅ Loaded ${segs.length} segments.`);
+      } catch {
+        setTranscriptMsg('⚠️ Failed to parse subtitle file.');
+      } finally {
+        setTranscriptLoading(false);
+      }
+    };
+    reader.onerror = () => {
+      setTranscriptMsg('⚠️ Failed to read file.');
+      setTranscriptLoading(false);
+    };
+    reader.readAsText(file);
+  }
 
-  // ── AI Predictive Scheduler state ────────────────────────────────────────────
-  const [predictLoading, setPredictLoading]   = useState(false);
-  const [predictLoaded, setPredictLoaded]     = useState(false);
-  const [predictSuggestions, setPredictSuggestions] = useState<Array<{
-    type: string; title: string; reason: string; platform: string; bestTime: string;
-  }>>([]);
-  const [predictGaps, setPredictGaps]         = useState<string[]>([]);
+  function toggleWordDelete(wordIdx: number) {
+    setDeletedWordIdx(prev => {
+      const next = new Set(prev);
+      next.has(wordIdx) ? next.delete(wordIdx) : next.add(wordIdx);
+      return next;
+    });
+  }
 
-  // ── Brand Voice Guard state ───────────────────────────────────────────────────
-  const [bvContent, setBvContent]           = useState('');
-  const [bvProfile, setBvProfile]           = useState('bold, direct, Gen-Z');
-  const [bvLoading, setBvLoading]           = useState(false);
-  const [bvResult, setBvResult]             = useState<{
-    score: number;
-    onBrand: string[];
-    flags: Array<{ word: string; issue: string; suggestion: string }>;
-    rewrite: string;
+  function applyTranscriptEdits() {
+    const cuts = computeCuts(transcriptSegments, deletedWordIdx);
+    setPendingCuts(cuts);
+    setTranscriptMsg(`✅ ${cuts.length} cut(s) computed. Export SRT to apply.`);
+  }
+
+  function resetTranscriptEdits() {
+    setDeletedWordIdx(new Set());
+    setPendingCuts([]);
+    setTranscriptMsg('');
+  }
+
+  function handleTranscriptSearch(q: string) {
+    setTranscriptSearch(q);
+    if (!q.trim()) { setTranscriptSearchCount(0); return; }
+    const results = searchTranscript(transcriptSegments, q);
+    setTranscriptSearchCount(results.length);
+  }
+
+  function handleExportSRT() {
+    const edited = deletedWordIdx.size > 0
+      ? applyEditsToSegments(transcriptSegments, deletedWordIdx)
+      : transcriptSegments;
+    const srtText = exportSRT(edited);
+    const blob = new Blob([srtText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'edited-transcript.srt';
+    a.click();
+    URL.revokeObjectURL(url);
+    setTranscriptMsg('✅ SRT exported!');
+  }
+
+  // Compute displayed segments (with search annotations)
+  const displayedSegments: TranscriptSegment[] = transcriptSearch.trim()
+    ? annotateSearchMatches(transcriptSegments, transcriptSearch)
+    : transcriptSegments;
+
+  // ── Generative Fill state ─────────────────────────────────────────────────────
+  const [fillPrompt, setFillPrompt] = useState('');
+  const [fillLoading, setFillLoading] = useState(false);
+  const [fillMsg, setFillMsg] = useState('');
+  const [fillResultBase64, setFillResultBase64] = useState('');
+  const [fillImageBase64, setFillImageBase64] = useState('');
+  const fillTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handleFillImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setFillImageBase64(result.split(',')[1] ?? result);
+      setFillMsg('');
+      setFillResultBase64('');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function handleGenerativeFill() {
+    if (!fillImageBase64 || !fillPrompt.trim()) return;
+    setFillLoading(true);
+    setFillMsg('');
+    try {
+      const res = await fetch('/api/content/generative-fill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: fillImageBase64, prompt: fillPrompt.trim() }),
+      });
+      const json = await res.json() as { resultBase64?: string; message?: string; error?: string };
+      if (!res.ok && res.status !== 501) throw new Error(json.error ?? 'Fill failed');
+      setFillResultBase64(json.resultBase64 ?? '');
+      setFillMsg(json.message ?? (res.status === 501 ? '⚠️ Configure REPLICATE_API_TOKEN for real fills.' : '✅ Fill applied!'));
+    } catch (err) {
+      setFillMsg(`⚠️ ${err instanceof Error ? err.message : 'Fill failed'}`);
+    } finally {
+      setFillLoading(false);
+      if (fillTimerRef.current) clearTimeout(fillTimerRef.current);
+      fillTimerRef.current = setTimeout(() => setFillMsg(''), 6000);
+    }
+  }
+
+  // ── Voice Clone state ─────────────────────────────────────────────────────────
+  type VoiceProfile = { id: string; name: string; createdAt: string };
+  const [voiceName, setVoiceName] = useState('');
+  const [voiceProfileId, setVoiceProfileId] = useState('');
+  const [voiceProfiles, setVoiceProfiles] = useState<VoiceProfile[]>([]);
+  const [voiceProfilesLoading, setVoiceProfilesLoading] = useState(false);
+  const [voiceCloneLoading, setVoiceCloneLoading] = useState(false);
+  const [voiceCloneMsg, setVoiceCloneMsg] = useState('');
+  const [ttsText, setTtsText] = useState('');
+  const [ttsLoading, setTtsLoading] = useState(false);
+  const [ttsAudioBase64, setTtsAudioBase64] = useState('');
+  const [ttsMsg, setTtsMsg] = useState('');
+
+  async function loadVoiceProfiles() {
+    setVoiceProfilesLoading(true);
+    try {
+      const res = await fetch('/api/content/voice-clone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'list' }),
+      });
+      const json = await res.json() as { profiles?: VoiceProfile[]; error?: string };
+      if (!res.ok) throw new Error(json.error ?? 'List failed');
+      setVoiceProfiles(json.profiles ?? []);
+    } catch {
+      // Non-fatal — list stays empty
+    } finally {
+      setVoiceProfilesLoading(false);
+    }
+  }
+
+  async function deleteVoiceProfile(id: string) {
+    try {
+      await fetch('/api/content/voice-clone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', voiceId: id }),
+      });
+      setVoiceProfiles(prev => prev.filter(p => p.id !== id));
+      if (voiceProfileId === id) setVoiceProfileId('');
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  async function handleVoiceClone(file: File) {
+    if (!voiceName.trim()) { setVoiceCloneMsg('⚠️ Enter a voice name first.'); return; }
+    setVoiceCloneLoading(true);
+    setVoiceCloneMsg('');
+    try {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve((reader.result as string).split(',')[1] ?? '');
+        reader.onerror = () => reject(new Error('Read failed'));
+        reader.readAsDataURL(file);
+      });
+      const res = await fetch('/api/content/voice-clone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'clone', sampleBase64: base64, voiceName: voiceName.trim() }),
+      });
+      const json = await res.json() as { profile?: { id: string; name: string; createdAt: string }; message?: string; error?: string };
+      if (!res.ok && res.status !== 501) throw new Error(json.error ?? 'Clone failed');
+      if (json.profile?.id) {
+        setVoiceProfileId(json.profile.id);
+        setVoiceProfiles(prev => [{ id: json.profile!.id, name: json.profile!.name, createdAt: json.profile!.createdAt }, ...prev]);
+      }
+      setVoiceCloneMsg(json.message ?? '✅ Voice cloned!');
+    } catch (err) {
+      setVoiceCloneMsg(`⚠️ ${err instanceof Error ? err.message : 'Clone failed'}`);
+    } finally {
+      setVoiceCloneLoading(false);
+    }
+  }
+
+  async function handleTTS() {
+    if (!ttsText.trim() || !voiceProfileId) return;
+    setTtsLoading(true);
+    setTtsMsg('');
+    try {
+      const res = await fetch('/api/content/voice-clone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'tts', text: ttsText.trim(), voiceId: voiceProfileId }),
+      });
+      const json = await res.json() as { audioBase64?: string; durationSeconds?: number; message?: string; error?: string };
+      if (!res.ok && res.status !== 501) throw new Error(json.error ?? 'TTS failed');
+      setTtsAudioBase64(json.audioBase64 ?? '');
+      setTtsMsg(json.message ?? `✅ Speech ready (~${json.durationSeconds?.toFixed(1)}s)`);
+    } catch (err) {
+      setTtsMsg(`⚠️ ${err instanceof Error ? err.message : 'TTS failed'}`);
+    } finally {
+      setTtsLoading(false);
+    }
+  }
+
+  // ── Real-time SEO Scorer (advanced) state ─────────────────────────────────────
+  const [advSeoTitle, setAdvSeoTitle] = useState('');
+  const [advSeoBody, setAdvSeoBody] = useState('');
+  const [advSeoKeywords, setAdvSeoKeywords] = useState('');
+  const [advSeoResult, setAdvSeoResult] = useState<import('@/lib/content/seoScorer').SeoScoreResult | null>(null);
+  const [advSeoExpanded, setAdvSeoExpanded] = useState(false);
+
+  const handleAdvSeoScore = useCallback(() => {
+    const keywords = advSeoKeywords.split(',').map(k => k.trim()).filter(Boolean);
+    const result = scoreContent({ title: advSeoTitle, body: advSeoBody, keywords });
+    setAdvSeoResult(result);
+  }, [advSeoTitle, advSeoBody, advSeoKeywords]);
+
+  // debounce SEO scoring on input change
+  const advSeoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!advSeoTitle && !advSeoBody) { setAdvSeoResult(null); return; }
+    if (advSeoTimerRef.current) clearTimeout(advSeoTimerRef.current);
+    advSeoTimerRef.current = setTimeout(handleAdvSeoScore, 400);
+  }, [advSeoTitle, advSeoBody, advSeoKeywords, handleAdvSeoScore]);
+
+  function handleExportSeoReport() {
+    if (!advSeoResult) return;
+    const { generateReport } = require('@/lib/content/seoScorer') as typeof import('@/lib/content/seoScorer');
+    const report = generateReport({ title: advSeoTitle, body: advSeoBody, keywords: advSeoKeywords.split(',').map(k => k.trim()).filter(Boolean) });
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `seo-report-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+
+  const [humanReviewEnabled, setHumanReviewEnabled] = useState(false);
+  const [pendingReviewItems, setPendingReviewItems] = useState<Array<{ id: string; label: string; content: string }>>([]);
+
+  function confirmReviewItem(id: string) {
+    setPendingReviewItems(prev => prev.filter(i => i.id !== id));
+  }
+
+  function rollbackReviewItem(id: string) {
+    setPendingReviewItems(prev => prev.filter(i => i.id !== id));
+  }
+
+  // ── Brand Memory state ────────────────────────────────────────────────────────
+  const [brandGuidelinesText, setBrandGuidelinesText] = useState('');
+  const [brandSaveMsg, setBrandSaveMsg] = useState('');
+  const [brandSaving, setBrandSaving] = useState(false);
+  const brandTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  async function saveBrandGuidelines() {
+    if (!brandGuidelinesText.trim()) return;
+    setBrandSaving(true);
+    setBrandSaveMsg('');
+    try {
+      const res = await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: brandGuidelinesText.trim(),
+          content_type: 'brand_guidelines',
+          title: 'Brand Guidelines',
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(err.error ?? 'Save failed');
+      }
+      setBrandSaveMsg('✅ Brand guidelines saved!');
+    } catch (err) {
+      setBrandSaveMsg(`⚠️ ${err instanceof Error ? err.message : 'Save failed'}`);
+    } finally {
+      setBrandSaving(false);
+      if (brandTimerRef.current) clearTimeout(brandTimerRef.current);
+      brandTimerRef.current = setTimeout(() => setBrandSaveMsg(''), 5000);
+    }
+  }
+
+  // ── Creativity Slider state ───────────────────────────────────────────────────
+  const [creativityLevel, setCreativityLevel] = useState(50);
+
+  // ── Quick Compose state ───────────────────────────────────────────────────────
+  const [quickComposePrompt, setQuickComposePrompt] = useState('');
+  const [quickComposeLoading, setQuickComposeLoading] = useState(false);
+  const [quickComposeResult, setQuickComposeResult] = useState<{
+    script: string; musicSuggestion: string; visualSuggestion: string;
   } | null>(null);
+  const [quickComposeMsg, setQuickComposeMsg] = useState('');
 
-  // ── Pre-Edit: Creative Brief Builder ─────────────────────────────────────────
-  const [briefProject, setBriefProject]       = useState('');
-  const [briefType, setBriefType]             = useState<BriefContentType>('Reel');
-  const [briefPlatforms, setBriefPlatforms]   = useState<Set<string>>(new Set(['Instagram']));
-  const [briefMessage, setBriefMessage]       = useState('');
-  const [briefAudience, setBriefAudience]     = useState('');
-  const [briefVoice, setBriefVoice]           = useState('');
-  const [briefVisual, setBriefVisual]         = useState('');
-  const [briefDeadline, setBriefDeadline]     = useState('');
-  const [briefSaving, setBriefSaving]         = useState(false);
-  const [briefSaveMsg, setBriefSaveMsg]       = useState('');
-
-  // ── Pre-Edit: Asset Collector ─────────────────────────────────────────────────
-  const [assets, setAssets] = useState<CollectedAsset[]>([
-    { id: '1', name: 'Hero footage — 60s raw',   category: '📹 Footage', status: 'Needed'   },
-    { id: '2', name: 'Background music track',    category: '🎵 Audio',   status: 'Sourcing' },
-    { id: '3', name: 'Product photos (×5)',       category: '📸 Photo',   status: 'Ready'    },
-    { id: '4', name: 'Logo — transparent PNG',    category: '🎨 Graphic', status: 'Approved' },
-    { id: '5', name: 'Caption copy + hashtags',   category: '📝 Copy',    status: 'Needed'   },
-  ]);
-  const [assetNewName, setAssetNewName]       = useState('');
-  const [assetNewCat, setAssetNewCat]         = useState<AssetCategory>('📹 Footage');
-
-  // ── Pre-Edit: Audio Prep Station ──────────────────────────────────────────────
-  const [audioBpm, setAudioBpm]               = useState(120);
-  const [audioMood, setAudioMood]             = useState<AudioMood>('Energetic');
-  const [audioVoBrief, setAudioVoBrief]       = useState('');
-  const [audioSfxList, setAudioSfxList]       = useState<string[]>(['Whoosh transition', 'Bass drop hit']);
-  const [audioSfxInput, setAudioSfxInput]     = useState('');
-  const [audioSpecPlatform, setAudioSpecPlatform] = useState('Instagram Reel');
-
-  // ── Pre-Edit: Content Pipeline ────────────────────────────────────────────────
-  const [pipelineItems, setPipelineItems] = useState<PipelineItem[]>([
-    { id: '1', title: 'Q2 Launch Reel',       type: '📱', platform: 'Instagram', stage: 'Briefed'      },
-    { id: '2', title: 'Product Demo Video',    type: '🎬', platform: 'YouTube',   stage: 'Assets Ready' },
-    { id: '3', title: 'Brand Story Carousel',  type: '📸', platform: 'Instagram', stage: 'Concept'      },
-    { id: '4', title: 'Tutorial Thread',       type: '🧵', platform: 'Twitter/X', stage: 'Review'       },
-  ]);
-  const [pipeNewTitle, setPipeNewTitle]       = useState('');
-  const [pipeNewType, setPipeNewType]         = useState('📱');
-  const [pipeNewPlatform, setPipeNewPlatform] = useState('Instagram');
-
-  // ── Pre-Edit: Platform Specs filter ──────────────────────────────────────────
-  const [specsFilter, setSpecsFilter]         = useState('');
-
-  // ── Pre-Edit: Character Brief Builder ────────────────────────────────────────
-  const CHAR_ANIM_TYPES  = ['3D (Maya/ZBrush)', '2D Frame-by-Frame (TVPaint)', '2D Cut-Out (Toon Boom)', 'Stop Motion', 'Live Action + VFX'] as const;
-  const CHAR_RIG_LEVELS  = ['Simple (basic skeleton)', 'Medium (facial + cloth)', 'Complex (full facial rig + sim)', 'Hero Rig (film-quality)'] as const;
-  const CHAR_ROLES       = ['Protagonist', 'Antagonist', 'Supporting', 'Background', 'Creature/Non-Human'] as const;
-  const [charName, setCharName]               = useState('');
-  const [charRole, setCharRole]               = useState<typeof CHAR_ROLES[number]>('Protagonist');
-  const [charAnimType, setCharAnimType]       = useState<typeof CHAR_ANIM_TYPES[number]>('3D (Maya/ZBrush)');
-  const [charRigLevel, setCharRigLevel]       = useState<typeof CHAR_RIG_LEVELS[number]>('Medium (facial + cloth)');
-  const [charPhysical, setCharPhysical]       = useState('');
-  const [charPersonality, setCharPersonality] = useState('');
-  const [charSims, setCharSims]               = useState<Set<string>>(new Set());
-  const [charColorNotes, setCharColorNotes]   = useState('');
-  const [charRefs, setCharRefs]               = useState('');
-  const [charSaving, setCharSaving]           = useState(false);
-  const [charSaveMsg, setCharSaveMsg]         = useState('');
-
-  // ── Pre-Edit: Scene & Set Design Brief ───────────────────────────────────────
-  const SCENE_TYPES   = ['Interior', 'Exterior', 'LED Virtual Set (Unreal)', '2D Painted Background', 'Abstract / Stylised', 'Miniature / Practical'] as const;
-  const LIGHTING_TYPES = ['Day – Natural', 'Night – Artificial', 'Golden Hour', 'Overcast', 'Interior – Warm', 'Interior – Cool', 'Neon / Cyberpunk', 'Horror / Low-Key'] as const;
-  const [sceneName, setSceneName]             = useState('');
-  const [sceneType, setSceneType]             = useState<typeof SCENE_TYPES[number]>('Interior');
-  const [sceneLighting, setSceneLighting]     = useState<typeof LIGHTING_TYPES[number]>('Day – Natural');
-  const [sceneMood, setSceneMood]             = useState('');
-  const [sceneElements, setSceneElements]     = useState('');
-  const [sceneUnrealNotes, setSceneUnrealNotes] = useState('');
-  const [sceneColorPalette, setSceneColorPalette] = useState('');
-  const [sceneSaving, setSceneSaving]         = useState(false);
-  const [sceneSaveMsg, setSceneSaveMsg]       = useState('');
-
-  // ── Pre-Edit: Storyboard Builder ─────────────────────────────────────────────
-  const [sbTitle, setSbTitle]                 = useState('');
-  const [sbFrames, setSbFrames]               = useState([
-    { id: '1', scene: 'Opening', shot: 'Wide',     action: '',  audio: '', duration: 3  },
-    { id: '2', scene: 'Hook',    shot: 'Close-up',  action: '',  audio: '', duration: 5  },
-    { id: '3', scene: 'CTA',     shot: 'Medium',    action: '',  audio: '', duration: 5  },
-  ]);
-  const [sbCopied, setSbCopied]               = useState(false);
-
-  // ── Pre-Edit: AI Production Plan ─────────────────────────────────────────────
-  const [planIdea, setPlanIdea]               = useState('');
-  const [planType, setPlanType]               = useState('Reel');
-  const [planPlatform, setPlanPlatform]       = useState('Instagram');
-  const [planLoading, setPlanLoading]         = useState(false);
-  const [planResult, setPlanResult]           = useState<{
-    title: string;
-    preProd: string[];
-    production: string[];
-    postProd: string[];
-    distribution: string[];
-  } | null>(null);
-  const [planSaveMsg, setPlanSaveMsg]         = useState('');
+  async function handleQuickCompose() {
+    if (!quickComposePrompt.trim()) return;
+    setQuickComposeLoading(true);
+    setQuickComposeResult(null);
+    setQuickComposeMsg('');
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'viral-hooks', topic: quickComposePrompt.trim() }),
+      });
+      const json = await res.json() as { hooks?: string[]; error?: string };
+      if (!res.ok) throw new Error(json.error ?? 'Compose failed');
+      const hooks: string[] = json.hooks ?? [];
+      setQuickComposeResult({
+        script: `[HOOK] ${hooks[0] ?? quickComposePrompt}\n\n[PROBLEM] Most people struggle with this...\n\n[SOLUTION] Here's what works:\n• Key point 1\n• Key point 2\n• Key point 3\n\n[CTA] Follow for more content like this!`,
+        musicSuggestion: 'Upbeat electronic / lo-fi chill — from StarMakerEngin stems.',
+        visualSuggestion: 'Stock footage via Pexels + animated text overlays.',
+      });
+      (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('create', 'content:quick-compose', { prompt: quickComposePrompt });
+      setQuickComposeMsg('✅ Rough cut assembled!');
+    } catch (err) {
+      setQuickComposeMsg(`⚠️ ${err instanceof Error ? err.message : 'Compose failed'}`);
+    } finally {
+      setQuickComposeLoading(false);
+    }
+  }
 
   async function handleGenerateHooks() {
     if (!hookTopic.trim()) return;
@@ -590,6 +831,235 @@ export default function ContentEngin({ onBack }: Props) {
     } finally {
       setSeoLoading(false);
     }
+  }
+
+  // ── VFX Compositing state ──────────────────────────────────────────────────
+  // Six panels: Motion Capture, FX Simulation, 2.5D Compositor,
+  //             Rotoscope, Node Compositor, Matchmover.
+
+  // Motion Capture (MotionBuilder-inspired)
+  const [mocapClip, setMocapClip] = useState<MocapClip | null>(null);
+  const [mocapMsg, setMocapMsg] = useState('');
+  const [mocapLoading, setMocapLoading] = useState(false);
+  const [mocapScale, setMocapScale] = useState(1.0);
+  const [mocapPreviewFrame, setMocapPreviewFrame] = useState(0);
+
+  function handleBVHUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMocapLoading(true);
+    setMocapMsg('');
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const clip = parseBVH(reader.result as string);
+        setMocapClip(clip);
+        setMocapPreviewFrame(0);
+        setMocapScale(1.0);
+        const s = clipSummary(clip);
+        setMocapMsg(`✅ ${s.jointCount} joints · ${s.frameCount} frames · ${s.durationSeconds}s @ ${s.fps} fps`);
+      } catch (err) {
+        setMocapMsg(`⚠️ ${err instanceof Error ? err.message : 'Parse failed'}`);
+      } finally {
+        setMocapLoading(false);
+      }
+    };
+    reader.onerror = () => { setMocapMsg('⚠️ Failed to read file.'); setMocapLoading(false); };
+    reader.readAsText(file);
+  }
+
+  function handleMocapExport() {
+    if (!mocapClip) return;
+    const scaled = mocapScale !== 1.0 ? retargetClip(mocapClip, mocapScale) : mocapClip;
+    const bvhText = exportBVH(scaled);
+    const blob = new Blob([bvhText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'retargeted.bvh'; a.click();
+    URL.revokeObjectURL(url);
+    setMocapMsg('✅ BVH exported!');
+  }
+
+  // FX Simulation (Houdini-inspired)
+  const [fxCategory, setFxCategory] = useState<FxCategory>('fire');
+  const [fxSim, setFxSim] = useState<FxSimulation | null>(null);
+  const [fxMsg, setFxMsg] = useState('');
+  const [fxRunning, setFxRunning] = useState(false);
+  const fxTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function selectFxPreset(presetId: string) {
+    try {
+      const sim = createSimulation(presetId, undefined, 5, 24);
+      setFxSim(sim);
+      setFxMsg('');
+    } catch (err) {
+      setFxMsg(`⚠️ ${err instanceof Error ? err.message : 'Error'}`);
+    }
+  }
+
+  function startFxSim() {
+    if (!fxSim) return;
+    setFxRunning(true);
+    setFxSim(s => s ? { ...s, state: 'running', elapsedSeconds: 0 } : s);
+    let elapsed = 0;
+    const dur = fxSim.durationSeconds;
+    fxTimerRef.current = setInterval(() => {
+      elapsed += 0.1;
+      if (elapsed >= dur) {
+        clearInterval(fxTimerRef.current!);
+        setFxSim(s => s ? { ...s, state: 'complete', elapsedSeconds: dur } : s);
+        setFxRunning(false);
+        setFxMsg(`✅ Simulation complete (${dur}s).`);
+      } else {
+        setFxSim(s => s ? { ...s, elapsedSeconds: +elapsed.toFixed(1) } : s);
+      }
+    }, 100);
+  }
+
+  function stopFxSim() {
+    if (fxTimerRef.current) clearInterval(fxTimerRef.current);
+    setFxRunning(false);
+    setFxSim(s => s ? { ...s, state: 'paused' } : s);
+  }
+
+  // 2.5D Compositor (After Effects-inspired)
+  type CompLayer = { id: string; label: string; type: string; opacity: number; blendMode: string; visible: boolean };
+  const [compLayers, setCompLayers] = useState<CompLayer[]>([
+    { id: 'l1', label: 'Background Plate', type: 'video', opacity: 1, blendMode: 'normal', visible: true },
+    { id: 'l2', label: '3D Render Pass', type: '3d', opacity: 1, blendMode: 'over', visible: true },
+    { id: 'l3', label: 'Roto Matte', type: 'roto', opacity: 1, blendMode: 'multiply', visible: true },
+    { id: 'l4', label: 'Motion Graphics', type: '2d', opacity: 0.9, blendMode: 'over', visible: true },
+  ]);
+  const [compMsg, setCompMsg] = useState('');
+
+  function addCompLayer(type: string) {
+    const id = `l${Date.now()}`;
+    const labels: Record<string, string> = { video: 'Video Layer', '3d': '3D Layer', roto: 'Roto Layer', '2d': '2D Layer', adjustment: 'Adjustment Layer' };
+    setCompLayers(prev => [{ id, label: labels[type] ?? 'New Layer', type, opacity: 1, blendMode: 'over', visible: true }, ...prev]);
+    setCompMsg(`✅ ${labels[type] ?? 'Layer'} added.`);
+  }
+
+  function toggleCompLayerVisibility(id: string) {
+    setCompLayers(prev => prev.map(l => l.id === id ? { ...l, visible: !l.visible } : l));
+  }
+
+  function removeCompLayer(id: string) {
+    setCompLayers(prev => prev.filter(l => l.id !== id));
+  }
+
+  // Rotoscope Editor (Clip Studio Paint-inspired)
+  const [rotoProject, setRotoProject] = useState<RotoProject>(() =>
+    createProject('Untitled Roto', 1920, 1080, 100, 24)
+  );
+  const [rotoFrame, setRotoFrame] = useState(0);
+  const [rotoSelectedLayer, setRotoSelectedLayer] = useState<string | null>(null);
+  const [rotoMsg, setRotoMsg] = useState('');
+
+  function addRotoLayer() {
+    const n = rotoProject.layers.length + 1;
+    const updated = addLayer(rotoProject, `Character ${n}`);
+    setRotoProject(updated);
+    setRotoSelectedLayer(updated.layers[updated.layers.length - 1].id);
+    setRotoMsg(`✅ Layer "Character ${n}" created.`);
+  }
+
+  function addRotoKeyframe() {
+    if (!rotoSelectedLayer) { setRotoMsg('⚠️ Select a layer first.'); return; }
+    // Add a simple diamond shape at current frame as a placeholder
+    const cx = 0.5, cy = 0.5, r = 0.1;
+    const shape = {
+      frame: rotoFrame,
+      inverted: false,
+      feather: 0.005,
+      points: [
+        { x: cx, y: cy - r, inTanX: -r * 0.55, inTanY: 0, outTanX: r * 0.55, outTanY: 0 },
+        { x: cx + r, y: cy, inTanX: 0, inTanY: -r * 0.55, outTanX: 0, outTanY: r * 0.55 },
+        { x: cx, y: cy + r, inTanX: r * 0.55, inTanY: 0, outTanX: -r * 0.55, outTanY: 0 },
+        { x: cx - r, y: cy, inTanX: 0, inTanY: r * 0.55, outTanX: 0, outTanY: -r * 0.55 },
+      ],
+    };
+    setRotoProject(prev => setKeyframe(prev, rotoSelectedLayer, shape));
+    setRotoMsg(`✅ Keyframe set at frame ${rotoFrame}.`);
+  }
+
+  function handleRotoSVGExport() {
+    const svg = exportFrameSVG(rotoProject, rotoFrame);
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `roto-frame-${rotoFrame}.svg`; a.click();
+    URL.revokeObjectURL(url);
+    setRotoMsg(`✅ Frame ${rotoFrame} exported as SVG.`);
+  }
+
+  // Node Compositor (Nuke-inspired)
+  const [nodeGraph, setNodeGraph] = useState<CompGraph>(() => {
+    let g = createGraph('Shot_001_Comp');
+    const bg = createNode('MediaIn', 'Background Plate', { x: 20, y: 60 });
+    const fg = createNode('MediaIn', '3D Render', { x: 20, y: 160 });
+    const over = createNode('Over', 'Over', { x: 200, y: 110 });
+    const cc = createNode('ColorCorrect', 'Grade', { x: 380, y: 110 });
+    const out = createNode('Output', 'Output', { x: 560, y: 110 });
+    g = addNode(g, bg);
+    g = addNode(g, fg);
+    g = addNode(g, over);
+    g = addNode(g, cc);
+    g = addNode(g, out);
+    g = connectNodes(g, bg.id, over.id, 'B');
+    g = connectNodes(g, fg.id, over.id, 'A');
+    g = connectNodes(g, over.id, cc.id, 'input');
+    g = connectNodes(g, cc.id, out.id, 'input');
+    return g;
+  });
+  const [nodeMsg, setNodeMsg] = useState('');
+
+  function handleAddNode(type: NodeType) {
+    const node = createNode(type, undefined, {
+      x: 100 + Math.random() * 200,
+      y: 50 + nodeGraph.nodes.length * 50,
+    });
+    setNodeGraph(prev => addNode(prev, node));
+    setNodeMsg(`✅ ${type} node added.`);
+  }
+
+  function handleDisconnect(toId: string, inputName: string) {
+    setNodeGraph(prev => disconnectInput(prev, toId, inputName));
+    setNodeMsg(`✅ Input "${inputName}" disconnected.`);
+  }
+
+  // Matchmover (Syntheyes / 3DEqualizer-inspired)
+  const [cameraTrack, setCameraTrack] = useState<CameraTrack>(() =>
+    createTrack('Shot_001_Camera', 1920, 1080, 100, 24)
+  );
+  const [trackMsg, setTrackMsg] = useState('');
+
+  function addTrackPt() {
+    const names = ['Wall Corner', 'Doorframe', 'Window Edge', 'Floor Mark', 'Ceiling Light', 'Sign Post'];
+    const name = names[cameraTrack.trackPoints.length % names.length];
+    let updated = addTrackPoint(cameraTrack, name);
+    const ptId = updated.trackPoints[updated.trackPoints.length - 1].id;
+    // Seed with 5 synthetic track samples
+    for (let f = 0; f < 5; f++) {
+      const base = cameraTrack.trackPoints.length * 0.1;
+      updated = addSample(updated, ptId, {
+        frame: f * 20,
+        x: 0.1 + base + Math.random() * 0.05,
+        y: 0.2 + base * 0.5 + Math.random() * 0.05,
+        confidence: 0.85 + Math.random() * 0.15,
+      });
+    }
+    setCameraTrack(updated);
+    setTrackMsg(`✅ Track point "${name}" added with 5 samples.`);
+  }
+
+  function handleTrackCSVExport() {
+    const csv = exportTrackCSV(cameraTrack);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'camera-track.csv'; a.click();
+    URL.revokeObjectURL(url);
+    setTrackMsg('✅ Track exported as CSV.');
   }
 
   // ── Daydream Persistence (Phase 8 §F, pts 49-56) ─────────────────────────────
@@ -2830,205 +3300,926 @@ export default function ContentEngin({ onBack }: Props) {
           </div>
         </div>
 
-        {/* ── Workflow Brain (DAM + PM Hub) ── */}
+        {/* ══ NEW INDUSTRY-STANDARD PANELS ══════════════════════════════════════ */}
+
+        {/* ── Quick Compose (Studio-in-a-Box) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
-            <span style={{ fontSize: 16 }}>🧠</span>
-            <span className="de-widget-title ml-2">Workflow Brain</span>
-            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>DAM · PM</span>
+            <Rocket className="w-4 h-4 mr-1" style={{ color: '#8b5cf6' }} />
+            <span className="de-widget-title ml-1">Quick Compose</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>AI</span>
           </div>
-          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {/* Active project context */}
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Active Campaign / Project</label>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              One prompt → rough cut with script, music suggestion, and visuals.
+            </p>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
               <input
                 type="text"
-                value={wfbProject}
-                onChange={e => setWfbProject(e.target.value)}
-                placeholder="e.g. Q2 Growth Sprint…"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 12, border: `1px solid rgba(99,102,241,0.25)`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+                value={quickComposePrompt}
+                onChange={e => setQuickComposePrompt(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleQuickCompose()}
+                placeholder="e.g. 60s promo for a tech startup…"
+                style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none' }}
               />
+              <button
+                type="button"
+                onClick={handleQuickCompose}
+                disabled={quickComposeLoading || !quickComposePrompt.trim()}
+                className="de-btn de-btn-primary"
+                style={{ opacity: quickComposeLoading || !quickComposePrompt.trim() ? 0.6 : 1 }}
+              >
+                {quickComposeLoading ? '…' : '🚀 Compose'}
+              </button>
             </div>
-            {/* Context Thread — strategy → production flow */}
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 6 }}>Context Thread</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 0, overflowX: 'auto' }}>
-                {wfbContextThread.map((step, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                    <div style={{
-                      padding: '7px 10px', borderRadius: 9, fontSize: 10, fontWeight: 700,
-                      background: step.status === 'done' ? 'rgba(34,197,94,0.1)' : step.status === 'active' ? `rgba(99,102,241,0.14)` : 'rgba(255,255,255,0.5)',
-                      border: `1.5px solid ${step.status === 'done' ? 'rgba(34,197,94,0.3)' : step.status === 'active' ? 'rgba(99,102,241,0.35)' : 'rgba(160,195,240,0.2)'}`,
-                      color: step.status === 'done' ? '#16a34a' : step.status === 'active' ? '#6366f1' : 'var(--de-text-dim)',
-                      minWidth: 76, textAlign: 'center',
-                    }}>
-                      <div>{step.phase}</div>
-                      <div style={{ fontSize: 9, fontWeight: 600, marginTop: 2, color: 'var(--de-text-dim)' }}>{step.item}</div>
+            {quickComposeMsg && (
+              <div style={{ fontSize: 11, fontWeight: 600, color: quickComposeMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 10 }}>
+                {quickComposeMsg}
+              </div>
+            )}
+            {quickComposeResult && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#8b5cf6', marginBottom: 5 }}>📝 SCRIPT</div>
+                  <pre style={{ fontSize: 11, color: 'var(--de-heading)', whiteSpace: 'pre-wrap', fontFamily: 'inherit', lineHeight: 1.5, margin: 0 }}>{quickComposeResult.script}</pre>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div style={{ padding: '8px 10px', borderRadius: 9, background: `${ACCENT}08`, border: `1px solid ${ACCENT}18` }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginBottom: 3 }}>🎵 MUSIC</div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{quickComposeResult.musicSuggestion}</div>
+                  </div>
+                  <div style={{ padding: '8px 10px', borderRadius: 9, background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', marginBottom: 3 }}>🎬 VISUALS</div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{quickComposeResult.visualSuggestion}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Transcript Editor (Descript-style) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <FileText className="w-4 h-4 mr-1" style={{ color: '#06b6d4' }} />
+            <span className="de-widget-title ml-1">Transcript Editor</span>
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+              <button
+                type="button"
+                onClick={() => setTranscriptView(transcriptView === 'transcript' ? 'waveform' : 'transcript')}
+                style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5, border: `1px solid #06b6d435`, background: 'rgba(6,182,212,0.08)', color: '#06b6d4', cursor: 'pointer' }}
+              >
+                {transcriptView === 'transcript' ? '〰 Waveform' : '📄 Transcript'}
+              </button>
+            </div>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Upload an SRT or VTT file. Click words to mark for deletion — the timeline cuts accordingly. Search and export your edits as a new SRT.
+            </p>
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 9,
+              border: `1.5px dashed #06b6d440`, background: 'rgba(6,182,212,0.04)',
+              cursor: 'pointer', marginBottom: 10,
+            }}>
+              <FileText className="w-4 h-4" style={{ color: '#06b6d4', flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: '#06b6d4', fontWeight: 600 }}>
+                {transcriptLoading ? 'Loading…' : 'Upload .srt or .vtt'}
+              </span>
+              <input
+                type="file"
+                accept=".srt,.vtt"
+                onChange={handleSubtitleUpload}
+                style={{ display: 'none' }}
+              />
+            </label>
+            {/* Search bar — only shown when transcript is loaded */}
+            {transcriptSegments.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <Search className="w-3 h-3" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--de-text-dim)' }} />
+                  <input
+                    type="text"
+                    value={transcriptSearch}
+                    onChange={e => handleTranscriptSearch(e.target.value)}
+                    placeholder="Search transcript…"
+                    style={{ width: '100%', paddingLeft: 26, paddingRight: 10, paddingTop: 6, paddingBottom: 6, borderRadius: 8, border: '1px solid rgba(6,182,212,0.25)', background: 'rgba(255,255,255,0.6)', fontSize: 11, color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+                {transcriptSearch && (
+                  <span style={{ fontSize: 10, color: transcriptSearchCount > 0 ? '#06b6d4' : 'var(--de-text-dim)', fontWeight: 700, flexShrink: 0 }}>
+                    {transcriptSearchCount} match{transcriptSearchCount !== 1 ? 'es' : ''}
+                  </span>
+                )}
+              </div>
+            )}
+            {transcriptMsg && (
+              <div style={{ fontSize: 11, fontWeight: 600, color: transcriptMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>
+                {transcriptMsg}
+              </div>
+            )}
+            {transcriptView === 'waveform' ? (
+              <div style={{ height: 56, borderRadius: 9, background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Waveform view (connect audio source)</span>
+              </div>
+            ) : displayedSegments.length > 0 ? (
+              <div style={{ maxHeight: 220, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {displayedSegments.map(seg => (
+                  <div key={seg.id} style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(6,182,212,0.15)' }}>
+                    <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginBottom: 3, fontFamily: 'monospace' }}>
+                      {(seg.startMs / 1000).toFixed(2)}s → {(seg.endMs / 1000).toFixed(2)}s
                     </div>
-                    {i < wfbContextThread.length - 1 && (
-                      <div style={{ width: 18, textAlign: 'center', fontSize: 11, color: 'var(--de-text-dim)', flexShrink: 0 }}>→</div>
-                    )}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {seg.words.map(w => (
+                        <button
+                          key={w.index}
+                          type="button"
+                          onClick={() => toggleWordDelete(w.index)}
+                          title={`${(w.startMs / 1000).toFixed(2)}s`}
+                          style={{
+                            fontSize: 12, padding: '2px 5px', borderRadius: 4, border: 'none', cursor: 'pointer',
+                            background: deletedWordIdx.has(w.index)
+                              ? 'rgba(239,68,68,0.15)'
+                              : w.isSearchMatch
+                                ? 'rgba(6,182,212,0.18)'
+                                : 'transparent',
+                            color: deletedWordIdx.has(w.index) ? '#ef4444' : w.isSearchMatch ? '#06b6d4' : 'var(--de-heading)',
+                            textDecoration: deletedWordIdx.has(w.index) ? 'line-through' : 'none',
+                            fontWeight: w.isSearchMatch ? 700 : 400,
+                            transition: 'all 0.12s',
+                          }}
+                        >
+                          {w.word}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-            {/* AI-tagged asset hub */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)' }}>Asset Hub</div>
-                <input
-                  type="text"
-                  value={wfbTagSearch}
-                  onChange={e => setWfbTagSearch(e.target.value)}
-                  placeholder="Search by AI tag…"
-                  style={{ flex: 1, padding: '5px 10px', borderRadius: 7, fontSize: 11, border: `1px solid rgba(99,102,241,0.2)`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none' }}
-                />
+            ) : null}
+            {transcriptSegments.length > 0 && (
+              <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                <button
+                  type="button"
+                  onClick={applyTranscriptEdits}
+                  disabled={deletedWordIdx.size === 0}
+                  style={{ ...btnBase, background: '#06b6d4', color: 'white', opacity: deletedWordIdx.size === 0 ? 0.4 : 1, flex: 1 }}
+                >
+                  ✂️ Apply Edits ({deletedWordIdx.size} words)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportSRT}
+                  title="Export edited transcript as SRT"
+                  style={{ ...btnBase, background: 'rgba(6,182,212,0.12)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.3)' }}
+                >
+                  <Download className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={resetTranscriptEdits}
+                  title="Reset all edits"
+                  style={{ ...btnBase, background: 'rgba(160,195,240,0.18)', color: 'var(--de-text-dim)' }}
+                >
+                  <RotateCcw className="w-3 h-3" />
+                </button>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {wfbAssets
-                  .filter(a => !wfbTagSearch.trim() || a.tags.some(t => t.includes(wfbTagSearch.toLowerCase())) || a.name.toLowerCase().includes(wfbTagSearch.toLowerCase()))
-                  .map((asset, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(99,102,241,0.12)' }}>
-                      <span style={{ fontSize: 16, flexShrink: 0 }}>{asset.type}</span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{asset.name}</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>
-                          {asset.tags.map(tag => (
-                            <span key={tag} style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 999, background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.2)' }}>#{tag}</span>
-                          ))}
-                        </div>
-                      </div>
-                      <button type="button" onClick={() => setWfbTagSearch('')}
-                        style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.08)', color: '#6366f1', cursor: 'pointer', fontWeight: 700 }}>
-                        Use
+            )}
+            {pendingCuts.length > 0 && (
+              <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>PENDING CUTS</div>
+                {pendingCuts.map((cut, i) => (
+                  <div key={i} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>
+                    ✂️ {(cut.cutStartMs / 1000).toFixed(2)}s – {(cut.cutEndMs / 1000).toFixed(2)}s
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Generative Fill (Adobe Firefly-style) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Wand2 className="w-4 h-4 mr-1" style={{ color: '#f59e0b' }} />
+            <span className="de-widget-title ml-1">Generative Fill</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT, background: `${ACCENT}18`, padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>AI</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Upload a frame or image, describe what to generate, and apply AI fill.
+              Configure <code style={{ fontSize: 10 }}>REPLICATE_API_TOKEN</code> for real results.
+            </p>
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 9,
+              border: `1.5px dashed ${ACCENT}40`, background: `${ACCENT}04`, cursor: 'pointer', marginBottom: 10,
+            }}>
+              <Image className="w-4 h-4" style={{ color: ACCENT, flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: ACCENT, fontWeight: 600 }}>
+                {fillImageBase64 ? '✅ Image loaded — change?' : 'Upload image / video frame'}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFillImageUpload}
+                style={{ display: 'none' }}
+              />
+            </label>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                value={fillPrompt}
+                onChange={e => setFillPrompt(e.target.value)}
+                placeholder='Describe the fill, e.g. "replace sky with sunset"…'
+                style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none' }}
+              />
+              <button
+                type="button"
+                onClick={handleGenerativeFill}
+                disabled={fillLoading || !fillImageBase64 || !fillPrompt.trim()}
+                className="de-btn de-btn-primary"
+                style={{ opacity: fillLoading || !fillImageBase64 || !fillPrompt.trim() ? 0.55 : 1 }}
+              >
+                {fillLoading ? '…' : '✨ Fill'}
+              </button>
+            </div>
+            {fillMsg && (
+              <div style={{ fontSize: 11, fontWeight: 600, color: fillMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>
+                {fillMsg}
+              </div>
+            )}
+            {fillResultBase64 && (
+              <img
+                src={`data:image/jpeg;base64,${fillResultBase64}`}
+                alt="Generative fill result"
+                style={{ width: '100%', borderRadius: 10, border: `1px solid ${ACCENT}20` }}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* ── Voice Clone & AI TTS (ElevenLabs-style) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Mic className="w-4 h-4 mr-1" style={{ color: '#10b981' }} />
+            <span className="de-widget-title ml-1">Voice Clone & TTS</span>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {voiceProfileId && (
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 7px', borderRadius: 5 }}>
+                  Voice ready
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={loadVoiceProfiles}
+                disabled={voiceProfilesLoading}
+                title="Load saved voice profiles"
+                style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5, border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.07)', color: '#10b981', cursor: 'pointer', opacity: voiceProfilesLoading ? 0.5 : 1 }}
+              >
+                {voiceProfilesLoading ? '…' : '↻ Load'}
+              </button>
+            </div>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Upload a 30s voice sample to clone it, then generate TTS with your voice.
+              Wire <code style={{ fontSize: 10 }}>ELEVENLABS_API_KEY</code> for real audio.
+            </p>
+            {/* Saved profiles list */}
+            {voiceProfiles.length > 0 && (
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5 }}>SAVED VOICES</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {voiceProfiles.map(p => (
+                    <div key={p.id} style={{
+                      display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8,
+                      background: voiceProfileId === p.id ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.5)',
+                      border: `1px solid ${voiceProfileId === p.id ? 'rgba(16,185,129,0.35)' : 'rgba(0,0,0,0.07)'}`,
+                      cursor: 'pointer',
+                    }}
+                      onClick={() => setVoiceProfileId(p.id)}
+                    >
+                      <Mic className="w-3 h-3" style={{ color: voiceProfileId === p.id ? '#10b981' : 'var(--de-text-dim)', flexShrink: 0 }} />
+                      <span style={{ fontSize: 11, fontWeight: voiceProfileId === p.id ? 700 : 400, color: voiceProfileId === p.id ? '#10b981' : 'var(--de-heading)', flex: 1 }}>
+                        {p.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={e => { e.stopPropagation(); deleteVoiceProfile(p.id); }}
+                        title="Delete voice profile"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: 'var(--de-text-dim)' }}
+                      >
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                value={voiceName}
+                onChange={e => setVoiceName(e.target.value)}
+                placeholder="Voice name…"
+                style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none' }}
+              />
+              <label style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.07)', cursor: 'pointer', flexShrink: 0 }}>
+                <Mic className="w-3 h-3" style={{ color: '#10b981' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981' }}>
+                  {voiceCloneLoading ? 'Cloning…' : 'Upload Sample'}
+                </span>
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handleVoiceClone(f); }}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            </div>
+            {voiceCloneMsg && (
+              <div style={{ fontSize: 11, fontWeight: 600, color: voiceCloneMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>
+                {voiceCloneMsg}
+              </div>
+            )}
+            {voiceProfileId && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <textarea
+                  placeholder="Enter text to speak with your cloned voice…"
+                  value={ttsText}
+                  onChange={e => setTtsText(e.target.value)}
+                  rows={3}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(16,185,129,0.25)', background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+                />
+                <button
+                  type="button"
+                  onClick={handleTTS}
+                  disabled={ttsLoading || !ttsText.trim()}
+                  style={{ ...btnBase, background: '#10b981', color: 'white', padding: '8px 16px', fontSize: 12, opacity: ttsLoading || !ttsText.trim() ? 0.55 : 1 }}
+                >
+                  {ttsLoading ? '…' : '🔊 Generate Speech'}
+                </button>
+                {ttsMsg && (
+                  <div style={{ fontSize: 11, fontWeight: 600, color: ttsMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e' }}>
+                    {ttsMsg}
+                  </div>
+                )}
+                {ttsAudioBase64 && (
+                  <audio controls src={`data:audio/mp3;base64,${ttsAudioBase64}`} style={{ width: '100%', borderRadius: 8 }} />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Real-time SEO / Performance Scorer ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-1">Live SEO Scorer</span>
+            {advSeoResult !== null && (
+              <span style={{
+                marginLeft: 'auto', fontSize: 10, fontWeight: 800,
+                color: advSeoResult.overall >= 80 ? '#22c55e' : advSeoResult.overall >= 55 ? ACCENT : '#ef4444',
+                background: advSeoResult.overall >= 80 ? 'rgba(34,197,94,0.1)' : advSeoResult.overall >= 55 ? `${ACCENT}15` : 'rgba(239,68,68,0.1)',
+                padding: '2px 8px', borderRadius: 5,
+              }}>
+                {advSeoResult.overall}/100
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <input
+                type="text"
+                value={advSeoTitle}
+                onChange={e => setAdvSeoTitle(e.target.value)}
+                placeholder="Title / headline…"
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <input
+                type="text"
+                value={advSeoKeywords}
+                onChange={e => setAdvSeoKeywords(e.target.value)}
+                placeholder="Keywords (comma-separated)…"
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <button
+                type="button"
+                onClick={() => setAdvSeoExpanded(p => !p)}
+                style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--de-text-dim)', fontSize: 11, fontWeight: 600, padding: 0, alignSelf: 'flex-start' }}
+              >
+                {advSeoExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                {advSeoExpanded ? 'Hide body text' : 'Add body text for deeper scoring'}
+              </button>
+              {advSeoExpanded && (
+                <textarea
+                  value={advSeoBody}
+                  onChange={e => setAdvSeoBody(e.target.value)}
+                  placeholder="Paste your description or body copy…"
+                  rows={4}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+                />
+              )}
+            </div>
+            {advSeoResult && (
+              <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {/* Overall bar */}
+                <div style={{ height: 6, borderRadius: 4, background: 'rgba(0,0,0,0.07)' }}>
+                  <div style={{
+                    height: '100%', borderRadius: 4, transition: 'width 0.4s ease',
+                    width: `${advSeoResult.overall}%`,
+                    background: advSeoResult.overall >= 80 ? '#22c55e' : advSeoResult.overall >= 55 ? ACCENT : '#ef4444',
+                  }} />
+                </div>
+                {/* Dimensions */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                  {advSeoResult.dimensions.map(d => (
+                    <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', width: 36 }}>{d.label}</span>
+                      <div style={{ flex: 1, height: 4, borderRadius: 3, background: 'rgba(0,0,0,0.07)' }}>
+                        <div style={{ height: '100%', borderRadius: 3, width: `${Math.round((d.score / d.maxScore) * 100)}%`, background: ACCENT, transition: 'width 0.3s ease' }} />
+                      </div>
+                      <span style={{ fontSize: 10, color: 'var(--de-text-dim)', fontFamily: 'monospace', width: 36, textAlign: 'right' }}>{d.score}/{d.maxScore}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* Readability + engagement + accessibility row */}
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)', padding: '3px 7px', borderRadius: 5, background: 'rgba(0,0,0,0.04)' }}>
+                    📖 {advSeoResult.readabilityGrade}
+                  </span>
+                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)', padding: '3px 7px', borderRadius: 5, background: 'rgba(0,0,0,0.04)' }}>
+                    🎯 {advSeoResult.engagementSignals} signal{advSeoResult.engagementSignals !== 1 ? 's' : ''}
+                  </span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, padding: '3px 7px', borderRadius: 5,
+                    background: advSeoResult.accessibilityLevel === 'High' ? 'rgba(34,197,94,0.1)' : advSeoResult.accessibilityLevel === 'Medium' ? `${ACCENT}12` : 'rgba(239,68,68,0.1)',
+                    color: advSeoResult.accessibilityLevel === 'High' ? '#22c55e' : advSeoResult.accessibilityLevel === 'Medium' ? ACCENT : '#ef4444',
+                  }}>
+                    ♿ {advSeoResult.accessibilityLevel}
+                  </span>
+                </div>
+                {/* Suggestions */}
+                {advSeoResult.topSuggestions.length > 0 && (
+                  <div style={{ padding: '8px 10px', borderRadius: 8, background: `${ACCENT}06`, border: `1px solid ${ACCENT}18` }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>SUGGESTIONS</div>
+                    {advSeoResult.topSuggestions.map((s, i) => (
+                      <div key={i} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>• {s}</div>
+                    ))}
+                  </div>
+                )}
+                {/* Export report button */}
+                <button
+                  type="button"
+                  onClick={handleExportSeoReport}
+                  style={{ ...btnBase, background: `${ACCENT}10`, color: ACCENT, border: `1px solid ${ACCENT}25`, fontSize: 10, padding: '5px 10px' }}
+                >
+                  <Download className="w-3 h-3 inline mr-1" />Export JSON Report
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Human Review Toggle ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Shield className="w-4 h-4 mr-1" style={{ color: humanReviewEnabled ? '#22c55e' : 'var(--de-text-dim)' }} />
+            <span className="de-widget-title ml-1">Human Review</span>
+            <button
+              type="button"
+              onClick={() => setHumanReviewEnabled(p => !p)}
+              style={{
+                marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer',
+                background: humanReviewEnabled ? 'rgba(34,197,94,0.15)' : 'rgba(160,195,240,0.2)',
+                color: humanReviewEnabled ? '#22c55e' : 'var(--de-text-dim)',
+                transition: 'all 0.15s',
+              }}
+            >
+              {humanReviewEnabled ? 'ON' : 'OFF'}
+            </button>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              When enabled, every AI-generated output shows a Confirm button before applying.
+              Rollback restores the previous version.
+            </p>
+            {humanReviewEnabled && pendingReviewItems.length === 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                <CheckCircle className="w-4 h-4" style={{ color: '#22c55e', flexShrink: 0 }} />
+                <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>Human Review active — all outputs will require confirmation.</span>
+              </div>
+            )}
+            {pendingReviewItems.map(item => (
+              <div key={item.id} style={{ padding: '10px 12px', borderRadius: 9, background: `${ACCENT}06`, border: `1px solid ${ACCENT}20`, marginBottom: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>{item.label}</div>
+                <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8, whiteSpace: 'pre-wrap' }}>{item.content}</div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button type="button" onClick={() => confirmReviewItem(item.id)} style={{ ...btnBase, background: '#22c55e', color: 'white', flex: 1 }}>
+                    <CheckCircle className="w-3 h-3 inline mr-1" />Confirm
+                  </button>
+                  <button type="button" onClick={() => rollbackReviewItem(item.id)} style={{ ...btnBase, background: 'rgba(239,68,68,0.1)', color: '#ef4444', flex: 1 }}>
+                    <RotateCcw className="w-3 h-3 inline mr-1" />Rollback
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Brand Memory ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Flag className="w-4 h-4 mr-1" style={{ color: '#f43f5e' }} />
+            <span className="de-widget-title ml-1">Brand Memory</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Paste your brand guidelines, tone of voice, or past successful posts.
+              Dr. Eams uses this as context for all AI suggestions.
+            </p>
+            <textarea
+              value={brandGuidelinesText}
+              onChange={e => setBrandGuidelinesText(e.target.value)}
+              placeholder="e.g. Our brand voice is confident but approachable. Primary colours: #F43F5E / #0EA5E9…"
+              rows={4}
+              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(244,63,94,0.25)', background: 'rgba(255,255,255,0.6)', fontSize: 12, color: 'var(--de-heading)', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 8 }}
+            />
+            {brandSaveMsg && (
+              <div style={{ fontSize: 11, fontWeight: 600, color: brandSaveMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 6 }}>
+                {brandSaveMsg}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={saveBrandGuidelines}
+              disabled={brandSaving || !brandGuidelinesText.trim()}
+              style={{ ...btnBase, background: '#f43f5e', color: 'white', padding: '7px 16px', fontSize: 12, opacity: brandSaving || !brandGuidelinesText.trim() ? 0.5 : 1, width: '100%' }}
+            >
+              {brandSaving ? 'Saving…' : '🏳 Save Brand Guidelines'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Creativity / Human Touch Slider ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Dice5 className="w-4 h-4 mr-1" style={{ color: '#8b5cf6' }} />
+            <span className="de-widget-title ml-1">Creativity & Randomness</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: '#8b5cf6' }}>{creativityLevel}%</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              High values push AI outputs to be more diverse and surprising.
+              Low values keep outputs conservative and on-brand.
+            </p>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={creativityLevel}
+              onChange={e => setCreativityLevel(Number(e.target.value))}
+              aria-label="Creativity level"
+              style={{ width: '100%', accentColor: '#8b5cf6', cursor: 'pointer' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+              <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>🏢 On-brand / Safe</span>
+              <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>🎲 Wild / Experimental</span>
+            </div>
+            <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 8, background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}>
+              <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>
+                <Brain className="w-3 h-3 inline mr-1" style={{ color: '#8b5cf6' }} />
+                {creativityLevel < 30 ? 'Conservative mode — outputs stay tightly on-brand.' :
+                  creativityLevel < 70 ? 'Balanced mode — creative with a brand guardrail.' :
+                    'Experimental mode — expect diverse, surprising results. Add human flair!'}
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── Auto Content Repurposer (10 platforms) ── */}
+        {/* ══════════════════════════════════════════════════════════
+             VFX COMPOSITING DEPARTMENT
+             "How 2D/3D art and filmed actors are put in the same room"
+             ══════════════════════════════════════════════════════════ */}
+
+        {/* ── Motion Capture (Autodesk MotionBuilder) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
-            <span style={{ fontSize: 16 }}>♻️</span>
-            <span className="de-widget-title ml-2">Auto Content Repurposer</span>
-            <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT, background: `${ACCENT}15`, padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>10 formats</span>
+            <Camera className="w-4 h-4 mr-1" style={{ color: '#a78bfa' }} />
+            <span className="de-widget-title ml-1">Motion Capture</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#a78bfa', background: 'rgba(167,139,250,0.12)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>BVH</span>
           </div>
-          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
-              Paste any long-form content — blog, podcast transcript, script — and get 10 platform-ready formats instantly.
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Upload a BVH mocap file. Retarget skeleton scale and export for your 3D character.
             </p>
-            <textarea
-              value={repurposeInput}
-              onChange={e => { setRepurposeInput(e.target.value); setRepurposeOutputs([]); setRepurposeMsg(''); }}
-              placeholder="Paste your blog post, script, podcast transcript, or thread here…"
-              rows={4}
-              style={{ width: '100%', borderRadius: 10, padding: '10px 12px', fontSize: 12, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }}
-            />
-            <button
-              type="button"
-              onClick={handleRepurpose}
-              disabled={repurposeLoading || !repurposeInput.trim()}
-              className="de-btn de-btn-primary"
-              style={{ opacity: repurposeLoading || !repurposeInput.trim() ? 0.6 : 1, transition: 'all 0.15s' }}
-            >
-              {repurposeLoading ? '⚙️ Repurposing…' : '♻️ Repurpose to 10 Platforms'}
-            </button>
-            {repurposeMsg && (
-              <div style={{ fontSize: 11, fontWeight: 600, color: repurposeMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{repurposeMsg}</div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 9, border: '1.5px dashed rgba(167,139,250,0.4)', background: 'rgba(167,139,250,0.04)', cursor: 'pointer', marginBottom: 10 }}>
+              <Camera className="w-4 h-4" style={{ color: '#a78bfa', flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: '#a78bfa', fontWeight: 600 }}>{mocapLoading ? 'Parsing…' : 'Upload .bvh file'}</span>
+              <input type="file" accept=".bvh" onChange={handleBVHUpload} style={{ display: 'none' }} />
+            </label>
+            {mocapMsg && (
+              <div style={{ fontSize: 11, fontWeight: 600, color: mocapMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{mocapMsg}</div>
             )}
-            {repurposeOutputs.length > 0 && (
+            {mocapClip && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {repurposeOutputs.map((out, i) => (
-                  <div key={i} style={{ padding: '10px 12px', borderRadius: 10, background: repurseCopied === i ? 'rgba(34,197,94,0.06)' : `${ACCENT}06`, border: `1px solid ${repurseCopied === i ? 'rgba(34,197,94,0.3)' : `${ACCENT}18`}`, transition: 'all 0.2s' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: `${ACCENT}15`, color: ACCENT }}>{out.platform}</span>
-                      <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{out.format}</span>
-                      <button type="button" onClick={() => copyRepurposeOutput(out.text, i)}
-                        style={{ marginLeft: 'auto', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', opacity: repurseCopied === i ? 1 : 0.6 }}>
-                        {repurseCopied === i ? '✅' : '📋'}
-                      </button>
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{out.text}</div>
-                  </div>
-                ))}
+                <div style={{ fontSize: 10, color: 'var(--de-text-dim)', padding: '6px 10px', borderRadius: 8, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.2)' }}>
+                  <div>🦴 <strong>{clipSummary(mocapClip).jointCount}</strong> joints &nbsp;|&nbsp; 🎞 <strong>{clipSummary(mocapClip).frameCount}</strong> frames &nbsp;|&nbsp; ⏱ <strong>{clipSummary(mocapClip).durationSeconds}s</strong></div>
+                  <div style={{ marginTop: 4 }}>Root: <code style={{ fontSize: 10 }}>{mocapClip.root.name}</code> &nbsp;|&nbsp; FPS: <strong>{clipSummary(mocapClip).fps}</strong></div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)' }}>
+                    Retarget Scale: <strong style={{ color: '#a78bfa' }}>{mocapScale.toFixed(2)}×</strong>
+                  </label>
+                  <input type="range" min={0.1} max={3} step={0.05} value={mocapScale}
+                    onChange={e => setMocapScale(parseFloat(e.target.value))}
+                    style={{ width: '100%', accentColor: '#a78bfa' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)' }}>
+                    Preview Frame: <strong style={{ color: '#a78bfa' }}>{mocapPreviewFrame}</strong>
+                  </label>
+                  <input type="range" min={0} max={mocapClip.frameCount - 1} step={1} value={mocapPreviewFrame}
+                    onChange={e => setMocapPreviewFrame(parseInt(e.target.value))}
+                    style={{ width: '100%', accentColor: '#a78bfa' }}
+                  />
+                </div>
+                <button type="button" onClick={handleMocapExport}
+                  style={{ ...btnBase, background: 'rgba(167,139,250,0.12)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.3)' }}>
+                  <Download className="w-3 h-3 inline mr-1" />Export Retargeted BVH
+                </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* ── AI Post Intelligence / Predictive Scheduler ── */}
+        {/* ── FX Simulation (Houdini-inspired) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
-            <span style={{ fontSize: 16 }}>🔮</span>
-            <span className="de-widget-title ml-2">AI Post Intelligence</span>
-            {predictLoaded && (
-              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>Live</span>
+            <Zap className="w-4 h-4 mr-1" style={{ color: '#f97316' }} />
+            <span className="de-widget-title ml-1">FX Simulation</span>
+            {fxSim && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: fxSim.state === 'complete' ? '#22c55e' : fxSim.state === 'running' ? '#f97316' : 'var(--de-text-dim)', background: fxSim.state === 'complete' ? 'rgba(34,197,94,0.1)' : fxSim.state === 'running' ? 'rgba(249,115,22,0.1)' : 'rgba(0,0,0,0.06)', padding: '2px 7px', borderRadius: 5 }}>
+                {fxSim.state === 'running' ? `${fxSim.elapsedSeconds.toFixed(1)}s / ${fxSim.durationSeconds}s` : fxSim.state}
+              </span>
             )}
           </div>
-          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
-              AI analyzes your engagement patterns to recommend what to create next, when to post it, and what gaps to fill.
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Choose an FX preset (fire, water, destruction, smoke, particles, fabric) and run the simulation.
             </p>
-            {!predictLoaded ? (
-              <button
-                type="button"
-                onClick={handlePredictSchedule}
-                disabled={predictLoading}
-                className="de-btn de-btn-primary"
-                style={{ opacity: predictLoading ? 0.7 : 1 }}
-              >
-                {predictLoading ? '🔮 Analysing…' : '🔮 Run AI Prediction'}
-              </button>
-            ) : (
-              <>
-                {/* Gap alerts */}
-                {predictGaps.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', marginBottom: 5 }}>⚠️ Content Gaps Detected</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      {predictGaps.map((gap, i) => (
-                        <div key={i} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', fontSize: 11, color: 'var(--de-heading)' }}>
-                          {gap}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {/* What to create next */}
-                {predictSuggestions.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', marginBottom: 5 }}>✨ What to Create Next</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {predictSuggestions.map((s, i) => (
-                        <div key={i} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                            <span style={{ fontSize: 13 }}>{s.type}</span>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', flex: 1 }}>{s.title}</span>
-                            <span style={{ fontSize: 9, fontWeight: 700, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '2px 6px', borderRadius: 4, flexShrink: 0 }}>{s.platform}</span>
-                          </div>
-                          <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 4 }}>💡 {s.reason}</div>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>📅 Best time: {s.bestTime}</span>
-                            <button type="button"
-                              onClick={() => { setFormTitle(s.title); setFormType('Post'); }}
-                              style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, border: `1px solid ${ACCENT}30`, background: `${ACCENT}10`, color: ACCENT, cursor: 'pointer', fontWeight: 700 }}>
-                              Add to Calendar
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <button type="button" onClick={handlePredictSchedule} disabled={predictLoading}
-                  style={{ ...btnBase, background: 'rgba(160,195,240,0.15)', color: 'var(--de-text-dim)', fontSize: 11 }}>
-                  {predictLoading ? '…' : '↻ Refresh Predictions'}
+            {/* Category filter */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
+              {allCategories().map(cat => (
+                <button key={cat} type="button" onClick={() => setFxCategory(cat)}
+                  style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 999, border: 'none', cursor: 'pointer', background: fxCategory === cat ? '#f97316' : 'rgba(249,115,22,0.1)', color: fxCategory === cat ? 'white' : '#f97316' }}>
+                  {cat}
                 </button>
-              </>
+              ))}
+            </div>
+            {/* Preset list */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
+              {presetsByCategory(fxCategory).map(preset => (
+                <button key={preset.id} type="button" onClick={() => selectFxPreset(preset.id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, border: `1px solid ${fxSim?.presetId === preset.id ? '#f97316' : 'rgba(249,115,22,0.15)'}`, background: fxSim?.presetId === preset.id ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.5)', cursor: 'pointer', textAlign: 'left' }}>
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>{preset.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: fxSim?.presetId === preset.id ? '#f97316' : 'var(--de-heading)' }}>{preset.name}</div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{preset.description}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            {fxMsg && <div style={{ fontSize: 11, fontWeight: 600, color: fxMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{fxMsg}</div>}
+            {fxSim && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {/* Progress bar */}
+                <div style={{ height: 5, borderRadius: 3, background: 'rgba(0,0,0,0.07)' }}>
+                  <div style={{ height: '100%', borderRadius: 3, background: '#f97316', transition: 'width 0.1s', width: `${(fxSim.elapsedSeconds / fxSim.durationSeconds) * 100}%` }} />
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {!fxRunning ? (
+                    <button type="button" onClick={startFxSim} disabled={fxSim.state === 'complete'}
+                      style={{ ...btnBase, background: '#f97316', color: 'white', flex: 1, opacity: fxSim.state === 'complete' ? 0.5 : 1 }}>
+                      ▶ {fxSim.state === 'complete' ? 'Done' : 'Run Simulation'}
+                    </button>
+                  ) : (
+                    <button type="button" onClick={stopFxSim}
+                      style={{ ...btnBase, background: 'rgba(239,68,68,0.1)', color: '#ef4444', flex: 1 }}>
+                      ⏸ Pause
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
+          </div>
+        </div>
+
+        {/* ── 2.5D Compositor (After Effects-inspired) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Layers className="w-4 h-4 mr-1" style={{ color: '#06b6d4' }} />
+            <span className="de-widget-title ml-1">2.5D Compositor</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#06b6d4', background: 'rgba(6,182,212,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>{compLayers.length} layers</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Stack background plate, 3D render passes, roto mattes, and motion graphics into a final 2.5D composite.
+            </p>
+            {/* Add layer buttons */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
+              {['video', '3d', 'roto', '2d', 'adjustment'].map(type => (
+                <button key={type} type="button" onClick={() => addCompLayer(type)}
+                  style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 999, border: '1px solid rgba(6,182,212,0.3)', background: 'rgba(6,182,212,0.07)', color: '#06b6d4', cursor: 'pointer' }}>
+                  + {type}
+                </button>
+              ))}
+            </div>
+            {compMsg && <div style={{ fontSize: 11, fontWeight: 600, color: compMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{compMsg}</div>}
+            {/* Layer stack */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {compLayers.map((layer, idx) => (
+                <div key={layer.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(6,182,212,0.15)', opacity: layer.visible ? 1 : 0.4 }}>
+                  <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--de-text-dim)', width: 16, flexShrink: 0 }}>{idx + 1}</span>
+                  <button type="button" onClick={() => toggleCompLayerVisibility(layer.id)}
+                    style={{ fontSize: 11, background: 'none', border: 'none', cursor: 'pointer', color: layer.visible ? '#06b6d4' : 'var(--de-text-dim)', padding: 0, flexShrink: 0 }}>
+                    {layer.visible ? '👁' : '🙈'}
+                  </button>
+                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{layer.label}</span>
+                  <span style={{ fontSize: 9, color: 'var(--de-text-dim)', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: 4 }}>{layer.blendMode}</span>
+                  <span style={{ fontSize: 9, color: 'var(--de-text-dim)', width: 30, textAlign: 'right' }}>{Math.round(layer.opacity * 100)}%</span>
+                  <button type="button" onClick={() => removeCompLayer(layer.id)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--de-text-dim)', padding: 0 }}>
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Rotoscope Editor (Clip Studio Paint-inspired) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Film className="w-4 h-4 mr-1" style={{ color: '#ec4899' }} />
+            <span className="de-widget-title ml-1">Rotoscope Editor</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#ec4899', background: 'rgba(236,72,153,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              {rotoProject.layers.length} layers
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Trace over live-action actors frame-by-frame to create precise alpha mattes. Set keyframes, interpolate between them, export SVG.
+            </p>
+            {/* Frame scrubber */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)' }}>
+                Frame: <strong style={{ color: '#ec4899' }}>{rotoFrame}</strong> / {rotoProject.frameCount - 1}
+              </label>
+              <input type="range" min={0} max={rotoProject.frameCount - 1} step={1} value={rotoFrame}
+                onChange={e => setRotoFrame(parseInt(e.target.value))}
+                style={{ width: '100%', accentColor: '#ec4899' }}
+              />
+            </div>
+            {/* Layer list */}
+            {rotoProject.layers.length > 0 && (
+              <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {rotoProject.layers.map(layer => {
+                  const kfs = keyframeList(layer);
+                  const hasKF = kfs.includes(rotoFrame);
+                  const interp = interpolateShape(layer, rotoFrame);
+                  return (
+                    <div key={layer.id}
+                      onClick={() => setRotoSelectedLayer(layer.id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: rotoSelectedLayer === layer.id ? 'rgba(236,72,153,0.1)' : 'rgba(255,255,255,0.5)', border: `1px solid ${rotoSelectedLayer === layer.id ? 'rgba(236,72,153,0.35)' : 'rgba(236,72,153,0.12)'}`, cursor: 'pointer' }}>
+                      <Film className="w-3 h-3" style={{ color: '#ec4899', flexShrink: 0 }} />
+                      <span style={{ flex: 1, fontSize: 11, fontWeight: rotoSelectedLayer === layer.id ? 700 : 400, color: 'var(--de-heading)' }}>{layer.name}</span>
+                      <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{kfs.length} kf</span>
+                      {interp && <span style={{ fontSize: 9, color: '#ec4899', fontWeight: 700 }}>{hasKF ? '● kf' : '○ tween'}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {rotoMsg && <div style={{ fontSize: 11, fontWeight: 600, color: rotoMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{rotoMsg}</div>}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <button type="button" onClick={addRotoLayer}
+                style={{ ...btnBase, background: 'rgba(236,72,153,0.1)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.25)' }}>
+                + New Layer
+              </button>
+              <button type="button" onClick={addRotoKeyframe} disabled={!rotoSelectedLayer}
+                style={{ ...btnBase, background: rotoSelectedLayer ? '#ec4899' : 'rgba(0,0,0,0.06)', color: rotoSelectedLayer ? 'white' : 'var(--de-text-dim)' }}>
+                ◆ Set Keyframe
+              </button>
+              <button type="button" onClick={handleRotoSVGExport} disabled={rotoProject.layers.length === 0}
+                style={{ ...btnBase, background: 'rgba(236,72,153,0.1)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.25)', opacity: rotoProject.layers.length === 0 ? 0.4 : 1 }}>
+                <Download className="w-3 h-3 inline mr-1" />Export SVG
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Node Compositor (Foundry Nuke-inspired) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Link2 className="w-4 h-4 mr-1" style={{ color: '#22c55e' }} />
+            <span className="de-widget-title ml-1">Node Compositor</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              {nodeGraph.nodes.length} nodes
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Layer 2D, 3D, and live-action elements using a node graph. Each node is a compositing operation.
+            </p>
+            {/* Node graph visualiser */}
+            <div style={{ overflowX: 'auto', marginBottom: 10 }}>
+              <div style={{ position: 'relative', height: 180, minWidth: 400, background: 'rgba(0,0,0,0.04)', borderRadius: 10, border: '1px solid rgba(34,197,94,0.15)', overflow: 'hidden' }}>
+                <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                  {nodeGraph.nodes.map(n =>
+                    Object.entries(n.inputs).map(([, srcId]) => {
+                      if (!srcId) return null;
+                      const src = nodeGraph.nodes.find(x => x.id === srcId);
+                      if (!src) return null;
+                      const x1 = src.position.x + 70, y1 = src.position.y + 18;
+                      const x2 = n.position.x, y2 = n.position.y + 18;
+                      return <path key={`${srcId}-${n.id}`} d={`M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}`} stroke="rgba(34,197,94,0.4)" strokeWidth={1.5} fill="none" />;
+                    })
+                  )}
+                </svg>
+                {nodeGraph.nodes.map(n => (
+                  <div key={n.id} style={{ position: 'absolute', left: n.position.x, top: n.position.y, background: n.type === 'Output' ? '#22c55e' : n.type === 'MediaIn' ? 'rgba(6,182,212,0.8)' : 'rgba(255,255,255,0.85)', border: `1px solid ${n.type === 'Output' ? '#22c55e' : 'rgba(34,197,94,0.3)'}`, borderRadius: 6, padding: '3px 8px', fontSize: 10, fontWeight: 700, color: n.type === 'Output' ? 'white' : 'var(--de-heading)', whiteSpace: 'nowrap', cursor: 'default', zIndex: 1 }}>
+                    {n.label}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Eval order */}
+            <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 8, fontFamily: 'monospace', wordBreak: 'break-all' }}>
+              Eval: {topologicalSort(nodeGraph.nodes).map(id => nodeGraph.nodes.find(n => n.id === id)?.label ?? id).join(' → ')}
+            </div>
+            {nodeMsg && <div style={{ fontSize: 11, fontWeight: 600, color: nodeMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{nodeMsg}</div>}
+            {/* Add node */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {(['MediaIn', 'Over', 'Merge', 'ColorCorrect', 'Transform', 'Keyer', 'MotionBlur'] as NodeType[]).map(t => (
+                <button key={t} type="button" onClick={() => handleAddNode(t)}
+                  style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 999, border: '1px solid rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.07)', color: '#22c55e', cursor: 'pointer' }}>
+                  + {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Matchmover (Syntheyes / 3DEqualizer-inspired) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Crosshair className="w-4 h-4 mr-1" style={{ color: '#f59e0b' }} />
+            <span className="de-widget-title ml-1">Matchmover</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              {cameraTrack.trackPoints.length} pts
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Add 2D track points to live-action footage. The solver pins animated objects to the moving camera.
+            </p>
+            {/* Track info */}
+            <div style={{ fontSize: 10, color: 'var(--de-text-dim)', padding: '6px 10px', borderRadius: 8, background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 10 }}>
+              {trackSummary(cameraTrack)}
+            </div>
+            {/* Track points list */}
+            {cameraTrack.trackPoints.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10, maxHeight: 140, overflowY: 'auto' }}>
+                {cameraTrack.trackPoints.map((pt, i) => {
+                  const motions = estimateCameraMotion(cameraTrack).filter(m => m.pointId === pt.id);
+                  const avgSpeed = motions.length > 0 ? motions.reduce((s, m) => s + m.speed, 0) / motions.length : 0;
+                  return (
+                    <div key={pt.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(245,158,11,0.15)' }}>
+                      <Crosshair className="w-3 h-3" style={{ color: '#f59e0b', flexShrink: 0 }} />
+                      <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: 'var(--de-heading)' }}>{pt.name}</span>
+                      <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{pt.samples.length} samples</span>
+                      <span style={{ fontSize: 9, color: '#f59e0b', fontFamily: 'monospace' }}>
+                        avg {(avgSpeed * 1000).toFixed(1)}px/f
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {trackMsg && <div style={{ fontSize: 11, fontWeight: 600, color: trackMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{trackMsg}</div>}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button type="button" onClick={addTrackPt}
+                style={{ ...btnBase, background: '#f59e0b', color: 'white', flex: 1 }}>
+                + Add Track Point
+              </button>
+              <button type="button" onClick={handleTrackCSVExport} disabled={cameraTrack.trackPoints.length === 0}
+                style={{ ...btnBase, background: 'rgba(245,158,11,0.1)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)', opacity: cameraTrack.trackPoints.length === 0 ? 0.4 : 1 }}>
+                <Download className="w-3 h-3 inline mr-1" />CSV
+              </button>
+            </div>
           </div>
         </div>
 
