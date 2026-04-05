@@ -411,6 +411,35 @@
   text-transform: uppercase;
 }
 
+/* ── iPad / large-tablet overrides (coarse touch, ≥768px on both axes) ─── */
+
+@media (pointer: coarse) and (min-width: 768px) and (min-height: 768px) {
+  .leftDock {
+    --dock-size: clamp(148px, 22vw, 188px);
+  }
+
+  .rightDock {
+    --dock-size: clamp(268px, 40vw, 316px);
+  }
+
+  .ringButton {
+    width: 25%;
+    height: 25%;
+  }
+
+  .pill {
+    min-width: 76px;
+    padding: 10px 18px;
+    font-size: 11px;
+  }
+
+  .sizeBtn {
+    width: 28px;
+    height: 28px;
+    font-size: 17px;
+  }
+}
+
 /* ── Landscape overrides ────────────────────────────────────────────────── */
 
 @media (orientation: landscape) and (max-height: 500px) {
