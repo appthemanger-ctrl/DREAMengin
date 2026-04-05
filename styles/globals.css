@@ -862,6 +862,7 @@ body, .dreamnav-surface, .controls {
   border-radius: 999px;
   background: linear-gradient(135deg, var(--de-accent), var(--de-gold));
   box-shadow: 0 0 18px rgba(42,138,184,0.22);
+  animation: sicc-kicker-pulse 2.4s ease-in-out infinite;
 }
 
 .de-panel-grid {
@@ -4178,4 +4179,27 @@ main[role="main"] > * {
   main[role="main"] > * {
     animation: none !important;
   }
+}
+
+/* ── SICC dark engin surface entrance ── */
+@keyframes sicc-dark-surface-enter {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.sicc-dark-surface-enter {
+  animation: sicc-dark-surface-enter 0.38s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+/* ── SICC kicker pulse dot ── */
+@keyframes sicc-kicker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(42,138,184,0.45); }
+  50%       { box-shadow: 0 0 0 5px rgba(42,138,184,0); }
+}
+
+/* ── SICC feature card dark glow on hover ── */
+.sicc-feature-card {
+  transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1),
+              border-color 0.18s ease,
+              box-shadow 0.18s ease,
+              background 0.18s ease;
 }
