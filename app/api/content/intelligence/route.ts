@@ -19,6 +19,13 @@ const IntelligenceSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('predict-schedule'),
   }),
+  z.object({
+    type: z.literal('brand-voice'),
+    /** The draft content to check */
+    content: z.string().min(10).max(5000),
+    /** Comma-separated brand keywords / tone descriptors e.g. "bold, playful, Gen-Z" */
+    voiceProfile: z.string().min(2).max(300),
+  }),
 ]);
 
 function buildViralHooks(topic: string): string[] {
@@ -98,7 +105,7 @@ function buildPredictSchedule(): { suggestions: PredictSuggestion[]; gaps: strin
     { type: '🧵 Thread',    title: '5 lessons from your last campaign',  reason: 'Educational threads peak Tue–Thu',         platform: 'Twitter/X', bestTime: 'Tue 9 AM' },
     { type: '📝 Carousel',  title: 'Step-by-step breakdown carousel',    reason: 'Carousels drive highest saves (+2.3×)',     platform: 'Instagram', bestTime: 'Thu 7 PM' },
     { type: '🎬 Short',     title: 'Quick tip under 30 seconds',         reason: 'Shorts indexed well in your niche now',    platform: 'YouTube',   bestTime: 'Fri 4 PM' },
-    { type: '📋 Newsletter','title': 'This week\'s curated insights',    reason: 'Your open rate peaks on Thu mornings',     platform: 'Email',     bestTime: 'Thu 8 AM' },
+    { type: '📋 Newsletter', title: 'This week\'s curated insights',     reason: 'Your open rate peaks on Thu mornings',     platform: 'Email',     bestTime: 'Thu 8 AM' },
   ];
   const gaps = [
     'No Reels posted in 6 days — algorithm prefers 3+/week',
@@ -106,6 +113,69 @@ function buildPredictSchedule(): { suggestions: PredictSuggestion[]; gaps: strin
     'YouTube Short gap: 2 weeks — consider repurposing existing content',
   ];
   return { suggestions, gaps };
+}
+
+interface BrandVoiceFlag {
+  word: string;
+  issue: string;
+  suggestion: string;
+}
+
+function checkBrandVoice(content: string, voiceProfile: string): {
+  score: number;
+  onBrand: string[];
+  flags: BrandVoiceFlag[];
+  rewrite: string;
+} {
+  const tones = voiceProfile.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  const words = content.toLowerCase().split(/\s+/);
+  const onBrand: string[] = [];
+  const flags: BrandVoiceFlag[] = [];
+
+  // Detect tone-aligned signals
+  if (tones.some(t => ['bold', 'direct', 'confident'].includes(t))) {
+    if (/\b(you|your|stop|now|start|get|do)\b/.test(content)) onBrand.push('Direct address detected ✓');
+  }
+  if (tones.some(t => ['playful', 'fun', 'casual'].includes(t))) {
+    if (/[!🔥✨💡😎🎯]/.test(content)) onBrand.push('Playful tone signals ✓');
+    if (/\b(hey|love|cool|awesome)\b/i.test(content)) onBrand.push('Casual language ✓');
+  }
+  if (tones.some(t => ['professional', 'expert', 'authoritative'].includes(t))) {
+    if (/\b(research|strategy|proven|results|data)\b/i.test(content)) onBrand.push('Authority language ✓');
+  }
+  if (tones.some(t => ['gen-z', 'genz', 'gen z', 'youth'].includes(t))) {
+    if (/\b(pov|vibe|no cap|lowkey|fr|slay)\b/i.test(content)) onBrand.push('Gen-Z vernacular ✓');
+  }
+  if (onBrand.length === 0) onBrand.push('Neutral tone — see suggestions below');
+
+  // Flag off-brand signals
+  const corporate = ['synergy', 'leverage', 'utilize', 'paradigm', 'bandwidth', 'circle back', 'deep dive', 'touch base'];
+  corporate.forEach(w => {
+    if (words.includes(w)) {
+      flags.push({ word: w, issue: 'Corporate jargon — conflicts with brand voice', suggestion: `Replace "${w}" with a more natural alternative` });
+    }
+  });
+  if (tones.includes('short') || tones.includes('concise')) {
+    const sentenceCount = content.split(/[.!?]/).filter(s => s.trim()).length;
+    if (sentenceCount > 8) flags.push({ word: 'length', issue: `${sentenceCount} sentences — too long for concise brand`, suggestion: 'Trim to 4–5 punchy sentences' });
+  }
+  if (tones.some(t => ['no-emoji', 'minimal', 'clean'].includes(t))) {
+    const emojiCount = (content.match(/[\u{1F300}-\u{1FAFF}]/gu) ?? []).length;
+    if (emojiCount > 2) flags.push({ word: 'emojis', issue: `${emojiCount} emojis detected — brand uses minimal emoji style`, suggestion: 'Reduce to 0–1 emoji max' });
+  }
+
+  const flagPenalty = Math.min(flags.length * 12, 40);
+  const bonusFromOnBrand = Math.min(onBrand.filter(o => o.includes('✓')).length * 15, 45);
+  const score = Math.max(30, Math.min(100, 55 + bonusFromOnBrand - flagPenalty));
+
+  // Light rewrite suggestion
+  let rewrite = content.slice(0, 200);
+  if (flags.length > 0) {
+    corporate.forEach(w => { rewrite = rewrite.replace(new RegExp(`\\b${w}\\b`, 'gi'), '[rephrase]'); });
+  }
+  if (rewrite.length < content.length) rewrite += '…';
+
+  return { score, onBrand, flags, rewrite };
 }
 
 export async function POST(req: NextRequest) {
@@ -176,6 +246,11 @@ export async function POST(req: NextRequest) {
 
   if (parsed.data.type === 'predict-schedule') {
     return NextResponse.json(buildPredictSchedule());
+  }
+
+  if (parsed.data.type === 'brand-voice') {
+    const result = checkBrandVoice(parsed.data.content, parsed.data.voiceProfile);
+    return NextResponse.json(result);
   }
 
   const result = scoreSeoTitle(parsed.data.title);

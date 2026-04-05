@@ -21,7 +21,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar } from 'lucide-react';
+import { ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar, Wrench } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
@@ -403,6 +403,17 @@ export default function ContentEngin({ onBack }: Props) {
   }>>([]);
   const [predictGaps, setPredictGaps]         = useState<string[]>([]);
 
+  // ── Brand Voice Guard state ───────────────────────────────────────────────────
+  const [bvContent, setBvContent]           = useState('');
+  const [bvProfile, setBvProfile]           = useState('bold, direct, Gen-Z');
+  const [bvLoading, setBvLoading]           = useState(false);
+  const [bvResult, setBvResult]             = useState<{
+    score: number;
+    onBrand: string[];
+    flags: Array<{ word: string; issue: string; suggestion: string }>;
+    rewrite: string;
+  } | null>(null);
+
   async function handleGenerateHooks() {
     if (!hookTopic.trim()) return;
     setHookLoading(true);
@@ -609,6 +620,27 @@ export default function ContentEngin({ onBack }: Props) {
       setPredictLoaded(true);
     } finally {
       setPredictLoading(false);
+    }
+  }
+
+  // ── Brand Voice Guard handler ─────────────────────────────────────────────────
+  async function handleBrandVoiceCheck() {
+    if (!bvContent.trim() || !bvProfile.trim()) return;
+    setBvLoading(true);
+    setBvResult(null);
+    try {
+      const res = await fetch('/api/content/intelligence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'brand-voice', content: bvContent.trim(), voiceProfile: bvProfile.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Brand voice check failed');
+      setBvResult(json);
+    } catch {
+      /* silently surface no result */
+    } finally {
+      setBvLoading(false);
     }
   }
 
