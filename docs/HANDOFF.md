@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
-| **auto** | 2026-04-05 02:05 UTC | `90a66d3` | copilot/update-dreamr-feed-limits | Copilot | +14 added  ~2 modified<br>feat: DreamR feed limits, view counting, rate limiting, close friends, asset optimizer — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/3121c82f-35ce-4df4-a186-dd644ddd7492  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `app/api/close-friends/route.ts`, `app/api/posts/[id]/save/route.ts`, `app/api/posts/[id]/view/route.ts`, `app/api/posts/profile/[userId]/route.ts`, `components/dreamr/CloseFriendsSettings.tsx`, `hooks/useViewCounter.ts`, `lib/assets/assetOptimizer.ts`, `lib/assets/indexedDBStore.ts`, `public/workers/asset-optimizer.worker.js`, `supabase/migrations/20260405000001_dreamr_feed_registry.sql`, `tests/asset-optimizer.test.ts`, `tests/dreamr-feed-limits.test.ts` … +2 more<br>✏️: `app/api/posts/route.ts`, `components/dreamr/DreamRFeed.tsx` |
-| **auto** | 2026-04-05 01:11 UTC | `02d784a` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #434 from appthemanger-ctrl/copilot/forge-six-daydreams-and-engins — feat: forge all 9 Engins — full cross-engine connectivity, Pulse Monitor, JourneyTrail<br> |
-| **auto** | 2026-04-05 01:11 UTC | `e82f079` | copilot/forge-six-daydreams-and-engins | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/forge-six-daydreams-and-engins<br> |
-| **auto** | 2026-04-05 00:25 UTC | `bcac9f0` | completedream | appthemanger-ctrl | +1 added<br>Update print statement from 'Hello' to 'Goodbye'<br>➕: `README.md` |
-| **auto** | 2026-04-04 21:15 UTC | `60c6e7d` | copilot/go-nuts-with-dreamdmbar | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/go-nuts-with-dreamdmbar<br> |
+| **auto** | 2026-04-05 03:01 UTC | `697a9ad` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #436 from appthemanger-ctrl/copilot/fix-app-logout-behavior — fix: whole-app shutdown on any runtime logout or crash<br> |
+| **auto** | 2026-04-05 03:01 UTC | `76bafc4` | copilot/fix-app-logout-behavior | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-app-logout-behavior<br> |
+| **auto** | 2026-04-05 02:59 UTC | `fa1a33f` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #438 from appthemanger-ctrl/copilot/fix-profile-page-error — fix: Server Component crash when navigating home from profile/edit-profile pages<br> |
+| **auto** | 2026-04-05 02:59 UTC | `bb41e42` | copilot/fix-profile-page-error | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-profile-page-error<br> |
+| **auto** | 2026-04-05 02:33 UTC | `753d9aa` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #435 from appthemanger-ctrl/copilot/fix-button-size-and-video-screen — fix: game engine server crash, iPad button sizing, landscape controls blackout<br> |
 
 ## What changed in this alignment pass
 

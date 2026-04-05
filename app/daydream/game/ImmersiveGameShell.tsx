@@ -212,7 +212,7 @@ export default function ImmersiveGameShell() {
       }}
     >
       {/* ── Game viewport — always mounted so assets begin loading immediately ── */}
-      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `max(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}), ${isLandscape ? LANDSCAPE_MIN_STAGE_BOTTOM_CLEARANCE : MIN_STAGE_BOTTOM_CLEARANCE})` }}>
+      <div className="de-immersive-game-stage" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: `max(var(--de-hud-bottom, ${DEFAULT_HUD_BOTTOM}), ${isLandscape ? LANDSCAPE_MIN_STAGE_BOTTOM_CLEARANCE : MIN_STAGE_BOTTOM_CLEARANCE})`, background: '#000' }}>
         {game.component ? (
           <ActiveGameComponent />
         ) : (
@@ -470,6 +470,22 @@ export default function ImmersiveGameShell() {
             Skip →
           </button>
         </div>
+      )}
+
+      {/* ── Controls area black strip (visible in landscape below game stage) ── */}
+      {isLandscape && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: LANDSCAPE_MIN_STAGE_BOTTOM_CLEARANCE,
+            background: '#000',
+            zIndex: 0,
+          }}
+        />
       )}
 
       {/* ── Universal in-game HUD — mounted only after boot is done ── */}

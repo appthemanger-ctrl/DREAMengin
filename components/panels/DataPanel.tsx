@@ -41,7 +41,7 @@ export default function DataPanel() {
     try {
       const sb = createClient();
       const res = await fetch('/api/account/delete', { method: 'DELETE' });
-      if (res.ok) { await sb.auth.signOut(); window.location.href = '/login'; }
+      if (res.ok) { await sb.auth.signOut(); (window.top ?? window).location.href = '/login'; }
       else { const j = await res.json().catch(() => ({})); setDeleteMsg((j as { error?: string }).error || 'Deletion failed.'); }
     } catch { setDeleteMsg('Network error. Please try again.'); }
     finally { setDeleting(false); }
