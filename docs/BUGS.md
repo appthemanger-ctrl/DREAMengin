@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-05 08:03 UTC  
-**Triggered by commit:** `54f7e16` on `copilot/update-readme-md-again` by Copilot  
-**Commit message:** docs: update README with live repo stats and fix update-readme script
+**Last updated:** 2026-04-05 08:40 UTC  
+**Triggered by commit:** `372955a` on `copilot/fix-type-error-in-ad-slots` by Copilot  
+**Commit message:** fix: refine immediate remediation file hint parsing
 
 ---
 
