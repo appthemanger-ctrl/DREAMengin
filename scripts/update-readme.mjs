@@ -85,12 +85,15 @@ const statLine = statParts.length ? statParts.join(' ') : '—';
 
 // ── 3. Collect live repo stats ────────────────────────────────────────────────
 
-const testCount  = existsSync(resolve(ROOT, 'tests'))
+const testCount     = existsSync(resolve(ROOT, 'tests'))
   ? readdirSync(resolve(ROOT, 'tests')).filter(f => f.endsWith('.test.ts')).length
   : 0;
-const pageCount  = countShell(`find ${ROOT}/app -name "page.tsx" 2>/dev/null | wc -l`);
-const apiCount   = countShell(`find ${ROOT}/app/api -name "route.ts" 2>/dev/null | wc -l`);
-const routeCount = pageCount + apiCount;
+const pageCount     = countShell(`find ${ROOT}/app -name "page.tsx" 2>/dev/null | wc -l`);
+const apiCount      = countShell(`find ${ROOT}/app/api -name "route.ts" 2>/dev/null | wc -l`);
+const routeCount    = pageCount + apiCount;
+const workflowCount = existsSync(resolve(ROOT, '.github/workflows'))
+  ? readdirSync(resolve(ROOT, '.github/workflows')).filter(f => f.endsWith('.yml') || f.endsWith('.yaml')).length
+  : 0;
 
 // ── 4. Build the AI Agent Context block ───────────────────────────────────────
 
@@ -156,7 +159,7 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 | \`components/music/\` | SoundRecorder and music UI |
 | \`lib/\` | Hooks, utilities, Supabase client, game libs |
 | \`docs/\` | All governance, law, spec, and policy documents |
-| \`.github/workflows/\` | 30+ CI/CD automation workflows |
+| \`.github/workflows/\` | ${workflowCount} CI/CD automation workflows |
 | \`tests/\` | Vitest test suite (${testCount} test files) |
 | \`scripts/\` | Maintenance and automation scripts |
 | \`build-memory/\` | Auto-generated build intelligence snapshots |
@@ -285,7 +288,7 @@ if (ctxStart !== -1 && ctxEnd !== -1 && ctxEnd > ctxStart) {
   doc = doc.slice(0, insertAt) + contextBlock + '\n\n' + doc.slice(insertAt);
 }
 
-// ── 9. Refresh "Last updated" inside "## Current Implementation Status" ───────
+// ── 9. Refresh "Last updated" + "Build Status" inside "## Current Implementation Status" ───────
 
 const STATUS_RE = /(## Current Implementation Status\n)((?:Last updated:[^\n]*\n)*)/;
 const statusMatch = STATUS_RE.exec(doc);
@@ -301,6 +304,12 @@ if (statusMatch) {
         `\n_Last updated: ${utcDate} — \`${sha}\` by ${actor}_\n` +
         doc.slice(h1end);
 }
+
+// Also refresh the "Build Status:" line inside that section with live counts
+doc = doc.replace(
+  /^Build Status:.*$/m,
+  `Build Status: ${routeCount} routes (${pageCount} pages + ${apiCount} API handlers) · ${testCount} test files`
+);
 
 // ── 10. Update the "## Recent Changes" table ──────────────────────────────────
 

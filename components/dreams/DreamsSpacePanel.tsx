@@ -24,10 +24,26 @@
  * router.push() instead of embedding them in dead-end iframes.
  */
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
+import {
+  computeMomentum,
+  getLevelColor,
+  type MomentumLevel,
+  type MomentumSnapshot,
+} from '@/lib/forge/forgeMomentum';
+import {
+  generateSuggestions,
+  readForgeHistory,
+  type ForgeHistoryEntry,
+  type ForgeSuggestion,
+} from '@/lib/forge/forgeIntelligence';
+import {
+  readForgeActivity,
+  type ForgeActivityPulse,
+} from '@/lib/forge/forgeRegistry';
 
 /** Called to open a URL inside the runtime region (no full-page navigation). */
 type OpenUrlFn = (url: string, title?: string) => void;
@@ -72,6 +88,16 @@ const ICON_SIZE = 54;
 const ICON_RADIUS = 14;
 const ICON_FONT = 26;
 const LABEL_FONT = 11;
+
+function formatRelativeTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins <= 0) return 'now';
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  return `${Math.floor(hours / 24)}d`;
+}
 
 /**
  * iOS-style squircle app icon.
@@ -157,6 +183,11 @@ export default function DreamsSpacePanel({
   const runtime = useDreamsRuntime();
   const { state, setService } = runtime;
   const router = useRouter();
+  const refreshTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [momentum, setMomentum] = useState<MomentumSnapshot | null>(null);
+  const [history, setHistory] = useState<ForgeHistoryEntry[]>([]);
+  const [activity, setActivity] = useState<ForgeActivityPulse[]>([]);
+  const [suggestions, setSuggestions] = useState<ForgeSuggestion[]>([]);
 
   /** Navigate to a route: use in-region iframe when available, else full navigation. */
   const navigate = (route: string, title?: string) => {
@@ -171,6 +202,32 @@ export default function DreamsSpacePanel({
 
   // Apps home screen is the priority tab — permanent windows shown by default.
   const [view, setView] = useState<DreamsSpaceView>('apps');
+
+  const refreshDreamSpace = useCallback(() => {
+    const nextMomentum = computeMomentum();
+    const nextHistory = readForgeHistory();
+    const nextActivity = readForgeActivity();
+    const lastActive = [...nextActivity].sort(
+      (a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime(),
+    )[0];
+
+    setMomentum(nextMomentum);
+    setHistory(nextHistory);
+    setActivity(nextActivity);
+    setSuggestions(generateSuggestions(lastActive ? { enginId: lastActive.enginId, label: lastActive.label } : null));
+  }, []);
+
+  useEffect(() => {
+    refreshDreamSpace();
+    refreshTimer.current = setInterval(refreshDreamSpace, 15_000);
+    return () => {
+      if (refreshTimer.current) clearInterval(refreshTimer.current);
+    };
+  }, [refreshDreamSpace]);
+
+  const levelColor = momentum ? getLevelColor(momentum.level as MomentumLevel) : '#d4a843';
+  const leadSuggestion = suggestions[0] ?? null;
+  const recentHistory = history.slice().reverse().slice(0, 3);
 
   // Feed view — main dreams space content
   return (
@@ -196,7 +253,7 @@ export default function DreamsSpacePanel({
         </div>
         <div>
           <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)', letterSpacing: '-0.02em', display: 'block' }}>
-            Dreams Space
+            DreamSpace
           </span>
           <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
             Pinned apps + feeds across the dual runtime
@@ -243,6 +300,213 @@ export default function DreamsSpacePanel({
       {view === 'apps' ? (
         /* ── Permanent iOS-style app home screen ─────────────────────────────── */
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px 10px 20px' }}>
+
+          <div style={{
+            marginBottom: 16,
+            background: 'linear-gradient(135deg, rgba(42,138,184,0.18), rgba(200,152,26,0.12))',
+            borderRadius: 22,
+            border: '1px solid rgba(160,195,240,0.18)',
+            padding: '14px 14px 12px',
+            boxShadow: '0 10px 28px rgba(0,0,0,0.08)',
+            backdropFilter: 'blur(24px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div style={{
+                width: 38,
+                height: 38,
+                borderRadius: 14,
+                background: 'linear-gradient(135deg, rgba(42,138,184,0.92), rgba(200,152,26,0.92))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 20px rgba(42,138,184,0.22)',
+                fontSize: 18,
+                flexShrink: 0,
+              }}>
+                ✦
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>DreamSpace</div>
+                <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+                  DREAMfield now powers the live pulse of this layer.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/daydream/field', 'DREAMfield')}
+                style={{
+                  marginLeft: 'auto',
+                  borderRadius: 9999,
+                  border: '1px solid rgba(200,152,26,0.28)',
+                  background: 'rgba(200,152,26,0.12)',
+                  color: '#d4a843',
+                  padding: '6px 10px',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Open DREAMfield
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, marginBottom: 10 }}>
+              <div style={{
+                borderRadius: 18,
+                background: 'rgba(255,255,255,0.58)',
+                border: '1px solid rgba(255,255,255,0.78)',
+                padding: '12px',
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Live Pulse
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 6 }}>
+                  <span style={{ fontSize: 28, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1 }}>
+                    {momentum?.composite ?? 0}
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>/100</span>
+                </div>
+                <div style={{
+                  marginTop: 8,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '4px 8px',
+                  borderRadius: 9999,
+                  background: `${levelColor}18`,
+                  border: `1px solid ${levelColor}28`,
+                  color: levelColor,
+                  fontSize: 11,
+                  fontWeight: 700,
+                }}>
+                  {momentum?.level ?? 'DORMANT'}
+                </div>
+                <div style={{ marginTop: 10, fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.45 }}>
+                  {(momentum?.enginesUsedToday?.length ?? 0) > 0
+                    ? `Active today: ${momentum?.enginesUsedToday.join(' · ')}`
+                    : 'Move through a few Daydreams to wake up the pulse.'}
+                </div>
+              </div>
+
+              <div style={{
+                borderRadius: 18,
+                background: 'rgba(255,255,255,0.58)',
+                border: '1px solid rgba(255,255,255,0.78)',
+                padding: '12px',
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Next Move
+                </div>
+                <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: leadSuggestion?.accent ?? 'var(--de-heading)' }}>
+                  {leadSuggestion?.title ?? 'Open a Daydream and start shaping the space'}
+                </div>
+                <div style={{ marginTop: 6, fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.45 }}>
+                  {leadSuggestion?.reason ?? 'DreamSpace now carries your momentum, suggestions, and recent flow in one place.'}
+                </div>
+                {leadSuggestion?.href && (
+                  <button
+                    type="button"
+                    onClick={() => navigate(leadSuggestion.href, leadSuggestion.title)}
+                    style={{
+                      marginTop: 10,
+                      borderRadius: 9999,
+                      border: `1px solid ${leadSuggestion.accent}30`,
+                      background: `${leadSuggestion.accent}14`,
+                      color: leadSuggestion.accent,
+                      padding: '6px 10px',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Open suggestion
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+              <div style={{
+                borderRadius: 18,
+                background: 'rgba(255,255,255,0.5)',
+                border: '1px solid rgba(255,255,255,0.74)',
+                padding: '12px',
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+                  Recent Motion
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {recentHistory.length > 0 ? recentHistory.map((entry, index) => (
+                    <div
+                      key={`${entry.timestamp}-${index}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '7px 8px',
+                        borderRadius: 10,
+                        background: 'rgba(255,255,255,0.46)',
+                      }}
+                    >
+                      <span style={{ flex: 1, minWidth: 0, fontSize: 11, color: 'var(--de-heading)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {entry.label}
+                      </span>
+                      <span style={{ fontSize: 10, color: 'var(--de-text-dim)', flexShrink: 0 }}>
+                        {formatRelativeTime(entry.timestamp)}
+                      </span>
+                    </div>
+                  )) : (
+                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+                      Your recent motion shows up here once you move through the system.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{
+                borderRadius: 18,
+                background: 'rgba(255,255,255,0.5)',
+                border: '1px solid rgba(255,255,255,0.74)',
+                padding: '12px',
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+                  Active Channels
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {activity.length > 0 ? activity
+                    .slice()
+                    .sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
+                    .slice(0, 3)
+                    .map((item) => (
+                      <div
+                        key={item.enginId}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '7px 8px',
+                          borderRadius: 10,
+                          background: 'rgba(255,255,255,0.46)',
+                        }}
+                      >
+                        <span style={{ flex: 1, minWidth: 0, fontSize: 11, color: 'var(--de-heading)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.label}
+                        </span>
+                        <span style={{ fontSize: 10, color: '#d4a843', fontWeight: 700, flexShrink: 0 }}>
+                          {formatRelativeTime(item.lastActive)}
+                        </span>
+                      </div>
+                    )) : (
+                    <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+                      Channels light up as your Daydreams and Engins stay in motion.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Section: Daydreams */}
           <div style={{
