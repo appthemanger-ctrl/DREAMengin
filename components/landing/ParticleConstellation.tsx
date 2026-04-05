@@ -1,202 +1,353 @@
 'use client';
 
+import { useCallback, useEffect, useRef } from 'react';
+
 /**
- * ParticleConstellation — Interactive canvas constellation for the landing hero.
+ * ParticleConstellation — physically-inspired landing starfield.
  *
- * Features:
- *  - ~72 glowing particles drifting slowly through deep-space
- *  - Proximity connections drawn as luminous line threads (≤180 px)
- *  - Mouse cursor acts as a gravity well — pulls nearby particles gently
- *  - Occasional spontaneous "nova" bursts on random particles
- *  - Colors follow the DREAMengin palette: gold, sky-blue, silver
- *  - Full-viewport fixed canvas; sits behind page content (z-index 1)
- *  - Uses requestAnimationFrame + proper cleanup; pauses when tab is hidden
- *  - BLACK HOLE physics cycle: particles spiral into a singularity, then
- *    explode outward and drift back into constellation formation.
+ * Notes:
+ *  - Replaces the old connected-dot constellation with a proper starfield.
+ *  - Uses softened Newtonian gravity + tangential frame-dragging swirl for the
+ *    landing-page black hole sequence.
+ *  - Keeps the render loop O(n) so the hero stays performant on the main page.
  */
 
-import { useEffect, useRef, useCallback } from 'react';
-
-// ── Palette ────────────────────────────────────────────────────────────────────
-const PALETTE = [
-  { r: 200, g: 152, b: 26  },  // gold
-  { r:  56, g: 189, b: 248 },  // sky-blue
-  { r: 232, g: 184, b:  48 },  // gold-bright
-  { r: 160, g: 195, b: 240 },  // ice-blue
-  { r: 255, g: 255, b: 255 },  // silver-white
-];
-
-interface Particle {
-  x:     number;
-  y:     number;
-  vx:    number;
-  vy:    number;
-  r:     number;  // base radius
-  pulse: number;  // phase offset for breathing
-  speed: number;  // pulse speed
-  col:   typeof PALETTE[number];
+interface StarParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  depth: number;
   alpha: number;
-  nova:  number;  // [0,1] nova intensity — decays fast
-  ox:    number;  // original x (for post-explosion re-settle)
-  oy:    number;  // original y
+  temperature: number;
+  twinklePhase: number;
+  twinkleSpeed: number;
+  flare: number;
+  ox: number;
+  oy: number;
 }
 
-// ── Black-hole cycle phases ────────────────────────────────────────────────
 type BHPhase = 'idle' | 'forming' | 'singularity' | 'exploding' | 'settling';
 
 interface BlackHoleState {
-  phase:      BHPhase;
-  timer:      number;   // seconds since phase start
-  cx:         number;   // singularity center x
-  cy:         number;   // singularity center y
-  pullForce:  number;   // px/s² pull
-  glowAlpha:  number;   // rendered glow
-  ringR:      number;   // event-horizon ring radius
+  phase: BHPhase;
+  timer: number;
+  triggerAfter: number;
+  cx: number;
+  cy: number;
+  pullForce: number;
+  spinForce: number;
+  glowAlpha: number;
+  ringR: number;
+  diskR: number;
 }
+
+interface SceneState {
+  particles: StarParticle[];
+  mouse: { x: number; y: number; inside: boolean };
+  raf: number;
+  lastTime: number;
+  width: number;
+  height: number;
+  bh: BlackHoleState;
+}
+
+const PARTICLE_COUNT = 110;
+const CURSOR_RADIUS = 170;
+const CURSOR_FORCE = 22;
+const EDGE_WRAP = 60;
+const MAX_IDLE_SPEED = 28;
+const MAX_SINGULARITY_SPEED = 240;
+const MAX_EXPLOSION_SPEED = 520;
+const SOFTENING = 3600;
+
+const BH_IDLE_MIN = 10;
+const BH_FORMING_DUR = 4.5;
+const BH_SINGULAR_DUR = 3.2;
+const BH_EXPLODE_DUR = 1.2;
+const BH_SETTLE_DUR = 4.8;
 
 function rand(min: number, max: number) {
   return min + Math.random() * (max - min);
 }
 
-function makeParticle(w: number, h: number): Particle {
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
+function spectralColor(temperature: number) {
+  if (temperature < 0.18) return { r: 255, g: 214, b: 156 };
+  if (temperature < 0.38) return { r: 255, g: 232, b: 188 };
+  if (temperature < 0.62) return { r: 248, g: 246, b: 255 };
+  if (temperature < 0.82) return { r: 194, g: 225, b: 255 };
+  return { r: 152, g: 196, b: 255 };
+}
+
+function makeParticle(w: number, h: number): StarParticle {
+  const depth = rand(0.35, 1);
+  const radius = Math.random() > 0.88 ? rand(1.3, 2.5) : rand(0.45, 1.35);
   const x = rand(0, w);
   const y = rand(0, h);
+
   return {
-    x, y,
-    vx:    rand(-14, 14),
-    vy:    rand(-14, 14),
-    r:     rand(1.2, 3.2),
-    pulse: rand(0, Math.PI * 2),
-    speed: rand(0.4, 1.1),
-    col:   PALETTE[Math.floor(Math.random() * PALETTE.length)],
-    alpha: rand(0.35, 0.85),
-    nova:  0,
+    x,
+    y,
+    vx: rand(-12, 12) * depth,
+    vy: rand(-10, 10) * depth,
+    radius,
+    depth,
+    alpha: rand(0.42, 0.98),
+    temperature: Math.random(),
+    twinklePhase: rand(0, Math.PI * 2),
+    twinkleSpeed: rand(0.7, 2.4),
+    flare: 0,
     ox: x,
     oy: y,
   };
 }
 
-const PARTICLE_COUNT = 72;
-const CONNECT_DIST   = 180;
-const GRAVITY_RADIUS = 160;
-const GRAVITY_FORCE  = 28; // px/s² pull toward cursor
+function drawStar(
+  ctx: CanvasRenderingContext2D,
+  particle: StarParticle,
+  timeSeconds: number,
+  blackHole: BlackHoleState,
+) {
+  const twinkle =
+    0.78 +
+    0.22 * Math.sin(timeSeconds * particle.twinkleSpeed + particle.twinklePhase);
+  const brightness = clamp(particle.alpha * twinkle + particle.flare * 0.35, 0.15, 1);
+  const color = spectralColor(particle.temperature);
 
-// Black-hole cycle timing (seconds)
-const BH_IDLE_MIN     = 12;  // wait before forming
-const BH_FORMING_DUR  = 4;   // warn / draw-in
-const BH_SINGULAR_DUR = 2;   // full collapse
-const BH_EXPLODE_DUR  = 1.2; // outward burst
-const BH_SETTLE_DUR   = 5;   // drift back
+  const dx = particle.x - blackHole.cx;
+  const dy = particle.y - blackHole.cy;
+  const dist = Math.hypot(dx, dy);
+  const lensT =
+    blackHole.glowAlpha > 0.01
+      ? clamp(1 - dist / Math.max(blackHole.diskR, 1), 0, 1) * blackHole.glowAlpha
+      : 0;
+
+  const renderX = particle.x + (dx / Math.max(dist, 1)) * lensT * 7 * particle.depth;
+  const renderY = particle.y + (dy / Math.max(dist, 1)) * lensT * 7 * particle.depth;
+  const glowRadius = particle.radius * (3.4 + particle.depth * 2.1) + particle.flare * 7;
+  const coreRadius = particle.radius * (0.9 + particle.flare * 0.4);
+
+  const glow = ctx.createRadialGradient(renderX, renderY, 0, renderX, renderY, glowRadius);
+  glow.addColorStop(0, `rgba(${color.r},${color.g},${color.b},${brightness})`);
+  glow.addColorStop(0.35, `rgba(${color.r},${color.g},${color.b},${brightness * 0.28})`);
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(renderX, renderY, glowRadius, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = `rgba(${color.r},${color.g},${color.b},${brightness})`;
+  ctx.beginPath();
+  ctx.arc(renderX, renderY, coreRadius, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (particle.radius > 1.2 || particle.flare > 0.08) {
+    const spikeAlpha = brightness * (0.24 + particle.flare * 0.18);
+    const spikeLength = glowRadius * 1.8;
+    ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${spikeAlpha})`;
+    ctx.lineWidth = Math.max(0.7, particle.radius * 0.22);
+    ctx.beginPath();
+    ctx.moveTo(renderX - spikeLength, renderY);
+    ctx.lineTo(renderX + spikeLength, renderY);
+    ctx.moveTo(renderX, renderY - spikeLength);
+    ctx.lineTo(renderX, renderY + spikeLength);
+    ctx.stroke();
+  }
+}
+
+function drawBlackHole(
+  ctx: CanvasRenderingContext2D,
+  bh: BlackHoleState,
+  timeSeconds: number,
+) {
+  if (bh.glowAlpha <= 0.01) return;
+
+  const halo = ctx.createRadialGradient(bh.cx, bh.cy, bh.ringR * 0.15, bh.cx, bh.cy, bh.diskR * 1.55);
+  halo.addColorStop(0, `rgba(0,0,0,${Math.min(0.98, bh.glowAlpha * 1.7)})`);
+  halo.addColorStop(0.18, `rgba(12,12,20,${bh.glowAlpha * 0.95})`);
+  halo.addColorStop(0.46, `rgba(42,20,84,${bh.glowAlpha * 0.46})`);
+  halo.addColorStop(0.7, `rgba(20,90,160,${bh.glowAlpha * 0.16})`);
+  halo.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath();
+  ctx.arc(bh.cx, bh.cy, bh.diskR * 1.55, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(bh.cx, bh.cy);
+  ctx.rotate(timeSeconds * 0.18);
+  ctx.scale(1, 0.35);
+
+  const diskOuter = Math.max(bh.diskR, bh.ringR * 1.5);
+  const diskInner = Math.max(bh.ringR * 0.9, 18);
+  const diskGradient = ctx.createRadialGradient(0, 0, diskInner, 0, 0, diskOuter);
+  diskGradient.addColorStop(0, `rgba(255,245,220,${bh.glowAlpha * 0.6})`);
+  diskGradient.addColorStop(0.22, `rgba(255,180,120,${bh.glowAlpha * 0.75})`);
+  diskGradient.addColorStop(0.48, `rgba(255,118,54,${bh.glowAlpha * 0.62})`);
+  diskGradient.addColorStop(0.72, `rgba(74,154,255,${bh.glowAlpha * 0.26})`);
+  diskGradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+  ctx.fillStyle = diskGradient;
+  ctx.beginPath();
+  ctx.arc(0, 0, diskOuter, 0, Math.PI * 2);
+  ctx.arc(0, 0, diskInner, 0, Math.PI * 2, true);
+  ctx.fill('evenodd');
+
+  ctx.strokeStyle = `rgba(255,240,210,${bh.glowAlpha * 0.85})`;
+  ctx.lineWidth = 3.2;
+  ctx.beginPath();
+  ctx.arc(0, 0, bh.ringR, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = `rgba(120,195,255,${bh.glowAlpha * 0.25})`;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, diskOuter * 0.8, Math.PI * 0.08, Math.PI * 1.2);
+  ctx.stroke();
+
+  ctx.restore();
+
+  ctx.fillStyle = `rgba(0,0,0,${Math.min(1, bh.glowAlpha * 1.6)})`;
+  ctx.beginPath();
+  ctx.arc(bh.cx, bh.cy, bh.ringR * 0.82, 0, Math.PI * 2);
+  ctx.fill();
+}
 
 export default function ParticleConstellation() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stateRef  = useRef<{
-    particles:  Particle[];
-    mouse:      { x: number; y: number; inside: boolean };
-    raf:        number;
-    lastTime:   number;
-    novaTimer:  number;
-    bh:         BlackHoleState;
-  } | null>(null);
+  const stateRef = useRef<SceneState | null>(null);
 
   const resize = useCallback(() => {
     const canvas = canvasRef.current;
+    const state = stateRef.current;
     if (!canvas) return;
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width  = window.innerWidth  * dpr;
-    canvas.height = window.innerHeight * dpr;
-    canvas.style.width  = `${window.innerWidth}px`;
-    canvas.style.height = `${window.innerHeight}px`;
+
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+
     const ctx = canvas.getContext('2d');
-    if (ctx) ctx.scale(dpr, dpr);
+    if (ctx) {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    if (!state) return;
+
+    const scaleX = state.width > 0 ? width / state.width : 1;
+    const scaleY = state.height > 0 ? height / state.height : 1;
+
+    state.width = width;
+    state.height = height;
+    state.bh.cx *= scaleX;
+    state.bh.cy *= scaleY;
+
+    for (const particle of state.particles) {
+      particle.x *= scaleX;
+      particle.y *= scaleY;
+      particle.ox *= scaleX;
+      particle.oy *= scaleY;
+    }
   }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    resize();
-
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, () =>
-      makeParticle(w, h)
-    );
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
     stateRef.current = {
-      particles,
-      mouse: { x: -999, y: -999, inside: false },
-      raf:   0,
+      particles: Array.from({ length: PARTICLE_COUNT }, () => makeParticle(width, height)),
+      mouse: { x: -9999, y: -9999, inside: false },
+      raf: 0,
       lastTime: performance.now(),
-      novaTimer: 0,
+      width,
+      height,
       bh: {
         phase: 'idle',
         timer: 0,
-        cx: w / 2,
-        cy: h / 2,
+        triggerAfter: BH_IDLE_MIN + rand(2, 8),
+        cx: width * 0.58,
+        cy: height * 0.42,
         pullForce: 0,
+        spinForce: 0,
         glowAlpha: 0,
         ringR: 0,
+        diskR: 0,
       },
     };
 
-    // Mouse tracking
-    const onMouseMove = (e: MouseEvent) => {
-      if (!stateRef.current) return;
-      stateRef.current.mouse.x = e.clientX;
-      stateRef.current.mouse.y = e.clientY;
-      stateRef.current.mouse.inside = true;
+    resize();
+
+    const onMouseMove = (event: MouseEvent) => {
+      const state = stateRef.current;
+      if (!state) return;
+      state.mouse.x = event.clientX;
+      state.mouse.y = event.clientY;
+      state.mouse.inside = true;
     };
+
     const onMouseLeave = () => {
-      if (!stateRef.current) return;
-      stateRef.current.mouse.inside = false;
+      const state = stateRef.current;
+      if (!state) return;
+      state.mouse.inside = false;
     };
 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     document.addEventListener('mouseleave', onMouseLeave);
 
-    // ── Main render loop ─────────────────────────────────────────────────────
-    function draw(ts: number) {
-      const s = stateRef.current;
-      if (!s) return;
+    const draw = (ts: number) => {
+      const state = stateRef.current;
+      const ctx = canvas.getContext('2d');
+      if (!state || !ctx) return;
 
-      const dt = Math.min((ts - s.lastTime) / 1000, 0.05); // cap at 50 ms
-      s.lastTime = ts;
-      s.novaTimer += dt;
-      s.bh.timer  += dt;
+      const dt = Math.min((ts - state.lastTime) / 1000, 0.05);
+      state.lastTime = ts;
 
-      const ctx = canvas!.getContext('2d');
-      if (!ctx) return;
+      const { bh } = state;
+      bh.timer += dt;
 
-      const cw = window.innerWidth;
-      const ch = window.innerHeight;
-
-      ctx.clearRect(0, 0, cw, ch);
-
-      // ── Black-hole phase machine ──────────────────────────────────────────
-      const bh = s.bh;
       switch (bh.phase) {
         case 'idle':
+          bh.pullForce = 0;
+          bh.spinForce = 0;
           bh.glowAlpha = 0;
           bh.ringR = 0;
-          bh.pullForce = 0;
-          if (bh.timer > BH_IDLE_MIN + rand(0, 8)) {
+          bh.diskR = 0;
+          if (bh.timer >= bh.triggerAfter) {
             bh.phase = 'forming';
             bh.timer = 0;
-            bh.cx = rand(cw * 0.3, cw * 0.7);
-            bh.cy = rand(ch * 0.3, ch * 0.7);
-            // Save current positions as origin for settling
-            for (const p of s.particles) { p.ox = p.x; p.oy = p.y; }
+            bh.cx = rand(state.width * 0.34, state.width * 0.68);
+            bh.cy = rand(state.height * 0.26, state.height * 0.62);
+            for (const particle of state.particles) {
+              particle.ox = particle.x;
+              particle.oy = particle.y;
+            }
           }
           break;
 
         case 'forming': {
-          const t = Math.min(bh.timer / BH_FORMING_DUR, 1);
-          bh.pullForce  = t * 220;
-          bh.glowAlpha  = t * 0.55;
-          bh.ringR      = t * 80;
-          if (bh.timer > BH_FORMING_DUR) {
+          const t = clamp(bh.timer / BH_FORMING_DUR, 0, 1);
+          bh.pullForce = lerp(4000, 42000, t);
+          bh.spinForce = lerp(220, 1400, t);
+          bh.glowAlpha = lerp(0.08, 0.72, t);
+          bh.ringR = lerp(12, 42, t);
+          bh.diskR = lerp(42, 170, t);
+          if (t >= 1) {
             bh.phase = 'singularity';
             bh.timer = 0;
           }
@@ -204,269 +355,200 @@ export default function ParticleConstellation() {
         }
 
         case 'singularity': {
-          const t = Math.min(bh.timer / BH_SINGULAR_DUR, 1);
-          bh.pullForce  = 420 + t * 300;
-          bh.glowAlpha  = 0.55 + t * 0.40;
-          bh.ringR      = 80 + t * 40;
-          if (bh.timer > BH_SINGULAR_DUR) {
+          const t = clamp(bh.timer / BH_SINGULAR_DUR, 0, 1);
+          bh.pullForce = lerp(52000, 130000, t);
+          bh.spinForce = lerp(1600, 4200, t);
+          bh.glowAlpha = lerp(0.78, 1, t);
+          bh.ringR = lerp(44, 72, t);
+          bh.diskR = lerp(180, 250, t);
+          if (t >= 1) {
             bh.phase = 'exploding';
             bh.timer = 0;
-            // Trigger explosion: reverse velocity for all particles
-            for (const p of s.particles) {
-              const angle = Math.atan2(p.y - bh.cy, p.x - bh.cx);
-              const spd   = rand(200, 480);
-              p.vx = Math.cos(angle) * spd;
-              p.vy = Math.sin(angle) * spd;
-              p.nova = 1.0;
+            for (const particle of state.particles) {
+              const angle = Math.atan2(particle.y - bh.cy, particle.x - bh.cx);
+              const speed = rand(180, 440);
+              const tangent = rand(-0.7, 0.7);
+              particle.vx = Math.cos(angle) * speed - Math.sin(angle) * tangent * speed * 0.2;
+              particle.vy = Math.sin(angle) * speed + Math.cos(angle) * tangent * speed * 0.2;
+              particle.flare = 1;
             }
           }
           break;
         }
 
         case 'exploding': {
-          const t = Math.min(bh.timer / BH_EXPLODE_DUR, 1);
-          bh.pullForce  = 0;
-          bh.glowAlpha  = (1 - t) * 0.95;
-          bh.ringR      = 120 + t * 180;
-          if (bh.timer > BH_EXPLODE_DUR) {
+          const t = clamp(bh.timer / BH_EXPLODE_DUR, 0, 1);
+          bh.pullForce = 0;
+          bh.spinForce = 0;
+          bh.glowAlpha = lerp(1, 0, t);
+          bh.ringR = lerp(74, 26, t);
+          bh.diskR = lerp(260, 320, t);
+          if (t >= 1) {
             bh.phase = 'settling';
             bh.timer = 0;
-            // Record new settle targets
-            for (const p of s.particles) {
-              p.ox = rand(0, cw);
-              p.oy = rand(0, ch);
+            for (const particle of state.particles) {
+              particle.ox = rand(0, state.width);
+              particle.oy = rand(0, state.height);
             }
           }
           break;
         }
 
         case 'settling': {
-          const t = Math.min(bh.timer / BH_SETTLE_DUR, 1);
-          bh.pullForce  = 0;
-          bh.glowAlpha  = 0;
-          bh.ringR      = 0;
-          // Gentle drift toward new targets
-          for (const p of s.particles) {
-            const ease = 0.8 * t;
-            p.vx += (p.ox - p.x) * ease * dt;
-            p.vy += (p.oy - p.y) * ease * dt;
+          const t = clamp(bh.timer / BH_SETTLE_DUR, 0, 1);
+          bh.pullForce = 0;
+          bh.spinForce = 0;
+          bh.glowAlpha = 0;
+          bh.ringR = 0;
+          bh.diskR = 0;
+
+          for (const particle of state.particles) {
+            particle.vx += (particle.ox - particle.x) * dt * (0.52 + t * 0.18);
+            particle.vy += (particle.oy - particle.y) * dt * (0.52 + t * 0.18);
           }
-          if (bh.timer > BH_SETTLE_DUR) {
+
+          if (t >= 1) {
             bh.phase = 'idle';
             bh.timer = 0;
+            bh.triggerAfter = BH_IDLE_MIN + rand(2, 8);
           }
           break;
         }
       }
 
-      // ── Draw black-hole event horizon & accretion disk ────────────────────
-      if (bh.glowAlpha > 0.01) {
-        // Core singularity glow
-        const singGrd = ctx.createRadialGradient(bh.cx, bh.cy, 0, bh.cx, bh.cy, bh.ringR * 2.5);
-        singGrd.addColorStop(0,   `rgba(0,0,0,${Math.min(0.98, bh.glowAlpha * 1.6)})`);
-        singGrd.addColorStop(0.3, `rgba(20,0,60,${bh.glowAlpha * 0.8})`);
-        singGrd.addColorStop(0.6, `rgba(60,20,120,${bh.glowAlpha * 0.5})`);
-        singGrd.addColorStop(0.9, `rgba(200,152,26,${bh.glowAlpha * 0.25})`);
-        singGrd.addColorStop(1,   'transparent');
-        ctx.beginPath();
-        ctx.arc(bh.cx, bh.cy, bh.ringR * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = singGrd;
-        ctx.fill();
+      ctx.clearRect(0, 0, state.width, state.height);
 
-        // Event horizon ring
-        if (bh.ringR > 2) {
+      const timeSeconds = ts * 0.001;
+      drawBlackHole(ctx, bh, timeSeconds);
+
+      for (const particle of state.particles) {
+        const dx = bh.cx - particle.x;
+        const dy = bh.cy - particle.y;
+        const dist2 = dx * dx + dy * dy;
+        const dist = Math.sqrt(dist2);
+
+        if (bh.pullForce > 0 && dist > 0.0001) {
+          const invDist = 1 / dist;
+          const gravity = bh.pullForce / (dist2 + SOFTENING);
+          const tangentX = -dy * invDist;
+          const tangentY = dx * invDist;
+          const spin = bh.spinForce / Math.max(dist, 24);
+
+          particle.vx += dx * invDist * gravity * dt;
+          particle.vy += dy * invDist * gravity * dt;
+          particle.vx += tangentX * spin * dt;
+          particle.vy += tangentY * spin * dt;
+
+          if (bh.phase === 'singularity' && dist < bh.ringR * 1.6) {
+            particle.flare = Math.max(particle.flare, clamp(1 - dist / (bh.ringR * 1.6), 0, 1));
+          }
+        }
+
+        if (state.mouse.inside) {
+          const mouseDx = state.mouse.x - particle.x;
+          const mouseDy = state.mouse.y - particle.y;
+          const mouseDist2 = mouseDx * mouseDx + mouseDy * mouseDy;
+          if (mouseDist2 < CURSOR_RADIUS * CURSOR_RADIUS && mouseDist2 > 4) {
+            const mouseDist = Math.sqrt(mouseDist2);
+            const strength = (1 - mouseDist / CURSOR_RADIUS) * CURSOR_FORCE * particle.depth;
+            particle.vx += (mouseDx / mouseDist) * strength * dt;
+            particle.vy += (mouseDy / mouseDist) * strength * dt;
+          }
+        }
+
+        if (Math.random() < dt * 0.12 && bh.phase !== 'forming' && bh.phase !== 'singularity') {
+          particle.flare = Math.max(particle.flare, rand(0.12, 0.38));
+        }
+
+        const maxSpeed =
+          bh.phase === 'exploding'
+            ? MAX_EXPLOSION_SPEED
+            : bh.phase === 'forming' || bh.phase === 'singularity'
+              ? MAX_SINGULARITY_SPEED
+              : MAX_IDLE_SPEED;
+        const speed = Math.hypot(particle.vx, particle.vy);
+        if (speed > maxSpeed) {
+          const scale = maxSpeed / speed;
+          particle.vx *= scale;
+          particle.vy *= scale;
+        }
+
+        const damping =
+          bh.phase === 'exploding'
+            ? 0.2
+            : bh.phase === 'settling'
+              ? 1.25
+              : 0.55 + (1 - particle.depth) * 0.45;
+        particle.vx *= 1 - dt * damping;
+        particle.vy *= 1 - dt * damping;
+
+        if (bh.phase === 'idle') {
+          particle.vx += Math.cos(timeSeconds * 0.22 + particle.twinklePhase) * dt * 1.4 * particle.depth;
+          particle.vy += Math.sin(timeSeconds * 0.18 + particle.twinklePhase) * dt * 1.1 * particle.depth;
+        }
+
+        particle.x += particle.vx * dt;
+        particle.y += particle.vy * dt;
+        particle.flare = Math.max(0, particle.flare - dt * 0.7);
+
+        if (bh.phase !== 'forming' && bh.phase !== 'singularity') {
+          if (particle.x < -EDGE_WRAP) particle.x = state.width + EDGE_WRAP;
+          if (particle.x > state.width + EDGE_WRAP) particle.x = -EDGE_WRAP;
+          if (particle.y < -EDGE_WRAP) particle.y = state.height + EDGE_WRAP;
+          if (particle.y > state.height + EDGE_WRAP) particle.y = -EDGE_WRAP;
+        }
+
+        drawStar(ctx, particle, timeSeconds, bh);
+
+        if ((bh.phase === 'forming' || bh.phase === 'singularity' || bh.phase === 'exploding') && speed > 28) {
+          const trailAlpha =
+            clamp((speed / maxSpeed) * 0.22, 0.04, 0.2) *
+            (bh.phase === 'exploding' ? 1 : 0.75);
+          const color = spectralColor(particle.temperature);
+          ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${trailAlpha})`;
+          ctx.lineWidth = Math.max(0.5, particle.radius * 0.28);
           ctx.beginPath();
-          ctx.arc(bh.cx, bh.cy, bh.ringR, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(200,152,26,${bh.glowAlpha * 0.9})`;
-          ctx.lineWidth = 2.5;
-          ctx.stroke();
-
-          // Inner bright ring
-          ctx.beginPath();
-          ctx.arc(bh.cx, bh.cy, bh.ringR * 0.55, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255,255,255,${bh.glowAlpha * 0.7})`;
-          ctx.lineWidth = 1.5;
+          ctx.moveTo(particle.x, particle.y);
+          ctx.lineTo(particle.x - particle.vx * dt * 0.08, particle.y - particle.vy * dt * 0.08);
           ctx.stroke();
         }
       }
 
-      // Spontaneous nova — ~every 2.5 s a random particle bursts (only in idle/settling)
-      if ((bh.phase === 'idle' || bh.phase === 'settling') && s.novaTimer > 2.5) {
-        s.novaTimer = 0;
-        const p = s.particles[Math.floor(Math.random() * s.particles.length)];
-        p.nova = 1.0;
-      }
-
-      const { x: mx, y: my, inside } = s.mouse;
-
-      // ── Update + draw particles ────────────────────────────────────────────
-      for (const p of s.particles) {
-        // Black-hole pull (forming / singularity phases)
-        if (bh.pullForce > 0) {
-          const dx = bh.cx - p.x;
-          const dy = bh.cy - p.y;
-          const dist2 = dx * dx + dy * dy;
-          if (dist2 > 1) {
-            const dist = Math.sqrt(dist2);
-            // Pull is stronger when closer (inverse-square-ish)
-            const strength = bh.pullForce / Math.max(1, dist * 0.18);
-            p.vx += (dx / dist) * strength * dt;
-            p.vy += (dy / dist) * strength * dt;
-          }
-        }
-
-        // Mouse gravity pull toward cursor (always active when mouse inside)
-        if (inside) {
-          const dx = mx - p.x;
-          const dy = my - p.y;
-          const dist2 = dx * dx + dy * dy;
-          if (dist2 < GRAVITY_RADIUS * GRAVITY_RADIUS && dist2 > 1) {
-            const dist = Math.sqrt(dist2);
-            const strength = (1 - dist / GRAVITY_RADIUS) * GRAVITY_FORCE;
-            p.vx += (dx / dist) * strength * dt;
-            p.vy += (dy / dist) * strength * dt;
-          }
-        }
-
-        // Speed limit (relaxed during explosion)
-        const maxSpd = bh.phase === 'exploding' ? 600 : 60;
-        const spd = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (spd > maxSpd) {
-          p.vx = (p.vx / spd) * maxSpd;
-          p.vy = (p.vy / spd) * maxSpd;
-        }
-
-        // Gentle damping (stronger in settling to slow down after explosion)
-        const damp = bh.phase === 'settling' ? 1.8 : 0.8;
-        p.vx *= 1 - dt * damp;
-        p.vy *= 1 - dt * damp;
-
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-
-        // Wrap around edges (skip wrap during singularity so particles disappear into core)
-        if (bh.phase !== 'singularity' && bh.phase !== 'forming') {
-          if (p.x < -20)     p.x = cw + 20;
-          if (p.x > cw + 20) p.x = -20;
-          if (p.y < -20)     p.y = ch + 20;
-          if (p.y > ch + 20) p.y = -20;
-        }
-
-        // Nova decay
-        if (p.nova > 0) p.nova = Math.max(0, p.nova - dt * 1.8);
-
-        // Breathing radius
-        const t = ts / 1000;
-        const breathe = 1 + 0.35 * Math.sin(t * p.speed + p.pulse);
-        const drawR = p.r * breathe + p.nova * 6;
-        const drawA = Math.min(1, p.alpha + p.nova * 0.6);
-
-        const { r, g, b } = p.col;
-
-        // During singularity, fade particles toward the black hole
-        let renderAlpha = drawA;
-        if (bh.phase === 'singularity' || bh.phase === 'forming') {
-          const dx = p.x - bh.cx;
-          const dy = p.y - bh.cy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          renderAlpha *= Math.min(1, dist / 40);
-        }
-
-        if (renderAlpha < 0.02) continue;
-
-        // Outer glow
-        const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, drawR * 4.5);
-        grd.addColorStop(0,   `rgba(${r},${g},${b},${renderAlpha})`);
-        grd.addColorStop(0.4, `rgba(${r},${g},${b},${renderAlpha * 0.4})`);
-        grd.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+      if (state.mouse.inside) {
+        const cursorGlow = ctx.createRadialGradient(state.mouse.x, state.mouse.y, 0, state.mouse.x, state.mouse.y, 110);
+        cursorGlow.addColorStop(0, 'rgba(255,255,255,0.06)');
+        cursorGlow.addColorStop(0.28, 'rgba(96,165,250,0.06)');
+        cursorGlow.addColorStop(0.58, 'rgba(245,158,11,0.035)');
+        cursorGlow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = cursorGlow;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, drawR * 4.5, 0, Math.PI * 2);
-        ctx.fillStyle = grd;
-        ctx.fill();
-
-        // Core dot
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, drawR, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${r},${g},${b},${renderAlpha})`;
+        ctx.arc(state.mouse.x, state.mouse.y, 110, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // ── Draw constellation connections (only when not in singularity) ──────
-      if (bh.phase !== 'singularity') {
-        const pts = s.particles;
-        for (let i = 0; i < pts.length; i++) {
-          for (let j = i + 1; j < pts.length; j++) {
-            const dx = pts[i].x - pts[j].x;
-            const dy = pts[i].y - pts[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > CONNECT_DIST) continue;
-
-            const fade = 1 - dist / CONNECT_DIST;
-            const lineA = fade * 0.28;
-
-            // Blend the two particle colors for the thread
-            const c1 = pts[i].col;
-            const c2 = pts[j].col;
-            const mr = (c1.r + c2.r) >> 1;
-            const mg = (c1.g + c2.g) >> 1;
-            const mb = (c1.b + c2.b) >> 1;
-
-            ctx.beginPath();
-            ctx.moveTo(pts[i].x, pts[i].y);
-            ctx.lineTo(pts[j].x, pts[j].y);
-            ctx.strokeStyle = `rgba(${mr},${mg},${mb},${lineA})`;
-            ctx.lineWidth = fade * 1.1;
-            ctx.stroke();
-          }
-        }
-      }
-
-      // ── Mouse cursor glow halo ─────────────────────────────────────────────
-      if (inside && mx > 0) {
-        const g2 = ctx.createRadialGradient(mx, my, 0, mx, my, 90);
-        g2.addColorStop(0,   'rgba(200,152,26,0.12)');
-        g2.addColorStop(0.5, 'rgba(56,189,248,0.06)');
-        g2.addColorStop(1,   'rgba(0,0,0,0)');
-        ctx.beginPath();
-        ctx.arc(mx, my, 90, 0, Math.PI * 2);
-        ctx.fillStyle = g2;
-        ctx.fill();
-      }
-
-      s.raf = requestAnimationFrame(draw);
-    }
+      state.raf = requestAnimationFrame(draw);
+    };
 
     stateRef.current.raf = requestAnimationFrame(draw);
 
-    // Resize handler
-    const onResize = () => {
-      resize();
-      // Re-seed out-of-bounds particles
-      const ww = window.innerWidth;
-      const wh = window.innerHeight;
-      if (stateRef.current) {
-        for (const p of stateRef.current.particles) {
-          if (p.x > ww) p.x = rand(0, ww);
-          if (p.y > wh) p.y = rand(0, wh);
-        }
-      }
-    };
-    window.addEventListener('resize', onResize);
-
-    // Pause when tab hidden (battery-friendly)
+    const onResize = () => resize();
     const onVisibilityChange = () => {
-      if (!stateRef.current) return;
+      const state = stateRef.current;
+      if (!state) return;
       if (document.hidden) {
-        cancelAnimationFrame(stateRef.current.raf);
+        cancelAnimationFrame(state.raf);
       } else {
-        stateRef.current.lastTime = performance.now();
-        stateRef.current.raf = requestAnimationFrame(draw);
+        state.lastTime = performance.now();
+        state.raf = requestAnimationFrame(draw);
       }
     };
+
+    window.addEventListener('resize', onResize);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
-      if (stateRef.current) cancelAnimationFrame(stateRef.current.raf);
+      const state = stateRef.current;
+      if (state) cancelAnimationFrame(state.raf);
       window.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseleave', onMouseLeave);
       window.removeEventListener('resize', onResize);
@@ -479,13 +561,13 @@ export default function ParticleConstellation() {
       ref={canvasRef}
       aria-hidden="true"
       style={{
-        position:      'absolute',
-        inset:          0,
-        width:         '100%',
-        height:        '100%',
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
         pointerEvents: 'none',
-        mixBlendMode:  'screen',
-        zIndex:         1,
+        mixBlendMode: 'screen',
+        zIndex: 1,
       }}
     />
   );
