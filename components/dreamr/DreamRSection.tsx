@@ -141,8 +141,10 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
   const [sent,       setSent]       = useState(false);
   const [mediaFile,  setMediaFile]  = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
-  const imgRef  = useRef<HTMLInputElement>(null);
+  const [audioFile,  setAudioFile]  = useState<File | null>(null);
+  const imgRef   = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
+  const audioRef = useRef<HTMLInputElement>(null);
 
   const charLimit = 500;
   const remaining = charLimit - content.length;
@@ -154,14 +156,21 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
     e.target.value = '';
   };
 
+  const handleAudio = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]; if (!f) return;
+    setAudioFile(f);
+    e.target.value = '';
+  };
+
   const handlePost = async () => {
     if (!content.trim() || sending) return;
     setSending(true);
     try {
       let mediaUrl: string | null = null;
-      // Upload media if present
-      if (mediaFile) {
-        const fd = new FormData(); fd.append('file', mediaFile);
+      // Upload media if present (image/video takes precedence over audio)
+      const uploadTarget = mediaFile ?? audioFile;
+      if (uploadTarget) {
+        const fd = new FormData(); fd.append('file', uploadTarget);
         const up = await fetch('/api/upload', { method: 'POST', body: fd });
         if (up.ok) { const d = await up.json(); mediaUrl = d.url ?? null; }
       }
@@ -171,10 +180,17 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
         body: JSON.stringify({ content, visibility: vis, media_url: mediaUrl }),
       });
       setSent(true);
-      setContent(''); setMediaFile(null); setMediaPreview(null);
+      setContent(''); setMediaFile(null); setMediaPreview(null); setAudioFile(null);
       setTimeout(() => setSent(false), 2500);
     } catch { /* non-critical */ }
     finally { setSending(false); }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      handlePost();
+    }
   };
 
   return (
@@ -203,6 +219,7 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
         <textarea
           value={content}
           onChange={e => setContent(e.target.value.slice(0, charLimit))}
+          onKeyDown={handleKeyDown}
           placeholder="What's on your mind? Share your human media…"
           rows={4}
           style={{
@@ -212,7 +229,8 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
             color: DR.text, lineHeight: 1.55,
           }}
         />
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+          <span style={{ fontSize: 10, color: DR.textDim, fontWeight: 500 }}>⌘↵ to post</span>
           <span style={{ fontSize: 11, color: remaining < 50 ? '#ef4444' : DR.textDim, fontWeight: 600 }}>
             {remaining}
           </span>
@@ -231,6 +249,23 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
         </div>
       )}
 
+      {/* Audio attachment preview */}
+      {audioFile && (
+        <div style={{ background: DR.bg, borderRadius: 12, boxShadow: nmRaised(3), padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg,${DR.skyLight},${DR.sky} 55%,${DR.gold})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Music size={14} color="#fff" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: DR.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{audioFile.name}</div>
+            <div style={{ fontSize: 10, color: DR.textDim, fontWeight: 500 }}>Audio track attached</div>
+          </div>
+          <button
+            type="button" onClick={() => setAudioFile(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: DR.textDim, fontSize: 16, padding: 4 }}
+          >×</button>
+        </div>
+      )}
+
       {/* Toolbar row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         {/* Media buttons */}
@@ -244,6 +279,13 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
             <input ref={ref} type="file" accept={accept} style={{ display: 'none' }} onChange={e => handleMedia(e, type)} />
           </button>
         ))}
+
+        {/* Audio button — for StarMaker tracks */}
+        <button type="button" onClick={() => audioRef.current?.click()}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 99, background: audioFile ? `linear-gradient(135deg,${DR.skyLight},${DR.sky})` : DR.bg, border: 'none', boxShadow: audioFile ? `0 3px 12px rgba(91,168,212,0.30)` : nmRaised(3), cursor: 'pointer', fontFamily: DR.font, fontSize: 12, fontWeight: 600, color: audioFile ? '#fff' : DR.textDim }}>
+          <Music size={15} />Audio
+          <input ref={audioRef} type="file" accept="audio/*" style={{ display: 'none' }} onChange={handleAudio} />
+        </button>
 
         {/* Visibility */}
         <select
