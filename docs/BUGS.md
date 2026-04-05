@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-05 02:05 UTC  
-**Triggered by commit:** `8140ce4` on `copilot/fix-app-logout-behavior` by Copilot  
-**Commit message:** fix: close whole app on runtime crash or logout from either runtime
+**Last updated:** 2026-04-05 01:56 UTC  
+**Triggered by commit:** `fe925e3` on `copilot/fix-button-size-and-video-screen` by Copilot  
+**Commit message:** fix: server error graceful auth, iPad bigger buttons, landscape black BG
 
 ---
 
