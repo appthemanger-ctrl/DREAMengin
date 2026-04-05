@@ -57,8 +57,19 @@ import {
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import {
+  type PianoRollState,
+  type CompingState,
+  type SessionViewState,
+  PIANO_ROLL_DEFAULTS,
+  createInitialCompingState,
+  createInitialSessionView,
+} from '@/lib/music/starmakerDaw';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
 import MultitrackArrangementPanel from '@/components/daydream/starmaker/MultitrackArrangementPanel';
+import PianoRollPanel from '@/components/daydream/starmaker/PianoRollPanel';
+import CompingPanel from '@/components/daydream/starmaker/CompingPanel';
+import SessionViewPanel from '@/components/daydream/starmaker/SessionViewPanel';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -468,6 +479,15 @@ export default function StarMakerEngin({ onBack }: Props) {
     blob: Blob; name: string; mimeType: string;
   } | null>(null);
 
+  // ── Piano Roll state ──
+  const [pianoRollState, setPianoRollState] = useState<PianoRollState>(PIANO_ROLL_DEFAULTS);
+
+  // ── Comping / Takes state ──
+  const [compingState, setCompingState] = useState<CompingState>(() => createInitialCompingState(3));
+
+  // ── Session View state ──
+  const [sessionViewState, setSessionViewState] = useState<SessionViewState>(createInitialSessionView);
+
   const effectList = useMemo(() => Array.from(activeEffects), [activeEffects]);
 
   const playbackProfile = useMemo(() => summarizePlaybackProfile({
@@ -857,6 +877,26 @@ export default function StarMakerEngin({ onBack }: Props) {
           activeEffects={activeEffects}
           onMixerChange={handleMixerChange}
           onToggleEffect={toggleEffect}
+        />
+
+        {/* ── Piano Roll MIDI Editor ── */}
+        <PianoRollPanel
+          state={pianoRollState}
+          bpm={bpm}
+          onStateChange={setPianoRollState}
+        />
+
+        {/* ── Session View (Ableton-style clip launcher) ── */}
+        <SessionViewPanel
+          state={sessionViewState}
+          bpm={bpm}
+          onStateChange={setSessionViewState}
+        />
+
+        {/* ── Comping / Takes Manager (Pro Tools-style) ── */}
+        <CompingPanel
+          state={compingState}
+          onStateChange={setCompingState}
         />
 
         {/* Key / Pitch */}

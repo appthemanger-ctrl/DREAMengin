@@ -40,6 +40,7 @@ const FEATURES = [
     color: '#ec4899',
     bg: 'rgba(236,72,153,0.08)',
     border: 'rgba(236,72,153,0.18)',
+    href: '/daydream/music',
   },
   {
     emoji: '🎮',
@@ -48,6 +49,7 @@ const FEATURES = [
     color: '#6366f1',
     bg: 'rgba(99,102,241,0.08)',
     border: 'rgba(99,102,241,0.18)',
+    href: '/daydream/games',
   },
   {
     emoji: '💻',
@@ -56,6 +58,7 @@ const FEATURES = [
     color: '#0ea5e9',
     bg: 'rgba(14,165,233,0.08)',
     border: 'rgba(14,165,233,0.18)',
+    href: '/daydream/code',
   },
   {
     emoji: '🎨',
@@ -64,6 +67,34 @@ const FEATURES = [
     color: '#c8981a',
     bg: 'rgba(200,152,26,0.08)',
     border: 'rgba(200,152,26,0.22)',
+    href: '/daydream/brand',
+  },
+  {
+    emoji: '🔬',
+    title: 'Lab Daydream',
+    desc: 'Quantum circuits, data experiments, and deep visualizations.',
+    color: '#10b981',
+    bg: 'rgba(16,185,129,0.08)',
+    border: 'rgba(16,185,129,0.18)',
+    href: '/daydream/lab',
+  },
+  {
+    emoji: '✨',
+    title: 'Create Daydream',
+    desc: 'Content editor, publish queue, and scheduling calendar.',
+    color: '#f97316',
+    bg: 'rgba(249,115,22,0.08)',
+    border: 'rgba(249,115,22,0.18)',
+    href: '/daydream/create',
+  },
+  {
+    emoji: '⚡',
+    title: 'Forge Daydream',
+    desc: 'Build and launch your creative projects end-to-end.',
+    color: '#8b5cf6',
+    bg: 'rgba(139,92,246,0.08)',
+    border: 'rgba(139,92,246,0.18)',
+    href: '/daydream/forge',
   },
 ];
 
@@ -455,53 +486,56 @@ export default function LandingHero() {
           Seven Daydream Surfaces
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-3">
           {FEATURES.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.58 + i * 0.06, duration: 0.35, ease: [0, 0, 0.2, 1] }}
-              className="rounded-2xl p-4 flex flex-col gap-2 transition-all duration-200"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: `1px solid ${f.border}`,
-                backdropFilter: 'blur(14px)',
-                WebkitBackdropFilter: 'blur(14px)',
-                cursor: 'default',
-              }}
-              whileHover={{
-                scale: 1.03,
-                borderColor: f.color,
-                boxShadow: `0 8px 32px ${f.bg}`,
-              }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <span
-                className="text-2xl"
-                role="img"
-                aria-label={f.title}
+            <Link key={f.title} href={f.href} style={{ textDecoration: 'none' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.58 + i * 0.05, duration: 0.32, ease: [0, 0, 0.2, 1] }}
+                className="rounded-2xl p-4 flex flex-col gap-2 h-full transition-all duration-200"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${f.border}`,
+                  backdropFilter: 'blur(14px)',
+                  WebkitBackdropFilter: 'blur(14px)',
+                  cursor: 'pointer',
+                  minHeight: 120,
+                }}
+                whileHover={{
+                  scale: 1.04,
+                  borderColor: f.color,
+                  boxShadow: `0 8px 32px ${f.bg}, 0 0 0 1px ${f.color}40`,
+                  background: `rgba(255,255,255,0.065)`,
+                }}
+                whileTap={{ scale: 0.97 }}
               >
-                {f.emoji}
-              </span>
-              <div
-                className="text-sm font-bold leading-tight"
-                style={{ color: 'rgba(210,230,255,0.90)' }}
-              >
-                {f.title}
-              </div>
-              <div
-                className="text-xs leading-relaxed"
-                style={{ color: 'rgba(140,170,220,0.60)' }}
-              >
-                {f.desc}
-              </div>
-              <div
-                className="mt-1 h-0.5 rounded-full"
-                style={{ background: f.color, opacity: 0.35, width: '40%' }}
-                aria-hidden="true"
-              />
-            </motion.div>
+                <span
+                  className="text-2xl"
+                  role="img"
+                  aria-label={f.title}
+                >
+                  {f.emoji}
+                </span>
+                <div
+                  className="text-sm font-bold leading-tight"
+                  style={{ color: 'rgba(210,230,255,0.90)' }}
+                >
+                  {f.title}
+                </div>
+                <div
+                  className="text-xs leading-relaxed xl:hidden"
+                  style={{ color: 'rgba(140,170,220,0.60)' }}
+                >
+                  {f.desc}
+                </div>
+                <div
+                  className="mt-auto h-0.5 rounded-full"
+                  style={{ background: f.color, opacity: 0.45, width: '40%' }}
+                  aria-hidden="true"
+                />
+              </motion.div>
+            </Link>
           ))}
         </div>
 

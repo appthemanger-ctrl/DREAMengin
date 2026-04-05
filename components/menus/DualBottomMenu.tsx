@@ -36,13 +36,13 @@ type Props = {
 /* ── Data ───────────────────────────────────────────────────────────────────── */
 
 /** Left panel: the 6 Daydreams (spec §7.2 domain list) */
-const DAYDREAM_ITEMS: Array<{ icon: string; label: string; route: string }> = [
-  { icon: '🎵', label: 'Music',  route: '/daydream/music'  },
-  { icon: '🎮', label: 'Games',  route: '/daydream/games'  },
-  { icon: '🔬', label: 'Lab',    route: '/daydream/lab'    },
-  { icon: '💻', label: 'Code',   route: '/daydream/code'   },
-  { icon: '🎨', label: 'Brand',  route: '/daydream/brand'  },
-  { icon: '✨', label: 'Create', route: '/daydream/create' },
+const DAYDREAM_ITEMS: Array<{ icon: string; label: string; route: string; color: string }> = [
+  { icon: '🎵', label: 'Music',  route: '/daydream/music',  color: '#ec4899' },
+  { icon: '🎮', label: 'Games',  route: '/daydream/games',  color: '#6366f1' },
+  { icon: '🔬', label: 'Lab',    route: '/daydream/lab',    color: '#10b981' },
+  { icon: '💻', label: 'Code',   route: '/daydream/code',   color: '#0ea5e9' },
+  { icon: '🎨', label: 'Brand',  route: '/daydream/brand',  color: '#c8981a' },
+  { icon: '✨', label: 'Create', route: '/daydream/create', color: '#f97316' },
 ];
 
 /** Right panel: standard app menu functions + Dr. Eams (spec §17.3) */
@@ -63,11 +63,13 @@ function PanelItem({
   label,
   onClick,
   accent,
+  dotColor,
 }: {
   icon: string;
   label: string;
   onClick: () => void;
   accent?: string;
+  dotColor?: string;
 }) {
   return (
     <button
@@ -90,10 +92,24 @@ function PanelItem({
         minHeight: 52,
         touchAction: 'manipulation',
       }}
-      onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(42,138,184,0.10)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.975)'; }}
+      onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.background = dotColor ? `${dotColor}14` : 'rgba(42,138,184,0.10)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.975)'; }}
       onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.32)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
       onPointerLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.32)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
     >
+      {/* Accent dot for daydream items */}
+      {dotColor && (
+        <span
+          aria-hidden="true"
+          style={{
+            flexShrink: 0,
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: dotColor,
+            boxShadow: `0 0 6px ${dotColor}80`,
+          }}
+        />
+      )}
       <span style={{ fontSize: 18, width: 26, textAlign: 'center', flexShrink: 0, filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.08))' }}>{icon}</span>
       <span style={{ fontSize: 15, fontWeight: 600, color: accent ?? 'var(--de-heading)', lineHeight: 1.2, letterSpacing: '-0.01em' }}>{label}</span>
     </button>
@@ -205,6 +221,7 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
               key={item.route}
               icon={item.icon}
               label={item.label}
+              dotColor={item.color}
               onClick={() => { onClose(); router.push(item.route); }}
             />
           ))}
