@@ -25,7 +25,7 @@ export default function EnginNavBar({ items, accentColor }: EnginNavBarProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex items-center gap-1 overflow-x-auto scrollbar-none">
+    <nav className="de-engin-navbar flex items-center gap-1 overflow-x-auto scrollbar-none" style={{ WebkitOverflowScrolling: 'touch' }}>
       {items.map((item) => {
         // Active: exact match or pathname starts with href (for sub-paths)
         const isActive = pathname === item.href || pathname.startsWith(item.href + '/');

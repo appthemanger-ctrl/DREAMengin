@@ -331,11 +331,23 @@ export default function CommandPalette() {
 
   useEffect(() => { setSelectedIndex(0); }, [search]);
 
-  if (!isOpen) return null;
-
   let globalIndex = 0;
 
   return (
+    <>
+      {/* Mobile floating search button — visible on touch, always mounted */}
+      <button
+        type="button"
+        className="de-cmd-fab"
+        onClick={() => { setIsOpen(true); setSearch(''); setSelectedIndex(0); }}
+        aria-label="Open command search"
+        title="Search (⌘K)"
+      >
+        <Search style={{ width: 20, height: 20 }} />
+      </button>
+
+      {/* Command palette backdrop — only when open */}
+      {isOpen && (
     <div className="cmd-backdrop" onClick={() => setIsOpen(false)}>
       {/* Modal — stop propagation so clicks inside don't close */}
       <div className="cmd-modal" onClick={e => e.stopPropagation()} role="dialog" aria-label="Command palette" aria-modal="true">
@@ -429,5 +441,26 @@ export default function CommandPalette() {
         </div>
       </div>
     </div>
+      )}
+    </>
+  );
+}
+
+/**
+ * MobileCmdFab — floating search button visible only on touch devices.
+ * Renders a Search icon fixed at bottom-left above the DreamDM bar.
+ * Exported so CommandPalette can render it alongside the backdrop.
+ */
+export function MobileCmdFab({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className="de-cmd-fab"
+      onClick={onClick}
+      aria-label="Open command search"
+      title="Search (⌘K)"
+    >
+      <Search style={{ width: 20, height: 20 }} />
+    </button>
   );
 }

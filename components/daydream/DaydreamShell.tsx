@@ -152,6 +152,7 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
             whileHover={{ width: 80, height: 80 }}
             whileTap={{ scale: 0.92 }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+            className="de-daydream-engin-fold de-desktop-only"
             style={{
               position: 'fixed',
               bottom: 0,
@@ -169,26 +170,65 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
               padding: 0,
             }}
           />
-          <div style={{
-            position: 'fixed',
-            bottom: 20,
-            right: 84,
-            zIndex: 48,
-            fontSize: 10,
-            fontWeight: 800,
-            letterSpacing: '0.12em',
-            color: 'rgba(255,255,255,0.92)',
-            textShadow: '0 1px 8px rgba(0,0,0,0.45)',
-            pointerEvents: 'none',
-            padding: '8px 12px',
-            borderRadius: 999,
-            background: 'rgba(8,16,36,0.42)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.12)',
-          }}>
+          <div
+            className="de-desktop-only"
+            style={{
+              position: 'fixed',
+              bottom: 20,
+              right: 84,
+              zIndex: 48,
+              fontSize: 10,
+              fontWeight: 800,
+              letterSpacing: '0.12em',
+              color: 'rgba(255,255,255,0.92)',
+              textShadow: '0 1px 8px rgba(0,0,0,0.45)',
+              pointerEvents: 'none',
+              padding: '8px 12px',
+              borderRadius: 999,
+              background: 'rgba(8,16,36,0.42)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+            }}>
             ENGIN →
           </div>
+
+          {/* ── Mobile: prominent bottom-center ENGIN pill button ── */}
+          <motion.button
+            type="button"
+            onClick={flip}
+            aria-label={`Open ${enginName}`}
+            whileTap={{ scale: 0.93 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+            className="de-mobile-engin-pill"
+            style={{
+              position: 'fixed',
+              bottom: `max(100px, calc(92px + env(safe-area-inset-bottom, 0px)))`,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 48,
+              alignItems: 'center',
+              gap: 8,
+              padding: '11px 22px',
+              borderRadius: 9999,
+              cursor: 'pointer',
+              border: `1.5px solid ${accentColor}55`,
+              background: `linear-gradient(135deg, rgba(8,16,36,0.88), rgba(8,16,36,0.72))`,
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: `0 6px 28px rgba(0,0,0,0.30), 0 0 20px ${accentColor}28`,
+              fontSize: 12,
+              fontWeight: 800,
+              letterSpacing: '0.12em',
+              color: 'rgba(255,255,255,0.92)',
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation',
+            }}
+          >
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: accentColor, flexShrink: 0, boxShadow: `0 0 8px ${accentColor}` }} />
+            {enginName.toUpperCase()}
+            <span style={{ opacity: 0.55, fontSize: 11 }}>→</span>
+          </motion.button>
         </>
       )}
     </>

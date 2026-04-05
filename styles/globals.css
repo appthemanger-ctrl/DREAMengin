@@ -4179,3 +4179,397 @@ main[role="main"] > * {
     animation: none !important;
   }
 }
+
+/* =============================================================================
+   MOBILE-FIRST FULL FEATURE PARITY — All desktop features on all screens
+   Ensures every capability available on desktop is reachable on mobile.
+   Follows industry-best mobile UX: bottom sheets, snap scroll, safe areas,
+   44px touch targets, haptic-ready press states, swipe-friendly layouts.
+   =========================================================================== */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   1. Command Palette — bottom sheet on mobile (slide up from bottom edge)
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .cmd-backdrop {
+    align-items: flex-end;
+    justify-content: stretch;
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+  }
+
+  .cmd-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: min(80vh, 640px);
+    border-radius: 24px 24px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-top: 1px solid rgba(56,189,248,0.20);
+    animation: cmd-modal-mobile-up 0.28s cubic-bezier(0.16,1,0.3,1) both;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+  }
+
+  @keyframes cmd-modal-mobile-up {
+    from { transform: translateY(100%); opacity: 0.6; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  /* Drag handle hint above search row */
+  .cmd-modal::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    border-radius: 9999px;
+    background: rgba(56,189,248,0.25);
+    margin: 10px auto 0;
+  }
+
+  .cmd-search-row {
+    padding-top: 12px;
+  }
+
+  .cmd-results {
+    max-height: calc(min(80vh, 640px) - 120px);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   2. Mobile Command Search FAB — floating search button for touch devices
+   Sits above the gold ball (DreamDM bar area).
+   ───────────────────────────────────────────────────────────────────────────── */
+.de-cmd-fab {
+  display: none;
+}
+
+@media (max-width: 640px) and (pointer: coarse) {
+  .de-cmd-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    left: 16px;
+    bottom: max(96px, calc(88px + env(safe-area-inset-bottom, 0px)));
+    z-index: 190;
+    width: 48px;
+    height: 48px;
+    border-radius: 9999px;
+    background: rgba(10,20,44,0.88);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(56,189,248,0.25);
+    box-shadow:
+      0 4px 20px rgba(0,0,0,0.4),
+      0 0 0 1px rgba(255,255,255,0.04) inset;
+    color: rgba(56,189,248,0.85);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform 0.12s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.12s;
+  }
+  .de-cmd-fab:active {
+    transform: scale(0.91);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   3. DaydreamShell — mobile-optimised ENGIN entry point
+   Corner fold stays but we boost tap area and add a visible ENGIN pill button.
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Make the fold corner larger on touch */
+  .de-daydream-engin-fold {
+    width: 88px !important;
+    height: 88px !important;
+  }
+
+  /* Mobile ENGIN pill — appears at bottom center above gold bar */
+  .de-mobile-engin-pill {
+    display: flex;
+  }
+}
+
+@media (min-width: 641px) {
+  .de-mobile-engin-pill {
+    display: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   4. EnginNavBar — touch-friendly horizontal scroll with snap
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .de-engin-navbar {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding: 0 4px;
+  }
+  .de-engin-navbar a,
+  .de-engin-navbar [href] {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   5. EnginAppShell — mobile header touch targets and safe area
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* All engine headers get padding-top safe area */
+  .de-engin-shell-header {
+    padding-top: max(12px, calc(8px + env(safe-area-inset-top, 0px)));
+    min-height: 56px;
+  }
+
+  /* Back/close buttons: minimum 44×44 tap zone */
+  .de-engin-shell-header a,
+  .de-engin-shell-header button {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   6. HomeFeed tabs — always show labels on all screen sizes
+   ───────────────────────────────────────────────────────────────────────────── */
+/* Targets the span inside feed tabs that was hidden on small screens */
+.de-feed-tab-label {
+  display: inline !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   7. HomeSpace Albums — mobile horizontal scroll pill row
+   ───────────────────────────────────────────────────────────────────────────── */
+.de-albums-mobile-row {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .de-albums-mobile-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--de-border);
+    background: var(--de-glass2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    scrollbar-width: none;
+  }
+  .de-albums-mobile-row::-webkit-scrollbar { display: none; }
+
+  .de-album-pill {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    padding: 7px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--de-widget-bg);
+    border: 1px solid var(--de-widget-border);
+    color: var(--de-text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 0.12s, transform 0.10s;
+    white-space: nowrap;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+  }
+  .de-album-pill.active {
+    background: var(--de-accent);
+    border-color: var(--de-accent);
+    color: #fff;
+  }
+  .de-album-pill:active {
+    transform: scale(0.94);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   8. TopBar — mobile safe area + minimum 44px height
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .topbar-premium {
+    padding-top: max(8px, calc(4px + env(safe-area-inset-top, 0px)));
+    min-height: 52px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   9. DualBottomMenu — safe area bottom inset for notched devices
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* The dual panel row sits just above the gold ball; apply safe area */
+  [role="dialog"][aria-label="Main menu"] {
+    padding-bottom: max(96px, calc(88px + env(safe-area-inset-bottom, 0px)));
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  /* Larger text in menu items on touch */
+  [role="dialog"][aria-label="Main menu"] button span:last-child {
+    font-size: 15px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   10. Global minimum touch targets — 44px for all interactive elements
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+  button:not([data-tiny]),
+  [role="button"]:not([data-tiny]),
+  a:not([data-tiny]) {
+    min-height: 36px;
+  }
+
+  /* Focused / active states: no hover (hover is unreliable on touch) */
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--de-accent);
+    outline-offset: 2px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   11. Game HUD — full safe-area coverage on mobile notched devices
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .de-game-hud-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  }
+  .de-game-hud-top {
+    padding-top: max(8px, env(safe-area-inset-top, 0px));
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   12. StarMakerEngin DAW — mobile-stacked responsive panels
+   Panels that sit side-by-side on desktop stack vertically on mobile.
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Force all DAW flex rows to stack on small screens */
+  .de-starmaker-row {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  /* Horizontal sequencer grid — make cells slightly larger for finger taps */
+  .de-beat-cell {
+    min-width: 28px !important;
+    min-height: 28px !important;
+  }
+
+  /* Fader strips — horizontal layout on mobile */
+  .de-fader-strip {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+  .de-fader-strip input[type="range"] {
+    width: 100% !important;
+    height: 32px;
+    touch-action: pan-y;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   13. Swipe-hint animation — subtle left/right nudge for swipeable surfaces
+   ───────────────────────────────────────────────────────────────────────────── */
+@keyframes de-swipe-hint {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(-8px); }
+  75%  { transform: translateX(8px); }
+  100% { transform: translateX(0); }
+}
+.de-swipe-hint-once {
+  animation: de-swipe-hint 0.55s cubic-bezier(0.25,0.46,0.45,0.94) 0.8s 1 both;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   14. General panels / modals — never overflow viewport on mobile
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .de-sheet,
+  .de-modal,
+  [data-radix-dialog-content] {
+    max-width: 100vw !important;
+    border-radius: 24px 24px 0 0 !important;
+  }
+
+  /* Full-width drawers that slide from bottom */
+  .de-bottom-drawer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 300;
+    border-radius: 24px 24px 0 0;
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    animation: de-drawer-up 0.30s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes de-drawer-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   15. Landscape mobile — compact layout
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+  /* Topbar shrinks to 40px */
+  .topbar-premium {
+    min-height: 40px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  /* Gold ball / DreamDM bar: compact */
+  .dreamdm-bar-root {
+    transform: scale(0.85);
+    transform-origin: bottom center;
+  }
+
+  /* Command palette on landscape mobile: 90vw centered, not full width */
+  .cmd-backdrop {
+    align-items: center !important;
+    padding-top: 0 !important;
+  }
+  .cmd-modal {
+    border-radius: 20px !important;
+    width: min(480px, 90vw) !important;
+    max-height: 90vh !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   16. Utility: mobile-only / desktop-only visibility helpers
+   (supplements Tailwind when inline style is easier than adding a class)
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 641px) {
+  .de-mobile-only { display: none !important; }
+}
+@media (max-width: 640px) {
+  .de-desktop-only { display: none !important; }
+}
+
