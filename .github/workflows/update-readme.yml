@@ -15,13 +15,14 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout (Full History for Changelog)
-        uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Changed to 0 to ensure the script can read the last 10 commits
+          fetch-depth: 0
+          ref: ${{ github.ref_name }} # Prevents "detached HEAD" state
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -30,9 +31,7 @@ jobs:
           if [ ! -f README.md ]; then
             echo "⚠️ README.md missing! Creating baseline template..."
             echo "# DREAMenginOS" > README.md
-            echo "\n" >> README.md
-            echo "## Current Implementation Status" >> README.md
-            echo "## Recent Changes" >> README.md
+            echo -e "\n## Current Implementation Status\n## Recent Changes" >> README.md
           fi
 
       - name: Run update-readme script
@@ -48,24 +47,24 @@ jobs:
           git config user.name  "Idari[bot]"
           git config user.email "idari-bot@users.noreply.github.com"
           
-          # Check if the file is empty before adding
+          # Verify the script actually wrote data
           if [ ! -s README.md ]; then
-            echo "❌ README.md is empty! Script failed to generate content. Aborting commit."
+            echo "❌ README.md is empty! Script failed to generate content."
             exit 1
           fi
 
           git add README.md
           
+          # Only proceed if there are actual changes to commit
           if git diff --cached --quiet; then
             echo "No changes to README.md — skipping commit."
             exit 0
           fi
 
-          SHORT="${{ github.sha }}"
-          SHORT="${SHORT:0:7}"
-          git commit -m "idari: auto-update README [${SHORT}] [skip ci] [skip vercel]"
+          SHORT=$(echo "${{ github.sha }}" | cut -c1-7)
+          git commit -m "idari: auto-update README [${SHORT}] [skip ci]"
 
-          # Robust Push Loop
+          # Retry loop for pushing in case of race conditions
           for attempt in 1 2 3; do
             echo "Push attempt ${attempt}..."
             if git push origin HEAD:${{ github.ref_name }}; then
@@ -74,6 +73,7 @@ jobs:
             fi
             git pull --rebase origin ${{ github.ref_name }}
           done
+          
           echo "❌ Failed to push after 3 attempts."
           exit 1
 
@@ -84,4 +84,4 @@ jobs:
           echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Status | ${{ job.status }} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Engine | Babylon.js 9.0 |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | ${{ github.ref_name }} |" >> "$GITHUB_STEP_SUMMARY"
