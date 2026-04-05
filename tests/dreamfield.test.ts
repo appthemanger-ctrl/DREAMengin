@@ -1,108 +1,29 @@
 /**
  * Tests for components/daydream/DREAMfield.tsx
  *
- * Runs in Node (no WebGPU/canvas/AudioContext) so we verify:
+ * Runs in Node (no canvas/Babylon/AudioContext) -- verifies:
  *   - Module exports the component as default, named DREAMfield
- *   - PLANET_CONFIGS shape and values are correct
- *   - createAmbientAudio handles missing AudioContext gracefully
- *   - All planet hrefs route to canonical daydream routes
- *   - Momentum library interop
+ *   - ENGIN_LAUNCHPAD shape and uniqueness
+ *   - formatTimestampRelative accuracy
+ *   - Forge intelligence / momentum imports are mockable
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// ── Stub Babylon.js ───────────────────────────────────────────────────────────
-
-const mockEngine = {
-  getDeltaTime: vi.fn(() => 16),
-  runRenderLoop: vi.fn(),
-  stopRenderLoop: vi.fn(),
-  resize:        vi.fn(),
-  dispose:       vi.fn(),
-};
-
-vi.mock('@/lib/babylon/createEngine', () => ({
-  createBabylonEngine: vi.fn().mockResolvedValue({
-    engine:    mockEngine,
-    isWebGPU:  false,
-  }),
-}));
-
-const mockScene = {
-  clearColor:               null,
-  render:                   vi.fn(),
-  onBeforeRenderObservable: { add: vi.fn() },
-  meshes:                   [],
-};
-
-const mockMesh = {
-  position:       { x: 0, y: 0, z: 0, set: vi.fn() },
-  rotation:       { x: 0, y: 0, z: 0 },
-  material:       null,
-  parent:         null,
-  actionManager:  null,
-};
-
-vi.mock('@babylonjs/core', () => ({
-  Scene:             vi.fn(() => mockScene),
-  Vector3:           vi.fn((x: number, y: number, z: number) => ({ x, y, z })),
-  Color3:            vi.fn((r: number, g: number, b: number) => ({ r, g, b })),
-  Color4:            vi.fn((r: number, g: number, b: number, a: number) => ({ r, g, b, a })),
-  ArcRotateCamera:   vi.fn(() => ({
-    lowerRadiusLimit: 0, upperRadiusLimit: 0,
-    lowerBetaLimit:   0, upperBetaLimit:   0,
-    attachControl:    vi.fn(),
-  })),
-  HemisphericLight:  vi.fn(() => ({ intensity: 0, diffuse: null, groundColor: null })),
-  PointLight:        vi.fn(() => ({ diffuse: null, specular: null, intensity: 0, range: 0 })),
-  MeshBuilder: {
-    CreateSphere: vi.fn(() => ({ ...mockMesh })),
-    CreateTorus:  vi.fn(() => ({ ...mockMesh })),
-  },
-  PBRMaterial: vi.fn(() => ({
-    albedoColor: null, emissiveColor: null, metallic: 0, roughness: 0,
-  })),
-  GlowLayer:    vi.fn(() => ({ intensity: 0, addIncludedOnlyMesh: vi.fn() })),
-  ParticleSystem: vi.fn(() => ({
-    particleTexture: null, emitter: null,
-    minEmitBox: null, maxEmitBox: null,
-    color1: null, color2: null, colorDead: null,
-    minSize: 0, maxSize: 0,
-    minLifeTime: 0, maxLifeTime: 0,
-    emitRate: 0, minEmitPower: 0, maxEmitPower: 0,
-    updateSpeed: 0,
-    start: vi.fn(),
-  })),
-  Texture: vi.fn(),
-  DefaultRenderingPipeline: vi.fn(() => ({
-    bloomEnabled: false, bloomThreshold: 0, bloomWeight: 0, bloomScale: 0,
-    chromaticAberrationEnabled: false,
-    chromaticAberration: { aberrationAmount: 0 },
-    fxaaEnabled: false,
-  })),
-  ActionManager: Object.assign(
-    vi.fn(() => ({ registerAction: vi.fn() })),
-    {
-      OnPickTrigger:          0,
-      OnPointerOverTrigger:   9,
-      OnPointerOutTrigger:   10,
-    },
-  ),
-  ExecuteCodeAction: vi.fn(),
-}));
-
-// ── Stub forge momentum ───────────────────────────────────────────────────────
+// -- Stub forge dependencies --------------------------------------------------
 
 vi.mock('@/lib/forge/forgeMomentum', () => ({
   computeMomentum: vi.fn(() => ({
-    composite:          55,
-    level:              'FLOWING',
-    streakDays:          4,
-    enginesUsedToday:   ['music', 'games'],
-    actionsToday:        8,
-    actionsWeek:        22,
-    dimensions:         [],
-    computedAt:          new Date().toISOString(),
+    composite:        55,
+    level:            'FLOWING',
+    streakDays:        4,
+    enginesUsedToday: ['music', 'games'],
+    actionsToday:      8,
+    actionsWeek:      22,
+    dimensions:       [
+      { name: 'velocity', score: 60, desc: 'frequency', accent: '#22c55e', emoji: 'zap' },
+    ],
+    computedAt: new Date().toISOString(),
   })),
   getLevelColor: vi.fn((level: string) => {
     const map: Record<string, string> = {
@@ -116,30 +37,62 @@ vi.mock('@/lib/forge/forgeMomentum', () => ({
   }),
   getLevelEmoji: vi.fn((level: string) => {
     const map: Record<string, string> = {
-      TRANSCENDENT: '🌟',
-      BLAZING:      '🔥',
-      FLOWING:      '🌊',
-      WARMING:      '☀️',
-      DORMANT:      '💤',
+      TRANSCENDENT: 'star',
+      BLAZING:      'fire',
+      FLOWING:      'wave',
+      WARMING:      'sun',
+      DORMANT:      'zzz',
     };
-    return map[level] ?? '💤';
+    return map[level] ?? 'zzz';
   }),
 }));
 
-// ── Stub next/navigation ──────────────────────────────────────────────────────
+vi.mock('@/lib/forge/forgeIntelligence', () => ({
+  readForgeHistory:    vi.fn(() => []),
+  generateSuggestions: vi.fn(() => []),
+}));
+
+vi.mock('@/lib/forge/forgeRituals', () => ({
+  computeRituals: vi.fn(() => ({ rituals: [], historySize: 0, computedAt: new Date().toISOString() })),
+}));
+
+vi.mock('@/lib/forge/forgeNexus', () => ({
+  computeNexus: vi.fn(() => ({
+    edges:             [],
+    nodes:             [],
+    clusters:          [],
+    dominantPipeline:  [],
+    totalTransitions:   0,
+    computedAt:         new Date().toISOString(),
+  })),
+}));
+
+vi.mock('@/lib/forge/forgeRegistry', () => {
+  const CREATIVE_ENGINES = [
+    { id: 'games',  name: 'GameEngin',      emoji: 'gamepad', accent: '#c8981a', desc: 'Games.',  daydreamHref: '/daydream/games'  },
+    { id: 'music',  name: 'StarMakerEngin', emoji: 'music',   accent: '#a855f7', desc: 'Music.',  daydreamHref: '/daydream/music'  },
+    { id: 'code',   name: 'CodeEngin',      emoji: 'laptop',  accent: '#22d3ee', desc: 'Code.',   daydreamHref: '/daydream/code'   },
+    { id: 'lab',    name: 'LabEngin',       emoji: 'flask',   accent: '#10b981', desc: 'Lab.',    daydreamHref: '/daydream/lab'    },
+    { id: 'brand',  name: 'BrandingEngin',  emoji: 'palette', accent: '#f472b6', desc: 'Brand.',  daydreamHref: '/daydream/brand'  },
+    { id: 'create', name: 'ContentEngin',   emoji: 'pen',     accent: '#fb923c', desc: 'Create.', daydreamHref: '/daydream/create' },
+  ];
+  return {
+    CREATIVE_ENGINES,
+    readForgeActivity: vi.fn(() => []),
+  };
+});
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({ push: vi.fn() })),
 }));
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+// -- Tests --------------------------------------------------------------------
 
 describe('DREAMfield', () => {
   beforeEach(() => { vi.clearAllMocks(); });
   afterEach(()  => { vi.restoreAllMocks(); });
 
-  // ── Default export ─────────────────────────────────────────────────────────
-
+  // Default export
   it('exports DREAMfield as the default export', async () => {
     const mod = await import('@/components/daydream/DREAMfield');
     expect(mod.default).toBeDefined();
@@ -151,49 +104,33 @@ describe('DREAMfield', () => {
     expect(mod.default.name).toBe('DREAMfield');
   });
 
-  // ── PLANET_CONFIGS ─────────────────────────────────────────────────────────
-
-  it('exports PLANET_CONFIGS as a named export', async () => {
+  // ENGIN_LAUNCHPAD
+  it('exports ENGIN_LAUNCHPAD as a named export', async () => {
     const mod = await import('@/components/daydream/DREAMfield');
-    expect(mod.PLANET_CONFIGS).toBeDefined();
-    expect(Array.isArray(mod.PLANET_CONFIGS)).toBe(true);
+    expect(mod.ENGIN_LAUNCHPAD).toBeDefined();
+    expect(Array.isArray(mod.ENGIN_LAUNCHPAD)).toBe(true);
   });
 
-  it('PLANET_CONFIGS has exactly 6 entries (one per creative Engin)', async () => {
-    const { PLANET_CONFIGS } = await import('@/components/daydream/DREAMfield');
-    expect(PLANET_CONFIGS).toHaveLength(6);
+  it('ENGIN_LAUNCHPAD has one entry per creative engine', async () => {
+    const mod = await import('@/components/daydream/DREAMfield');
+    expect(mod.ENGIN_LAUNCHPAD).toHaveLength(6);
   });
 
-  it('every planet config has required string fields', async () => {
-    const { PLANET_CONFIGS } = await import('@/components/daydream/DREAMfield');
-    for (const cfg of PLANET_CONFIGS) {
-      expect(typeof cfg.enginId).toBe('string');
-      expect(cfg.enginId.length).toBeGreaterThan(0);
-      expect(typeof cfg.name).toBe('string');
-      expect(cfg.name.length).toBeGreaterThan(0);
-      expect(typeof cfg.emoji).toBe('string');
-      expect(typeof cfg.label).toBe('string');
-      expect(typeof cfg.accent).toBe('string');
-      expect(cfg.accent).toMatch(/^#[0-9a-fA-F]{6}$/);
+  it('every launch entry has required string fields', async () => {
+    const { ENGIN_LAUNCHPAD } = await import('@/components/daydream/DREAMfield');
+    for (const e of ENGIN_LAUNCHPAD) {
+      expect(typeof e.id).toBe('string');
+      expect(e.id.length).toBeGreaterThan(0);
+      expect(typeof e.name).toBe('string');
+      expect(typeof e.emoji).toBe('string');
+      expect(typeof e.accent).toBe('string');
+      expect(typeof e.href).toBe('string');
+      expect(typeof e.desc).toBe('string');
     }
   });
 
-  it('every planet config has positive numeric physics fields', async () => {
-    const { PLANET_CONFIGS } = await import('@/components/daydream/DREAMfield');
-    for (const cfg of PLANET_CONFIGS) {
-      expect(cfg.orbitRadius).toBeGreaterThan(0);
-      expect(cfg.orbitSpeed).toBeGreaterThan(0);
-      expect(cfg.size).toBeGreaterThan(0);
-      expect(typeof cfg.r).toBe('number');
-      expect(typeof cfg.g).toBe('number');
-      expect(typeof cfg.b).toBe('number');
-      expect(cfg.r).toBeGreaterThanOrEqual(0);
-      expect(cfg.r).toBeLessThanOrEqual(1);
-    }
-  });
-
-  it('all planet hrefs point to canonical /daydream/* routes', async () => {
-    const { PLANET_CONFIGS } = await import('@/components/daydream/DREAMfield');
+  it('all launch entry hrefs route to canonical /daydream/* routes', async () => {
+    const { ENGIN_LAUNCHPAD } = await import('@/components/daydream/DREAMfield');
     const valid = new Set([
       '/daydream/games',
       '/daydream/music',
@@ -202,79 +139,77 @@ describe('DREAMfield', () => {
       '/daydream/brand',
       '/daydream/create',
     ]);
-    for (const cfg of PLANET_CONFIGS) {
-      expect(valid.has(cfg.href)).toBe(true);
+    for (const e of ENGIN_LAUNCHPAD) {
+      expect(valid.has(e.href)).toBe(true);
     }
   });
 
-  it('each enginId is unique', async () => {
-    const { PLANET_CONFIGS } = await import('@/components/daydream/DREAMfield');
-    const ids = PLANET_CONFIGS.map(p => p.enginId);
+  it('ENGIN_LAUNCHPAD ids are unique', async () => {
+    const { ENGIN_LAUNCHPAD } = await import('@/components/daydream/DREAMfield');
+    const ids = ENGIN_LAUNCHPAD.map(e => e.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('orbit radii are strictly increasing (inner → outer)', async () => {
-    const { PLANET_CONFIGS } = await import('@/components/daydream/DREAMfield');
-    for (let i = 1; i < PLANET_CONFIGS.length; i++) {
-      expect(PLANET_CONFIGS[i].orbitRadius).toBeGreaterThan(
-        PLANET_CONFIGS[i - 1].orbitRadius,
-      );
-    }
-  });
-
-  it('exactly 2 ring planets exist (code, create)', async () => {
-    const { PLANET_CONFIGS } = await import('@/components/daydream/DREAMfield');
-    const ringed = PLANET_CONFIGS.filter(p => p.ringPlanet);
-    expect(ringed).toHaveLength(2);
-    const ids = ringed.map(p => p.enginId);
-    expect(ids).toContain('code');
-    expect(ids).toContain('create');
-  });
-
-  // ── createAmbientAudio ─────────────────────────────────────────────────────
-
-  it('exports createAmbientAudio as a named export', async () => {
+  // No 3D / Babylon imports
+  it('does not import babylon or create engines (no 3D gimmick)', async () => {
+    // If the module resolves without touching @babylonjs/core, the import succeeds.
+    // The mock for forgeRegistry above provides CREATIVE_ENGINES without Babylon.
     const mod = await import('@/components/daydream/DREAMfield');
-    expect(typeof mod.createAmbientAudio).toBe('function');
+    // The module shape should have the intelligence exports, not planet configs
+    expect((mod as Record<string, unknown>).PLANET_CONFIGS).toBeUndefined();
+    expect((mod as Record<string, unknown>).createAmbientAudio).toBeUndefined();
   });
 
-  it('createAmbientAudio returns { cleanup, analyser } for all momentum levels', async () => {
-    const { createAmbientAudio } = await import('@/components/daydream/DREAMfield');
-    const levels = ['DORMANT', 'WARMING', 'FLOWING', 'BLAZING', 'TRANSCENDENT'] as const;
-    for (const lvl of levels) {
-      const result = createAmbientAudio(lvl);
-      expect(typeof result.cleanup).toBe('function');
-      // analyser is null when AudioContext is unavailable (Node env)
-      expect(result.analyser === null || typeof result.analyser === 'object').toBe(true);
-      // cleanup must not throw
-      expect(() => result.cleanup()).not.toThrow();
-    }
+  // formatTimestampRelative
+  it('exports formatTimestampRelative', async () => {
+    const mod = await import('@/components/daydream/DREAMfield');
+    expect(typeof mod.formatTimestampRelative).toBe('function');
   });
 
-  it('createAmbientAudio cleanup is idempotent (double-call safe)', async () => {
-    const { createAmbientAudio } = await import('@/components/daydream/DREAMfield');
-    const { cleanup } = createAmbientAudio('FLOWING');
-    expect(() => { cleanup(); cleanup(); }).not.toThrow();
+  it('formatTimestampRelative returns "just now" for recent timestamps', async () => {
+    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const iso = new Date(Date.now() - 5_000).toISOString();
+    expect(formatTimestampRelative(iso)).toBe('just now');
   });
 
-  // ── Forge Momentum integration ─────────────────────────────────────────────
-
-  it('getLevelColor returns valid CSS hex for all levels', async () => {
-    const { getLevelColor } = await import('@/lib/forge/forgeMomentum');
-    const levels = ['DORMANT', 'WARMING', 'FLOWING', 'BLAZING', 'TRANSCENDENT'] as const;
-    for (const lvl of levels) {
-      const color = getLevelColor(lvl);
-      expect(color).toMatch(/^#[0-9a-fA-F]{6}$/);
-    }
+  it('formatTimestampRelative returns minutes-ago for timestamps < 1h', async () => {
+    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const iso = new Date(Date.now() - 12 * 60 * 1000).toISOString();
+    expect(formatTimestampRelative(iso)).toBe('12m ago');
   });
 
-  it('getLevelEmoji returns a non-empty string for all levels', async () => {
-    const { getLevelEmoji } = await import('@/lib/forge/forgeMomentum');
-    const levels = ['DORMANT', 'WARMING', 'FLOWING', 'BLAZING', 'TRANSCENDENT'] as const;
-    for (const lvl of levels) {
-      const emoji = getLevelEmoji(lvl);
-      expect(typeof emoji).toBe('string');
-      expect(emoji.length).toBeGreaterThan(0);
-    }
+  it('formatTimestampRelative returns hours-ago for timestamps < 1d', async () => {
+    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const iso = new Date(Date.now() - 5 * 3600 * 1000).toISOString();
+    expect(formatTimestampRelative(iso)).toBe('5h ago');
+  });
+
+  it('formatTimestampRelative returns days-ago for timestamps < 1 week', async () => {
+    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const iso = new Date(Date.now() - 3 * 86400 * 1000).toISOString();
+    expect(formatTimestampRelative(iso)).toBe('3d ago');
+  });
+
+  it('formatTimestampRelative returns a locale date string for old timestamps', async () => {
+    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const iso = new Date(Date.now() - 14 * 86400 * 1000).toISOString();
+    const result = formatTimestampRelative(iso);
+    // Should not be a relative descriptor -- should be a date string
+    expect(result).not.toMatch(/ago/);
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  // Forge library mocks work correctly
+  it('computeMomentum is importable and mockable', async () => {
+    const { computeMomentum } = await import('@/lib/forge/forgeMomentum');
+    const snap = computeMomentum();
+    expect(snap.composite).toBe(55);
+    expect(snap.level).toBe('FLOWING');
+  });
+
+  it('generateSuggestions is importable and mockable', async () => {
+    const { generateSuggestions } = await import('@/lib/forge/forgeIntelligence');
+    const suggestions = generateSuggestions({ enginId: 'music', label: 'test' });
+    expect(Array.isArray(suggestions)).toBe(true);
   });
 });

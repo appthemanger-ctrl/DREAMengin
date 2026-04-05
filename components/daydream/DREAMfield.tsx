@@ -1,38 +1,36 @@
 'use client';
 
 /**
- * DREAMfield — The Living Creative Cosmos
+ * DREAMfield -- Creative Intelligence Command Center
  *
- * A full-screen Babylon.js 3D scene that represents the entire DREAMengin
- * ecosystem as a living solar system.  The user's central Dream Star glows
- * with an intensity driven by their Forge Momentum score.  Six Engin Planets
- * orbit at unique radii, each clickable to warp to its Daydream surface.
+ * A full-screen command center that surfaces the full depth of the Forge
+ * intelligence layer in one fast, information-dense view.  No gimmicks --
+ * just the most powerful read-out of your creative state anywhere in DREAMengin.
  *
- * Features:
- *   • WebGPU-first via createBabylonEngine (WebGL2 fallback)
- *   • PBR materials with glow layer, bloom, chromatic aberration
- *   • Corona particle system around the star (audio-reactive when enabled)
- *   • Ambient starfield particles filling the void
- *   • Two ringed planets (Code, Create) styled after Saturn
- *   • Forge Momentum HUD (level, score, streak, active engines)
- *   • Planet legend sidebar — click any entry to warp instantly
- *   • "/" command palette for keyboard warp navigation
- *   • Procedural Web Audio ambient drone that morphs with momentum level
- *   • Warp flash overlay on planet pick
+ * Layout (top to bottom):
+ *   1. Hero strip   -- Forge Momentum level + composite score + progress bar
+ *   2. Main grid    -- Activity timeline (left) | AI next-steps (right)
+ *   3. Insight row  -- Detected rituals | Engin connection heat-map | Quick-launch
+ *
+ * Data sources (all local, no Supabase):
+ *   - computeMomentum()     - creative velocity score (forgeMomentum)
+ *   - readForgeHistory()    - chronological activity log (forgeIntelligence)
+ *   - generateSuggestions() - AI next-step predictions (forgeIntelligence)
+ *   - computeRituals()      - auto-detected workflow patterns (forgeRituals)
+ *   - computeNexus()        - engine-to-engine transition graph (forgeNexus)
+ *   - readForgeActivity()   - per-engine heat scores (forgeRegistry)
  *
  * Architecture:
  *   - Pure client component; no Supabase calls
- *   - computeMomentum() reads localStorage (same as ForgeEngin)
- *   - Babylon.js scene launched after momentum snapshot is ready
- *   - All state setters used inside Babylon callbacks are stable
+ *   - All data computed from localStorage on mount + refreshed every 15s
+ *   - "/" command palette for keyboard navigation
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Command, Star, Zap } from 'lucide-react';
-import type { AbstractEngine } from '@babylonjs/core';
-import { createBabylonEngine } from '@/lib/babylon/createEngine';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Command, Zap, Clock, ChevronRight, Sparkles, Activity } from 'lucide-react';
+
 import {
   computeMomentum,
   getLevelColor,
@@ -40,604 +38,667 @@ import {
   type MomentumLevel,
   type MomentumSnapshot,
 } from '@/lib/forge/forgeMomentum';
+import {
+  readForgeHistory,
+  generateSuggestions,
+  type ForgeHistoryEntry,
+  type ForgeSuggestion,
+} from '@/lib/forge/forgeIntelligence';
+import {
+  computeRituals,
+  type RitualSnapshot,
+} from '@/lib/forge/forgeRituals';
+import {
+  computeNexus,
+  type NexusSnapshot,
+} from '@/lib/forge/forgeNexus';
+import {
+  CREATIVE_ENGINES,
+  readForgeActivity,
+  type ForgeActivityPulse,
+} from '@/lib/forge/forgeRegistry';
 
-// ── Planet configuration ───────────────────────────────────────────────────────
+// -- Engin quick-launch config -------------------------------------------------
 
-export interface PlanetConfig {
-  enginId: string;
+export interface EnginLaunchEntry {
+  id: string;
   name: string;
   emoji: string;
-  label: string;
   accent: string;
-  /** Babylon Color3 components, 0–1 */
-  r: number;
-  g: number;
-  b: number;
-  orbitRadius: number;
-  /** Radians per second */
-  orbitSpeed: number;
-  /** Starting angle offset (radians) */
-  orbitPhase: number;
-  /** Sphere radius in Babylon units */
-  size: number;
-  /** Render a Saturn-style torus ring */
-  ringPlanet: boolean;
   href: string;
+  desc: string;
 }
 
-export const PLANET_CONFIGS: PlanetConfig[] = [
-  {
-    enginId: 'games',
-    name: 'GameEngin',
-    emoji: '🎮',
-    label: 'Games',
-    accent: '#c8981a',
-    r: 0.78, g: 0.60, b: 0.10,
-    orbitRadius: 7,
-    orbitSpeed: 0.40,
-    orbitPhase: 0,
-    size: 1.0,
-    ringPlanet: false,
-    href: '/daydream/games',
-  },
-  {
-    enginId: 'music',
-    name: 'StarMakerEngin',
-    emoji: '🎵',
-    label: 'Music',
-    accent: '#a855f7',
-    r: 0.66, g: 0.33, b: 0.97,
-    orbitRadius: 10,
-    orbitSpeed: 0.28,
-    orbitPhase: Math.PI / 3,
-    size: 0.85,
-    ringPlanet: false,
-    href: '/daydream/music',
-  },
-  {
-    enginId: 'code',
-    name: 'CodeEngin',
-    emoji: '💻',
-    label: 'Code',
-    accent: '#3b82f6',
-    r: 0.23, g: 0.51, b: 0.97,
-    orbitRadius: 13,
-    orbitSpeed: 0.20,
-    orbitPhase: (2 * Math.PI) / 3,
-    size: 0.80,
-    ringPlanet: true,
-    href: '/daydream/code',
-  },
-  {
-    enginId: 'lab',
-    name: 'LabEngin',
-    emoji: '⚗️',
-    label: 'Lab',
-    accent: '#06b6d4',
-    r: 0.02, g: 0.71, b: 0.83,
-    orbitRadius: 16,
-    orbitSpeed: 0.15,
-    orbitPhase: Math.PI,
-    size: 0.75,
-    ringPlanet: false,
-    href: '/daydream/lab',
-  },
-  {
-    enginId: 'brand',
-    name: 'BrandingEngin',
-    emoji: '🎨',
-    label: 'Brand',
-    accent: '#f97316',
-    r: 0.98, g: 0.45, b: 0.09,
-    orbitRadius: 19,
-    orbitSpeed: 0.11,
-    orbitPhase: (4 * Math.PI) / 3,
-    size: 0.80,
-    ringPlanet: false,
-    href: '/daydream/brand',
-  },
-  {
-    enginId: 'create',
-    name: 'ContentEngin',
-    emoji: '✍️',
-    label: 'Create',
-    accent: '#ec4899',
-    r: 0.93, g: 0.28, b: 0.60,
-    orbitRadius: 22,
-    orbitSpeed: 0.08,
-    orbitPhase: (5 * Math.PI) / 3,
-    size: 0.70,
-    ringPlanet: true,
-    href: '/daydream/create',
-  },
-];
+export const ENGIN_LAUNCHPAD: EnginLaunchEntry[] = CREATIVE_ENGINES.map(e => ({
+  id:     e.id,
+  name:   e.name,
+  emoji:  e.emoji,
+  accent: e.accent,
+  href:   e.daydreamHref,
+  desc:   e.desc,
+}));
 
-// ── Procedural ambient audio ───────────────────────────────────────────────────
+// -- Utility ------------------------------------------------------------------
 
 /**
- * Creates a procedural ambient drone that morphs in timbre and richness as the
- * momentum level rises.  Returns a cleanup function and an optional AnalyserNode
- * that the Babylon scene can read for audio-reactive visuals.
+ * Format an ISO timestamp as a human-readable relative string.
+ * Exported so tests can verify it without mounting the full component.
  */
-export function createAmbientAudio(level: MomentumLevel): {
-  cleanup: () => void;
-  analyser: AnalyserNode | null;
-} {
-  let ctx: AudioContext | null = null;
-  try {
-    ctx = new AudioContext();
-  } catch {
-    return { cleanup: () => {}, analyser: null };
-  }
-
-  const masterGain = ctx.createGain();
-  masterGain.gain.setValueAtTime(0, ctx.currentTime);
-  masterGain.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 3);
-
-  const analyser = ctx.createAnalyser();
-  analyser.fftSize = 256;
-
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'lowpass';
-  const baseFreq =
-    level === 'TRANSCENDENT' ? 3200
-    : level === 'BLAZING'    ? 2200
-    : level === 'FLOWING'    ? 1500
-    : level === 'WARMING'    ? 1000
-    : 650;
-  filter.frequency.setValueAtTime(baseFreq, ctx.currentTime);
-  filter.Q.setValueAtTime(1.5, ctx.currentTime);
-
-  const compressor = ctx.createDynamicsCompressor();
-  compressor.threshold.setValueAtTime(-18, ctx.currentTime);
-  compressor.knee.setValueAtTime(10, ctx.currentTime);
-  compressor.ratio.setValueAtTime(4, ctx.currentTime);
-  compressor.release.setValueAtTime(0.3, ctx.currentTime);
-
-  // Chain: oscillators → compressor → filter → analyser → masterGain → out
-  compressor.connect(filter);
-  filter.connect(analyser);
-  analyser.connect(masterGain);
-  masterGain.connect(ctx.destination);
-
-  // Drone frequencies — A minor pentatonic spread across 3 octaves
-  const baseDrones = [55, 82.5, 110, 165, 220];
-  const extrasByLevel: Record<MomentumLevel, number[]> = {
-    DORMANT:      [],
-    WARMING:      [330],
-    FLOWING:      [330, 440],
-    BLAZING:      [330, 440, 550, 660],
-    TRANSCENDENT: [330, 440, 550, 660, 880, 1100],
-  };
-  const freqs = [...baseDrones, ...extrasByLevel[level]];
-
-  const oscTypes: OscillatorType[] = ['sine', 'triangle', 'sawtooth'];
-  const oscillators: OscillatorNode[] = freqs.map((freq, i) => {
-    const osc = ctx!.createOscillator();
-    osc.type = oscTypes[i % oscTypes.length];
-    osc.frequency.setValueAtTime(freq, ctx!.currentTime);
-    // Slight random detune for warmth
-    osc.detune.setValueAtTime((Math.random() - 0.5) * 14, ctx!.currentTime);
-
-    const oscGain = ctx!.createGain();
-    oscGain.gain.setValueAtTime(0.28 / freqs.length, ctx!.currentTime);
-    osc.connect(oscGain);
-    oscGain.connect(compressor);
-    osc.start();
-    return osc;
-  });
-
-  // Slow organic filter sweep
-  let sweepTimer: ReturnType<typeof setTimeout> | null = null;
-  const sweep = () => {
-    if (!ctx || ctx.state === 'closed') return;
-    const target = baseFreq * (0.65 + Math.random() * 0.7);
-    filter.frequency.linearRampToValueAtTime(target, ctx.currentTime + 14);
-    sweepTimer = setTimeout(sweep, 14_000);
-  };
-  sweepTimer = setTimeout(sweep, 3000);
-
-  const cleanup = () => {
-    if (sweepTimer !== null) clearTimeout(sweepTimer);
-    oscillators.forEach(o => {
-      try { o.stop(); o.disconnect(); } catch { /* already stopped */ }
-    });
-    masterGain.gain.setValueAtTime(masterGain.gain.value, ctx!.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0, ctx!.currentTime + 1.2);
-    setTimeout(() => {
-      try { ctx!.close(); } catch { /* ignore */ }
-    }, 1500);
-  };
-
-  return { cleanup, analyser };
+export function formatTimestampRelative(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const secs = Math.floor(diffMs / 1000);
+  if (secs < 60)        return 'just now';
+  if (secs < 3600)      return `${Math.floor(secs / 60)}m ago`;
+  if (secs < 86400)     return `${Math.floor(secs / 3600)}h ago`;
+  if (secs < 86400 * 7) return `${Math.floor(secs / 86400)}d ago`;
+  return new Date(iso).toLocaleDateString();
 }
 
-// ── Tiny white square texture as a data URL (for particles in test envs) ──────
-const WHITE_PIXEL_PNG =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAE0lEQVQI12P4' +
-  'z8BQDwAEgAF/QualIQAAAABJRU5ErkJggg==';
+// -- Design tokens (self-contained, no Tailwind runtime required here) ---------
 
-// ── Component ──────────────────────────────────────────────────────────────────
+const T = {
+  bg:       '#05070f',
+  panel:    'rgba(255,255,255,0.035)',
+  border:   'rgba(255,255,255,0.07)',
+  text:     'rgba(255,255,255,0.88)',
+  dim:      'rgba(255,255,255,0.42)',
+  faint:    'rgba(255,255,255,0.18)',
+  radius:   16,
+} as const;
+
+// -- Sub-components -----------------------------------------------------------
+
+/** Full-width hero strip showing the Momentum score + level */
+function MomentumHero({ mom }: { mom: MomentumSnapshot }) {
+  const color = getLevelColor(mom.level as MomentumLevel);
+  const emoji = getLevelEmoji(mom.level as MomentumLevel);
+  const pct   = mom.composite;
+
+  return (
+    <div style={{
+      background:   `linear-gradient(135deg, ${color}14 0%, transparent 60%)`,
+      border:       `1px solid ${color}28`,
+      borderRadius:  T.radius,
+      padding:      '20px 24px',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+          <span style={{ fontSize: 56, fontWeight: 900, color: T.text, lineHeight: 1 }}>
+            {pct}
+          </span>
+          <span style={{ fontSize: 14, color: T.dim }}>/100</span>
+        </div>
+
+        <div style={{
+          display:     'flex',
+          alignItems:  'center',
+          gap:          8,
+          padding:     '6px 16px',
+          background:  `${color}20`,
+          border:      `1px solid ${color}40`,
+          borderRadius: 99,
+        }}>
+          <span style={{ fontSize: 18 }}>{emoji}</span>
+          <span style={{ color, fontWeight: 700, fontSize: 14, letterSpacing: '0.1em' }}>
+            {mom.level}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginLeft: 'auto' }}>
+          {mom.dimensions.map(d => (
+            <div key={d.name} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: T.dim, marginBottom: 2, letterSpacing: '0.07em' }}>
+                {d.emoji} {d.name.toUpperCase()}
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: d.accent }}>
+                {Math.round(d.score)}
+              </div>
+            </div>
+          ))}
+          {mom.streakDays > 0 && (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: T.dim, marginBottom: 2, letterSpacing: '0.07em' }}>
+                STREAK
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#fb923c' }}>
+                {mom.streakDays}d
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{
+        marginTop:    14,
+        height:        5,
+        background:   'rgba(255,255,255,0.07)',
+        borderRadius:  4,
+        overflow:     'hidden',
+      }}>
+        <div style={{
+          width:      `${pct}%`,
+          height:     '100%',
+          background: `linear-gradient(90deg, ${color}60, ${color})`,
+          borderRadius: 4,
+          transition: 'width 0.8s ease',
+        }} />
+      </div>
+
+      {mom.enginesUsedToday.length > 0 && (
+        <div style={{ marginTop: 10, fontSize: 12, color: T.faint }}>
+          Active today: {mom.enginesUsedToday.join(' \u00b7 ')}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Activity timeline: most-recent Forge history entries */
+function ActivityTimeline({ history }: { history: ForgeHistoryEntry[] }) {
+  const shown = history.slice().reverse().slice(0, 18);
+
+  return (
+    <PanelBox title="Activity" icon={<Clock size={13} />}>
+      {shown.length === 0 ? (
+        <EmptyState text="No activity recorded yet. Open any Engin to start." />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {shown.map((entry, i) => {
+            const eng = CREATIVE_ENGINES.find(e => e.id === entry.enginId);
+            return (
+              <div
+                key={i}
+                style={{
+                  display:    'flex',
+                  alignItems: 'center',
+                  gap:         10,
+                  padding:    '7px 10px',
+                  borderRadius: 8,
+                  background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                }}
+              >
+                <span style={{ fontSize: 16, flexShrink: 0 }}>{eng?.emoji ?? '\u26a1'}</span>
+                <span style={{
+                  flex:         1,
+                  fontSize:      12,
+                  color:        T.text,
+                  overflow:     'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace:   'nowrap',
+                }}>
+                  {entry.label}
+                </span>
+                <span style={{ fontSize: 11, color: T.faint, flexShrink: 0 }}>
+                  {formatTimestampRelative(entry.timestamp)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </PanelBox>
+  );
+}
+
+/** AI-generated next-step suggestions */
+function NextSteps({ suggestions }: { suggestions: ForgeSuggestion[] }) {
+  const router = useRouter();
+
+  return (
+    <PanelBox title="What's Next" icon={<Sparkles size={13} />}>
+      {suggestions.length === 0 ? (
+        <EmptyState text="Use a few Engins and your personalised next-steps appear here." />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {suggestions.slice(0, 6).map((s, i) => (
+            <button
+              key={i}
+              onClick={() => s.href && router.push(s.href)}
+              style={{
+                display:    'flex',
+                alignItems: 'flex-start',
+                gap:         12,
+                padding:    '10px 12px',
+                background: `${s.accent}12`,
+                border:     `1px solid ${s.accent}28`,
+                borderRadius: 10,
+                cursor:      s.href ? 'pointer' : 'default',
+                textAlign:  'left',
+              }}
+            >
+              <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{s.emoji}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: s.accent, marginBottom: 3 }}>
+                  {s.title}
+                </div>
+                <div style={{ fontSize: 11, color: T.dim, lineHeight: 1.4 }}>{s.reason}</div>
+              </div>
+              {s.href && <ChevronRight size={14} style={{ color: T.faint, flexShrink: 0, marginTop: 2 }} />}
+            </button>
+          ))}
+        </div>
+      )}
+    </PanelBox>
+  );
+}
+
+/** Top detected creative rituals */
+function RitualCards({ snap }: { snap: RitualSnapshot }) {
+  const top = snap.rituals.slice(0, 4);
+
+  return (
+    <PanelBox title="Your Patterns" icon={<Activity size={13} />} flex={1}>
+      {top.length === 0 ? (
+        <EmptyState text="Patterns detected after you use multiple Engins over a few sessions." />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {top.map(r => (
+            <div
+              key={r.id}
+              style={{
+                padding:      '8px 11px',
+                background:   `${r.accent}10`,
+                border:       `1px solid ${r.accent}22`,
+                borderRadius:  8,
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 600, color: r.accent, marginBottom: 2 }}>
+                {r.emoji} {r.title}
+              </div>
+              <div style={{ fontSize: 11, color: T.dim, lineHeight: 1.4 }}>
+                {r.description}
+              </div>
+              <div style={{
+                marginTop:    5,
+                height:        2,
+                background:   'rgba(255,255,255,0.06)',
+                borderRadius:  2,
+                overflow:     'hidden',
+              }}>
+                <div style={{
+                  width:      `${Math.round(r.confidence * 100)}%`,
+                  height:     '100%',
+                  background:  r.accent,
+                  borderRadius: 2,
+                }} />
+              </div>
+              <div style={{ fontSize: 10, color: T.faint, marginTop: 3 }}>
+                {Math.round(r.confidence * 100)}% confidence \u00b7 {r.occurrences}\u00d7 observed
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </PanelBox>
+  );
+}
+
+/** Engin connection heat map */
+function ConnectionMap({ nexus, activity }: { nexus: NexusSnapshot; activity: ForgeActivityPulse[] }) {
+  const engines   = CREATIVE_ENGINES;
+  const maxWeight = nexus.edges.reduce((m, e) => Math.max(m, e.weight), 1);
+
+  return (
+    <PanelBox title="Connection Map" flex={1}>
+      {nexus.totalTransitions === 0 ? (
+        <EmptyState text="Switch between Engins and see which ones you naturally pair." />
+      ) : (
+        <>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
+            {nexus.edges.slice(0, 5).map((edge, i) => {
+              const fromEng = engines.find(e => e.id === edge.from);
+              const toEng   = engines.find(e => e.id === edge.to);
+              const pct     = (edge.weight / maxWeight) * 100;
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 13, width: 80, flexShrink: 0, color: T.dim }}>
+                    {fromEng?.emoji} \u2192 {toEng?.emoji}
+                  </span>
+                  <div style={{
+                    flex:         1,
+                    height:        4,
+                    background:   'rgba(255,255,255,0.07)',
+                    borderRadius:  2,
+                    overflow:     'hidden',
+                  }}>
+                    <div style={{
+                      width:      `${pct}%`,
+                      height:     '100%',
+                      background: `linear-gradient(90deg, ${fromEng?.accent ?? '#fff'}80, ${toEng?.accent ?? '#fff'})`,
+                      borderRadius: 2,
+                    }} />
+                  </div>
+                  <span style={{ fontSize: 11, color: T.faint, width: 24, textAlign: 'right' }}>
+                    {edge.weight}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {engines.map(eng => {
+              const pulse = activity.find(a => a.enginId === eng.id);
+              const heat  = pulse?.heat ?? 0;
+              return (
+                <div key={eng.id} style={{
+                  display:    'flex',
+                  alignItems: 'center',
+                  gap:         5,
+                  padding:    '4px 10px',
+                  background: `${eng.accent}${heat > 0.4 ? '28' : '0d'}`,
+                  border:     `1px solid ${eng.accent}${heat > 0.4 ? '40' : '18'}`,
+                  borderRadius: 20,
+                }}>
+                  <span style={{ fontSize: 12 }}>{eng.emoji}</span>
+                  <span style={{ fontSize: 11, color: heat > 0.4 ? eng.accent : T.faint }}>
+                    {eng.id}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </PanelBox>
+  );
+}
+
+/** Heat-sorted quick-launch grid */
+function QuickLaunch({ activity }: { activity: ForgeActivityPulse[] }) {
+  const router = useRouter();
+
+  const sorted = [...ENGIN_LAUNCHPAD].sort((a, b) => {
+    const ha = activity.find(p => p.enginId === a.id)?.heat ?? 0;
+    const hb = activity.find(p => p.enginId === b.id)?.heat ?? 0;
+    return hb - ha;
+  });
+
+  return (
+    <PanelBox title="Quick Launch" flex={1}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+        {sorted.map(eng => {
+          const pulse = activity.find(p => p.enginId === eng.id);
+          const heat  = pulse?.heat ?? 0;
+          return (
+            <button
+              key={eng.id}
+              onClick={() => router.push(eng.href)}
+              style={{
+                display:    'flex',
+                alignItems: 'center',
+                gap:         11,
+                padding:    '9px 12px',
+                background: `${eng.accent}${heat > 0.3 ? '18' : '08'}`,
+                border:     `1px solid ${eng.accent}${heat > 0.3 ? '38' : '18'}`,
+                borderRadius: 10,
+                cursor:      'pointer',
+                textAlign:  'left',
+              }}
+            >
+              <span style={{ fontSize: 20 }}>{eng.emoji}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: eng.accent }}>
+                  {eng.name}
+                </div>
+                <div style={{
+                  fontSize:      11,
+                  color:         T.dim,
+                  overflow:     'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace:   'nowrap',
+                }}>
+                  {eng.desc}
+                </div>
+              </div>
+              {heat > 0.4 && (
+                <div style={{
+                  width:        8,
+                  height:       8,
+                  borderRadius: '50%',
+                  background:   eng.accent,
+                  boxShadow:   `0 0 6px ${eng.accent}`,
+                  flexShrink:   0,
+                }} />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </PanelBox>
+  );
+}
+
+// -- Shared panel wrapper -----------------------------------------------------
+
+function PanelBox({
+  title,
+  icon,
+  children,
+  flex,
+}: {
+  title?: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+  flex?: number;
+}) {
+  return (
+    <div style={{
+      background:    T.panel,
+      border:        `1px solid ${T.border}`,
+      borderRadius:   T.radius,
+      padding:       '16px 18px',
+      display:       'flex',
+      flexDirection: 'column',
+      flex:           flex ?? undefined,
+      minWidth:       0,
+    }}>
+      {title && (
+        <div style={{
+          display:       'flex',
+          alignItems:    'center',
+          gap:            6,
+          marginBottom:  12,
+          color:          T.dim,
+          fontSize:       11,
+          fontWeight:     600,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+        }}>
+          {icon}
+          {title}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function EmptyState({ text }: { text: string }) {
+  return <div style={{ color: T.faint, fontSize: 12, lineHeight: 1.5 }}>{text}</div>;
+}
+
+// -- Command palette ----------------------------------------------------------
+
+function CommandPalette({
+  open,
+  onClose,
+  onWarp,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onWarp: (href: string) => void;
+}) {
+  const [val, setVal] = useState('');
+
+  useEffect(() => { if (!open) setVal(''); }, [open]);
+
+  if (!open) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const match = ENGIN_LAUNCHPAD.find(entry =>
+      entry.id.includes(val.toLowerCase()) ||
+      entry.name.toLowerCase().includes(val.toLowerCase()),
+    );
+    if (match) onWarp(match.href);
+    onClose();
+  };
+
+  return (
+    <div
+      style={{
+        position:       'fixed',
+        inset:           0,
+        zIndex:          100,
+        display:        'flex',
+        alignItems:     'flex-start',
+        justifyContent: 'center',
+        paddingTop:     '20vh',
+        background:     'rgba(0,0,0,0.72)',
+        backdropFilter:  'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background:   'rgba(4,10,28,0.98)',
+          border:       `1px solid ${T.border}`,
+          borderRadius:  22,
+          padding:      '20px 24px',
+          width:        '90%',
+          maxWidth:      500,
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ color: T.dim, fontSize: 11, marginBottom: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          Jump to Engin
+        </div>
+        <form onSubmit={handleSubmit}>
+          <input
+            autoFocus
+            value={val}
+            onChange={e => setVal(e.target.value)}
+            placeholder="games, music, code, lab, brand, create\u2026"
+            style={{
+              width:      '100%',
+              background: 'transparent',
+              border:     'none',
+              outline:    'none',
+              color:      '#fff',
+              fontSize:    18,
+              fontWeight:  500,
+              boxSizing:  'border-box',
+            }}
+          />
+        </form>
+        <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {ENGIN_LAUNCHPAD.map(e => (
+            <button
+              key={e.id}
+              onClick={() => { onWarp(e.href); onClose(); }}
+              style={{
+                background:   `${e.accent}1a`,
+                border:       `1px solid ${e.accent}38`,
+                borderRadius:  10,
+                padding:      '5px 13px',
+                color:         e.accent,
+                fontSize:      12,
+                cursor:        'pointer',
+                fontWeight:    600,
+              }}
+            >
+              {e.emoji} {e.id}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// -- Main component -----------------------------------------------------------
 
 export default function DREAMfield() {
   const router = useRouter();
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const engineRef  = useRef<AbstractEngine | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const audioCleanupRef = useRef<(() => void) | null>(null);
+  const refreshTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [momentum, setMomentum]         = useState<MomentumSnapshot | null>(null);
-  const [hoveredPlanet, setHoveredPlanet] = useState<PlanetConfig | null>(null);
-  const [warpTo, setWarpTo]             = useState<string | null>(null);
-  const [cmdOpen, setCmdOpen]           = useState(false);
-  const [cmdValue, setCmdValue]         = useState('');
-  const [audioStarted, setAudioStarted] = useState(false);
-  const [renderInfo, setRenderInfo]     = useState('');
+  const [momentum,    setMomentum]    = useState<MomentumSnapshot | null>(null);
+  const [history,     setHistory]     = useState<ForgeHistoryEntry[]>([]);
+  const [suggestions, setSuggestions] = useState<ForgeSuggestion[]>([]);
+  const [rituals,     setRituals]     = useState<RitualSnapshot | null>(null);
+  const [nexus,       setNexus]       = useState<NexusSnapshot | null>(null);
+  const [activity,    setActivity]    = useState<ForgeActivityPulse[]>([]);
+  const [cmdOpen,     setCmdOpen]     = useState(false);
 
-  // ── Command palette keyboard shortcut ────────────────────────────────────────
+  const refresh = useCallback(() => {
+    const mom  = computeMomentum();
+    const hist = readForgeHistory();
+    const act  = readForgeActivity();
+    const rit  = computeRituals();
+    const nex  = computeNexus();
+
+    setMomentum(mom);
+    setHistory(hist);
+    setActivity(act);
+    setRituals(rit);
+    setNexus(nex);
+
+    const last = [...act].sort(
+      (a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime(),
+    )[0];
+    setSuggestions(generateSuggestions(last ? { enginId: last.enginId, label: last.label } : null));
+  }, []);
+
+  useEffect(() => {
+    refresh();
+    refreshTimer.current = setInterval(refresh, 15_000);
+    return () => { if (refreshTimer.current) clearInterval(refreshTimer.current); };
+  }, [refresh]);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === '/' && !cmdOpen && !(e.target instanceof HTMLInputElement)) {
         e.preventDefault();
         setCmdOpen(true);
       }
-      if (e.key === 'Escape') {
-        setCmdOpen(false);
-        setCmdValue('');
-      }
+      if (e.key === 'Escape') setCmdOpen(false);
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [cmdOpen]);
 
-  // ── Command submit ────────────────────────────────────────────────────────────
-  const handleCmd = (e: React.FormEvent) => {
-    e.preventDefault();
-    const val = cmdValue.trim().toLowerCase();
-    const match = PLANET_CONFIGS.find(p =>
-      p.enginId.includes(val) || p.label.toLowerCase().includes(val)
-    );
-    if (match) {
-      doWarp(match.href);
-    }
-    setCmdOpen(false);
-    setCmdValue('');
-  };
+  const doNav = useCallback((href: string) => { router.push(href); }, [router]);
 
-  const doWarp = useCallback((href: string) => {
-    setWarpTo(href);
-    audioCleanupRef.current?.();
-    setTimeout(() => router.push(href), 700);
-  }, [router]);
-
-  // ── Ambient audio toggle ──────────────────────────────────────────────────────
-  const startAudio = useCallback(() => {
-    if (audioStarted) return;
-    setAudioStarted(true);
-    const level = (momentum?.level ?? 'DORMANT') as MomentumLevel;
-    const { cleanup, analyser } = createAmbientAudio(level);
-    audioCleanupRef.current = cleanup;
-    analyserRef.current = analyser;
-  }, [audioStarted, momentum]);
-
-  // ── Babylon.js scene ──────────────────────────────────────────────────────────
-  const launchScene = useCallback(async (canvas: HTMLCanvasElement) => {
-    // Compute momentum synchronously; also push to React state for the HUD
-    const mom = computeMomentum();
-    setMomentum(mom);
-
-    const { engine, isWebGPU } = await createBabylonEngine(canvas, {
-      antialias: true,
-      preserveDrawingBuffer: false,
-      stencil: true,
-    });
-    engineRef.current = engine;
-    setRenderInfo(isWebGPU ? 'WebGPU' : 'WebGL2');
-
-    const {
-      Scene,
-      Vector3,
-      Color3,
-      Color4,
-      ArcRotateCamera,
-      HemisphericLight,
-      PointLight,
-      MeshBuilder,
-      PBRMaterial,
-      GlowLayer,
-      ParticleSystem,
-      Texture,
-      DefaultRenderingPipeline,
-      ActionManager,
-      ExecuteCodeAction,
-    } = await import('@babylonjs/core');
-
-    const scene = new Scene(engine);
-    scene.clearColor = new Color4(0.01, 0.01, 0.04, 1);
-
-    // ── Camera ───────────────────────────────────────────────────────────────
-    const camera = new ArcRotateCamera(
-      'cosmos_cam',
-      -Math.PI / 2,
-      Math.PI / 3.2,
-      32,
-      new Vector3(0, 0, 0),
-      scene,
-    );
-    camera.lowerRadiusLimit = 14;
-    camera.upperRadiusLimit = 65;
-    camera.lowerBetaLimit   = 0.25;
-    camera.upperBetaLimit   = Math.PI / 2;
-    camera.attachControl(canvas, true);
-
-    // ── Ambient light ────────────────────────────────────────────────────────
-    const ambient = new HemisphericLight('ambient', new Vector3(0, 1, 0), scene);
-    ambient.intensity   = 0.12;
-    ambient.diffuse     = new Color3(0.18, 0.28, 0.55);
-    ambient.groundColor = new Color3(0.04, 0.04, 0.10);
-
-    // ── Star parameters from momentum ────────────────────────────────────────
-    const composite = mom.composite;
-    const level     = mom.level;
-    const starScale = 0.9 + (composite / 100) * 1.3;
-
-    const starR =
-      level === 'TRANSCENDENT' ? 1.00
-      : level === 'BLAZING'    ? 1.00
-      : level === 'FLOWING'    ? 0.95
-      : level === 'WARMING'    ? 0.85
-      : 0.65;
-    const starG =
-      level === 'TRANSCENDENT' ? 0.90
-      : level === 'BLAZING'    ? 0.75
-      : level === 'FLOWING'    ? 0.60
-      : level === 'WARMING'    ? 0.48
-      : 0.42;
-    const starB =
-      level === 'TRANSCENDENT' ? 0.55
-      : level === 'BLAZING'    ? 0.18
-      : 0.08;
-
-    // ── Central Dream Star ───────────────────────────────────────────────────
-    const star = MeshBuilder.CreateSphere('star', { diameter: starScale * 2, segments: 32 }, scene);
-    const starMat = new PBRMaterial('starMat', scene);
-    starMat.albedoColor  = new Color3(starR * 0.25, starG * 0.25, starB * 0.25);
-    starMat.emissiveColor = new Color3(starR, starG, starB);
-    starMat.metallic  = 0.0;
-    starMat.roughness = 0.55;
-    star.material = starMat;
-
-    // Star point light illuminating all planets
-    const starLight = new PointLight('starLight', new Vector3(0, 0, 0), scene);
-    starLight.diffuse   = new Color3(starR, starG, starB);
-    starLight.specular  = new Color3(starR, starG * 0.6, starB * 0.3);
-    starLight.intensity = 2.5 + (composite / 100) * 9;
-    starLight.range     = 55;
-
-    // ── Glow layer ───────────────────────────────────────────────────────────
-    const glow = new GlowLayer('cosmos_glow', scene);
-    glow.intensity = 0.55 + (composite / 100) * 1.1;
-    glow.addIncludedOnlyMesh(star);
-
-    // ── Orbiting planets ─────────────────────────────────────────────────────
-    const planetAngles: Record<string, number> = {};
-    const planetMeshes = new Map<string, ReturnType<typeof MeshBuilder.CreateSphere>>();
-
-    for (const cfg of PLANET_CONFIGS) {
-      planetAngles[cfg.enginId] = cfg.orbitPhase;
-
-      const px = cfg.orbitRadius * Math.cos(cfg.orbitPhase);
-      const pz = cfg.orbitRadius * Math.sin(cfg.orbitPhase);
-      const py = Math.sin(cfg.orbitPhase * 1.6) * 2.0;
-
-      const planet = MeshBuilder.CreateSphere(
-        `planet_${cfg.enginId}`,
-        { diameter: cfg.size * 2, segments: 24 },
-        scene,
-      );
-      planet.position.set(px, py, pz);
-
-      const mat = new PBRMaterial(`mat_${cfg.enginId}`, scene);
-      mat.albedoColor   = new Color3(cfg.r * 0.4, cfg.g * 0.4, cfg.b * 0.4);
-      mat.emissiveColor = new Color3(cfg.r * 0.28, cfg.g * 0.28, cfg.b * 0.28);
-      mat.metallic  = 0.55;
-      mat.roughness = 0.42;
-      planet.material = mat;
-      glow.addIncludedOnlyMesh(planet);
-
-      // Saturn-style ring for Code and Create
-      if (cfg.ringPlanet) {
-        const ring = MeshBuilder.CreateTorus(
-          `ring_${cfg.enginId}`,
-          { diameter: cfg.size * 3.8, thickness: 0.13, tessellation: 56 },
-          scene,
-        );
-        ring.parent   = planet;
-        ring.rotation.x = Math.PI / 3.5;
-
-        const ringMat = new PBRMaterial(`ringMat_${cfg.enginId}`, scene);
-        ringMat.albedoColor   = new Color3(cfg.r * 0.55, cfg.g * 0.55, cfg.b * 0.55);
-        ringMat.emissiveColor = new Color3(cfg.r * 0.18, cfg.g * 0.18, cfg.b * 0.18);
-        ringMat.metallic  = 0.85;
-        ringMat.roughness = 0.28;
-        ring.material = ringMat;
-        glow.addIncludedOnlyMesh(ring);
-      }
-
-      // ActionManager for hover + pick
-      planet.actionManager = new ActionManager(scene);
-
-      planet.actionManager.registerAction(
-        new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
-          setHoveredPlanet(cfg);
-        }),
-      );
-      planet.actionManager.registerAction(
-        new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
-          setHoveredPlanet(prev => (prev?.enginId === cfg.enginId ? null : prev));
-        }),
-      );
-      planet.actionManager.registerAction(
-        new ExecuteCodeAction(ActionManager.OnPickTrigger, () => {
-          doWarp(cfg.href);
-        }),
-      );
-
-      planetMeshes.set(cfg.enginId, planet);
-    }
-
-    // ── Orbital animation render loop ────────────────────────────────────────
-    let t = 0;
-    scene.onBeforeRenderObservable.add(() => {
-      const dt = engine.getDeltaTime() * 0.001; // seconds
-      t += dt;
-
-      // Pulse star emissive
-      const pulse = Math.sin(t * 1.35) * 0.09;
-      starMat.emissiveColor = new Color3(
-        starR * (0.9 + pulse),
-        starG * (0.9 + pulse),
-        starB * (0.9 + pulse),
-      );
-      starLight.intensity = (2.5 + (composite / 100) * 9) * (0.92 + pulse * 0.35);
-
-      // Audio-reactive glow
-      const analyser = analyserRef.current;
-      if (analyser) {
-        const buf = new Uint8Array(analyser.frequencyBinCount);
-        analyser.getByteFrequencyData(buf);
-        const bass = buf[2] / 255;
-        glow.intensity = (0.55 + (composite / 100) * 1.1) + bass * 0.9;
-        starLight.intensity *= 1 + bass * 0.4;
-      }
-
-      // Orbit planets
-      for (const cfg of PLANET_CONFIGS) {
-        const mesh = planetMeshes.get(cfg.enginId);
-        if (!mesh) continue;
-        planetAngles[cfg.enginId] += cfg.orbitSpeed * dt;
-        const angle = planetAngles[cfg.enginId];
-        mesh.position.x = cfg.orbitRadius * Math.cos(angle);
-        mesh.position.z = cfg.orbitRadius * Math.sin(angle);
-        mesh.position.y = Math.sin(angle * 1.6) * 2.0;
-        mesh.rotation.y += 0.006 * dt * 60;
-      }
-    });
-
-    // ── Star corona particle system ──────────────────────────────────────────
-    const coronaPS = new ParticleSystem('corona', 220, scene);
-    coronaPS.particleTexture = new Texture(WHITE_PIXEL_PNG, scene);
-    coronaPS.emitter = star;
-    coronaPS.minEmitBox = new Vector3(-0.6, -0.6, -0.6);
-    coronaPS.maxEmitBox = new Vector3(0.6, 0.6, 0.6);
-    coronaPS.color1   = new Color4(starR, starG * 0.85, starB * 0.3, 1);
-    coronaPS.color2   = new Color4(1.0, 0.92, 0.35, 0.55);
-    coronaPS.colorDead = new Color4(0, 0, 0, 0);
-    coronaPS.minSize  = 0.06;
-    coronaPS.maxSize  = 0.30;
-    coronaPS.minLifeTime = 0.4;
-    coronaPS.maxLifeTime = 1.4;
-    coronaPS.emitRate = 90;
-    coronaPS.minEmitPower = 0.4;
-    coronaPS.maxEmitPower = 1.6 + (composite / 100) * 3.5;
-    coronaPS.updateSpeed  = 0.015;
-    coronaPS.start();
-
-    // ── Deep-space starfield ─────────────────────────────────────────────────
-    const starsPS = new ParticleSystem('stars', 650, scene);
-    starsPS.particleTexture = new Texture(WHITE_PIXEL_PNG, scene);
-    starsPS.emitter = new Vector3(0, 0, 0);
-    starsPS.minEmitBox = new Vector3(-65, -35, -65);
-    starsPS.maxEmitBox = new Vector3(65, 35, 65);
-    starsPS.color1    = new Color4(0.80, 0.88, 1.00, 0.75);
-    starsPS.color2    = new Color4(0.60, 0.70, 0.92, 0.30);
-    starsPS.colorDead  = new Color4(0, 0, 0, 0);
-    starsPS.minSize   = 0.04;
-    starsPS.maxSize   = 0.14;
-    starsPS.minLifeTime = 50;
-    starsPS.maxLifeTime = 100;
-    starsPS.emitRate   = 8;
-    starsPS.minEmitPower = 0;
-    starsPS.maxEmitPower = 0.015;
-    starsPS.updateSpeed  = 0.001;
-    starsPS.start();
-
-    // ── Post-processing pipeline ─────────────────────────────────────────────
-    const pipe = new DefaultRenderingPipeline('cosmos_pipe', true, scene, [camera]);
-    pipe.bloomEnabled    = true;
-    pipe.bloomThreshold  = 0.18;
-    pipe.bloomWeight     = 0.55 + (composite / 100) * 0.65;
-    pipe.bloomScale      = 0.5;
-    pipe.chromaticAberrationEnabled = true;
-    pipe.chromaticAberration.aberrationAmount = 18;
-    pipe.fxaaEnabled = true;
-
-    // ── Render loop ──────────────────────────────────────────────────────────
-    engine.runRenderLoop(() => {
-      scene.render();
-    });
-  }, [doWarp]);
-
-  // ── Mount / unmount ───────────────────────────────────────────────────────────
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    launchScene(canvas);
-
-    const handleResize = () => engineRef.current?.resize();
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      engineRef.current?.dispose();
-      engineRef.current = null;
-    };
-  }, [launchScene]);
-
-  // ── Cleanup audio on unmount ──────────────────────────────────────────────────
-  useEffect(() => {
-    return () => { audioCleanupRef.current?.(); };
-  }, []);
-
-  // ── Derived display values ────────────────────────────────────────────────────
-  const composite  = momentum?.composite ?? 0;
-  const level      = momentum?.level ?? 'DORMANT';
-  const levelColor = getLevelColor(level as MomentumLevel);
-  const levelEmoji = getLevelEmoji(level as MomentumLevel);
+  const levelColor = momentum
+    ? getLevelColor(momentum.level as MomentumLevel)
+    : '#64748b';
 
   return (
-    <div
-      style={{
-        position:   'fixed',
-        inset:       0,
-        background: 'radial-gradient(ellipse at center, #060d22 0%, #010408 100%)',
-        overflow:   'hidden',
-      }}
-    >
-      {/* ── 3D canvas ── */}
-      <canvas
-        ref={canvasRef}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-        aria-label="DREAMfield — 3D creative cosmos"
-      />
-
-      {/* ── Top bar ── */}
-      <div
-        style={{
-          position:        'absolute',
-          top: 0, left: 0, right: 0,
-          zIndex:           20,
-          display:          'flex',
-          alignItems:       'center',
-          gap:               12,
-          padding:          '14px 20px',
-          background:       'rgba(1, 4, 12, 0.62)',
-          backdropFilter:   'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderBottom:     '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
+    <div style={{
+      position:      'fixed',
+      inset:          0,
+      background:     T.bg,
+      overflowY:     'auto',
+      display:       'flex',
+      flexDirection: 'column',
+    }}>
+      {/* Top bar */}
+      <div style={{
+        position:         'sticky',
+        top:               0,
+        zIndex:            30,
+        display:          'flex',
+        alignItems:       'center',
+        gap:               12,
+        padding:          '12px 20px',
+        background:       'rgba(5,7,15,0.82)',
+        backdropFilter:   'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderBottom:     '1px solid rgba(255,255,255,0.07)',
+        flexShrink:        0,
+      }}>
         <Link
           href="/homedream"
           style={{
@@ -648,317 +709,73 @@ export default function DREAMfield() {
             textDecoration: 'none',
             fontSize:        13,
             fontWeight:      600,
-            padding:         '6px 12px',
+            padding:        '5px 12px',
             borderRadius:    20,
-            background:      'rgba(255,255,255,0.05)',
-            border:          '1px solid rgba(255,255,255,0.08)',
+            background:     'rgba(255,255,255,0.05)',
+            border:         '1px solid rgba(255,255,255,0.07)',
           }}
         >
           <ArrowLeft size={14} />
           Home
         </Link>
 
-        <Star size={15} style={{ color: levelColor }} />
-
-        <span style={{ color: 'rgba(255,255,255,0.92)', fontWeight: 700, fontSize: 16 }}>
-          DREAMfield
-        </span>
-        <span style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12 }}>
-          Your Creative Cosmos
-        </span>
+        <Zap size={14} style={{ color: levelColor }} />
+        <span style={{ color: T.text, fontWeight: 700, fontSize: 16 }}>DREAMfield</span>
+        <span style={{ color: T.dim, fontSize: 12 }}>Creative Intelligence</span>
 
         <div style={{ flex: 1 }} />
-
-        {!audioStarted && (
-          <button
-            onClick={startAudio}
-            style={{
-              fontSize:   11,
-              color:      'rgba(255,255,255,0.42)',
-              background: 'rgba(255,255,255,0.04)',
-              border:     '1px solid rgba(255,255,255,0.08)',
-              padding:    '4px 11px',
-              borderRadius: 12,
-              cursor:     'pointer',
-            }}
-          >
-            ♪ Ambient
-          </button>
-        )}
 
         <button
           onClick={() => setCmdOpen(true)}
           style={{
-            display:      'flex',
-            alignItems:   'center',
-            gap:           5,
-            fontSize:      12,
-            color:         'rgba(255,255,255,0.48)',
-            background:    'rgba(255,255,255,0.04)',
-            border:        '1px solid rgba(255,255,255,0.08)',
-            padding:       '5px 13px',
-            borderRadius:   14,
-            cursor:         'pointer',
+            display:    'flex',
+            alignItems: 'center',
+            gap:         5,
+            fontSize:    12,
+            color:       T.dim,
+            background: 'rgba(255,255,255,0.04)',
+            border:     '1px solid rgba(255,255,255,0.07)',
+            padding:    '5px 13px',
+            borderRadius: 14,
+            cursor:      'pointer',
           }}
         >
           <Command size={11} />
           <span style={{ fontFamily: 'monospace' }}>/</span>
           Jump
         </button>
-
-        {renderInfo && (
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.05em' }}>
-            {renderInfo}
-          </span>
-        )}
       </div>
 
-      {/* ── Planet legend (sidebar) ── */}
-      <div
-        style={{
-          position:      'absolute',
-          top:            80,
-          right:          20,
-          zIndex:         15,
-          display:        'flex',
-          flexDirection:  'column',
-          gap:             7,
-        }}
-      >
-        {PLANET_CONFIGS.map(p => (
-          <button
-            key={p.enginId}
-            onClick={() => doWarp(p.href)}
-            style={{
-              display:     'flex',
-              alignItems:  'center',
-              gap:          8,
-              padding:     '5px 12px',
-              background:  `${p.accent}14`,
-              border:      `1px solid ${p.accent}30`,
-              borderRadius: 10,
-              cursor:       'pointer',
-              textAlign:   'left',
-            }}
-          >
-            <span style={{
-              width:        8,
-              height:       8,
-              borderRadius: '50%',
-              background:   p.accent,
-              boxShadow:   `0 0 6px ${p.accent}`,
-              flexShrink:   0,
-              display:      'block',
-            }} />
-            <span style={{ color: 'rgba(255,255,255,0.72)', fontSize: 11, whiteSpace: 'nowrap' }}>
-              {p.emoji} {p.label}
-            </span>
-          </button>
-        ))}
+      {/* Page body */}
+      <div style={{
+        padding:       '20px',
+        display:       'flex',
+        flexDirection: 'column',
+        gap:            16,
+        maxWidth:       1280,
+        width:         '100%',
+        margin:        '0 auto',
+        boxSizing:     'border-box',
+      }}>
+        {momentum && <MomentumHero mom={momentum} />}
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <ActivityTimeline history={history} />
+          <NextSteps suggestions={suggestions} />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+          {rituals && <RitualCards snap={rituals} />}
+          {nexus    && <ConnectionMap nexus={nexus} activity={activity} />}
+          <QuickLaunch activity={activity} />
+        </div>
       </div>
 
-      {/* ── Forge Momentum HUD ── */}
-      <div
-        style={{
-          position:        'absolute',
-          bottom:           32,
-          left:             24,
-          zIndex:           20,
-          background:       'rgba(1,4,14,0.72)',
-          border:          `1px solid ${levelColor}28`,
-          borderRadius:     18,
-          padding:         '16px 20px',
-          backdropFilter:   'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          minWidth:         204,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-          <Zap size={13} style={{ color: levelColor }} />
-          <span style={{ color: levelColor, fontSize: 11, fontWeight: 700, letterSpacing: '0.1em' }}>
-            FORGE MOMENTUM
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 }}>
-          <span style={{ fontSize: 38, fontWeight: 900, color: '#fff', lineHeight: 1 }}>
-            {composite}
-          </span>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.36)' }}>/100</span>
-        </div>
-
-        <div style={{
-          background:   'rgba(255,255,255,0.07)',
-          borderRadius:  4,
-          height:        4,
-          marginBottom:  10,
-          overflow:      'hidden',
-        }}>
-          <div style={{
-            width:      `${composite}%`,
-            height:     '100%',
-            background: `linear-gradient(90deg, ${levelColor}70, ${levelColor})`,
-            borderRadius: 4,
-          }} />
-        </div>
-
-        <div style={{ fontSize: 12, color: levelColor, fontWeight: 600 }}>
-          {levelEmoji} {level}
-        </div>
-
-        {momentum?.streakDays != null && momentum.streakDays > 0 && (
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.32)', marginTop: 5 }}>
-            🔥 {momentum.streakDays}d streak
-          </div>
-        )}
-
-        {momentum?.enginesUsedToday && momentum.enginesUsedToday.length > 0 && (
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 3 }}>
-            Active: {momentum.enginesUsedToday.slice(0, 3).join(', ')}
-          </div>
-        )}
-      </div>
-
-      {/* ── Hovered planet tooltip ── */}
-      {hoveredPlanet && !warpTo && (
-        <div
-          style={{
-            position:        'absolute',
-            bottom:           32,
-            right:            24,
-            zIndex:           20,
-            background:       'rgba(1,4,14,0.78)',
-            border:          `1px solid ${hoveredPlanet.accent}38`,
-            borderRadius:     16,
-            padding:         '14px 18px',
-            backdropFilter:   'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            maxWidth:         210,
-            pointerEvents:   'none',
-          }}
-        >
-          <div style={{ fontSize: 26, marginBottom: 6 }}>{hoveredPlanet.emoji}</div>
-          <div style={{ color: hoveredPlanet.accent, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>
-            {hoveredPlanet.name}
-          </div>
-          <div style={{ color: 'rgba(255,255,255,0.42)', fontSize: 12 }}>
-            Click to warp ↗
-          </div>
-        </div>
-      )}
-
-      {/* ── Warp flash overlay ── */}
-      {warpTo && (
-        <div
-          style={{
-            position:        'absolute',
-            inset:            0,
-            zIndex:           50,
-            display:          'flex',
-            alignItems:       'center',
-            justifyContent:  'center',
-            background:       'radial-gradient(ellipse at center, rgba(255,220,80,0.22) 0%, rgba(0,0,0,0.94) 70%)',
-            animation:        'dreamfield-warp 0.7s ease forwards',
-          }}
-        >
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 52, marginBottom: 14 }}>🌟</div>
-            <div style={{ color: '#fff', fontWeight: 800, fontSize: 18, letterSpacing: '0.18em' }}>
-              WARPING
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Command palette ── */}
-      {cmdOpen && (
-        <div
-          style={{
-            position:        'absolute',
-            inset:            0,
-            zIndex:           100,
-            display:          'flex',
-            alignItems:       'flex-start',
-            justifyContent:  'center',
-            paddingTop:      '20vh',
-            background:      'rgba(0,0,0,0.72)',
-            backdropFilter:   'blur(14px)',
-            WebkitBackdropFilter: 'blur(14px)',
-          }}
-          onClick={() => { setCmdOpen(false); setCmdValue(''); }}
-        >
-          <div
-            style={{
-              background:   'rgba(4, 10, 28, 0.98)',
-              border:       '1px solid rgba(255,255,255,0.14)',
-              borderRadius:  22,
-              padding:      '20px 24px',
-              width:        '90%',
-              maxWidth:      500,
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div style={{
-              color:          'rgba(255,255,255,0.42)',
-              fontSize:        11,
-              marginBottom:    10,
-              letterSpacing:  '0.12em',
-              textTransform:  'uppercase',
-            }}>
-              Jump to Engin
-            </div>
-
-            <form onSubmit={handleCmd}>
-              <input
-                autoFocus
-                value={cmdValue}
-                onChange={e => setCmdValue(e.target.value)}
-                placeholder="games, music, code, lab, brand, create…"
-                style={{
-                  width:       '100%',
-                  background:  'transparent',
-                  border:      'none',
-                  outline:     'none',
-                  color:       '#fff',
-                  fontSize:     18,
-                  fontWeight:   500,
-                  boxSizing:   'border-box',
-                }}
-              />
-            </form>
-
-            <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {PLANET_CONFIGS.map(p => (
-                <button
-                  key={p.enginId}
-                  onClick={() => { doWarp(p.href); setCmdOpen(false); }}
-                  style={{
-                    background:   `${p.accent}1a`,
-                    border:       `1px solid ${p.accent}38`,
-                    borderRadius:  10,
-                    padding:      '5px 13px',
-                    color:         p.accent,
-                    fontSize:      12,
-                    cursor:        'pointer',
-                    fontWeight:    600,
-                  }}
-                >
-                  {p.emoji} {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── CSS animations ── */}
-      <style>{`
-        @keyframes dreamfield-warp {
-          0%   { opacity: 0; }
-          40%  { opacity: 1; }
-          100% { opacity: 1; }
-        }
-      `}</style>
+      <CommandPalette
+        open={cmdOpen}
+        onClose={() => setCmdOpen(false)}
+        onWarp={doNav}
+      />
     </div>
   );
 }
