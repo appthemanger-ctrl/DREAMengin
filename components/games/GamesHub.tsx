@@ -18,6 +18,7 @@ import {
 import type { GameRenderMode } from '@/lib/games/performance-baseline';
 import type { MobileHudMode } from '@/lib/games/mobileControls';
 import { buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
+import { getAvatarDataUrl, setPlayAsMe } from '@/lib/games/avatar';
 import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
 import { useGsapScrollReveal } from '@/lib/gsap/useGsapScrollReveal';
 import { useMotionTilt } from '@/lib/hooks/useMotionTilt';
@@ -153,9 +154,11 @@ interface TiltGameCardProps {
   game: GameDef;
   isSaved: boolean;
   onPlay: (id: string) => void;
+  hasAvatar: boolean;
+  onPlayAsMe: (id: string) => void;
 }
 
-function TiltGameCard({ game, isSaved, onPlay }: TiltGameCardProps) {
+function TiltGameCard({ game, isSaved, onPlay, hasAvatar, onPlayAsMe }: TiltGameCardProps) {
   const { motionProps, glareStyle } = useMotionTilt({ maxTilt: 8, scale: 1.04, glare: true });
 
   const cardContent = (
@@ -221,6 +224,27 @@ function TiltGameCard({ game, isSaved, onPlay }: TiltGameCardProps) {
       }}>
         {isSaved ? 'Quick resume' : 'Launch in GameEngin'}
       </div>
+      {hasAvatar && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onPlayAsMe(game.id); }}
+          style={{
+            marginTop: 2,
+            padding: '6px 10px',
+            borderRadius: 999,
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(167,139,250,0.1))',
+            border: '1px solid rgba(124,58,237,0.35)',
+            fontSize: 10, fontWeight: 800,
+            color: '#7c3aed',
+            textAlign: 'center',
+            letterSpacing: '0.06em',
+            cursor: 'pointer',
+            width: '100%',
+          }}
+        >
+          👤 Play as Yourself
+        </button>
+      )}
     </>
   );
 
@@ -281,6 +305,7 @@ export default function GamesHub() {
   const [savedSessions, setSavedSessions] = useState<SavedGameSession[]>([]);
   const [filter, setFilter] = useState<string>('All');
   const [query, setQuery] = useState('');
+  const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const initializedLaunchRef = useRef(false);
 
@@ -340,6 +365,14 @@ export default function GamesHub() {
     window.location.assign(buildGameLaunchHref(id, { openEngin: true, play: true, expand: true }));
   }, [saveGameToEngin]);
 
+  const playGameAsMe = useCallback((id: string) => {
+    if (typeof window === 'undefined') return;
+    setPlayAsMe();
+    saveGameToEngin(id, 'library-screen');
+    window.localStorage.setItem(GAME_LIBRARY_SELECTION_STORAGE_KEY, id);
+    window.location.assign(buildGameLaunchHref(id, { openEngin: true, play: true, expand: true }));
+  }, [saveGameToEngin]);
+
   useEffect(() => {
     if (initializedLaunchRef.current) return;
     initializedLaunchRef.current = true;
@@ -364,6 +397,18 @@ export default function GamesHub() {
       window.localStorage.setItem(GAME_LIBRARY_SELECTION_STORAGE_KEY, resolvedId);
     }
   }, [searchParams]);
+
+  // Load avatar from localStorage on mount and re-check on focus
+  useEffect(() => {
+    const load = () => setAvatarDataUrl(getAvatarDataUrl());
+    load();
+    window.addEventListener('focus', load);
+    window.addEventListener('de:avatar:updated', load);
+    return () => {
+      window.removeEventListener('focus', load);
+      window.removeEventListener('de:avatar:updated', load);
+    };
+  }, []);
 
   // ── Library — pick a game and play ────────────────────────────────────────
   return (
@@ -446,30 +491,49 @@ export default function GamesHub() {
             </div>
             <div style={{ display: 'grid', gap: 8, gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
               {featuredGames.map((game) => (
-                <button
-                  key={game.id}
-                  type="button"
-                  onClick={() => playGame(game.id)}
-                  style={{
-                    borderRadius: 14,
-                    padding: '12px 12px',
-                    border: `1px solid ${game.color}30`,
-                    background: 'rgba(255,255,255,0.52)',
-                    textAlign: 'left',
-                    display: 'grid',
-                    gap: 6,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <span style={{ fontSize: 22, lineHeight: 1 }}>{game.emoji}</span>
-                    <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: game.color }}>
-                      Boot now
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>{game.label}</div>
-                  <div style={{ fontSize: 10, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>{game.category} · fullscreen-ready</div>
-                </button>
+                <div key={game.id} style={{ display: 'grid', gap: 4 }}>
+                  <button
+                    type="button"
+                    onClick={() => playGame(game.id)}
+                    style={{
+                      borderRadius: 14,
+                      padding: '12px 12px',
+                      border: `1px solid ${game.color}30`,
+                      background: 'rgba(255,255,255,0.52)',
+                      textAlign: 'left',
+                      display: 'grid',
+                      gap: 6,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <span style={{ fontSize: 22, lineHeight: 1 }}>{game.emoji}</span>
+                      <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: game.color }}>
+                        Boot now
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>{game.label}</div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>{game.category} · fullscreen-ready</div>
+                  </button>
+                  {avatarDataUrl && (
+                    <button
+                      type="button"
+                      onClick={() => playGameAsMe(game.id)}
+                      style={{
+                        borderRadius: 10,
+                        padding: '5px 8px',
+                        border: '1px solid rgba(124,58,237,0.32)',
+                        background: 'rgba(124,58,237,0.1)',
+                        fontSize: 9, fontWeight: 800,
+                        color: '#7c3aed',
+                        cursor: 'pointer',
+                        letterSpacing: '0.06em',
+                      }}
+                    >
+                      👤 Play as Yourself
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -589,6 +653,8 @@ export default function GamesHub() {
                 game={game}
                 isSaved={isSaved}
                 onPlay={playGame}
+                hasAvatar={!!avatarDataUrl}
+                onPlayAsMe={playGameAsMe}
               />
             );
           })}
