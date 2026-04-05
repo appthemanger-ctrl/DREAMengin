@@ -80,10 +80,30 @@ export type IntentEnvelope = z.infer<typeof IntentEnvelopeSchema>;
 // DR. EAMS RUN REQUEST/RESPONSE
 // ============================================================================
 
+/**
+ * Optional code context attached when Dr. Eams is called from inside CodeEngin.
+ * Only the selected snippet (≤ 2 000 chars) is ever sent — never the full
+ * notebook or multi-file codebase (privacy boundary, AXIOM 5).
+ */
+export const CodeContextSchema = z.object({
+  /** Programming language of the active cell. */
+  language: z.enum(['python', 'javascript', 'typescript', 'bash']),
+  /** Selected code or active cell content — max 2 000 chars. */
+  selected_code: z.string().max(2000),
+  /** 1-based line number of the cursor position (optional). */
+  cursor_line: z.number().int().positive().optional(),
+});
+export type CodeContext = z.infer<typeof CodeContextSchema>;
+
 export const DrEamsRunBodySchema = z.object({
   message: z.string().min(1).max(4000),
   ui: UIContextSchema,
   client_session_id: z.string().optional(),
+  /**
+   * When set, Dr. Eams switches to code-assist mode: vocabulary lookup,
+   * natural-language-to-code, and explain/refactor/debug flows.
+   */
+  code_context: CodeContextSchema.optional(),
 });
 export type DrEamsRunBody = z.infer<typeof DrEamsRunBodySchema>;
 
