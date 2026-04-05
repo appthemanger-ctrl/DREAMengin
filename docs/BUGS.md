@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-05 08:34 UTC  
-**Triggered by commit:** `c989388` on `copilot/update-black-hole-and-robot` by Copilot  
-**Commit message:** feat: upgrade landing hero visuals
+**Last updated:** 2026-04-05 08:40 UTC  
+**Triggered by commit:** `372955a` on `copilot/fix-type-error-in-ad-slots` by Copilot  
+**Commit message:** fix: refine immediate remediation file hint parsing
 
 ---
 

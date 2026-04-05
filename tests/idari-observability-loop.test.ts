@@ -28,6 +28,7 @@ import {
   type AnomalySignal,
 } from '@/lib/observability/correlator';
 import { inferRootCause } from '@/lib/observability/rootCauseAnalyzer';
+import { buildImmediateRemediationAction } from '@/lib/observability/immediateAction';
 import {
   buildIdariPrompt,
   buildFallbackPatchPlan,
@@ -431,6 +432,26 @@ describe('inferRootCause', () => {
     expect(result.risk).toBe('low');
   });
 
+  it('matches syntax/type compiler pattern', () => {
+    const snapshot: TelemetrySnapshot = {
+      ...emptySnapshot(),
+      logs: [{ id: '1', timestamp: new Date().toISOString(), level: 'error', message: "components/daydream/ContentEngin.tsx:1184:10 Type error: Cannot find name 'repurposeInput'." }],
+    };
+    const result = inferRootCause([], snapshot);
+    expect(result.affected_area).toBe('Build system');
+    expect(result.recommended_action).toContain('Restore the missing import');
+  });
+
+  it('matches revenue split / tax pattern', () => {
+    const snapshot: TelemetrySnapshot = {
+      ...emptySnapshot(),
+      logs: [{ id: '1', timestamp: new Date().toISOString(), level: 'error', message: 'platform_share mismatch: expected 10% platform and 90% creator split' }],
+    };
+    const result = inferRootCause([], snapshot);
+    expect(result.affected_area).toBe('Financial layer');
+    expect(result.recommended_action).toContain('10%');
+  });
+
   it('falls back to anomaly-driven analysis when no pattern matches', () => {
     const anomaly: AnomalySignal = {
       type: 'latency_spike',
@@ -553,6 +574,48 @@ describe('buildFallbackPatchPlan', () => {
     const plan = buildFallbackPatchPlan(rootCause, 'iter-5');
     expect(plan!.fix).toContain('Run pnpm install');
   });
+
+  it('uses immediate-action file hints when present', () => {
+    const rootCause = makeRootCause('Build system');
+    rootCause.recommended_action = 'Restore the missing import.';
+    const action = buildImmediateRemediationAction({
+      ...rootCause,
+      evidence_summary: ["components/daydream/ContentEngin.tsx:1184:10 Type error: Cannot find name 'repurposeInput'."],
+    });
+    const plan = buildFallbackPatchPlan(rootCause, 'iter-6', action);
+    expect(plan!.steps[0].file).toContain('components/daydream/ContentEngin.tsx');
+  });
+});
+
+describe('buildImmediateRemediationAction', () => {
+  it('returns undefined for healthy root causes', () => {
+    expect(buildImmediateRemediationAction(makeRootCause('none'))).toBeUndefined();
+  });
+
+  it('builds a syntax action from compiler evidence', () => {
+    const action = buildImmediateRemediationAction({
+      ...makeRootCause('Build system'),
+      likely_cause: 'Syntax / type failure — compiler rejected the current file shape',
+      recommended_action: 'Restore the missing import, state, or symbol and re-run the compiler.',
+      evidence_summary: ["components/daydream/ContentEngin.tsx:1184:10 Type error: Cannot find name 'repurposeInput'."],
+    });
+    expect(action?.kind).toBe('syntax');
+    expect(action?.file_hints).toContain('components/daydream/ContentEngin.tsx');
+    expect(action?.can_auto_apply).toBe(true);
+  });
+
+  it('builds a tax action for revenue split mismatches', () => {
+    const action = buildImmediateRemediationAction({
+      ...makeRootCause('Financial layer'),
+      likely_cause: 'Revenue split mismatch',
+      recommended_action: 'Verify the 10% platform and 90% creator split constants.',
+      evidence_summary: ['platform_share mismatch on gross_revenue payout'],
+      risk: 'high',
+    });
+    expect(action?.kind).toBe('tax');
+    expect(action?.file_hints).toContain('app/api/ads/orders/route.ts');
+    expect(action?.can_auto_apply).toBe(false);
+  });
 });
 
 // ── idariLoop — runLoopIteration ─────────────────────────────────────────────
@@ -596,6 +659,7 @@ describe('runLoopIteration', () => {
     // Health may be critical or degraded — patch_plan should be set
     if (iteration.correlation.health !== 'healthy') {
       expect(iteration.patch_plan).toBeDefined();
+      expect(iteration.immediate_action).toBeDefined();
     }
   });
 
