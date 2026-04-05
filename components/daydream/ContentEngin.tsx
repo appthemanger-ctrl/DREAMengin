@@ -498,6 +498,35 @@ export default function ContentEngin({ onBack }: Props) {
   // ── Pre-Edit: Platform Specs filter ──────────────────────────────────────────
   const [specsFilter, setSpecsFilter]         = useState('');
 
+  // ── Pre-Edit: Character Brief Builder ────────────────────────────────────────
+  const CHAR_ANIM_TYPES  = ['3D (Maya/ZBrush)', '2D Frame-by-Frame (TVPaint)', '2D Cut-Out (Toon Boom)', 'Stop Motion', 'Live Action + VFX'] as const;
+  const CHAR_RIG_LEVELS  = ['Simple (basic skeleton)', 'Medium (facial + cloth)', 'Complex (full facial rig + sim)', 'Hero Rig (film-quality)'] as const;
+  const CHAR_ROLES       = ['Protagonist', 'Antagonist', 'Supporting', 'Background', 'Creature/Non-Human'] as const;
+  const [charName, setCharName]               = useState('');
+  const [charRole, setCharRole]               = useState<typeof CHAR_ROLES[number]>('Protagonist');
+  const [charAnimType, setCharAnimType]       = useState<typeof CHAR_ANIM_TYPES[number]>('3D (Maya/ZBrush)');
+  const [charRigLevel, setCharRigLevel]       = useState<typeof CHAR_RIG_LEVELS[number]>('Medium (facial + cloth)');
+  const [charPhysical, setCharPhysical]       = useState('');
+  const [charPersonality, setCharPersonality] = useState('');
+  const [charSims, setCharSims]               = useState<Set<string>>(new Set());
+  const [charColorNotes, setCharColorNotes]   = useState('');
+  const [charRefs, setCharRefs]               = useState('');
+  const [charSaving, setCharSaving]           = useState(false);
+  const [charSaveMsg, setCharSaveMsg]         = useState('');
+
+  // ── Pre-Edit: Scene & Set Design Brief ───────────────────────────────────────
+  const SCENE_TYPES   = ['Interior', 'Exterior', 'LED Virtual Set (Unreal)', '2D Painted Background', 'Abstract / Stylised', 'Miniature / Practical'] as const;
+  const LIGHTING_TYPES = ['Day – Natural', 'Night – Artificial', 'Golden Hour', 'Overcast', 'Interior – Warm', 'Interior – Cool', 'Neon / Cyberpunk', 'Horror / Low-Key'] as const;
+  const [sceneName, setSceneName]             = useState('');
+  const [sceneType, setSceneType]             = useState<typeof SCENE_TYPES[number]>('Interior');
+  const [sceneLighting, setSceneLighting]     = useState<typeof LIGHTING_TYPES[number]>('Day – Natural');
+  const [sceneMood, setSceneMood]             = useState('');
+  const [sceneElements, setSceneElements]     = useState('');
+  const [sceneUnrealNotes, setSceneUnrealNotes] = useState('');
+  const [sceneColorPalette, setSceneColorPalette] = useState('');
+  const [sceneSaving, setSceneSaving]         = useState(false);
+  const [sceneSaveMsg, setSceneSaveMsg]       = useState('');
+
   // ── Pre-Edit: Storyboard Builder ─────────────────────────────────────────────
   const [sbTitle, setSbTitle]                 = useState('');
   const [sbFrames, setSbFrames]               = useState([
@@ -795,6 +824,63 @@ export default function ContentEngin({ onBack }: Props) {
   }
   function removePipelineItem(id: string) { setPipelineItems(prev => prev.filter(p => p.id !== id)); }
 
+  // ── Character Brief Builder handler ──────────────────────────────────────────
+  const CHAR_SIM_OPTIONS = ['Cloth / Fabric Simulation', 'Hair / Fur Simulation', 'Facial Blend Shapes / Morphs', 'Muscle Simulation', 'Fluid / VFX Layer', 'Crowd / Instanced Version'];
+  async function handleSaveCharBrief() {
+    if (!charName.trim()) return;
+    setCharSaving(true);
+    setCharSaveMsg('');
+    const text = [
+      `# Character Brief: ${charName}`,
+      `**Role:** ${charRole}`,
+      `**Animation Type:** ${charAnimType}`,
+      `**Rig Complexity:** ${charRigLevel}`,
+      charPhysical    ? `\n**Physical Description:**\n${charPhysical}` : null,
+      charPersonality ? `\n**Personality & Performance Notes:**\n${charPersonality}` : null,
+      charSims.size   ? `\n**Special Simulations Required:**\n${[...charSims].map(s => `- ${s}`).join('\n')}` : null,
+      charColorNotes  ? `\n**Colour Palette & Style Notes:**\n${charColorNotes}` : null,
+      charRefs        ? `\n**Reference Materials:**\n${charRefs}` : null,
+      `\n**Status:** Ready for ${charAnimType.includes('Maya') || charAnimType.includes('ZBrush') ? 'Maya / ZBrush' : charAnimType.includes('Toon Boom') ? 'Toon Boom Harmony' : charAnimType.includes('TVPaint') ? 'TVPaint Animation' : 'Engine'}`,
+    ].filter(Boolean).join('\n');
+    try {
+      const res = await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text, content_type: 'character_brief', title: `Character Brief: ${charName}` }),
+      });
+      setCharSaveMsg(res.ok ? '✅ Brief saved — ready for engine' : '⚠️ Save failed');
+    } catch { setCharSaveMsg('⚠️ Save failed'); }
+    setCharSaving(false);
+    setTimeout(() => setCharSaveMsg(''), 4000);
+  }
+
+  // ── Scene & Set Design Brief handler ─────────────────────────────────────────
+  async function handleSaveSceneBrief() {
+    if (!sceneName.trim()) return;
+    setSceneSaving(true);
+    setSceneSaveMsg('');
+    const text = [
+      `# Scene / Set Design Brief: ${sceneName}`,
+      `**Set Type:** ${sceneType}`,
+      `**Lighting Condition:** ${sceneLighting}`,
+      sceneMood      ? `\n**Mood & Atmosphere:**\n${sceneMood}` : null,
+      sceneElements  ? `\n**Key Visual Elements:**\n${sceneElements}` : null,
+      sceneType.includes('Unreal') ? `\n**Unreal Engine / Virtual Production Notes:**\n${sceneUnrealNotes || 'Camera tracking markers required. Confirm parallax movement range with DoP. LED wall brightness target: >1000 nits.'}` : null,
+      sceneColorPalette ? `\n**Colour Palette:**\n${sceneColorPalette}` : null,
+      `\n**Destination:** ${sceneType.includes('Unreal') ? 'Unreal Engine — Virtual Production' : sceneType.includes('2D') ? 'TVPaint / Toon Boom Background Dept.' : 'Art Department / Engine'}`,
+    ].filter(Boolean).join('\n');
+    try {
+      const res = await fetch('/api/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text, content_type: 'scene_brief', title: `Scene Brief: ${sceneName}` }),
+      });
+      setSceneSaveMsg(res.ok ? '✅ Brief saved — ready for engine' : '⚠️ Save failed');
+    } catch { setSceneSaveMsg('⚠️ Save failed'); }
+    setSceneSaving(false);
+    setTimeout(() => setSceneSaveMsg(''), 4000);
+  }
+
   // ── Storyboard Builder handlers ───────────────────────────────────────────────
   const SB_SHOT_TYPES = ['Wide', 'Medium', 'Close-up', 'Extreme Close-up', 'Over Shoulder', 'POV', 'Overhead', 'Low Angle', 'Drone'];
   function addSbFrame() {
@@ -833,11 +919,17 @@ export default function ContentEngin({ onBack }: Props) {
       production: [
         `Open Engine — all brief, specs, and assets ready`,
         `Import all pre-approved assets`,
-        type === 'Reel' || type === '3D Animation' ? `Set up 9:16 canvas, ${platform === 'YouTube' ? '1080×1920' : '1080×1920'} px` : `Set canvas to correct dimensions per Platform Specs`,
-        `Follow storyboard frame by frame — no improvising`,
-        `Layer audio: music at correct BPM/mood, apply VO, place SFX at marked timecodes`,
+        type === '3D Animation' ? `Set up scene in Maya — import character rigs, verify all sims (cloth/hair/facial)` :
+        type === 'YouTube Video' || type === 'YouTube Short' ? `Set up 16:9 canvas (${type === 'YouTube Short' ? '1080×1920 vertical' : '1920×1080'})` :
+        `Set canvas to correct dimensions per Platform Specs`,
+        type === '3D Animation' ? `Animate scene-by-scene following storyboard — match timing from brief` :
+        type === 'Reel' || type === 'Social Ad' ? `Follow storyboard frame by frame — no improvising, every cut is planned` :
+        `Follow storyboard / content outline`,
+        `Layer audio: music at correct BPM/mood (${audioMood}), apply VO per brief, place SFX at marked timecodes`,
         `Add captions/text overlays per brand voice guidelines`,
-        type === '3D Animation' ? `Render scenes — check lighting, shadows, and camera angles per brief` : `Apply colour grade and transitions`,
+        type === '3D Animation' ? `Render scenes — verify lighting, shadow quality, and camera angles match scene brief` :
+        type === 'Podcast' ? `Record and edit audio, apply EQ, set level to −${platform === 'Email' ? '16' : '14'} LUFS` :
+        `Apply colour grade and transitions`,
         `Export at correct spec: format, bitrate, loudness (−14 LUFS)`,
       ],
       postProd: [
@@ -1454,7 +1546,7 @@ export default function ContentEngin({ onBack }: Props) {
                   <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Content Type</label>
                   <select value={planType} onChange={e => setPlanType(e.target.value)}
                     style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                    {['Reel', 'YouTube Video', 'YouTube Short', '3D Animation', 'Podcast', 'Blog Post', 'Email Campaign', 'Social Ad', 'Story'].map(t => <option key={t} value={t}>{t}</option>)}
+                    {['Reel', 'YouTube Video', 'YouTube Short', '3D Animated Short', '3D Feature Film Scene', '2D Animation (Toon Boom)', '2D Animation (TVPaint)', 'Virtual Production (Unreal)', 'Feature Film Scene', 'Podcast', 'Blog Post', 'Email Campaign', 'Social Ad', 'Story'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
@@ -1502,6 +1594,182 @@ export default function ContentEngin({ onBack }: Props) {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* ── 5c. Character Brief Builder ──────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🎭</span>
+              <span className="de-widget-title ml-2">Character Brief Builder</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#ec4899', background: 'rgba(236,72,153,0.1)', padding: '2px 7px', borderRadius: 4 }}>Maya · ZBrush · Toon Boom · TVPaint</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Define every character before the engine opens. Riggers and animators get a complete spec — no guessing on design, rig complexity, or simulation requirements.</p>
+              {/* Name + Role */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input value={charName} onChange={e => setCharName(e.target.value)} placeholder="Character name…"
+                  style={{ flex: 2, padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(236,72,153,0.25)', background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none' }} />
+                <select value={charRole} onChange={e => setCharRole(e.target.value as typeof charRole)}
+                  style={{ flex: 1, fontSize: 11, borderRadius: 9, padding: '8px 10px', border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                  {CHAR_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              {/* Animation type + Rig level */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Animation Pipeline</label>
+                  <select value={charAnimType} onChange={e => setCharAnimType(e.target.value as typeof charAnimType)}
+                    style={{ width: '100%', fontSize: 11, borderRadius: 8, padding: '7px 9px', border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {CHAR_ANIM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Rig Complexity</label>
+                  <select value={charRigLevel} onChange={e => setCharRigLevel(e.target.value as typeof charRigLevel)}
+                    style={{ width: '100%', fontSize: 11, borderRadius: 8, padding: '7px 9px', border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                    {CHAR_RIG_LEVELS.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+              </div>
+              {/* Physical + Personality */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Physical Description</label>
+                <textarea value={charPhysical} onChange={e => setCharPhysical(e.target.value)} rows={2}
+                  placeholder="Height, build, skin tone, hair, distinctive features, proportions — everything the rigger and sculptor needs to know…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(236,72,153,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Personality & Performance Notes</label>
+                <textarea value={charPersonality} onChange={e => setCharPersonality(e.target.value)} rows={2}
+                  placeholder="How does this character move? What emotions do they express most? Performance style (subtle / broad / comedic)…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(236,72,153,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Special simulations */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Special Simulations Required</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {CHAR_SIM_OPTIONS.map(sim => {
+                    const on = charSims.has(sim);
+                    return (
+                      <button key={sim} type="button"
+                        onClick={() => setCharSims(prev => { const n = new Set(prev); on ? n.delete(sim) : n.add(sim); return n; })}
+                        style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                          background: on ? 'rgba(236,72,153,0.14)' : 'rgba(255,255,255,0.55)',
+                          border: `1.5px solid ${on ? '#ec4899' : 'rgba(160,195,240,0.25)'}`,
+                          color: on ? '#ec4899' : 'var(--de-text-dim)' }}>
+                        {sim}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              {/* Colour + References */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Colour Palette & Style</label>
+                  <input value={charColorNotes} onChange={e => setCharColorNotes(e.target.value)} placeholder="e.g. desaturated blues, warm skin tone…"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, border: '1px solid rgba(236,72,153,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Reference Materials</label>
+                  <input value={charRefs} onChange={e => setCharRefs(e.target.value)} placeholder="e.g. Spider-Man: Into the Spider-Verse…"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, border: '1px solid rgba(236,72,153,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button type="button" onClick={handleSaveCharBrief} disabled={charSaving || !charName.trim()}
+                  style={{ ...btnBase, background: '#ec4899', color: 'white', padding: '9px 20px', fontSize: 13, opacity: charSaving || !charName.trim() ? 0.6 : 1 }}>
+                  {charSaving ? '⏳ Saving…' : '🎭 Save Character Brief → Drafts'}
+                </button>
+                {charSaveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: charSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{charSaveMsg}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* ── 5d. Scene & Set Design Brief ─────────────────────────────────── */}
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span style={{ fontSize: 15 }}>🏗️</span>
+              <span className="de-widget-title ml-2">Scene & Set Design Brief</span>
+              <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '2px 7px', borderRadius: 4 }}>Unreal · TVPaint · Toon Boom BG</span>
+            </div>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Every background, set, and virtual environment designed before the engine opens. Art directors and Unreal VPs get the complete spec upfront.</p>
+              {/* Scene name + type */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input value={sceneName} onChange={e => setSceneName(e.target.value)} placeholder="Scene name (e.g. Rooftop – Night)…"
+                  style={{ flex: 2, padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(139,92,246,0.25)', background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none' }} />
+                <select value={sceneType} onChange={e => setSceneType(e.target.value as typeof sceneType)}
+                  style={{ flex: 1, fontSize: 11, borderRadius: 9, padding: '8px 9px', border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
+                  {SCENE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              {/* Lighting */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Lighting Condition</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {LIGHTING_TYPES.map(l => (
+                    <button key={l} type="button" onClick={() => setSceneLighting(l as typeof sceneLighting)}
+                      style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                        background: sceneLighting === l ? 'rgba(139,92,246,0.14)' : 'rgba(255,255,255,0.55)',
+                        border: `1.5px solid ${sceneLighting === l ? '#8b5cf6' : 'rgba(160,195,240,0.25)'}`,
+                        color: sceneLighting === l ? '#8b5cf6' : 'var(--de-text-dim)' }}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Mood */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Mood & Atmosphere</label>
+                <textarea value={sceneMood} onChange={e => setSceneMood(e.target.value)} rows={2}
+                  placeholder="Describe the feeling — tense, peaceful, oppressive, magical, nostalgic… Include references (films, paintings, photography)…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(139,92,246,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Key elements */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Key Visual Elements</label>
+                <textarea value={sceneElements} onChange={e => setSceneElements(e.target.value)} rows={2}
+                  placeholder="What must be visible / prominent? What props, landmarks, or environmental details does the scene require?…"
+                  style={{ width: '100%', borderRadius: 9, padding: '8px 12px', fontSize: 12, border: '1px solid rgba(139,92,246,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {/* Unreal Engine notes (conditional) */}
+              {sceneType.includes('Unreal') && (
+                <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#8b5cf6', marginBottom: 6 }}>⚡ Unreal Engine / Virtual Production Notes</div>
+                  <textarea value={sceneUnrealNotes} onChange={e => setSceneUnrealNotes(e.target.value)} rows={3}
+                    placeholder="Camera tracking requirements, LED wall brightness (target >1000 nits), parallax movement range, actor blocking zones, nDisplay setup notes, real-time asset optimisation targets…"
+                    style={{ width: '100%', borderRadius: 8, padding: '8px 10px', fontSize: 12, border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, boxSizing: 'border-box', outline: 'none' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+                    {[
+                      { label: 'LED Wall Target',       val: '≥ 1,000 nits'         },
+                      { label: 'Frame Rate',             val: '24fps (film) / 60fps (VFX)' },
+                      { label: 'Tracking System',        val: 'Define: Vicon / OptiTrack / Stype' },
+                      { label: 'Asset LOD Budget',       val: 'Confirm with Tech Art'  },
+                    ].map(r => (
+                      <div key={r.label} style={{ display: 'flex', gap: 8, fontSize: 10 }}>
+                        <span style={{ fontWeight: 700, color: '#8b5cf6', minWidth: 110 }}>{r.label}:</span>
+                        <span style={{ color: 'var(--de-text-dim)' }}>{r.val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Colour palette */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Colour Palette</label>
+                <input value={sceneColorPalette} onChange={e => setSceneColorPalette(e.target.value)}
+                  placeholder="e.g. muted earth tones, electric blue accents, high contrast noir…"
+                  style={{ width: '100%', padding: '7px 12px', borderRadius: 8, fontSize: 12, border: '1px solid rgba(139,92,246,0.18)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button type="button" onClick={handleSaveSceneBrief} disabled={sceneSaving || !sceneName.trim()}
+                  style={{ ...btnBase, background: '#8b5cf6', color: 'white', padding: '9px 20px', fontSize: 13, opacity: sceneSaving || !sceneName.trim() ? 0.6 : 1 }}>
+                  {sceneSaving ? '⏳ Saving…' : '🏗️ Save Scene Brief → Drafts'}
+                </button>
+                {sceneSaveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: sceneSaveMsg.startsWith('✅') ? '#16a34a' : '#ef4444' }}>{sceneSaveMsg}</span>}
+              </div>
             </div>
           </div>
 
@@ -1554,6 +1822,30 @@ export default function ContentEngin({ onBack }: Props) {
                   tools: [
                     { name: 'Notion', desc: 'Docs, wikis & project management',   de: 'Workflow Brain + Creative Brief → project context lives in one place' },
                     { name: 'Trello', desc: 'Kanban content production boards',    de: 'Content Pipeline → 7-stage kanban from Concept to Live, no separate app needed' },
+                  ],
+                },
+                {
+                  category: '🎭 3D Animation & Rigging',
+                  color: '#ec4899',
+                  tools: [
+                    { name: 'Autodesk Maya', desc: '3D character rigging & primary animation',      de: 'Character Brief Builder → rig complexity, sim requirements, design direction packaged before Maya opens' },
+                    { name: 'ZBrush',        desc: 'High-detail digital sculpting of characters',   de: 'Character Brief Builder → poly budget targets, sculpt reference list, colour palette notes sent to sculpt team' },
+                  ],
+                },
+                {
+                  category: '✏️ 2D Animation',
+                  color: '#10b981',
+                  tools: [
+                    { name: 'Toon Boom Harmony', desc: 'Frame-by-frame 2D animation & cut-out rigging', de: 'Character Brief + Storyboard Builder → cut-out rig spec, exposure sheet structure, scene-by-scene breakdowns' },
+                    { name: 'TVPaint Animation',  desc: 'Hand-drawn digital animation',                  de: 'Scene & Set Design Brief + Storyboard → background design direction, frame-by-frame action notes per scene' },
+                  ],
+                },
+                {
+                  category: '🎬 Live-Action & Virtual Production',
+                  color: '#8b5cf6',
+                  tools: [
+                    { name: 'Unreal Engine', desc: 'Virtual Production — digital LED wall backgrounds for live actors', de: 'Scene & Set Design Brief → LED wall brightness spec, tracking requirements, actor blocking, nDisplay notes pre-configured' },
+                    { name: 'Final Draft',   desc: 'Industry-standard scriptwriting & dialogue management',             de: 'AI Production Plan → full story outline, scene structure, character arc, and dialogue direction delivered before Final Draft opens' },
                   ],
                 },
               ]).map(group => (
