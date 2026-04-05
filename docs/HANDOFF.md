@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-05 09:49 UTC | `8bc80ec` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #454 from appthemanger-ctrl/copilot/fix-type-error-in-ad-slotsr — Bypass stale Supabase ads typings in server queries<br> |
 | **auto** | 2026-04-05 09:49 UTC | `fab1acd` | copilot/fix-type-error-in-ad-slots | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-type-error-in-ad-slots<br> |
 | **auto** | 2026-04-05 08:45 UTC | `a07f8b7` | copilot/fix-type-error-in-ad-slots | Copilot | ~1 modified<br>fix: normalize remediation file hint regex — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/d89d2ca5-1897-4f70-baf7-f93c2a674c3a  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/observability/immediateAction.ts` |
 | **auto** | 2026-04-05 08:37 UTC | `225b6f8` | copilot/fix-type-error-in-ad-slots | Copilot | +1 added  ~5 modified<br>feat: add immediate observability remediation actions — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/d89d2ca5-1897-4f70-baf7-f93c2a674c3a  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `lib/observability/immediateAction.ts`<br>✏️: `app/api/admin/observability/route.ts`, `components/IDariPanel.tsx`, `lib/agents/idariLoop.ts`, `lib/observability/rootCauseAnalyzer.ts`, `tests/idari-observability-loop.test.ts` |
 | **auto** | 2026-04-05 08:15 UTC | `8c219df` | copilot/fix-type-error-in-ad-slots | Copilot | ~2 modified<br>fix: bypass stale ads supabase typing in server queries — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/b9d479d8-ebcf-4c23-9bc5-7302b841da0b  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/ads/page.tsx`, `app/api/analytics/route.ts` |
-| **auto** | 2026-04-05 08:06 UTC | `e30fbfb` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #450 from appthemanger-ctrl/copilot/update-readme-md-again — docs: sync README metrics to live repo state + fix update-readme script to self-maintain<br> |
 
 ## What changed in this alignment pass
 
