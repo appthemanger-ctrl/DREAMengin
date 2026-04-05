@@ -15,7 +15,9 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Play, StopCircle, Loader2, CheckCircle, Bot, Monitor, Database, Gamepad2, FlaskConical, Box, BarChart2, RefreshCw } from 'lucide-react';
+import { Play, StopCircle, Loader2, CheckCircle, Bot, Monitor, Database, Gamepad2, FlaskConical, Box, BarChart2, RefreshCw, ArrowLeftRight, Zap, MousePointerClick } from 'lucide-react';
+import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
+import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -273,8 +275,17 @@ export default function CodeDreamIDE() {
   const [previewMode,  setPreviewMode] = useState<PreviewMode>('terminal');
   const [status,       setStatus]      = useState<RunStatus>('idle');
   const [outputLines,  setOutputLines] = useState<string[]>([]);
-  const [streamIdx,    setStreamIdx]   = useState(0);
   const outputRef = useRef<HTMLDivElement>(null);
+
+  // Swap & live-mode state
+  const [swapped,   setSwapped]   = useState(false);
+  const [liveMode,  setLiveMode]  = useState(false);
+  const liveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load swap preference from localStorage on mount (client-only)
+  useEffect(() => {
+    setSwapped(getSwap('code'));
+  }, []);
 
   // Dr. Eams quick assist
   const [eamsPrompt,   setEamsPrompt]  = useState('');
@@ -301,21 +312,53 @@ export default function CodeDreamIDE() {
     if (status === 'running') return;
     setStatus('running');
     setOutputLines([]);
-    setStreamIdx(0);
+
+    // Emit code:run so CodeEngin / any other subscriber can react
+    dualRuntimeBridge.emit('code', 'code:run', { language, code, engine });
 
     const lines = getMockOutput(language, engine, code);
     lines.forEach((line, i) => {
       setTimeout(() => {
-        setOutputLines(prev => [...prev, line]);
-        if (i === lines.length - 1) setStatus('done');
+        setOutputLines(prev => {
+          const next = [...prev, line];
+          if (i === lines.length - 1) {
+            setStatus('done');
+            // Emit completed output
+            dualRuntimeBridge.emit('code', 'code:output', { lines: next, status: 'done' });
+          }
+          return next;
+        });
       }, 120 * (i + 1));
     });
   }, [status, language, engine, code]);
 
   const handleStop = useCallback(() => {
     setStatus('error');
-    setOutputLines(prev => [...prev, `[${new Date().toISOString().slice(11, 19)}] ⛔ Interrupted by user`]);
+    setOutputLines(prev => {
+      const next = [...prev, `[${new Date().toISOString().slice(11, 19)}] ⛔ Interrupted by user`];
+      dualRuntimeBridge.emit('code', 'code:output', { lines: next, status: 'error' });
+      return next;
+    });
   }, []);
+
+  // Toggle swap — persists to localStorage
+  const handleSwap = useCallback(() => {
+    const next = toggleSwap('code');
+    setSwapped(next);
+  }, []);
+
+  // Live mode — debounce code changes and auto-run (300 ms)
+  useEffect(() => {
+    if (!liveMode) return;
+    if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
+    liveTimerRef.current = setTimeout(() => {
+      handleRun();
+    }, 300);
+    return () => {
+      if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, liveMode]);
 
   // Dr. Eams quick assist — calls /api/ai/eams with code_context
   const handleEamsAssist = useCallback(async () => {
@@ -417,6 +460,44 @@ export default function CodeDreamIDE() {
             ))}
           </div>
 
+          {/* Live / Manual mode toggle */}
+          <button
+            type="button"
+            onClick={() => setLiveMode(m => !m)}
+            title={liveMode ? 'Switch to Manual mode' : 'Switch to Live mode (auto-run on change)'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '3px 9px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+              border: `1.5px solid ${liveMode ? '#f59e0b' : 'rgba(160,195,240,0.22)'}`,
+              background: liveMode ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.55)',
+              color: liveMode ? '#f59e0b' : 'var(--de-text-dim)',
+              cursor: 'pointer', transition: 'all 0.12s',
+            }}
+            aria-label={liveMode ? 'Live mode active' : 'Manual mode active'}
+          >
+            {liveMode
+              ? <><Zap className="w-3 h-3" /> Live</>
+              : <><MousePointerClick className="w-3 h-3" /> Manual</>}
+          </button>
+
+          {/* Swap button */}
+          <button
+            type="button"
+            onClick={handleSwap}
+            title={swapped ? 'Preview left · Editor right — click to swap back' : 'Editor left · Preview right — click to swap'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '3px 9px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+              border: `1.5px solid ${swapped ? ACCENT : 'rgba(160,195,240,0.22)'}`,
+              background: swapped ? `${ACCENT}12` : 'rgba(255,255,255,0.55)',
+              color: swapped ? ACCENT : 'var(--de-text-dim)',
+              cursor: 'pointer', transition: 'all 0.12s',
+            }}
+            aria-label="Swap editor and preview panels"
+          >
+            <ArrowLeftRight className="w-3 h-3" /> Swap
+          </button>
+
           {/* Preview mode */}
           <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }}>
             {PREVIEW_MODES.map(m => (
@@ -438,7 +519,7 @@ export default function CodeDreamIDE() {
           </div>
         </div>
 
-        {/* Split body */}
+        {/* Split body — order controlled by `swapped` flag */}
         <div
           style={{
             display: 'grid',
@@ -447,7 +528,82 @@ export default function CodeDreamIDE() {
             minHeight: 320,
           }}
         >
-          {/* ── LEFT: Editor ── */}
+          {/* Editor panel — rendered first when not swapped, second when swapped */}
+          {swapped && (
+            /* ── SWAPPED LEFT: Preview ── */
+            <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
+                display: 'flex', alignItems: 'center', gap: 6 }}>
+                PREVIEW
+                <span style={{ marginLeft: 'auto' }}>
+                  {status === 'running' && (
+                    <span style={{ fontSize: 10, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', display: 'inline-block', animation: 'de-pulse 1s infinite' }} />
+                      Live
+                    </span>
+                  )}
+                  {status === 'done' && <span style={{ fontSize: 10, color: OUT_OK }}>✓ Complete</span>}
+                </span>
+              </div>
+              <div ref={outputRef} style={{ flex: 1, minHeight: 260, overflowY: 'auto', background: CODE_BG, padding: '12px 14px' }}>
+                {previewMode === 'terminal' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {outputLines.length === 0 && status === 'idle' && (
+                      <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.45)', fontFamily: 'monospace' }}>Press Run ▶ to execute…</p>
+                    )}
+                    {outputLines.map((line, i) => (
+                      <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
+                        color: line.startsWith('[') ? OUT_OK : line.startsWith('>>>') ? '#93c5fd' : line.startsWith('$') ? '#fbbf24' : (line.startsWith('⛔') || line.startsWith('Error')) ? OUT_ERR : CODE_FG,
+                        whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
+                        {line}
+                      </pre>
+                    ))}
+                    {status === 'running' && <span style={{ fontSize: 11, color: '#f59e0b', fontFamily: 'monospace' }}>▋</span>}
+                  </div>
+                )}
+                {previewMode === 'data' && (
+                  <div style={{ padding: 4 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(148,163,184,0.6)', marginBottom: 10, letterSpacing: '0.06em' }}>DATA VISUALIZATION</div>
+                    <AsciiHeatmap cols={30} rows={5} seed={42 + outputLines.length} />
+                    <div style={{ marginTop: 14, fontSize: 10, color: 'rgba(148,163,184,0.45)' }}>High-density map · {outputLines.length} frames</div>
+                    {outputLines.length > 0 && <div style={{ marginTop: 12 }}><AsciiBarChart values={[38, 61, 54, 82, 47, 73]} labels={['CPU', 'GPU', 'MEM', 'VRAM', 'NET', 'I/O']} /></div>}
+                  </div>
+                )}
+                {previewMode === 'game' && (
+                  <div style={{ padding: 4 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(148,163,184,0.6)', marginBottom: 10, letterSpacing: '0.06em' }}>GAME ENGINE VIEW</div>
+                    <div style={{ border: '1px solid rgba(139,92,246,0.3)', borderRadius: 6, padding: 10, background: 'rgba(139,92,246,0.04)', fontFamily: 'monospace', fontSize: 10, color: '#c084fc', lineHeight: 1.8 }}>
+                      Scene: {outputLines.length > 0 ? 'scene_active' : 'waiting…'}<br />
+                      Entities: {outputLines.length > 0 ? '124' : '0'}<br />
+                      FPS: {outputLines.length > 0 ? '60' : '—'}<br />
+                      Draw calls: {outputLines.length > 0 ? '24' : '—'}<br />
+                      Physics: {engine === 'game' && outputLines.length > 0 ? 'Havok ●' : 'idle'}<br /><br />
+                      {outputLines.length > 0 ? (
+                        <>┌──────────────────────┐<br />│  ░░░░░░░░░░░░░░░░░░  │<br />│  ░░░░░ 👾 ░░░░░░░░  │<br />│  ░░░░░░░░░░░░░░░░░░  │<br />│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │<br />└──────────────────────┘</>
+                      ) : '   [waiting for run…]'}
+                    </div>
+                  </div>
+                )}
+                {previewMode === 'canvas' && (
+                  <div style={{ padding: 4 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(148,163,184,0.6)', marginBottom: 10, letterSpacing: '0.06em' }}>CANVAS OUTPUT</div>
+                    <AsciiHeatmap cols={28} rows={8} seed={17 + outputLines.length * 3} />
+                    <div style={{ marginTop: 8, fontSize: 10, color: 'rgba(148,163,184,0.45)' }}>
+                      Render output · {language} · {engine !== 'none' ? activeEngine.label : 'standalone'}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div style={{ padding: '6px 12px', borderTop: '1px solid rgba(160,195,240,0.1)', background: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: 'var(--de-text-dim)' }}>
+                <span style={{ color: activeEngine.accent }}>{activeEngine.icon}</span>
+                {activeEngine.label} · {language} · {previewMode} mode
+              </div>
+            </div>
+          )}
+
+          {/* ── Editor panel (left when not swapped) ── */}
+          {!swapped && (
           <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
               fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
@@ -474,26 +630,32 @@ export default function CodeDreamIDE() {
             {/* Run / Stop bar */}
             <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
               display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.4)' }}>
-              <button
-                type="button"
-                onClick={handleRun}
-                disabled={status === 'running'}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '6px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700,
-                  border: 'none', cursor: status === 'running' ? 'not-allowed' : 'pointer',
-                  background: status === 'running' ? 'rgba(99,102,241,0.15)' : ACCENT,
-                  color: status === 'running' ? ACCENT : '#fff',
-                  transition: 'all 0.15s', opacity: status === 'running' ? 0.7 : 1,
-                }}
-                aria-label="Run code"
-              >
-                {status === 'running'
-                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Running…</>
-                  : <><Play className="w-3.5 h-3.5" /> Run ▶</>}
-              </button>
+              {liveMode ? (
+                <span style={{ fontSize: 11, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Zap className="w-3.5 h-3.5" /> Live — auto-runs on change
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleRun}
+                  disabled={status === 'running'}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    padding: '6px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700,
+                    border: 'none', cursor: status === 'running' ? 'not-allowed' : 'pointer',
+                    background: status === 'running' ? 'rgba(99,102,241,0.15)' : ACCENT,
+                    color: status === 'running' ? ACCENT : '#fff',
+                    transition: 'all 0.15s', opacity: status === 'running' ? 0.7 : 1,
+                  }}
+                  aria-label="Run code"
+                >
+                  {status === 'running'
+                    ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Running…</>
+                    : <><Play className="w-3.5 h-3.5" /> Run ▶</>}
+                </button>
+              )}
 
-              {status === 'running' && (
+              {status === 'running' && !liveMode && (
                 <button
                   type="button"
                   onClick={handleStop}
@@ -531,136 +693,216 @@ export default function CodeDreamIDE() {
               </button>
             </div>
           </div>
+          )}
 
-          {/* ── RIGHT: Live Preview / Output ── */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
-              fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
-              display: 'flex', alignItems: 'center', gap: 6 }}>
-              PREVIEW
-              <span style={{ marginLeft: 'auto' }}>
-                {status === 'running' && (
-                  <span style={{ fontSize: 10, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', display: 'inline-block', animation: 'de-pulse 1s infinite' }} />
-                    Live
-                  </span>
-                )}
-                {status === 'done' && (
-                  <span style={{ fontSize: 10, color: OUT_OK }}>✓ Complete</span>
-                )}
-              </span>
-            </div>
-
-            <div
-              ref={outputRef}
-              style={{
-                flex: 1, minHeight: 260, overflowY: 'auto',
-                background: CODE_BG, padding: '12px 14px',
-              }}
-            >
-              {/* Mode: terminal */}
-              {previewMode === 'terminal' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {outputLines.length === 0 && status === 'idle' && (
-                    <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.45)', fontFamily: 'monospace' }}>
-                      Press Run ▶ to execute…
-                    </p>
-                  )}
-                  {outputLines.map((line, i) => (
-                    <pre key={i} style={{
-                      margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
-                      color: line.startsWith('[') ? OUT_OK
-                        : line.startsWith('>>>') ? '#93c5fd'
-                        : line.startsWith('$') ? '#fbbf24'
-                        : line.startsWith('⛔') || line.startsWith('Error') ? OUT_ERR
-                        : CODE_FG,
-                      whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55,
-                    }}>
-                      {line}
-                    </pre>
-                  ))}
+          {/* ── Preview panel — rendered second when not swapped, first when swapped ── */}
+          {!swapped && (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
+                display: 'flex', alignItems: 'center', gap: 6 }}>
+                PREVIEW
+                <span style={{ marginLeft: 'auto' }}>
                   {status === 'running' && (
-                    <span style={{ fontSize: 11, color: '#f59e0b', fontFamily: 'monospace' }}>▋</span>
+                    <span style={{ fontSize: 10, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', display: 'inline-block', animation: 'de-pulse 1s infinite' }} />
+                      Live
+                    </span>
                   )}
-                </div>
-              )}
-
-              {/* Mode: data */}
-              {previewMode === 'data' && (
-                <div style={{ padding: 4 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(148,163,184,0.6)', marginBottom: 10, letterSpacing: '0.06em' }}>
-                    DATA VISUALIZATION
-                  </div>
-                  <AsciiHeatmap cols={30} rows={5} seed={42 + outputLines.length} />
-                  <div style={{ marginTop: 14, fontSize: 10, color: 'rgba(148,163,184,0.45)' }}>
-                    High-density map  ·  {outputLines.length} frames
-                  </div>
-                  {outputLines.length > 0 && (
-                    <div style={{ marginTop: 12 }}>
-                      <AsciiBarChart
-                        values={[38, 61, 54, 82, 47, 73]}
-                        labels={['CPU', 'GPU', 'MEM', 'VRAM', 'NET', 'I/O']}
-                      />
-                    </div>
+                  {status === 'done' && (
+                    <span style={{ fontSize: 10, color: OUT_OK }}>✓ Complete</span>
                   )}
-                </div>
-              )}
+                </span>
+              </div>
 
-              {/* Mode: game */}
-              {previewMode === 'game' && (
-                <div style={{ padding: 4 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(148,163,184,0.6)', marginBottom: 10, letterSpacing: '0.06em' }}>
-                    GAME ENGINE VIEW
-                  </div>
-                  <div style={{
-                    border: '1px solid rgba(139,92,246,0.3)', borderRadius: 6, padding: 10,
-                    background: 'rgba(139,92,246,0.04)', fontFamily: 'monospace',
-                    fontSize: 10, color: '#c084fc', lineHeight: 1.8,
-                  }}>
-                    Scene: {outputLines.length > 0 ? `scene_active` : 'waiting…'}<br />
-                    Entities: {outputLines.length > 0 ? '124' : '0'}<br />
-                    FPS: {outputLines.length > 0 ? '60' : '—'}<br />
-                    Draw calls: {outputLines.length > 0 ? '24' : '—'}<br />
-                    Physics: {engine === 'game' && outputLines.length > 0 ? 'Havok ●' : 'idle'}<br />
-                    <br />
-                    {outputLines.length > 0 ? (
-                      <>
-                        ┌──────────────────────┐<br />
-                        │  ░░░░░░░░░░░░░░░░░░  │<br />
-                        │  ░░░░░ 👾 ░░░░░░░░  │<br />
-                        │  ░░░░░░░░░░░░░░░░░░  │<br />
-                        │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │<br />
-                        └──────────────────────┘
-                      </>
-                    ) : (
-                      '   [waiting for run…]'
+              <div
+                ref={outputRef}
+                style={{
+                  flex: 1, minHeight: 260, overflowY: 'auto',
+                  background: CODE_BG, padding: '12px 14px',
+                }}
+              >
+                {/* Mode: terminal */}
+                {previewMode === 'terminal' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {outputLines.length === 0 && status === 'idle' && (
+                      <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.45)', fontFamily: 'monospace' }}>
+                        Press Run ▶ to execute…
+                      </p>
+                    )}
+                    {outputLines.map((line, i) => (
+                      <pre key={i} style={{
+                        margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
+                        color: line.startsWith('[') ? OUT_OK
+                          : line.startsWith('>>>') ? '#93c5fd'
+                          : line.startsWith('$') ? '#fbbf24'
+                          : line.startsWith('⛔') || line.startsWith('Error') ? OUT_ERR
+                          : CODE_FG,
+                        whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55,
+                      }}>
+                        {line}
+                      </pre>
+                    ))}
+                    {status === 'running' && (
+                      <span style={{ fontSize: 11, color: '#f59e0b', fontFamily: 'monospace' }}>▋</span>
                     )}
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Mode: canvas */}
-              {previewMode === 'canvas' && (
-                <div style={{ padding: 4 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(148,163,184,0.6)', marginBottom: 10, letterSpacing: '0.06em' }}>
-                    CANVAS OUTPUT
+                {/* Mode: data */}
+                {previewMode === 'data' && (
+                  <div style={{ padding: 4 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(148,163,184,0.6)', marginBottom: 10, letterSpacing: '0.06em' }}>
+                      DATA VISUALIZATION
+                    </div>
+                    <AsciiHeatmap cols={30} rows={5} seed={42 + outputLines.length} />
+                    <div style={{ marginTop: 14, fontSize: 10, color: 'rgba(148,163,184,0.45)' }}>
+                      High-density map  ·  {outputLines.length} frames
+                    </div>
+                    {outputLines.length > 0 && (
+                      <div style={{ marginTop: 12 }}>
+                        <AsciiBarChart
+                          values={[38, 61, 54, 82, 47, 73]}
+                          labels={['CPU', 'GPU', 'MEM', 'VRAM', 'NET', 'I/O']}
+                        />
+                      </div>
+                    )}
                   </div>
-                  <AsciiHeatmap cols={28} rows={8} seed={17 + outputLines.length * 3} />
-                  <div style={{ marginTop: 8, fontSize: 10, color: 'rgba(148,163,184,0.45)' }}>
-                    Render output  ·  {language}  ·  {engine !== 'none' ? activeEngine.label : 'standalone'}
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
 
-            {/* Output engine label footer */}
-            <div style={{ padding: '6px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
-              background: 'rgba(255,255,255,0.4)',
-              display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: 'var(--de-text-dim)' }}>
-              <span style={{ color: activeEngine.accent }}>{activeEngine.icon}</span>
-              {activeEngine.label} · {language} · {previewMode} mode
+                {/* Mode: game */}
+                {previewMode === 'game' && (
+                  <div style={{ padding: 4 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(148,163,184,0.6)', marginBottom: 10, letterSpacing: '0.06em' }}>
+                      GAME ENGINE VIEW
+                    </div>
+                    <div style={{
+                      border: '1px solid rgba(139,92,246,0.3)', borderRadius: 6, padding: 10,
+                      background: 'rgba(139,92,246,0.04)', fontFamily: 'monospace',
+                      fontSize: 10, color: '#c084fc', lineHeight: 1.8,
+                    }}>
+                      Scene: {outputLines.length > 0 ? `scene_active` : 'waiting…'}<br />
+                      Entities: {outputLines.length > 0 ? '124' : '0'}<br />
+                      FPS: {outputLines.length > 0 ? '60' : '—'}<br />
+                      Draw calls: {outputLines.length > 0 ? '24' : '—'}<br />
+                      Physics: {engine === 'game' && outputLines.length > 0 ? 'Havok ●' : 'idle'}<br />
+                      <br />
+                      {outputLines.length > 0 ? (
+                        <>
+                          ┌──────────────────────┐<br />
+                          │  ░░░░░░░░░░░░░░░░░░  │<br />
+                          │  ░░░░░ 👾 ░░░░░░░░  │<br />
+                          │  ░░░░░░░░░░░░░░░░░░  │<br />
+                          │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │<br />
+                          └──────────────────────┘
+                        </>
+                      ) : (
+                        '   [waiting for run…]'
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Mode: canvas */}
+                {previewMode === 'canvas' && (
+                  <div style={{ padding: 4 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(148,163,184,0.6)', marginBottom: 10, letterSpacing: '0.06em' }}>
+                      CANVAS OUTPUT
+                    </div>
+                    <AsciiHeatmap cols={28} rows={8} seed={17 + outputLines.length * 3} />
+                    <div style={{ marginTop: 8, fontSize: 10, color: 'rgba(148,163,184,0.45)' }}>
+                      Render output  ·  {language}  ·  {engine !== 'none' ? activeEngine.label : 'standalone'}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Output engine label footer */}
+              <div style={{ padding: '6px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
+                background: 'rgba(255,255,255,0.4)',
+                display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, color: 'var(--de-text-dim)' }}>
+                <span style={{ color: activeEngine.accent }}>{activeEngine.icon}</span>
+                {activeEngine.label} · {language} · {previewMode} mode
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* When swapped, render editor on the right side */}
+          {swapped && (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
+                display: 'flex', alignItems: 'center', gap: 6 }}>
+                EDITOR
+                <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT, fontWeight: 600 }}>
+                  {language.toUpperCase()}
+                </span>
+              </div>
+              <textarea
+                value={code}
+                onChange={e => setCode(e.target.value)}
+                spellCheck={false}
+                aria-label="Code editor"
+                style={{
+                  flex: 1, minHeight: 260,
+                  background: CODE_BG, color: CODE_FG,
+                  fontFamily: '"Fira Code","JetBrains Mono","Cascadia Code",ui-monospace,monospace',
+                  fontSize: 12, lineHeight: 1.65, padding: '12px 14px',
+                  border: 'none', outline: 'none', resize: 'none',
+                  whiteSpace: 'pre', overflowX: 'auto',
+                }}
+              />
+              <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
+                display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.4)' }}>
+                {liveMode ? (
+                  <span style={{ fontSize: 11, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Zap className="w-3.5 h-3.5" /> Live — auto-runs on change
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleRun}
+                    disabled={status === 'running'}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 5,
+                      padding: '6px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700,
+                      border: 'none', cursor: status === 'running' ? 'not-allowed' : 'pointer',
+                      background: status === 'running' ? 'rgba(99,102,241,0.15)' : ACCENT,
+                      color: status === 'running' ? ACCENT : '#fff',
+                      transition: 'all 0.15s', opacity: status === 'running' ? 0.7 : 1,
+                    }}
+                    aria-label="Run code"
+                  >
+                    {status === 'running'
+                      ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Running…</>
+                      : <><Play className="w-3.5 h-3.5" /> Run ▶</>}
+                  </button>
+                )}
+                {status === 'running' && !liveMode && (
+                  <button type="button" onClick={handleStop}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 7, fontSize: 11, fontWeight: 700,
+                      border: '1px solid rgba(248,113,113,0.4)', background: 'rgba(248,113,113,0.08)', color: OUT_ERR, cursor: 'pointer' }}
+                    aria-label="Stop execution">
+                    <StopCircle className="w-3.5 h-3.5" /> Stop
+                  </button>
+                )}
+                {status === 'done' && (
+                  <span style={{ fontSize: 11, color: OUT_OK, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <CheckCircle className="w-3.5 h-3.5" /> Done
+                  </span>
+                )}
+                <button type="button"
+                  onClick={() => { setCode(DEMO_CODE[language]); setOutputLines([]); setStatus('idle'); }}
+                  title="Reset to demo"
+                  style={{ marginLeft: 'auto', padding: '4px 8px', borderRadius: 6, fontSize: 10,
+                    border: '1px solid rgba(160,195,240,0.22)', background: 'rgba(0,0,0,0.03)',
+                    color: 'var(--de-text-dim)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+                  aria-label="Reset code to demo">
+                  <RefreshCw className="w-3 h-3" /> Reset
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

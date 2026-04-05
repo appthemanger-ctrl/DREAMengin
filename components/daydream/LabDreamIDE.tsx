@@ -18,8 +18,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Play, StopCircle, Loader2, CheckCircle,
-  FlaskConical, Activity, RefreshCw, BarChart2,
+  FlaskConical, Activity, RefreshCw, BarChart2, ArrowLeftRight, Zap, MousePointerClick,
 } from 'lucide-react';
+import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
+import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -236,6 +238,16 @@ export default function LabDreamIDE() {
   const [vizSeed,   setVizSeed]   = useState(42);
   const outputRef = useRef<HTMLDivElement>(null);
 
+  // Swap & live-mode state
+  const [swapped,  setSwapped]  = useState(false);
+  const [liveMode, setLiveMode] = useState(false);
+  const liveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load swap preference from localStorage on mount (client-only)
+  useEffect(() => {
+    setSwapped(getSwap('lab'));
+  }, []);
+
   // Auto-scroll output
   useEffect(() => {
     if (outputRef.current) {
@@ -254,22 +266,54 @@ export default function LabDreamIDE() {
     if (status === 'running') return;
     setStatus('running');
     setLines([]);
+
+    // Emit lab:run so LabEngin / any other subscriber can react
+    dualRuntimeBridge.emit('lab', 'lab:run', { language, code, simId });
+
     const mockLines = getMockOutput(language, simId);
     mockLines.forEach((line, i) => {
       setTimeout(() => {
-        setLines(prev => [...prev, line]);
-        if (i === mockLines.length - 1) {
-          setStatus('done');
-          setVizSeed(s => s + 7);
-        }
+        setLines(prev => {
+          const next = [...prev, line];
+          if (i === mockLines.length - 1) {
+            setStatus('done');
+            setVizSeed(s => s + 7);
+            // Emit completed result
+            dualRuntimeBridge.emit('lab', 'lab:result', { lines: next, status: 'done' });
+          }
+          return next;
+        });
       }, 130 * (i + 1));
     });
-  }, [status, language, simId]);
+  }, [status, language, simId, code]);
 
   const handleStop = useCallback(() => {
     setStatus('error');
-    setLines(prev => [...prev, `[${new Date().toISOString().slice(11, 19)}] ⛔ Stopped`]);
+    setLines(prev => {
+      const next = [...prev, `[${new Date().toISOString().slice(11, 19)}] ⛔ Stopped`];
+      dualRuntimeBridge.emit('lab', 'lab:result', { lines: next, status: 'error' });
+      return next;
+    });
   }, []);
+
+  // Toggle swap — persists to localStorage
+  const handleSwap = useCallback(() => {
+    const next = toggleSwap('lab');
+    setSwapped(next);
+  }, []);
+
+  // Live mode — debounce code changes and auto-run (300 ms)
+  useEffect(() => {
+    if (!liveMode) return;
+    if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
+    liveTimerRef.current = setTimeout(() => {
+      handleRun();
+    }, 300);
+    return () => {
+      if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, liveMode]);
 
   const activeSim = SIMS.find(s => s.id === simId) ?? SIMS[0];
 
@@ -333,113 +377,245 @@ export default function LabDreamIDE() {
               </button>
             ))}
           </div>
+
+          {/* Live / Manual mode toggle */}
+          <button
+            type="button"
+            onClick={() => setLiveMode(m => !m)}
+            title={liveMode ? 'Switch to Manual mode' : 'Switch to Live mode (auto-run on change)'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '3px 9px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+              border: `1.5px solid ${liveMode ? '#f59e0b' : 'rgba(160,195,240,0.22)'}`,
+              background: liveMode ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.55)',
+              color: liveMode ? '#f59e0b' : 'var(--de-text-dim)',
+              cursor: 'pointer', transition: 'all 0.12s',
+            }}
+            aria-label={liveMode ? 'Live mode active' : 'Manual mode active'}
+          >
+            {liveMode
+              ? <><Zap className="w-3 h-3" /> Live</>
+              : <><MousePointerClick className="w-3 h-3" /> Manual</>}
+          </button>
+
+          {/* Swap button */}
+          <button
+            type="button"
+            onClick={handleSwap}
+            title={swapped ? 'Output left · Editor right — click to swap back' : 'Editor left · Output right — click to swap'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '3px 9px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+              border: `1.5px solid ${swapped ? ACCENT : 'rgba(160,195,240,0.22)'}`,
+              background: swapped ? `${ACCENT}12` : 'rgba(255,255,255,0.55)',
+              color: swapped ? ACCENT : 'var(--de-text-dim)',
+              cursor: 'pointer', transition: 'all 0.12s',
+            }}
+            aria-label="Swap editor and output panels"
+          >
+            <ArrowLeftRight className="w-3 h-3" /> Swap
+          </button>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, minHeight: 320 }}>
 
-          {/* ── LEFT: Script Input ── */}
-          <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
-              fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
-              display: 'flex', alignItems: 'center', gap: 6 }}>
-              INPUT
-              <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT }}>{language.toUpperCase()}</span>
-            </div>
-            <textarea
-              value={code}
-              onChange={e => setCode(e.target.value)}
-              spellCheck={false}
-              aria-label="Lab script input"
-              style={{
-                flex: 1, minHeight: 256,
-                background: CODE_BG, color: CODE_FG,
-                fontFamily: '"Fira Code","JetBrains Mono","Cascadia Code",ui-monospace,monospace',
-                fontSize: 12, lineHeight: 1.65, padding: '12px 14px',
-                border: 'none', outline: 'none', resize: 'none',
-                whiteSpace: 'pre', overflowX: 'auto',
-              }}
-            />
-            <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
-              display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.4)' }}>
-              <button
-                type="button"
-                onClick={handleRun}
-                disabled={status === 'running'}
-                aria-label="Run lab script"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '6px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700,
-                  border: 'none', cursor: status === 'running' ? 'not-allowed' : 'pointer',
-                  background: status === 'running' ? `${ACCENT}20` : ACCENT,
-                  color: status === 'running' ? ACCENT : '#fff',
-                  transition: 'all 0.15s', opacity: status === 'running' ? 0.7 : 1,
-                }}
-              >
-                {status === 'running'
-                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Running…</>
-                  : <><Play className="w-3.5 h-3.5" /> Run ▶</>}
-              </button>
-              {status === 'running' && (
-                <button type="button" onClick={handleStop}
-                  style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 7, fontSize: 11, fontWeight: 700,
-                    border: '1px solid rgba(248,113,113,0.4)', background: 'rgba(248,113,113,0.08)', color: OUT_ERR, cursor: 'pointer' }}>
-                  <StopCircle className="w-3.5 h-3.5" /> Stop
-                </button>
-              )}
-              {status === 'done' && (
-                <span style={{ fontSize: 11, color: OUT_OK, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <CheckCircle className="w-3.5 h-3.5" /> Done
+          {/* ── OUTPUT panel — left when swapped ── */}
+          {swapped && (
+            <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
+                display: 'flex', alignItems: 'center', gap: 6 }}>
+                OUTPUT
+                <span style={{ marginLeft: 'auto' }}>
+                  {status === 'running' && <span style={{ fontSize: 10, color: '#f59e0b' }}>● Live</span>}
+                  {status === 'done'    && <span style={{ fontSize: 10, color: OUT_OK   }}>✓ Complete</span>}
                 </span>
-              )}
-              <button type="button" onClick={() => { setCode(DEMO_CODE[language]); setLines([]); setStatus('idle'); }}
-                title="Reset" style={{ marginLeft: 'auto', padding: '4px 8px', borderRadius: 6, fontSize: 10,
-                  border: '1px solid rgba(160,195,240,0.22)', background: 'rgba(0,0,0,0.03)',
-                  color: 'var(--de-text-dim)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
-                <RefreshCw className="w-3 h-3" /> Reset
-              </button>
+              </div>
+              <div ref={outputRef} style={{ flex: 1, minHeight: 256, overflowY: 'auto', background: CODE_BG, padding: '12px 14px' }}>
+                {lines.length === 0 && status === 'idle' && (
+                  <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>Results appear here after Run ▶…</p>
+                )}
+                {lines.map((line, i) => (
+                  <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
+                    color: line.startsWith('[') ? OUT_OK : (line.startsWith('$') || line.startsWith('>>>')) ? '#93c5fd' : line.startsWith('⛔') ? OUT_ERR : line.startsWith('✅') ? OUT_OK : CODE_FG,
+                    whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
+                    {line}
+                  </pre>
+                ))}
+                {status === 'running' && <span style={{ fontSize: 11, color: '#f59e0b', fontFamily: 'monospace' }}>▋</span>}
+              </div>
+              <div style={{ padding: '6px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
+                background: 'rgba(255,255,255,0.4)', fontSize: 10, color: 'var(--de-text-dim)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <FlaskConical className="w-3 h-3" style={{ color: activeSim.color }} />
+                {activeSim.emoji} {activeSim.name} · {language}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* ── RIGHT: Results Output ── */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
-              fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
-              display: 'flex', alignItems: 'center', gap: 6 }}>
-              OUTPUT
-              <span style={{ marginLeft: 'auto' }}>
-                {status === 'running' && <span style={{ fontSize: 10, color: '#f59e0b' }}>● Live</span>}
-                {status === 'done'    && <span style={{ fontSize: 10, color: OUT_OK   }}>✓ Complete</span>}
-              </span>
+          {/* ── INPUT panel (editor) — left when not swapped, right when swapped ── */}
+          {!swapped && (
+            <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
+                display: 'flex', alignItems: 'center', gap: 6 }}>
+                INPUT
+                <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT }}>{language.toUpperCase()}</span>
+              </div>
+              <textarea
+                value={code}
+                onChange={e => setCode(e.target.value)}
+                spellCheck={false}
+                aria-label="Lab script input"
+                style={{
+                  flex: 1, minHeight: 256,
+                  background: CODE_BG, color: CODE_FG,
+                  fontFamily: '"Fira Code","JetBrains Mono","Cascadia Code",ui-monospace,monospace',
+                  fontSize: 12, lineHeight: 1.65, padding: '12px 14px',
+                  border: 'none', outline: 'none', resize: 'none',
+                  whiteSpace: 'pre', overflowX: 'auto',
+                }}
+              />
+              <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
+                display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.4)' }}>
+                {liveMode ? (
+                  <span style={{ fontSize: 11, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Zap className="w-3.5 h-3.5" /> Live — auto-runs on change
+                  </span>
+                ) : (
+                  <button type="button" onClick={handleRun} disabled={status === 'running'} aria-label="Run lab script"
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700,
+                      border: 'none', cursor: status === 'running' ? 'not-allowed' : 'pointer',
+                      background: status === 'running' ? `${ACCENT}20` : ACCENT,
+                      color: status === 'running' ? ACCENT : '#fff',
+                      transition: 'all 0.15s', opacity: status === 'running' ? 0.7 : 1 }}>
+                    {status === 'running' ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Running…</> : <><Play className="w-3.5 h-3.5" /> Run ▶</>}
+                  </button>
+                )}
+                {status === 'running' && !liveMode && (
+                  <button type="button" onClick={handleStop}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 7, fontSize: 11, fontWeight: 700,
+                      border: '1px solid rgba(248,113,113,0.4)', background: 'rgba(248,113,113,0.08)', color: OUT_ERR, cursor: 'pointer' }}>
+                    <StopCircle className="w-3.5 h-3.5" /> Stop
+                  </button>
+                )}
+                {status === 'done' && (
+                  <span style={{ fontSize: 11, color: OUT_OK, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <CheckCircle className="w-3.5 h-3.5" /> Done
+                  </span>
+                )}
+                <button type="button" onClick={() => { setCode(DEMO_CODE[language]); setLines([]); setStatus('idle'); }}
+                  title="Reset" style={{ marginLeft: 'auto', padding: '4px 8px', borderRadius: 6, fontSize: 10,
+                    border: '1px solid rgba(160,195,240,0.22)', background: 'rgba(0,0,0,0.03)',
+                    color: 'var(--de-text-dim)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <RefreshCw className="w-3 h-3" /> Reset
+                </button>
+              </div>
             </div>
-            <div ref={outputRef} style={{ flex: 1, minHeight: 256, overflowY: 'auto', background: CODE_BG, padding: '12px 14px' }}>
-              {lines.length === 0 && status === 'idle' && (
-                <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>
-                  Results appear here after Run ▶…
-                </p>
-              )}
-              {lines.map((line, i) => (
-                <pre key={i} style={{
-                  margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
-                  color: line.startsWith('[') ? OUT_OK
-                    : line.startsWith('$') || line.startsWith('>>>') ? '#93c5fd'
-                    : line.startsWith('⛔') ? OUT_ERR
-                    : line.startsWith('✅') ? OUT_OK
-                    : CODE_FG,
-                  whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55,
-                }}>
-                  {line}
-                </pre>
-              ))}
-              {status === 'running' && (
-                <span style={{ fontSize: 11, color: '#f59e0b', fontFamily: 'monospace' }}>▋</span>
-              )}
+          )}
+
+          {/* ── OUTPUT panel — right when not swapped ── */}
+          {!swapped && (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
+                display: 'flex', alignItems: 'center', gap: 6 }}>
+                OUTPUT
+                <span style={{ marginLeft: 'auto' }}>
+                  {status === 'running' && <span style={{ fontSize: 10, color: '#f59e0b' }}>● Live</span>}
+                  {status === 'done'    && <span style={{ fontSize: 10, color: OUT_OK   }}>✓ Complete</span>}
+                </span>
+              </div>
+              <div ref={outputRef} style={{ flex: 1, minHeight: 256, overflowY: 'auto', background: CODE_BG, padding: '12px 14px' }}>
+                {lines.length === 0 && status === 'idle' && (
+                  <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>
+                    Results appear here after Run ▶…
+                  </p>
+                )}
+                {lines.map((line, i) => (
+                  <pre key={i} style={{
+                    margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
+                    color: line.startsWith('[') ? OUT_OK
+                      : line.startsWith('$') || line.startsWith('>>>') ? '#93c5fd'
+                      : line.startsWith('⛔') ? OUT_ERR
+                      : line.startsWith('✅') ? OUT_OK
+                      : CODE_FG,
+                    whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55,
+                  }}>
+                    {line}
+                  </pre>
+                ))}
+                {status === 'running' && (
+                  <span style={{ fontSize: 11, color: '#f59e0b', fontFamily: 'monospace' }}>▋</span>
+                )}
+              </div>
+              <div style={{ padding: '6px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
+                background: 'rgba(255,255,255,0.4)', fontSize: 10, color: 'var(--de-text-dim)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <FlaskConical className="w-3 h-3" style={{ color: activeSim.color }} />
+                {activeSim.emoji} {activeSim.name} · {language}
+              </div>
             </div>
-            <div style={{ padding: '6px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
-              background: 'rgba(255,255,255,0.4)', fontSize: 10, color: 'var(--de-text-dim)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <FlaskConical className="w-3 h-3" style={{ color: activeSim.color }} />
-              {activeSim.emoji} {activeSim.name} · {language}
+          )}
+
+          {/* ── INPUT panel (editor) — right when swapped ── */}
+          {swapped && (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
+                display: 'flex', alignItems: 'center', gap: 6 }}>
+                INPUT
+                <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT }}>{language.toUpperCase()}</span>
+              </div>
+              <textarea
+                value={code}
+                onChange={e => setCode(e.target.value)}
+                spellCheck={false}
+                aria-label="Lab script input"
+                style={{
+                  flex: 1, minHeight: 256,
+                  background: CODE_BG, color: CODE_FG,
+                  fontFamily: '"Fira Code","JetBrains Mono","Cascadia Code",ui-monospace,monospace',
+                  fontSize: 12, lineHeight: 1.65, padding: '12px 14px',
+                  border: 'none', outline: 'none', resize: 'none',
+                  whiteSpace: 'pre', overflowX: 'auto',
+                }}
+              />
+              <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(160,195,240,0.1)',
+                display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.4)' }}>
+                {liveMode ? (
+                  <span style={{ fontSize: 11, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Zap className="w-3.5 h-3.5" /> Live — auto-runs on change
+                  </span>
+                ) : (
+                  <button type="button" onClick={handleRun} disabled={status === 'running'} aria-label="Run lab script"
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700,
+                      border: 'none', cursor: status === 'running' ? 'not-allowed' : 'pointer',
+                      background: status === 'running' ? `${ACCENT}20` : ACCENT,
+                      color: status === 'running' ? ACCENT : '#fff',
+                      transition: 'all 0.15s', opacity: status === 'running' ? 0.7 : 1 }}>
+                    {status === 'running' ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Running…</> : <><Play className="w-3.5 h-3.5" /> Run ▶</>}
+                  </button>
+                )}
+                {status === 'running' && !liveMode && (
+                  <button type="button" onClick={handleStop}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 7, fontSize: 11, fontWeight: 700,
+                      border: '1px solid rgba(248,113,113,0.4)', background: 'rgba(248,113,113,0.08)', color: OUT_ERR, cursor: 'pointer' }}>
+                    <StopCircle className="w-3.5 h-3.5" /> Stop
+                  </button>
+                )}
+                {status === 'done' && (
+                  <span style={{ fontSize: 11, color: OUT_OK, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <CheckCircle className="w-3.5 h-3.5" /> Done
+                  </span>
+                )}
+                <button type="button" onClick={() => { setCode(DEMO_CODE[language]); setLines([]); setStatus('idle'); }}
+                  title="Reset" style={{ marginLeft: 'auto', padding: '4px 8px', borderRadius: 6, fontSize: 10,
+                    border: '1px solid rgba(160,195,240,0.22)', background: 'rgba(0,0,0,0.03)',
+                    color: 'var(--de-text-dim)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <RefreshCw className="w-3 h-3" /> Reset
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
