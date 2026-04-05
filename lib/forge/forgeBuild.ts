@@ -7,9 +7,38 @@
  * Architecture: follows the forgeRegistry.ts pattern (localStorage + SSR guard).
  */
 
+import { v4 as uuidv4 } from 'uuid';
+
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 export type ForgeBuildState = 'idle' | 'running' | 'done' | 'error';
+
+/**
+ * Engin-specific artifact type — written to localStorage for the Engin to pick up.
+ */
+export type ForgeArtifactType =
+  | 'code-cells'
+  | 'game-level'
+  | 'midi-pattern'
+  | 'brand-palette'
+  | 'lab-config'
+  | 'content-draft';
+
+/**
+ * A generated artifact that is staged into an Engin's localStorage slot.
+ */
+export interface ForgeArtifact {
+  /** Determines which localStorage key the artifact is staged to */
+  type: ForgeArtifactType;
+  /** Canonical engin id, e.g. 'games', 'code' */
+  enginId: string;
+  /** Human-readable filename, e.g. 'notebooks/weather_analysis.py' */
+  filename: string;
+  /** The actual generated content (code, JSON, markdown, etc.) */
+  content: string;
+  /** MIME-style language tag, e.g. 'typescript' | 'python' | 'json' | 'markdown' */
+  language: string;
+}
 
 /**
  * Discriminated union of all events streamed from /api/forge/build.
@@ -21,7 +50,8 @@ export type ForgeLogEvent =
   | { type: 'file'; path: string; action: 'created' | 'modified'; ts: number }
   | { type: 'result'; enginId: string; href: string; summary: string; ts: number }
   | { type: 'error'; message: string; ts: number }
-  | { type: 'done'; ts: number };
+  | { type: 'done'; ts: number }
+  | { type: 'code'; language: string; filename: string; content: string; ts: number };
 
 /**
  * A completed (or in-progress) build record stored in localStorage.
@@ -34,6 +64,8 @@ export interface ForgeBuildRecord {
   primaryEnginId: string;
   createdAt: string;
   summary: string;
+  /** Generated artifact staged into the target Engin's localStorage slot */
+  artifact?: ForgeArtifact;
 }
 
 // ── Storage keys ───────────────────────────────────────────────────────────────
@@ -73,6 +105,12 @@ export function isForgeLogEvent(value: unknown): value is ForgeLogEvent {
       return typeof v.message === 'string';
     case 'done':
       return true;
+    case 'code':
+      return (
+        typeof v.language === 'string' &&
+        typeof v.filename === 'string' &&
+        typeof v.content === 'string'
+      );
     default:
       return false;
   }
@@ -146,5 +184,55 @@ export function recordBuildToday(): void {
     localStorage.setItem(RATE_KEY, new Date().toDateString());
   } catch {
     // silent
+  }
+}
+
+// ── Artifact staging ───────────────────────────────────────────────────────────
+
+/** Minimal notebook cell shape matching CodeEngin's de-codegen-cells format */
+interface NotebookCell {
+  id: string;
+  language: string;
+  source: string;
+}
+
+/**
+ * Stage a generated artifact into the target Engin's localStorage slot.
+ *
+ * - `code-cells`    → prepends a NotebookCell to `de-codegen-cells` (CodeEngin)
+ * - `game-level`    → writes to `de:forge:staged-level`
+ * - `midi-pattern`  → writes to `de:forge:staged-track`
+ * - `brand-palette` → writes to `de:forge:staged-palette`
+ * - `lab-config`    → writes to `de:forge:staged-lab`
+ * - `content-draft` → writes to `de:forge:staged-draft`
+ */
+export function stageForgeArtifact(artifact: ForgeArtifact): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (artifact.type === 'code-cells') {
+      const raw = localStorage.getItem('de-codegen-cells');
+      const existing: NotebookCell[] = raw ? (JSON.parse(raw) as NotebookCell[]) : [];
+      const newCell: NotebookCell = {
+        id: uuidv4(),
+        language: artifact.language,
+        source: artifact.content,
+      };
+      localStorage.setItem('de-codegen-cells', JSON.stringify([newCell, ...existing]));
+    } else {
+      const keyMap: Record<ForgeArtifactType, string> = {
+        'code-cells': 'de-codegen-cells',
+        'game-level': 'de:forge:staged-level',
+        'midi-pattern': 'de:forge:staged-track',
+        'brand-palette': 'de:forge:staged-palette',
+        'lab-config': 'de:forge:staged-lab',
+        'content-draft': 'de:forge:staged-draft',
+      };
+      const key = keyMap[artifact.type];
+      if (key) {
+        localStorage.setItem(key, JSON.stringify(artifact));
+      }
+    }
+  } catch {
+    // localStorage unavailable — silent
   }
 }
