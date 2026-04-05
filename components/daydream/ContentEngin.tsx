@@ -33,6 +33,7 @@ import {
   ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar,
   Wand2, Mic, RotateCcw, Shield, Flag, Dice5, Rocket,
   Brain, ChevronDown, ChevronUp, CheckCircle, Search, Download, Trash2,
+  Camera, Layers, Move, Film, Link2, Crosshair,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
@@ -43,6 +44,19 @@ import {
   exportSRT, searchTranscript, annotateSearchMatches,
 } from '@/lib/content/transcriptEditor';
 import { scoreContent } from '@/lib/content/seoScorer';
+import { parseBVH, clipSummary, retargetClip, exportBVH } from '@/lib/composite/motionCapture';
+import {
+  createGraph, createNode, addNode, connectNodes, disconnectInput,
+  topologicalSort, graphSummary,
+} from '@/lib/composite/compositor';
+import { createProject, addLayer, setKeyframe, interpolateShape, exportFrameSVG, keyframeList } from '@/lib/composite/rotoscope';
+import { createTrack, addTrackPoint, addSample, estimateCameraMotion, exportTrackCSV, trackSummary } from '@/lib/composite/matchmover';
+import { FX_PRESETS, presetsByCategory, createSimulation, setSimParam, getSimParam, allCategories } from '@/lib/composite/fxSimulation';
+import type { MocapClip } from '@/lib/composite/motionCapture';
+import type { CompGraph, NodeType } from '@/lib/composite/compositor';
+import type { RotoProject } from '@/lib/composite/rotoscope';
+import type { CameraTrack } from '@/lib/composite/matchmover';
+import type { FxSimulation, FxCategory } from '@/lib/composite/fxSimulation';
 
 interface Props {
   onBack: () => void;
@@ -778,6 +792,235 @@ export default function ContentEngin({ onBack }: Props) {
     } finally {
       setSeoLoading(false);
     }
+  }
+
+  // ── VFX Compositing state ──────────────────────────────────────────────────
+  // Six panels: Motion Capture, FX Simulation, 2.5D Compositor,
+  //             Rotoscope, Node Compositor, Matchmover.
+
+  // Motion Capture (MotionBuilder-inspired)
+  const [mocapClip, setMocapClip] = useState<MocapClip | null>(null);
+  const [mocapMsg, setMocapMsg] = useState('');
+  const [mocapLoading, setMocapLoading] = useState(false);
+  const [mocapScale, setMocapScale] = useState(1.0);
+  const [mocapPreviewFrame, setMocapPreviewFrame] = useState(0);
+
+  function handleBVHUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMocapLoading(true);
+    setMocapMsg('');
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const clip = parseBVH(reader.result as string);
+        setMocapClip(clip);
+        setMocapPreviewFrame(0);
+        setMocapScale(1.0);
+        const s = clipSummary(clip);
+        setMocapMsg(`✅ ${s.jointCount} joints · ${s.frameCount} frames · ${s.durationSeconds}s @ ${s.fps} fps`);
+      } catch (err) {
+        setMocapMsg(`⚠️ ${err instanceof Error ? err.message : 'Parse failed'}`);
+      } finally {
+        setMocapLoading(false);
+      }
+    };
+    reader.onerror = () => { setMocapMsg('⚠️ Failed to read file.'); setMocapLoading(false); };
+    reader.readAsText(file);
+  }
+
+  function handleMocapExport() {
+    if (!mocapClip) return;
+    const scaled = mocapScale !== 1.0 ? retargetClip(mocapClip, mocapScale) : mocapClip;
+    const bvhText = exportBVH(scaled);
+    const blob = new Blob([bvhText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'retargeted.bvh'; a.click();
+    URL.revokeObjectURL(url);
+    setMocapMsg('✅ BVH exported!');
+  }
+
+  // FX Simulation (Houdini-inspired)
+  const [fxCategory, setFxCategory] = useState<FxCategory>('fire');
+  const [fxSim, setFxSim] = useState<FxSimulation | null>(null);
+  const [fxMsg, setFxMsg] = useState('');
+  const [fxRunning, setFxRunning] = useState(false);
+  const fxTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function selectFxPreset(presetId: string) {
+    try {
+      const sim = createSimulation(presetId, undefined, 5, 24);
+      setFxSim(sim);
+      setFxMsg('');
+    } catch (err) {
+      setFxMsg(`⚠️ ${err instanceof Error ? err.message : 'Error'}`);
+    }
+  }
+
+  function startFxSim() {
+    if (!fxSim) return;
+    setFxRunning(true);
+    setFxSim(s => s ? { ...s, state: 'running', elapsedSeconds: 0 } : s);
+    let elapsed = 0;
+    const dur = fxSim.durationSeconds;
+    fxTimerRef.current = setInterval(() => {
+      elapsed += 0.1;
+      if (elapsed >= dur) {
+        clearInterval(fxTimerRef.current!);
+        setFxSim(s => s ? { ...s, state: 'complete', elapsedSeconds: dur } : s);
+        setFxRunning(false);
+        setFxMsg(`✅ Simulation complete (${dur}s).`);
+      } else {
+        setFxSim(s => s ? { ...s, elapsedSeconds: +elapsed.toFixed(1) } : s);
+      }
+    }, 100);
+  }
+
+  function stopFxSim() {
+    if (fxTimerRef.current) clearInterval(fxTimerRef.current);
+    setFxRunning(false);
+    setFxSim(s => s ? { ...s, state: 'paused' } : s);
+  }
+
+  // 2.5D Compositor (After Effects-inspired)
+  type CompLayer = { id: string; label: string; type: string; opacity: number; blendMode: string; visible: boolean };
+  const [compLayers, setCompLayers] = useState<CompLayer[]>([
+    { id: 'l1', label: 'Background Plate', type: 'video', opacity: 1, blendMode: 'normal', visible: true },
+    { id: 'l2', label: '3D Render Pass', type: '3d', opacity: 1, blendMode: 'over', visible: true },
+    { id: 'l3', label: 'Roto Matte', type: 'roto', opacity: 1, blendMode: 'multiply', visible: true },
+    { id: 'l4', label: 'Motion Graphics', type: '2d', opacity: 0.9, blendMode: 'over', visible: true },
+  ]);
+  const [compMsg, setCompMsg] = useState('');
+
+  function addCompLayer(type: string) {
+    const id = `l${Date.now()}`;
+    const labels: Record<string, string> = { video: 'Video Layer', '3d': '3D Layer', roto: 'Roto Layer', '2d': '2D Layer', adjustment: 'Adjustment Layer' };
+    setCompLayers(prev => [{ id, label: labels[type] ?? 'New Layer', type, opacity: 1, blendMode: 'over', visible: true }, ...prev]);
+    setCompMsg(`✅ ${labels[type] ?? 'Layer'} added.`);
+  }
+
+  function toggleCompLayerVisibility(id: string) {
+    setCompLayers(prev => prev.map(l => l.id === id ? { ...l, visible: !l.visible } : l));
+  }
+
+  function removeCompLayer(id: string) {
+    setCompLayers(prev => prev.filter(l => l.id !== id));
+  }
+
+  // Rotoscope Editor (Clip Studio Paint-inspired)
+  const [rotoProject, setRotoProject] = useState<RotoProject>(() =>
+    createProject('Untitled Roto', 1920, 1080, 100, 24)
+  );
+  const [rotoFrame, setRotoFrame] = useState(0);
+  const [rotoSelectedLayer, setRotoSelectedLayer] = useState<string | null>(null);
+  const [rotoMsg, setRotoMsg] = useState('');
+
+  function addRotoLayer() {
+    const n = rotoProject.layers.length + 1;
+    const updated = addLayer(rotoProject, `Character ${n}`);
+    setRotoProject(updated);
+    setRotoSelectedLayer(updated.layers[updated.layers.length - 1].id);
+    setRotoMsg(`✅ Layer "Character ${n}" created.`);
+  }
+
+  function addRotoKeyframe() {
+    if (!rotoSelectedLayer) { setRotoMsg('⚠️ Select a layer first.'); return; }
+    // Add a simple diamond shape at current frame as a placeholder
+    const cx = 0.5, cy = 0.5, r = 0.1;
+    const shape = {
+      frame: rotoFrame,
+      inverted: false,
+      feather: 0.005,
+      points: [
+        { x: cx, y: cy - r, inTanX: -r * 0.55, inTanY: 0, outTanX: r * 0.55, outTanY: 0 },
+        { x: cx + r, y: cy, inTanX: 0, inTanY: -r * 0.55, outTanX: 0, outTanY: r * 0.55 },
+        { x: cx, y: cy + r, inTanX: r * 0.55, inTanY: 0, outTanX: -r * 0.55, outTanY: 0 },
+        { x: cx - r, y: cy, inTanX: 0, inTanY: r * 0.55, outTanX: 0, outTanY: -r * 0.55 },
+      ],
+    };
+    setRotoProject(prev => setKeyframe(prev, rotoSelectedLayer, shape));
+    setRotoMsg(`✅ Keyframe set at frame ${rotoFrame}.`);
+  }
+
+  function handleRotoSVGExport() {
+    const svg = exportFrameSVG(rotoProject, rotoFrame);
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `roto-frame-${rotoFrame}.svg`; a.click();
+    URL.revokeObjectURL(url);
+    setRotoMsg(`✅ Frame ${rotoFrame} exported as SVG.`);
+  }
+
+  // Node Compositor (Nuke-inspired)
+  const [nodeGraph, setNodeGraph] = useState<CompGraph>(() => {
+    let g = createGraph('Shot_001_Comp');
+    const bg = createNode('MediaIn', 'Background Plate', { x: 20, y: 60 });
+    const fg = createNode('MediaIn', '3D Render', { x: 20, y: 160 });
+    const over = createNode('Over', 'Over', { x: 200, y: 110 });
+    const cc = createNode('ColorCorrect', 'Grade', { x: 380, y: 110 });
+    const out = createNode('Output', 'Output', { x: 560, y: 110 });
+    g = addNode(g, bg);
+    g = addNode(g, fg);
+    g = addNode(g, over);
+    g = addNode(g, cc);
+    g = addNode(g, out);
+    g = connectNodes(g, bg.id, over.id, 'B');
+    g = connectNodes(g, fg.id, over.id, 'A');
+    g = connectNodes(g, over.id, cc.id, 'input');
+    g = connectNodes(g, cc.id, out.id, 'input');
+    return g;
+  });
+  const [nodeMsg, setNodeMsg] = useState('');
+
+  function handleAddNode(type: NodeType) {
+    const node = createNode(type, undefined, {
+      x: 100 + Math.random() * 200,
+      y: 50 + nodeGraph.nodes.length * 50,
+    });
+    setNodeGraph(prev => addNode(prev, node));
+    setNodeMsg(`✅ ${type} node added.`);
+  }
+
+  function handleDisconnect(toId: string, inputName: string) {
+    setNodeGraph(prev => disconnectInput(prev, toId, inputName));
+    setNodeMsg(`✅ Input "${inputName}" disconnected.`);
+  }
+
+  // Matchmover (Syntheyes / 3DEqualizer-inspired)
+  const [cameraTrack, setCameraTrack] = useState<CameraTrack>(() =>
+    createTrack('Shot_001_Camera', 1920, 1080, 100, 24)
+  );
+  const [trackMsg, setTrackMsg] = useState('');
+
+  function addTrackPt() {
+    const names = ['Wall Corner', 'Doorframe', 'Window Edge', 'Floor Mark', 'Ceiling Light', 'Sign Post'];
+    const name = names[cameraTrack.trackPoints.length % names.length];
+    let updated = addTrackPoint(cameraTrack, name);
+    const ptId = updated.trackPoints[updated.trackPoints.length - 1].id;
+    // Seed with 5 synthetic track samples
+    for (let f = 0; f < 5; f++) {
+      const base = cameraTrack.trackPoints.length * 0.1;
+      updated = addSample(updated, ptId, {
+        frame: f * 20,
+        x: 0.1 + base + Math.random() * 0.05,
+        y: 0.2 + base * 0.5 + Math.random() * 0.05,
+        confidence: 0.85 + Math.random() * 0.15,
+      });
+    }
+    setCameraTrack(updated);
+    setTrackMsg(`✅ Track point "${name}" added with 5 samples.`);
+  }
+
+  function handleTrackCSVExport() {
+    const csv = exportTrackCSV(cameraTrack);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'camera-track.csv'; a.click();
+    URL.revokeObjectURL(url);
+    setTrackMsg('✅ Track exported as CSV.');
   }
 
   // ── Daydream Persistence (Phase 8 §F, pts 49-56) ─────────────────────────────
@@ -2507,6 +2750,331 @@ export default function ContentEngin({ onBack }: Props) {
                   creativityLevel < 70 ? 'Balanced mode — creative with a brand guardrail.' :
                     'Experimental mode — expect diverse, surprising results. Add human flair!'}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════
+             VFX COMPOSITING DEPARTMENT
+             "How 2D/3D art and filmed actors are put in the same room"
+             ══════════════════════════════════════════════════════════ */}
+
+        {/* ── Motion Capture (Autodesk MotionBuilder) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Camera className="w-4 h-4 mr-1" style={{ color: '#a78bfa' }} />
+            <span className="de-widget-title ml-1">Motion Capture</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#a78bfa', background: 'rgba(167,139,250,0.12)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>BVH</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Upload a BVH mocap file. Retarget skeleton scale and export for your 3D character.
+            </p>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 9, border: '1.5px dashed rgba(167,139,250,0.4)', background: 'rgba(167,139,250,0.04)', cursor: 'pointer', marginBottom: 10 }}>
+              <Camera className="w-4 h-4" style={{ color: '#a78bfa', flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: '#a78bfa', fontWeight: 600 }}>{mocapLoading ? 'Parsing…' : 'Upload .bvh file'}</span>
+              <input type="file" accept=".bvh" onChange={handleBVHUpload} style={{ display: 'none' }} />
+            </label>
+            {mocapMsg && (
+              <div style={{ fontSize: 11, fontWeight: 600, color: mocapMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{mocapMsg}</div>
+            )}
+            {mocapClip && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ fontSize: 10, color: 'var(--de-text-dim)', padding: '6px 10px', borderRadius: 8, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.2)' }}>
+                  <div>🦴 <strong>{clipSummary(mocapClip).jointCount}</strong> joints &nbsp;|&nbsp; 🎞 <strong>{clipSummary(mocapClip).frameCount}</strong> frames &nbsp;|&nbsp; ⏱ <strong>{clipSummary(mocapClip).durationSeconds}s</strong></div>
+                  <div style={{ marginTop: 4 }}>Root: <code style={{ fontSize: 10 }}>{mocapClip.root.name}</code> &nbsp;|&nbsp; FPS: <strong>{clipSummary(mocapClip).fps}</strong></div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)' }}>
+                    Retarget Scale: <strong style={{ color: '#a78bfa' }}>{mocapScale.toFixed(2)}×</strong>
+                  </label>
+                  <input type="range" min={0.1} max={3} step={0.05} value={mocapScale}
+                    onChange={e => setMocapScale(parseFloat(e.target.value))}
+                    style={{ width: '100%', accentColor: '#a78bfa' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)' }}>
+                    Preview Frame: <strong style={{ color: '#a78bfa' }}>{mocapPreviewFrame}</strong>
+                  </label>
+                  <input type="range" min={0} max={mocapClip.frameCount - 1} step={1} value={mocapPreviewFrame}
+                    onChange={e => setMocapPreviewFrame(parseInt(e.target.value))}
+                    style={{ width: '100%', accentColor: '#a78bfa' }}
+                  />
+                </div>
+                <button type="button" onClick={handleMocapExport}
+                  style={{ ...btnBase, background: 'rgba(167,139,250,0.12)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.3)' }}>
+                  <Download className="w-3 h-3 inline mr-1" />Export Retargeted BVH
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── FX Simulation (Houdini-inspired) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Zap className="w-4 h-4 mr-1" style={{ color: '#f97316' }} />
+            <span className="de-widget-title ml-1">FX Simulation</span>
+            {fxSim && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: fxSim.state === 'complete' ? '#22c55e' : fxSim.state === 'running' ? '#f97316' : 'var(--de-text-dim)', background: fxSim.state === 'complete' ? 'rgba(34,197,94,0.1)' : fxSim.state === 'running' ? 'rgba(249,115,22,0.1)' : 'rgba(0,0,0,0.06)', padding: '2px 7px', borderRadius: 5 }}>
+                {fxSim.state === 'running' ? `${fxSim.elapsedSeconds.toFixed(1)}s / ${fxSim.durationSeconds}s` : fxSim.state}
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Choose an FX preset (fire, water, destruction, smoke, particles, fabric) and run the simulation.
+            </p>
+            {/* Category filter */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
+              {allCategories().map(cat => (
+                <button key={cat} type="button" onClick={() => setFxCategory(cat)}
+                  style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 999, border: 'none', cursor: 'pointer', background: fxCategory === cat ? '#f97316' : 'rgba(249,115,22,0.1)', color: fxCategory === cat ? 'white' : '#f97316' }}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+            {/* Preset list */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
+              {presetsByCategory(fxCategory).map(preset => (
+                <button key={preset.id} type="button" onClick={() => selectFxPreset(preset.id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, border: `1px solid ${fxSim?.presetId === preset.id ? '#f97316' : 'rgba(249,115,22,0.15)'}`, background: fxSim?.presetId === preset.id ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.5)', cursor: 'pointer', textAlign: 'left' }}>
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>{preset.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: fxSim?.presetId === preset.id ? '#f97316' : 'var(--de-heading)' }}>{preset.name}</div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{preset.description}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            {fxMsg && <div style={{ fontSize: 11, fontWeight: 600, color: fxMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{fxMsg}</div>}
+            {fxSim && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {/* Progress bar */}
+                <div style={{ height: 5, borderRadius: 3, background: 'rgba(0,0,0,0.07)' }}>
+                  <div style={{ height: '100%', borderRadius: 3, background: '#f97316', transition: 'width 0.1s', width: `${(fxSim.elapsedSeconds / fxSim.durationSeconds) * 100}%` }} />
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {!fxRunning ? (
+                    <button type="button" onClick={startFxSim} disabled={fxSim.state === 'complete'}
+                      style={{ ...btnBase, background: '#f97316', color: 'white', flex: 1, opacity: fxSim.state === 'complete' ? 0.5 : 1 }}>
+                      ▶ {fxSim.state === 'complete' ? 'Done' : 'Run Simulation'}
+                    </button>
+                  ) : (
+                    <button type="button" onClick={stopFxSim}
+                      style={{ ...btnBase, background: 'rgba(239,68,68,0.1)', color: '#ef4444', flex: 1 }}>
+                      ⏸ Pause
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── 2.5D Compositor (After Effects-inspired) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Layers className="w-4 h-4 mr-1" style={{ color: '#06b6d4' }} />
+            <span className="de-widget-title ml-1">2.5D Compositor</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#06b6d4', background: 'rgba(6,182,212,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>{compLayers.length} layers</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Stack background plate, 3D render passes, roto mattes, and motion graphics into a final 2.5D composite.
+            </p>
+            {/* Add layer buttons */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
+              {['video', '3d', 'roto', '2d', 'adjustment'].map(type => (
+                <button key={type} type="button" onClick={() => addCompLayer(type)}
+                  style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 999, border: '1px solid rgba(6,182,212,0.3)', background: 'rgba(6,182,212,0.07)', color: '#06b6d4', cursor: 'pointer' }}>
+                  + {type}
+                </button>
+              ))}
+            </div>
+            {compMsg && <div style={{ fontSize: 11, fontWeight: 600, color: compMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{compMsg}</div>}
+            {/* Layer stack */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {compLayers.map((layer, idx) => (
+                <div key={layer.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(6,182,212,0.15)', opacity: layer.visible ? 1 : 0.4 }}>
+                  <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--de-text-dim)', width: 16, flexShrink: 0 }}>{idx + 1}</span>
+                  <button type="button" onClick={() => toggleCompLayerVisibility(layer.id)}
+                    style={{ fontSize: 11, background: 'none', border: 'none', cursor: 'pointer', color: layer.visible ? '#06b6d4' : 'var(--de-text-dim)', padding: 0, flexShrink: 0 }}>
+                    {layer.visible ? '👁' : '🙈'}
+                  </button>
+                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: 'var(--de-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{layer.label}</span>
+                  <span style={{ fontSize: 9, color: 'var(--de-text-dim)', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: 4 }}>{layer.blendMode}</span>
+                  <span style={{ fontSize: 9, color: 'var(--de-text-dim)', width: 30, textAlign: 'right' }}>{Math.round(layer.opacity * 100)}%</span>
+                  <button type="button" onClick={() => removeCompLayer(layer.id)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--de-text-dim)', padding: 0 }}>
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Rotoscope Editor (Clip Studio Paint-inspired) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Film className="w-4 h-4 mr-1" style={{ color: '#ec4899' }} />
+            <span className="de-widget-title ml-1">Rotoscope Editor</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#ec4899', background: 'rgba(236,72,153,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              {rotoProject.layers.length} layers
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Trace over live-action actors frame-by-frame to create precise alpha mattes. Set keyframes, interpolate between them, export SVG.
+            </p>
+            {/* Frame scrubber */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)' }}>
+                Frame: <strong style={{ color: '#ec4899' }}>{rotoFrame}</strong> / {rotoProject.frameCount - 1}
+              </label>
+              <input type="range" min={0} max={rotoProject.frameCount - 1} step={1} value={rotoFrame}
+                onChange={e => setRotoFrame(parseInt(e.target.value))}
+                style={{ width: '100%', accentColor: '#ec4899' }}
+              />
+            </div>
+            {/* Layer list */}
+            {rotoProject.layers.length > 0 && (
+              <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {rotoProject.layers.map(layer => {
+                  const kfs = keyframeList(layer);
+                  const hasKF = kfs.includes(rotoFrame);
+                  const interp = interpolateShape(layer, rotoFrame);
+                  return (
+                    <div key={layer.id}
+                      onClick={() => setRotoSelectedLayer(layer.id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: rotoSelectedLayer === layer.id ? 'rgba(236,72,153,0.1)' : 'rgba(255,255,255,0.5)', border: `1px solid ${rotoSelectedLayer === layer.id ? 'rgba(236,72,153,0.35)' : 'rgba(236,72,153,0.12)'}`, cursor: 'pointer' }}>
+                      <Film className="w-3 h-3" style={{ color: '#ec4899', flexShrink: 0 }} />
+                      <span style={{ flex: 1, fontSize: 11, fontWeight: rotoSelectedLayer === layer.id ? 700 : 400, color: 'var(--de-heading)' }}>{layer.name}</span>
+                      <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{kfs.length} kf</span>
+                      {interp && <span style={{ fontSize: 9, color: '#ec4899', fontWeight: 700 }}>{hasKF ? '● kf' : '○ tween'}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {rotoMsg && <div style={{ fontSize: 11, fontWeight: 600, color: rotoMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{rotoMsg}</div>}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <button type="button" onClick={addRotoLayer}
+                style={{ ...btnBase, background: 'rgba(236,72,153,0.1)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.25)' }}>
+                + New Layer
+              </button>
+              <button type="button" onClick={addRotoKeyframe} disabled={!rotoSelectedLayer}
+                style={{ ...btnBase, background: rotoSelectedLayer ? '#ec4899' : 'rgba(0,0,0,0.06)', color: rotoSelectedLayer ? 'white' : 'var(--de-text-dim)' }}>
+                ◆ Set Keyframe
+              </button>
+              <button type="button" onClick={handleRotoSVGExport} disabled={rotoProject.layers.length === 0}
+                style={{ ...btnBase, background: 'rgba(236,72,153,0.1)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.25)', opacity: rotoProject.layers.length === 0 ? 0.4 : 1 }}>
+                <Download className="w-3 h-3 inline mr-1" />Export SVG
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Node Compositor (Foundry Nuke-inspired) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Link2 className="w-4 h-4 mr-1" style={{ color: '#22c55e' }} />
+            <span className="de-widget-title ml-1">Node Compositor</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              {nodeGraph.nodes.length} nodes
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Layer 2D, 3D, and live-action elements using a node graph. Each node is a compositing operation.
+            </p>
+            {/* Node graph visualiser */}
+            <div style={{ overflowX: 'auto', marginBottom: 10 }}>
+              <div style={{ position: 'relative', height: 180, minWidth: 400, background: 'rgba(0,0,0,0.04)', borderRadius: 10, border: '1px solid rgba(34,197,94,0.15)', overflow: 'hidden' }}>
+                <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                  {nodeGraph.nodes.map(n =>
+                    Object.entries(n.inputs).map(([, srcId]) => {
+                      if (!srcId) return null;
+                      const src = nodeGraph.nodes.find(x => x.id === srcId);
+                      if (!src) return null;
+                      const x1 = src.position.x + 70, y1 = src.position.y + 18;
+                      const x2 = n.position.x, y2 = n.position.y + 18;
+                      return <path key={`${srcId}-${n.id}`} d={`M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}`} stroke="rgba(34,197,94,0.4)" strokeWidth={1.5} fill="none" />;
+                    })
+                  )}
+                </svg>
+                {nodeGraph.nodes.map(n => (
+                  <div key={n.id} style={{ position: 'absolute', left: n.position.x, top: n.position.y, background: n.type === 'Output' ? '#22c55e' : n.type === 'MediaIn' ? 'rgba(6,182,212,0.8)' : 'rgba(255,255,255,0.85)', border: `1px solid ${n.type === 'Output' ? '#22c55e' : 'rgba(34,197,94,0.3)'}`, borderRadius: 6, padding: '3px 8px', fontSize: 10, fontWeight: 700, color: n.type === 'Output' ? 'white' : 'var(--de-heading)', whiteSpace: 'nowrap', cursor: 'default', zIndex: 1 }}>
+                    {n.label}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Eval order */}
+            <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 8, fontFamily: 'monospace', wordBreak: 'break-all' }}>
+              Eval: {topologicalSort(nodeGraph.nodes).map(id => nodeGraph.nodes.find(n => n.id === id)?.label ?? id).join(' → ')}
+            </div>
+            {nodeMsg && <div style={{ fontSize: 11, fontWeight: 600, color: nodeMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{nodeMsg}</div>}
+            {/* Add node */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {(['MediaIn', 'Over', 'Merge', 'ColorCorrect', 'Transform', 'Keyer', 'MotionBlur'] as NodeType[]).map(t => (
+                <button key={t} type="button" onClick={() => handleAddNode(t)}
+                  style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 999, border: '1px solid rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.07)', color: '#22c55e', cursor: 'pointer' }}>
+                  + {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Matchmover (Syntheyes / 3DEqualizer-inspired) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <Crosshair className="w-4 h-4 mr-1" style={{ color: '#f59e0b' }} />
+            <span className="de-widget-title ml-1">Matchmover</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>
+              {cameraTrack.trackPoints.length} pts
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
+              Add 2D track points to live-action footage. The solver pins animated objects to the moving camera.
+            </p>
+            {/* Track info */}
+            <div style={{ fontSize: 10, color: 'var(--de-text-dim)', padding: '6px 10px', borderRadius: 8, background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 10 }}>
+              {trackSummary(cameraTrack)}
+            </div>
+            {/* Track points list */}
+            {cameraTrack.trackPoints.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10, maxHeight: 140, overflowY: 'auto' }}>
+                {cameraTrack.trackPoints.map((pt, i) => {
+                  const motions = estimateCameraMotion(cameraTrack).filter(m => m.pointId === pt.id);
+                  const avgSpeed = motions.length > 0 ? motions.reduce((s, m) => s + m.speed, 0) / motions.length : 0;
+                  return (
+                    <div key={pt.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(245,158,11,0.15)' }}>
+                      <Crosshair className="w-3 h-3" style={{ color: '#f59e0b', flexShrink: 0 }} />
+                      <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: 'var(--de-heading)' }}>{pt.name}</span>
+                      <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{pt.samples.length} samples</span>
+                      <span style={{ fontSize: 9, color: '#f59e0b', fontFamily: 'monospace' }}>
+                        avg {(avgSpeed * 1000).toFixed(1)}px/f
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {trackMsg && <div style={{ fontSize: 11, fontWeight: 600, color: trackMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{trackMsg}</div>}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button type="button" onClick={addTrackPt}
+                style={{ ...btnBase, background: '#f59e0b', color: 'white', flex: 1 }}>
+                + Add Track Point
+              </button>
+              <button type="button" onClick={handleTrackCSVExport} disabled={cameraTrack.trackPoints.length === 0}
+                style={{ ...btnBase, background: 'rgba(245,158,11,0.1)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)', opacity: cameraTrack.trackPoints.length === 0 ? 0.4 : 1 }}>
+                <Download className="w-3 h-3 inline mr-1" />CSV
+              </button>
             </div>
           </div>
         </div>
