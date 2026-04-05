@@ -442,7 +442,7 @@ jobs:
             lines.push('');
 
             if (tableRefs) {
-              lines.push(`**Supabase table references in changed files:** \`${tableRefs.replace(/,/g, '`, `')}\``);
+              lines.push(`**Supabase table references in scanned files:** \`${tableRefs.replace(/,/g, '`, `')}\``);
               lines.push('');
             }
 
@@ -464,7 +464,7 @@ jobs:
             } else if (tableRefs) {
               lines.push('### ✅ All referenced tables are covered by existing migrations');
             } else {
-              lines.push('### ✅ No Supabase table references detected in changed files');
+              lines.push('### ✅ No Supabase table references detected in scanned files');
             }
 
             if (migChanged) {
