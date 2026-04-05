@@ -369,7 +369,7 @@ export default function HomeFeed({
               }`}
             >
               {tabLoading && activeTab === tab.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <tab.icon className="w-4 h-4" />}
-              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="de-feed-tab-label">{tab.label}</span>
             </button>
           ))}
           <div
