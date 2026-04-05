@@ -1,10 +1,10 @@
 name: SQL Migration Guard
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Scans every PR and push for Supabase table references that lack a migration,
-# scaffolds a migration file when one is missing, applies pending migrations to
-# the remote database on merges to main branches, regenerates TypeScript types,
-# and verifies the Vercel/Next.js build still passes.
+# Scans the live repository (not docs) for Supabase table references that lack a
+# migration, scaffolds a migration file when one is missing, applies pending
+# migrations after merges to main branches, regenerates TypeScript types, and
+# verifies the Vercel/Next.js build still passes.
 #
 # Secrets required for full functionality (all optional — steps degrade gracefully):
 #   DATABASE_URL       — postgres:// URL used to apply migrations (psql / supabase db push)
@@ -17,13 +17,16 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
-    branches: [main, completedream, develop]
   workflow_dispatch:
     inputs:
       force_apply:
         description: "Force-apply all pending migrations even without schema changes"
         type: boolean
         default: false
+      full_scan:
+        description: "Scan the whole repository instead of only changed files"
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -72,26 +75,45 @@ jobs:
         id: changed
         shell: bash
         run: |
+          FULL_SCAN=false
+
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             BASE="${{ github.event.pull_request.base.sha }}"
             HEAD="${{ github.event.pull_request.head.sha }}"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BASE="$(git rev-parse HEAD~1 2>/dev/null || echo HEAD)"
+            HEAD="${{ github.sha }}"
+            if [ "${{ inputs.full_scan }}" = "true" ]; then
+              FULL_SCAN=true
+            fi
           else
             BASE="${{ github.event.before }}"
             HEAD="${{ github.sha }}"
           fi
 
-          # Fall back to HEAD~1 if BASE is unknown (e.g. first push)
+          # First push on a branch has no stable BASE; bootstrap from the whole repo.
           if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
             BASE="$(git rev-parse HEAD~1 2>/dev/null || echo HEAD)"
+            FULL_SCAN=true
           fi
 
-          CHANGED=$(git diff --name-only "$BASE" "$HEAD" 2>/dev/null || \
-                    git diff --name-only HEAD~1 HEAD 2>/dev/null || \
-                    git ls-files)
+          if [ "$FULL_SCAN" = "true" ]; then
+            CHANGED="$(git ls-files)"
+          else
+            CHANGED=$(git diff --name-only "$BASE" "$HEAD" 2>/dev/null || \
+                      git diff --name-only HEAD~1 HEAD 2>/dev/null || \
+                      git ls-files)
+          fi
+
+          if echo "$CHANGED" | grep -qx ".github/workflows/sql-migration-guard.yml"; then
+            FULL_SCAN=true
+            CHANGED="$(git ls-files)"
+          fi
 
           echo "changed_files<<EOF" >> "$GITHUB_OUTPUT"
           echo "$CHANGED"           >> "$GITHUB_OUTPUT"
           echo "EOF"                >> "$GITHUB_OUTPUT"
+          echo "scan_mode=$([ "$FULL_SCAN" = "true" ] && echo full || echo changed)" >> "$GITHUB_OUTPUT"
 
           if echo "$CHANGED" | grep -q "^supabase/migrations/"; then
             echo "migrations_changed=true" >> "$GITHUB_OUTPUT"
@@ -117,9 +139,10 @@ jobs:
           const fs   = require('fs');
           const path = require('path');
 
-          // ── Collect changed TS/TSX files ────────────────────────────────────
+          // ── Collect source-of-truth repo files ──────────────────────────────
+          const scanMode = '${{ steps.changed.outputs.scan_mode }}';
           const changedRaw = `${{ steps.changed.outputs.changed_files }}`;
-          const changedFiles = changedRaw
+          const repoFiles = changedRaw
             .split('\n')
             .map(f => f.trim())
             .filter(f => /\.(ts|tsx)$/.test(f) && !f.includes('node_modules') && !f.includes('.next'));
@@ -131,7 +154,7 @@ jobs:
           const tableRefs = new Set();
           const fromPattern = /\.from\(\s*['"]([a-zA-Z_][a-zA-Z0-9_]*)['"\s]*\)/g;
 
-          for (const file of changedFiles) {
+          for (const file of repoFiles) {
             if (!fs.existsSync(file)) continue;
             const content = fs.readFileSync(file, 'utf8');
             let m;
@@ -179,7 +202,8 @@ jobs:
           );
 
           // ── Console summary ──────────────────────────────────────────────────
-          console.log('Files scanned   :', changedFiles.length);
+          console.log('Scan mode      :', scanMode);
+          console.log('Files scanned   :', repoFiles.length);
           console.log('Table refs found:', [...tableRefs].join(', ') || 'none');
           console.log('Tables in migs  :', [...definedTables].size);
           console.log('Missing migs    :', missingTables.join(', ') || 'none');
@@ -196,7 +220,8 @@ jobs:
           const sum = process.env.GITHUB_STEP_SUMMARY || '';
           if (sum) {
             let md = '## 🗄️ SQL Migration Scan\n\n';
-            md += `**Code files scanned:** ${changedFiles.length}\n\n`;
+            md += `**Scan mode:** ${scanMode === 'full' ? 'full repository' : 'changed files'}\n\n`;
+            md += `**Code files scanned:** ${repoFiles.length}\n\n`;
             if (tableRefs.size > 0) {
               md += `**Table references:** \`${[...tableRefs].join('`, `')}\`\n\n`;
             }
@@ -327,6 +352,9 @@ jobs:
         id: apply
         if: |
           github.event_name != 'pull_request' &&
+          (github.ref == 'refs/heads/main' ||
+           github.ref == 'refs/heads/completedream' ||
+           github.ref == 'refs/heads/develop') &&
           (steps.changed.outputs.migrations_changed == 'true' ||
            inputs.force_apply == true) &&
           env.DATABASE_URL != ''
@@ -358,6 +386,9 @@ jobs:
         id: regen
         if: |
           github.event_name != 'pull_request' &&
+          (github.ref == 'refs/heads/main' ||
+           github.ref == 'refs/heads/completedream' ||
+           github.ref == 'refs/heads/develop') &&
           steps.changed.outputs.migrations_changed == 'true' &&
           env.SUPABASE_DB_URL != ''
         shell: bash
@@ -404,11 +435,14 @@ jobs:
             const hasMissing  = '${{ steps.scan.outputs.has_missing }}' === 'true';
             const migChanged  = '${{ steps.changed.outputs.migrations_changed }}' === 'true';
             const scaffoldFile = '${{ steps.scaffold.outputs.migration_file }}';
+            const scanMode = '${{ steps.changed.outputs.scan_mode }}';
 
             const lines = ['## 🗄️ SQL Migration Guard', ''];
+            lines.push(`**Scan mode:** ${scanMode === 'full' ? 'full repository' : 'changed files'}`);
+            lines.push('');
 
             if (tableRefs) {
-              lines.push(`**Supabase table references in changed files:** \`${tableRefs.replace(/,/g, '`, `')}\``);
+              lines.push(`**Supabase table references in scanned files:** \`${tableRefs.replace(/,/g, '`, `')}\``);
               lines.push('');
             }
 
@@ -430,7 +464,7 @@ jobs:
             } else if (tableRefs) {
               lines.push('### ✅ All referenced tables are covered by existing migrations');
             } else {
-              lines.push('### ✅ No Supabase table references detected in changed files');
+              lines.push('### ✅ No Supabase table references detected in scanned files');
             }
 
             if (migChanged) {
@@ -480,6 +514,7 @@ jobs:
             echo ""
             echo "| Step | Result |"
             echo "|------|--------|"
+            echo "| Scan mode | ${{ steps.changed.outputs.scan_mode }} |"
             echo "| Migrations changed | ${{ steps.changed.outputs.migrations_changed }} |"
             echo "| Tables missing migrations | ${{ steps.scan.outputs.has_missing }} |"
             echo "| Scaffold generated | ${{ steps.scaffold.outputs.migration_file != '' }} |"
