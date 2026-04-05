@@ -25,7 +25,7 @@ import JourneyTrail from '@/components/daydream/JourneyTrail';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
-  Download, Code2, Gamepad2, Music, Loader2,
+  Download, Code2, Gamepad2, Music, Loader2, RefreshCw, Terminal, Database, Box,
 } from 'lucide-react';
 
 interface Props {
@@ -341,6 +341,46 @@ export default function LabEngin({ onBack }: Props) {
     );
   }
 
+  // ── Lab mode (tabs) ──────────────────────────────────────────────────────────
+  type LabMode = 'overview' | 'split' | 'viz';
+  const [labMode, setLabMode]         = useState<LabMode>('overview');
+  const [splitCode, setSplitCode]     = useState(`# Lab Dream — Split IDE\n# Select a simulation, then Run ▶\n\nimport numpy as np\ndata = np.array([1, 4, 9, 16, 25, 36, 49])\nprint("Mean:", data.mean())\nprint("Std: ", data.std().round(2))\nprint("\\n✅ Experiment complete")`);
+  const [splitLang, setSplitLang]     = useState<'python' | 'javascript' | 'bash'>('python');
+  const [splitSim, setSplitSim]       = useState<'none' | 'particle' | 'fluid' | 'quantum' | 'neural'>('none');
+  const [splitOut, setSplitOut]       = useState<string[]>([]);
+  const [splitRunning, setSplitRunning] = useState(false);
+  const [vizSeed, setVizSeed]         = useState(42);
+  const splitOutRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (splitOutRef.current) splitOutRef.current.scrollTop = splitOutRef.current.scrollHeight;
+  }, [splitOut]);
+
+  function runSplitScript() {
+    if (splitRunning) return;
+    setSplitRunning(true);
+    setSplitOut([]);
+    const ts = () => new Date().toISOString().slice(11, 19);
+    const simResults: Record<string, string> = {
+      particle: '1 024 particles, avg v = 12.4 m/s, KE = 0.83 J',
+      fluid:    'Flow stable Re = 4 200, viscosity = 0.001 Pa·s',
+      quantum:  'Fidelity: 0.94 · depth: 12 · gates: 24',
+      neural:   'Convergence: 0.003 · epochs: 100 · accuracy: 97.2%',
+      none:     '',
+    };
+    const lines: string[] = splitSim !== 'none'
+      ? [`[${ts()}] LabEngin ● ${splitSim} simulation`, `[${ts()}] Running ${splitLang} script…`, `[${ts()}] Result: ${simResults[splitSim]}`, `[${ts()}] ✅ Done`]
+      : splitLang === 'python'
+        ? [`Python 3.12.0 [LabEngin runtime]`, `>>> Executing…`, `Mean: 20.0`, `Std:  16.04`, `>>> ✅ Done`]
+        : splitLang === 'javascript'
+          ? [`Node.js v22 [LabEngin runtime]`, `> Executing…`, `Mean: 20.00`, `Std:  16.04`, `> ✅ Done`]
+          : [`bash [LabEngin runtime]`, `$ Executing…`, `mean=-0.012 std=0.998`, `$ Exit 0`];
+    lines.forEach((line, i) => setTimeout(() => {
+      setSplitOut(prev => [...prev, line]);
+      if (i === lines.length - 1) { setSplitRunning(false); setVizSeed(s => s + 7); }
+    }, 140 * (i + 1)));
+  }
+
   // ── Publish result handler ───────────────────────────────────────────────────
   function handlePublishResult(title: string) {
     if (!title.trim()) return;
@@ -419,6 +459,269 @@ export default function LabEngin({ onBack }: Props) {
 
       {/* ── Body ── */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
+
+        {/* ── Mode tab bar ── */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+          {([
+            { id: 'overview' as LabMode, label: '🔬 Overview'      },
+            { id: 'split'    as LabMode, label: '⚗️ Split Lab IDE'  },
+            { id: 'viz'      as LabMode, label: '📊 Visualizations' },
+          ] satisfies { id: LabMode; label: string }[]).map(tab => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setLabMode(tab.id)}
+              style={{
+                padding: '6px 14px', borderRadius: 9, fontSize: 12, fontWeight: 700,
+                border: `1.5px solid ${labMode === tab.id ? ACCENT : 'rgba(160,195,240,0.25)'}`,
+                background: labMode === tab.id ? `${ACCENT}15` : 'rgba(255,255,255,0.55)',
+                color: labMode === tab.id ? ACCENT : 'var(--de-text)',
+                cursor: 'pointer', transition: 'all 0.15s',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ════════════════════════════════════════
+            MODE: Split Lab IDE
+            ════════════════════════════════════════ */}
+        {labMode === 'split' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+            {/* Simulation Target */}
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <FlaskConical className="w-4 h-4" style={{ color: ACCENT }} />
+                <span className="de-widget-title ml-2">Simulation Target</span>
+              </div>
+              <div className="de-widget-body" style={{ paddingBottom: 6 }}>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {([
+                    { id: 'none',     label: '🖥️ Standalone', color: '#94a3b8' },
+                    { id: 'particle', label: '⚛️ Particle',   color: '#22c55e' },
+                    { id: 'fluid',    label: '🌊 Fluid',      color: '#0ea5e9' },
+                    { id: 'quantum',  label: '🔬 Quantum',    color: '#8b5cf6' },
+                    { id: 'neural',   label: '🧠 Neural',     color: '#ec4899' },
+                  ] as const).map(sim => (
+                    <button key={sim.id} type="button" onClick={() => setSplitSim(sim.id)}
+                      style={{
+                        padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                        border: `1.5px solid ${splitSim === sim.id ? sim.color : 'rgba(160,195,240,0.22)'}`,
+                        background: splitSim === sim.id ? `${sim.color}12` : 'rgba(255,255,255,0.55)',
+                        color: splitSim === sim.id ? sim.color : 'var(--de-text)',
+                        cursor: 'pointer', transition: 'all 0.15s',
+                      }}>
+                      {sim.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Split IDE */}
+            <div className="de-widget">
+              <div className="de-widget-header" style={{ gap: 8, flexWrap: 'wrap' }}>
+                <Activity className="w-4 h-4" style={{ color: ACCENT }} />
+                <span className="de-widget-title ml-1">Lab IDE</span>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {(['python', 'javascript', 'bash'] as const).map(lang => (
+                    <button key={lang} type="button" onClick={() => setSplitLang(lang)}
+                      style={{
+                        padding: '3px 9px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                        border: `1.5px solid ${splitLang === lang ? ACCENT : 'rgba(160,195,240,0.22)'}`,
+                        background: splitLang === lang ? `${ACCENT}15` : 'rgba(255,255,255,0.55)',
+                        color: splitLang === lang ? ACCENT : 'var(--de-text)',
+                        cursor: 'pointer', transition: 'all 0.12s',
+                      }}>
+                      {lang === 'python' ? '🐍' : lang === 'javascript' ? '📜' : '🖥️'} {lang}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, minHeight: 280 }}>
+                {/* Left: Input */}
+                <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '6px 10px', background: 'rgba(0,0,0,0.04)', fontSize: 9, fontWeight: 700,
+                    color: 'var(--de-text-dim)', letterSpacing: '0.06em', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                    display: 'flex', alignItems: 'center', gap: 6 }}>
+                    INPUT <span style={{ marginLeft: 'auto', color: ACCENT }}>{splitLang.toUpperCase()}</span>
+                  </div>
+                  <textarea
+                    value={splitCode}
+                    onChange={e => setSplitCode(e.target.value)}
+                    spellCheck={false}
+                    aria-label="Lab script input"
+                    style={{
+                      flex: 1, minHeight: 220, background: '#0d1117', color: '#e2e8f0',
+                      fontFamily: '"Fira Code","JetBrains Mono",ui-monospace,monospace',
+                      fontSize: 11, lineHeight: 1.65, padding: '10px 12px',
+                      border: 'none', outline: 'none', resize: 'none',
+                      whiteSpace: 'pre', overflowX: 'auto',
+                    }}
+                  />
+                  <div style={{ padding: '6px 10px', borderTop: '1px solid rgba(160,195,240,0.1)',
+                    background: 'rgba(255,255,255,0.4)', display: 'flex', gap: 6 }}>
+                    <button type="button" onClick={runSplitScript} disabled={splitRunning}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 4,
+                        padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                        border: 'none', cursor: splitRunning ? 'not-allowed' : 'pointer',
+                        background: splitRunning ? `${ACCENT}15` : ACCENT,
+                        color: splitRunning ? ACCENT : '#fff',
+                      }}
+                      aria-label="Run lab script">
+                      {splitRunning
+                        ? <><span style={{ display: 'inline-block', animation: 'spin 1s linear infinite', width: 14, height: 14, border: `2px solid ${ACCENT}`, borderTopColor: 'transparent', borderRadius: '50%' }} /> Running…</>
+                        : <><Play className="w-3 h-3" /> Run ▶</>}
+                    </button>
+                    <button type="button" onClick={() => { setSplitOut([]); }}
+                      title="Clear output"
+                      style={{ marginLeft: 'auto', padding: '4px 8px', borderRadius: 6, fontSize: 10,
+                        border: '1px solid rgba(160,195,240,0.22)', background: 'rgba(0,0,0,0.03)',
+                        color: 'var(--de-text-dim)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <RefreshCw className="w-3 h-3" /> Clear
+                    </button>
+                  </div>
+                </div>
+
+                {/* Right: Output */}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '6px 10px', background: 'rgba(0,0,0,0.04)', fontSize: 9, fontWeight: 700,
+                    color: 'var(--de-text-dim)', letterSpacing: '0.06em', borderBottom: '1px solid rgba(160,195,240,0.1)',
+                    display: 'flex', alignItems: 'center', gap: 5 }}>
+                    OUTPUT
+                    {splitRunning && <span style={{ fontSize: 9, color: '#f59e0b', marginLeft: 'auto' }}>● Live</span>}
+                    {!splitRunning && splitOut.length > 0 && <span style={{ fontSize: 9, color: '#4ade80', marginLeft: 'auto' }}>✓</span>}
+                  </div>
+                  <div ref={splitOutRef} style={{ flex: 1, minHeight: 220, overflowY: 'auto', background: '#0d1117', padding: '10px 12px' }}>
+                    {splitOut.length === 0 && !splitRunning && (
+                      <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>Results stream here…</p>
+                    )}
+                    {splitOut.map((line, i) => (
+                      <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",monospace',
+                        color: line.startsWith('[') ? '#4ade80' : line.startsWith('✅') ? '#4ade80' : line.startsWith('$') || line.startsWith('>>>') ? '#93c5fd' : '#e2e8f0',
+                        whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
+                        {line}
+                      </pre>
+                    ))}
+                    {splitRunning && <span style={{ fontSize: 11, color: '#f59e0b', fontFamily: 'monospace' }}>▋</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════
+            MODE: Visualizations
+            ════════════════════════════════════════ */}
+        {labMode === 'viz' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
+                <span className="de-widget-title ml-2">High-Density Visualizations</span>
+                <button type="button" onClick={() => setVizSeed(s => s + Math.ceil(Math.random() * 50))}
+                  style={{ marginLeft: 'auto', padding: '3px 9px', borderRadius: 6, fontSize: 10, fontWeight: 700,
+                    border: `1px solid ${ACCENT}30`, background: `${ACCENT}0a`, color: ACCENT, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 3 }}
+                  aria-label="Refresh visualizations">
+                  <RefreshCw className="w-3 h-3" /> Refresh
+                </button>
+              </div>
+              <div className="de-widget-body">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+
+                  {/* Heatmap */}
+                  <div style={{ padding: '8px 10px', borderRadius: 10, background: `${ACCENT}06`, border: `1px solid ${ACCENT}20` }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: ACCENT, letterSpacing: '0.07em', marginBottom: 5 }}>
+                      🌡️ HEATMAP
+                    </div>
+                    <pre style={{ margin: 0, fontFamily: '"Fira Code",monospace', fontSize: 10, color: '#4ade80', lineHeight: 1.3, letterSpacing: 1 }}>
+                      {(() => {
+                        let s = vizSeed; const ch = ['░','▒','▓','█']; const rows=[];
+                        for(let r=0;r<7;r++){let line='';for(let c=0;c<14;c++){s=(s*1664525+1013904223)&0xffffffff;line+=ch[Math.abs(s)%ch.length];}rows.push(line);}
+                        return rows.join('\n');
+                      })()}
+                    </pre>
+                    <div style={{ fontSize: 8, color: 'var(--de-text-dim)', marginTop: 4 }}>Data distribution · {splitOut.length} pts</div>
+                  </div>
+
+                  {/* Simulation Density */}
+                  <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.2)' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#0ea5e9', letterSpacing: '0.07em', marginBottom: 5 }}>
+                      💧 DENSITY FIELD
+                    </div>
+                    <pre style={{ margin: 0, fontFamily: '"Fira Code",monospace', fontSize: 10, color: '#38bdf8', lineHeight: 1.3 }}>
+                      {(() => {
+                        let s = vizSeed+11; const ch = [' ','.',':','+','o','O','#','@']; const cx=7, cy=3.5; const rows=[];
+                        for(let r=0;r<7;r++){let line='';for(let c=0;c<14;c++){const d=Math.sqrt((c-cx)**2+(r-cy)**2);const n=Math.max(0,1-d/7);s=(s*1103515245+12345)&0xffffffff;const noise=(Math.abs(s)&0xff)/512;line+=ch[Math.min(7,Math.floor((n+noise)*8))];}rows.push(line);}
+                        return rows.join('\n');
+                      })()}
+                    </pre>
+                    <div style={{ fontSize: 8, color: 'var(--de-text-dim)', marginTop: 4 }}>Particle / fluid density</div>
+                  </div>
+
+                  {/* Neural Activation */}
+                  <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#8b5cf6', letterSpacing: '0.07em', marginBottom: 5 }}>
+                      🧠 ACTIVATION MAP
+                    </div>
+                    <pre style={{ margin: 0, fontFamily: '"Fira Code",monospace', fontSize: 9, color: '#c084fc', lineHeight: 1.5 }}>
+                      {(() => {
+                        const layers = [4,8,6,4,2]; let s = vizSeed+31;
+                        const chars = ['·','▫','▪','◾','◼','■'];
+                        const maxW = Math.max(...layers);
+                        return layers.map((w, i) => {
+                          const pad=' '.repeat(Math.floor((maxW-w)/2));let row=pad;
+                          for(let n=0;n<w;n++){s=(s*22695477+1)&0xffffffff;row+=chars[Math.abs(s)%chars.length]+' ';}
+                          const act=((Math.abs(s)&0xff)/255).toFixed(2);
+                          return `L${i+1} ${row.trimEnd().padEnd(maxW*2+2)} σ=${act}`;
+                        }).join('\n');
+                      })()}
+                    </pre>
+                    <div style={{ fontSize: 8, color: 'var(--de-text-dim)', marginTop: 4 }}>Per-layer activation strength</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Engine connection metrics */}
+            <div className="de-widget">
+              <div className="de-widget-header">
+                <Database className="w-4 h-4" style={{ color: '#0ea5e9' }} />
+                <span className="de-widget-title ml-2">Cross-Engine Metrics</span>
+              </div>
+              <div className="de-widget-body">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {[
+                    { label: 'CodeEngin',  items: 12, status: 'active',   color: '#6366f1' },
+                    { label: 'GameEngin',  items: 124, status: 'active',  color: '#8b5cf6' },
+                    { label: 'SimEngin',   items: 512, status: 'active',  color: '#0ea5e9' },
+                    { label: 'AssetEngin', items: 847, status: 'standby', color: '#f59e0b' },
+                  ].map(eng => (
+                    <div key={eng.label} style={{ padding: '8px 10px', borderRadius: 9,
+                      background: `${eng.color}07`, border: `1px solid ${eng.color}20` }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: eng.color, marginBottom: 3 }}>{eng.label}</div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)', display: 'flex', gap: 10 }}>
+                        <span>{eng.items} items</span>
+                        <span style={{ color: eng.status === 'active' ? '#22c55e' : '#94a3b8' }}>● {eng.status}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════
+            MODE: Overview (existing widgets)
+            ════════════════════════════════════════ */}
+        <div style={{ display: labMode === 'overview' ? 'block' : 'none' }}>
 
         {/* ── Active Experiments (existing) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
@@ -1383,6 +1686,9 @@ export default function LabEngin({ onBack }: Props) {
           <div className="de-widget-body">
             <JourneyTrail compact />
           </div>
+        </div>
+
+        {/* end overview wrapper */}
         </div>
 
       </div>

@@ -127,6 +127,15 @@ export async function POST(req: NextRequest) {
       actorRole,
       uiRoute: request.ui?.route,
       contentContext,
+      // Code-assist mode: forward sanitised code context when present.
+      // selected_code is already capped at 2 000 chars by the Zod schema.
+      codeContext: request.code_context
+        ? {
+            language:     request.code_context.language,
+            selected_code: request.code_context.selected_code,
+            cursor_line:   request.code_context.cursor_line,
+          }
+        : undefined,
     });
   } catch {
     plan = { response_text: "I'm here to help! What would you like to do?", intents: [] };
