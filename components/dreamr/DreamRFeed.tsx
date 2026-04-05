@@ -31,7 +31,7 @@ import Image from 'next/image';
 import {
   Heart, MessageCircle, Share2, Bookmark,
   Eye, ChevronDown, Wifi, ArrowUp, Music2,
-  UserPlus, UserCheck, Sparkles,
+  UserPlus, UserCheck, Sparkles, ChevronUp, Loader2,
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import DreamRCreatorPanel from './DreamRCreatorPanel';
@@ -128,6 +128,7 @@ interface CardProps {
 function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave }: CardProps) {
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const hasDark = isImage(post.media_url);
+  const [captionExpanded, setCaptionExpanded] = useState(false);
 
   const caption = useMemo(() => {
     if (!post.content) return '';
@@ -138,6 +139,8 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave }:
   const hashtags     = (caption.match(/#\w+/g) ?? []) as string[];
   const cleanCaption = caption.replace(/#\w+/g, '').trim();
   const views        = post.views_count ?? 0;
+  const CAPTION_LIMIT = 110;
+  const captionTruncated = hasDark && cleanCaption.length > CAPTION_LIMIT && !captionExpanded;
 
   return (
     <div
@@ -229,9 +232,21 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave }:
         </div>
 
         {hasDark && cleanCaption && (
-          <p style={{ margin: '0 0 7px', fontSize: 13, color: 'rgba(255,255,255,0.90)', lineHeight: 1.48, fontWeight: 500 }}>
-            {cleanCaption.slice(0, 110)}{cleanCaption.length > 110 ? '…' : ''}
-          </p>
+          <div style={{ marginBottom: 7 }}>
+            <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.90)', lineHeight: 1.48, fontWeight: 500 }}>
+              {captionTruncated ? cleanCaption.slice(0, CAPTION_LIMIT) : cleanCaption}
+              {captionTruncated && '…'}
+            </p>
+            {cleanCaption.length > CAPTION_LIMIT && (
+              <button
+                type="button"
+                onClick={e => { e.stopPropagation(); setCaptionExpanded(x => !x); }}
+                style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.60)', fontFamily: DR.font }}
+              >
+                {captionExpanded ? <><ChevronUp size={11} /> less</> : <><ChevronDown size={11} /> more</>}
+              </button>
+            )}
+          </div>
         )}
 
         {/* Views — the public metric */}
@@ -378,15 +393,23 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   const [creatorPost,   setCreatorPost]   = useState<FeedPost | null>(null);
   const [newCount,      setNewCount]      = useState(0);
   const [isLive,        setIsLive]        = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [loadingMore,   setLoadingMore]   = useState(false);
+  const [hasMore,       setHasMore]       = useState(true);
+  const scrollRef  = useRef<HTMLDivElement>(null);
   const pendingRef = useRef<FeedPost[]>([]);
+  const offsetRef  = useRef(0);
 
   // ── Fetch DreamR-ranked feed ────────────────────────────────────────────
   useEffect(() => {
     if (!userId) return;
     fetch('/api/dreamr/feed?limit=20')
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.posts?.length) setPosts(d.posts); })
+      .then(d => {
+        if (d?.posts?.length) {
+          setPosts(d.posts);
+          offsetRef.current = d.posts.length;
+        }
+      })
       .catch(() => { /* fall back to initialPosts */ });
   }, [userId]);
 
@@ -438,6 +461,29 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     }
   }, []);
 
+  // ── Load more posts when near the end ─────────────────────────────────
+  const loadMore = useCallback(() => {
+    if (loadingMore || !hasMore || !userId) return;
+    setLoadingMore(true);
+    fetch(`/api/dreamr/feed?limit=20&offset=${offsetRef.current}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.posts?.length) {
+          setPosts(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const fresh = (d.posts as FeedPost[]).filter((p: FeedPost) => !existingIds.has(p.id));
+            offsetRef.current += fresh.length;
+            return [...prev, ...fresh];
+          });
+          if (d.posts.length < 20) setHasMore(false);
+        } else {
+          setHasMore(false);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingMore(false));
+  }, [loadingMore, hasMore, userId]);
+
   // ── Build interleaved feed items ────────────────────────────────────────
   // Pattern: 4 posts, then 1 suggested (content or creator, alternating)
   const feedItems = useMemo((): FeedItem[] => {
@@ -465,8 +511,32 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current; if (!el) return;
-    setActiveIdx(Math.round(el.scrollTop / el.clientHeight));
-  }, []);
+    const idx = Math.round(el.scrollTop / el.clientHeight);
+    setActiveIdx(idx);
+    // Trigger load-more when within 3 slots of the end
+    if (idx >= feedItems.length - 3) loadMore();
+  }, [feedItems.length, loadMore]);
+
+  // ── Keyboard navigation (↑/↓ for desktop) ─────────────────────────────
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onKey = (e: KeyboardEvent) => {
+      // Don't capture keys when a text input is focused
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault();
+        const next = Math.min(activeIdx + 1, feedItems.length - 1);
+        el.scrollTo({ top: next * el.clientHeight, behavior: 'smooth' });
+      } else if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault();
+        const prev = Math.max(activeIdx - 1, 0);
+        el.scrollTo({ top: prev * el.clientHeight, behavior: 'smooth' });
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeIdx, feedItems.length]);
 
   const handleLike = useCallback(async (id: string) => {
     const wasLiked = likedPosts.has(id);
@@ -487,6 +557,30 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
         <div style={{ fontSize: 13, color: DR.textDim, textAlign: 'center', maxWidth: 240, lineHeight: 1.6 }}>
           Follow creators on dreamengin to see their human media here.
         </div>
+        {sugCreators.length > 0 && (
+          <div style={{ width: '80%', maxWidth: 280 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.10em', color: DR.textDim, textTransform: 'uppercase', textAlign: 'center', marginBottom: 10 }}>
+              Discover creators
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {sugCreators.slice(0, 3).map(c => (
+                <div key={c.id} style={{ background: DR.bg, borderRadius: 16, boxShadow: nmR(5), padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {c.avatar_url ? (
+                    <Image src={c.avatar_url} alt="" width={36} height={36} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                  ) : (
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: `linear-gradient(135deg,${DR.skyLight},${DR.sky} 55%,${DR.gold})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
+                      {(c.display_name ?? c.handle ?? '?')[0]?.toUpperCase()}
+                    </div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: DR.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.display_name ?? c.handle}</div>
+                    <div style={{ fontSize: 11, color: DR.sky, fontWeight: 600 }}>@{c.handle}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -529,6 +623,19 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
             )}
           </div>
         ))}
+
+        {/* Load-more sentinel */}
+        {hasMore && (
+          <div style={{ width: '100%', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', background: DR.bg, flexShrink: 0, scrollSnapAlign: 'start' }}>
+            {loadingMore ? (
+              <Loader2 size={20} style={{ color: DR.sky, animation: 'dr-spin 0.8s linear infinite' }} />
+            ) : (
+              <button type="button" onClick={loadMore} style={{ display: 'flex', alignItems: 'center', gap: 7, background: DR.bg, boxShadow: nmR(3), border: 'none', borderRadius: 99, padding: '10px 22px', fontSize: 12, fontWeight: 700, color: DR.sky, cursor: 'pointer', fontFamily: DR.font }}>
+                Load more
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Scroll nudge */}
@@ -553,6 +660,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
           0%,100% { opacity:.55; transform:translateX(-50%) translateY(0); }
           50%      { opacity:1;   transform:translateX(-50%) translateY(6px); }
         }
+        @keyframes dr-spin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
   );
