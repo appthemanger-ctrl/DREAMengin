@@ -15,6 +15,10 @@
 import { useState } from 'react';
 import { ArrowLeft, TrendingUp, Activity, ShieldCheck, Cpu } from 'lucide-react';
 import QuantumCircuitCanvas from './QuantumCircuitCanvas';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import JourneyTrail from '@/components/daydream/JourneyTrail';
 
 interface Props {
   onBack: () => void;
@@ -56,10 +60,14 @@ export default function PortfolioEngin({ onBack }: Props) {
   const [result,    setResult]    = useState<RunResult | null>(null);
   const [error,     setError]     = useState<string | null>(null);
 
+  // Portfolio lives under Lab Daydream — pulse to Forge under that enginId
+  const forge = useForgeActivity({ enginId: 'lab' });
+
   async function handleRun() {
     setRunning(true);
     setResult(null);
     setError(null);
+    forge.record('Started optimization run');
     try {
       const res = await fetch('/api/ai/idari', {
         method: 'POST',
@@ -75,13 +83,28 @@ export default function PortfolioEngin({ onBack }: Props) {
         throw new Error(msg);
       }
       const data = await res.json();
-      setResult({
+      const runResult: RunResult = {
         algorithm:      data.algorithm      ?? algorithm,
         backend:        data.backend        ?? backend,
         objectiveValue: data.objectiveValue ?? '—',
         expectedReturn: data.expectedReturn ?? '—',
         portfolioRisk:  data.portfolioRisk  ?? '—',
         sharpeRatio:    data.sharpeRatio    ?? '—',
+      };
+      setResult(runResult);
+
+      // Record the completed optimization as a Forge transfer (lab → lab)
+      forge.record('Optimization run completed');
+      recordForgeTransfer('lab', 'lab', 'optimization', 'Portfolio optimization complete', {
+        algorithm: runResult.algorithm,
+        backend: runResult.backend,
+      });
+
+      // Emit lab:result-ready so other Engins know results are available
+      bridge.emit('lab', 'lab:result-ready', {
+        experimentId: `portfolio-${Date.now()}`,
+        resultType: 'portfolio-optimization',
+        data: runResult,
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Optimization failed');
@@ -388,6 +411,9 @@ export default function PortfolioEngin({ onBack }: Props) {
             </div>
           </div>
         )}
+
+        {/* ── Journey Trail ── */}
+        <JourneyTrail compact />
 
       </div>
     </div>

@@ -33,6 +33,8 @@ import {
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import JourneyTrail from '@/components/daydream/JourneyTrail';
 import {
   parseAiInstruction,
   buildEditPreview,
@@ -697,6 +699,7 @@ export default function CodeEngin({ onBack }: Props) {
             buildId:   `build-${Date.now()}`,
             durationMs: 600 * total,
           });
+          recordForgeTransfer('code', 'lab', 'build-artifact', 'CI build → LabEngin');
         }
       }, 600 * (idx + 1));
     }
@@ -953,6 +956,7 @@ export default function CodeEngin({ onBack }: Props) {
     setDeployStatus('deploying');
     setDeployLog([]);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:build-success', { projectId: deployTarget, buildId: `deploy-${Date.now()}`, durationMs: 0 });
+    recordForgeTransfer('code', 'games', 'deploy-bundle', `Code deploy → GameEngin (${deployTarget})`);
     const steps = deployTarget === 'vercel'
       ? ['Preparing build…', 'Running pnpm build…', 'Uploading assets…', 'Deploying to edge…', '✅ Deployed to vercel.app']
       : ['Connecting to Supabase…', 'Running migrations…', 'Updating edge functions…', 'Refreshing schema cache…', '✅ Deployed to Supabase'];
@@ -987,6 +991,7 @@ export default function CodeEngin({ onBack }: Props) {
     setNewSnippetName('');
     setNewSnippetCode('');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('code', 'code:build-success', { projectId: 'snippet-' + snippet.id, buildId: `snip-${Date.now()}`, durationMs: 0 });
+    recordForgeTransfer('code', 'create', 'notebook-snippet', 'Notebook snippet → CreateEngin');
   }
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -3418,6 +3423,19 @@ export default function CodeEngin({ onBack }: Props) {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* ── Journey Trail ── */}
+        <div className="de-widget" style={{ margin: '14px 0' }}>
+          <div className="de-widget-header">
+            <span className="de-widget-title">Journey</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--de-text-dim)', fontStyle: 'italic' }}>
+              The dots only connect looking backwards
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <JourneyTrail compact />
           </div>
         </div>
 

@@ -39,6 +39,8 @@ import {
   DollarSign, GitCompare, Flame, Search,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
 
 interface Props {
@@ -145,6 +147,10 @@ export default function AnalyticsEngin({ onBack }: Props) {
   const [loading, setLoading]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Analytics is not a spec-defined creative engine, but it still pulses
+  // to Forge so the meta-layer sees it as an active participant.
+  const forge = useForgeActivity({ enginId: 'analytics' });
+
   // Feature 1 — Cross-platform overview
   const [metrics, setMetrics]       = useState<Metric[]>(EMPTY_METRICS);
   // Feature 2 — Platform breakdown
@@ -208,7 +214,12 @@ export default function AnalyticsEngin({ onBack }: Props) {
   const [liveFps, setLiveFps] = useState<number>(0);
   const gpuRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Feature 20 — export
-  const handleExport = () => exportMetricsCSV(metrics, platforms);
+  const handleExport = () => {
+    exportMetricsCSV(metrics, platforms);
+    forge.record('Exported analytics CSV');
+    // Record the cross-engine transfer so Forge sees the data flow
+    recordForgeTransfer('analytics', 'create', 'csv', 'Analytics CSV export');
+  };
 
   // ── Load handle ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -252,9 +263,16 @@ export default function AnalyticsEngin({ onBack }: Props) {
   // ── Refresh all platform metrics ───────────────────────────────────────────
   function handleRefresh() {
     setRefreshing(true);
+    forge.record('Refreshed analytics snapshot');
+    // 'analytics' is NOT a typed DualRuntimeChannel (only the 6 canonical
+    // creative-engine channels are typed). The cast is intentional — analytics
+    // piggybacks on the bridge for cross-engine signalling without polluting
+    // the canonical channel type definitions.
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'analytics', 'analytics:refresh', {},
     );
+    // Record a forge transfer for the snapshot generation
+    recordForgeTransfer('analytics', 'brand', 'snapshot', 'Analytics snapshot refreshed');
     setTimeout(() => {
       setMetrics([
         { id: 'reach',  label: 'Total Reach',     value: '38.7K', trend: 'up',   icon: <Eye    className="w-4 h-4" /> },
@@ -827,6 +845,8 @@ export default function AnalyticsEngin({ onBack }: Props) {
               const url = URL.createObjectURL(blob);
               const a = document.createElement('a'); a.href = url; a.download = 'analytics.json'; a.click();
               URL.revokeObjectURL(url);
+              forge.record('Exported analytics JSON');
+              recordForgeTransfer('analytics', 'create', 'json', 'Analytics JSON export');
             }}
               style={{ flex: 1, padding: '10px 14px', borderRadius: 10, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', color: '#22c55e', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
               ⬇ Download JSON

@@ -138,6 +138,10 @@ export default function BrandingEngin({ onBack }: Props) {
       { id: 'ctr',    label: 'Click-Through',    value: '2.1%',  trend: 'down', icon: <BarChart2 className="w-4 h-4" /> },
       { id: 'growth', label: 'Follower Growth',  value: '+127',  trend: 'up',   icon: <Megaphone className="w-4 h-4" /> },
     ]);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'brand', 'brand:analytics-snapshot', { metrics: ['reach', 'eng', 'ctr', 'growth'] },
+    );
+    recordForgeTransfer('brand', 'create', 'analytics-snapshot', 'Brand analytics snapshot → ContentEngin insights');
   }
 
   // ── Launch A/B Test ────────────────────────────────────────────────────────
@@ -146,6 +150,10 @@ export default function BrandingEngin({ onBack }: Props) {
     const t: ABTest = { id: crypto.randomUUID(), name: abName.trim(), variantA: abVarA.trim(), variantB: abVarB.trim(), paused: false };
     setAbTests(prev => [t, ...prev]);
     setAbName(''); setAbVarA(''); setAbVarB('');
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'brand', 'brand:campaign-launched', { testId: t.id, name: t.name, variantA: t.variantA, variantB: t.variantB },
+    );
+    recordForgeTransfer('brand', 'create', 'campaign', `Campaign "${t.name}" launched → ContentEngin variants`);
   }
 
   // ── ROI calculations ───────────────────────────────────────────────────────
@@ -258,6 +266,7 @@ export default function BrandingEngin({ onBack }: Props) {
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'brand', 'brand:segment-create', { name: newSegName.trim() },
     );
+    recordForgeTransfer('brand', 'create', 'audience-segment', `Audience segment "${seg.name}" → ContentEngin targeting`);
   }
 
   // ── Voice AI handler ─────────────────────────────────────────────────────────
@@ -506,11 +515,25 @@ export default function BrandingEngin({ onBack }: Props) {
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>{t.name}</div>
                     <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 6 }}>A: {t.variantA || '—'} · B: {t.variantB || '—'}</div>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button type="button" onClick={() => setAbTests(prev => prev.map(x => x.id === t.id ? { ...x, paused: !x.paused } : x))}
+                      <button type="button" onClick={() => {
+                          const willPause = !t.paused;
+                          setAbTests(prev => prev.map(x => x.id === t.id ? { ...x, paused: willPause } : x));
+                          (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+                            'brand', 'brand:campaign-paused', { testId: t.id, name: t.name, paused: willPause },
+                          );
+                          recordForgeTransfer('brand', 'brand', 'campaign-state', willPause ? `Campaign "${t.name}" paused` : `Campaign "${t.name}" resumed`);
+                        }}
                         style={{ padding: '4px 10px', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: `1px solid ${ACCENT}35`, background: t.paused ? `${ACCENT}12` : 'rgba(160,195,240,0.15)', color: t.paused ? ACCENT : 'var(--de-text-dim)' }}>
                         {t.paused ? 'Resume' : 'Pause'}
                       </button>
-                      <button type="button" onClick={() => setAbTests(prev => prev.filter(x => x.id !== t.id))}
+                      <button type="button" onClick={() => {
+                          forgeRecord(`Picked A/B winner for "${t.name}"`);
+                          (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+                            'brand', 'brand:ab-winner-picked', { testId: t.id, name: t.name, variantA: t.variantA, variantB: t.variantB },
+                          );
+                          recordForgeTransfer('brand', 'create', 'ab-winner', `A/B winner picked for "${t.name}" → ContentEngin`);
+                          setAbTests(prev => prev.filter(x => x.id !== t.id));
+                        }}
                         style={{ padding: '4px 10px', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: `1px solid ${ACCENT}35`, background: `${ACCENT}18`, color: ACCENT }}>
                         Pick Winner
                       </button>

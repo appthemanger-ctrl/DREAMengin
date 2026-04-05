@@ -21,6 +21,7 @@ import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import JourneyTrail from '@/components/daydream/JourneyTrail';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
@@ -145,6 +146,10 @@ export default function LabEngin({ onBack }: Props) {
     forgeRecord(`Ran simulation ${id}`);
     setTimeout(() => {
       setSimStates(prev => ({ ...prev, [id]: 'complete' }));
+      (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+        'lab', 'lab:simulation-complete', { simId: id, ts: Date.now() },
+      );
+      recordForgeTransfer('lab', 'code', 'simulation', `Simulation ${id} results → CodeEngin`);
     }, 1200);
   }
 
@@ -153,6 +158,7 @@ export default function LabEngin({ onBack }: Props) {
     bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });
     forgeRecord('Exported data');
     recordForgeTransfer('lab', 'code', 'dataset', 'Lab data export → CodeEngin');
+    recordForgeTransfer('lab', 'create', 'dataset', 'Lab data export → CreateEngin');
     setExportFlash(true);
     setTimeout(() => setExportFlash(false), 1800);
   }
@@ -187,6 +193,9 @@ export default function LabEngin({ onBack }: Props) {
   ]);
   const [publishingResult, setPublishingResult] = useState(false);
   const [newResultTitle, setNewResultTitle] = useState('');
+
+  // ── Quantum measure state ────────────────────────────────────────────────────
+  const [quantumMeasured, setQuantumMeasured] = useState(false);
 
   // ── Feature Flags (real toggles) ─────────────────────────────────────────────
   const [featureFlags, setFeatureFlags] = useState<Record<string, boolean>>({
@@ -313,6 +322,15 @@ export default function LabEngin({ onBack }: Props) {
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'lab', 'lab:molecule-analyze', { molecule: selectedMolecule },
     );
+  }
+
+  // ── Quantum measure handler ─────────────────────────────────────────────────
+  function handleQuantumMeasure() {
+    setQuantumMeasured(true);
+    (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
+      'lab', 'lab:quantum-measured', { qubits: 8, fidelity: 0.94 },
+    );
+    recordForgeTransfer('lab', 'code', 'quantum-result', 'Quantum circuit measurement → CodeEngin');
   }
 
   // ── Dataset handler ──────────────────────────────────────────────────────────
@@ -1336,6 +1354,34 @@ export default function LabEngin({ onBack }: Props) {
                 </div>
               ))}
             </div>
+            <button
+              type="button"
+              onClick={handleQuantumMeasure}
+              style={{
+                width: '100%', marginTop: 10, padding: '8px 0', borderRadius: 9,
+                fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none',
+                background: quantumMeasured
+                  ? 'rgba(139,92,246,0.12)'
+                  : 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                color: quantumMeasured ? '#8b5cf6' : '#fff',
+                transition: 'all 0.2s',
+              }}
+            >
+              {quantumMeasured ? '✓ Measured — Collapse recorded' : '▶ Measure Circuit'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Journey Trail ── */}
+        <div className="de-widget" style={{ margin: '14px 0' }}>
+          <div className="de-widget-header">
+            <span className="de-widget-title">Journey</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--de-text-dim)', fontStyle: 'italic' }}>
+              The dots only connect looking backwards
+            </span>
+          </div>
+          <div className="de-widget-body">
+            <JourneyTrail compact />
           </div>
         </div>
 
