@@ -638,6 +638,19 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
         )}
       </div>
 
+      {/* Feed limits info banner (spec §5) */}
+      <div
+        style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 12,
+          background: `linear-gradient(0deg, rgba(232,239,246,0.97) 0%, transparent 100%)`,
+          padding: '4px 14px 2px', pointerEvents: 'none',
+        }}
+      >
+        <p style={{ fontSize: 9, color: DR.textDim, fontFamily: DR.font, fontWeight: 600, textAlign: 'center', lineHeight: 1.5 }}>
+          We keep your last 500 posts in main feed. Your profile shows your 50 most recent posts (including up to 25 saved). Older posts are not shown.
+        </p>
+      </div>
+
       {/* Scroll nudge */}
       {activeIdx === 0 && feedItems.length > 1 && (
         <div style={{ position: 'absolute', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 15, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, animation: 'dr-nudge 2s ease-in-out infinite' }}>

@@ -8,23 +8,31 @@ import { connection } from 'next/server';
 
 export default async function Home() {
   await connection();
+
+  // ── Step 1: Auth check ────────────────────────────────────────────────────
+  // Next.js docs: redirect() must be called OUTSIDE try/catch blocks because
+  // it works by throwing a special NEXT_REDIRECT error that must propagate
+  // freely. Calling redirect() inside a try/catch swallows that throw.
+  const supabase = await createServerClient();
+
   let user = null;
+  try {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    user = authUser;
+  } catch {
+    // Supabase unavailable or session error — treat as unauthenticated.
+  }
+
+  // Guard is outside try/catch so the NEXT_REDIRECT throw propagates correctly.
+  if (!user && !isDevBypassActive()) redirect('/login');
+  if (!user) redirect('/login');
+
+  // ── Step 2: Data fetching — all failures are non-fatal ───────────────────
   let profile = null;
-   
   let posts: any[] = [];
   let isAdmin = false;
 
   try {
-    const supabase = await createServerClient();
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
-    user = authUser;
-
-    if (!user && !isDevBypassActive()) redirect('/login');
-    if (!user) redirect('/login');
-
-    if (user) {
     // Fetch user profile
     const { data: profileData } = await supabase
       .from('profiles')
@@ -37,7 +45,6 @@ export default async function Home() {
     if (isOwnerEmail(user.email)) {
       isAdmin = true;
     } else {
-       
       const { data: roleData } = await (supabase as any)
         .from('user_roles')
         .select('role')
@@ -53,7 +60,6 @@ export default async function Home() {
     // app_posts:  public posts from users the authenticated user follows + own posts.
 
     // Stream 1: connector feed items (Phase 8 §A Point 2)
-     
     const { data: feedItems } = await (supabase as any)
       .from('feed_items')
       .select('id, provider, payload, published_at, created_at')
@@ -86,20 +92,18 @@ export default async function Home() {
     // Attach connector feed items to the posts array under a normalised shape
     // so WorkspaceDashboard / HomeFeed can render them uniformly.
     // Connector items arrive as `{ source: 'connector', ... }` alongside posts.
-     
     const connectorEntries = (feedItems ?? []).map((item: any) => {
-       
       const p = (item.payload ?? {}) as Record<string, any>;
       return {
-        id:          item.id,
-        source:      'connector' as const,
-        provider:    item.provider,
-        content:     p.content_text ?? p.title ?? '',
-        author_handle: p.author_handle,
-        author_name:   p.author_name,
+        id:            item.id,
+        source:        'connector' as const,
+        provider:      item.provider,
+        content:       p.content_text ?? p.title ?? '',
+        author_handle: p.author_handle ?? null,
+        author_name:   p.author_name ?? null,
         media_url:     Array.isArray(p.media) && p.media.length > 0 ? p.media[0].url : null,
-        permalink:     p.permalink,
-        created_at:  item.published_at ?? item.created_at,
+        permalink:     p.permalink ?? null,
+        created_at:    item.published_at ?? item.created_at ?? null,
         // Stub profile shape for unified rendering
         profiles: {
           handle:       p.author_handle ?? item.provider,
@@ -110,19 +114,17 @@ export default async function Home() {
     });
 
     // Merge and sort by created_at descending; posts first if same time
-     
     const allEntries: any[] = [...posts, ...connectorEntries];
     allEntries.sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
     posts = allEntries;
-    } // end if (user)
-
   } catch {
-    redirect('/login');
+    // Non-fatal: render the home system with whatever data was collected.
+    // The user is authenticated — we must NOT redirect here.
   }
 
   return (
-    <HomeSystem userId={user?.id || ''} profile={profile} initialPosts={posts || []} isAdmin={isAdmin} />
+    <HomeSystem userId={user.id} profile={profile} initialPosts={posts} isAdmin={isAdmin} />
   );
 }
