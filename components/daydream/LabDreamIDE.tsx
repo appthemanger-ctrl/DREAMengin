@@ -241,7 +241,7 @@ export default function LabDreamIDE() {
   // Swap & live-mode state
   const [swapped,  setSwapped]  = useState(false);
   const [liveMode, setLiveMode] = useState(false);
-  const liveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const liveTimerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load swap preference from localStorage on mount (client-only)
   useEffect(() => {
@@ -287,6 +287,9 @@ export default function LabDreamIDE() {
     });
   }, [status, language, simId, code]);
 
+  // Ref to always call the latest version of handleRun from the live-mode effect
+  const handleRunRef = useRef(handleRun);
+
   const handleStop = useCallback(() => {
     setStatus('error');
     setLines(prev => {
@@ -303,16 +306,18 @@ export default function LabDreamIDE() {
   }, []);
 
   // Live mode — debounce code changes and auto-run (300 ms)
+  // Use a ref so the effect always calls the latest handleRun without
+  // needing to list all of its own dependencies (avoids stale closures).
+  useEffect(() => { handleRunRef.current = handleRun; }, [handleRun]);
   useEffect(() => {
     if (!liveMode) return;
     if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
     liveTimerRef.current = setTimeout(() => {
-      handleRun();
+      handleRunRef.current();
     }, 300);
     return () => {
       if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, liveMode]);
 
   const activeSim = SIMS.find(s => s.id === simId) ?? SIMS[0];
