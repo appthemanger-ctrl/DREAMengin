@@ -1,11 +1,19 @@
 'use client'
 
 import { useEffect } from 'react'
-import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     console.error('Route error:', error)
+
+    // Sign out and close the whole app when a crash happens.
+    // This prevents a scenario where one runtime crashes and the other remains
+    // active with a stale or inconsistent session state.
+    const sb = createClient();
+    sb.auth.signOut().catch(() => { /* best-effort */ }).finally(() => {
+      (window.top ?? window).location.href = '/login';
+    });
   }, [error])
 
   return (
@@ -78,7 +86,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
             marginBottom: 16,
           }}
         >
-          The page hit an error. Your session and data are safe — this is just the UI tripping.
+          The page hit an error. Signing you out and redirecting to login…
         </p>
 
         {error?.message && (
@@ -108,13 +116,6 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
           >
             Try again
           </button>
-          <Link
-            href="/"
-            className="de-btn de-btn-ghost"
-            style={{ flex: 1, justifyContent: 'center', textDecoration: 'none' }}
-          >
-            Go Home
-          </Link>
         </div>
       </div>
     </div>

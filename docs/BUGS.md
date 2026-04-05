@@ -4,9 +4,9 @@
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
-**Last updated:** 2026-04-05 03:08 UTC  
-**Triggered by commit:** `25d3e3e` on `copilot/add-image-upload-feature` by Copilot  
-**Commit message:** feat: add Play as Yourself avatar feature to games page
+**Last updated:** 2026-04-05 03:11 UTC  
+**Triggered by commit:** `b2cdb3a` on `copilot/add-floating-light-glow-effect` by Copilot  
+**Commit message:** feat: animate DreamDMBar floating light gold→light-blue→gold
 
 ---
 

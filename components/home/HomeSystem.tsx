@@ -23,6 +23,7 @@ import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
 import DreamDMBar from '@/components/messaging/DreamDMBar';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
+import { createClient } from '@/lib/supabase/client';
 
 type ProfileLike = {
   id?: string;
@@ -42,6 +43,20 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     openBothMenus,
     openDrEams,
   } = useDreamSystem();
+
+  // ── Global auth guard: if either runtime or any in-region iframe signs out,
+  //    redirect the entire top-level window to /login immediately.
+  //    Supabase shares its session via localStorage, so a signOut() call from
+  //    any same-origin iframe fires SIGNED_OUT here too.
+  useEffect(() => {
+    const sb = createClient();
+    const { data: { subscription } } = sb.auth.onAuthStateChange((event: string) => {
+      if (event === 'SIGNED_OUT') {
+        (window.top ?? window).location.href = '/login';
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   // ── Return to HomeDream Surface ──────────────────────────────────────────
 
