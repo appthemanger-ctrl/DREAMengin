@@ -465,7 +465,7 @@ export default function LandingHero() {
             className="mt-2 text-xs font-semibold select-none tracking-widest uppercase"
             style={{ color: 'rgba(200,152,26,0.70)', letterSpacing: '0.14em' }}
           >
-            tap · drag · interact ✦
+            drag to orbit · tap to pulse ✦
           </p>
         </motion.div>
       </div>
