@@ -54,6 +54,12 @@ describe('ledger media helpers', () => {
     );
   });
 
+  it('URL-encodes special characters in ledger media paths', () => {
+    expect(buildLedgerMediaUrl('audio', 'user 1/starmaker/clip & mix?.wav.ledger')).toBe(
+      '/api/ledger-media?bucket=audio&path=user%201%2Fstarmaker%2Fclip%20%26%20mix%3F.wav.ledger',
+    );
+  });
+
   it('flags black-hole density spikes using the n=2.1 profile', () => {
     const denseProfile = analyzeLedgerDensity(encodeToLedger([0, 1, 16, 64, 128, 255]));
 

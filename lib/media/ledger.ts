@@ -3,6 +3,7 @@ const DATA_PHYSICS = {
   a0: 1.2e-10,
   participation: 0.1,
 } as const;
+const SIGNAL_DELTA_THRESHOLD = DATA_PHYSICS.participation * 0.01;
 
 const LEDGER_MAGIC = 'DELEDGER1';
 const NEWLINE_BYTE = 10;
@@ -125,7 +126,10 @@ export function compressData(encodedBuffer: number[]): number[] {
   return encodedBuffer.filter((dataPoint) => {
     const x = Math.abs(dataPoint) / DATA_PHYSICS.a0;
     const expected = x / Math.pow(1 + Math.pow(x, DATA_PHYSICS.n), 1 / DATA_PHYSICS.n);
-    return Math.abs(dataPoint - expected) > (DATA_PHYSICS.participation * 0.01);
+    // The per-point filter uses 0.1% of the participation constant, matching the
+    // repo request for "human signal" detection. The broader black-hole throttle
+    // below separately activates when the resulting signal ratio reaches 10%.
+    return Math.abs(dataPoint - expected) > SIGNAL_DELTA_THRESHOLD;
   });
 }
 

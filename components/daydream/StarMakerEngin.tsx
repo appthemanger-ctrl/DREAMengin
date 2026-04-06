@@ -3117,12 +3117,12 @@ function DAWFileIOPanel({
         const res = await fetch(buildLedgerMediaUrl(persistedLedgerAudio.bucket, persistedLedgerAudio.storagePath), {
           signal: controller.signal,
         });
-        if (!res.ok) throw new Error(`Restore failed (${res.status})`);
+        if (!res.ok) throw new Error(`Failed to restore saved audio from ledger (${res.status})`);
         const restoredBlob = await res.blob();
         await loadBlob(restoredBlob, persistedLedgerAudio.fileName, { persistToLedger: false });
       } catch (err) {
         if (!controller.signal.aborted) {
-          setImportErr(`Restore failed: ${err instanceof Error ? err.message : String(err)}`);
+          setImportErr(`Failed to restore saved audio from ledger: ${err instanceof Error ? err.message : String(err)}`);
         }
       } finally {
         restoringLedgerAudioRef.current = false;

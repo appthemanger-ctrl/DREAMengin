@@ -1089,6 +1089,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               mediaUrls.push(upload.mediaUrl);
             } catch (uploadError) {
               console.error('[DreamBar] Comment media upload failed:', uploadError);
+              alert(`Comment media upload failed for ${file.name}. Please try again.`);
             }
           }
         }
@@ -1179,6 +1180,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               mediaUrls.push(upload.mediaUrl);
             } catch (uploadError) {
               console.error('[DreamBar] Feed media upload failed:', uploadError);
+              alert(`Post media upload failed for ${file.name}. Please try again.`);
             }
           }
         }
