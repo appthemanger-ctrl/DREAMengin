@@ -643,6 +643,29 @@ type RuntimeCarry = {
   superSeconds: number;
 };
 
+type MadmaxiPlayerRig = {
+  root: import('@babylonjs/core').TransformNode;
+  torso: import('@babylonjs/core').Mesh;
+  coatShell: import('@babylonjs/core').Mesh;
+  coatFront: import('@babylonjs/core').Mesh;
+  headNode: import('@babylonjs/core').TransformNode;
+  headShell: import('@babylonjs/core').Mesh;
+  visorShell: import('@babylonjs/core').Mesh;
+  screen: import('@babylonjs/core').Mesh;
+  eyeGoldRing: import('@babylonjs/core').Mesh;
+  eyeGoldCore: import('@babylonjs/core').Mesh;
+  eyeCyanRing: import('@babylonjs/core').Mesh;
+  eyeCyanCore: import('@babylonjs/core').Mesh;
+  chestHalo: import('@babylonjs/core').Mesh;
+  chestCore: import('@babylonjs/core').Mesh;
+  shoulderL: import('@babylonjs/core').TransformNode;
+  shoulderR: import('@babylonjs/core').TransformNode;
+  hipL: import('@babylonjs/core').TransformNode;
+  hipR: import('@babylonjs/core').TransformNode;
+  bootL: import('@babylonjs/core').Mesh;
+  bootR: import('@babylonjs/core').Mesh;
+};
+
 class GameCore {
   private disposed = false;
   private keys: Set<string> = new Set();
@@ -705,13 +728,7 @@ class GameCore {
   private bjs: typeof import('@babylonjs/core') | null = null;
 
   // Babylon mesh refs
-  private playerMesh:  import('@babylonjs/core').Mesh | null = null; // robot body
-  private playerHead:  import('@babylonjs/core').Mesh | null = null; // robot head box
-  private playerVisor: import('@babylonjs/core').Mesh | null = null; // cyan visor stripe
-  private playerArmL:  import('@babylonjs/core').Mesh | null = null; // left arm
-  private playerArmR:  import('@babylonjs/core').Mesh | null = null; // right arm
-  private playerLegL:  import('@babylonjs/core').Mesh | null = null; // left leg
-  private playerLegR:  import('@babylonjs/core').Mesh | null = null; // right leg
+  private playerRig: MadmaxiPlayerRig | null = null;
   private platMeshes:  import('@babylonjs/core').Mesh[] = [];
   private coinMeshes:  (import('@babylonjs/core').Mesh | null)[] = [];
   private enemyMeshes: (import('@babylonjs/core').Mesh | null)[] = [];
@@ -771,6 +788,350 @@ class GameCore {
     this.superFrames = Math.round(runtimeCarry.superSeconds * 60);
     this.initLevel(level);
     this.initBabylon(canvas);
+  }
+
+  private buildLandingGradePlayerRig(
+    BJS: typeof import('@babylonjs/core'),
+    scene: import('@babylonjs/core').Scene,
+    shadowGen: import('@babylonjs/core').ShadowGenerator,
+    glow: import('@babylonjs/core').GlowLayer,
+  ) {
+    const addShadowCaster = (mesh: import('@babylonjs/core').Mesh, includeGlow = false) => {
+      shadowGen.addShadowCaster(mesh, true);
+      if (includeGlow) glow.addIncludedOnlyMesh(mesh);
+      return mesh;
+    };
+
+    const helmetMat = new BJS.PBRMaterial('player_helmet_mat', scene);
+    helmetMat.albedoColor = new BJS.Color3(0.08, 0.10, 0.14);
+    helmetMat.metallic = 0.9;
+    helmetMat.roughness = 0.16;
+    helmetMat.environmentIntensity = 2.2;
+    helmetMat.clearCoat.isEnabled = true;
+    helmetMat.clearCoat.intensity = 1.0;
+    helmetMat.clearCoat.roughness = 0.03;
+
+    const darkMetalMat = new BJS.PBRMaterial('player_dark_mat', scene);
+    darkMetalMat.albedoColor = new BJS.Color3(0.14, 0.16, 0.20);
+    darkMetalMat.metallic = 0.78;
+    darkMetalMat.roughness = 0.24;
+    darkMetalMat.environmentIntensity = 1.9;
+    darkMetalMat.clearCoat.isEnabled = true;
+    darkMetalMat.clearCoat.intensity = 0.5;
+    darkMetalMat.clearCoat.roughness = 0.12;
+
+    const jointMat = new BJS.PBRMaterial('player_joint_mat', scene);
+    jointMat.albedoColor = new BJS.Color3(0.20, 0.22, 0.28);
+    jointMat.metallic = 0.82;
+    jointMat.roughness = 0.34;
+    jointMat.environmentIntensity = 1.45;
+
+    const coatMat = new BJS.PBRMaterial('player_coat_mat', scene);
+    coatMat.albedoColor = new BJS.Color3(0.94, 0.97, 1.0);
+    coatMat.metallic = 0.04;
+    coatMat.roughness = 0.24;
+    coatMat.environmentIntensity = 1.05;
+    coatMat.clearCoat.isEnabled = true;
+    coatMat.clearCoat.intensity = 0.62;
+    coatMat.clearCoat.roughness = 0.14;
+
+    const shirtMat = new BJS.PBRMaterial('player_shirt_mat', scene);
+    shirtMat.albedoColor = new BJS.Color3(0.18, 0.34, 0.60);
+    shirtMat.metallic = 0.0;
+    shirtMat.roughness = 0.42;
+
+    const visorMat = new BJS.PBRMaterial('player_visor_mat', scene);
+    visorMat.albedoColor = new BJS.Color3(0.03, 0.06, 0.10);
+    visorMat.alpha = 0.86;
+    visorMat.metallic = 0.0;
+    visorMat.roughness = 0.02;
+    visorMat.environmentIntensity = 2.4;
+    visorMat.emissiveColor = new BJS.Color3(0.10, 0.34, 0.48);
+    visorMat.clearCoat.isEnabled = true;
+    visorMat.clearCoat.intensity = 1.0;
+    visorMat.clearCoat.roughness = 0.01;
+    visorMat.backFaceCulling = false;
+
+    const screenMat = new BJS.PBRMaterial('player_screen_mat', scene);
+    screenMat.albedoColor = new BJS.Color3(0.03, 0.18, 0.28);
+    screenMat.emissiveColor = new BJS.Color3(0.12, 0.64, 0.82);
+    screenMat.metallic = 0.0;
+    screenMat.roughness = 1.0;
+
+    const eyeGoldMat = new BJS.PBRMaterial('player_eye_gold_mat', scene);
+    eyeGoldMat.albedoColor = new BJS.Color3(1.0, 0.75, 0.10);
+    eyeGoldMat.emissiveColor = new BJS.Color3(1.0, 0.72, 0.0);
+    eyeGoldMat.metallic = 0.0;
+    eyeGoldMat.roughness = 1.0;
+
+    const eyeCyanMat = new BJS.PBRMaterial('player_eye_cyan_mat', scene);
+    eyeCyanMat.albedoColor = new BJS.Color3(0.10, 0.78, 1.0);
+    eyeCyanMat.emissiveColor = new BJS.Color3(0.0, 0.80, 1.0);
+    eyeCyanMat.metallic = 0.0;
+    eyeCyanMat.roughness = 1.0;
+
+    const bootMat = new BJS.PBRMaterial('player_boot_mat', scene);
+    bootMat.albedoColor = new BJS.Color3(0.08, 0.10, 0.13);
+    bootMat.metallic = 0.74;
+    bootMat.roughness = 0.24;
+    bootMat.environmentIntensity = 1.85;
+    bootMat.clearCoat.isEnabled = true;
+    bootMat.clearCoat.intensity = 0.82;
+    bootMat.clearCoat.roughness = 0.08;
+
+    const badgeMat = new BJS.PBRMaterial('player_badge_mat', scene);
+    badgeMat.albedoColor = new BJS.Color3(0.84, 0.86, 0.92);
+    badgeMat.metallic = 0.92;
+    badgeMat.roughness = 0.14;
+    badgeMat.environmentIntensity = 1.45;
+
+    const root = new BJS.TransformNode('player_root', scene);
+
+    const torso = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_torso', {
+      height: 0.76, diameterTop: 0.50, diameterBottom: 0.42, tessellation: 28,
+    }, scene));
+    torso.material = darkMetalMat;
+    torso.parent = root;
+
+    const coatShell = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_coat_shell', {
+      height: 0.82, diameterTop: 0.62, diameterBottom: 0.48, tessellation: 28,
+    }, scene));
+    coatShell.material = coatMat;
+    coatShell.position.y = -0.02;
+    coatShell.parent = root;
+
+    const coatFront = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_coat_front', {
+      height: 0.70, diameterTop: 0.46, diameterBottom: 0.38, tessellation: 24,
+    }, scene));
+    coatFront.material = coatMat;
+    coatFront.position = new BJS.Vector3(0, 0.04, 0.11);
+    coatFront.scaling.z = 0.45;
+    coatFront.parent = root;
+
+    const shirt = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_shirt', {
+      height: 0.22, diameterTop: 0.22, diameterBottom: 0.16, tessellation: 16,
+    }, scene));
+    shirt.material = shirtMat;
+    shirt.position = new BJS.Vector3(0, 0.36, 0.17);
+    shirt.scaling.z = 0.36;
+    shirt.parent = root;
+
+    const torsoTrimL = addShadowCaster(BJS.MeshBuilder.CreateBox('player_trim_l', {
+      width: 0.06, height: 0.46, depth: 0.03,
+    }, scene));
+    torsoTrimL.material = badgeMat;
+    torsoTrimL.position = new BJS.Vector3(-0.18, 0.02, 0.24);
+    torsoTrimL.rotation.z = 0.14;
+    torsoTrimL.parent = root;
+
+    const torsoTrimR = addShadowCaster(BJS.MeshBuilder.CreateBox('player_trim_r', {
+      width: 0.06, height: 0.46, depth: 0.03,
+    }, scene));
+    torsoTrimR.material = badgeMat;
+    torsoTrimR.position = new BJS.Vector3(0.18, 0.02, 0.24);
+    torsoTrimR.rotation.z = -0.14;
+    torsoTrimR.parent = root;
+
+    const chestHalo = addShadowCaster(BJS.MeshBuilder.CreateTorus('player_chest_halo', {
+      diameter: 0.24, thickness: 0.025, tessellation: 28,
+    }, scene), true);
+    chestHalo.material = eyeCyanMat;
+    chestHalo.rotation.x = Math.PI / 2;
+    chestHalo.position = new BJS.Vector3(0, 0.10, 0.26);
+    chestHalo.parent = root;
+
+    const chestCore = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_chest_core', {
+      diameter: 0.08, segments: 16,
+    }, scene), true);
+    chestCore.material = eyeGoldMat;
+    chestCore.position = new BJS.Vector3(0, 0.10, 0.28);
+    chestCore.parent = root;
+
+    const neck = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_neck', {
+      height: 0.12, diameterTop: 0.14, diameterBottom: 0.18, tessellation: 18,
+    }, scene));
+    neck.material = darkMetalMat;
+    neck.position.y = 0.44;
+    neck.parent = root;
+
+    const headNode = new BJS.TransformNode('player_head_node', scene);
+    headNode.position.y = 0.74;
+    headNode.parent = root;
+
+    const headShell = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_head_shell', {
+      diameterX: 0.78, diameterY: 0.68, diameterZ: 0.72, segments: 40,
+    }, scene), true);
+    headShell.material = helmetMat;
+    headShell.position.y = 0.04;
+    headShell.parent = headNode;
+
+    const helmetChin = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_head_chin', {
+      diameterX: 0.58, diameterY: 0.28, diameterZ: 0.58, segments: 24,
+    }, scene));
+    helmetChin.material = helmetMat;
+    helmetChin.position = new BJS.Vector3(0, -0.16, 0.02);
+    helmetChin.parent = headNode;
+
+    const headCrest = addShadowCaster(BJS.MeshBuilder.CreateBox('player_head_crest', {
+      width: 0.08, height: 0.14, depth: 0.26,
+    }, scene));
+    headCrest.material = badgeMat;
+    headCrest.position = new BJS.Vector3(0, 0.38, -0.02);
+    headCrest.rotation.x = -0.1;
+    headCrest.parent = headNode;
+
+    const visorShell = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_visor_shell', {
+      diameterX: 0.62, diameterY: 0.42, diameterZ: 0.22, segments: 24,
+    }, scene), true);
+    visorShell.material = visorMat;
+    visorShell.position = new BJS.Vector3(0, 0.04, 0.27);
+    visorShell.parent = headNode;
+
+    const screen = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_screen', {
+      diameterX: 0.54, diameterY: 0.30, diameterZ: 0.08, segments: 18,
+    }, scene), true);
+    screen.material = screenMat;
+    screen.position = new BJS.Vector3(0, 0.04, 0.31);
+    screen.parent = headNode;
+
+    const eyeGoldRing = addShadowCaster(BJS.MeshBuilder.CreateTorus('player_eye_gold_ring', {
+      diameter: 0.18, thickness: 0.03, tessellation: 32,
+    }, scene), true);
+    eyeGoldRing.material = eyeGoldMat;
+    eyeGoldRing.rotation.x = Math.PI / 2;
+    eyeGoldRing.position = new BJS.Vector3(-0.10, 0.05, 0.36);
+    eyeGoldRing.parent = headNode;
+
+    const eyeGoldCore = addShadowCaster(BJS.MeshBuilder.CreateDisc('player_eye_gold_core', {
+      radius: 0.06, tessellation: 20,
+    }, scene), true);
+    eyeGoldCore.material = eyeGoldMat;
+    eyeGoldCore.position = new BJS.Vector3(-0.10, 0.05, 0.37);
+    eyeGoldCore.parent = headNode;
+
+    const eyeCyanRing = addShadowCaster(BJS.MeshBuilder.CreateTorus('player_eye_cyan_ring', {
+      diameter: 0.18, thickness: 0.03, tessellation: 32,
+    }, scene), true);
+    eyeCyanRing.material = eyeCyanMat;
+    eyeCyanRing.rotation.x = Math.PI / 2;
+    eyeCyanRing.position = new BJS.Vector3(0.10, 0.05, 0.36);
+    eyeCyanRing.parent = headNode;
+
+    const eyeCyanCore = addShadowCaster(BJS.MeshBuilder.CreateDisc('player_eye_cyan_core', {
+      radius: 0.06, tessellation: 20,
+    }, scene), true);
+    eyeCyanCore.material = eyeCyanMat;
+    eyeCyanCore.position = new BJS.Vector3(0.10, 0.05, 0.37);
+    eyeCyanCore.parent = headNode;
+
+    const shoulderL = new BJS.TransformNode('player_shoulder_l', scene);
+    shoulderL.position = new BJS.Vector3(-0.34, 0.20, 0);
+    shoulderL.parent = root;
+    const shoulderR = new BJS.TransformNode('player_shoulder_r', scene);
+    shoulderR.position = new BJS.Vector3(0.34, 0.20, 0);
+    shoulderR.parent = root;
+
+    const buildArm = (id: 'l' | 'r', parent: import('@babylonjs/core').TransformNode) => {
+      const shoulderBall = addShadowCaster(BJS.MeshBuilder.CreateSphere(`player_arm_${id}_shoulder`, {
+        diameter: 0.18, segments: 16,
+      }, scene));
+      shoulderBall.material = darkMetalMat;
+      shoulderBall.parent = parent;
+
+      const upperArm = addShadowCaster(BJS.MeshBuilder.CreateCylinder(`player_arm_${id}_upper`, {
+        height: 0.30, diameterTop: 0.13, diameterBottom: 0.11, tessellation: 18,
+      }, scene));
+      upperArm.material = darkMetalMat;
+      upperArm.position.y = -0.18;
+      upperArm.parent = parent;
+
+      const forearm = addShadowCaster(BJS.MeshBuilder.CreateCylinder(`player_arm_${id}_forearm`, {
+        height: 0.26, diameterTop: 0.11, diameterBottom: 0.09, tessellation: 18,
+      }, scene));
+      forearm.material = jointMat;
+      forearm.position.y = -0.44;
+      forearm.parent = parent;
+
+      const hand = addShadowCaster(BJS.MeshBuilder.CreateSphere(`player_arm_${id}_hand`, {
+        diameter: 0.10, segments: 12,
+      }, scene));
+      hand.material = jointMat;
+      hand.position.y = -0.60;
+      hand.parent = parent;
+    };
+    buildArm('l', shoulderL);
+    buildArm('r', shoulderR);
+
+    const hipL = new BJS.TransformNode('player_hip_l', scene);
+    hipL.position = new BJS.Vector3(-0.14, -0.40, 0);
+    hipL.parent = root;
+    const hipR = new BJS.TransformNode('player_hip_r', scene);
+    hipR.position = new BJS.Vector3(0.14, -0.40, 0);
+    hipR.parent = root;
+
+    const buildLeg = (id: 'l' | 'r', parent: import('@babylonjs/core').TransformNode) => {
+      const hipJoint = addShadowCaster(BJS.MeshBuilder.CreateSphere(`player_leg_${id}_hip`, {
+        diameter: 0.14, segments: 12,
+      }, scene));
+      hipJoint.material = jointMat;
+      hipJoint.parent = parent;
+
+      const upperLeg = addShadowCaster(BJS.MeshBuilder.CreateCylinder(`player_leg_${id}_upper`, {
+        height: 0.32, diameterTop: 0.16, diameterBottom: 0.13, tessellation: 18,
+      }, scene));
+      upperLeg.material = darkMetalMat;
+      upperLeg.position.y = -0.18;
+      upperLeg.parent = parent;
+
+      const knee = addShadowCaster(BJS.MeshBuilder.CreateSphere(`player_leg_${id}_knee`, {
+        diameter: 0.12, segments: 12,
+      }, scene));
+      knee.material = jointMat;
+      knee.position.y = -0.36;
+      knee.parent = parent;
+
+      const lowerLeg = addShadowCaster(BJS.MeshBuilder.CreateCylinder(`player_leg_${id}_lower`, {
+        height: 0.30, diameterTop: 0.13, diameterBottom: 0.11, tessellation: 18,
+      }, scene));
+      lowerLeg.material = darkMetalMat;
+      lowerLeg.position.y = -0.54;
+      lowerLeg.parent = parent;
+
+      const boot = addShadowCaster(BJS.MeshBuilder.CreateCapsule(`player_boot_${id}`, {
+        radius: 0.10, height: 0.26, tessellation: 10,
+      }, scene));
+      boot.material = bootMat;
+      boot.position = new BJS.Vector3(0, -0.76, 0.04);
+      boot.rotation.x = Math.PI / 2;
+      boot.parent = parent;
+
+      return { boot };
+    };
+    const { boot: bootL } = buildLeg('l', hipL);
+    const { boot: bootR } = buildLeg('r', hipR);
+
+    this.playerRig = {
+      root,
+      torso,
+      coatShell,
+      coatFront,
+      headNode,
+      headShell,
+      visorShell,
+      screen,
+      eyeGoldRing,
+      eyeGoldCore,
+      eyeCyanRing,
+      eyeCyanCore,
+      chestHalo,
+      chestCore,
+      shoulderL,
+      shoulderR,
+      hipL,
+      hipR,
+      bootL,
+      bootR,
+    };
   }
 
   private initLevel(n: number) {
@@ -1197,84 +1558,7 @@ class GameCore {
     }
 
     // ── MADMAXI Robot player ─────────────────────────────────────────────────
-    // Build a robot character evocative of the landing-page Dr. Eams design:
-    //  Body → gold/silver metallic box torso
-    //  Head → box with prominent cyan glowing visor band
-    //  Arms → thin boxes on either side, swing when walking
-    //  Legs → box legs, step animation
-
-    // Shared robot gold PBR material — physically accurate metallic finish
-    const robotBodyMat = new BJS.PBRMaterial('robotBodyMat', scene);
-    robotBodyMat.albedoColor  = new BJS.Color3(0.78, 0.62, 0.16); // gold body
-    robotBodyMat.metallic = 0.95;
-    robotBodyMat.roughness = 0.12;
-    robotBodyMat.emissiveColor = new BJS.Color3(0.15, 0.10, 0.02);
-
-    const robotDarkMat = new BJS.PBRMaterial('robotDarkMat', scene);
-    robotDarkMat.albedoColor  = new BJS.Color3(0.22, 0.20, 0.24); // dark silver joints
-    robotDarkMat.metallic = 0.9;
-    robotDarkMat.roughness = 0.25;
-    robotDarkMat.emissiveColor = new BJS.Color3(0.03, 0.03, 0.04);
-
-    const robotVisorMat = new BJS.PBRMaterial('robotVisorMat', scene);
-    robotVisorMat.albedoColor  = new BJS.Color3(0.0, 0.7, 1.0);  // cyan visor
-    robotVisorMat.metallic = 0.1;
-    robotVisorMat.roughness = 0.05;
-    robotVisorMat.emissiveColor = new BJS.Color3(0.0, 0.5, 0.9);
-    robotVisorMat.alpha = 0.92;
-    robotVisorMat.clearCoat.isEnabled = true;
-    robotVisorMat.clearCoat.intensity = 1.0;
-    robotVisorMat.clearCoat.roughness = 0.02;
-
-    // Body (torso)
-    const robotBody = BJS.MeshBuilder.CreateBox('robot_body',
-      { width: 0.55, height: 0.62, depth: 0.38 }, scene);
-    robotBody.material = robotBodyMat;
-    shadowGen.addShadowCaster(robotBody, true);
-    glow.addIncludedOnlyMesh(robotBody);
-    this.playerMesh = robotBody;
-
-    // Head (box, sits on top of body)
-    const robotHead = BJS.MeshBuilder.CreateBox('robot_head',
-      { width: 0.44, height: 0.36, depth: 0.36 }, scene);
-    robotHead.material = robotBodyMat;
-    shadowGen.addShadowCaster(robotHead, true);
-    this.playerHead = robotHead;
-
-    // Visor (thin flat box on front of head, glowing cyan)
-    const robotVisor = BJS.MeshBuilder.CreateBox('robot_visor',
-      { width: 0.30, height: 0.09, depth: 0.05 }, scene);
-    robotVisor.material = robotVisorMat;
-    glow.addIncludedOnlyMesh(robotVisor);
-    this.playerVisor = robotVisor;
-
-    // Left arm
-    const robotArmL = BJS.MeshBuilder.CreateBox('robot_arm_l',
-      { width: 0.16, height: 0.42, depth: 0.18 }, scene);
-    robotArmL.material = robotDarkMat;
-    shadowGen.addShadowCaster(robotArmL, false);
-    this.playerArmL = robotArmL;
-
-    // Right arm
-    const robotArmR = BJS.MeshBuilder.CreateBox('robot_arm_r',
-      { width: 0.16, height: 0.42, depth: 0.18 }, scene);
-    robotArmR.material = robotDarkMat;
-    shadowGen.addShadowCaster(robotArmR, false);
-    this.playerArmR = robotArmR;
-
-    // Left leg
-    const robotLegL = BJS.MeshBuilder.CreateBox('robot_leg_l',
-      { width: 0.20, height: 0.44, depth: 0.22 }, scene);
-    robotLegL.material = robotBodyMat;
-    shadowGen.addShadowCaster(robotLegL, false);
-    this.playerLegL = robotLegL;
-
-    // Right leg
-    const robotLegR = BJS.MeshBuilder.CreateBox('robot_leg_r',
-      { width: 0.20, height: 0.44, depth: 0.22 }, scene);
-    robotLegR.material = robotBodyMat;
-    shadowGen.addShadowCaster(robotLegR, false);
-    this.playerLegR = robotLegR;
+    this.buildLandingGradePlayerRig(BJS, scene, shadowGen, glow);
 
     // ── Particle system (landing/jump dust) ────────────────────────────────
     const dust = new BJS.ParticleSystem('dust', 60, scene);
@@ -1320,11 +1604,11 @@ class GameCore {
           meshes:  scene.meshes.map((m) => ({
             id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false,
             distanceToCamera: 10, transformDelta: 0, materialChanged: false,
-            screenCoverage: m.id === 'player' ? 0.15 : 0.05,
-            semanticWeight: m.id === 'player' || m.id === 'goal' ? 1.0 : 0.3,
-            motionWeight:   m.id === 'player' ? 1.0 : 0.2,
+            screenCoverage: m.id.startsWith('player_') ? 0.15 : 0.05,
+            semanticWeight: m.id.startsWith('player_') || m.id === 'goal_body' ? 1.0 : 0.3,
+            motionWeight:   m.id.startsWith('player_') ? 1.0 : 0.2,
             detailWeight:   0.5,
-            heroWeight:     m.id === 'player' ? 1.0 : 0.2,
+            heroWeight:     m.id.startsWith('player_') ? 1.0 : 0.2,
             occluded: false,
           })),
           ui: [],
@@ -2051,61 +2335,74 @@ class GameCore {
     const bodyScaleX = (this.onGround ? 1.12 : 0.90) * giantMul * superPulse;
     const bodyScaleY = (this.onGround ? 0.90 : 1.12) * giantMul * superPulse;
 
-    if (this.playerMesh) {
-      this.playerMesh.position.set(pbx, pby, 0);
-      this.playerMesh.scaling.set(bodyScaleX, bodyScaleY, 1);
-      this.playerMesh.rotation.y = this.facingR ? 0 : Math.PI;
-      this.playerMesh.setEnabled(isVisible);
-      const mat = this.playerMesh.material as import('@babylonjs/core').StandardMaterial | null;
-      if (mat) {
-        mat.emissiveColor = this.superFrames > 0
-          ? new (this.bjs!.Color3)(0.55, 0.48, 0.12)
-          : new (this.bjs!.Color3)(0.28, 0.20, 0.04);
+    if (this.playerRig) {
+      const { Color3 } = this.bjs!;
+      const beaconPulse = this.collectedRegularCoins >= this.totalRegularCoins && this.totalRegularCoins > 0
+        ? 1 + Math.sin(this.animTick * 0.22) * 0.12
+        : 1;
+      const rootScale = giantMul * superPulse;
+
+      this.playerRig.root.position.set(pbx, pby, 0);
+      this.playerRig.root.rotation.y = this.facingR ? 0 : Math.PI;
+      this.playerRig.root.scaling.set(rootScale, rootScale, rootScale);
+      this.playerRig.root.setEnabled(isVisible);
+
+      this.playerRig.torso.scaling.set(bodyScaleX / giantMul / superPulse, bodyScaleY / giantMul / superPulse, 1);
+      this.playerRig.coatShell.scaling.set(bodyScaleX / giantMul / superPulse, Math.max(0.84, bodyScaleY / giantMul / superPulse), 1);
+      this.playerRig.coatFront.scaling.set(bodyScaleX / giantMul / superPulse, Math.max(0.82, bodyScaleY / giantMul / superPulse), 1);
+      this.playerRig.headNode.position.y = 0.74 + (this.onGround ? -0.02 : 0.04);
+      this.playerRig.headShell.rotation.z = isMoving ? Math.sin(walkPhase * 0.5) * 0.035 : 0;
+      this.playerRig.shoulderL.rotation.z = armSwing * 0.95;
+      this.playerRig.shoulderR.rotation.z = -armSwing * 0.95;
+      this.playerRig.hipL.rotation.x = legSwing;
+      this.playerRig.hipR.rotation.x = -legSwing;
+      this.playerRig.bootL.rotation.z = -legSwing * 0.15;
+      this.playerRig.bootR.rotation.z = legSwing * 0.15;
+      this.playerRig.chestHalo.rotation.z += 0.04;
+
+      this.playerRig.visorShell.scaling.set(beaconPulse, beaconPulse, beaconPulse);
+      this.playerRig.eyeGoldRing.scaling.set(beaconPulse, beaconPulse, beaconPulse);
+      this.playerRig.eyeGoldCore.scaling.set(beaconPulse, beaconPulse, beaconPulse);
+      this.playerRig.eyeCyanRing.scaling.set(beaconPulse, beaconPulse, beaconPulse);
+      this.playerRig.eyeCyanCore.scaling.set(beaconPulse, beaconPulse, beaconPulse);
+      this.playerRig.chestHalo.scaling.set(beaconPulse, beaconPulse, beaconPulse);
+      this.playerRig.chestCore.scaling.set(beaconPulse, beaconPulse, beaconPulse);
+
+      const visorMat = this.playerRig.visorShell.material as import('@babylonjs/core').PBRMaterial | null;
+      const screenMat = this.playerRig.screen.material as import('@babylonjs/core').PBRMaterial | null;
+      const chestHaloMat = this.playerRig.chestHalo.material as import('@babylonjs/core').PBRMaterial | null;
+      const chestCoreMat = this.playerRig.chestCore.material as import('@babylonjs/core').PBRMaterial | null;
+      const eyeGoldMat = this.playerRig.eyeGoldRing.material as import('@babylonjs/core').PBRMaterial | null;
+      const eyeCyanMat = this.playerRig.eyeCyanRing.material as import('@babylonjs/core').PBRMaterial | null;
+
+      if (visorMat) {
+        visorMat.emissiveColor = this.superFrames > 0
+          ? new Color3(0.82, 0.60, 0.12)
+          : new Color3(0.10, 0.34, 0.48);
       }
-    }
-    if (this.playerHead) {
-      this.playerHead.position.set(pbx, pby + 0.52, 0);
-      this.playerHead.rotation.y = this.facingR ? 0 : Math.PI;
-      this.playerHead.setEnabled(isVisible);
-    }
-    if (this.playerVisor) {
-      // Visor sits in front of head (−z is toward camera in our setup)
-      const visorZ = this.facingR ? -0.20 : 0.20;
-      this.playerVisor.position.set(pbx, pby + 0.52, visorZ);
-      this.playerVisor.setEnabled(isVisible);
-      // Pulse the visor glow when all coins collected (beacon effect)
-      if (this.collectedRegularCoins >= this.totalRegularCoins && this.totalRegularCoins > 0) {
-        const p = 0.9 + Math.sin(this.animTick * 0.22) * 0.2;
-        this.playerVisor.scaling.setAll(p);
-      } else {
-        this.playerVisor.scaling.setAll(1);
+      if (screenMat) {
+        screenMat.emissiveColor = this.superFrames > 0
+          ? new Color3(1.0, 0.80, 0.18)
+          : new Color3(0.12, 0.64, 0.82);
       }
-      const mat = this.playerVisor.material as import('@babylonjs/core').StandardMaterial | null;
-      if (mat) {
-        mat.emissiveColor = this.superFrames > 0
-          ? new (this.bjs!.Color3)(1.0, 0.92, 0.25)
-          : new (this.bjs!.Color3)(0.0, 0.5, 0.9);
+      if (chestHaloMat) {
+        chestHaloMat.emissiveColor = this.superFrames > 0
+          ? new Color3(1.0, 0.82, 0.20)
+          : new Color3(0.0, 0.80, 1.0);
       }
-    }
-    if (this.playerArmL) {
-      this.playerArmL.position.set(pbx - 0.38, pby + 0.05, 0);
-      this.playerArmL.rotation.x = armSwing;
-      this.playerArmL.setEnabled(isVisible);
-    }
-    if (this.playerArmR) {
-      this.playerArmR.position.set(pbx + 0.38, pby + 0.05, 0);
-      this.playerArmR.rotation.x = -armSwing;
-      this.playerArmR.setEnabled(isVisible);
-    }
-    if (this.playerLegL) {
-      this.playerLegL.position.set(pbx - 0.14, pby - 0.54, 0);
-      this.playerLegL.rotation.x = legSwing;
-      this.playerLegL.setEnabled(isVisible);
-    }
-    if (this.playerLegR) {
-      this.playerLegR.position.set(pbx + 0.14, pby - 0.54, 0);
-      this.playerLegR.rotation.x = -legSwing;
-      this.playerLegR.setEnabled(isVisible);
+      if (chestCoreMat) {
+        chestCoreMat.emissiveColor = this.superFrames > 0
+          ? new Color3(1.0, 0.92, 0.32)
+          : new Color3(1.0, 0.72, 0.0);
+      }
+      if (eyeGoldMat) {
+        eyeGoldMat.emissiveColor = new Color3(1.0, 0.72 + (beaconPulse - 1) * 0.4, 0.0);
+      }
+      if (eyeCyanMat) {
+        eyeCyanMat.emissiveColor = this.superFrames > 0
+          ? new Color3(1.0, 0.88, 0.28)
+          : new Color3(0.0, 0.80 + (beaconPulse - 1) * 0.5, 1.0);
+      }
     }
 
     // ── Camera Y zoom when all silver coins collected ──────────────────────
@@ -2162,12 +2459,6 @@ class GameCore {
     this.scene  = null;
     this.bjs    = null;
     // Nullify robot refs (already disposed via scene.dispose)
-    this.playerMesh = null;
-    this.playerHead = null;
-    this.playerVisor = null;
-    this.playerArmL = null;
-    this.playerArmR = null;
-    this.playerLegL = null;
-    this.playerLegR = null;
+    this.playerRig = null;
   }
 }
