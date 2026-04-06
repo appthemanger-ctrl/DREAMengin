@@ -252,45 +252,43 @@ describe('DreamR — scoreFreshness', () => {
 
 describe('DreamR — scoreTrendImpact', () => {
   it('returns 0 for a post with no engagement', () => {
-    expect(scoreTrendImpact(0, 0)).toBe(0);
-    expect(scoreTrendImpact(undefined, undefined)).toBe(0);
+    expect(scoreTrendImpact(0)).toBe(0);
+    expect(scoreTrendImpact(undefined, undefined, undefined)).toBe(0);
   });
 
-  it('returns > 0 for any positive engagement', () => {
-    expect(scoreTrendImpact(1, 0)).toBeGreaterThan(0);
-    expect(scoreTrendImpact(0, 1)).toBeGreaterThan(0);
+  it('returns > 0 for any positive public view count', () => {
+    expect(scoreTrendImpact(1)).toBeGreaterThan(0);
+    expect(scoreTrendImpact(25)).toBeGreaterThan(scoreTrendImpact(1));
   });
 
-  it('returns 1.0 for posts with ≥ 500 combined engagements', () => {
-    expect(scoreTrendImpact(500,  0)).toBe(1.0);
-    expect(scoreTrendImpact(250, 250)).toBe(1.0);
-    expect(scoreTrendImpact(1000, 0)).toBe(1.0);
+  it('returns 1.0 for posts with ≥ 500 public views', () => {
+    expect(scoreTrendImpact(500)).toBe(1.0);
+    expect(scoreTrendImpact(1000)).toBe(1.0);
   });
 
-  it('grows sub-linearly (sqrt) with engagement', () => {
-    const s10   = scoreTrendImpact(10,   0);
-    const s100  = scoreTrendImpact(100,  0);
-    const s1000 = scoreTrendImpact(1000, 0);
-    // Sub-linear: doubling engagement must NOT double the score
+  it('grows sub-linearly (sqrt) with views', () => {
+    const s10   = scoreTrendImpact(10);
+    const s100  = scoreTrendImpact(100);
+    const s1000 = scoreTrendImpact(1000);
     expect(s100).toBeGreaterThan(s10);
     expect(s1000).toBeGreaterThan(s100);
-    // Confirm sqrt compression: score(100) < 10 * score(1)
-    const s1 = scoreTrendImpact(1, 0);
+    const s1 = scoreTrendImpact(1);
     expect(s100).toBeLessThan(s1 * 100);
   });
 
-  it('combines likes and comments', () => {
-    const combined = scoreTrendImpact(10, 10);
-    const likesOnly = scoreTrendImpact(10, 0);
-    expect(combined).toBeGreaterThan(likesOnly);
+  it('falls back to a capped private engagement signal when views are missing', () => {
+    const fallback = scoreTrendImpact(undefined, 10, 10);
+    const views = scoreTrendImpact(40);
+    expect(fallback).toBeGreaterThan(0);
+    expect(fallback).toBeLessThan(views);
   });
 
   it('stays in [0, 1] range', () => {
-    const cases: [number | undefined, number | undefined][] = [
-      [0, 0], [1, 0], [10, 5], [100, 200], [10000, 0],
+    const cases: Array<[number | undefined, number | undefined, number | undefined]> = [
+      [0, 0, 0], [1, 0, 0], [10, 5, 2], [100, 200, 50], [10000, 0, 0],
     ];
-    for (const [l, c] of cases) {
-      const score = scoreTrendImpact(l, c);
+    for (const [v, l, c] of cases) {
+      const score = scoreTrendImpact(v, l, c);
       expect(score).toBeGreaterThanOrEqual(0);
       expect(score).toBeLessThanOrEqual(1);
     }
