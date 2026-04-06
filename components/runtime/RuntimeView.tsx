@@ -19,7 +19,10 @@ import React, { useState, useCallback, useEffect } from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
 import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
+import DREAMenginOS from '@/components/dreamengin/DREAMenginOS';
 import RuntimeShell from '@/components/runtime/RuntimeShell';
+import type { DreamenginOSSubsystemNode } from '@/lib/dreamengin/osSubsystemManifest';
+import type { RuntimeRegion } from '@/lib/identity/canonical-names';
 
 // ── Panel components (loaded in-region, never as overlays) ───────────────────
 import SettingsPanel     from '@/components/panels/SettingsPanel';
@@ -55,6 +58,10 @@ interface RuntimeViewProps {
   onOpenInRegion?: (path: string) => void;
   /** Return to the default world for this region (close iframe) */
   onBackFromRegion?: () => void;
+  seamOffsetPx?: number;
+  splitRatio?: number;
+  seamVisible?: boolean;
+  dominantRegion?: RuntimeRegion;
 }
 
 /** Engin name → canonical daydream route */
@@ -77,6 +84,10 @@ export default function RuntimeView({
   onOpenDreamSpace,
   onOpenInRegion,
   onBackFromRegion,
+  seamOffsetPx,
+  splitRatio,
+  seamVisible,
+  dominantRegion,
 }: RuntimeViewProps) {
   /* ── In-region iframe state ─────────────────────────────────────────────── */
   const [iframeUrl,   setIframeUrl]   = useState<string | null>(null);
@@ -137,20 +148,41 @@ export default function RuntimeView({
 
   /* ── DreamSpace runtime ──────────────────────────────────────────────────── */
   if (world === 'DreamSpace') {
+    const handleSelectSubsystem = (node: DreamenginOSSubsystemNode) => {
+      if (node.id === 'ai:dr-eams' || node.id === 'ai:triad-consensus') {
+        onOpenDrEams();
+        return;
+      }
+      if (node.route) {
+        openUrl(node.route, node.label);
+      }
+    };
+
     return (
       <div
         style={{
           ...outerStyle,
-          background: 'linear-gradient(180deg, var(--de-bg-start,#020818) 0%, var(--de-bg-mid,#081428) 42%, var(--de-bg-end,#0a1a30) 100%)',
+          background: 'linear-gradient(180deg, rgba(2,8,24,0.92) 0%, rgba(8,20,40,0.86) 42%, rgba(10,26,48,0.78) 100%)',
           overflow: 'hidden',
         }}
       >
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <DREAMenginOS
+            onSelectSubsystem={handleSelectSubsystem}
+            seamOffsetPx={seamOffsetPx}
+            splitRatio={splitRatio}
+            seamVisible={seamVisible}
+            dominantRegion={dominantRegion}
+          />
+        </div>
         <RuntimeShell
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
         >
-          <DreamsSpacePanel onOpenUrl={openUrl} onOpenInRegion={onOpenInRegion} />
+          <div style={{ position: 'relative', zIndex: 1, height: '100%' }}>
+            <DreamsSpacePanel onOpenUrl={openUrl} onOpenInRegion={onOpenInRegion} />
+          </div>
         </RuntimeShell>
       </div>
     );

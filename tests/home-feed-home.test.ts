@@ -41,17 +41,17 @@ describe('HomeDream home surface', () => {
     expect(dashboard).toContain('Daydreams');
   });
 
-  it('uses full-screen Surface Space layout — no persistent DreamSpace split panel', () => {
+  it('uses persistent dual-runtime layout with the DreamDM seam as the live divider', () => {
     // DreamDMBar still declares onMinimizedChange as an optional prop (prop contract unchanged)
     expect(dreamDmBar).toContain('onMinimizedChange?:');
-    // HomeSystem renders Surface Space as a full-screen fixed layer — no DreamSpace sliver
+    // HomeSystem renders two fixed runtime regions on one screen
     expect(homeSystem).toContain("position: 'fixed'");
-    expect(homeSystem).toContain('inset: 0');
-    // The old persistent split panel ("DreamSpace (bottom runtime)") is gone
-    expect(homeSystem).not.toContain('DreamSpace (bottom runtime)');
-    // The bar floats in non-divider mode — no splitRatio/onSplitChange props from HomeSystem
-    expect(homeSystem).not.toContain('splitRatio={splitRatio}');
-    expect(homeSystem).not.toContain('onSplitChange={setSplitRatio}');
+    expect(homeSystem).toContain('height: topHeight');
+    expect(homeSystem).toContain('height: bottomHeight');
+    // Divider mode is now wired from HomeSystem into DreamDMBar
+    expect(homeSystem).toContain('splitRatio={splitRatio}');
+    expect(homeSystem).toContain('onSplitChange={setSplitRatio}');
+    expect(homeSystem).toContain('onMinimizedChange={setIsBarMinimized}');
   });
 
   it('keeps feed scrolling native while limiting divider drag capture to the centered seam handle', () => {

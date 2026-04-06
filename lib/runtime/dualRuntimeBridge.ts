@@ -163,6 +163,8 @@ export interface PeerState {
   lastActivityAt: number | null;
 }
 
+export type PeerActivityObserver = (peers: readonly PeerState[]) => void;
+
 // ─── Singleton event bus ──────────────────────────────────────────────────────
 
 /**
@@ -180,6 +182,7 @@ type ListenerMap = Map<string, Map<string, Set<BridgeEventHandler>>>;
 class DualRuntimeBridgeImpl {
   private readonly listeners: ListenerMap = new Map();
   private readonly peerActivity: Map<DualRuntimeChannel, PeerState>;
+  private readonly peerObservers = new Set<PeerActivityObserver>();
 
   constructor() {
     const channels: DualRuntimeChannel[] = [
@@ -215,6 +218,7 @@ class DualRuntimeBridgeImpl {
     const peer = this.peerActivity.get(channel);
     if (peer) {
       peer.lastActivityAt = Date.now();
+      this.notifyPeerObservers();
     }
 
     const channelListeners = this.listeners.get(channel);
@@ -276,6 +280,7 @@ class DualRuntimeBridgeImpl {
     const peer = this.peerActivity.get(channel);
     if (peer) {
       peer.subscriberCount += 1;
+      this.notifyPeerObservers();
     }
 
     // Return unsubscribe
@@ -284,6 +289,7 @@ class DualRuntimeBridgeImpl {
       const peerOnUnsub = this.peerActivity.get(channel);
       if (peerOnUnsub) {
         peerOnUnsub.subscriberCount = Math.max(0, peerOnUnsub.subscriberCount - 1);
+        this.notifyPeerObservers();
       }
     };
   }
@@ -303,6 +309,14 @@ class DualRuntimeBridgeImpl {
     return this.peerActivity.get(channel);
   }
 
+  subscribePeerActivity(observer: PeerActivityObserver): UnsubscribeFn {
+    this.peerObservers.add(observer);
+    observer(this.getPeers());
+    return () => {
+      this.peerObservers.delete(observer);
+    };
+  }
+
   /**
    * Remove all listeners for a given channel.
    * Use only for full teardown/testing.
@@ -313,6 +327,7 @@ class DualRuntimeBridgeImpl {
     if (peer) {
       peer.subscriberCount = 0;
     }
+    this.notifyPeerObservers();
   }
 
   /**
@@ -323,6 +338,19 @@ class DualRuntimeBridgeImpl {
     this.listeners.clear();
     for (const peer of this.peerActivity.values()) {
       peer.subscriberCount = 0;
+    }
+    this.notifyPeerObservers();
+  }
+
+  private notifyPeerObservers(): void {
+    if (this.peerObservers.size === 0) return;
+    const snapshot = this.getPeers();
+    for (const observer of Array.from(this.peerObservers)) {
+      try {
+        observer(snapshot);
+      } catch (error) {
+        console.error('[DualRuntimeBridge] Peer observer error', error);
+      }
     }
   }
 }
