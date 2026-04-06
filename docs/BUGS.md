@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 11:14 UTC  
-**Last updated:** 2026-04-06 11:14 UTC  
-**Triggered by commit:** `c619060` on `copilot/rebuild-madmaxi-game-graphics` by Copilot  
-**Commit message:** feat: full scene graphics upgrade to landing-hero quality for MADMAXI — Studio.env IBL, 4-light at hero intensities, clearCoat on all materials, premium backdrop; architecture: docs/ARCHITECTURE.md §8 premium design; performance impact: neutral (IBL replaces procedural env, same shadow budget)
+**Documentation Date:** 2026-04-06 11:31 UTC  
+**Last updated:** 2026-04-06 11:31 UTC  
+**Triggered by commit:** `75cfd14` on `copilot/rebuild-madmaxi-game-graphics` by Copilot  
+**Commit message:** feat: WORLD_SCALE ×2.5 — bigger world + higher-tessellation geometry + camera zoomed out proportionally in MADMAXI
 
 ---
 
