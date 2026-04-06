@@ -51,7 +51,7 @@ These five axioms and guardrails apply to every change:
 - Favor spec names over legacy repo wording
 - Repurpose existing systems before adding new ones
 - Keep HomeDream source logic separate from ViewProfile output logic
-- Keep Node 24, pnpm, Next.js 16+, and Supabase stable unless a real need exists
+- Keep Node 25, pnpm, Next.js 16+, and Supabase stable unless a real need exists
 
 ---
 

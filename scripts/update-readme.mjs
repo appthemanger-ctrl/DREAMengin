@@ -128,7 +128,7 @@ function buildAIContextBlock() {
 DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+** (App Router),
 **TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 8+**.
 It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
-Author: José Mancilla · pnpm 10.30.0 · Node 24
+Author: José Mancilla · pnpm 10.30.0 · Node 25
 
 ---
 
@@ -278,7 +278,7 @@ function buildSpecSnapshotBlock() {
 | Total routes | ${routeCount} |
 | Workflow files | ${workflowCount} |
 | Test files | ${testCount} |
-| Node / package manager | Node 24 · pnpm 10.30.0 |
+| Node / package manager | Node 25 · pnpm 10.30.0 |
 | AI triad routes | \`/api/ai/eams\`, \`/api/ai/idari\`, \`/api/ai/boogieman\` |
 
 ### Current Alignment Notes

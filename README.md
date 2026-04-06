@@ -23,7 +23,7 @@ Date: April 6, 2026
 DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+** (App Router),
 **TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 8+**.
 It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
-Author: José Mancilla · pnpm 10.30.0 · Node 24
+Author: José Mancilla · pnpm 10.30.0 · Node 25
 
 ---
 
@@ -171,7 +171,7 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 | Total routes | 189 |
 | Workflow files | 53 |
 | Test files | 123 |
-| Node / package manager | Node 24 · pnpm 10.30.0 |
+| Node / package manager | Node 25 · pnpm 10.30.0 |
 | AI triad routes | `/api/ai/eams`, `/api/ai/idari`, `/api/ai/boogieman` |
 
 ### Current Alignment Notes
@@ -218,7 +218,7 @@ Tech Stack:
 - Supabase (Auth, PostgreSQL, Realtime, Storage)
 - Vitest (test framework)
 - pnpm 10.30.0
-- Node 24
+- Node 25
 
 ## Repository State Analysis
 
