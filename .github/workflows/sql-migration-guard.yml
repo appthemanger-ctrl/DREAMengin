@@ -2,8 +2,8 @@ name: SQL Migration Guard
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Scans the live repository (not docs) for Supabase table references that lack a
-# migration, scaffolds a migration file when one is missing, applies pending
-# migrations after merges to main branches, regenerates TypeScript types, and
+# migration, scaffolds a migration file when one is missing, automatically
+# syncs Supabase on pushes to completedream, regenerates TypeScript types, and
 # verifies the Vercel/Next.js build still passes.
 #
 # Secrets required for full functionality (all optional — steps degrade gracefully):
@@ -17,6 +17,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
+    branches:
+      - completedream
   workflow_dispatch:
     inputs:
       force_apply:
@@ -27,8 +29,6 @@ on:
         description: "Scan the whole repository instead of only changed files"
         type: boolean
         default: true
-  schedule:
-    - cron: '15 4 * * *'
 
 permissions:
   contents: write
@@ -50,15 +50,7 @@ jobs:
 
     steps:
       # ── 1. Checkout ──────────────────────────────────────────────────────────
-      - name: Checkout completedream (scheduled sync)
-        if: github.event_name == 'schedule'
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: completedream
-
       - name: Checkout
-        if: github.event_name != 'schedule'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -96,10 +88,6 @@ jobs:
             if [ "${{ inputs.full_scan }}" = "true" ]; then
               FULL_SCAN=true
             fi
-          elif [ "${{ github.event_name }}" = "schedule" ]; then
-            BASE="$(git rev-parse HEAD~1 2>/dev/null || echo HEAD)"
-            HEAD="$(git rev-parse HEAD)"
-            FULL_SCAN=true
           else
             BASE="${{ github.event.before }}"
             HEAD="${{ github.sha }}"
@@ -146,12 +134,9 @@ jobs:
 
       - name: Install PostgreSQL client
         if: |
-          github.event_name != 'pull_request' &&
           (
-            github.event_name == 'schedule' ||
-            github.ref == 'refs/heads/main' ||
-            github.ref == 'refs/heads/completedream' ||
-            github.ref == 'refs/heads/develop'
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
           ) &&
           env.DATABASE_URL != ''
         run: |
@@ -371,14 +356,14 @@ jobs:
           if git diff --cached --quiet; then
             echo "Nothing to commit."
           else
-            git commit -m "$(cat <<'MSG'
-chore: scaffold SQL migration for new table references [skip ci]
-
-Reasoning: SQL Migration Guard found table references without matching migrations and generated reviewable placeholders.
-Architecture justification: docs/ARCHITECTURE.md §10 keeps Supabase migration artifacts aligned with the runtime assumptions.
-Performance impact: none.
-MSG
-)"
+            printf '%s\n' \
+              'chore: scaffold SQL migration for new table references [skip ci]' \
+              '' \
+              'Reasoning: SQL Migration Guard found table references without matching migrations and generated reviewable placeholders.' \
+              'Architecture justification: docs/ARCHITECTURE.md §10 keeps Supabase migration artifacts aligned with the runtime assumptions.' \
+              'Performance impact: none.' \
+              > /tmp/sql-guard-scaffold-commit.txt
+            git commit -F /tmp/sql-guard-scaffold-commit.txt
             git push || echo "⚠️ Push failed — branch may require rebase."
           fi
 
@@ -386,12 +371,9 @@ MSG
       - name: Compare repo migrations with remote Supabase
         id: compare
         if: |
-          github.event_name != 'pull_request' &&
           (
-            github.event_name == 'schedule' ||
-            github.ref == 'refs/heads/main' ||
-            github.ref == 'refs/heads/completedream' ||
-            github.ref == 'refs/heads/develop'
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
           ) &&
           env.DATABASE_URL != ''
         shell: bash
@@ -450,14 +432,13 @@ MSG
       - name: Apply pending migrations
         id: apply
         if: |
-          github.event_name != 'pull_request' &&
-          (github.event_name == 'schedule' ||
-           github.ref == 'refs/heads/main' ||
-           github.ref == 'refs/heads/completedream' ||
-           github.ref == 'refs/heads/develop') &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
+          ) &&
           (steps.changed.outputs.migrations_changed == 'true' ||
-           steps.compare.outputs.local_missing_on_remote == 'true' ||
-            inputs.force_apply == true) &&
+            steps.compare.outputs.local_missing_on_remote == 'true' ||
+             inputs.force_apply == true) &&
           env.DATABASE_URL != ''
         shell: bash
         run: |
@@ -486,12 +467,9 @@ MSG
       - name: Sync remote schema drift into migrations
         id: drift
         if: |
-          github.event_name != 'pull_request' &&
           (
-            github.event_name == 'schedule' ||
-            github.ref == 'refs/heads/main' ||
-            github.ref == 'refs/heads/completedream' ||
-            github.ref == 'refs/heads/develop'
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
           ) &&
           steps.apply.outputs.apply_status != 'warning' &&
           env.DATABASE_URL != ''
@@ -508,6 +486,7 @@ MSG
             exit 0
           fi
 
+          # Use case-insensitive matching because Supabase diff output can vary in keyword casing.
           if [ -s "$DIFF_FILE" ] && grep -Eiq '^(create|alter|drop|grant|revoke|comment)\b' "$DIFF_FILE"; then
             TIMESTAMP=$(date -u +%Y%m%d%H%M%S)
             MIGRATION_FILE="supabase/migrations/${TIMESTAMP}_remote_schema_sync.sql"
@@ -533,12 +512,9 @@ MSG
       - name: Refresh schema snapshot
         id: schema
         if: |
-          github.event_name != 'pull_request' &&
           (
-            github.event_name == 'schedule' ||
-            github.ref == 'refs/heads/main' ||
-            github.ref == 'refs/heads/completedream' ||
-            github.ref == 'refs/heads/develop'
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
           ) &&
           steps.apply.outputs.apply_status != 'warning' &&
           (
@@ -564,11 +540,10 @@ MSG
       - name: Regenerate Supabase types
         id: regen
         if: |
-          github.event_name != 'pull_request' &&
-          (github.event_name == 'schedule' ||
-           github.ref == 'refs/heads/main' ||
-           github.ref == 'refs/heads/completedream' ||
-           github.ref == 'refs/heads/develop') &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
+          ) &&
           steps.apply.outputs.apply_status != 'warning' &&
           (
             steps.changed.outputs.migrations_changed == 'true' ||
@@ -603,14 +578,14 @@ MSG
           if git diff --cached --quiet; then
             echo "No schema artifacts changed."
           else
-            git commit -m "$(cat <<'MSG'
-chore: sync Supabase schema artifacts [skip ci] [skip vercel]
-
-Reasoning: SQL Migration Guard reconciled remote Supabase schema artifacts back into the repo so completedream stays aligned.
-Architecture justification: docs/ARCHITECTURE.md §10 keeps Supabase schema, types, and runtime assumptions stable.
-Performance impact: none.
-MSG
-)"
+            printf '%s\n' \
+              'chore: sync Supabase schema artifacts [skip ci] [skip vercel]' \
+              '' \
+              'Reasoning: SQL Migration Guard reconciled remote Supabase schema artifacts back into the repo so completedream stays aligned.' \
+              'Architecture justification: docs/ARCHITECTURE.md §10 keeps Supabase schema, types, and runtime assumptions stable.' \
+              'Performance impact: none.' \
+              > /tmp/sql-guard-sync-commit.txt
+            git commit -F /tmp/sql-guard-sync-commit.txt
             git push || echo "⚠️ Push failed."
           fi
 
