@@ -63,7 +63,7 @@ permissions:
   contents: write   # needed to commit embed-feed.json back to the branch
 
 env:
-  NODE_VERSION: '24'
+  NODE_VERSION: '25'
   PNPM_VERSION: '10.30.0'
   OUTPUT_FILE: 'public/feeds/embed-feed.json'
   BOT_NAME: 'embed-feed-bot'

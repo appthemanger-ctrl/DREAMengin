@@ -76,7 +76,7 @@ The issue body becomes the report text. The workflow comments back with the resu
 ## Notes
 
 - Requires `OPENAI_API_KEY`
-- Uses Node 24 + pnpm 10.30.0 (see `.github/actions/setup-node`)
+- Uses Node 25 + pnpm 10.30.0 (see `.github/actions/setup-node`)
 - Reuses existing DREAMengin scan/patch infrastructure instead of inventing a parallel automation system
 - Advanced targets currently prioritize `BabylonSideScroller`, `ENGINBattle`, and `DREAMquest`
 - All action versions pinned to `@v4` — see `docs/ADD_WORKFLOW.md`

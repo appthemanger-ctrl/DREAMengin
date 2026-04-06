@@ -158,7 +158,7 @@ These remain open and should be documented honestly:
 - Next.js 16+
 - App Router
 - TypeScript
-- Node 24
+- Node 25
 - pnpm 10.30.0
 - Supabase for auth, database, storage, and realtime
 

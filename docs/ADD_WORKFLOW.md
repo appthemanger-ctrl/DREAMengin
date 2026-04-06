@@ -29,7 +29,7 @@ All workflows should use these pinned versions:
 ## Reminder
 
 Workflow additions must preserve these repo assumptions:
-- Node 24 (set via `.github/actions/setup-node`)
+- Node 25 (set via `.github/actions/setup-node`)
 - pnpm 10.30.0 (set via `pnpm/action-setup@v4`)
 - Next.js App Router repo layout
 - Prefer the shared `.github/actions/setup-node` composite action over inline Node setup

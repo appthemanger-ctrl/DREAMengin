@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 11:02 UTC  
-**Last updated:** 2026-04-06 11:02 UTC  
-**Triggered by commit:** `0a32e03` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #470 from appthemanger-ctrl/copilot/update-image-asset
+**Documentation Date:** 2026-04-06 10:38 UTC  
+**Last updated:** 2026-04-06 10:38 UTC  
+**Triggered by commit:** `d0dbcb7` on `copilot/execute-to-perfection` by Copilot  
+**Commit message:** chore: refresh lockfile for Node 25
 
 ---
 
@@ -119,7 +119,7 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 |----------|---------|
 | [docs/LAW.md](./LAW.md) | Binding rules — code must conform |
 | [docs/AXIOMS.md](./AXIOMS.md) | Non-negotiable product principles |
-| [docs/SPEC.md](./SPEC.md) | Design system + interaction model |
+| [docs/REPO_COMPANION.md](./REPO_COMPANION.md) | Repo companion + alignment notes |
 | [docs/ARCHITECTURE.md](./ARCHITECTURE.md) | Navigation + platform architecture |
 | [docs/SECURITY.md](./SECURITY.md) | RLS, auth boundaries, privacy |
 | [docs/FEATURE_STATUS.md](./FEATURE_STATUS.md) | Live feature completion status |

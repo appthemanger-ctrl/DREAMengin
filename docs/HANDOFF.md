@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
-| **auto** | 2026-04-06 11:01 UTC | `46879d4` | copilot/update-image-asset | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/update-image-asset<br> |
-| **auto** | 2026-04-06 10:49 UTC | `cdeaa83` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #469 from appthemanger-ctrl/copilot/ensure-document-updates-no-vercel-builds — Skip Vercel builds for document-only commits<br> |
-| **auto** | 2026-04-06 10:40 UTC | `123f351` | copilot/ensure-document-updates-no-vercel-builds | Copilot | +1 added  ~1 modified<br>chore: add document-only Vercel ignore guard — Reasoning: skip redundant Vercel builds when a commit only changes documentation while still honoring explicit [skip vercel] commits. Architecture justification: docs/ARCHITECTURE.md §10 keeps deployment assumptions stable and focused on real runtime changes. Performance impact: better  Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/0e33e85e-5008-43fd-a257-90f2e8a8f0b1  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `scripts/vercel-ignore.cjs`<br>✏️: `vercel.json` |
-| **auto** | 2026-04-06 10:34 UTC | `289d982` | completedream | appthemanger-ctrl | ~1 modified<br>Remove pre-existing issues section from README — Removed section about pre-existing issues from README.<br>✏️: `README.md` |
-| **auto** | 2026-04-06 10:26 UTC | `d0a37c5` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #467 from appthemanger-ctrl/copilot/add-runtime-wiring-test — Replace runtime peer polling with bridge-driven wiring<br> |
+| **auto** | 2026-04-06 11:04 UTC | `f21d618` | copilot/execute-to-perfection | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/execute-to-perfection<br> |
+| **auto** | 2026-04-06 10:10 UTC | `0a1011c` | copilot/execute-to-perfection | Copilot | ~1 modified<br>docs: remove duplicate content from repo companion — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/d9163091-22c3-4ce5-bf8f-f1d0e4874862  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `docs/REPO_COMPANION.md` |
+| **auto** | 2026-04-06 09:05 UTC | `bd5888b` | copilot/add-hybrid-3d-overlay-engine | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/add-hybrid-3d-overlay-engine<br> |
+| **auto** | 2026-04-06 08:54 UTC | `99dfb18` | copilot/add-hybrid-3d-overlay-engine | Copilot | +1 added<br>Add lib/babylon/dreamengine-hybrid.ts production hybrid 3D overlay engine — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/5dd868b2-231b-4102-9c94-0e0f882f82fc  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `lib/babylon/dreamengine-hybrid.ts` |
+| **auto** | 2026-04-06 08:06 UTC | `db5d767` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #463 from appthemanger-ctrl/copilot/update-data-transform-script — Add shared data transform ledger utility<br> |
 
 ## What changed in this alignment pass
 

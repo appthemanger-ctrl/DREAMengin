@@ -51,7 +51,7 @@ These five axioms and guardrails apply to every change:
 - Favor spec names over legacy repo wording
 - Repurpose existing systems before adding new ones
 - Keep HomeDream source logic separate from ViewProfile output logic
-- Keep Node 24, pnpm, Next.js 16+, and Supabase stable unless a real need exists
+- Keep Node 25, pnpm, Next.js 16+, and Supabase stable unless a real need exists
 
 ---
 
@@ -99,7 +99,7 @@ Always use these names — not old/legacy variations:
 | Backend/DB | Supabase (PostgreSQL + Auth + Realtime + Storage) | ^2.97.0 |
 | Validation | Zod | ^4.3.6 |
 | Package manager | pnpm | **10.30.0** (exact) |
-| Node | Node.js | **24.x** (exact major) |
+| Node | Node.js | **25.x** (exact major) |
 | Unit tests | Vitest | (devDep — see `package.json`) |
 | E2E tests | Playwright | (devDep — see `package.json`) |
 | Linter | ESLint 9 + next/lint | ^9.0.0 |
