@@ -28,11 +28,7 @@ export interface DREAMenginOSProps {
   dominantRegion?: RuntimeRegion;
 }
 
-type SystemStatus =
-  | 'OFFLINE'
-  | 'BOOTING_CORE_V9'
-  | 'SYNCING_HAVOK_V2'
-  | 'DREAM_V9_ACTIVE';
+type SystemStatus = 'OFFLINE' | 'BOOTING_CORE_V9' | 'SYNCING_HAVOK_V2' | 'DREAM_V9_ACTIVE';
 
 const ORB_COLORS = [
   '#5de8ff',
@@ -71,6 +67,13 @@ export default function DREAMenginOS({
 }: DREAMenginOSProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<AbstractEngine | null>(null);
+  const neuralRef = useRef<NeuralBus>({
+    color: '#5de8ff',
+    isEmergency: false,
+    alpha: 0.8,
+    velocity: 0,
+  });
+  const audioRef = useRef(audioSource);
   const [systemStatus, setSystemStatus] = useState<SystemStatus>('OFFLINE');
   const [pulseIntensity, setPulseIntensity] = useState(0);
   const [dispatcherStats, setDispatcherStats] = useState<DispatcherStats>(EMPTY_STATS);
@@ -109,6 +112,8 @@ export default function DREAMenginOS({
       ArcRotateCamera,
       Color3,
       Color4,
+      PBRMaterial,
+      Color3,
       DefaultRenderingPipeline,
       GlowLayer,
       HavokPlugin,
@@ -151,13 +156,12 @@ export default function DREAMenginOS({
 
     const pipeline = new DefaultRenderingPipeline('DREAM_PIPE', true, scene);
     pipeline.bloomEnabled = true;
-    pipeline.bloomThreshold = 0.2;
-    pipeline.bloomWeight = 0.5;
+    pipeline.bloomThreshold = 0.15;
+    pipeline.bloomWeight = 0.4;
     pipeline.chromaticAberrationEnabled = true;
-    pipeline.chromaticAberration.aberrationAmount = 25;
+    pipeline.chromaticAberration.aberrationAmount = 18;
 
     const glow = new GlowLayer('OS_GLOW', scene);
-    glow.intensity = 0.5;
 
     highlightedFamilies.forEach((family, index) => {
       const angle = (index / highlightedFamilies.length) * Math.PI * 2;
@@ -195,6 +199,7 @@ export default function DREAMenginOS({
     });
 
     scene.onBeforeRenderObservable.add(() => {
+      const neural = neuralRef.current;
       const analyser = audioRef.current;
       if (!analyser) return;
 
@@ -213,14 +218,15 @@ export default function DREAMenginOS({
               mesh.getAbsolutePosition(),
             );
           }
-        }
+        });
       }
+
+      neural.velocity *= 0.95;
     });
 
-    engine.runRenderLoop(() => {
-      scene.render();
-    });
+    engine.runRenderLoop(() => scene.render());
 
+    await syncNeuralBus();
     setSystemStatus('DREAM_V9_ACTIVE');
     onReady?.(scene);
   }, [highlightedFamilies, onReady]);
@@ -270,9 +276,12 @@ export default function DREAMenginOS({
     void launchOS(canvas);
 
     const handleResize = () => engineRef.current?.resize();
+    const statusInterval = window.setInterval(() => {
+      void syncNeuralBus();
+    }, 15000);
     window.addEventListener('resize', handleResize);
-
     return () => {
+      window.clearInterval(statusInterval);
       window.removeEventListener('resize', handleResize);
       engineRef.current?.dispose();
       engineRef.current = null;
@@ -313,9 +322,8 @@ export default function DREAMenginOS({
           gap: 8,
           fontFamily: 'monospace',
           fontSize: 11,
-          color: statusColor,
+          color: hudColor,
           pointerEvents: 'none',
-          userSelect: 'none',
         }}
       >
         <span
@@ -323,12 +331,51 @@ export default function DREAMenginOS({
             width: 8,
             height: 8,
             borderRadius: '50%',
-            background: statusColor,
-            opacity: 0.6 + pulseIntensity * 0.4,
-            boxShadow: `0 0 ${4 + pulseIntensity * 8}px ${statusColor}`,
+            background: hudColor,
+            boxShadow: `0 0 ${4 + pulseIntensity * 10}px ${hudColor}`,
+            opacity: 0.6 + pulseIntensity,
           }}
         />
-        {systemStatus}
+        {systemStatus} · {hudMode}
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          right: 12,
+          bottom: 12,
+          display: 'flex',
+          gap: 8,
+          flexWrap: 'wrap',
+          justifyContent: 'flex-end',
+          maxWidth: 'min(28rem, 88vw)',
+          pointerEvents: 'none',
+        }}
+      >
+        {[
+          subsystems?.nexusOpen ? 'NEXUS' : null,
+          subsystems?.outdreamOpen ? 'OUTDREAM' : null,
+          subsystems?.drEamsOpen ? 'DR.EAMS' : null,
+          subsystems?.importedAssets ? `IMPORTS:${subsystems.importedAssets}` : null,
+          subsystems?.route ? `ROUTE:${subsystems.route}` : null,
+        ]
+          .filter(Boolean)
+          .map((label) => (
+            <span
+              key={label}
+              style={{
+                borderRadius: 999,
+                border: '1px solid rgba(255,255,255,0.14)',
+                background: 'rgba(7,11,26,0.56)',
+                padding: '6px 10px',
+                color: '#d8ecff',
+                fontSize: 10,
+                fontFamily: 'monospace',
+                letterSpacing: '0.08em',
+              }}
+            >
+              {label}
+            </span>
+          ))}
       </div>
 
       <div

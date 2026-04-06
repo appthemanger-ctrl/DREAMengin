@@ -27,8 +27,8 @@ async function resolveFeedForInstance(
       *,
       widget_definitions!inner(*)
     `)
-    .eq('instance_id', instanceId)
-    .eq('owner_id', userId)
+    .eq('id', instanceId)
+    .eq('user_id', userId)
     .single();
   
   if (instanceError || !instance) {
