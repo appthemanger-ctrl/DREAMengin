@@ -69,6 +69,10 @@ export interface GestureConfig {
   pinchThreshold?: number;
   /** Minimum rotation angle (radians) to fire */
   rotateThreshold?: number;
+  /** Maximum single-finger drift before a tap/long-press is cancelled */
+  tapMaxMovement?: number;
+  /** Minimum single-finger movement before pan starts */
+  panThreshold?: number;
 }
 
 const DEFAULT_CONFIG: Required<GestureConfig> = {
@@ -77,6 +81,8 @@ const DEFAULT_CONFIG: Required<GestureConfig> = {
   longPressMs: 500,
   pinchThreshold: 0.02,
   rotateThreshold: 0.05,
+  tapMaxMovement: 10,
+  panThreshold: 4,
 };
 
 // ─── Utility functions ────────────────────────────────────────────────────────
@@ -95,8 +101,31 @@ function angle(a: Vec2, b: Vec2): number {
   return Math.atan2(b.y - a.y, b.x - a.x);
 }
 
+function angleDelta(from: number, to: number): number {
+  let delta = to - from;
+  while (delta > Math.PI) delta -= Math.PI * 2;
+  while (delta < -Math.PI) delta += Math.PI * 2;
+  return delta;
+}
+
 function touchToVec2(touch: Touch): Vec2 {
   return { x: touch.clientX, y: touch.clientY };
+}
+
+interface TrackedTouch {
+  id: number;
+  point: Vec2;
+}
+
+function touchIdentifier(touch: Touch): number {
+  return typeof touch.identifier === 'number' ? touch.identifier : 0;
+}
+
+function trackTouches(touches: Touch[]): TrackedTouch[] {
+  return touches.map((touch) => ({
+    id: touchIdentifier(touch),
+    point: touchToVec2(touch),
+  }));
 }
 
 function centroid(touches: Touch[]): Vec2 {
@@ -117,7 +146,7 @@ export class GestureRecogniser {
   private element: HTMLElement | null = null;
 
   // Touch tracking state
-  private startTouches: Vec2[] = [];
+  private startTouches: TrackedTouch[] = [];
   private startTime = 0;
   private lastCenter: Vec2 = { x: 0, y: 0 };
   private lastDist = 0;
@@ -137,19 +166,21 @@ export class GestureRecogniser {
     const onStart = this.handleTouchStart.bind(this);
     const onMove = this.handleTouchMove.bind(this);
     const onEnd = this.handleTouchEnd.bind(this);
+    const onCancel = this.handleTouchCancel.bind(this);
 
     el.addEventListener('touchstart', onStart, { passive: false });
     el.addEventListener('touchmove', onMove, { passive: false });
     el.addEventListener('touchend', onEnd, { passive: true });
-    el.addEventListener('touchcancel', onEnd, { passive: true });
+    el.addEventListener('touchcancel', onCancel, { passive: true });
 
     return () => {
       el.removeEventListener('touchstart', onStart);
       el.removeEventListener('touchmove', onMove);
       el.removeEventListener('touchend', onEnd);
-      el.removeEventListener('touchcancel', onEnd);
+      el.removeEventListener('touchcancel', onCancel);
       this.clearLongPress();
       this.element = null;
+      this.resetGestureState();
     };
   }
 
@@ -162,7 +193,7 @@ export class GestureRecogniser {
 
   private handleTouchStart(e: TouchEvent) {
     const touches = Array.from(e.touches);
-    this.startTouches = touches.map(touchToVec2);
+    this.startTouches = trackTouches(touches);
     this.startTime = Date.now();
     this.gestureStarted = false;
 
@@ -200,18 +231,34 @@ export class GestureRecogniser {
 
   private handleTouchMove(e: TouchEvent) {
     const touches = Array.from(e.touches);
-    this.clearLongPress();
+    if (touches.length !== 1) {
+      this.clearLongPress();
+    }
 
-    if (touches.length === 1 && this.callbacks.onPan) {
+    if (touches.length === 1) {
       const pos = touchToVec2(touches[0]);
-      const start = this.startTouches[0];
+      const start = this.startTouches[0]?.point;
       if (start) {
+        const delta = { x: pos.x - start.x, y: pos.y - start.y };
+        const deltaDistance = distance(pos, start);
+        if (deltaDistance > this.config.tapMaxMovement) {
+          this.clearLongPress();
+        }
+        if (!this.callbacks.onPan) {
+          return;
+        }
+        if (
+          !this.gestureStarted &&
+          deltaDistance < this.config.panThreshold
+        ) {
+          return;
+        }
         this.gestureStarted = true;
         this.callbacks.onPan({
           type: 'pan',
           fingers: 1,
           center: pos,
-          delta: { x: pos.x - start.x, y: pos.y - start.y },
+          delta,
           timestamp: Date.now(),
         });
       }
@@ -242,7 +289,7 @@ export class GestureRecogniser {
       }
 
       // Rotate
-      const dAngle = ang - this.lastAngle;
+      const dAngle = angleDelta(this.lastAngle, ang);
       if (Math.abs(dAngle) > this.config.rotateThreshold) {
         this.gestureStarted = true;
         this.callbacks.onRotate?.({
@@ -278,10 +325,20 @@ export class GestureRecogniser {
       this.startTouches.length === 1 &&
       dt < 300
     ) {
+      const start = this.startTouches[0]?.point;
+      if (!start) {
+        this.resetGestureState();
+        return;
+      }
+      const endTouch = e.changedTouches?.[0];
+      if (endTouch && distance(start, touchToVec2(endTouch)) > this.config.tapMaxMovement) {
+        this.resetGestureState();
+        return;
+      }
       this.callbacks.onTap?.({
         type: 'tap',
         fingers: 1,
-        center: this.startTouches[0],
+        center: start,
         timestamp: now,
       });
       return;
@@ -294,9 +351,9 @@ export class GestureRecogniser {
       dt > 0
     ) {
       const startCenter = centroid(
-        this.startTouches.map((v) => ({
-          clientX: v.x,
-          clientY: v.y,
+        this.startTouches.map(({ point }) => ({
+          clientX: point.x,
+          clientY: point.y,
         }) as unknown as Touch),
       );
       const dx = this.lastCenter.x - startCenter.x;
@@ -328,8 +385,21 @@ export class GestureRecogniser {
 
     // Reset state when all fingers lifted
     if (e.touches.length === 0) {
-      this.startTouches = [];
-      this.gestureStarted = false;
+      this.resetGestureState();
     }
+  }
+
+  private handleTouchCancel(_e: TouchEvent) {
+    this.clearLongPress();
+    this.resetGestureState();
+  }
+
+  private resetGestureState() {
+    this.startTouches = [];
+    this.startTime = 0;
+    this.lastCenter = { x: 0, y: 0 };
+    this.lastDist = 0;
+    this.lastAngle = 0;
+    this.gestureStarted = false;
   }
 }
