@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 10:34 UTC  
-**Last updated:** 2026-04-06 10:34 UTC  
-**Triggered by commit:** `3dca8da` on `copilot/execute-to-perfection` by Copilot  
-**Commit message:** chore: update runtime references to Node 25
+**Documentation Date:** 2026-04-06 10:38 UTC  
+**Last updated:** 2026-04-06 10:38 UTC  
+**Triggered by commit:** `d0dbcb7` on `copilot/execute-to-perfection` by Copilot  
+**Commit message:** chore: refresh lockfile for Node 25
 
 ---
 
