@@ -15,7 +15,7 @@ Last updated: 2026-03-14
 - Keep HomeDream private-source logic separate from ViewProfile output logic.
 - Keep DreamAds separate from platform promotion systems.
 - Keep AI roles separated: Dr. Eams user-facing, IDARi admin-only, TheBoogieMan.Ai enforcement.
-- Keep Node 24, pnpm, Next.js 16+, and Supabase assumptions stable unless a real repo need requires change.
+- Keep Node 25, pnpm, Next.js 16+, and Supabase assumptions stable unless a real repo need requires change.
 
 ---
 

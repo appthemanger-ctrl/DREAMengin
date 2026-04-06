@@ -14,7 +14,7 @@ This file summarizes how automation or coding agents should work in this repo.
 - Preserve working code whenever possible.
 - Rename and repurpose before rebuilding.
 - Prefer canonical product language over legacy repo nicknames.
-- Keep Node 24, pnpm, Next.js App Router, and Supabase assumptions stable unless there is a real need to change them.
+- Keep Node 25, pnpm, Next.js App Router, and Supabase assumptions stable unless there is a real need to change them.
 
 ## Canonical language
 
