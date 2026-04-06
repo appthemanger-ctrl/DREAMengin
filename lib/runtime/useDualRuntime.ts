@@ -66,8 +66,6 @@ export interface UseDualRuntimeReturn {
   /**
    * Live peer activity states for all six channels.
    * Shows which Engins currently have active subscribers and when they last emitted.
-   *
-   * Refreshes whenever any event is emitted on the primary channel.
    */
   peers: readonly PeerState[];
 
@@ -92,27 +90,12 @@ export function useDualRuntime(channel: DualRuntimeChannel): UseDualRuntimeRetur
   // Peers state — refreshes when any event fires on the primary channel
   const [peers, setPeers] = useState<readonly PeerState[]>(() => bridge.getPeers());
 
-  // Refresh peers snapshot whenever primary channel emits
+  // Refresh peers snapshot from bridge-driven activity updates
   useEffect(() => {
-    // Subscribe to all events on our primary channel to detect activity
-    // We do this with a wildcard-style approach: we track a synthetic
-    // refresh trigger by subscribing to the bridge's peer map directly.
-    // Since the bridge is a singleton, we poll peers on channel activity.
-    //
-    // The cleanest approach without a wildcard subscription: subscribe to
-    // the most common generic event on this channel and refresh peers on it.
-    // For full peer freshness, consumers can call `bridge.getPeers()` directly.
-    //
-    // Here we use a lightweight interval (5 s) to keep peers fresh without
-    // requiring a full event scan — battery-efficient per ARCHITECTURE.md §10.
-    const interval = setInterval(() => {
-      setPeers(bridge.getPeers());
-    }, 5_000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [channel]);
+    return bridge.subscribePeerActivity((nextPeers) => {
+      setPeers(nextPeers);
+    });
+  }, []);
 
   // Cleanup all subscriptions on unmount
   useEffect(() => {
