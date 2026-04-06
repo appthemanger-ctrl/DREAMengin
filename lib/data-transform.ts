@@ -10,6 +10,8 @@ export const DATA_PHYSICS: DataPhysicsConfig = Object.freeze({
   participation: 0.1,
 });
 
+const PARTICIPATION_DEVIATION_SCALE = 0.01;
+
 export function encodeToLedger(buffer: readonly number[]): number[] {
   return buffer.map((value) => Math.sign(value) * Math.log1p(Math.abs(value)));
 }
@@ -20,7 +22,10 @@ export function applyPhysicsFilter(encodedBuffer: readonly number[]): number[] {
     const expected =
       x / Math.pow(1 + Math.pow(x, DATA_PHYSICS.n), 1 / DATA_PHYSICS.n);
 
-    return Math.abs(dataPoint - expected) > DATA_PHYSICS.participation * 0.01;
+    return (
+      Math.abs(dataPoint - expected) >
+      DATA_PHYSICS.participation * PARTICIPATION_DEVIATION_SCALE
+    );
   });
 }
 
