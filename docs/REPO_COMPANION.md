@@ -1,4 +1,4 @@
-# DREAMengin Repo Companion Spec
+# DREAMengin Repo Companion
 
 > **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
 > **Documentation Date:** 2026-04-06

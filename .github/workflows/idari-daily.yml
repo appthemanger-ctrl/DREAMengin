@@ -7,7 +7,7 @@ name: Idari Daily Improvement Cycle
 # Sequence (mirrors portfolio-optimizer two-job pattern):
 #   JOB 1 — spec-check  (like portfolio-optimizer "build"):
 #     Verify spec requirements and architecture alignment BEFORE any changes.
-#     Reads SPEC.md + FEATURE_STATUS.md, runs tripwires, checks for drift.
+#     Reads REPO_COMPANION.md + FEATURE_STATUS.md, runs tripwires, checks for drift.
 #     If this job fails, idari-cycle is skipped entirely.
 #
 #   JOB 2 — idari-cycle  (existing improvement cycle):
@@ -99,7 +99,7 @@ jobs:
       # ── Read constitution (same guard as idari-cycle) ──────────────────────
       - name: Verify governing docs exist
         run: |
-          for f in docs/LAW.md docs/AXIOMS.md docs/ARCHITECTURE.md docs/SPEC.md docs/FEATURE_STATUS.md; do
+          for f in docs/LAW.md docs/AXIOMS.md docs/ARCHITECTURE.md docs/REPO_COMPANION.md docs/FEATURE_STATUS.md; do
             if [ ! -f "$f" ]; then
               echo "ERROR: missing governing doc $f — spec-check cannot proceed."
               exit 1
@@ -229,7 +229,7 @@ jobs:
           FAIL=0
 
           # Tripwire: no governance doc should be empty
-          for f in docs/LAW.md docs/AXIOMS.md docs/ARCHITECTURE.md docs/SPEC.md; do
+          for f in docs/LAW.md docs/AXIOMS.md docs/ARCHITECTURE.md docs/REPO_COMPANION.md; do
             LINES=$(wc -l < "$f")
             if [ "$LINES" -lt 5 ]; then
               echo "FAIL: $f has only $LINES lines — suspiciously short."
