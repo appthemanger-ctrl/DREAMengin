@@ -73,8 +73,13 @@ const HIGH_JUMP_DURATION_FRAMES = 8 * 60;
 const LASER_DURATION_FRAMES     = 8 * 60;
 const GIANT_DURATION_FRAMES     = 4 * 60;
 
-// Babylon render-unit scale:  1 BU ≈ 40 logical px
-const PX_PER_BU  = 40;
+// World scale: all Babylon geometry is WORLD_SCALE× larger than before.
+// The camera is pulled back by the same factor so the viewport looks identical,
+// but every mesh has 2.5× more geometric space → higher tessellation pays off.
+const WORLD_SCALE = 2.5;
+
+// Babylon render-unit scale: 1 BU ≈ 40 / WORLD_SCALE logical px
+const PX_PER_BU = 40 / WORLD_SCALE; // = 16
 
 const SESSION_SEED: number =
   typeof window !== 'undefined' ? (Math.floor(Math.random() * 2147483647) || 1) : 1;
@@ -888,220 +893,220 @@ class GameCore {
     const root = new BJS.TransformNode('player_root', scene);
 
     const torso = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_torso', {
-      height: 0.76, diameterTop: 0.50, diameterBottom: 0.42, tessellation: 28,
+      height: 0.76 * WORLD_SCALE, diameterTop: 0.50 * WORLD_SCALE, diameterBottom: 0.42 * WORLD_SCALE, tessellation: 36,
     }, scene));
     torso.material = darkMetalMat;
     torso.parent = root;
 
     const coatShell = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_coat_shell', {
-      height: 0.82, diameterTop: 0.62, diameterBottom: 0.48, tessellation: 28,
+      height: 0.82 * WORLD_SCALE, diameterTop: 0.62 * WORLD_SCALE, diameterBottom: 0.48 * WORLD_SCALE, tessellation: 36,
     }, scene));
     coatShell.material = coatMat;
-    coatShell.position.y = -0.02;
+    coatShell.position.y = -0.02 * WORLD_SCALE;
     coatShell.parent = root;
 
     const coatFront = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_coat_front', {
-      height: 0.70, diameterTop: 0.46, diameterBottom: 0.38, tessellation: 24,
+      height: 0.70 * WORLD_SCALE, diameterTop: 0.46 * WORLD_SCALE, diameterBottom: 0.38 * WORLD_SCALE, tessellation: 28,
     }, scene));
     coatFront.material = coatMat;
-    coatFront.position = new BJS.Vector3(0, 0.04, 0.11);
+    coatFront.position = new BJS.Vector3(0, 0.04 * WORLD_SCALE, 0.11 * WORLD_SCALE);
     coatFront.scaling.z = 0.45;
     coatFront.parent = root;
 
     const shirt = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_shirt', {
-      height: 0.22, diameterTop: 0.22, diameterBottom: 0.16, tessellation: 16,
+      height: 0.22 * WORLD_SCALE, diameterTop: 0.22 * WORLD_SCALE, diameterBottom: 0.16 * WORLD_SCALE, tessellation: 20,
     }, scene));
     shirt.material = shirtMat;
-    shirt.position = new BJS.Vector3(0, 0.36, 0.17);
+    shirt.position = new BJS.Vector3(0, 0.36 * WORLD_SCALE, 0.17 * WORLD_SCALE);
     shirt.scaling.z = 0.36;
     shirt.parent = root;
 
     const torsoTrimL = addShadowCaster(BJS.MeshBuilder.CreateBox('player_trim_l', {
-      width: 0.06, height: 0.46, depth: 0.03,
+      width: 0.06 * WORLD_SCALE, height: 0.46 * WORLD_SCALE, depth: 0.03 * WORLD_SCALE,
     }, scene));
     torsoTrimL.material = badgeMat;
-    torsoTrimL.position = new BJS.Vector3(-0.18, 0.02, 0.24);
+    torsoTrimL.position = new BJS.Vector3(-0.18 * WORLD_SCALE, 0.02 * WORLD_SCALE, 0.24 * WORLD_SCALE);
     torsoTrimL.rotation.z = 0.14;
     torsoTrimL.parent = root;
 
     const torsoTrimR = addShadowCaster(BJS.MeshBuilder.CreateBox('player_trim_r', {
-      width: 0.06, height: 0.46, depth: 0.03,
+      width: 0.06 * WORLD_SCALE, height: 0.46 * WORLD_SCALE, depth: 0.03 * WORLD_SCALE,
     }, scene));
     torsoTrimR.material = badgeMat;
-    torsoTrimR.position = new BJS.Vector3(0.18, 0.02, 0.24);
+    torsoTrimR.position = new BJS.Vector3(0.18 * WORLD_SCALE, 0.02 * WORLD_SCALE, 0.24 * WORLD_SCALE);
     torsoTrimR.rotation.z = -0.14;
     torsoTrimR.parent = root;
 
     const chestHalo = addShadowCaster(BJS.MeshBuilder.CreateTorus('player_chest_halo', {
-      diameter: 0.24, thickness: 0.025, tessellation: 28,
+      diameter: 0.24 * WORLD_SCALE, thickness: 0.025 * WORLD_SCALE, tessellation: 36,
     }, scene), true);
     chestHalo.material = eyeCyanMat;
     chestHalo.rotation.x = Math.PI / 2;
-    chestHalo.position = new BJS.Vector3(0, 0.10, 0.26);
+    chestHalo.position = new BJS.Vector3(0, 0.10 * WORLD_SCALE, 0.26 * WORLD_SCALE);
     chestHalo.parent = root;
 
     const chestCore = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_chest_core', {
-      diameter: 0.08, segments: 16,
+      diameter: 0.08 * WORLD_SCALE, segments: 20,
     }, scene), true);
     chestCore.material = eyeGoldMat;
-    chestCore.position = new BJS.Vector3(0, 0.10, 0.28);
+    chestCore.position = new BJS.Vector3(0, 0.10 * WORLD_SCALE, 0.28 * WORLD_SCALE);
     chestCore.parent = root;
 
     const neck = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_neck', {
-      height: 0.12, diameterTop: 0.14, diameterBottom: 0.18, tessellation: 18,
+      height: 0.12 * WORLD_SCALE, diameterTop: 0.14 * WORLD_SCALE, diameterBottom: 0.18 * WORLD_SCALE, tessellation: 20,
     }, scene));
     neck.material = darkMetalMat;
-    neck.position.y = 0.44;
+    neck.position.y = 0.44 * WORLD_SCALE;
     neck.parent = root;
 
     const headNode = new BJS.TransformNode('player_head_node', scene);
-    headNode.position.y = 0.74;
+    headNode.position.y = 0.74 * WORLD_SCALE;
     headNode.parent = root;
 
     const headShell = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_head_shell', {
-      diameterX: 0.78, diameterY: 0.68, diameterZ: 0.72, segments: 40,
+      diameterX: 0.78 * WORLD_SCALE, diameterY: 0.68 * WORLD_SCALE, diameterZ: 0.72 * WORLD_SCALE, segments: 64,
     }, scene), true);
     headShell.material = helmetMat;
-    headShell.position.y = 0.04;
+    headShell.position.y = 0.04 * WORLD_SCALE;
     headShell.parent = headNode;
 
     const helmetChin = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_head_chin', {
-      diameterX: 0.58, diameterY: 0.28, diameterZ: 0.58, segments: 24,
+      diameterX: 0.58 * WORLD_SCALE, diameterY: 0.28 * WORLD_SCALE, diameterZ: 0.58 * WORLD_SCALE, segments: 32,
     }, scene));
     helmetChin.material = helmetMat;
-    helmetChin.position = new BJS.Vector3(0, -0.16, 0.02);
+    helmetChin.position = new BJS.Vector3(0, -0.16 * WORLD_SCALE, 0.02 * WORLD_SCALE);
     helmetChin.parent = headNode;
 
     const headCrest = addShadowCaster(BJS.MeshBuilder.CreateBox('player_head_crest', {
-      width: 0.08, height: 0.14, depth: 0.26,
+      width: 0.08 * WORLD_SCALE, height: 0.14 * WORLD_SCALE, depth: 0.26 * WORLD_SCALE,
     }, scene));
     headCrest.material = badgeMat;
-    headCrest.position = new BJS.Vector3(0, 0.38, -0.02);
+    headCrest.position = new BJS.Vector3(0, 0.38 * WORLD_SCALE, -0.02 * WORLD_SCALE);
     headCrest.rotation.x = -0.1;
     headCrest.parent = headNode;
 
     const visorShell = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_visor_shell', {
-      diameterX: 0.62, diameterY: 0.42, diameterZ: 0.22, segments: 24,
+      diameterX: 0.62 * WORLD_SCALE, diameterY: 0.42 * WORLD_SCALE, diameterZ: 0.22 * WORLD_SCALE, segments: 32,
     }, scene), true);
     visorShell.material = visorMat;
-    visorShell.position = new BJS.Vector3(0, 0.04, 0.27);
+    visorShell.position = new BJS.Vector3(0, 0.04 * WORLD_SCALE, 0.27 * WORLD_SCALE);
     visorShell.parent = headNode;
 
     const screen = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_screen', {
-      diameterX: 0.54, diameterY: 0.30, diameterZ: 0.08, segments: 18,
+      diameterX: 0.54 * WORLD_SCALE, diameterY: 0.30 * WORLD_SCALE, diameterZ: 0.08 * WORLD_SCALE, segments: 24,
     }, scene), true);
     screen.material = screenMat;
-    screen.position = new BJS.Vector3(0, 0.04, 0.31);
+    screen.position = new BJS.Vector3(0, 0.04 * WORLD_SCALE, 0.31 * WORLD_SCALE);
     screen.parent = headNode;
 
     const eyeGoldRing = addShadowCaster(BJS.MeshBuilder.CreateTorus('player_eye_gold_ring', {
-      diameter: 0.18, thickness: 0.03, tessellation: 32,
+      diameter: 0.18 * WORLD_SCALE, thickness: 0.03 * WORLD_SCALE, tessellation: 40,
     }, scene), true);
     eyeGoldRing.material = eyeGoldMat;
     eyeGoldRing.rotation.x = Math.PI / 2;
-    eyeGoldRing.position = new BJS.Vector3(-0.10, 0.05, 0.36);
+    eyeGoldRing.position = new BJS.Vector3(-0.10 * WORLD_SCALE, 0.05 * WORLD_SCALE, 0.36 * WORLD_SCALE);
     eyeGoldRing.parent = headNode;
 
     const eyeGoldCore = addShadowCaster(BJS.MeshBuilder.CreateDisc('player_eye_gold_core', {
-      radius: 0.06, tessellation: 20,
+      radius: 0.06 * WORLD_SCALE, tessellation: 24,
     }, scene), true);
     eyeGoldCore.material = eyeGoldMat;
-    eyeGoldCore.position = new BJS.Vector3(-0.10, 0.05, 0.37);
+    eyeGoldCore.position = new BJS.Vector3(-0.10 * WORLD_SCALE, 0.05 * WORLD_SCALE, 0.37 * WORLD_SCALE);
     eyeGoldCore.parent = headNode;
 
     const eyeCyanRing = addShadowCaster(BJS.MeshBuilder.CreateTorus('player_eye_cyan_ring', {
-      diameter: 0.18, thickness: 0.03, tessellation: 32,
+      diameter: 0.18 * WORLD_SCALE, thickness: 0.03 * WORLD_SCALE, tessellation: 40,
     }, scene), true);
     eyeCyanRing.material = eyeCyanMat;
     eyeCyanRing.rotation.x = Math.PI / 2;
-    eyeCyanRing.position = new BJS.Vector3(0.10, 0.05, 0.36);
+    eyeCyanRing.position = new BJS.Vector3(0.10 * WORLD_SCALE, 0.05 * WORLD_SCALE, 0.36 * WORLD_SCALE);
     eyeCyanRing.parent = headNode;
 
     const eyeCyanCore = addShadowCaster(BJS.MeshBuilder.CreateDisc('player_eye_cyan_core', {
-      radius: 0.06, tessellation: 20,
+      radius: 0.06 * WORLD_SCALE, tessellation: 24,
     }, scene), true);
     eyeCyanCore.material = eyeCyanMat;
-    eyeCyanCore.position = new BJS.Vector3(0.10, 0.05, 0.37);
+    eyeCyanCore.position = new BJS.Vector3(0.10 * WORLD_SCALE, 0.05 * WORLD_SCALE, 0.37 * WORLD_SCALE);
     eyeCyanCore.parent = headNode;
 
     const shoulderL = new BJS.TransformNode('player_shoulder_l', scene);
-    shoulderL.position = new BJS.Vector3(-0.34, 0.20, 0);
+    shoulderL.position = new BJS.Vector3(-0.34 * WORLD_SCALE, 0.20 * WORLD_SCALE, 0);
     shoulderL.parent = root;
     const shoulderR = new BJS.TransformNode('player_shoulder_r', scene);
-    shoulderR.position = new BJS.Vector3(0.34, 0.20, 0);
+    shoulderR.position = new BJS.Vector3(0.34 * WORLD_SCALE, 0.20 * WORLD_SCALE, 0);
     shoulderR.parent = root;
 
     const buildArm = (id: 'l' | 'r', parent: import('@babylonjs/core').TransformNode) => {
       const shoulderBall = addShadowCaster(BJS.MeshBuilder.CreateSphere(`player_arm_${id}_shoulder`, {
-        diameter: 0.18, segments: 16,
+        diameter: 0.18 * WORLD_SCALE, segments: 20,
       }, scene));
       shoulderBall.material = darkMetalMat;
       shoulderBall.parent = parent;
 
       const upperArm = addShadowCaster(BJS.MeshBuilder.CreateCylinder(`player_arm_${id}_upper`, {
-        height: 0.30, diameterTop: 0.13, diameterBottom: 0.11, tessellation: 18,
+        height: 0.30 * WORLD_SCALE, diameterTop: 0.13 * WORLD_SCALE, diameterBottom: 0.11 * WORLD_SCALE, tessellation: 24,
       }, scene));
       upperArm.material = darkMetalMat;
-      upperArm.position.y = -0.18;
+      upperArm.position.y = -0.18 * WORLD_SCALE;
       upperArm.parent = parent;
 
       const forearm = addShadowCaster(BJS.MeshBuilder.CreateCylinder(`player_arm_${id}_forearm`, {
-        height: 0.26, diameterTop: 0.11, diameterBottom: 0.09, tessellation: 18,
+        height: 0.26 * WORLD_SCALE, diameterTop: 0.11 * WORLD_SCALE, diameterBottom: 0.09 * WORLD_SCALE, tessellation: 24,
       }, scene));
       forearm.material = jointMat;
-      forearm.position.y = -0.44;
+      forearm.position.y = -0.44 * WORLD_SCALE;
       forearm.parent = parent;
 
       const hand = addShadowCaster(BJS.MeshBuilder.CreateSphere(`player_arm_${id}_hand`, {
-        diameter: 0.10, segments: 12,
+        diameter: 0.10 * WORLD_SCALE, segments: 16,
       }, scene));
       hand.material = jointMat;
-      hand.position.y = -0.60;
+      hand.position.y = -0.60 * WORLD_SCALE;
       hand.parent = parent;
     };
     buildArm('l', shoulderL);
     buildArm('r', shoulderR);
 
     const hipL = new BJS.TransformNode('player_hip_l', scene);
-    hipL.position = new BJS.Vector3(-0.14, -0.40, 0);
+    hipL.position = new BJS.Vector3(-0.14 * WORLD_SCALE, -0.40 * WORLD_SCALE, 0);
     hipL.parent = root;
     const hipR = new BJS.TransformNode('player_hip_r', scene);
-    hipR.position = new BJS.Vector3(0.14, -0.40, 0);
+    hipR.position = new BJS.Vector3(0.14 * WORLD_SCALE, -0.40 * WORLD_SCALE, 0);
     hipR.parent = root;
 
     const buildLeg = (id: 'l' | 'r', parent: import('@babylonjs/core').TransformNode) => {
       const hipJoint = addShadowCaster(BJS.MeshBuilder.CreateSphere(`player_leg_${id}_hip`, {
-        diameter: 0.14, segments: 12,
+        diameter: 0.14 * WORLD_SCALE, segments: 16,
       }, scene));
       hipJoint.material = jointMat;
       hipJoint.parent = parent;
 
       const upperLeg = addShadowCaster(BJS.MeshBuilder.CreateCylinder(`player_leg_${id}_upper`, {
-        height: 0.32, diameterTop: 0.16, diameterBottom: 0.13, tessellation: 18,
+        height: 0.32 * WORLD_SCALE, diameterTop: 0.16 * WORLD_SCALE, diameterBottom: 0.13 * WORLD_SCALE, tessellation: 24,
       }, scene));
       upperLeg.material = darkMetalMat;
-      upperLeg.position.y = -0.18;
+      upperLeg.position.y = -0.18 * WORLD_SCALE;
       upperLeg.parent = parent;
 
       const knee = addShadowCaster(BJS.MeshBuilder.CreateSphere(`player_leg_${id}_knee`, {
-        diameter: 0.12, segments: 12,
+        diameter: 0.12 * WORLD_SCALE, segments: 16,
       }, scene));
       knee.material = jointMat;
-      knee.position.y = -0.36;
+      knee.position.y = -0.36 * WORLD_SCALE;
       knee.parent = parent;
 
       const lowerLeg = addShadowCaster(BJS.MeshBuilder.CreateCylinder(`player_leg_${id}_lower`, {
-        height: 0.30, diameterTop: 0.13, diameterBottom: 0.11, tessellation: 18,
+        height: 0.30 * WORLD_SCALE, diameterTop: 0.13 * WORLD_SCALE, diameterBottom: 0.11 * WORLD_SCALE, tessellation: 24,
       }, scene));
       lowerLeg.material = darkMetalMat;
-      lowerLeg.position.y = -0.54;
+      lowerLeg.position.y = -0.54 * WORLD_SCALE;
       lowerLeg.parent = parent;
 
       const boot = addShadowCaster(BJS.MeshBuilder.CreateCapsule(`player_boot_${id}`, {
-        radius: 0.10, height: 0.26, tessellation: 10,
+        radius: 0.10 * WORLD_SCALE, height: 0.26 * WORLD_SCALE, tessellation: 14,
       }, scene));
       boot.material = bootMat;
-      boot.position = new BJS.Vector3(0, -0.76, 0.04);
+      boot.position = new BJS.Vector3(0, -0.76 * WORLD_SCALE, 0.04 * WORLD_SCALE);
       boot.rotation.x = Math.PI / 2;
       boot.parent = parent;
 
@@ -1216,8 +1221,10 @@ class GameCore {
     scene.clearColor = new BJS.Color4(zone.sky[0], zone.sky[1], zone.sky[2], 1);
 
     // ── Camera (FreeCamera, side-view looking in +Z direction) ──────────────
-    const cam = new BJS.FreeCamera('cam', new BJS.Vector3(0, 5.25, -22), scene);
-    cam.setTarget(new BJS.Vector3(0, 4.8, 0));
+    // Pulled back WORLD_SCALE× so the on-screen appearance is unchanged despite
+    // the world being 2.5× physically larger in Babylon units.
+    const cam = new BJS.FreeCamera('cam', new BJS.Vector3(0, 5.25 * WORLD_SCALE, -22 * WORLD_SCALE), scene);
+    cam.setTarget(new BJS.Vector3(0, 4.8 * WORLD_SCALE, 0));
     this.camMesh = cam;
 
     // ── Lighting — full landing-hero 4-source setup ──────────────────────────
@@ -1230,23 +1237,23 @@ class GameCore {
 
     // Key light — matches landing hero key.intensity 2.7
     const sun = new BJS.DirectionalLight('sun', new BJS.Vector3(-0.3, -0.8, 0.5), scene);
-    sun.position  = new BJS.Vector3(3, 6, -4);
+    sun.position  = new BJS.Vector3(3 * WORLD_SCALE, 6 * WORLD_SCALE, -4 * WORLD_SCALE);
     sun.intensity = 2.7;
     sun.diffuse   = new BJS.Color3(0.92, 0.96, 1.0);
     sun.specular  = new BJS.Color3(0.92, 0.96, 1.0);
     sun.shadowMinZ = 0.5;
-    sun.shadowMaxZ = 80;
+    sun.shadowMaxZ = 80 * WORLD_SCALE;
 
     // Fill light — matches landing hero fill.intensity 1.45
     const fillLight = new BJS.DirectionalLight('fill', new BJS.Vector3(0.6, -0.25, -0.5), scene);
-    fillLight.position  = new BJS.Vector3(-4, 3, 2);
+    fillLight.position  = new BJS.Vector3(-4 * WORLD_SCALE, 3 * WORLD_SCALE, 2 * WORLD_SCALE);
     fillLight.intensity = 1.45;
     fillLight.diffuse   = new BJS.Color3(0.44, 0.80, 1.0);
     fillLight.specular  = new BJS.Color3(0.22, 0.40, 0.70);
 
     // Rim/back light — matches landing hero rim.intensity 1.05
     const rimLight = new BJS.DirectionalLight('rim', new BJS.Vector3(-0.5, -0.3, -0.8), scene);
-    rimLight.position  = new BJS.Vector3(0, 3, 5);
+    rimLight.position  = new BJS.Vector3(0, 3 * WORLD_SCALE, 5 * WORLD_SCALE);
     rimLight.intensity = 1.05;
     rimLight.diffuse   = new BJS.Color3(0.28, 0.70, 1.0);
     rimLight.specular  = new BJS.Color3(0.14, 0.35, 0.60);
@@ -1316,18 +1323,18 @@ class GameCore {
     // ── SSAO — screen-space ambient occlusion for realistic depth ────────────
     try {
       const ssao = new BJS.SSAO2RenderingPipeline('madmaxi-ssao', scene, { ssaoRatio: 0.5, blurRatio: 1.0 });
-      ssao.radius = 1.8;
+      ssao.radius = 1.8 * WORLD_SCALE;
       ssao.totalStrength = 1.0;
       ssao.samples = 16;
-      ssao.maxZ = 80;
+      ssao.maxZ = 80 * WORLD_SCALE;
       ssao.expensiveBlur = true;
       scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('madmaxi-ssao', cam);
     } catch { /* SSAO graceful fallback */ }
 
     // ── Sky backdrop — premium multi-layer with zone colour ──────────────────
     // Deep background wash — wide PBR emissive plane behind everything
-    const bg = BJS.MeshBuilder.CreatePlane('bg', { width: 160, height: 60 }, scene);
-    bg.position = new BJS.Vector3(0, 8, 16);
+    const bg = BJS.MeshBuilder.CreatePlane('bg', { width: 160 * WORLD_SCALE, height: 60 * WORLD_SCALE }, scene);
+    bg.position = new BJS.Vector3(0, 8 * WORLD_SCALE, 16 * WORLD_SCALE);
     const bgMat = new BJS.PBRMaterial('bgMat', scene);
     bgMat.albedoColor   = new BJS.Color3(zone.sky[0] * 0.5, zone.sky[1] * 0.5, zone.sky[2] * 0.5);
     bgMat.emissiveColor = new BJS.Color3(zone.sky[0] * 0.9, zone.sky[1] * 0.9, zone.sky[2] * 1.1);
@@ -1346,7 +1353,7 @@ class GameCore {
       [0.16,  4, 0.10, 0.15, false],
     ];
     skylineLayers.forEach(([parallax, depth, sat, alpha, useAccent], idx) => {
-      const band = BJS.MeshBuilder.CreatePlane(`skyline_band_${idx}`, { width: 180, height: 26 }, scene);
+      const band = BJS.MeshBuilder.CreatePlane(`skyline_band_${idx}`, { width: 180 * WORLD_SCALE, height: 26 * WORLD_SCALE }, scene);
       const mat = new BJS.PBRMaterial(`skyline_mat_${idx}`, scene);
       mat.metallic = 0;
       mat.roughness = 1;
@@ -1358,16 +1365,16 @@ class GameCore {
       mat.emissiveColor = new BJS.Color3(Math.min(1, r), Math.min(1, g), Math.min(1, b));
       mat.albedoColor   = mat.emissiveColor.scale(0.3);
       band.material = mat;
-      band.position.set(0, 11 + idx * 2.6, depth);
+      band.position.set(0, (11 + idx * 2.6) * WORLD_SCALE, depth * WORLD_SCALE);
       this.skylineBands.push({ mesh: band, baseX: 0, parallax, pulseOffset: idx * 1.8 });
     });
 
-    // Parallax star layers — higher brightness and more stars
+    // Parallax star layers — higher brightness and more stars; positions scale with world
     const rng = seededRng(this.level * STAR_SEED_PRIME + STAR_SEED_OFFSET);
     const starLayers: [number, number, number, number][] = [
-      [0.04, 15, 32, 0.07],
-      [0.09, 10, 24, 0.10],
-      [0.16,  5, 16, 0.13],
+      [0.04, 15, 32, 0.07 * WORLD_SCALE],
+      [0.09, 10, 24, 0.10 * WORLD_SCALE],
+      [0.16,  5, 16, 0.13 * WORLD_SCALE],
     ];
     for (const [parallax, depth, count, size] of starLayers) {
       for (let s = 0; s < count; s++) {
@@ -1386,8 +1393,8 @@ class GameCore {
         mat.roughness = 1;
         star.material = mat;
         glow.addIncludedOnlyMesh(star);
-        const baseX = (rng() - 0.5) * 72;
-        star.position.set(baseX, rng() * 15 + 0.5, depth);
+        const baseX = (rng() - 0.5) * 72 * WORLD_SCALE;
+        star.position.set(baseX, (rng() * 15 + 0.5) * WORLD_SCALE, depth * WORLD_SCALE);
         this.bgStars.push({ mesh: star, baseX, parallax });
       }
     }
@@ -1396,7 +1403,7 @@ class GameCore {
     for (const p of this.platforms) {
       const bw = p.w / PX_PER_BU;
       const bh = p.h / PX_PER_BU;
-      const mesh = BJS.MeshBuilder.CreateBox(`plat_${p.x}`, { width: bw, height: bh, depth: 1.4 }, scene);
+      const mesh = BJS.MeshBuilder.CreateBox(`plat_${p.x}`, { width: bw, height: bh, depth: 1.4 * WORLD_SCALE }, scene);
       const mat  = new BJS.PBRMaterial(`pmat_${p.x}`, scene);
 
       if (p.type === 'goal') {
@@ -1453,15 +1460,15 @@ class GameCore {
       const c = this.coins[i];
       if (c.isGoal) {
         this.goalIdx = i;
-        // Central star body
-        const star = BJS.MeshBuilder.CreateSphere(`goal_body`, { diameter: 0.88, segments: 10 }, scene);
+        // Central star body — scaled up for detail
+        const star = BJS.MeshBuilder.CreateSphere(`goal_body`, { diameter: 0.88 * WORLD_SCALE, segments: 24 }, scene);
         star.material = goalMat;
         shadowGen.addShadowCaster(star, false);
         glow.addIncludedOnlyMesh(star);
         this.goalMesh = star;
         // Orbiting torus ring
         const ring = BJS.MeshBuilder.CreateTorus(`goal_ring`,
-          { diameter: 1.5, thickness: 0.10, tessellation: 28 }, scene);
+          { diameter: 1.5 * WORLD_SCALE, thickness: 0.10 * WORLD_SCALE, tessellation: 40 }, scene);
         ring.material = goalMat;
         shadowGen.addShadowCaster(ring, false);
         glow.addIncludedOnlyMesh(ring);
@@ -1469,7 +1476,7 @@ class GameCore {
         this.coinMeshes.push(null); // keep index aligned with this.coins[] for collision detection
       } else {
         const mesh = BJS.MeshBuilder.CreateSphere(`coin_${c.x}_${c.y}`,
-          { diameter: 0.42, segments: 14 }, scene);
+          { diameter: 0.42 * WORLD_SCALE, segments: 20 }, scene);
         const mat  = new BJS.PBRMaterial(`cmat_${c.x}`, scene);
         // SILVER coins — polished chrome with clearCoat like landing hero badge
         mat.albedoColor  = new BJS.Color3(0.85, 0.87, 0.92);
@@ -1494,12 +1501,12 @@ class GameCore {
       if (hz.type === 'spike') {
         mesh = BJS.MeshBuilder.CreateCylinder(`haz_${hi}`, {
           diameterTop: 0,
-          diameterBottom: 0.55,
-          height: 0.6,
+          diameterBottom: 0.55 * WORLD_SCALE,
+          height: 0.6 * WORLD_SCALE,
           tessellation: 8,
         }, scene);
       } else {
-        mesh = BJS.MeshBuilder.CreateBox(`haz_${hi}`, { width: 0.46, height: 0.46, depth: 0.46 }, scene);
+        mesh = BJS.MeshBuilder.CreateBox(`haz_${hi}`, { width: 0.46 * WORLD_SCALE, height: 0.46 * WORLD_SCALE, depth: 0.46 * WORLD_SCALE }, scene);
       }
       const mat = new BJS.PBRMaterial(`haz_mat_${hi}`, scene);
       if (hz.type === 'spike') {
@@ -1530,8 +1537,8 @@ class GameCore {
     for (let pi = 0; pi < this.powerUps.length; pi++) {
       const p = this.powerUps[pi];
       const mesh = BJS.MeshBuilder.CreateTorus(`power_${pi}`, {
-        diameter: 0.55,
-        thickness: 0.14,
+        diameter: 0.55 * WORLD_SCALE,
+        thickness: 0.14 * WORLD_SCALE,
         tessellation: 24,
       }, scene);
       const mat = new BJS.PBRMaterial(`power_mat_${pi}`, scene);
@@ -1555,40 +1562,40 @@ class GameCore {
     for (let ei = 0; ei < this.enemies.length; ei++) {
       const en = this.enemies[ei];
       const isBoss  = !!en.boss;
-      const diameter = isBoss ? 0.85 * (en.size ?? 1.8) : 0.85;
+      const diameter = isBoss ? 0.85 * WORLD_SCALE * (en.size ?? 1.8) : 0.85 * WORLD_SCALE;
       let mesh: import('@babylonjs/core').Mesh;
       if (isBoss) {
-        mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter, segments: 24 }, scene);
+        mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter, segments: 32 }, scene);
       } else {
         switch (en.kind) {
           case 'runner':
           case 'charger':
-            mesh = BJS.MeshBuilder.CreateBox(`enemy_${ei}`, { width: 0.78, height: 0.62, depth: 0.48 }, scene);
+            mesh = BJS.MeshBuilder.CreateBox(`enemy_${ei}`, { width: 0.78 * WORLD_SCALE, height: 0.62 * WORLD_SCALE, depth: 0.48 * WORLD_SCALE }, scene);
             break;
           case 'hopper':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.78, segments: 16 }, scene);
+            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.78 * WORLD_SCALE, segments: 20 }, scene);
             break;
           case 'flyer':
-            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameterTop: 0.18, diameterBottom: 0.8, height: 0.54, tessellation: 3 }, scene);
+            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameterTop: 0.18 * WORLD_SCALE, diameterBottom: 0.8 * WORLD_SCALE, height: 0.54 * WORLD_SCALE, tessellation: 6 }, scene);
             break;
           case 'zigzag':
-            mesh = BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78, thickness: 0.18, tessellation: 14 }, scene);
+            mesh = BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78 * WORLD_SCALE, thickness: 0.18 * WORLD_SCALE, tessellation: 20 }, scene);
             break;
           case 'orbiter':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.58, segments: 10 }, scene);
+            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.58 * WORLD_SCALE, segments: 16 }, scene);
             break;
           case 'sniper':
-            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameter: 0.6, height: 0.8, tessellation: 8 }, scene);
+            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameter: 0.6 * WORLD_SCALE, height: 0.8 * WORLD_SCALE, tessellation: 12 }, scene);
             break;
           case 'burrower':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.72, segments: 12 }, scene);
+            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.72 * WORLD_SCALE, segments: 16 }, scene);
             break;
           case 'spiker':
-            mesh = BJS.MeshBuilder.CreatePolyhedron(`enemy_${ei}`, { type: 4, size: 0.46 }, scene);
+            mesh = BJS.MeshBuilder.CreatePolyhedron(`enemy_${ei}`, { type: 4, size: 0.46 * WORLD_SCALE }, scene);
             break;
           case 'shadow':
           default:
-            mesh = BJS.MeshBuilder.CreateCapsule(`enemy_${ei}`, { radius: 0.22, height: 0.95, tessellation: 10 }, scene);
+            mesh = BJS.MeshBuilder.CreateCapsule(`enemy_${ei}`, { radius: 0.22 * WORLD_SCALE, height: 0.95 * WORLD_SCALE, tessellation: 14 }, scene);
             break;
         }
       }
@@ -1751,8 +1758,8 @@ class GameCore {
     const startX = this.px + (this.facingR ? 30 : -2);
     const startY = this.py + 16;
     const mesh = BJS.MeshBuilder.CreateCylinder(`player_laser_${Date.now()}`, {
-      diameter: 0.14,
-      height: 0.9,
+      diameter: 0.14 * WORLD_SCALE,
+      height: 0.9 * WORLD_SCALE,
       tessellation: 8,
     }, this.scene);
     mesh.rotation.z = Math.PI / 2;
@@ -2160,7 +2167,7 @@ class GameCore {
           try {
             const BJS = this.bjs!;
             const m = BJS.MeshBuilder.CreateSphere('proj_' + Date.now(),
-              { diameter: 0.35, segments: 6 }, this.scene!);
+              { diameter: 0.35 * WORLD_SCALE, segments: 8 }, this.scene!);
             const mat = new BJS.StandardMaterial('projMat', this.scene!);
             mat.emissiveColor = en.boss
               ? new BJS.Color3(1, 0.2, 0.2)
@@ -2285,7 +2292,7 @@ class GameCore {
     }
 
     // Coins (regular only — goal coin handled separately below)
-    const coinY = Math.sin(this.animTick * 0.05) * 0.1; // bob animation
+    const coinY = Math.sin(this.animTick * 0.05) * 0.1 * WORLD_SCALE; // bob animation
     for (let i = 0; i < this.coinMeshes.length; i++) {
       const m = this.coinMeshes[i];
       if (!m) continue;
@@ -2293,7 +2300,7 @@ class GameCore {
       const { bx, by } = toB(c.x, c.y, 18, 18);
       m.position.x = bx;
       m.position.y = by + coinY;
-      m.position.z = 0.2;
+      m.position.z = 0.2 * WORLD_SCALE;
       m.rotation.y = this.animTick * 0.04;
     }
 
@@ -2301,14 +2308,14 @@ class GameCore {
     if (this.goalMesh && this.goalIdx >= 0) {
       const gc = this.coins[this.goalIdx];
       if (!gc.collected) {
-        const floatY = Math.sin(this.animTick * 0.055) * 0.20;
+        const floatY = Math.sin(this.animTick * 0.055) * 0.20 * WORLD_SCALE;
         const pulse  = 1.0 + Math.sin(this.animTick * 0.08) * 0.12;
         const { bx, by } = toB(gc.x, gc.y, 18, 18);
-        this.goalMesh.position.set(bx, by + floatY, 0.2);
+        this.goalMesh.position.set(bx, by + floatY, 0.2 * WORLD_SCALE);
         this.goalMesh.scaling.setAll(pulse);
         this.goalMesh.rotation.y = this.animTick * 0.05;
         if (this.goalRing) {
-          this.goalRing.position.set(bx, by + floatY, 0.2);
+          this.goalRing.position.set(bx, by + floatY, 0.2 * WORLD_SCALE);
           this.goalRing.rotation.y  =  this.animTick * 0.04;
           this.goalRing.rotation.x  = Math.PI / 3 + Math.sin(this.animTick * 0.025) * 0.35;
           this.goalRing.scaling.setAll(pulse);
@@ -2324,7 +2331,7 @@ class GameCore {
       const { bx, by } = toB(hz.curX, hz.curY, 18, 18);
       mesh.position.x = bx;
       mesh.position.y = by;
-      mesh.position.z = 0.1;
+      mesh.position.z = 0.1 * WORLD_SCALE;
       if (hz.type === 'spike') {
         mesh.rotation.z = Math.PI;
       } else {
@@ -2344,8 +2351,8 @@ class GameCore {
       }
       const { bx, by } = toB(p.x, p.y, 18, 18);
       mesh.position.x = bx;
-      mesh.position.y = by + Math.sin(this.animTick * 0.08 + i) * 0.14;
-      mesh.position.z = 0.18;
+      mesh.position.y = by + Math.sin(this.animTick * 0.08 + i) * 0.14 * WORLD_SCALE;
+      mesh.position.z = 0.18 * WORLD_SCALE;
       mesh.rotation.y += 0.04;
     }
 
@@ -2427,7 +2434,7 @@ class GameCore {
       this.playerRig.torso.scaling.set(bodyScaleX / giantMul / superPulse, bodyScaleY / giantMul / superPulse, 1);
       this.playerRig.coatShell.scaling.set(bodyScaleX / giantMul / superPulse, Math.max(0.84, bodyScaleY / giantMul / superPulse), 1);
       this.playerRig.coatFront.scaling.set(bodyScaleX / giantMul / superPulse, Math.max(0.82, bodyScaleY / giantMul / superPulse), 1);
-      this.playerRig.headNode.position.y = 0.74 + (this.onGround ? -0.02 : 0.04);
+      this.playerRig.headNode.position.y = 0.74 * WORLD_SCALE + (this.onGround ? -0.02 * WORLD_SCALE : 0.04 * WORLD_SCALE);
       this.playerRig.headShell.rotation.z = isMoving ? Math.sin(walkPhase * 0.5) * 0.035 : 0;
       this.playerRig.shoulderL.rotation.z = armSwing * 0.95;
       this.playerRig.shoulderR.rotation.z = -armSwing * 0.95;
@@ -2485,12 +2492,12 @@ class GameCore {
     // ── Camera Y zoom when all silver coins collected ──────────────────────
     if (this.coinFlashFrames > 0) {
       this.coinFlashFrames--;
-      // First 30 frames: zoom out (camera moves up by up to 3.5 BU)
+      // First 30 frames: zoom out (camera moves up by up to 3.5×WORLD_SCALE BU)
       // Next 40 frames: zoom back in
       if (this.coinFlashFrames > 40) {
-        this.camZoomOffset = ((70 - this.coinFlashFrames) / 30) * 3.5;
+        this.camZoomOffset = ((70 - this.coinFlashFrames) / 30) * 3.5 * WORLD_SCALE;
       } else {
-        this.camZoomOffset = (this.coinFlashFrames / 40) * 3.5;
+        this.camZoomOffset = (this.coinFlashFrames / 40) * 3.5 * WORLD_SCALE;
       }
     }
 
@@ -2508,16 +2515,16 @@ class GameCore {
     }
     for (const skyline of this.skylineBands) {
       skyline.mesh.position.x = skyline.baseX - camBX * skyline.parallax;
-      skyline.mesh.position.y = 10 + Math.sin(this.animTick * 0.01 + skyline.pulseOffset) * 0.9;
+      skyline.mesh.position.y = 10 * WORLD_SCALE + Math.sin(this.animTick * 0.01 + skyline.pulseOffset) * 0.9 * WORLD_SCALE;
     }
 
     // Camera follows player smoothly in X; zooms up on coin flash
     if (this.camMesh) {
       this.camMesh.position.x = 0;
-      // Smooth cam Y toward target (normally 6 BU, zoomed out when flash active)
-      const targetCamY = 5.25 + this.camZoomOffset;
+      // Smooth cam Y toward target (normally camY = 5.25×WORLD_SCALE BU, zoomed out when flash active)
+      const targetCamY = 5.25 * WORLD_SCALE + this.camZoomOffset;
       this.camMesh.position.y += (targetCamY - this.camMesh.position.y) * 0.10;
-      this.camMesh.setTarget(new (this.bjs!.Vector3)(0, this.camMesh.position.y - 0.5, 0));
+      this.camMesh.setTarget(new (this.bjs!.Vector3)(0, this.camMesh.position.y - 0.5 * WORLD_SCALE, 0));
     }
   }
 
