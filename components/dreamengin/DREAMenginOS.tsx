@@ -26,9 +26,24 @@ export interface DREAMenginOSProps {
   splitRatio?: number;
   seamVisible?: boolean;
   dominantRegion?: RuntimeRegion;
+  subsystems?: {
+    nexusOpen: boolean;
+    outdreamOpen: boolean;
+    drEamsOpen: boolean;
+    importedAssets: number;
+    lastImportCategory: string | null;
+    route: string;
+  };
 }
 
 type SystemStatus = 'OFFLINE' | 'BOOTING_CORE_V9' | 'SYNCING_HAVOK_V2' | 'DREAM_V9_ACTIVE';
+
+interface NeuralBus {
+  color: string;
+  isEmergency: boolean;
+  alpha: number;
+  velocity: number;
+}
 
 const ORB_COLORS = [
   '#5de8ff',
@@ -64,6 +79,7 @@ export default function DREAMenginOS({
   splitRatio = 0.5,
   seamVisible = true,
   dominantRegion,
+  subsystems,
 }: DREAMenginOSProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<AbstractEngine | null>(null);
@@ -84,7 +100,6 @@ export default function DREAMenginOS({
   const [sharedArtifacts, setSharedArtifacts] = useState<readonly DreamOSSharedArtifact[]>([]);
   const [runtimeContexts, setRuntimeContexts] = useState<readonly DreamOSRuntimeContext[]>([]);
 
-  const audioRef = useRef(audioSource);
   const onSelectSubsystemRef = useRef(onSelectSubsystem);
   onSelectSubsystemRef.current = onSelectSubsystem;
 
@@ -97,6 +112,25 @@ export default function DREAMenginOS({
     () => manifest.families.filter((family) => family.id !== 'connectors').slice(0, 6),
     [manifest],
   );
+  const syncNeuralBus = useCallback(async () => {
+    const dispatcher = EnginDispatcher.getInstance();
+    const peers = bridge.getPeers();
+    const snapshot = dreamOSBus.getSnapshot();
+    const livePeers = peers.filter((peer) => peer.subscriberCount > 0 || peer.lastActivityAt).length;
+    const emergency = lastIdariEvent?.status === 'error';
+
+    neuralRef.current = {
+      color: emergency ? '#ff7a7a' : livePeers > 0 ? '#5de8ff' : '#e8c040',
+      isEmergency: emergency,
+      alpha: emergency ? 1 : 0.72 + Math.min(0.2, snapshot.artifacts.length * 0.015),
+      velocity: Math.min(1, livePeers * 0.14 + snapshot.runtimeContexts.length * 0.08),
+    };
+
+    setDispatcherStats(dispatcher.stats);
+    setPeerStates(peers);
+    setSharedArtifacts(snapshot.artifacts.slice(0, 4));
+    setRuntimeContexts(snapshot.runtimeContexts);
+  }, [lastIdariEvent]);
 
   const launchOS = useCallback(async (canvas: HTMLCanvasElement) => {
     setSystemStatus('BOOTING_CORE_V9');
@@ -113,7 +147,6 @@ export default function DREAMenginOS({
       Color3,
       Color4,
       PBRMaterial,
-      Color3,
       DefaultRenderingPipeline,
       GlowLayer,
       HavokPlugin,
@@ -179,6 +212,7 @@ export default function DREAMenginOS({
 
       const material = new StandardMaterial(`dreamengin-family-${family.id}-mat`, scene);
       const color = Color3.FromHexString(ORB_COLORS[index % ORB_COLORS.length]);
+      void PBRMaterial;
       material.emissiveColor = color.scale(1.1);
       material.diffuseColor = color.scale(0.6);
       material.specularColor = color.scale(0.3);
@@ -218,7 +252,7 @@ export default function DREAMenginOS({
               mesh.getAbsolutePosition(),
             );
           }
-        });
+        }
       }
 
       neural.velocity *= 0.95;
@@ -229,7 +263,7 @@ export default function DREAMenginOS({
     await syncNeuralBus();
     setSystemStatus('DREAM_V9_ACTIVE');
     onReady?.(scene);
-  }, [highlightedFamilies, onReady]);
+  }, [highlightedFamilies, onReady, syncNeuralBus]);
 
   useEffect(() => {
     const dispatcher = EnginDispatcher.getInstance();
@@ -299,6 +333,8 @@ export default function DREAMenginOS({
       : systemStatus === 'OFFLINE'
         ? '#ff4444'
         : '#e8c040';
+  const hudColor = neuralRef.current.color || statusColor;
+  const hudMode = dominantRegion ? `${dominantRegion} focus` : 'dual runtime';
 
   const livePeerCount = peerStates.filter((peer) => peer.subscriberCount > 0 || peer.lastActivityAt).length;
   const primaryContexts = runtimeContexts.slice(0, 2);

@@ -1,5 +1,9 @@
 # DREAMengin — Naming Authority
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 **Status: LOCKED — Phase 7 Final Authority + OS-Layer Naming Model**
 Last updated: 2026-03-16
 

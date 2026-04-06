@@ -1,5 +1,9 @@
 # DreamDMessaging + DreamDM Bar — Phase 2
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 **Document type:** Implementation spec  
 **Scope:** DreamDMessaging and DreamDM Bar — shared messaging/search architecture  
 **Status:** Active  

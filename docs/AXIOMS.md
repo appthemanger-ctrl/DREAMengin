@@ -1,5 +1,9 @@
 # DREAMengin Axioms
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Status: active alignment axioms  
 Last updated: 2026-03-16
 

@@ -8,6 +8,7 @@ import NotificationCenter from '@/components/NotificationCenter';
 import HomeFeed from '@/components/HomeFeed';
 import BrandLogo from '@/components/BrandLogo';
 import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
+import ActiveModuleSurface from '@/components/home/ActiveModuleSurface';
 import DreamRSection from '@/components/dreamr/DreamRSection';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
@@ -84,6 +85,7 @@ export default function WorkspaceDashboard({
   onOpenDrEams,
   onOpenDreamSpace,
   onOpenUrl,
+  userId,
 }: WorkspaceDashboardProps) {
   const router = useRouter();
   const [notifOpen,    setNotifOpen]    = useState(false);
@@ -125,11 +127,16 @@ export default function WorkspaceDashboard({
       style={{
         minHeight: '100%',
         width: '100%',
+        // ActiveModuleSurface uses absolute positioning so HomeDream needs a
+        // containing stacking context for live modular windows and ghost previews.
+        position: 'relative',
         paddingBottom: isCompactViewport
           ? 'calc(env(safe-area-inset-bottom, 0px) + 168px)'
           : 'calc(env(safe-area-inset-bottom, 0px) + 132px)',
       }}
     >
+      <ActiveModuleSurface accountId={userId ?? profile?.id} />
+
       {/* ── Sticky header bar ──────────────────────────────────────────────── */}
       <div
         className="de-surface"
@@ -322,6 +329,23 @@ export default function WorkspaceDashboard({
             </div>
             <div style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.65, maxWidth: 680, marginBottom: 12 }}>
               {DREAMR_MANIFESTO.title} {DREAMR_MANIFESTO.detail}
+            </div>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '8px 12px',
+                borderRadius: 999,
+                background: 'rgba(200,152,26,0.10)',
+                border: '1px solid rgba(200,152,26,0.18)',
+                color: '#8a6720',
+                fontSize: 11,
+                fontWeight: 700,
+                marginBottom: 12,
+              }}
+            >
+              Drop a DreamSpace artifact on HomeDream to create a live modular window.
             </div>
             <div className="de-toolbar">
               <QuickLink label="Edit ProfileDream" onClick={() => openPage('/edit-profiledream', 'Edit ProfileDream')} />

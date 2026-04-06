@@ -1,5 +1,9 @@
 # DREAMengin Policy Test Notes
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Last updated: 2026-03-06
 
 This file records the policy boundaries that should be preserved while the repo is aligned to the README.

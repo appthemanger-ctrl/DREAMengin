@@ -1,5 +1,9 @@
 # DREAMengin Elite Game Engine — 2026
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 The **Elite Game Engine** is DREAMengin's WebGPU-first, AI-powered, ECS-driven
 web browser game runtime. It combines the best features of modern game engines
 into a ridiculously capable piece of browser machinery.

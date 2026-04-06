@@ -1,5 +1,9 @@
 # Decentralized Social Media Aggregator - Frontend
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 ![Demo Screenshot](https://i.imgur.com/mX8pzQl.png)
 
 ## Overview

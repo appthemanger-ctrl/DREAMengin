@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DREAMengin Module Loader</title>
+    <style>
+      html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #07111f;
+        color: #f4f7fb;
+        font-family: system-ui, sans-serif;
+      }
+      #status {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        letter-spacing: 0.01em;
+      }
+    </style>
+    <script>
+      window.initialState = {};
+
+      window.emitArtifact = function emitArtifact(artifact) {
+        window.parent.postMessage({ type: 'new-artifact', artifact }, '*');
+      };
+
+      function resolveSafeModuleUrl(input) {
+        try {
+          var url = new URL(input, window.location.origin);
+          var isSameOrigin = url.origin === window.location.origin;
+          var isJavaScriptFile = url.pathname.endsWith('.js');
+          return isSameOrigin && isJavaScriptFile ? url.toString() : null;
+        } catch (_error) {
+          return null;
+        }
+      }
+
+      window.addEventListener('message', function onMessage(event) {
+        if (!event.data || event.data.type !== 'init') return;
+
+        var status = document.getElementById('status');
+        window.initialState = event.data.state || {};
+
+        if (!event.data.moduleUrl) {
+          if (status) status.textContent = 'Module loader is ready.';
+          return;
+        }
+
+        var safeModuleUrl = resolveSafeModuleUrl(event.data.moduleUrl);
+        if (!safeModuleUrl) {
+          if (status) status.textContent = 'Blocked unsafe module URL.';
+          return;
+        }
+
+        if (status) status.textContent = 'Loading module…';
+
+        var script = document.createElement('script');
+        script.src = safeModuleUrl;
+        script.async = true;
+        script.onload = function () {
+          if (status) status.textContent = 'Module loaded.';
+        };
+        script.onerror = function () {
+          if (status) status.textContent = 'Failed to load module.';
+        };
+        document.body.appendChild(script);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="status">Module loader ready.</div>
+  </body>
+</html>

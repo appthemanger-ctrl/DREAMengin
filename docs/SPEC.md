@@ -1,5 +1,9 @@
 # DREAMengin Repo Companion Spec
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Status: active companion document  
 Last updated: 2026-03-16
 

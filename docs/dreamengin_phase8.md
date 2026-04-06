@@ -1,5 +1,9 @@
 # DREAMengin — Phase 8
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 ## Real Runtime Completion
 
 **Status:** Active build phase  

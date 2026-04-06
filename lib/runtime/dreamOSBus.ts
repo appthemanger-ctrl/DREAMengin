@@ -2,9 +2,10 @@ import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import { AI_AGENTS, type RuntimeRegion } from '@/lib/identity/canonical-names';
 import {
   bridge,
-  type BridgeEmission,
+  type AnyBridgeEmission,
   type DualRuntimeChannel,
 } from '@/lib/runtime/dualRuntimeBridge';
+import type { DreamArtifactBusEventMap } from '@/types/dreamArtifact';
 
 export type DreamOSArtifactKind =
   | 'event'
@@ -51,6 +52,10 @@ export interface DreamOSSnapshot {
 }
 
 type SnapshotListener = (snapshot: DreamOSSnapshot) => void;
+type DreamOSCustomEventName = keyof DreamArtifactBusEventMap;
+type DreamOSCustomEventHandler<K extends DreamOSCustomEventName> = (
+  payload: DreamArtifactBusEventMap[K],
+) => void;
 
 const MAX_ARTIFACTS = 48;
 
@@ -105,7 +110,7 @@ function worldToSubsystemId(world: RuntimeWorld): string {
     if (world === 'DreamSpace') return 'dreamspace';
     if (world === 'HomeDream Surface') return 'home';
     if (world === 'View Profile Surface') return 'profile';
-    return world.toLowerCase().replace(/\s+/g, '-');
+    return String(world).toLowerCase().replace(/\s+/g, '-');
   }
   if (world.type === 'engin') return world.name;
   if (world.type === 'dream') return `dream:${world.id}`;
@@ -129,6 +134,10 @@ class DreamOSBusImpl {
   private readonly artifacts = new Map<string, DreamOSSharedArtifact>();
   private readonly runtimeContexts = new Map<RuntimeRegion, DreamOSRuntimeContext>();
   private readonly listeners = new Set<SnapshotListener>();
+  private readonly customEventListeners = new Map<
+    DreamOSCustomEventName,
+    Set<(payload: DreamArtifactBusEventMap[DreamOSCustomEventName]) => void>
+  >();
 
   constructor() {
     bridge.subscribeEventActivity((emission) => {
@@ -162,6 +171,35 @@ class DreamOSBusImpl {
     };
   }
 
+  emit<K extends DreamOSCustomEventName>(event: K, payload: DreamArtifactBusEventMap[K]): void {
+    const listeners = this.customEventListeners.get(event);
+    if (!listeners || listeners.size === 0) return;
+    for (const listener of Array.from(listeners)) {
+      try {
+        listener(payload);
+      } catch (error) {
+        console.error(`[DreamOSBus] custom event listener error for ${event}`, error);
+      }
+    }
+  }
+
+  on<K extends DreamOSCustomEventName>(
+    event: K,
+    handler: DreamOSCustomEventHandler<K>,
+  ): () => void {
+    const listeners = this.customEventListeners.get(event) ?? new Set();
+    listeners.add(handler as (payload: DreamArtifactBusEventMap[DreamOSCustomEventName]) => void);
+    this.customEventListeners.set(event, listeners);
+    return () => {
+      const existing = this.customEventListeners.get(event);
+      if (!existing) return;
+      existing.delete(handler as (payload: DreamArtifactBusEventMap[DreamOSCustomEventName]) => void);
+      if (existing.size === 0) {
+        this.customEventListeners.delete(event);
+      }
+    };
+  }
+
   getSnapshot(): DreamOSSnapshot {
     return {
       artifacts: Array.from(this.artifacts.values()).sort((a, b) => b.updatedAt - a.updatedAt),
@@ -175,7 +213,7 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  recordBridgeEmission(emission: BridgeEmission): void {
+  recordBridgeEmission(emission: AnyBridgeEmission): void {
     this.upsertArtifact({
       id: `bridge:${emission.channel}:${String(emission.event)}:${emission.emittedAt}`,
       kind: 'event',

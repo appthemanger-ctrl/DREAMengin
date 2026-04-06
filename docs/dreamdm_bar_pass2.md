@@ -1,5 +1,9 @@
 # DreamDM Bar — Pass 2
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 **Document type:** Implementation spec  
 **Scope:** DreamDM (`/messages`) enhancement pass  
 **Status:** Active — implements Phase 6 item 4 (Dr. Eams → DreamDM routing)  

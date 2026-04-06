@@ -1,5 +1,9 @@
 # Gold Button Attachment & Dual Runtime System
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 ## Overview
 
 This document describes the implementation of the corrected Gold Button attachment behavior and the new dual runtime system in DREAMengin.

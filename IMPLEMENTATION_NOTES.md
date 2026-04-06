@@ -1,5 +1,9 @@
 # Landing Page Updates - Implementation Notes
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 ## Completed Tasks
 
 ### 1. ✅ Removed Links from Platform Icons

@@ -1,5 +1,9 @@
 # DREAMengin — Full System Specification
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Next.js 16+ / Supabase / DreamDM-Bar-Led / Privacy-First Spatial Operating Environment  
 Author: José Mancilla  
 Date: March 24, 2026

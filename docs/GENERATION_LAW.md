@@ -1,5 +1,9 @@
 # Generation Law
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Status: binding AI build constraint  
 Last updated: 2026-03-16
 

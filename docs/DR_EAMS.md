@@ -1,5 +1,9 @@
 # Dr. Eams
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Status: active triad surface  
 Last updated: 2026-03-16
 

@@ -1,5 +1,9 @@
 # DualSense Integration Testing Checklist
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 ## Manual Testing
 
 ### Desktop Testing (USB/Bluetooth)

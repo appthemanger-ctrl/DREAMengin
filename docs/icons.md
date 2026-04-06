@@ -1,5 +1,9 @@
 # DREAMengin Icons
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Last updated: 2026-03-06
 
 This document tracks the sprite-sheet driven icon set used for Dreams, connectors, and supporting surfaces.

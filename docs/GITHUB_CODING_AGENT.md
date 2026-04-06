@@ -1,5 +1,9 @@
 # GitHub Coding Agent
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 This repo includes a **report-driven GitHub coding agent** at:
 
 - `.github/workflows/report-driven-coding-agent.yml`

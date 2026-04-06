@@ -24,6 +24,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const BUGS_OUT = resolve(ROOT, 'docs/BUGS.md');
+const DOC_OWNER = 'José Mancilla (appthemanger-ctrl)';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -139,6 +140,8 @@ function buildHeader() {
 > **Do not edit manually** — your changes will be overwritten on the next push.  
 > To change what appears here, update \`docs/FEATURE_STATUS.md\` or the source code.
 
+**Documentation Owner:** ${DOC_OWNER}  
+**Documentation Date:** ${utcDate}  
 **Last updated:** ${utcDate}  
 **Triggered by commit:** \`${sha}\` on \`${branch}\` by ${actor}  
 **Commit message:** ${message || '(no message)'}`;

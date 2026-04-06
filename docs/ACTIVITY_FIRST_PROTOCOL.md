@@ -1,5 +1,9 @@
 # DREAMengin — Activity-First Protocol & Monetization
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 **Status:** Active — Canonical Platform Law  
 **Author:** José Mancilla  
 **Date:** 2026-03-25  

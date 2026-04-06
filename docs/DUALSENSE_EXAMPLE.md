@@ -1,5 +1,9 @@
 # DualSense Integration Example
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 This example shows how to add haptic feedback to the Racing Game using the new DualSense support.
 
 ## Before (No Haptics)

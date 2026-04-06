@@ -175,7 +175,14 @@ export interface BridgeEmission<
   emittedAt: number;
 }
 
-export type BridgeEventObserver = (emission: BridgeEmission) => void;
+export interface AnyBridgeEmission {
+  channel: DualRuntimeChannel;
+  event: string;
+  payload: unknown;
+  emittedAt: number;
+}
+
+export type BridgeEventObserver = (emission: AnyBridgeEmission) => void;
 
 // ─── Singleton event bus ──────────────────────────────────────────────────────
 
@@ -235,12 +242,14 @@ class DualRuntimeBridgeImpl {
       this.notifyPeerObservers();
     }
 
+    // The observer interface is intentionally channel-agnostic, so the emitted
+    // object is widened here before broadcasting to global observers.
     this.notifyEventObservers({
       channel,
       event,
       payload,
       emittedAt,
-    });
+    } as BridgeEmission<C, K>);
 
     const channelListeners = this.listeners.get(channel);
     if (!channelListeners) return;
@@ -382,7 +391,7 @@ class DualRuntimeBridgeImpl {
     }
   }
 
-  private notifyEventObservers(emission: BridgeEmission): void {
+  private notifyEventObservers(emission: AnyBridgeEmission): void {
     if (this.eventObservers.size === 0) return;
     for (const observer of Array.from(this.eventObservers)) {
       try {
