@@ -91,10 +91,6 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 
 ---
 
-### ⚠️ Pre-existing Issues (do not fix unless explicitly asked)
-
-- **4 failing tests** in `tests/dreamdm-bar-interactions.test.ts` (`snapSplitRatioOnRelease` suite) — known mismatch, pre-existing
-- **~29 ESLint warnings** (prefer-const, no-img-element, alt-text) — intentional per `eslint.config.mjs`
 
 ---
 
