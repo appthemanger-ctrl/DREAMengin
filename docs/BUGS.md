@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 09:05 UTC  
-**Last updated:** 2026-04-06 09:05 UTC  
-**Triggered by commit:** `fe8f369` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #465 from appthemanger-ctrl/copilot/add-hybrid-3d-overlay-engine
+**Documentation Date:** 2026-04-06 10:01 UTC  
+**Last updated:** 2026-04-06 10:01 UTC  
+**Triggered by commit:** `7d5f199` on `copilot/update-readme-dreamengin-spec` by Copilot  
+**Commit message:** docs: refresh README spec snapshot and merge automation
 
 ---
 
