@@ -48,6 +48,7 @@ import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
+import { buildLedgerMediaUrl } from '@/lib/media/ledger';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
@@ -547,11 +548,21 @@ export default function GameEngin({ onBack }: Props) {
     physicsConfig?: PhysicsConfig;
     scriptState?: ScriptState;
   };
+  type MusicSavedState = {
+    ledgerAudio?: {
+      bucket: 'audio';
+      storagePath: string;
+      mediaUrl: string;
+      fileName: string;
+      mimeType: string;
+    } | null;
+  };
   const {
     savedState: savedGameState,
     isRestoring: gameRestoring,
     persistState: persistGameState,
   } = useDaydreamPersistence<GameSavedState>({ daydreamType: 'games' });
+  const { savedState: savedMusicState } = useDaydreamPersistence<MusicSavedState>({ daydreamType: 'music' });
 
   const gameRestoredRef = useRef(false);
 
@@ -570,8 +581,17 @@ export default function GameEngin({ onBack }: Props) {
     if (gameRestoring) return;
     persistGameState({ worldGrid, worldName, physicsConfig, scriptState });
   // persistGameState is stable (useCallback); eslint-disable-next-line
-   
+    
   }, [worldGrid, worldName, physicsConfig, scriptState, gameRestoring]);
+
+  const syncedMusicClip = savedMusicState?.ledgerAudio ?? null;
+  const crossEnginChannels = CROSS_ENGIN_CHANNELS.map((engin) => {
+    if (engin.name !== 'Music' || !syncedMusicClip) return engin;
+    return {
+      ...engin,
+      status: `Synced clip ready · ${syncedMusicClip.fileName}`,
+    };
+  });
 
   // Restore controller profile preference and saved GameEngin sessions.
   useEffect(() => {
@@ -1997,7 +2017,7 @@ export default function GameEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {CROSS_ENGIN_CHANNELS.map(engin => (
+              {crossEnginChannels.map(engin => (
                 <div
                   key={engin.name}
                   style={{
@@ -2027,6 +2047,14 @@ export default function GameEngin({ onBack }: Props) {
                   >
                     ● {engin.status}
                   </span>
+                  {engin.name === 'Music' && syncedMusicClip ? (
+                    <audio
+                      controls
+                      preload="none"
+                      src={buildLedgerMediaUrl(syncedMusicClip.bucket, syncedMusicClip.storagePath)}
+                      style={{ maxWidth: 220 }}
+                    />
+                  ) : null}
                 </div>
               ))}
             </div>

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { encodeUint8ArrayToLedgerString } from '@/lib/media/ledger';
 
 /**
  * THE FLOW:
@@ -17,11 +18,14 @@ export const saveEngineAsset = async (
   const user = (await supabase.auth.getUser()).data.user;
   if (!user) return { error: 'Not authenticated' };
 
-  // Encode binary blobs as base64 strings for Supabase storage (browser-safe)
-  const uint8ToBase64 = (bytes: Uint8Array): string =>
-    btoa(String.fromCharCode(...bytes));
-  const meshBase64 = uint8ToBase64(wasm_output.mesh);
-  const rigBase64 = uint8ToBase64(wasm_output.rig);
+  const meshBase64 = encodeUint8ArrayToLedgerString(wasm_output.mesh, {
+    mimeType: 'application/octet-stream',
+    fileName: `${label}-mesh.bin`,
+  });
+  const rigBase64 = encodeUint8ArrayToLedgerString(wasm_output.rig, {
+    mimeType: 'application/octet-stream',
+    fileName: `${label}-rig.bin`,
+  });
 
   // 1. Save the Asset + Moving Parts (Binary)
   const { data: asset, error } = await supabase

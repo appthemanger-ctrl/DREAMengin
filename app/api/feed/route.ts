@@ -22,6 +22,7 @@
 //   sort     — "recent" (default) | "trending" (by likes_count on posts)
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { createServerClient } from '@/lib/supabase/server';
 
 
@@ -113,11 +114,11 @@ export async function GET(req: NextRequest) {
     const authorIds   = [user.id, ...followedIds];
 
     let q = db
-      .from('app_posts')
-      .select(
-        'id, content, visibility, media_url, created_at, likes_count, comments_count, ' +
-        'profiles!inner(handle, display_name, avatar_url)'
-      )
+        .from('app_posts')
+        .select(
+          'id, content, visibility, media_url, media_urls, media_json, created_at, likes_count, comments_count, ' +
+          'profiles!inner(handle, display_name, avatar_url)'
+        )
       .in('user_id', authorIds)
       .eq('visibility', 'public')
       .order('created_at', { ascending: false })
@@ -141,7 +142,7 @@ export async function GET(req: NextRequest) {
           author_name:   profile.display_name ?? profile.handle,
           author_avatar: profile.avatar_url ?? null,
           content_text:  p.content,
-          media:         p.media_url ? [{ url: p.media_url, type: 'image' }] : [],
+          media:         getPrimaryPostMediaUrl(p) ? [{ url: getPrimaryPostMediaUrl(p)!, type: 'image' }] : [],
           published_at:  p.created_at,
           created_at:    p.created_at,
           likes_count:   p.likes_count ?? 0,

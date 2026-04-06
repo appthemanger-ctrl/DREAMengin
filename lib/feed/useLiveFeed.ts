@@ -30,6 +30,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import type { RealtimePostgresInsertPayload } from '@supabase/supabase-js';
 
 // ── Public types ───────────────────────────────────────────────────────────────
@@ -150,11 +151,11 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
 
           // Hydrate the profile join with a single-row fetch
           // (the realtime payload does not include joined columns)
-          const { data } = await supabase
-            .from('app_posts')
-            .select('id, content, visibility, media_url, created_at, likes_count, comments_count, profiles!inner(handle, display_name, avatar_url)')
-            .eq('id', postId)
-            .single();
+            const { data } = await supabase
+              .from('app_posts')
+              .select('id, content, visibility, media_url, media_urls, media_json, created_at, likes_count, comments_count, profiles!inner(handle, display_name, avatar_url)')
+              .eq('id', postId)
+              .single();
 
           if (!data) return;
            
@@ -164,7 +165,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
             id:             d.id,
             content:        d.content        ?? '',
             visibility:     d.visibility     ?? 'public',
-            media_url:      d.media_url      ?? null,
+            media_url:      getPrimaryPostMediaUrl(d),
             created_at:     d.created_at,
             likes_count:    d.likes_count    ?? 0,
             comments_count: d.comments_count ?? 0,

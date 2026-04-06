@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { X, Image as ImageIcon, Video, Music, Send, Loader2, Check, Trash2 } from 'lucide-react';
 
 interface CreatePostModalProps {
@@ -72,25 +73,21 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
 
     const bucket = bucketMap[media.type || 'image'] || 'files';
     const ext = media.file.name.split('.').pop();
-    const filename = `${userId}/posts/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+    const filename = `${userId}/posts/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filename, media.file, {
-        cacheControl: '3600',
-        upsert: false,
+    try {
+      const upload = await uploadBlobToLedgerStorage(supabase, {
+        bucket,
+        storagePath: filename,
+        blob: media.file,
+        fileName: media.file.name,
+        mimeType: media.file.type,
       });
-
-    if (uploadError) {
+      return upload.mediaUrl;
+    } catch (uploadError) {
       console.error('Upload error:', uploadError);
-      throw new Error(`Failed to upload ${media.file.name}: ${uploadError.message}`);
+      throw new Error(`Failed to upload ${media.file.name}: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`);
     }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filename);
-
-    return publicUrl;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -60,6 +60,7 @@ import { useDreamDMMessages }                    from '@/lib/dreamdm/useDreamDMM
 import { useDreamDMDraft }                        from '@/lib/dreamdm/useDreamDMDraft';
 import { useDreamSearch, type SearchResult }      from '@/lib/dreamdm/useDreamSearch';
 import { useMessagingCore, type MediaType }       from '@/lib/dreamdm/useMessagingCore';
+import { uploadBlobToLedgerStorage }              from '@/lib/media/ledger';
 import { useNotifications }                       from '@/lib/dreamdm/useNotifications';
 import { useDreamDMConversations,
   type DMConversation,
@@ -1076,12 +1077,19 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                          : file.type.startsWith('video/') ? 'videos'
                          : 'files';
             const ext = file.name.split('.').pop();
-            const filename = `${userId}/comments/${Date.now()}-${crypto.randomUUID()}.${ext}`;
-            const { error: uploadError } = await supabase.storage
-              .from(bucket).upload(filename, file, { cacheControl: '3600', upsert: false });
-            if (!uploadError) {
-              const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filename);
-              mediaUrls.push(publicUrl);
+            const filename = `${userId}/comments/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
+            try {
+              const upload = await uploadBlobToLedgerStorage(supabase, {
+                bucket,
+                storagePath: filename,
+                blob: file,
+                fileName: file.name,
+                mimeType: file.type,
+              });
+              mediaUrls.push(upload.mediaUrl);
+            } catch (uploadError) {
+              console.error('[DreamBar] Comment media upload failed:', uploadError);
+              alert(`Comment media upload failed for ${file.name}. Please try again.`);
             }
           }
         }
@@ -1159,20 +1167,20 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                          : file.type.startsWith('video/') ? 'videos'
                          : 'files';
             const ext = file.name.split('.').pop();
-            const filename = `${userId}/posts/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+            const filename = `${userId}/posts/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
 
-            const { error: uploadError } = await supabase.storage
-              .from(bucket)
-              .upload(filename, file, {
-                cacheControl: '3600',
-                upsert: false,
+            try {
+              const upload = await uploadBlobToLedgerStorage(supabase, {
+                bucket,
+                storagePath: filename,
+                blob: file,
+                fileName: file.name,
+                mimeType: file.type,
               });
-
-            if (!uploadError) {
-              const { data: { publicUrl } } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(filename);
-              mediaUrls.push(publicUrl);
+              mediaUrls.push(upload.mediaUrl);
+            } catch (uploadError) {
+              console.error('[DreamBar] Feed media upload failed:', uploadError);
+              alert(`Post media upload failed for ${file.name}. Please try again.`);
             }
           }
         }

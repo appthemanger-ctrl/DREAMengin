@@ -17,6 +17,7 @@
  */
 
 import { createClient } from '@/lib/supabase/client';
+import { decodeLedgerStringToUint8Array, encodeUint8ArrayToLedgerString } from '@/lib/media/ledger';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -50,16 +51,6 @@ export interface WasmOutput {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-/** Encode a Uint8Array to a base64 string for BYTEA transport over the REST API. */
-function uint8ToBase64(bytes: Uint8Array): string {
-  const chunkSize = 8192;
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-  return btoa(binary);
-}
-
 // ── DreamEngine ───────────────────────────────────────────────────────────────
 
 export const DreamEngine = {
@@ -84,8 +75,14 @@ export const DreamEngine = {
         label,
         source_image_url: imageUrl,
         config_dna: wasmOutput.dna,
-        wasm_mesh_data: uint8ToBase64(wasmOutput.mesh),
-        wasm_rig_data: uint8ToBase64(wasmOutput.rig),
+        wasm_mesh_data: encodeUint8ArrayToLedgerString(wasmOutput.mesh, {
+          mimeType: 'application/octet-stream',
+          fileName: `${label}-mesh.bin`,
+        }),
+        wasm_rig_data: encodeUint8ArrayToLedgerString(wasmOutput.rig, {
+          mimeType: 'application/octet-stream',
+          fileName: `${label}-rig.bin`,
+        }),
       }])
       .select()
       .single();
@@ -161,5 +158,10 @@ export const DreamEngine = {
 
     if (error) return [];
     return (data ?? []) as GlobalRegistryEntry[];
+  },
+
+  decodeAssetBinary(encoded: string | null): Uint8Array | null {
+    if (!encoded) return null;
+    return decodeLedgerStringToUint8Array(encoded);
   },
 };

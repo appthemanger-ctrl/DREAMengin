@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { useContent, useAlbums, useShareToProfile } from "@/hooks/use-spatial";
+import { uploadBlobToLedgerStorage } from "@/lib/media/ledger";
 import type { Album, ContentObject, ContentType, ShareIntent, WidgetType } from "@/types/spatial";
 import { cn } from "@/lib/utils";
 
@@ -767,27 +768,20 @@ function UploadModal({
     
     const bucket = bucketMap[contentType] || "files";
     const ext = file.name.split(".").pop();
-    const filename = `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+    const filename = `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filename, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.error("Upload error:", uploadError);
-      throw new Error(`Failed to upload file: ${uploadError.message}`);
-    }
+    const upload = await uploadBlobToLedgerStorage(supabase, {
+      bucket,
+      storagePath: filename,
+      blob: file,
+      fileName: file.name,
+      mimeType: file.type,
+      cacheControl: "3600",
+      upsert: false,
+    });
 
     setUploadProgress("Getting file URL...");
-
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filename);
-
-    return publicUrl;
+    return upload.mediaUrl;
   };
 
   const handleSubmit = async () => {
@@ -811,7 +805,8 @@ function UploadModal({
         title: title || undefined,
         description: description || undefined,
         text_content: contentType === "text" ? textContent : undefined,
-        external_url: contentType === "link" || contentType === "embed" ? externalUrl : fileUrl || undefined,
+        storage_url: contentType === "link" || contentType === "embed" ? undefined : fileUrl || undefined,
+        external_url: contentType === "link" || contentType === "embed" ? externalUrl : undefined,
         metadata: {
           file_name: selectedFile?.name,
           file_size: selectedFile?.size,

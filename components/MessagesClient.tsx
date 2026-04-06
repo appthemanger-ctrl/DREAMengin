@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { formatRelativeTime } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
+import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { useDreamDMMessages } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamDMDraft } from '@/lib/dreamdm/useDreamDMDraft';
 import { useDreamSearch } from '@/lib/dreamdm/useDreamSearch';
@@ -174,24 +175,17 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
 
     const bucket = bucketMap[fileType];
     const ext = file.name.split('.').pop();
-    const filename = `${userId}/messages/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+    const filename = `${userId}/messages/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
 
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(filename, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+    const upload = await uploadBlobToLedgerStorage(supabase, {
+      bucket,
+      storagePath: filename,
+      blob: file,
+      fileName: file.name,
+      mimeType: file.type,
+    });
 
-    if (error) {
-      throw new Error(`Failed to upload file: ${error.message}`);
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filename);
-
-    return publicUrl;
+    return upload.mediaUrl;
   };
 
   const handleMessageChange = (value: string) => {

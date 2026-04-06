@@ -17,6 +17,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { rankFeed, type ScoredPost } from '@/lib/dreamr/dreamrAlgorithm';
+import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 
 export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest) {
 
   const { data: rows, error } = await db
     .from('app_posts')
-    .select('id, content, visibility, media_url, created_at, views_count, likes_count, comments_count, profiles!inner(handle, display_name, avatar_url)')
+    .select('id, content, visibility, media_url, media_urls, media_json, created_at, likes_count, comments_count, profiles!inner(handle, display_name, avatar_url)')
     .eq('visibility', 'public')
     .order('views_count', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
   const posts: ScoredPost[] = (rows ?? []).map((r: any) => ({
     id:            r.id,
     content:       r.content ?? '',
-    media_url:     r.media_url ?? null,
+    media_url:     getPrimaryPostMediaUrl(r),
     created_at:    r.created_at,
     views_count:   r.views_count   ?? 0,
     likes_count:   r.likes_count   ?? 0,

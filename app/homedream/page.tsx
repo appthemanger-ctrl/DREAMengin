@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import HomeSystem from '@/components/home/HomeSystem';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { isDevBypassActive } from '@/lib/dev-bypass';
+import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { connection } from 'next/server';
 
 
@@ -87,7 +88,10 @@ export default async function Home() {
       .order('created_at', { ascending: false })
       .limit(30);
 
-    posts = postsData || [];
+    posts = (postsData || []).map((post: any) => ({
+      ...post,
+      media_url: getPrimaryPostMediaUrl(post),
+    }));
 
     // Attach connector feed items to the posts array under a normalised shape
     // so WorkspaceDashboard / HomeFeed can render them uniformly.

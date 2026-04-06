@@ -29,6 +29,7 @@ import { useYouTubeLiveFeed } from '@/lib/feed/useYouTubeLiveFeed';
 import FeedVideoCard from '@/components/feed/FeedVideoCard';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { createClient } from '@/lib/supabase/client';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 import EditableAvatar from '@/components/profile/EditableAvatar';
@@ -232,13 +233,15 @@ export default function HomeFeed({
         const supabase = createClient();
         for (const img of selectedImages) {
           const ext = img.file.name.split('.').pop() ?? 'jpg';
-          const filename = `${userId}/posts/${Date.now()}-${crypto.randomUUID()}.${ext}`;
-          const { error: uploadErr } = await supabase.storage
-            .from('images')
-            .upload(filename, img.file, { cacheControl: '3600', upsert: false });
-          if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
-          const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filename);
-          mediaUrls.push(publicUrl);
+          const filename = `${userId}/posts/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
+          const upload = await uploadBlobToLedgerStorage(supabase, {
+            bucket: 'images',
+            storagePath: filename,
+            blob: img.file,
+            fileName: img.file.name,
+            mimeType: img.file.type,
+          });
+          mediaUrls.push(upload.mediaUrl);
         }
       }
 
