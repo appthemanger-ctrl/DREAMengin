@@ -21,7 +21,7 @@ Date: March 24, 2026
 ### What This Repo Is
 
 DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+** (App Router),
-**TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 8+**.
+**TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 9+**.
 It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
 Author: José Mancilla · pnpm 10.30.0 · Node 24
 
@@ -91,10 +91,6 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 
 ---
 
-### ⚠️ Pre-existing Issues (do not fix unless explicitly asked)
-
-- **4 failing tests** in `tests/dreamdm-bar-interactions.test.ts` (`snapSplitRatioOnRelease` suite) — known mismatch, pre-existing
-- **~29 ESLint warnings** (prefer-const, no-img-element, alt-text) — intentional per `eslint.config.mjs`
 
 ---
 
