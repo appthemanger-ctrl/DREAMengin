@@ -26,4 +26,25 @@ describe('Dual runtime bridge peer activity observers', () => {
       (snapshot.find((peer) => peer.channel === 'code')?.lastActivityAt ?? 0) > 0,
     )).toBe(true);
   });
+
+  it('publishes event emissions to global observers', () => {
+    const emissions: Array<{ channel: string; event: string }> = [];
+    const unsubscribe = bridge.subscribeEventActivity((emission) => {
+      emissions.push({ channel: emission.channel, event: emission.event });
+    });
+
+    bridge.emit('music', 'music:bpm-changed', { bpm: 128, trackId: 'track-1' });
+    bridge.emit('create', 'create:draft-saved', {
+      draftId: 'draft-1',
+      contentType: 'text',
+      title: 'hello',
+    });
+
+    unsubscribe();
+
+    expect(emissions).toEqual([
+      { channel: 'music', event: 'music:bpm-changed' },
+      { channel: 'create', event: 'create:draft-saved' },
+    ]);
+  });
 });

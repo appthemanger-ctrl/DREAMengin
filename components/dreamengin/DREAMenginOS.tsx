@@ -512,6 +512,11 @@ export default function DREAMenginOS({
                   <div style={{ marginTop: 2, color: '#fff6cf' }}>
                     {artifact.sourceSubsystem} ↔ {artifact.relatedSubsystems.join(' / ')}
                   </div>
+                  {'event' in artifact.payload ? (
+                    <div style={{ marginTop: 2, color: '#9edcc9' }}>
+                      {String(artifact.payload.channel)} · {String(artifact.payload.event)}
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>

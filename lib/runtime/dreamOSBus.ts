@@ -1,7 +1,13 @@
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
-import type { RuntimeRegion } from '@/lib/identity/canonical-names';
+import { AI_AGENTS, type RuntimeRegion } from '@/lib/identity/canonical-names';
+import {
+  bridge,
+  type BridgeEmission,
+  type DualRuntimeChannel,
+} from '@/lib/runtime/dualRuntimeBridge';
 
 export type DreamOSArtifactKind =
+  | 'event'
   | 'code-run'
   | 'code-output'
   | 'lab-run'
@@ -46,6 +52,54 @@ export interface DreamOSSnapshot {
 
 type SnapshotListener = (snapshot: DreamOSSnapshot) => void;
 
+const MAX_ARTIFACTS = 48;
+
+function channelToSubsystem(channel: DualRuntimeChannel): string {
+  switch (channel) {
+    case 'music':
+      return 'StarMakerEngin';
+    case 'games':
+      return 'GameEngin';
+    case 'lab':
+      return 'LabEngin';
+    case 'code':
+      return 'CodeEngin';
+    case 'brand':
+      return 'BrandingEngin';
+    case 'create':
+      return 'ContentEngin';
+    default:
+      return channel;
+  }
+}
+
+function relatedSubsystemsForChannel(channel: DualRuntimeChannel): readonly string[] {
+  switch (channel) {
+    case 'music':
+      return ['GameEngin', 'ContentEngin', 'BrandingEngin', AI_AGENTS.DR_EAMS];
+    case 'games':
+      return ['ContentEngin', 'BrandingEngin', 'CodeEngin', AI_AGENTS.DR_EAMS];
+    case 'lab':
+      return ['CodeEngin', 'ContentEngin', AI_AGENTS.DR_EAMS];
+    case 'code':
+      return ['LabEngin', 'GameEngin', 'ContentEngin', AI_AGENTS.DR_EAMS];
+    case 'brand':
+      return ['ContentEngin', 'GameEngin', AI_AGENTS.DR_EAMS];
+    case 'create':
+      return ['BrandingEngin', 'GameEngin', 'StarMakerEngin', AI_AGENTS.DR_EAMS];
+    default:
+      return [AI_AGENTS.DR_EAMS];
+  }
+}
+
+function formatEventTitle(event: string): string {
+  return event
+    .split(':')
+    .map((segment) => segment.replace(/-/g, ' '))
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' · ');
+}
+
 function worldToSubsystemId(world: RuntimeWorld): string {
   if (typeof world === 'string') {
     if (world === 'DreamSpace') return 'dreamspace';
@@ -75,6 +129,12 @@ class DreamOSBusImpl {
   private readonly artifacts = new Map<string, DreamOSSharedArtifact>();
   private readonly runtimeContexts = new Map<RuntimeRegion, DreamOSRuntimeContext>();
   private readonly listeners = new Set<SnapshotListener>();
+
+  constructor() {
+    bridge.subscribeEventActivity((emission) => {
+      this.recordBridgeEmission(emission);
+    });
+  }
 
   upsertArtifact(input: Omit<DreamOSSharedArtifact, 'updatedAt'> & { updatedAt?: number }): void {
     this.artifacts.set(input.id, {
@@ -115,7 +175,36 @@ class DreamOSBusImpl {
     this.notify();
   }
 
+  recordBridgeEmission(emission: BridgeEmission): void {
+    this.upsertArtifact({
+      id: `bridge:${emission.channel}:${String(emission.event)}:${emission.emittedAt}`,
+      kind: 'event',
+      title: formatEventTitle(String(emission.event)),
+      sourceSubsystem: channelToSubsystem(emission.channel),
+      relatedSubsystems: relatedSubsystemsForChannel(emission.channel),
+      payload: {
+        channel: emission.channel,
+        event: emission.event,
+        emittedAt: emission.emittedAt,
+        ...(emission.payload as Record<string, unknown>),
+      },
+      updatedAt: emission.emittedAt,
+    });
+  }
+
   private notify(): void {
+    while (this.artifacts.size > MAX_ARTIFACTS) {
+      let oldest: string | null = null;
+      let oldestTimestamp = Number.POSITIVE_INFINITY;
+      for (const [artifactId, artifact] of this.artifacts.entries()) {
+        if (artifact.updatedAt < oldestTimestamp) {
+          oldest = artifactId;
+          oldestTimestamp = artifact.updatedAt;
+        }
+      }
+      if (!oldest) break;
+      this.artifacts.delete(oldest);
+    }
     const snapshot = this.getSnapshot();
     for (const listener of Array.from(this.listeners)) {
       try {

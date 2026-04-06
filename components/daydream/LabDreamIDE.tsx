@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
 import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
-import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -270,14 +269,6 @@ export default function LabDreamIDE() {
 
     // Emit lab:run so LabEngin / any other subscriber can react
     dualRuntimeBridge.emit('lab', 'lab:run', { language, code, simId });
-    dreamOSBus.upsertArtifact({
-      id: 'artifact:lab:active-run',
-      kind: 'lab-run',
-      title: 'Lab runtime mirror',
-      sourceSubsystem: 'LabEngin',
-      relatedSubsystems: ['CodeEngin', 'Dr. Eams'],
-      payload: { language, code, simId, liveMode },
-    });
 
     const mockLines = getMockOutput(language, simId);
     mockLines.forEach((line, i) => {
@@ -289,20 +280,12 @@ export default function LabDreamIDE() {
             setVizSeed(s => s + 7);
             // Emit completed result
             dualRuntimeBridge.emit('lab', 'lab:result', { lines: next, status: 'done' });
-            dreamOSBus.upsertArtifact({
-              id: 'artifact:lab:result',
-              kind: 'lab-result',
-              title: 'Lab result',
-              sourceSubsystem: 'LabEngin',
-              relatedSubsystems: ['CodeEngin', 'Dr. Eams'],
-              payload: { language, simId, lines: next, status: 'done' },
-            });
           }
           return next;
         });
       }, 130 * (i + 1));
     });
-  }, [status, language, simId, code, liveMode]);
+  }, [status, language, simId, code]);
 
   // Ref to always call the latest version of handleRun from the live-mode effect
   const handleRunRef = useRef(handleRun);
@@ -312,17 +295,9 @@ export default function LabDreamIDE() {
     setLines(prev => {
       const next = [...prev, `[${new Date().toISOString().slice(11, 19)}] ⛔ Stopped`];
       dualRuntimeBridge.emit('lab', 'lab:result', { lines: next, status: 'error' });
-      dreamOSBus.upsertArtifact({
-        id: 'artifact:lab:result',
-        kind: 'lab-result',
-        title: 'Lab result',
-        sourceSubsystem: 'LabEngin',
-        relatedSubsystems: ['CodeEngin', 'Dr. Eams'],
-        payload: { language, simId, lines: next, status: 'error' },
-      });
       return next;
     });
-  }, [language, simId]);
+  }, []);
 
   // Toggle swap — persists to localStorage
   const handleSwap = useCallback(() => {

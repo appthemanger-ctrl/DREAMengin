@@ -165,6 +165,18 @@ export interface PeerState {
 
 export type PeerActivityObserver = (peers: readonly PeerState[]) => void;
 
+export interface BridgeEmission<
+  C extends DualRuntimeChannel = DualRuntimeChannel,
+  K extends ChannelEventKey<C> = ChannelEventKey<C>
+> {
+  channel: C;
+  event: K;
+  payload: ChannelEventPayload<C, K>;
+  emittedAt: number;
+}
+
+export type BridgeEventObserver = (emission: BridgeEmission) => void;
+
 // ─── Singleton event bus ──────────────────────────────────────────────────────
 
 /**
@@ -183,6 +195,7 @@ class DualRuntimeBridgeImpl {
   private readonly listeners: ListenerMap = new Map();
   private readonly peerActivity: Map<DualRuntimeChannel, PeerState>;
   private readonly peerObservers = new Set<PeerActivityObserver>();
+  private readonly eventObservers = new Set<BridgeEventObserver>();
 
   constructor() {
     const channels: DualRuntimeChannel[] = [
@@ -214,12 +227,20 @@ class DualRuntimeBridgeImpl {
     event: K,
     payload: ChannelEventPayload<C, K>,
   ): void {
+    const emittedAt = Date.now();
     // Update peer activity
     const peer = this.peerActivity.get(channel);
     if (peer) {
-      peer.lastActivityAt = Date.now();
+      peer.lastActivityAt = emittedAt;
       this.notifyPeerObservers();
     }
+
+    this.notifyEventObservers({
+      channel,
+      event,
+      payload,
+      emittedAt,
+    });
 
     const channelListeners = this.listeners.get(channel);
     if (!channelListeners) return;
@@ -317,6 +338,13 @@ class DualRuntimeBridgeImpl {
     };
   }
 
+  subscribeEventActivity(observer: BridgeEventObserver): UnsubscribeFn {
+    this.eventObservers.add(observer);
+    return () => {
+      this.eventObservers.delete(observer);
+    };
+  }
+
   /**
    * Remove all listeners for a given channel.
    * Use only for full teardown/testing.
@@ -350,6 +378,17 @@ class DualRuntimeBridgeImpl {
         observer(snapshot);
       } catch (error) {
         console.error('[DualRuntimeBridge] Peer observer error', error);
+      }
+    }
+  }
+
+  private notifyEventObservers(emission: BridgeEmission): void {
+    if (this.eventObservers.size === 0) return;
+    for (const observer of Array.from(this.eventObservers)) {
+      try {
+        observer(emission);
+      } catch (error) {
+        console.error('[DualRuntimeBridge] Event observer error', error);
       }
     }
   }

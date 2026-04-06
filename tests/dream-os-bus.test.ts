@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { dreamOSBus, deriveAIRuntimeContext } from '@/lib/runtime/dreamOSBus';
 
 describe('dreamOSBus', () => {
@@ -42,6 +43,23 @@ describe('dreamOSBus', () => {
 
     const snapshot = dreamOSBus.getSnapshot();
     expect(snapshot.artifacts.map((artifact) => artifact.id)).toEqual(['artifact-2', 'artifact-1']);
+  });
+
+  it('mirrors bridge emissions from multiple subsystem channels into the OS bus', () => {
+    bridge.emit('music', 'music:stem-ready', { stemType: 'drums', url: '/stem.wav' });
+    bridge.emit('games', 'games:asset-exported', { assetId: 'level-1', assetType: 'level', url: '/level' });
+
+    const snapshot = dreamOSBus.getSnapshot();
+    expect(snapshot.artifacts).toHaveLength(2);
+    expect(snapshot.artifacts.every((artifact) => artifact.kind === 'event')).toBe(true);
+    expect(snapshot.artifacts.map((artifact) => artifact.sourceSubsystem).sort()).toEqual([
+      'GameEngin',
+      'StarMakerEngin',
+    ]);
+    expect(snapshot.artifacts.map((artifact) => artifact.payload.event).sort()).toEqual([
+      'games:asset-exported',
+      'music:stem-ready',
+    ]);
   });
 });
 
