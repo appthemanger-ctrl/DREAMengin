@@ -78,14 +78,14 @@ export async function GET(req: NextRequest) {
 
     const surface = toSurface(surfaceName);
 
-    const query = supabase
+    const query = (supabase
       .from('widget_instances')
       .select(
         `
         *,
         widget_definitions!inner(*)
       `
-      )
+      ) as any)
       .eq('owner_id', user.id)
       .eq('surface', surface)
       .eq('surface_key', surfaceKey)
@@ -113,4 +113,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

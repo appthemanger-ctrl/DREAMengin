@@ -146,6 +146,7 @@ export default function DREAMenginOS({
       ArcRotateCamera,
       Color3,
       Color4,
+      PBRMaterial,
       DefaultRenderingPipeline,
       GlowLayer,
       HavokPlugin,
@@ -211,6 +212,7 @@ export default function DREAMenginOS({
 
       const material = new StandardMaterial(`dreamengin-family-${family.id}-mat`, scene);
       const color = Color3.FromHexString(ORB_COLORS[index % ORB_COLORS.length]);
+      void PBRMaterial;
       material.emissiveColor = color.scale(1.1);
       material.diffuseColor = color.scale(0.6);
       material.specularColor = color.scale(0.3);
