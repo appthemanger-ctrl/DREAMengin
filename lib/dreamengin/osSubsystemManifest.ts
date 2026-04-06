@@ -67,6 +67,12 @@ function uniquePathsForNode(predicate: (path: (typeof ALL_CONNECTION_PATHS)[numb
   return ALL_CONNECTION_PATHS.filter(predicate).map((path) => path.id);
 }
 
+function verbsForDaydream(label: keyof typeof DAYDREAM_ROUTES) {
+  return ALL_CONNECTION_PATHS
+    .filter((path) => path.daydreamSurface === label)
+    .map((path) => path.verb);
+}
+
 export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManifest {
   const aiNodes: DreamenginOSSubsystemNode[] = [
     {
@@ -116,9 +122,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
       family: 'daydreams' as const,
       detail: `${label} surface connected through the DreamSpace operating layer.`,
       route,
-      capabilities: uniquePathsForNode((path) => path.daydreamSurface === label).map((id) =>
-        id.split('[')[1]?.replace(']', '') ?? 'bind',
-      ),
+      capabilities: verbsForDaydream(label as keyof typeof DAYDREAM_ROUTES),
       runtimePresence: 'both' as const,
       connectionIds: uniquePathsForNode((path) => path.daydreamSurface === label),
     }),
@@ -216,7 +220,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
     },
   ];
 
-  const nodes = [
+  const nodes: DreamenginOSSubsystemNode[] = [
     ...aiNodes,
     ...daydreamNodes,
     ...enginNodes,
@@ -225,7 +229,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
     ...assetNodes,
     ...runtimeNodes,
     ...networkNodes,
-  ] as const;
+  ];
 
   const families = (Object.keys(FAMILY_LABELS) as DreamenginOSSubsystemFamily[]).map((family) => {
     const familyNodes = nodes.filter((node) => node.family === family);

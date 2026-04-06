@@ -141,8 +141,8 @@ function HomeSystemInner({
 
   const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
   const topHeight = `calc((100% - ${dividerHeight}px) * ${splitRatio})`;
-  const bottomTop = `calc(${topHeight} + ${dividerHeight}px)`;
-  const bottomHeight = `calc(100% - ${bottomTop})`;
+  const bottomRegionTop = `calc(${topHeight} + ${dividerHeight}px)`;
+  const bottomHeight = `calc(100% - ${bottomRegionTop})`;
   const seamOffset =
     viewportHeight > 0
       ? Math.round(((viewportHeight - dividerHeight) * splitRatio) + dividerHeight / 2)
@@ -186,7 +186,7 @@ function HomeSystemInner({
           position: 'fixed',
           left: 0,
           right: 0,
-          top: bottomTop,
+          top: bottomRegionTop,
           height: bottomHeight,
           zIndex: 1,
           overflow: 'hidden',

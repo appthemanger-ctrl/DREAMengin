@@ -45,6 +45,16 @@ const EMPTY_STATS: DispatcherStats = {
   boundsViolations: 0,
 };
 
+function dispatcherStatsEqual(a: DispatcherStats, b: DispatcherStats): boolean {
+  if (a.workerCount !== b.workerCount || a.boundsViolations !== b.boundsViolations) {
+    return false;
+  }
+  if (a.microsecondsPerTick.length !== b.microsecondsPerTick.length) {
+    return false;
+  }
+  return a.microsecondsPerTick.every((value, index) => value === b.microsecondsPerTick[index]);
+}
+
 export default function DREAMenginOS({
   audioSource,
   onReady,
@@ -66,14 +76,11 @@ export default function DREAMenginOS({
 
   const audioRef = useRef(audioSource);
   const onSelectSubsystemRef = useRef(onSelectSubsystem);
+  onSelectSubsystemRef.current = onSelectSubsystem;
 
   useEffect(() => {
     audioRef.current = audioSource;
   }, [audioSource]);
-
-  useEffect(() => {
-    onSelectSubsystemRef.current = onSelectSubsystem;
-  }, [onSelectSubsystem]);
 
   const manifest = useMemo(() => DREAMENGIN_OS_SUBSYSTEM_MANIFEST, []);
   const highlightedFamilies = useMemo(
@@ -218,7 +225,10 @@ export default function DREAMenginOS({
     setDispatcherStats(dispatcher.stats);
 
     const poll = window.setInterval(() => {
-      setDispatcherStats(dispatcher.stats);
+      setDispatcherStats((previous) => {
+        const next = dispatcher.stats;
+        return dispatcherStatsEqual(previous, next) ? previous : next;
+      });
     }, 1000);
 
     const unsubscribePeers = bridge.subscribePeerActivity((peers) => {

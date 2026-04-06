@@ -18,8 +18,10 @@ describe('Dual runtime bridge peer activity observers', () => {
 
     unsubscribeObserver();
 
+    const lastSnapshot = snapshots.at(-1);
     expect(snapshots.length).toBeGreaterThanOrEqual(3);
-    expect(snapshots.at(-1)?.find((peer) => peer.channel === 'code')?.subscriberCount).toBe(0);
+    expect(lastSnapshot).toBeDefined();
+    expect(lastSnapshot?.find((peer) => peer.channel === 'code')?.subscriberCount).toBe(0);
     expect(snapshots.some((snapshot) =>
       (snapshot.find((peer) => peer.channel === 'code')?.lastActivityAt ?? 0) > 0,
     )).toBe(true);
