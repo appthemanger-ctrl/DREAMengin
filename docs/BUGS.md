@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 10:33 UTC  
-**Last updated:** 2026-04-06 10:33 UTC  
-**Triggered by commit:** `8a8ccf1` on `completedream` by appthemanger-ctrl  
-**Commit message:** Update Babylon.js version in README
+**Documentation Date:** 2026-04-06 10:55 UTC  
+**Last updated:** 2026-04-06 10:55 UTC  
+**Triggered by commit:** `fe16ff2` on `copilot/rebuild-madmaxi-game-graphics` by Copilot  
+**Commit message:** feat: rebuild MADMAXI around a landing-grade robot rig; architecture: docs/ARCHITECTURE.md §8 premium stylized design and docs/LAW.md §10 repurpose existing product language; performance impact: neutral
 
 ---
 
