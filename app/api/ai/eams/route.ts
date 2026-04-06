@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       const { data: recentPosts } = await supabase
         .from('app_posts')
         .select('id, content, visibility, created_at')
-        .eq('author_id', user.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(5);
 
