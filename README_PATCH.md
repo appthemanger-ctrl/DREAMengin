@@ -1,5 +1,9 @@
 # DREAMengin YouTube connector patch
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 This patch is built against:
 
 - repo: `appthemanger-ctrl/DREAMengin`

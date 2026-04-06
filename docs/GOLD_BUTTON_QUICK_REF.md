@@ -1,5 +1,9 @@
 # Gold Button & Dual Runtime - Quick Reference
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 ## Gold Button Rules (One Sentence)
 
 The Gold button is attached to the top of the DreamDM Bar by default, detaches only when that attached position would go off the top of the screen, locks to the screen while off-screen conditions exist, and reattaches to the top of the box when the bar is dragged back down.

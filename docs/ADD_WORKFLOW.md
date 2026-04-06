@@ -1,5 +1,9 @@
 # GitHub Actions Workflow Note
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Last updated: 2026-04-01
 
 This repo keeps all GitHub Actions workflow files under:

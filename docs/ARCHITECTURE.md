@@ -1,5 +1,9 @@
 # DREAMengin Architecture
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Status: active implementation architecture  
 Last updated: 2026-03-16
 

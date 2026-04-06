@@ -181,7 +181,11 @@ export default function RuntimeView({
           iframeTitle={iframeTitle}
         >
           <div style={{ position: 'relative', zIndex: 1, height: '100%' }}>
-            <DreamsSpacePanel onOpenUrl={openUrl} onOpenInRegion={onOpenInRegion} />
+            <DreamsSpacePanel
+              onOpenUrl={openUrl}
+              onOpenInRegion={onOpenInRegion}
+              accountId={profile?.id}
+            />
           </div>
         </RuntimeShell>
       </div>

@@ -1,5 +1,9 @@
 # IDARi Contract
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Status: active internal contract  
 Last updated: 2026-03-16
 

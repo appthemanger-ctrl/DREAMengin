@@ -1,5 +1,9 @@
 # DREAMengin Feature Status
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Last updated: 2026-03-25
 Source of truth for product naming: `README.md`
 

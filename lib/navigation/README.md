@@ -1,5 +1,9 @@
 # Gesture-Driven Spatial Navigation Engine
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Mobile-first navigation system for DREAMengin that uses gestures (pinch, swipe, hold) instead of traditional nav bars and routes.
 
 ## Mathematical Foundation (v1.0.4+)

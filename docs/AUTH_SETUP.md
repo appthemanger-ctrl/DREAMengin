@@ -1,5 +1,9 @@
 # DREAMengin — Auth & Environment Setup Guide
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 This document explains exactly where every authentication-related value belongs
 and why. Follow these steps to configure Google OAuth + Supabase auth for local
 development and production.

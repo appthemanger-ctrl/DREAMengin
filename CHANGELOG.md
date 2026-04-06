@@ -1,5 +1,9 @@
 # DREAMengin Changelog
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 All notable changes to DREAMengin are documented in this file.
 
 ---

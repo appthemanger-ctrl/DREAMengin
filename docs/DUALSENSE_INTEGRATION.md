@@ -1,5 +1,9 @@
 # DualSense Controller Integration
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 DREAMengin now includes comprehensive DualSense (PS5) controller support with mobile Bluetooth pairing, haptic feedback, and gyro controls.
 
 ## Features (March 2026 Browser Capabilities)

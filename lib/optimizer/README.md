@@ -1,5 +1,9 @@
 # DREAMengin Optimization Framework
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 A constraint-based optimization system for DREAMengin that maximizes usefulness while minimizing cost, subject to constraints.
 
 ## Overview

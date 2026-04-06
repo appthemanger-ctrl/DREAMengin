@@ -1,5 +1,9 @@
 # DREAMengin Product Law
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 Status: active guardrail summary  
 Last updated: 2026-03-25
 

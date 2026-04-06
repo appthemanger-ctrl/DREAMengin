@@ -3,10 +3,12 @@
 > **Comprehensive analysis of the entire codebase**
 > Generated automatically - DO NOT EDIT MANUALLY
 
-**Last Updated:** 4/5/2026, 7:52:54 AM
-**Branch:** completedream
-**Commit:** 027b5411 - Merge pull request #444 from appthemanger-ctrl/copilot/innovative-web-app-ideas
-**Total Commits:** 3399
+**Documentation Owner:** José Mancilla (appthemanger-ctrl)
+**Documentation Date:** 2026-04-06
+**Last Updated:** 4/6/2026, 5:07:37 AM
+**Branch:** copilot/fix-syntax-error-expectation
+**Commit:** 71b0f9bd - docs: auto-update BUGS.md [bffb861] [skip ci] [skip vercel]
+**Total Commits:** 2
 
 ---
 
@@ -41,14 +43,14 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 646
-- 📝 Total Lines of Code: 162,047
-- 📦 Size: 6.18 MB
-- 🧪 Tests: 119 files, 113 passing
-- 📄 API Routes: 85
+- 📁 Total Code Files: 653
+- 📝 Total Lines of Code: 164,880
+- 📦 Size: 6.28 MB
+- 🧪 Tests: 125 files, 119 passing
+- 📄 API Routes: 86
 - 🎨 Components: 36 categories
 - 📖 Documentation: 48 files
-- ⚙️ GitHub Actions: 52 workflows
+- ⚙️ GitHub Actions: 53 workflows
 
 ## Tech Stack
 
@@ -56,11 +58,11 @@
 
 | Package | Version |
 |---------|---------|
-| next | ^16.1.0 |
-| react | ^19.0.0 |
-| react-dom | ^19.0.0 |
-| typescript | ^5.5.0 |
-| @supabase/supabase-js | ^2.97.0 |
+| next | ^16.2.0 |
+| react | ^19.2.0 |
+| react-dom | ^19.2.0 |
+| typescript | ^5.9.0 |
+| @supabase/supabase-js | ^2.101.0 |
 
 ### All Dependencies
 
@@ -70,22 +72,22 @@
 @babylonjs/havok@^1.3.12
 @react-three/drei@^10.7.7
 @react-three/fiber@^9.5.0
-@supabase/ssr@^0.9.0
-@supabase/supabase-js@^2.97.0
+@supabase/ssr@^0.10.0
+@supabase/supabase-js@^2.101.0
 @tensorflow/tfjs@^4.22.0
 @tensorflow/tfjs-backend-webgpu@^4.22.0
-axios@^1.7.0
+axios@^1.14.0
 clsx@^2.1.1
 framer-motion@^12.35.0
 gsap@^3.14.2
 lucide-react@^0.577.0
-next@^16.1.0
-react@^19.0.0
-react-dom@^19.0.0
+next@^16.2.0
+react@^19.2.0
+react-dom@^19.2.0
 rss-parser@^3.13.0
 swr@^2.4.1
 tailwind-merge@^3.5.0
-three@^0.167.0
+three@^0.183.0
 ... and 3 more
 ```
 
@@ -93,21 +95,21 @@ three@^0.167.0
 ```
 @tailwindcss/postcss@^4.2.2
 @types/node@^24.0.0
-@types/react@^19.0.0
+@types/react@^19.2.0
 @types/react-dnd@^3.0.2
-@types/react-dom@^19.0.0
+@types/react-dom@^19.2.0
 @types/three@^0.183.1
-assemblyscript@^0.27.0
+assemblyscript@^0.28.0
 eslint@^9.0.0
-eslint-config-next@^16.1.0
+eslint-config-next@^16.2.0
 pixi-viewport@^6.0.3
 pixi.js@^8.17.0
 react-dnd@^16.0.1
 react-dnd-html5-backend@^16.0.1
 tailwindcss@^4.2.2
 tailwindcss-animate@^1.0.7
-typescript@^5.5.0
-vitest@^4.0.18
+typescript@^5.9.0
+vitest@^4.1.0
 ```
 
 ## Repository Structure
@@ -116,12 +118,12 @@ vitest@^4.0.18
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 213 | .tsx(126), .ts(85), .css(2) |
-| `components/` | 292 | .tsx(266), .ts(23), .css(2) |
-| `lib/` | 256 | .ts(251), .tsx(3), .md(2) |
-| `tests/` | 121 | .ts(120), .md(1) |
+| `app/` | 214 | .tsx(126), .ts(86), .css(2) |
+| `components/` | 294 | .tsx(268), .ts(23), .css(2) |
+| `lib/` | 261 | .ts(256), .tsx(3), .md(2) |
+| `tests/` | 127 | .ts(126), .md(1) |
 | `styles/` | 3 | .css(3) |
-| `public/` | 48 | .png(18), .PNG(11), .jpeg(6) |
+| `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
 | `docs/` | 44 | .md(44) |
 | `scripts/` | 22 | .mjs(12), .sh(3), .cjs(3) |
 | `supabase/` | 47 | .sql(46), .toml(1) |
@@ -131,18 +133,18 @@ vitest@^4.0.18
 ### File Distribution
 
 - **App Routes (TSX):** 126
-- **Component Files:** 266
-- **Library Files:** 254
-- **Test Files:** 113
+- **Component Files:** 268
+- **Library Files:** 259
+- **Test Files:** 119
 
 ### Code Volume
 
-- **Total Lines:** 162,047
-- **Total Size:** 6.18 MB
+- **Total Lines:** 164,880
+- **Total Size:** 6.28 MB
 
 ## API Routes
 
-**Total API Endpoints:** 85
+**Total API Endpoints:** 86
 
 ### All Routes
 
@@ -191,14 +193,14 @@ vitest@^4.0.18
 | `/api/drafts` | GET, POST | /app/api/drafts/route.ts |
 | `/api/dream-windows/[id]` | GET, PATCH, DELETE | /app/api/dream-windows/[id]/route.ts |
 | `/api/dream-windows` | GET, POST | /app/api/dream-windows/route.ts |
+| `/api/dreamengin/os-status` | GET | /app/api/dreamengin/os-status/route.ts |
 | `/api/dreamr/feed` | GET | /app/api/dreamr/feed/route.ts |
 | `/api/dreamr/suggested` | GET | /app/api/dreamr/suggested/route.ts |
 | `/api/embed-feed` | GET | /app/api/embed-feed/route.ts |
 | `/api/favorites` | GET, POST, DELETE | /app/api/favorites/route.ts |
 | `/api/feed` | GET | /app/api/feed/route.ts |
 | `/api/follow` | GET, POST, DELETE | /app/api/follow/route.ts |
-| `/api/forge/build` | POST | /app/api/forge/build/route.ts |
-| ... | ... | ... and 35 more routes |
+| ... | ... | ... and 36 more routes |
 
 ## Pages & Routes
 
@@ -274,7 +276,7 @@ vitest@^4.0.18
 | `core/` | 1 |
 | `customize/` | 7 |
 | `daydream/` | 25 |
-| `dreamengin/` | 18 |
+| `dreamengin/` | 19 |
 | `dreamnav/` | 2 |
 | `dreamr/` | 5 |
 | `dreams/` | 7 |
@@ -284,7 +286,7 @@ vitest@^4.0.18
 | `forge/` | 2 |
 | `gameengin/` | 1 |
 | `games/` | 43 |
-| `home/` | 9 |
+| `home/` | 10 |
 | `landing/` | 2 |
 | `marketplace/` | 2 |
 | `menus/` | 5 |
@@ -328,14 +330,15 @@ vitest@^4.0.18
 
 ## Tests
 
-**Test Files:** 119
-**Tests Passing:** 113
+**Test Files:** 125
+**Tests Passing:** 119
 **Tests Failing:** 0
 
 ### Test Files
 
 - /tests/admin-lockout.test.ts
 - /tests/admin-upgrade-readiness.test.ts
+- /tests/agent-bus-consensus.test.ts
 - /tests/ai-edit-engine.test.ts
 - /tests/analytics-scheduled.test.ts
 - /tests/asset-optimizer.test.ts
@@ -353,8 +356,7 @@ vitest@^4.0.18
 - /tests/connectors.test.ts
 - /tests/content-intelligence-routes.test.ts
 - /tests/contentengin-features.test.ts
-- /tests/creative-optimizero.test.ts
-- ... and 99 more test files
+- ... and 105 more test files
 
 ## Documentation
 
@@ -396,7 +398,7 @@ vitest@^4.0.18
 
 ## CI/CD Workflows
 
-**Total Workflows:** 52
+**Total Workflows:** 53
 
 ### Workflow Files
 
@@ -437,6 +439,7 @@ vitest@^4.0.18
 - generatesupabasetypes.yml
 - github-actions.yml
 - idari-daily.yml
+- neural_decision_engine.yml
 - optimize-dreamengin.yml
 - portfolio-optimization.yml
 - preflight.yml
@@ -496,10 +499,6 @@ Using Supabase for database, auth, and storage
 
 ## Dependency Health
 
-### ✅ Up to Date
-
-- TypeScript 5.5+ is good for 2026
-
 ## Redundancies & Technical Debt
 
 ### Duplicate component name
@@ -549,7 +548,7 @@ Using Supabase for database, auth, and storage
 
 - ✅ React 19 - Latest version
 - ✅ Next.js 16+ - Latest App Router
-- ✅ TypeScript 5.5+ - Latest features
+- ⚠️ TypeScript should be 5.5+
 - ✅ Vitest - Modern testing framework
 - ⚠️ Consider adding Playwright for E2E tests
 
@@ -572,4 +571,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/5/2026, 7:52:54 AM*
+*Last updated: 4/6/2026, 5:07:37 AM*

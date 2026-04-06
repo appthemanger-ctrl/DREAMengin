@@ -1,5 +1,9 @@
 # DreamDM Bar — Pass 1
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 **Document type:** Implementation spec (retroactive)
 **Scope:** DreamDM (`/messages`) foundational pass
 **Status:** Complete — all deliverables shipped; this document records the accepted implementation

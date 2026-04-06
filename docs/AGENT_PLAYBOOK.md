@@ -1,5 +1,9 @@
 # DREAMengin — Agent Session Playbook
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 **Read this at the start of every session.**  
 Last updated: 2026-04-01
 

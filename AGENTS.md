@@ -1,5 +1,9 @@
 # AGENTS.md
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 ## Cursor Cloud specific instructions
 
 ### Overview

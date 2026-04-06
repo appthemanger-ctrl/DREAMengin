@@ -1,5 +1,9 @@
 # DREAMengin — Action Audit
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 **Last updated:** 2026-03-15  
 **Purpose:** Label every user-facing action so the team knows what is actually working before adding more AI logic or policy layers.
 

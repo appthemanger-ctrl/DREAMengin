@@ -27,6 +27,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
+import DreamSpace from '@/components/dreamengin/DreamSpace';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
 import {
   computeMomentum,
@@ -176,9 +177,11 @@ function AppIcon({ icon, label, color, onClick }: {
 export default function DreamsSpacePanel({
   onOpenUrl,
   onOpenInRegion,
+  accountId,
 }: {
   onOpenUrl?: OpenUrlFn;
   onOpenInRegion?: (path: string) => void;
+  accountId?: string | null;
 }) {
   const runtime = useDreamsRuntime();
   const { state, setService } = runtime;
@@ -300,6 +303,7 @@ export default function DreamsSpacePanel({
       {view === 'apps' ? (
         /* ── Permanent iOS-style app home screen ─────────────────────────────── */
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px 10px 20px' }}>
+          <DreamSpace initialAccountId={accountId} />
 
           <div style={{
             marginBottom: 16,
@@ -408,7 +412,7 @@ export default function DreamsSpacePanel({
                 {leadSuggestion?.href && (
                   <button
                     type="button"
-                    onClick={() => navigate(leadSuggestion.href, leadSuggestion.title)}
+                    onClick={() => navigate(leadSuggestion.href!, leadSuggestion.title ?? leadSuggestion.href!)}
                     style={{
                       marginTop: 10,
                       borderRadius: 9999,

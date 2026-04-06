@@ -1,3 +1,6 @@
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
 ## What changed
 
 <!-- One sentence summary of the change. -->

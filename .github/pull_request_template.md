@@ -1,5 +1,9 @@
 # DREAMengin — Pull Request
 
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
+> **Documentation Date:** 2026-04-06
+
+
 > **For AI-generated PRs:** Every section below is mandatory. Do not delete or skip headings. Replace every placeholder with a real answer. One-liners are acceptable only where genuinely nothing more applies — do not pad, do not summarise.
 
 ---

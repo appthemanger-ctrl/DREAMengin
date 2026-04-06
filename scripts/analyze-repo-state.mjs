@@ -28,6 +28,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const OUTPUT_FILE = path.join(ROOT_DIR, 'REPO_STATE.md');
+const DOC_OWNER = 'José Mancilla (appthemanger-ctrl)';
 
 // Utility functions
 const exec = (cmd) => {
@@ -566,6 +567,8 @@ function generateMarkdown(analysis) {
   lines.push('> **Comprehensive analysis of the entire codebase**');
   lines.push('> Generated automatically - DO NOT EDIT MANUALLY');
   lines.push('');
+  lines.push(`**Documentation Owner:** ${DOC_OWNER}`);
+  lines.push(`**Documentation Date:** ${new Date(analysis.generatedAt).toISOString().slice(0, 10)}`);
   lines.push(`**Last Updated:** ${new Date(analysis.generatedAt).toLocaleString()}`);
   lines.push(`**Branch:** ${analysis.git.branch}`);
   lines.push(`**Commit:** ${analysis.git.commitShort} - ${analysis.git.commitMessage}`);
