@@ -4,12 +4,37 @@
  * Tests for lib/gestures/touchGestures.ts — the pure gesture recognition engine.
  */
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   GestureRecogniser,
   type GestureCallbacks,
   type GestureEvent,
 } from '@/lib/gestures/touchGestures';
+
+function makeTouch(
+  identifier: number,
+  clientX: number,
+  clientY: number,
+): Touch {
+  return {
+    identifier,
+    clientX,
+    clientY,
+  } as Touch;
+}
+
+function makeEvent(touches: Touch[], changedTouches: Touch[] = touches): TouchEvent {
+  return {
+    touches,
+    changedTouches,
+    preventDefault: vi.fn(),
+  } as unknown as TouchEvent;
+}
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
 
 // ─── Constructor and basic API ────────────────────────────────────────────────
 
@@ -135,5 +160,140 @@ describe('Touch Gestures — event types', () => {
       };
       expect(event.type).toBe(type);
     }
+  });
+});
+
+describe('Touch Gestures — runtime behaviour', () => {
+  it('fires tap for a quick stationary single-touch interaction', () => {
+    const onTap = vi.fn();
+    const recogniser = new GestureRecogniser({ onTap });
+
+    vi.spyOn(Date, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(1_120);
+
+    (recogniser as any).handleTouchStart(makeEvent([makeTouch(1, 20, 40)]));
+    (recogniser as any).handleTouchEnd(
+      makeEvent([], [makeTouch(1, 22, 42)]),
+    );
+
+    expect(onTap).toHaveBeenCalledTimes(1);
+    expect(onTap).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'tap',
+        fingers: 1,
+        center: { x: 20, y: 40 },
+      }),
+    );
+  });
+
+  it('does not fire tap after significant movement', () => {
+    const onTap = vi.fn();
+    const recogniser = new GestureRecogniser({ onTap });
+
+    vi.spyOn(Date, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(1_120);
+
+    (recogniser as any).handleTouchStart(makeEvent([makeTouch(1, 20, 40)]));
+    (recogniser as any).handleTouchEnd(
+      makeEvent([], [makeTouch(1, 60, 90)]),
+    );
+
+    expect(onTap).not.toHaveBeenCalled();
+  });
+
+  it('waits for pan threshold before emitting pan updates', () => {
+    const onPan = vi.fn();
+    const recogniser = new GestureRecogniser({ onPan }, { panThreshold: 10 });
+
+    vi.spyOn(Date, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(1_010)
+      .mockReturnValueOnce(1_020);
+
+    (recogniser as any).handleTouchStart(makeEvent([makeTouch(1, 100, 100)]));
+    (recogniser as any).handleTouchMove(makeEvent([makeTouch(1, 106, 104)]));
+    (recogniser as any).handleTouchMove(makeEvent([makeTouch(1, 120, 115)]));
+
+    expect(onPan).toHaveBeenCalledTimes(1);
+    expect(onPan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'pan',
+        delta: { x: 20, y: 15 },
+      }),
+    );
+  });
+
+  it('normalises rotation deltas across the angle wrap boundary', () => {
+    const onRotate = vi.fn();
+    const recogniser = new GestureRecogniser(
+      { onRotate },
+      { rotateThreshold: 0.01 },
+    );
+
+    vi.spyOn(Date, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(1_020);
+
+    (recogniser as any).handleTouchStart(
+      makeEvent([makeTouch(1, 0, 0), makeTouch(2, -1, 0.1)]),
+    );
+    (recogniser as any).handleTouchMove(
+      makeEvent([makeTouch(1, 0, 0), makeTouch(2, -1, -0.1)]),
+    );
+
+    expect(onRotate).toHaveBeenCalledTimes(1);
+    expect(Math.abs(onRotate.mock.calls[0][0].rotation)).toBeLessThan(0.5);
+  });
+
+  it('does not emit tap or swipe callbacks on touchcancel', () => {
+    const onTap = vi.fn();
+    const onSwipe = vi.fn();
+    const recogniser = new GestureRecogniser({ onTap, onSwipe });
+
+    vi.spyOn(Date, 'now').mockReturnValue(1_000);
+
+    (recogniser as any).handleTouchStart(
+      makeEvent([
+        makeTouch(1, 0, 0),
+        makeTouch(2, 10, 0),
+        makeTouch(3, 20, 0),
+      ]),
+    );
+    (recogniser as any).handleTouchMove(
+      makeEvent([
+        makeTouch(1, 100, 0),
+        makeTouch(2, 110, 0),
+        makeTouch(3, 120, 0),
+      ]),
+    );
+    (recogniser as any).handleTouchCancel(makeEvent([]));
+
+    expect(onTap).not.toHaveBeenCalled();
+    expect(onSwipe).not.toHaveBeenCalled();
+  });
+
+  it('fires long-press after the configured delay', () => {
+    vi.useFakeTimers();
+
+    const onLongPress = vi.fn();
+    const recogniser = new GestureRecogniser(
+      { onLongPress },
+      { longPressMs: 200 },
+    );
+
+    vi.spyOn(Date, 'now').mockReturnValue(1_000);
+
+    (recogniser as any).handleTouchStart(makeEvent([makeTouch(1, 30, 60)]));
+    vi.advanceTimersByTime(200);
+
+    expect(onLongPress).toHaveBeenCalledTimes(1);
+    expect(onLongPress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'long-press',
+        center: { x: 30, y: 60 },
+      }),
+    );
   });
 });
