@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-06 11:01 UTC | `46879d4` | copilot/update-image-asset | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/update-image-asset<br> |
 | **auto** | 2026-04-06 10:49 UTC | `cdeaa83` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #469 from appthemanger-ctrl/copilot/ensure-document-updates-no-vercel-builds — Skip Vercel builds for document-only commits<br> |
 | **auto** | 2026-04-06 10:40 UTC | `123f351` | copilot/ensure-document-updates-no-vercel-builds | Copilot | +1 added  ~1 modified<br>chore: add document-only Vercel ignore guard — Reasoning: skip redundant Vercel builds when a commit only changes documentation while still honoring explicit [skip vercel] commits. Architecture justification: docs/ARCHITECTURE.md §10 keeps deployment assumptions stable and focused on real runtime changes. Performance impact: better  Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/0e33e85e-5008-43fd-a257-90f2e8a8f0b1  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `scripts/vercel-ignore.cjs`<br>✏️: `vercel.json` |
 | **auto** | 2026-04-06 10:34 UTC | `289d982` | completedream | appthemanger-ctrl | ~1 modified<br>Remove pre-existing issues section from README — Removed section about pre-existing issues from README.<br>✏️: `README.md` |
 | **auto** | 2026-04-06 10:26 UTC | `d0a37c5` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #467 from appthemanger-ctrl/copilot/add-runtime-wiring-test — Replace runtime peer polling with bridge-driven wiring<br> |
-| **auto** | 2026-04-06 09:05 UTC | `bd5888b` | copilot/add-hybrid-3d-overlay-engine | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/add-hybrid-3d-overlay-engine<br> |
 
 ## What changed in this alignment pass
 
