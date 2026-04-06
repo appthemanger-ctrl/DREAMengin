@@ -31,6 +31,17 @@
         window.parent.postMessage({ type: 'new-artifact', artifact }, '*');
       };
 
+      function resolveSafeModuleUrl(input) {
+        try {
+          var url = new URL(input, window.location.origin);
+          var isSameOrigin = url.origin === window.location.origin;
+          var isJavaScriptFile = url.pathname.endsWith('.js');
+          return isSameOrigin && isJavaScriptFile ? url.toString() : null;
+        } catch (_error) {
+          return null;
+        }
+      }
+
       window.addEventListener('message', function onMessage(event) {
         if (!event.data || event.data.type !== 'init') return;
 
@@ -42,10 +53,16 @@
           return;
         }
 
+        var safeModuleUrl = resolveSafeModuleUrl(event.data.moduleUrl);
+        if (!safeModuleUrl) {
+          if (status) status.textContent = 'Blocked unsafe module URL.';
+          return;
+        }
+
         if (status) status.textContent = 'Loading module…';
 
         var script = document.createElement('script');
-        script.src = event.data.moduleUrl;
+        script.src = safeModuleUrl;
         script.async = true;
         script.onload = function () {
           if (status) status.textContent = 'Module loaded.';

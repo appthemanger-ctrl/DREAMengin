@@ -80,7 +80,10 @@ async function fetchDreamWindow<T>(
 ): Promise<{ ok: boolean; data: T | null; error: string | null }> {
   try {
     const res = await fetch(input, init);
-    const json = await res.json().catch(() => ({})) as {
+    const json = await res.json().catch((error) => {
+      console.warn('[DreamWindow] failed to parse JSON response', error);
+      return {};
+    }) as {
       dreamWindow?: T;
       error?: string;
     };

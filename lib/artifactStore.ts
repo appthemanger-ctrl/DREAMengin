@@ -99,11 +99,11 @@ function writeArtifacts(accountId: string, artifacts: DreamArtifact[]) {
   window.localStorage.setItem(STORAGE_KEY(accountId), JSON.stringify(artifacts));
 }
 
-export function getDefaultSystemArtifacts(accountId = 'system'): DreamArtifact[] {
+export function getDefaultSystemArtifacts(defaultOwnerId = 'system'): DreamArtifact[] {
   const createdAt = Date.now();
   return SYSTEM_ARTIFACT_TEMPLATES.map((artifact) => ({
     ...artifact,
-    ownerId: artifact.source === 'system' ? 'system' : accountId,
+    ownerId: artifact.source === 'system' ? 'system' : defaultOwnerId,
     createdAt,
   }));
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { saveArtifact, loadArtifacts } from '@/lib/artifactStore';
 import {
@@ -63,6 +63,10 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
   const [ghostPreview, setGhostPreview] = useState<GhostPreviewState | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const { addWindow, removeWindow, updateWindow } = useDreamWindowActions();
+  const artifactMap = useMemo(
+    () => new Map(loadArtifacts(accountId).map((artifact) => [artifact.id, artifact])),
+    [accountId, activeModules],
+  );
 
   useEffect(() => {
     if (!accountId) {
@@ -253,7 +257,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
       window.removeEventListener('pointerup', onUp);
       const updated = activeModulesRef.current.find((entry) => entry.instanceId === instanceId);
       if (updated) {
-        saveActiveModule(accountId ?? 'system', updated);
+        saveActiveModule(accountId, updated);
         void persistModulePosition(updated);
       }
     };
@@ -341,7 +345,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
         }}
       >
         {activeModules.map((instance) => {
-          const artifact = loadArtifacts(accountId).find((entry) => entry.id === instance.artifactId);
+          const artifact = artifactMap.get(instance.artifactId);
           const size = instance.size ?? DEFAULT_WINDOW_SIZE;
           const position = instance.position ?? { x: 24, y: 140 };
           const iframeSrc = shouldUseModuleLoader(instance.moduleUrl)

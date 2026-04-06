@@ -37,7 +37,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
 
   const systemArtifacts = useMemo(
     () => listSystemArtifacts(accountId).filter((artifact) => artifact.metadata?.hidden === true),
-    [accountId, artifacts],
+    [accountId],
   );
 
   const onDragStart = (event: React.DragEvent, artifact: DreamArtifact) => {

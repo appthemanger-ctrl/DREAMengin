@@ -41,6 +41,13 @@ beforeEach(() => {
 });
 
 describe('modular OS stores', () => {
+  it('falls back safely when accountId is missing or localStorage is corrupted', () => {
+    expect(loadArtifacts().map((artifact) => artifact.id)).toEqual(loadArtifacts('system').map((artifact) => artifact.id));
+
+    window.localStorage.setItem('dream_artifacts_user-123', '{bad json');
+    expect(loadArtifacts(accountId).some((artifact) => artifact.id === 'music-generator')).toBe(true);
+  });
+
   it('loads default system artifacts for a new account', () => {
     const artifacts = loadArtifacts(accountId);
     expect(artifacts.some((artifact) => artifact.id === 'music-generator')).toBe(true);
