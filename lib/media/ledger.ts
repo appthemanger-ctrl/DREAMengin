@@ -12,6 +12,10 @@ export interface LedgerBinaryHeader {
   mimeType: string;
   originalSize: number;
   fileName?: string;
+  signalCount?: number;
+  signalRatio?: number;
+  blackHoleThrottleApplied?: boolean;
+  throttleChunkSize?: number;
 }
 
 export interface LedgerDbPayload extends LedgerBinaryHeader {
@@ -24,6 +28,13 @@ export interface LedgerUploadResult {
   mediaUrl: string;
   mimeType: string;
   originalSize: number;
+}
+
+export interface LedgerDensityProfile {
+  signalCount: number;
+  signalRatio: number;
+  blackHoleThrottleApplied: boolean;
+  throttleChunkSize: number;
 }
 
 type StorageUploadClient = {
@@ -63,15 +74,15 @@ function base64ToBytes(value: string): Uint8Array {
   return bytes;
 }
 
-function floatsToBuffer(values: number[]): ArrayBuffer {
-  return new Float32Array(values).buffer.slice(0);
-}
-
 function bytesToFloats(bytes: Uint8Array): number[] {
   const aligned = bytes.byteOffset % 4 === 0
     ? new Float32Array(bytes.buffer, bytes.byteOffset, Math.floor(bytes.byteLength / 4))
     : new Float32Array(bytes.slice().buffer);
   return Array.from(aligned);
+}
+
+function valuesToBuffer(values: number[]): ArrayBuffer {
+  return new Float32Array(values).buffer.slice(0);
 }
 
 function clampByte(value: number): number {
@@ -122,6 +133,34 @@ export function decodeFromLedger(buffer: number[]): number[] {
   return buffer.map((val) => Math.sign(val) * (Math.exp(Math.abs(val)) - 1));
 }
 
+export function analyzeLedgerDensity(encodedBuffer: number[]): LedgerDensityProfile {
+  const signal = compressData(encodedBuffer);
+  const signalCount = signal.length;
+  const signalRatio = encodedBuffer.length > 0 ? signalCount / encodedBuffer.length : 0;
+  const blackHoleThrottleApplied = signalRatio >= DATA_PHYSICS.participation;
+  return {
+    signalCount,
+    signalRatio,
+    blackHoleThrottleApplied,
+    throttleChunkSize: blackHoleThrottleApplied
+      ? Math.max(256, Math.floor(4096 / DATA_PHYSICS.n))
+      : encodedBuffer.length || 256,
+  };
+}
+
+async function encodeValuesWithThrottle(encodedValues: number[], profile: LedgerDensityProfile): Promise<ArrayBuffer> {
+  if (!profile.blackHoleThrottleApplied) {
+    return valuesToBuffer(encodedValues);
+  }
+
+  const floats = new Float32Array(encodedValues.length);
+  for (let offset = 0; offset < encodedValues.length; offset += profile.throttleChunkSize) {
+    floats.set(encodedValues.slice(offset, offset + profile.throttleChunkSize), offset);
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  }
+  return floats.buffer.slice(0);
+}
+
 export function buildLedgerMediaUrl(bucket: string, storagePath: string): string {
   return `/api/ledger-media?bucket=${encodeURIComponent(bucket)}&path=${encodeURIComponent(storagePath)}`;
 }
@@ -130,12 +169,18 @@ export function encodeUint8ArrayToLedgerString(
   bytes: Uint8Array,
   options: Pick<LedgerBinaryHeader, 'mimeType' | 'fileName'>,
 ): string {
+  const encodedValues = encodeToLedger(Array.from(bytes));
+  const profile = analyzeLedgerDensity(encodedValues);
   const payload: LedgerDbPayload = {
     version: 1,
     mimeType: options.mimeType,
     fileName: options.fileName,
     originalSize: bytes.byteLength,
-    encodedBase64: bytesToBase64(new Uint8Array(floatsToBuffer(encodeToLedger(Array.from(bytes))))),
+    signalCount: profile.signalCount,
+    signalRatio: profile.signalRatio,
+    blackHoleThrottleApplied: profile.blackHoleThrottleApplied,
+    throttleChunkSize: profile.throttleChunkSize,
+    encodedBase64: bytesToBase64(new Uint8Array(valuesToBuffer(encodedValues))),
   };
   return JSON.stringify(payload);
 }
@@ -147,16 +192,22 @@ export function decodeLedgerStringToUint8Array(serialized: string): Uint8Array {
 }
 
 export async function encodeBlobToLedger(blob: Blob, options?: { fileName?: string; mimeType?: string }): Promise<Blob> {
+  const source = new Uint8Array(await blob.arrayBuffer());
+  const encodedValues = encodeToLedger(Array.from(source));
+  const profile = analyzeLedgerDensity(encodedValues);
   const header: LedgerBinaryHeader = {
     version: 1,
     mimeType: options?.mimeType || blob.type || 'application/octet-stream',
     originalSize: blob.size,
     fileName: options?.fileName,
+    signalCount: profile.signalCount,
+    signalRatio: profile.signalRatio,
+    blackHoleThrottleApplied: profile.blackHoleThrottleApplied,
+    throttleChunkSize: profile.throttleChunkSize,
   };
-  const source = new Uint8Array(await blob.arrayBuffer());
   const headerText = `${LEDGER_MAGIC}\n${JSON.stringify(header)}\n`;
   return new Blob(
-    [headerText, floatsToBuffer(encodeToLedger(Array.from(source)))],
+    [headerText, await encodeValuesWithThrottle(encodedValues, profile)],
     { type: 'application/octet-stream' },
   );
 }

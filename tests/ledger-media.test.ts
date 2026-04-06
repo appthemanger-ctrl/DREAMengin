@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  analyzeLedgerDensity,
   buildLedgerMediaUrl,
   decodeFromLedger,
   decodeLedgerBlob,
@@ -24,7 +25,17 @@ describe('ledger media helpers', () => {
       mimeType: 'application/octet-stream',
       fileName: 'mesh.bin',
     });
+    const payload = JSON.parse(encoded) as {
+      blackHoleThrottleApplied: boolean;
+      signalCount: number;
+      signalRatio: number;
+      throttleChunkSize: number;
+    };
 
+    expect(payload.blackHoleThrottleApplied).toBe(true);
+    expect(payload.signalCount).toBeGreaterThan(0);
+    expect(payload.signalRatio).toBeGreaterThanOrEqual(0.1);
+    expect(payload.throttleChunkSize).toBeGreaterThan(0);
     expect(Array.from(decodeLedgerStringToUint8Array(encoded))).toEqual(Array.from(bytes));
   });
 
@@ -41,5 +52,13 @@ describe('ledger media helpers', () => {
     expect(buildLedgerMediaUrl('audio', 'user-1/starmaker/clip.wav.ledger')).toBe(
       '/api/ledger-media?bucket=audio&path=user-1%2Fstarmaker%2Fclip.wav.ledger',
     );
+  });
+
+  it('flags black-hole density spikes using the n=2.1 profile', () => {
+    const denseProfile = analyzeLedgerDensity(encodeToLedger([0, 1, 16, 64, 128, 255]));
+
+    expect(denseProfile.blackHoleThrottleApplied).toBe(true);
+    expect(denseProfile.signalRatio).toBeGreaterThanOrEqual(0.1);
+    expect(denseProfile.throttleChunkSize).toBeGreaterThan(0);
   });
 });
