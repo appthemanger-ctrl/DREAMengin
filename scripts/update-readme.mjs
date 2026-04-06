@@ -35,6 +35,7 @@ const AI_CTX_START = '<!-- DREAMENGIN-AI-CONTEXT:START -->';
 const AI_CTX_END   = '<!-- DREAMENGIN-AI-CONTEXT:END -->';
 const SPEC_SNAPSHOT_START = '<!-- DREAMENGIN-SPEC-SNAPSHOT:START -->';
 const SPEC_SNAPSHOT_END   = '<!-- DREAMENGIN-SPEC-SNAPSHOT:END -->';
+const USE_GITHUB_CONTEXT = process.env.README_UPDATE_USE_GITHUB_CONTEXT === 'true';
 
 // ── Helper: run git / shell commands ──────────────────────────────────────────
 
@@ -60,9 +61,9 @@ function cell(s) { return s.replace(/\|/g, '\\|').replace(/\n/g, ' '); }
 
 // ── 1. Collect git metadata ────────────────────────────────────────────────────
 
-const sha     = (process.env.GITHUB_SHA      || git('git rev-parse HEAD')).slice(0, 7);
-const branch  = (process.env.GITHUB_REF_NAME || git('git rev-parse --abbrev-ref HEAD'));
-const actor   = (process.env.GITHUB_ACTOR    || git('git log -1 --format=%an'));
+const sha     = ((USE_GITHUB_CONTEXT ? process.env.GITHUB_SHA : '')      || git('git rev-parse HEAD')).slice(0, 7);
+const branch  = ((USE_GITHUB_CONTEXT ? process.env.GITHUB_REF_NAME : '') || git('git rev-parse --abbrev-ref HEAD'));
+const actor   = ((USE_GITHUB_CONTEXT ? process.env.GITHUB_ACTOR : '')    || git('git log -1 --format=%an'));
 const rawDate = git('git log -1 --format=%aI');
 const message = git('git log -1 --format=%s');
 const eventDate = new Date(rawDate || Date.now());

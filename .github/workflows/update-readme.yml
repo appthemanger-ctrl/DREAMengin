@@ -38,6 +38,7 @@ jobs:
       - name: Run update-readme script
         run: node scripts/update-readme.mjs
         env:
+          README_UPDATE_USE_GITHUB_CONTEXT: 'true'
           GITHUB_SHA:           ${{ github.sha }}
           GITHUB_REF_NAME:      ${{ github.ref_name }}
           GITHUB_ACTOR:         ${{ github.actor }}
