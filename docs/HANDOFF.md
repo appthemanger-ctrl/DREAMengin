@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-06 01:39 UTC | `a1842d4` | copilot/separate-visual-react-state | Copilot | +2 added  ~4 modified<br>feat: add unified dream os bus — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/5ace7cd1-8f02-4f05-9d21-591974a6e93a  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `lib/runtime/dreamOSBus.ts`, `tests/dream-os-bus.test.ts`<br>✏️: `components/daydream/CodeDreamIDE.tsx`, `components/daydream/LabDreamIDE.tsx`, `components/dreamengin/DREAMenginOS.tsx`, `components/home/HomeSystem.tsx` |
 | **auto** | 2026-04-06 01:19 UTC | `e623795` | copilot/separate-visual-react-state | Copilot | ~4 modified<br>fix: tighten os integration follow-ups — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c18d6ab9-472a-4c6f-8dce-8b3b9d0d786f  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/dreamengin/DREAMenginOS.tsx`, `components/home/HomeSystem.tsx`, `lib/dreamengin/osSubsystemManifest.ts`, `tests/dual-runtime-bridge-peer-activity.test.ts` |
 | **auto** | 2026-04-05 09:51 UTC | `910e6b2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #456 from appthemanger-ctrl/copilot/here-go-nuts — Add neural decision engine workflow for ranked platform move selection<br> |
 | **auto** | 2026-04-05 09:51 UTC | `631202c` | copilot/here-go-nuts | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/here-go-nuts<br> |
 | **auto** | 2026-04-05 09:49 UTC | `8bc80ec` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #454 from appthemanger-ctrl/copilot/fix-type-error-in-ad-slotsr — Bypass stale Supabase ads typings in server queries<br> |
-| **auto** | 2026-04-05 09:49 UTC | `fab1acd` | copilot/fix-type-error-in-ad-slots | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-type-error-in-ad-slots<br> |
 
 ## What changed in this alignment pass
 
