@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import type { UnifiedFeedItem } from '@/types/connector';
+import { resolveSwipeRelease } from '@/lib/dreamr/torridityLedger';
 import DreamRCreatorPanel from './DreamRCreatorPanel';
 import DreamRChannelPanel from './DreamRChannelPanel';
 
@@ -193,7 +194,7 @@ interface VideoCardProps {
 }
 
 function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave }: VideoCardProps) {
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const embedSrc = ytEmbedUrl(post);
@@ -203,12 +204,19 @@ function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSa
   return (
     <div
       style={{ position: 'relative', width: '100%', height: '100%', scrollSnapAlign: 'start', overflow: 'hidden', flexShrink: 0, background: '#0d1526', fontFamily: DR.font }}
-      onTouchStart={e => { const t = e.touches[0]; if (t) touchStart.current = { x: t.clientX, y: t.clientY }; }}
+      onTouchStart={e => { const t = e.touches[0]; if (t) touchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() }; }}
       onTouchEnd={e => {
         const s = touchStart.current; touchStart.current = null; if (!s) return;
         const t = e.changedTouches[0]; if (!t) return;
         const dx = t.clientX - s.x, dy = t.clientY - s.y;
-        if (dx < -55 && Math.abs(dx) > Math.abs(dy) * 1.2) onSwipeLeft();
+        const release = resolveSwipeRelease({
+          pixelDelta: dx,
+          crossDelta: dy,
+          durationMs: Date.now() - s.at,
+          viewportExtent: window.innerWidth,
+          direction: 'negative',
+        });
+        if (release.shouldTrigger) onSwipeLeft();
       }}
     >
       {/* Active stripe */}
@@ -350,7 +358,7 @@ interface CardProps {
 }
 
 function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave }: CardProps) {
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const hasDark = isImage(post.media_url);
   const [captionExpanded, setCaptionExpanded] = useState(false);
 
@@ -374,12 +382,19 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave }:
         background: hasDark ? 'linear-gradient(180deg,#0d1526,#111d35)' : DR.bg,
         fontFamily: DR.font,
       }}
-      onTouchStart={e => { const t = e.touches[0]; if (t) touchStart.current = { x: t.clientX, y: t.clientY }; }}
+      onTouchStart={e => { const t = e.touches[0]; if (t) touchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() }; }}
       onTouchEnd={e => {
         const s = touchStart.current; touchStart.current = null; if (!s) return;
         const t = e.changedTouches[0]; if (!t) return;
         const dx = t.clientX - s.x, dy = t.clientY - s.y;
-        if (dx < -55 && Math.abs(dx) > Math.abs(dy) * 1.2) onSwipeLeft();
+        const release = resolveSwipeRelease({
+          pixelDelta: dx,
+          crossDelta: dy,
+          durationMs: Date.now() - s.at,
+          viewportExtent: window.innerWidth,
+          direction: 'negative',
+        });
+        if (release.shouldTrigger) onSwipeLeft();
       }}
     >
       {/* Background */}
@@ -493,18 +508,25 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave }:
 // ── Suggested CONTENT card ────────────────────────────────────────────────────
 
 function SuggestedContentCard({ post, onSwipeLeft }: { post: FeedPost; onSwipeLeft: () => void }) {
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const caption = post.content?.slice(0, 120) ?? '';
 
   return (
     <div
       style={{ position: 'relative', width: '100%', height: '100%', scrollSnapAlign: 'start', overflow: 'hidden', flexShrink: 0, background: DR.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '28px 24px', fontFamily: DR.font }}
-      onTouchStart={e => { const t = e.touches[0]; if (t) touchStart.current = { x: t.clientX, y: t.clientY }; }}
+      onTouchStart={e => { const t = e.touches[0]; if (t) touchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() }; }}
       onTouchEnd={e => {
         const s = touchStart.current; touchStart.current = null; if (!s) return;
         const t = e.changedTouches[0]; if (!t) return;
         const dx = t.clientX - s.x, dy = t.clientY - s.y;
-        if (dx < -55 && Math.abs(dx) > Math.abs(dy) * 1.2) onSwipeLeft();
+        const release = resolveSwipeRelease({
+          pixelDelta: dx,
+          crossDelta: dy,
+          durationMs: Date.now() - s.at,
+          viewportExtent: window.innerWidth,
+          direction: 'negative',
+        });
+        if (release.shouldTrigger) onSwipeLeft();
       }}
     >
       {/* Label */}
