@@ -23,6 +23,12 @@
  * All functions are pure — no I/O, fully testable.
  */
 
+import {
+  calculateRank,
+  derivePostMassMeta,
+  getPostMass,
+} from '@/lib/dreamr/torridityLedger';
+
 export interface ScoredPost {
   id: string;
   content: string;
@@ -40,6 +46,10 @@ export interface ScoredPost {
   };
   /** Computed by scoreDreamRPost — 0-100 */
   dreamr_score?: number;
+  /** Torridity Ledger ranking weight — 0-1 */
+  torridity_rank?: number;
+  /** Torridity-derived originality mass */
+  originality_mass?: number;
   /** Per-signal breakdown — for transparency / debugging */
   dreamr_signals?: DreamRSignals;
 }
@@ -155,12 +165,18 @@ export function scoreFreshness(createdAt: string): number {
  * This is the ONLY place engagement enters the ranking — intentionally small.
  */
 export function scoreTrendImpact(
-  likesCount: number | undefined,
-  commentsCount: number | undefined,
+  viewsCount: number | undefined,
+  likesCount?: number | undefined,
+  commentsCount?: number | undefined,
 ): number {
-  const total = (likesCount ?? 0) + (commentsCount ?? 0);
-  if (total === 0) return 0;
-  return Math.min(1, Math.sqrt(total) / Math.sqrt(500));
+  const publicViews = viewsCount ?? 0;
+  if (publicViews > 0) {
+    return Math.min(1, Math.sqrt(publicViews) / Math.sqrt(500));
+  }
+
+  const fallbackEngagement = (likesCount ?? 0) + (commentsCount ?? 0);
+  if (fallbackEngagement === 0) return 0;
+  return Math.min(0.25, Math.sqrt(fallbackEngagement) / Math.sqrt(500));
 }
 
 // ── Composite scorer ─────────────────────────────────────────────────────────
@@ -168,22 +184,36 @@ export function scoreTrendImpact(
 export function scoreDreamRPost(post: ScoredPost): {
   score: number;
   signals: DreamRSignals;
+  torridityRank: number;
+  originalityMass: number;
 } {
+  const massMeta = derivePostMassMeta(post);
+  const torridityRank = calculateRank({
+    humanViews: post.views_count ?? 0,
+    metadata: massMeta,
+  });
+  const originalityMass = getPostMass(massMeta);
   const signals: DreamRSignals = {
     contentDepth:   scoreContentDepth(post.content ?? ''),
     originalMedia:  scoreOriginalMedia(post.media_url, post.source, post.provider),
     dreamenginMade: scoreDreamenginMade(post.source, post.provider, post.content ?? ''),
     textRichness:   scoreTextRichness(post.content ?? ''),
     freshness:      scoreFreshness(post.created_at),
-    trendImpact:    scoreTrendImpact(post.likes_count, post.comments_count),
+    trendImpact:    scoreTrendImpact(post.views_count, post.likes_count, post.comments_count),
   };
 
-  const score = (Object.keys(signals) as Array<keyof DreamRSignals>).reduce(
+  const baseScore = (Object.keys(signals) as Array<keyof DreamRSignals>).reduce(
     (sum, key) => sum + signals[key] * DREAMR_WEIGHTS[key],
     0,
   ) * 100;
 
-  return { score: Math.round(score * 10) / 10, signals };
+  const score = (baseScore * 0.8) + (torridityRank * 20);
+  return {
+    score: Math.round(score * 10) / 10,
+    signals,
+    torridityRank,
+    originalityMass: Math.round(originalityMass * 1000) / 1000,
+  };
 }
 
 /**
@@ -195,8 +225,19 @@ export function scoreDreamRPost(post: ScoredPost): {
 export function rankFeed(posts: ScoredPost[]): ScoredPost[] {
   // First pass — compute raw scores
   const scored = posts.map(p => {
-    const { score, signals } = scoreDreamRPost(p);
-    return { ...p, dreamr_score: score, dreamr_signals: signals };
+    const {
+      score,
+      signals,
+      torridityRank,
+      originalityMass,
+    } = scoreDreamRPost(p);
+    return {
+      ...p,
+      dreamr_score: score,
+      dreamr_signals: signals,
+      torridity_rank: torridityRank,
+      originality_mass: originalityMass,
+    };
   });
 
   // Sort descending by raw score
