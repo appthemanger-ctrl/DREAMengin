@@ -2895,25 +2895,29 @@ function DAWFileIOPanel({
 
   // ── Load blob (from file input or external recording) ──
   const syncLedgerAudio = useCallback(async (blob: Blob, name: string) => {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const ext = name.split('.').pop() || 'bin';
-    const storagePath = `${user.id}/starmaker/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
-    const upload = await uploadBlobToLedgerStorage(supabase, {
-      bucket: 'audio',
-      storagePath,
-      blob,
-      fileName: name,
-      mimeType: blob.type || 'audio/wav',
-    });
-    onLedgerAudioChange({
-      bucket: 'audio',
-      storagePath,
-      mediaUrl: upload.mediaUrl,
-      fileName: name,
-      mimeType: blob.type || 'audio/wav',
-    });
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const ext = name.split('.').pop() || 'bin';
+      const storagePath = `${user.id}/starmaker/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
+      const upload = await uploadBlobToLedgerStorage(supabase, {
+        bucket: 'audio',
+        storagePath,
+        blob,
+        fileName: name,
+        mimeType: blob.type || 'audio/wav',
+      });
+      onLedgerAudioChange({
+        bucket: 'audio',
+        storagePath,
+        mediaUrl: upload.mediaUrl,
+        fileName: name,
+        mimeType: blob.type || 'audio/wav',
+      });
+    } catch (error) {
+      console.warn('StarMaker ledger sync skipped:', error);
+    }
   }, [onLedgerAudioChange]);
 
   const loadBlob = useCallback(async (

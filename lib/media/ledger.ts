@@ -63,8 +63,8 @@ function base64ToBytes(value: string): Uint8Array {
   return bytes;
 }
 
-function floatsToBytes(values: number[]): Uint8Array {
-  return new Uint8Array(new Float32Array(values).buffer.slice(0));
+function floatsToBuffer(values: number[]): ArrayBuffer {
+  return new Float32Array(values).buffer.slice(0);
 }
 
 function bytesToFloats(bytes: Uint8Array): number[] {
@@ -135,7 +135,7 @@ export function encodeUint8ArrayToLedgerString(
     mimeType: options.mimeType,
     fileName: options.fileName,
     originalSize: bytes.byteLength,
-    encodedBase64: bytesToBase64(floatsToBytes(encodeToLedger(Array.from(bytes)))),
+    encodedBase64: bytesToBase64(new Uint8Array(floatsToBuffer(encodeToLedger(Array.from(bytes))))),
   };
   return JSON.stringify(payload);
 }
@@ -156,7 +156,7 @@ export async function encodeBlobToLedger(blob: Blob, options?: { fileName?: stri
   const source = new Uint8Array(await blob.arrayBuffer());
   const headerText = `${LEDGER_MAGIC}\n${JSON.stringify(header)}\n`;
   return new Blob(
-    [headerText, floatsToBytes(encodeToLedger(Array.from(source)))],
+    [headerText, floatsToBuffer(encodeToLedger(Array.from(source)))],
     { type: 'application/octet-stream' },
   );
 }
