@@ -3,7 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { scanContent } from '@/lib/child-safety/childSafetyDetector';
 import { scanMediaUrlsForChildSafety } from '@/lib/child-safety/scanMediaUrls';
 import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
+import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { createHash } from 'crypto';
+
+function normalizePostMedia<T extends Record<string, any>>(post: T): T & { media_url: string | null } {
+  return {
+    ...post,
+    media_url: getPrimaryPostMediaUrl(post),
+  };
+}
 
 // GET - Fetch posts for feed
 // Query params:
@@ -72,7 +80,7 @@ export async function GET(req: NextRequest) {
       })
       .slice(0, limit);
 
-    return NextResponse.json({ posts, total_cap: 500 });
+    return NextResponse.json({ posts: posts.map((post: any) => normalizePostMedia(post)), total_cap: 500 });
   }
 
   // ── Trending feed: order by likes_count DESC, then recent ─────────────────
@@ -88,7 +96,7 @@ export async function GET(req: NextRequest) {
       .range(offset, offset + limit - 1);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ posts });
+    return NextResponse.json({ posts: (posts ?? []).map((post: any) => normalizePostMedia(post)) });
   }
 
   // ── Default feed: public posts ordered by recency ─────────────────────────
@@ -105,7 +113,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ posts });
+  return NextResponse.json({ posts: (posts ?? []).map((post: any) => normalizePostMedia(post)) });
 }
 
 // POST - Create a new post

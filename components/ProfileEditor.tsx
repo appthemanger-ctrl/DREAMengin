@@ -5,6 +5,7 @@ import { Camera, Upload, X, Check, User, Image as ImageIcon, Link as LinkIcon, P
 import { createClient } from '@/lib/supabase/client';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 import { SOCIAL_PLATFORMS, detectPlatform } from '@/lib/social/platforms';
+import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 
 interface ProfileData {
   id: string;
@@ -61,28 +62,21 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
     try {
       // Generate unique filename
       const ext = file.name.split('.').pop();
-      const filename = `${profile.id}/${Date.now()}.${ext}`;
+      const filename = `${profile.id}/${Date.now()}.${ext}.ledger`;
 
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filename, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filename);
+      const { mediaUrl } = await uploadBlobToLedgerStorage(supabase, {
+        bucket: 'avatars',
+        storagePath: filename,
+        blob: file,
+        fileName: file.name,
+        mimeType: file.type,
+      });
 
       // Update profile in database
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          avatar_url: publicUrl,
+          avatar_url: mediaUrl,
           avatar_storage_path: filename
         })
         .eq('id', profile.id);
@@ -90,7 +84,7 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
       if (updateError) throw updateError;
 
       // Update local state
-      setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
+      setFormData(prev => ({ ...prev, avatar_url: mediaUrl }));
       
       alert('Avatar updated successfully!');
     } catch (error: unknown) {
@@ -119,32 +113,27 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
 
     try {
       const ext = file.name.split('.').pop();
-      const filename = `${profile.id}/${Date.now()}.${ext}`;
+      const filename = `${profile.id}/${Date.now()}.${ext}.ledger`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('covers')
-        .upload(filename, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('covers')
-        .getPublicUrl(filename);
+      const { mediaUrl } = await uploadBlobToLedgerStorage(supabase, {
+        bucket: 'covers',
+        storagePath: filename,
+        blob: file,
+        fileName: file.name,
+        mimeType: file.type,
+      });
 
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          cover_image_url: publicUrl,
+          cover_image_url: mediaUrl,
           cover_storage_path: filename
         })
         .eq('id', profile.id);
 
       if (updateError) throw updateError;
 
-      setFormData(prev => ({ ...prev, cover_image_url: publicUrl }));
+      setFormData(prev => ({ ...prev, cover_image_url: mediaUrl }));
       
       alert('Cover image updated successfully!');
     } catch (error: unknown) {

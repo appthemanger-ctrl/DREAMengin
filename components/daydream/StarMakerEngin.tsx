@@ -57,6 +57,7 @@ import {
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { buildLedgerMediaUrl, uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import {
   type PianoRollState,
   type CompingState,
@@ -89,6 +90,14 @@ import {
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
+
+type PersistedLedgerAudio = {
+  bucket: 'audio';
+  storagePath: string;
+  mediaUrl: string;
+  fileName: string;
+  mimeType: string;
+};
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 
@@ -249,7 +258,13 @@ export default function StarMakerEngin({ onBack }: Props) {
   const { persistState } = useDaydreamState({ daydreamType: 'music', side: 'B' });
 
   // ── Daydream DB persistence with restore (Phase 8 §F pts 49, 51) ──
-  type StarMakerState = { bpm?: number; musicalKey?: MusicalKey; keyMode?: 'major' | 'minor'; pitch?: number };
+  type StarMakerState = {
+    bpm?: number;
+    musicalKey?: MusicalKey;
+    keyMode?: 'major' | 'minor';
+    pitch?: number;
+    ledgerAudio?: PersistedLedgerAudio | null;
+  };
   const {
     savedState: savedMusicState,
     isRestoring: musicRestoring,
@@ -257,6 +272,7 @@ export default function StarMakerEngin({ onBack }: Props) {
   } = useDaydreamPersistence<StarMakerState>({ daydreamType: 'music' });
 
   const musicRestoredRef = useRef(false);
+  const [persistedLedgerAudio, setPersistedLedgerAudio] = useState<PersistedLedgerAudio | null>(null);
 
   // ── Supabase releases state ──
   const [releases,   setReleases]   = useState<MusicRelease[]>([]);
@@ -296,15 +312,16 @@ export default function StarMakerEngin({ onBack }: Props) {
     if (savedMusicState.musicalKey)        setMusicalKey(savedMusicState.musicalKey);
     if (savedMusicState.keyMode)           setKeyMode(savedMusicState.keyMode);
     if (savedMusicState.pitch !== undefined) setPitch(savedMusicState.pitch);
+    setPersistedLedgerAudio(savedMusicState.ledgerAudio ?? null);
   }, [musicRestoring, savedMusicState]);
 
   // ── Persist creative workspace state to Supabase (Phase 8 §F Point 51) ──
   useEffect(() => {
     if (musicRestoring) return;
-    persistState({ side: 'B', bpm, musicalKey, keyMode, pitch });
-    persistMusicState({ bpm, musicalKey, keyMode, pitch });
+    persistState({ side: 'B', bpm, musicalKey, keyMode, pitch, ledgerAudio: persistedLedgerAudio });
+    persistMusicState({ bpm, musicalKey, keyMode, pitch, ledgerAudio: persistedLedgerAudio });
    
-  }, [bpm, musicalKey, keyMode, pitch, musicRestoring]);
+  }, [bpm, musicalKey, keyMode, pitch, musicRestoring, persistedLedgerAudio]);
 
   // ── Supabase: fetch releases (defence-in-depth owner_id filter; RLS enforced server-side) ──
   useEffect(() => {
@@ -960,8 +977,10 @@ export default function StarMakerEngin({ onBack }: Props) {
         <DAWFileIOPanel
           bpm={bpm}
           externalLoad={externalLoadRequest}
+          persistedLedgerAudio={persistedLedgerAudio}
           projectSnapshot={projectSnapshot}
           onExternalLoadConsumed={() => setExternalLoadRequest(null)}
+          onLedgerAudioChange={setPersistedLedgerAudio}
         />
 
         {/* ── Journey Trail ── */}
@@ -2590,8 +2609,10 @@ function encodeWav(buffer: AudioBuffer): Blob {
 interface DAWFileIOPanelProps {
   bpm: number;
   externalLoad: { blob: Blob; name: string; mimeType: string } | null;
+  persistedLedgerAudio: PersistedLedgerAudio | null;
   projectSnapshot: Record<string, unknown>;
   onExternalLoadConsumed: () => void;
+  onLedgerAudioChange: (audio: PersistedLedgerAudio | null) => void;
 }
 
 const FIO_BARS = 96;  // number of waveform bars
@@ -2664,7 +2685,14 @@ function computeAudioStats(buffer: AudioBuffer): AudioStats {
   };
 }
 
-function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadConsumed }: DAWFileIOPanelProps) {
+function DAWFileIOPanel({
+  bpm,
+  externalLoad,
+  persistedLedgerAudio,
+  projectSnapshot,
+  onExternalLoadConsumed,
+  onLedgerAudioChange,
+}: DAWFileIOPanelProps) {
   // ── Audio state ──
   const [fileName,      setFileName]      = useState<string | null>(null);
   const [fileSize,      setFileSize]       = useState(0);
@@ -2723,6 +2751,7 @@ function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadCons
   const arrangementGainsRef   = useRef<GainNode[]>([]);
   const arrangementTimerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const arrangementPlayheadRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const restoringLedgerAudioRef = useRef(false);
 
   // ── Helper: get/create OfflineAudioContext for processing ──
   function getOfflineCtx(length: number, sr: number, ch: number) {
@@ -2865,7 +2894,37 @@ function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadCons
   }
 
   // ── Load blob (from file input or external recording) ──
-  const loadBlob = useCallback(async (blob: Blob, name: string) => {
+  const syncLedgerAudio = useCallback(async (blob: Blob, name: string) => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const ext = name.split('.').pop() || 'bin';
+      const storagePath = `${user.id}/starmaker/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
+      const upload = await uploadBlobToLedgerStorage(supabase, {
+        bucket: 'audio',
+        storagePath,
+        blob,
+        fileName: name,
+        mimeType: blob.type || 'audio/wav',
+      });
+      onLedgerAudioChange({
+        bucket: 'audio',
+        storagePath,
+        mediaUrl: upload.mediaUrl,
+        fileName: name,
+        mimeType: blob.type || 'audio/wav',
+      });
+    } catch (error) {
+      console.warn('StarMaker ledger sync skipped:', error);
+    }
+  }, [onLedgerAudioChange]);
+
+  const loadBlob = useCallback(async (
+    blob: Blob,
+    name: string,
+    options?: { persistToLedger?: boolean },
+  ) => {
     setImportErr(null);
     setIsImporting(true);
     setIsPlaying(false);
@@ -2925,11 +2984,15 @@ function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadCons
       audio.onerror = () => { setIsPlaying(false); setImportErr('Playback failed — format may be unsupported by this browser. Export as WAV instead.'); };
       audioRef.current = audio;
 
+      if (options?.persistToLedger !== false) {
+        await syncLedgerAudio(blob, name);
+      }
+
     } catch (err) {
       setImportErr(`Import failed: ${err instanceof Error ? err.message : String(err)}`);
     }
     setIsImporting(false);
-  }, [isLooping, volume]);
+  }, [isLooping, syncLedgerAudio, volume]);
 
   const restoreHistory = useCallback(async (direction: 'undo' | 'redo') => {
     const source = direction === 'undo' ? undoStackRef : redoStackRef;
@@ -3044,6 +3107,29 @@ function DAWFileIOPanel({ bpm, externalLoad, projectSnapshot, onExternalLoadCons
     onExternalLoadConsumed();
    
   }, [externalLoad]);
+
+  useEffect(() => {
+    if (!persistedLedgerAudio || fileName || restoringLedgerAudioRef.current) return;
+    restoringLedgerAudioRef.current = true;
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const res = await fetch(buildLedgerMediaUrl(persistedLedgerAudio.bucket, persistedLedgerAudio.storagePath), {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error(`Failed to restore saved audio from ledger (${res.status})`);
+        const restoredBlob = await res.blob();
+        await loadBlob(restoredBlob, persistedLedgerAudio.fileName, { persistToLedger: false });
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          setImportErr(`Failed to restore saved audio from ledger: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      } finally {
+        restoringLedgerAudioRef.current = false;
+      }
+    })();
+    return () => controller.abort();
+  }, [fileName, loadBlob, persistedLedgerAudio]);
 
   // ── Sync loop/volume to audio element ──
   useEffect(() => {

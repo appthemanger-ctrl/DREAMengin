@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 08:06 UTC  
-**Last updated:** 2026-04-06 08:06 UTC  
-**Triggered by commit:** `547d0dd` on `copilot/update-data-transform-script` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/update-data-transform-script
+**Documentation Date:** 2026-04-06 07:36 UTC  
+**Last updated:** 2026-04-06 07:36 UTC  
+**Triggered by commit:** `67e00dd` on `copilot/sync-user-media-uploads` by Copilot  
+**Commit message:** feat: extend ledger standard to DreamDM and DreamR uploads and add n=2.1 throttle metadata per docs/ARCHITECTURE.md §5/§10; performance impact better
 
 ---
 

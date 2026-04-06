@@ -35,6 +35,8 @@ import {
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import DreamRFeed from './DreamRFeed';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
+import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
+import { createClient } from '@/lib/supabase/client';
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 
@@ -135,6 +137,7 @@ function TrendIcon({ v }: { v: number }) {
 // ── Create tab ────────────────────────────────────────────────────────────────
 
 function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike | null }) {
+  const supabase = createClient();
   const [content,    setContent]    = useState('');
   const [vis,        setVis]        = useState<'public' | 'followers' | 'private'>('public');
   const [sending,    setSending]    = useState(false);
@@ -170,14 +173,27 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
       // Upload media if present (image/video takes precedence over audio)
       const uploadTarget = mediaFile ?? audioFile;
       if (uploadTarget) {
-        const fd = new FormData(); fd.append('file', uploadTarget);
-        const up = await fetch('/api/upload', { method: 'POST', body: fd });
-        if (up.ok) { const d = await up.json(); mediaUrl = d.url ?? null; }
+        const bucket = uploadTarget.type.startsWith('image/')
+          ? 'images'
+          : uploadTarget.type.startsWith('video/')
+            ? 'videos'
+            : uploadTarget.type.startsWith('audio/')
+              ? 'audio'
+              : 'files';
+        const ext = uploadTarget.name.split('.').pop() ?? 'bin';
+        const upload = await uploadBlobToLedgerStorage(supabase, {
+          bucket,
+          storagePath: `${userId}/dreamr/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`,
+          blob: uploadTarget,
+          fileName: uploadTarget.name,
+          mimeType: uploadTarget.type,
+        });
+        mediaUrl = upload.mediaUrl;
       }
       await fetch('/api/posts', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ content, visibility: vis, media_url: mediaUrl }),
+        body: JSON.stringify({ content, visibility: vis, media_urls: mediaUrl ? [mediaUrl] : [] }),
       });
       setSent(true);
       setContent(''); setMediaFile(null); setMediaPreview(null); setAudioFile(null);

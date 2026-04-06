@@ -21,6 +21,7 @@
 
 import { useCallback, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import type { DMMessage } from './useDreamDMMessages';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -96,19 +97,16 @@ export function useMessagingCore(
       const fileType  = getFileType(file);
       const bucket    = BUCKET_MAP[fileType];
       const ext       = file.name.split('.').pop() ?? 'bin';
-      const filename  = `${userId}/messages/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+      const filename  = `${userId}/messages/${Date.now()}-${crypto.randomUUID()}.${ext}.ledger`;
+      const upload = await uploadBlobToLedgerStorage(supabase, {
+        bucket,
+        storagePath: filename,
+        blob: file,
+        fileName: file.name,
+        mimeType: file.type,
+      });
 
-      const { error } = await supabase.storage
-        .from(bucket)
-        .upload(filename, file, { cacheControl: '3600', upsert: false });
-
-      if (error) throw new Error(`Upload failed: ${error.message}`);
-
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(filename);
-
-      return { url: publicUrl, type: fileType };
+      return { url: upload.mediaUrl, type: fileType };
     },
     [getFileType],
   );
