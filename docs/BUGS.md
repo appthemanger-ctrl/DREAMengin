@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 10:09 UTC  
-**Last updated:** 2026-04-06 10:09 UTC  
-**Triggered by commit:** `6e6a166` on `copilot/execute-to-perfection` by Copilot  
-**Commit message:** docs: rename SPEC to repo companion
+**Documentation Date:** 2026-04-06 10:34 UTC  
+**Last updated:** 2026-04-06 10:34 UTC  
+**Triggered by commit:** `3dca8da` on `copilot/execute-to-perfection` by Copilot  
+**Commit message:** chore: update runtime references to Node 25
 
 ---
 
