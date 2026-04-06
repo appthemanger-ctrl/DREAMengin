@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 05:09 UTC  
-**Last updated:** 2026-04-06 05:09 UTC  
-**Triggered by commit:** `462344e` on `copilot/fix-syntax-error-expectation` by Copilot  
-**Commit message:** feat: add modular os drag drop foundation
+**Documentation Date:** 2026-04-06 05:16 UTC  
+**Last updated:** 2026-04-06 05:16 UTC  
+**Triggered by commit:** `197b365` on `copilot/fix-syntax-error-expectation` by Copilot  
+**Commit message:** fix: harden modular loader and docs automation
 
 ---
 
