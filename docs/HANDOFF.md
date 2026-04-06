@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-05 12:08 UTC | `5ebecc6` | copilot/replace-old-plug-jnevery-subsystem | Copilot | ~1 modified<br>fix: resolve dreamenginos lint issue — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/42a2d3f1-afca-467b-a458-5ac9f41b46b2  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/dreamengin/DREAMenginOS.tsx` |
 | **auto** | 2026-04-05 09:51 UTC | `910e6b2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #456 from appthemanger-ctrl/copilot/here-go-nuts — Add neural decision engine workflow for ranked platform move selection<br> |
 | **auto** | 2026-04-05 09:51 UTC | `631202c` | copilot/here-go-nuts | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/here-go-nuts<br> |
 | **auto** | 2026-04-05 09:49 UTC | `8bc80ec` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #454 from appthemanger-ctrl/copilot/fix-type-error-in-ad-slotsr — Bypass stale Supabase ads typings in server queries<br> |
 | **auto** | 2026-04-05 09:49 UTC | `fab1acd` | copilot/fix-type-error-in-ad-slots | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-type-error-in-ad-slots<br> |
-| **auto** | 2026-04-05 08:45 UTC | `a07f8b7` | copilot/fix-type-error-in-ad-slots | Copilot | ~1 modified<br>fix: normalize remediation file hint regex — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/d89d2ca5-1897-4f70-baf7-f93c2a674c3a  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/observability/immediateAction.ts` |
 
 ## What changed in this alignment pass
 
