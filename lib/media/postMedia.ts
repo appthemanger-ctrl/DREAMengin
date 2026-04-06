@@ -4,18 +4,18 @@ export interface PostMediaShape {
   media_json?: unknown;
 }
 
-function collectStringValues(value: unknown): string[] {
+function collectMediaUrlStrings(value: unknown): string[] {
   if (typeof value === 'string') {
     const trimmed = value.trim();
     return trimmed ? [trimmed] : [];
   }
 
   if (Array.isArray(value)) {
-    return value.flatMap((entry) => collectStringValues(entry));
+    return value.flatMap((entry) => collectMediaUrlStrings(entry));
   }
 
   if (value && typeof value === 'object') {
-    return Object.values(value as Record<string, unknown>).flatMap((entry) => collectStringValues(entry));
+    return Object.values(value as Record<string, unknown>).flatMap((entry) => collectMediaUrlStrings(entry));
   }
 
   return [];
@@ -24,9 +24,9 @@ function collectStringValues(value: unknown): string[] {
 export function getPostMediaUrls(post: PostMediaShape): string[] {
   const seen = new Set<string>();
   const urls = [
-    ...collectStringValues(post.media_url),
-    ...collectStringValues(post.media_urls),
-    ...collectStringValues(post.media_json),
+    ...collectMediaUrlStrings(post.media_url),
+    ...collectMediaUrlStrings(post.media_urls),
+    ...collectMediaUrlStrings(post.media_json),
   ];
 
   return urls.filter((url) => {
