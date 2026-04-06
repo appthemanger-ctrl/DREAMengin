@@ -1,22 +1,6 @@
 'use client';
 
-/**
- * HomeSystem — Full-screen Surface Space with floating DreamDM Bar.
- *
- * The bar is NOT a spatial divider. It floats as a position:fixed component
- * (z-index 100) above the full-screen Surface Space (z-index 1). DreamSpace
- * content is accessed through top-runtime navigation (replacing Surface Space
- * content), not as a persistent split-screen panel.
- *
- * Layout (bottom → top, in stacking order):
- *   1. StarfieldCanvas  — background
- *   2. Surface Space    — full viewport, the HomeDream feed and all panels
- *   3. DreamDM Bar      — position:fixed, always floating above content
- *
- * Architecture justification: ARCHITECTURE.md §1 (Runtime regions) + §10.
- */
-
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
@@ -24,6 +8,9 @@ import DreamDMBar from '@/components/messaging/DreamDMBar';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { createClient } from '@/lib/supabase/client';
+import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
+import { EnginDispatcher } from '@/lib/runtime/EnginDispatcher';
+import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 
 type ProfileLike = {
   id?: string;
@@ -32,8 +19,19 @@ type ProfileLike = {
   avatar_url?: string | null;
 };
 
-// Inner component that uses the dual runtime context
-function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
+const DEFAULT_WORKFLOW_SPLIT = 0.5;
+
+function HomeSystemInner({
+  userId,
+  profile,
+  initialPosts,
+  isAdmin,
+}: {
+  userId: string;
+  profile: ProfileLike | null;
+  initialPosts: any[];
+  isAdmin?: boolean;
+}) {
   const dualRuntime = useDualRuntime();
   const {
     registerRuntimeCallbacks,
@@ -43,14 +41,15 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     openBothMenus,
     openDrEams,
   } = useDreamSystem();
+  const [splitRatio, setSplitRatio] = useState(DEFAULT_WORKFLOW_SPLIT);
+  const [isBarMinimized, setIsBarMinimized] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState(0);
 
-  // ── Global auth guard: if either runtime or any in-region iframe signs out,
-  //    redirect the entire top-level window to /login immediately.
-  //    Supabase shares its session via localStorage, so a signOut() call from
-  //    any same-origin iframe fires SIGNED_OUT here too.
   useEffect(() => {
     const sb = createClient();
-    const { data: { subscription } } = sb.auth.onAuthStateChange((event: string) => {
+    const {
+      data: { subscription },
+    } = sb.auth.onAuthStateChange((event: string) => {
       if (event === 'SIGNED_OUT') {
         (window.top ?? window).location.href = '/login';
       }
@@ -58,75 +57,132 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
     return () => subscription.unsubscribe();
   }, []);
 
-  // ── Return to HomeDream Surface ──────────────────────────────────────────
+  const revealSplitRuntime = useCallback((nextRatio = DEFAULT_WORKFLOW_SPLIT) => {
+    setIsBarMinimized(false);
+    setSplitRatio((current) => {
+      if (current >= 0.98 || current <= 0.02) {
+        return nextRatio;
+      }
+      return current;
+    });
+  }, []);
 
   const returnHome = useCallback(() => {
     dualRuntime.goToHome();
+    revealSplitRuntime(DEFAULT_WORKFLOW_SPLIT);
     closeBothMenus();
     closeDrEams();
-  }, [dualRuntime, closeBothMenus, closeDrEams]);
+  }, [closeBothMenus, closeDrEams, dualRuntime, revealSplitRuntime]);
 
-  // ── World navigation callbacks ────────────────────────────────────────────
-
-  /** Open DreamSpace content within Surface Space (replaces the top runtime). */
   const openDreamSpaceInSurface = useCallback(() => {
     dualRuntime.goToDreamSpace();
-    dualRuntime.setDominantRuntime('Surface Space');
-  }, [dualRuntime]);
+    revealSplitRuntime(DEFAULT_WORKFLOW_SPLIT);
+  }, [dualRuntime, revealSplitRuntime]);
 
-  /**
-   * Double-tap gold button while bar is pinned at the top.
-   * Without a persistent DreamSpace panel, just return to HomeDream.
-   */
   const openHomeDreamSpace = useCallback(() => {
-    returnHome();
-  }, [returnHome]);
+    dualRuntime.goToHomeDreamSpace();
+    revealSplitRuntime(DEFAULT_WORKFLOW_SPLIT);
+  }, [dualRuntime, revealSplitRuntime]);
 
   const openInSurfaceRegion = useCallback((path: string) => {
     dualRuntime.setTopRuntime({ type: 'custom', path });
-    dualRuntime.setDominantRuntime('Surface Space');
-  }, [dualRuntime]);
+    revealSplitRuntime(Math.max(splitRatio, 0.5));
+  }, [dualRuntime, revealSplitRuntime, splitRatio]);
 
   const backFromSurfaceRegion = useCallback(() => {
     dualRuntime.setTopRuntime('HomeDream Surface');
-    dualRuntime.setDominantRuntime('Surface Space');
   }, [dualRuntime]);
 
-  // ── Open a system panel in Surface Space (called from global menus) ───────
+  const openInDreamRegion = useCallback((path: string) => {
+    dualRuntime.setBottomRuntime({ type: 'custom', path });
+    revealSplitRuntime(Math.min(splitRatio, 0.5));
+  }, [dualRuntime, revealSplitRuntime, splitRatio]);
+
+  const backFromDreamRegion = useCallback(() => {
+    dualRuntime.setBottomRuntime('DreamSpace');
+  }, [dualRuntime]);
 
   const openInSurface = useCallback((id: SystemPanelId) => {
     dualRuntime.setTopRuntime({ type: 'panel', name: id });
-    dualRuntime.setDominantRuntime('Surface Space');
-  }, [dualRuntime]);
+    revealSplitRuntime(Math.max(splitRatio, 0.5));
+  }, [dualRuntime, revealSplitRuntime, splitRatio]);
 
-  // Register only the callbacks that GlobalDreamBar's overlay menus still need
   useEffect(() => {
     registerRuntimeCallbacks({
       returnHome,
       openInSurface,
     });
     return unregisterRuntimeCallbacks;
-  }, [returnHome, openInSurface, registerRuntimeCallbacks, unregisterRuntimeCallbacks]);
+  }, [openInSurface, registerRuntimeCallbacks, returnHome, unregisterRuntimeCallbacks]);
+
+  useEffect(() => {
+    if (splitRatio >= 0.55) {
+      dualRuntime.setDominantRuntime('Surface Space');
+      return;
+    }
+    if (splitRatio <= 0.45) {
+      dualRuntime.setDominantRuntime('DreamSpace');
+    }
+  }, [dualRuntime, splitRatio]);
+
+  useEffect(() => {
+    dreamOSBus.publishRuntimeContext({
+      region: 'Surface Space',
+      world: dualRuntime.state.surfaceSpaceWorld,
+      splitRatio,
+      dominant: dualRuntime.state.dominantRegion === 'Surface Space',
+    });
+    dreamOSBus.publishRuntimeContext({
+      region: 'DreamSpace',
+      world: dualRuntime.state.dreamSpaceWorld,
+      splitRatio: 1 - splitRatio,
+      dominant: dualRuntime.state.dominantRegion === 'DreamSpace',
+    });
+  }, [
+    dualRuntime.state.dominantRegion,
+    dualRuntime.state.dreamSpaceWorld,
+    dualRuntime.state.surfaceSpaceWorld,
+    splitRatio,
+  ]);
+
+  useEffect(() => {
+    const dispatcher = EnginDispatcher.getInstance();
+    const updateSeam = () => {
+      const viewportHeight = window.innerHeight;
+      setViewportHeight(viewportHeight);
+      const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
+      const seamY = Math.round(((viewportHeight - dividerHeight) * splitRatio) + dividerHeight / 2);
+      dispatcher.setDreamDMBarY(seamY);
+    };
+
+    updateSeam();
+    window.addEventListener('resize', updateSeam);
+    return () => window.removeEventListener('resize', updateSeam);
+  }, [isBarMinimized, splitRatio]);
+
+  const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
+  const topHeight = `calc((100% - ${dividerHeight}px) * ${splitRatio})`;
+  const bottomRegionTop = `calc(${topHeight} + ${dividerHeight}px)`;
+  const bottomHeight = `calc(100% - ${bottomRegionTop})`;
+  const seamOffset =
+    viewportHeight > 0
+      ? Math.round(((viewportHeight - dividerHeight) * splitRatio) + dividerHeight / 2)
+      : undefined;
 
   return (
     <>
       <StarfieldCanvas />
 
-      {/*
-       * Surface Space — fills the entire viewport behind the floating bar.
-       *
-       * z-index: 1 so the DreamDM Bar (z-index 100+, position:fixed) always
-       * floats above this region regardless of what RuntimeShell renders inside.
-       *
-       * The bar reports its height via onBarInsets so content components can
-       * add the appropriate bottom padding if needed.
-       */}
       <div
         style={{
           position: 'fixed',
-          inset: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+          height: topHeight,
           zIndex: 1,
           overflow: 'hidden',
+          borderBottom: isBarMinimized ? '1px solid rgba(93,232,255,0.12)' : 'none',
         }}
       >
         <RuntimeView
@@ -139,29 +195,65 @@ function HomeSystemInner({ userId, profile, initialPosts, isAdmin }: { userId: s
           onOpenDreamSpace={openDreamSpaceInSurface}
           onOpenInRegion={openInSurfaceRegion}
           onBackFromRegion={backFromSurfaceRegion}
+          seamOffsetPx={seamOffset}
+          splitRatio={splitRatio}
+          seamVisible={!isBarMinimized}
+          dominantRegion={dualRuntime.state.dominantRegion}
         />
       </div>
 
-      {/*
-       * DreamDM Bar — the floating search + messaging command center.
-       *
-       * Runs in its natural bottom-sheet mode — NOT as a spatial screen divider.
-       * Drag up → expands to show messages / search / Dr. Eams.
-       * Drag back down → collapses to rest height at the screen bottom.
-       * Only an intentional velocity fling can pin it to the top.
-       */}
+      <div
+        style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          top: bottomRegionTop,
+          height: bottomHeight,
+          zIndex: 1,
+          overflow: 'hidden',
+          borderTop: isBarMinimized ? '1px solid rgba(232,192,64,0.1)' : 'none',
+        }}
+      >
+        <RuntimeView
+          world={dualRuntime.state.dreamSpaceWorld}
+          isActive={true}
+          profile={profile}
+          posts={initialPosts}
+          isAdmin={isAdmin}
+          onOpenDrEams={openDrEams}
+          onOpenDreamSpace={openHomeDreamSpace}
+          onOpenInRegion={openInDreamRegion}
+          onBackFromRegion={backFromDreamRegion}
+          seamOffsetPx={seamOffset}
+          splitRatio={splitRatio}
+          seamVisible={!isBarMinimized}
+          dominantRegion={dualRuntime.state.dominantRegion}
+        />
+      </div>
+
       <DreamDMBar
         onHome={returnHome}
         onBothMenus={openBothMenus}
         onHomeDreamSpace={openHomeDreamSpace}
+        splitRatio={splitRatio}
+        onSplitChange={setSplitRatio}
+        onMinimizedChange={setIsBarMinimized}
       />
     </>
   );
 }
 
-// Main export wraps with DualRuntimeContainer
-
-export default function HomeSystem({ userId, profile, initialPosts, isAdmin }: { userId: string; profile: ProfileLike | null; initialPosts: any[]; isAdmin?: boolean }) {
+export default function HomeSystem({
+  userId,
+  profile,
+  initialPosts,
+  isAdmin,
+}: {
+  userId: string;
+  profile: ProfileLike | null;
+  initialPosts: any[];
+  isAdmin?: boolean;
+}) {
   return (
     <DualRuntimeContainer>
       {() => (

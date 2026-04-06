@@ -1,38 +1,70 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import type { Scene as BabylonScene, AbstractEngine } from '@babylonjs/core';
 import { createBabylonEngine } from '@/lib/babylon/createEngine';
-
-export interface DREAMenginOSSubsystems {
-  nexusOpen?: boolean;
-  outdreamOpen?: boolean;
-  drEamsOpen?: boolean;
-  importedAssets?: number;
-  lastImportCategory?: string | null;
-  route?: string;
-}
+import CanvasDropZone, { type AssetImportPayload } from '@/components/dreamengin/CanvasDropZone';
+import {
+  DREAMENGIN_OS_SUBSYSTEM_MANIFEST,
+  type DreamenginOSSubsystemNode,
+} from '@/lib/dreamengin/osSubsystemManifest';
+import { bridge, type PeerState } from '@/lib/runtime/dualRuntimeBridge';
+import { EnginDispatcher, type DispatcherStats } from '@/lib/runtime/EnginDispatcher';
+import { onIdariEvent, type IdariEventDetail } from '@/lib/agents/agentBus';
+import type { RuntimeRegion } from '@/lib/identity/canonical-names';
+import {
+  dreamOSBus,
+  type DreamOSRuntimeContext,
+  type DreamOSSharedArtifact,
+} from '@/lib/runtime/dreamOSBus';
 
 export interface DREAMenginOSProps {
   audioSource?: AnalyserNode;
   onReady?: (scene: BabylonScene) => void;
-  subsystems?: DREAMenginOSSubsystems;
+  onSelectSubsystem?: (node: DreamenginOSSubsystemNode) => void;
+  seamOffsetPx?: number;
+  splitRatio?: number;
+  seamVisible?: boolean;
+  dominantRegion?: RuntimeRegion;
 }
 
 type SystemStatus = 'OFFLINE' | 'BOOTING_CORE_V9' | 'SYNCING_HAVOK_V2' | 'DREAM_V9_ACTIVE';
 
-type NeuralBus = {
-  color: string;
-  isEmergency: boolean;
-  alpha: number;
-  velocity: number;
+const ORB_COLORS = [
+  '#5de8ff',
+  '#e8c040',
+  '#8b5cf6',
+  '#10b981',
+  '#fb923c',
+  '#ec4899',
+  '#38bdf8',
+] as const;
+
+const EMPTY_STATS: DispatcherStats = {
+  workerCount: 0,
+  microsecondsPerTick: [],
+  boundsViolations: 0,
 };
 
-type OsStatusPayload = {
-  isFix?: boolean;
-};
+function dispatcherStatsEqual(a: DispatcherStats, b: DispatcherStats): boolean {
+  if (a.workerCount !== b.workerCount || a.boundsViolations !== b.boundsViolations) {
+    return false;
+  }
+  if (a.microsecondsPerTick.length !== b.microsecondsPerTick.length) {
+    return false;
+  }
+  return a.microsecondsPerTick.every((value, index) => value === b.microsecondsPerTick[index]);
+}
 
-export default function DREAMenginOS({ audioSource, onReady, subsystems }: DREAMenginOSProps) {
+export default function DREAMenginOS({
+  audioSource,
+  onReady,
+  onSelectSubsystem,
+  seamOffsetPx,
+  splitRatio = 0.5,
+  seamVisible = true,
+  dominantRegion,
+}: DREAMenginOSProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<AbstractEngine | null>(null);
   const neuralRef = useRef<NeuralBus>({
@@ -44,104 +76,73 @@ export default function DREAMenginOS({ audioSource, onReady, subsystems }: DREAM
   const audioRef = useRef(audioSource);
   const [systemStatus, setSystemStatus] = useState<SystemStatus>('OFFLINE');
   const [pulseIntensity, setPulseIntensity] = useState(0);
-  const [hudColor, setHudColor] = useState(neuralRef.current.color);
-  const [hudMode, setHudMode] = useState<'STABLE' | 'EMERGENCY_SYNC'>('STABLE');
-  const hudTickRef = useRef(0);
+  const [dispatcherStats, setDispatcherStats] = useState<DispatcherStats>(EMPTY_STATS);
+  const [peerStates, setPeerStates] = useState<readonly PeerState[]>(bridge.getPeers());
+  const [lastIdariEvent, setLastIdariEvent] = useState<IdariEventDetail | null>(null);
+  const [lastImportedAsset, setLastImportedAsset] = useState<AssetImportPayload | null>(null);
+  const [importCount, setImportCount] = useState(0);
+  const [sharedArtifacts, setSharedArtifacts] = useState<readonly DreamOSSharedArtifact[]>([]);
+  const [runtimeContexts, setRuntimeContexts] = useState<readonly DreamOSRuntimeContext[]>([]);
+
+  const audioRef = useRef(audioSource);
+  const onSelectSubsystemRef = useRef(onSelectSubsystem);
+  onSelectSubsystemRef.current = onSelectSubsystem;
 
   useEffect(() => {
     audioRef.current = audioSource;
   }, [audioSource]);
 
-  const syncHud = useCallback((intensity: number) => {
-    const now = performance.now();
-    if (now - hudTickRef.current < 80) return;
-    hudTickRef.current = now;
-    setPulseIntensity(Math.min(1.4, intensity * 0.2));
-    setHudColor(neuralRef.current.color);
-    setHudMode(neuralRef.current.isEmergency ? 'EMERGENCY_SYNC' : 'STABLE');
-  }, []);
-
-  const syncNeuralBus = useCallback(async () => {
-    try {
-      const res = await fetch('/api/dreamengin/os-status', { cache: 'no-store' });
-      if (!res.ok) return;
-      const data = (await res.json()) as OsStatusPayload;
-      neuralRef.current.isEmergency = Boolean(data.isFix);
-      neuralRef.current.color = data.isFix ? '#FFD700' : '#5de8ff';
-    } catch {
-      console.warn('[DREAMenginOS] Neural Bus disconnected - Using local defaults');
-    }
-  }, []);
-
-  useEffect(() => {
-    const overlaysOpen = Number(Boolean(subsystems?.nexusOpen))
-      + Number(Boolean(subsystems?.outdreamOpen))
-      + Number(Boolean(subsystems?.drEamsOpen));
-    const importedAssets = subsystems?.importedAssets ?? 0;
-    const activeCategory = subsystems?.lastImportCategory;
-    neuralRef.current.alpha = Math.min(1, 0.72 + overlaysOpen * 0.08 + Math.min(importedAssets, 5) * 0.02);
-    if (subsystems?.drEamsOpen) {
-      neuralRef.current.color = '#8cc8ff';
-      neuralRef.current.velocity = Math.max(neuralRef.current.velocity, 4);
-    } else if (activeCategory === 'audio') {
-      neuralRef.current.color = '#f472b6';
-    } else if (activeCategory === '3d') {
-      neuralRef.current.color = '#a78bfa';
-    } else if (activeCategory === 'image') {
-      neuralRef.current.color = '#5de8ff';
-    }
-    if (subsystems?.nexusOpen && subsystems?.outdreamOpen) {
-      neuralRef.current.color = '#FFD700';
-    }
-    if (!subsystems?.nexusOpen && !subsystems?.outdreamOpen && !subsystems?.drEamsOpen && !neuralRef.current.isEmergency) {
-      neuralRef.current.color = activeCategory ? neuralRef.current.color : '#5de8ff';
-    }
-    setHudColor(neuralRef.current.color);
-  }, [subsystems]);
+  const manifest = useMemo(() => DREAMENGIN_OS_SUBSYSTEM_MANIFEST, []);
+  const highlightedFamilies = useMemo(
+    () => manifest.families.filter((family) => family.id !== 'connectors').slice(0, 6),
+    [manifest],
+  );
 
   const launchOS = useCallback(async (canvas: HTMLCanvasElement) => {
     setSystemStatus('BOOTING_CORE_V9');
 
-    const { engine } = await createBabylonEngine(canvas, { antialias: true });
+    const { engine } = await createBabylonEngine(canvas, {
+      antialias: true,
+      preserveDrawingBuffer: true,
+      stencil: true,
+    });
     engineRef.current = engine;
 
     const {
-      Scene,
-      Vector3,
       ArcRotateCamera,
+      Color3,
       Color4,
       PBRMaterial,
       Color3,
       DefaultRenderingPipeline,
       GlowLayer,
       HavokPlugin,
-      PointerEventTypes,
-      Scalar,
-      MeshBuilder,
       HemisphericLight,
+      MeshBuilder,
+      PointerEventTypes,
+      Scene,
+      StandardMaterial,
+      Vector3,
     } = await import('@babylonjs/core');
 
     const scene = new Scene(engine);
     scene.clearColor = new Color4(0.01, 0.01, 0.03, 1);
 
-    const camera = new ArcRotateCamera('DREAM_CAMERA', -Math.PI / 2, Math.PI / 2.5, 11, Vector3.Zero(), scene);
+    const camera = new ArcRotateCamera(
+      'dreamengin-os-camera',
+      -Math.PI / 2,
+      Math.PI / 2.35,
+      16,
+      new Vector3(0, 0, 0),
+      scene,
+    );
+    camera.wheelDeltaPercentage = 0.01;
+    camera.lowerRadiusLimit = 10;
+    camera.upperRadiusLimit = 22;
     camera.attachControl(canvas, true);
-    camera.wheelPrecision = 30;
-    camera.lowerRadiusLimit = 7;
-    camera.upperRadiusLimit = 16;
 
-    const light = new HemisphericLight('DREAM_LIGHT', new Vector3(0, 1, 0), scene);
-    light.intensity = 1.2;
-
-    const core = MeshBuilder.CreateSphere('OS_CORE', { diameter: 2.1, segments: 32 }, scene);
-    const ring = MeshBuilder.CreateTorus('Dream_Ring', { diameter: 4.3, thickness: 0.16, tessellation: 96 }, scene);
-    ring.rotation.x = Math.PI / 2;
-    const leftNode = MeshBuilder.CreateBox('Dream_Left_Node', { size: 0.8 }, scene);
-    leftNode.position.x = -3;
-    const rightNode = MeshBuilder.CreateBox('Dream_Right_Node', { size: 0.8 }, scene);
-    rightNode.position.x = 3;
-    const ground = MeshBuilder.CreateGround('OS_FLOOR', { width: 20, height: 20 }, scene);
-    ground.position.y = -2.4;
+    const light = new HemisphericLight('dreamengin-os-light', new Vector3(0, 1, 0), scene);
+    light.intensity = 0.95;
 
     setSystemStatus('SYNCING_HAVOK_V2');
     try {
@@ -150,19 +151,8 @@ export default function DREAMenginOS({ audioSource, onReady, subsystems }: DREAM
       const physics = new HavokPlugin(true, havokWasm);
       scene.enablePhysics(new Vector3(0, -9.81, 0), physics);
     } catch {
-      console.warn('[DREAMenginOS] Havok unavailable');
+      console.warn('[DREAMenginOS] Havok physics unavailable — continuing without physics');
     }
-
-    scene.onPointerObservable.add((pointerInfo) => {
-      if (pointerInfo.type === PointerEventTypes.POINTERMOVE) {
-        const evt = pointerInfo.event as PointerEvent;
-        neuralRef.current.alpha = Scalar.Clamp(evt.clientX / Math.max(window.innerWidth, 1), 0.2, 1);
-        neuralRef.current.velocity = Math.min(
-          36,
-          Math.abs(evt.movementX || 0) + Math.abs(evt.movementY || 0),
-        );
-      }
-    });
 
     const pipeline = new DefaultRenderingPipeline('DREAM_PIPE', true, scene);
     pipeline.bloomEnabled = true;
@@ -173,60 +163,58 @@ export default function DREAMenginOS({ audioSource, onReady, subsystems }: DREAM
 
     const glow = new GlowLayer('OS_GLOW', scene);
 
-    const glass = new PBRMaterial('midnight_glass', scene);
-    glass.metallic = 1;
-    glass.roughness = 0.05;
-    glass.alpha = 0.82;
-    glass.albedoColor = new Color3(0.04, 0.06, 0.12);
-    glass.emissiveColor = Color3.FromHexString(neuralRef.current.color);
+    highlightedFamilies.forEach((family, index) => {
+      const angle = (index / highlightedFamilies.length) * Math.PI * 2;
+      const radius = 5.5;
+      const orb = MeshBuilder.CreateSphere(`dreamengin-family-${family.id}`, {
+        diameter: 1.3 + Math.min(0.7, family.count * 0.04),
+        segments: 24,
+      }, scene);
 
-    const floorMaterial = new PBRMaterial('midnight_floor', scene);
-    floorMaterial.metallic = 0.7;
-    floorMaterial.roughness = 0.4;
-    floorMaterial.alpha = 0.95;
-    floorMaterial.albedoColor = new Color3(0.02, 0.03, 0.08);
-    floorMaterial.emissiveColor = new Color3(0.03, 0.08, 0.12);
-    ground.material = floorMaterial;
+      orb.position = new Vector3(
+        Math.cos(angle) * radius,
+        (index % 2 === 0 ? 1 : -1) * 1.1,
+        Math.sin(angle) * radius,
+      );
 
-    scene.meshes.forEach((mesh) => {
-      if (mesh.name.includes('OS') || mesh.name.includes('Dream')) {
-        mesh.material = glass;
+      const material = new StandardMaterial(`dreamengin-family-${family.id}-mat`, scene);
+      const color = Color3.FromHexString(ORB_COLORS[index % ORB_COLORS.length]);
+      material.emissiveColor = color.scale(1.1);
+      material.diffuseColor = color.scale(0.6);
+      material.specularColor = color.scale(0.3);
+      orb.material = material;
+      orb.metadata = {
+        subsystemNode: family.nodes[0] ?? null,
+      };
+    });
+
+    scene.onPointerObservable.add((pointerInfo) => {
+      if (pointerInfo.type !== PointerEventTypes.POINTERPICK) return;
+      const node = pointerInfo.pickInfo?.pickedMesh?.metadata?.subsystemNode as
+        | DreamenginOSSubsystemNode
+        | undefined;
+      if (node) {
+        onSelectSubsystemRef.current?.(node);
       }
     });
 
     scene.onBeforeRenderObservable.add(() => {
       const neural = neuralRef.current;
       const analyser = audioRef.current;
+      if (!analyser) return;
 
-      let bass = 0;
-      if (analyser) {
-        const freqData = new Uint8Array(analyser.frequencyBinCount);
-        analyser.getByteFrequencyData(freqData);
-        bass = freqData[2] / 255;
-      }
+      const freqData = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(freqData);
 
-      const targetColor = Color3.FromHexString(neural.color);
-      glass.emissiveColor = Color3.Lerp(glass.emissiveColor, targetColor, 0.05);
-      glass.alpha = Scalar.Lerp(glass.alpha, neural.alpha, 0.08);
+      const bass = freqData[2] / 255;
+      setPulseIntensity(bass);
+      glow.intensity = 0.3 + bass * 1.5;
 
-      ring.rotation.z += 0.004 + bass * 0.03;
-      ring.rotation.y += 0.003 + neural.velocity * 0.0005;
-      core.scaling.setAll(1 + bass * 0.16);
-      leftNode.rotation.y += 0.01;
-      rightNode.rotation.x += 0.012;
-      leftNode.position.y = Math.sin(performance.now() * 0.0012) * 0.4;
-      rightNode.position.y = Math.cos(performance.now() * 0.0014) * 0.4;
-
-      const intensity = (neural.isEmergency ? 2 : 0.55) + bass * 1.5 + neural.velocity * 0.05;
-      glow.intensity = intensity;
-      light.intensity = 1 + intensity * 0.16;
-      syncHud(intensity);
-
-      if (intensity > 1.8) {
-        scene.meshes.forEach((mesh) => {
+      if (bass > 0.8) {
+        for (const mesh of scene.meshes) {
           if (mesh.physicsBody) {
             mesh.physicsBody.applyImpulse(
-              new Vector3(0, intensity * 0.1, 0),
+              new Vector3(0, bass * 0.15, 0),
               mesh.getAbsolutePosition(),
             );
           }
@@ -241,12 +229,52 @@ export default function DREAMenginOS({ audioSource, onReady, subsystems }: DREAM
     await syncNeuralBus();
     setSystemStatus('DREAM_V9_ACTIVE');
     onReady?.(scene);
-  }, [onReady, syncHud, syncNeuralBus]);
+  }, [highlightedFamilies, onReady]);
+
+  useEffect(() => {
+    const dispatcher = EnginDispatcher.getInstance();
+    dispatcher.init();
+    void dispatcher.initWasm();
+    setDispatcherStats(dispatcher.stats);
+
+    const poll = window.setInterval(() => {
+      setDispatcherStats((previous) => {
+        const next = dispatcher.stats;
+        return dispatcherStatsEqual(previous, next) ? previous : next;
+      });
+    }, 1000);
+
+    const unsubscribePeers = bridge.subscribePeerActivity((peers) => {
+      setPeerStates(peers);
+    });
+    const unsubscribeIdari = onIdariEvent((detail) => {
+      setLastIdariEvent(detail);
+    });
+    const unsubscribeOSBus = dreamOSBus.subscribe((snapshot) => {
+      setSharedArtifacts(snapshot.artifacts.slice(0, 4));
+      setRuntimeContexts(snapshot.runtimeContexts);
+    });
+
+    return () => {
+      window.clearInterval(poll);
+      unsubscribePeers();
+      unsubscribeIdari();
+      unsubscribeOSBus();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof seamOffsetPx !== 'number') return;
+    const dispatcher = EnginDispatcher.getInstance();
+    dispatcher.setDreamDMBarY(seamOffsetPx);
+  }, [seamOffsetPx]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
     void launchOS(canvas);
+
     const handleResize = () => engineRef.current?.resize();
     const statusInterval = window.setInterval(() => {
       void syncNeuralBus();
@@ -258,11 +286,32 @@ export default function DREAMenginOS({ audioSource, onReady, subsystems }: DREAM
       engineRef.current?.dispose();
       engineRef.current = null;
     };
-  }, [launchOS, syncNeuralBus]);
+  }, [launchOS]);
+
+  const handleImport = useCallback((payload: AssetImportPayload) => {
+    setLastImportedAsset(payload);
+    setImportCount((count) => count + 1);
+  }, []);
+
+  const statusColor =
+    systemStatus === 'DREAM_V9_ACTIVE'
+      ? '#5de8ff'
+      : systemStatus === 'OFFLINE'
+        ? '#ff4444'
+        : '#e8c040';
+
+  const livePeerCount = peerStates.filter((peer) => peer.subscriberCount > 0 || peer.lastActivityAt).length;
+  const primaryContexts = runtimeContexts.slice(0, 2);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+      <CanvasDropZone className="h-full w-full" onImport={handleImport}>
+        <canvas
+          ref={canvasRef}
+          style={{ width: '100%', height: '100%', display: 'block' }}
+        />
+      </CanvasDropZone>
+
       <div
         style={{
           position: 'absolute',
@@ -327,6 +376,199 @@ export default function DREAMenginOS({ audioSource, onReady, subsystems }: DREAM
               {label}
             </span>
           ))}
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          top: 12,
+          right: 12,
+          width: 300,
+          padding: '12px 14px',
+          borderRadius: 18,
+          background: 'rgba(4, 10, 24, 0.72)',
+          border: '1px solid rgba(93, 232, 255, 0.18)',
+          backdropFilter: 'blur(14px)',
+          color: '#d6eaff',
+          boxShadow: '0 14px 38px rgba(0,0,0,0.28)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 10 }}>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#7dc4ff' }}>
+              DREAMenginOS
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>Live subsystem graph</div>
+          </div>
+          <div style={{ textAlign: 'right', fontSize: 11, color: '#8ab6d6' }}>
+            <div>split {Math.round(splitRatio * 100)} / {Math.round((1 - splitRatio) * 100)}</div>
+            <div>{dominantRegion ?? 'dual runtime'}</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8 }}>
+          {manifest.families.slice(0, 8).map((family) => (
+            <button
+              key={family.id}
+              type="button"
+              onClick={() => family.nodes[0] && onSelectSubsystemRef.current?.(family.nodes[0])}
+              style={{
+                borderRadius: 14,
+                border: '1px solid rgba(93, 232, 255, 0.16)',
+                background: 'rgba(10, 18, 38, 0.62)',
+                color: '#dff7ff',
+                padding: '10px 11px',
+                textAlign: 'left',
+                cursor: family.nodes[0] ? 'pointer' : 'default',
+              }}
+            >
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#7dc4ff' }}>
+                {family.label}
+              </div>
+              <div style={{ marginTop: 4, fontSize: 17, fontWeight: 700 }}>{family.count}</div>
+            </button>
+          ))}
+        </div>
+        {primaryContexts.length > 0 ? (
+          <div style={{ marginTop: 10, display: 'grid', gap: 6 }}>
+            {primaryContexts.map((context) => (
+              <div
+                key={context.region}
+                style={{
+                  borderRadius: 12,
+                  border: '1px solid rgba(93, 232, 255, 0.12)',
+                  background: 'rgba(8, 16, 34, 0.7)',
+                  padding: '8px 10px',
+                  fontSize: 11,
+                }}
+              >
+                <div style={{ color: '#7dc4ff', textTransform: 'uppercase', letterSpacing: '0.14em' }}>
+                  {context.region}
+                </div>
+                <div style={{ marginTop: 2, fontWeight: 700 }}>{context.subsystemId}</div>
+                <div style={{ marginTop: 2, color: '#9edcc9' }}>
+                  AI context · {context.aiContext} · {context.dominant ? 'dominant' : 'linked'}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          left: 12,
+          bottom: 12,
+          right: 12,
+          display: 'flex',
+          gap: 12,
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div
+          style={{
+            minWidth: 260,
+            maxWidth: 560,
+            padding: '12px 14px',
+            borderRadius: 18,
+            background: 'rgba(4, 10, 24, 0.64)',
+            border: '1px solid rgba(232, 192, 64, 0.18)',
+            backdropFilter: 'blur(14px)',
+            color: '#f5fbff',
+          }}
+        >
+          <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.16em', color: '#d6af52' }}>
+            Connected runtimes
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+            {manifest.nodes
+              .filter((node) => ['ai', 'engins', 'daydreams'].includes(node.family))
+              .slice(0, 12)
+              .map((node) => (
+                <button
+                  key={node.id}
+                  type="button"
+                  onClick={() => onSelectSubsystemRef.current?.(node)}
+                  style={{
+                    borderRadius: 999,
+                    border: '1px solid rgba(232, 192, 64, 0.18)',
+                    background: 'rgba(14, 24, 46, 0.82)',
+                    color: '#fff6cf',
+                    padding: '7px 11px',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {node.label}
+                </button>
+              ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            minWidth: 260,
+            padding: '12px 14px',
+            borderRadius: 18,
+            background: 'rgba(4, 10, 24, 0.64)',
+            border: '1px solid rgba(93, 232, 255, 0.18)',
+            backdropFilter: 'blur(14px)',
+            color: '#d6eaff',
+            fontSize: 11,
+          }}
+        >
+          <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.16em', color: '#7dc4ff' }}>
+            Runtime telemetry
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
+            <div>Workers: {dispatcherStats.workerCount}</div>
+            <div>Live peers: {livePeerCount}</div>
+            <div>Bounds: {dispatcherStats.boundsViolations}</div>
+            <div>Bar: {seamVisible ? 'visible' : 'hidden'}</div>
+          </div>
+          {lastImportedAsset ? (
+            <div style={{ marginTop: 10, color: '#fff6cf' }}>
+              Imported {lastImportedAsset.filename} · total {importCount}
+            </div>
+          ) : null}
+          {lastIdariEvent ? (
+            <div style={{ marginTop: 8, color: '#a8ffd6' }}>
+              IDARi {lastIdariEvent.status ?? 'signal'} · {lastIdariEvent.message}
+            </div>
+          ) : null}
+          {sharedArtifacts.length > 0 ? (
+            <div style={{ marginTop: 10, display: 'grid', gap: 6 }}>
+              {sharedArtifacts.map((artifact) => (
+                <div
+                  key={artifact.id}
+                  style={{
+                    borderRadius: 10,
+                    border: '1px solid rgba(93, 232, 255, 0.14)',
+                    background: 'rgba(10, 18, 38, 0.62)',
+                    padding: '7px 9px',
+                  }}
+                >
+                  <div style={{ color: '#7dc4ff', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                    {artifact.kind}
+                  </div>
+                  <div style={{ marginTop: 2, fontWeight: 700 }}>{artifact.title}</div>
+                  <div style={{ marginTop: 2, color: '#fff6cf' }}>
+                    {artifact.sourceSubsystem} ↔ {artifact.relatedSubsystems.join(' / ')}
+                  </div>
+                  {'event' in artifact.payload ? (
+                    <div style={{ marginTop: 2, color: '#9edcc9' }}>
+                      {String(artifact.payload.channel)} · {String(artifact.payload.event)}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );

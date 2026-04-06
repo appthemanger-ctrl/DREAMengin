@@ -98,9 +98,12 @@ export async function runTriadConsensus(input: {
     input.actorRole === 'admin' || input.actorRole === 'owner' ? 'admin' : 'user',
   );
 
+  const idariApproved =
+    eamsPlan.intents.length === 0 || idariResult.intents.length > 0;
   const unanimous =
     !boogieResult.hard_block &&
-    (eamsPlan.response_text.trim().length > 0 || eamsPlan.intents.length > 0);
+    (eamsPlan.response_text.trim().length > 0 || eamsPlan.intents.length > 0) &&
+    idariApproved;
 
   return {
     unanimous,
