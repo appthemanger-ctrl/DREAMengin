@@ -2,7 +2,7 @@
   "framework": "nextjs",
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm run vercel-build",
-  "ignoreCommand": "git log -1 --pretty=%B | grep -qF '[skip vercel]' && exit 1 || exit 0",
+  "ignoreCommand": "node scripts/vercel-ignore.cjs",
   "github": {
     "silent": true
   },

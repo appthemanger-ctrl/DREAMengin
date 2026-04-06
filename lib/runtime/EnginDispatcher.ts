@@ -219,8 +219,12 @@ export class EnginDispatcher {
   init(workerScriptUrl = '/workers/engin-shader.worker.js'): void {
     if (this._initialized) return;
 
-    // SSR guard — Worker is browser-only
-    if (typeof Worker === 'undefined') {
+    // Runtime guard — degrade safely when browser worker or shared memory APIs
+    // are unavailable (SSR, unsupported browsers, hardened webviews).
+    if (
+      typeof Worker === 'undefined' ||
+      typeof SharedArrayBuffer === 'undefined'
+    ) {
       return;
     }
 
