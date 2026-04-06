@@ -36,6 +36,7 @@ const AI_CTX_END   = '<!-- DREAMENGIN-AI-CONTEXT:END -->';
 const SPEC_SNAPSHOT_START = '<!-- DREAMENGIN-SPEC-SNAPSHOT:START -->';
 const SPEC_SNAPSHOT_END   = '<!-- DREAMENGIN-SPEC-SNAPSHOT:END -->';
 const USE_GITHUB_CONTEXT = process.env.README_UPDATE_USE_GITHUB_CONTEXT === 'true';
+const CANONICAL_MAIN_BRANCH = process.env.README_CANONICAL_MAIN_BRANCH || 'completedream';
 
 // ── Helper: run git / shell commands ──────────────────────────────────────────
 
@@ -240,6 +241,7 @@ function buildSpecSnapshotBlock() {
 
 - **Version:** ${packageVersion}
 - **Runtime definition:** Privacy-first, DreamDM-Bar-led spatial operating environment
+- **Canonical main branch:** \`${CANONICAL_MAIN_BRANCH}\`
 - **Primary surface:** HomeDream Surface (\`/homedream\`)
 - **Runtime seam:** DreamDM Bar
 - **Secondary runtime:** DreamSpace — revealed by the DreamDM Bar and hidden when the bar is hidden
@@ -282,6 +284,7 @@ function buildSpecSnapshotBlock() {
 ### Current Alignment Notes
 
 - \`README.md\` remains the authoritative product specification; \`docs/ARCHITECTURE.md\` maps the current implementation to it.
+- \`${CANONICAL_MAIN_BRANCH}\` is the canonical main branch and the branch Idari should treat as the primary merge target for spec freshness.
 - Canonical vocabulary is **surface**, **Dream Window**, **DreamSpace**, and **runtime**.
 - Support routes still exist beside canonical routes where the repo preserves backward compatibility.
 
