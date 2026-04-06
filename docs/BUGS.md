@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 09:29 UTC  
-**Last updated:** 2026-04-06 09:29 UTC  
-**Triggered by commit:** `1057caf` on `copilot/add-runtime-wiring-test` by Copilot  
-**Commit message:** perf: replace runtime peer polling with bridge subscriptions
+**Documentation Date:** 2026-04-06 10:33 UTC  
+**Last updated:** 2026-04-06 10:33 UTC  
+**Triggered by commit:** `8a8ccf1` on `completedream` by appthemanger-ctrl  
+**Commit message:** Update Babylon.js version in README
 
 ---
 
