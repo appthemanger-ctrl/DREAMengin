@@ -257,7 +257,7 @@ describe('createVercelBuildResult', () => {
 
   it('records a failed build without throwing', () => {
     const result = createVercelBuildResult({
-      node_version: '24',
+      node_version: '25',
       pnpm_version: '10.30.0',
       nextjs_version: '16',
       build_passed: false,
@@ -267,10 +267,10 @@ describe('createVercelBuildResult', () => {
     expect(result.error_summary).toContain('Type error');
   });
 
-  it('throws when node version is below the 2026 minimum (Node 24)', () => {
+  it('throws when node version is below the 2026 minimum (Node 25)', () => {
     expect(() =>
       createVercelBuildResult({
-        node_version: '20',   // below Node 24 minimum
+        node_version: '20',   // below Node 25 minimum
         pnpm_version: '10.30.0',
         nextjs_version: '16',
         build_passed: true,
@@ -278,10 +278,10 @@ describe('createVercelBuildResult', () => {
     ).toThrow(`Node 20 is below the 2026 minimum`);
   });
 
-  it('accepts Node 24 exactly (boundary value)', () => {
+  it('accepts Node 25 exactly (boundary value)', () => {
     expect(() =>
       createVercelBuildResult({
-        node_version: '24',
+        node_version: '25',
         pnpm_version: '10.30.0',
         nextjs_version: '16',
         build_passed: true,
@@ -301,7 +301,7 @@ describe('createVercelBuildResult', () => {
   });
 
   it('VERCEL_2026_RUNTIME exports the correct canonical targets', () => {
-    expect(VERCEL_2026_RUNTIME.node).toBe('24');
+    expect(VERCEL_2026_RUNTIME.node).toBe('25');
     expect(VERCEL_2026_RUNTIME.pnpm).toBe('10.30.0');
     expect(VERCEL_2026_RUNTIME.nextjs_minimum).toBe('16');
   });

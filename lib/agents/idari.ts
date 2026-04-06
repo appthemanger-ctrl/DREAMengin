@@ -333,12 +333,12 @@ export function evaluateSpecRequirements(
 // VercelBuildResult — IDARi records whether the codebase builds cleanly on the
 // Vercel-equivalent runtime (mirrors portfolio-optimizer "optimize" job that
 // runs only after the "build" job passes).
-// 2026 target runtime: Node 24, pnpm 10.30.0, Next.js 16+.
+// 2026 target runtime: Node 25, pnpm 10.30.0, Next.js 16+.
 // ---------------------------------------------------------------------------
 
 /** Known 2026 Vercel-compatible runtime targets (docs/ARCHITECTURE.md §10). */
 export const VERCEL_2026_RUNTIME = {
-  node: "24",
+  node: "25",
   pnpm: "10.30.0",
   nextjs_minimum: "16",
 } as const;
@@ -346,7 +346,7 @@ export const VERCEL_2026_RUNTIME = {
 /** Result of a Vercel-compatible build verification run. */
 export interface VercelBuildResult {
   timestamp: string;
-  /** Node.js version used, e.g. "24". */
+  /** Node.js version used, e.g. "25". */
   node_version: string;
   /** pnpm version used, e.g. "10.30.0". */
   pnpm_version: string;

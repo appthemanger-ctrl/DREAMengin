@@ -20,7 +20,7 @@ Date: March 24, 2026
 DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+** (App Router),
 **TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 8+**.
 It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
-Author: José Mancilla · pnpm 10.30.0 · Node 24
+Author: José Mancilla · pnpm 10.30.0 · Node 25
 
 ---
 
