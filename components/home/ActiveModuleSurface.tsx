@@ -255,6 +255,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
     const onUp = () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      if (!accountId) return;
       const updated = activeModulesRef.current.find((entry) => entry.instanceId === instanceId);
       if (updated) {
         saveActiveModule(accountId, updated);

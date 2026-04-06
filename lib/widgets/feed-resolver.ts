@@ -157,7 +157,7 @@ async function verifyScopePermissions(
       .from('follows')
       .select('follower_id')
       .eq('follower_id', ownerId)
-      .eq('followed_id', targetUserId)
+      .eq('following_id', targetUserId)
       .single();
     
     if (error || !data) {

@@ -17,6 +17,7 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": false,
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "plugins": [
       {

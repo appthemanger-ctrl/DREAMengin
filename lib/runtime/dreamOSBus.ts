@@ -2,7 +2,7 @@ import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import { AI_AGENTS, type RuntimeRegion } from '@/lib/identity/canonical-names';
 import {
   bridge,
-  type BridgeEmission,
+  type AnyBridgeEmission,
   type DualRuntimeChannel,
 } from '@/lib/runtime/dualRuntimeBridge';
 import type { DreamArtifactBusEventMap } from '@/types/dreamArtifact';
@@ -214,7 +214,7 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  recordBridgeEmission(emission: BridgeEmission): void {
+  recordBridgeEmission(emission: AnyBridgeEmission): void {
     this.upsertArtifact({
       id: `bridge:${emission.channel}:${String(emission.event)}:${emission.emittedAt}`,
       kind: 'event',

@@ -32,7 +32,7 @@ import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import {
   ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar,
   Wand2, Mic, RotateCcw, Shield, Flag, Dice5, Rocket,
-  Brain, ChevronDown, ChevronUp, CheckCircle, Search, Download, Trash2,
+  Brain, ChevronDown, ChevronUp, CheckCircle, Search, Download, Trash2, Wrench,
   Camera, Layers, Move, Film, Link2, Crosshair,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
@@ -1098,8 +1098,138 @@ export default function ContentEngin({ onBack }: Props) {
       selectedPlatforms: [...selectedPlatforms],
     });
   // persistContentState is stable (useCallback); eslint-disable-next-line
-   
+    
   }, [calendarItems, draftTopic, draftType, selectedPlatforms, contentRestoring]);
+
+  // ── Auto Repurposer state ─────────────────────────────────────────────────────
+  type RepurposeOutputItem = {
+    platform: string;
+    format: string;
+    text: string;
+  };
+  const [repurposeInput, setRepurposeInput] = useState('');
+  const [repurposeLoading, setRepurposeLoading] = useState(false);
+  const [repurposeOutputs, setRepurposeOutputs] = useState<RepurposeOutputItem[]>([]);
+  const [repurposeMsg, setRepurposeMsg] = useState('');
+  const [repurseCopied, setRepurseCopied] = useState<number | null>(null);
+
+  // ── Predictive Scheduling state ───────────────────────────────────────────────
+  type PredictSuggestionItem = {
+    type: string;
+    title: string;
+    reason: string;
+    platform: string;
+    bestTime: string;
+  };
+  const [predictLoading, setPredictLoading] = useState(false);
+  const [predictSuggestions, setPredictSuggestions] = useState<PredictSuggestionItem[]>([]);
+  const [predictGaps, setPredictGaps] = useState<string[]>([]);
+  const [predictLoaded, setPredictLoaded] = useState(false);
+
+  // ── Creative Brief Builder state ──────────────────────────────────────────────
+  const [briefProject, setBriefProject] = useState('');
+  const [briefType, setBriefType] = useState<BriefContentType>(BRIEF_CONTENT_TYPES[0]);
+  const [briefPlatforms, setBriefPlatforms] = useState<Set<string>>(new Set());
+  const [briefAudience, setBriefAudience] = useState('');
+  const [briefMessage, setBriefMessage] = useState('');
+  const [briefVoice, setBriefVoice] = useState('');
+  const [briefVisual, setBriefVisual] = useState('');
+  const [briefDeadline, setBriefDeadline] = useState('');
+  const [briefSaving, setBriefSaving] = useState(false);
+  const [briefSaveMsg, setBriefSaveMsg] = useState('');
+
+  // ── Asset Collector state ─────────────────────────────────────────────────────
+  const [assets, setAssets] = useState<CollectedAsset[]>([]);
+  const [assetNewName, setAssetNewName] = useState('');
+  const [assetNewCat, setAssetNewCat] = useState<AssetCategory>(ASSET_CATEGORIES[0]);
+
+  // ── Audio Prep state ──────────────────────────────────────────────────────────
+  const [audioMood, setAudioMood] = useState<AudioMood>(AUDIO_MOODS[0]);
+  const [audioBpm, setAudioBpm] = useState(120);
+  const [audioVoBrief, setAudioVoBrief] = useState('');
+  const [audioSfxList, setAudioSfxList] = useState<string[]>([]);
+  const [audioSfxInput, setAudioSfxInput] = useState('');
+  const [audioSpecPlatform, setAudioSpecPlatform] = useState('Instagram Reel');
+
+  // ── Platform Specs state ──────────────────────────────────────────────────────
+  const [specsFilter, setSpecsFilter] = useState('');
+
+  // ── Content Pipeline state ────────────────────────────────────────────────────
+  const [pipelineItems, setPipelineItems] = useState<PipelineItem[]>([]);
+  const [pipeNewTitle, setPipeNewTitle] = useState('');
+  const [pipeNewType, setPipeNewType] = useState('📱');
+  const [pipeNewPlatform, setPipeNewPlatform] = useState('Instagram');
+
+  // ── Storyboard Builder state ──────────────────────────────────────────────────
+  type StoryboardFrame = {
+    id: string;
+    scene: string;
+    shot: string;
+    action: string;
+    audio: string;
+    duration: number;
+  };
+  const [sbTitle, setSbTitle] = useState('');
+  const [sbFrames, setSbFrames] = useState<StoryboardFrame[]>([
+    { id: 'sb-1', scene: 'Opening', shot: 'Wide', action: '', audio: '', duration: 5 },
+  ]);
+  const [sbCopied, setSbCopied] = useState(false);
+
+  // ── AI Production Plan state ──────────────────────────────────────────────────
+  type ProductionPlan = {
+    title: string;
+    preProd: string[];
+    production: string[];
+    postProd: string[];
+    distribution: string[];
+  };
+  const [planIdea, setPlanIdea] = useState('');
+  const [planType, setPlanType] = useState('Reel');
+  const [planPlatform, setPlanPlatform] = useState('Instagram');
+  const [planLoading, setPlanLoading] = useState(false);
+  const [planResult, setPlanResult] = useState<ProductionPlan | null>(null);
+  const [planSaveMsg, setPlanSaveMsg] = useState('');
+
+  // ── Character Brief state ─────────────────────────────────────────────────────
+  const CHAR_ROLES = ['Hero', 'Lead', 'Support', 'Villain', 'Comic Relief', 'Background'] as const;
+  const CHAR_ANIM_TYPES = ['Maya 3D Character', 'Unreal Sequencer Character', 'Toon Boom Harmony Cut-out', 'TVPaint Frame-by-Frame', 'Motion Capture Retarget'] as const;
+  const CHAR_RIG_LEVELS = ['Light', 'Standard', 'Advanced', 'Feature Film'] as const;
+  const [charName, setCharName] = useState('');
+  const [charRole, setCharRole] = useState<typeof CHAR_ROLES[number]>(CHAR_ROLES[0]);
+  const [charAnimType, setCharAnimType] = useState<typeof CHAR_ANIM_TYPES[number]>(CHAR_ANIM_TYPES[0]);
+  const [charRigLevel, setCharRigLevel] = useState<typeof CHAR_RIG_LEVELS[number]>(CHAR_RIG_LEVELS[1]);
+  const [charPhysical, setCharPhysical] = useState('');
+  const [charPersonality, setCharPersonality] = useState('');
+  const [charSims, setCharSims] = useState<Set<string>>(new Set());
+  const [charColorNotes, setCharColorNotes] = useState('');
+  const [charRefs, setCharRefs] = useState('');
+  const [charSaving, setCharSaving] = useState(false);
+  const [charSaveMsg, setCharSaveMsg] = useState('');
+
+  // ── Scene / Set Design Brief state ────────────────────────────────────────────
+  const SCENE_TYPES = ['Unreal Virtual Production', '2D Painted Background', '2D Harmony Layout', '3D Environment', 'Live Action Set'] as const;
+  const LIGHTING_TYPES = ['Day', 'Golden Hour', 'Blue Hour', 'Night', 'Studio', 'Practical Neon'] as const;
+  const [sceneName, setSceneName] = useState('');
+  const [sceneType, setSceneType] = useState<typeof SCENE_TYPES[number]>(SCENE_TYPES[0]);
+  const [sceneLighting, setSceneLighting] = useState<typeof LIGHTING_TYPES[number]>(LIGHTING_TYPES[0]);
+  const [sceneMood, setSceneMood] = useState('');
+  const [sceneElements, setSceneElements] = useState('');
+  const [sceneUnrealNotes, setSceneUnrealNotes] = useState('');
+  const [sceneColorPalette, setSceneColorPalette] = useState('');
+  const [sceneSaving, setSceneSaving] = useState(false);
+  const [sceneSaveMsg, setSceneSaveMsg] = useState('');
+
+  // ── Brand Voice Guard state ───────────────────────────────────────────────────
+  type BrandVoiceResult = {
+    score: number;
+    onBrand: string[];
+    flags: Array<{ word: string; issue: string; suggestion: string }>;
+    rewrite: string;
+  };
+  const [bvContent, setBvContent] = useState('');
+  const [bvProfile, setBvProfile] = useState('');
+  const [bvLoading, setBvLoading] = useState(false);
+  const [bvResult, setBvResult] = useState<BrandVoiceResult | null>(null);
 
   // ── AI Caption handler ───────────────────────────────────────────────────────
   function handleGenerateCaption() {
