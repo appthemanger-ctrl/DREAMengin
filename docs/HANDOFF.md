@@ -111,11 +111,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-06 00:39 UTC | `9bdd551` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #458 from appthemanger-ctrl/copilot/fix-type-error-author-id — Align API queries with current Supabase schema for build-unblocking routes<br> |
 | **auto** | 2026-04-06 00:38 UTC | `4c3c586` | copilot/fix-type-error-author-id | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-type-error-author-id<br> |
 | **auto** | 2026-04-05 12:18 UTC | `3163327` | copilot/fix-type-error-author-id | Copilot | ~1 modified<br>fix: align widget feed lookup with widget_instances schema — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/2889f639-351b-41ad-a95a-9a9714bb43c0  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/widgets/feed/route.ts` |
 | **auto** | 2026-04-05 12:16 UTC | `434312d` | copilot/fix-type-error-author-id | Copilot | ~1 modified<br>fix: remove invalid merch category filter — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/2889f639-351b-41ad-a95a-9a9714bb43c0  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/shop/route.ts` |
 | **auto** | 2026-04-05 12:12 UTC | `0a7b8c1` | copilot/fix-type-error-author-id | Copilot | ~1 modified<br>fix: use app_posts user_id in dr eams content query — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/2889f639-351b-41ad-a95a-9a9714bb43c0  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/ai/eams/route.ts` |
-| **auto** | 2026-04-05 09:51 UTC | `910e6b2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #456 from appthemanger-ctrl/copilot/here-go-nuts — Add neural decision engine workflow for ranked platform move selection<br> |
 
 ## What changed in this alignment pass
 
