@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 09:04 UTC  
-**Last updated:** 2026-04-06 09:04 UTC  
-**Triggered by commit:** `fdddb59` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #464 from appthemanger-ctrl/copilot/sync-user-media-uploads
+**Documentation Date:** 2026-04-06 09:05 UTC  
+**Last updated:** 2026-04-06 09:05 UTC  
+**Triggered by commit:** `fe8f369` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #465 from appthemanger-ctrl/copilot/add-hybrid-3d-overlay-engine
 
 ---
 
