@@ -85,6 +85,7 @@ function ProjectCard({ project, showIframe = true }: { project: ProjectCard; sho
 export default async function LabPage() {
   await connection();
   const supabase = await createServerClient();
+  const db = supabase as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -92,14 +93,14 @@ export default async function LabPage() {
   }
 
   // Fetch user's projects
-  const { data: myProjectsData } = await supabase
+  const { data: myProjectsData } = await db
     .from('projects')
     .select('*')
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false });
 
   // Fetch public projects
-  const { data: publicProjectsData } = await supabase
+  const { data: publicProjectsData } = await db
     .from('projects')
     .select(`
       *,
