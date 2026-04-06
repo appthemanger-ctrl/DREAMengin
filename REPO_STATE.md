@@ -561,6 +561,7 @@ Using Supabase for database, auth, and storage
 ### Medium Priority
 
 - 🟡 Review and remove redundant code
+- 🟡 Fix 2 failing tests
 
 ### Low Priority
 
