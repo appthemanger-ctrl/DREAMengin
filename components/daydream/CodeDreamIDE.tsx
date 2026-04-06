@@ -18,6 +18,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Play, StopCircle, Loader2, CheckCircle, Bot, Monitor, Database, Gamepad2, FlaskConical, Box, BarChart2, RefreshCw, ArrowLeftRight, Zap, MousePointerClick } from 'lucide-react';
 import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
 import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
+import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -315,6 +316,14 @@ export default function CodeDreamIDE() {
 
     // Emit code:run so CodeEngin / any other subscriber can react
     dualRuntimeBridge.emit('code', 'code:run', { language, code, engine });
+    dreamOSBus.upsertArtifact({
+      id: 'artifact:code:active-run',
+      kind: 'code-run',
+      title: 'Code runtime mirror',
+      sourceSubsystem: 'CodeEngin',
+      relatedSubsystems: ['LabEngin', 'Dr. Eams'],
+      payload: { language, code, engine, liveMode },
+    });
 
     const lines = getMockOutput(language, engine, code);
     lines.forEach((line, i) => {
@@ -325,12 +334,20 @@ export default function CodeDreamIDE() {
             setStatus('done');
             // Emit completed output
             dualRuntimeBridge.emit('code', 'code:output', { lines: next, status: 'done' });
+            dreamOSBus.upsertArtifact({
+              id: 'artifact:code:output',
+              kind: 'code-output',
+              title: 'Code output',
+              sourceSubsystem: 'CodeEngin',
+              relatedSubsystems: ['LabEngin', 'Dr. Eams'],
+              payload: { language, engine, lines: next, status: 'done' },
+            });
           }
           return next;
         });
       }, 120 * (i + 1));
     });
-  }, [status, language, engine, code]);
+  }, [status, language, engine, code, liveMode]);
 
   // Ref to always call the latest version of handleRun from the live-mode effect
   const handleRunRef = useRef(handleRun);
@@ -340,9 +357,17 @@ export default function CodeDreamIDE() {
     setOutputLines(prev => {
       const next = [...prev, `[${new Date().toISOString().slice(11, 19)}] ⛔ Interrupted by user`];
       dualRuntimeBridge.emit('code', 'code:output', { lines: next, status: 'error' });
+      dreamOSBus.upsertArtifact({
+        id: 'artifact:code:output',
+        kind: 'code-output',
+        title: 'Code output',
+        sourceSubsystem: 'CodeEngin',
+        relatedSubsystems: ['LabEngin', 'Dr. Eams'],
+        payload: { language, engine, lines: next, status: 'error' },
+      });
       return next;
     });
-  }, []);
+  }, [engine, language]);
 
   // Toggle swap — persists to localStorage
   const handleSwap = useCallback(() => {

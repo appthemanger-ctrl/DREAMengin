@@ -10,6 +10,7 @@ import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { createClient } from '@/lib/supabase/client';
 import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
 import { EnginDispatcher } from '@/lib/runtime/EnginDispatcher';
+import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 
 type ProfileLike = {
   id?: string;
@@ -123,6 +124,26 @@ function HomeSystemInner({
       dualRuntime.setDominantRuntime('DreamSpace');
     }
   }, [dualRuntime, splitRatio]);
+
+  useEffect(() => {
+    dreamOSBus.publishRuntimeContext({
+      region: 'Surface Space',
+      world: dualRuntime.state.surfaceSpaceWorld,
+      splitRatio,
+      dominant: dualRuntime.state.dominantRegion === 'Surface Space',
+    });
+    dreamOSBus.publishRuntimeContext({
+      region: 'DreamSpace',
+      world: dualRuntime.state.dreamSpaceWorld,
+      splitRatio: 1 - splitRatio,
+      dominant: dualRuntime.state.dominantRegion === 'DreamSpace',
+    });
+  }, [
+    dualRuntime.state.dominantRegion,
+    dualRuntime.state.dreamSpaceWorld,
+    dualRuntime.state.surfaceSpaceWorld,
+    splitRatio,
+  ]);
 
   useEffect(() => {
     const dispatcher = EnginDispatcher.getInstance();

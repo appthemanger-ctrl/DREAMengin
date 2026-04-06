@@ -12,6 +12,11 @@ import { bridge, type PeerState } from '@/lib/runtime/dualRuntimeBridge';
 import { EnginDispatcher, type DispatcherStats } from '@/lib/runtime/EnginDispatcher';
 import { onIdariEvent, type IdariEventDetail } from '@/lib/agents/agentBus';
 import type { RuntimeRegion } from '@/lib/identity/canonical-names';
+import {
+  dreamOSBus,
+  type DreamOSRuntimeContext,
+  type DreamOSSharedArtifact,
+} from '@/lib/runtime/dreamOSBus';
 
 export interface DREAMenginOSProps {
   audioSource?: AnalyserNode;
@@ -73,6 +78,8 @@ export default function DREAMenginOS({
   const [lastIdariEvent, setLastIdariEvent] = useState<IdariEventDetail | null>(null);
   const [lastImportedAsset, setLastImportedAsset] = useState<AssetImportPayload | null>(null);
   const [importCount, setImportCount] = useState(0);
+  const [sharedArtifacts, setSharedArtifacts] = useState<readonly DreamOSSharedArtifact[]>([]);
+  const [runtimeContexts, setRuntimeContexts] = useState<readonly DreamOSRuntimeContext[]>([]);
 
   const audioRef = useRef(audioSource);
   const onSelectSubsystemRef = useRef(onSelectSubsystem);
@@ -237,11 +244,16 @@ export default function DREAMenginOS({
     const unsubscribeIdari = onIdariEvent((detail) => {
       setLastIdariEvent(detail);
     });
+    const unsubscribeOSBus = dreamOSBus.subscribe((snapshot) => {
+      setSharedArtifacts(snapshot.artifacts.slice(0, 4));
+      setRuntimeContexts(snapshot.runtimeContexts);
+    });
 
     return () => {
       window.clearInterval(poll);
       unsubscribePeers();
       unsubscribeIdari();
+      unsubscribeOSBus();
     };
   }, []);
 
@@ -280,6 +292,7 @@ export default function DREAMenginOS({
         : '#e8c040';
 
   const livePeerCount = peerStates.filter((peer) => peer.subscriberCount > 0 || peer.lastActivityAt).length;
+  const primaryContexts = runtimeContexts.slice(0, 2);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -369,6 +382,30 @@ export default function DREAMenginOS({
             </button>
           ))}
         </div>
+        {primaryContexts.length > 0 ? (
+          <div style={{ marginTop: 10, display: 'grid', gap: 6 }}>
+            {primaryContexts.map((context) => (
+              <div
+                key={context.region}
+                style={{
+                  borderRadius: 12,
+                  border: '1px solid rgba(93, 232, 255, 0.12)',
+                  background: 'rgba(8, 16, 34, 0.7)',
+                  padding: '8px 10px',
+                  fontSize: 11,
+                }}
+              >
+                <div style={{ color: '#7dc4ff', textTransform: 'uppercase', letterSpacing: '0.14em' }}>
+                  {context.region}
+                </div>
+                <div style={{ marginTop: 2, fontWeight: 700 }}>{context.subsystemId}</div>
+                <div style={{ marginTop: 2, color: '#9edcc9' }}>
+                  AI context · {context.aiContext} · {context.dominant ? 'dominant' : 'linked'}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div
@@ -454,6 +491,29 @@ export default function DREAMenginOS({
           {lastIdariEvent ? (
             <div style={{ marginTop: 8, color: '#a8ffd6' }}>
               IDARi {lastIdariEvent.status ?? 'signal'} · {lastIdariEvent.message}
+            </div>
+          ) : null}
+          {sharedArtifacts.length > 0 ? (
+            <div style={{ marginTop: 10, display: 'grid', gap: 6 }}>
+              {sharedArtifacts.map((artifact) => (
+                <div
+                  key={artifact.id}
+                  style={{
+                    borderRadius: 10,
+                    border: '1px solid rgba(93, 232, 255, 0.14)',
+                    background: 'rgba(10, 18, 38, 0.62)',
+                    padding: '7px 9px',
+                  }}
+                >
+                  <div style={{ color: '#7dc4ff', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                    {artifact.kind}
+                  </div>
+                  <div style={{ marginTop: 2, fontWeight: 700 }}>{artifact.title}</div>
+                  <div style={{ marginTop: 2, color: '#fff6cf' }}>
+                    {artifact.sourceSubsystem} ↔ {artifact.relatedSubsystems.join(' / ')}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : null}
         </div>
