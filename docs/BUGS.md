@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 06:35 UTC  
-**Last updated:** 2026-04-06 06:35 UTC  
-**Triggered by commit:** `ab8cda0` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #460 from appthemanger-ctrl/copilot/fix-syntax-error-expectation
+**Documentation Date:** 2026-04-06 06:51 UTC  
+**Last updated:** 2026-04-06 06:51 UTC  
+**Triggered by commit:** `41f8785` on `copilot/integrate-primary-physics-engine` by Copilot  
+**Commit message:** feat: integrate Torridity Ledger into DreamR gestures and ranking
 
 ---
 
