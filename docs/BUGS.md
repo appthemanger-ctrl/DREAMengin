@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 10:48 UTC  
-**Last updated:** 2026-04-06 10:48 UTC  
-**Triggered by commit:** `a7d16a8` on `copilot/ensure-document-updates-no-vercel-builds` by appthemanger-ctrl  
-**Commit message:** Merge branch 'completedream' into copilot/ensure-document-updates-no-vercel-builds
+**Documentation Date:** 2026-04-06 10:53 UTC  
+**Last updated:** 2026-04-06 10:53 UTC  
+**Triggered by commit:** `c4d87d9` on `copilot/update-image-asset` by Copilot  
+**Commit message:** fix: guard EnginDispatcher against missing SharedArrayBuffer
 
 ---
 
