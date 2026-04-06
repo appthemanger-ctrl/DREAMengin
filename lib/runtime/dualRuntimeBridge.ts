@@ -242,6 +242,8 @@ class DualRuntimeBridgeImpl {
       this.notifyPeerObservers();
     }
 
+    // The observer interface is intentionally channel-agnostic, so the emitted
+    // object is widened here before broadcasting to global observers.
     this.notifyEventObservers({
       channel,
       event,

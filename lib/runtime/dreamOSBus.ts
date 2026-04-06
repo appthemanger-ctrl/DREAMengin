@@ -107,11 +107,10 @@ function formatEventTitle(event: string): string {
 
 function worldToSubsystemId(world: RuntimeWorld): string {
   if (typeof world === 'string') {
-    const runtimeWorld = world as string;
-    if (runtimeWorld === 'DreamSpace') return 'dreamspace';
-    if (runtimeWorld === 'HomeDream Surface') return 'home';
-    if (runtimeWorld === 'View Profile Surface') return 'profile';
-    return runtimeWorld.toLowerCase().replace(/\s+/g, '-');
+    if (world === 'DreamSpace') return 'dreamspace';
+    if (world === 'HomeDream Surface') return 'home';
+    if (world === 'View Profile Surface') return 'profile';
+    return String(world).toLowerCase().replace(/\s+/g, '-');
   }
   if (world.type === 'engin') return world.name;
   if (world.type === 'dream') return `dream:${world.id}`;

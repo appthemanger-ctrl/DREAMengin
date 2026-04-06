@@ -65,7 +65,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
   const { addWindow, removeWindow, updateWindow } = useDreamWindowActions();
   const artifactMap = useMemo(
     () => new Map(loadArtifacts(accountId).map((artifact) => [artifact.id, artifact])),
-    [accountId, activeModules],
+    [accountId],
   );
 
   useEffect(() => {

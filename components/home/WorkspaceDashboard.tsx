@@ -127,6 +127,8 @@ export default function WorkspaceDashboard({
       style={{
         minHeight: '100%',
         width: '100%',
+        // ActiveModuleSurface uses absolute positioning so HomeDream needs a
+        // containing stacking context for live modular windows and ghost previews.
         position: 'relative',
         paddingBottom: isCompactViewport
           ? 'calc(env(safe-area-inset-bottom, 0px) + 168px)'
