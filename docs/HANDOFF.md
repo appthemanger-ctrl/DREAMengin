@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-06 05:37 UTC | `7aaf7b5` | copilot/fix-syntax-error-expectation | Copilot | ~10 modified<br>fix: restore contentengin build and docs sync — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/15631fd0-88e4-42d5-b44b-64f35119e71b  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `README.md`, `REPO_STATE.md`, `components/daydream/ContentEngin.tsx`, `components/home/ActiveModuleSurface.tsx`, `docs/BUGS.md`, `docs/HANDOFF.md`, `lib/runtime/dreamOSBus.ts`, `lib/runtime/dualRuntimeBridge.ts`, `lib/widgets/feed-resolver.ts`, `tsconfig.json` |
 | **auto** | 2026-04-06 05:16 UTC | `996829a` | copilot/fix-syntax-error-expectation | copilot-swe-agent[bot] | ~1 modified<br>docs: auto-update BUGS.md [197b365] [skip ci] [skip vercel]<br>✏️: `docs/BUGS.md` |
 | **auto** | 2026-04-06 03:24 UTC | `71b0f9b` | copilot/fix-syntax-error-expectation | copilot-swe-agent[bot] | ~1 modified<br>docs: auto-update BUGS.md [bffb861] [skip ci] [skip vercel]<br>✏️: `docs/BUGS.md` |
 | **auto** | 2026-04-06 02:42 UTC | `74e2798` | copilot/fix-syntax-error-expectation | Copilot | ~1 modified<br>fix: repair DREAMenginOS parser errors — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/4e134dd2-8bef-44bd-8cf4-d3c73c48950e  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/dreamengin/DREAMenginOS.tsx` |
 | **auto** | 2026-04-06 02:29 UTC | `66c59ef` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #459 from appthemanger-ctrl/copilot/separate-visual-react-state — Reconnect DREAMenginOS to persistent dual-runtime split and live subsystem graph<br> |
-| **auto** | 2026-04-06 01:59 UTC | `8fdd17a` | copilot/separate-visual-react-state | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/separate-visual-react-state<br> |
 
 ## What changed in this alignment pass
 
