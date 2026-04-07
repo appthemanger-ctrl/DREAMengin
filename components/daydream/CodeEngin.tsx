@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * CodeEngin — Enhanced Side B control layer for the Code Daydream.
+ * CodeEngin — Enhanced Side B control layer for the Code Daydream IDE. 
  *
  * Features:
  *   - Live Notebook  : Python-notebook-rival with simulated per-cell execution.
