@@ -45,6 +45,8 @@ import { consumePlayAsMe, getAvatarDataUrl } from '@/lib/games/avatar';
 import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBridge';
 import { useRemoteChannel } from '@/lib/games/useRemoteChannel';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useGameEnginBridge } from '@/lib/runtime/useEnginBridge';
+import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
@@ -126,18 +128,16 @@ const QUICK_PLAY_GAME_IDS = [
 ] as const;
 
 const TILE_META: Record<TileType, { emoji: string; label: string; bg: string }> = {
-  empty:  { emoji: '⬜', label: 'Empty',  bg: 'rgba(255,255,255,0.25)' },
-  ground: { emoji: '🟫', label: 'Ground', bg: 'rgba(160,100,40,0.35)'  },
-  wall:   { emoji: '⬛', label: 'Wall',   bg: 'rgba(50,55,65,0.55)'    },
-  water:  { emoji: '🟦', label: 'Water',  bg: 'rgba(42,138,184,0.38)'  },
-  spawn:  { emoji: '🟢', label: 'Spawn',  bg: 'rgba(34,197,94,0.35)'   },
+  empty:  { emoji: '🫯', label: 'Empty',  bg: 'rgba(255,255,255,0.25)' },
+  ground: { emoji: '🔲', label: 'Ground', bg: 'rgba(160,100,40,0.35)'  },
+  wall:   { emoji: '🟥▪️▫️⬛️', label: 'Wall',   bg: 'rgba(50,55,65,0.55)'    },
+  water:  { emoji: '🌊💨', label: 'Water', bg: 'rgba(spawn:  { emoji: '🗯️💬', label: 'Spawn',  bg: 'rgba(34,197,94,0.35)'   },
 };
-
 const GRAVITY_META: Record<GravityPreset, { label: string; value: string; emoji: string }> = {
-  moon:    { label: 'Moon',    value: '0.16g', emoji: '🌙' },
-  earth:   { label: 'Earth',   value: '1g',    emoji: '🌍' },
-  mars:    { label: 'Mars',    value: '0.38g', emoji: '🔴' },
-  jupiter: { label: 'Jupiter', value: '2.4g',  emoji: '🟠' },
+  moon:    { label: 'Moon',    value: '0.10g', emoji: '🌙' },
+  earth:   { label: 'Earth',   value: '1.5g',    emoji: '🌍' },
+  mars:    { label: 'Mars',    value: '0.64g', emoji: '🔴' },
+  jupiter: { label: 'Jupiter', value: '3.5g',  emoji: '🟠' },
 };
 
 const ACHIEVEMENT_DEFS: AchievementDef[] = [
@@ -221,6 +221,7 @@ function makeEmptyGrid(): TileType[][] {
 // ── Component ──────────────────────────────────────────────────────────────────
 
 export default function GameEngin({ onBack }: Props) {
+  const gameBridge = useGameEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'games' });
   const searchParams = useSearchParams();
   const { connected: gpConnected, gamepadName, isDualSense, rumble } = useGamepad();
@@ -586,11 +587,18 @@ export default function GameEngin({ onBack }: Props) {
 
   const syncedMusicClip = savedMusicState?.ledgerAudio ?? null;
   const crossEnginChannels = CROSS_ENGIN_CHANNELS.map((engin) => {
-    if (engin.name !== 'Music' || !syncedMusicClip) return engin;
-    return {
-      ...engin,
-      status: `Synced clip ready · ${syncedMusicClip.fileName}`,
+    // Pull live status from bridge hook, fall back to static label
+    const liveStatus: Record<string, string> = {
+      Music:  gameBridge.connectionStatus.music,
+      Code:   gameBridge.connectionStatus.code,
+      Create: gameBridge.connectionStatus.create,
+      Lab:    gameBridge.connectionStatus.lab,
+      Brand:  gameBridge.connectionStatus.brand,
     };
+    const status = (engin.name === 'Music' && syncedMusicClip)
+      ? `Synced clip ready · ${syncedMusicClip.fileName}`
+      : (liveStatus[engin.name] ?? engin.status);
+    return { ...engin, status };
   });
 
   // Restore controller profile preference and saved GameEngin sessions.
