@@ -36,6 +36,8 @@ import {
   Camera, Layers, Move, Film, Link2, Crosshair,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useContentEnginBridge } from '@/lib/runtime/useEnginBridge';
+import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
@@ -161,6 +163,7 @@ interface CollectedAsset { id: string; name: string; category: AssetCategory; st
 interface PipelineItem   { id: string; title: string; type: string; platform: string; stage: PipelineStage; }
 
 export default function ContentEngin({ onBack }: Props) {
+  const contentBridge = useContentEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'create' });
   // ── Existing: Recent Drafts ──
   const [notes, setNotes] = useState<Note[]>([]);
@@ -169,15 +172,10 @@ export default function ContentEngin({ onBack }: Props) {
   // ── Multi-connection: receive stem-ready from StarMakerEngin (Phase 8 §F Point 57) ──
   // Music Daydream → ContentEngin connection path: when a stem is prepared in StarMakerEngin,
   // ContentEngin surfaces a prompt to write a track description draft.
-  const [stemPrompt, setStemPrompt] = useState<{ stemType: string; url: string } | null>(null);
-
-  useEffect(() => {
-    // Subscribe to the 'music' channel — receive stem-ready events from StarMakerEngin
-    const unsub = bridge.subscribe('music', 'music:stem-ready', (payload) => {
-      setStemPrompt(payload as { stemType: string; url: string });
-    });
-    return unsub;
-  }, []);
+  // Subscription is handled by useContentEnginBridge — read state from the hook.
+  const stemPrompt = contentBridge.lastStem !== null
+    ? { stemType: contentBridge.lastStem, url: contentBridge.lastStemUrl ?? '' }
+    : null;
 
   useEffect(() => {
     let cancelled = false;
