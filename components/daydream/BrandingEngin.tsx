@@ -23,6 +23,8 @@ import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import Link from 'next/link';
 import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useBrandingEnginBridge } from '@/lib/runtime/useEnginBridge';
+import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
@@ -65,6 +67,7 @@ const AssetLibrary        = 'brand-feature';
 const ContentCalendarLink = 'brand-feature';
 
 export default function BrandingEngin({ onBack }: Props) {
+  const brandBridge = useBrandingEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
   // ── Daydream state persistence (Phase 8 §F Point 55) ──
   const { persistState } = useDaydreamState({ daydreamType: 'brand', side: 'B' });
