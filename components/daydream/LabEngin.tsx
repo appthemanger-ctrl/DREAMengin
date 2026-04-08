@@ -19,6 +19,8 @@ import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useLabEnginBridge } from '@/lib/runtime/useEnginBridge';
+import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
@@ -105,6 +107,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
 };
 
 export default function LabEngin({ onBack }: Props) {
+  const labBridge = useLabEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
   // ── Existing state ─────────────────────────────────────────────────────────
   const [experiments, setExperiments] = useState<Experiment[]>([]);
