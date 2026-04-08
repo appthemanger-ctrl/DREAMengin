@@ -55,6 +55,8 @@ import {
   type ProjectTemplate,
 } from '@/lib/music/presets';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useStarMakerEnginBridge } from '@/lib/runtime/useEnginBridge';
+import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { buildLedgerMediaUrl, uploadBlobToLedgerStorage } from '@/lib/media/ledger';
@@ -252,6 +254,7 @@ const bpmBtnStyle: React.CSSProperties = {
 // ─── Root component ────────────────────────────────────────────────────────────
 
 export default function StarMakerEngin({ onBack }: Props) {
+  const starBridge = useStarMakerEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'music' });
 
   // ── Daydream state persistence (Phase 8 §F Point 51) ──
@@ -4016,80 +4019,4 @@ function DAWFileIOPanel({
                   title={op.title}
                   style={{
                     padding: '7px 12px', borderRadius: 8, cursor: opPending ? 'not-allowed' : 'pointer',
-                    border: `1px solid ${op.color}35`,
-                    background: `${op.color}10`, color: op.color,
-                    fontSize: 11, fontWeight: 700, opacity: opPending ? 0.5 : 1,
-                    display: 'flex', alignItems: 'center', gap: 5,
-                    transition: 'all 0.15s',
-                  }}>
-                  <span style={{ fontSize: 12 }}>{op.icon}</span> {op.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <MultitrackArrangementPanel
-          hasAudio={hasAudio}
-          sourceLibrary={sourceLibrary}
-          selectedSourceId={selectedSourceId}
-          selectedClipId={selectedClipId}
-          arrTracks={arrTracks}
-          arrClips={arrClips}
-          arrPlaying={arrPlaying}
-          arrLooping={arrLooping}
-          arrPlayheadBar={arrPlayheadBar}
-          formatSeconds={fmtSec}
-          onCaptureCurrentToRack={captureCurrentToRack}
-          onToggleArrangementPlayback={toggleArrangementPlayback}
-          onToggleArrangementLoop={() => setArrLooping(prev => !prev)}
-          onSelectSource={setSelectedSourceId}
-          onSelectClip={setSelectedClipId}
-          onTrackMuteToggle={(trackId) => setArrTracks(prev => prev.map(item => item.id === trackId ? { ...item, muted: !item.muted } : item))}
-          onTrackSoloToggle={(trackId) => setArrTracks(prev => prev.map(item => item.id === trackId ? { ...item, solo: !item.solo } : item))}
-          onTrackVolumeChange={(trackId, volume) => setArrTracks(prev => prev.map(item => item.id === trackId ? { ...item, volume } : item))}
-          onPlaceClip={placeArrangementClip}
-          onNudgeClipLeft={() => updateSelectedClip(clip => ({ ...clip, startBar: Math.max(0, clip.startBar - 1) }))}
-          onNudgeClipRight={() => updateSelectedClip(clip => ({ ...clip, startBar: Math.min(ARRANGEMENT_BARS - clip.barLength, clip.startBar + 1) }))}
-          onShortenClip={() => updateSelectedClip(clip => ({ ...clip, barLength: Math.max(1, clip.barLength - 1) }))}
-          onLengthenClip={() => updateSelectedClip(clip => ({ ...clip, barLength: Math.min(ARRANGEMENT_BARS - clip.startBar, clip.barLength + 1) }))}
-          onDuplicateClip={() => {
-            const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
-            if (!selectedClip) { showOpMsg('⚠ Select an arrangement clip first'); return; }
-            const duplicate: ArrangementClip = {
-              ...selectedClip,
-              id: `clip-${Date.now()}-${Math.round(Math.random() * 999)}`,
-              startBar: Math.min(ARRANGEMENT_BARS - selectedClip.barLength, selectedClip.startBar + selectedClip.barLength),
-            };
-            setArrClips(prev => [...prev, duplicate]);
-            setSelectedClipId(duplicate.id);
-          }}
-          onRemoveClip={() => {
-            const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
-            if (!selectedClip) { showOpMsg('⚠ Select an arrangement clip first'); return; }
-            setArrClips(prev => prev.filter(clip => clip.id !== selectedClip.id));
-            setSelectedClipId(null);
-          }}
-          onSelectedClipGainChange={(gain) => updateSelectedClip(clip => ({ ...clip, gain }))}
-        />
-
-        {/* ── Formats notice ── */}
-        <div style={{
-          padding: '8px 12px', borderRadius: 8, fontSize: 10,
-          background: DAW.surfaceHi, border: `1px solid ${DAW.border}`,
-          color: DAW.dim, lineHeight: 1.6,
-        }}>
-          <span style={{ fontWeight: 700, color: DAW.text }}>Import: </span>
-          WAV · MP3 · OGG · FLAC · AAC · M4A
-          {' · '}
-          <span style={{ fontWeight: 700, color: DAW.text }}>Export: </span>
-          WAV (all operations) · Original file · Project JSON
-          <br />
-          <span style={{ color: `${DAW.accent}99` }}>
-            Inspired by Ableton, Logic Pro, Pro Tools, Cubase, FL Studio · Splice stem compatibility
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
+                    bo
