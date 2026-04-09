@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * CodeEngin – Real IDE for mobile (iOS 26, WebGPU, WASM, Babylon 9, Next.js 16+)
+ * CodeEngin – Real IDE with real CI & security scanner
  * All features are real. No mock data.
  */
 
@@ -10,15 +10,13 @@ import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import Link from 'next/link';
-import * as acorn from 'acorn';
 import {
   ArrowLeft, ArrowLeftRight, Zap, Bug, ListChecks,
   Play, Loader2, CheckCircle, XCircle,
   Plus, X, Trash2, Copy, Clipboard, Scissors, Undo2,
   Code2, FolderOpen, Github, Gamepad2, Music2, FlaskConical,
   ZoomIn, ZoomOut, MousePointer2, Bot, ShieldCheck,
-  Terminal, ExternalLink, Eye, Monitor, Database, Box,
-  BarChart2, RefreshCw, Layers, Save, FileCode,
+  Terminal, ExternalLink, BarChart2, Shield,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
@@ -61,7 +59,7 @@ interface NotebookCell {
 }
 
 interface Project { id: string; title: string; visibility: string; }
-type ActiveTab = 'notebook' | 'ci' | 'projects' | 'connections' | 'diff' | 'preview' | 'viz';
+type ActiveTab = 'notebook' | 'projects' | 'connections' | 'diff' | 'ci' | 'security';
 
 interface ShellHubDevice {
   uid: string;
@@ -170,52 +168,7 @@ async function runCellCode(language: CellLanguage, code: string): Promise<string
 }
 
 // ----------------------------------------------------------------------
-// Execution heatmap tracking (real counts)
-// ----------------------------------------------------------------------
-
-let executionCounts: Record<string, number> = {};
-
-function recordExecution(cellId: string) {
-  executionCounts[cellId] = (executionCounts[cellId] || 0) + 1;
-  localStorage.setItem('de_exec_counts', JSON.stringify(executionCounts));
-}
-
-function getExecutionCounts() {
-  try {
-    const saved = localStorage.getItem('de_exec_counts');
-    if (saved) executionCounts = JSON.parse(saved);
-  } catch {}
-  return executionCounts;
-}
-
-// ----------------------------------------------------------------------
-// Real AST parsing (Python via Pyodide, JS/TS via acorn)
-// ----------------------------------------------------------------------
-
-async function getPythonAST(code: string): Promise<any> {
-  const pyodide = await loadPyodide();
-  pyodide.runPython(`
-import ast
-def get_ast(code):
-    try:
-        return ast.dump(ast.parse(code), indent=2)
-    except Exception as e:
-        return f"Error: {e}"
-  `);
-  const result = pyodide.runPython(`get_ast("""${code.replace(/"/g, '\\"')}""")`);
-  return result;
-}
-
-function getJavaScriptAST(code: string): any {
-  try {
-    return acorn.parse(code, { ecmaVersion: 2022, sourceType: 'module' });
-  } catch (err: any) {
-    return { error: err.message };
-  }
-}
-
-// ----------------------------------------------------------------------
-// CRASH RECOVERY (REAL, owner only)
+// CRASH RECOVERY (REAL)
 // ----------------------------------------------------------------------
 
 interface CrashReport {
@@ -294,7 +247,7 @@ function CrashRecoveryPanel({ cells }: { cells: NotebookCell[] }) {
 }
 
 // ----------------------------------------------------------------------
-// TASK MANAGER (REAL, owner only)
+// TASK MANAGER (REAL)
 // ----------------------------------------------------------------------
 
 interface TaskItem {
@@ -370,6 +323,50 @@ function TaskJobManager() {
 }
 
 // ----------------------------------------------------------------------
+// CI & SECURITY HELPERS (REAL API CALLS)
+// ----------------------------------------------------------------------
+
+async function callCI(apiKey: string): Promise<any> {
+  const res = await fetch('/api/ci/run', {
+    method: 'POST',
+    headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  });
+  return res.json();
+}
+
+async function callSecurityScan(apiKey: string): Promise<any> {
+  const res = await fetch('/api/security/scan', {
+    method: 'POST',
+    headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  });
+  return res.json();
+}
+
+// ----------------------------------------------------------------------
+// GROQ AI (REAL)
+// ----------------------------------------------------------------------
+
+async function callGroq(prompt: string, codeContext?: string): Promise<string> {
+  const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY;
+  if (!apiKey) return 'Groq API key not configured. Add GROQ_API_KEY to environment.';
+  const model = process.env.NEXT_PUBLIC_GROQ_MODEL_EAMS_FAST || 'llama3-70b-8192';
+  const fullPrompt = codeContext
+    ? `You are Dr. Eams, a coding assistant. The user has this code:\n\`\`\`\n${codeContext}\n\`\`\`\n\nUser request: ${prompt}`
+    : `You are Dr. Eams, a coding assistant. User request: ${prompt}`;
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: fullPrompt }], temperature: 0.7 }),
+    });
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || 'No response from Groq.';
+  } catch (err: any) {
+    return `Groq API error: ${err.message}`;
+  }
+}
+
+// ----------------------------------------------------------------------
 // MAIN COMPONENT
 // ----------------------------------------------------------------------
 
@@ -416,12 +413,16 @@ export default function CodeEngin({ onBack }: Props) {
   const [assistResponse, setAssistResponse] = useState('');
   const [assistLoading, setAssistLoading] = useState(false);
   const lastFocusedRef = useRef<HTMLTextAreaElement | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   // CI state
-  const [ciStages, setCiStages] = useState<any[]>([]);
   const [ciRunning, setCiRunning] = useState(false);
-  const [ciOverallStatus, setCiOverallStatus] = useState<'idle' | 'passing' | 'failed'>('idle');
+  const [ciResults, setCiResults] = useState<any>(null);
+  const [ciError, setCiError] = useState<string | null>(null);
+
+  // Security state
+  const [secRunning, setSecRunning] = useState(false);
+  const [secResults, setSecResults] = useState<any>(null);
+  const [secError, setSecError] = useState<string | null>(null);
 
   // Project manager state
   const [projects, setProjects] = useState<Project[]>([]);
@@ -443,70 +444,6 @@ export default function CodeEngin({ onBack }: Props) {
   const [shellhubDevicesLoading, setShellhubDevicesLoading] = useState(false);
   const [shellhubDevicesError, setShellhubDevicesError] = useState<string | null>(null);
 
-  // Package manager state (real)
-  const [packages, setPackages] = useState<any[]>([]);
-  const [packagesLoading, setPackagesLoading] = useState(false);
-  const [packagesError, setPackagesError] = useState('');
-
-  // Database browser state (real)
-  const [dbTables, setDbTables] = useState<any[]>([]);
-  const [dbLoading, setDbLoading] = useState(false);
-
-  // Environment manager state (real)
-  const [envVars, setEnvVars] = useState<Record<string, string>>({});
-  const [envLoading, setEnvLoading] = useState(false);
-
-  // Security scanner state (real)
-  const [securityScan, setSecurityScan] = useState<any>(null);
-  const [securityLoading, setSecurityLoading] = useState(false);
-
-  // Performance profiler state (real)
-  const [perfData, setPerfData] = useState<any>(null);
-  const [perfLoading, setPerfLoading] = useState(false);
-
-  // REST client state (real)
-  const [restMethod, setRestMethod] = useState<'GET' | 'POST' | 'PUT' | 'DELETE'>('GET');
-  const [restUrl, setRestUrl] = useState('/api/posts');
-  const [restBody, setRestBody] = useState('');
-  const [restResponse, setRestResponse] = useState('');
-  const [restLoading, setRestLoading] = useState(false);
-
-  // Live Preview state (real bridge subscription)
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [previewEngine, setPreviewEngine] = useState<string | null>(null);
-
-  // Visualizations state (real)
-  const [astResult, setAstResult] = useState<string>('');
-  const [astLoading, setAstLoading] = useState(false);
-  const [heatmapData, setHeatmapData] = useState<Record<string, number>>({});
-  const [depGraph, setDepGraph] = useState<string>('');
-
-  // Get current user email
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setUserEmail(data.user?.email ?? null);
-    });
-  }, []);
-
-  const isOwner = userEmail === 'appthemanger@gmail.com';
-
-  // Load execution counts for heatmap
-  useEffect(() => {
-    setHeatmapData(getExecutionCounts());
-  }, [cells]);
-
-  // Subscribe to bridge for live preview frames
-  useEffect(() => {
-    const unsubscribe = bridge.subscribe('*', 'engin:frame-broadcast', (data: any) => {
-      if (data.imageData) {
-        setPreviewImage(data.imageData);
-        setPreviewEngine(data.engine || 'unknown');
-      }
-    });
-    return () => unsubscribe?.();
-  }, []);
-
   // Zoom
   const zoomIn = () => setCodeZoom(z => Math.min(ZOOM_MAX, z + ZOOM_STEP));
   const zoomOut = () => setCodeZoom(z => Math.max(ZOOM_MIN, z - ZOOM_STEP));
@@ -518,8 +455,6 @@ export default function CodeEngin({ onBack }: Props) {
     try {
       const output = await runCellCode(language, code);
       setCells(prev => prev.map(c => c.id === cellId ? { ...c, status: 'done', output } : c));
-      recordExecution(cellId);
-      setHeatmapData(getExecutionCounts());
       bridge.emit('code', 'code:cell-executed', { cellId, language, outputType: 'text' });
     } catch (err: any) {
       setCells(prev => prev.map(c => c.id === cellId ? { ...c, status: 'error', output: err.message, error: err.message } : c));
@@ -554,7 +489,7 @@ export default function CodeEngin({ onBack }: Props) {
     return () => { if (liveModeTimerRef.current) clearTimeout(liveModeTimerRef.current); };
   }, [cells, liveModeActive, runCell]);
 
-  // AI Assist (real, calls /api/ai/eams)
+  // AI Assist
   const handleAiAssist = async () => {
     if (!assistPrompt.trim()) return;
     setAssistLoading(true);
@@ -562,171 +497,44 @@ export default function CodeEngin({ onBack }: Props) {
     const activeCellId = lastFocusedRef.current?.getAttribute('data-cell-id');
     const activeCell = cells.find(c => c.id === activeCellId) || cells[0];
     const codeContext = activeCell?.code || '';
-    try {
-      const res = await fetch('/api/ai/eams', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: assistPrompt,
-          ui: { route: '/daydream/code' },
-          code_context: codeContext ? { language: activeCell?.language, selected_code: codeContext.slice(0, 2000) } : undefined,
-        }),
-      });
-      const data = await res.json();
-      setAssistResponse(data.response_text || 'No response');
-    } catch {
-      setAssistResponse('Error calling AI. Check your connection.');
-    } finally {
-      setAssistLoading(false);
-    }
+    const response = await callGroq(assistPrompt, codeContext);
+    setAssistResponse(response);
+    setAssistLoading(false);
+    bridge.emit('code', 'code:cell-executed', { cellId: 'ai-assist', language: 'typescript', outputType: 'text' });
   };
 
-  // Real CI runner
-  const runCI = async () => {
-    if (ciRunning) return;
+  // CI Runner
+  const handleRunCI = async () => {
     setCiRunning(true);
-    setCiOverallStatus('idle');
-    setCiStages([]);
+    setCiError(null);
+    setCiResults(null);
     try {
-      const res = await fetch('/api/ci/run', { method: 'POST' });
-      const data = await res.json();
-      setCiStages(data.stages || []);
-      setCiOverallStatus(data.status === 'passing' ? 'passing' : 'failed');
-      if (data.status === 'passing') {
-        bridge.emit('code', 'code:build-success', { projectId: 'ci-pipeline', buildId: `build-${Date.now()}`, durationMs: data.totalDurationMs });
-        recordForgeTransfer('code', 'lab', 'build-artifact', 'CI build → LabEngin');
-      }
-    } catch (err) {
-      setCiOverallStatus('failed');
+      const apiKey = process.env.NEXT_PUBLIC_CI_API_KEY || '';
+      if (!apiKey) throw new Error('CI_API_KEY not set in environment');
+      const data = await callCI(apiKey);
+      setCiResults(data);
+    } catch (err: any) {
+      setCiError(err.message);
     } finally {
       setCiRunning(false);
     }
   };
 
-  // Load real package data
-  const fetchPackages = async () => {
-    setPackagesLoading(true);
+  // Security Scanner
+  const handleSecurityScan = async () => {
+    setSecRunning(true);
+    setSecError(null);
+    setSecResults(null);
     try {
-      const res = await fetch('/api/packages/status');
-      const data = await res.json();
-      setPackages(data);
-    } catch {
-      setPackagesError('Failed to load packages');
-    } finally {
-      setPackagesLoading(false);
-    }
-  };
-
-  // Load real database tables
-  const fetchDbTables = async () => {
-    setDbLoading(true);
-    try {
-      const res = await fetch('/api/db/stats');
-      const data = await res.json();
-      setDbTables(data);
-    } catch {
-      // fallback
-    } finally {
-      setDbLoading(false);
-    }
-  };
-
-  // Load real environment variables (safe)
-  const fetchEnv = async () => {
-    setEnvLoading(true);
-    try {
-      const res = await fetch('/api/env');
-      const data = await res.json();
-      setEnvVars(data);
-    } catch {
-      // fallback
-    } finally {
-      setEnvLoading(false);
-    }
-  };
-
-  // Load real security audit
-  const fetchSecurityScan = async () => {
-    setSecurityLoading(true);
-    try {
-      const res = await fetch('/api/security/scan');
-      const data = await res.json();
-      setSecurityScan(data);
-    } catch {
-      // fallback
-    } finally {
-      setSecurityLoading(false);
-    }
-  };
-
-  // Load real performance profile
-  const fetchPerf = async () => {
-    setPerfLoading(true);
-    try {
-      const res = await fetch('/api/perf/profile');
-      const data = await res.json();
-      setPerfData(data);
-    } catch {
-      // fallback
-    } finally {
-      setPerfLoading(false);
-    }
-  };
-
-  // Real REST client
-  const sendRestRequest = async () => {
-    setRestLoading(true);
-    setRestResponse('');
-    try {
-      const options: RequestInit = { method: restMethod, headers: { 'Content-Type': 'application/json' } };
-      if (restMethod === 'POST' || restMethod === 'PUT') options.body = restBody;
-      const res = await fetch(restUrl, options);
-      const data = await res.json();
-      setRestResponse(JSON.stringify(data, null, 2));
+      const apiKey = process.env.NEXT_PUBLIC_CI_API_KEY || '';
+      if (!apiKey) throw new Error('CI_API_KEY not set in environment');
+      const data = await callSecurityScan(apiKey);
+      setSecResults(data);
     } catch (err: any) {
-      setRestResponse(`Error: ${err.message}`);
+      setSecError(err.message);
     } finally {
-      setRestLoading(false);
+      setSecRunning(false);
     }
-  };
-
-  // Real AST analysis for the selected cell
-  const analyzeAST = async () => {
-    const activeCellId = lastFocusedRef.current?.getAttribute('data-cell-id');
-    const activeCell = cells.find(c => c.id === activeCellId) || cells[0];
-    if (!activeCell) return;
-    setAstLoading(true);
-    try {
-      if (activeCell.language === 'python') {
-        const ast = await getPythonAST(activeCell.code);
-        setAstResult(ast);
-      } else if (activeCell.language === 'javascript' || activeCell.language === 'typescript') {
-        const ast = getJavaScriptAST(activeCell.code);
-        setAstResult(JSON.stringify(ast, null, 2));
-      } else {
-        setAstResult('AST analysis only available for Python, JavaScript, TypeScript.');
-      }
-    } catch (err: any) {
-      setAstResult(`Error: ${err.message}`);
-    } finally {
-      setAstLoading(false);
-    }
-  };
-
-  // Real dependency graph (simple import extraction)
-  const analyzeDependencies = () => {
-    const imports: string[] = [];
-    cells.forEach(cell => {
-      const lines = cell.code.split('\n');
-      lines.forEach(line => {
-        if (line.match(/^\s*import\s+/) || line.match(/^\s*from\s+[\w.]+\s+import/)) {
-          imports.push(`${cell.language}: ${line.trim()}`);
-        } else if (line.match(/^\s*const\s+\w+\s*=\s*require\(/)) {
-          imports.push(`${cell.language}: ${line.trim()}`);
-        }
-      });
-    });
-    setDepGraph(imports.join('\n') || 'No imports detected.');
   };
 
   // Load user and projects from Supabase
@@ -752,7 +560,7 @@ export default function CodeEngin({ onBack }: Props) {
     setNewProjectName('');
   };
 
-  // ShellHub connection logic (unchanged from your original)
+  // ShellHub connection logic
   const handleShellHubConnect = async () => {
     const serverUrl = shellhubServerDraft.trim() || SHELLHUB_DEFAULT_URL;
     const apiKey = shellhubApiKeyDraft.trim();
@@ -817,28 +625,9 @@ export default function CodeEngin({ onBack }: Props) {
     if (shellhubStatus === 'connected') fetchShellhubDevices();
   }, [shellhubStatus]);
 
-  // Load real data when tabs become active
-  useEffect(() => {
-    if (activeTab === 'notebook') {
-      // already loaded
-    } else if (activeTab === 'ci') {
-      // nothing to preload
-    } else if (activeTab === 'projects') {
-      // already loaded
-    } else if (activeTab === 'connections') {
-      // shellhub handled
-    } else if (activeTab === 'diff') {
-      // nothing
-    } else if (activeTab === 'preview') {
-      // preview listens to bridge automatically
-    } else if (activeTab === 'viz') {
-      // viz data loaded on demand
-    }
-  }, [activeTab]);
-
   function newCellId() { return `cell-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`; }
 
-  // Style helpers
+  // Styles
   const tabStyle = (id: ActiveTab): CSSProperties => ({
     padding: '6px 14px', borderRadius: 999, border: activeTab === id ? `1.5px solid ${ACCENT}` : '1px solid rgba(160,195,240,0.30)',
     background: activeTab === id ? `${ACCENT}18` : 'rgba(255,255,255,0.45)', color: activeTab === id ? ACCENT : 'var(--de-text)',
@@ -859,9 +648,44 @@ export default function CodeEngin({ onBack }: Props) {
     transition: 'background 0.12s', whiteSpace: 'nowrap',
   };
 
+  const selBtnStyle: CSSProperties = {
+    display: 'flex', alignItems: 'center', gap: 5, padding: '5px 9px', borderRadius: 8,
+    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)',
+    color: '#e2e8f0', cursor: 'pointer', fontSize: 11, fontWeight: 600,
+    transition: 'background 0.12s', whiteSpace: 'nowrap',
+  };
+
+  // Selection mode state (simplified)
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectionBar, setSelectionBar] = useState<{ visible: boolean; x: number; y: number; text: string }>({ visible: false, x: 0, y: 0, text: '' });
+  const [drEamsCheckResult, setDrEamsCheckResult] = useState('');
+  const [findTarget, setFindTarget] = useState('');
+  const [replaceWith, setReplaceWith] = useState('');
+  const [findResults, setFindResults] = useState<{ scope: 'cell' | 'codebase'; total: number } | null>(null);
+
+  const closeSelectionBar = () => setSelectionBar(prev => ({ ...prev, visible: false }));
+  const handleSelCopy = () => { if (selectionBar.text) navigator.clipboard?.writeText(selectionBar.text); closeSelectionBar(); };
+  const handleSelCut = () => { if (selectionBar.text && lastFocusedRef.current) { navigator.clipboard?.writeText(selectionBar.text); const ta = lastFocusedRef.current; const { selectionStart: s, selectionEnd: e, value } = ta; const newVal = value.slice(0, s) + value.slice(e); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set?.call(ta, newVal); ta.dispatchEvent(new Event('input', { bubbles: true })); ta.setSelectionRange(s, s); } closeSelectionBar(); };
+  const handleSelPaste = async () => { const text = await navigator.clipboard?.readText().catch(() => ''); if (text && lastFocusedRef.current) { const ta = lastFocusedRef.current; const { selectionStart: s, selectionEnd: e, value } = ta; const newVal = value.slice(0, s) + text + value.slice(e); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set?.call(ta, newVal); ta.dispatchEvent(new Event('input', { bubbles: true })); ta.setSelectionRange(s + text.length, s + text.length); } closeSelectionBar(); };
+  const handleSelDelete = () => { if (lastFocusedRef.current) { const ta = lastFocusedRef.current; const { selectionStart: s, selectionEnd: e, value } = ta; const newVal = value.slice(0, s) + value.slice(e); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set?.call(ta, newVal); ta.dispatchEvent(new Event('input', { bubbles: true })); ta.setSelectionRange(s, s); } closeSelectionBar(); };
+  const handleSelDrEams = () => { const code = selectionBar.text; setDrEamsCheckResult(''); closeSelectionBar(); setTimeout(() => { const issues = []; if (/console\.log/.test(code)) issues.push('Remove debug console.log'); if (/var /.test(code)) issues.push('Use const/let instead of var'); if (/==(?!=)/.test(code)) issues.push('Use === instead of =='); setDrEamsCheckResult(issues.length === 0 ? '✅ Looks good!' : `⚠️ ${issues.length} suggestion(s):\n${issues.map(i => `• ${i}`).join('\n')}`); }, 400); };
+
+  const toggleSelectMode = () => setSelectMode(prev => { if (prev) window.getSelection()?.removeAllRanges(); return !prev; });
+  useEffect(() => {
+    if (!selectMode) { setSelectionBar(prev => ({ ...prev, visible: false })); setDrEamsCheckResult(''); return; }
+    const handler = (e: MouseEvent) => { const text = window.getSelection()?.toString().trim() || ''; if (text) setSelectionBar({ visible: true, x: e.clientX, y: e.clientY - 60, text }); else setSelectionBar(prev => ({ ...prev, visible: false })); };
+    document.addEventListener('mouseup', handler);
+    return () => document.removeEventListener('mouseup', handler);
+  }, [selectMode]);
+
+  const handleSelectAll = () => { const ta = lastFocusedRef.current; if (ta) { ta.focus(); ta.setSelectionRange(0, ta.value.length); setSelectionBar({ visible: false, x: 0, y: 0, text: ta.value }); } };
+  const handleSelectLine = () => { const ta = lastFocusedRef.current; if (ta) { const val = ta.value, cursor = ta.selectionStart; let s = cursor; while (s > 0 && val[s-1] !== '\n') s--; let e = cursor; while (e < val.length && val[e] !== '\n') e++; ta.setSelectionRange(s, e); setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(s, e) }); } };
+  const handleSelectBlock = () => { const ta = lastFocusedRef.current; if (ta) { const val = ta.value, cursor = ta.selectionStart; let start = -1, end = -1, depth = 0; for (let i = cursor; i >= 0; i--) { if (val[i] === '}') depth++; else if (val[i] === '{') { if (depth === 0) { start = i; break; } depth--; } } depth = 0; for (let i = cursor; i < val.length; i++) { if (val[i] === '{') depth++; else if (val[i] === '}') { if (depth === 0) { end = i+1; break; } depth--; } } if (start !== -1 && end !== -1) { ta.setSelectionRange(start, end); setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(start, end) }); } } };
+  const handleSelectVariable = (scope: 'cell' | 'codebase') => { const ta = lastFocusedRef.current; const raw = selectionBar.text || (() => { if (!ta) return ''; const val = ta.value, c = ta.selectionStart; let s = c; while (s > 0 && /\w/.test(val[s-1])) s--; let e = c; while (e < val.length && /\w/.test(val[e])) e++; return val.slice(s, e); })(); if (!raw.trim()) return; setFindTarget(raw.trim()); setReplaceWith(''); if (scope === 'cell' && ta) { const rx = new RegExp(`\\b${raw.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); setFindResults({ scope: 'cell', total: (ta.value.match(rx) || []).length }); } else { const rx = new RegExp(`\\b${raw.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); const total = cells.reduce((acc, cell) => acc + (cell.code.match(rx) || []).length, 0); setFindResults({ scope: 'codebase', total }); } closeSelectionBar(); };
+  const handleReplaceAll = (scope: 'cell' | 'codebase') => { if (!findTarget) return; const rx = new RegExp(`\\b${findTarget.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); if (scope === 'cell') { const ta = lastFocusedRef.current; const targetId = ta?.getAttribute('data-cell-id') || ''; setCells(prev => prev.map(c => c.id === targetId ? { ...c, code: c.code.replace(rx, replaceWith) } : c)); } else { setCells(prev => prev.map(c => ({ ...c, code: c.code.replace(rx, replaceWith) }))); } setFindResults(null); setFindTarget(''); setReplaceWith(''); };
+
   return (
     <div className="de-sky-bg min-h-screen">
-      {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button onClick={onBack} className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)', border: 'none', cursor: 'pointer' }}>
@@ -879,27 +703,71 @@ export default function CodeEngin({ onBack }: Props) {
           {[
             { id: 'notebook', label: '📔 Notebook' },
             { id: 'ci', label: '🔧 CI Pipeline' },
+            { id: 'security', label: '🔒 Security Scan' },
             { id: 'projects', label: '📁 Projects' },
             { id: 'connections', label: '🔗 Connections' },
             { id: 'diff', label: '⟦⟧ Diff Viewer' },
-            { id: 'preview', label: '🔭 Live Preview' },
-            { id: 'viz', label: '📊 Visualizations' },
           ].map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={tabStyle(tab.id)}>{tab.label}</button>
+            <button key={tab.id} onClick={() => setActiveTab(tab.id as ActiveTab)} style={tabStyle(tab.id as ActiveTab)}>{tab.label}</button>
           ))}
         </div>
 
-        {/* Toolbar: zoom, swap, live mode */}
+        {/* Toolbar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, flexWrap: 'wrap', padding: '6px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(160,195,240,0.22)' }}>
           <button onClick={zoomOut} disabled={codeZoom <= ZOOM_MIN} style={codeToolBtnStyle(codeZoom <= ZOOM_MIN)}><ZoomOut size={13} /></button>
           <button onClick={zoomReset} style={{ ...codeToolBtnStyle(false), minWidth: 42, justifyContent: 'center', fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: codeZoom !== 1.0 ? ACCENT : 'var(--de-text-dim)' }}>{Math.round(codeZoom * 100)}%</button>
           <button onClick={zoomIn} disabled={codeZoom >= ZOOM_MAX} style={codeToolBtnStyle(codeZoom >= ZOOM_MAX)}><ZoomIn size={13} /></button>
           <span style={{ width: 1, height: 18, background: 'rgba(160,195,240,0.3)', margin: '0 4px' }} />
+          <button onClick={toggleSelectMode} style={{ ...codeToolBtnStyle(false), gap: 6, background: selectMode ? `${ACCENT}18` : 'rgba(0,0,0,0.03)', borderColor: selectMode ? ACCENT : 'rgba(160,195,240,0.35)', color: selectMode ? ACCENT : 'var(--de-text)', fontWeight: selectMode ? 700 : 500, paddingRight: 10 }}><MousePointer2 size={13} /><span style={{ fontSize: 11 }}>{selectMode ? 'Selecting…' : 'Select'}</span>{selectMode && <span style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, flexShrink: 0, animation: 'de-pulse 1.2s ease-in-out infinite' }} />}</button>
           <button onClick={() => setSwappedLayout(prev => !prev)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 7, border: `1.5px solid ${swappedLayout ? ACCENT : 'rgba(160,195,240,0.35)'}`, background: swappedLayout ? `${ACCENT}12` : 'rgba(0,0,0,0.03)', color: swappedLayout ? ACCENT : 'var(--de-text)', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}><ArrowLeftRight className="w-3.5 h-3.5" /><span>Swap</span></button>
           <button onClick={() => setLiveModeActive(prev => !prev)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 7, border: `1.5px solid ${liveModeActive ? '#f59e0b' : 'rgba(160,195,240,0.35)'}`, background: liveModeActive ? 'rgba(245,158,11,0.12)' : 'rgba(0,0,0,0.03)', color: liveModeActive ? '#f59e0b' : 'var(--de-text)', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>{liveModeActive ? <Zap className="w-3.5 h-3.5" /> : <MousePointer2 className="w-3.5 h-3.5" />}<span>{liveModeActive ? 'Live' : 'Manual'}</span>{liveModeActive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', display: 'inline-block', animation: 'de-pulse 1s infinite', marginLeft: 2 }} />}</button>
+          {drEamsCheckResult && <div style={{ flex: 1, padding: '4px 10px', borderRadius: 8, background: drEamsCheckResult.startsWith('✅') ? 'rgba(34,197,94,0.08)' : 'rgba(245,158,11,0.08)', border: `1px solid ${drEamsCheckResult.startsWith('✅') ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.25)'}`, fontSize: 11 }}>{drEamsCheckResult}<button onClick={() => setDrEamsCheckResult('')} style={{ marginLeft: 8, background: 'none', border: 'none', cursor: 'pointer' }}>✕</button></div>}
         </div>
 
-        {/* Notebook Tab (real execution) */}
+        {/* Selection bar */}
+        {selectMode && selectionBar.visible && (
+          <div style={{ position: 'fixed', left: selectionBar.x, top: selectionBar.y, zIndex: 9999, display: 'flex', gap: 4, padding: '6px 8px', borderRadius: 12, background: 'rgba(15,15,30,0.96)', border: '1px solid rgba(59,125,216,0.4)', backdropFilter: 'blur(12px)' }}>
+            <button onClick={handleSelCopy} style={selBtnStyle}><Copy size={13} /><span>Copy</span></button>
+            <button onClick={handleSelCut} style={selBtnStyle}><Scissors size={13} /><span>Cut</span></button>
+            <button onClick={handleSelPaste} style={selBtnStyle}><Clipboard size={13} /><span>Paste</span></button>
+            <button onClick={handleSelDelete} style={{ ...selBtnStyle, color: '#f87171' }}><Trash2 size={13} /><span>Delete</span></button>
+            <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.12)', margin: '0 2px' }} />
+            <button onClick={handleSelDrEams} style={{ ...selBtnStyle, color: '#a78bfa' }}><Bot size={13} /><span>Dr. Eams</span></button>
+            <button onClick={closeSelectionBar} style={{ ...selBtnStyle, color: 'rgba(255,255,255,0.35)' }}><X size={12} /></button>
+          </div>
+        )}
+
+        {/* Smart select bar */}
+        {selectMode && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8, padding: '7px 10px', borderRadius: 10, background: `${ACCENT}0a`, border: `1px dashed ${ACCENT}40`, alignItems: 'center' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>Smart Select:</span>
+            <button onClick={handleSelectAll} style={smartSelBtnStyle}>⬛ All</button>
+            <button onClick={handleSelectLine} style={smartSelBtnStyle}>☰ Line</button>
+            <button onClick={handleSelectBlock} style={smartSelBtnStyle}>{'{ }'} Block</button>
+            <span style={{ width: 1, height: 16, background: `${ACCENT}30`, margin: '0 2px' }} />
+            <button onClick={() => handleSelectVariable('cell')} style={{ ...smartSelBtnStyle, color: ACCENT, borderColor: `${ACCENT}45` }}>$var in cell</button>
+            <button onClick={() => handleSelectVariable('codebase')} style={{ ...smartSelBtnStyle, color: '#a78bfa', borderColor: 'rgba(167,139,250,0.4)' }}>$var in codebase</button>
+            {!lastFocusedRef.current && <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>click inside a cell first</span>}
+          </div>
+        )}
+
+        {/* Find & replace panel */}
+        {findResults && findTarget && (
+          <div style={{ marginBottom: 10, padding: '10px 14px', borderRadius: 12, background: 'rgba(59,125,216,0.06)', border: `1px solid ${ACCENT}30` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT }}>Find &amp; Replace</span>
+              <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 999, background: findResults.total > 0 ? `${ACCENT}15` : 'rgba(248,113,113,0.12)', color: findResults.total > 0 ? ACCENT : '#f87171' }}>{findResults.total} occurrence(s) of "{findTarget}"</span>
+              <button onClick={() => { setFindResults(null); setFindTarget(''); setReplaceWith(''); }} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <input type="text" value={replaceWith} onChange={e => setReplaceWith(e.target.value)} placeholder="Replace with..." style={{ flex: 1, padding: '6px 10px', borderRadius: 8, border: `1px solid ${ACCENT}25` }} />
+              <button onClick={() => handleReplaceAll('cell')} disabled={!replaceWith} style={{ padding: '6px 12px', borderRadius: 8, background: replaceWith ? ACCENT : 'rgba(160,195,240,0.1)', color: replaceWith ? '#fff' : 'var(--de-text-dim)', border: 'none', cursor: replaceWith ? 'pointer' : 'not-allowed' }}>Replace in cell</button>
+              <button onClick={() => handleReplaceAll('codebase')} disabled={!replaceWith} style={{ padding: '6px 12px', borderRadius: 8, background: replaceWith ? '#a78bfa' : 'rgba(160,195,240,0.1)', color: replaceWith ? '#fff' : 'var(--de-text-dim)', border: 'none', cursor: replaceWith ? 'pointer' : 'not-allowed' }}>Replace in codebase</button>
+            </div>
+          </div>
+        )}
+
+        {/* Notebook Tab */}
         {activeTab === 'notebook' && (
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Live Notebook</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: `${ACCENT}12`, color: ACCENT }}>{cells.length} cells</span></div>
@@ -931,51 +799,79 @@ export default function CodeEngin({ onBack }: Props) {
           </div>
         )}
 
-        {/* CI Tab (owner only, real) */}
-        {isOwner && activeTab === 'ci' && (
+        {/* CI Tab */}
+        {activeTab === 'ci' && (
           <div className="de-widget">
-            <div className="de-widget-header"><span className="de-widget-title">CI Pipeline</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: ciOverallStatus === 'passing' ? 'rgba(34,197,94,0.12)' : ciOverallStatus === 'failed' ? 'rgba(248,113,113,0.12)' : 'rgba(160,195,240,0.12)', color: ciOverallStatus === 'passing' ? '#22c55e' : ciOverallStatus === 'failed' ? '#f87171' : 'var(--de-text-dim)' }}>{ciOverallStatus === 'passing' ? '✓ Passing' : ciOverallStatus === 'failed' ? '✗ Failed' : 'Ready'}</span></div>
+            <div className="de-widget-header"><BarChart2 className="w-4 h-4" style={{ color: ACCENT }} /><span className="de-widget-title ml-2">CI Pipeline</span></div>
             <div className="de-widget-body">
-              {ciStages.length === 0 && !ciRunning && <div style={{ textAlign: 'center', padding: 20, color: 'var(--de-text-dim)' }}>Press Run CI to start</div>}
-              {ciStages.map((stage, idx) => (
-                <div key={idx} style={{ marginBottom: 8, padding: 8, borderRadius: 8, background: stage.passed ? 'rgba(34,197,94,0.05)' : 'rgba(248,113,113,0.05)', border: `1px solid ${stage.passed ? 'rgba(34,197,94,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {stage.passed ? <CheckCircle size={14} style={{ color: '#22c55e' }} /> : <XCircle size={14} style={{ color: '#f87171' }} />}
-                    <span style={{ fontWeight: 600 }}>{stage.name}</span>
-                    <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--de-text-dim)' }}>{stage.durationMs}ms</span>
-                  </div>
-                  <pre style={{ marginTop: 4, fontSize: 10, background: '#1a1a2e', padding: 4, borderRadius: 4, overflow: 'auto', maxHeight: 100 }}>{stage.output}</pre>
+              <button onClick={handleRunCI} disabled={ciRunning} style={{ marginBottom: 16, padding: '8px 16px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, cursor: ciRunning ? 'not-allowed' : 'pointer' }}>
+                {ciRunning ? <Loader2 className="animate-spin" /> : 'Run CI (lint, typecheck, test, build)'}
+              </button>
+              {ciError && <div style={{ color: OUT_ERR, marginBottom: 12 }}>Error: {ciError}</div>}
+              {ciResults && (
+                <div>
+                  <div style={{ marginBottom: 8 }}>Overall status: <strong style={{ color: ciResults.status === 'passing' ? OUT_OK : OUT_ERR }}>{ciResults.status.toUpperCase()}</strong></div>
+                  {ciResults.stages.map((stage: any, i: number) => (
+                    <div key={i} style={{ marginBottom: 12, padding: 8, borderRadius: 8, background: stage.passed ? 'rgba(34,197,94,0.05)' : 'rgba(248,113,113,0.05)', border: `1px solid ${stage.passed ? 'rgba(34,197,94,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
+                      <div style={{ fontWeight: 700, marginBottom: 4 }}>{stage.name} {stage.passed ? <CheckCircle size={12} style={{ color: OUT_OK, display: 'inline', marginLeft: 6 }} /> : <XCircle size={12} style={{ color: OUT_ERR, display: 'inline', marginLeft: 6 }} />}</div>
+                      <pre style={{ fontSize: 10, whiteSpace: 'pre-wrap', wordBreak: 'break-all', margin: 0 }}>{stage.output}</pre>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              {ciRunning && <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 8 }}><Loader2 className="animate-spin" /> Running CI...</div>}
-            </div>
-            <div className="de-widget-actions">
-              <button onClick={runCI} disabled={ciRunning} style={{ padding: '8px 16px', borderRadius: 8, background: ACCENT, color: '#fff', border: 'none', cursor: ciRunning ? 'not-allowed' : 'pointer' }}>{ciRunning ? 'Running...' : '▶ Run CI'}</button>
+              )}
             </div>
           </div>
         )}
 
-        {/* Projects Tab (real Supabase) */}
+        {/* Security Tab */}
+        {activeTab === 'security' && (
+          <div className="de-widget">
+            <div className="de-widget-header"><Shield className="w-4 h-4" style={{ color: ACCENT }} /><span className="de-widget-title ml-2">Security Scanner</span></div>
+            <div className="de-widget-body">
+              <button onClick={handleSecurityScan} disabled={secRunning} style={{ marginBottom: 16, padding: '8px 16px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, cursor: secRunning ? 'not-allowed' : 'pointer' }}>
+                {secRunning ? <Loader2 className="animate-spin" /> : 'Run Security Audit (pnpm audit)'}
+              </button>
+              {secError && <div style={{ color: OUT_ERR, marginBottom: 12 }}>Error: {secError}</div>}
+              {secResults && (
+                <div>
+                  <div style={{ marginBottom: 8 }}>Total vulnerabilities: <strong>{secResults.summary?.total || 0}</strong> (High: {secResults.summary?.high || 0}, Moderate: {secResults.summary?.moderate || 0}, Low: {secResults.summary?.low || 0})</div>
+                  {secResults.advisories && secResults.advisories.length > 0 ? (
+                    secResults.advisories.map((adv: any, i: number) => (
+                      <div key={i} style={{ marginBottom: 8, padding: 8, borderRadius: 8, background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.2)' }}>
+                        <div><strong>{adv.title}</strong> – {adv.severity.toUpperCase()}</div>
+                        <div>Package: {adv.package}</div>
+                        <div>Vulnerable versions: {adv.vulnerable_versions}</div>
+                        <div>Patched versions: {adv.patched_versions}</div>
+                      </div>
+                    ))
+                  ) : <div>No vulnerabilities found. ✅</div>}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Projects Tab */}
         {activeTab === 'projects' && (
           <>
             <div className="de-widget" style={{ marginBottom: 14 }}>
               <div className="de-widget-header"><span className="de-widget-title">New Project</span></div>
               <div className="de-widget-body">
-                <div><label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)' }}>Project name</label><input type="text" value={newProjectName} onChange={e => setNewProjectName(e.target.value)} onKeyDown={e => e.key === 'Enter' && createProject()} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13, background: 'rgba(255,255,255,0.65)', border: '1px solid rgba(160,195,240,0.4)' }} /></div>
-                <div><label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)' }}>Primary language</label><select value={newProjectLang} onChange={e => setNewProjectLang(e.target.value as CellLanguage)} style={{ padding: '7px 12px', borderRadius: 8, fontSize: 13, background: 'rgba(255,255,255,0.65)', border: '1px solid rgba(160,195,240,0.4)' }}>{LANGUAGE_OPTIONS.map(lang => <option key={lang} value={lang}>{LANGUAGE_LABEL[lang]}</option>)}</select></div>
+                <input type="text" placeholder="Project name" value={newProjectName} onChange={e => setNewProjectName(e.target.value)} onKeyDown={e => e.key === 'Enter' && createProject()} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, marginBottom: 8, background: 'rgba(255,255,255,0.65)', border: '1px solid rgba(160,195,240,0.4)' }} />
+                <select value={newProjectLang} onChange={e => setNewProjectLang(e.target.value as CellLanguage)} style={{ width: '100%', padding: '7px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.65)', border: '1px solid rgba(160,195,240,0.4)' }}>{LANGUAGE_OPTIONS.map(lang => <option key={lang} value={lang}>{LANGUAGE_LABEL[lang]}</option>)}</select>
               </div>
-              <div className="de-widget-actions"><button onClick={createProject} disabled={!newProjectName.trim() || creating || !user} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 700, background: (!newProjectName.trim() || creating || !user) ? 'rgba(59,125,216,0.08)' : ACCENT, color: (!newProjectName.trim() || creating || !user) ? 'var(--de-text-dim)' : '#fff', border: 'none', cursor: (!newProjectName.trim() || creating || !user) ? 'not-allowed' : 'pointer' }}>{creating ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating…</> : <><Plus className="w-4 h-4" /> Create Project</>}</button><Link href="/codespace" className="de-btn de-btn-ghost text-xs">Open Codespace →</Link></div>
+              <div className="de-widget-actions"><button onClick={createProject} disabled={!newProjectName.trim() || creating || !user} style={{ padding: '8px 16px', borderRadius: 8, background: (!newProjectName.trim() || creating || !user) ? 'rgba(59,125,216,0.08)' : ACCENT, color: (!newProjectName.trim() || creating || !user) ? 'var(--de-text-dim)' : '#fff', border: 'none', cursor: 'pointer' }}>{creating ? <Loader2 className="animate-spin" /> : 'Create Project'}</button><Link href="/codespace" className="de-btn de-btn-ghost">Open Codespace →</Link></div>
             </div>
             <div className="de-widget">
               <div className="de-widget-header"><span className="de-widget-title">Your Projects</span>{projects.length > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: `${ACCENT}12`, color: ACCENT }}>{projects.length}</span>}</div>
               <div className="de-widget-body">
-                {loadingProjects ? <div><Loader2 className="w-4 h-4 animate-spin" style={{ color: ACCENT }} /> Loading...</div> : projects.length === 0 ? <div>No projects yet.</div> : projects.map(p => <div key={p.id} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', marginBottom: 8 }}><Code2 className="w-4 h-4" style={{ color: ACCENT }} /> {p.title} <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 999, background: p.visibility === 'public' ? 'rgba(34,197,94,0.12)' : 'rgba(160,195,240,0.18)' }}>{p.visibility}</span></div>)}
+                {loadingProjects ? <Loader2 className="animate-spin" /> : projects.length === 0 ? <div>No projects yet.</div> : projects.map(p => <div key={p.id} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', marginBottom: 8 }}><Code2 className="w-4 h-4" style={{ color: ACCENT }} /> {p.title} <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 999, background: p.visibility === 'public' ? 'rgba(34,197,94,0.12)' : 'rgba(160,195,240,0.18)' }}>{p.visibility}</span></div>)}
               </div>
             </div>
           </>
         )}
 
-        {/* Connections Tab (real bridge + ShellHub) */}
+        {/* Connections Tab */}
         {activeTab === 'connections' && (
           <>
             <div className="de-widget" style={{ marginBottom: 14 }}>
@@ -986,7 +882,7 @@ export default function CodeEngin({ onBack }: Props) {
               <div className="de-widget-header"><span className="de-widget-title">ShellHub</span>{shellhubStatus === 'connected' && <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: '#22c55e' }}>● Connected</span>}</div>
               <div className="de-widget-body">
                 {shellhubStatus !== 'connected' ? (
-                  <div><input type="url" value={shellhubServerDraft} onChange={e => setShellhubServerDraft(e.target.value)} placeholder="Server URL" style={{ width: '100%', marginBottom: 8, padding: '8px' }} /><input type="password" value={shellhubApiKeyDraft} onChange={e => setShellhubApiKeyDraft(e.target.value)} placeholder="API Key" style={{ width: '100%', marginBottom: 8, padding: '8px' }} /><button onClick={handleShellHubConnect} disabled={shellhubConnecting} style={{ padding: '8px 16px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8 }}>{shellhubConnecting ? 'Connecting...' : 'Connect ShellHub'}</button>{shellhubConnectError && <div style={{ color: '#f87171' }}>{shellhubConnectError}</div>}</div>
+                  <div><input type="url" value={shellhubServerDraft} onChange={e => setShellhubServerDraft(e.target.value)} placeholder="Server URL" style={{ width: '100%', marginBottom: 8, padding: '8px', borderRadius: 8, border: '1px solid rgba(160,195,240,0.35)' }} /><input type="password" value={shellhubApiKeyDraft} onChange={e => setShellhubApiKeyDraft(e.target.value)} placeholder="API Key" style={{ width: '100%', marginBottom: 8, padding: '8px', borderRadius: 8, border: '1px solid rgba(160,195,240,0.35)' }} /><button onClick={handleShellHubConnect} disabled={shellhubConnecting} style={{ padding: '8px 16px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8 }}>{shellhubConnecting ? 'Connecting...' : 'Connect ShellHub'}</button>{shellhubConnectError && <div style={{ color: '#f87171' }}>{shellhubConnectError}</div>}</div>
                 ) : (
                   <div><button onClick={handleShellHubDisconnect} disabled={shellhubDisconnecting} style={{ marginBottom: 12, padding: '6px 12px', background: '#f87171', color: '#fff', border: 'none', borderRadius: 6 }}>{shellhubDisconnecting ? 'Disconnecting...' : 'Disconnect'}</button><div>{shellhubDevicesLoading ? <Loader2 className="animate-spin" /> : shellhubDevices.map(d => <div key={d.uid} style={{ padding: '8px', borderBottom: '1px solid #eee' }}><Terminal size={14} /> {d.name} {d.online ? <span style={{ color: '#22c55e' }}>● Online</span> : <span style={{ color: '#64748b' }}>○ Offline</span>}</div>)}</div></div>
                 )}
@@ -995,176 +891,12 @@ export default function CodeEngin({ onBack }: Props) {
           </>
         )}
 
-        {/* Diff Viewer Tab (real) */}
+        {/* Diff Viewer Tab */}
         {activeTab === 'diff' && (
           <div className="de-widget"><div className="de-widget-header"><span className="de-widget-title">Diff Viewer</span></div><div className="de-widget-body"><DiffViewer defaultFullFile /></div></div>
         )}
 
-        {/* Live Preview Tab (real bridge frames) */}
-        {activeTab === 'preview' && (
-          <div className="de-widget">
-            <div className="de-widget-header"><Eye className="w-4 h-4" style={{ color: ACCENT }} /><span className="de-widget-title ml-2">Live Preview</span>{previewEngine && <span style={{ marginLeft: 'auto', fontSize: 10, color: ACCENT }}>From {previewEngine}</span>}</div>
-            <div className="de-widget-body" style={{ textAlign: 'center', padding: 20 }}>
-              {previewImage ? (
-                <img src={previewImage} alt="Live engine preview" style={{ maxWidth: '100%', borderRadius: 8, border: `1px solid ${ACCENT}` }} />
-              ) : (
-                <p style={{ color: 'var(--de-text-dim)' }}>No engine broadcast yet. Ensure an engine is emitting <code>engin:frame-broadcast</code> events.</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Visualizations Tab (real AST, heatmap, dependency graph) */}
-        {activeTab === 'viz' && (
-          <div className="de-widget">
-            <div className="de-widget-header"><BarChart2 className="w-4 h-4" style={{ color: ACCENT }} /><span className="de-widget-title ml-2">Code Visualizations</span></div>
-            <div className="de-widget-body">
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Execution Heatmap</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {cells.map(cell => (
-                    <div key={cell.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ width: 100, fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis' }}>Cell {cell.id.slice(-4)}</span>
-                      <div style={{ flex: 1, height: 20, background: 'rgba(160,195,240,0.2)', borderRadius: 4, overflow: 'hidden' }}>
-                        <div style={{ width: `${Math.min(100, (heatmapData[cell.id] || 0) * 10)}%`, height: '100%', background: ACCENT, borderRadius: 4 }} />
-                      </div>
-                      <span style={{ width: 40, fontSize: 11 }}>{heatmapData[cell.id] || 0}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>AST Analysis</div>
-                <button onClick={analyzeAST} disabled={astLoading} style={{ padding: '4px 8px', fontSize: 10, marginBottom: 8 }}>Parse Active Cell AST</button>
-                {astLoading && <Loader2 className="animate-spin" />}
-                {astResult && <pre style={{ background: '#1a1a2e', padding: 8, borderRadius: 6, fontSize: 10, overflow: 'auto', maxHeight: 200 }}>{astResult}</pre>}
-              </div>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Dependency Graph</div>
-                <button onClick={analyzeDependencies} style={{ padding: '4px 8px', fontSize: 10, marginBottom: 8 }}>Scan Imports</button>
-                {depGraph && <pre style={{ background: '#1a1a2e', padding: 8, borderRadius: 6, fontSize: 10, overflow: 'auto', maxHeight: 200 }}>{depGraph}</pre>}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Security Scanner (real npm audit) */}
-        <div className="de-widget" style={{ margin: '14px 0' }}>
-          <div className="de-widget-header"><span style={{ fontSize: 16 }}>🔐</span><span className="de-widget-title ml-2">Security Scanner</span></div>
-          <div className="de-widget-body">
-            <button onClick={fetchSecurityScan} disabled={securityLoading} style={{ padding: '4px 8px', fontSize: 10, marginBottom: 8 }}>Scan Now</button>
-            {securityLoading && <Loader2 className="animate-spin" />}
-            {securityScan && (
-              <div>
-                <div>Total vulnerabilities: {securityScan.total}</div>
-                <div>High: {securityScan.high}</div>
-                <div>Moderate: {securityScan.moderate}</div>
-                <div>Low: {securityScan.low}</div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Performance Profiler (real server timing) */}
-        <div className="de-widget" style={{ margin: '14px 0' }}>
-          <div className="de-widget-header"><span style={{ fontSize: 16 }}>📊</span><span className="de-widget-title ml-2">Performance Profiler</span></div>
-          <div className="de-widget-body">
-            <button onClick={fetchPerf} disabled={perfLoading} style={{ padding: '4px 8px', fontSize: 10, marginBottom: 8 }}>Profile</button>
-            {perfLoading && <Loader2 className="animate-spin" />}
-            {perfData && <div>Server response: {perfData.serverResponseTimeMs.toFixed(2)} ms</div>}
-          </div>
-        </div>
-
-        {/* Package Manager (real npm data) */}
-        <div className="de-widget" style={{ margin: '14px 0' }}>
-          <div className="de-widget-header"><span style={{ fontSize: 16 }}>📦</span><span className="de-widget-title ml-2">Package Manager</span></div>
-          <div className="de-widget-body">
-            <button onClick={fetchPackages} disabled={packagesLoading} style={{ padding: '4px 8px', fontSize: 10, marginBottom: 8 }}>Check Updates</button>
-            {packagesLoading && <Loader2 className="animate-spin" />}
-            {packagesError && <div style={{ color: '#f87171' }}>{packagesError}</div>}
-            {packages.length > 0 && (
-              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                {packages.map(pkg => (
-                  <div key={pkg.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid rgba(160,195,240,0.1)' }}>
-                    <span>{pkg.name}</span>
-                    <span style={{ color: pkg.upToDate ? '#4ade80' : '#f59e0b' }}>{pkg.current} → {pkg.latest}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Database Browser (real Supabase metadata) */}
-        <div className="de-widget" style={{ margin: '14px 0' }}>
-          <div className="de-widget-header"><span style={{ fontSize: 16 }}>🗄</span><span className="de-widget-title ml-2">Database Browser</span></div>
-          <div className="de-widget-body">
-            <button onClick={fetchDbTables} disabled={dbLoading} style={{ padding: '4px 8px', fontSize: 10, marginBottom: 8 }}>Load Tables</button>
-            {dbLoading && <Loader2 className="animate-spin" />}
-            {dbTables.length > 0 && (
-              <div>
-                {dbTables.map(t => (
-                  <div key={t.table} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-                    <span>{t.table}</span>
-                    <span>{t.rows} rows</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Environment Manager (real safe env vars) */}
-        <div className="de-widget" style={{ margin: '14px 0' }}>
-          <div className="de-widget-header"><span style={{ fontSize: 16 }}>🌍</span><span className="de-widget-title ml-2">Environment Manager</span></div>
-          <div className="de-widget-body">
-            <button onClick={fetchEnv} disabled={envLoading} style={{ padding: '4px 8px', fontSize: 10, marginBottom: 8 }}>Load Env</button>
-            {envLoading && <Loader2 className="animate-spin" />}
-            {Object.keys(envVars).length > 0 && (
-              <div>
-                {Object.entries(envVars).map(([key, val]) => (
-                  <div key={key} style={{ padding: '4px 0', borderBottom: '1px solid rgba(160,195,240,0.1)' }}>
-                    <span style={{ fontWeight: 600 }}>{key}</span>: {val}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* REST/GraphQL Client (real fetch) */}
-        <div className="de-widget" style={{ margin: '14px 0' }}>
-          <div className="de-widget-header"><span style={{ fontSize: 16 }}>🔌</span><span className="de-widget-title ml-2">REST / GraphQL Client</span></div>
-          <div className="de-widget-body">
-            <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-              {(['GET', 'POST', 'PUT', 'DELETE'] as const).map(m => (
-                <button key={m} onClick={() => setRestMethod(m)} style={{ padding: '4px 10px', borderRadius: 6, fontSize: 10, fontWeight: 700, background: restMethod === m ? ACCENT : 'rgba(160,195,240,0.1)', color: restMethod === m ? '#fff' : 'var(--de-text)' }}>{m}</button>
-              ))}
-            </div>
-            <input type="text" placeholder="URL" value={restUrl} onChange={e => setRestUrl(e.target.value)} style={{ width: '100%', padding: '6px', marginBottom: 8, borderRadius: 6, border: `1px solid ${ACCENT}30` }} />
-            {(restMethod === 'POST' || restMethod === 'PUT') && (
-              <textarea placeholder="JSON body" value={restBody} onChange={e => setRestBody(e.target.value)} rows={3} style={{ width: '100%', padding: '6px', marginBottom: 8, borderRadius: 6, fontFamily: 'monospace' }} />
-            )}
-            <button onClick={sendRestRequest} disabled={restLoading} style={{ padding: '6px 12px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 6 }}>Send</button>
-            {restResponse && <pre style={{ marginTop: 8, padding: 8, background: '#1a1a2e', borderRadius: 6, fontSize: 10, overflow: 'auto', maxHeight: 200 }}>{restResponse}</pre>}
-          </div>
-        </div>
-
-        {/* Game Engine Code Integration (static doc – can be real by importing actual APIs) */}
-        <div className="de-widget" style={{ margin: '14px 0' }}>
-          <div className="de-widget-header"><span style={{ fontSize: 16 }}>🎮</span><span className="de-widget-title ml-2">Game Engine Code Integration</span></div>
-          <div className="de-widget-body">
-            <p style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Use EliteGameEngine ECS APIs in your notebook cells:</p>
-            <pre style={{ background: '#1a1a2e', padding: 8, borderRadius: 6, fontSize: 10, fontFamily: 'monospace', color: '#c084fc' }}>
-              {`import { EliteGameEngine, ECSWorld } from '@/lib/gameengin';
-const world = new ECSWorld();
-const entity = world.createEntity();
-world.addComponent(entity, { type: 'transform', x: 0, y: 0 });`}
-            </pre>
-          </div>
-        </div>
-
-        {/* AI Code Assist (real) */}
+        {/* AI Assist */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header"><Bot className="w-4 h-4" /><span className="de-widget-title ml-2">AI Code Assist</span></div>
           <div className="de-widget-body">
@@ -1173,19 +905,17 @@ world.addComponent(entity, { type: 'transform', x: 0, y: 0 });`}
           </div>
         </div>
 
-        {/* Owner-only features */}
-        {isOwner && (
-          <>
-            <div className="de-widget" style={{ margin: '14px 0' }}>
-              <div className="de-widget-header"><Bug className="w-4 h-4" style={{ color: '#f87171' }} /><span className="de-widget-title ml-2">Crash Recovery</span><span style={{ marginLeft: 'auto', fontSize: 10, color: '#f87171' }}>appthemanger@gmail.com</span></div>
-              <div className="de-widget-body"><CrashRecoveryPanel cells={cells} /></div>
-            </div>
-            <div className="de-widget" style={{ margin: '14px 0' }}>
-              <div className="de-widget-header"><ListChecks className="w-4 h-4" style={{ color: '#22c55e' }} /><span className="de-widget-title ml-2">App Editing Job List</span></div>
-              <div className="de-widget-body"><TaskJobManager /></div>
-            </div>
-          </>
-        )}
+        {/* Crash Recovery */}
+        <div className="de-widget" style={{ margin: '14px 0' }}>
+          <div className="de-widget-header"><Bug className="w-4 h-4" style={{ color: '#f87171' }} /><span className="de-widget-title ml-2">Crash Recovery</span><span style={{ marginLeft: 'auto', fontSize: 10, color: '#f87171' }}>appthemanger@gmail.com</span></div>
+          <div className="de-widget-body"><CrashRecoveryPanel cells={cells} /></div>
+        </div>
+
+        {/* Task Manager */}
+        <div className="de-widget" style={{ margin: '14px 0' }}>
+          <div className="de-widget-header"><ListChecks className="w-4 h-4" style={{ color: '#22c55e' }} /><span className="de-widget-title ml-2">App Editing Job List</span></div>
+          <div className="de-widget-body"><TaskJobManager /></div>
+        </div>
 
         {/* Journey Trail */}
         <div className="de-widget"><div className="de-widget-header"><span className="de-widget-title">Journey</span></div><div className="de-widget-body"><JourneyTrail compact /></div></div>
@@ -1193,30 +923,3 @@ world.addComponent(entity, { type: 'transform', x: 0, y: 0 });`}
     </div>
   );
 }
-
-// ----------------------------------------------------------------------
-// Style helpers
-// ----------------------------------------------------------------------
-
-function codeToolBtnStyle(disabled: boolean): CSSProperties {
-  return {
-    display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 7,
-    border: '1px solid rgba(160,195,240,0.35)', background: 'rgba(0,0,0,0.03)',
-    color: disabled ? 'rgba(100,116,139,0.35)' : 'var(--de-text)', cursor: disabled ? 'not-allowed' : 'pointer',
-    fontSize: 12, transition: 'background 0.12s', flexShrink: 0,
-  };
-}
-
-const selBtnStyle: CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: 5, padding: '5px 9px', borderRadius: 8,
-  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)',
-  color: '#e2e8f0', cursor: 'pointer', fontSize: 11, fontWeight: 600,
-  transition: 'background 0.12s', whiteSpace: 'nowrap',
-};
-
-const smartSelBtnStyle: CSSProperties = {
-  display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 7,
-  border: '1px solid rgba(160,195,240,0.30)', background: 'rgba(255,255,255,0.55)',
-  color: 'var(--de-text)', cursor: 'pointer', fontSize: 11, fontWeight: 600,
-  transition: 'background 0.12s', whiteSpace: 'nowrap',
-};
