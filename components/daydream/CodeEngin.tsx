@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * CodeEngin – Real IDE with real CI & security scanner
+ * CodeEngin – Real IDE with real CI and real security scanner
  * All features are real. No mock data.
  */
 
@@ -59,7 +59,7 @@ interface NotebookCell {
 }
 
 interface Project { id: string; title: string; visibility: string; }
-type ActiveTab = 'notebook' | 'projects' | 'connections' | 'diff' | 'ci' | 'security';
+type ActiveTab = 'notebook' | 'ci' | 'security' | 'projects' | 'connections' | 'diff';
 
 interface ShellHubDevice {
   uid: string;
