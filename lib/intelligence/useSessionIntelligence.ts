@@ -16,18 +16,27 @@
  *   tfReady         — whether TF.js is active for enhanced predictions
  *
  * This hook also handles:
- *   - Auto-subscribing to the dreamOSBus for artifact updates
- *   - Persisting the session on page hide / beforeunload
- *   - Feeding subsystem activations to the pattern engine
+ *   - Auto-subscribing to the dreamOSBus for artifact updates AND subsystem
+ *     navigation events — no explicit currentSubsystemId prop required.
+ *   - Persisting the pattern matrix and session across page hide / beforeunload.
+ *   - Restoring the pattern matrix from the previous session on mount.
+ *   - Feeding subsystem activations to the pattern engine.
  *
  * Usage:
- *   const { predictions, sessionDiff } = useSessionIntelligence(currentSubsystemId);
+ *   // Auto-wired via dreamOSBus (recommended):
+ *   const { predictions, sessionDiff } = useSessionIntelligence();
+ *
+ *   // Or with an explicit subsystem override:
+ *   const { predictions } = useSessionIntelligence('CodeEngin');
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { SessionPatternEngine, type PredictedNext, type PatternEngineState } from './sessionPatternEngine';
 import { SessionContinuity, type SessionSummary, type SessionDiff } from './sessionContinuity';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
+
+/** localStorage key used to persist the bigram transition matrix across sessions. */
+export const PATTERN_MATRIX_LS_KEY = 'dreamengin-pattern-matrix';
 
 export interface SessionIntelligence {
   /** Top-N predictions for the next subsystem you're likely to open. */
@@ -38,7 +47,7 @@ export interface SessionIntelligence {
   sessionDiff: SessionDiff | null;
   /** Live summary of the current session. */
   currentSessionSummary: SessionSummary;
-  /** True once the pattern engine has ≥ 3 transitions. */
+  /** True once the pattern engine has ≥ 3 learned transitions this session. */
   isLearning: boolean;
   /** True if TF.js softmax is active for enhanced normalisation. */
   tfReady: boolean;
@@ -57,10 +66,10 @@ const EMPTY_SUMMARY: SessionSummary = {
 };
 
 /**
- * Returns live session intelligence for the given subsystem context.
+ * Returns live session intelligence, optionally scoped to a specific subsystem.
  *
- * @param currentSubsystemId — The currently active subsystem ID (e.g. "CodeEngin").
- *   Pass null or undefined if no subsystem is active.
+ * @param currentSubsystemId — Optional override for the current subsystem.
+ *   When omitted the hook auto-ingests from the dreamOSBus runtimeContexts.
  * @param topN — Number of predictions to return (default: 3).
  */
 export function useSessionIntelligence(
@@ -95,6 +104,19 @@ export function useSessionIntelligence(
       await Promise.all([pattern.init(), continuity.init()]);
       if (cancelled) return;
 
+      // Restore persisted bigram matrix from previous session.
+      if (typeof localStorage !== 'undefined') {
+        try {
+          const raw = localStorage.getItem(PATTERN_MATRIX_LS_KEY);
+          if (raw) {
+            const saved = JSON.parse(raw) as Record<string, Record<string, number>>;
+            pattern.importMatrix(saved);
+          }
+        } catch {
+          // Corrupt or absent matrix — start fresh.
+        }
+      }
+
       setLastSessionSummary(continuity.getLastSessionSummary());
       setSessionDiff(continuity.getSessionDiff());
       setCurrentSessionSummary(continuity.getCurrentSessionSummary());
@@ -108,60 +130,85 @@ export function useSessionIntelligence(
     };
   }, []);
 
-  // Subscribe to dreamOSBus to keep the continuity engine's artifact snapshot
-  // in sync and refresh the diff / summaries whenever new artifacts arrive.
+  // Shared ingest helper used by both bus-auto-ingest and prop-based paths.
+  const prevBusSubsystemRef = useRef<string | null>(null);
+  const ingestSubsystem = useCallback(
+    (subsystemId: string, prevRef: React.MutableRefObject<string | null>) => {
+      if (!subsystemId) return;
+      if (subsystemId === prevRef.current) return;
+      prevRef.current = subsystemId;
+
+      const pattern = patternEngineRef.current;
+      const continuity = continuityRef.current;
+
+      if (pattern) {
+        pattern.ingest(subsystemId);
+        const state = pattern.getState();
+        setEngineState(state);
+        setPredictions(pattern.predict(subsystemId, topN));
+      }
+      if (continuity) {
+        continuity.recordActivation(subsystemId);
+        setCurrentSessionSummary(continuity.getCurrentSessionSummary());
+        setSessionDiff(continuity.getSessionDiff());
+      }
+    },
+    [topN],
+  );
+
+  // Subscribe to dreamOSBus for artifact updates AND automatic subsystem ingest.
   useEffect(() => {
     const unsubscribe = dreamOSBus.subscribe((snapshot) => {
       const continuity = continuityRef.current;
-      if (!continuity) return;
 
-      const lastArtifact = snapshot.artifacts[0] ?? null;
-      continuity.updateArtifacts(
-        snapshot.artifacts.length,
-        snapshot.artifacts.map((a) => a.kind),
-        lastArtifact?.title ?? null,
-      );
+      // Artifact snapshot → update continuity engine.
+      if (continuity) {
+        const lastArtifact = snapshot.artifacts[0] ?? null;
+        continuity.updateArtifacts(
+          snapshot.artifacts.length,
+          snapshot.artifacts.map((a) => a.kind),
+          lastArtifact?.title ?? null,
+        );
+        setCurrentSessionSummary(continuity.getCurrentSessionSummary());
+        setSessionDiff(continuity.getSessionDiff());
+      }
 
-      setCurrentSessionSummary(continuity.getCurrentSessionSummary());
-      setSessionDiff(continuity.getSessionDiff());
+      // runtimeContexts → auto-ingest the dominant subsystem.
+      const dominant = snapshot.runtimeContexts.find((ctx) => ctx.dominant)
+        ?? snapshot.runtimeContexts[0];
+      if (dominant?.subsystemId) {
+        ingestSubsystem(dominant.subsystemId, prevBusSubsystemRef);
+      }
     });
 
     return unsubscribe;
-  }, []);
+  }, [ingestSubsystem]);
 
-  // Ingest subsystem activations when the active subsystem changes.
-  const prevSubsystemRef = useRef<string | null | undefined>(undefined);
+  // Ingest subsystem activations when the explicit prop changes (override path).
+  const prevPropSubsystemRef = useRef<string | null | undefined>(undefined);
   useEffect(() => {
-    const prev = prevSubsystemRef.current;
-    prevSubsystemRef.current = currentSubsystemId;
+    const prev = prevPropSubsystemRef.current;
+    prevPropSubsystemRef.current = currentSubsystemId;
 
     if (!currentSubsystemId) return;
     if (currentSubsystemId === prev) return;
 
-    const pattern = patternEngineRef.current;
-    const continuity = continuityRef.current;
+    ingestSubsystem(currentSubsystemId, prevPropSubsystemRef);
+  }, [currentSubsystemId, ingestSubsystem]);
 
-    if (pattern) {
-      pattern.ingest(currentSubsystemId);
-      const state = pattern.getState();
-      setEngineState(state);
-      if (state.isReady) {
-        setPredictions(pattern.predict(currentSubsystemId, topN));
-      }
-    }
-
-    if (continuity) {
-      continuity.recordActivation(currentSubsystemId);
-      setCurrentSessionSummary(continuity.getCurrentSessionSummary());
-      setSessionDiff(continuity.getSessionDiff());
-    }
-  }, [currentSubsystemId, topN]);
-
-  // Persist on page hide / beforeunload.
+  // Persist session + matrix on page hide / beforeunload.
   const persistSession = useCallback(() => {
     const continuity = continuityRef.current;
     if (continuity) {
       void continuity.persist();
+    }
+    const pattern = patternEngineRef.current;
+    if (pattern && typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem(PATTERN_MATRIX_LS_KEY, JSON.stringify(pattern.exportMatrix()));
+      } catch {
+        // Quota exceeded — silently ignore.
+      }
     }
   }, []);
 
