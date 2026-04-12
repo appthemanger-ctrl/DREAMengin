@@ -76,8 +76,8 @@ export const GAMES: GameDef[] = [
   // ── MADMAXI — Babylon.js 3-D side-scroller (default game) ─────────────────
   { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', renderMode: 'babylon', component: BabylonSideScroller,
     mobileHudMode: 'buttons',
-    subtitle: 'MADMAXI · Babylon.js 3-D',
-    desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js 3-D side-scroller' },
+    subtitle: 'MADMAXI · Landing-grade robot hero',
+    desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js side-scroller rebuilt around the DREAMengin landing robot' },
   // ── Strategy ──────────────────────────────────────────────────────────────
   { id: 'rts',           emoji: '⚔️', label: 'DREAM FORCE',       category: 'Strategy',    color: '#ef4444', renderMode: 'canvas', component: RTSGame,
     subtitle: 'Command the Vanguard · Crush the Nightmare',
