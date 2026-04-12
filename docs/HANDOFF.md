@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-12 03:18 UTC | `1e7a3c6` | copilot/fix-dream-field-issues | Copilot | ~2 modified<br>fix: DreamDMBar bubble/pill shape in divider mode, no cut-off edges — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/fa5f5a9c-1ced-4f9b-b644-22d24acfd1f4  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/messaging/DreamDMBar.tsx`, `dreamdmbar/DreamDMBar.tsx` |
 | **auto** | 2026-04-12 03:16 UTC | `a76aadd` | copilot/fix-dream-field-issues | Copilot | +1 added  ~9 modified<br>fix: DREAMfield UX + Shell-First DreamDMBar in layout — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/fa5f5a9c-1ced-4f9b-b644-22d24acfd1f4  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `components/home/PersistentDreamBar.tsx`<br>✏️: `app/daydream/field/page.tsx`, `app/layout.tsx`, `components/daydream/DREAMfield.tsx`, `components/dreams/DreamsSpacePanel.tsx`, `components/home/HomeSystem.tsx`, `dreamdmbar/homedream/HomeSystem.tsx`, `lib/dreamdm/DreamSystemContext.tsx`, `tests/dreamspace-panel.test.ts`, `tests/home-feed-home.test.ts` |
 | **auto** | 2026-04-12 02:29 UTC | `f03ec16` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #475 from appthemanger-ctrl/copilot/rebuild-madmaxi-game-graphics — MADMAXI: Landing-hero grade rendering pipeline + ×2.5 world scale with proportional camera pullback<br> |
 | **auto** | 2026-04-12 02:27 UTC | `a75535d` | copilot/rebuild-madmaxi-game-graphics | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/rebuild-madmaxi-game-graphics<br> |
 | **auto** | 2026-04-12 02:05 UTC | `eec90ba` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #474 from appthemanger-ctrl/copilot/fix-build-log-errors-another-one — fix: TypeScript build errors + real quantum circuit simulator wired into PortfolioEngin<br> |
-| **auto** | 2026-04-12 02:02 UTC | `160c2ae` | copilot/fix-build-log-errors-another-one | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/fix-build-log-errors-another-one<br> |
 
 ## What changed in this alignment pass
 
