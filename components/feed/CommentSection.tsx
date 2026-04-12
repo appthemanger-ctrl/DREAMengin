@@ -1,5 +1,7 @@
 'use client';
 
+const COMMENT_MAX_LENGTH = 300;
+
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { MessageCircle, Loader2, AlertCircle, Send } from 'lucide-react';
@@ -149,12 +151,14 @@ export default function CommentSection({ postId }: Props) {
         body: JSON.stringify({ post_id: postId, content: text }),
       });
 
+      // Parse body once — needed whether success or error
+      const body = await res.json().catch(() => ({})) as { data?: Comment; error?: string };
+
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error((body as { error?: string }).error ?? 'Failed to post comment');
+        throw new Error(body.error ?? 'Failed to post comment');
       }
 
-      const { data: saved } = await res.json();
+      const saved = body.data;
 
       // Replace optimistic entry with the real one from the server
       setComments(prev =>
@@ -291,7 +295,7 @@ export default function CommentSection({ postId }: Props) {
               <textarea
                 ref={inputRef}
                 value={draft}
-                onChange={e => setDraft(e.target.value.slice(0, 300))}
+                onChange={e => setDraft(e.target.value.slice(0, COMMENT_MAX_LENGTH))}
                 onKeyDown={handleKeyDown}
                 placeholder="Write a comment… (⌘↵ to send)"
                 rows={1}

@@ -137,6 +137,8 @@ function TrendIcon({ v }: { v: number }) {
 // ── Create tab ────────────────────────────────────────────────────────────────
 
 const DRAFT_KEY = 'dreamr_create_draft';
+const CHAR_WARNING_THRESHOLD = 100;
+const CHAR_WARNING_CRITICAL = 50;
 
 function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike | null }) {
   const supabase = createClient();
@@ -292,7 +294,7 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
           <span style={{ fontSize: 10, color: DR.textDim, fontWeight: 500 }}>⌘↵ to post · paste image to attach</span>
-          <span style={{ fontSize: 11, color: remaining < 50 ? '#ef4444' : remaining < 100 ? DR.gold : DR.textDim, fontWeight: 600 }}>
+          <span style={{ fontSize: 11, color: remaining < CHAR_WARNING_CRITICAL ? '#ef4444' : remaining < CHAR_WARNING_THRESHOLD ? DR.gold : DR.textDim, fontWeight: 600 }}>
             {remaining}
           </span>
         </div>

@@ -416,7 +416,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
                 aria-label={isLiked ? 'Unlike' : 'Like'}
               >
                 <Heart style={{ width: 16, height: 16, fill: isLiked ? '#ef4444' : 'none' }} />
-                <span>{likes || 0}</span>
+                <span>{likes > 0 ? likes : ''}</span>
               </button>
 
               <button
