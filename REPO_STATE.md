@@ -120,8 +120,8 @@ vitest@^4.1.0
 |-----------|-------------|------------|
 | `app/` | 217 | .tsx(126), .ts(89), .css(2) |
 | `components/` | 299 | .tsx(272), .ts(24), .css(2) |
-| `lib/` | 279 | .ts(273), .tsx(4), .md(2) |
-| `tests/` | 142 | .ts(141), .md(1) |
+| `lib/` | 283 | .ts(277), .tsx(4), .md(2) |
+| `tests/` | 147 | .ts(146), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
 | `docs/` | 45 | .md(45) |
@@ -134,8 +134,8 @@ vitest@^4.1.0
 
 - **App Routes (TSX):** 126
 - **Component Files:** 272
-- **Library Files:** 277
-- **Test Files:** 133
+- **Library Files:** 281
+- **Test Files:** 138
 
 ### Code Volume
 
@@ -330,8 +330,8 @@ vitest@^4.1.0
 
 ## Tests
 
-**Test Files:** 139
-**Tests Passing:** 130
+**Test Files:** 144
+**Tests Passing:** 135
 **Tests Failing:** 11
 
 ### Test Files
@@ -352,11 +352,11 @@ vitest@^4.1.0
 - /tests/branding-logos.test.ts
 - /tests/child-safety.test.ts
 - /tests/code-dream-preview.test.ts
+- /tests/collector-extended.test.ts
 - /tests/compositeengin-features.test.ts
 - /tests/conform-memory-map.test.ts
 - /tests/connectors.test.ts
-- /tests/content-intelligence-routes.test.ts
-- ... and 119 more test files
+- ... and 124 more test files
 
 ## Documentation
 

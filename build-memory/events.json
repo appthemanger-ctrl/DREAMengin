@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-12T17:01:46.087Z",
+  "generated_at": "2026-04-12T17:36:36.457Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 22,
   "events": [
@@ -133,7 +133,8 @@
       "event": "online",
       "payload_type": null,
       "files": [
-        "lib/offline/offlineCache.ts"
+        "lib/offline/offlineCache.ts",
+        "lib/runtime/offlineQueue.ts"
       ]
     },
     {

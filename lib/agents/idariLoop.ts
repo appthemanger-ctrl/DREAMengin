@@ -22,6 +22,7 @@ import {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+// ── Improvement 61: stopped_by_signal status ─────────────────────────────────
 export type LoopStatus =
   | 'idle'
   | 'collecting'
@@ -30,7 +31,8 @@ export type LoopStatus =
   | 'patching'
   | 'verifying'
   | 'resolved'
-  | 'failed';
+  | 'failed'
+  | 'stopped_by_signal';
 
 export interface LoopSnapshotSummary {
   log_count: number;
@@ -56,6 +58,8 @@ export interface LoopIteration {
   ai_response?: string;
   /** Error message when the iteration failed unexpectedly. */
   error?: string;
+  /** Duration of the iteration in milliseconds. */
+  duration_ms?: number;
 }
 
 export interface RemediationLoopOptions {
@@ -73,6 +77,21 @@ export interface RemediationLoopOptions {
    * When omitted, the loop uses the deterministic fallback patch plan.
    */
   callAi?: (message: string) => Promise<string>;
+  // ── Improvement 56: AbortSignal support ────────────────────────────────────
+  /** AbortSignal to stop the loop between iterations (prevents memory leaks). */
+  signal?: AbortSignal;
+  // ── Improvement 57: iteration timeout ─────────────────────────────────────
+  /** Maximum time in ms for a single iteration (including AI call). Default: 30 s. */
+  iterationTimeoutMs?: number;
+  // ── Improvement 58: AI retry ──────────────────────────────────────────────
+  /** Number of times to retry a failed AI call before using the fallback. Default: 2. */
+  aiRetryAttempts?: number;
+  /** Base delay in ms for AI retry backoff. Default: 500 ms. */
+  aiRetryBaseDelayMs?: number;
+  // ── Improvement 59: snapshot diffing ──────────────────────────────────────
+  /** When true, skip AI call if the snapshot fingerprint is unchanged from the
+   *  previous iteration. Default: true. */
+  skipUnchangedSnapshots?: boolean;
 }
 
 // ── Prompt builder ────────────────────────────────────────────────────────────
@@ -186,6 +205,48 @@ export function buildFallbackPatchPlan(
 
 // ── Single iteration ──────────────────────────────────────────────────────────
 
+// ── Improvement 59: snapshot fingerprint for diffing ─────────────────────────
+function _fingerprintSnapshot(snapshot: TelemetrySnapshot): string {
+  return `${snapshot.logs.length}:${snapshot.metrics.length}:${snapshot.traces.length}:${
+    snapshot.logs.filter((l) => l.level === 'error').length
+  }`;
+}
+
+// ── Improvement 58: retry AI call with exponential backoff ────────────────────
+async function _callAiWithRetry(
+  callAi: (msg: string) => Promise<string>,
+  prompt: string,
+  maxAttempts: number,
+  baseDelayMs: number,
+): Promise<string> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await callAi(prompt);
+    } catch (err) {
+      lastErr = err;
+      if (attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, baseDelayMs * Math.pow(2, attempt - 1)));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+// ── Improvement 57: iteration timeout ────────────────────────────────────────
+function _withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(`IDARi iteration timed out after ${timeoutMs}ms`)),
+      timeoutMs,
+    );
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); },
+    );
+  });
+}
+
 /**
  * Execute one iteration of the IDARi remediation loop.
  *
@@ -197,103 +258,127 @@ export function buildFallbackPatchPlan(
 export async function runLoopIteration(
   iterationNumber: number,
   options: RemediationLoopOptions = {},
+  _prevFingerprint?: string,
 ): Promise<LoopIteration> {
-  const { windowMs = 5 * 60 * 1000, callAi } = options;
+  const { iteration } = await _runLoopIterationInternal(iterationNumber, options, _prevFingerprint);
+  return iteration;
+}
+
+// Internal version that also returns the fingerprint for loop diffing.
+async function _runLoopIterationInternal(
+  iterationNumber: number,
+  options: RemediationLoopOptions = {},
+  _prevFingerprint?: string,
+): Promise<{ iteration: LoopIteration; fingerprint: string }> {
+  const {
+    windowMs = 5 * 60 * 1000,
+    callAi,
+    iterationTimeoutMs = 30_000,
+    aiRetryAttempts = 2,
+    aiRetryBaseDelayMs = 500,
+    skipUnchangedSnapshots = true,
+  } = options;
   const id = uuidv4();
   const started_at = new Date().toISOString();
+  const startMs = Date.now();
 
-  try {
-    const snapshot = getSnapshot(windowMs);
-    const correlation = correlate(snapshot);
-    const rootCause = inferRootCause(correlation.anomalies, snapshot);
+  const doIteration = async (): Promise<{ iteration: LoopIteration; fingerprint: string }> => {
+    try {
+      const snapshot = getSnapshot(windowMs);
+      const fingerprint = _fingerprintSnapshot(snapshot);
+      const correlation = correlate(snapshot);
+      const rootCause = inferRootCause(correlation.anomalies, snapshot);
 
-    const snapshot_summary: LoopSnapshotSummary = {
-      log_count: snapshot.logs.length,
-      metric_count: snapshot.metrics.length,
-      trace_count: snapshot.traces.length,
-      error_count: snapshot.logs.filter((l) => l.level === 'error').length,
-      window_ms: windowMs,
-    };
-
-    // Healthy and no AI needed
-    if (correlation.health === 'healthy') {
-      return {
-        id,
-        iteration_number: iterationNumber,
-        started_at,
-        finished_at: new Date().toISOString(),
-        status: 'resolved',
-        snapshot_summary,
-        correlation,
-        root_cause: rootCause,
-        immediate_action: undefined,
-      };
-    }
-
-    // Anomalies detected.
-    //
-    // Design: the patch plan is always built deterministically from the pattern-
-    // matched root cause (buildFallbackPatchPlan). This ensures the plan is
-    // structured, machine-readable, and safe to act on without further parsing.
-    //
-    // When callAi is provided, the AI is called for a richer narrative diagnosis.
-    // The AI response text is stored in `ai_response` and surfaced in the UI as
-    // an enriching annotation on top of the deterministic plan. It is not parsed
-    // back into the PatchPlan because LLM output is unstructured; the structured
-    // patch plan always comes from the deterministic path.
-    let ai_response: string | undefined;
-    const immediate_action = buildImmediateRemediationAction(rootCause);
-    const patch_plan: PatchPlan | undefined = buildFallbackPatchPlan(rootCause, id, immediate_action);
-
-    if (callAi && patch_plan) {
-      try {
-        const prompt = buildIdariPrompt(snapshot, correlation, rootCause);
-        ai_response = await callAi(prompt);
-      } catch {
-        // AI call failed — the deterministic patch plan is still used
-      }
-    }
-
-    const status: LoopStatus = patch_plan ? 'patching' : 'failed';
-
-    return {
-      id,
-      iteration_number: iterationNumber,
-      started_at,
-      finished_at: new Date().toISOString(),
-      status,
-      snapshot_summary,
-      correlation,
-      root_cause: rootCause,
-      immediate_action,
-      patch_plan,
-      ai_response,
-    };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    const snapshot = getSnapshot(windowMs);
-    const correlation = correlate(snapshot);
-    const rootCause = inferRootCause(correlation.anomalies, snapshot);
-
-    return {
-      id,
-      iteration_number: iterationNumber,
-      started_at,
-      finished_at: new Date().toISOString(),
-      status: 'failed',
-      snapshot_summary: {
+      const snapshot_summary: LoopSnapshotSummary = {
         log_count: snapshot.logs.length,
         metric_count: snapshot.metrics.length,
         trace_count: snapshot.traces.length,
         error_count: snapshot.logs.filter((l) => l.level === 'error').length,
         window_ms: windowMs,
-      },
-      correlation,
-      root_cause: rootCause,
-      immediate_action: buildImmediateRemediationAction(rootCause),
-      error: message,
-    };
-  }
+      };
+
+      // Healthy and no AI needed
+      if (correlation.health === 'healthy') {
+        const iteration: LoopIteration = {
+          id,
+          iteration_number: iterationNumber,
+          started_at,
+          finished_at: new Date().toISOString(),
+          duration_ms: Date.now() - startMs,
+          status: 'resolved',
+          snapshot_summary,
+          correlation,
+          root_cause: rootCause,
+          immediate_action: undefined,
+        };
+        return { iteration, fingerprint };
+      }
+
+      let ai_response: string | undefined;
+      const immediate_action = buildImmediateRemediationAction(rootCause);
+      const patch_plan: PatchPlan | undefined = buildFallbackPatchPlan(rootCause, id, immediate_action);
+
+      // ── Improvement 59: skip AI when snapshot unchanged ───────────────────
+      const snapshotChanged = !skipUnchangedSnapshots || fingerprint !== _prevFingerprint;
+
+      if (callAi && patch_plan && snapshotChanged) {
+        try {
+          const prompt = buildIdariPrompt(snapshot, correlation, rootCause);
+          // ── Improvement 58: retry with backoff ────────────────────────────
+          ai_response = await _callAiWithRetry(callAi, prompt, aiRetryAttempts + 1, aiRetryBaseDelayMs);
+        } catch {
+          // AI exhausted retries — the deterministic patch plan is still used
+        }
+      }
+
+      const status: LoopStatus = patch_plan ? 'patching' : 'failed';
+
+      const iteration: LoopIteration = {
+        id,
+        iteration_number: iterationNumber,
+        started_at,
+        finished_at: new Date().toISOString(),
+        duration_ms: Date.now() - startMs,
+        status,
+        snapshot_summary,
+        correlation,
+        root_cause: rootCause,
+        immediate_action,
+        patch_plan,
+        ai_response,
+      };
+      return { iteration, fingerprint };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      const snapshot = getSnapshot(windowMs);
+      const fingerprint = _fingerprintSnapshot(snapshot);
+      const correlation = correlate(snapshot);
+      const rootCause = inferRootCause(correlation.anomalies, snapshot);
+
+      const iteration: LoopIteration = {
+        id,
+        iteration_number: iterationNumber,
+        started_at,
+        finished_at: new Date().toISOString(),
+        duration_ms: Date.now() - startMs,
+        status: 'failed',
+        snapshot_summary: {
+          log_count: snapshot.logs.length,
+          metric_count: snapshot.metrics.length,
+          trace_count: snapshot.traces.length,
+          error_count: snapshot.logs.filter((l) => l.level === 'error').length,
+          window_ms: windowMs,
+        },
+        correlation,
+        root_cause: rootCause,
+        immediate_action: buildImmediateRemediationAction(rootCause),
+        error: message,
+      };
+      return { iteration, fingerprint };
+    }
+  };
+
+  return _withTimeout(doIteration(), iterationTimeoutMs);
 }
 
 // ── Multi-iteration driver ────────────────────────────────────────────────────
@@ -304,9 +389,11 @@ export async function runLoopIteration(
  * The loop exits early when:
  * - The system is healthy and `stopOnHealthy` is true (default).
  * - `maxIterations` is reached.
+ * - The provided `signal` is aborted.
  *
  * Each completed iteration is passed to `options.onIteration` if provided.
  */
+// ── Improvement 56: AbortSignal support ──────────────────────────────────────
 export async function runRemediationLoop(
   options: RemediationLoopOptions = {},
 ): Promise<LoopIteration[]> {
@@ -314,12 +401,18 @@ export async function runRemediationLoop(
     maxIterations = 1,
     stopOnHealthy = true,
     onIteration,
+    signal,
   } = options;
 
   const iterations: LoopIteration[] = [];
+  let prevFingerprint: string | undefined;
 
   for (let i = 0; i < maxIterations; i++) {
-    const iteration = await runLoopIteration(i + 1, options);
+    // ── Improvement 56: check abort signal ─────────────────────────────────
+    if (signal?.aborted) break;
+
+    const { iteration, fingerprint } = await _runLoopIterationInternal(i + 1, options, prevFingerprint);
+    prevFingerprint = fingerprint;
     iterations.push(iteration);
 
     if (onIteration) onIteration(iteration);
@@ -329,4 +422,39 @@ export async function runRemediationLoop(
   }
 
   return iterations;
+}
+
+// ── Improvement 60: getLoopHealthSummary ─────────────────────────────────────
+
+export interface LoopHealthSummary {
+  total: number;
+  resolved: number;
+  failed: number;
+  successRate: number;
+  avgDurationMs: number;
+  lastStatus: LoopStatus | null;
+}
+
+/**
+ * Compute a health summary from a completed set of loop iterations.
+ * Useful for dashboards and log aggregation.
+ */
+export function getLoopHealthSummary(iterations: readonly LoopIteration[]): LoopHealthSummary {
+  if (iterations.length === 0) {
+    return { total: 0, resolved: 0, failed: 0, successRate: 0, avgDurationMs: 0, lastStatus: null };
+  }
+  const resolved = iterations.filter((i) => i.status === 'resolved').length;
+  const failed = iterations.filter((i) => i.status === 'failed').length;
+  const durations = iterations.filter((i) => i.duration_ms !== undefined).map((i) => i.duration_ms!);
+  const avgDurationMs = durations.length > 0
+    ? durations.reduce((a, b) => a + b, 0) / durations.length
+    : 0;
+  return {
+    total: iterations.length,
+    resolved,
+    failed,
+    successRate: resolved / iterations.length,
+    avgDurationMs,
+    lastStatus: iterations[iterations.length - 1].status,
+  };
 }
