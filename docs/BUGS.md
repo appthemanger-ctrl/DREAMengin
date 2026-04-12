@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 08:35 UTC  
-**Last updated:** 2026-04-12 08:35 UTC  
-**Triggered by commit:** `7917944` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #482 from appthemanger-ctrl/copilot/skip-vercel-build-when-requested
+**Documentation Date:** 2026-04-12 09:20 UTC  
+**Last updated:** 2026-04-12 09:20 UTC  
+**Triggered by commit:** `2b58bdb` on `copilot/fix-engines-daydreams-redundancy` by Copilot  
+**Commit message:** fix: align Side A/B roles across all engines and daydreams
 
 ---
 
