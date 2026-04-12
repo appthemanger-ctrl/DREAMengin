@@ -23,7 +23,7 @@ try {
   const message = read("git log -1 --pretty=%B");
   if (message.includes("[skip vercel]")) {
     console.log("Skipping Vercel build because commit message requested it.");
-    process.exit(1);
+    process.exit(0);
   }
 
   const changedFiles = read("git diff-tree --no-commit-id --name-only -r -m HEAD")
@@ -33,12 +33,12 @@ try {
 
   if (changedFiles.length > 0 && changedFiles.every(shouldTreatAsDocument)) {
     console.log("Skipping Vercel build because this commit only updates documents.");
-    process.exit(1);
+    process.exit(0);
   }
 
   console.log("Continuing Vercel build.");
-  process.exit(0);
+  process.exit(1);
 } catch {
   console.log("Continuing Vercel build because ignore checks could not be evaluated.");
-  process.exit(0);
+  process.exit(1);
 }
