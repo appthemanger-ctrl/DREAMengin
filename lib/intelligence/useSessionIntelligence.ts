@@ -185,7 +185,7 @@ export function useSessionIntelligence(
   }, [ingestSubsystem]);
 
   // Ingest subsystem activations when the explicit prop changes (override path).
-  const prevPropSubsystemRef = useRef<string | null | undefined>(undefined);
+  const prevPropSubsystemRef = useRef<string | null>(null);
   useEffect(() => {
     const prev = prevPropSubsystemRef.current;
     prevPropSubsystemRef.current = currentSubsystemId;
