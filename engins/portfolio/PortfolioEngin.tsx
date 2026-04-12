@@ -14,7 +14,7 @@
 
 import { useState } from 'react';
 import { ArrowLeft, TrendingUp, Activity, ShieldCheck, Cpu } from 'lucide-react';
-import QuantumCircuitCanvas from './QuantumCircuitCanvas';
+import QuantumCircuitCanvas, { type QuantumMeasurementResult } from './QuantumCircuitCanvas';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
@@ -56,9 +56,10 @@ export default function PortfolioEngin({ onBack }: Props) {
   const [algorithm, setAlgorithm] = useState<Algorithm>('vqe');
   const [backend,   setBackend]   = useState<Backend>('local_simulator');
   const [ansatz,    setAnsatz]    = useState<Ansatz>('real_amplitudes');
-  const [running,   setRunning]   = useState(false);
-  const [result,    setResult]    = useState<RunResult | null>(null);
-  const [error,     setError]     = useState<string | null>(null);
+  const [running,       setRunning]       = useState(false);
+  const [result,        setResult]        = useState<RunResult | null>(null);
+  const [error,         setError]         = useState<string | null>(null);
+  const [quantumResult, setQuantumResult] = useState<QuantumMeasurementResult | null>(null);
 
   // Portfolio lives under Lab Daydream — pulse to Forge under that enginId
   const forge = useForgeActivity({ enginId: 'lab' });
@@ -67,6 +68,7 @@ export default function PortfolioEngin({ onBack }: Props) {
     setRunning(true);
     setResult(null);
     setError(null);
+    setQuantumResult(null);
     forge.record('Started optimization run');
     try {
       const res = await fetch('/api/ai/idari', {
@@ -102,9 +104,12 @@ export default function PortfolioEngin({ onBack }: Props) {
 
       // Emit lab:result-ready so other Engins know results are available
       bridge.emit('lab', 'lab:result-ready', {
-        experimentId: `portfolio-${Date.now()}`,
-        resultType: 'portfolio-optimization',
-        data: runResult,
+        experimentId:   `portfolio-${Date.now()}`,
+        resultType:     'portfolio-optimization',
+        algorithm:      runResult.algorithm,
+        backend:        runResult.backend,
+        quantumBitstring: quantumResult?.topBitstring ?? null,
+        quantumExpVal:    quantumResult?.expectationValue ?? null,
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Optimization failed');
@@ -299,14 +304,20 @@ export default function PortfolioEngin({ onBack }: Props) {
           </div>
         </div>
 
-        {/* Quantum circuit visualizer */}
+        {/* Quantum circuit — live simulator */}
         <div className="de-widget" style={{ marginBottom: 14, overflow: 'hidden' }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Quantum Circuit</span>
             {running && (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                 style={{ background: `${ACCENT}18`, color: ACCENT, border: `1px solid ${ACCENT}35` }}>
-                Active
+                Simulating
+              </span>
+            )}
+            {!running && quantumResult && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                style={{ background: `${PURPLE}18`, color: PURPLE, border: `1px solid ${PURPLE}35` }}>
+                |{quantumResult.topBitstring}⟩ · {(quantumResult.topProbability * 100).toFixed(0)}%
               </span>
             )}
           </div>
@@ -315,10 +326,81 @@ export default function PortfolioEngin({ onBack }: Props) {
               active={running}
               accentColor={ACCENT}
               secondaryColor={PURPLE}
-              height={120}
+              height={130}
+              numQubits={3}
+              algorithm={algorithm}
+              ansatz={ansatz}
+              onMeasure={setQuantumResult}
             />
           </div>
         </div>
+
+        {/* Quantum selection result — shown as soon as the circuit finishes */}
+        {quantumResult && (
+          <div className="de-widget" style={{ marginBottom: 14 }}>
+            <div className="de-widget-header">
+              <span className="de-widget-title">Quantum Selection</span>
+              <span className="text-xs px-2 py-0.5 rounded-full"
+                style={{ background: `${PURPLE}15`, color: PURPLE, border: `1px solid ${PURPLE}30`,
+                  fontFamily: 'monospace', fontWeight: 700 }}>
+                ⟨C⟩ = {quantumResult.expectationValue.toFixed(4)}
+              </span>
+            </div>
+            <div className="de-widget-body">
+              {/* Per-asset selection */}
+              <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                {quantumResult.selectedAssets.map((selected, i) => (
+                  <div key={i} style={{
+                    flex: 1, padding: '8px 4px', borderRadius: 8, textAlign: 'center',
+                    background:  selected ? `${ACCENT}10` : 'transparent',
+                    border:     `1px solid ${selected ? ACCENT + '55' : '#1e293b'}`,
+                    opacity: selected ? 1 : 0.45,
+                    transition: 'all 0.2s',
+                  }}>
+                    <div style={{ fontSize: 9, color: ACCENT + 'aa', marginBottom: 3 }}>Asset {i}</div>
+                    <div style={{ fontSize: 13, fontWeight: 800,
+                      color: selected ? ACCENT : '#475569', letterSpacing: 1 }}>
+                      {selected ? '◉ IN' : '○ OUT'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* State + confidence */}
+              <div style={{ display: 'flex', justifyContent: 'space-between',
+                fontSize: 10, color: '#4a6280' }}>
+                <span>
+                  Optimal state&nbsp;
+                  <span style={{ fontFamily: 'monospace', color: PURPLE }}>
+                    |{quantumResult.topBitstring}⟩
+                  </span>
+                </span>
+                <span>
+                  confidence&nbsp;
+                  <span style={{ color: ACCENT, fontWeight: 700 }}>
+                    {(quantumResult.topProbability * 100).toFixed(1)}%
+                  </span>
+                </span>
+              </div>
+              {/* Probability distribution summary */}
+              <div style={{ marginTop: 8, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                {quantumResult.probabilities.map((p, i) => (
+                  p > 0.02 ? (
+                    <span key={i} style={{
+                      fontSize: 9, fontFamily: 'monospace', padding: '2px 5px',
+                      borderRadius: 4, border: `1px solid ${PURPLE}30`,
+                      color: i === quantumResult.probabilities.reduce(
+                        (b, v, j) => (v > quantumResult.probabilities[b] ? j : b), 0)
+                        ? ACCENT : PURPLE + 'aa',
+                      background: `${PURPLE}08`,
+                    }}>
+                      {i.toString(2).padStart(3, '0')} {(p * 100).toFixed(1)}%
+                    </span>
+                  ) : null
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Run button */}
         <button
