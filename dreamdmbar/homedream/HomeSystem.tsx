@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
 import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
-import DreamDMBar from '@/dreamdmbar/DreamDMBar';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { createClient } from '@/lib/supabase/client';
@@ -38,12 +37,13 @@ function HomeSystemInner({
     unregisterRuntimeCallbacks,
     closeBothMenus,
     closeDrEams,
-    openBothMenus,
     openDrEams,
+    splitRatio,
+    setSplitRatio,
+    isBarMinimized,
+    setIsBarMinimized,
   } = useDreamSystem();
-  const [splitRatio, setSplitRatio] = useState(DEFAULT_WORKFLOW_SPLIT);
-  const [isBarMinimized, setIsBarMinimized] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(0);
+  const [viewportHeight, setViewportHeight] = React.useState(0);
 
   useEffect(() => {
     const sb = createClient();
@@ -111,9 +111,10 @@ function HomeSystemInner({
     registerRuntimeCallbacks({
       returnHome,
       openInSurface,
+      openHomeDreamSpace,
     });
     return unregisterRuntimeCallbacks;
-  }, [openInSurface, registerRuntimeCallbacks, returnHome, unregisterRuntimeCallbacks]);
+  }, [openHomeDreamSpace, openInSurface, registerRuntimeCallbacks, returnHome, unregisterRuntimeCallbacks]);
 
   useEffect(() => {
     if (splitRatio >= 0.55) {
@@ -230,15 +231,6 @@ function HomeSystemInner({
           dominantRegion={dualRuntime.state.dominantRegion}
         />
       </div>
-
-      <DreamDMBar
-        onHome={returnHome}
-        onBothMenus={openBothMenus}
-        onHomeDreamSpace={openHomeDreamSpace}
-        splitRatio={splitRatio}
-        onSplitChange={setSplitRatio}
-        onMinimizedChange={setIsBarMinimized}
-      />
     </>
   );
 }

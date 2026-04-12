@@ -720,8 +720,8 @@ export default function DREAMfield() {
         </Link>
 
         <Zap size={14} style={{ color: levelColor }} />
-        <span style={{ color: T.text, fontWeight: 700, fontSize: 16 }}>DREAMfield</span>
-        <span style={{ color: T.dim, fontSize: 12 }}>Creative Intelligence</span>
+        <span style={{ color: T.text, fontWeight: 700, fontSize: 16 }}>Forge Analytics</span>
+        <span style={{ color: T.dim, fontSize: 12 }}>Creative Intelligence Dashboard</span>
 
         <div style={{ flex: 1 }} />
 

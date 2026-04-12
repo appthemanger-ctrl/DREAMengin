@@ -7,6 +7,7 @@ import ThemeApplicator from '@/components/ThemeApplicator';
 import Link from 'next/link';
 import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
 import GlobalDreamBar from '@/components/home/GlobalDreamBar';
+import PersistentDreamBar from '@/components/home/PersistentDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
 import GlobalCustomizeUI from '@/components/customize/GlobalCustomizeUI';
 import WarpCanvas from '@/components/warp/WarpCanvas';
@@ -78,6 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <DreamSystemProvider>
               <main role="main" aria-label="Main content">{children}</main>
               <Suspense><GlobalDreamBar /></Suspense>
+              <Suspense><PersistentDreamBar /></Suspense>
               <GlobalCustomizeUI />
               <KonamiDream />
               <Suspense><CommandPalette /></Suspense>

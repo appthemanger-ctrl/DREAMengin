@@ -9,6 +9,7 @@ describe('HomeDream home surface', () => {
     resolve(__dirname, '../components/home/WorkspaceDashboard.tsx'),
     'utf8',
   );
+  // Canonical HomeSystem — kept in sync with dreamdmbar/homedream/HomeSystem.tsx
   const homeSystem = readFileSync(
     resolve(__dirname, '../components/home/HomeSystem.tsx'),
     'utf8',
@@ -17,8 +18,15 @@ describe('HomeDream home surface', () => {
     resolve(__dirname, '../components/runtime/RuntimeShell.tsx'),
     'utf8',
   );
+  // Authoritative DreamDMBar (dreamdmbar/DreamDMBar.tsx and
+  // components/messaging/DreamDMBar.tsx are kept byte-for-byte identical)
   const dreamDmBar = readFileSync(
-    resolve(__dirname, '../components/messaging/DreamDMBar.tsx'),
+    resolve(__dirname, '../dreamdmbar/DreamDMBar.tsx'),
+    'utf8',
+  );
+  // Shell-First: the persistent bar wrapper that lives in app/layout.tsx
+  const persistentBar = readFileSync(
+    resolve(__dirname, '../components/home/PersistentDreamBar.tsx'),
     'utf8',
   );
 
@@ -48,10 +56,15 @@ describe('HomeDream home surface', () => {
     expect(homeSystem).toContain("position: 'fixed'");
     expect(homeSystem).toContain('height: topHeight');
     expect(homeSystem).toContain('height: bottomHeight');
-    // Divider mode is now wired from HomeSystem into DreamDMBar
-    expect(homeSystem).toContain('splitRatio={splitRatio}');
-    expect(homeSystem).toContain('onSplitChange={setSplitRatio}');
-    expect(homeSystem).toContain('onMinimizedChange={setIsBarMinimized}');
+    // Shell-First: divider mode is now wired from PersistentDreamBar (in layout.tsx),
+    // not from HomeSystem directly — HomeSystem writes splitRatio to context instead.
+    expect(homeSystem).toContain('splitRatio');
+    expect(homeSystem).toContain('setSplitRatio');
+    expect(homeSystem).toContain('setIsBarMinimized');
+    // PersistentDreamBar passes split props to DreamDMBar from context
+    expect(persistentBar).toContain('splitRatio={isHomeSystemActive ? splitRatio : undefined}');
+    expect(persistentBar).toContain('onSplitChange={isHomeSystemActive ? setSplitRatio : undefined}');
+    expect(persistentBar).toContain('onMinimizedChange={isHomeSystemActive ? setIsBarMinimized : undefined}');
   });
 
   it('keeps feed scrolling native while limiting divider drag capture to the centered seam handle', () => {
