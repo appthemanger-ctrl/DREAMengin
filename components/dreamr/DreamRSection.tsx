@@ -136,12 +136,18 @@ function TrendIcon({ v }: { v: number }) {
 
 // ── Create tab ────────────────────────────────────────────────────────────────
 
+const DRAFT_KEY = 'dreamr_create_draft';
+
 function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike | null }) {
   const supabase = createClient();
-  const [content,    setContent]    = useState('');
+  const [content,    setContent]    = useState(() => {
+    // Restore draft from localStorage so users never lose what they typed
+    try { return localStorage.getItem(DRAFT_KEY) ?? ''; } catch { return ''; }
+  });
   const [vis,        setVis]        = useState<'public' | 'followers' | 'private'>('public');
   const [sending,    setSending]    = useState(false);
   const [sent,       setSent]       = useState(false);
+  const [postError,  setPostError]  = useState<string | null>(null);
   const [mediaFile,  setMediaFile]  = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [audioFile,  setAudioFile]  = useState<File | null>(null);
@@ -151,6 +157,13 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
 
   const charLimit = 500;
   const remaining = charLimit - content.length;
+
+  // Persist draft to localStorage as the user types
+  const handleContentChange = (val: string) => {
+    const trimmed = val.slice(0, charLimit);
+    setContent(trimmed);
+    try { localStorage.setItem(DRAFT_KEY, trimmed); } catch { /* ignore quota errors */ }
+  };
 
   const handleMedia = (e: React.ChangeEvent<HTMLInputElement>, _type: 'image' | 'video') => {
     const f = e.target.files?.[0]; if (!f) return;
@@ -165,9 +178,26 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
     e.target.value = '';
   };
 
+  // Paste image directly from clipboard (e.g. screenshots)
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          setMediaFile(file);
+          setMediaPreview(URL.createObjectURL(file));
+        }
+        break;
+      }
+    }
+  };
+
   const handlePost = async () => {
     if (!content.trim() || sending) return;
     setSending(true);
+    setPostError(null);
     try {
       let mediaUrl: string | null = null;
       // Upload media if present (image/video takes precedence over audio)
@@ -190,22 +220,36 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
         });
         mediaUrl = upload.mediaUrl;
       }
-      await fetch('/api/posts', {
+      const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ content, visibility: vis, media_urls: mediaUrl ? [mediaUrl] : [] }),
       });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const msg = (body as { error?: string }).error ?? `Post failed (${res.status})`;
+        throw new Error(msg);
+      }
+
       setSent(true);
+      // Clear draft from localStorage on success
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
       setContent(''); setMediaFile(null); setMediaPreview(null); setAudioFile(null);
       setTimeout(() => setSent(false), 2500);
-    } catch { /* non-critical */ }
-    finally { setSending(false); }
+    } catch (e) {
+      // Show a human-readable error — never silently swallow failures
+      const msg = e instanceof Error ? e.message : 'Something went wrong. Tap to retry.';
+      setPostError(msg);
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       e.preventDefault();
-      handlePost();
+      void handlePost();
     }
   };
 
@@ -234,9 +278,10 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
       <div style={{ background: DR.bg, borderRadius: 16, boxShadow: nmInset(5), padding: 14 }}>
         <textarea
           value={content}
-          onChange={e => setContent(e.target.value.slice(0, charLimit))}
+          onChange={e => handleContentChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="What's on your mind? Share your human media…"
+          onPaste={handlePaste}
+          placeholder="What's on your mind? Share your human media… (paste a screenshot too)"
           rows={4}
           style={{
             width: '100%', border: 'none', background: 'transparent',
@@ -246,12 +291,30 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
           }}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-          <span style={{ fontSize: 10, color: DR.textDim, fontWeight: 500 }}>⌘↵ to post</span>
-          <span style={{ fontSize: 11, color: remaining < 50 ? '#ef4444' : DR.textDim, fontWeight: 600 }}>
+          <span style={{ fontSize: 10, color: DR.textDim, fontWeight: 500 }}>⌘↵ to post · paste image to attach</span>
+          <span style={{ fontSize: 11, color: remaining < 50 ? '#ef4444' : remaining < 100 ? DR.gold : DR.textDim, fontWeight: 600 }}>
             {remaining}
           </span>
         </div>
       </div>
+
+      {/* Error state — shown when posting fails */}
+      {postError && (
+        <div style={{ background: 'rgba(239,68,68,0.10)', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(239,68,68,0.22)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+          <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>⚠️</span>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', marginBottom: 2 }}>Couldn&apos;t post</div>
+            <div style={{ fontSize: 11, color: DR.textDim }}>{postError}</div>
+            <button
+              type="button"
+              onClick={() => setPostError(null)}
+              style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: DR.sky, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: DR.font }}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Media preview */}
       {mediaPreview && (
@@ -317,7 +380,7 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
 
       {/* Post button */}
       <button
-        type="button" onClick={handlePost}
+        type="button" onClick={() => void handlePost()}
         disabled={!content.trim() || sending || sent}
         style={{
           width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
@@ -329,7 +392,7 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
           boxShadow: content.trim() && !sent ? `0 6px 24px rgba(91,168,212,0.38)` : nmRaised(4),
           color: content.trim() ? '#fff' : DR.textDim,
           fontFamily: DR.font, fontSize: 14, fontWeight: 800, letterSpacing: '-0.01em',
-          cursor: content.trim() ? 'pointer' : 'default',
+          cursor: content.trim() && !sending ? 'pointer' : 'default',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           transition: 'all 220ms',
         }}
