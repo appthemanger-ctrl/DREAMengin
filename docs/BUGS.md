@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 11:31 UTC  
-**Last updated:** 2026-04-06 11:31 UTC  
-**Triggered by commit:** `75cfd14` on `copilot/rebuild-madmaxi-game-graphics` by Copilot  
-**Commit message:** feat: WORLD_SCALE ×2.5 — bigger world + higher-tessellation geometry + camera zoomed out proportionally in MADMAXI
+**Documentation Date:** 2026-04-12 02:29 UTC  
+**Last updated:** 2026-04-12 02:29 UTC  
+**Triggered by commit:** `f03ec16` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #475 from appthemanger-ctrl/copilot/rebuild-madmaxi-game-graphics
 
 ---
 
