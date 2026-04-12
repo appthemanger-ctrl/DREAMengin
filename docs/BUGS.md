@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 08:15 UTC  
-**Last updated:** 2026-04-12 08:15 UTC  
-**Triggered by commit:** `1abcfe2` on `copilot/skip-vercel-build-when-requested` by Copilot  
-**Commit message:** fix: add missing workflow JourneyDotKind values to fix TypeScript build
+**Documentation Date:** 2026-04-12 08:35 UTC  
+**Last updated:** 2026-04-12 08:35 UTC  
+**Triggered by commit:** `7917944` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #482 from appthemanger-ctrl/copilot/skip-vercel-build-when-requested
 
 ---
 
