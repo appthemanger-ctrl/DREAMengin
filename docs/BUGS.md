@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 02:29 UTC  
-**Last updated:** 2026-04-12 02:29 UTC  
-**Triggered by commit:** `f03ec16` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #475 from appthemanger-ctrl/copilot/rebuild-madmaxi-game-graphics
+**Documentation Date:** 2026-04-12 03:16 UTC  
+**Last updated:** 2026-04-12 03:16 UTC  
+**Triggered by commit:** `a76aadd` on `copilot/fix-dream-field-issues` by Copilot  
+**Commit message:** fix: DREAMfield UX + Shell-First DreamDMBar in layout
 
 ---
 
