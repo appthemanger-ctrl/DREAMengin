@@ -188,7 +188,7 @@ export function useSessionIntelligence(
   const prevPropSubsystemRef = useRef<string | null>(null);
   useEffect(() => {
     const prev = prevPropSubsystemRef.current;
-    prevPropSubsystemRef.current = currentSubsystemId;
+    prevPropSubsystemRef.current = currentSubsystemId ?? null;
 
     if (!currentSubsystemId) return;
     if (currentSubsystemId === prev) return;
