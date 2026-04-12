@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 17:47 UTC  
-**Last updated:** 2026-04-12 17:47 UTC  
-**Triggered by commit:** `b2bfb36` on `copilot/fix-type-error-assignability` by Copilot  
-**Commit message:** fix: coerce undefined to null for prevPropSubsystemRef assignment
+**Documentation Date:** 2026-04-12 17:49 UTC  
+**Last updated:** 2026-04-12 17:49 UTC  
+**Triggered by commit:** `3095050` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #489 from appthemanger-ctrl/copilot/fix-type-error-assignability
 
 ---
 
