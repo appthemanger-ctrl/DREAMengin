@@ -19,7 +19,7 @@
 
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { rankFeed, type ScoredPost } from '@/lib/dreamr/dreamrAlgorithm';
+import { rankFeed, type ScoredPost } from '@/dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 
 export async function GET(req: NextRequest) {

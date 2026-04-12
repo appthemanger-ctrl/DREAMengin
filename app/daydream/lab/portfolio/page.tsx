@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
-import PortfolioEngin from '@/components/daydream/PortfolioEngin';
+import PortfolioEngin from '@/engins/portfolio/PortfolioEngin';
 import { connection } from 'next/server';
 
 export const metadata = {

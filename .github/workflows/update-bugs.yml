@@ -31,12 +31,12 @@ jobs:
       - name: Checkout (full history)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2   # need parent commit for diff-tree
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25'
 
       - name: Run update-bugs script
         run: node scripts/update-bugs.mjs
@@ -61,7 +61,18 @@ jobs:
           SHORT="${{ github.sha }}"
           SHORT="${SHORT:0:7}"
           git commit -m "docs: auto-update BUGS.md [${SHORT}] [skip ci] [skip vercel]"
-          git push origin HEAD:${{ github.ref_name }} || true
+
+          for attempt in 1 2 3; do
+            echo "Push attempt ${attempt}..."
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "✅ BUGS.md updated successfully."
+              exit 0
+            fi
+            git pull --rebase origin ${{ github.ref_name }}
+          done
+
+          echo "❌ Failed to push after 3 attempts."
+          exit 1
 
       - name: Step Summary
         if: always()

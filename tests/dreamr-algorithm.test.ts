@@ -29,7 +29,7 @@ import {
   rankFeed,
   DREAMR_WEIGHTS,
   type ScoredPost,
-} from '@/lib/dreamr/dreamrAlgorithm';
+} from '@/dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm';
 
 // ── Helper ────────────────────────────────────────────────────────────────────
 

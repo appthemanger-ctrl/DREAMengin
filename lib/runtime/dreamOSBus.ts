@@ -218,8 +218,8 @@ class DreamOSBusImpl {
       id: `bridge:${emission.channel}:${String(emission.event)}:${emission.emittedAt}`,
       kind: 'event',
       title: formatEventTitle(String(emission.event)),
-      sourceSubsystem: channelToSubsystem(emission.channel),
-      relatedSubsystems: relatedSubsystemsForChannel(emission.channel),
+      sourceSubsystem: channelToSubsystem(emission.channel as DualRuntimeChannel),
+      relatedSubsystems: relatedSubsystemsForChannel(emission.channel as DualRuntimeChannel),
       payload: {
         channel: emission.channel,
         event: emission.event,

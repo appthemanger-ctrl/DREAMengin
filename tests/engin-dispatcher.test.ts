@@ -11,7 +11,7 @@
  * or conditionally skipped.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -271,6 +271,26 @@ describe('EnginDispatcher singleton', () => {
     const d = EnginDispatcher.getInstance();
     // Worker is not defined in Node — init should not throw
     expect(() => d.init()).not.toThrow();
+  });
+
+  it('init() is a no-op when SharedArrayBuffer is unavailable', () => {
+    vi.stubGlobal('Worker', class MockWorker {
+      onmessage: ((evt: MessageEvent) => void) | null = null;
+      onerror: ((err: ErrorEvent) => void) | null = null;
+      postMessage(): void {}
+      terminate(): void {}
+    });
+    vi.stubGlobal('SharedArrayBuffer', undefined);
+
+    try {
+      const d = EnginDispatcher.getInstance();
+      expect(() => d.init()).not.toThrow();
+      expect(d.initialized).toBe(false);
+      expect(d.sab).toBeNull();
+      expect(d.workgroups.length).toBe(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('stats returns zero workers and empty telemetry before init', () => {

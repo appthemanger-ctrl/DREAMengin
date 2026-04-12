@@ -2,8 +2,8 @@ name: SQL Migration Guard
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Scans the live repository (not docs) for Supabase table references that lack a
-# migration, scaffolds a migration file when one is missing, applies pending
-# migrations after merges to main branches, regenerates TypeScript types, and
+# migration, scaffolds a migration file when one is missing, automatically
+# syncs Supabase on pushes to completedream, regenerates TypeScript types, and
 # verifies the Vercel/Next.js build still passes.
 #
 # Secrets required for full functionality (all optional — steps degrade gracefully):
@@ -17,6 +17,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
+    branches:
+      - completedream
   workflow_dispatch:
     inputs:
       force_apply:
@@ -129,6 +131,17 @@ jobs:
 
           echo "Changed files:"
           echo "$CHANGED"
+
+      - name: Install PostgreSQL client
+        if: |
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
+          ) &&
+          env.DATABASE_URL != ''
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
 
       # ── 4. Scan code for Supabase table references ───────────────────────────
       - name: Scan for Supabase table references
@@ -343,20 +356,89 @@ jobs:
           if git diff --cached --quiet; then
             echo "Nothing to commit."
           else
-            git commit -m "chore: scaffold SQL migration for new table references [skip ci]"
+            printf '%s\n' \
+              'chore: scaffold SQL migration for new table references [skip ci]' \
+              '' \
+              'Reasoning: SQL Migration Guard found table references without matching migrations and generated reviewable placeholders.' \
+              'Architecture justification: docs/ARCHITECTURE.md §10 keeps Supabase migration artifacts aligned with the runtime assumptions.' \
+              'Performance impact: none.' \
+              > /tmp/sql-guard-scaffold-commit.txt
+            git commit -F /tmp/sql-guard-scaffold-commit.txt
             git push || echo "⚠️ Push failed — branch may require rebase."
           fi
 
-      # ── 8. Apply pending migrations (main branches only) ─────────────────────
+      # ── 8. Compare repo migrations against remote history ─────────────────────
+      - name: Compare repo migrations with remote Supabase
+        id: compare
+        if: |
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
+          ) &&
+          env.DATABASE_URL != ''
+        shell: bash
+        run: |
+          mapfile -t LOCAL_VERSIONS < <(
+            find supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\n' \
+              | sed -E 's/^([0-9]+).*/\1/' \
+              | awk 'NF' \
+              | sort -u
+          )
+
+          if ! REMOTE_VERSIONS="$(psql "$DATABASE_URL" -Atc "SELECT version FROM supabase_migrations.schema_migrations ORDER BY version;" 2>/tmp/sql-guard-psql.err)"; then
+            echo "⚠️ Unable to read remote migration history."
+            cat /tmp/sql-guard-psql.err || true
+            echo "compare_status=warning" >> "$GITHUB_OUTPUT"
+            echo "local_missing_on_remote=false" >> "$GITHUB_OUTPUT"
+            echo "remote_missing_in_repo=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          LOCAL_SORTED="$(printf '%s\n' "${LOCAL_VERSIONS[@]}" | awk 'NF' | sort -u)"
+          REMOTE_SORTED="$(printf '%s\n' "$REMOTE_VERSIONS" | awk 'NF' | sort -u)"
+
+          LOCAL_ONLY="$(comm -23 <(printf '%s\n' "$LOCAL_SORTED") <(printf '%s\n' "$REMOTE_SORTED"))"
+          REMOTE_ONLY="$(comm -13 <(printf '%s\n' "$LOCAL_SORTED") <(printf '%s\n' "$REMOTE_SORTED"))"
+
+          echo "compare_status=ok" >> "$GITHUB_OUTPUT"
+          echo "local_missing_on_remote=$([ -n "$LOCAL_ONLY" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "remote_missing_in_repo=$([ -n "$REMOTE_ONLY" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "local_only_versions<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$LOCAL_ONLY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "remote_only_versions<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$REMOTE_ONLY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## 🔄 Remote migration history"
+            echo ""
+            echo "- Local migration versions: ${#LOCAL_VERSIONS[@]}"
+            echo "- Remote-only versions: $([ -n "$REMOTE_ONLY" ] && echo yes || echo no)"
+            echo "- Local-only versions: $([ -n "$LOCAL_ONLY" ] && echo yes || echo no)"
+            if [ -n "$LOCAL_ONLY" ]; then
+              echo ""
+              echo "### Local versions pending on remote"
+              printf '%s\n' "$LOCAL_ONLY"
+            fi
+            if [ -n "$REMOTE_ONLY" ]; then
+              echo ""
+              echo "### Remote versions missing in repo"
+              printf '%s\n' "$REMOTE_ONLY"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ── 9. Apply pending migrations (main branches only) ─────────────────────
       - name: Apply pending migrations
         id: apply
         if: |
-          github.event_name != 'pull_request' &&
-          (github.ref == 'refs/heads/main' ||
-           github.ref == 'refs/heads/completedream' ||
-           github.ref == 'refs/heads/develop') &&
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
+          ) &&
           (steps.changed.outputs.migrations_changed == 'true' ||
-           inputs.force_apply == true) &&
+            steps.compare.outputs.local_missing_on_remote == 'true' ||
+             inputs.force_apply == true) &&
           env.DATABASE_URL != ''
         shell: bash
         run: |
@@ -381,42 +463,133 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      # ── 9. Regenerate Supabase TypeScript types ───────────────────────────────
+      # ── 10. Pull remote drift back into the repo when needed ──────────────────
+      - name: Sync remote schema drift into migrations
+        id: drift
+        if: |
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
+          ) &&
+          steps.apply.outputs.apply_status != 'warning' &&
+          env.DATABASE_URL != ''
+        shell: bash
+        run: |
+          DIFF_FILE=/tmp/sql-guard-remote-drift.sql
+          LOG_FILE=/tmp/sql-guard-remote-drift.log
+
+          if ! supabase db diff --from migrations --to "$DATABASE_URL" --schema public --output "$DIFF_FILE" >"$LOG_FILE" 2>&1; then
+            echo "⚠️ Unable to diff remote schema against repo migrations."
+            cat "$LOG_FILE" || true
+            echo "drift_status=warning" >> "$GITHUB_OUTPUT"
+            echo "drift_detected=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Use case-insensitive matching because Supabase diff output can vary in keyword casing.
+          if [ -s "$DIFF_FILE" ] && grep -Eiq '^(create|alter|drop|grant|revoke|comment)\b' "$DIFF_FILE"; then
+            TIMESTAMP=$(date -u +%Y%m%d%H%M%S)
+            MIGRATION_FILE="supabase/migrations/${TIMESTAMP}_remote_schema_sync.sql"
+
+            {
+              echo "-- Remote schema sync generated by SQL Migration Guard"
+              echo "-- Source: completedream branch migration state → remote Supabase"
+              echo "-- Review before merging if your remote schema was changed manually."
+              echo ""
+              cat "$DIFF_FILE"
+            } > "$MIGRATION_FILE"
+
+            echo "drift_status=ok" >> "$GITHUB_OUTPUT"
+            echo "drift_detected=true" >> "$GITHUB_OUTPUT"
+            echo "drift_migration_file=$MIGRATION_FILE" >> "$GITHUB_OUTPUT"
+          else
+            echo "drift_status=ok" >> "$GITHUB_OUTPUT"
+            echo "drift_detected=false" >> "$GITHUB_OUTPUT"
+            echo "No remote-only schema drift detected."
+          fi
+
+      # ── 11. Refresh schema snapshot from remote Supabase ──────────────────────
+      - name: Refresh schema snapshot
+        id: schema
+        if: |
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
+          ) &&
+          steps.apply.outputs.apply_status != 'warning' &&
+          (
+            steps.changed.outputs.migrations_changed == 'true' ||
+            steps.compare.outputs.local_missing_on_remote == 'true' ||
+            steps.compare.outputs.remote_missing_in_repo == 'true' ||
+            steps.drift.outputs.drift_detected == 'true' ||
+            inputs.force_apply == true
+          ) &&
+          (env.SUPABASE_DB_URL != '' || env.DATABASE_URL != '')
+        shell: bash
+        run: |
+          TARGET_DB_URL="${SUPABASE_DB_URL:-$DATABASE_URL}"
+          echo "Refreshing supabase/schema-final.sql …"
+          supabase db dump \
+            --db-url "$TARGET_DB_URL" \
+            --schema public \
+            --file supabase/schema-final.sql
+          echo "schema_dumped=true" >> "$GITHUB_OUTPUT"
+          echo "✅ Schema snapshot refreshed."
+
+      # ── 12. Regenerate Supabase TypeScript types ───────────────────────────────
       - name: Regenerate Supabase types
         id: regen
         if: |
-          github.event_name != 'pull_request' &&
-          (github.ref == 'refs/heads/main' ||
-           github.ref == 'refs/heads/completedream' ||
-           github.ref == 'refs/heads/develop') &&
-          steps.changed.outputs.migrations_changed == 'true' &&
-          env.SUPABASE_DB_URL != ''
+          (
+            github.event_name == 'workflow_dispatch' ||
+            (github.event_name == 'push' && github.ref == 'refs/heads/completedream')
+          ) &&
+          steps.apply.outputs.apply_status != 'warning' &&
+          (
+            steps.changed.outputs.migrations_changed == 'true' ||
+            steps.compare.outputs.local_missing_on_remote == 'true' ||
+            steps.compare.outputs.remote_missing_in_repo == 'true' ||
+            steps.drift.outputs.drift_detected == 'true' ||
+            steps.schema.outputs.schema_dumped == 'true'
+          ) &&
+          (env.SUPABASE_DB_URL != '' || env.DATABASE_URL != '')
         shell: bash
         run: |
+          TARGET_DB_URL="${SUPABASE_DB_URL:-$DATABASE_URL}"
           echo "Regenerating types/supabase.ts …"
           supabase gen types typescript \
-            --db-url "$SUPABASE_DB_URL" \
+            --db-url "$TARGET_DB_URL" \
             --schema public > types/supabase.ts
           echo "regen_done=true" >> "$GITHUB_OUTPUT"
           echo "✅ TypeScript types regenerated."
 
-      # ── 10. Commit regenerated types ──────────────────────────────────────────
-      - name: Commit regenerated types
-        if: steps.regen.outputs.regen_done == 'true'
+      # ── 13. Commit synchronized schema artifacts ──────────────────────────────
+      - name: Commit synchronized schema artifacts
+        if: |
+          steps.regen.outputs.regen_done == 'true' ||
+          steps.schema.outputs.schema_dumped == 'true' ||
+          steps.drift.outputs.drift_detected == 'true'
         shell: bash
         run: |
           git config user.name  "sql-migration-guard"
           git config user.email "sql-migration-guard@users.noreply.github.com"
 
-          git add types/supabase.ts
+          git add supabase/migrations/ supabase/schema-final.sql types/supabase.ts
           if git diff --cached --quiet; then
-            echo "No type changes to commit."
+            echo "No schema artifacts changed."
           else
-            git commit -m "chore: regenerate supabase types [skip ci] [skip vercel]"
+            printf '%s\n' \
+              'chore: sync Supabase schema artifacts [skip ci] [skip vercel]' \
+              '' \
+              'Reasoning: SQL Migration Guard reconciled remote Supabase schema artifacts back into the repo so completedream stays aligned.' \
+              'Architecture justification: docs/ARCHITECTURE.md §10 keeps Supabase schema, types, and runtime assumptions stable.' \
+              'Performance impact: none.' \
+              > /tmp/sql-guard-sync-commit.txt
+            git commit -F /tmp/sql-guard-sync-commit.txt
             git push || echo "⚠️ Push failed."
           fi
 
-      # ── 11. Build check ───────────────────────────────────────────────────────
+      # ── 14. Build check ───────────────────────────────────────────────────────
       - name: Build check (pnpm build)
         shell: bash
         run: pnpm run build
@@ -424,7 +597,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-      # ── 12. PR comment ────────────────────────────────────────────────────────
+      # ── 15. PR comment ────────────────────────────────────────────────────────
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
@@ -504,7 +677,7 @@ jobs:
               });
             }
 
-      # ── 13. Final step summary ────────────────────────────────────────────────
+      # ── 16. Final step summary ────────────────────────────────────────────────
       - name: Summary
         if: always()
         shell: bash
@@ -518,6 +691,9 @@ jobs:
             echo "| Migrations changed | ${{ steps.changed.outputs.migrations_changed }} |"
             echo "| Tables missing migrations | ${{ steps.scan.outputs.has_missing }} |"
             echo "| Scaffold generated | ${{ steps.scaffold.outputs.migration_file != '' }} |"
+            echo "| Remote history compare | ${{ steps.compare.outputs.compare_status || 'skipped' }} |"
             echo "| Migration apply status | ${{ steps.apply.outputs.apply_status || 'skipped' }} |"
+            echo "| Remote drift detected | ${{ steps.drift.outputs.drift_detected || 'skipped' }} |"
+            echo "| Schema snapshot refreshed | ${{ steps.schema.outputs.schema_dumped || 'skipped' }} |"
             echo "| Types regenerated | ${{ steps.regen.outputs.regen_done || 'skipped' }} |"
           } >> "$GITHUB_STEP_SUMMARY"

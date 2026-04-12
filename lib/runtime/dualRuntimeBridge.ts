@@ -1,429 +1,172 @@
-// Pure TypeScript — no React. No 'use client' needed.
-/**
- * Dual Runtime Bridge — cross-Engin event bus.
- *
- * Allows any Daydream/Engin to publish and subscribe to events
- * from any other Daydream/Engin at runtime.
- *
- * Example: CodeEngin emits 'code:deploy-to-game' → GameEngin receives it
- *          CreateEngin emits 'create:export-asset' → BrandingEngin receives it
- *
- * Architecture justification: docs/ARCHITECTURE.md §1 (Daydream pair system).
- * All six canonical pairs are represented as typed channels.
- * Singleton pattern ensures one bus per runtime context.
- *
- * Privacy note: events must never carry raw user data across Engins without
- * explicit user intent — see docs/AXIOMS.md and docs/ARCHITECTURE.md §5.
- */
+'use client';
+import { EventEmitter } from 'events';
 
-// ─── Channel names ────────────────────────────────────────────────────────────
+// ── Channel types ──────────────────────────────────────────────────────────────
 
-/**
- * All six canonical Daydream/Engin channels.
- * Maps to: docs/ARCHITECTURE.md §1 — Daydream pair system.
- */
 export type DualRuntimeChannel =
-  | 'music'   // Music Daydream / StarMakerEngin
-  | 'games'   // Games Daydream / GameEngin
-  | 'lab'     // Lab Daydream   / LabEngin
-  | 'code'    // Code Daydream  / CodeEngin
-  | 'brand'   // Brand Daydream / BrandingEngin
-  | 'create'; // Create Daydream / ContentEngin
+  | 'code'
+  | 'game'
+  | 'games'
+  | 'music'
+  | 'lab'
+  | 'brand'
+  | 'content'
+  | 'create';
 
-/**
- * Shape of all six channels with their event maps.
- */
-export interface DualRuntimeChannels {
-  music:  MusicChannelEvents;
-  games:  GamesChannelEvents;
-  lab:    LabChannelEvents;
-  code:   CodeChannelEvents;
-  brand:  BrandChannelEvents;
-  create: CreateChannelEvents;
-}
+// ── Event schema types (intentionally loose — channels define their own events) ─
 
-// ─── Per-channel event maps ───────────────────────────────────────────────────
-
-/** Events emitted by Music Daydream / StarMakerEngin */
-export interface MusicChannelEvents {
-  /** A track was released and is now available to other Engins */
-  'music:track-released': { trackId: string; title: string; artistId: string };
-  /** BPM changed — useful for syncing visual rhythm in GameEngin etc. */
-  'music:bpm-changed': { bpm: number; trackId: string };
-  /** A stem was isolated — other Engins can consume it */
-  'music:stem-ready': { stemType: 'vocals' | 'drums' | 'bass' | 'other'; url: string };
-  /** Upload completed — notify Create/Brand Engins */
-  'music:upload-complete': { fileId: string; mimeType: string; durationMs: number };
-}
-
-/** Events emitted by Games Daydream / GameEngin */
-export interface GamesChannelEvents {
-  /** A score was submitted — Brand Daydream may display leaderboard */
-  'games:score-submitted': { gameId: string; score: number; userId: string };
-  /** Play session started — useful for cross-Engin live presence */
-  'games:session-started': { gameId: string; gameTitle: string };
-  /** Play session ended */
-  'games:session-ended': { gameId: string; durationMs: number; finalScore?: number };
-  /** Achievement unlocked — Create Daydream can auto-post */
-  'games:achievement-unlocked': { achievementId: string; title: string; gameId: string };
-  /** Asset exported from world builder — Brand or Create Engins can use it */
-  'games:asset-exported': { assetId: string; assetType: 'sprite' | 'level' | 'audio'; url: string };
-}
-
-/** Events emitted by Lab Daydream / LabEngin */
-export interface LabChannelEvents {
-  /** Experiment result ready — Code Engin may render it */
-  'lab:result-ready': { experimentId: string; resultType: string; data: unknown };
-  /** Simulation started */
-  'lab:simulation-started': { simulationId: string; label: string };
-  /** Simulation completed */
-  'lab:simulation-complete': { simulationId: string; success: boolean; durationMs: number };
-  /** Quantum circuit measured — results available */
-  'lab:quantum-measured': { circuitId: string; qubits: number; results: Record<string, number> };
-  /** Data exported from lab — Create Engin can publish it */
-  'lab:data-exported': { exportId: string; format: 'csv' | 'json' | 'pdf'; url: string };
-  /** User triggered a lab script run — LabEngin preview listens to render */
-  'lab:run': { language: string; code: string; simId: string };
-  /** Lab script output ready — preview panel receives streamed lines */
-  'lab:result': { lines: string[]; status: 'done' | 'error' };
-}
-
-/** Events emitted by Code Daydream / CodeEngin */
-export interface CodeChannelEvents {
-  /** A cell was executed — Lab can consume the output */
-  'code:cell-executed': { cellId: string; language: string; outputType: 'text' | 'chart' | 'error' };
-  /** Deployment triggered — Brand Engin can show live status */
-  'code:deploy-to-game': { projectId: string; targetEnv: string; commitSha: string };
-  /** Build succeeded */
-  'code:build-success': { projectId: string; buildId: string; durationMs: number };
-  /** Build failed */
-  'code:build-failed': { projectId: string; buildId: string; error: string };
-  /** Notebook exported — Create Engin can publish it */
-  'code:notebook-exported': { notebookId: string; format: 'html' | 'pdf' | 'ipynb'; url: string };
-  /** User triggered a code run — CodeEngin preview listens to render */
-  'code:run': { language: string; code: string; engine: string };
-  /** Code execution output ready — preview panel receives streamed lines */
-  'code:output': { lines: string[]; status: 'done' | 'error' };
-}
-
-/** Events emitted by Brand Daydream / BrandingEngin */
-export interface BrandChannelEvents {
-  /** Campaign launched */
-  'brand:campaign-launched': { campaignId: string; title: string; targetAudience: string };
-  /** Campaign paused */
-  'brand:campaign-paused': { campaignId: string; reason?: string };
-  /** Brand asset updated — other Engins should refresh */
-  'brand:asset-updated': { assetType: 'logo' | 'color-palette' | 'font' | 'banner'; assetId: string };
-  /** Analytics snapshot ready — Create Engin can include in reports */
-  'brand:analytics-snapshot': { snapshotId: string; period: string; impressions: number; engagement: number };
-  /** Audience segment created */
-  'brand:segment-created': { segmentId: string; name: string; size: number };
-}
-
-/** Events emitted by Create Daydream / ContentEngin */
-export interface CreateChannelEvents {
-  /** Draft saved */
-  'create:draft-saved': { draftId: string; contentType: 'video' | 'image' | 'audio' | 'text'; title: string };
-  /** Content published */
-  'create:published': { contentId: string; platform: string; url?: string };
-  /** Asset exported — Brand or Games Engins can use it */
-  'create:export-asset': { assetId: string; assetType: string; url: string };
-  /** Publish queue updated */
-  'create:queue-updated': { queueLength: number; nextScheduledAt?: string };
-  /** Calendar event scheduled */
-  'create:calendar-event': { eventId: string; scheduledAt: string; contentType: string };
-}
-
-// ─── Typed event lookup helpers ───────────────────────────────────────────────
-
-/** Union of all event keys for a given channel */
-export type ChannelEventKey<C extends DualRuntimeChannel> =
-  keyof DualRuntimeChannels[C] & string;
-
-/** Payload type for a given channel + event key */
-export type ChannelEventPayload<
-  C extends DualRuntimeChannel,
-  K extends ChannelEventKey<C>
-> = DualRuntimeChannels[C][K];
-
-// ─── Handler types ────────────────────────────────────────────────────────────
-
-export type BridgeEventHandler<P = unknown> = (payload: P) => void;
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type ChannelEventKey<_C extends DualRuntimeChannel> = string;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type ChannelEventPayload<_C extends DualRuntimeChannel, _K extends string> = Record<string, unknown>;
+export type BridgeEventHandler<P = Record<string, unknown>> = (payload: P) => void;
 export type UnsubscribeFn = () => void;
 
-// ─── Peer activity tracking ───────────────────────────────────────────────────
+// ── Peer state ────────────────────────────────────────────────────────────────
 
-/** Represents the activity state of a single channel/Engin */
 export interface PeerState {
-  channel: DualRuntimeChannel;
-  /** Number of active subscribers on this channel */
+  channel: string;
   subscriberCount: number;
-  /** Timestamp (ms) of the last event emitted on this channel */
   lastActivityAt: number | null;
 }
 
-export type PeerActivityObserver = (peers: readonly PeerState[]) => void;
-
-export interface BridgeEmission<
-  C extends DualRuntimeChannel = DualRuntimeChannel,
-  K extends ChannelEventKey<C> = ChannelEventKey<C>
-> {
-  channel: C;
-  event: K;
-  payload: ChannelEventPayload<C, K>;
-  emittedAt: number;
-}
+// ── Emission record ───────────────────────────────────────────────────────────
 
 export interface AnyBridgeEmission {
-  channel: DualRuntimeChannel;
+  channel: string;
   event: string;
-  payload: unknown;
+  payload: Record<string, unknown>;
   emittedAt: number;
 }
 
-export type BridgeEventObserver = (emission: AnyBridgeEmission) => void;
+// ── The 6-Channel Virtual Bus for the Online Economy ──────────────────────────
 
-// ─── Singleton event bus ──────────────────────────────────────────────────────
-
-/**
- * Internal listener registry.
- * Shape: Map<channel, Map<event, Set<handler>>>
- */
-type ListenerMap = Map<string, Map<string, Set<BridgeEventHandler>>>;
-
-/**
- * DualRuntimeBridge — singleton cross-Engin event bus.
- *
- * Use the exported `bridge` singleton directly, or access it via
- * `useDualRuntime(channel)` hook in React components.
- */
-class DualRuntimeBridgeImpl {
-  private readonly listeners: ListenerMap = new Map();
-  private readonly peerActivity: Map<DualRuntimeChannel, PeerState>;
-  private readonly peerObservers = new Set<PeerActivityObserver>();
-  private readonly eventObservers = new Set<BridgeEventObserver>();
+class DualRuntimeBridge extends EventEmitter {
+  private readonly channelState: Map<string, unknown> = new Map();
+  private readonly peers: Map<string, PeerState> = new Map();
+  private readonly peerListeners: Set<(peers: readonly PeerState[]) => void> = new Set();
+  private readonly emissionListeners: Set<(emission: AnyBridgeEmission) => void> = new Set();
 
   constructor() {
-    const channels: DualRuntimeChannel[] = [
-      'music', 'games', 'lab', 'code', 'brand', 'create',
-    ];
-    this.peerActivity = new Map(
-      channels.map((ch) => [
-        ch,
-        { channel: ch, subscriberCount: 0, lastActivityAt: null },
-      ]),
-    );
+    super();
+    this.setMaxListeners(100);
   }
 
-  /**
-   * Emit an event on a channel.
-   *
-   * @param channel  - One of the 6 canonical Daydream/Engin channels
-   * @param event    - Typed event key for that channel
-   * @param payload  - Typed payload for that event
-   *
-   * @example
-   * bridge.emit('music', 'music:bpm-changed', { bpm: 128, trackId: 'abc' });
-   */
-  emit<
-    C extends DualRuntimeChannel,
-    K extends ChannelEventKey<C>
-  >(
-    channel: C,
-    event: K,
-    payload: ChannelEventPayload<C, K>,
-  ): void {
-    const emittedAt = Date.now();
-    // Update peer activity
-    const peer = this.peerActivity.get(channel);
-    if (peer) {
-      peer.lastActivityAt = emittedAt;
-      this.notifyPeerObservers();
-    }
+  // ── Channel emission ───────────────────────────────────────────────────────
 
-    // The observer interface is intentionally channel-agnostic, so the emitted
-    // object is widened here before broadcasting to global observers.
-    this.notifyEventObservers({
-      channel,
-      event,
-      payload,
-      emittedAt,
-    } as BridgeEmission<C, K>);
-
-    const channelListeners = this.listeners.get(channel);
-    if (!channelListeners) return;
-
-    const handlers = channelListeners.get(event as string);
-    if (!handlers || handlers.size === 0) return;
-
-    // Call all handlers (safe iterate with snapshot to avoid mutation issues)
-    const snapshot = Array.from(handlers);
-    for (const handler of snapshot) {
-      try {
-        handler(payload as unknown);
-      } catch (err) {
-        // Isolate handler errors so one bad subscriber cannot break others
-        console.error(
-          `[DualRuntimeBridge] Handler error on ${channel}:${String(event)}`,
-          err,
-        );
-      }
-    }
+  /** Emit an event on a named channel. Primary public API for cross-Engin events. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  emit(channel: string, event: string, payload: Record<string, any>): boolean {
+    const key = `${channel}:${event}`;
+    const ts = Date.now();
+    this.channelState.set(channel, payload);
+    super.emit(key, payload);
+    this._touchPeer(channel);
+    this._notifyEmissionListeners({ channel, event, payload, emittedAt: ts });
+    return true;
   }
 
-  /**
-   * Subscribe to an event on a channel.
-   *
-   * @returns An unsubscribe function — call it in cleanup (e.g. useEffect return).
-   *
-   * @example
-   * const unsub = bridge.subscribe('games', 'games:score-submitted', (payload) => {
-   *   console.log('New score:', payload.score);
-   * });
-   * // later:
-   * unsub();
-   */
-  subscribe<
-    C extends DualRuntimeChannel,
-    K extends ChannelEventKey<C>
-  >(
-    channel: C,
-    event: K,
-    handler: BridgeEventHandler<ChannelEventPayload<C, K>>,
+  /** Legacy: emit a bulk update to a channel (used by connectors & adapters). */
+  emitToChannel(channel: string, data: unknown) {
+    this.channelState.set(channel, data);
+    super.emit(`channel:${channel}`, data);
+    super.emit('global_update', { channel, data });
+    this._touchPeer(channel);
+  }
+
+  getChannelState(channel: string) {
+    return this.channelState.get(channel) ?? null;
+  }
+
+  // ── Event subscriptions ────────────────────────────────────────────────────
+
+  /** Subscribe to a specific channel:event. Returns an unsubscribe function. */
+  subscribe(
+    channel: string,
+    event: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    handler: (payload: Record<string, any>) => void,
   ): UnsubscribeFn {
-    if (!this.listeners.has(channel)) {
-      this.listeners.set(channel, new Map());
-    }
-    const channelListeners = this.listeners.get(channel)!;
-
-    if (!channelListeners.has(event as string)) {
-      channelListeners.set(event as string, new Set());
-    }
-    const handlers = channelListeners.get(event as string)!;
-
-    // Cast: internal storage is BridgeEventHandler<unknown>
-    const castHandler = handler as BridgeEventHandler;
-    handlers.add(castHandler);
-
-    // Track subscriber count for peer activity
-    const peer = this.peerActivity.get(channel);
-    if (peer) {
-      peer.subscriberCount += 1;
-      this.notifyPeerObservers();
-    }
-
-    // Return unsubscribe
+    const key = `${channel}:${event}`;
+    this.on(key, handler);
+    this._incrementPeerSubscribers(channel);
     return () => {
-      handlers.delete(castHandler);
-      const peerOnUnsub = this.peerActivity.get(channel);
-      if (peerOnUnsub) {
-        peerOnUnsub.subscriberCount = Math.max(0, peerOnUnsub.subscriberCount - 1);
-        this.notifyPeerObservers();
-      }
+      this.off(key, handler);
+      this._decrementPeerSubscribers(channel);
     };
   }
 
-  /**
-   * Get the current peer activity states for all six channels.
-   * Useful for showing which Engins are "live" in the UI.
-   */
+  // ── Peer activity ──────────────────────────────────────────────────────────
+
+  /** Subscribe to peer-activity changes. Returns an unsubscribe function. */
+  subscribePeerActivity(callback: (peers: readonly PeerState[]) => void): UnsubscribeFn {
+    this.peerListeners.add(callback);
+    callback(this.getPeers());
+    return () => { this.peerListeners.delete(callback); };
+  }
+
+  /** Return a snapshot of all peer states. */
   getPeers(): readonly PeerState[] {
-    return Array.from(this.peerActivity.values());
+    return Array.from(this.peers.values());
   }
 
-  /**
-   * Get the peer state for a single channel.
-   */
-  getPeer(channel: DualRuntimeChannel): PeerState | undefined {
-    return this.peerActivity.get(channel);
+  // ── Emission activity ──────────────────────────────────────────────────────
+
+  /** Subscribe to all bridge emissions (any channel/event). Used by dreamOSBus. */
+  subscribeEventActivity(callback: (emission: AnyBridgeEmission) => void): UnsubscribeFn {
+    this.emissionListeners.add(callback);
+    return () => { this.emissionListeners.delete(callback); };
   }
 
-  subscribePeerActivity(observer: PeerActivityObserver): UnsubscribeFn {
-    this.peerObservers.add(observer);
-    observer(this.getPeers());
-    return () => {
-      this.peerObservers.delete(observer);
-    };
+  // ── Private helpers ────────────────────────────────────────────────────────
+
+  private _touchPeer(channel: string) {
+    const existing = this.peers.get(channel);
+    this.peers.set(channel, {
+      channel,
+      subscriberCount: existing?.subscriberCount ?? 0,
+      lastActivityAt: Date.now(),
+    });
+    this._notifyPeerListeners();
   }
 
-  subscribeEventActivity(observer: BridgeEventObserver): UnsubscribeFn {
-    this.eventObservers.add(observer);
-    return () => {
-      this.eventObservers.delete(observer);
-    };
+  private _incrementPeerSubscribers(channel: string) {
+    const existing = this.peers.get(channel);
+    this.peers.set(channel, {
+      channel,
+      subscriberCount: (existing?.subscriberCount ?? 0) + 1,
+      lastActivityAt: existing?.lastActivityAt ?? null,
+    });
+    this._notifyPeerListeners();
   }
 
-  /**
-   * Remove all listeners for a given channel.
-   * Use only for full teardown/testing.
-   */
-  clearChannel(channel: DualRuntimeChannel): void {
-    this.listeners.delete(channel);
-    const peer = this.peerActivity.get(channel);
-    if (peer) {
-      peer.subscriberCount = 0;
-    }
-    this.notifyPeerObservers();
+  private _decrementPeerSubscribers(channel: string) {
+    const existing = this.peers.get(channel);
+    if (!existing) return;
+    this.peers.set(channel, {
+      ...existing,
+      subscriberCount: Math.max(0, existing.subscriberCount - 1),
+    });
+    this._notifyPeerListeners();
   }
 
-  /**
-   * Remove all listeners from all channels.
-   * Use only for full teardown/testing.
-   */
-  clearAll(): void {
-    this.listeners.clear();
-    for (const peer of this.peerActivity.values()) {
-      peer.subscriberCount = 0;
-    }
-    this.notifyPeerObservers();
-  }
-
-  private notifyPeerObservers(): void {
-    if (this.peerObservers.size === 0) return;
+  private _notifyPeerListeners() {
     const snapshot = this.getPeers();
-    for (const observer of Array.from(this.peerObservers)) {
-      try {
-        observer(snapshot);
-      } catch (error) {
-        console.error('[DualRuntimeBridge] Peer observer error', error);
-      }
+    for (const listener of this.peerListeners) {
+      listener(snapshot);
     }
   }
 
-  private notifyEventObservers(emission: AnyBridgeEmission): void {
-    if (this.eventObservers.size === 0) return;
-    for (const observer of Array.from(this.eventObservers)) {
-      try {
-        observer(emission);
-      } catch (error) {
-        console.error('[DualRuntimeBridge] Event observer error', error);
-      }
+  private _notifyEmissionListeners(emission: AnyBridgeEmission) {
+    for (const listener of this.emissionListeners) {
+      listener(emission);
     }
   }
 }
 
-// ─── Singleton export ─────────────────────────────────────────────────────────
+export const enginBridge = new DualRuntimeBridge();
 
-/**
- * The singleton Dual Runtime Bridge instance.
- *
- * Import and use this directly in server-safe modules or Engin logic.
- * In React components, prefer `useDualRuntime(channel)` hook instead.
- *
- * @example
- * import { bridge } from '@/lib/runtime/dualRuntimeBridge';
- *
- * // Emit from ContentEngin:
- * bridge.emit('create', 'create:published', { contentId: 'xyz', platform: 'instagram' });
- *
- * // Subscribe in BrandingEngin:
- * const unsub = bridge.subscribe('create', 'create:published', ({ contentId }) => {
- *   refreshBrandAnalytics(contentId);
- * });
- */
-export const bridge = new DualRuntimeBridgeImpl();
+/** Canonical alias used throughout the codebase. */
+export const bridge = enginBridge;
 
-// ─── Re-export class type for advanced usage ──────────────────────────────────
 
-export type DualRuntimeBridge = InstanceType<typeof DualRuntimeBridgeImpl>;

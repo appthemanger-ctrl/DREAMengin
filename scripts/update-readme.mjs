@@ -20,8 +20,8 @@
 import { execSync }                          from 'child_process';
 import { readFileSync, writeFileSync,
          appendFileSync, readdirSync,
-         existsSync }                        from 'fs';
-import { resolve, dirname }                  from 'path';
+         existsSync, statSync }              from 'fs';
+import { resolve, dirname, join }            from 'path';
 import { fileURLToPath }                     from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -96,6 +96,89 @@ const workflowCount = existsSync(resolve(ROOT, '.github/workflows'))
   ? readdirSync(resolve(ROOT, '.github/workflows')).filter(f => f.endsWith('.yml') || f.endsWith('.yaml')).length
   : 0;
 
+// ── 4a. Build a live file-structure tree (2 levels deep) ──────────────────────
+
+/**
+ * Returns a markdown code-block with the top-level repo structure,
+ * expanding key directories one level deeper.  Hidden dirs, node_modules,
+ * .next, and large generated directories are skipped.
+ */
+function buildFileStructure() {
+  const SKIP = new Set([
+    'node_modules', '.next', '.git', 'dist', 'out', '.turbo', 'coverage',
+    '.vercel', '.cache', '__pycache__',
+  ]);
+
+  // Directories we want to expand to show their immediate children
+  const EXPAND = new Set([
+    'app', 'components', 'lib', 'docs', 'scripts', 'tests',
+    '.github', 'build-memory', 'hooks', 'types', 'public',
+  ]);
+
+  function icon(name, isDir) {
+    if (!isDir) return '📄';
+    const icons = {
+      app: '📱', components: '🧩', lib: '📚', docs: '📋',
+      scripts: '⚙️', tests: '🧪', '.github': '🔧', 'build-memory': '🧠',
+      hooks: '🪝', types: '🏷️', public: '🌐',
+    };
+    return icons[name] || '📁';
+  }
+
+  const entries = readdirSync(ROOT)
+    .filter(n => !SKIP.has(n) && !n.startsWith('.') || n === '.github')
+    .sort((a, b) => {
+      // dirs first
+      const aDir = statSync(join(ROOT, a)).isDirectory();
+      const bDir = statSync(join(ROOT, b)).isDirectory();
+      if (aDir && !bDir) return -1;
+      if (!aDir && bDir) return 1;
+      return a.localeCompare(b);
+    });
+
+  const lines = [];
+  lines.push('```');
+  lines.push('DREAMengin/');
+
+  for (const name of entries) {
+    const abs   = join(ROOT, name);
+    const isDir = statSync(abs).isDirectory();
+    const prefix = icon(name, isDir);
+    lines.push(`├── ${prefix} ${name}${isDir ? '/' : ''}`);
+
+    if (isDir && EXPAND.has(name)) {
+      let children;
+      try {
+        children = readdirSync(abs)
+          .filter(c => !SKIP.has(c) && !c.startsWith('.'))
+          .sort((a, b) => {
+            const aD = statSync(join(abs, a)).isDirectory();
+            const bD = statSync(join(abs, b)).isDirectory();
+            if (aD && !bD) return -1;
+            if (!aD && bD) return 1;
+            return a.localeCompare(b);
+          })
+          .slice(0, 20); // cap at 20 children to keep output readable
+      } catch {
+        children = [];
+      }
+      const shown = children.slice(0, 18);
+      const rest  = children.length - shown.length;
+      for (const child of shown) {
+        const childAbs = join(abs, child);
+        const childDir = statSync(childAbs).isDirectory();
+        lines.push(`│   ├── ${childDir ? '📁' : '📄'} ${child}${childDir ? '/' : ''}`);
+      }
+      if (rest > 0) {
+        lines.push(`│   └── … and ${rest} more`);
+      }
+    }
+  }
+
+  lines.push('```');
+  return lines.join('\n');
+}
+
 // ── 4. Build the AI Agent Context block ───────────────────────────────────────
 
 function buildAIContextBlock() {
@@ -112,9 +195,9 @@ function buildAIContextBlock() {
 ### What This Repo Is
 
 DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+** (App Router),
-**TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 8+**.
+**TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 9+**.
 It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
-Author: José Mancilla · pnpm 10.30.0 · Node 24
+Author: José Mancilla · pnpm 10.30.0 · Node 25
 
 ---
 
@@ -167,6 +250,13 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 | \`tests/\` | Vitest test suite (${testCount} test files) |
 | \`scripts/\` | Maintenance and automation scripts |
 | \`build-memory/\` | Auto-generated build intelligence snapshots |
+
+---
+
+### 🗂️ File Structure
+<!-- FILE-STRUCTURE:START -->
+${buildFileStructure()}
+<!-- FILE-STRUCTURE:END -->
 
 ---
 

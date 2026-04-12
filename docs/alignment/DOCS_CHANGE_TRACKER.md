@@ -41,7 +41,7 @@ This file is the working list for the README-first documentation pass. It exists
 - `docs/BOOGIEMAN_POLICY.md`
 - `docs/THEME.md`
 - `docs/SECURITY.md`
-- `docs/SPEC.md`
+- `docs/REPO_COMPANION.md`
 - `docs/LAW.md`
 - `docs/BUGS.md`
 - `docs/HANDOFF.md`

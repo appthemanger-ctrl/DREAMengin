@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-05T07:51:04.128Z",
+  "generated_at": "2026-04-12T01:49:14.210Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 117,
+  "count": 118,
   "surfaces": [
     {
       "type": "page",
@@ -115,10 +115,6 @@
       "component": "AnalyticsDaydreamPage",
       "imports": [
         {
-          "name": "AnalyticsEngin",
-          "from": "@/components/daydream/AnalyticsEngin"
-        },
-        {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/AuthenticatedPageHeader"
         }
@@ -130,10 +126,6 @@
       "file": "app/daydream/brand/page.tsx",
       "component": "BrandDaydreamPage",
       "imports": [
-        {
-          "name": "BrandingEngin",
-          "from": "@/components/daydream/BrandingEngin"
-        },
         {
           "name": "BrandDaydreamDashboard",
           "from": "@/components/daydream/BrandDaydreamDashboard"
@@ -157,10 +149,6 @@
       "file": "app/daydream/code/page.tsx",
       "component": "CodeDaydreamPage",
       "imports": [
-        {
-          "name": "CodeEngin",
-          "from": "@/components/daydream/CodeEngin"
-        },
         {
           "name": "CodeDreamIDE",
           "from": "@/components/daydream/CodeDreamIDE"
@@ -197,10 +185,6 @@
       "component": "CreateDaydreamPage",
       "imports": [
         {
-          "name": "ContentEngin",
-          "from": "@/components/daydream/ContentEngin"
-        },
-        {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/AuthenticatedPageHeader"
         }
@@ -215,14 +199,22 @@
     },
     {
       "type": "page",
+      "path": "/daydream/field",
+      "file": "app/daydream/field/page.tsx",
+      "component": "DREAMfieldPage",
+      "imports": [
+        {
+          "name": "DREAMfield",
+          "from": "@/components/daydream/DREAMfield"
+        }
+      ]
+    },
+    {
+      "type": "page",
       "path": "/daydream/forge",
       "file": "app/daydream/forge/page.tsx",
       "component": "ForgeDaydreamPage",
       "imports": [
-        {
-          "name": "ForgeEngin",
-          "from": "@/components/daydream/ForgeEngin"
-        },
         {
           "name": "ForgeMomentumWidget",
           "from": "@/components/forge/ForgeMomentumWidget"
@@ -255,16 +247,8 @@
           "from": "@/components/games/AvatarMaker"
         },
         {
-          "name": "GameEngin",
-          "from": "@/components/daydream/GameEngin"
-        },
-        {
           "name": "OpenDaydreamSideBButton",
           "from": "@/components/daydream/OpenDaydreamSideBButton"
-        },
-        {
-          "name": "AutoOpenGameEngin",
-          "from": "@/components/daydream/AutoOpenGameEngin"
         },
         {
           "name": "AuthenticatedPageHeader",
@@ -285,10 +269,6 @@
       "file": "app/daydream/lab/page.tsx",
       "component": "LabDaydreamPage",
       "imports": [
-        {
-          "name": "LabEngin",
-          "from": "@/components/daydream/LabEngin"
-        },
         {
           "name": "LabDreamIDE",
           "from": "@/components/daydream/LabDreamIDE"
@@ -311,12 +291,7 @@
       "path": "/daydream/lab/portfolio",
       "file": "app/daydream/lab/portfolio/page.tsx",
       "component": "OptimizeroPage",
-      "imports": [
-        {
-          "name": "PortfolioEngin",
-          "from": "@/components/daydream/PortfolioEngin"
-        }
-      ]
+      "imports": []
     },
     {
       "type": "page",
@@ -334,10 +309,6 @@
         {
           "name": "SoundRecorder",
           "from": "@/components/music/SoundRecorder"
-        },
-        {
-          "name": "StarMakerEngin",
-          "from": "@/components/daydream/StarMakerEngin"
         },
         {
           "name": "AuthenticatedPageHeader",
@@ -825,12 +796,7 @@
       "path": "/homedream",
       "file": "app/homedream/page.tsx",
       "component": "Home",
-      "imports": [
-        {
-          "name": "HomeSystem",
-          "from": "@/components/home/HomeSystem"
-        }
-      ]
+      "imports": []
     },
     {
       "type": "page",

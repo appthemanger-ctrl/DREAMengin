@@ -1,5 +1,5 @@
-name: Setup Node 24
-description: Standard Node runtime for DREAMengin workflows
+name: Setup Node 25
+description: Standard Node 25 runtime for DREAMengin workflows
 
 runs:
   using: composite
@@ -9,5 +9,5 @@ runs:
         version: 10.30.0
     - uses: actions/setup-node@v4
       with:
-        node-version: 24
+        node-version: 25
         cache: pnpm

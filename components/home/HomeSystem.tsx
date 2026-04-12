@@ -3,8 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
-import StarfieldCanvas from '@/components/dreamengin/StarfieldCanvas';
-import DreamDMBar from '@/components/messaging/DreamDMBar';
+import DreamDMBar from '@/dreamdmbar/DreamDMBar';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { createClient } from '@/lib/supabase/client';
@@ -171,7 +170,6 @@ function HomeSystemInner({
 
   return (
     <>
-      <StarfieldCanvas />
 
       <div
         style={{

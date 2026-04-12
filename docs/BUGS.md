@@ -119,7 +119,7 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 |----------|---------|
 | [docs/LAW.md](./LAW.md) | Binding rules — code must conform |
 | [docs/AXIOMS.md](./AXIOMS.md) | Non-negotiable product principles |
-| [docs/SPEC.md](./SPEC.md) | Design system + interaction model |
+| [docs/REPO_COMPANION.md](./REPO_COMPANION.md) | Repo companion + alignment notes |
 | [docs/ARCHITECTURE.md](./ARCHITECTURE.md) | Navigation + platform architecture |
 | [docs/SECURITY.md](./SECURITY.md) | RLS, auth boundaries, privacy |
 | [docs/FEATURE_STATUS.md](./FEATURE_STATUS.md) | Live feature completion status |

@@ -1,7 +1,7 @@
 # ==========================================
 # Stage 1: Dependencies
 # ==========================================
-FROM node:24-bookworm-slim AS deps
+FROM node:25-bookworm-slim AS deps
 WORKDIR /app
 
 # Install dependencies only when needed
@@ -13,7 +13,7 @@ RUN corepack enable pnpm && \
 # ==========================================
 # Stage 2: Builder
 # ==========================================
-FROM node:24-bookworm-slim AS builder
+FROM node:25-bookworm-slim AS builder
 WORKDIR /app
 
 # Copy dependencies
@@ -30,7 +30,7 @@ RUN corepack enable pnpm && pnpm run build
 # ==========================================
 # Stage 3: Runner (Production)
 # ==========================================
-FROM node:24-bookworm-slim AS runner
+FROM node:25-bookworm-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

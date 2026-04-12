@@ -12,7 +12,7 @@
 
 import { useRouter } from 'next/navigation';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import StarMakerEngin from '@/components/daydream/StarMakerEngin';
+import StarMakerEngin from '@/engins/StarMakerEngin';
 
 const ACCENT = '#a855f7';
 const BACK_HREF = '/daydream/music';

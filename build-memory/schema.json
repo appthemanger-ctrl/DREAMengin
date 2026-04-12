@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-05T07:51:04.128Z",
+  "generated_at": "2026-04-12T01:49:14.210Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 125,
+  "count": 122,
   "tables": [
     {
       "table": "ad_campaigns",
@@ -800,12 +800,6 @@
         }
       ],
       "source": "types/supabase.ts"
-    },
-    {
-      "table": "avatars",
-      "columns": [],
-      "source": "code-only",
-      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
     },
     {
       "table": "board_posts",
@@ -1606,12 +1600,6 @@
       "source": "types/supabase.ts"
     },
     {
-      "table": "covers",
-      "columns": [],
-      "source": "code-only",
-      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
-    },
-    {
       "table": "creator_earnings",
       "columns": [
         {
@@ -2334,12 +2322,6 @@
         }
       ],
       "source": "types/supabase.ts"
-    },
-    {
-      "table": "images",
-      "columns": [],
-      "source": "code-only",
-      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
     },
     {
       "table": "intent_cache",
@@ -3380,12 +3362,6 @@
       "source": "20260405000001_dreamr_feed_registry.sql"
     },
     {
-      "table": "posts",
-      "columns": [],
-      "source": "code-only",
-      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
-    },
-    {
       "table": "profiles",
       "columns": [
         {
@@ -3898,6 +3874,12 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "user_actions",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
     },
     {
       "table": "user_blocks",

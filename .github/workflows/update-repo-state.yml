@@ -1,12 +1,10 @@
 name: Update Repository State
 
 on:
-  # Run on pushes to main branches (completedream restored — bot commits carry [skip vercel])
+  # Run on pushes to any branch
   push:
     branches:
-      - completedream
-      - main
-      - develop
+      - '**'
     # Skip if only REPO_STATE.md changed (avoid infinite loops)
     paths-ignore:
       - 'REPO_STATE.md'
@@ -50,7 +48,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -66,7 +64,7 @@ jobs:
             ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run repository state analyzer
         run: node scripts/analyze-repo-state.mjs
@@ -89,7 +87,18 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add REPO_STATE.md
           git commit -m "docs: auto-update REPO_STATE.md [skip ci] [skip vercel]"
-          git push
+
+          for attempt in 1 2 3; do
+            echo "Push attempt ${attempt}..."
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "✅ REPO_STATE.md updated successfully."
+              exit 0
+            fi
+            git pull --rebase origin ${{ github.ref_name }}
+          done
+
+          echo "❌ Failed to push after 3 attempts."
+          exit 1
 
       - name: Create summary
         if: always()
