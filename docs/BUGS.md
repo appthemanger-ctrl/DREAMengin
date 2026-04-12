@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 04:23 UTC  
-**Last updated:** 2026-04-12 04:23 UTC  
-**Triggered by commit:** `7b27b7e` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #478 from appthemanger-ctrl/copilot/wire-calibrate-device-sequence
+**Documentation Date:** 2026-04-12 08:57 UTC  
+**Last updated:** 2026-04-12 08:57 UTC  
+**Triggered by commit:** `1609059` on `copilot/update-jump-mechanics-and-enemies` by Copilot  
+**Commit message:** fix: resolve all game bugs across input, rendering, and hub registration
 
 ---
 
